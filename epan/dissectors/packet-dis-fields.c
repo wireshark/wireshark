@@ -918,7 +918,7 @@ gint parseField_Float(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNo
 
     return offset;
 }
-
+#if 0
 /* Parse a 4-byte floating-point value, given text label.
  */
 static gint parseField_Float_Text(tvbuff_t *tvb, proto_tree *tree, gint offset, gchar *charStr)
@@ -934,7 +934,7 @@ static gint parseField_Float_Text(tvbuff_t *tvb, proto_tree *tree, gint offset, 
 
     return offset;
 }
-
+#endif
 /* Parse an 8-byte floating-point value.
  */
 gint parseField_Double(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode)
