@@ -634,7 +634,7 @@ capture_if_refresh_if_list(void)
 {
   GtkWidget      *if_vb, *if_grid, *icon, *if_lb, *eb;
   GtkRequisition  requisition;
-  int             row = 0, height = 0, curr_height, curr_width;
+  int             row = 0, height = 0;
   guint           ifs;
   interface_t     device;
   const gchar    *addr_str;
@@ -798,7 +798,11 @@ capture_if_refresh_if_list(void)
 
     row++;
     if (row <= 20) {
-        /* Lets add up 20 rows of interfaces, otherwise the window may become too high */
+      /* Add up to 20 rows of interfaces, otherwise the window may become too high */
+      /* XXX: Testing on Windows & Fedora (Gtk2 & Gtk3) seems to show that the height
+       *      determined below is the same whether or not the 'get_preferred_size' in enclosed
+       *       in 'widget_show'/'widget_hide'
+       */
 #ifdef _WIN32
       gtk_widget_show(GTK_WIDGET(data.details_bt));
       gtk_widget_get_preferred_size(GTK_WIDGET(data.details_bt), &requisition, NULL);
@@ -816,19 +820,7 @@ capture_if_refresh_if_list(void)
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
   height += requisition.height + 40 + ifs;
 
-  if (cap_if_w) {
-    gtk_window_get_size(GTK_WINDOW(cap_if_w), &curr_width, &curr_height);
-#ifndef _WIN32
-    if (curr_height < height)
-        /* On windows, resetting the size regardless works around what appears to be a windows gtk bug
-         * with multiple nic's where the resulting dialog box is much smaller than it should be.
-         * note: the actual height calculation is not correct on Windows with varying
-         * number of interfaces but fine at this point in time. */
-#endif
-       gtk_window_resize(GTK_WINDOW(cap_if_w), curr_width, height);
-  }
-  else
-    gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
+  gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_show_all(cap_if_w);
 
@@ -870,7 +862,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       if (airpcap_if_active){
         /* XXX can never happen? */
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
-	  }
+      }
       airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
     }
   }
