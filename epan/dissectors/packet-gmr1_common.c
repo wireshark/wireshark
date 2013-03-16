@@ -74,8 +74,10 @@ const value_string gmr1_pd_short_vals[] = {
 /* ------------------------------------------------------------------------ */
 
 const value_string gmr1_ie_common_strings[] = {
-	{ 0, "Mobile Earth Station Classmark 2" },	/* [1] 11.5.1.6 */
-	{ 1, "Spare Half Octet" },			/* [1] 11.5.1.8 */
+	{ GMR1_IE_COM_CM2,
+	  "Mobile Earth Station Classmark 2" },		/* [1] 11.5.1.6 */
+	{ GMR1_IE_COM_SPARE_NIBBLE,
+	  "Spare Half Octet" },				/* [1] 11.5.1.8 */
 	{ 0, NULL}
 };
 
