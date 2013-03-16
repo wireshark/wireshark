@@ -1407,6 +1407,26 @@ sub check_snprintf_plus_strlen($$)
         }
 }
 
+sub check_included_files($$)
+{
+        my ($fileContentsRef, $filename) = @_;
+        my @incFiles;
+
+        # wsutils/wsgcrypt.h is our wrapper around gcrypt.h, it must be excluded from the tests
+        if ($filename =~ /wsgcrypt\.h/) {
+                return;
+        }
+
+        @incFiles = (${$fileContentsRef} =~ m/\#include \s* [<"](.+)[>"]/gox);
+        foreach (@incFiles) {
+                if ( m#(^|/+)gcrypt\.h$# ) {
+                        print STDERR "Warning: ".$filename." includes gcrypt.h directly. ".
+                                "Include wsutil/wsgrypt.h instead.\n";
+                        last;
+                }
+        }
+}
+ 
 sub check_proto_tree_add_XXX_encoding($$)
 {
         my ($fileContentsRef, $filename) = @_;
@@ -1869,6 +1889,10 @@ while ($_ = $ARGV[0])
         if ($check_hf) {
             $errorCount += check_hf_entries(\$fileContents, $filename);
         }
+
+        # check for files that we should not include directly
+        # this must be done before quoted strings (#include "file.h") are removed
+        check_included_files(\$fileContents, $filename);
 
         # Remove all the quoted strings
         $fileContents =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
