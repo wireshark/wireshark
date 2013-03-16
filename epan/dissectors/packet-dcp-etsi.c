@@ -36,7 +36,8 @@
 #include <string.h>
 
 /* forward reference */
-
+void proto_register_dcp_etsi(void);
+void proto_reg_handoff_dcp_etsi(void);
 static void dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static void dissect_pft (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static void dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
@@ -288,7 +289,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
                            fcount, fragments, rx_min
         );
-    got = ep_alloc(fcount*sizeof(guint32));
+    got = (guint32 *)ep_alloc(fcount*sizeof(guint32));
 
     /* make a list of the findex (offset) numbers of the fragments we have */
     fd = fragment_get(pinfo, seq, dcp_fragment_table);

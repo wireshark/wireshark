@@ -244,7 +244,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const gchar *frame_type = NULL;
     const gchar *modifier;
 
-    info=ep_alloc(80);
+    info=(char *)ep_alloc(80);
     switch (tvb_get_guint8(tvb, offset) & 0x03) {
 
     case XDLC_S:

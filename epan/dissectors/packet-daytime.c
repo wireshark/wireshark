@@ -29,6 +29,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_daytime(void);
+void proto_reg_handoff_daytime(void);
+
 static int proto_daytime = -1;
 static int hf_daytime_string = -1;
 

@@ -169,7 +169,7 @@ static const gchar* replace_entity(gchar* entity) {
 
 	*entity = '%';
 
-	replacement = g_hash_table_lookup(entities,entity);
+	replacement = (GString*)g_hash_table_lookup(entities,entity);
 
 	if (replacement) {
 		return replacement->str;
@@ -192,7 +192,7 @@ static const gchar* location(void) {
 
 static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
 	g_free(k);
-	g_string_free(v,TRUE);
+	g_string_free((GString*)v,TRUE);
 	return TRUE;
 }
 

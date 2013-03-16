@@ -213,6 +213,9 @@
 #define daap_asdp ("daap.songdatepurchased")
 */
 
+void proto_register_daap(void);
+void proto_reg_handoff_daap(void);
+
 static dissector_handle_t png_handle;
 
 /*XXX: Sorted by value definition since it appears that the "value" is just */

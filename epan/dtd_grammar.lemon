@@ -36,7 +36,7 @@
 #include "dtd_parse.h"
 
 static dtd_named_list_t* dtd_named_list_new(gchar* name, GPtrArray* list) {
-	dtd_named_list_t* nl = g_malloc(sizeof(dtd_named_list_t));
+	dtd_named_list_t* nl = g_new(dtd_named_list_t,1);
 
 	nl->name = name;
 	nl->list = list;
@@ -107,7 +107,7 @@ doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET
 	bd->proto_name = name;
     
     for( i = 0; i< bd->elements->len; i++) {
-        dtd_named_list_t* el = g_ptr_array_index(bd->elements,i);
+        dtd_named_list_t* el = (dtd_named_list_t*)g_ptr_array_index(bd->elements,i);
         
         g_ptr_array_add(root_elems,g_strdup(el->name));
     }

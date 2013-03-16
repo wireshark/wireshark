@@ -33,6 +33,8 @@
 /* proto_data cannot be static because it's referenced in the
  * print routines
  */
+void proto_register_data(void);
+
 int proto_data = -1;
 
 static int hf_data_data = -1;
@@ -58,7 +60,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
-				guint8 *real_data = tvb_memdup(tvb, 0, bytes);
+				guint8 *real_data = (guint8 *)tvb_memdup(tvb, 0, bytes);
 				data_tvb = tvb_new_child_real_data(tvb,real_data,bytes,bytes);
 				tvb_set_free_cb(data_tvb, g_free);
 				add_new_data_source(pinfo, data_tvb, "Not dissected data bytes");

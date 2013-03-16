@@ -46,6 +46,9 @@
 
 #define DB_LSP_PORT  17500
 
+void proto_register_db_lsp(void);
+void proto_reg_handoff_db_lsp(void);
+
 static int proto_db_lsp = -1;
 static int proto_db_lsp_disc = -1;
 

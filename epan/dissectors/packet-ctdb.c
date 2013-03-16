@@ -31,6 +31,9 @@
 #include <epan/expert.h>
 #include <epan/emem.h>
 
+void proto_register_ctdb(void);
+void proto_reg_handoff_ctdb(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ctdb = -1;
 static int hf_ctdb_length = -1;
@@ -616,7 +619,7 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	tkey[1].length=1;
 	tkey[1].key=&dst;
 	tkey[2].length=0;
-	ctdb_trans=se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
+	ctdb_trans=(ctdb_trans_t *)se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 
 	if(ctdb_trans){
 		ctdb_trans->response_in=pinfo->fd->num;
@@ -682,7 +685,7 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	tkey[1].length=1;
 	tkey[1].key=&dmaster;
 	tkey[2].length=0;
-	ctdb_trans=se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
+	ctdb_trans=(ctdb_trans_t *)se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 
 	if(ctdb_trans){
 		ctdb_display_trans(pinfo, tree, tvb, ctdb_trans);
@@ -748,7 +751,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	if(!pinfo->fd->flags.visited){
 		emem_tree_key_t tkey[4];
 
-		ctdb_control=se_alloc(sizeof(ctdb_control_t));
+		ctdb_control=se_new(ctdb_control_t);
 		ctdb_control->opcode=opcode;
 		ctdb_control->request_in=pinfo->fd->num;
 		ctdb_control->response_in=0;
@@ -772,7 +775,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		tkey[2].length=1;
 		tkey[2].key=&dst;
 		tkey[3].length=0;
-		ctdb_control=se_tree_lookup32_array(ctdb_controls, &tkey[0]);
+		ctdb_control=(ctdb_control_t *)se_tree_lookup32_array(ctdb_controls, &tkey[0]);
 	}
 
 
@@ -803,7 +806,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	tkey[2].length=1;
 	tkey[2].key=&src;
 	tkey[3].length=0;
-	ctdb_control=se_tree_lookup32_array(ctdb_controls, &tkey[0]);
+	ctdb_control=(ctdb_control_t *)se_tree_lookup32_array(ctdb_controls, &tkey[0]);
 
 	if(!ctdb_control){
 		return offset;
@@ -938,7 +941,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	if(!pinfo->fd->flags.visited){
 		emem_tree_key_t tkey[3];
 
-		ctdb_trans=se_alloc(sizeof(ctdb_trans_t));
+		ctdb_trans=se_new(ctdb_trans_t);
 		ctdb_trans->key_hash=keyhash;
 		ctdb_trans->request_in=pinfo->fd->num;
 		ctdb_trans->response_in=0;
@@ -958,7 +961,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 		tkey[1].length=1;
 		tkey[1].key=&caller;
 		tkey[2].length=0;
-		ctdb_trans=se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
+		ctdb_trans=(ctdb_trans_t *)se_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 	}
 
 	if(ctdb_trans){

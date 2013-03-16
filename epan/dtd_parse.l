@@ -301,7 +301,7 @@ squoted        ['][^\']*[']
 %%
 
 static dtd_token_data_t* new_token(gchar* text) {
-	dtd_token_data_t* t = g_malloc(sizeof(dtd_token_data_t));
+	dtd_token_data_t* t = g_new(dtd_token_data_t,1);
 
 	t->text = g_strdup(text);
 	t->location = g_strdup(location);
@@ -338,7 +338,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	DtdParseTrace(stderr, ">>");
 #endif
 
-	build_data = g_malloc(sizeof(dtd_build_data_t));
+	build_data = g_new(dtd_build_data_t,1);
 
 	build_data->proto_name = NULL;
 	build_data->media_type = NULL;

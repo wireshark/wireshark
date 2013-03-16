@@ -79,6 +79,9 @@
 #define DCCP_HDR_LEN_MAX (DCCP_HDR_LEN + DCCP_HDR_PKT_TYPES_LEN_MAX + \
                           DCCP_OPT_LEN_MAX)
 
+void proto_register_dccp(void);
+void proto_reg_handoff_dccp(void);
+
 /*
  * FF: please keep this list in sync with
  * http://www.iana.org/assignments/dccp-parameters/dccp-parameters.xml
@@ -629,7 +632,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint      options_len                = 0;
     e_dccphdr *dccph;
 
-    dccph = ep_alloc0(sizeof (e_dccphdr));
+    dccph = ep_new0(e_dccphdr);
 
     SET_ADDRESS(&dccph->ip_src, pinfo->src.type, pinfo->src.len,
                 pinfo->src.data);
@@ -718,9 +721,9 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             * reassembly? */
         if (dccp_check_checksum) {
             /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = pinfo->src.data;
+            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
             cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = pinfo->dst.data;
+            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
             cksum_vec[1].len = pinfo->dst.len;
             cksum_vec[2].ptr = (const guint8 *) &phdr;
             switch (pinfo->src.type) {

@@ -32,6 +32,9 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
 
+void proto_register_dbus(void);
+void proto_reg_handoff_dbus(void);
+
 static gboolean dbus_desegment = TRUE;
 
 static int hf_dbus_hdr = -1;

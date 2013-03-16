@@ -209,7 +209,7 @@ description_attr description=\042
 <LOADING>{xmlpi_start} BEGIN LOADING_XMLPI;
 <LOADING_XMLPI>{whitespace} ;
 <LOADING_XMLPI>{entityname} {
-	xmlpi = g_malloc(sizeof(ddict_xmlpi_t));
+	xmlpi = g_new(ddict_xmlpi_t,1);
 	xmlpi->name = g_strdup(yytext);
 	xmlpi->key = NULL;
 	xmlpi->value = NULL;
@@ -233,7 +233,7 @@ description_attr description=\042
 
 <LOADING>{start_entity} BEGIN ENTITY;
 <ENTITY>{entityname} {
-	entity_t* e = g_malloc(sizeof(entity_t));
+	entity_t* e = g_new(entity_t,1);
 	e->name = strdup(yytext);
 	e->next = ents.next;
 	ents.next = e;
@@ -361,7 +361,7 @@ description_attr description=\042
 <IN_DICT>{application_start} {
 	D(("application_start\n"));
 
-	appl = g_malloc(sizeof(ddict_application_t));
+	appl = g_new(ddict_application_t,1);
 	appl->name = NULL;
 	appl->code = 0;
 	appl->next = NULL;
@@ -383,7 +383,7 @@ description_attr description=\042
 <IN_APPL>{command_start}		{
 	D(("command_start\n"));
 
-	cmd = g_malloc(sizeof(ddict_cmd_t));
+	cmd = g_new(ddict_cmd_t,1);
 	cmd->name = NULL;
 	cmd->vendor = NULL;
 	cmd->code = 0;
@@ -404,7 +404,7 @@ description_attr description=\042
 <IN_APPL>{vendor_start} {
 	D(("vendor_start\n"));
 
-	vnd = g_malloc(sizeof(ddict_vendor_t));
+	vnd = g_new(ddict_vendor_t,1);
 	vnd->name = NULL;
 	vnd->code = 0;
 	vnd->next = NULL;
@@ -424,7 +424,7 @@ description_attr description=\042
 <IN_APPL>{typedefn_start} {
 	D(("typedefn_start\n"));
 
-	typedefn = g_malloc(sizeof(ddict_typedefn_t));
+	typedefn = g_new(ddict_typedefn_t,1);
 	typedefn->name = NULL;
 	typedefn->parent = NULL;
 	typedefn->next = NULL;
@@ -444,7 +444,7 @@ description_attr description=\042
 <IN_APPL>{avp_start}	{
 	D(("avp_start\n"));
 
-	avp = g_malloc(sizeof(ddict_avp_t));
+	avp = g_new(ddict_avp_t,1);
 	avp->name = NULL;
 	avp->description = NULL;
 	avp->vendor = NULL;
@@ -477,7 +477,7 @@ description_attr description=\042
 <IN_AVP>{gavp_start} {
 	D(("gavp_start\n"));
 
-	gavp = g_malloc(sizeof(ddict_gavp_t));
+	gavp = g_new(ddict_gavp_t,1);
 	gavp->name = NULL;
 	gavp->code = 0;
 	gavp->next = NULL;
@@ -495,7 +495,7 @@ description_attr description=\042
 <IN_AVP>{enum_start} {
 	D(("enum_start\n"));
 
-	enumitem = g_malloc(sizeof(ddict_enum_t));
+	enumitem = g_new(ddict_enum_t,1);
 	enumitem->name = NULL;
 	enumitem->code = 0;
 	enumitem->next = NULL;
@@ -563,11 +563,11 @@ void ddict_unused(void) {
 static void append_to_buffer(const char* txt, int len) {
 
 	if (strbuf == NULL) {
-		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);
+		read_ptr = write_ptr = strbuf = (char*)g_malloc(size_strbuf);
 	}
 
 	if ( (len_strbuf + len) >= size_strbuf ) {
-		read_ptr = strbuf = g_realloc(strbuf,size_strbuf *= 2);
+		read_ptr = strbuf = (char*)g_realloc(strbuf,size_strbuf *= 2);
 	}
 
 	write_ptr = strbuf + len_strbuf;
@@ -640,7 +640,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	write_ptr = NULL;
 	read_ptr = NULL;
 
-	dict = g_malloc(sizeof(ddict_t));
+	dict = g_new(ddict_t,1);
 	dict->applications = NULL;
 	dict->cmds = NULL;
 	dict->vendors = NULL;

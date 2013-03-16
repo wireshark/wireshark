@@ -33,6 +33,9 @@
 
 /**********************************************************************/
 
+void proto_register_cups(void);
+void proto_reg_handoff_cups(void);
+
 /* From cups/cups.h, GNU GPL, Copyright 1997-2001 by Easy Software Products. */
 typedef guint32 cups_ptype_t;           /**** Printer Type/Capability Bits ****/
 enum                                    /* Not a typedef'd enum so we can OR */
