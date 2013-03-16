@@ -342,6 +342,13 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   mask = (tvb_get_guint8(tvb, 1) & MASK_WS_MASK) >> 4;
   payload_offset = mask_offset + (mask ? 4 : 0);
 
+  if (payload_offset + payload_length < payload_length) {
+    /* Integer overflow, which means the packet contains a ridiculous
+     * payload length. Just take what we've got available.
+     * See bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8448 */
+    payload_length = tvb_reported_length_remaining(tvb, payload_offset);
+  }
+
   if(length < payload_offset + payload_length){
     /* XXXX Warning desegment_len is 32 bits */
     pinfo->desegment_len = payload_offset + payload_length - length;
