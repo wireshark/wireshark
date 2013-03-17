@@ -807,7 +807,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                                      "Number of Bytes in Buffer: %u",
                                      tvb_get_ntohl (tvb, offset));
             }
-            offset += 4;
+            /*offset += 4;*/
             break;
 
         case LONG_FORM:
@@ -842,9 +842,9 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                 proto_tree_add_text (tree, tvb, offset, 8,
                                      "Set Number: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
-                offset += 8;
+                /*offset += 8;*/
             } else
-                offset += 16;
+                /*offset += 16;*/
             break;
 
         case EXTENDED_FORM:
@@ -894,7 +894,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                                      "Number of Bytes in Buffer: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
             }
-            offset += 8;
+            /*offset += 8;*/
             break;
 
         default:
