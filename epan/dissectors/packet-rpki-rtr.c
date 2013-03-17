@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "packet-tcp.h"
 
 void proto_reg_handoff_rpkirtr(void);
 
@@ -104,7 +105,21 @@ static const true_false_string tfs_flag_type_aw = {
     "Withdrawal"
 };
 
-int dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static guint
+get_rpkirtr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+  guint32 plen;
+
+  /*
+  * Get the length of the RPKI-RTR packet.
+  */
+  plen = tvb_get_ntohl(tvb, offset+4);
+
+  return plen;
+}
+
+
+static void dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     proto_item *ti = NULL, *ti_flags;
@@ -225,10 +240,13 @@ int dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 break;
         }
     }
-    return offset;
 }
 
-
+static void
+dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, 1, 8, get_rpkirtr_pdu_len, dissect_rpkirtr_pdu);
+}
 
 void
 proto_register_rpkirtr(void)
@@ -361,7 +379,7 @@ proto_reg_handoff_rpkirtr(void)
 
     if (!initialized) {
 
-        rpkirtr_handle = new_create_dissector_handle(dissect_rpkirtr,
+        rpkirtr_handle = create_dissector_handle(dissect_rpkirtr,
                                                         proto_rpkirtr);
         ssl_handle           = find_dissector("ssl");
         initialized = TRUE;
