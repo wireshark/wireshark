@@ -221,7 +221,6 @@ static gboolean enable_decryption = FALSE;
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
 
 static int weak_iv(guchar *iv);
-#define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
 
 typedef struct mimo_control
 {
@@ -9531,59 +9530,59 @@ dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static void
 dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
-                      guint32 offset)
+                      guint32 offset, packet_info *pinfo)
 {
   guint16 fcf, flags, frame_type_subtype;
   proto_tree *fc_tree, *flag_tree;
-  proto_item *fc_item, *flag_item, *hidden_item;
+  proto_item *fc_item, *flag_item, *hidden_item, *ti;
 
   fcf = FETCH_FCF(offset);
 
   flags = FCF_FLAGS(fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
-  proto_tree_add_uint (tree, hf_ieee80211_fc_frame_type_subtype,
-    tvb, wlan_broken_fc?offset+1:offset, 1,
-    frame_type_subtype);
+  /* Swap offset... */
+  if(wlan_broken_fc)
+  {
+    offset += 1;
+  }
 
-  fc_item = proto_tree_add_uint_format (tree, hf_ieee80211_fc_field, tvb,
-    offset, 2, fcf, "Frame Control: 0x%04X (%s)",
-    fcf, wlan_broken_fc?"Swapped":"Normal");
+  proto_tree_add_uint(tree, hf_ieee80211_fc_frame_type_subtype, tvb, offset, 1, frame_type_subtype);
 
-  fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
+  fc_item = proto_tree_add_item(tree, hf_ieee80211_fc_field, tvb, offset, 2, ENC_NA);
 
-  proto_tree_add_uint (fc_tree, hf_ieee80211_fc_proto_version, tvb, wlan_broken_fc?offset+1:offset, 1,
-    FCF_PROT_VERSION (fcf));
+  fc_tree = proto_item_add_subtree(fc_item, ett_fc_tree);
 
-  proto_tree_add_uint (fc_tree, hf_ieee80211_fc_frame_type, tvb, wlan_broken_fc?offset+1:offset, 1,
-    FCF_FRAME_TYPE (fcf));
+  proto_tree_add_item(fc_tree, hf_ieee80211_fc_proto_version, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(fc_tree, hf_ieee80211_fc_frame_type, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(fc_tree, hf_ieee80211_fc_frame_subtype, tvb, offset, 1, ENC_NA);
+  offset += 1;
 
-  proto_tree_add_uint (fc_tree, hf_ieee80211_fc_frame_subtype, tvb, wlan_broken_fc?offset+1:offset, 1,
-    FCF_FRAME_SUBTYPE (fcf));
+  /* Reswap offset...*/
+  if(wlan_broken_fc)
+  {
+    offset -= 1;
+    proto_item_append_text(fc_item, "(Swapped)");
+  }
 
-  flag_item = proto_tree_add_uint_format (fc_tree, hf_ieee80211_fc_flags, tvb,
-    wlan_broken_fc?offset:offset+1, 1,
-    flags, "Flags: 0x%X", flags);
-
+  /* Flags */
+  flag_item = proto_tree_add_item(fc_tree, hf_ieee80211_fc_flags, tvb, offset, 1, ENC_NA);
   flag_tree = proto_item_add_subtree (flag_item, ett_proto_flags);
-  proto_tree_add_uint (flag_tree, hf_ieee80211_fc_data_ds, tvb, wlan_broken_fc?offset:offset+1, 1,
-    FLAGS_DS_STATUS (flags));
-  hidden_item = proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_to_ds, tvb, offset+1, 1, flags);
+  proto_tree_add_item (flag_tree, hf_ieee80211_fc_data_ds, tvb, offset, 1, ENC_NA);
+  hidden_item = proto_tree_add_item(flag_tree, hf_ieee80211_fc_to_ds, tvb, offset, 1, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
-  hidden_item = proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_from_ds, tvb, offset+1, 1, flags);
+  hidden_item = proto_tree_add_item(flag_tree, hf_ieee80211_fc_from_ds, tvb, offset, 1, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
-  proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_more_frag, tvb, wlan_broken_fc?offset:offset+1, 1,
-    flags);
-  proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_retry, tvb, wlan_broken_fc?offset:offset+1, 1,
-    flags);
-  proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_pwr_mgt, tvb, wlan_broken_fc?offset:offset+1, 1,
-    flags);
-  proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_more_data, tvb, wlan_broken_fc?offset:offset+1, 1,
-    flags);
-  proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_protected, tvb, wlan_broken_fc?offset:offset+1, 1,
-    flags);
-  proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_order, tvb, wlan_broken_fc?offset:offset+1, 1,
-    flags);
+  proto_tree_add_item(flag_tree, hf_ieee80211_fc_more_frag, tvb, offset, 1,ENC_NA);
+  ti = proto_tree_add_item(flag_tree, hf_ieee80211_fc_retry, tvb, offset, 1, ENC_NA);
+  if( IS_RETRY(flags) )
+  {
+    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE, "Retransmission (retry)");
+  }
+  proto_tree_add_item(flag_tree, hf_ieee80211_fc_pwr_mgt, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flag_tree, hf_ieee80211_fc_more_data, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flag_tree, hf_ieee80211_fc_protected, tvb, offset, 1,ENC_NA);
+  proto_tree_add_item(flag_tree, hf_ieee80211_fc_order, tvb, offset, 1, ENC_NA);
 }
 
 static void
@@ -12164,7 +12163,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                            "IEEE 802.11 %s", fts_str);
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
-      dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
+      dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0, pinfo);
       dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
     }
 
@@ -12284,7 +12283,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
           "Contained Frame Control");
         cw_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
-        dissect_frame_control(cw_tree, tvb, FALSE, offset);
+        dissect_frame_control(cw_tree, tvb, FALSE, offset, pinfo);
         dissect_ht_control(hdr_tree, tvb, offset + 2);
         offset += 6;
         cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
@@ -12812,7 +12811,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
         qos_tid = QOS_TID(qos_control);
         qos_priority = QOS_PRIORITY(qos_control);
-        qos_ack_policy = QOS_ACK_POLICY(qos_control);
+        qos_ack_policy = QOS_ACK_POLICY(qos_control);//toto
         qos_amsdu_present = QOS_AMSDU_PRESENT(qos_control);
         qos_eosp = QOS_EOSP(qos_control);
         qos_field_content = QOS_FIELD_CONTENT(qos_control);
@@ -13868,26 +13867,26 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_fc_proto_version,
      {"Version", "wlan.fc.version",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0x03,
       "MAC Protocol version", HFILL }},  /* 0 */
 
     {&hf_ieee80211_fc_frame_type,
      {"Type", "wlan.fc.type",
-      FT_UINT8, BASE_DEC, VALS(frame_type), 0,
+      FT_UINT8, BASE_DEC, VALS(frame_type), 0x0C,
       "Frame type", HFILL }},
 
     {&hf_ieee80211_fc_frame_subtype,
      {"Subtype", "wlan.fc.subtype",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0xF0,
       "Frame subtype", HFILL }},  /* 2 */
 
     {&hf_ieee80211_fc_frame_type_subtype,
      {"Type/Subtype", "wlan.fc.type_subtype",
-      FT_UINT8, BASE_HEX|BASE_EXT_STRING, &frame_type_subtype_vals_ext, 0,
+      FT_UINT8, BASE_HEX|BASE_EXT_STRING, &frame_type_subtype_vals_ext, 0x0,
       "Type and subtype combined (first byte: type, second byte: subtype)", HFILL }},
 
     {&hf_ieee80211_fc_flags,
-     {"Protocol Flags", "wlan.flags",
+     {"Flags", "wlan.flags",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
