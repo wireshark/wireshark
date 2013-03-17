@@ -1076,7 +1076,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             k_op = pdu_id | (company_id << 8);
             k_frame_number = pinfo->fd->num;
 
-            fragment = se_alloc(sizeof(fragment_t));
+            fragment = se_new(fragment_t);
             fragment->start_frame_number = pinfo->fd->num;
             fragment->end_frame_number = 0;
             fragment->state = 0;
@@ -1084,9 +1084,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             fragment->count = 1;
             fragment->fragments = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp fragments");
 
-            data_fragment = se_alloc(sizeof(data_fragment_t));
+            data_fragment = se_new(data_fragment_t);
             data_fragment->length = length;
-            data_fragment->data = se_alloc(data_fragment->length);
+            data_fragment->data = (guint8 *)se_alloc(data_fragment->length);
             tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
 
             se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
@@ -1144,7 +1144,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             key[6].length = 0;
             key[6].key = NULL;
 
-            fragment = se_tree_lookup32_array_le(reassembling, key);
+            fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
             if (fragment && fragment->interface_id == interface_id &&
                     fragment->adapter_id == adapter_id &&
                     fragment->chandle == chandle &&
@@ -1154,9 +1154,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fragment->count += 1;
                 fragment->state = 0;
 
-                data_fragment = se_alloc(sizeof(data_fragment_t));
+                data_fragment = se_new(data_fragment_t);
                 data_fragment->length = length;
-                data_fragment->data = se_alloc(data_fragment->length);
+                data_fragment->data = (guint8 *)se_alloc(data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
                 se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
@@ -1196,7 +1196,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         key[6].length = 0;
         key[6].key = NULL;
 
-        fragment = se_tree_lookup32_array_le(reassembling, key);
+        fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
         if (fragment && fragment->interface_id == interface_id &&
                     fragment->adapter_id == adapter_id &&
                     fragment->chandle == chandle &&
@@ -1207,9 +1207,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fragment->count += 1;
                 fragment->state = 2;
 
-                data_fragment = se_alloc(sizeof(data_fragment_t));
+                data_fragment = se_new(data_fragment_t);
                 data_fragment->length = length;
-                data_fragment->data = se_alloc(data_fragment->length);
+                data_fragment->data = (guint8 *)se_alloc(data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
                 se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
@@ -1219,14 +1219,14 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *pitem = NULL;
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
-                    data_fragment = se_tree_lookup32_le(fragment->fragments, i_frame);
+                    data_fragment = (data_fragment_t *)se_tree_lookup32_le(fragment->fragments, i_frame);
                     length += data_fragment->length;
                 }
 
-                reassembled = se_alloc(length);
+                reassembled = (guint8 *)se_alloc(length);
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
-                    data_fragment = se_tree_lookup32_le(fragment->fragments, i_frame);
+                    data_fragment = (data_fragment_t *)se_tree_lookup32_le(fragment->fragments, i_frame);
                     memcpy(reassembled + i_length,
                             data_fragment->data,
                             data_fragment->length);
@@ -1695,7 +1695,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     key[6].length = 0;
                     key[6].key = NULL;
 
-                    fragment = se_tree_lookup32_array_le(reassembling, key);
+                    fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
                     if (fragment && fragment->interface_id == interface_id &&
                             fragment->adapter_id == adapter_id &&
                             fragment->chandle == chandle &&
@@ -1746,7 +1746,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     key[6].length = 0;
                     key[6].key = NULL;
 
-                    fragment = se_tree_lookup32_array_le(reassembling, key);
+                    fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
                     if (fragment && fragment->interface_id == interface_id &&
                             fragment->adapter_id == adapter_id &&
                             fragment->chandle == chandle &&
@@ -2233,7 +2233,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     max_response_time = 100;
                 }
 
-                timing_info = se_alloc(sizeof(timing_info_t));
+                timing_info = se_new(timing_info_t);
                 timing_info->command_frame_number = pinfo->fd->num;
                 timing_info->command_timestamp = pinfo->fd->abs_ts;
                 timing_info->response_frame_number = 0;
@@ -2252,7 +2252,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 se_tree_insert32_array(timing, key, timing_info);
             } else {
-                timing_info = se_tree_lookup32_array_le(timing, key);
+                timing_info = (timing_info_t *)se_tree_lookup32_array_le(timing, key);
                 if (timing_info && timing_info->interface_id == interface_id &&
                         timing_info->adapter_id == adapter_id &&
                         timing_info->chandle == chandle &&
@@ -2297,7 +2297,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         }
 
-        timing_info = se_tree_lookup32_array_le(timing, key);
+        timing_info = (timing_info_t *)se_tree_lookup32_array_le(timing, key);
         if (timing_info && timing_info->interface_id == interface_id &&
                 timing_info->adapter_id == adapter_id &&
                 timing_info->chandle == chandle &&

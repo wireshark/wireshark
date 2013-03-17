@@ -354,17 +354,17 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel_lcl->rfc2198 > 0) {
-		encoding_name_and_rate_t *encoding_name_and_rate = se_alloc( sizeof(encoding_name_and_rate_t));
+		encoding_name_and_rate_t *encoding_name_and_rate = se_new(encoding_name_and_rate_t);
 		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
 		encoding_name_and_rate->encoding_name = se_strdup("red");
 		encoding_name_and_rate->sample_rate = 8000;
-		key = se_alloc(sizeof(gint));
+		key = se_new(gint);
 		*key = upcoming_channel_lcl->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
 	}
 
 	if (upcoming_channel_lcl->srtp_flag) {
-		dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+		dummy_srtp_info = se_new0(struct srtp_info);
 	}
 
 	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel_lcl->media_addr.addr.type, upcoming_channel_lcl->media_addr.port );
@@ -432,7 +432,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* assume that whilst there is more tvb data, there are more h245 commands */
 	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
-		h245_pi=ep_alloc(sizeof(h245_packet_info));
+		h245_pi=ep_new(h245_packet_info);
 		init_h245_packet_info(h245_pi);
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);

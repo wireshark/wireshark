@@ -1019,11 +1019,11 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
 
         /* Switch to the usb_conv_info of the Video Control interface */
         usb_conv_info = get_usb_iface_conv_info(pinfo, usb_conv_info->interfaceNum);
-        video_conv_info = usb_conv_info->class_data;
+        video_conv_info = (video_conv_info_t *)usb_conv_info->class_data;
 
         if (!video_conv_info)
         {
-            video_conv_info = se_alloc(sizeof(video_conv_info_t));
+            video_conv_info = se_new(video_conv_info_t);
             video_conv_info->entities = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
                                                                       "USBVIDEO Entities");
             usb_conv_info->class_data = video_conv_info;
@@ -1032,7 +1032,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
         entity = (video_entity_t*) se_tree_lookup32(video_conv_info->entities, entity_id);
         if (!entity)
         {
-            entity = se_alloc(sizeof(video_entity_t));
+            entity = se_new(video_entity_t);
             entity->entityID     = entity_id;
             entity->subtype      = subtype;
             entity->terminalType = terminal_type;
@@ -1489,7 +1489,7 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         usb_conv_info_t  *usb_conv_info;
 
-        usb_conv_info = pinfo->usb_conv_info;
+        usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
         if (usb_conv_info->interfaceSubclass == SC_VIDEOCONTROL)
         {
             offset = dissect_usb_video_control_interface_descriptor(tree, desc_tvb,
@@ -1602,7 +1602,7 @@ get_control_selector_values(guint8 entity_id, usb_conv_info_t *usb_conv_info)
     video_entity_t         *entity = NULL;
     const value_string_ext *selectors = NULL;
 
-    video_conv_info = usb_conv_info->class_data;
+    video_conv_info = (video_conv_info_t *)usb_conv_info->class_data;
     if (video_conv_info)
         entity = (video_entity_t*) se_tree_lookup32(video_conv_info->entities, entity_id);
 
@@ -2002,7 +2002,7 @@ dissect_usb_vid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     is_request = (pinfo->srcport == NO_ENDPOINT);
 
-    usb_conv_info  = pinfo->usb_conv_info;
+    usb_conv_info  = (usb_conv_info_t *)pinfo->usb_conv_info;
     usb_trans_info = usb_conv_info->usb_trans_info;
 
     /* See if we can find a class specific dissector for this request */
@@ -2054,7 +2054,7 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     gint bytes_available;
     int offset = 0;
 
-    usb_conv_info   = pinfo->usb_conv_info;
+    usb_conv_info   = (usb_conv_info_t *)pinfo->usb_conv_info;
     bytes_available = tvb_length_remaining(tvb, offset);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBVIDEO");

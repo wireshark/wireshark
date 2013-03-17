@@ -410,7 +410,7 @@ fgetline(char **buf, int *size, FILE *fp)
     if (*size == 0)
       *size = BUFSIZ;
 
-    *buf = g_malloc(*size);
+    *buf = (char *)g_malloc(*size);
   }
 
   g_assert(*buf);
@@ -422,7 +422,7 @@ fgetline(char **buf, int *size, FILE *fp)
   len = 0;
   while ((c = getc(fp)) != EOF && c != '\r' && c != '\n') {
     if (len+1 >= *size) {
-       *buf = g_realloc(*buf, *size += BUFSIZ);
+       *buf = (char *)g_realloc(*buf, *size += BUFSIZ);
     }
     (*buf)[len++] = c;
   }
@@ -950,7 +950,7 @@ solve_address_to_name(const address *addr)
   switch (addr->type) {
 
   case AT_ETHER:
-    return get_ether_name(addr->data);
+    return get_ether_name((const guint8 *)addr->data);
 
   case AT_IPv4: {
     guint32 ip4_addr;
@@ -965,7 +965,7 @@ solve_address_to_name(const address *addr)
   }
 
   case AT_STRINGZ:
-    return addr->data;
+    return (const gchar *)addr->data;
 
   default:
     return NULL;
@@ -978,7 +978,7 @@ se_solve_address_to_name(const address *addr)
   switch (addr->type) {
 
   case AT_ETHER:
-    return get_ether_name(addr->data);
+    return get_ether_name((const guint8 *)addr->data);
 
   case AT_IPv4: {
     guint32 ip4_addr;
@@ -993,7 +993,7 @@ se_solve_address_to_name(const address *addr)
   }
 
   case AT_STRINGZ:
-    return se_strdup(addr->data);
+    return se_strdup((const gchar *)addr->data);
 
   default:
     return NULL;
@@ -1327,7 +1327,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 
   /*
    * XXX - can we use Standard Annotation Language annotations to
-   * note that mask, as returned by parse_ether_address() (and thus
+   * note that mask, as returned by parse_ethe)r_address() (and thus
    * by the routines that call it, and thus passed to us) cannot be > 48,
    * or is SAL too weak to express that?
    */
@@ -2465,7 +2465,7 @@ host_name_lookup_init(void) {
 #endif /*GNU_ADNS */
 
   if (!addrinfo_list) {
-    ai = se_alloc0(sizeof(struct addrinfo));
+    ai = se_new0(struct addrinfo);
     addrinfo_list = addrinfo_list_last = ai;
   }
 
@@ -2822,15 +2822,15 @@ add_ipv4_name(const guint addr, const gchar *name)
   new_resolved_objects = TRUE;
 
   if (!addrinfo_list) {
-    ai = se_alloc0(sizeof(struct addrinfo));
+    ai = se_new0(struct addrinfo);
     addrinfo_list = addrinfo_list_last = ai;
   }
 
-  sa4 = se_alloc0(sizeof(struct sockaddr_in));
+  sa4 = se_new0(struct sockaddr_in);
   sa4->sin_family = AF_INET;
   sa4->sin_addr.s_addr = addr;
 
-  ai = se_alloc0(sizeof(struct addrinfo));
+  ai = se_new0(struct addrinfo);
   ai->ai_family = AF_INET;
   ai->ai_addrlen = sizeof(struct sockaddr_in);
   ai->ai_canonname = (char *) tp->name;
@@ -2880,15 +2880,15 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
   new_resolved_objects = TRUE;
 
   if (!addrinfo_list) {
-    ai = se_alloc0(sizeof(struct addrinfo));
+    ai = se_new0(struct addrinfo);
     addrinfo_list = addrinfo_list_last = ai;
   }
 
-  sa6 = se_alloc0(sizeof(struct sockaddr_in6));
+  sa6 = se_new0(struct sockaddr_in6);
   sa6->sin6_family = AF_INET;
   memcpy(sa6->sin6_addr.s6_addr, addrp, 16);
 
-  ai = se_alloc0(sizeof(struct addrinfo));
+  ai = se_new0(struct addrinfo);
   ai->ai_family = AF_INET6;
   ai->ai_addrlen = sizeof(struct sockaddr_in);
   ai->ai_canonname = (char *) tp->name;
@@ -2905,7 +2905,7 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 static gchar *
 ep_utoa(guint port)
 {
-  gchar *bp = ep_alloc(MAXNAMELEN);
+  gchar *bp = (gchar *)ep_alloc(MAXNAMELEN);
 
   /* XXX, guint32_to_str() ? */
   guint32_to_str_buf(port, bp, MAXNAMELEN);
@@ -3202,7 +3202,7 @@ get_eui64_name(const guint64 addr_eui64)
 {
   gchar *cur;
   hashmanuf_t  *mtp;
-  guint8 *addr = ep_alloc(8);
+  guint8 *addr = (guint8 *)ep_alloc(8);
 
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
@@ -3226,7 +3226,7 @@ get_eui64_name_if_known(const guint64 addr_eui64)
 {
   gchar *cur;
   hashmanuf_t  *mtp;
-  guint8 *addr = ep_alloc(8);
+  guint8 *addr = (guint8 *)ep_alloc(8);
 
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));

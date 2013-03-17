@@ -823,10 +823,10 @@ get_usb_conv_info(conversation_t *conversation)
     usb_conv_info_t *usb_conv_info;
 
     /* do we have conversation specific data ? */
-    usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
+    usb_conv_info = (usb_conv_info_t *)conversation_get_proto_data(conversation, proto_usb);
     if (!usb_conv_info) {
         /* no not yet so create some */
-        usb_conv_info = se_alloc0(sizeof(usb_conv_info_t));
+        usb_conv_info = se_new0(usb_conv_info_t);
         usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
         usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
         usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
@@ -1031,7 +1031,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_protocol_data = se_alloc(sizeof(device_protocol_data_t));
+        device_protocol_data = se_new(device_protocol_data_t);
         device_protocol_data->protocol = protocol;
         device_protocol_data->bus_id = bus_id;
         device_protocol_data->device_address = device_address;
@@ -1079,7 +1079,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         tree = proto_item_add_subtree(item, ett_descriptor_device);
     }
 
-    usb_conv_info=pinfo->usb_conv_info;
+    usb_conv_info=(usb_conv_info_t *)pinfo->usb_conv_info;
 
     dissect_usb_descriptor_header(tree, tvb, offset);
     offset += 2;
@@ -1146,14 +1146,14 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_product_data = se_alloc(sizeof(device_product_data_t));
+        device_product_data = se_new(device_product_data_t);
         device_product_data->vendor = vendor_id;
         device_product_data->product = product_id;
         device_product_data->bus_id = bus_id;
         device_product_data->device_address = device_address;
         se_tree_insert32_array(device_to_product_table, key, device_product_data);
 
-        device_protocol_data = se_alloc(sizeof(device_protocol_data_t));
+        device_protocol_data = se_new(device_protocol_data_t);
         device_protocol_data->protocol = protocol;
         device_protocol_data->bus_id = bus_id;
         device_protocol_data->device_address = device_address;
@@ -2334,7 +2334,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     setup_flag  = tvb_get_guint8(tvb, 14);
     offset     += 40;           /* skip first part of the pseudo-header */
 
-    usb_data = se_alloc(sizeof(usb_data_t));
+    usb_data = se_new(usb_data_t);
     usb_data->bus_id = bus_id;
     usb_data->device_address = device_address;
     usb_data->endpoint = endpoint;
@@ -2380,9 +2380,9 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
      */
     if (is_request) {
         /* this is a request */
-        usb_trans_info = se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+        usb_trans_info = (usb_trans_info_t *)se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         if (!usb_trans_info) {
-            usb_trans_info                = se_alloc0(sizeof(usb_trans_info_t));
+            usb_trans_info                = se_new0(usb_trans_info_t);
             usb_trans_info->request_in    = pinfo->fd->num;
             usb_trans_info->req_time      = pinfo->fd->abs_ts;
             usb_trans_info->header_len_64 = header_len_64_bytes;
@@ -2400,9 +2400,9 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     } else {
         /* this is a response */
         if (pinfo->fd->flags.visited) {
-            usb_trans_info = se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+            usb_trans_info = (usb_trans_info_t *)se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         } else {
-            usb_trans_info = se_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
+            usb_trans_info = (usb_trans_info_t *)se_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
             if (usb_trans_info) {
                 usb_trans_info->response_in = pinfo->fd->num;
                 se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
@@ -2424,7 +2424,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
     }
 
-    tap_data                = ep_alloc(sizeof(usb_tap_data_t));
+    tap_data                = ep_new(usb_tap_data_t);
     tap_data->urb_type      = tvb_get_guint8(tvb, 8);
     tap_data->transfer_type = (guint8)type;
     tap_data->conv_info     = usb_conv_info;
@@ -2920,7 +2920,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_protocol_data = se_tree_lookup32_array_le(device_to_protocol_table, key);
+        device_protocol_data = (device_protocol_data_t *)se_tree_lookup32_array_le(device_to_protocol_table, key);
         if (device_protocol_data && device_protocol_data->bus_id == bus_id &&
                 device_protocol_data->device_address == device_address &&
                 dissector_try_uint(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent)) {
@@ -2928,7 +2928,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         } else {
             device_product_data_t   *device_product_data;
 
-            device_product_data = se_tree_lookup32_array_le(device_to_product_table, key);
+            device_product_data = (device_product_data_t *)se_tree_lookup32_array_le(device_to_product_table, key);
             if (device_product_data && device_product_data->bus_id == bus_id &&
                     device_product_data->device_address == device_address &&
                     dissector_try_uint(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product), next_tvb, pinfo, parent)) {

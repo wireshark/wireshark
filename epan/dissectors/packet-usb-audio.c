@@ -232,7 +232,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     guint offset;
     guint length = tvb_length(tvb);
 
-    usb_conv_info = pinfo->usb_conv_info;
+    usb_conv_info = (usb_conv_info_t *)pinfo->usb_conv_info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBAUDIO");
 

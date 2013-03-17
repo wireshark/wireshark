@@ -1513,7 +1513,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                         iArrayLength = iIntegerValue >> 1;
                         proto_tree_add_uint(val_tree, hf_amf_bytearraylength, tvb, iValueOffset, iValueLength, iArrayLength);
                         iValueOffset += iValueLength;
-                        iByteArrayValue = ep_tvb_memdup(tvb, iValueOffset, iArrayLength);
+                        iByteArrayValue = (guint8 *)ep_tvb_memdup(tvb, iValueOffset, iArrayLength);
                         proto_tree_add_bytes(val_tree, hf_amf_bytearray, tvb, iValueOffset, iArrayLength, iByteArrayValue);
                         proto_item_append_text(ti, " %s", bytes_to_str(iByteArrayValue, iArrayLength));
                         if (parent_ti != NULL)
@@ -1886,15 +1886,15 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 packets = ep_stack_new();
                 ep_stack_push(packets, 0);
 
-                tp = se_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
+                tp = (rtmpt_packet_t *)se_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
                 while (tp && tp->lastseq>=seq) {
                         ep_stack_push(packets, tp);
-                        tp = se_tree_lookup32_le(rconv->packets[cdir], tp->lastseq-1);
+                        tp = (rtmpt_packet_t *)se_tree_lookup32_le(rconv->packets[cdir], tp->lastseq-1);
                 }
 
                 /* Dissect the generated list in reverse order (beginning to end) */
 
-                while ((tp=ep_stack_pop(packets))!=NULL) {
+                while ((tp=(rtmpt_packet_t *)ep_stack_pop(packets))!=NULL) {
                         if (tp->resident) {
                                 pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
                                 add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
@@ -1915,7 +1915,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 /* Check for outstanding fragmented headers/chunks first */
 
                 if (offset==0) {
-                        tf = se_tree_lookup32_le(rconv->frags[cdir], seq+offset-1);
+                        tf = (rtmpt_frag_t *)se_tree_lookup32_le(rconv->frags[cdir], seq+offset-1);
 
                         if (tf) {
                                 /* May need to reassemble cross-TCP-segment fragments */
@@ -1923,8 +1923,8 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                 if (tf->have>=tf->len || seq+offset<tf->seq || seq+offset>tf->lastseq+tf->len-tf->have) {
                                         tf = NULL;
                                 } else if (!tf->ishdr) {
-                                        ti = se_tree_lookup32(rconv->ids[cdir], tf->saved.id);
-                                        if (ti) tp = se_tree_lookup32_le(ti->packets, seq+offset-1);
+                                        ti = (rtmpt_id_t *)se_tree_lookup32(rconv->ids[cdir], tf->saved.id);
+                                        if (ti) tp = (rtmpt_packet_t *)se_tree_lookup32_le(ti->packets, seq+offset-1);
                                         if (tp && tp->chunkwant) {
                                                 goto unchunk;
                                         }
@@ -1990,7 +1990,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
                                 if (remain<basic_hlen+message_hlen) {
                                         /* Ran out of packet mid-header, save and try again next time */
-                                        tf = se_alloc(sizeof(rtmpt_frag_t));
+                                        tf = se_new(rtmpt_frag_t);
                                         tf->ishdr = 1;
                                         tf->seq = seq + offset;
                                         tf->lastseq = tf->seq + remain - 1;
@@ -2020,8 +2020,8 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
                 /* Calculate header values, defaulting from previous packets with same id */
 
-                if (id<=RTMPT_ID_MAX) ti = se_tree_lookup32(rconv->ids[cdir], id);
-                if (ti) tp = se_tree_lookup32_le(ti->packets, seq+offset-1);
+                if (id<=RTMPT_ID_MAX) ti = (rtmpt_id_t *)se_tree_lookup32(rconv->ids[cdir], id);
+                if (ti) tp = (rtmpt_packet_t *)se_tree_lookup32_le(ti->packets, seq+offset-1);
 
                 if (header_type==0) src = tf ? pntohl(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
                 else if (ti) src = ti->src;
@@ -2061,7 +2061,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                     ti, tp, header_type, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
 
                         if (!ti) {
-                                ti = se_alloc(sizeof(rtmpt_id_t));
+                                ti = se_new(rtmpt_id_t);
                                 ti->packets = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets");
                                 ti->ts = 0;
                                 ti->tsd = 0;
@@ -2088,7 +2088,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         }
 
                         /* create a new packet structure */
-                        tp = se_alloc(sizeof(rtmpt_packet_t));
+                        tp = se_new(rtmpt_packet_t);
                         tp->seq = tp->lastseq = tf ? tf->seq : seq+offset;
                         tp->have = 0;
                         tp->want = basic_hlen + message_hlen + body_len;
@@ -2136,7 +2136,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         } else {
                                 /* Some more reassembly required */
                                 tp->resident = TRUE;
-                                tp->data.p = se_alloc(tp->bhlen+tp->mhlen+tp->len);
+                                tp->data.p = (guint8 *)se_alloc(tp->bhlen+tp->mhlen+tp->len);
 
                                 if (tf && tf->ishdr) {
                                         memcpy(tp->data.p, tf->saved.d, tf->len);
@@ -2209,7 +2209,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
                 } else if (tp->chunkhave<tp->chunkwant) {
                         /* Chunk is split across segment boundary */
-                        rtmpt_frag_t *tf2 = se_alloc(sizeof(rtmpt_frag_t));
+                        rtmpt_frag_t *tf2 = se_new(rtmpt_frag_t);
                         tf2->ishdr = 0;
                         tf2->seq = seq + offset - want;
                         tf2->lastseq = tf2->seq + remain - 1 + want;
@@ -2225,7 +2225,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 static rtmpt_conv_t*
 rtmpt_init_rconv(conversation_t *conv)
 {
-        rtmpt_conv_t *rconv = se_alloc(sizeof(rtmpt_conv_t));
+        rtmpt_conv_t *rconv = se_new(rtmpt_conv_t);
         conversation_add_proto_data(conv, proto_rtmpt, rconv);
 
         rconv->seqs[0]      = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_seqs0");
@@ -2267,7 +2267,7 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 conv->key_ptr->port1==pinfo->srcport &&
                 conv->key_ptr->port2==pinfo->destport) ? 0 : 1;
 
-        tcpinfo = pinfo->private_data;
+        tcpinfo = (struct tcpinfo *)pinfo->private_data;
         dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, tcpinfo->seq, tcpinfo->lastackseq);
 }
 

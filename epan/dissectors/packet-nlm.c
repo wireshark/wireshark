@@ -202,7 +202,7 @@ nlm_print_msgres_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md){
 		nstime_t ns;
 		proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
@@ -216,7 +216,7 @@ nlm_print_msgres_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md){
 		proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
 	}
@@ -226,7 +226,7 @@ nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md && md->rep_frame){
 		dissect_fhandle_hidden(pinfo,
 				tree, md->req_frame);
@@ -237,7 +237,7 @@ nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
 	if(md && md->rep_frame){
 		dissect_fhandle_hidden(pinfo,
 				tree, md->rep_frame);
@@ -254,11 +254,11 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	umd.cookie=tvb_get_ptr(tvb, offset+4, -1);
 
 	/* have we seen this cookie before? */
-	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
+	old_umd=(nlm_msg_res_unmatched_data *)g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
 	if(old_umd){
 		nlm_msg_res_matched_data *md;
 
-		md=g_malloc(sizeof(nlm_msg_res_matched_data));
+		md=(nlm_msg_res_matched_data *)g_malloc(sizeof(nlm_msg_res_matched_data));
 		md->req_frame=old_umd->req_frame;
 		md->rep_frame=pinfo->fd->num;
 		md->ns=old_umd->ns;
@@ -278,14 +278,14 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nlm_msg_res_unmatched_data *old_umd;
 
 	/* allocate and build the unmatched structure for this request */
-	umd=g_malloc(sizeof(nlm_msg_res_unmatched_data));
+	umd=(nlm_msg_res_unmatched_data *)g_malloc(sizeof(nlm_msg_res_unmatched_data));
 	umd->req_frame=pinfo->fd->num;
 	umd->ns=pinfo->fd->abs_ts;
 	umd->cookie_len=tvb_get_ntohl(tvb, offset);
-	umd->cookie=tvb_memdup(tvb, offset+4, umd->cookie_len);
+	umd->cookie=(const guint8 *)tvb_memdup(tvb, offset+4, umd->cookie_len);
 
 	/* remove any old duplicates */
-	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);
+	old_umd=(nlm_msg_res_unmatched_data *)g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);
 	if(old_umd){
 		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
 		g_free((gpointer)old_umd->cookie);
@@ -419,7 +419,7 @@ dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, int version)
 {
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if(rpc_call->proc==6){	/* NLM_TEST_MSG */
 			if( (!pinfo->fd->flags.visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
@@ -446,7 +446,7 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree,int version)
 {
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if(rpc_call->proc==7){	/* NLM_LOCK_MSG */
 			if( (!pinfo->fd->flags.visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
@@ -475,7 +475,7 @@ dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree,int version)
 {
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if(rpc_call->proc==8){	/* NLM_CANCEL_MSG */
 			if( (!pinfo->fd->flags.visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
@@ -502,7 +502,7 @@ dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree,int version)
 {
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if(rpc_call->proc==9){	/* NLM_UNLOCK_MSG */
 			if( (!pinfo->fd->flags.visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
@@ -527,7 +527,7 @@ dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree,int version)
 {
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if(rpc_call->proc==10){	/* NLM_GRANTED_MSG */
 			if( (!pinfo->fd->flags.visited) ){
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
@@ -557,7 +557,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* lock_tree = NULL;
 
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if(rpc_call->proc==11){	/* NLM_TEST_RES */
 			if( (!pinfo->fd->flags.visited) ){
 				nlm_register_unmatched_res(pinfo, tvb, offset);
@@ -706,7 +706,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 nlm_stat;
 
 	if(nlm_match_msgres){
-		rpc_call_info_value *rpc_call=pinfo->private_data;
+		rpc_call_info_value *rpc_call=(rpc_call_info_value *)pinfo->private_data;
 		if((rpc_call->proc==12)  /* NLM_LOCK_RES */
 		|| (rpc_call->proc==13)  /* NLM_CANCEL_RES */
 		|| (rpc_call->proc==14)  /* NLM_UNLOCK_RES */

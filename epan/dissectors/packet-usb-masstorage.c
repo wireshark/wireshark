@@ -139,7 +139,7 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     is_request=(pinfo->srcport==NO_ENDPOINT);
 
-    usb_conv_info=pinfo->usb_conv_info;
+    usb_conv_info=(usb_conv_info_t *)pinfo->usb_conv_info;
     usb_trans_info=usb_conv_info->usb_trans_info;
 
 
@@ -190,11 +190,11 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     itl_nexus_t *itl;
     itlq_nexus_t *itlq;
 
-    usb_conv_info=pinfo->usb_conv_info;
+    usb_conv_info=(usb_conv_info_t *)pinfo->usb_conv_info;
     /* verify that we do have a usb_ms_conv_info */
-    usb_ms_conv_info=usb_conv_info->class_data;
+    usb_ms_conv_info=(usb_ms_conv_info_t *)usb_conv_info->class_data;
     if(!usb_ms_conv_info){
-        usb_ms_conv_info=se_alloc(sizeof(usb_ms_conv_info_t));
+        usb_ms_conv_info=se_new(usb_ms_conv_info_t);
         usb_ms_conv_info->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "USB ITL");
         usb_ms_conv_info->itlq=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "USB ITLQ");
         usb_conv_info->class_data=usb_ms_conv_info;
@@ -253,7 +253,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         /* make sure we have a ITL structure for this LUN */
         itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, lun);
         if(!itl){
-            itl=se_alloc(sizeof(itl_nexus_t));
+            itl=se_new(itl_nexus_t);
             itl->cmdset=0xff;
             itl->conversation=NULL;
             se_tree_insert32(usb_ms_conv_info->itl, lun, itl);
@@ -262,7 +262,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         /* make sure we have an ITLQ structure for this LUN/transaction */
         itlq=(itlq_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itlq, pinfo->fd->num);
         if(!itlq){
-            itlq=se_alloc(sizeof(itlq_nexus_t));
+            itlq=se_new(itlq_nexus_t);
             itlq->lun=lun;
             itlq->scsi_opcode=0xffff;
             itlq->task_flags=0;
