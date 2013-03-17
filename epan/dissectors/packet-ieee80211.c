@@ -348,7 +348,7 @@ typedef struct mimo_control
 #define QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
 #define QOS_MESH_CONTROL_PRESENT(x) (((x) & 0x0100) >> 8)
 
-#define QOS_FLAG_EOSP    0x10
+#define QOS_FLAG_EOSP    0x0010
 
 /*
  * Extract subfields from the result of QOS_FIELD_CONTENT().
@@ -1079,31 +1079,18 @@ static const value_string frame_type_subtype_vals[] = {
 static value_string_ext frame_type_subtype_vals_ext = VALUE_STRING_EXT_INIT(frame_type_subtype_vals);
 
 /* ************************************************************************* */
-/*                             802.1D Tag Names                              */
+/*                 802.1D Tag Name (by WME Access Category Names)            */
 /* ************************************************************************* */
-static const char *qos_tags[8] = {
-  "Best Effort",
-  "Background",
-  "Spare",
-  "Excellent Effort",
-  "Controlled Load",
-  "Video",
-  "Voice",
-  "Network Control"
-};
-
-/* ************************************************************************* */
-/*                 WME Access Category Names (by 802.1D Tag)                 */
-/* ************************************************************************* */
-static const char *qos_acs[8] = {
-  "Best Effort",
-  "Background",
-  "Background",
-  "Best Effort",
-  "Video",
-  "Video",
-  "Voice",
-  "Voice"
+static const value_string ieee80211_qos_tags_acs[] = {
+  { 0, "Best Effort (Best Effort)" },
+  { 1, "Background (Background)" },
+  { 2, "Spare (Background)" },
+  { 3, "Excellent Effort (Best Effort)" },
+  { 4, "Controlled Load (Video)" },
+  { 5, "Video (Video)" },
+  { 6, "Voice (Voice)" },
+  { 7, "Netowrk Control (Voice)" },
+  { 0, NULL }
 };
 
 /* ************************************************************************* */
@@ -2621,6 +2608,7 @@ static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
 /* ************************************************************************* */
 /*                Header values for QoS control field                        */
 /* ************************************************************************* */
+static int hf_ieee80211_qos = -1;
 static int hf_ieee80211_qos_tid = -1;
 static int hf_ieee80211_qos_priority = -1;
 static int hf_ieee80211_qos_ack_policy = -1;
@@ -2628,6 +2616,7 @@ static int hf_ieee80211_qos_amsdu_present = -1;
 static int hf_ieee80211_qos_eosp = -1;
 static int hf_ieee80211_qos_bit4 = -1;
 static int hf_ieee80211_qos_txop_limit = -1;
+static int hf_ieee80211_qos_ps_buf_state = -1;
 static int hf_ieee80211_qos_buf_state_indicated = -1;
 static int hf_ieee80211_qos_highest_pri_buf_ac = -1;
 static int hf_ieee80211_qos_qap_buf_load = -1;
@@ -2983,6 +2972,8 @@ static int hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id = -1;
 static int hf_ieee80211_ff_mimo_csi_snr = -1;
 
 /*** Begin: 802.11s additions ***/
+static int hf_ieee80211_mesh_control_field = -1;
+
 static int hf_ieee80211_ff_mesh_action = -1;
 static int hf_ieee80211_ff_multihop_action = -1;
 static int hf_ieee80211_ff_mesh_flags = -1;
@@ -12795,145 +12786,103 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     case DATA_FRAME:
       if (tree && DATA_FRAME_IS_QOS(frame_type_subtype))
       {
-        proto_item *qos_fields;
+        proto_item *qos_fields, *qos_ti;
         proto_tree *qos_tree;
 
-        guint16 qos_tid;
-        guint16 qos_priority;
-        guint16 qos_ack_policy;
-        guint16 qos_amsdu_present;
         guint16 qos_eosp;
         guint16 qos_field_content;
 
-        qos_fields = proto_tree_add_text(hdr_tree, tvb, qosoff, 2,
-            "QoS Control");
+        qos_fields = proto_tree_add_item(hdr_tree, hf_ieee80211_qos, tvb, qosoff, 2, ENC_BIG_ENDIAN);
         qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
 
-        qos_tid = QOS_TID(qos_control);
-        qos_priority = QOS_PRIORITY(qos_control);
-        qos_ack_policy = QOS_ACK_POLICY(qos_control);//toto
-        qos_amsdu_present = QOS_AMSDU_PRESENT(qos_control);
         qos_eosp = QOS_EOSP(qos_control);
         qos_field_content = QOS_FIELD_CONTENT(qos_control);
 
-        proto_tree_add_uint (qos_tree, hf_ieee80211_qos_tid, tvb,
-            qosoff, 1, qos_tid);
+        proto_tree_add_item(qos_tree, hf_ieee80211_qos_tid, tvb, qosoff, 2, ENC_BIG_ENDIAN);
 
-        proto_tree_add_uint_format (qos_tree, hf_ieee80211_qos_priority, tvb,
-            qosoff, 1, qos_priority,
-            "Priority: %d (%s) (%s)",
-            qos_priority, qos_tags[qos_priority], qos_acs[qos_priority]);
+        qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_priority, tvb, qosoff, 2, ENC_BIG_ENDIAN);
+        PROTO_ITEM_SET_GENERATED(qos_ti);
 
         if (flags & FLAG_FROM_DS) {
-          proto_tree_add_boolean (qos_tree, hf_ieee80211_qos_eosp, tvb,
-              qosoff, 1, qos_control);
+          proto_tree_add_item(qos_tree, hf_ieee80211_qos_eosp, tvb, qosoff, 2, ENC_BIG_ENDIAN);
         } else {
-          proto_tree_add_boolean (qos_tree, hf_ieee80211_qos_bit4, tvb,
-              qosoff, 1, qos_control);
+          proto_tree_add_item(qos_tree, hf_ieee80211_qos_bit4, tvb, qosoff, 2, ENC_BIG_ENDIAN);
         }
 
-        proto_tree_add_uint (qos_tree, hf_ieee80211_qos_ack_policy, tvb, qosoff, 1,
-            qos_ack_policy);
+        proto_tree_add_item(qos_tree, hf_ieee80211_qos_ack_policy, tvb, qosoff, 2, ENC_BIG_ENDIAN);
 
         if (flags & FLAG_FROM_DS) {
           if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
-            proto_tree_add_boolean(qos_tree, hf_ieee80211_qos_amsdu_present, tvb,
-                qosoff, 1, qos_amsdu_present);
-            is_amsdu = qos_amsdu_present;
+            proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_BIG_ENDIAN);
+            is_amsdu = QOS_AMSDU_PRESENT(qos_control);
           }
           if (DATA_FRAME_IS_CF_POLL(frame_type_subtype)) {
             /* txop limit */
+              qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_txop_limit, tvb, qosoff, 2, ENC_BIG_ENDIAN);
             if (qos_field_content == 0) {
-              proto_tree_add_uint_format_value (qos_tree, hf_ieee80211_qos_txop_limit, tvb,
-                  qosoff + 1, 1, qos_field_content,
-                                                "transmit one frame immediately (0)");
-            } else {
-              proto_tree_add_uint (qos_tree, hf_ieee80211_qos_txop_limit, tvb,
-                                   qosoff + 1, 1, qos_field_content);
+              proto_item_append_text(qos_ti, " (transmit one frame immediately)");
             }
           } else {
             /* qap ps buffer state */
             proto_item *qos_ps_buf_state_fields;
             proto_tree *qos_ps_buf_state_tree;
-            guint8 qap_buf_load;
 
-            qos_ps_buf_state_fields = proto_tree_add_text(qos_tree, tvb, qosoff + 1, 1,
-                "QAP PS Buffer State: 0x%x", qos_field_content);
+            qos_ps_buf_state_fields = proto_tree_add_item(qos_tree, hf_ieee80211_qos_ps_buf_state, tvb, qosoff, 2, ENC_NA);
             qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
-            proto_tree_add_boolean (qos_ps_buf_state_tree, hf_ieee80211_qos_buf_state_indicated,
-                                    tvb, qosoff + 1, 1, qos_field_content);
+            proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_buf_state_indicated, tvb, qosoff + 1, 1, ENC_NA);
 
             if (QOS_PS_BUF_STATE_INDICATED(qos_field_content)) {
-              proto_tree_add_uint (qos_ps_buf_state_tree, hf_ieee80211_qos_highest_pri_buf_ac, tvb,
-                  qosoff + 1, 1, qos_field_content);
-
-              qap_buf_load = QOS_PS_QAP_BUF_LOAD(qos_field_content);
-              switch (qap_buf_load) {
+              proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_highest_pri_buf_ac, tvb, qosoff + 1, 1, ENC_NA);
+              qos_ti = proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_qap_buf_load, tvb, qosoff + 1, 1, ENC_NA);
+              switch (QOS_PS_QAP_BUF_LOAD(qos_field_content)) {
 
               case 0:
-                proto_tree_add_uint_format_value (qos_ps_buf_state_tree, hf_ieee80211_qos_qap_buf_load, tvb,
-                    qosoff + 1, 1, qos_field_content,
-                    "no buffered traffic (0)");
+                proto_item_append_text(qos_ti, " (no buffered traffic)");
                 break;
 
               default:
-                proto_tree_add_uint_format_value (qos_ps_buf_state_tree, hf_ieee80211_qos_qap_buf_load, tvb,
-                    qosoff + 1, 1, qos_field_content,
-                    "%d octets (%d)", qap_buf_load*4096, qap_buf_load);
+                proto_item_append_text(qos_ti, " (%d octets)", QOS_PS_QAP_BUF_LOAD(qos_field_content)*4096);
                 break;
 
               case 15:
-                proto_tree_add_uint_format_value (qos_ps_buf_state_tree, hf_ieee80211_qos_qap_buf_load, tvb,
-                    qosoff + 1, 1, qos_field_content,
-                    "greater than 57344 octets (15)");
+                proto_item_append_text(qos_ti, " (greater than 57344 octets)");
                 break;
               }
+
             }
           }
         } else {
           if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
-            proto_tree_add_boolean(qos_tree, hf_ieee80211_qos_amsdu_present, tvb,
-                qosoff, 1, qos_amsdu_present);
-            is_amsdu = qos_amsdu_present;
+            proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_BIG_ENDIAN);
+            is_amsdu = QOS_AMSDU_PRESENT(qos_control);
           }
           if (qos_eosp) {
             /* queue size */
+            qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_queue_size, tvb, qosoff, 2, ENC_BIG_ENDIAN);
             switch (qos_field_content) {
-
             case 0:
-              proto_tree_add_uint_format_value (qos_tree, hf_ieee80211_qos_queue_size,
-                                                tvb, qosoff + 1, 1, qos_field_content,
-                  "no buffered traffic in the queue (0)");
+              proto_item_append_text(qos_ti, " (no buffered traffic in the queue)");
               break;
 
             default:
-              proto_tree_add_uint_format_value (qos_tree, hf_ieee80211_qos_queue_size,
-                                                tvb, qosoff + 1, 1, qos_field_content,
-                                                "%u bytes (%u)", qos_field_content*256, qos_field_content);
+              proto_item_append_text(qos_ti, " (%u bytes)", qos_field_content*256);
               break;
 
             case 254:
-              proto_tree_add_uint_format_value (qos_tree, hf_ieee80211_qos_queue_size,
-                                                tvb, qosoff + 1, 1, qos_field_content,
-                  "more than 64768 octets (254)");
+              proto_item_append_text(qos_ti, " (more than 64768 octets)");
               break;
 
             case 255:
-              proto_tree_add_uint_format_value (qos_tree, hf_ieee80211_qos_queue_size,
-                                                tvb, qosoff + 1, 1, qos_field_content,
-                  "unspecified or unknown (256)");
+              proto_item_append_text(qos_ti, " (unspecified or unknown)");
               break;
             }
           } else {
             /* txop duration requested */
+            qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_txop_dur_req,
+                                   tvb, qosoff + 1, 2, ENC_BIG_ENDIAN);
             if (qos_field_content == 0) {
-              proto_tree_add_uint_format_value (qos_tree, hf_ieee80211_qos_txop_dur_req,
-                                                tvb, qosoff + 1, 1, qos_field_content,
-                                                "no TXOP requested (0)");
-            } else {
-              proto_tree_add_uint (qos_tree, hf_ieee80211_qos_txop_dur_req,
-                                   tvb, qosoff + 1, 1, qos_field_content);
+              proto_item_append_text(qos_ti, " (no TXOP requested)");
             }
           }
         }
@@ -12947,7 +12896,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           proto_item *msh_fields;
           proto_tree *msh_tree;
 
-          msh_fields = proto_tree_add_text(hdr_tree, tvb, meshoff, meshctl_len, "Mesh Control field");
+          msh_fields = proto_tree_add_item(hdr_tree, hf_ieee80211_mesh_control_field, tvb, meshoff, meshctl_len, ENC_NA);
           msh_tree = proto_item_add_subtree (msh_fields, ett_msh_control);
           add_fixed_field(msh_tree, tvb, meshoff, FIELD_MESH_CONTROL);
         }
@@ -13995,39 +13944,54 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_mesh_control_field,
+     {"Mesh Control Field", "wlan.mesh.control_field",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos,
+     {"Qos Control", "wlan.qos",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_qos_tid,
      {"TID", "wlan.qos.tid",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0x000F,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_priority,
      {"Priority", "wlan.qos.priority",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, VALS(ieee80211_qos_tags_acs), 0x0007,
       "802.1D Tag", HFILL }},
 
     {&hf_ieee80211_qos_eosp,
      {"EOSP", "wlan.qos.eosp",
-      FT_BOOLEAN, 8, TFS (&eosp_flag), QOS_FLAG_EOSP,
+      FT_BOOLEAN, 16, TFS (&eosp_flag), QOS_FLAG_EOSP,
       "EOSP Field", HFILL }},
 
     {&hf_ieee80211_qos_bit4,
      {"QoS bit 4", "wlan.qos.bit4",
-      FT_BOOLEAN, 8, TFS (&bit4_flag), QOS_FLAG_EOSP,
+      FT_BOOLEAN, 16, TFS (&bit4_flag), QOS_FLAG_EOSP,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_ack_policy,
      {"Ack Policy", "wlan.qos.ack",
-      FT_UINT8, BASE_HEX,  VALS(ack_policy), 0,
+      FT_UINT16, BASE_HEX,  VALS(ack_policy), 0x0060,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_amsdu_present,
      {"Payload Type", "wlan.qos.amsdupresent",
-      FT_BOOLEAN, BASE_NONE,
-      TFS(&ieee80211_qos_amsdu_present_flag), 0x0, NULL, HFILL }},
+      FT_BOOLEAN, 16,
+      TFS(&ieee80211_qos_amsdu_present_flag), 0x0080, NULL, HFILL }},
 
     {&hf_ieee80211_qos_txop_limit,
      {"TXOP Limit", "wlan.qos.txop_limit",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0xFF00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_ps_buf_state,
+     {"QAP PS Buffer State", "wlan.qos.ps_buf_state",
+       FT_UINT16, BASE_HEX, NULL, 0xFF000,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_buf_state_indicated,
@@ -14047,12 +14011,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_qos_txop_dur_req,
      {"TXOP Duration Requested", "wlan.qos.txop_dur_req",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0xFF00,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_queue_size,
      {"Queue Size", "wlan.qos.queue_size",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0xFF00,
       NULL, HFILL }},
 
     {&hf_ieee80211_fcs,
