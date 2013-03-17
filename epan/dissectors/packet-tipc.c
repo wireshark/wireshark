@@ -818,7 +818,7 @@ w9:|          msg count            |       link tolerance          |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
 
-static void
+static int
 dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 orig_hdr_size)
 {
 	guint32 dword;
@@ -1408,7 +1408,6 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 							" (Message fragment %u)", frag_no);
 				}
 				if (new_tvb) { /* take it all */
-					data_tvb = new_tvb;
 
 					/* the info column shall not be deleted by the
 					 * encapsulated messages */
@@ -1501,6 +1500,8 @@ w9:|                                                               |
 		default:
 			break;
 	}
+
+	return offset;
 
 }
 
