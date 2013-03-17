@@ -1854,7 +1854,6 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 		{
 			/* Port number will follow any space after : */
 			gint port_offset;
-			colon_seen = TRUE;
 			current_offset++;
 
 			/* Skip optional space after colon */
