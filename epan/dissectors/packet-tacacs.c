@@ -518,7 +518,6 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 				var_off+=8;
 				tvb_get_nstringz0( tvb, var_off, 8+1, buff );
 				proto_tree_add_text( pt, tvb, var_off, 8, "Remote Response: %s", buff );
-				var_off+=8;
 			}
 			break;
 
