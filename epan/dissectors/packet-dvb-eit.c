@@ -32,8 +32,8 @@
 
 #include "packet-mpeg-descriptor.h"
 
-void proto_register_dvb_data_eit(void);
-void proto_reg_handoff_dvb_data_eit(void);
+void proto_register_dvb_eit(void);
+void proto_reg_handoff_dvb_eit(void);
 
 static int proto_dvb_eit = -1;
 static int hf_dvb_eit_service_id = -1;

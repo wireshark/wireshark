@@ -150,6 +150,10 @@ These are the structures you will see most often in EDP frames.
 #include "packet-llc.h"
 #include <epan/oui.h>
 
+void proto_register_edp(void);
+void proto_reg_handoff_edp(void);
+void proto_register_extreme_oui(void);
+
 static int hf_llc_extreme_pid = -1;
 
 static int proto_edp = -1;

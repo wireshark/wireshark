@@ -33,6 +33,9 @@
 #define ESIO_TRANSFER                  0x01
 #define ESIO_STATUS                    0x02
 
+void proto_register_esio(void);
+void proto_reg_handoff_esio(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_esio = -1;
 static int hf_esio_type = -1;

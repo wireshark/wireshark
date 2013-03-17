@@ -40,6 +40,9 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 
+void proto_register_eth(void);
+void proto_reg_handoff_eth(void);
+
 /* Assume all packets have an FCS */
 static gboolean eth_assume_padding = TRUE;
 static gboolean eth_assume_fcs = FALSE;

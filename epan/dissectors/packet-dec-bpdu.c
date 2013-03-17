@@ -57,6 +57,9 @@
 #define BPDU_FLAGS_TCACK                0x02
 #define BPDU_FLAGS_TC                   0x01
 
+void proto_register_dec_bpdu(void);
+void proto_reg_handoff_dec_bpdu(void);
+
 static int proto_dec_bpdu = -1;
 static int hf_dec_bpdu_proto_id = -1;
 static int hf_dec_bpdu_type = -1;

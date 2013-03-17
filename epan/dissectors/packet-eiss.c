@@ -32,6 +32,9 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_eiss(void);
+void proto_reg_handoff_eiss(void);
+
 static int proto_eiss = -1;
 static dissector_handle_t data_handle;
 

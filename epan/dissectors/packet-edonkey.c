@@ -45,6 +45,8 @@
 #include "packet-edonkey.h"
 #include "packet-tcp.h"
 
+void proto_reg_handoff_edonkey(void);
+
 static int proto_edonkey = -1;
 
 static int hf_edonkey_message  = -1;
@@ -1615,7 +1617,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <Search Query> ::= <Search Type> <Search> */
     proto_item *ti;
     proto_tree *search_tree;
-    guint8 search_type, operator, special_tagtype, limit_type;
+    guint8 search_type, e_operator, special_tagtype, limit_type;
     guint16 tag_name_size, string_length;
     guint32 search_length, limit;
     int string_offset, tag_name_offset;
@@ -1628,7 +1630,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo _U_,
         case EDONKEY_SEARCH_BOOL:
             /* <Search> ::=  <Operator> <Search Query> <Search Query> */
             search_length += 1;
-            operator = tvb_get_guint8(tvb, offset+1);
+            e_operator = tvb_get_guint8(tvb, offset+1);
 
             /* Add subtree for search entry */
             ti = proto_tree_add_item(tree, hf_edonkey_search, tvb, offset, search_length, ENC_NA);
@@ -1636,7 +1638,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             /* Add query info */
             proto_tree_add_text(search_tree, tvb, offset, 2, "Boolean search (0x%02x): %s (0x%02x)",
-                                search_type, val_to_str_const(operator, edonkey_search_ops, "Unknown"), operator);
+                                search_type, val_to_str_const(e_operator, edonkey_search_ops, "Unknown"), e_operator);
 
             offset+=2;
             offset = dissect_edonkey_search_query(tvb, pinfo, offset, search_tree);

@@ -56,6 +56,9 @@
 #define ELCOM_LITTLE_ENDIAN  1
 #define ELCOM_BIG_ENDIAN     2
 
+void proto_register_elcom(void);
+void proto_reg_handoff_elcom(void);
+
 static int proto_elcom = -1;
 static int hf_elcom_response = -1;
 static int hf_elcom_request = -1;

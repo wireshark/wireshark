@@ -71,6 +71,9 @@
 #define PSNAME "ErlDP"
 #define PFNAME "erldp"
 
+void proto_register_erlpd(void);
+void proto_reg_handoff_erlpd(void);
+
 static const value_string etf_tag_vals[] = {
   { SMALL_INTEGER_EXT , "SMALL_INTEGER_EXT" },
   { INTEGER_EXT       , "INTEGER_EXT" },

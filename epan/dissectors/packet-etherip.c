@@ -30,6 +30,9 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 
+void proto_register_etherip(void);
+void proto_reg_handoff_etherip(void);
+
 static int proto_etherip = -1;
 static int hf_etherip_ver = -1;
 static int hf_etherip_reserved = -1;

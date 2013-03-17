@@ -32,6 +32,9 @@
 #include "packet-ieee80211.h"
 #include <epan/etypes.h>
 
+void proto_register_eapol(void);
+void proto_reg_handoff_eapol(void);
+
 static int proto_eapol = -1;
 static int hf_eapol_version = -1;
 static int hf_eapol_type = -1;

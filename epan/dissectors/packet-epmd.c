@@ -40,6 +40,9 @@
 #define PSNAME "EPMD"
 #define PFNAME "epmd"
 
+void proto_register_epmd(void);
+void proto_reg_handoff_epmd(void);
+
 static int proto_epmd = -1;
 static int hf_epmd_len = -1;
 static int hf_epmd_type = -1;

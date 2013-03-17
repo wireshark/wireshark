@@ -44,6 +44,9 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
+void proto_register_enrp(void);
+void proto_reg_handoff_enrp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_enrp = -1;
 static int hf_cause_code = -1;

@@ -34,6 +34,9 @@
 
 #define ECHO_PORT  7
 
+void proto_register_echo(void);
+void proto_reg_handoff_echo(void);
+
 static int proto_echo = -1;
 
 static int hf_echo_data = -1;

@@ -63,8 +63,8 @@
 #include "packet-arp.h"
 #include "packet-dns.h"                         /* for get_dns_name() */
 
-void proto_register_dhpcv6(void);
-void proto_reg_handoff_dhpcv6(void);
+void proto_register_dhcpv6(void);
+void proto_reg_handoff_dhcpv6(void);
 
 static gboolean dhcpv6_bulk_leasequery_desegment  = TRUE;
 

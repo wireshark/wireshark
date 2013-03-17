@@ -49,6 +49,10 @@
 #define EGD_ST_CREATEERR    28
 #define EGD_ST_DELETED      30
 
+
+void proto_register_egd(void);
+void proto_reg_handoff_egd(void);
+
 /* Translate status to string */
 static const value_string egd_stat_vals[] = {
   { EGD_ST_NONEW,                  "No new status event has occurred" },

@@ -46,6 +46,7 @@
 
 /* PROTOTYPES/FORWARDS */
 
+void proto_register_evrc(void);
 void proto_reg_handoff_evrc(void);
 
 static const value_string evrc_frame_type_vals[] = {

@@ -29,6 +29,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_ehs(void);
+void proto_reg_handoff_ehs(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_ehs = -1;

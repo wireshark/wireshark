@@ -64,11 +64,11 @@ static guint8 crc8_table[256] = {
     0x84, 0x51, 0xFB, 0x2E, 0x7A, 0xAF, 0x05, 0xD0, 0xAD, 0x78, 0xD2, 0x07, 0x53, 0x86, 0x2C, 0xF9
 };
 
-void proto_register_dvb_dvb_s2_modeadapt(void);
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
+void proto_register_dvb_s2_modeadapt(void);
 void proto_reg_handoff_dvb_s2_modeadapt(void);
 
 /* preferences */

@@ -33,6 +33,8 @@
 #include "packet-osi-options.h"
 #include "packet-esis.h"
 
+void proto_register_esis(void);
+void proto_reg_handoff_esis(void);
 
 /* esis base header */
 static int  proto_esis        = -1;

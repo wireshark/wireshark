@@ -42,6 +42,9 @@
 static gboolean preference_info_show_username = TRUE;
 static gboolean preference_info_show_command = FALSE;
 
+void proto_register_exec(void);
+void proto_reg_handoff_exec(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_exec = -1;
 
@@ -114,9 +117,9 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Retrieve information from conversation
 	 * or add it if it isn't there yet
 	 */
-	hash_info = conversation_get_proto_data(conversation, proto_exec);
+	hash_info = (exec_hash_entry_t *)conversation_get_proto_data(conversation, proto_exec);
 	if(!hash_info){
-		hash_info = se_alloc(sizeof(exec_hash_entry_t));
+		hash_info = se_new(exec_hash_entry_t);
 
 		hash_info->first_packet_number = pinfo->fd->num;
 		hash_info->second_packet_number = 0;

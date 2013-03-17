@@ -39,6 +39,9 @@
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_sms.h"
 
+void proto_register_card_app_toolkit(void);
+void proto_reg_handoff_card_app_toolkit(void);
+
 static int proto_cat = -1;
 
 static dissector_table_t sms_dissector_table;	/* SMS TPDU */
@@ -789,7 +792,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s: %s",
 					    val_to_str(tag, comp_tlv_tag_vals, "%02x"),
-					    tvb_bytes_to_str(tvb, pos, len));
+					    (const guint8 *)tvb_bytes_to_str(tvb, pos, len));
 #else
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s:   ",
@@ -1080,10 +1083,6 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pos += len;
 	}
 }
-
-
-void
-proto_reg_handoff_card_app_toolkit(void);
 
 void
 proto_register_card_app_toolkit(void)

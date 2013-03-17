@@ -42,6 +42,10 @@
 #include "packet-ieee8021ah.h"
 #include "packet-vines.h"
 
+
+void proto_register_ethertype(void);
+void proto_reg_handoff_ethertype(void);
+
 static dissector_table_t ethertype_dissector_table;
 
 static dissector_handle_t data_handle;

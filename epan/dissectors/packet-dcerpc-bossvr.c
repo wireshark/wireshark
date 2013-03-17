@@ -33,6 +33,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_dcerpc_bossvr(void);
+void proto_reg_handoff_dcerpc_bossvr(void);
+
 
 static int proto_bossvr = -1;
 static int hf_bossvr_opnum = -1;

@@ -324,6 +324,7 @@
 /* Forward declaration we need below (if using proto_reg_handoff...
    as a prefs callback)       */
 void proto_reg_handoff_eigrp(void);
+void proto_register_eigrp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_eigrp = -1;

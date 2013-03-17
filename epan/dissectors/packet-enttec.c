@@ -75,6 +75,7 @@ static const value_string enttec_data_type_vals[] = {
 	{ 0,				NULL }
 };
 
+void proto_register_enttec(void);
 void proto_reg_handoff_enttec(void);
 
 /* Define the enttec proto */
@@ -190,8 +191,8 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		"%3u: %s"
 	};
 
-	guint8 *dmx_data = ep_alloc(512 * sizeof(guint8));
-	guint16 *dmx_data_offset = ep_alloc(513 * sizeof(guint16)); /* 1 extra for last offset */
+	guint8 *dmx_data = (guint8 *)ep_alloc(512 * sizeof(guint8));
+	guint16 *dmx_data_offset = (guint16 *)ep_alloc(513 * sizeof(guint16)); /* 1 extra for last offset */
 	emem_strbuf_t *dmx_epstr;
 
 	proto_tree *hi,*si;

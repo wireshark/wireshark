@@ -36,6 +36,9 @@
 
 #include "packet-wps.h"
 
+void proto_register_eap(void);
+void proto_reg_handoff_eap(void);
+
 static int proto_eap = -1;
 static int hf_eap_code = -1;
 static int hf_eap_identifier = -1;

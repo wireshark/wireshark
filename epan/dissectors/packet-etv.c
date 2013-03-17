@@ -32,6 +32,9 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_etv(void);
+void proto_reg_handoff_etv(void);
+
 static int proto_etv_dii = -1;
 static int proto_etv_ddb = -1;
 

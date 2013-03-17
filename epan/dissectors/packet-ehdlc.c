@@ -36,6 +36,9 @@
 #include <epan/ipproto.h>
 #include <epan/xdlc.h>
 
+void proto_register_ehdlc(void);
+void proto_reg_handoff_ehdlc(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ehdlc = -1;
 
