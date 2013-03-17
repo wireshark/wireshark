@@ -5,7 +5,7 @@
 
 static void oom_killer(void) {
 	fprintf(stderr, "\n\n !!! Out of memory !!!\n\n");
-	exit(1);
+	abort();
 }
 
 static inline void *xmalloc(size_t s) { void *ptr = malloc(s); if (!ptr) oom_killer(); return memset(ptr, 0x00, s); }

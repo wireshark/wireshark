@@ -159,6 +159,10 @@ typedef struct {
 	npl_expression_t *count_expr;
 	struct _npl_statements *sts;
 
+	/* code generator */
+	char *tmpid;
+	struct ettinfo *ett;
+	struct symbol *sym;
 } npl_struct_t;
 
 typedef struct {
@@ -178,12 +182,16 @@ typedef struct {
 
 	npl_expression_t *default_expr;
 
+	/* code generator */
+	struct symbol *sym;
 } npl_table_t;
 
 typedef struct {
 	char *id;
 	npl_expression_t expr;
 
+	/* code generator */
+	struct symbol *sym;
 } npl_const_t;
 
 typedef enum {
@@ -247,7 +255,7 @@ typedef struct _npl_statement {
 			npl_switch_t data;
 		} sw;
 
-		struct {
+		struct _npl_statement_field {
 			npl_statement_type_t type;	/* STATEMENT_FIELD */
 			
 			char *t_id;
@@ -258,9 +266,11 @@ typedef struct _npl_statement {
 
 			npl_expression_t *format;
 			struct _npl_statements *sts;
+			npl_expression_list_t *params;
 
-			/* after 1st pass of code generator */
+			/* code generator */
 			struct hfinfo *hfi;
+			int generate_var;
 		} f;
 
 	};
@@ -294,15 +304,15 @@ typedef enum {
 typedef struct {
 	npl_field_type_t type;
 
-	char *name;
+	char *id;
 	npl_params_t params;
 
 	npl_expression_t *byte_order;
 	npl_expression_t *display_format;
 	npl_expression_t *size;
 
-	/* after 1st pass of code generator */
-	const char *hf_type;
+	/* code generator */
+	struct symbol *sym;
 
 } npl_type_t;
 

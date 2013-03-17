@@ -1137,13 +1137,11 @@ parse_statement(npl_statement_t *st)
 
 	if (is_token_accept(TOKEN_LPAREN)) {
 		/* XXX, WTF: StringTerm(Property.XMLEncoding, "<", true, false, false) Reason; */
-		npl_expression_list_t *type_params;
-
-		parse_expression_list(&type_params);
+		parse_expression_list(&st->f.params);
 		accept(TOKEN_RPAREN);
 
-		/* XXX, store type_params in ast */
-	}
+	} else
+		st->f.params = NULL;
 
 	st->f.id = accept_id();
 	if (is_token_accept(TOKEN_COLON))
@@ -1196,7 +1194,7 @@ parse_struct(npl_struct_t *s, int statement)
 	else
 		nomatch();
 
-	if (is_id())
+	if (!statement || is_id())
 		s->id = accept_id();
 
 	if (is_params())
@@ -1308,8 +1306,7 @@ parse_type(npl_type_t *t)
 	else
 		nomatch();
 
-	t->name = accept_id();
-	/* printf("%s: %s\n", yyfilename, t->name); */
+	t->id = accept_id();
 	if (is_params())
 		parse_params(&t->params);
 	accept(TOKEN_LCURLY);
