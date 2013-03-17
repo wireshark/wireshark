@@ -184,12 +184,14 @@ typedef struct _scsi_osd_extra_data_t {
 	} u;
 } scsi_osd_extra_data_t;
 
-static void
+static int
 dissect_osd_user_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* user object id */
 	proto_tree_add_item(tree, hf_scsi_osd_user_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
+
+	return offset;
 }
 
 
@@ -201,7 +203,8 @@ attribute_1_82(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	/* user object id */
 	proto_tree_add_item(tree, hf_scsi_osd_user_object_logical_length, tvb, offset, 8, ENC_BIG_ENDIAN);
-	offset+=8;
+	/* offset+=8; */
+
 }
 
 
@@ -450,7 +453,7 @@ dissect_osd_formatted_capacity(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void
+static int
 dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tree, scsi_task_data_t *cdata)
 {
 	guint8 gsatype=0;
@@ -468,7 +471,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		extra_data=cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
 	} else {
-		return;
+		return offset;
 	}
 
 	switch(gsatype){
@@ -524,6 +527,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 
 		break;
 	}
+	return offset;
 }
 
 
@@ -707,7 +711,7 @@ dissect_osd_permissions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 /* 4.9.2.2 */
-static void
+static int
 dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
@@ -769,12 +773,14 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	/* object descriptor */
 	proto_tree_add_item(tree, hf_scsi_osd_object_descriptor, tvb, offset, 24, ENC_NA);
 	offset+=24;
+
+	return offset;
 }
 
 
 
 /* 5.2.6 */
-static void
+static int
 dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
@@ -801,6 +807,8 @@ dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 	/* data out integrity check value offset */
 	proto_tree_add_item(tree, hf_scsi_osd_doicvo, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
+
+	return offset;
 }
 
 static void
@@ -866,7 +874,7 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-static void
+static int
 dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index, scsi_osd_lun_info_t *lun_info, gboolean is_created, gboolean is_removed)
 {
 	proto_item *item=NULL;
@@ -918,6 +926,8 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tr
 		}
 	}
 	offset+=8;
+
+	return offset;
 }
 
 
@@ -988,53 +998,65 @@ static const value_string scsi_osd_sort_order_vals[] = {
     {0x00,	"Ascending numeric value"},
     {0, NULL},
 };
-static void
+static int
 dissect_osd_sortorder(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* sort order */
 	proto_tree_add_item(tree, hf_scsi_osd_sortorder, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
+
+	return offset;
 }
 
-static void
+static int
 dissect_osd_list_identifier(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* list identifier */
 	proto_tree_add_item(tree, hf_scsi_osd_list_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
+
+	return offset;
 }
 
-static void
+static int
 dissect_osd_allocation_length(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* allocation length */
 	proto_tree_add_item(tree, hf_scsi_osd_allocation_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset+=8;
+
+	return offset;
 }
 
-static void
+static int
 dissect_osd_initial_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* initial object id */
 	proto_tree_add_item(tree, hf_scsi_osd_initial_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
+
+	return offset;
 }
 
-static void
+static int
 dissect_osd_additional_length(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* additional length */
 	proto_tree_add_item(tree, hf_scsi_osd_additional_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset+=8;
+
+	return offset;
 }
 
 
-static void
+static int
 dissect_osd_continuation_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* continuation object id */
 	proto_tree_add_item(tree, hf_scsi_osd_continuation_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
+
+	return offset;
 }
 
 static const true_false_string list_lstchg_tfs = {
@@ -1157,20 +1179,24 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
-static void
+static int
 dissect_osd_requested_user_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* request user object id */
 	proto_tree_add_item(tree, hf_scsi_osd_requested_user_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
+
+	return offset;
 }
 
-static void
+static int
 dissect_osd_number_of_user_objects(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* number_of_user_objects */
 	proto_tree_add_item(tree, hf_scsi_osd_number_of_user_objects, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
+
+	return offset;
 }
 
 static void
@@ -1486,12 +1512,14 @@ dissect_osd_collection_fcr(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_item(tree, hf_scsi_osd_collection_fcr, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
-static void
+static int
 dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* collection object id */
 	proto_tree_add_item(tree, hf_scsi_osd_collection_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
+
+	return offset;
 }
 
 
@@ -1563,20 +1591,24 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
-static void
+static int
 dissect_osd_length(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* length */
 	proto_tree_add_item(tree, hf_scsi_osd_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset+=8;
+
+	return offset;
 }
 
-static void
+static int
 dissect_osd_starting_byte_address(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* starting_byte_address */
 	proto_tree_add_item(tree, hf_scsi_osd_starting_byte_address, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset+=8;
+
+	return offset;
 }
 
 
@@ -1655,12 +1687,14 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-static void
+static int
 dissect_osd_requested_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* requested collection object id */
 	proto_tree_add_item(tree, hf_scsi_osd_requested_collection_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
+
+	return offset;
 }
 
 
@@ -1738,12 +1772,14 @@ static const value_string flush_scope_vals[] = {
 	{0, NULL}
 };
 
-static void
+static int
 dissect_osd_flush_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* flush scope */
 	proto_tree_add_item(tree, hf_scsi_osd_flush_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
+
+	return offset;
 }
 
 static void
@@ -1820,12 +1856,14 @@ static const value_string flush_collection_scope_vals[] = {
 	{0, NULL}
 };
 
-static void
+static int
 dissect_osd_flush_collection_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* flush collection scope */
 	proto_tree_add_item(tree, hf_scsi_osd_flush_collection_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
+
+	return offset;
 }
 
 static void
@@ -2051,12 +2089,14 @@ static const value_string flush_osd_scope_vals[] = {
 	{0, NULL}
 };
 
-static void
+static int
 dissect_osd_flush_osd_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* flush osd scope */
 	proto_tree_add_item(tree, hf_scsi_osd_flush_osd_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
+
+	return offset;
 }
 
 static void
@@ -2122,12 +2162,14 @@ static const value_string flush_partition_scope_vals[] = {
 	{0, NULL}
 };
 
-static void
+static int
 dissect_osd_flush_partition_scope(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* flush partition scope */
 	proto_tree_add_item(tree, hf_scsi_osd_flush_partition_scope, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
+
+	return offset;
 }
 
 
