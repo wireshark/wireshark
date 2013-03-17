@@ -808,8 +808,6 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 /* WFA vendor specific subtypes */
 #define WFA_SUBTYPE_P2P 9
 
-#define PMKID_LEN 16
-
 /* ************************************************************************* */
 /*              Supported Rates (7.3.2.2)                                    */
 /* ************************************************************************* */
@@ -3787,6 +3785,9 @@ static int hf_ieee80211_aironet_ie_data = -1;
 static int hf_ieee80211_aironet_ie_qos_unk1 = -1;
 static int hf_ieee80211_aironet_ie_qos_paramset = -1;
 static int hf_ieee80211_aironet_ie_qos_val = -1;
+
+static int hf_ieee80211_rsn_ie_pmkid = -1;
+static int hf_ieee80211_rsn_ie_unknown = -1;
 
 static int hf_ieee80211_marvell_ie_type = -1;
 static int hf_ieee80211_marvell_ie_mesh_subtype = -1;
@@ -7548,28 +7549,24 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 }
 
 static void
-dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
+dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 {
-  guint tag_off   = 0;
-  guint tag_len   = tvb_length(tag_tvb);
-  guint pmkid_len = tag_len - 4;
 
-  char out_buff[SHORT_STR];
-  char valid_str[SHORT_STR] = "";
-
-  if ((tag_len >= 4) && !tvb_memeql(tag_tvb, tag_off, RSN_OUI"\x04", 4)) {
-    /* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
-     * This is only used within EAPOL-Key frame Key Data. */
-    if (pmkid_len != PMKID_LEN) {
-      g_snprintf(valid_str, SHORT_STR,
-        "(invalid PMKID len=%d, expected 16) ", pmkid_len);
+  switch(tvb_get_guint8(tvb, offset)){
+    case 4:
+    {
+      /* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
+       * This is only used within EAPOL-Key frame Key Data. */
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_pmkid, tvb, offset, 16, ENC_NA);
     }
-    g_snprintf(out_buff, SHORT_STR, "RSN PMKID: %s%s", valid_str,
-      tvb_bytes_to_str(tag_tvb, 4, pmkid_len));
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, 0,
-      tag_len, out_buff);
+    break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_rsn_ie_unknown, tvb, offset, tag_len, ENC_NA);
+    break;
   }
+
   proto_item_append_text(item, ": RSN");
+
 }
 
 typedef enum {
@@ -11216,7 +11213,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           offset = dissect_vendor_ie_wpawme(tree, tvb, offset + 3, tag_len, ftype);
           break;
         case RSNOUI_VAL:
-          dissect_vendor_ie_rsn(ti, tree, tag_tvb);
+          dissect_vendor_ie_rsn(ti, tree, tvb, offset + 3, tag_len - 3);
           break;
         case PRE11N_OUI:
           dissect_vendor_ie_ht(tvb, pinfo, tree, offset, ti, ti_len, tag_len);
@@ -18294,6 +18291,16 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_wfa_ie_wme_tspec_medium,
      {"Medium Time", "wlan_mgt.wfa.ie.wme.tspec.medium",
       FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_pmkid,
+     {"RSN PMKID", "wlan_mgt.rsn.ie.pmkid",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_ie_unknown,
+     {"RSN Unknown", "wlan_mgt.rsn.ie.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_marvell_ie_type,
