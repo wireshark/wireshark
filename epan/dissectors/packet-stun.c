@@ -654,7 +654,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             offset += 2;
 
             switch (att_type) {
- 
+
       /* Deprecated STUN RFC3489 attributes */
       case RESPONSE_ADDRESS:
       case SOURCE_ADDRESS:
@@ -669,7 +669,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 4)
                     break;
                 proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                switch (tvb_get_guint8(tvb, offset+1)) 
+                switch (tvb_get_guint8(tvb, offset+1))
                 {
                   case 1:
                       if (att_length < 8)
