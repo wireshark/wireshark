@@ -1053,8 +1053,6 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                >= 4.
              */
             dst_seg_len = 1;
-            path_type = 0;
-            kludge = 0;
             sflow_245_dst_as_seg_tree = sflow_245_dst_as_tree;
         } else {
             path_type = tvb_get_ntohl(tvb, offset + len);
