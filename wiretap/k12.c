@@ -466,7 +466,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     buffer_assure_space(&(k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(k12->extra_info)),
            buffer + K12_PACKET_FRAME + wth->phdr.caplen, extra_len);
-    wth->phdr.pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
+    wth->phdr.pseudo_header.k12.extra_info = (guint8*)buffer_start_ptr(&(k12->extra_info));
     wth->phdr.pseudo_header.k12.extra_length = extra_len;
 
     wth->phdr.pseudo_header.k12.input = src_id;
@@ -531,10 +531,10 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
     buffer_assure_space(&(k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(k12->extra_info)),
            buffer + K12_PACKET_FRAME + length, extra_len);
-    wth->phdr.pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
+    wth->phdr.pseudo_header.k12.extra_info = (guint8*)buffer_start_ptr(&(k12->extra_info));
     wth->phdr.pseudo_header.k12.extra_length = extra_len;
     if (pseudo_header) {
-        pseudo_header->k12.extra_info = (void*)buffer_start_ptr(&(k12->extra_info));
+        pseudo_header->k12.extra_info = (guint8*)buffer_start_ptr(&(k12->extra_info));
         pseudo_header->k12.extra_length = extra_len;
     }
 
@@ -1042,10 +1042,8 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
     if (! wtap_dump_file_write(wdh, k12_eof, 2, err))
         return FALSE;
 
-    if (fseek(wdh->fh, 8, SEEK_SET) == -1) {
-        *err = errno;
+    if (wtap_dump_file_seek(wdh, 8, SEEK_SET, err) == -1) 
         return FALSE;
-    }
 
     d.u = g_htonl(k12->file_len);
 
@@ -1068,10 +1066,8 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
         return FALSE;
     }
 
-    if (fseek(wdh->fh, 0x200, SEEK_SET) == -1) {
-        *err = errno;
+    if (wtap_dump_file_seek(wdh, 0x200, SEEK_SET, err) == -1) 
         return FALSE;
-    }
 
     wdh->subtype_write = k12_dump;
     wdh->subtype_close = k12_dump_close;

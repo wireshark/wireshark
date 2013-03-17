@@ -1392,10 +1392,13 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_CANT_SEEK                    -20
     /** An attempt to seek failed, reason unknown */
 
-#define WTAP_ERR_DECOMPRESS                   -21
+#define WTAP_ERR_CANT_SEEK_COMPRESSED         -21
+    /** An attempt to seek on a compressed stream */
+
+#define WTAP_ERR_DECOMPRESS                   -22
     /** Error decompressing */
 
-#define WTAP_ERR_INTERNAL                     -22
+#define WTAP_ERR_INTERNAL                     -23
     /** "Shouldn't happen" internal errors */
 
 #ifdef __cplusplus

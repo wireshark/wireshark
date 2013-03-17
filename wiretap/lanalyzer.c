@@ -261,6 +261,13 @@ static const guint8 LA_CyclicInformationFake[] = {
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
       };
 
+static const guint8 z64[64] = {
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+      };
+
 typedef struct {
 	time_t	start;
 } lanalyzer_t;
@@ -617,7 +624,6 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
  *---------------------------------------------------*/
 static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
 {
-	static const guint8 z64[64];
 	size_t snack;
 
 	while (cnt) {
@@ -808,10 +814,9 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
            + sizeof (LA_CyclicInformationFake)
            + LA_IndexRecordSize;
 
-      if (fseek(wdh->fh, jump, SEEK_SET) == -1) {
-	      *err = errno;
+      if (wtap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1) 
 	      return FALSE;
-            }
+
       wdh->bytes_dumped = jump;
       return TRUE;
 }
@@ -839,7 +844,8 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
       if (fT == NULL)
             return FALSE;
 
-      fseek(wdh->fh, 0, SEEK_SET);
+      if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
+	    return FALSE;
 
       if (!wtap_dump_file_write(wdh, &LA_HeaderRegularFake,
                                 sizeof LA_HeaderRegularFake, err))

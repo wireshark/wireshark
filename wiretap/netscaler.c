@@ -1415,11 +1415,8 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
-                if (fseek(wdh->fh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR) == -1)
-                {
-                    *err = errno;
+                if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
                     return FALSE;
-                }
 
                 nstrace->page_offset = 0;
 
@@ -1456,11 +1453,8 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
-                if (fseek(wdh->fh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR) == -1)
-                {
-                    *err = errno;
+                if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
                     return FALSE;
-                }
 
                 nstrace->page_offset = 0;
 

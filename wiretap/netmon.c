@@ -983,10 +983,8 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
-	if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
-		*err = errno;
+	if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1) 
 		return FALSE;
-	}
 
 	wdh->subtype_write = netmon_dump;
 	wdh->subtype_close = netmon_dump_close;
@@ -1234,7 +1232,8 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		return FALSE;
 
 	/* Now go fix up the file header. */
-	fseek(wdh->fh, 0, SEEK_SET);
+	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
+		return FALSE;
 	memset(&file_hdr, '\0', sizeof file_hdr);
 	switch (wdh->file_type) {
 

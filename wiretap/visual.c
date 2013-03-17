@@ -684,10 +684,8 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
     /* All of the fields in the file header aren't known yet so
        just skip over it for now.  It will be created after all
        of the packets have been written. */
-    if (fseek(wdh->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET) == -1) {
-	*err = errno;
+    if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1) 
 	return FALSE;
-    }
 
     return TRUE;
 }
@@ -834,7 +832,8 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     }
 
     /* Write the magic number at the start of the file. */
-    fseek(wdh->fh, 0, SEEK_SET);
+    if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
+	return FALSE;
     magicp = visual_magic;
     magic_size = sizeof visual_magic;
     if (!wtap_dump_file_write(wdh, magicp, magic_size, err))

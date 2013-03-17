@@ -1513,3 +1513,41 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 		return fclose((FILE *)wdh->fh);
 	}
 }
+
+gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
+{
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
+		return -1;
+	} else
+#endif
+	{
+		if (-1 == fseek((FILE *)wdh->fh, (long)offset, whence)) {
+			*err = errno;
+			return -1;
+		} else
+		{
+			return 0;
+		}	
+	}
+}
+gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
+{
+	gint64 rval;
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
+		return -1;
+	} else
+#endif
+	{
+		if (-1 == (rval = ftell((FILE *)wdh->fh))) {
+			*err = errno;
+			return -1;
+		} else
+		{
+			return rval;
+		}	
+	}
+}

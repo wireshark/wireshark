@@ -115,8 +115,8 @@ struct wtap_dumper {
 
 gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
     size_t bufsize, int *err);
-extern gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
-extern gint64 wtap_dump_file_tell(wtap_dumper *wdh);
+gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
+gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
 
 extern gint wtap_num_file_types;

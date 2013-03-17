@@ -381,10 +381,8 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
-	if (fseek(wdh->fh, sizeof(t_5VW_Capture_Header), SEEK_SET) == -1) {
-		*err = errno;
+	if (wtap_dump_file_seek(wdh, sizeof(t_5VW_Capture_Header), SEEK_SET, err) == -1) 
 		return FALSE;
-	}
 
 	/* This is a 5Views file */
 	wdh->subtype_write = _5views_dump;
@@ -439,10 +437,8 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_Capture_Header file_hdr;
 
-	if (fseek(wdh->fh, 0, SEEK_SET) == -1) {
-		*err = errno;
+	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1) 
 		return FALSE;
-	}
 
 	/* fill in the Info_Header */
 	file_hdr.Info_Header.Signature = htolel(CST_5VW_INFO_HEADER_KEY);
