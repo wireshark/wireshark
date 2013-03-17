@@ -2051,7 +2051,6 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       i += 4;
       proto_tree_add_item(skinny_tree, hf_cast_callSecurityStatus, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      val = tvb_get_letohl( tvb, i);
       ti_sub = proto_tree_add_text(skinny_tree, tvb, i, 8, "partyPIRestrictionBits");
       skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
       proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CallingPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
