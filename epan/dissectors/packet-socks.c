@@ -610,7 +610,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += display_string( tvb, offset, tree,
 				"User name");
 						/* process password	*/
-		offset += display_string( tvb, offset, tree,
+		/*offset += */display_string( tvb, offset, tree,
 				"Password");
 	}
 					/* command to the server */
