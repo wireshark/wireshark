@@ -592,18 +592,17 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* call subdissector */
 			switch (frame_type) {
 				case DATA:
-					offset += dissect_data_frame(sub_tvb, sub_item, pinfo);
+					dissect_data_frame(sub_tvb, sub_item, pinfo);
 					break;
 				case HEADER: /* no further dissection is done/needed */
 					proto_item_append_text(sub_item, "Header Frame");
-					offset += tvb_length(sub_tvb);
 					break;
 				case CFG1:
 				case CFG2:
-					offset += dissect_config_frame(sub_tvb, sub_item);
+					dissect_config_frame(sub_tvb, sub_item);
 					break;
 				case CMD:
-					offset += dissect_command_frame(sub_tvb, sub_item, pinfo);
+					dissect_command_frame(sub_tvb, sub_item, pinfo);
 					break;
 
 				default:
@@ -612,7 +611,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_append_text(temp_item, " 0x%04x [correct]", crc);
 		}
 
-		offset += 2; /* CRC */
+		/*offset += 2;*/ /* CRC */
 	} /* if (tree) */
 } /* dissect_synphasor() */
 
@@ -666,7 +665,8 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_item(temp_tree, hf_timeqal_timequalindic, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
+	proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, ENC_BIG_ENDIAN);
+	/*offset += 3;*/
 
 	return framesize;
 }
