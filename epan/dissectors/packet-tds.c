@@ -1502,7 +1502,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
             offset += 2;
             collate_charset_id = tvb_get_guint8(tvb, offset);
             proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
-            offset +=1;
+            /*offset +=1;*/
         }
     }
 
@@ -1589,7 +1589,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
     }
 }
 
-static void
+static int
 dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint8 msg_len;
@@ -1638,6 +1638,8 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 
     proto_tree_add_text(tree, tvb, offset, 4, "Server Version");
     offset += 4;
+
+    return offset;
 }
 
 static int
