@@ -1337,7 +1337,7 @@ dissect_sprt_data(tvbuff_t *tvb,
         col_append_fstr(pinfo->cinfo, COL_INFO, ", No Payload");
     }
 
-    return tvb_length(tvb);
+    return offset;
 }
 
 static int
