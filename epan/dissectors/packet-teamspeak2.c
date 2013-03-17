@@ -510,7 +510,6 @@ static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree)
 	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 6, ENC_NA);
 	offset+=6;
 	proto_tree_add_item(ts2_tree, hf_ts2_nick, tvb, offset, 1, ENC_ASCII|ENC_NA);
-	offset+=30;
 }
 
 /* Parses TS2_LOGINEND packet and adds it to the tree */
@@ -540,7 +539,6 @@ static void ts2_parse_switchchannel(tvbuff_t *tvb, proto_tree *ts2_tree)
 	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_password, tvb, offset, 1, ENC_ASCII|ENC_NA);
-	offset+=30;
 }
 
 /* Parses a ts2 channel change (TS2T_CHANNELCHANGE) packet and adds it to the tree */
