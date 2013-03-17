@@ -2717,7 +2717,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } /* if (command_id & 0x80000000) */
 
             } /* if (command_length <= tvb_reported_length(pdu_tvb)) */
-            offset += command_length;
+            /*offset += command_length;*/
         } /* if (tree || (command_id == 4)) */
 
         /* Queue packet for Tap */
