@@ -3292,6 +3292,37 @@ static int hf_ieee80211_tag_bss_avg_ac_access_delay_bk = -1;
 static int hf_ieee80211_tag_bss_avg_ac_access_delay_vi = -1;
 static int hf_ieee80211_tag_bss_avg_ac_access_delay_vo = -1;
 
+static int hf_ieee80211_tag_rm_enabled_capabilities = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b0 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b1 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b2 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b3 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b4 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b5 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b6 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b7 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b8 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b9 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b10 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b11 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b12 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b13 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b14 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b15 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b16 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b17 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b18to20 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b21to23 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b24to26 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b27 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b28 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b29 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b30 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b31 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b32 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b33 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_o5 = -1;
+
 static int hf_ieee80211_tag_power_constraint_local = -1;
 
 static int hf_ieee80211_tag_power_capability_min = -1;
@@ -4007,6 +4038,13 @@ static gint ett_tag_ex_cap5 = -1;
 static gint ett_tag_ex_cap6 = -1;
 static gint ett_tag_ex_cap7 = -1;
 static gint ett_tag_ex_cap8 = -1;
+
+static gint ett_tag_rm_cap1 = -1;
+static gint ett_tag_rm_cap2 = -1;
+static gint ett_tag_rm_cap3 = -1;
+static gint ett_tag_rm_cap4 = -1;
+static gint ett_tag_rm_cap5 = -1;
+
 
 static gint ett_tag_supported_channels = -1;
 
@@ -9130,6 +9168,84 @@ dissect_bss_ac_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
+dissect_rm_enabled_capabilities_ie(packet_info *pinfo, proto_tree *tree,
+                         proto_item *ti, proto_item *ti_len,
+                         guint32 tag_len, tvbuff_t *tvb,
+                         int offset, int tag_end _U_)
+{
+  proto_item *ti_ex_cap;
+  proto_tree *ex_cap_tree;
+
+  if (tag_len != 5)
+  {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "RM Enabled Capabilites length %u wrong, must = 4", tag_len);
+    return offset;
+  }
+  proto_item_append_text(ti, " (%d octets)", tag_len);
+
+  /* RM Enabled Capability octet 1 */
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_rm_enabled_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 1)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_rm_cap1);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b0, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b1, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b2, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b3, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b4, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b5, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b6, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b7, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* RM Enabled Capability octet 2 */
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_rm_enabled_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 2)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_rm_cap2);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b8, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b9, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b10, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b11, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b12, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b13, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b14, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b15, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* RM Enabled Capability octet 3 */
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_rm_enabled_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 3)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_rm_cap3);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b16, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b17, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b18to20, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b21to23, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* RM Enabled Capability octet 4 */
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_rm_enabled_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 4)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_rm_cap4);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b24to26, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b27, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b28, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b29, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b30, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b31, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* RM Enabled Capability octet 5 */
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_rm_enabled_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 5)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_rm_cap5);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b32, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_b33, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_rm_enabled_capabilities_o5, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  return offset;
+}
+
+static int
 dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                          guint32 tag_len, proto_item *ti_len, gboolean vs)
 {
@@ -11207,6 +11323,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_TIME_ADV:
       dissect_time_adv(tree, tvb, offset + 2);
+      break;
+
+    case TAG_RM_ENABLED_CAPABILITY: /* RM Enabled Capabilities (70) */
+      dissect_rm_enabled_capabilities_ie(pinfo, tree, ti, ti_len, tag_len, tvb, offset+2, tag_end);
       break;
 
     case TAG_MESH_PEERING_MGMT:
@@ -16844,6 +16964,139 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
+
+    /* 802.11-2012 Table 8-119-RM Enabled Capabilities definition */
+    {&hf_ieee80211_tag_rm_enabled_capabilities,
+     {"RM Capabilities", "wlan_mgt.rmcap",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Signals support for radio measurements in a device", HFILL }},
+
+    /* RM Enabled Capability octet 1 */
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b0,
+     {"Link Measurement", "wlan_mgt.rmcap.b0",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b1,
+     {"Neighbor Report", "wlan_mgt.rmcap.b1",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b2,
+     {"Parallel Measurements", "wlan_mgt.rmcap.b2",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b3,
+     {"Repeated Measurements", "wlan_mgt.rmcap.b3",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b4,
+     {"Beacon Passive Measurement", "wlan_mgt.rmcap.b4",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b5,
+     {"Beacon Active Measurement", "wlan_mgt.rmcap.b5",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b6,
+     {"Beacon Table Measurement", "wlan_mgt.rmcap.b6",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b7,
+     {"Beacon Measurement Reporting Conditions", "wlan_mgt.rmcap.b7",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
+      NULL, HFILL }},
+
+    /* RM Enabled Capability octet 2 */
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b8,
+     {"Frame Measurement", "wlan_mgt.rmcap.b8",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b9,
+     {"Channel Load Measurement", "wlan_mgt.rmcap.b9",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b10,
+     {"Noise Histogram Measurement", "wlan_mgt.rmcap.b10",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b11,
+     {"Statistics Measurement", "wlan_mgt.rmcap.b11",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b12,
+     {"LCI Measurement", "wlan_mgt.rmcap.b12",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b13,
+     {"LCI Azimuth capability", "wlan_mgt.rmcap.b13",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b14,
+     {"Transmit Stream/Category Measurement", "wlan_mgt.rmcap.b14",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b15,
+     {"Triggered Transmit Stream/Category Measurement", "wlan_mgt.rmcap.b15",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
+      NULL, HFILL }},
+
+    /* RM Enabled Capability octet 3 */
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b16,
+     {"AP Channel Report capability", "wlan_mgt.rmcap.b16",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b17,
+     {"RM MIB capability", "wlan_mgt.rmcap.b17",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b18to20,
+     {"Operating Channel Max Measurement Duration", "wlan_mgt.rmcap.b18to20",
+      FT_UINT8, BASE_DEC, NULL, 0x1C,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b21to23,
+     {"Nonoperating Channel Max Measurement Duration", "wlan_mgt.rmcap.b21to23",
+      FT_UINT8, BASE_DEC, NULL, 0xE0,
+      NULL, HFILL }},
+
+    /* RM Enabled Capability octet 4 */
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b24to26,
+     {"Measurement Pilotcapability", "wlan_mgt.rmcap.b24to26",
+      FT_UINT8, BASE_DEC, NULL, 0x07,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b27,
+     {"Measurement Pilot Transmission Information", "wlan_mgt.rmcap.b27",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b28,
+     {"Neighbor Report TSF Offset", "wlan_mgt.rmcap.b28",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b29,
+     {"RCPI Measurement capability", "wlan_mgt.rmcap.b29",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b30,
+     {"RSNI Measurement capability", "wlan_mgt.rmcap.b30",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b31,
+     {"BSS Average Access Delay capability", "wlan_mgt.rmcap.b31",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
+      NULL, HFILL }},
+
+    /* RM Enabled Capability octet 5 */
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b32,
+     {"BSS Available Admission Capacity capability", "wlan_mgt.rmcap.b32",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b33,
+     {"Antenna capability", "wlan_mgt.rmcap.b33",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_rm_enabled_capabilities_o5,
+     {"Reserved", "wlan_mgt.rmcap.o5",
+      FT_UINT8, BASE_HEX, NULL, 0xFC,
+      "Must be zero", HFILL }},
+
     {&hf_ieee80211_tag_power_constraint_local,
      {"Local Power Constraint", "wlan_mgt.powercon.local",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -19154,6 +19407,11 @@ proto_register_ieee80211 (void)
     &ett_tag_ex_cap6,
     &ett_tag_ex_cap7,
     &ett_tag_ex_cap8,
+    &ett_tag_rm_cap1,
+    &ett_tag_rm_cap2,
+    &ett_tag_rm_cap3,
+    &ett_tag_rm_cap4,
+    &ett_tag_rm_cap5,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
