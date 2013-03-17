@@ -288,7 +288,6 @@ dissect_tn3270_regime_subopt(packet_info *pinfo, const char *optname _U_, tvbuff
         proto_tree_add_text(tree, tvb, offset, 1, "IS");
       }
       proto_tree_add_item(tree, hf_tn3270_regime_subopt_value, tvb, offset + 1, len - 1, ENC_NA|ENC_ASCII);
-      offset += len;
       len -= len;
       return;
     default:
@@ -1534,7 +1533,6 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 
   /* Search for an unescaped IAC. */
   cur_offset = offset;
-  iac_found = FALSE;
   len = tvb_length_remaining(tvb, offset);
   do {
     iac_offset = tvb_find_guint8(tvb, cur_offset, len, TN_IAC);
