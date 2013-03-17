@@ -223,7 +223,7 @@ static gchar *
 prism_rate_return(guint32 rate)
 {
   gchar *result=NULL;
-  result = ep_alloc(SHORT_STR);
+  result = (gchar *)ep_alloc(SHORT_STR);
   result[0] = '\0';
   prism_rate_base_custom(result, rate);
 

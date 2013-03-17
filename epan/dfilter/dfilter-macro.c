@@ -611,7 +611,7 @@ void dfilter_macro_init(void) {
 				    sizeof(dfilter_macro_t),
 				    DFILTER_MACRO_FILENAME,
 				    TRUE,
-				    (void*) &macros,
+				    (void**) &macros,
 				    &num_macros,
 				    0, /* doesn't affect anything that requires a GUI update */
 				    "ChDisplayFilterMacrosSection",

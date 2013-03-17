@@ -852,21 +852,21 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
 	/*
 	 * Check if the conversation has data associated with it.
 	 */
-	p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
 
 	/*
 	 * If not, add a new data item.
 	 */
 	if (! p_conv_data) {
 		/* Create conversation data */
-		p_conv_data = se_alloc(sizeof(struct _rtp_conversation_info));
+		p_conv_data = se_new(struct _rtp_conversation_info);
 		p_conv_data->rtp_dyn_payload = NULL;
 
 		/* start this at 0x10000 so that we cope gracefully with the
 		 * first few packets being out of order (hence 0,65535,1,2,...)
 		 */
 		p_conv_data->extended_seqno = 0x10000;
-		p_conv_data->rtp_conv_info = se_alloc(sizeof(rtp_private_conv_info));
+		p_conv_data->rtp_conv_info = se_new(rtp_private_conv_info);
 		p_conv_data->rtp_conv_info->multisegment_pdus = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,"rtp_ms_pdus");
 		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
 	}
@@ -980,7 +980,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 	payload_len = tvb_length_remaining(newtvb, offset);
 
 	/* first check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 	if (p_conv_data && p_conv_data->srtp_info) {
 		srtp_info = p_conv_data->srtp_info;
 		payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
@@ -1015,7 +1015,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 		if (p_conv_data && p_conv_data->rtp_dyn_payload) {
 			gchar *payload_type_str = NULL;
 			encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
-			encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
+			encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
 			if (encoding_name_and_rate_pt) {
 				payload_type_str = encoding_name_and_rate_pt->encoding_name;
 			}
@@ -1069,7 +1069,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint32 seqno;
 
 	/* Retrieve RTPs idea of a converation */
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 
 	if(p_conv_data != NULL)
 		finfo = p_conv_data->rtp_conv_info;
@@ -1193,7 +1193,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			deseg_offset);
 #endif
 		/* allocate a new msp for this pdu */
-		msp = se_alloc(sizeof(rtp_multisegment_pdu));
+		msp = se_new(rtp_multisegment_pdu);
 		msp->startseq = seqno;
 		msp->endseq = seqno+1;
 		se_tree_insert32(finfo->multisegment_pdus,seqno,msp);
@@ -1267,7 +1267,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar *payload_type_str;
 
 	/* Retrieve RTPs idea of a converation */
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 
 	/* Add try to RFC 2198 data */
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC 2198: Redundant Audio Data");
@@ -1280,7 +1280,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		payload_type_str = NULL;
 
 		/* Allocate and fill in header */
-		hdr_new = ep_alloc(sizeof(rfc2198_hdr));
+		hdr_new = ep_new(rfc2198_hdr);
 		hdr_new->next = NULL;
 		octet1 = tvb_get_guint8(tvb, offset);
 		hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
@@ -1290,7 +1290,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
 			if (p_conv_data && p_conv_data->rtp_dyn_payload){
 				encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
-				encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &hdr_new->pt);
+				encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &hdr_new->pt);
 				if (encoding_name_and_rate_pt) {
 					payload_type_str = encoding_name_and_rate_pt->encoding_name;
 				}
@@ -1600,7 +1600,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	/* Look for conv and add to the frame if found */
 	get_conv_info(pinfo, rtp_info);
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 
 	if (p_conv_data)
 		rtp_info->info_is_video = p_conv_data->is_video;
@@ -1611,7 +1611,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
 
 	/* check if this is added as an SRTP stream - if so, don't try to dissect the payload data for now */
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 
 #if 0 /* XXX: srtp_offset never actually used ?? */
 	if (p_conv_data && p_conv_data->srtp_info) {
@@ -1626,7 +1626,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( (payload_type>95) && (payload_type<128) ) {
 		if (p_conv_data && p_conv_data->rtp_dyn_payload){
 			encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
-			encoding_name_and_rate_pt = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
+			encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
 			if (encoding_name_and_rate_pt) {
 				rtp_info->info_payload_type_str = payload_type_str = encoding_name_and_rate_pt->encoding_name;
 				rtp_info->info_payload_rate = encoding_name_and_rate_pt->sample_rate;
@@ -2030,7 +2030,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	/* Use existing packet info if available */
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 
 	if (!p_conv_data)
 	{
@@ -2042,13 +2042,13 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 		{
 			/* Create space for packet info */
 			struct _rtp_conversation_info *p_conv_packet_data;
-			p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
+			p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
 
 			if (p_conv_data) {
 				guint32 seqno;
 
 				/* Save this conversation info into packet info */
-				p_conv_packet_data = se_alloc(sizeof(struct _rtp_conversation_info));
+				p_conv_packet_data = se_new(struct _rtp_conversation_info);
 				g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
 				p_conv_packet_data->is_video = p_conv_data->is_video;
@@ -2080,7 +2080,7 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 
 	/* Use existing packet info if available */
-	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtp);
 
 	if (!p_conv_data) return;
 

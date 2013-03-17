@@ -58,7 +58,7 @@ typedef enum {
 	SMB2_EI_FINDPATTERN	/* find tracking  char * */
 } smb2_extra_info_t;
 typedef struct _smb2_saved_info_t {
-	guint8 class;
+	guint8 smb2_class;
 	guint8 infolevel;
 	guint64 seqnum;
 	guint32 frame_req, frame_res;

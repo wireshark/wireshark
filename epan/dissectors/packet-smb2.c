@@ -519,6 +519,8 @@ static const value_string smb2_find_info_levels[] = {
 	{ 0, NULL }
 };
 
+static const gint8 zeros[NTLMSSP_KEY_LEN] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 /* ExportObject preferences variable */
 gboolean eosmb2_take_name_as_fid = FALSE ;
 
@@ -1418,8 +1420,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 				if (eo_file_info) {
 					si->eo_file_info=eo_file_info;
 				} else { /* XXX This should never happen */
-					eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
-					policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
+					eo_file_info = se_new(smb2_eo_file_info_t);
+					policy_hnd_hashtablekey = se_new(e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
 					g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
@@ -2457,9 +2459,8 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* If we have found a uid->acct_name mapping, store it */
 	if (!pinfo->fd->flags.visited) {
 		idx = 0;
-		while ((ntlmssph = fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
+		while ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
 			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
-				static const gint8 zeros[NTLMSSP_KEY_LEN];
 				smb2_sesid_info_t *sesid;
 				sesid = se_new(smb2_sesid_info_t);
 				sesid->sesid = si->sesid;
@@ -3492,7 +3493,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 static int
 dissect_smb2_getinfo_parameters(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
-	switch (si->saved->class) {
+	switch (si->saved->smb2_class) {
 	case SMB2_CLASS_FILE_INFO:
 		switch (si->saved->infolevel) {
 		default:
@@ -3544,13 +3545,13 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		if (!si->saved) {
 			return offset;
 		}
-		cl = si->saved->class;
+		cl = si->saved->smb2_class;
 		il = si->saved->infolevel;
 	} else {
 		cl = tvb_get_guint8(tvb, offset);
 		il = tvb_get_guint8(tvb, offset+1);
 		if (si->saved) {
-			si->saved->class = cl;
+			si->saved->smb2_class = cl;
 			si->saved->infolevel = il;
 		}
 	}
@@ -3631,11 +3632,11 @@ dissect_smb2_getinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
-dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si, guint8 class, guint8 infolevel)
+dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si, guint8 smb2_class, guint8 infolevel)
 {
 	int old_offset = offset;
 
-	switch (class) {
+	switch (smb2_class) {
 	case SMB2_CLASS_FILE_INFO:
 		switch (infolevel) {
 		case SMB2_FILE_BASIC_INFO:
@@ -3764,7 +3765,7 @@ dissect_smb2_getinfo_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	/* data */
 	if (si->saved) {
-		dissect_smb2_infolevel(tvb, pinfo, tree, 0, si, si->saved->class, si->saved->infolevel);
+		dissect_smb2_infolevel(tvb, pinfo, tree, 0, si, si->saved->smb2_class, si->saved->infolevel);
 	} else {
 		/* some unknown bytes */
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
@@ -5580,8 +5581,8 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		if (si->saved && f_olb.len && f_olb.len<256) {
 			si->saved->extra_info_type = SMB2_EI_FILENAME;
-			si->saved->extra_info = g_malloc(f_olb.len+1);
-			g_snprintf(si->saved->extra_info, f_olb.len+1, "%s", fname);
+			si->saved->extra_info = (gchar *)g_malloc(f_olb.len+1);
+			g_snprintf((gchar *)si->saved->extra_info, f_olb.len+1, "%s", fname);
 		}
 	}
 
@@ -5724,7 +5725,7 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* data */
 	if (si->saved)
-	  dissect_smb2_infolevel(tvb, pinfo, tree, setinfo_offset, si, si->saved->class, si->saved->infolevel);
+	  dissect_smb2_infolevel(tvb, pinfo, tree, setinfo_offset, si, si->saved->smb2_class, si->saved->infolevel);
 	offset = setinfo_offset + setinfo_size;
 
 	return offset;
@@ -6566,8 +6567,6 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 
 #ifdef HAVE_LIBGCRYPT
 	if (sti->session != NULL && sti->alg == ENC_ALG_aes128_ccm) {
-		static const guint8 zeros[16];
-
 		if (pinfo->destport == sti->session->server_port) {
 			decryption_key = sti->session->server_decryption_key;
 		} else {
@@ -6751,7 +6750,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	if (!(si->flags&SMB2_FLAGS_ASYNC_CMD)) {
 		/* see if we can find the name for this tid */
 		tid_key.tid = si->tid;
-		si->tree = g_hash_table_lookup(si->session->tids, &tid_key);
+		si->tree = (smb2_tid_info_t *)g_hash_table_lookup(si->session->tids, &tid_key);
 		if (!si->tree) return offset;
 
 		item = proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, tid_offset, 4, si->tree->name);
@@ -6791,8 +6790,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	smb2_eo_file_info_t	*eo_file_info;
 	e_ctx_hnd		*policy_hnd_hashtablekey;
 
-	sti = ep_alloc(sizeof(smb2_transform_info_t));
-	si  = ep_alloc(sizeof(smb2_info_t));
+	sti = ep_new(smb2_transform_info_t);
+	si  = ep_new(smb2_info_t);
 	si->eo_file_info = NULL;
 	si->conv     = NULL;
 	si->saved    = NULL;
@@ -6807,12 +6806,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	 * conversation
 	 */
 	conversation = find_or_create_conversation(pinfo);
-	si->conv = conversation_get_proto_data(conversation, proto_smb2);
+	si->conv = (smb2_conv_info_t *)conversation_get_proto_data(conversation, proto_smb2);
 	if (!si->conv) {
 		/* no smb2_into_t structure for this conversation yet,
 		 * create it.
 		 */
-		si->conv = se_alloc(sizeof(smb2_conv_info_t));
+		si->conv = se_new(smb2_conv_info_t);
 		/* qqq this leaks memory for now since we never free
 		   the hashtables */
 		si->conv->matched = g_hash_table_new(smb2_saved_info_hash_matched,
@@ -6948,7 +6947,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 		if (!pinfo->fd->flags.visited) {
 			/* see if we can find this seqnum in the unmatched table */
-			ssi = g_hash_table_lookup(si->conv->unmatched, &ssi_key);
+			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 
 			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
 				/* This is a request */
@@ -6965,7 +6964,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					/* no we couldnt find it, so just add it then
 					* if was a request we are decoding
 					*/
-					ssi                  = se_alloc0(sizeof(smb2_saved_info_t));
+					ssi                  = se_new0(smb2_saved_info_t);
 					ssi->seqnum          = ssi_key.seqnum;
 					ssi->frame_req       = pinfo->fd->num;
 					ssi->req_time        = pinfo->fd->abs_ts;

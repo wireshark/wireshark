@@ -6899,7 +6899,7 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(TARGET_CHANNEL                        , target_channel),
   FF_FIELD(REGULATORY_CLASS                      , regulatory_class),
   FF_FIELD(WNM_ACTION_CODE                       , wnm_action_code),
-  { -1                                           , NULL }
+  { (enum fixed_field)-1                         , NULL }
 };
 
 #undef FF_FIELD
@@ -6968,7 +6968,7 @@ rsn_gcs_base_custom(gchar *result, guint32 gcs)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -6980,7 +6980,7 @@ rsn_pcs_base_custom(gchar *result, guint32 pcs)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, pcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -6992,7 +6992,7 @@ rsn_akms_base_custom(gchar *result, guint32 akms)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7004,7 +7004,7 @@ rsn_pcs_return(guint32 pcs)
 {
   gchar *result;
 
-  result = ep_alloc(SHORT_STR);
+  result = (gchar *)ep_alloc(SHORT_STR);
   result[0] = '\0';
   rsn_pcs_base_custom(result, pcs);
 
@@ -7016,7 +7016,7 @@ rsn_akms_return(guint32 akms)
 {
   gchar *result;
 
-  result = ep_alloc(SHORT_STR);
+  result = (gchar *)ep_alloc(SHORT_STR);
   result[0] = '\0';
   rsn_akms_base_custom(result, akms);
 
@@ -7028,7 +7028,7 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gmcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7127,7 +7127,7 @@ wpa_mcs_base_custom(gchar *result, guint32 mcs)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, mcs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7139,7 +7139,7 @@ wpa_ucs_base_custom(gchar *result, guint32 ucs)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, ucs >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7151,7 +7151,7 @@ wpa_akms_base_custom(gchar *result, guint32 akms)
 {
   gchar *oui_result;
 
-  oui_result = ep_alloc(SHORT_STR);
+  oui_result = (gchar *)ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
@@ -7163,7 +7163,7 @@ wpa_ucs_return(guint32 ucs)
 {
   gchar *result;
 
-  result = ep_alloc(SHORT_STR);
+  result = (gchar *)ep_alloc(SHORT_STR);
   result[0] = '\0';
   wpa_ucs_base_custom(result, ucs);
 
@@ -7175,7 +7175,7 @@ wpa_akms_return(guint32 akms)
 {
   gchar *result;
 
-  result = ep_alloc(SHORT_STR);
+  result = (gchar *)ep_alloc(SHORT_STR);
   result[0] = '\0';
   wpa_akms_base_custom(result, akms);
 
@@ -12876,7 +12876,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           } else {
             /* first time or new seq*/
             if (!result) {
-              result = se_alloc(sizeof(retransmit_key));
+              result = se_new(retransmit_key);
               *result = key;
               g_hash_table_insert(fc_analyse_retransmit_table, result, result);
             }
@@ -13354,8 +13354,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         octet1 = tvb_get_guint8(next_tvb, 0);
         octet2 = tvb_get_guint8(next_tvb, 1);
         if ((octet1 != 0xaa) || (octet2 != 0xaa)) {
-          if ((tvb_memeql(next_tvb, 6, pinfo->dl_src.data, 6) == 0) ||
-              (tvb_memeql(next_tvb, 0, pinfo->dl_dst.data, 6) == 0))
+          if ((tvb_memeql(next_tvb, 6, (const guint8 *)pinfo->dl_src.data, 6) == 0) ||
+              (tvb_memeql(next_tvb, 0, (const guint8 *)pinfo->dl_dst.data, 6) == 0))
             encap_type = ENCAP_ETHERNET;
           else if ((octet1 == 0xff) && (octet2 == 0xff))
             encap_type = ENCAP_IPX;
@@ -13537,7 +13537,7 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     }
 
     /* allocate buffer for decrypted payload                      */
-    tmp = g_memdup(dec_data+offset, dec_caplen-offset);
+    tmp = (guint8 *)g_memdup(dec_data+offset, dec_caplen-offset);
 
     len = dec_caplen-offset;
 
@@ -19267,7 +19267,7 @@ proto_register_ieee80211 (void)
             sizeof(uat_wep_key_record_t), /* record size */
             "80211_keys",                 /* filename */
             TRUE,                         /* from_profile */
-            (void*) &uat_wep_key_records, /* data_ptr */
+            (void**) &uat_wep_key_records,/* data_ptr */
             &num_wepkeys_uat,             /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,       /* affects dissection of packets, but not set of named fields */
             NULL,                         /* help */

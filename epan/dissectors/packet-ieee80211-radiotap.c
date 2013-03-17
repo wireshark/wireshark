@@ -874,7 +874,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 		ld->other++;
 		return;
 	}
-	hdr = (void *)pd;
+	hdr = (struct ieee80211_radiotap_header *)pd;
 	it_len = pletohs(&hdr->it_len);
 	if (!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
 		ld->other++;
@@ -1028,7 +1028,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (!data)
 		return;
 
-	if (ieee80211_radiotap_iterator_init(&iter, data, length, NULL)) {
+	if (ieee80211_radiotap_iterator_init(&iter, (struct ieee80211_radiotap_header *)data, length, NULL)) {
 		if (tree)
 			proto_item_append_text(ti, " (invalid)");
 		/* maybe the length was correct anyway ... */
