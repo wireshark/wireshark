@@ -2170,7 +2170,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset += 4;
 
             proto_tree_add_item(evpd_tree, hf_scsi_block_limits_mwsl, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
+            /*offset += 8;*/
 
             break;
         case SCSI_EVPD_LBP:
@@ -2186,7 +2186,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset += 1;
 
             proto_tree_add_item(evpd_tree, hf_scsi_sbc_ptype, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+            /*offset += 1;*/
 
             break;
         }
