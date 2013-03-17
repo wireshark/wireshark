@@ -3021,7 +3021,7 @@ dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { 0, 0, 0, 0, 0 }
   };
 
-  offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
+ tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
 
   return 2;
 
@@ -4607,8 +4607,8 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
       case DEFINE_SCALE_LINE:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dsl_fields);
         while ((offset - start) < sf_length) {
-          /* XXX length unused */
-          length = tvb_get_guint8(tvb,offset);
+          /* XXX length unused 
+          length = tvb_get_guint8(tvb,offset); */
           offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, dsl_fields2);
         }
         break;
