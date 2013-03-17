@@ -9138,7 +9138,7 @@ dissect_bss_ac_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
   }
 
-  /* TODO: Display the scaled representation of the average 
+  /* TODO: Display the scaled representation of the average
     medium access delay (a big (precalculed) value_string ?)
     See 8.4.2.46 BSS AC Access Delay element ... */
 
@@ -12733,15 +12733,12 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             fcs_bad = TRUE;
           }
 
+          fcs_item = proto_tree_add_item(hdr_tree, hf_ieee80211_fcs, tvb,
+                hdr_len + len, 4, ENC_LITTLE_ENDIAN);
           if (fcs_good) {
-            fcs_item = proto_tree_add_uint_format(hdr_tree, hf_ieee80211_fcs, tvb,
-                hdr_len + len, 4, sent_fcs,
-                "Frame check sequence: 0x%08x [correct]", sent_fcs);
+            proto_item_append_text(fcs_item, " [correct]");
           } else {
-            fcs_item = proto_tree_add_uint_format(hdr_tree, hf_ieee80211_fcs, tvb,
-                hdr_len + len, 4, sent_fcs,
-                "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
-                sent_fcs, fcs);
+            proto_item_append_text(fcs_item, " [incorrect, should be 0x%08x]", fcs);
             flag_str[8] = '.';
           }
 
