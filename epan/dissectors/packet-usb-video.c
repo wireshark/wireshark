@@ -1003,7 +1003,7 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
     if (offset < descriptor_len)
     {
         proto_tree_add_text(tree, tvb, offset, descriptor_len-offset, "Descriptor data");
-        offset = descriptor_len;
+        /* offset = descriptor_len; */
     }
 
     if (entity_id != 0)
