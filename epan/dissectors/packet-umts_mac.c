@@ -127,23 +127,23 @@ static GHashTable * mac_is_sdus = NULL; /* channel -> (frag -> sdu) */
 static GHashTable * mac_is_fragments = NULL; /* channel -> body_parts[] */
 static gboolean mac_is_channel_equal(gconstpointer a, gconstpointer b)
 {
-	const mac_is_channel *x = a, *y = b;
+	const mac_is_channel *x = (const mac_is_channel *)a, *y = (const mac_is_channel *)b;
 	return x->lchid == y->lchid && x->ueid == y->ueid;
 }
 static guint mac_is_channel_hash(gconstpointer key)
 {
-    const mac_is_channel * ch = key;
+    const mac_is_channel * ch = (const mac_is_channel *)key;
     return (ch->ueid << 4)  | ch->lchid;
 }
 
 static gboolean mac_is_fragment_equal(gconstpointer a, gconstpointer b)
 {
-    const mac_is_fragment *x = a, *y = b;
+    const mac_is_fragment *x = (const mac_is_fragment *)a, *y = (const mac_is_fragment *)b;
     return x->frame_num == y->frame_num && x->tsn == y->tsn && x->type == y->type;
 }
 static guint mac_is_fragment_hash(gconstpointer key)
 {
-    const mac_is_fragment *frag = key;
+    const mac_is_fragment *frag = (const mac_is_fragment *)key;
     return (frag->frame_num << 2) | frag->type;
 }
 
@@ -462,9 +462,9 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             add_new_data_source(pinfo, next_tvb, "Octet-Aligned BCCH Data");
 
             /* In this case skip RLC and call RRC immediately subdissector */
-            rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
+            rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc);
             if (!rrcinf) {
-                rrcinf = se_alloc0(sizeof(struct rrc_info));
+                rrcinf = se_new0(struct rrc_info);
                 p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
             }
             rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
@@ -607,7 +607,7 @@ static void init_frag(tvbuff_t * tvb, body_parts * bp, guint length, guint offse
     mac_is_fragment * frag = se_new(mac_is_fragment);
     frag->type = type;
     frag->length = length;
-    frag->data = g_malloc(length);
+    frag->data = (guint8 *)g_malloc(length);
     frag->frame_num = frame_num;
     frag->tsn = tsn;
     frag->next = NULL;
@@ -651,7 +651,7 @@ static tvbuff_t * reassemble(tvbuff_t * tvb, body_parts ** body_parts_array, gui
     GHashTable * sdus;
 
     /* Find frag->sdu hash table for this channel. */
-    sdus = g_hash_table_lookup(mac_is_sdus, ch);
+    sdus = (GHashTable *)g_hash_table_lookup(mac_is_sdus, ch);
     /* If this is the first time we see this channel. */
     if (sdus == NULL) {
         mac_is_channel * channel;
@@ -663,7 +663,7 @@ static tvbuff_t * reassemble(tvbuff_t * tvb, body_parts ** body_parts_array, gui
 
     sdu = se_new(mac_is_sdu);
     sdu->length = 0;
-    sdu->data = se_alloc(length);
+    sdu->data = (guint8 *)se_alloc(length);
 
     f = body_parts_array[head_tsn]->head; /* Start from head. */
     g_hash_table_insert(sdus, f, sdu); /* Insert head->sdu mapping. */
@@ -696,12 +696,12 @@ static mac_is_sdu * get_sdu(guint frame_num, guint16 tsn, guint8 type, mac_is_ch
     GHashTable * sdus = NULL;
     mac_is_fragment frag_lookup_key;
 
-    sdus = g_hash_table_lookup(mac_is_sdus, ch);
+    sdus = (GHashTable *)g_hash_table_lookup(mac_is_sdus, ch);
     if (sdus) {
         frag_lookup_key.frame_num = frame_num;
         frag_lookup_key.tsn = tsn;
         frag_lookup_key.type = type;
-        sdu = g_hash_table_lookup(sdus, &frag_lookup_key);
+        sdu = (mac_is_sdu *)g_hash_table_lookup(sdus, &frag_lookup_key);
         return sdu;
     }
     return NULL;
@@ -780,7 +780,7 @@ static guint find_tail(body_parts ** body_parts_array, guint16 tsn)
  */
 static body_parts ** get_body_parts(mac_is_channel * ch)
 {
-    body_parts ** bpa = g_hash_table_lookup(mac_is_fragments, ch);
+    body_parts ** bpa = (body_parts **)g_hash_table_lookup(mac_is_fragments, ch);
     /* If there was no body_part* array for this channel, create one. */
     if (bpa == NULL) {
         mac_is_channel * channel;

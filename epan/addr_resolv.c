@@ -1362,7 +1362,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
      well-known-address table, creating that table if necessary. */
   wka_tp = wka_table[mask];
   if (wka_tp == NULL)
-    wka_tp = wka_table[mask] = se_alloc0(sizeof *wka_table[mask]);
+    wka_tp = wka_table[mask] = (hashwka_t *(*)[HASHETHSIZE])se_alloc0(sizeof *wka_table[mask]);
 
   hash_idx = hash_eth_wka(addr, mask);
 

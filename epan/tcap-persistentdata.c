@@ -327,9 +327,9 @@ append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
      This should append when the tcap-transaction Id is reused  */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_begincall = g_malloc0(sizeof(struct tcaphash_begincall_t));
+  p_new_tcaphash_begincall = (struct tcaphash_begincall_t *)g_malloc0(sizeof(struct tcaphash_begincall_t));
 #else
-  p_new_tcaphash_begincall = se_alloc0(sizeof(struct tcaphash_begincall_t));
+  p_new_tcaphash_begincall = se_new0(struct tcaphash_begincall_t);
 #endif
   p_new_tcaphash_begincall->context=p_tcaphash_context;
   p_tcaphash_context->begincall=p_new_tcaphash_begincall;
@@ -381,9 +381,9 @@ append_tcaphash_ansicall(struct tcaphash_ansicall_t *prev_ansicall,
      This should append when the tcap-transaction Id is reused  */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_ansicall = g_malloc0(sizeof(struct tcaphash_ansicall_t));
+  p_new_tcaphash_ansicall = (struct tcaphash_ansicall_t *)g_malloc0(sizeof(struct tcaphash_ansicall_t));
 #else
-  p_new_tcaphash_ansicall = se_alloc0(sizeof(struct tcaphash_ansicall_t));
+  p_new_tcaphash_ansicall = se_new0(struct tcaphash_ansicall_t);
 #endif
   p_new_tcaphash_ansicall->context=p_tcaphash_context;
   p_tcaphash_context->ansicall=p_new_tcaphash_ansicall;
@@ -418,9 +418,9 @@ append_tcaphash_contcall(struct tcaphash_contcall_t *prev_contcall,
      This should append when the tcap-transaction Id is reused  */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_contcall = g_malloc0(sizeof(struct tcaphash_contcall_t));
+  p_new_tcaphash_contcall = (struct tcaphash_contcall_t *)g_malloc0(sizeof(struct tcaphash_contcall_t));
 #else
-  p_new_tcaphash_contcall = se_alloc0(sizeof(struct tcaphash_contcall_t));
+  p_new_tcaphash_contcall = se_new0(struct tcaphash_contcall_t);
 #endif
   p_new_tcaphash_contcall->context=p_tcaphash_context;
   p_tcaphash_context->contcall=p_new_tcaphash_contcall;
@@ -448,9 +448,9 @@ append_tcaphash_endcall(struct tcaphash_endcall_t *prev_endcall,
      This should append when the tcap-transaction Id is reused  */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_endcall = g_malloc0(sizeof(struct tcaphash_endcall_t));
+  p_new_tcaphash_endcall = (struct tcaphas_endcall_t *)g_malloc0(sizeof(struct tcaphash_endcall_t));
 #else
-  p_new_tcaphash_endcall = se_alloc0(sizeof(struct tcaphash_endcall_t));
+  p_new_tcaphash_endcall = se_new0(struct tcaphash_endcall_t);
 #endif
   p_new_tcaphash_endcall->context=p_tcaphash_context;
   p_tcaphash_context->endcall=p_new_tcaphash_endcall;
@@ -618,16 +618,16 @@ new_tcaphash_context(struct tcaphash_context_key_t *p_tcaphash_context_key,
      Once created, this entry will be updated later */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_context_key = g_malloc(sizeof(struct tcaphash_context_key_t));
+  p_new_tcaphash_context_key = (struct tcaphash_context_key_t *)g_malloc(sizeof(struct tcaphash_context_key_t));
 #else
-  p_new_tcaphash_context_key = se_alloc(sizeof(struct tcaphash_context_key_t));
+  p_new_tcaphash_context_key = se_new(struct tcaphash_context_key_t);
 #endif
   p_new_tcaphash_context_key->session_id = p_tcaphash_context_key->session_id;
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_context = g_malloc0(sizeof(struct tcaphash_context_t));
+  p_new_tcaphash_context = (struct tcaphash_context_t *)g_malloc0(sizeof(struct tcaphash_context_t));
 #else
-  p_new_tcaphash_context = se_alloc0(sizeof(struct tcaphash_context_t));
+  p_new_tcaphash_context = se_new0(struct tcaphash_context_t);
 #endif
   p_new_tcaphash_context->key = p_new_tcaphash_context_key;
   p_new_tcaphash_context->session_id = p_tcaphash_context_key->session_id;
@@ -655,9 +655,9 @@ new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
      Once created, this entry will be updated later */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_begin_key = g_malloc(sizeof(struct tcaphash_begin_info_key_t));
+  p_new_tcaphash_begin_key = (struct tcaphash_begin_info_key_t *)g_malloc(sizeof(struct tcaphash_begin_info_key_t));
 #else
-  p_new_tcaphash_begin_key = se_alloc(sizeof(struct tcaphash_begin_info_key_t));
+  p_new_tcaphash_begin_key = se_new(struct tcaphash_begin_info_key_t);
 #endif
   p_new_tcaphash_begin_key->hashKey = p_tcaphash_begin_key->hashKey;
   p_new_tcaphash_begin_key->tid = p_tcaphash_begin_key->tid;
@@ -665,9 +665,9 @@ new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
   p_new_tcaphash_begin_key->dpc_hash = p_tcaphash_begin_key->dpc_hash;
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_begincall = g_malloc0(sizeof(struct tcaphash_begincall_t));
+  p_new_tcaphash_begincall = (struct tcaphash_begincall_t *)g_malloc0(sizeof(struct tcaphash_begincall_t));
 #else
- p_new_tcaphash_begincall = se_alloc0(sizeof(struct tcaphash_begincall_t));
+ p_new_tcaphash_begincall = se_new0(struct tcaphash_begincall_t);
 #endif
   p_new_tcaphash_begincall->beginkey=p_new_tcaphash_begin_key;
   p_new_tcaphash_begincall->context=p_tcaphash_context;
@@ -701,9 +701,9 @@ new_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
      Once created, this entry will be updated later */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_cont_key = g_malloc(sizeof(struct tcaphash_cont_info_key_t));
+  p_new_tcaphash_cont_key = (struct tcaphash_cont_info_key_t *)g_malloc(sizeof(struct tcaphash_cont_info_key_t));
 #else
-  p_new_tcaphash_cont_key = se_alloc(sizeof(struct tcaphash_cont_info_key_t));
+  p_new_tcaphash_cont_key = se_new(struct tcaphash_cont_info_key_t);
 #endif
   p_new_tcaphash_cont_key->hashKey = p_tcaphash_cont_key->hashKey;
   p_new_tcaphash_cont_key->src_tid = p_tcaphash_cont_key->src_tid;
@@ -712,9 +712,9 @@ new_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
   p_new_tcaphash_cont_key->dpc_hash = p_tcaphash_cont_key->dpc_hash;
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_contcall = g_malloc0(sizeof(struct tcaphash_contcall_t));
+  p_new_tcaphash_contcall = (struct tcaphash_contcall_t *)g_malloc0(sizeof(struct tcaphash_contcall_t));
 #else
-  p_new_tcaphash_contcall = se_alloc0(sizeof(struct tcaphash_contcall_t));
+  p_new_tcaphash_contcall = se_new0(struct tcaphash_contcall_t);
 #endif
   p_new_tcaphash_contcall->contkey=p_new_tcaphash_cont_key;
   p_new_tcaphash_contcall->context=p_tcaphash_context;
@@ -747,9 +747,9 @@ new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
      Once created, this entry will be updated later */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_end_key = g_malloc(sizeof(struct tcaphash_end_info_key_t));
+  p_new_tcaphash_end_key = (struct tcaphash_end_info_key_t *)g_malloc(sizeof(struct tcaphash_end_info_key_t));
 #else
-  p_new_tcaphash_end_key = se_alloc(sizeof(struct tcaphash_end_info_key_t));
+  p_new_tcaphash_end_key = se_new(struct tcaphash_end_info_key_t);
 #endif
   p_new_tcaphash_end_key->hashKey = p_tcaphash_end_key->hashKey;
   p_new_tcaphash_end_key->tid = p_tcaphash_end_key->tid;
@@ -757,9 +757,9 @@ new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
   p_new_tcaphash_end_key->dpc_hash = p_tcaphash_end_key->dpc_hash;
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_endcall = g_malloc0(sizeof(struct tcaphash_endcall_t));
+  p_new_tcaphash_endcall = (struct tcaphash_endcall_t *)g_malloc0(sizeof(struct tcaphash_endcall_t));
 #else
-  p_new_tcaphash_endcall = se_alloc0(sizeof(struct tcaphash_endcall_t));
+  p_new_tcaphash_endcall = se_new0(struct tcaphash_endcall_t);
 #endif
   p_new_tcaphash_endcall->endkey=p_new_tcaphash_end_key;
   p_new_tcaphash_endcall->context=p_tcaphash_context;
@@ -790,9 +790,9 @@ new_tcaphash_ansi(struct tcaphash_ansi_info_key_t *p_tcaphash_ansi_key,
      Once created, this entry will be updated later */
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_ansi_key = g_malloc(sizeof(struct tcaphash_ansi_info_key_t));
+  p_new_tcaphash_ansi_key = (struct tcaphash_ansi_info_key_t *)g_malloc(sizeof(struct tcaphash_ansi_info_key_t));
 #else
-  p_new_tcaphash_ansi_key = se_alloc(sizeof(struct tcaphash_ansi_info_key_t));
+  p_new_tcaphash_ansi_key = se_new(struct tcaphash_ansi_info_key_t);
 #endif
   p_new_tcaphash_ansi_key->hashKey = p_tcaphash_ansi_key->hashKey;
   p_new_tcaphash_ansi_key->tid = p_tcaphash_ansi_key->tid;
@@ -800,9 +800,9 @@ new_tcaphash_ansi(struct tcaphash_ansi_info_key_t *p_tcaphash_ansi_key,
   p_new_tcaphash_ansi_key->dpc_hash = p_tcaphash_ansi_key->dpc_hash;
 
 #ifdef MEM_TCAPSRT
-  p_new_tcaphash_ansicall = g_malloc0(sizeof(struct tcaphash_ansicall_t));
+  p_new_tcaphash_ansicall = (struct tcaphash_ansicall_t *)g_malloc0(sizeof(struct tcaphash_ansicall_t));
 #else
-  p_new_tcaphash_ansicall = se_alloc0(sizeof(struct tcaphash_ansicall_t));
+  p_new_tcaphash_ansicall = se_new0(struct tcaphash_ansicall_t);
 #endif
   p_new_tcaphash_ansicall->ansikey=p_new_tcaphash_ansi_key;
   p_new_tcaphash_ansicall->context=p_tcaphash_context;

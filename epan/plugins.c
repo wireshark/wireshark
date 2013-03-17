@@ -109,7 +109,7 @@ add_plugin(void *handle, gchar *name, gchar *version,
         pt_plug->next = new_plug;
     }
 
-    new_plug->handle = handle;
+    new_plug->handle = (GModule *)handle;
     new_plug->name = name;
     new_plug->version = version;
     new_plug->register_protoinfo = register_protoinfo;
@@ -172,7 +172,7 @@ plugins_scan_dir(const char *dirname)
 
             g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
                        dirname, name);
-            if ((handle = g_module_open(filename, 0)) == NULL)
+            if ((handle = g_module_open(filename, (GModuleFlags)0)) == NULL)
             {
                 report_failure("Couldn't load module %s: %s", filename,
                                g_module_error());
@@ -185,7 +185,7 @@ plugins_scan_dir(const char *dirname)
                 g_module_close(handle);
                 continue;
             }
-            version = gp;
+            version = (char *)gp;
 
             /*
              * Do we have a register routine?
@@ -195,7 +195,7 @@ plugins_scan_dir(const char *dirname)
                 /*
                  * Yes - this plugin includes one or more dissectors.
                  */
-                register_protoinfo = gp;
+                register_protoinfo = (void (*)(void))gp;
             }
             else
             {
@@ -213,7 +213,7 @@ plugins_scan_dir(const char *dirname)
                 /*
                  * Yes.
                  */
-                reg_handoff = gp;
+                reg_handoff = (void (*)(void))gp;
             }
             else
             {
@@ -233,7 +233,7 @@ plugins_scan_dir(const char *dirname)
                 /*
                  * Yes - this plugin includes one or more taps.
                  */
-                register_tap_listener = gp;
+                register_tap_listener = (void (*)(void))gp;
             }
             else
             {
@@ -275,7 +275,7 @@ plugins_scan_dir(const char *dirname)
              */
             if (g_module_symbol(handle, "register_wtap_module", &gp))
             {
-                register_wtap_module = gp;
+                register_wtap_module = (void (*)(void))gp;
             }
             else
             {
@@ -287,7 +287,7 @@ plugins_scan_dir(const char *dirname)
              */
             if (g_module_symbol(handle, "register_codec_module", &gp))
             {
-                register_codec_module = gp;
+                register_codec_module = (void (*)(void))gp;
             }
             else
             {
