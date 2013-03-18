@@ -1926,7 +1926,7 @@ proto_register_btavdtp(void)
         &ett_btavdtp_service,
     };
 
-    proto_btavdtp = proto_register_protocol("Bluetooth AVDTP Protocol", "AVDTP", "btavdtp");
+    proto_btavdtp = proto_register_protocol("Bluetooth AVDTP Protocol", "BT AVDTP", "btavdtp");
     register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
 
     proto_register_field_array(proto_btavdtp, hf, array_length(hf));
@@ -2048,7 +2048,7 @@ proto_register_bta2dp(void)
         &ett_bta2dp
     };
 
-    proto_bta2dp = proto_register_protocol("Bluetooth A2DP Profile", "A2DP", "bta2dp");
+    proto_bta2dp = proto_register_protocol("Bluetooth A2DP Profile", "BT A2DP", "bta2dp");
 
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -2161,7 +2161,7 @@ proto_register_btvdp(void)
         &ett_btvdp
     };
 
-    proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "VDP", "btvdp");
+    proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
     new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
 
     proto_register_subtree_array(ett, array_length(ett));

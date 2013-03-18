@@ -509,7 +509,7 @@ proto_register_btbnep(void)
         &ett_addr
     };
 
-    proto_btbnep = proto_register_protocol("Bluetooth BNEP Potocol", "BNEP", "btbnep");
+    proto_btbnep = proto_register_protocol("Bluetooth BNEP Protocol", "BT BNEP", "btbnep");
     register_dissector("btbnep", dissect_btbnep, proto_btbnep);
 
     proto_register_field_array(proto_btbnep, hf, array_length(hf));

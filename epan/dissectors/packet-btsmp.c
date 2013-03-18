@@ -375,7 +375,7 @@ proto_register_btsmp(void)
 
     /* Register the protocol name and description */
     proto_btsmp = proto_register_protocol("Bluetooth Security Manager Protocol",
-        "SMP", "btsmp");
+        "BT SMP", "btsmp");
 
     register_dissector("btsmp", dissect_btsmp, proto_btsmp);
 

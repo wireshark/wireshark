@@ -3091,7 +3091,7 @@ proto_register_btavrcp(void)
     reassembling = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavrcp reassembling");
     timing       = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavrcp timing");
 
-    proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "AVRCP", "btavrcp");
+    proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "BT AVRCP", "btavrcp");
     register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
 
     proto_register_field_array(proto_btavrcp, hf, array_length(hf));

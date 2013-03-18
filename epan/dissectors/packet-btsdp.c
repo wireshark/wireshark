@@ -1092,7 +1092,7 @@ proto_register_btsdp(void)
         &ett_btsdp_attribute_idlist
     };
 
-    proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BTSDP", "btsdp");
+    proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");
 
     new_register_dissector("btsdp", dissect_btsdp, proto_btsdp);
 

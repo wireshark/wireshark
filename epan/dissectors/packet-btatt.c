@@ -657,7 +657,7 @@ proto_register_btatt(void)
     };
 
     /* Register the protocol name and description */
-    proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "ATT", "btatt");
+    proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");
 
     register_dissector("btatt", dissect_btatt, proto_btatt);
 

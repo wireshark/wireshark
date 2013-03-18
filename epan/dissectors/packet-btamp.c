@@ -639,7 +639,7 @@ proto_register_btamp(void)
     };
 
     /* Register the protocol name and description */
-    proto_btamp = proto_register_protocol("Bluetooth AMP Packet", "AMP", "btamp");
+    proto_btamp = proto_register_protocol("Bluetooth AMP Packet", "BT AMP", "btamp");
 
     new_register_dissector("btamp", dissect_btamp, proto_btamp);
 

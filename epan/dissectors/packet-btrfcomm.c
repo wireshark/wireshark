@@ -932,7 +932,7 @@ proto_register_btrfcomm(void)
     };
 
     /* Register the protocol name and description */
-    proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "RFCOMM", "btrfcomm");
+    proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "BT RFCOMM", "btrfcomm");
 
     register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
 
@@ -1073,7 +1073,7 @@ proto_register_btdun(void)
         &ett_btdun,
     };
 
-    proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BTDUN", "btdun");
+    proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BT DUN", "btdun");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btdun, hf, array_length(hf));
@@ -1139,7 +1139,7 @@ proto_register_btspp(void)
         &ett_btspp,
     };
 
-    proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BTSPP", "btspp");
+    proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BT SPP", "btspp");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btspp, hf, array_length(hf));

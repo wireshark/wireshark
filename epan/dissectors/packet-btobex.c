@@ -2289,7 +2289,7 @@ proto_register_btobex(void)
     obex_last_opcode = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "obex_last_opcode");
     obex_over_l2cap = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "obex_over_l2cap");
 
-    proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "OBEX", "btobex");
+    proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "BT OBEX", "btobex");
 
     register_dissector("btobex", dissect_btobex, proto_btobex);
 
