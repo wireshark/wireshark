@@ -103,7 +103,26 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-No new or updated capture files.
+--sort-and-group--
+
+AIX iptrace
+Catapult DCT2000
+Citrix NetScaler
+DBS Etherwatch (VMS)
+Endace ERF
+HP-UX nettl
+IBM iSeries
+Ixia IxVeriWave
+Netscreen
+Network Instruments Observer
+NA Sniffer (DOS)
+pcap
+pcap-ng
+Symbian OS btsnoop
+TamoSoft CommView
+Tektronix K12xx
+
+--sort-and-group--
 
 == Getting Wireshark
 
