@@ -593,7 +593,7 @@ display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, char **data)
     * Allocate a buffer for the string; "len" is the length in
     * bytes, not the length in characters.
     */
-    str = ep_alloc(len/2);
+    str = (char *)ep_alloc(len/2);
 
     /* - this assumes the string is just ISO 8859-1 */
     charoffset = offset;
@@ -1163,7 +1163,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 if (is_obex_over_l2cap) {
                                     btl2cap_data_t      *l2cap_data;
 
-                                    l2cap_data   = pinfo->private_data;
+                                    l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
                                     interface_id = l2cap_data->interface_id;
                                     adapter_id   = l2cap_data->adapter_id;
                                     chandle      = l2cap_data->chandle;
@@ -1171,7 +1171,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 } else {
                                     btrfcomm_data_t      *rfcomm_data;
 
-                                    rfcomm_data    = pinfo->private_data;
+                                    rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
                                     interface_id = rfcomm_data->interface_id;
                                     adapter_id   = rfcomm_data->adapter_id;
                                     chandle      = rfcomm_data->chandle;
@@ -1197,7 +1197,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 key[5].length = 0;
                                 key[5].key = NULL;
 
-                                obex_profile_data = se_alloc(sizeof(obex_profile_data_t));
+                                obex_profile_data = se_new(obex_profile_data_t);
                                 obex_profile_data->interface_id = interface_id;
                                 obex_profile_data->adapter_id = adapter_id;
                                 obex_profile_data->chandle = chandle;
@@ -1279,7 +1279,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (is_obex_over_l2cap) {
         btl2cap_data_t      *l2cap_data;
 
-        l2cap_data   = pinfo->private_data;
+        l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
         interface_id = l2cap_data->interface_id;
         adapter_id   = l2cap_data->adapter_id;
         chandle      = l2cap_data->chandle;
@@ -1287,7 +1287,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
         btrfcomm_data_t      *rfcomm_data;
 
-        rfcomm_data    = pinfo->private_data;
+        rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
         interface_id = rfcomm_data->interface_id;
         adapter_id   = rfcomm_data->adapter_id;
         chandle      = rfcomm_data->chandle;
@@ -1313,7 +1313,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[5].length = 0;
     key[5].key = NULL;
 
-    obex_profile_data = se_tree_lookup32_array_le(obex_profile, key);
+    obex_profile_data = (obex_profile_data_t *)se_tree_lookup32_array_le(obex_profile, key);
     if (obex_profile_data && obex_profile_data->interface_id == interface_id &&
             obex_profile_data->adapter_id == adapter_id &&
             obex_profile_data->chandle == chandle &&
@@ -1414,7 +1414,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (is_obex_over_l2cap) {
                     btl2cap_data_t      *l2cap_data;
 
-                    l2cap_data   = pinfo->private_data;
+                    l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
                     interface_id = l2cap_data->interface_id;
                     adapter_id   = l2cap_data->adapter_id;
                     chandle      = l2cap_data->chandle;
@@ -1422,7 +1422,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } else {
                     btrfcomm_data_t      *rfcomm_data;
 
-                    rfcomm_data    = pinfo->private_data;
+                    rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
                     interface_id = rfcomm_data->interface_id;
                     adapter_id   = rfcomm_data->adapter_id;
                     chandle      = rfcomm_data->chandle;
@@ -1451,7 +1451,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[6].length = 0;
                 key[6].key = NULL;
 
-                obex_last_opcode_data = se_alloc(sizeof(obex_last_opcode_data_t));
+                obex_last_opcode_data = se_new(obex_last_opcode_data_t);
                 obex_last_opcode_data->interface_id = interface_id;
                 obex_last_opcode_data->adapter_id = adapter_id;
                 obex_last_opcode_data->chandle = chandle;
@@ -1508,7 +1508,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (is_obex_over_l2cap) {
                 btl2cap_data_t      *l2cap_data;
 
-                l2cap_data   = pinfo->private_data;
+                l2cap_data   = (btl2cap_data_t *)pinfo->private_data;
                 interface_id = l2cap_data->interface_id;
                 adapter_id   = l2cap_data->adapter_id;
                 chandle      = l2cap_data->chandle;
@@ -1516,7 +1516,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else {
                 btrfcomm_data_t      *rfcomm_data;
 
-                rfcomm_data    = pinfo->private_data;
+                rfcomm_data  = (btrfcomm_data_t *)pinfo->private_data;
                 interface_id = rfcomm_data->interface_id;
                 adapter_id   = rfcomm_data->adapter_id;
                 chandle      = rfcomm_data->chandle;
@@ -1545,7 +1545,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             key[6].length = 0;
             key[6].key = NULL;
 
-            obex_last_opcode_data = se_tree_lookup32_array_le(obex_last_opcode, key);
+            obex_last_opcode_data = (obex_last_opcode_data_t *)se_tree_lookup32_array_le(obex_last_opcode, key);
             if (obex_last_opcode_data && obex_last_opcode_data->interface_id == interface_id &&
                     obex_last_opcode_data->adapter_id == adapter_id &&
                     obex_last_opcode_data->chandle == chandle &&

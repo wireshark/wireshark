@@ -343,7 +343,7 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
     gint        ret_fct = 1;
     proto_item *class_item;
     proto_tree *class_tree;
-    guint8      class;
+    guint8      dev_class;
     proto_item *enc_item;
     guint8      channel;
     proto_item *ch_item;
@@ -352,34 +352,34 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     class_tree = proto_item_add_subtree(class_item, ett_iso7816_class);
 
-    class = tvb_get_guint8(tvb, offset);
+    dev_class = tvb_get_guint8(tvb, offset);
 
-    if (class>=0x10 && class<=0x7F) {
+    if (dev_class>=0x10 && dev_class<=0x7F) {
         enc_item = proto_tree_add_text(class_tree,
                 tvb, offset, 1, "reserved for future use");
     }
-    else if (class>=0xD0 && class<=0xFE) {
+    else if (dev_class>=0xD0 && dev_class<=0xFE) {
         enc_item = proto_tree_add_text(class_tree,
                 tvb, offset, 1, "proprietary structure and coding");
         ret_fct = -1;
     }
-    else if (class==0xFF) {
+    else if (dev_class==0xFF) {
         enc_item = proto_tree_add_text(class_tree,
                 tvb, offset, 1, "reserved for Protocol Type Selection");
     }
     else {
         enc_item = proto_tree_add_text(class_tree, tvb, offset, 1,
                 "structure and coding according to ISO/IEC 7816");
-        if (class>=0xA0 && class<=0xAF) {
+        if (dev_class>=0xA0 && dev_class<=0xAF) {
             proto_item_append_text(enc_item,
                     " unless specified otherwise by the application context");
         }
 
-        if (class<=0x0F || (class>=0x80 && class<=0xAF)) {
+        if (dev_class<=0x0F || (dev_class>=0x80 && dev_class<=0xAF)) {
             proto_tree_add_item(class_tree, hf_iso7816_cla_sm,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            channel = class & 0x03;
+            channel = dev_class & 0x03;
             ch_item = proto_tree_add_item(class_tree, hf_iso7816_cla_channel,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             if (channel==0)

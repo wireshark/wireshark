@@ -132,7 +132,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     hci_data = (hci_data_t *) pinfo->private_data;
-    acl_data = ep_alloc(sizeof(bthci_acl_data_t));
+    acl_data = ep_new(bthci_acl_data_t);
 
     acl_data->interface_id = hci_data->interface_id;
     acl_data->adapter_id   = hci_data->adapter_id;
@@ -158,7 +158,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[4].key    = NULL;
 
     /* remote bdaddr and name */
-    remote_bdaddr = se_tree_lookup32_array_le(hci_data->chandle_to_bdaddr_table, key);
+    remote_bdaddr = (remote_bdaddr_t *)se_tree_lookup32_array_le(hci_data->chandle_to_bdaddr_table, key);
     if (remote_bdaddr && remote_bdaddr->interface_id == hci_data->interface_id &&
             remote_bdaddr->adapter_id == hci_data->adapter_id &&
             remote_bdaddr->chandle == (flags & 0x0fff)) {
@@ -188,7 +188,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_name = se_tree_lookup32_array_le(hci_data->bdaddr_to_name_table, key);
+        device_name = (device_name_t *)se_tree_lookup32_array_le(hci_data->bdaddr_to_name_table, key);
         if (device_name && device_name->bd_addr_oui == bd_addr_oui && device_name->bd_addr_id == bd_addr_id)
             remote_name = device_name->name;
         else
@@ -196,7 +196,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
         remote_length = (gint)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
-        remote_addr_name = wmem_alloc(pinfo->pool, remote_length);
+        remote_addr_name = (gchar *)wmem_alloc(pinfo->pool, remote_length);
 
         g_snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
 
@@ -236,14 +236,14 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[3].key    = NULL;
 
 
-    localhost_bdaddr_entry = se_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
+    localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)se_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == hci_data->interface_id &&
             localhost_bdaddr_entry->adapter_id == hci_data->adapter_id)
         localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
     else
         localhost_ether_addr = "localhost";
 
-    localhost_name_entry = se_tree_lookup32_array_le(hci_data->localhost_name, key);
+    localhost_name_entry = (localhost_name_entry_t *)se_tree_lookup32_array_le(hci_data->localhost_name, key);
     if (localhost_name_entry && localhost_name_entry->interface_id == hci_data->interface_id &&
             localhost_name_entry->adapter_id == hci_data->adapter_id)
         localhost_name = localhost_name_entry->name;
@@ -251,7 +251,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         localhost_name = "";
 
     localhost_length = (gint)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
-    localhost_addr_name = wmem_alloc(pinfo->pool, localhost_length);
+    localhost_addr_name = (gchar *)wmem_alloc(pinfo->pool, localhost_length);
 
     g_snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
 
@@ -282,7 +282,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[4].length = 0;
     key[4].key = NULL;
 
-    chandle_data = se_tree_lookup32_array_le(chandle_tree, key);
+    chandle_data = (chandle_data_t *)se_tree_lookup32_array_le(chandle_tree, key);
     if (!(chandle_data && chandle_data->interface_id == hci_data->interface_id &&
             chandle_data->adapter_id == hci_data->adapter_id &&
             chandle_data->chandle == (flags & 0x0fff))) {
@@ -302,7 +302,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[4].length = 0;
         key[4].key = NULL;
 
-        chandle_data = se_alloc(sizeof(chandle_data_t));
+        chandle_data = (chandle_data_t *)se_alloc(sizeof(chandle_data_t));
         chandle_data->start_fragments = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_acl fragment starts");
         chandle_data->interface_id = hci_data->interface_id;
         chandle_data->adapter_id   = hci_data->adapter_id;
@@ -349,11 +349,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (!(pb_flag & 0x01)) { /* first fragment */
             if (!pinfo->fd->flags.visited) {
-                mfp = se_alloc(sizeof(multi_fragment_pdu_t));
+                mfp = se_new(multi_fragment_pdu_t);
                 mfp->first_frame = pinfo->fd->num;
                 mfp->last_frame  = 0;
                 mfp->tot_len     = l2cap_length + 4;
-                mfp->reassembled = se_alloc(mfp->tot_len);
+                mfp->reassembled = (char *)se_alloc(mfp->tot_len);
                 len = tvb_length_remaining(tvb, offset);
                 if (len <= mfp->tot_len) {
                     tvb_memcpy(tvb, (guint8 *) mfp->reassembled, offset, len);
@@ -361,7 +361,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
                 }
             } else {
-                mfp = se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
+                mfp = (multi_fragment_pdu_t *)se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
             }
             if (mfp != NULL && mfp->last_frame) {
                 proto_item *item;
@@ -372,7 +372,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         if (pb_flag == 0x01) { /* continuation fragment */
-            mfp = se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
+            mfp = (multi_fragment_pdu_t *)se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
             if (!pinfo->fd->flags.visited) {
                 len = tvb_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame && (mfp->tot_len >= mfp->cur_off + len)) {

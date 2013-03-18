@@ -209,7 +209,7 @@ circuit_chain_lookup(const h223_call_info* call_info, guint32 child_vc)
     key.vc = child_vc;
     circuit_id = GPOINTER_TO_UINT(g_hash_table_lookup( circuit_chain_hashtable, &key ));
     if( circuit_id == 0 ) {
-        new_key = se_alloc(sizeof(circuit_chain_key));
+        new_key = se_new(circuit_chain_key);
         *new_key = key;
         circuit_id = ++circuit_chain_count;
         g_hash_table_insert(circuit_chain_hashtable, new_key, GUINT_TO_POINTER(circuit_id));
@@ -292,7 +292,7 @@ add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h223_mux_eleme
 
     DISSECTOR_ASSERT(mc < 16);
 
-    li = se_alloc(sizeof(h223_mux_element_listitem));
+    li = se_new(h223_mux_element_listitem);
     old_li_ptr = &(direct->mux_table[mc]);
     old_li = *old_li_ptr;
     if( !old_li ) {
@@ -339,7 +339,7 @@ find_h223_mux_element(h223_call_direction_data* direct, guint8 mc, guint32 frame
 static void
 add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_params *lc_params, guint32 framenum )
 {
-    h223_lc_params_listitem *li = se_alloc(sizeof(h223_lc_params_listitem));
+    h223_lc_params_listitem *li = se_new(h223_lc_params_listitem);
     h223_lc_params_listitem **old_li_ptr = &(vc_info->lc_params[direction ? 0 : 1]);
     h223_lc_params_listitem *old_li = *old_li_ptr;
     if( !old_li ) {
@@ -386,7 +386,7 @@ init_direction_data(h223_call_direction_data *direct)
         direct->mux_table[i] = NULL;
 
     /* set up MC 0 to contain just VC 0 */
-    mc0_element = se_alloc(sizeof(h223_mux_element));
+    mc0_element = se_new(h223_mux_element);
     add_h223_mux_element( direct, 0, mc0_element, 0 );
     mc0_element->sublist = NULL;
     mc0_element->vc = 0;
@@ -397,7 +397,7 @@ init_direction_data(h223_call_direction_data *direct)
 static h223_vc_info*
 h223_vc_info_new( h223_call_info* call_info )
 {
-    h223_vc_info *vc_info = se_alloc(sizeof(h223_vc_info));
+    h223_vc_info *vc_info = se_new(h223_vc_info);
     vc_info->lc_params[0] = vc_info->lc_params[1] = NULL;
     vc_info->call_info = call_info;
     return vc_info;
@@ -419,7 +419,7 @@ init_logical_channel( guint32 start_frame, h223_call_info* call_info, int vc, in
         vc_info = h223_vc_info_new( call_info );
         circuit_add_proto_data( subcircuit, proto_h223, vc_info );
     } else {
-        vc_info = circuit_get_proto_data( subcircuit, proto_h223 );
+        vc_info = (h223_vc_info *)circuit_get_proto_data( subcircuit, proto_h223 );
     }
     add_h223_lc_params( vc_info, direction, params, start_frame );
 }
@@ -431,7 +431,7 @@ create_call_info( guint32 start_frame )
     h223_call_info *datax;
     h223_lc_params *vc0_params;
 
-    datax = se_alloc(sizeof(h223_call_info));
+    datax = se_new(h223_call_info);
 
     /* initialise the call info */
     init_direction_data(&datax -> direction_data[0]);
@@ -440,7 +440,7 @@ create_call_info( guint32 start_frame )
     /* FIXME shouldn't this be figured out dynamically? */
     datax -> h223_level = 2;
 
-    vc0_params = se_alloc(sizeof(h223_lc_params));
+    vc0_params = se_new(h223_lc_params);
     vc0_params->al_type = al1Framed;
     vc0_params->al_params = NULL;
     vc0_params->segmentable = TRUE;
@@ -580,7 +580,7 @@ h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me )
     /* if this h245 pdu packet came from an h223 circuit, add the details on
      * the new mux entry */
     if(circ) {
-        vc_info = circuit_get_proto_data(circ, proto_h223);
+        vc_info = (h223_vc_info *)circuit_get_proto_data(circ, proto_h223);
         add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, me, pinfo->fd->num );
     }
 }
@@ -595,7 +595,7 @@ h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params )
     /* if this h245 pdu packet came from an h223 circuit, add the details on
      * the new channel */
     if(circ) {
-        vc_info = circuit_get_proto_data(circ, proto_h223);
+        vc_info = (h223_vc_info *)circuit_get_proto_data(circ, proto_h223);
         init_logical_channel( pinfo->fd->num, vc_info->call_info, lc, pinfo->p2p_dir, params );
     }
 }
@@ -767,7 +767,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
             g_message( "Frame %d: Subcircuit id %d not found for call %p VC %d", pinfo->fd->num,
                        pinfo->circuit_id, (void *)call_info, vc );
         } else {
-            vc_info = circuit_get_proto_data(subcircuit, proto_h223);
+            vc_info = (h223_vc_info *)circuit_get_proto_data(subcircuit, proto_h223);
             if( vc_info != NULL ) {
                 lc_params = find_h223_lc_params( vc_info, pinfo->p2p_dir, pinfo->fd->num );
             }
@@ -818,7 +818,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 
     /* restore the original circuit details for future PDUs */
     FINALLY {
-        pinfo->ctype=orig_ctype;
+        pinfo->ctype=(circuit_type)orig_ctype;
         pinfo->circuit_id=orig_circuit;
     }
     ENDTRY;
@@ -1369,7 +1369,7 @@ dissect_h223_bitswapped (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint i;
 
     len = tvb_length(tvb);
-    datax = g_malloc(len);
+    datax = (guint8 *)g_malloc(len);
     for( i=0; i<len; i++)
         datax[i]=BIT_SWAP(tvb_get_guint8(tvb,i));
 
