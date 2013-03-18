@@ -2937,8 +2937,8 @@ dissect_gtpv2_mm_context_gsm_t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     offset += 1;
 
     /* Octet 7 Spare Used Cipher */
-    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, ((offset<<3)), 5, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(tree, hf_gtpv2_mm_context_used_cipher, tvb, (offset<<3)+7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits,         tvb, ((offset << 3)),   5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_used_cipher,  tvb, offset,            1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* 8 to 15 Kc */
@@ -2998,8 +2998,8 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_samb_ri, tvb, (offset<<3)+7, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 7 Spare Used Cipher */
-    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset<<3)), 5, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_used_cipher, tvb, (offset<<3)+7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3)), 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_used_cipher, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Octet 8 to 23  CK */
@@ -3104,8 +3104,8 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_samb_ri, tvb, (offset<<3)+7, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 7 Spare Used Cipher */
-    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset<<3)), 5, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_used_cipher, tvb, (offset<<3)+7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3)), 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_used_cipher, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* 8 to 15 Kc */
     proto_tree_add_text(tree, tvb, offset, 8, "Kc': %s",tvb_bytes_to_str(tvb, offset, 8));
@@ -5884,7 +5884,7 @@ void proto_register_gtpv2(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-		/* Bit 1 – PVI (Pre-emption Vulnerability): See 3GPP TS 29.212[29], 
+		/* Bit 1 Â– PVI (Pre-emption Vulnerability): See 3GPP TS 29.212[29], 
 		 * clause 5.3.47 Pre-emption-Vulnerability AVP.
 		 * 5.3.47 Pre-emption-Vulnerability AVP
 		 * The following values are defined:
@@ -5901,7 +5901,7 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, NULL, 0x3c,
           NULL, HFILL}
         },
-		/* Bit 7 – PCI (Pre-emption Capability): See 3GPP TS 29.212[29], clause 5.3.46 Pre-emption-Capability AVP. 
+		/* Bit 7 Â– PCI (Pre-emption Capability): See 3GPP TS 29.212[29], clause 5.3.46 Pre-emption-Capability AVP. 
 		 * clause 5.3.46 Pre-emption-Capability AVP.
 		 * 5.3.46 Pre-emption-Capability AVP
 		 * The following values are defined:
