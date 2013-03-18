@@ -211,7 +211,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if (usb_data->endpoint == 0x03) {
         call_dissector(find_dissector("bthci_sco"), next_tvb, pinfo, tree);
     } else if (usb_data->endpoint > 0x03) {
-        proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_NA);
     }
 
     offset += tvb_length_remaining(tvb, offset);

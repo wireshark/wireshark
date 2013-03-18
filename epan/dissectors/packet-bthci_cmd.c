@@ -1259,7 +1259,7 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                     proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_hash_c, tvb, offset+i+2, 16, ENC_NA);
                     break;
                 case 0x0F: /* Simple Pairing Randomizer R */
-                    proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_randomizer_r, tvb, offset+i+2, 16, ENC_NA);
+                    proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_randomizer_r, tvb, offset + i + 2, 16, ENC_NA);
                     break;
                 case 0x11: /* Security Manager OOB Flags */
                     proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_flags_le_oob_data_present, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
@@ -1296,7 +1296,7 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                     break;
                 }
                 default:
-                    proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset + i + 2, length - 1, ENC_NA);
                     break;
             }
             i += length+1;
@@ -1612,9 +1612,9 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         case 0x0030: /* Remote OOB Data Request Reply */
             offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-            proto_tree_add_item(tree, hf_bthci_cmd_hash_c, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_hash_c, tvb, offset, 16, ENC_NA);
             offset+=16;
-            proto_tree_add_item(tree, hf_bthci_cmd_randomizer_r, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_randomizer_r, tvb, offset, 16, ENC_NA);
             offset+=16;
             break;
 
@@ -2269,9 +2269,9 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x0065: /* Write Location Data */
             proto_tree_add_item(tree, hf_bthci_cmd_location_domain_aware, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_cmd_location_domain, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_location_domain, tvb, offset, 2, ENC_ASCII | ENC_NA);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_cmd_location_domain_options, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_location_domain_options, tvb, offset, 1, ENC_ASCII | ENC_NA);
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_location_options, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2571,7 +2571,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0014: /* LE Set Host Channel Classification */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_channel_map, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_cmd_le_channel_map, tvb, offset, 2, ENC_NA);
             offset+=5;
             break;
 

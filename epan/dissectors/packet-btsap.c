@@ -364,7 +364,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, proto
     offset += parameter_length;
 
     if (parameter_padding_length > 0) {
-        pitem = proto_tree_add_item(ptree, hf_btsap_parameter_padding, tvb, offset, parameter_padding_length, ENC_BIG_ENDIAN);
+        pitem = proto_tree_add_item(ptree, hf_btsap_parameter_padding, tvb, offset, parameter_padding_length, ENC_NA);
         proto_item_append_text(pitem, " (length %d)", parameter_padding_length);
         offset += parameter_padding_length;
     }
@@ -413,7 +413,7 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 
-    ti = proto_tree_add_item(tree, proto_btsap, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_btsap, tvb, offset, -1, ENC_NA);
     btsap_tree = proto_item_add_subtree(ti, ett_btsap);
 
     proto_tree_add_item(btsap_tree, hf_btsap_header_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);

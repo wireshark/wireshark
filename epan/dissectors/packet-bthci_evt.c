@@ -1674,7 +1674,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 }
                 case 0x16: /* Service Data */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid16, tvb, offset+i+2, 2, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset+i+4, length-3, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 4, length - 3, ENC_NA);
                     break;
                 case 0x17: /* Public Target Address */
                 case 0x18: /* Random Target Address */
@@ -1695,7 +1695,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 }
                 default:
-                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset+i+2, length-1, ENC_NA);
+                    proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_data, tvb, offset + i + 2, length - 1, ENC_NA);
                     break;
             }
             i += length+1;
@@ -1854,7 +1854,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
                 offset++;
                 offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
                 length = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_bthci_evt_data_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_bthci_evt_data_length, tvb, offset, 1, ENC_NA);
                 offset++;
                 offset=dissect_bthci_evt_eir_ad_data(tvb, offset, pinfo, tree, length, NULL);
                 proto_tree_add_item(tree, hf_bthci_evt_rssi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2614,9 +2614,9 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             offset++;
             proto_tree_add_item(tree, hf_bthci_evt_location_domain_aware, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_evt_location_domain, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_location_domain, tvb, offset, 2, ENC_ASCII | ENC_NA);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_evt_location_domain_options, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_location_domain_options, tvb, offset, 1, ENC_ASCII | ENC_NA);
             offset++;
             proto_tree_add_item(tree, hf_bthci_evt_location_options, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2935,7 +2935,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             offset++;
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_evt_le_channel_map, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_le_channel_map, tvb, offset, 1, ENC_NA);
             offset+=5;
             break;
         }
@@ -2944,7 +2944,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         {
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_bthci_evt_encrypted_data, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_encrypted_data, tvb, offset, 16, ENC_NA);
             offset+=16;
             break;
         }

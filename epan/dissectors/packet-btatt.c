@@ -424,7 +424,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     
                     proto_tree_add_item(ltree, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
-                    proto_tree_add_item(ltree, hf_btatt_value, tvb, offset, length-2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ltree, hf_btatt_value, tvb, offset, length - 2, ENC_NA);
                     offset += (length-2);
                 }
             }
@@ -488,7 +488,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset += 2;
                     proto_tree_add_item(ltree, hf_btatt_group_end_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
-                    proto_tree_add_item(ltree, hf_btatt_value, tvb, offset, length-4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(ltree, hf_btatt_value, tvb, offset, length - 4, ENC_NA);
                     offset += (length-4);
                 }
             }

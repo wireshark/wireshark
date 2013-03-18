@@ -170,12 +170,12 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             uuid_size = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            pitem = proto_tree_add_item(tree, hf_btbnep_destination_service_uuid, tvb, offset, uuid_size, ENC_BIG_ENDIAN);
+            pitem = proto_tree_add_item(tree, hf_btbnep_destination_service_uuid, tvb, offset, uuid_size, ENC_NA);
             uuid_dst = tvb_get_ntohs(tvb, offset);
             proto_item_append_text(pitem, " (%s)", val_to_str_ext(uuid_dst, &vs_service_classes_ext,  "Unknown uuid"));
             offset += uuid_size;
 
-            pitem = proto_tree_add_item(tree, hf_btbnep_source_service_uuid, tvb, offset, uuid_size, ENC_BIG_ENDIAN);
+            pitem = proto_tree_add_item(tree, hf_btbnep_source_service_uuid, tvb, offset, uuid_size, ENC_NA);
             uuid_src = tvb_get_ntohs(tvb, offset);
             proto_item_append_text(pitem, " (%s)", val_to_str_ext(uuid_src, &vs_service_classes_ext,  "Unknown uuid"));
             offset += uuid_size;
@@ -217,10 +217,10 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             offset += 2;
 
             for (i_item = 0; i_item < list_length; i_item += 12) {
-                proto_tree_add_item(tree, hf_btbnep_multicast_address_start, tvb, offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_btbnep_multicast_address_start, tvb, offset, 6, ENC_NA);
                 offset += 6;
 
-                proto_tree_add_item(tree, hf_btbnep_multicast_address_end, tvb, offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_btbnep_multicast_address_end, tvb, offset, 6, ENC_NA);
                 offset += 6;
             }
             break;

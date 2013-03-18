@@ -642,7 +642,7 @@ dissect_raw_application_parameters(tvbuff_t *tvb, proto_tree *tree, gint offset,
         offset += 1;
 
         proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset,
-                parameter_length, ENC_BIG_ENDIAN);
+                parameter_length, ENC_NA);
 
         parameters_length -= 2 + parameter_length;
         offset += parameter_length;
@@ -677,7 +677,7 @@ dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         offset += 1;
 
         if (parameter_length != 4) {
-                item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
                 expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
                         "According to the specification this parameter length should be 4, but there is %i", parameter_length);
         } else switch (parameter_id) {
@@ -694,7 +694,7 @@ dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                proto_tree_add_item(parameter_tree, hf_bpp_application_parameter_data_file_size, tvb, offset, 4, ENC_BIG_ENDIAN);
                break;
             default:
-                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
         }
 
         parameters_length -= 2 + parameter_length;
@@ -732,7 +732,7 @@ dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
        if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != parameter_length) {
-            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
@@ -768,7 +768,7 @@ dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(parameter_tree, hf_bip_application_parameter_data_store_flag, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             default:
-                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
         }
 
         parameters_length -= 2 + parameter_length;
@@ -807,7 +807,7 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
-            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
@@ -816,7 +816,7 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_order, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x02:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_value, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_value, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
             case 0x03:
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_attribute, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
@@ -873,7 +873,7 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_new_missed_calls, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             default:
-                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
         }
 
         parameters_length -= 2 + parameter_length;
@@ -912,7 +912,7 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
-            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
@@ -931,10 +931,10 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_message_type_sms_gsm,  tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x04:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
             case 0x05:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
             case 0x06:
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_read_status_reserved_6, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
@@ -942,10 +942,10 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_read_status_get_unread, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x07:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_recipient, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_recipient, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
             case 0x08:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_originator, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_originator, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
             case 0x09:
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_filter_priority_reserved_6, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
@@ -1025,10 +1025,10 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_status_value, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x19:
-                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_mse_time, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_map_application_parameter_data_mse_time, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
             default:
-                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
         }
 
         parameters_length -= 2 + parameter_length;
