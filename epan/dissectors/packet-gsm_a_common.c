@@ -44,7 +44,7 @@
 #include "packet-e212.h"
 
 
-const value_string gsm_common_elem_strings[] = {
+static const value_string gsm_common_elem_strings[] = {
     /* Common Information Elements 10.5.1 */
     { DE_CELL_ID, "Cell Identity" },
     { DE_CIPH_KEY_SEQ_NUM, "Ciphering Key Sequence Number" },
