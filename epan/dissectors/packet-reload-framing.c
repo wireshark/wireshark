@@ -131,7 +131,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   if (conversation)
-    reload_framing_info = conversation_get_proto_data(conversation, proto_reload_framing);
+    reload_framing_info = (reload_conv_info_t *)conversation_get_proto_data(conversation, proto_reload_framing);
 
   /* Get the type
    * http://tools.ietf.org/html/draft-ietf-p2psip-base-12
@@ -186,14 +186,14 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key    = &pinfo->srcport;
     transaction_id_key[2].length = (pinfo->src.len) / (guint)sizeof(guint32);
-    transaction_id_key[2].key    = g_malloc(pinfo->src.len);
+    transaction_id_key[2].key    = (guint32 *)g_malloc(pinfo->src.len);
     memcpy(transaction_id_key[2].key, pinfo->src.data, pinfo->src.len);
   }
   else {
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key    = &pinfo->destport;
     transaction_id_key[2].length = (pinfo->dst.len) / (guint)sizeof(guint32);
-    transaction_id_key[2].key    = g_malloc(pinfo->dst.len);
+    transaction_id_key[2].key    = (guint32 *)g_malloc(pinfo->dst.len);
     memcpy(transaction_id_key[2].key, pinfo->dst.data, pinfo->dst.len);
   }
   transaction_id_key[3].length=0;
@@ -215,18 +215,18 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    reload_framing_info = se_alloc(sizeof(reload_conv_info_t));
+    reload_framing_info = se_new(reload_conv_info_t);
     reload_framing_info->transaction_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
                                                                           "reload_framing_transaction_pdus");
     conversation_add_proto_data(conversation, proto_reload_framing, reload_framing_info);
   }
 
   if (!pinfo->fd->flags.visited) {
-    if ((reload_frame =
+    if ((reload_frame = (reload_frame_t *)
            se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
       transaction_id_key[2].key    = key_save;
       transaction_id_key[2].length = len_save;
-      reload_frame = se_alloc(sizeof(reload_frame_t));
+      reload_frame = se_new(reload_frame_t);
       reload_frame->data_frame = 0;
       reload_frame->ack_frame  = 0;
       reload_frame->req_time   = pinfo->fd->abs_ts;
@@ -251,7 +251,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
   }
   else {
-    reload_frame=se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
+    reload_frame=(reload_frame_t *)se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
     transaction_id_key[2].key    = key_save;
     transaction_id_key[2].length = len_save;
   }
@@ -259,7 +259,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
-    reload_frame = ep_alloc(sizeof(reload_frame_t));
+    reload_frame = ep_new(reload_frame_t);
     reload_frame->data_frame = (type==DATA) ? pinfo->fd->num : 0;
     reload_frame->ack_frame  = (type!=DATA) ? pinfo->fd->num : 0;
     reload_frame->req_time   = pinfo->fd->abs_ts;

@@ -807,7 +807,7 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint * pNumSu
     if (numInfo == 0)
         return NULL;
 
-    pSupportedChannels = g_malloc(numInfo * (sizeof *pSupportedChannels));
+    pSupportedChannels = (Dot11Channel *)g_malloc(numInfo * (sizeof *pSupportedChannels));
 
     for (i = 0; i < numInfo; i++)
     {
@@ -1117,7 +1117,7 @@ airpcap_if_info_new(char *name, char *description)
     ad = airpcap_if_open(name, ebuf);
     if (ad)
     {
-        if_info = g_malloc0(sizeof (airpcap_if_info_t));
+        if_info = (airpcap_if_info_t *)g_malloc0(sizeof (airpcap_if_info_t));
         if_info->name = g_strdup(name);
         if (description == NULL){
             if_info->description = NULL;
@@ -1167,7 +1167,7 @@ airpcap_driver_fake_if_info_new(void)
      * Retrieve the first AirPcap adapter available. If no interface is found,
      * it is not possible to retrieve the driver's settings, so return NULL.
      */
-    if_info = g_list_nth_data(airpcap_if_list,0);
+    if_info = (airpcap_if_info_t *)g_list_nth_data(airpcap_if_list,0);
     if (if_info == NULL)
         return NULL;
 
@@ -1175,7 +1175,7 @@ airpcap_driver_fake_if_info_new(void)
     ad = airpcap_if_open(if_info->name, ebuf);
     if (ad)
     {
-        fake_if_info = g_malloc(sizeof (airpcap_if_info_t));
+        fake_if_info = (airpcap_if_info_t *)g_malloc(sizeof (airpcap_if_info_t));
         fake_if_info->name = g_strdup(if_info->name);
         fake_if_info->description = g_strdup(if_info->description);
         fake_if_info->loopback = FALSE;
@@ -1341,7 +1341,7 @@ airpcap_if_save_driver_keys(PAirpcapHandle ad, airpcap_if_info_t *if_info)
 static void
 free_airpcap_if_cb(gpointer data, gpointer user_data _U_)
 {
-    airpcap_if_info_t *if_info = data;
+    airpcap_if_info_t *if_info = (airpcap_if_info_t *)data;
 
     if (NULL == if_info)
         return;
@@ -1528,7 +1528,7 @@ airpcap_if_clear_decryption_settings(airpcap_if_info_t* info_if)
 
         info_if->keysCollectionSize = 0;
 
-        info_if->DecryptionOn = FALSE;
+        info_if->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
         info_if->saved = FALSE;
     }
 }
@@ -2414,7 +2414,7 @@ set_airpcap_decryption(gboolean on_off)
             ad = airpcap_if_open(curr_if->name, ebuf);
             if (ad)
             {
-                curr_if->DecryptionOn = (gboolean)AIRPCAP_DECRYPTION_OFF;
+                curr_if->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
                 airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
                 /* Save configuration for the curr_if */
                 if (!airpcap_if_store_cur_config_as_adapter_default(ad))

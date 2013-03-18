@@ -345,9 +345,9 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
     gint i = 0, tpncp_id = 0;
     gchar *tpncp_name = NULL, *line_in_file = NULL;
 
-    line_in_file = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    line_in_file = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     line_in_file[0] = 0;
-    tpncp_name = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    tpncp_name = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     tpncp_name[0] = 0;
 
     while (fgets(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {
@@ -377,13 +377,13 @@ static gint fill_enums_id_vals(FILE *file) {
     gchar *line_in_file = NULL, *enum_name = NULL,
            *enum_type = NULL, *enum_str = NULL;
 
-    line_in_file = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    line_in_file = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     line_in_file[0] = 0;
-    enum_name = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_name = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_name[0] = 0;
-    enum_type = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_type = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_type[0] = 0;
-    enum_str = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    enum_str = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     enum_str[0] = 0;
 
     while (fgets(line_in_file, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {
@@ -572,11 +572,11 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         }
     };
 
-    tpncp_db_entry = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
+    tpncp_db_entry = (gchar *)ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
     tpncp_db_entry[0] = 0;
 
     /* Register common fields of hf_register_info struture. */
-    hf_entr.hfinfo.type           = 0;
+    hf_entr.hfinfo.type           = FT_NONE;
     hf_entr.hfinfo.strings        = NULL;
     hf_entr.hfinfo.bitmask        = 0x0;
     hf_entr.hfinfo.blurb          = NULL;
