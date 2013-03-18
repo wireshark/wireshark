@@ -240,37 +240,42 @@ AC_ARG_WITH([qt],
                   [use Qt instead of GTK+ @<:@default=no@:>@]),
   with_qt="$withval", with_qt="no")
 
-AC_ARG_ENABLE(libnl,
-  AC_HELP_STRING( [--enable-libnl],
-                  [use libnl (default: yes)]),
-    enable_libnl=$enableval,enable_libnl=yes)
+AC_ARG_WITH(libnl,
+  AC_HELP_STRING( [--with-libnl=@<:@yes/no/auto@:>@],
+                  [use libnl @<:@default=auto@:>@]),
+    with_libnl="$withval",with_libnl="auto")
+
 libnl_message="no"
-if test x$enable_libnl = xyes; then
-PKG_CHECK_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
-PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
-PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
-if (test "${have_libnl3}" = "yes"); then
+if test "x$with_libnl" = "xyes" -o "x$with_libnl" = "xauto"; then
+    PKG_CHECK_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
+    PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
+    PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
+    if (test "${have_libnl3}" = "yes"); then
         CFLAGS="$CFLAGS $LIBNL3_CFLAGS"
         LIBS="$LIBS $LIBNL3_LIBS"
-	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
-	AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
-	libnl_message="yes (v3)"
-	enable_airpcap=no
-elif (test "${have_libnl2}" = "yes"); then
+        AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+        AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
+        libnl_message="yes (v3)"
+        enable_airpcap=no
+    elif (test "${have_libnl2}" = "yes"); then
         CFLAGS="$CFLAGS $LIBNL2_CFLAGS"
         LIBS="$LIBS $LIBNL2_LIBS"
-	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
-	AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
-	libnl_message="yes (v2)"
-	enable_airpcap=no
-elif (test "${have_libnl1}" = "yes"); then
+        AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+        AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
+        libnl_message="yes (v2)"
+        enable_airpcap=no
+    elif (test "${have_libnl1}" = "yes"); then
         CFLAGS="$CFLAGS $LIBNL1_CFLAGS"
         LIBS="$LIBS $LIBNL1_LIBS"
-	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
-	AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
-	libnl_message="yes (v1)"
-	enable_airpcap=no
+        AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+        AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
+        libnl_message="yes (v1)"
+        enable_airpcap=no
+    fi
 fi
+
+if test "x$with_libnl" = "xyes" -a "x$libnl_message" = "xno"; then
+    AC_MSG_ERROR("I couldn't find libnl even though you manually enabled it.")
 fi
 
 AC_MSG_CHECKING([if nl80211.h is new enough])
