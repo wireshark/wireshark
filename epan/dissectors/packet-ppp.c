@@ -3689,11 +3689,15 @@ static void
 dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+    /* Ch 10.5.6.3 3GPP TS 24.008 version 11.5.0 Release 11 */
     static const value_string pco_vals[] = {
         {0x8021, "IPCP (DNS Address Request)"},
         {0x0001, "P-CSCF Address Request (IPv6)"},
+        {0x0005, "MS Support of Network Requested Bearer Control indicator"},
         {0x0003, "DNS Server Address (IPv6)"},
         {0x000A, "IP address allocation via NAS signalling"},
+        {0x000B, "IPv4 address allocation via DHCPv4"},
+        {0x000D, "DNS Server IPv4 Address Request"},
         {0,      NULL}
     };
     int off = offset + 3;
