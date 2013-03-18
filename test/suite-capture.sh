@@ -29,7 +29,7 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
-WIRESHARK_CMD="$WIRESHARK -k"
+WIRESHARK_CMD="$WIRESHARK -o gui.update.enabled:FALSE -k"
 
 capture_test_output_print() {
 	wait
@@ -483,4 +483,3 @@ capture_suite() {
 # vi: set shiftwidth=8 tabstop=8 noexpandtab:
 # :indentSize=8:tabSize=8:noTabs=false:
 #
-
