@@ -424,7 +424,6 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     guint32            chandle;
     guint32            key_psm;
     bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
-    psm_data_t        *psm_data;
     const gchar       *psm_str = "<NONE>";
 
     psm = tvb_get_letohs(tvb, offset);
@@ -488,6 +487,8 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     }
 
     if (!pinfo->fd->flags.visited) {
+        psm_data_t        *psm_data;
+
         k_interface_id = interface_id;
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
@@ -690,20 +691,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 static int
 dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length)
 {
-    psm_data_t        *psm_data;
-    config_data_t     *config_data;
-    guint16            dcid;
-    emem_tree_key_t    key[6];
-    guint32            k_interface_id;
-    guint32            k_adapter_id;
-    guint32            k_chandle;
-    guint32            k_cid;
-    guint32            k_frame_number;
-    guint32            interface_id;
-    guint32            adapter_id;
-    guint32            chandle;
-    guint32            cid;
-    bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
+    guint16  dcid;
 
     dcid = tvb_get_letohs(tvb, offset);
 
@@ -716,6 +704,20 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     offset += 2;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        psm_data_t        *psm_data;
+        config_data_t     *config_data;
+        emem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+        guint32            cid;
+        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
+
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
@@ -872,21 +874,9 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 static int
 dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length)
 {
-    psm_data_t        *psm_data;
-    config_data_t     *config_data;
     guint16            scid;
     guint16            result;
-    emem_tree_key_t    key[6];
-    guint32            k_interface_id;
-    guint32            k_adapter_id;
-    guint32            k_chandle;
-    guint32            k_cid;
-    guint32            k_frame_number;
-    guint32            interface_id;
-    guint32            adapter_id;
-    guint32            chandle;
-    guint32            cid;
-    bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
+
 
     scid = tvb_get_letohs(tvb, offset);
 
@@ -904,6 +894,20 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     val_to_str_const(result, configuration_result_vals, "Unknown"), scid);
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        psm_data_t        *psm_data;
+        config_data_t     *config_data;
+        emem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+        guint32            cid;
+        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
+
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
@@ -951,18 +955,6 @@ static int
 dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16            scid, dcid, result;
-    psm_data_t        *psm_data;
-    emem_tree_key_t    key[6];
-    guint32            k_interface_id;
-    guint32            k_adapter_id;
-    guint32            k_chandle;
-    guint32            k_cid;
-    guint32            k_frame_number;
-    guint32            interface_id;
-    guint32            adapter_id;
-    guint32            chandle;
-    guint32            cid;
-    bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
 
     dcid = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree, hf_btl2cap_dcid,   tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -988,6 +980,19 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     }
 
     if (pinfo->fd->flags.visited == 0) {
+        psm_data_t        *psm_data;
+        emem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+        guint32            cid;
+        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
+
         interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
@@ -1594,8 +1599,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     psm_data_t       *psm_data;
     bthci_acl_data_t *acl_data;
     btl2cap_data_t   *l2cap_data;
-    config_data_t    *config_data;
-    void*             pd_save;
+    void             *pd_save;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
     switch (pinfo->p2p_dir) {
@@ -1900,6 +1904,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 (psm_data->scid == key_cid ||
                 psm_data->dcid == key_cid) &&
                 psm_data->disconnect_in_frame > pinfo->fd->num) {
+            config_data_t  *config_data;
 
             if ((psm_data->scid == key_cid) &&
                     psm_data->first_scid_frame == 0) {

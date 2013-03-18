@@ -929,7 +929,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
     guint16       connection_handle;
     guint8        bd_addr[6];
     guint8        status;
-    hci_data_t    *hci_data;
+    hci_data_t    *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     status = tvb_get_guint8(tvb, offset);
@@ -940,7 +940,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
     offset+=2;
 
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
-    if (!pinfo->fd->flags.visited && status == 0x00) {
+    if (!pinfo->fd->flags.visited && hci_data != NULL && status == 0x00) {
         emem_tree_key_t  key[5];
         guint32          k_interface_id;
         guint32          k_adapter_id;
@@ -948,32 +948,29 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
         guint32          k_frame_number;
         remote_bdaddr_t  *remote_bdaddr;
 
-        hci_data = (hci_data_t *) pinfo->private_data;
-        if (hci_data != NULL) {
-            k_interface_id = hci_data->interface_id;
-            k_adapter_id = hci_data->adapter_id;
-            k_connection_handle = connection_handle;
-            k_frame_number = pinfo->fd->num;
+        k_interface_id = hci_data->interface_id;
+        k_adapter_id = hci_data->adapter_id;
+        k_connection_handle = connection_handle;
+        k_frame_number = pinfo->fd->num;
 
-            key[0].length = 1;
-            key[0].key    = &k_interface_id;
-            key[1].length = 1;
-            key[1].key    = &k_adapter_id;
-            key[2].length = 1;
-            key[2].key    = &k_connection_handle;
-            key[3].length = 1;
-            key[3].key    = &k_frame_number;
-            key[4].length = 0;
-            key[4].key    = NULL;
+        key[0].length = 1;
+        key[0].key    = &k_interface_id;
+        key[1].length = 1;
+        key[1].key    = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key    = &k_connection_handle;
+        key[3].length = 1;
+        key[3].key    = &k_frame_number;
+        key[4].length = 0;
+        key[4].key    = NULL;
 
-            remote_bdaddr = se_alloc(sizeof(remote_bdaddr_t));
-            remote_bdaddr->interface_id = hci_data->interface_id;
-            remote_bdaddr->adapter_id = hci_data->adapter_id;
-            remote_bdaddr->chandle = connection_handle;
-            memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
+        remote_bdaddr = se_alloc(sizeof(remote_bdaddr_t));
+        remote_bdaddr->interface_id = hci_data->interface_id;
+        remote_bdaddr->adapter_id = hci_data->adapter_id;
+        remote_bdaddr->chandle = connection_handle;
+        memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
 
-            se_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
-        }
+        se_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
     }
 
 
@@ -1031,12 +1028,13 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 {
     guint8      fc_lag;
     proto_item *item;
-    proto_item *ti_lmp_features = NULL;
-    proto_item *ti_lmp_subtree  = NULL;
+    proto_item *ti_lmp_subtree = NULL;
 
-    if(tree){
-        ti_lmp_features=proto_tree_add_text(tree, tvb, offset, 8, "LMP_Features");
-        ti_lmp_subtree=proto_item_add_subtree(ti_lmp_features, ett_lmp_subtree);
+    if (tree) {
+        proto_item *ti_lmp_features;
+
+        ti_lmp_features = proto_tree_add_text(tree, tvb, offset, 8, "LMP_Features");
+        ti_lmp_subtree = proto_item_add_subtree(ti_lmp_features, ett_lmp_subtree);
     }
 
     proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1178,7 +1176,8 @@ dissect_bthci_evt_read_remote_support_features_complete(tvbuff_t *tvb, int offse
 static int
 dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 bd_addr[6];
+    guint8      bd_addr[6];
+    hci_data_t *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -1186,8 +1185,8 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
-    if (!pinfo->fd->flags.visited) {
-        hci_data_t    *hci_data;
+    if (!pinfo->fd->flags.visited && hci_data != NULL) {
+
         emem_tree_key_t key[4];
         guint32         k_bd_addr_oui;
         guint32         k_bd_addr_id;
@@ -1195,30 +1194,27 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
         gchar           *name;
         device_name_t   *device_name;
 
-        hci_data = (hci_data_t *) pinfo->private_data;
-        if (hci_data != NULL) {
-            name = tvb_get_ephemeral_string(tvb, offset, 248);
+        name = tvb_get_ephemeral_string(tvb, offset, 248);
 
-            k_frame_number = pinfo->fd->num;
-            k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-            k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+        k_frame_number = pinfo->fd->num;
+        k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+        k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
 
-            key[0].length = 1;
-            key[0].key    = &k_bd_addr_id;
-            key[1].length = 1;
-            key[1].key    = &k_bd_addr_oui;
-            key[2].length = 1;
-            key[2].key    = &k_frame_number;
-            key[3].length = 0;
-            key[3].key    = NULL;
+        key[0].length = 1;
+        key[0].key    = &k_bd_addr_id;
+        key[1].length = 1;
+        key[1].key    = &k_bd_addr_oui;
+        key[2].length = 1;
+        key[2].key    = &k_frame_number;
+        key[3].length = 0;
+        key[3].key    = NULL;
 
-            device_name = se_alloc(sizeof(device_name_t));
-            device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-            device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
-            device_name->name = se_strdup(name);
+        device_name = se_alloc(sizeof(device_name_t));
+        device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+        device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+        device_name->name = se_strdup(name);
 
-            se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
-        }
+        se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
     }
     offset += 248;
 
@@ -1541,8 +1537,9 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     guint16     i, j;
     guint8      length, type;
-    proto_item *ti_eir=NULL;
-    proto_item *ti_eir_subtree=NULL;
+    proto_item *ti_eir = NULL;
+    proto_item *ti_eir_subtree = NULL;
+    hci_data_t *hci_data = (hci_data_t *) pinfo->private_data;
 
     if(tree){
         if(size == 240 ) { /* EIR data */
@@ -1615,8 +1612,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x09: /* Device Name, full */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_device_name, tvb, offset+i+2, length-1, ENC_ASCII|ENC_NA);
                     proto_item_append_text(ti_eir_struct,": %s", tvb_format_text(tvb,offset+i+2,length-1));
-                    if (!pinfo->fd->flags.visited && bd_addr) {
-                        hci_data_t      *hci_data;
+                    if (!pinfo->fd->flags.visited && hci_data != NULL &&bd_addr) {
                         emem_tree_key_t key[4];
                         guint32         k_bd_addr_oui;
                         guint32         k_bd_addr_id;
@@ -1624,30 +1620,27 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         gchar           *name;
                         device_name_t   *device_name;
 
-                        hci_data = (hci_data_t *) pinfo->private_data;
-                        if (hci_data != NULL) {
-                            name = tvb_get_ephemeral_string(tvb, offset+i+2, length-1);
+                        name = tvb_get_ephemeral_string(tvb, offset+i+2, length-1);
 
-                            k_frame_number = pinfo->fd->num;
-                            k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-                            k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+                        k_frame_number = pinfo->fd->num;
+                        k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+                        k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
 
-                            key[0].length = 1;
-                            key[0].key    = &k_bd_addr_id;
-                            key[1].length = 1;
-                            key[1].key    = &k_bd_addr_oui;
-                            key[2].length = 1;
-                            key[2].key    = &k_frame_number;
-                            key[3].length = 0;
-                            key[3].key    = NULL;
+                        key[0].length = 1;
+                        key[0].key    = &k_bd_addr_id;
+                        key[1].length = 1;
+                        key[1].key    = &k_bd_addr_oui;
+                        key[2].length = 1;
+                        key[2].key    = &k_frame_number;
+                        key[3].length = 0;
+                        key[3].key    = NULL;
 
-                            device_name = se_alloc(sizeof(device_name_t));
-                            device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-                            device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
-                            device_name->name = se_strdup(name);
+                        device_name = se_alloc(sizeof(device_name_t));
+                        device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+                        device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+                        device_name->name = se_strdup(name);
 
-                            se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
-                        }
+                        se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
                     }
                     break;
                 case 0x0A: /* Tx Power Level */
@@ -2062,16 +2055,17 @@ dissect_bthci_evt_amp_status_change(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti_opcode;
-    proto_tree *opcode_tree;
-    proto_item *item;
-    gint16 timeout;
-    guint8 num8;
-    guint i;
-    guint16 com_opcode;
-    guint32 accuracy;
-    guint8 bd_addr[6];
-    gboolean local_addr = FALSE;
+    proto_item  *ti_opcode;
+    proto_tree  *opcode_tree;
+    proto_item  *item;
+    gint16       timeout;
+    guint8       num8;
+    guint        i;
+    guint16      com_opcode;
+    guint32      accuracy;
+    guint8       bd_addr[6];
+    gboolean     local_addr = FALSE;
+    hci_data_t  *hci_data = (hci_data_t *) pinfo->private_data;
 
     proto_tree_add_item(tree, hf_bthci_evt_num_command_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -2180,35 +2174,31 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             offset++;
 
             offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
-            if (!pinfo->fd->flags.visited && local_addr) {
-                hci_data_t                 *hci_data;
+            if (!pinfo->fd->flags.visited && hci_data != NULL && local_addr) {
                 emem_tree_key_t            key[4];
                 guint32                    k_interface_id;
                 guint32                    k_adapter_id;
                 guint32                    k_frame_number;
                 localhost_bdaddr_entry_t   *localhost_bdaddr_entry;
 
-                hci_data = (hci_data_t *) pinfo->private_data;
-                if (hci_data != NULL) {
-                    k_interface_id = hci_data->interface_id;
-                    k_adapter_id = hci_data->adapter_id;
-                    k_frame_number = pinfo->fd->num;
+                k_interface_id = hci_data->interface_id;
+                k_adapter_id = hci_data->adapter_id;
+                k_frame_number = pinfo->fd->num;
 
-                    key[0].length = 1;
-                    key[0].key    = &k_interface_id;
-                    key[1].length = 1;
-                    key[1].key    = &k_adapter_id;
-                    key[2].length = 1;
-                    key[2].key    = &k_frame_number;
-                    key[3].length = 0;
-                    key[3].key    = NULL;
+                key[0].length = 1;
+                key[0].key    = &k_interface_id;
+                key[1].length = 1;
+                key[1].key    = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key    = &k_frame_number;
+                key[3].length = 0;
+                key[3].key    = NULL;
 
-                    localhost_bdaddr_entry = se_alloc(sizeof(localhost_bdaddr_entry_t));
-                    localhost_bdaddr_entry->interface_id = k_interface_id;
-                    localhost_bdaddr_entry->adapter_id = k_adapter_id;
-                    memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
-                    se_tree_insert32_array(hci_data->localhost_bdaddr, key, localhost_bdaddr_entry);
-                }
+                localhost_bdaddr_entry = se_alloc(sizeof(localhost_bdaddr_entry_t));
+                localhost_bdaddr_entry->interface_id = k_interface_id;
+                localhost_bdaddr_entry->adapter_id = k_adapter_id;
+                memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
+                se_tree_insert32_array(hci_data->localhost_bdaddr, key, localhost_bdaddr_entry);
             }
 
             break;
@@ -2382,8 +2372,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             offset++;
 
             proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
-            if (!pinfo->fd->flags.visited) {
-                hci_data_t              *hci_data;
+            if (!pinfo->fd->flags.visited && hci_data != NULL) {
                 emem_tree_key_t         key[4];
                 guint32                 k_interface_id;
                 guint32                 k_adapter_id;
@@ -2391,30 +2380,27 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 gchar                   *name;
                 localhost_name_entry_t  *localhost_name_entry;
 
-                hci_data = (hci_data_t *) pinfo->private_data;
-                if (hci_data != NULL) {
-                    k_interface_id = hci_data->interface_id;
-                    k_adapter_id = hci_data->adapter_id;
-                    k_frame_number = pinfo->fd->num;
+                k_interface_id = hci_data->interface_id;
+                k_adapter_id = hci_data->adapter_id;
+                k_frame_number = pinfo->fd->num;
 
-                    name = tvb_get_ephemeral_string(tvb, offset, 248);
+                name = tvb_get_ephemeral_string(tvb, offset, 248);
 
-                    key[0].length = 1;
-                    key[0].key    = &k_interface_id;
-                    key[1].length = 1;
-                    key[1].key    = &k_adapter_id;
-                    key[2].length = 1;
-                    key[2].key    = &k_frame_number;
-                    key[3].length = 0;
-                    key[3].key    = NULL;
+                key[0].length = 1;
+                key[0].key    = &k_interface_id;
+                key[1].length = 1;
+                key[1].key    = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key    = &k_frame_number;
+                key[3].length = 0;
+                key[3].key    = NULL;
 
-                    localhost_name_entry = se_alloc(sizeof(localhost_name_entry_t));
-                    localhost_name_entry->interface_id = k_interface_id;
-                    localhost_name_entry->adapter_id = k_adapter_id;
-                    localhost_name_entry->name = se_strdup(name);
+                localhost_name_entry = se_alloc(sizeof(localhost_name_entry_t));
+                localhost_name_entry->interface_id = k_interface_id;
+                localhost_name_entry->adapter_id = k_adapter_id;
+                localhost_name_entry->name = se_strdup(name);
 
-                    se_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
-                }
+                se_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
             }
             offset += 248;
 
@@ -2911,23 +2897,20 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             break;
 
         case 0x2003: /* LE Read Local Supported Features */
-        {
-            proto_item *ti_le_features=NULL;
-            proto_item *ti_le_subtree=NULL;
-
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if(tree){
-                ti_le_features=proto_tree_add_text(tree, tvb, offset, 8, "LE Features");
-                ti_le_subtree=proto_item_add_subtree(ti_le_features, ett_lmp_subtree);
+            if (tree) {
+                proto_item *ti_le_features;
+                proto_item *ti_le_subtree;
+
+                ti_le_features = proto_tree_add_text(tree, tvb, offset, 8, "LE Features");
+                ti_le_subtree = proto_item_add_subtree(ti_le_features, ett_lmp_subtree);
 
                 proto_tree_add_item(ti_le_subtree,hf_bthci_evt_le_feature_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset+=8;
             }
             break;
-        }
-
         case 0x2007: /* LE Read Advertising Channel Tx Power */
         {
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3339,15 +3322,16 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti;
     proto_tree *bthci_evt_tree = NULL;
     guint8      param_length, evt_code;
     guint8      bd_addr[6];
     int         offset         = 0;
 
-    if(tree){
-        ti=proto_tree_add_item(tree, proto_bthci_evt, tvb, offset, -1, ENC_NA);
-        bthci_evt_tree=proto_item_add_subtree(ti, ett_bthci_evt);
+    if (tree) {
+        proto_item *ti;
+
+        ti = proto_tree_add_item(tree, proto_bthci_evt, tvb, offset, -1, ENC_NA);
+        bthci_evt_tree = proto_item_add_subtree(ti, ett_bthci_evt);
     }
 
     evt_code = tvb_get_guint8(tvb, offset);

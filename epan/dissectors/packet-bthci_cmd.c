@@ -2430,7 +2430,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 return offset;
 }
 
-static void
+static gint
 dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf)
 {
     proto_item *item;
@@ -2628,6 +2628,8 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset+=tvb_length_remaining(tvb, offset);
             break;
     }
+
+    return offset;
 }
 
 /* Code to actually dissect the packets */

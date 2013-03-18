@@ -1245,9 +1245,6 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item    *ti;
-    proto_tree    *st;
-    proto_item    *sub_item;
     fragment_data *frag_msg       = NULL;
     gboolean       save_fragmented, complete;
     tvbuff_t*      new_tvb        = NULL;
@@ -1367,7 +1364,11 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (complete) {
-        guint8 code, final_flag;
+        proto_item  *ti;
+        proto_tree  *st;
+        proto_item  *sub_item;
+        guint8       code;
+        guint8       final_flag;
 
         /* fully dissectable packet ready */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "OBEX");

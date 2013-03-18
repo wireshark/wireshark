@@ -281,7 +281,6 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree   *addr_tree = NULL;
     const guint8 *src_addr;
     const guint8 *dst_addr;
-    tvbuff_t     *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BNEP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -373,6 +372,8 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ethertype(type, tvb, offset, pinfo, tree, btbnep_tree,
                     hf_btbnep_type, 0, 0);
        } else {
+            tvbuff_t  *next_tvb;
+
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, tree);
        }

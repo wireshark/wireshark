@@ -559,14 +559,12 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item          *ti;
     proto_tree          *rfcomm_tree;
-    proto_tree          *ctrl_tree;
     int                  offset     = 0;
     int                  fcs_offset;
     guint8               dlci, cr_flag, ea_flag;
     guint8               frame_type, pf_flag;
     guint16              frame_len;
     dlci_state_t        *dlci_state = NULL;
-    dissector_handle_t   decode_by_dissector;
 
     ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
@@ -639,8 +637,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* multiplexer control command */
     if (!dlci && frame_len) {
         proto_item *mcc_ti;
-        proto_tree *dlci_tree = NULL;
-        proto_item *dlci_item = NULL;
+        proto_tree *ctrl_tree;
+        proto_tree *dlci_tree;
+        proto_item *dlci_item;
         guint32     mcc_type, length;
         guint8      mcc_cr_flag, mcc_ea_flag;
         guint8      mcc_channel;
@@ -707,9 +706,10 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * for this kind of service, if none is found dissect it as raw "data"
      */
     if (dlci && frame_len) {
-        tvbuff_t        *next_tvb;
-        btl2cap_data_t  *l2cap_data;
-        btrfcomm_data_t  rfcomm_data;
+        dissector_handle_t  decode_by_dissector;
+        tvbuff_t           *next_tvb;
+        btl2cap_data_t     *l2cap_data;
+        btrfcomm_data_t     rfcomm_data;
 
         next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
 

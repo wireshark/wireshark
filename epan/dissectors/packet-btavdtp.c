@@ -918,7 +918,6 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree       *btavdtp_tree       = NULL;
     proto_tree       *signal_tree        = NULL;
     proto_item       *signal_item        = NULL;
-    proto_item       *pitem;
     btl2cap_data_t   *l2cap_data;
     gint             offset = 0;
     gint             i_sep         = 1;
@@ -1286,6 +1285,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case SIGNAL_ID_DELAY_REPORT:
             if (message_type == MESSAGE_TYPE_COMMAND) {
+                proto_item  *pitem;
                 delay = tvb_get_ntohs(tvb, offset + 1);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(%u.%u ms)", delay/10, delay%10);
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);

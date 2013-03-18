@@ -112,7 +112,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint           number_of_packets = 0;
     guint           length;
     guint           i_frame;
-    fragment_t      *fragment;
     void            *save_private_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVCTP");
@@ -193,6 +192,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
     } else {
+        fragment_t     *fragment;
         emem_tree_key_t key[6];
         guint32         k_interface_id;
         guint32         k_adapter_id;
@@ -309,7 +309,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         } else if (packet_type == PACKET_TYPE_END) {
             guint    i_length = 0;
-            guint8   *reassembled;
 
             fragments = (fragments_t *)se_tree_lookup32_array_le(reassembling, key);
             if (!(fragments && fragments->interface_id == interface_id &&
@@ -360,6 +359,8 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     "Unexpected frame");
                 call_dissector(data_handle, next_tvb, pinfo, tree);
             } else {
+                guint8   *reassembled;
+
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
                     fragment = (fragment_t *)se_tree_lookup32_le(fragments->fragment, i_frame);
                     length += fragment->length;
