@@ -277,25 +277,26 @@ AC_ARG_WITH(libnl,
 # Libnl is Linux-specific.
 #
 libnl_message="no"
-if test "$host_os"x = "linuxx"; then 
+case "$host_os" in
+linux*)
 	AC_MSG_CHECKING(whether to use libnl for various network interface purposes)
 
 	if test x$want_libnl = "xno"; then
 		AC_MSG_RESULT(no)
 	else
-		AC_MSG_RESULT(YES)
+		AC_MSG_RESULT(yes)
 		#
 		# Test for specific libnl versions only if no version
 		# was specified by the user or if the version in question
 		# was requested by the user.
 		#
-		if test x$libnl_version = "x" -o x$libnl_Version = "x3"; then
+		if test x$libnl_version = "xany" -o x$libnl_Version = "x3"; then
 			PKG_CHECK_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
 		fi
-		if test x$libnl_version = "x" -o x$libnl_Version = "x2"; then
+		if test x$libnl_version = "xany" -o x$libnl_Version = "x2"; then
 			PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
 		fi
-		if test x$libnl_version = "x" -o x$libnl_Version = "x2"; then
+		if test x$libnl_version = "xany" -o x$libnl_Version = "x2"; then
 			PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
 		fi
 		if (test "${have_libnl3}" = "yes"); then
@@ -320,16 +321,18 @@ if test "$host_os"x = "linuxx"; then
 			libnl_message="yes (v1)"
 			enable_airpcap=no
 		else
-			case "$libnl_version" in
+			if test x$want_libnl = "xyes"; then
+				case "$libnl_version" in
 
-			any)
-				AC_MSG_ERROR("I couldn't find libnl even though you manually enabled it.")
-				;;
+				any)
+					AC_MSG_ERROR("I couldn't find libnl even though you manually enabled it.")
+					;;
 
-			*)
-				AC_MSG_ERROR("I couldn't find libnl version $libnl_version even though you manually enabled it.")
-				;;
-			esac
+				*)
+					AC_MSG_ERROR("I couldn't find libnl version $libnl_version even though you manually enabled it.")
+					;;
+				esac
+			fi
 		fi
 	fi
 
@@ -348,11 +351,13 @@ if test "$host_os"x = "linuxx"; then
 	    [enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;],
 	    [AC_MSG_RESULT(yes) AC_DEFINE(HAVE_NL80211_CMD_SET_CHANNEL, 1, [SET_CHANNEL is supported])],
 	    [AC_MSG_RESULT(no)])
-else
+	;;
+
+*)
 	if test x$want_libnl != "xno" -a x$want_libnl != "xifavailable"; then
 		AC_MSG_WARN([libnl is Linux-specific, ignoring --with-libnl])
 	fi
-fi
+esac
 
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
