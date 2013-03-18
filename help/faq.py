@@ -1350,12 +1350,12 @@ some platforms (e.g., BSD systems).
 Also, if at all possible, please send a copy of the capture file that caused
 the problem.  When capturing packets, Wireshark normally writes captured
 packets to a temporary file, which will probably be in <tt>/tmp</tt> or
-<tt>/var/tmp</tt> on UNIX-flavored OSes, <tt>\TEMP</tt> on the main system disk
+<tt>/var/tmp</tt> on UNIX-flavored OSes, <tt>\\TEMP</tt> on the main system disk
 (normally <tt>C:</tt>) on Windows 9x/Me/NT 4.0,
-<tt>\Documents and Settings\</tt><var>your login name</var>
-<tt>\Local Settings\Temp</tt> on the main system disk on Windows
+<tt>\\Documents and Settings\\</tt><var>your login name</var>
+<tt>\\Local Settings\\Temp</tt> on the main system disk on Windows
 2000/Windows XP/Windows Server 2003, and
-<tt>\Users\<var>your login name</var>\AppData\Local\Temp</tt> on the main
+<tt>\\Users\\<var>your login name</var>\\AppData\\Local\\Temp</tt> on the main
 system disk on Windows 7, so the capture file will probably be there.  If you
 are capturing on a single interface, it will have a name of the form,
 <tt>wireshark_&lt;fmt&gt_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</tt>, where
