@@ -97,7 +97,7 @@ fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint32 length)
 		return;
 
 	/* Store division type */
-	p_fp_info->division = radio_mode;
+	p_fp_info->division = (enum division_type)radio_mode;
 
 	/* Format used by K15, later fields are shifted by 8 bytes. */
 	if (pntohs(extra_info+2) == 5)
@@ -235,7 +235,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 			break;
 	}
 
-	handles = se_tree_lookup32(port_handles, pinfo->pseudo_header->k12.input);
+	handles = (dissector_handle_t *)se_tree_lookup32(port_handles, pinfo->pseudo_header->k12.input);
 
 	if (! handles ) {
 		for (i=0 ; i < nk12_handles; i++) {
@@ -276,9 +276,9 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 
 	for (i = 0; handles[i] && handles[i+1]; ++i) {
 		if (handles[i] == sscop_handle) {
-			sscop_payload_info *p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
+			sscop_payload_info *p_sscop_info = (sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop);
 			if (!p_sscop_info) {
-				p_sscop_info = se_alloc0(sizeof(sscop_payload_info));
+				p_sscop_info = se_new0(sscop_payload_info);
                 p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
                 p_sscop_info->subdissector = handles[i+1];
 			}
@@ -290,9 +290,9 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 
 	/* Setup information required by certain protocols */
 	if (sub_handle == fp_handle) {
-		fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+		fp_info *p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 		if (!p_fp_info) {
-			p_fp_info = se_alloc0(sizeof(fp_info));
+			p_fp_info = se_new0(fp_info);
             p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
 
             fill_fp_info(p_fp_info,
@@ -307,7 +307,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 static void
 k12_update_cb(void* r, const char** err)
 {
-	k12_handles_t* h = r;
+	k12_handles_t* h = (k12_handles_t *)r;
 	gchar** protos;
 	guint num_protos, i;
 
@@ -317,7 +317,7 @@ k12_update_cb(void* r, const char** err)
 		g_strstrip(protos[num_protos]);
 
 	g_free(h->handles);
-	h->handles = g_malloc0(sizeof(dissector_handle_t)*(num_protos < 2 ? 2 : num_protos));
+	h->handles = (dissector_handle_t *)g_malloc0(sizeof(dissector_handle_t)*(num_protos < 2 ? 2 : num_protos));
 
 	for (i = 0; i < num_protos; i++) {
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
@@ -333,8 +333,8 @@ k12_update_cb(void* r, const char** err)
 static void*
 k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
-	k12_handles_t* d = dest;
-	const k12_handles_t* o = orig;
+	k12_handles_t* d = (k12_handles_t *)dest;
+	const k12_handles_t* o = (const k12_handles_t *)orig;
 	gchar** protos = ep_strsplit(d->protos,":",0);
 	guint num_protos;
 
@@ -343,7 +343,7 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 
 	d->match = g_strdup(o->match);
 	d->protos = g_strdup(o->protos);
-	d->handles = g_memdup(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
+	d->handles = (dissector_handle_t *)g_memdup(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
 
 	return dest;
 }
@@ -351,7 +351,7 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 static void
 k12_free_cb(void* r)
 {
-	k12_handles_t* h = r;
+	k12_handles_t* h = (k12_handles_t *)r;
 
 	g_free(h->match);
 	g_free(h->protos);
@@ -453,7 +453,7 @@ proto_register_k12(void)
 		    sizeof(k12_handles_t),
 		    "k12_protos",             /* filename */
 		    TRUE,                     /* from_profile */
-		    (void*) &k12_handles,     /* data_ptr */
+		    (void**) &k12_handles,    /* data_ptr */
 		    &nk12_handles,            /* numitems_ptr */
 		    UAT_AFFECTS_DISSECTION,   /* affects dissection of packets, but not set of named fields */
 		    "ChK12ProtocolsSection",  /* help */

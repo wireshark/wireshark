@@ -1744,12 +1744,12 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_key = se_alloc(sizeof(ncp_req_hash_key));
+    request_key = se_new(ncp_req_hash_key);
     request_key->conversation = conversation;
 	/* Make sequence number unique */
     request_key->nw_sequence_long = (0x10000 + ((pkt_num/255)<<16)) | nw_sequence;
 
-    request_value = se_alloc(sizeof(ncp_req_hash_value));
+    request_value = se_new(ncp_req_hash_value);
     request_value->ncp_rec = ncp_rec;
     request_value->req_cond_results = NULL;
     request_value->req_nds_flags = 0;
@@ -1771,10 +1771,10 @@ ncp_eid_hash_insert(guint32 nw_eid)
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_eid_key = se_alloc(sizeof(ncp_req_eid_hash_key));
+    request_eid_key = se_new(ncp_req_eid_hash_key);
     request_eid_key->nw_eid = nw_eid;
 
-    request_eid_value = se_alloc(sizeof(ncp_req_eid_hash_value));
+    request_eid_value = se_new(ncp_req_eid_hash_value);
     g_strlcpy(request_eid_value->object_name, " ", 256);
 
     g_hash_table_insert(ncp_req_eid_hash, request_eid_key, request_eid_value);
@@ -1799,14 +1799,14 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence, guint32 pkt_nu
 	 * Loop through all the previous sequence numbers in the hash to see
 	 * if the original request packet can be found.
 	 */
-	temp_value = g_hash_table_lookup(ncp_req_hash, &request_key);
+	temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
 	while(!temp_value)
 	{
        request_key.nw_sequence_long = request_key.nw_sequence_long-0x10000;
 	   if((request_key.nw_sequence_long & 0xffff0000) == 0){
 	        break;
 	   }  
-       temp_value = g_hash_table_lookup(ncp_req_hash, &request_key);
+       temp_value = (ncp_req_hash_value *)g_hash_table_lookup(ncp_req_hash, &request_key);
 	}
 	
     return temp_value;
@@ -1820,7 +1820,7 @@ ncp_eid_hash_lookup(conversation_t *conversation _U_, guint32 nw_eid)
 
     request_eid_key.nw_eid = nw_eid;
 
-    return g_hash_table_lookup(ncp_req_eid_hash, &request_eid_key);
+    return (ncp_req_eid_hash_value *)g_hash_table_lookup(ncp_req_eid_hash, &request_eid_key);
 }
 
 /* Does NCP func require a subfunction code? */
@@ -1909,7 +1909,7 @@ get_finfo_length(field_info *finfo)
 static char *
 get_finfo_value_string(field_info *finfo)
 {
-    return fvalue_get(&finfo->value);
+    return (char *)fvalue_get(&finfo->value);
 }
 #if 0
 static char *
@@ -2442,7 +2442,7 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length)
         return "";
     }
 
-    dest_buf = ep_alloc(max_length + 1);
+    dest_buf = (char *)ep_alloc(max_length + 1);
     dest_buf[0] = '\0';
 
     for ( i = 0; i < (gint)str_length; i++ )
@@ -7156,7 +7156,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
             }
     }
     else {
-        request_value = p_get_proto_data(pinfo->fd, proto_ncp);
+        request_value = (ncp_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ncp);
         if (!request_value) {
                 dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
@@ -7676,7 +7676,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             gboolean    *results;
             dfilter_t   *dfilter;
 
-            results = se_alloc0(sizeof(gboolean)*NUM_REQ_CONDS);
+            results = (gboolean *)se_alloc0(sizeof(gboolean)*NUM_REQ_CONDS);
             needed = ncp_rec->req_cond_indexes;
 
             while (*needed != -1) {
@@ -7723,7 +7723,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
                 col_set_str(pinfo->cinfo, COL_INFO, "C ");
 
-                finfo = g_ptr_array_index(parray, 0);
+                finfo = (field_info *)g_ptr_array_index(parray, 0);
 
                 info_type = get_info_type((const gchar*) ncp_rec->req_info_str->first_string);
 
@@ -7761,7 +7761,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             if (len > 1) {
                 for (i = 1; i < len; i++) {
                     non_uni_string[0]='\0';
-                    finfo = g_ptr_array_index(parray, i);
+                    finfo = (field_info *)g_ptr_array_index(parray, i);
                     info_type = get_info_type((const gchar*) ncp_rec->req_info_str->repeat_string);
 
                     if (info_type != 0) {    /* Is this  a string or not? */
