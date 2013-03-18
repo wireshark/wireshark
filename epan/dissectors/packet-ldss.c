@@ -222,7 +222,7 @@ prepare_ldss_transfer_conv(ldss_broadcast_t *broadcast)
 	conversation_t *transfer_conv;
 	ldss_transfer_info_t *transfer_info;
 
-	transfer_info = se_alloc0(sizeof(ldss_transfer_info_t));
+	transfer_info = se_new0(ldss_transfer_info_t);
 	transfer_info->broadcast = broadcast;
 
 	/* Preparation for later push/pull dissection */
@@ -287,7 +287,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	digest_type = tvb_get_guint8 (tvb,  2);
 	compression = tvb_get_guint8 (tvb,  3);
 	cookie      = tvb_get_ntohl  (tvb,  4);
-	digest      = tvb_memdup     (tvb,  8, DIGEST_LEN);
+	digest      = (guint8 *)tvb_memdup (tvb,  8, DIGEST_LEN);
 	size	    = tvb_get_ntoh64 (tvb, 40);
 	offset	    = tvb_get_ntoh64 (tvb, 48);
 	targetTime  = tvb_get_ntohl  (tvb, 56);
@@ -412,7 +412,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ldss_broadcast_t *data;
 
 		/* Populate data from the broadcast */
-		data = se_alloc0(sizeof(ldss_broadcast_t));
+		data = se_new0(ldss_broadcast_t);
 		data->num = pinfo->fd->num;
 		data->ts = pinfo->fd->abs_ts;
 		data->message_id = messageID;
@@ -422,11 +422,11 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		data->offset = offset;
 		data->compression = compression;
 
-		data->file = se_alloc0(sizeof(ldss_file_t));
+		data->file = se_new0(ldss_file_t);
 		data->file->digest = digest;
 		data->file->digest_type = digest_type;
 
-		data->broadcaster = se_alloc0(sizeof(ldss_broadcaster_t));
+		data->broadcaster = se_new0(ldss_broadcaster_t);
 		COPY_ADDRESS(&data->broadcaster->addr, &pinfo->src);
 		data->broadcaster->port = port;
 
@@ -469,8 +469,8 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * earlier broadcast dissection (see prepate_ldss_transfer_conv) */
 	transfer_conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					   PT_TCP, pinfo->srcport, pinfo->destport, 0);
-	transfer_info = conversation_get_proto_data(transfer_conv, proto_ldss);
-	transfer_tcpinfo = pinfo->private_data;
+	transfer_info = (ldss_transfer_info_t *)conversation_get_proto_data(transfer_conv, proto_ldss);
+	transfer_tcpinfo = (struct tcpinfo *)pinfo->private_data;
 
 	/* For a pull, the first packet in the TCP connection is the file request.
 	 * First packet is identified by relative seq/ack numbers of 1.
@@ -495,8 +495,8 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    highest_num_seen < pinfo->fd->num) {
 
 			already_dissected = FALSE;
-			transfer_info->req = se_alloc0(sizeof(ldss_file_request_t));
-			transfer_info->req->file = se_alloc0(sizeof(ldss_file_t));
+			transfer_info->req = se_new0(ldss_file_request_t);
+			transfer_info->req->file = se_new0(ldss_file_t);
 			highest_num_seen = pinfo->fd->num;
 		}
 
@@ -523,7 +523,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    FALSE);
 
 			/* Include new-line in line */
-			line = tvb_memdup(tvb, offset, linelen+1); /* XXX - memory leak? */
+			line = (guint8 *)tvb_memdup(tvb, offset, linelen+1); /* XXX - memory leak? */
 
 			if (tree) {
 				ti = proto_tree_add_text(ldss_tree, tvb, offset, linelen,
@@ -609,7 +609,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if(digest_bytes->len >= DIGEST_LEN)
 						digest_bytes->len = (DIGEST_LEN-1);
 					/* Ensure the digest is zero-padded */
-					transfer_info->file->digest = se_alloc0(DIGEST_LEN);
+					transfer_info->file->digest = (guint8 *)se_alloc0(DIGEST_LEN);
 					memcpy(transfer_info->file->digest, digest_bytes->data, digest_bytes->len);
 
 					g_byte_array_free(digest_bytes, TRUE);

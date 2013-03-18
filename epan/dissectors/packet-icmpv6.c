@@ -1133,9 +1133,9 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
 
     /* Handle the conversation tracking */
     conversation = _find_or_create_conversation(pinfo);
-    icmpv6_info = conversation_get_proto_data(conversation, proto_icmpv6);
+    icmpv6_info = (icmpv6_conv_info_t *)conversation_get_proto_data(conversation, proto_icmpv6);
     if (icmpv6_info == NULL) {
-        icmpv6_info = se_alloc(sizeof(icmpv6_conv_info_t));
+        icmpv6_info = se_new(icmpv6_conv_info_t);
         icmpv6_info->unmatched_pdus = se_tree_create_non_persistent(
             EMEM_TREE_TYPE_RED_BLACK, "icmpv6_unmatched_pdus");
         icmpv6_info->matched_pdus = se_tree_create_non_persistent(
@@ -1153,7 +1153,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_key[1].length = 0;
         icmpv6_key[1].key = NULL;
 
-        icmpv6_trans = se_alloc(sizeof(icmp_transaction_t));
+        icmpv6_trans = se_new(icmp_transaction_t);
         icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
         icmpv6_trans->resp_frame = 0;
         icmpv6_trans->rqst_time = pinfo->fd->abs_ts;
@@ -1170,7 +1170,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_key[2].length = 0;
         icmpv6_key[2].key = NULL;
 
-        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
+        icmpv6_trans = (icmp_transaction_t *)se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
     }
 
     if (icmpv6_trans == NULL)
@@ -1206,7 +1206,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     if (conversation == NULL)
         return NULL;
 
-    icmpv6_info = conversation_get_proto_data(conversation, proto_icmpv6);
+    icmpv6_info = (icmpv6_conv_info_t *)conversation_get_proto_data(conversation, proto_icmpv6);
     if (icmpv6_info == NULL)
         return NULL;
 
@@ -1218,7 +1218,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         icmpv6_key[1].length = 0;
         icmpv6_key[1].key = NULL;
 
-        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->unmatched_pdus, icmpv6_key);
+        icmpv6_trans = (icmp_transaction_t *)se_tree_lookup32_array(icmpv6_info->unmatched_pdus, icmpv6_key);
         if (icmpv6_trans == NULL)
             return NULL;
 
@@ -1255,7 +1255,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         icmpv6_key[2].length = 0;
         icmpv6_key[2].key = NULL;
 
-        icmpv6_trans = se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
+        icmpv6_trans = (icmp_transaction_t *)se_tree_lookup32_array(icmpv6_info->matched_pdus, icmpv6_key);
         if (icmpv6_trans == NULL)
             return NULL;
     }
@@ -3259,9 +3259,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                truncated, so we can checksum it. */
 
             /* Set up the fields of the pseudo-header. */
-            cksum_vec[0].ptr = pinfo->src.data;
+            cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
             cksum_vec[0].len = pinfo->src.len;
-            cksum_vec[1].ptr = pinfo->dst.data;
+            cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
             cksum_vec[1].len = pinfo->dst.len;
             cksum_vec[2].ptr = (const guint8 *)&phdr;
             phdr[0] = g_htonl(reported_length);

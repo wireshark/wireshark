@@ -594,11 +594,11 @@ static guint iax_circuit_lookup(const address *address_p,
   key.port   = port;
   key.callno = callno;
 
-  circuit_id_p = g_hash_table_lookup(iax_circuit_hashtab, &key);
+  circuit_id_p = (guint32 *)g_hash_table_lookup(iax_circuit_hashtab, &key);
   if (! circuit_id_p) {
     iax_circuit_key *new_key;
 
-    new_key = se_alloc(sizeof(iax_circuit_key));
+    new_key = se_new(iax_circuit_key);
     new_key->addr.type = address_p->type;
     new_key->addr.len  = MIN(address_p->len, MAX_ADDRESS);
     new_key->addr.data = new_key->address_data;
@@ -607,7 +607,7 @@ static guint iax_circuit_lookup(const address *address_p,
     new_key->port      = port;
     new_key->callno    = callno;
 
-    circuit_id_p  = se_alloc(sizeof(iax_circuit_key));
+    circuit_id_p  = (guint32 *)se_new(iax_circuit_key);
     *circuit_id_p = ++circuitcount;
 
     g_hash_table_insert(iax_circuit_hashtab, new_key, circuit_id_p);
@@ -947,8 +947,8 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   circuit_id = iax_circuit_lookup(&pinfo->src, pinfo->ptype,
                                   pinfo->srcport, scallno);
 
-  call = se_alloc(sizeof(iax_call_data));
-  call -> dataformat = 0;
+  call = se_new(iax_call_data);
+  call -> dataformat = AST_DATAFORMAT_NULL;
   call -> src_codec = 0;
   call -> dst_codec = 0;
   call -> n_forward_circuit_ids = 0;
@@ -981,7 +981,7 @@ typedef struct iax_packet_data {
 
 static iax_packet_data *iax_new_packet_data(iax_call_data *call, gboolean reversed)
 {
-  iax_packet_data *p = se_alloc(sizeof(iax_packet_data));
+  iax_packet_data *p = se_new(iax_packet_data);
   p->first_time    = TRUE;
   p->call_data     = call;
   p->codec         = 0;
@@ -1430,7 +1430,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                               ie_finfo->rep->representation);
         else {
           guint8 *ie_val = NULL;
-          ie_val = ep_alloc(ITEM_LABEL_LENGTH);
+          ie_val = (guint8 *)ep_alloc(ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);
@@ -1471,7 +1471,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   ie_data.peer_address.type = AT_NONE;
   ie_data.peer_address.len  = 0;
   ie_data.peer_address.data = address_data;
-  ie_data.peer_ptype        = 0;
+  ie_data.peer_ptype        = PT_NONE;
   ie_data.peer_port         = 0;
   ie_data.peer_callno       = 0;
   ie_data.dataformat        = (guint32)-1;
@@ -1493,7 +1493,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   /* if this is a data call, set up a subdissector for the circuit */
   if (iax_call && ie_data.dataformat != (guint32)-1 && iax_call -> subdissector == NULL) {
     iax_call -> subdissector = dissector_get_uint_handle(iax2_dataformat_dissector_table, ie_data.dataformat);
-    iax_call -> dataformat = ie_data.dataformat;
+    iax_call -> dataformat = (iax_dataformat_t)ie_data.dataformat;
   }
 
   /* if this is a transfer request, record it in the call data */
@@ -1652,7 +1652,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   case AST_FRAME_IAX:
     offset=dissect_iax2_command(tvb, offset+9, pinfo, packet_type_tree, iax_packet);
     iax2_info->messageName = val_to_str_ext(csub, &iax_iax_subclasses_ext, "unknown (0x%02x)");
-    iax2_info->callState   = csub;
+    iax2_info->callState   = (voip_call_state)csub;
     break;
 
   case AST_FRAME_DTMF_BEGIN:
@@ -1960,7 +1960,7 @@ typedef struct _call_list {
 
 static call_list *call_list_append(call_list *list, guint16 scallno)
 {
-  call_list *node = ep_alloc0(sizeof(call_list));
+  call_list *node = ep_new0(call_list);
 
   node->scallno = scallno;
 

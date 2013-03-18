@@ -421,7 +421,7 @@ get_sep_type(guint32 frame_number, guint seid)
     key[2].length = 0;
     key[2].key = NULL;
 
-    sep = se_tree_lookup32_array_le(sep_list, key);
+    sep = (sep_entry_t *)se_tree_lookup32_array_le(sep_list, key);
     if (sep && sep->seid == seid) {
         return val_to_str_const(sep->type, sep_type_vals, "unknown");
     }
@@ -447,7 +447,7 @@ get_sep_media_type(guint32 frame_number, guint seid)
     key[2].length = 0;
     key[2].key = NULL;
 
-    sep = se_tree_lookup32_array_le(sep_list, key);
+    sep = (sep_entry_t *)se_tree_lookup32_array_le(sep_list, key);
     if (sep && sep->seid == seid) {
         return val_to_str_const(sep->media_type, media_type_vals, "unknown");
     }
@@ -505,7 +505,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
         key[2].key = NULL;
 
         if (!pinfo->fd->flags.visited) {
-            sep_data = se_alloc(sizeof(sep_entry_t));
+            sep_data = se_new(sep_entry_t);
             sep_data->seid = seid;
             sep_data->type = type;
             sep_data->codec = -1;
@@ -965,7 +965,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!force_avdtp && !pinfo->fd->flags.visited && (l2cap_data->first_scid_frame == pinfo->fd->num ||
                 l2cap_data->first_dcid_frame == pinfo->fd->num)) {
-        cid_type_data = se_alloc(sizeof(cid_type_data_t));
+        cid_type_data = se_new(cid_type_data_t);
         cid_type_data->type = STREAM_TYPE_MEDIA;
         cid_type_data->cid = l2cap_data->cid;
         cid_type_data->sep = NULL;
@@ -983,7 +983,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* It is AVDTP Signaling rsp side */
             cid_type_data->type = STREAM_TYPE_SIGNAL;
         } else {
-            sep = se_tree_lookup32_le(sep_open, pinfo->fd->num);
+            sep = (sep_entry_t *)se_tree_lookup32_le(sep_open, pinfo->fd->num);
 
             if (sep && sep->state == SEP_STATE_OPEN) {
                 sep->state = SEP_STATE_IN_USE;
@@ -1022,7 +1022,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[3].length = 0;
         key[3].key    = NULL;
 
-        cid_type_data = se_tree_lookup32_array_le(cid_to_type_table, key);
+        cid_type_data = (cid_type_data_t *)se_tree_lookup32_array_le(cid_to_type_table, key);
         if (cid_type_data && cid_type_data->type == STREAM_TYPE_MEDIA && cid_type_data->cid == l2cap_data->cid) {
             /* AVDTP Media */
 
@@ -1137,7 +1137,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[2].length = 0;
                 key[2].key = NULL;
 
-                sep = se_tree_lookup32_array_le(sep_list, key);
+                sep = (sep_entry_t *)se_tree_lookup32_array_le(sep_list, key);
                 if (sep && sep->seid == seid) {
                     sep->codec = codec;
                 }
@@ -1177,7 +1177,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[2].length = 0;
                 key[2].key = NULL;
 
-                sep = se_tree_lookup32_array_le(sep_list, key);
+                sep = (sep_entry_t *)se_tree_lookup32_array_le(sep_list, key);
                 if (sep && sep->seid == seid) {
                     sep->codec = codec;
                 }
@@ -1205,7 +1205,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[2].length = 0;
                 key[2].key = NULL;
 
-                sep = se_tree_lookup32_array_le(sep_list, key);
+                sep = (sep_entry_t *)se_tree_lookup32_array_le(sep_list, key);
                 if (sep && sep->seid == seid) {
                     sep->state = SEP_STATE_OPEN;
                 }
@@ -2026,7 +2026,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     save_private_data = pinfo->private_data;
 
-    btavdtp_data = ep_alloc(sizeof(btavdtp_data_t));
+    btavdtp_data = ep_new(btavdtp_data_t);
     btavdtp_data->codec_dissector = codec_dissector;
 
     pinfo->private_data = btavdtp_data;
@@ -2139,7 +2139,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     save_private_data = pinfo->private_data;
 
-    btavdtp_data = ep_alloc(sizeof(btavdtp_data_t));
+    btavdtp_data = ep_new(btavdtp_data_t);
     btavdtp_data->codec_dissector = codec_dissector;
 
     pinfo->private_data = btavdtp_data;

@@ -934,17 +934,17 @@ const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 		if (	cmd==SMB_COM_READ_ANDX ||
 			cmd==SMB_COM_READ ||
 			cmd==SMB2_COM_READ) {
-			buf=(gchar *)ip_to_str(pinfo->src.data);
+			buf=(gchar *)ip_to_str((const guint8 *)pinfo->src.data);
 		} else {
-			buf=(gchar *)ip_to_str(pinfo->dst.data);
+			buf=(gchar *)ip_to_str((const guint8 *)pinfo->dst.data);
 		}
 	} else {
 		if (	cmd==SMB_COM_READ_ANDX ||
 			cmd==SMB_COM_READ ||
 			cmd==SMB2_COM_READ) {
-			buf=(gchar *)ip6_to_str(pinfo->src.data);
+			buf=(gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->src.data);
 		} else {
-			buf=(gchar *)ip6_to_str(pinfo->dst.data);
+			buf=(gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->dst.data);
 		}
 	}
 
@@ -968,13 +968,13 @@ feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb,packet_info *pinfo,guint16 
 	/* Create a new tvb to point to the payload data */
 	data_tvb = tvb_new_subset(tvb, dataoffset, datalen, datalen);
 	/* Create the eo_info to pass to the listener */
-	eo_info = ep_alloc(sizeof(smb_eo_t));
+	eo_info = ep_new(smb_eo_t);
 
 	/* Try to get fid_info and tid_info */
 	if (fid_info == NULL) {
 		GSL_iterator = si->ct->GSL_fid_info;
 		while (GSL_iterator) {
-			suspect_fid_info = GSL_iterator->data;
+			suspect_fid_info = (smb_fid_info_t *)GSL_iterator->data;
 			if (suspect_fid_info->opened_in > pinfo->fd->num) break;
 			if ((suspect_fid_info->tid == si->tid) && (suspect_fid_info->fid == fid))
 				fid_info = suspect_fid_info;
@@ -983,7 +983,7 @@ feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb,packet_info *pinfo,guint16 
 		}
 
 
-	tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
+	tid_info = (smb_tid_info_t *)se_tree_lookup32(si->ct->tid_tree, si->tid);
 
 	/* Construct the eo_info structure */
 	eo_info->smbversion=1;
@@ -3305,7 +3305,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	* dissect_smb_fid()   called from the response.
 	*/
 	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
-		fsi			= se_alloc(sizeof(smb_fid_saved_info_t));
+		fsi			= se_new(smb_fid_saved_info_t);
 		fsi->filename		= se_strdup(fn);
 		fsi->create_flags	= 0;
 		fsi->access_mask	= 0;
@@ -3929,7 +3929,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	* dissect_smb_fid()   called from the response.
 	*/
 	if ((!pinfo->fd->flags.visited) && si->sip && fn) {
-		fsi			= se_alloc(sizeof(smb_fid_saved_info_t));
+		fsi			= se_new(smb_fid_saved_info_t);
 		fsi->filename		= se_strdup(fn);
 		fsi->create_flags	= 0;
 		fsi->access_mask	= 0;
@@ -4327,7 +4327,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->flags.visited) {
-		rwi = se_alloc(sizeof(rw_info_t));
+		rwi = se_new(rw_info_t);
 		rwi->offset = ofs;
 		rwi->len = cnt;
 		rwi->fid = fid;
@@ -4468,7 +4468,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	if (si->sip && (si->sip->extra_info_type == SMB_EI_RWINFO)) {
-		rwi = si->sip->extra_info;
+		rwi = (rw_info_t *)si->sip->extra_info;
 	}
 	if (rwi) {
 		proto_item *it;

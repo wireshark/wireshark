@@ -632,9 +632,9 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Retrieve information from conversation, or add it if it isn't
 	 * there yet */
-	per_conversation_info = conversation_get_proto_data(conversation, proto_vnc);
+	per_conversation_info = (vnc_conversation_t *)conversation_get_proto_data(conversation, proto_vnc);
 	if(!per_conversation_info) {
-		per_conversation_info = se_alloc(sizeof(vnc_conversation_t));
+		per_conversation_info = se_new(vnc_conversation_t);
 
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SERVER_VERSION;
 		per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_INVALID;
@@ -799,10 +799,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	gint num_auth_types;
 	proto_item* auth_item;
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 
 	if(!per_packet_info) {
-		per_packet_info = se_alloc(sizeof(vnc_packet_t));
+		per_packet_info = se_new(vnc_packet_t);
 
 		per_packet_info->state = per_conversation_info->vnc_next_state;
 		per_packet_info->preferred_encoding = -1;
@@ -1456,7 +1456,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint         counter;
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2181,7 +2181,7 @@ process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, gint *offse
 
 	/* See TightVNC's vnc_unixsrc/vncviewer/tight.c:InitFilterPaletteBPP() */
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2222,7 +2222,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	gint bit_offset;
 	gint bytes_needed = -1;
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2512,7 +2512,7 @@ vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2525,7 +2525,7 @@ vnc_set_depth(const packet_info *pinfo, const guint8 depth)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 
@@ -2538,7 +2538,7 @@ vnc_get_bytes_per_pixel(const packet_info *pinfo)
 {
 	vnc_packet_t *per_packet_info;
 
-	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info = (vnc_packet_t *)p_get_proto_data(pinfo->fd, proto_vnc);
 	/* Our calling function should have set the packet's proto data already */
 	DISSECTOR_ASSERT(per_packet_info != NULL);
 

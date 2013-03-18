@@ -53,7 +53,7 @@ find_line_end(const guchar *data, const guchar *dataend, const guchar **eol)
 {
     const guchar *lineend;
 
-    lineend = memchr(data, '\n', dataend - data);
+    lineend = (guchar *)memchr(data, '\n', dataend - data);
     if (lineend == NULL) {
         /*
          * No LF - line is probably continued in next TCP segment.
@@ -163,7 +163,7 @@ format_text(const guchar *string, size_t len)
      * Allocate the buffer if it's not already allocated.
      */
     if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = g_malloc(INITIAL_FMTBUF_SIZE);
+        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
         fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
     }
     column = 0;
@@ -181,7 +181,7 @@ format_text(const guchar *string, size_t len)
              * for one more character plus a terminating '\0'.
              */
             fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
         }
         c = *string++;
 
@@ -269,7 +269,7 @@ format_text_wsp(const guchar *string, size_t len)
      * Allocate the buffer if it's not already allocated.
      */
     if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = g_malloc(INITIAL_FMTBUF_SIZE);
+        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
         fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
     }
     column = 0;
@@ -287,7 +287,7 @@ format_text_wsp(const guchar *string, size_t len)
              * for one more character plus a terminating '\0'.
              */
             fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
         }
         c = *string++;
 
@@ -551,7 +551,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
      * Allocate the buffer if it's not already allocated.
      */
     if (fmtbuf[idx] == NULL) {
-        fmtbuf[idx] = g_malloc(INITIAL_FMTBUF_SIZE);
+        fmtbuf[idx] = (gchar *)g_malloc(INITIAL_FMTBUF_SIZE);
         fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
     }
     for (column = 0; column < bytes->len; column++) {
@@ -568,7 +568,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
              * for one more character plus a terminating '\0'.
              */
             fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
-            fmtbuf[idx] = g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+            fmtbuf[idx] = (gchar *)g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
         }
         c = bytes->data[column];
 
@@ -818,7 +818,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
      * OK, it's valid, and it generates "n_bytes" bytes; generate the
      * raw byte array.
      */
-    bytes = g_malloc(n_bytes);
+    bytes = (guint8 *)g_malloc(n_bytes);
     p = &string[0];
     q = &bytes[0];
     for (;;) {
@@ -1019,7 +1019,7 @@ ws_strdup_escape_char (const gchar *str, const gchar chr)
 
     p = str;
     /* Worst case: A string that is full of 'chr' */
-    q = new_str = g_malloc (strlen(str) * 2 + 1);
+    q = new_str = (gchar *)g_malloc (strlen(str) * 2 + 1);
 
     while(*p != 0) {
         if(*p == chr)
@@ -1047,7 +1047,7 @@ ws_strdup_unescape_char (const gchar *str, const char chr)
 
     p = str;
     /* Worst case: A string that contains no 'chr' */
-    q = new_str = g_malloc (strlen(str) + 1);
+    q = new_str = (gchar *)g_malloc (strlen(str) + 1);
 
     while(*p != 0) {
         *q++ = *p;

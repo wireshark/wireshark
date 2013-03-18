@@ -447,14 +447,14 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
     }
 printf("added key in %u    keytype:%d len:%d\n",pinfo->fd->num, keytype, keylength);
 
-    new_key=g_malloc(sizeof(enc_key_t));
+    new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
     g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->fd->num);
     new_key->next=enc_key_list;
     enc_key_list=new_key;
     new_key->keytype=keytype;
     new_key->keylength=keylength;
     /*XXX this needs to be freed later */
-    new_key->keyvalue=g_memdup(keyvalue, keylength);
+    new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
 }
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
@@ -503,7 +503,7 @@ printf("read keytab file %s\n", filename);
     }
 
     do{
-        new_key=g_malloc(sizeof(enc_key_t));
+        new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
         new_key->next=enc_key_list;
         ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
         if(ret==0){
@@ -524,7 +524,7 @@ printf("read keytab file %s\n", filename);
 /*printf("added key for principal :%s\n", new_key->key_origin);*/
             new_key->keytype=key.key.enctype;
             new_key->keylength=key.key.length;
-            new_key->keyvalue=g_memdup(key.key.contents, key.key.length);
+            new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
             enc_key_list=new_key;
         }
     }while(ret==0);
@@ -562,7 +562,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
     }
 
     read_keytab_file_from_preferences();
-    data.data = g_malloc(length);
+    data.data = (char *)g_malloc(length);
     data.length = length;
 
     for(ek=enc_key_list;ek;ek=ek->next){
@@ -1800,7 +1800,7 @@ static int dissect_krb5_addr_type(proto_tree *tree, tvbuff_t *tvb, int offset, a
 #define ADDRESS_STR_BUFSIZ 256
 static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-    gint8 class;
+    gint8 appclass;
     gboolean pc;
     gint32 tag;
     guint32 len;
@@ -1808,10 +1808,10 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
     proto_item *it=NULL;
 
     /* read header and len for the octet string */
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
-    address_str=ep_alloc(ADDRESS_STR_BUFSIZ);
+    address_str=(char *)ep_alloc(ADDRESS_STR_BUFSIZ);
     address_str[0]='\0';
     switch(addr_type){
     case KRB5_ADDR_IPv4:

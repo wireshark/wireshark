@@ -117,7 +117,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		/*
 		 * Do we have a state structure for this conv
 		 */
-		nbd_info = conversation_get_proto_data(conversation, proto_nbd);
+		nbd_info = (nbd_conv_info_t *)conversation_get_proto_data(conversation, proto_nbd);
 		if (!nbd_info) {
 			/* No, so just return the rest of the current packet */
 			return tvb_length(tvb);
@@ -131,7 +131,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			hkey[0].length=2;
 			hkey[0].key=handle;
 			hkey[1].length=0;
-			nbd_trans=se_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
+			nbd_trans=(nbd_transaction_t *)se_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
 			if(!nbd_trans){
 				/* No, so just return the rest of the current packet */
 				return tvb_length(tvb);
@@ -148,7 +148,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			hkey[1].length=2;
 			hkey[1].key=handle;
 			hkey[2].length=0;
-			nbd_trans=se_tree_lookup32_array(nbd_info->acked_pdus, hkey);
+			nbd_trans=(nbd_transaction_t *)se_tree_lookup32_array(nbd_info->acked_pdus, hkey);
 			if(!nbd_trans){
 				/* No, so just return the rest of the current packet */
 				return tvb_length(tvb);
@@ -213,12 +213,12 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*
 	 * Do we already have a state structure for this conv
 	 */
-	nbd_info = conversation_get_proto_data(conversation, proto_nbd);
+	nbd_info = (nbd_conv_info_t *)conversation_get_proto_data(conversation, proto_nbd);
 	if (!nbd_info) {
 		/* No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
-		nbd_info = se_alloc(sizeof(nbd_conv_info_t));
+		nbd_info = se_new(nbd_conv_info_t);
 		nbd_info->unacked_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "nbd_unacked_pdus");
 		nbd_info->acked_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "nbd_acked_pdus");
 
@@ -227,7 +227,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if(!pinfo->fd->flags.visited){
 		if(magic==NBD_REQUEST_MAGIC){
 			/* This is a request */
-			nbd_trans=se_alloc(sizeof(nbd_transaction_t));
+			nbd_trans=se_new(nbd_transaction_t);
 			nbd_trans->req_frame=pinfo->fd->num;
 			nbd_trans->rep_frame=0;
 			nbd_trans->req_time=pinfo->fd->abs_ts;
@@ -244,7 +244,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			hkey[0].key=handle;
 			hkey[1].length=0;
 
-			nbd_trans=se_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
+			nbd_trans=(nbd_transaction_t *)se_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
 			if(nbd_trans){
 				nbd_trans->rep_frame=pinfo->fd->num;
 
@@ -270,7 +270,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		hkey[1].key=handle;
 		hkey[2].length=0;
 
-		nbd_trans=se_tree_lookup32_array(nbd_info->acked_pdus, hkey);
+		nbd_trans=(nbd_transaction_t *)se_tree_lookup32_array(nbd_info->acked_pdus, hkey);
 	}
 	/* The bloody handles are reused !!! eventhough they are 64 bits.
 	 * So we must verify we got the "correct" one
@@ -284,7 +284,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if(!nbd_trans){
 		/* create a "fake" nbd_trans structure */
-		nbd_trans=ep_alloc(sizeof(nbd_transaction_t));
+		nbd_trans=ep_new(nbd_transaction_t);
 		nbd_trans->req_frame=0;
 		nbd_trans->rep_frame=0;
 		nbd_trans->req_time=pinfo->fd->abs_ts;

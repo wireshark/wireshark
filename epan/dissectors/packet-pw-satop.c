@@ -72,7 +72,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 	gint      packet_size;
 	gint      payload_size;
 	gint      padding_size;
-	pwc_packet_properties_t properties;
+	int properties;
 
 	enum {
 		PAY_NO_IDEA = 0

@@ -335,9 +335,9 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
         else
             token = mcc_dlci;
 
-        dlci_state = se_tree_lookup32(dlci_table, token);
+        dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
-            dlci_state = se_alloc0(sizeof(dlci_state_t));
+            dlci_state = se_new0(dlci_state_t);
             se_tree_insert32(dlci_table, token, dlci_state);
         }
 
@@ -606,9 +606,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
             token = dlci;
 
-        dlci_state = se_tree_lookup32(dlci_table, token);
+        dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
-            dlci_state = se_alloc0(sizeof(dlci_state_t));
+            dlci_state = se_new0(dlci_state_t);
             se_tree_insert32(dlci_table, token, dlci_state);
         }
     }
@@ -713,7 +713,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
 
-        l2cap_data = pinfo->private_data;
+        l2cap_data = (btl2cap_data_t *)pinfo->private_data;
         pinfo->private_data = &rfcomm_data;
 
         rfcomm_data.interface_id = l2cap_data->interface_id;
@@ -958,7 +958,7 @@ proto_register_btrfcomm(void)
             sizeof(uat_rfcomm_channels_t),
             "rfcomm_channels",
             TRUE,
-            (void*) &rfcomm_channels,
+            (void**) &rfcomm_channels,
             &num_rfcomm_channels,
             UAT_AFFECTS_DISSECTION,
             NULL,
@@ -986,9 +986,9 @@ btrfcomm_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *e
         /* rfcomm channel * 2 = dlci */
         token = (sdp_data->channel<<1) | (sdp_data->flags & BTSDP_LOCAL_SERVICE_FLAG_MASK);
 
-        dlci_state = se_tree_lookup32(dlci_table, token);
+        dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
-            dlci_state = se_alloc0(sizeof(dlci_state_t));
+            dlci_state = se_new0(dlci_state_t);
             se_tree_insert32(dlci_table, token, dlci_state);
         }
         dlci_state->service = sdp_data->service;

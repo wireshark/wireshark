@@ -703,9 +703,9 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation= find_or_create_conversation(pinfo);
 
 	/* get associated state information, create if necessary */
-	conn_data= conversation_get_proto_data(conversation, proto_mysql);
+	conn_data= (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
 	if (!conn_data) {
-		conn_data= se_alloc(sizeof(mysql_conn_data_t));
+		conn_data= se_new(mysql_conn_data_t);
 		conn_data->srv_caps= 0;
 		conn_data->clnt_caps= 0;
 		conn_data->clnt_caps_ext= 0;
@@ -718,13 +718,13 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
-	mysql_frame_data_p = p_get_proto_data(pinfo->fd, proto_mysql);
+	mysql_frame_data_p = (struct mysql_frame_data *)p_get_proto_data(pinfo->fd, proto_mysql);
 	if (!mysql_frame_data_p) {
 		/*  We haven't seen this frame before.  Store the state of the
 		 *  conversation now so if/when we dissect the frame again
 		 *  we'll start with the same state.
 		 */
-		mysql_frame_data_p = se_alloc(sizeof(struct mysql_frame_data));
+		mysql_frame_data_p = se_new(struct mysql_frame_data);
 		mysql_frame_data_p->state = conn_data->state;
 		p_add_proto_data(pinfo->fd, proto_mysql, mysql_frame_data_p);
 
@@ -1323,7 +1323,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		stmt_id = tvb_get_letohl(tvb, offset);
 		offset += 4;
 
-		stmt_data = se_tree_lookup32(conn_data->stmts, stmt_id);
+		stmt_data = (my_stmt_data_t *)se_tree_lookup32(conn_data->stmts, stmt_id);
 		if (stmt_data != NULL) {
 			guint16 data_param = tvb_get_letohs(tvb, offset);
 			if (stmt_data->nparam > data_param) {
@@ -1358,7 +1358,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_item(req_tree, hf_mysql_exec_iter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		stmt_data = se_tree_lookup32(conn_data->stmts, stmt_id);
+		stmt_data = (my_stmt_data_t *)se_tree_lookup32(conn_data->stmts, stmt_id);
 		if (stmt_data != NULL) {
 			if (stmt_data->nparam != 0) {
 				guint8 stmt_bound;
@@ -1848,10 +1848,10 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysq
 	offset += 2;
 	proto_tree_add_item(tree, hf_mysql_num_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
-	stmt_data = se_alloc(sizeof(struct my_stmt_data));
+	stmt_data = se_new(struct my_stmt_data);
 	stmt_data->nparam = conn_data->stmt_num_params;
 	flagsize = (int)(sizeof(guint8) * stmt_data->nparam);
-	stmt_data->param_flags = se_alloc(flagsize);
+	stmt_data->param_flags = (guint8 *)se_alloc(flagsize);
 	memset(stmt_data->param_flags, 0, flagsize);
 	se_tree_insert32(conn_data->stmts, stmt_id, stmt_data);
 	offset += 2;

@@ -297,7 +297,7 @@ struct ipmi_header *
 ipmi_sendmsg_getheaders(struct ipmi_header *base, void *arg, guint i)
 {
 	static struct ipmi_header hdr;
-	struct ipmi_header *wrapper = arg;
+	struct ipmi_header *wrapper = (struct ipmi_header *)arg;
 
 	/* The problem stems from the fact that the original IPMI
 	   specification (before errata came) did not specify the response
@@ -348,9 +348,9 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 
 	cnv = find_or_create_conversation(current_pinfo);
 
-	kt = conversation_get_proto_data(cnv, proto_ipmi);
+	kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi);
 	if (!kt) {
-		kt = se_alloc(sizeof(struct ipmi_keytree));
+		kt = se_new(struct ipmi_keytree);
 		kt->heads = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
 				"ipmi_key_heads");
 		conversation_add_proto_data(cnv, proto_ipmi, kt);
@@ -363,9 +363,9 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
 				hdr->netfn, hdr->cmd);
 		key = makekey(hdr);
-		kh = se_tree_lookup32(kt->heads, key);
+		kh = (struct ipmi_keyhead *)se_tree_lookup32(kt->heads, key);
 		if (!kh) {
-			kh = se_alloc0(sizeof(struct ipmi_keyhead));
+			kh = se_new0(struct ipmi_keyhead);
 			se_tree_insert32(kt->heads, key, kh);
 		}
 		if ((rr = key_lookup_reqresp(kh, hdr, current_pinfo->fd)) != NULL) {
@@ -394,9 +394,9 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 		/* Not found; allocate new structures */
 		if (!current_saved_data) {
 			/* One 'ipmi_saved_data' for all 'ipmi_req_resp' allocated */
-			current_saved_data = se_alloc0(sizeof(struct ipmi_saved_data));
+			current_saved_data = se_new0(struct ipmi_saved_data);
 		}
-		rr = se_alloc0(sizeof(struct ipmi_reqresp));
+		rr = se_new0(struct ipmi_reqresp);
 		rr->whichresponse = dfmt->whichresponse;
 		rr->netfn = hdr->netfn & 0x3e;
 		rr->cmd = hdr->cmd;
@@ -443,7 +443,7 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 			current_pinfo->srcport, current_pinfo->destport, 0)) == NULL) {
 		goto fallback;
 	}
-	if ((kt = conversation_get_proto_data(cnv, proto_ipmi)) == NULL) {
+	if ((kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi)) == NULL) {
 		goto fallback;
 	}
 
@@ -453,7 +453,7 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 				hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
 				hdr->netfn, hdr->cmd);
 		key = makekey(hdr);
-		if ((kh = se_tree_lookup32(kt->heads, key)) != NULL &&
+		if ((kh = (struct ipmi_keyhead *)se_tree_lookup32(kt->heads, key)) != NULL &&
 				(rr = key_lookup_reqresp(kh, hdr, current_pinfo->fd)) != NULL) {
 			debug_printf("Found [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
 					rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
@@ -736,7 +736,7 @@ ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
 	len = typelen & msk;
 	ptr->get_len(&clen, &blen, tvb, offs + 1, len, is_fru);
 
-	str = ep_alloc(clen + 1);
+	str = (char *)ep_alloc(clen + 1);
 	ptr->parse(str, tvb, offs + 1, clen);
 	str[clen] = '\0';
 
@@ -828,7 +828,7 @@ ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 		return;
 	}
 
-	inh = g_malloc(sizeof(struct ipmi_netfn_handler));
+	inh = (struct ipmi_netfn_handler *)g_malloc(sizeof(struct ipmi_netfn_handler));
 	inh->desc = desc;
 	inh->oem_selector = oem_selector;
 	inh->sig = sig;

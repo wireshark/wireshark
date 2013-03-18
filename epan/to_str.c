@@ -173,7 +173,7 @@ bytestring_to_str(const guint8 *ad, const guint32 len, const char punct) {
   else
     buflen=len*2 + 1;
 
-  buf=ep_alloc(buflen);
+  buf=(gchar *)ep_alloc(buflen);
 
   if (punct)
     bytes_to_hexstr_punct(buf, ad, len, punct);
@@ -196,7 +196,7 @@ bytes_to_str(const guint8 *bd, int bd_len) {
   if (!bd)
     REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_str()");
 
-  cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
+  cur=(gchar *)ep_alloc(MAX_BYTE_STR_LEN+3+1);
   if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/2) {	/* bd_len > 24 */
@@ -225,7 +225,7 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   if (!punct)
     return bytes_to_str(bd, bd_len);
 
-  cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
+  cur=(gchar *)ep_alloc(MAX_BYTE_STR_LEN+3+1);
   if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
@@ -325,7 +325,7 @@ gchar *
 guint32_to_str(const guint32 u) {
   int str_len = 16; /* guint32_to_str_buf_len(u)+1; */
 
-  gchar *bp = ep_alloc(str_len);
+  gchar *bp = (gchar *)ep_alloc(str_len);
   guint32_to_str_buf(u, bp, str_len);
 
   return bp;
@@ -877,7 +877,7 @@ rel_time_to_secs_str(const nstime_t *rel_time)
 {
         gchar *buf;
 
-	buf=ep_alloc(REL_TIME_SECS_LEN);
+	buf=(gchar *)ep_alloc(REL_TIME_SECS_LEN);
 
         display_signed_time(buf, REL_TIME_SECS_LEN, (gint32) rel_time->secs,
             rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
@@ -902,7 +902,7 @@ decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint6
 	mask = mask << (no_of_bits-1);
 
 	/* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
-	str=ep_alloc0(256+64);
+	str=(char *)ep_alloc0(256+64);
 	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
 		if(bit&&(!(bit%4))){
 			str[str_p] = ' ';
@@ -1000,7 +1000,7 @@ decode_boolean_bitfield(const guint32 val, const guint32 mask, const int width,
   char *buf;
   char *p;
 
-  buf=ep_alloc(1025); /* is this a bit overkill? */
+  buf=(char *)ep_alloc(1025); /* is this a bit overkill? */
   p = decode_bitfield_value(buf, val, mask, width);
   if (val & mask)
     strcpy(p, truedesc);
@@ -1019,7 +1019,7 @@ decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
   char *p;
   int shift = 0;
 
-  buf=ep_alloc(1025); /* isnt this a bit overkill? */
+  buf=(char *)ep_alloc(1025); /* isnt this a bit overkill? */
   /* Compute the number of bits we have to shift the bitfield right
      to extract its value. */
   while ((mask & (1<<shift)) == 0)
@@ -1077,7 +1077,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 gchar* guid_to_str(const e_guid_t *guid) {
   gchar *buf;
 
-  buf=ep_alloc(GUID_STR_LEN);
+  buf=(gchar *)ep_alloc(GUID_STR_LEN);
   return guid_to_str_buf(guid, buf, GUID_STR_LEN);
 }
 

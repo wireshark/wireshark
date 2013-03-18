@@ -86,7 +86,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	gint      packet_size;
 	gint      payload_size;
 	gint      padding_size;
-	pwc_packet_properties_t properties;
+	int properties;
 
 	packet_size = tvb_reported_length_remaining(tvb_original, 0);
 

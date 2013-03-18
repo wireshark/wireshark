@@ -107,9 +107,9 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	smb_info = pinfo->private_data;
+	smb_info = (smb_info_t *)pinfo->private_data;
 	if (smb_info->sip != NULL && smb_info->sip->extra_info_type == SMB_EI_TRI)
-		tri = smb_info->sip->extra_info;
+		tri = (smb_transact_info_t *)smb_info->sip->extra_info;
 	else
 		tri = NULL;
 

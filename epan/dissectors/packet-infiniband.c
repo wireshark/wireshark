@@ -1798,8 +1798,8 @@ skip_lrh:
             break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
-            g_snprintf(dst_addr,  ADDR_MAX_LEN, "IPv6 over IB Packet");
-            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+            g_snprintf((gchar *)dst_addr,  ADDR_MAX_LEN, "IPv6 over IB Packet");
+            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen((char *)dst_addr)+1, dst_addr);
 
             parse_IPvSix(all_headers_tree, tvb, &offset, pinfo);
             break;
@@ -2970,8 +2970,8 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_tree *CM_header_tree;
     tvbuff_t   *next_tvb;
 
-    local_gid  = ep_alloc(GID_SIZE);
-    remote_gid = ep_alloc(GID_SIZE);
+    local_gid  = (guint8 *)ep_alloc(GID_SIZE);
+    remote_gid = (guint8 *)ep_alloc(GID_SIZE);
 
     if (!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -3062,10 +3062,10 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 connection_context *connection;
                 conversation_infiniband_data *proto_data;
                 conversation_t *conv;
-                guint64 *hash_key = g_malloc(sizeof(guint64));
+                guint64 *hash_key = (guint64 *)g_malloc(sizeof(guint64));
 
                 /* create a new connection context and store it in the hash table */
-                connection = g_malloc(sizeof(connection_context));
+                connection = (connection_context *)g_malloc(sizeof(connection_context));
                 memcpy(&(connection->req_gid), local_gid, GID_SIZE);
                 memcpy(&(connection->resp_gid), remote_gid, GID_SIZE);
                 connection->req_lid = local_lid;
@@ -3083,7 +3083,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 /* Now we create a conversation for the CM exchange. This uses both
                    sides of the conversation since CM packets also include the source
                    QPN */
-                proto_data = se_alloc(sizeof(conversation_infiniband_data));
+                proto_data = se_new(conversation_infiniband_data);
                 proto_data->service_id = connection->service_id;
 
                 conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -3131,7 +3131,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 guint64 hash_key;
                 hash_key = MadData.transactionID;
                 ADD_ADDRESS_TO_HASH(hash_key, &pinfo->dst);
-                connection = g_hash_table_lookup(CM_context_table, &hash_key);
+                connection = (connection_context *)g_hash_table_lookup(CM_context_table, &hash_key);
 
                 /* if an appropriate connection was not found there's something wrong, but nothing we can
                    do about it here - so just skip saving the context */
@@ -3144,7 +3144,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
                     connection->resp_qp = remote_qpn;
 
-                    proto_data = se_alloc(sizeof(conversation_infiniband_data));
+                    proto_data = se_new(conversation_infiniband_data);
                     proto_data->service_id = connection->service_id;
 
                     /* RC traffic never(?) includes a field indicating the source QPN, so
@@ -5040,8 +5040,8 @@ skip_lrh:
             break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
-            g_snprintf(dst_addr,  ADDR_MAX_LEN, "IPv6 over IB Packet");
-            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+            g_snprintf((gchar *)dst_addr,  ADDR_MAX_LEN, "IPv6 over IB Packet");
+            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen((char *)dst_addr)+1, dst_addr);
             break;
         case RAW:
             break;

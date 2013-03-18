@@ -488,7 +488,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
     guint8  type;
     guint8  size_index;
 
-    str          = ep_alloc(MAX_SDP_LEN+1);
+    str          = (char *)ep_alloc(MAX_SDP_LEN+1);
     *attr_val    = str;
     str[0]       = 0;
 
@@ -649,7 +649,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
         guint32       service, service_val;
         btsdp_data_t *service_item;
 
-        service_item = se_tree_lookup32(service_table, token);
+        service_item = (btsdp_data_t *)se_tree_lookup32(service_table, token);
 
         if (service_item != NULL) {
             switch (id) {
@@ -686,7 +686,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
                 guint8 *psm_guint8;
 
                 get_sdp_data_element(tvb, offset+ 3, id, &type, &psm,  &service, &service_val);
-                psm_guint8 = psm;
+                psm_guint8 = (guint8 *)psm;
 
                 if ((type == 1) && (*psm_guint8 & 0x1)) {
                     service_item->channel = *psm_guint8;
@@ -700,7 +700,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
             if (service_item->service != 0 && service_item->channel != 0) {
                 btl2cap_data_t *l2cap_data;
 
-                l2cap_data = pinfo->private_data;
+                l2cap_data = (btl2cap_data_t *)pinfo->private_data;
 
                 service_item->flags |= token >>15; /* set flag when local service */
                 service_item->interface_id = l2cap_data->interface_id;
@@ -798,10 +798,10 @@ dissect_sdp_service_search_attribute_request(proto_tree *t, tvbuff_t *tvb, int o
     while (bytes_to_go > 0) {
         btsdp_data_t *service_item;
         if (!pinfo->fd->flags.visited)  {
-            service_item = se_tree_lookup32(service_table, token);
+            service_item = (btsdp_data_t *)se_tree_lookup32(service_table, token);
 
             if (service_item == NULL) {
-                service_item = se_alloc0(sizeof(btsdp_data_t));
+                service_item = se_new0(btsdp_data_t);
                 se_tree_insert32(service_table, token, service_item);
             }
             service_item->channel = 0;
@@ -889,10 +889,10 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset, pac
             guint8        type;
             void         *val = NULL;
 
-            service_item = se_tree_lookup32(service_table, token);
+            service_item = (btsdp_data_t *)se_tree_lookup32(service_table, token);
 
             if (service_item == NULL) {
-                service_item = se_alloc0(sizeof(btsdp_data_t));
+                service_item = se_new0(btsdp_data_t);
                 se_tree_insert32(service_table, token, service_item);
             }
 

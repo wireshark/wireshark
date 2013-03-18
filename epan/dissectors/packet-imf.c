@@ -279,7 +279,7 @@ static GHashTable *custom_field_table = NULL;
 static void
 header_fields_update_cb(void *r, const char **err)
 {
-  header_field_t *rec = r;
+  header_field_t *rec = (header_field_t *)r;
   char c;
 
   if (rec->header_name == NULL) {
@@ -308,8 +308,8 @@ header_fields_update_cb(void *r, const char **err)
 static void *
 header_fields_copy_cb(void *n, const void *o, size_t siz _U_)
 {
-  header_field_t *new_rec = n;
-  const header_field_t *old_rec = o;
+  header_field_t *new_rec = (header_field_t *)n;
+  const header_field_t *old_rec = (const header_field_t *)o;
 
   new_rec->header_name = g_strdup(old_rec->header_name);
   new_rec->description = g_strdup(old_rec->description);
@@ -322,7 +322,7 @@ header_fields_copy_cb(void *n, const void *o, size_t siz _U_)
 static void
 header_fields_free_cb(void *r)
 {
-  header_field_t *rec = r;
+  header_field_t *rec = (header_field_t *)r;
 
   g_free(rec->header_name);
   g_free(rec->description);
@@ -877,10 +877,10 @@ header_fields_initialize_cb (void)
 
   if (num_header_fields) {
     custom_field_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, free_imf_field);
-    hf = g_malloc0 (sizeof (hf_register_info) * num_header_fields);
+    hf = (hf_register_info *)g_malloc0 (sizeof (hf_register_info) * num_header_fields);
 
     for (i = 0; i < num_header_fields; i++) {
-      hf_id = g_malloc (sizeof (gint));
+      hf_id = (gint *)g_malloc (sizeof (gint));
       *hf_id = -1;
       header_name = g_strdup (header_fields[i].header_name);
 
@@ -894,7 +894,7 @@ header_fields_initialize_cb (void)
       hf[i].hfinfo.same_name_prev = NULL;
       hf[i].hfinfo.same_name_next = NULL;
 
-      imffield = g_malloc (sizeof (struct imf_field));
+      imffield = (struct imf_field *)g_malloc (sizeof (struct imf_field));
       imffield->hf_id = hf_id;
       imffield->name = ascii_strdown_inplace (g_strdup (header_name));
       switch (header_fields[i].header_format) {
@@ -1214,7 +1214,7 @@ proto_register_imf(void)
                                sizeof(header_field_t),
                                "imf_header_fields",
                                TRUE,
-                               (void*) &header_fields,
+                               (void**) &header_fields,
                                &num_header_fields,
                                /* specifies named fields, so affects dissection
                                   and the set of named fields */

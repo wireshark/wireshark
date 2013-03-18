@@ -840,14 +840,14 @@ static void store_cma_nonce(l2tpv3_tunnel_t *tunnel,
     switch (msg_type) {
         case MESSAGE_TYPE_SCCRQ:
             if (!tunnel->lcce1_nonce) {
-                tunnel->lcce1_nonce = se_alloc(length);
+                tunnel->lcce1_nonce = (guint8 *)se_alloc(length);
                 tunnel->lcce1_nonce_len = length;
                 nonce = tunnel->lcce1_nonce;
             }
             break;
         case MESSAGE_TYPE_SCCRP:
             if (!tunnel->lcce2_nonce) {
-                tunnel->lcce2_nonce = se_alloc(length);
+                tunnel->lcce2_nonce = (guint8 *)se_alloc(length);
                 tunnel->lcce2_nonce_len = length;
                 nonce = tunnel->lcce2_nonce;
             }
@@ -893,7 +893,7 @@ static l2tpv3_session_t *find_session(l2tpv3_tunnel_t *tunnel,
 
     iterator = tunnel->sessions;
     while (iterator) {
-        session = iterator->data;
+        session = (l2tpv3_session_t *)iterator->data;
 
         if ((session->lcce1.id == lcce1_id) ||
             (session->lcce2.id == lcce2_id)) {
@@ -915,7 +915,7 @@ static void init_session(l2tpv3_session_t *session)
 
 static l2tpv3_session_t *alloc_session(void)
 {
-    l2tpv3_session_t *session = ep_alloc0(sizeof(l2tpv3_session_t));
+    l2tpv3_session_t *session = ep_new0(l2tpv3_session_t);
     init_session(session);
 
     return session;
@@ -1117,7 +1117,7 @@ static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
 
     existing = find_session(tunnel, session->lcce1.id, session->lcce2.id);
     if (!existing) {
-        existing = se_alloc0(sizeof(l2tpv3_session_t));
+        existing = se_new0(l2tpv3_session_t);
         init_session(existing);
     }
 
@@ -2390,7 +2390,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx, tunnel);
 
     if (tunnel == &tmp_tunnel && l2tp_conv->tunnel == NULL) {
-        l2tp_conv->tunnel = se_alloc0(sizeof(l2tpv3_tunnel_t));
+        l2tp_conv->tunnel = se_new0(l2tpv3_tunnel_t);
         memcpy(l2tp_conv->tunnel, &tmp_tunnel, sizeof(l2tpv3_tunnel_t));
     }
 }
@@ -2462,7 +2462,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     case 3:
         l2tp_conv = (l2tpv3_conversation_t *)conversation_get_proto_data(conv, proto_l2tp);
         if (!l2tp_conv) {
-            l2tp_conv = se_alloc0(sizeof(l2tpv3_conversation_t));
+            l2tp_conv = se_new0(l2tpv3_conversation_t);
             l2tp_conv->pt = PT_UDP;
             conversation_add_proto_data(conv, proto_l2tp, (void *)l2tp_conv);
         }
@@ -2650,7 +2650,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     l2tp_conv = (l2tpv3_conversation_t *)conversation_get_proto_data(conv, proto_l2tp);
     if (!l2tp_conv) {
-        l2tp_conv = se_alloc0(sizeof(l2tpv3_conversation_t));
+        l2tp_conv = se_new0(l2tpv3_conversation_t);
         l2tp_conv->pt = PT_NONE;
         conversation_add_proto_data(conv, proto_l2tp, (void *)l2tp_conv);
     }

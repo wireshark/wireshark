@@ -465,12 +465,12 @@ static int
 add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
     proto_tree *tree, int convert _U_, int hf_index)
 {
-	struct smb_info *smb_info = pinfo->private_data;
+	struct smb_info *smb_info = (struct smb_info *)pinfo->private_data;
 	smb_transact_info_t *trp = NULL;
 	guint16 level;
 
 	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
-		trp = smb_info->sip->extra_info;
+		trp = (smb_transact_info_t *)smb_info->sip->extra_info;
 
 	level = tvb_get_letohs(tvb, offset);
 	if (!pinfo->fd->flags.visited)
@@ -2507,7 +2507,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	guint i, j;
 	guint16 aux_count;
 
-	trp = smb_info->sip->extra_info;
+	trp = (smb_transact_info_t *)smb_info->sip->extra_info;
 
 	/*
 	 * Find the item table for the matching request's detail level.
@@ -2643,7 +2643,7 @@ static gboolean
 dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		    packet_info *pinfo, proto_tree *parent_tree)
 {
-	smb_info_t *smb_info = pinfo->private_data;
+	smb_info_t *smb_info = (smb_info_t *)pinfo->private_data;
 	smb_transact_info_t *trp = NULL;
 	int offset = 0/*, start_offset*/;
 	guint16 cmd;
@@ -2662,7 +2662,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	proto_tree *data_tree;
 
 	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
-		trp = smb_info->sip->extra_info;
+		trp = (smb_transact_info_t *)smb_info->sip->extra_info;
 
 	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_smb_lanman)))
 		return FALSE;
@@ -3529,7 +3529,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		return FALSE;
 	pinfo->current_proto = "SMB Pipe";
 
-	smb_info = pinfo->private_data;
+	smb_info = (smb_info_t *)pinfo->private_data;
 
 	/*
 	 * Set the columns.
@@ -3541,7 +3541,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	}
 
 	if (smb_info->sip != NULL && smb_info->sip->extra_info_type == SMB_EI_TRI)
-		tri = smb_info->sip->extra_info;
+		tri = (smb_transact_info_t *)smb_info->sip->extra_info;
 	else
 		tri = NULL;
 

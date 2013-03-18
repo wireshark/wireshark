@@ -107,7 +107,7 @@ dissect_fmp_genString(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     encoding mode;
 
-    mode = tvb_get_ntohl(tvb, offset);
+    mode = (encoding)tvb_get_ntohl(tvb, offset);
 
     switch (mode) {
     case FMP_ASCII:
@@ -144,7 +144,7 @@ get_fileHandleSrc_size(tvbuff_t *tvb, int offset)
     int            length;
     nativeProtocol np;
 
-    np = tvb_get_ntohl(tvb, offset);
+    np = (nativeProtocol)tvb_get_ntohl(tvb, offset);
 
     switch (np) {
     case FMP_PATH:
@@ -187,7 +187,7 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     length = get_fileHandleSrc_size(tvb, offset);
 
-    np = tvb_get_ntohl(tvb, offset);
+    np = (nativeProtocol)tvb_get_ntohl(tvb, offset);
 
     fileHandleItem =  proto_tree_add_text(tree, tvb, offset, length,
                                           "Source File Handle");
@@ -596,7 +596,7 @@ dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 {
     fmpStat status;
 
-    status = tvb_get_ntohl(tvb, offset);
+    status = (fmpStat)tvb_get_ntohl(tvb, offset);
 
     switch (status) {
     case FMP_OK:
@@ -668,7 +668,7 @@ dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     if (tree) {
         queryCmd qc;
 
-        qc = tvb_get_ntohl(tvb, offset);
+        qc = (queryCmd)tvb_get_ntohl(tvb, offset);
 
         switch (qc) {
         case FMP_SCSI_INQUIRY:
@@ -709,7 +709,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
     fmpVolumeType          volumeType;
     fmpDiskIdentifierType  diskIdentifierType;
 
-    volumeType = tvb_get_ntohl(tvb, offset);
+    volumeType = (fmpVolumeType)tvb_get_ntohl(tvb, offset);
     switch (volumeType) {
 
     case FMP_VOLUME_DISK:
@@ -720,7 +720,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
         offset += 4;
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
         offset += 8; /* blockIndex64 */
-        diskIdentifierType = tvb_get_ntohl(tvb, offset);
+        diskIdentifierType = (fmpDiskIdentifierType)tvb_get_ntohl(tvb, offset);
 
 
         switch (diskIdentifierType) {
@@ -1025,7 +1025,7 @@ dissect_fmp_cerrInfo(tvbuff_t *tvb, int offset, proto_tree *tree)
     int            rval;
     clientErrorNum errorNum;
 
-    errorNum = tvb_get_ntohl(tvb, offset);
+    errorNum = (clientErrorNum)tvb_get_ntohl(tvb, offset);
 
     switch (errorNum) {
     case FMP_CE_GENERIC:
