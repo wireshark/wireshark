@@ -55,13 +55,25 @@ static const value_string gsm_rp_msg_strings[] = {
 	{ 0, NULL }
 };
 
+typedef enum
+{
+	/* Short Message Service Information Elements [5] 8.2 */
+	DE_RP_MESSAGE_REF,				/* RP-Message Reference */
+	DE_RP_ORIG_ADDR,				/* RP-Originator Address */
+	DE_RP_DEST_ADDR,				/* RP-Destination Address */
+	DE_RP_USER_DATA,				/* RP-User Data */
+	DE_RP_CAUSE,					/* RP-Cause */
+	DE_RP_NONE							/* NONE */
+}
+rp_elem_idx_t;
+
 const value_string gsm_rp_elem_strings[] = {
 	/* Short Message Service RP Information Elements [5] 8.2 */
-	{ 0x00,	"RP-Message Reference" },
-	{ 0x01,	"RP-Originator Address" },
-	{ 0x02,	"RP-Destination Address" },
-	{ 0x03,	"RP-User Data" },
-	{ 0x04,	"RP-Cause" },
+	{ DE_RP_MESSAGE_REF,	"RP-Message Reference" },
+	{ DE_RP_ORIG_ADDR,	"RP-Originator Address" },
+	{ DE_RP_DEST_ADDR,	"RP-Destination Address" },
+	{ DE_RP_USER_DATA,	"RP-User Data" },
+	{ DE_RP_CAUSE,	"RP-Cause" },
 	{ 0, NULL }
 };
 
@@ -79,18 +91,6 @@ static char a_bigbuf[1024];
 static dissector_table_t sms_dissector_table;	/* SMS TPDU */
 
 static proto_tree *g_tree;
-
-typedef enum
-{
-	/* Short Message Service Information Elements [5] 8.2 */
-	DE_RP_MESSAGE_REF,				/* RP-Message Reference */
-	DE_RP_ORIG_ADDR,				/* RP-Originator Address */
-	DE_RP_DEST_ADDR,				/* RP-Destination Address */
-	DE_RP_USER_DATA,				/* RP-User Data */
-	DE_RP_CAUSE,					/* RP-Cause */
-	DE_RP_NONE							/* NONE */
-}
-rp_elem_idx_t;
 
 #define	NUM_GSM_RP_ELEM (sizeof(gsm_rp_elem_strings)/sizeof(value_string))
 gint ett_gsm_rp_elem[NUM_GSM_RP_ELEM];

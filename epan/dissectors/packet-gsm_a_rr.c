@@ -174,92 +174,92 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
 
 const value_string gsm_rr_elem_strings[] = {
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
-    { 0x00, "BA Range" },                               /* [3]  10.5.2.1a BA Range */
-    { 0x01, "Cell Channel Description" },               /* [3]  10.5.2.1b */
-    { 0x02, "BA List Pref" },                           /* [3]  10.5.2.1c BA List Pref */
-    { 0x03, "UTRAN Frequency List" },                   /* [3]  10.5.2.1d UTRAN Frequency List */
-    { 0x04, "Cell Selection Indicator after Release of all TCH and SDCCH" },    /* [3]  10.5.2.1e   Cell selection indicator after release of all TCH and SDCCH IE */
-    { 0x05, "Cell Description" },                       /* 10.5.2.2  */
-    { 0x06, "Cell Options (BCCH)" },                    /* [3]  10.5.2.3    Cell Options (BCCH) */
-    { 0x07, "Cell Options (SACCH)" },                   /* [3]  10.5.2.3a   Cell Options (SACCH) */
-    { 0x08, "Cell Selection Parameters" },              /* [3]  10.5.2.4    Cell Selection Parameters */
+    { DE_RR_BA_RANGE, "BA Range" },                                     /* [3]  10.5.2.1a BA Range */
+    { DE_RR_CELL_CH_DSC, "Cell Channel Description" },                  /* [3]  10.5.2.1b */
+    { DE_RR_BA_LIST_PREF, "BA List Pref" },                             /* [3]  10.5.2.1c BA List Pref */
+    { DE_RR_UTRAN_FREQ_LIST, "UTRAN Frequency List" },                  /* [3]  10.5.2.1d UTRAN Frequency List */
+    { DE_RR_CELL_SELECT_INDIC, "Cell Selection Indicator after Release of all TCH and SDCCH" }, /* [3]  10.5.2.1e   Cell selection indicator after release of all TCH and SDCCH IE */
+    { DE_RR_CELL_DSC, "Cell Description" },                             /* 10.5.2.2  */
+    { DE_RR_CELL_OPT_BCCH, "Cell Options (BCCH)" },                     /* [3]  10.5.2.3    Cell Options (BCCH) */
+    { DE_RR_CELL_OPT_SACCH, "Cell Options (SACCH)" },                   /* [3]  10.5.2.3a   Cell Options (SACCH) */
+    { DE_RR_CELL_SEL_PARAM, "Cell Selection Parameters" },              /* [3]  10.5.2.4    Cell Selection Parameters */
 /* [3]  10.5.2.4a   (void) */
-    { 0x09, "Channel Description" },                    /* 10.5.2.5  */
-    { 0x0a, "Channel Description 2" },                  /* 10.5.2.5a */
-    { 0x0b, "Channel Description 3" },                  /* 10.5.2.5c */
-    { 0x0c, "Channel Mode" },                           /* [3]  10.5.2.6 */
-    { 0x0d, "Channel Mode 2" },                         /* [3]  10.5.2.7 */
-    { 0x0e, "UTRAN Classmark" },                        /* [3]  10.5.2.7a   */
+    { DE_RR_CH_DSC, "Channel Description" },                            /* 10.5.2.5  */
+    { DE_RR_CH_DSC2, "Channel Description 2" },                         /* 10.5.2.5a */
+    { DE_RR_CH_DSC3, "Channel Description 3" },                         /* 10.5.2.5c */
+    { DE_RR_CH_MODE, "Channel Mode" },                                  /* [3]  10.5.2.6 */
+    { DE_RR_CH_MODE2, "Channel Mode 2" },                               /* [3]  10.5.2.7 */
+    { DE_RR_UTRAN_CM, "UTRAN Classmark" },                              /* [3]  10.5.2.7a   */
 /* [3]  10.5.2.7b   (void) */
-    { 0x0f, "Classmark Enquiry Mask" },                 /* [3]  10.5.2.7c */
+    { DE_RR_CM_ENQ_MASK, "Classmark Enquiry Mask" },                    /* [3]  10.5.2.7c */
 /* [3]  10.5.2.7d   GERAN Iu Mode Classmark information element */
-    { 0x10, "Channel Needed"},                          /* [3]  10.5.2.8    */
+    { DE_RR_CHNL_NEEDED, "Channel Needed"},                             /* [3]  10.5.2.8    */
     /* [3]  10.5.2.8a   (void) */
-    { 0x11, "Channel Request Description 2"},           /* [3]  10.5.2.8b   Channel Request Description 2 */
+    { DE_RR_CHNL_REQ_DESC2, "Channel Request Description 2"},           /* [3]  10.5.2.8b   Channel Request Description 2 */
     /* Pos 20 */
-    { 0x12, "Cipher Mode Setting" },                    /* [3]  10.5.2.9    */
-    { 0x13, "Cipher Mode Response" },                   /* [3]  10.5.2.10   */
-    { 0x14, "Control Channel Description" },            /* [3]  10.5.2.11   Control Channel Description */
-    { 0x15, "DTM Information Details" },                /* [3]  10.5.2.11a  DTM Information Details */
-    { 0x16, "Dynamic ARFCN Mapping" },                  /* [3]  10.5.2.11b  */
-    { 0x17, "Frequency Channel Sequence" },             /* [3]  10.5.2.12   */
-    { 0x18, "Frequency List" },                         /* 10.5.2.13        */
-    { 0x19, "Frequency Short List" },                   /* 10.5.2.14        */
-    { 0x1a, "Frequency Short List2" },                  /* 10.5.2.14a       */
+    { DE_RR_CIP_MODE_SET, "Cipher Mode Setting" },                      /* [3]  10.5.2.9    */
+    { DE_RR_CIP_MODE_RESP, "Cipher Mode Response" },                    /* [3]  10.5.2.10   */
+    { DE_RR_CTRL_CH_DESC, "Control Channel Description" },              /* [3]  10.5.2.11   Control Channel Description */
+    { DE_RR_DTM_INFO_DETAILS, "DTM Information Details" },              /* [3]  10.5.2.11a  DTM Information Details */
+    { DE_RR_DYN_ARFCN_MAP, "Dynamic ARFCN Mapping" },                   /* [3]  10.5.2.11b  */
+    { DE_RR_FREQ_CH_SEQ, "Frequency Channel Sequence" },                /* [3]  10.5.2.12   */
+    { DE_RR_FREQ_LIST, "Frequency List" },                              /* 10.5.2.13        */
+    { DE_RR_FREQ_SHORT_LIST, "Frequency Short List" },                  /* 10.5.2.14        */
+    { DE_RR_FREQ_SHORT_LIST2, "Frequency Short List 2" },               /* 10.5.2.14a       */
 /* [3]  10.5.2.14b  Group Channel Description */
-    { 0x1b, "GPRS Resumption" },                        /* [3]  10.5.2.14c  GPRS Resumption */
-    { 0x1c, "GPRS Broadcast Information" },             /* [3]  10.5.2.14d  GPRS broadcast information */
+    { DE_RR_GPRS_RESUMPTION, "GPRS Resumption" },                       /* [3]  10.5.2.14c  GPRS Resumption */
+    { DE_RR_GPRS_BROADCAST_INFORMATION, "GPRS Broadcast Information" }, /* [3]  10.5.2.14d  GPRS broadcast information */
 /* [3]  10.5.2.14e  Enhanced DTM CS Release Indication */
-    { 0x1d, "Handover Reference" },                     /* 10.5.2.15        */
-    { 0x1e, "IA Rest Octets" },                         /* [3] 10.5.2.16    */
-    { 0x1f, "IAR Rest Octets" },                        /* [3] 10.5.2.17 IAR Rest Octets */
-    { 0x20, "IAX Rest Octets" },                        /* [3] 10.5.2.18 IAX Rest Octets */
-    { 0x21, "L2 Pseudo Length" },                       /* [3] 10.5.2.19    */
-    { 0x22, "Measurement Results" },                    /* [3] 10.5.2.20 Measurement Results */
+    { DE_RR_HO_REF, "Handover Reference" },                             /* 10.5.2.15        */
+    { DE_RR_IA_REST_OCT, "IA Rest Octets" },                            /* [3] 10.5.2.16    */
+    { DE_RR_IAR_REST_OCT, "IAR Rest Octets" },                          /* [3] 10.5.2.17 IAR Rest Octets */
+    { DE_RR_IAX_REST_OCT, "IAX Rest Octets" },                          /* [3] 10.5.2.18 IAX Rest Octets */
+    { DE_RR_L2_PSEUDO_LEN, "L2 Pseudo Length" },                        /* [3] 10.5.2.19    */
+    { DE_RR_MEAS_RES, "Measurement Results" },                          /* [3] 10.5.2.20 Measurement Results */
 /*
  * [3] 10.5.2.20a GPRS Measurement Results
  */
-    { 0x23, "Mobile Allocation" },                      /* [3] 10.5.2.21    */
-    { 0x24, "Mobile Time Difference" },                 /* [3] 10.5.2.21a   */
-    { 0x25, "MultiRate configuration" },                /* [3] 10.5.2.21aa  */
+    { DE_RR_MOB_ALL, "Mobile Allocation" },                             /* [3] 10.5.2.21    */
+    { DE_RR_MOB_TIME_DIFF, "Mobile Time Difference" },                  /* [3] 10.5.2.21a   */
+    { DE_RR_MULTIRATE_CONF, "MultiRate configuration" },                /* [3] 10.5.2.21aa  */
     /* Pos 30 */
-    { 0x26, "Multislot Allocation" },                   /* [3] 10.5.2.21b   */
+    { DE_RR_MULT_ALL, "Multislot Allocation" },                         /* [3] 10.5.2.21b   */
     /*
      * [3] 10.5.2.21c NC mode
      */
-    { 0x27, "Neighbour Cell Description" },             /* [3] 10.5.2.22 Neighbour Cell Description */
-    { 0x28, "Neighbour Cell Description 2" },           /* [3] 10.5.2.22a Neighbour Cell Description 2 */
+    { DE_RR_NEIGH_CELL_DESC, "Neighbour Cell Description" },            /* [3] 10.5.2.22 Neighbour Cell Description */
+    { DE_RR_NEIGH_CELL_DESC2, "Neighbour Cell Description 2" },         /* [3] 10.5.2.22a Neighbour Cell Description 2 */
 /*
  * [3] 10.5.2.22b (void)
  * [3] 10.5.2.22c NT/N Rest Octets */
-    { 0x29, "P1 Rest Octets" },                         /* [3] 10.5.2.23 P1 Rest Octets */
-    { 0x2a, "P2 Rest Octets" },                         /* [3] 10.5.2.24 P2 Rest Octets */
-    { 0x2b, "P3 Rest Octets" },                         /* [3] 10.5.2.25 P3 Rest Octets */
-    { 0x2c, "Packet Channel Description" },             /* [3] 10.5.2.25a   */
-    { 0x2d, "Dedicated mode or TBF" },                  /* [3] 10.5.2.25b */
-    { 0x2e, "Packet Uplink Assignment" },               /* [3] 10.5.2.25c RR Packet Uplink Assignment */
-    { 0x2f, "Packet Downlink Assignment" },             /* [3] 10.5.2.25d RR Packet Downlink Assignment */
-    { 0x30, "Packet Downlink Assignment Type 2" },      /* [3] 110.5.2.25e RR Packet Downlink Assignment Type 2 */
-    { 0x31, "Page Mode" },                              /* [3] 10.5.2.26  */
-    { 0x32, "NCC Permitted" },                          /* [3] 10.5.2.27 NCC Permitted */
-    { 0x33, "Power Command" },                          /* 10.5.2.28 */
-    { 0x34, "Power Command and access type" },          /* 10.5.2.28a */
-    { 0x35, "RACH Control Parameters" },                /* [3] 10.5.2.29 RACH Control Parameters */
-    { 0x36, "Request Reference" },                      /* [3] 10.5.2.30 Request Reference */
-    { 0x37, "RR Cause" },                               /* 10.5.2.31 */
-    { 0x38, "Synchronization Indication" },             /* 10.5.2.39 */
-    { 0x39, "SI 1 Rest Octets" },                       /* [3] 10.5.2.32 */
+    { DE_RR_P1_REST_OCT, "P1 Rest Octets" },                            /* [3] 10.5.2.23 P1 Rest Octets */
+    { DE_RR_P2_REST_OCT, "P2 Rest Octets" },                            /* [3] 10.5.2.24 P2 Rest Octets */
+    { DE_RR_P3_REST_OCT, "P3 Rest Octets" },                            /* [3] 10.5.2.25 P3 Rest Octets */
+    { DE_RR_PACKET_CH_DESC, "Packet Channel Description" },             /* [3] 10.5.2.25a   */
+    { DE_RR_DED_MOD_OR_TBF, "Dedicated mode or TBF" },                  /* [3] 10.5.2.25b */
+    { DE_RR_PKT_UL_ASS, "Packet Uplink Assignment" },                   /* [3] 10.5.2.25c RR Packet Uplink Assignment */
+    { DE_RR_PKT_DL_ASS, "Packet Downlink Assignment" },                 /* [3] 10.5.2.25d RR Packet Downlink Assignment */
+    { DE_RR_PKT_DL_ASS_TYPE2, "Packet Downlink Assignment Type 2" },    /* [3] 110.5.2.25e RR Packet Downlink Assignment Type 2 */
+    { DE_RR_PAGE_MODE, "Page Mode" },                                   /* [3] 10.5.2.26  */
+    { DE_RR_NCC_PERM, "NCC Permitted" },                                /* [3] 10.5.2.27 NCC Permitted */
+    { DE_RR_POW_CMD, "Power Command" },                                 /* 10.5.2.28 */
+    { DE_RR_POW_CMD_AND_ACC_TYPE, "Power Command and access type" },    /* 10.5.2.28a */
+    { DE_RR_RACH_CTRL_PARAM, "RACH Control Parameters" },               /* [3] 10.5.2.29 RACH Control Parameters */
+    { DE_RR_REQ_REF, "Request Reference" },                             /* [3] 10.5.2.30 Request Reference */
+    { DE_RR_CAUSE, "RR Cause" },                                        /* 10.5.2.31 */
+    { DE_RR_SYNC_IND, "Synchronization Indication" },                   /* 10.5.2.39 */
+    { DE_RR_SI1_REST_OCT, "SI 1 Rest Octets" },                         /* [3] 10.5.2.32 */
 /* [3] 10.5.2.33 SI 2bis Rest Octets */
-    { 0x3a, "SI 2ter Rest Octets" },                    /* [3] 10.5.2.33a */
-    { 0x3b, "SI 2quater Rest Octets" },                 /* [3] 10.5.2.33b */
-    { 0x3c, "SI 3 Rest Octets" },                       /* [3] 10.5.2.34 */
-    { 0x3d, "SI 4 Rest Octets" },                       /* [3] 10.5.2.35 */
-    { 0x3e, "SI 6 Rest Octets" },                       /* [3] 10.5.2.35a */
+    { DE_RR_SI2TER_REST_OCT, "SI 2ter Rest Octets" },                   /* [3] 10.5.2.33a */
+    { DE_RR_SI2QUATER_REST_OCT, "SI 2quater Rest Octets" },             /* [3] 10.5.2.33b */
+    { DE_RR_SI3_REST_OCT, "SI 3 Rest Octets" },                         /* [3] 10.5.2.34 */
+    { DE_RR_SI4_REST_OCT, "SI 4 Rest Octets" },                         /* [3] 10.5.2.35 */
+    { DE_RR_SI6_REST_OCT, "SI 6 Rest Octets" },                         /* [3] 10.5.2.35a */
 /* [3] 10.5.2.36 SI 7 Rest Octets
  * [3] 10.5.2.37 SI 8 Rest Octets
  * [3] 10.5.2.37a SI 9 Rest Octets
  */
-    { 0x3f, "SI 13 Rest Octets" },                      /* [3] 10.5.2.37b */
+    { DE_RR_SI13_REST_OCT, "SI 13 Rest Octets" },                       /* [3] 10.5.2.37b */
 /* [3] 10.5.2.37c (void)
  * [3] 10.5.2.37d (void)
  * [3] 10.5.2.37e SI 16 Rest Octets
@@ -267,31 +267,31 @@ const value_string gsm_rr_elem_strings[] = {
  * [3] 10.5.2.37g SI 19 Rest Octets
  * [3] 10.5.2.37h SI 18 Rest Octets
  * [3] 10.5.2.37i SI 20 Rest Octets */
-    { 0x40, "Starting Time" },                          /* [3] 10.5.2.38 Starting Time  */
-    { 0x41, "Timing Advance" },                         /* [3] 10.5.2.40 Timing Advance */
-    { 0x42, "Time Difference" },                        /* [3] 10.5.2.41 Time Difference */
-    { 0x43, "TLLI" },                                   /* [3] 10.5.2.41a TLLI  */
-    { 0x44, "TMSI/P-TMSI" },                            /* [3] 10.5.2.42 TMSI/P-TMSI */
-    { 0x45, "VGCS target mode Indication" },            /* [3] 10.5.2.42a */
+    { DE_RR_STARTING_TIME, "Starting Time" },                           /* [3] 10.5.2.38 Starting Time  */
+    { DE_RR_TIMING_ADV, "Timing Advance" },                             /* [3] 10.5.2.40 Timing Advance */
+    { DE_RR_TIME_DIFF, "Time Difference" },                             /* [3] 10.5.2.41 Time Difference */
+    { DE_RR_TLLI, "TLLI" },                                             /* [3] 10.5.2.41a TLLI  */
+    { DE_RR_TMSI_PTMSI, "TMSI/P-TMSI" },                                /* [3] 10.5.2.42 TMSI/P-TMSI */
+    { DE_RR_VGCS_TAR_MODE_IND, "VGCS target mode Indication" },         /* [3] 10.5.2.42a */
     /* Pos 40 */
-    { 0x46, "VGCS Ciphering Parameters" },              /* [3] 10.5.2.42b */
-    { 0x47, "Wait Indication" },                        /* [3] 10.5.2.43 Wait Indication */
+    { DE_RR_VGCS_CIP_PAR, "VGCS Ciphering Parameters" },                /* [3] 10.5.2.42b */
+    { DE_RR_WAIT_IND, "Wait Indication" },                              /* [3] 10.5.2.43 Wait Indication */
 /* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
-    { 0x48, "Extended Measurement Results" },           /* [3] 10.5.2.45 Extended Measurement Results */
-    { 0x49, "Extended Measurement Frequency List" },    /* [3] 10.5.2.46 Extended Measurement Frequency List */
-    { 0x4a, "Suspension Cause" },                       /* [3] 10.5.2.47                                */
-    { 0x4b, "APDU ID" },                                /* [3] 10.5.2.48 APDU ID */
-    { 0x4c, "APDU Flags" },                             /* [3] 10.5.2.49 APDU Flags */
-    { 0x4d, "APDU Data" },                              /* [3] 10.5.2.50 APDU Data */
-    { 0x4e, "Handover to UTRAN Command" },              /* [3] 10.5.2.51 Handover To UTRAN Command */
+    { DE_RR_EXT_MEAS_RESULT, "Extended Measurement Results" },          /* [3] 10.5.2.45 Extended Measurement Results */
+    { DE_RR_EXT_MEAS_FREQ_LIST, "Extended Measurement Frequency List" },/* [3] 10.5.2.46 Extended Measurement Frequency List */
+    { DE_RR_SUS_CAU, "Suspension Cause" },                              /* [3] 10.5.2.47                                */
+    { DE_RR_APDU_ID, "APDU ID" },                                       /* [3] 10.5.2.48 APDU ID */
+    { DE_RR_APDU_FLAGS, "APDU Flags" },                                 /* [3] 10.5.2.49 APDU Flags */
+    { DE_RR_APDU_DATA, "APDU Data" },                                   /* [3] 10.5.2.50 APDU Data */
+    { DE_RR_HO_TO_UTRAN_CMD, "Handover to UTRAN Command" },             /* [3] 10.5.2.51 Handover To UTRAN Command */
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell */
-    { 0x4f, "Service Support" },                        /* [3] 10.5.2.57    */
+    { DE_RR_SERV_SUP, "Service Support" },                              /* [3] 10.5.2.57    */
     /* 10.5.2.58 MBMS p-t-m Channel Description */
-    { 0x50, "Dedicated Service Information" },          /* [3] 10.5.2.59    */
+    { DE_RR_DED_SERV_INF, "Dedicated Service Information" },            /* [3] 10.5.2.59    */
 /*
  * 10.5.2.60 MPRACH Description
  * 10.5.2.61 Restriction Timer
@@ -303,7 +303,7 @@ const value_string gsm_rr_elem_strings[] = {
  * 10.5.2.67 PS Cause
  * 10.5.2.68 VGCS AMR Configuration
  */
-    { 0x51, "Carrier Indication" },                     /* 10.5.2.69 Carrier Indication */
+    { DE_RR_CARRIER_IND, "Carrier Indication" },                        /* 10.5.2.69 Carrier Indication */
     {    0, NULL }
 };
 

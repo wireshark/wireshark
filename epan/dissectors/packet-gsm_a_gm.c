@@ -151,73 +151,72 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
 
 const value_string gsm_gm_elem_strings[] = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
-	{ 0x00,	"Additional Update Type" },
-	{ 0x01,	"Attach Result" },
-	{ 0x02,	"Attach Type" },
-	{ 0x03,	"Cipher Algorithm" },
-	{ 0x04,	"TMSI Status" },
-	{ 0x05,	"Detach Type" },
-	{ 0x06,	"DRX Parameter" },
-	{ 0x07,	"Force to Standby" },
-	{ 0x08, "Force to Standby" },
-	{ 0x09,	"P-TMSI Signature" },
-	{ 0x0a,	"P-TMSI Signature 2" },
-	{ 0x0b,	"Identity Type 2" },
-	{ 0x0c,	"IMEISV Request" },
-	{ 0x0d,	"Receive N-PDU Numbers List" },
-	{ 0x0e,	"MS Network Capability" },
-	{ 0x0f,	"MS Radio Access Capability" },
-	{ 0x10,	"GMM Cause" },
-	{ 0x11,	"Routing Area Identification" },
-	{ 0x12,	"Routing Area Identification 2" },
-	{ 0x13,	"Update Result" },
-	{ 0x14, "Update Type" },
-	{ 0x15,	"A&C Reference Number" },
-	{ 0x16, "A&C Reference Number" },
-	{ 0x17,	"Service Type" },
-	{ 0x18,	"Cell Notification" },
-	{ 0x19, "PS LCS Capability" },
-	{ 0x1a,	"Network Feature Support" },
-	{ 0x1b,	"Additional Network Feature Support" },
-	{ 0x1c, "Inter RAT information container" },
-	{ 0x1d, "Requested MS information" },
-	{ 0x1e, "UE network capability" },
-	{ 0x1f, "E-UTRAN inter RAT information container" },
-	{ 0x20, "Voice domain preference and UE's usage setting" },
-	{ 0x21, "P-TMSI type" },
-	{ 0x22, "Location Area Identification 2" },
-	{ 0x23, "Network resource identifier container" },
+	{ DE_ADD_UPD_TYPE,	"Additional Update Type" },
+	{ DE_ATTACH_RES,	"Attach Result" },
+	{ DE_ATTACH_TYPE,	"Attach Type" },
+	{ DE_CIPH_ALG,	"Cipher Algorithm" },
+	{ DE_TMSI_STAT,	"TMSI Status" },
+	{ DE_DETACH_TYPE,	"Detach Type" },
+	{ DE_DRX_PARAM,	"DRX Parameter" },
+	{ DE_FORCE_TO_STAND,	"Force to Standby" },
+	{ DE_FORCE_TO_STAND_H, "Force to Standby" },
+	{ DE_P_TMSI_SIG,	"P-TMSI Signature" },
+	{ DE_P_TMSI_SIG_2,	"P-TMSI Signature 2" },
+	{ DE_ID_TYPE_2,	"Identity Type 2" },
+	{ DE_IMEISV_REQ,	"IMEISV Request" },
+	{ DE_REC_N_PDU_NUM_LIST,	"Receive N-PDU Numbers List" },
+	{ DE_MS_NET_CAP,	"MS Network Capability" },
+	{ DE_MS_RAD_ACC_CAP,	"MS Radio Access Capability" },
+	{ DE_GMM_CAUSE,	"GMM Cause" },
+	{ DE_RAI,	"Routing Area Identification" },
+	{ DE_RAI_2,	"Routing Area Identification 2" },
+	{ DE_UPD_RES,	"Update Result" },
+	{ DE_UPD_TYPE, "Update Type" },
+	{ DE_AC_REF_NUM,	"A&C Reference Number" },
+	{ DE_AC_REF_NUM_H, "A&C Reference Number" },
+	{ DE_SRVC_TYPE,	"Service Type" },
+	{ DE_CELL_NOT,	"Cell Notification" },
+	{ DE_PS_LCS_CAP, "PS LCS Capability" },
+	{ DE_NET_FEAT_SUP,	"Network Feature Support" },
+	{ DE_ADD_NET_FEAT_SUP,	"Additional Network Feature Support" },
+	{ DE_RAT_INFO_CONTAINER, "Inter RAT information container" },
+	{ DE_REQ_MS_INFO, "Requested MS information" },
+	{ DE_UE_NETWORK_CAP, "UE network capability" },
+	{ DE_EUTRAN_IRAT_INFO_CONTAINER, "E-UTRAN inter RAT information container" },
+	{ DE_VOICE_DOMAIN_PREF, "Voice domain preference and UE's usage setting" },
+	{ DE_PTMSI_TYPE, "P-TMSI type" },
+	{ DE_LAI_2, "Location Area Identification 2" },
+	{ DE_NET_RES_ID_CONT, "Network resource identifier container" },
 	/* Session Management Information Elements 10.5.6 */
-	{ 0x24,	"Access Point Name" },
-	{ 0x25,	"Network Service Access Point Identifier" },
-	{ 0x26,	"Protocol Configuration Options" },
-	{ 0x27,	"Packet Data Protocol Address" },
-	{ 0x28,	"Quality Of Service" },
-	{ 0x29,	"SM Cause" },
-	{ 0x2a, "SM Cause 2" },
-	{ 0x2b,	"Linked TI" },
-	{ 0x2c,	"LLC Service Access Point Identifier" },
-	{ 0x2d,	"Tear Down Indicator" },
-	{ 0x2e,	"Packet Flow Identifier" },
-	{ 0x2f,	"Traffic Flow Template" },
-	{ 0x30, "Temporary Mobile Group Identity (TMGI)" },
-	{ 0x31, "MBMS bearer capabilities" },
-	{ 0x32, "MBMS protocol configuration options" },
-	{ 0x33, "Enhanced network service access point identifier" },
-	{ 0x34, "Request type" },
-	{ 0x35, "Notification indicator" },
-	{ 0x36, "Connectivity type" },
+	{ DE_ACC_POINT_NAME,	"Access Point Name" },
+	{ DE_NET_SAPI,	"Network Service Access Point Identifier" },
+	{ DE_PRO_CONF_OPT,	"Protocol Configuration Options" },
+	{ DE_PD_PRO_ADDR,	"Packet Data Protocol Address" },
+	{ DE_QOS,	"Quality Of Service" },
+	{ DE_SM_CAUSE,	"SM Cause" },
+	{ DE_SM_CAUSE_2, "SM Cause 2" },
+	{ DE_LINKED_TI,	"Linked TI" },
+	{ DE_LLC_SAPI,	"LLC Service Access Point Identifier" },
+	{ DE_TEAR_DOWN_IND,	"Tear Down Indicator" },
+	{ DE_PACKET_FLOW_ID,	"Packet Flow Identifier" },
+	{ DE_TRAFFIC_FLOW_TEMPLATE,	"Traffic Flow Template" },
+	{ DE_TMGI, "Temporary Mobile Group Identity (TMGI)" },
+	{ DE_MBMS_BEARER_CAP, "MBMS bearer capabilities" },
+	{ DE_MBMS_PROT_CONF_OPT, "MBMS protocol configuration options" },
+	{ DE_ENH_NSAPI, "Enhanced network service access point identifier" },
+	{ DE_REQ_TYPE, "Request type" },
+	{ DE_SM_NOTIF_IND, "Notification indicator" },
+	{ DE_SM_CONNECTIVITY_TYPE, "Connectivity type" },
 	/* GPRS Common Information Elements 10.5.7 */
-	{ 0x37,	"PDP Context Status" },
-	{ 0x38,	"Radio Priority" },
-	{ 0x39,	"GPRS Timer" },
-	{ 0x3a,	"GPRS Timer 2" },
-	{ 0x3b,	"GPRS Timer 3" },
-	{ 0x3c, "Radio Priority 2"},
-	{ 0x3d,	"MBMS context status"},
-	{ 0x3e,	"Uplink data status"},
-	{ 0x3f,	"Device properties"},
-	{ 0x40, "Spare Nibble"},
+	{ DE_PDP_CONTEXT_STAT,	"PDP Context Status" },
+	{ DE_RAD_PRIO,	"Radio Priority" },
+	{ DE_GPRS_TIMER,	"GPRS Timer" },
+	{ DE_GPRS_TIMER_2,	"GPRS Timer 2" },
+	{ DE_GPRS_TIMER_3,	"GPRS Timer 3" },
+	{ DE_RAD_PRIO_2, "Radio Priority 2"},
+	{ DE_MBMS_CTX_STATUS,	"MBMS context status"},
+	{ DE_UPLINK_DATA_STATUS,	"Uplink data status"},
+	{ DE_DEVICE_PROPERTIES,	"Device properties"},
 	{ 0, NULL }
 };
 
@@ -1151,13 +1150,13 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 		curr_len--; \
 		curr_offset++; \
 		if (bits_in_oct != 0) \
-			add_ocetets = 1; \
+			add_octets = 1; \
 		else \
-			add_ocetets = 0; \
+			add_octets = 0; \
 		bits_in_oct += 8; \
 	} \
 	else \
-		add_ocetets = 0;
+		add_octets = 0;
 
 /* Access Technology Type */
 
@@ -1345,7 +1344,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	guchar       bits_in_oct;
 	guchar       bits_needed;
 	guint        bits_length;
-	guint        add_ocetets;	/* octets which are covered by one element -1 */
+	guint        add_octets;	/* octets which are covered by one element -1 */
 	guint        curr_bits_length;
 	guchar       acc_type;
 	guint        value;
@@ -1457,7 +1456,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				}
 
 				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"Presence: %s (%u)", str, oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -1554,7 +1553,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 				/* decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)*/
 				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(bit_offset, 3, value), str, value);
 				bit_offset	  += 3;
 				curr_bits_length  -= bits_needed;
@@ -1579,7 +1578,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				}
 
 				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"8PSK Power Class: %s (%u)", str, value);
 				bit_offset	  += 2;
 				curr_bits_length  -= bits_needed;
@@ -1634,7 +1633,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			str = "Not specified??";
 
 		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			tvb, curr_offset-1-add_octets, 1+add_octets,
 			"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(bit_offset, 3, value), str, value);
 
 		bit_offset	  += 3;
@@ -1652,7 +1651,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		if ((oct>>(32-bits_needed)) == 0)
 		{
 			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				tvb, curr_offset-1-add_octets, 1+add_octets,
 				"A5 Bits: Same values apply for parameters as in the immediately preceding Access capabilities field within this IE (%u)",
 				oct>>(32-bits_needed));
 			bit_offset++;
@@ -1665,7 +1664,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			int i;
 
 			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				tvb, curr_offset-1-add_octets, 1+add_octets,
 				"A5 Bits: A5 bits follow (%u)", oct>>(32-bits_needed));
 
 			bit_offset++;
@@ -1690,7 +1689,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				}
 
 				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"A5/%d: %s (%u)", i, str, oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -1776,7 +1775,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			if ((oct>>(32-bits_needed)) == 0)
 			{
 				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"HSCSD multislot class: Bits are not available (%u)", oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -1813,7 +1812,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			if ((oct>>(32-bits_needed)) == 0)
 			{
 				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"GPRS multislot class: Bits are not available (%u)", oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -1862,7 +1861,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			if ((oct>>(32-bits_needed)) == 0)
 			{
 				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"SMS/SM values: Bits are not available (%u)", oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -1913,7 +1912,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			if ((oct>>(32-bits_needed)) == 0)
 			{
 				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"ECSD multislot class: Bits are not available (%u)", oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -1950,7 +1949,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			if ((oct>>(32-bits_needed)) == 0)
 			{
 				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"EGPRS multislot class: Bits are not available (%u)", oct>>(32-bits_needed));
 				curr_bits_length  -= bits_needed;
 				oct		 <<= bits_needed;
@@ -1999,7 +1998,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			if ((oct>>(32-bits_needed)) == 0)
 			{
 				proto_tree_add_text(mc_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"DTM GPRS Multi Slot Class: Bits are not available (%u)", oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length  -= bits_needed;
@@ -2103,7 +2102,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			}
 
 			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				tvb, curr_offset-1-add_octets, 1+add_octets,
 				"8PSK Power Capability: %s (%u)", str, oct>>(32-bits_needed));
 			bit_offset	  += 2;
 			curr_bits_length  -= bits_needed;
@@ -2206,7 +2205,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		if ((oct>>(32-bits_needed)) == 0)
 		{
 			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				tvb, curr_offset-1-add_octets, 1+add_octets,
 				"Extended DTM (E)GPRS Multi Slot Class: Bits are not available (%u)", oct>>(32-bits_needed));
 			curr_bits_length  -= bits_needed;
 			oct		 <<= bits_needed;
@@ -2249,7 +2248,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			}
 
 			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				tvb, curr_offset-1-add_octets, 1+add_octets,
 				"Extended DTM GPRS Multi Slot Class: %s (%u)", str, oct>>(32-bits_needed));
 			bit_offset	  += 2;
 			curr_bits_length  -= bits_needed;
@@ -2287,7 +2286,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 				}
 
 				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+					tvb, curr_offset-1-add_octets, 1+add_octets,
 					"Extended DTM EGPRS Multi Slot Class: %s (%u)", str, oct>>(32-bits_needed));
 				bit_offset	  += 2;
 				curr_bits_length  -= bits_needed;
@@ -2318,7 +2317,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		if ((oct>>(32-bits_needed)) == 0)
 		{
 			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+				tvb, curr_offset-1-add_octets, 1+add_octets,
 				"High Multislot Capability: Bits are not available (%u)", oct>>(32-bits_needed));
 			bit_offset++;
 			curr_bits_length  -= bits_needed;
@@ -2340,7 +2339,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 			/* analyse bits */
 			proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			tvb, curr_offset-1-add_octets, 1+add_octets,
 					    "High Multislot Capability: 0x%02x (%u)"
 					    " - This field effect all other multislot fields."
 					    " To understand the value please read TS 24.008 5.6.0"
@@ -2414,7 +2413,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		}
 
 		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			tvb, curr_offset-1-add_octets, 1+add_octets,
 			"GMSK Multislot Power Profile: %s (%u)", str, oct>>(32-bits_needed));
 		bit_offset	  += 2;
 		curr_bits_length  -= bits_needed;
@@ -2437,7 +2436,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			default:   str = "This should not happen";
 		}
 
-		proto_tree_add_text(tf_tree, tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+		proto_tree_add_text(tf_tree, tvb, curr_offset-1-add_octets, 1+add_octets,
 				    "8-PSK Multislot Power Profile: %s (%u)", str, oct>>(32-bits_needed));
 		bit_offset	  += 2;
 		curr_bits_length  -= bits_needed;
