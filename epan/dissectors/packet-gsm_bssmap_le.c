@@ -100,7 +100,7 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 #define BSSMAP_LE_CELL_IDENTITY_LIST                         82
 #define BSSMAP_LE_IMEI                                       128
 
-const value_string gsm_bssmap_le_elem_strings[] = {
+static const value_string gsm_bssmap_le_elem_strings[] = {
 	{ DE_BMAPLE_LCSQOS, "LCS QoS" },
 	{ DE_BMAPLE_LCS_PRIO, "LCS Priority" },
 	{ DE_BMAPLE_LOC_TYPE, "Location Type" },
@@ -133,6 +133,7 @@ const value_string gsm_bssmap_le_elem_strings[] = {
 	{ DE_BMAPLE_IMEI, "IMEI" },
 	{ 0, NULL }
 };
+value_string_ext gsm_bssmap_le_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_le_elem_strings);
 
 static const value_string gsm_apdu_protocol_id_strings[] = {
 	{ 0,	"reserved" },

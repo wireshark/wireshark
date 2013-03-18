@@ -172,7 +172,7 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     {    0, NULL }
 };
 
-const value_string gsm_rr_elem_strings[] = {
+static const value_string gsm_rr_elem_strings[] = {
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
     { DE_RR_BA_RANGE, "BA Range" },                                     /* [3]  10.5.2.1a BA Range */
     { DE_RR_CELL_CH_DSC, "Cell Channel Description" },                  /* [3]  10.5.2.1b */
@@ -306,6 +306,7 @@ const value_string gsm_rr_elem_strings[] = {
     { DE_RR_CARRIER_IND, "Carrier Indication" },                        /* 10.5.2.69 Carrier Indication */
     {    0, NULL }
 };
+value_string_ext gsm_rr_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_rr_elem_strings);
 
 const value_string gsm_rr_rest_octets_elem_strings[] = {
     /* RR Rest Octets information elements */
@@ -7836,7 +7837,7 @@ de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     curr_offset = offset;
 
     item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
-                               gsm_rr_elem_strings[DE_RR_TMSI_PTMSI].strptr);
+                               val_to_str_ext_const(DE_RR_TMSI_PTMSI, &gsm_rr_elem_strings_ext, ""));
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_TMSI_PTMSI]);
 
@@ -8138,7 +8139,7 @@ de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset = offset;
 
     item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
-                               gsm_rr_elem_strings[DE_RR_CARRIER_IND].strptr);
+                               val_to_str_ext_const(DE_RR_CARRIER_IND, &gsm_rr_elem_strings_ext, ""));
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CARRIER_IND]);
 
@@ -9471,7 +9472,7 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     item =
         proto_tree_add_text(tree,
                             tvb, curr_offset, 1, "%s",
-                            gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
+                            val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
 
     subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 

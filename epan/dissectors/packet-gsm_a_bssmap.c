@@ -198,7 +198,7 @@ const value_string gsm_a_bssmap_msg_strings[] = {
 
 static value_string_ext gsm_a_bssmap_msg_strings_ext = VALUE_STRING_EXT_INIT(gsm_a_bssmap_msg_strings);
 
-const value_string gsm_bssmap_elem_strings[] = {
+static const value_string gsm_bssmap_elem_strings[] = {
     { BE_UDEF_0, "Undefined" },
     { BE_CIC, "Circuit Identity Code" },
     { BE_RSVD_1, "Reserved" },
@@ -347,6 +347,7 @@ const value_string gsm_bssmap_elem_strings[] = {
 #endif
     { 0, NULL }
 };
+value_string_ext gsm_bssmap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_elem_strings);
 
 /* 3.2.3 Signalling Field Element Coding */
 static const value_string bssmap_field_element_ids[] = {

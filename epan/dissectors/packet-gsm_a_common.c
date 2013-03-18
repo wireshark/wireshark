@@ -66,6 +66,7 @@ const value_string gsm_common_elem_strings[] = {
     { DE_MS_NET_FEAT_SUP, "MS network feature support" },
     { 0, NULL }
 };
+value_string_ext gsm_common_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_common_elem_strings);
 
 static const value_string gsm_a_skip_ind_vals[] = {
     { 0, "No indication of selected PLMN"},
@@ -1086,49 +1087,49 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 
     switch (pdu_type) {
     case GSM_A_PDU_TYPE_BSSMAP:
-        msg_string = val_to_str(idx, gsm_bssmap_elem_strings, "GSM_A_PDU_TYPE_BSSMAP (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_bssmap_elem_strings_ext, "GSM_A_PDU_TYPE_BSSMAP (%u)");
         break;
     case GSM_A_PDU_TYPE_DTAP:
-        msg_string = val_to_str(idx, gsm_dtap_elem_strings, "GSM_A_PDU_TYPE_DTAP (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_dtap_elem_strings_ext, "GSM_A_PDU_TYPE_DTAP (%u)");
         break;
     case GSM_A_PDU_TYPE_RP:
-        msg_string = val_to_str(idx, gsm_rp_elem_strings, "GSM_A_PDU_TYPE_RP (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_rp_elem_strings_ext, "GSM_A_PDU_TYPE_RP (%u)");
         break;
     case GSM_A_PDU_TYPE_RR:
-        msg_string = val_to_str(idx, gsm_rr_elem_strings, "GSM_A_PDU_TYPE_RR (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_rr_elem_strings_ext, "GSM_A_PDU_TYPE_RR (%u)");
         break;
     case GSM_A_PDU_TYPE_COMMON:
-        msg_string = val_to_str(idx, gsm_common_elem_strings, "GSM_A_PDU_TYPE_COMMON (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_common_elem_strings_ext, "GSM_A_PDU_TYPE_COMMON (%u)");
         break;
     case GSM_A_PDU_TYPE_GM:
-        msg_string = val_to_str(idx, gsm_gm_elem_strings, "GSM_A_PDU_TYPE_GM (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_gm_elem_strings_ext, "GSM_A_PDU_TYPE_GM (%u)");
         break;
     case GSM_A_PDU_TYPE_BSSLAP:
-        msg_string = val_to_str(idx, gsm_bsslap_elem_strings, "GSM_A_PDU_TYPE_BSSLAP (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_bsslap_elem_strings_ext, "GSM_A_PDU_TYPE_BSSLAP (%u)");
         break;
     case GSM_PDU_TYPE_BSSMAP_LE:
-        msg_string = val_to_str(idx, gsm_bssmap_le_elem_strings, "GSM_PDU_TYPE_BSSMAP_LE (%u)");
+        msg_string = val_to_str_ext(idx, &gsm_bssmap_le_elem_strings_ext, "GSM_PDU_TYPE_BSSMAP_LE (%u)");
         break;
     case NAS_PDU_TYPE_COMMON:
-        msg_string = val_to_str(idx, nas_eps_common_elem_strings, "NAS_PDU_TYPE_COMMON (%u)");
+        msg_string = val_to_str_ext(idx, &nas_eps_common_elem_strings_ext, "NAS_PDU_TYPE_COMMON (%u)");
         break;
     case NAS_PDU_TYPE_EMM:
-        msg_string = val_to_str(idx, nas_emm_elem_strings, "NAS_PDU_TYPE_EMM (%u)");
+        msg_string = val_to_str_ext(idx, &nas_emm_elem_strings_ext, "NAS_PDU_TYPE_EMM (%u)");
         break;
     case NAS_PDU_TYPE_ESM:
-        msg_string = val_to_str(idx, nas_esm_elem_strings, "NAS_PDU_TYPE_ESM (%u)");
+        msg_string = val_to_str_ext(idx, &nas_esm_elem_strings_ext, "NAS_PDU_TYPE_ESM (%u)");
         break;
     case SGSAP_PDU_TYPE:
-        msg_string = val_to_str(idx, sgsap_elem_strings, "SGSAP_PDU_TYPE (%u)");
+        msg_string = val_to_str_ext(idx, &sgsap_elem_strings_ext, "SGSAP_PDU_TYPE (%u)");
         break;
     case BSSGP_PDU_TYPE:
-        msg_string = val_to_str(idx, bssgp_elem_strings, "BSSGP_PDU_TYPE (%u)");
+        msg_string = val_to_str_ext(idx, &bssgp_elem_strings_ext, "BSSGP_PDU_TYPE (%u)");
         break;
     case GMR1_IE_COMMON:
-        msg_string = val_to_str(idx, gmr1_ie_common_strings, "GMR1_IE_COMMON (%u)");
+        msg_string = val_to_str_ext(idx, &gmr1_ie_common_strings_ext, "GMR1_IE_COMMON (%u)");
         break;
     case GMR1_IE_RR:
-        msg_string = val_to_str(idx, gmr1_ie_rr_strings, "GMR1_IE_RR (%u)");
+        msg_string = val_to_str_ext(idx, &gmr1_ie_rr_strings_ext, "GMR1_IE_RR (%u)");
         break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
@@ -1204,14 +1205,14 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1222,7 +1223,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
         proto_tree_add_text(tree,
             tvb, curr_offset, parm_len + 1 + lengt_length,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1284,14 +1285,14 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1309,7 +1310,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
         proto_tree_add_text(tree,
             tvb, curr_offset, parm_len + 1 + lengt_length,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1370,14 +1371,14 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1386,7 +1387,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
 
         item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1 + 2,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1444,14 +1445,14 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1461,7 +1462,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
             proto_tree_add_text(tree,
             tvb, curr_offset, -1,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
                 (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1516,7 +1517,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
     char                buf[10+1];
@@ -1524,7 +1525,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1534,7 +1535,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
             proto_tree_add_text(tree,
                 tvb, curr_offset, -1,
                 "%s%s",
-                val_to_str(idx, elem_names, "Unknown (%u)"),
+                val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
                 (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1583,14 +1584,14 @@ guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 i
     guint8              oct;
     guint32             curr_offset;
     guint16             consumed;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     (void)elem_ett;
     (void)elem_funcs;
@@ -1603,7 +1604,7 @@ guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 i
             get_hf_elem_id(pdu_type), tvb,
             curr_offset, 1, oct,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         consumed = 1;
@@ -1623,14 +1624,14 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
@@ -1638,7 +1639,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
         proto_tree_add_text(tree,
             tvb, curr_offset, parm_len + 1,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1686,20 +1687,20 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     parm_len = tvb_get_ntohs(tvb, curr_offset);
 
     item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 2,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1748,14 +1749,14 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     if (elem_funcs[idx] == NULL)
     {
@@ -1775,7 +1776,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
             proto_tree_add_text(tree,
                 tvb, curr_offset, 0,
                 "%s%s",
-                val_to_str(idx, elem_names, "Unknown (%u)"),
+                val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
                 (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -1806,19 +1807,19 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
     guint32             curr_offset;
     proto_tree         *subtree;
     proto_item         *item;
-    const value_string *elem_names;
+    value_string_ext    elem_names_ext;
     gint               *elem_ett;
     elem_fcn           *elem_funcs;
     gchar              *a_add_string;
 
     curr_offset = offset;
 
-    SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
 
     item = proto_tree_add_text(tree,
             tvb, curr_offset, 0,
             "%s%s",
-            val_to_str(idx, elem_names, "Unknown (%u)"),
+            val_to_str_ext(idx, &elem_names_ext, "Unknown (%u)"),
             "");
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
@@ -2069,7 +2070,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
     item = proto_tree_add_text(tree,
                                tvb, curr_offset, 5, "%s",
-                               gsm_common_elem_strings[DE_LAI].strptr);
+                               val_to_str_ext_const(DE_LAI, &gsm_common_elem_strings_ext, ""));
 
     subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_LAI]);
 
@@ -2304,7 +2305,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     item =
     proto_tree_add_text(tree,
         tvb, curr_offset, 1, "%s",
-        gsm_common_elem_strings[DE_MS_CM_1].strptr);
+        val_to_str_ext_const(DE_MS_CM_1, &gsm_common_elem_strings_ext, ""));
 
     subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_1]);
 
@@ -3225,7 +3226,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     item =
     proto_tree_add_text(tree,
         tvb, curr_offset, 1, "%s",
-        gsm_dtap_elem_strings[DE_PD_SAPI].strptr);
+        val_to_str_ext_const(DE_PD_SAPI, &gsm_dtap_elem_strings_ext, ""));
 
     subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_PD_SAPI]);
 

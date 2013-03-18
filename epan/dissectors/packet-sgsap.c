@@ -567,7 +567,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * (packet-gsm_a_bssmap.c)
  */
 
-const value_string sgsap_elem_strings[] = {
+static const value_string sgsap_elem_strings[] = {
     { DE_SGSAP_IMSI, "IMSI" },                                              /* 9.4.6 */
     { DE_SGSAP_VLR_NAME, "VLR name" },                                      /* 9.4.22 */
     { DE_SGSAP_TMSI, "TMSI" },                                              /* 9.4.20 */
@@ -610,6 +610,7 @@ const value_string sgsap_elem_strings[] = {
 
     { 0, NULL }
 };
+value_string_ext sgsap_elem_strings_ext = VALUE_STRING_EXT_INIT(sgsap_elem_strings);
 
 #define NUM_SGSAP_ELEM (sizeof(sgsap_elem_strings)/sizeof(value_string))
 gint ett_sgsap_elem[NUM_SGSAP_ELEM];

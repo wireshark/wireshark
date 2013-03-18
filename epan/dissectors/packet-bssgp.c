@@ -3436,7 +3436,7 @@ typedef enum
 }
 bssgp_elem_idx_t;
 
-const value_string bssgp_elem_strings[] = {
+static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_ALIGNMENT_OCTETS, "Alignment Octets" },                                   /* 11.3.1   Alignment octets */
     { DE_BSSGP_BMAX_DEFAULT_MS, "Bmax default MS" },                                    /* 11.3.2   Bmax default MS  */
     { DE_BSSGP_BSS_AREA_IND, "BSS Area Indication" },                                /* 11.3.3   BSS Area Indication  */
@@ -3584,6 +3584,7 @@ const value_string bssgp_elem_strings[] = {
 
     { 0, NULL }
 };
+value_string_ext bssgp_elem_strings_ext = VALUE_STRING_EXT_INIT(bssgp_elem_strings);
 
 #define NUM_BSSGP_ELEM (sizeof(bssgp_elem_strings)/sizeof(value_string))
 gint ett_bssgp_elem[NUM_BSSGP_ELEM];

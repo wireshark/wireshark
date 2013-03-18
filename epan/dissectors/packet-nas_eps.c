@@ -334,7 +334,7 @@ typedef enum
 }
 nas_eps_common_elem_idx_t;
 
-const value_string nas_eps_common_elem_strings[] = {
+static const value_string nas_eps_common_elem_strings[] = {
     { DE_EPS_CMN_ADD_INFO, "Additional information" },                       /* 9.9.2.0  Additional information */
     { DE_EPS_CMN_DEVICE_PROPERTIES, "Device properties" },                   /* 9.9.2.0A Device properties */
     { DE_EPS_CMN_EPS_BE_CTX_STATUS, "EPS bearer context status" },           /* 9.9.2.1  EPS bearer context status */
@@ -349,6 +349,7 @@ const value_string nas_eps_common_elem_strings[] = {
     { DE_EPS_CMN_SUP_CODEC_LST, "Supported codec list" },                    /* 9.9.2.10 Supported codec list */
     { 0, NULL }
 };
+value_string_ext nas_eps_common_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_eps_common_elem_strings);
 
 /* Utility functions */
 static guint16
@@ -600,7 +601,7 @@ guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_inf
     NULL,   /* NONE */
 };
 
-const value_string nas_emm_elem_strings[] = {
+static const value_string nas_emm_elem_strings[] = {
     /* 9.9.3    EPS Mobility Management (EMM) information elements */
     { DE_EMM_ADD_UPD_RES, "Additional update result" },                        /* 9.9.3.0A Additional update result */
     { DE_EMM_ADD_UPD_TYPE, "Additional update type" },                         /* 9.9.3.0B Additional update type */
@@ -656,6 +657,8 @@ const value_string nas_emm_elem_strings[] = {
     { DE_EMM_GUTI_TYPE, "GUTI type" },                                         /* 9.9.3.45 GUTI type */
     { 0, NULL }
 };
+value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
+
 #define NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
 gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 
@@ -2825,7 +2828,7 @@ typedef enum
 }
 nas_esm_elem_idx_t;
 
-const value_string nas_esm_elem_strings[] = {
+static const value_string nas_esm_elem_strings[] = {
     { DE_ESM_APN, "Access point name" },                                /* 9.9.4.1 Access point name */
     { DE_ESM_APN_AGR_MAX_BR, "APN aggregate maximum bit rate" },        /* 9.9.4.2 APN aggregate maximum bit rate */
     { DE_ESM_CONNECTIVITY_TYPE, "Connectivity type" },                  /* 9.9.4.2A Connectivity type */
@@ -2847,7 +2850,7 @@ const value_string nas_esm_elem_strings[] = {
     { DE_ESM_TID, "Transaction identifier" },                           /* 9.9.4.17 Transaction identifier */
     { 0, NULL }
 };
-
+value_string_ext nas_esm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_esm_elem_strings);
 
 #define NUM_NAS_ESM_ELEM (sizeof(nas_esm_elem_strings)/sizeof(value_string))
 gint ett_nas_eps_esm_elem[NUM_NAS_ESM_ELEM];

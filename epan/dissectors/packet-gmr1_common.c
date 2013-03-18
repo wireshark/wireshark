@@ -73,13 +73,14 @@ const value_string gmr1_pd_short_vals[] = {
 /* Common Information Elements                                              */
 /* ------------------------------------------------------------------------ */
 
-const value_string gmr1_ie_common_strings[] = {
+static const value_string gmr1_ie_common_strings[] = {
 	{ GMR1_IE_COM_CM2,
 	  "Mobile Earth Station Classmark 2" },		/* [1] 11.5.1.6 */
 	{ GMR1_IE_COM_SPARE_NIBBLE,
 	  "Spare Half Octet" },				/* [1] 11.5.1.8 */
 	{ 0, NULL}
 };
+value_string_ext gmr1_ie_common_strings_ext = VALUE_STRING_EXT_INIT(gmr1_ie_common_strings);
 
 gint ett_gmr1_ie_common[NUM_GMR1_IE_COMMON];
 

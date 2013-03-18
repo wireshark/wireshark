@@ -83,79 +83,79 @@ extern const value_string gsm_a_pd_short_str_vals[];
 extern guint16 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 /* Needed to share the packet-gsm_a_common.c functions */
-extern const value_string gsm_bssmap_elem_strings[];
+extern value_string_ext gsm_bssmap_elem_strings_ext;
 extern gint ett_gsm_bssmap_elem[];
 extern elem_fcn bssmap_elem_fcn[];
 extern int hf_gsm_a_bssmap_elem_id;
 
-extern const value_string gsm_dtap_elem_strings[];
+extern value_string_ext gsm_dtap_elem_strings_ext;
 extern gint ett_gsm_dtap_elem[];
 extern elem_fcn dtap_elem_fcn[];
 extern int hf_gsm_a_dtap_elem_id;
 
-extern const value_string gsm_rp_elem_strings[];
+extern value_string_ext gsm_rp_elem_strings_ext;
 extern gint ett_gsm_rp_elem[];
 extern elem_fcn rp_elem_fcn[];
 extern int hf_gsm_a_rp_elem_id;
 
-extern const value_string gsm_rr_elem_strings[];
+extern value_string_ext gsm_rr_elem_strings_ext;
 extern gint ett_gsm_rr_elem[];
 extern elem_fcn rr_elem_fcn[];
 extern int hf_gsm_a_rr_elem_id;
 extern void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 
-extern const value_string gsm_common_elem_strings[];
+extern value_string_ext gsm_common_elem_strings_ext;
 extern gint ett_gsm_common_elem[];
 extern elem_fcn common_elem_fcn[];
 extern int hf_gsm_a_common_elem_id;
 
-extern const value_string gsm_gm_elem_strings[];
+extern value_string_ext gsm_gm_elem_strings_ext;
 extern gint ett_gsm_gm_elem[];
 extern elem_fcn gm_elem_fcn[];
 extern int hf_gsm_a_gm_elem_id;
 extern void get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 extern void get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 
-extern const value_string gsm_bsslap_elem_strings[];
+extern value_string_ext gsm_bsslap_elem_strings_ext;
 extern gint ett_gsm_bsslap_elem[];
 extern elem_fcn bsslap_elem_fcn[];
 extern int hf_gsm_a_bsslap_elem_id;
 
-extern const value_string gsm_bssmap_le_elem_strings[];
+extern value_string_ext gsm_bssmap_le_elem_strings_ext;
 extern gint ett_gsm_bssmap_le_elem[];
 extern elem_fcn bssmap_le_elem_fcn[];
 extern int hf_gsm_bssmap_le_elem_id;
 
-extern const value_string nas_eps_common_elem_strings[];
+extern value_string_ext nas_eps_common_elem_strings_ext;
 extern gint ett_nas_eps_common_elem[];
 extern elem_fcn nas_eps_common_elem_fcn[];
 extern int hf_nas_eps_common_elem_id;
 
-extern const value_string nas_emm_elem_strings[];
+extern value_string_ext nas_emm_elem_strings_ext;
 extern gint ett_nas_eps_emm_elem[];
 extern elem_fcn emm_elem_fcn[];
 extern int hf_nas_eps_emm_elem_id;
 
-extern const value_string nas_esm_elem_strings[];
+extern value_string_ext nas_esm_elem_strings_ext;
 extern gint ett_nas_eps_esm_elem[];
 extern elem_fcn esm_elem_fcn[];
 extern int hf_nas_eps_esm_elem_id;
 
-extern const value_string sgsap_elem_strings[];
+extern value_string_ext sgsap_elem_strings_ext;
 extern gint ett_sgsap_elem[];
 extern elem_fcn sgsap_elem_fcn[];
 extern int hf_sgsap_elem_id;
 
-extern const value_string bssgp_elem_strings[];
+extern value_string_ext bssgp_elem_strings_ext;
 extern gint ett_bssgp_elem[];
 extern elem_fcn bssgp_elem_fcn[];
 extern int hf_bssgp_elem_id;
 
-extern const value_string gmr1_ie_common_strings[];
+extern value_string_ext gmr1_ie_common_strings_ext;
 extern elem_fcn gmr1_ie_common_func[];
 extern gint ett_gmr1_ie_common[];
 
-extern const value_string gmr1_ie_rr_strings[];
+extern value_string_ext gmr1_ie_rr_strings_ext;
 extern elem_fcn gmr1_ie_rr_func[];
 extern gint ett_gmr1_ie_rr[];
 
@@ -261,81 +261,81 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 #define NO_MORE_DATA_CHECK(nmdc_len) \
     if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
 
-#define SET_ELEM_VARS(SEV_pdu_type, SEV_elem_names, SEV_elem_ett, SEV_elem_funcs) \
+#define SET_ELEM_VARS(SEV_pdu_type, SEV_elem_names_ext, SEV_elem_ett, SEV_elem_funcs) \
     switch (SEV_pdu_type) \
     { \
     case GSM_A_PDU_TYPE_BSSMAP: \
-        SEV_elem_names = gsm_bssmap_elem_strings; \
+        SEV_elem_names_ext = gsm_bssmap_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_bssmap_elem; \
         SEV_elem_funcs = bssmap_elem_fcn; \
         break; \
     case GSM_A_PDU_TYPE_DTAP: \
-        SEV_elem_names = gsm_dtap_elem_strings; \
+        SEV_elem_names_ext = gsm_dtap_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_dtap_elem; \
         SEV_elem_funcs = dtap_elem_fcn; \
         break; \
     case GSM_A_PDU_TYPE_RP: \
-        SEV_elem_names = gsm_rp_elem_strings; \
+        SEV_elem_names_ext = gsm_rp_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_rp_elem; \
         SEV_elem_funcs = rp_elem_fcn; \
         break; \
     case GSM_A_PDU_TYPE_RR: \
-        SEV_elem_names = gsm_rr_elem_strings; \
+        SEV_elem_names_ext = gsm_rr_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_rr_elem; \
         SEV_elem_funcs = rr_elem_fcn; \
         break; \
     case GSM_A_PDU_TYPE_COMMON: \
-        SEV_elem_names = gsm_common_elem_strings; \
+        SEV_elem_names_ext = gsm_common_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_common_elem; \
         SEV_elem_funcs = common_elem_fcn; \
         break; \
     case GSM_A_PDU_TYPE_GM: \
-        SEV_elem_names = gsm_gm_elem_strings; \
+        SEV_elem_names_ext = gsm_gm_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_gm_elem; \
         SEV_elem_funcs = gm_elem_fcn; \
         break; \
     case GSM_A_PDU_TYPE_BSSLAP: \
-        SEV_elem_names = gsm_bsslap_elem_strings; \
+        SEV_elem_names_ext = gsm_bsslap_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_bsslap_elem; \
         SEV_elem_funcs = bsslap_elem_fcn; \
         break; \
     case GSM_PDU_TYPE_BSSMAP_LE: \
-        SEV_elem_names = gsm_bssmap_le_elem_strings; \
+        SEV_elem_names_ext = gsm_bssmap_le_elem_strings_ext; \
         SEV_elem_ett = ett_gsm_bssmap_le_elem; \
         SEV_elem_funcs = bssmap_le_elem_fcn; \
         break; \
     case NAS_PDU_TYPE_COMMON: \
-        SEV_elem_names = nas_eps_common_elem_strings; \
+        SEV_elem_names_ext = nas_eps_common_elem_strings_ext; \
         SEV_elem_ett = ett_nas_eps_common_elem; \
         SEV_elem_funcs = nas_eps_common_elem_fcn; \
         break; \
     case NAS_PDU_TYPE_EMM: \
-        SEV_elem_names = nas_emm_elem_strings; \
+        SEV_elem_names_ext = nas_emm_elem_strings_ext; \
         SEV_elem_ett = ett_nas_eps_emm_elem; \
         SEV_elem_funcs = emm_elem_fcn; \
         break; \
     case NAS_PDU_TYPE_ESM: \
-        SEV_elem_names = nas_esm_elem_strings; \
+        SEV_elem_names_ext = nas_esm_elem_strings_ext; \
         SEV_elem_ett = ett_nas_eps_esm_elem; \
         SEV_elem_funcs = esm_elem_fcn; \
         break; \
     case SGSAP_PDU_TYPE: \
-        SEV_elem_names = sgsap_elem_strings; \
+        SEV_elem_names_ext = sgsap_elem_strings_ext; \
         SEV_elem_ett = ett_sgsap_elem; \
         SEV_elem_funcs = sgsap_elem_fcn; \
         break; \
     case BSSGP_PDU_TYPE: \
-        SEV_elem_names = bssgp_elem_strings; \
+        SEV_elem_names_ext = bssgp_elem_strings_ext; \
         SEV_elem_ett = ett_bssgp_elem; \
         SEV_elem_funcs = bssgp_elem_fcn; \
         break; \
     case GMR1_IE_COMMON: \
-        SEV_elem_names = gmr1_ie_common_strings; \
+        SEV_elem_names_ext = gmr1_ie_common_strings_ext; \
         SEV_elem_ett = ett_gmr1_ie_common; \
         SEV_elem_funcs = gmr1_ie_common_func; \
         break; \
     case GMR1_IE_RR: \
-        SEV_elem_names = gmr1_ie_rr_strings; \
+        SEV_elem_names_ext = gmr1_ie_rr_strings_ext; \
         SEV_elem_ett = ett_gmr1_ie_rr; \
         SEV_elem_funcs = gmr1_ie_rr_func; \
         break; \

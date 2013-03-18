@@ -86,7 +86,7 @@ static int ett_bsslap_cell_list = -1;
 #define BSSLAP_PARAM_TFI                             0x2C
 #define BSSLAP_PARAM_STARTING_TIME                   0x2D
 
-const value_string gsm_bsslap_elem_strings[] = {
+static const value_string gsm_bsslap_elem_strings[] = {
 	{  DE_BLAP_RES1,	"Reserved" },
 	{  DE_BLAP_TA,	"Timing Advance" },
 	{  DE_BLAP_RES3,	"Reserved" },			/* (note) */
@@ -120,6 +120,7 @@ const value_string gsm_bsslap_elem_strings[] = {
 	{  DE_BLAP_START_TIME,	"Starting Time" },
 	{ 0,		NULL },
 };
+value_string_ext gsm_bsslap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bsslap_elem_strings);
 
 /*
  *	NOTE: These values of the codepoints shall not be used as they were used in an earlier version of the

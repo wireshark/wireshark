@@ -149,7 +149,7 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
 	{ 0, NULL }
 };
 
-const value_string gsm_gm_elem_strings[] = {
+static const value_string gsm_gm_elem_strings[] = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	{ DE_ADD_UPD_TYPE,	"Additional Update Type" },
 	{ DE_ATTACH_RES,	"Attach Result" },
@@ -219,6 +219,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ DE_DEVICE_PROPERTIES,	"Device properties"},
 	{ 0, NULL }
 };
+value_string_ext gsm_gm_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_gm_elem_strings);
 
 #define	DTAP_GMM_IEI_MASK	0xff
 #define	DTAP_SM_IEI_MASK	0xff

@@ -67,7 +67,7 @@ typedef enum
 }
 rp_elem_idx_t;
 
-const value_string gsm_rp_elem_strings[] = {
+static const value_string gsm_rp_elem_strings[] = {
 	/* Short Message Service RP Information Elements [5] 8.2 */
 	{ DE_RP_MESSAGE_REF,	"RP-Message Reference" },
 	{ DE_RP_ORIG_ADDR,	"RP-Originator Address" },
@@ -76,6 +76,7 @@ const value_string gsm_rp_elem_strings[] = {
 	{ DE_RP_CAUSE,	"RP-Cause" },
 	{ 0, NULL }
 };
+value_string_ext gsm_rp_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_rp_elem_strings);
 
 /* Initialize the protocol and registered fields */
 static int proto_a_rp = -1;

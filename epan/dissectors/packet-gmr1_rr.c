@@ -94,7 +94,7 @@ enum gmr1_ie_rr_idx {
 	NUM_GMR1_IE_RR	/* Terminator */
 };
 
-const value_string gmr1_ie_rr_strings[] = {
+static const value_string gmr1_ie_rr_strings[] = {
 	{ GMR1_IE_RR_CHAN_DESC,
 	  "Channel Description" },		/* [1] 11.5.2.5   */
 	{ GMR1_IE_RR_CHAN_MODE,
@@ -161,6 +161,7 @@ const value_string gmr1_ie_rr_strings[] = {
 	  "Persistence Level" },		/* [3] 10.1.18.4.2 */
 	{ 0, NULL },
 };
+value_string_ext gmr1_ie_rr_strings_ext = VALUE_STRING_EXT_INIT(gmr1_ie_rr_strings);
 
 gint ett_gmr1_ie_rr[NUM_GMR1_IE_RR];
 
