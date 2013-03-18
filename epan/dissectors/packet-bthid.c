@@ -28,6 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
@@ -84,6 +85,8 @@ static int hf_bthid_data_mouse_vertical_scroll_wheel                       = -1;
 static int hf_bthid_data                                                   = -1;
 
 static gint ett_bthid             = -1;
+
+static gboolean show_deprecated = FALSE;
 
 static const value_string transaction_type_vals[] = {
     { 0x00,   "HANDSHAKE" },
@@ -396,8 +399,9 @@ static const value_string keycode_vals[] = {
 value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
 
-static int
-dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, unsigned int report_type)
+static gint
+dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, guint report_type)
 {
     gboolean     shortcut_helper = FALSE;
     unsigned int protocol_code;
@@ -410,7 +414,6 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     protocol_code = tvb_get_guint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(protocol_code, protocol_code_vals, "unknown type"));
     offset += 1;
-
 
     switch (protocol_code) {
         case 0x01: /* Keyboard */
@@ -666,7 +669,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
             }
 
             if (tvb_length_remaining(tvb, offset)) {
-                proto_tree_add_item(tree, hf_bthid_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_bthid_data, tvb, offset, -1, ENC_NA);
                 offset += tvb_length_remaining(tvb, offset);
             }
             break;
@@ -680,12 +683,13 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item   *ti;
     proto_tree   *bthid_tree;
-    int offset = 0;
-    unsigned int transaction_type;
-    unsigned int parameter;
-    unsigned int protocol;
-    unsigned int idle_rate;
-    proto_item   *pitem = NULL;
+    gint          offset = 0;
+    guint         transaction_type;
+    guint         parameter;
+    guint         protocol;
+    guint         idle_rate;
+    guint8        control_operation;
+    proto_item   *pitem;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HID");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -713,7 +717,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_bthid, tvb, offset, -1, ENC_NA);
     bthid_tree = proto_item_add_subtree(ti, ett_bthid);
 
-    proto_tree_add_item(bthid_tree, hf_bthid_transaction_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    pitem = proto_tree_add_item(bthid_tree, hf_bthid_transaction_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     transaction_type = tvb_get_guint8(tvb, offset);
     parameter = transaction_type & 0x0F;
     transaction_type = transaction_type >> 4;
@@ -727,8 +731,12 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Result Code: %s", val_to_str_const(parameter, result_code_vals, "reserved"));
             break;
         case 0x01: /* HID_CONTROL */
-            proto_tree_add_item(bthid_tree, hf_bthid_parameter_control_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
+            pitem = proto_tree_add_item(bthid_tree, hf_bthid_parameter_control_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
+            control_operation = tvb_get_guint8(tvb, offset);
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Control Operation: %s", val_to_str_const(parameter, control_operation_vals, "reserved"));
+            if (control_operation < 3 && show_deprecated)
+                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+                    "This value of Control Operation is deprecated by HID 1.1");
             offset += 1;
             break;
         case 0x04: /* GET_REPORT */
@@ -740,13 +748,19 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             val_to_str_const(parameter >> 3 , size_vals, "reserved"),
                             val_to_str_const(parameter & 0x03, report_type_vals, "reserved"));
 
-            if (tvb_length_remaining(tvb, offset) >= 1) {
+            /* XXX: This is workaround, this should come from SDP:
+               "This field is required in Report Protocol Mode when any Report ID
+               Global Items are declared in the report descriptor, and in
+               Boot Protocol Mode. Otherwise the field does not exist."
+            */
+            if (((parameter >> 3) && tvb_length_remaining(tvb, offset) >= 3) ||
+                    (!(parameter >> 3) && tvb_length_remaining(tvb, offset) >= 1)) {
                 proto_tree_add_item(bthid_tree, hf_bthid_report_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
             }
 
-            if (tvb_length_remaining(tvb, offset) >= 2) {
-                proto_tree_add_item(bthid_tree, hf_bthid_buffer_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+            if (parameter >> 3) {
+                proto_tree_add_item(bthid_tree, hf_bthid_buffer_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
             }
             break;
@@ -759,7 +773,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             val_to_str_const(parameter & 0x03, report_type_vals, "reserved"));
 
             /* playload */
-            proto_tree_add_item(bthid_tree, hf_bthid_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(bthid_tree, hf_bthid_data, tvb, offset, -1, ENC_NA);
             offset += tvb_length_remaining(tvb, offset);
             break;
         case 0x06: /* GET_PROTOCOL */
@@ -784,6 +798,10 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case 0x08: /* GET_IDLE */
         case 0x09: /* SET_IDLE */
+            if (show_deprecated)
+                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+                    "This Transaction Type is deprecated by HID 1.1");
+
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
@@ -793,8 +811,11 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Idle Rate: %u.%03u ms", idle_rate*4/1000, idle_rate*4%1000);
             offset += 1;
             break;
-        case 0x0A: /* DATA */
         case 0x0B: /* DATC */
+            if (show_deprecated)
+                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+                    "This Transaction Type is deprecated by HID 1.1");
+        case 0x0A: /* DATA */
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved_32, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -803,11 +824,6 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* playload */
             offset = dissect_hid_data(tvb, pinfo,  bthid_tree, offset, parameter & 0x03);
             break;
-    }
-
-    if ((int)tvb_length(tvb) > offset) {
-        proto_tree_add_item(bthid_tree, hf_bthid_data, tvb, offset, -1, ENC_BIG_ENDIAN);
-        offset += tvb_length_remaining(tvb, offset);
     }
 }
 
@@ -875,7 +891,7 @@ proto_register_bthid(void)
         },
         { &hf_bthid_report_id,
             { "Report Id",                       "bthid.report_id",
-            FT_UINT8, BASE_HEX, NULL, 0x00,
+            FT_UINT8, BASE_HEX, VALS(protocol_code_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_bthid_buffer_size,
@@ -1073,8 +1089,12 @@ proto_register_bthid(void)
 
     module = prefs_register_protocol(proto_bthid, NULL);
     prefs_register_static_text_preference(module, "hid.version",
-            "Bluetooth Profile HID version: 1.0",
+            "Bluetooth Profile HID version: 1.1",
             "Version of profile supported by this dissector.");
+
+    prefs_register_bool_preference(module, "hid.deprecated",
+            "Show what is deprecated in HID 1.1",
+            "Show what is deprecated in HID 1.1", &show_deprecated);
 }
 
 

@@ -1956,20 +1956,19 @@ btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *ed
         guint32            adapter_id;
         guint32            chandle;
         guint32            psm;
-        btl2cap_data_t    *l2cap_data;
+        guint32            frame_number;
 
-        l2cap_data = (btl2cap_data_t *) pinfo->private_data;
-
-        interface_id = l2cap_data->interface_id;
-        adapter_id   = l2cap_data->adapter_id;
-        chandle      = l2cap_data->chandle;
-        psm = sdp_data->channel | ((sdp_data->flags & BTSDP_LOCAL_SERVICE_FLAG_MASK) << 31);
+        interface_id = sdp_data->interface_id;
+        adapter_id   = sdp_data->adapter_id;
+        chandle      = sdp_data->chandle;
+        psm          = sdp_data->channel | ((sdp_data->flags & BTSDP_LOCAL_SERVICE_FLAG_MASK) << 31);
+        frame_number = sdp_data->frame_number;
 
         k_interface_id = interface_id;
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_psm          = psm;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = frame_number;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -2001,7 +2000,7 @@ btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *ed
             k_adapter_id   = adapter_id;
             k_chandle      = chandle;
             k_psm          = psm;
-            k_frame_number = pinfo->fd->num;
+            k_frame_number = frame_number;
 
             key[0].length = 1;
             key[0].key    = &k_interface_id;

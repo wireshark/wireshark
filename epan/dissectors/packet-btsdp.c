@@ -698,7 +698,15 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
             }
 
             if (service_item->service != 0 && service_item->channel != 0) {
+                btl2cap_data_t *l2cap_data;
+
+                l2cap_data = pinfo->private_data;
+
                 service_item->flags |= token >>15; /* set flag when local service */
+                service_item->interface_id = l2cap_data->interface_id;
+                service_item->adapter_id   = l2cap_data->adapter_id;
+                service_item->chandle      = l2cap_data->chandle;
+                service_item->frame_number = pinfo->fd->num;
                 tap_queue_packet(btsdp_tap, NULL, (void *) service_item);
             }
         }

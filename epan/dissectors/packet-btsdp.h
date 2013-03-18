@@ -160,6 +160,10 @@
  * dynamically assigned server channels and PSM's, respectively.
  */
 typedef struct _btsdp_data_t {
+    guint32    interface_id;
+    guint32    adapter_id;
+    guint32    chandle;
+    guint32    frame_number;
     guint32    service;    /* service UUID, see below */
     guint32    channel;    /* rfcomm server channel or PSM */
     guint16    protocol;   /* either rfcomm or l2cap UUID */
