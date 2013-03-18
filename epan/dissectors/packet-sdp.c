@@ -800,7 +800,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 static tvbuff_t *
 ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 {
-  guint8 *buf = g_malloc(10240);
+  guint8 *buf = (guint8 *)g_malloc(10240);
 
   /* arbitrary maximum length */
   if (len < 20480) {
@@ -1201,7 +1201,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       return;   /* Invalid */
     }
 
-    key  = se_alloc(sizeof (gint));
+    key  = se_new(gint);
     *key = (gint)strtol((char*)payload_type, NULL, 10);
 
     transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
@@ -1236,7 +1236,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
      */
     if (transport_info->media_count < 0) {
       for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
-        encoding_name_and_rate = se_alloc(sizeof (encoding_name_and_rate_t));
+        encoding_name_and_rate = se_new(encoding_name_and_rate_t);
         encoding_name_and_rate->encoding_name = se_strdup(transport_info->encoding_name[pt]);
         encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
         if (n == 0) {
@@ -1244,7 +1244,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                               key, encoding_name_and_rate);
         } else {    /* we create a new key and encoding_name to assign to the other hash tables */
           gint *key2;
-          key2  = se_alloc(sizeof (gint));
+          key2  = se_new(gint);
           *key2 = (gint)strtol((char*)payload_type, NULL, 10);
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key2, encoding_name_and_rate);
@@ -1254,7 +1254,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       /* if the "a=" is after an "m=", only apply to this "m=" */
     } else
       /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
-      encoding_name_and_rate = se_alloc(sizeof (encoding_name_and_rate_t));
+      encoding_name_and_rate = se_new(encoding_name_and_rate_t);
 
     encoding_name_and_rate->encoding_name = se_strdup(transport_info->encoding_name[pt]);
     encoding_name_and_rate->sample_rate   = transport_info->sample_rate[pt];
@@ -1719,7 +1719,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   if (request_frame != 0)
     transport_info = (transport_info_t*)se_tree_lookup32( sdp_transport_reqs, request_frame );
   if (transport_info == NULL) {
-    transport_info = se_alloc0(sizeof(transport_info_t));
+    transport_info = se_new0(transport_info_t);
     transport_info->media_count = -1;
 
     for (n = 0; n < SDP_NO_OF_PT; n++) {
@@ -1837,7 +1837,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
           (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
         if (rtp_handle) {
           if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-            srtp_info = se_alloc0(sizeof (struct srtp_info));
+            srtp_info = se_new0(struct srtp_info);
             if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
               srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
               srtp_info->auth_algorithm       = transport_info->auth_algorithm;
@@ -1872,7 +1872,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
           (sprt_handle)) {
         guint32 *port2;
 
-        port2 = p_get_proto_data(pinfo->fd, proto_sprt);
+        port2 = (guint32 *)p_get_proto_data(pinfo->fd, proto_sprt);
         if (transport_info->media_port[n] == 0 && port2) {
           sprt_add_address(pinfo, &transport_info->src_addr[n], *port2,
                            0, "SDP", pinfo->fd->num); /* will use same port as RTP */
@@ -1981,7 +1981,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct srtp_info *srtp_info = NULL;
 
   /* Initialise packet info for passing to tap */
-  sdp_pi = ep_alloc(sizeof (sdp_packet_info));
+  sdp_pi = ep_new(sdp_packet_info);
   sdp_pi->summary_str[0] = '\0';
 
   if (!pinfo->fd->flags.visited) {
@@ -2180,7 +2180,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
       if (rtp_handle) {
         if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-          srtp_info = se_alloc0(sizeof (struct srtp_info));
+          srtp_info = se_new0(struct srtp_info);
           if (transport_info->encryption_algorithm != SRTP_ENC_ALG_NOT_SET) {
             srtp_info->encryption_algorithm = transport_info->encryption_algorithm;
             srtp_info->auth_algorithm       = transport_info->auth_algorithm;
@@ -2216,7 +2216,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (sprt_handle)) {
       guint32 *port2;
 
-      port2 = p_get_proto_data(pinfo->fd, proto_sprt);
+      port2 = (guint32 *)p_get_proto_data(pinfo->fd, proto_sprt);
       if (transport_info->media_port[n] == 0 && port2) {
         sprt_add_address(pinfo, &transport_info->src_addr[n], *port2,
                          0, "SDP", pinfo->fd->num); /* will use same port as RTP */
@@ -2255,7 +2255,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
         if ((local_transport_info.media[n].pt[i] >= 96) && (local_transport_info.media[n].pt[i] <= 127)) {
           encoding_name_and_rate_t *encoding_name_and_rate_pt =
-            g_hash_table_lookup(local_transport_info.media[n].rtp_dyn_payload, &local_transport_info.media[n].pt[i]);
+            (encoding_name_and_rate_t *)g_hash_table_lookup(
+			local_transport_info.media[n].rtp_dyn_payload, 
+			&local_transport_info.media[n].pt[i]);
           if (encoding_name_and_rate_pt) {
             if (strlen(sdp_pi->summary_str)) 
               g_strlcat(sdp_pi->summary_str, " ", 50);

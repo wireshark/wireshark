@@ -411,7 +411,7 @@ sua_assoc_info_t no_sua_assoc = {
 static sua_assoc_info_t *
 new_assoc(guint32 calling, guint32 called)
 {
-    sua_assoc_info_t *a = se_alloc0(sizeof(sua_assoc_info_t));
+    sua_assoc_info_t *a = se_new0(sua_assoc_info_t);
 
     a->assoc_id               = next_assoc_id++;
     a->calling_routing_ind    = 0;
@@ -433,8 +433,8 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
             return &no_sua_assoc;
     }
 
-    opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
-    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
+    opck = opc->type == AT_SS7PC ? mtp3_pc_hash((mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(opc));
+    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(dpc));
 
     switch (message_type) {
         case MESSAGE_TYPE_CORE:
@@ -447,7 +447,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
                             {0, NULL}
                             };
 
-            if ( !(assoc = se_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
+            if ( !(assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
                 assoc = new_assoc(opck, dpck);
                 se_tree_insert32_array(assocs,bw_key,assoc);
                 assoc->has_bw_key = TRUE;
@@ -473,10 +473,10 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
                                     {0,NULL}
                                     };
                     /*g_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
-                    if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
+                    if ( ( assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) ) {
                             goto got_assoc;
                     }
-                    if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
+                    if ( (assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs, fw_key) ) ) {
                             goto got_assoc;
                     }
 
@@ -507,7 +507,7 @@ got_assoc:
                                     {1, &dst_rn},
                                     {0, NULL}
                                     };
-                    assoc = se_tree_lookup32_array(assocs,key);
+                    assoc = (sua_assoc_info_t *)se_tree_lookup32_array(assocs,key);
                     /* Should a check be made on pinfo->p2p_dir ??? */
         break;
         }
@@ -1375,7 +1375,7 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   guint8 number_of_digits;
   char *gt_digits;
 
-  gt_digits = ep_alloc0(GT_MAX_SIGNALS+1);
+  gt_digits = (char *)ep_alloc0(GT_MAX_SIGNALS+1);
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
@@ -1432,10 +1432,10 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 
   if (sua_ri == ROUTE_ON_SSN_PC_ROUTING_INDICATOR) {
     if (source) {
-      sua_opc->type = mtp3_standard;
+      sua_opc->type = (Standard_Type)mtp3_standard;
       sua_opc->pc = pc;
     } else {
-      sua_dpc->type = mtp3_standard;
+      sua_dpc->type = (Standard_Type)mtp3_standard;
       sua_dpc->pc = pc;
     }
   }
@@ -2144,8 +2144,8 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   no_sua_assoc.has_bw_key = FALSE;
   no_sua_assoc.has_fw_key = FALSE;
 
-  sua_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
-  sua_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+  sua_opc = ep_new0(mtp3_addr_pc_t);
+  sua_dpc = ep_new0(mtp3_addr_pc_t);
   sua_source_gt = NULL;
   sua_destination_gt = NULL;
 

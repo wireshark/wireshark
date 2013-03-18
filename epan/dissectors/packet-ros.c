@@ -286,7 +286,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 static guint
 ros_info_hash_matched(gconstpointer k)
 {
-  const ros_call_response_t *key = k;
+  const ros_call_response_t *key = (const ros_call_response_t *)k;
 
   return key->invokeId;
 }
@@ -294,8 +294,8 @@ ros_info_hash_matched(gconstpointer k)
 static gint
 ros_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
-  const ros_call_response_t *key1 = k1;
-  const ros_call_response_t *key2 = k2;
+  const ros_call_response_t *key1 = (const ros_call_response_t *)k1;
+  const ros_call_response_t *key2 = (const ros_call_response_t *)k2;
 
   if( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ){
     return 0;
@@ -312,7 +312,7 @@ ros_info_equal_matched(gconstpointer k1, gconstpointer k2)
 static guint
 ros_info_hash_unmatched(gconstpointer k)
 {
-  const ros_call_response_t *key = k;
+  const ros_call_response_t *key = (const ros_call_response_t *)k;
 
   return key->invokeId;
 }
@@ -320,8 +320,8 @@ ros_info_hash_unmatched(gconstpointer k)
 static gint
 ros_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-  const ros_call_response_t *key1 = k1;
-  const ros_call_response_t *key2 = k2;
+  const ros_call_response_t *key1 = (const ros_call_response_t *)k1;
+  const ros_call_response_t *key2 = (const ros_call_response_t *)k2;
 
   return key1->invokeId==key2->invokeId;
 }
@@ -345,7 +345,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     rcr.rep_frame=pinfo->fd->num;
   }
 
-  rcrp=g_hash_table_lookup(ros_info->matched, &rcr);
+  rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->matched, &rcr);
 
   if(rcrp) {
     /* we have found a match */
@@ -363,7 +363,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
       rcr.invokeId=invokeId;
 
-      rcrp=g_hash_table_lookup(ros_info->unmatched, &rcr);
+      rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->unmatched, &rcr);
 
       if(rcrp){
 	g_hash_table_remove(ros_info->unmatched, rcrp);
@@ -371,7 +371,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
       /* if we cant reuse the old one, grab a new chunk */
       if(!rcrp){
-	rcrp=se_alloc(sizeof(ros_call_response_t));
+	rcrp=se_new(ros_call_response_t);
       }
       rcrp->invokeId=invokeId;
       rcrp->req_frame=pinfo->fd->num;
@@ -386,7 +386,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       /* this is a result - it should be in our unmatched list */
 
       rcr.invokeId=invokeId;
-      rcrp=g_hash_table_lookup(ros_info->unmatched, &rcr);
+      rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->unmatched, &rcr);
 
       if(rcrp){
 
@@ -1045,12 +1045,12 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*
 	 * Do we already have our info
 	 */
-	ros_info = conversation_get_proto_data(conversation, proto_ros);
+	ros_info = (ros_conv_info_t *)conversation_get_proto_data(conversation, proto_ros);
 	if (ros_info == NULL) {
 
 	  /* No.  Attach that information to the conversation. */
 
-	  ros_info = g_malloc(sizeof(ros_conv_info_t));
+	  ros_info = (ros_conv_info_t *)g_malloc(sizeof(ros_conv_info_t));
 	  ros_info->matched=g_hash_table_new(ros_info_hash_matched, ros_info_equal_matched);
 	  ros_info->unmatched=g_hash_table_new(ros_info_hash_unmatched, ros_info_equal_unmatched);
 

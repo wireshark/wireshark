@@ -169,8 +169,8 @@ static GHashTable *fcseq_req_hash = NULL;
 static gint
 fcseq_equal(gconstpointer v, gconstpointer w)
 {
-    const fcseq_conv_key_t *v1 = v;
-    const fcseq_conv_key_t *v2 = w;
+    const fcseq_conv_key_t *v1 = (const fcseq_conv_key_t *)v;
+    const fcseq_conv_key_t *v2 = (const fcseq_conv_key_t *)w;
 
     return (v1->conv_idx == v2->conv_idx);
 }
@@ -178,7 +178,7 @@ fcseq_equal(gconstpointer v, gconstpointer w)
 static guint
 fcseq_hash (gconstpointer v)
 {
-    const fcseq_conv_key_t *key = v;
+    const fcseq_conv_key_t *key = (const fcseq_conv_key_t *)v;
     guint val;
 
     val = key->conv_idx;
@@ -761,9 +761,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
     conversation=find_or_create_conversation(pinfo);
-    fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
+    fc_conv_data=(fc_conv_data_t *)conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
-        fc_conv_data=se_alloc(sizeof(fc_conv_data_t));
+        fc_conv_data=se_new(fc_conv_data_t);
         fc_conv_data->exchanges=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FC Exchanges");
         conversation_add_proto_data(conversation, proto_fc, fc_conv_data);
     }
@@ -774,7 +774,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      */
     fc_ex=(itlq_nexus_t *)se_tree_lookup32(fc_conv_data->exchanges, fchdr.oxid);
     if(!fc_ex){
-        fc_ex=se_alloc(sizeof(itlq_nexus_t));
+        fc_ex=se_new(itlq_nexus_t);
         fc_ex->first_exchange_frame=0;
         fc_ex->last_exchange_frame=0;
         fc_ex->lun=0xffff;
@@ -959,18 +959,18 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-                           fc_to_str (fchdr.d_id.data));
+                           fc_to_str ((const guint8 *)fchdr.d_id.data));
     hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                                         fc_to_str (fchdr.d_id.data));
+                                         fc_to_str ((const guint8 *)fchdr.d_id.data));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                           fc_to_str (fchdr.s_id.data));
+                           fc_to_str ((const guint8 *)fchdr.s_id.data));
     hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                                         fc_to_str (fchdr.s_id.data));
+                                         fc_to_str ((const guint8 *)fchdr.s_id.data));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (ftype == FC_FTYPE_LINKCTL) {
@@ -1129,10 +1129,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                 cdata->seq_cnt = fchdr.seqcnt;
             }
             else {
-                req_key = se_alloc (sizeof(fcseq_conv_key_t));
+                req_key = se_new(fcseq_conv_key_t);
                 req_key->conv_idx = conversation->index;
 
-                cdata = se_alloc (sizeof(fcseq_conv_data_t));
+                cdata = se_new(fcseq_conv_data_t);
                 cdata->seq_cnt = fchdr.seqcnt;
 
                 g_hash_table_insert (fcseq_req_hash, req_key, cdata);

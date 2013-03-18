@@ -69,7 +69,7 @@ find_sid_name(char *sid)
 	sid_name old_sn;
 
 	old_sn.sid=sid;
-	sn=g_hash_table_lookup(sid_name_table, &old_sn);
+	sn=(sid_name *)g_hash_table_lookup(sid_name_table, &old_sn);
 	if(!sn){
 		return NULL;
 	}
@@ -83,12 +83,12 @@ add_sid_name_mapping(char *sid, char *name)
 	sid_name old_sn;
 
 	old_sn.sid=sid;
-	sn=g_hash_table_lookup(sid_name_table, &old_sn);
+	sn=(sid_name *)g_hash_table_lookup(sid_name_table, &old_sn);
 	if(sn){
 		return;
 	}
 
-	sn=se_alloc(sizeof(sid_name));
+	sn=se_new(sid_name);
 	sn->sid=g_strdup(sid);
 	sn->name=g_strdup(name);
 	g_hash_table_insert(sid_name_table, sn, sn);
@@ -103,7 +103,7 @@ add_sid_name_mapping(char *sid, char *name)
 static int
 samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
 {
-	const dcerpc_info *ri=pri;
+	const dcerpc_info *ri=(const dcerpc_info *)pri;
 	void *old_ctx=NULL;
 	char *pol_name;
 	char *sid;
@@ -123,7 +123,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 	if(!gp || gp->len!=1){
 		return 0;
 	}
-	fi=gp->pdata[0];
+	fi=(field_info *)gp->pdata[0];
 	info_level=fi->value.value.sinteger;
 
 	if(info_level!=1){
@@ -141,7 +141,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		if(!gp || gp->len!=1){
 			return 0;
 		}
-		fi=gp->pdata[0];
+		fi=(field_info *)gp->pdata[0];
 
 		old_ctx=g_hash_table_lookup(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
 		if(old_ctx){
@@ -164,7 +164,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		return 0;
 	}
 
-	if (!dcerpc_fetch_polhnd_data(old_ctx, &pol_name, NULL, NULL, NULL, ri->call_data->req_frame)) {
+	if (!dcerpc_fetch_polhnd_data((e_ctx_hnd *)old_ctx, &pol_name, NULL, NULL, NULL, ri->call_data->req_frame)) {
 		return 0;
 	}
 
@@ -206,8 +206,8 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		if (len > 247)
 			len = 247;
 
-		fi_rid=gp_rids->pdata[num_rids-1];
-		fi_name=gp_names->pdata[num_rids-1];
+		fi_rid=(field_info *)gp_rids->pdata[num_rids-1];
+		fi_name=(field_info *)gp_names->pdata[num_rids-1];
 		g_strlcpy(sid_name_str, sid, 256);
 		sid_name_str[len++]='-';
 		g_snprintf(sid_name_str+len, 256-len, "%d",fi_rid->value.value.sinteger);
@@ -235,7 +235,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 	if(!gp || gp->len!=1){
 		return 0;
 	}
-	fi=gp->pdata[0];
+	fi=(field_info *)gp->pdata[0];
 	info_level=fi->value.value.sinteger;
 
 	switch(info_level){
@@ -246,14 +246,14 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 		if(!gp || gp->len!=1){
 			return 0;
 		}
-		fi=gp->pdata[0];
+		fi=(field_info *)gp->pdata[0];
 		domain=fi->value.value.string;
 
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_nt_domain_sid);
 		if(!gp || gp->len!=1){
 			return 0;
 		}
-		fi=gp->pdata[0];
+		fi=(field_info *)gp->pdata[0];
 		sid=fi->value.value.string;
 
 		add_sid_name_mapping(sid, domain);

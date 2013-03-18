@@ -1021,7 +1021,7 @@ static const char *giop_ior_file = "IOR.txt";
 static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, const gchar * op, giop_sub_handle_t *sh ) {
   comp_req_list_entry_t * entry;
 
-  entry =  se_alloc(sizeof(comp_req_list_entry_t));
+  entry =  se_new(comp_req_list_entry_t);
 
   entry->fn    = fn;
   entry->reqid = reqid;
@@ -1046,7 +1046,7 @@ static comp_req_list_entry_t * find_fn_in_list(guint32 fn) {
   element = g_list_last(giop_complete_request_list); /* start from  last  */
 
   while(element) {                      /* valid list entry */
-    entry_ptr = element->data;  /* grab data pointer */
+    entry_ptr = (comp_req_list_entry_t *)element->data;  /* grab data pointer */
     if (entry_ptr->fn == fn) {  /* similar FN  */
       return entry_ptr;
     }
@@ -1123,10 +1123,10 @@ static void insert_in_complete_reply_hash(guint32 fn, guint32 mfn) {
     return;                     /* FN collision */
   }
 
-  new_key = se_alloc(sizeof(struct complete_reply_hash_key));
+  new_key = se_new(struct complete_reply_hash_key);
   new_key->fn = fn;             /* save FN */
 
-  val = se_alloc(sizeof(struct complete_reply_hash_val));
+  val = se_new(struct complete_reply_hash_val);
   val->mfn = mfn;               /* and MFN */
 
   g_hash_table_insert(giop_complete_reply_hash, new_key, val);
@@ -1186,7 +1186,7 @@ static guint32 get_mfn_from_fn_and_reqid(guint32 fn, guint32 reqid) {
   element = g_list_last(giop_complete_request_list); /* get last  */
 
   while(element) {                      /* valid list entry */
-    entry_ptr = element->data;  /* grab data pointer */
+    entry_ptr = (comp_req_list_entry_t *)element->data;  /* grab data pointer */
     if (entry_ptr->reqid == reqid) {    /* similar reqid  */
       return entry_ptr->fn;     /* return MFN */
     }
@@ -1277,12 +1277,12 @@ void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name, con
   printf("giop:register_module: Module sub dissector name is %s \n", name);
 #endif
 
-  new_module_key = g_malloc(sizeof(struct giop_module_key));
+  new_module_key = (struct giop_module_key *)g_malloc(sizeof(struct giop_module_key));
   new_module_key->module = module; /* save Module or interface name from IDL */
 
-  module_val = g_malloc(sizeof(struct giop_module_val));
+  module_val = (struct giop_module_val *)g_malloc(sizeof(struct giop_module_val));
 
-  module_val->subh = g_malloc(sizeof (giop_sub_handle_t)); /* init subh  */
+  module_val->subh = (giop_sub_handle_t *)g_malloc(sizeof (giop_sub_handle_t)); /* init subh  */
 
   module_val->subh->sub_name = name;    /* save dissector name */
   module_val->subh->sub_fn = sub;       /* save subdissector*/
@@ -1372,11 +1372,11 @@ static void insert_in_objkey_hash(GHashTable *hash, const gchar *obj, guint32 le
 
   /* So, passed key should NOT exist in hash at this point.*/
 
-  new_objkey_key = se_alloc(sizeof(struct giop_object_key));
+  new_objkey_key = se_new(struct giop_object_key);
   new_objkey_key->objkey_len = len; /* save it */
   new_objkey_key->objkey = (guint8 *) se_memdup(obj,len);        /* copy from object and allocate ptr */
 
-  objkey_val = se_alloc(sizeof(struct giop_object_val));
+  objkey_val = se_new(struct giop_object_val);
   objkey_val->repo_id = se_strdup(repoid); /* duplicate and store Respository ID string */
   objkey_val->src = src;                   /* where IOR came from */
 
@@ -1516,7 +1516,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
     return;
   }
 
-  buf = ep_alloc0(max_iorlen+1);        /* input buf */
+  buf = (guchar *)ep_alloc0(max_iorlen+1);        /* input buf */
 
   while ((len = giop_getline(fp,buf,max_iorlen+1)) > 0) {
     my_offset = 0;              /* reset for every IOR read */
@@ -1623,7 +1623,7 @@ void register_giop_user(giop_sub_dissector_t *sub, const gchar *name, int sub_pr
 
   giop_sub_handle_t *subh;
 
-  subh = g_malloc(sizeof (giop_sub_handle_t));
+  subh = (giop_sub_handle_t *)g_malloc(sizeof (giop_sub_handle_t));
 
   subh->sub_name = name;
   subh->sub_fn = sub;
@@ -2952,7 +2952,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
     printf("giop:get_CDR_fixed(): slen =  %.2x \n", slen);
 #endif
 
-  tmpbuf = ep_alloc0(slen);     /* allocate temp buffer */
+  tmpbuf = (gchar *)ep_alloc0(slen);     /* allocate temp buffer */
 
   /* If even , grab 1st dig */
 

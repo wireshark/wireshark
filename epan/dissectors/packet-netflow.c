@@ -2229,7 +2229,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
     }
 
     v9_v10_tmplt_build_key(&tmplt_key, pinfo, hdrinfo_p->src_id, id);
-    tmplt_p = g_hash_table_lookup(v9_v10_tmplt_table, &tmplt_key);
+    tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt_key);
     if ((tmplt_p != NULL)  && (tmplt_p->length != 0)) {
         int count = 1;
         /* Note: If the flow contains variable length fields then          */
@@ -5361,7 +5361,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         /*  ToDo: expert warning if replacement (changed) and new template ignored.              */
         /*  XXX: Is an Options template with only scope fields allowed for V9 ??                 */
 
-        tmplt_p = g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
+        tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
         if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
             do {
                 if ((option_scope_field_count == 0)  ||
@@ -5375,8 +5375,8 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
                     /* ToDo: Test for changed template ? If so: expert ?             */
                     break; /* Don't allow cacheing of this template */
                 }
-                tmplt.fields_p[TF_SCOPES]  = se_alloc0(option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
-                tmplt.fields_p[TF_ENTRIES] = se_alloc0(option_field_count       *sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_SCOPES]  = (v9_v10_tmplt_entry_t *)se_alloc0(option_scope_field_count *sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)se_alloc0(option_field_count       *sizeof(v9_v10_tmplt_entry_t));
                 break;
             } while (FALSE);
         }
@@ -5389,7 +5389,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
         if ((tmplt_p == NULL) && (tmplt.fields_p[TF_SCOPES] || tmplt.fields_p[TF_ENTRIES])) {
             /* create permanent template copy for storage in template table */
-            tmplt_p = se_memdup(&tmplt, sizeof(tmplt));
+            tmplt_p = (v9_v10_tmplt_t *)se_memdup(&tmplt, sizeof(tmplt));
             SE_COPY_ADDRESS(&tmplt_p->src_addr, &pinfo->net_src);
             SE_COPY_ADDRESS(&tmplt_p->dst_addr, &pinfo->net_dst);
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
@@ -5456,7 +5456,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         /*  been allocated) and thus this template will not be cached after dissection.            */
         /*  ToDo: expert warning if replacement (changed) and new template ignored.                */
 
-        tmplt_p = g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
+        tmplt_p = (v9_v10_tmplt_t *)g_hash_table_lookup(v9_v10_tmplt_table, &tmplt);
         if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
             do {
                 if ((count == 0) ||
@@ -5468,7 +5468,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
                     /* ToDo: Test for changed template ? If so: expert ?             */
                     break; /* Don't allow cacheing of this template */
                 }
-                tmplt.fields_p[TF_ENTRIES] = se_alloc0(count * sizeof(v9_v10_tmplt_entry_t));
+                tmplt.fields_p[TF_ENTRIES] = (v9_v10_tmplt_entry_t *)se_alloc0(count * sizeof(v9_v10_tmplt_entry_t));
                 break;
             } while (FALSE);
         }
@@ -5477,7 +5477,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
         if ((tmplt_p == NULL) && tmplt.fields_p[TF_ENTRIES]) {
             /* create permanent template copy for storage in template table */
-            tmplt_p = se_memdup(&tmplt, sizeof(tmplt));
+            tmplt_p = (v9_v10_tmplt_t *)se_memdup(&tmplt, sizeof(tmplt));
             SE_COPY_ADDRESS(&tmplt_p->src_addr, &pinfo->net_src);
             SE_COPY_ADDRESS(&tmplt_p->dst_addr, &pinfo->net_dst);
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
@@ -5506,8 +5506,8 @@ static v9_v10_tmplt_t *v9_v10_tmplt_build_key(v9_v10_tmplt_t *tmplt_p, packet_in
 static gboolean
 v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
 {
-    const v9_v10_tmplt_t *ta = k1;
-    const v9_v10_tmplt_t *tb = k2;
+    const v9_v10_tmplt_t *ta = (v9_v10_tmplt_t *)k1;
+    const v9_v10_tmplt_t *tb = (v9_v10_tmplt_t *)k2;
 
     return (
         (CMP_ADDRESS(&ta->src_addr, &tb->src_addr) == 0) &&
@@ -5522,7 +5522,7 @@ v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
 static guint
 v9_v10_tmplt_table_hash(gconstpointer k)
 {
-    const v9_v10_tmplt_t *tmplt_p = k;
+    const v9_v10_tmplt_t *tmplt_p = (v9_v10_tmplt_t *)k;
     guint32               val;
 
     val = tmplt_p->src_id + (tmplt_p->tmplt_id << 9) + tmplt_p->src_port + tmplt_p->dst_port;

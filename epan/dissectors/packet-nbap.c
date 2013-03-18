@@ -18234,7 +18234,7 @@ guint32 no_ddi_entries, i;
     if(!p_conv)
         return offset;
 
-    p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
+    p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
 
     if(!p_conv_data)
         return offset;
@@ -18496,7 +18496,7 @@ num_items = 1;
         /*umts_fp_conversation_info->com_context_id = com_context_id;*/
     }else{
         nbap_com_context_id_t * cur_val;
-        if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
+        if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
             com_context_id= cur_val->crnc_context;
         }else{
             expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.");
@@ -18504,7 +18504,7 @@ num_items = 1;
     }
 
     /*This should not happen*/
-    if( (old_info = g_tree_lookup(edch_flow_port_map, GINT_TO_POINTER((gint)com_context_id))) == NULL ){
+    if(( old_info = (nbap_edch_port_info_t *)g_tree_lookup(edch_flow_port_map, GINT_TO_POINTER((gint)com_context_id))) == NULL ){
         expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure");
         return offset;
     }
@@ -18529,7 +18529,7 @@ num_items = 1;
     if(!p_conv)
         return offset;
 
-    p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
+    p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
 
     if(!p_conv_data)
         return offset;
@@ -18682,7 +18682,7 @@ BindingID_port = 0;
                     umts_fp_conversation_info->com_context_id = com_context_id;
                 }else{
                     nbap_com_context_id_t * cur_val;
-                    if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
+                    if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
                         expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
@@ -23836,7 +23836,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                             umts_fp_conversation_info->hsdsch_entity = hs;
                         }
                     }else{
-                        umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
+                        umts_fp_conversation_info->hsdsch_entity = (enum fp_hsdsch_entity)nbap_hsdsch_channel_info[i].entity;
                     }
                     umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
                     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
@@ -24174,7 +24174,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                             umts_fp_conversation_info->hsdsch_entity = hs;
                         }
                     }else{
-                        umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
+                        umts_fp_conversation_info->hsdsch_entity = (enum fp_hsdsch_entity)nbap_hsdsch_channel_info[i].entity;
                     }
 
                     umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
@@ -28056,7 +28056,7 @@ nbap_com_context_id_t *cur_val;
 
    /*If both are avaible we can update the map*/
 if(crcn_context_present){
-        if( (cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) == NULL ){
+        if( (cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) == NULL ){
 
             cur_val = g_new(nbap_com_context_id_t,1);
             cur_val->crnc_context = com_context_id;
@@ -28832,7 +28832,7 @@ BindingID_port = 0;
                     umts_fp_conversation_info->com_context_id = com_context_id;
                 }else{
                     nbap_com_context_id_t *cur_val;
-                    if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
+                    if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
                         expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
@@ -28841,10 +28841,10 @@ BindingID_port = 0;
 
 
                 /* Check if we allready have this context */
-                if( (old_info = g_tree_lookup(edch_flow_port_map, GINT_TO_POINTER((gint)com_context_id))) == NULL ){
+                if( (old_info = (nbap_edch_port_info_t *)g_tree_lookup(edch_flow_port_map, GINT_TO_POINTER((gint)com_context_id))) == NULL ){
                     nbap_edch_port_info_t * nbap_edch_port_info;
 
-                    nbap_edch_port_info = g_malloc0(sizeof(nbap_edch_port_info_t));
+                    nbap_edch_port_info = (nbap_edch_port_info_t *)g_malloc0(sizeof(nbap_edch_port_info_t));
 
                     /*Saving port/flow map based on context id for future reconfigurations*/
                     nbap_edch_port_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
@@ -55234,7 +55234,7 @@ static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
 						/*Error*/
 						expert_add_info_format(pinfo, tree, PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!");
 					}else{
-						umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
+						umts_fp_conversation_info->hsdsch_entity = (enum fp_hsdsch_entity)nbap_hsdsch_channel_info[i].entity;
 					}
 					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
 					set_umts_fp_conv_data(conversation, umts_fp_conversation_info);

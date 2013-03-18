@@ -144,7 +144,7 @@ gssapi_init_oid(const char *oid, int proto, int ett, dissector_handle_t handle,
 		dissector_handle_t wrap_handle, const gchar *comment)
 {
 	char *key = g_strdup(oid);
-	gssapi_oid_value *value = g_malloc(sizeof(*value));
+	gssapi_oid_value *value = (gssapi_oid_value *)g_malloc(sizeof(*value));
 
 	value->proto = find_protocol_by_id(proto);
 	value->ett = ett;
@@ -167,7 +167,7 @@ gssapi_lookup_oid_str(const char *oid_key)
 	if(!oid_key){
 		return NULL;
 	}
-	value = g_hash_table_lookup(gssapi_oids, oid_key);
+	value = (gssapi_oid_value *)g_hash_table_lookup(gssapi_oids, oid_key);
 	return value;
 }
 
@@ -185,7 +185,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t *oid_tvb;
 	int len, start_offset, oid_start_offset;
 	volatile int offset;
-	gint8 class;
+	gint8 appclass;
 	gboolean pc, ind_field;
 	gint32 tag;
 	guint32 len1;
@@ -212,9 +212,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	conversation = find_or_create_conversation(pinfo);
 
-	gss_info = conversation_get_proto_data(conversation, proto_gssapi);
+	gss_info = (gssapi_conv_info_t *)conversation_get_proto_data(conversation, proto_gssapi);
 	if (!gss_info) {
-		gss_info = se_alloc(sizeof(gssapi_conv_info_t));
+		gss_info = se_new(gssapi_conv_info_t);
 		gss_info->oid=NULL;
 		gss_info->do_reassembly=FALSE;
 		gss_info->frags=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "gssapi_frags");
@@ -250,7 +250,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if( (!pinfo->fd->flags.visited)
 		&&  (gss_info->do_reassembly)
 		&&  (gssapi_reassembly) ){
-			fi=se_tree_lookup32(gss_info->frags, gss_info->first_frame);
+			fi=(gssapi_frag_info_t *)se_tree_lookup32(gss_info->frags, gss_info->first_frame);
 			if(!fi){
 				goto done;
 			}
@@ -277,7 +277,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		if( (pinfo->fd->flags.visited)
 		&&  (gssapi_reassembly) ){
-			fi=se_tree_lookup32(gss_info->frags, pinfo->fd->num);
+			fi=(gssapi_frag_info_t *)se_tree_lookup32(gss_info->frags, pinfo->fd->num);
 			if(fi){
 				fd_head=fragment_get(pinfo, fi->first_frame, gssapi_fragment_table);
 				if(fd_head && (fd_head->flags&FD_DEFRAGMENTED)){
@@ -297,11 +297,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		/* Read header */
-		offset = get_ber_identifier(gss_tvb, offset, &class, &pc, &tag);
+		offset = get_ber_identifier(gss_tvb, offset, &appclass, &pc, &tag);
 		offset = get_ber_length(gss_tvb, offset, &len1, &ind_field);
 
 
-		if (!(class == BER_CLASS_APP && pc && tag == 0)) {
+		if (!(appclass == BER_CLASS_APP && pc && tag == 0)) {
 		  /* It could be NTLMSSP, with no OID.  This can happen
 		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
 			if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
@@ -364,7 +364,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   * pointer; it just treats it as an opaque pointer, it
 		   * doesn't dereference it or free what it points to.)
 		   */
-		  oidvalue = p_get_proto_data(pinfo->fd, proto_gssapi);
+		  oidvalue = (gssapi_oid_value *)p_get_proto_data(pinfo->fd, proto_gssapi);
 		  if (!oidvalue && !pinfo->fd->flags.visited)
 		  {
 		    /* No handle attached to this frame, but it's the first */
@@ -377,7 +377,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  {
                     proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
 					  "Unknown header (class=%d, pc=%d, tag=%d)",
-					  class, pc, tag);
+					  appclass, pc, tag);
 		    return_offset = tvb_length(gss_tvb);
 		    goto done;
 		  } else {
@@ -419,7 +419,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&&  (tvb_length(gss_tvb)==tvb_reported_length(gss_tvb))
 		&&  (len1>(guint32)tvb_length_remaining(gss_tvb, oid_start_offset))
 		&&  (gssapi_reassembly) ){
-			fi=se_alloc(sizeof(gssapi_frag_info_t));
+			fi=se_new(gssapi_frag_info_t);
 			fi->first_frame=pinfo->fd->num;
 			fi->reassembled_in=0;
 			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);

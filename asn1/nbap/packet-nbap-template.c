@@ -394,7 +394,7 @@ static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
 						/*Error*/
 						expert_add_info_format(pinfo, tree, PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!");
 					}else{
-						umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
+						umts_fp_conversation_info->hsdsch_entity = (enum fp_hsdsch_entity)nbap_hsdsch_channel_info[i].entity;
 					}
 					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
 					set_umts_fp_conv_data(conversation, umts_fp_conversation_info);

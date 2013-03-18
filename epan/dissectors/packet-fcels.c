@@ -301,8 +301,8 @@ static dissector_handle_t data_handle, fcsp_handle;
 static gint
 fcels_equal(gconstpointer v, gconstpointer w)
 {
-  const fcels_conv_key_t *v1 = v;
-  const fcels_conv_key_t *v2 = w;
+  const fcels_conv_key_t *v1 = (const fcels_conv_key_t *)v;
+  const fcels_conv_key_t *v2 = (const fcels_conv_key_t *)w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -310,7 +310,7 @@ fcels_equal(gconstpointer v, gconstpointer w)
 static guint
 fcels_hash (gconstpointer v)
 {
-    const fcels_conv_key_t *key = v;
+    const fcels_conv_key_t *key = (const fcels_conv_key_t *)v;
     guint val;
 
     val = key->conv_idx;
@@ -964,7 +964,7 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0,
         svcvld = 0,
-        class;
+        svcclass;
     proto_tree *logi_tree, *cmnsvc_tree;
     proto_item *subti;
     guint16 flag;
@@ -997,9 +997,9 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         /* Add subtree for class paramters */
         offset = 36;
-        for (class = 1; class < 5; class++) {
+        for (svcclass = 1; svcclass < 5; svcclass++) {
             subti = proto_tree_add_text (logi_tree, tvb, offset, 16,
-                                         "Class %d Svc Parameters", class);
+                                         "Class %d Svc Parameters", svcclass);
             cmnsvc_tree = proto_item_add_subtree (subti, ett_fcels_logi_cmnsvc);
 
             flag = tvb_get_ntohs (tvb, offset);
@@ -1978,7 +1978,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
             }
 
-            srcfc = pinfo->src.data;
+            srcfc = (guint8 *)pinfo->src.data;
             if (srcfc[2]) {
                 /* If it is a loop port, we'll need to remember the ALPA */
                 options = NO_PORT2;
@@ -2012,10 +2012,10 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_alloc (sizeof(fcels_conv_key_t));
+            req_key = se_new(fcels_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_alloc (sizeof(fcels_conv_data_t));
+            cdata = se_new(fcels_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert (fcels_req_hash, req_key, cdata);
@@ -2042,7 +2042,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
             }
 
-            dstfc = pinfo->dst.data;
+            dstfc = (guint8 *)pinfo->dst.data;
 
             addrdata[0] = addrdata[1] = 0;
             addrdata[2] = dstfc[2];

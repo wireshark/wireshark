@@ -426,7 +426,7 @@ static void
 dissect_osd_getsetattrib(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_data_t *cdata)
 {
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
-		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
+		scsi_osd_extra_data_t *extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
 		extra_data->gsatype=(tvb_get_guint8(tvb, offset)>>4)&0x03;
 	}
 	proto_tree_add_item(tree, hf_scsi_osd_getsetattrib, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -468,7 +468,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 	}
 
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
-		extra_data=cdata->itlq->extra_data;
+		extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
 	} else {
 		return offset;
@@ -538,7 +538,7 @@ dissect_osd_attribute_data_out(packet_info *pinfo, tvbuff_t *tvb, int offset _U_
 	scsi_osd_extra_data_t *extra_data=NULL;
 
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
-		extra_data=cdata->itlq->extra_data;
+		extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
 	} else {
 		return;
@@ -567,7 +567,7 @@ dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset _U_,
 	scsi_osd_extra_data_t *extra_data=NULL;
 
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
-		extra_data=cdata->itlq->extra_data;
+		extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
 	} else {
 		return;
@@ -894,9 +894,9 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tr
 		pikey[0].length=2;
 		pikey[0].key=partition_id;
 		pikey[1].length=0;
-		part_info=se_tree_lookup32_array(lun_info->partitions, &pikey[0]);
+		part_info=(partition_info_t *)se_tree_lookup32_array(lun_info->partitions, &pikey[0]);
 		if(!part_info){
-			part_info=se_alloc(sizeof(partition_info_t));
+			part_info=se_new(partition_info_t);
 			part_info->created_in=0;
 			part_info->removed_in=0;
 
@@ -2629,16 +2629,16 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return;
 	}
 	/* make sure we have a conversation info for this */
-	conv_info=conversation_get_proto_data(cdata->itl->conversation, proto_scsi_osd);
+	conv_info=(scsi_osd_conv_info_t *)conversation_get_proto_data(cdata->itl->conversation, proto_scsi_osd);
 	if(!conv_info){
-		conv_info=se_alloc(sizeof(scsi_osd_conv_info_t));
+		conv_info=se_new(scsi_osd_conv_info_t);
 		conv_info->luns=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SCSI OSD luns tree");
 		conversation_add_proto_data(cdata->itl->conversation, proto_scsi_osd, conv_info);
 	}
 	/* make sure we have a lun_info structure for this */
-	lun_info=se_tree_lookup32(conv_info->luns, cdata->itlq->lun);
+	lun_info=(scsi_osd_lun_info_t *)se_tree_lookup32(conv_info->luns, cdata->itlq->lun);
 	if(!lun_info){
-		lun_info=se_alloc(sizeof(scsi_osd_lun_info_t));
+		lun_info=se_new(scsi_osd_lun_info_t);
 		lun_info->partitions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SCSI OSD partitions tree");
 		se_tree_insert32(conv_info->luns, cdata->itlq->lun, (void *)lun_info);
 	}
@@ -2662,7 +2662,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if((!pinfo->fd->flags.visited) && (!cdata->itlq->extra_data)){
 				scsi_osd_extra_data_t *extra_data;
 
-				extra_data=se_alloc(sizeof(scsi_osd_extra_data_t));
+				extra_data=se_new(scsi_osd_extra_data_t);
 				extra_data->svcaction=svcaction;
 				extra_data->gsatype=0;
 				cdata->itlq->extra_data=extra_data;
@@ -2687,7 +2687,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * off to the service action dissector
 	 */
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
-		scsi_osd_extra_data_t *extra_data=cdata->itlq->extra_data;
+		scsi_osd_extra_data_t *extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
 		svcaction=extra_data->svcaction;
 	}
 	if(check_col(pinfo->cinfo, COL_INFO)){

@@ -68,7 +68,7 @@ uat_t* uat_new(const char* name,
                uat_post_update_cb_t post_update_cb,
                uat_field_t* flds_array) {
     /* Create new uat */
-    uat_t* uat = g_malloc(sizeof(uat_t));
+    uat_t* uat = (uat_t *)g_malloc(sizeof(uat_t));
     guint i;
 
     /* Add to global array of uats */
@@ -102,7 +102,7 @@ uat_t* uat_new(const char* name,
     uat->flags = flags;
 
     for (i=0;flds_array[i].title;i++) {
-        fld_data_t* f = g_malloc(sizeof(fld_data_t));
+        fld_data_t* f = (fld_data_t *)g_malloc(sizeof(fld_data_t));
 
         f->colnum = i+1;
         f->rep = NULL;
@@ -191,7 +191,7 @@ uat_t* uat_get_table_by_name(const char* name) {
     guint i;
 
     for (i=0; i < all_uats->len; i++) {
-        uat_t* u = g_ptr_array_index(all_uats,i);
+        uat_t* u = (uat_t *)g_ptr_array_index(all_uats,i);
         if ( g_str_equal(u->name,name) ) {
             return (u);
         }
@@ -304,7 +304,7 @@ uat_t *uat_find(gchar *name) {
     guint i;
 
     for (i=0; i < all_uats->len; i++) {
-        uat_t* u = g_ptr_array_index(all_uats,i);
+        uat_t* u = (uat_t *)g_ptr_array_index(all_uats,i);
 
         if (strcmp(u->name, name) == 0 || strcmp(u->filename, name) == 0) {
             return u;
@@ -344,7 +344,7 @@ void uat_unload_all(void) {
     guint i;
 
     for (i=0; i < all_uats->len; i++) {
-        uat_t* u = g_ptr_array_index(all_uats,i);
+        uat_t* u = (uat_t *)g_ptr_array_index(all_uats,i);
         /* Do not unload if not in profile */
         if (u->from_profile) {
             uat_clear(u);
@@ -376,7 +376,7 @@ void uat_load_all(void) {
     const gchar* err;
 
     for (i=0; i < all_uats->len; i++) {
-        uat_t* u = g_ptr_array_index(all_uats,i);
+        uat_t* u = (uat_t *)g_ptr_array_index(all_uats,i);
         err = NULL;
 
         if (!u->loaded)
@@ -477,7 +477,7 @@ gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const 
 gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, guint len, const void* v, const void* u3 _U_, const char** err) {
     char* str = ep_strndup(strptr,len);
     guint i;
-    const value_string* vs = v;
+    const value_string* vs = (const value_string *)v;
 
     for(i=0;vs[i].strptr;i++) {
         if (g_str_equal(vs[i].strptr,str)) {
@@ -543,7 +543,7 @@ char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
         return NULL;
     }
 
-    buf= g_malloc0(len+1);
+    buf= (guint8 *)g_malloc0(len+1);
     if (len_p) *len_p = len;
 
     while(in_len) {
@@ -559,13 +559,13 @@ char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
 }
 
 char* uat_unesc(const char* si, guint in_len, guint* len_p) {
-    char* buf = g_malloc0(in_len+1);
+    char* buf = (char *)g_malloc0(in_len+1);
     char* p = buf;
     guint len = 0;
     const char* s;
     const char* in_end = si+in_len;
 
-    for (s = (void*)si; s < in_end; s++) {
+    for (s = (const char *)si; s < in_end; s++) {
         switch(*s) {
             case '\\':
                 switch(*(++s)) {
@@ -647,11 +647,11 @@ char* uat_undquote(const char* si, guint in_len, guint* len_p) {
 
 char* uat_esc(const char* buf, guint len) {
     const guint8* end = ((guint8*)buf)+len;
-    char* out = ep_alloc0((4*len)+1);
+    char* out = (char *)ep_alloc0((4*len)+1);
     const guint8* b;
     char* s = out;
 
-    for (b = (void*)buf; b < end; b++) {
+    for (b = (guint8 *)buf; b < end; b++) {
         if (isprint(*b) ) {
             *(s++) = (*b);
         } else {

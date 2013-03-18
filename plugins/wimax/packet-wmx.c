@@ -617,7 +617,7 @@ static const gchar tlv_val_5byte[] = "TLV value: %s (0x%08x...)";
 /* return:                                                   */
 /*   pointer to a proto_tree                                 */
 /*************************************************************/
-proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length _U_, gboolean little_endian)
+proto_tree *add_tlv_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length _U_, gboolean little_endian)
 {
 	/* Declare local variables */
 	proto_tree *tlv_tree;
@@ -630,14 +630,14 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 	const gchar *hex_fmt;
 
 	/* Retrieve the necessary TLV information */
-	tlv_val_offset = get_tlv_value_offset(this);
+	tlv_val_offset = get_tlv_value_offset(self);
 	start_of_tlv = start - tlv_val_offset;
-	tlv_value_length = get_tlv_length(this);
-	size_of_tlv_length_field = get_tlv_size_of_length(this);
-	tlv_type = get_tlv_type(this);
+	tlv_value_length = get_tlv_length(self);
+	size_of_tlv_length_field = get_tlv_size_of_length(self);
+	tlv_type = get_tlv_type(self);
 
 	/* Make sure we're dealing with a valid TLV here */
-	if (get_tlv_type(this) < 0)
+	if (get_tlv_type(self) < 0)
 		return tree;
 
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
@@ -711,7 +711,7 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 /* return:                                                   */
 /*   pointer to a proto_tree                                 */
 /*************************************************************/
-proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *format, ...)
+proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *format, ...)
 {
 	/* Declare local variables */
 	proto_tree *tlv_tree;
@@ -726,15 +726,15 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 	const gchar *hex_fmt;
 
 	/* Make sure we're dealing with a valid TLV here */
-	if (get_tlv_type(this) < 0)
+	if (get_tlv_type(self) < 0)
 		return tree;
     
 	/* Retrieve the necessary TLV information */
-	tlv_val_offset = get_tlv_value_offset(this);
+	tlv_val_offset = get_tlv_value_offset(self);
 	start_of_tlv = start - tlv_val_offset;
-	tlv_value_length = get_tlv_length(this);
-	size_of_tlv_length_field = get_tlv_size_of_length(this);
-	tlv_type = get_tlv_type(this);
+	tlv_value_length = get_tlv_length(self);
+	size_of_tlv_length_field = get_tlv_size_of_length(self);
+	tlv_type = get_tlv_type(self);
 
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
 	va_start(ap, format);

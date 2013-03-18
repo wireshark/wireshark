@@ -205,7 +205,7 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
     if (! lines) return NULL;
 
     c = *p;
-    ret = ep_alloc(strlen(lines) + 1);
+    ret = (char *)ep_alloc(strlen(lines) + 1);
     q = ret;
 
     while (c) {
@@ -405,7 +405,7 @@ get_multipart_info(packet_info *pinfo)
     }
 
     /* Clean up the parameters */
-    parameters = unfold_and_compact_mime_header(pinfo->private_data, &dummy);
+    parameters = unfold_and_compact_mime_header((const char *)pinfo->private_data, &dummy);
 
     start = find_parameter(parameters, "boundary=", &len);
 
@@ -416,7 +416,7 @@ get_multipart_info(packet_info *pinfo)
     /*
      * There is a value for the boundary string
      */
-    m_info = g_malloc(sizeof(multipart_info_t));
+    m_info = (multipart_info_t *)g_malloc(sizeof(multipart_info_t));
     m_info->type = type;
     m_info->boundary = g_strndup(start, len);
     m_info->boundary_length = len;
@@ -427,7 +427,7 @@ get_multipart_info(packet_info *pinfo)
 static void
 cleanup_multipart_info(void *data)
 {
-    multipart_info_t *m_info = data;
+    multipart_info_t *m_info = (multipart_info_t *)data;
     if (m_info) {
         g_free(m_info->boundary);
         g_free(m_info);
@@ -590,7 +590,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
     char *content_type_str = NULL;
     char *content_encoding_str = NULL;
     char *filename = NULL;
-    char *typename = NULL;
+    char *mimetypename = NULL;
     int  len = 0;
     gboolean last_field = FALSE;
 
@@ -671,8 +671,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
                             proto_item_append_text(ti, " (%s)", content_type_str);
 
                             /* find the "name" parameter in case we don't find a content disposition "filename" */
-                            if((typename = find_parameter(parameters, "name=", &len)) != NULL) {
-                              typename = g_strndup(typename, len);
+                            if((mimetypename = find_parameter(parameters, "name=", &len)) != NULL) {
+                              mimetypename = g_strndup(mimetypename, len);
                             }
                         }
 
@@ -736,7 +736,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
             if(content_encoding_str && remove_base64_encoding) {
 
                 if(!g_ascii_strncasecmp(content_encoding_str, "base64", 6))
-                    tmp_tvb = base64_decode(pinfo, tmp_tvb, filename ? filename : (typename ? typename : content_type_str));
+                    tmp_tvb = base64_decode(pinfo, tmp_tvb, filename ? filename : (mimetypename ? mimetypename : content_type_str));
 
             }
 
@@ -784,13 +784,13 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
         }
 
         g_free(filename);
-        g_free(typename);
+        g_free(mimetypename);
 
         return boundary_start + boundary_line_len;
     }
 
     g_free(filename);
-    g_free(typename);
+    g_free(mimetypename);
 
     return -1;
 }
