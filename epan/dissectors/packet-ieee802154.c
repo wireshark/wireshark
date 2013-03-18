@@ -131,7 +131,7 @@ static guint          num_static_addrs = 0;
 static void
 addr_uat_update_cb(void *r, const char **err)
 {
-    static_addr_t *map = r;
+    static_addr_t *map = (static_addr_t *)r;
     /* Ensure a valid short address */
     if (map->addr16 >= IEEE802154_NO_ADDR16) {
         *err = "Invalid short address";
@@ -618,7 +618,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     const char              *saved_proto;
     ws_decrypt_status       status;
 
-    ieee802154_packet      *packet = ep_alloc(sizeof(ieee802154_packet));
+    ieee802154_packet      *packet = ep_new(ieee802154_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
 
@@ -631,10 +631,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Allocate frame data with hints for upper layers */
     if(!pinfo->fd->flags.visited){
-        ieee_hints = se_alloc0(sizeof(ieee802154_hints_t));
+        ieee_hints = se_new0(ieee802154_hints_t);
         p_add_proto_data(pinfo->fd, proto_ieee802154, ieee_hints);
     } else {
-        ieee_hints = p_get_proto_data(pinfo->fd, proto_ieee802154);
+        ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, proto_ieee802154);
     }
 
     /* Create the protocol tree. */
@@ -906,8 +906,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
       /* Parse the security control field. */
       security_control = tvb_get_guint8(tvb, offset);
-      packet->security_level = (security_control & IEEE802154_AUX_SEC_LEVEL_MASK);
-      packet->key_id_mode = (security_control & IEEE802154_AUX_KEY_ID_MODE_MASK) >> IEEE802154_AUX_KEY_ID_MODE_SHIFT;
+      packet->security_level = (ieee802154_security_level)(security_control & IEEE802154_AUX_SEC_LEVEL_MASK);
+      packet->key_id_mode = (ieee802154_key_id_mode)((security_control & IEEE802154_AUX_KEY_ID_MODE_MASK) >> IEEE802154_AUX_KEY_ID_MODE_SHIFT);
 
       /* Compute the length of the auxiliary header and create a subtree.  */
       if (packet->key_id_mode != KEY_ID_MODE_IMPLICIT) aux_length++;
@@ -989,7 +989,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /* IEEE 802.15.4-2003 may have security information pre-pended to payload */
     if (packet->security_enable && (packet->version == IEEE802154_VERSION_2003)) {
         /* Store security suite preference in the 2006 security level identifier to simplify 2003 integration! */
-        packet->security_level = ieee802154_sec_suite;
+        packet->security_level = (ieee802154_security_level)ieee802154_sec_suite;
 
         /* Frame Counter and Key Sequence Counter prepended to the payload of an encrypted frame */
         if (IEEE802154_IS_ENCRYPTED(packet->security_level)) {
@@ -1812,7 +1812,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
         return NULL;
     }
 
-    ieee_hints = p_get_proto_data(pinfo->fd, proto_ieee802154);
+    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, proto_ieee802154);
 
     /* Get the captured and on-the-wire length of the payload. */
     M = IEEE802154_MIC_LENGTH(packet->security_level);
@@ -1884,14 +1884,14 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
 
     /* Decrypt the ciphertext, and place the plaintext in a new tvb. */
     if (IEEE802154_IS_ENCRYPTED(packet->security_level) && captured_len) {
-        void *          text;
+        guint8 *          text;
         /*
          * Make a copy of the ciphertext in heap memory.
          *
          * We will decrypt the message in-place and then use the buffer as the
          * real data for the new tvb.
          */
-        text = tvb_memdup(tvb, offset, captured_len);
+        text = (guint8 *)tvb_memdup(tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. */
         if (!ccm_ctr_encrypt(key, tmp, rx_mic, text, captured_len)) {
@@ -1949,7 +1949,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
          * already points to contiguous memory, since we just allocated it in
          * decryption phase.
          */
-        if (!ccm_cbc_mac(key, tmp, ep_tvb_memdup(tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+        if (!ccm_cbc_mac(key, tmp, (const gchar *)ep_tvb_memdup(tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */
@@ -2236,7 +2236,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
     /* Look up short address hash */
     addr16.pan = pan;
     addr16.addr = short_addr;
-    p_map_rec = g_hash_table_lookup(au_ieee802154_map->short_table, &addr16);
+    p_map_rec = (ieee802154_map_rec *)g_hash_table_lookup(au_ieee802154_map->short_table, &addr16);
 
     /* Update mapping record */
     if (p_map_rec) {
@@ -2252,7 +2252,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
     }
 
     /* create a new mapping record */
-    p_map_rec = se_alloc(sizeof(ieee802154_map_rec));
+    p_map_rec = se_new(ieee802154_map_rec);
     p_map_rec->proto = proto;
     p_map_rec->start_fnum = fnum;
     p_map_rec->end_fnum = 0;
@@ -2302,7 +2302,7 @@ gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint
     addr16.pan = pan;
     addr16.addr = short_addr;
 
-    map_rec = g_hash_table_lookup(ieee802154_map.short_table, &addr16);
+    map_rec = (ieee802154_map_rec *)g_hash_table_lookup(ieee802154_map.short_table, &addr16);
     if ( map_rec ) {
         /* indicates this mapping is invalid at frame fnum */
         map_rec->end_fnum = fnum;
@@ -2331,7 +2331,7 @@ gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
 {
     ieee802154_map_rec   *map_rec;
 
-    map_rec = g_hash_table_lookup(ieee802154_map.long_table, &long_addr);
+    map_rec = (ieee802154_map_rec *)g_hash_table_lookup(ieee802154_map.long_table, &long_addr);
     if ( map_rec ) {
         /* indicates this mapping is invalid at frame fnum */
         map_rec->end_fnum = fnum;
@@ -2723,7 +2723,7 @@ void proto_register_ieee802154(void)
             sizeof(static_addr_t),      /* record size */
             "802154_addresses",         /* filename */
             TRUE,                       /* from_profile */
-            (void*) &static_addrs,      /* data_ptr */
+            (void**)&static_addrs,      /* data_ptr */
             &num_static_addrs,          /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
             NULL,                       /* help */
