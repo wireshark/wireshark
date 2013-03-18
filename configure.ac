@@ -240,7 +240,12 @@ AC_ARG_WITH([qt],
                   [use Qt instead of GTK+ @<:@default=no@:>@]),
   with_qt="$withval", with_qt="no")
 
+AC_ARG_ENABLE(libnl,
+  AC_HELP_STRING( [--enable-libnl],
+                  [use libnl (default: yes)]),
+    enable_libnl=$enableval,enable_libnl=yes)
 libnl_message="no"
+if test x$enable_libnl = xyes; then
 PKG_CHECK_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
 PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
 PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
@@ -265,6 +270,7 @@ elif (test "${have_libnl1}" = "yes"); then
 	AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
 	libnl_message="yes (v1)"
 	enable_airpcap=no
+fi
 fi
 
 AC_MSG_CHECKING([if nl80211.h is new enough])
