@@ -31,6 +31,7 @@
 #include <epan/expert.h>
 #include <epan/oui.h>
 
+#include "packet-wap.h"
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 #include "packet-btavctp.h"
@@ -438,11 +439,6 @@ static const value_string vendor_unique_id_vals[] = {
     { 0, NULL }
 };
 
-static const value_string character_set_vals[] = {
-    { 0x006A,   "UTF-8" },
-    { 0, NULL }
-};
-
 static const value_string direction_vals[] = {
     { 0x00,   "Folder Up" },
     { 0x01,   "Folder Down" },
@@ -576,7 +572,6 @@ static const value_string player_subtype_vals[] = {
     { 0x02,   "Podcast" },
     { 0, NULL }
 };
-
 
 static  gint
 dissect_attribute_id_list(tvbuff_t *tvb, proto_tree *tree, gint offset,
@@ -2453,7 +2448,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_character_set,
             { "Character Set",                   "btavrcp.character_set",
-            FT_UINT16, BASE_HEX, VALS(character_set_vals), 0x00,
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_number_of_items,
