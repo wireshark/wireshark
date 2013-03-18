@@ -1063,16 +1063,19 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                               usb_trans_info_t *usb_trans_info _U_,
                               guint bus_id, guint device_address)
 {
-    proto_item      *item       = NULL;
-    proto_tree      *tree       = NULL;
-    proto_item      *nitem      = NULL;
-    int              old_offset = offset;
-    guint32          protocol;
-    const gchar     *description;
-    guint16          vendor_id;
-    guint32          product;
-    guint16          product_id;
-    usb_conv_info_t  *usb_conv_info;
+    proto_item        *item       = NULL;
+    proto_tree        *tree       = NULL;
+    proto_item        *nitem      = NULL;
+    int                old_offset = offset;
+    guint32            protocol;
+    const gchar       *description;
+    guint16            vendor_id;
+    guint32            product;
+    guint16            product_id;
+    usb_conv_info_t   *usb_conv_info;
+    guint8            *field_description;
+    gint               field_description_length;
+    header_field_info *hfi;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");
@@ -1120,7 +1123,14 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     product_id = tvb_get_letohs(tvb, offset);
     usb_conv_info->deviceProduct = product_id;
     product = vendor_id << 16 | product_id;
-    proto_item_set_text(nitem, "idProduct: %s (0x%04x)",
+
+    hfi = proto_registrar_get_nth(hf_usb_idProduct);
+    field_description_length = (gint)strlen(hfi->name) + 14;
+    field_description = ep_alloc(field_description_length);
+    g_strlcpy(field_description, hfi->name, field_description_length);
+    g_strlcat(field_description, ": %s (0x%04x)", field_description_length);
+
+    proto_item_set_text(nitem, field_description,
             val_to_str_ext_const(product, &ext_usb_products_vals, "Unknown"),
             product_id);
     offset += 2;
