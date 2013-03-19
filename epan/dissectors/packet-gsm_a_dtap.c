@@ -76,7 +76,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 11.5.0 Release 11)
+ *   (3GPP TS 24.008 version 11.6.0 Release 11)
  *
  * $Id$
  *

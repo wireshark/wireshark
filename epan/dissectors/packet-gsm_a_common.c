@@ -464,6 +464,22 @@ const value_string tighter_cap_level_vals[] = {
     { 0, NULL}
 };
 
+const value_string cs_to_ps_srvcc_geran_to_utra_vals[] = {
+    { 0, "CS to PS SRVCC from GERAN to UMTS FDD and 1.28 Mcps TDD not supported" },
+    { 1, "CS to PS SRVCC from GERAN to UMTS FDD supported" },
+    { 2, "CS to PS SRVCC from GERAN to UMTS 1.28 Mcps TDD supported" },
+    { 3, "CS to PS SRVCC from GERAN to UMTS FDD and 1.28 Mcps TDD supported" },
+    { 0, NULL}
+};
+
+const value_string cs_to_ps_srvcc_geran_to_eutra_vals[] = {
+    { 0, "CS to PS SRVCC from GERAN to E-UTRA FDD and TDD not supported" },
+    { 1, "CS to PS SRVCC from GERAN to E-UTRA FDD supported" },
+    { 2, "CS to PS SRVCC from GERAN to E-UTRA TDD supported" },
+    { 3, "CS to PS SRVCC from GERAN to E-UTRA FDD and TDD supported" },
+    { 0, NULL}
+};
+
 static const value_string gsm_a_rr_rxlev_vals [] = {
     {  0, "< -110 dBm"},
     {  1, "-110 <= x < -109 dBm"},
@@ -685,6 +701,8 @@ static int hf_gsm_a_utra_csg_cells_reporting = -1;
 static int hf_gsm_a_vamos_level = -1;
 static int hf_gsm_a_tighter_cap = -1;
 static int hf_gsm_a_selective_ciph_down_sacch = -1;
+static int hf_gsm_a_cs_to_ps_srvcc_geran_to_utra = -1;
+static int hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat = -1;
@@ -2395,7 +2413,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 10.6.1 Release 10
+ * 3GPP TS 24.008 version 11.6.0 Release 11
  */
 #define AVAILABLE_BITS_CHECK(n) \
     bits_left = ((len + offset) << 3) - bit_offset; \
@@ -3098,6 +3116,22 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     AVAILABLE_BITS_CHECK(1);
     proto_tree_add_bits_item(tree, hf_gsm_a_selective_ciph_down_sacch, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset = bit_offset + 1;
+
+    /*
+     * Release 11 starts here
+     *
+     * < CS to PS SRVCC from GERAN to UTRA : bit(2) > -- Release 11 starts here
+     */
+    AVAILABLE_BITS_CHECK(2);
+    proto_tree_add_bits_item(tree, hf_gsm_a_cs_to_ps_srvcc_geran_to_utra, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 2;
+
+    /*
+     * < CS to PS SRVCC from GERAN to E-UTRA : bit(2)>
+     */
+    AVAILABLE_BITS_CHECK(2);
+    proto_tree_add_bits_item(tree, hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 2;
 
     /*
      * Add spare bits until we reach an octet boundary
@@ -4205,6 +4239,16 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_selective_ciph_down_sacch,
         { "Selective Ciphering of Downlink SACCH", "gsm_a.classmark3.selective_ciph_down_sacch",
         FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_cs_to_ps_srvcc_geran_to_utra,
+        { "CS to PS SRVCC from GERAN to UTRA", "gsm_a.classmark3.cs_to_ps_srvcc_geran_to_utra",
+        FT_UINT8, BASE_DEC, VALS(cs_to_ps_srvcc_geran_to_utra_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra,
+        { "CS to PS SRVCC from GERAN to E-UTRA", "gsm_a.classmark3.cs_to_ps_srvcc_geran_to_eutra",
+        FT_UINT8, BASE_DEC, VALS(cs_to_ps_srvcc_geran_to_eutra_vals), 0x00,
         NULL, HFILL}
     },
     { &hf_gsm_a_geo_loc_type_of_shape,
