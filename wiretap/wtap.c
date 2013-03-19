@@ -614,7 +614,7 @@ static void wtap_init_encap_types(void) {
 
 	g_array_append_vals(encap_table_arr,encap_table_base,wtap_num_encap_types);
 
-	encap_table = (void*)encap_table_arr->data;
+	encap_table = (struct encap_type_info *)encap_table_arr->data;
 }
 
 int wtap_get_num_encap_types(void) {
@@ -632,7 +632,7 @@ int wtap_register_encap_type(const char* name, const char* short_name) {
 
 	g_array_append_val(encap_table_arr,e);
 
-	encap_table = (void*)encap_table_arr->data;
+	encap_table = (struct encap_type_info *)encap_table_arr->data;
 
 	return wtap_num_encap_types++;
 }

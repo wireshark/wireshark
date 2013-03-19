@@ -715,7 +715,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   wth->phdr.pkt_encap        = WTAP_ENCAP_ETHERNET;
   pseudo_header->eth.fcs_len = -1;
 
-  ascii_buf = g_malloc (ISERIES_PKT_ALLOC_SIZE);
+  ascii_buf = (char *)g_malloc (ISERIES_PKT_ALLOC_SIZE);
   g_snprintf(ascii_buf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s", destmac, srcmac, type);
   ascii_offset = 14*2; /* 14-byte Ethernet header, 2 characters per byte */
 

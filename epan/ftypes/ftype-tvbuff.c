@@ -398,7 +398,7 @@ cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
 			data,		/* The data to check for the pattern... */
 			tvb_len,	/* ... and its length */
 			0,		/* Start offset within data */
-			0,		/* GRegexMatchFlags */
+			(GRegexMatchFlags)0,		/* GRegexMatchFlags */
 			NULL,		/* We are not interested in the match information */
 			NULL		/* We don't want error information */
 			);

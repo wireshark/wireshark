@@ -131,7 +131,7 @@ stnode_deprecated(stnode_t *node);
 	CONCAT(CONCAT(CONCAT(sttype_,type),_),attr) (stnode_t *node) \
 {\
 	CONCAT(type,_t)	*value; \
-	value = stnode_data(node);\
+	value = (CONCAT(type,_t) *)stnode_data(node);\
 	assert_magic(value, magicnum); \
 	return value->attr; \
 }

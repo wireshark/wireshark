@@ -359,7 +359,7 @@ any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)
 	while (list_a) {
 		list_b = df->registers[reg2];
 		while (list_b) {
-			if (cmp(list_a->data, list_b->data)) {
+			if (cmp((fvalue_t *)list_a->data, (fvalue_t *)list_b->data)) {
 				return TRUE;
 			}
 			list_b = g_list_next(list_b);

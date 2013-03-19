@@ -165,7 +165,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	bufp = buffer_start_ptr(wth->frame_buffer);
-	if (!i4b_read_rec_data(wth->fh, bufp, length, err, err_info))
+	if (!i4b_read_rec_data(wth->fh, (guint8 *)bufp, length, err, err_info))
 		return FALSE;	/* Read error */
 
 	switch (hdr.type) {

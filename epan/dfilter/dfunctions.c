@@ -66,7 +66,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
             case FT_STRING:
             case FT_STRINGZ:
             case FT_UINT_STRING:
-                s = (char *)ep_strdup(fvalue_get(arg_fvalue));
+                s = (char *)ep_strdup((gchar *)fvalue_get(arg_fvalue));
                 for (c = s; *c; c++) {
                         /**c = string_ascii_to_lower(*c);*/
                         *c = conv_func(*c);
@@ -118,7 +118,7 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
             case FT_STRINGZ:
             case FT_UINT_STRING:
                 ft_len = fvalue_new(FT_UINT32);
-                fvalue_set_uinteger(ft_len, (guint) strlen(fvalue_get(arg_fvalue)));
+                fvalue_set_uinteger(ft_len, (guint) strlen((char *)fvalue_get(arg_fvalue)));
                 *retval = g_list_append(*retval, ft_len);
                 break;
 
@@ -171,7 +171,7 @@ df_functions[] = {
     { "lower", df_func_lower, FT_STRING, 1, 1, ul_semcheck_params },
     { "upper", df_func_upper, FT_STRING, 1, 1, ul_semcheck_params },
     { "len", df_func_len, FT_UINT32, 1, 1, ul_semcheck_params },
-    { NULL, NULL, 0, 0, 0, NULL }
+    { NULL, NULL, FT_NONE, 0, 0, NULL }
 };
 
 /* Lookup a display filter function record by name */

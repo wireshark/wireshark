@@ -1143,7 +1143,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_malloc(opt_cont_buf_len);
 
         while (to_read > 0) {
                 /* read option */

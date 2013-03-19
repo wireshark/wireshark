@@ -27,5 +27,6 @@
 #define __FILE_IMPORT_DLG_H__
 
 void file_import_cmd_cb(GtkWidget *widget);
+void file_import_txt_buf_cb(GtkWidget *widget);
 
 #endif /* file_import_dlg.h */

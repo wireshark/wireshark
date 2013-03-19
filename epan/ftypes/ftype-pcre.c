@@ -84,7 +84,7 @@ val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
        sequences. Otherwise, omit it so that GRegex treats its
        input as UTF8-encoded string. */
     if (raw_flag_needed(pattern)) {
-        cflags |= G_REGEX_RAW;
+        cflags = (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_RAW);
     }
 
     /* Free up the old value, if we have one */
@@ -93,7 +93,7 @@ val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
     fv->value.re = g_regex_new(
             pattern,            /* pattern */
             cflags,             /* Compile options */
-            0,                  /* Match options */
+            (GRegexMatchFlags)0,                  /* Match options */
             &regex_error        /* Compile / study errors */
             );
 
