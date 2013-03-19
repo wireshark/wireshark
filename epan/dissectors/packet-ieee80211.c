@@ -110,6 +110,11 @@
 
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
+/* To Avoid Compilation warnings/errors because
+ * dissectors such as RIC will use this function recursively
+ */
+static int add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype);
+
 #ifndef roundup2
 #define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
@@ -3582,6 +3587,15 @@ static int hf_ieee80211_tag_ft_subelem_igtk_ipn = -1;
 static int hf_ieee80211_tag_ft_subelem_igtk_key_length = -1;
 static int hf_ieee80211_tag_ft_subelem_igtk_key = -1;
 
+/* IEEE Std 802.11-2012: 11r 8.4.2.52 */
+static int hf_ieee80211_tag_ric_data_id = -1;
+static int hf_ieee80211_tag_ric_data_desc_cnt = -1;
+static int hf_ieee80211_tag_ric_data_status_code = -1;
+
+/* IEEE Std 802.11-2012: 11r 8.4.2.53 */
+static int hf_ieee80211_tag_ric_desc_rsrc_type = -1;
+static int hf_ieee80211_tag_ric_desc_var_params = -1;
+
 /* IEEE Std 802.11w-2009 7.3.2.55 */
 static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
@@ -4078,6 +4092,7 @@ static gint ett_gas_query = -1;
 static gint ett_gas_anqp = -1;
 static gint ett_nai_realm = -1;
 static gint ett_nai_realm_eap = -1;
+static gint ett_tag_ric_data_desc_ie = -1;
 static gint ett_anqp_vendor_capab = -1;
 
 static const fragment_items frag_items = {
@@ -8591,6 +8606,102 @@ dissect_timeout_interval(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static int
+dissect_ric_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
+                         guint32 tag_len, proto_item *ti, proto_item *ti_len, int ftype)
+{
+
+  proto_tree  *sub_tree;
+  guint8       desc_cnt = 0;
+  guint32      next_ie;
+  int          offset_r = 0;
+
+  if (tag_len !=  4)  {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "RIC Data Length must be 4 bytes");
+    return 0;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_ric_data_id, tvb,
+                           offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  desc_cnt = tvb_get_guint8(tvb,offset);
+  proto_tree_add_item(tree, hf_ieee80211_tag_ric_data_desc_cnt, tvb,
+                           offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_ric_data_status_code, tvb,
+                           offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* Our Design is such that all the Resource request IE's part of the RIC
+   * must be in the sub tree of RIC for better readability
+   * Even omnipeek does the same way.
+   */
+  sub_tree = proto_item_add_subtree(tree, ett_tag_ric_data_desc_ie);
+
+  proto_item_append_text(ti, " :Resource Descriptor List");
+  if (desc_cnt == 0) {
+    proto_item_append_text(ti, " :0 (Weird?)");
+  }
+
+  while ( desc_cnt !=0 ) {
+
+    next_ie = tvb_get_guint8(tvb,offset);
+    proto_item_append_text(ti, " :(%d:%s)", desc_cnt,val_to_str_ext(next_ie, &tag_num_vals_ext, "Reserved (%d)"));
+    /* Recursive call to avoid duplication of code*/
+    offset_r = add_tagged_field(pinfo, sub_tree, tvb, offset, ftype);
+    if (offset_r == 0 )/* should never happen, returns a min of 2*/
+      break;
+    /* This will ensure that the IE after RIC is processed
+     * only once. This gives us a good looking RIC IE :-)
+     */
+    tag_len += offset_r;
+    desc_cnt--;
+  }
+
+  return tag_len;
+}
+
+static int
+dissect_ric_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
+                         guint32 tag_len, proto_item *ti, proto_item *ti_len)
+{
+
+  guint8       rsrc_type = 0;
+
+  if (tag_len < 1)  {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "RIC Data Length must be at least 1 byte");
+    return 0;
+  }
+
+  rsrc_type = tvb_get_guint8(tvb,offset);
+  proto_tree_add_item(tree, hf_ieee80211_tag_ric_desc_rsrc_type, tvb,
+                           offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  if (rsrc_type == 1) {
+    /* Block ACK params
+     * 802.11-2012: 8.4.2.53 RIC Descriptor element
+     * Block Ack parameter set as defined in 8.4.1.14,
+     * Block Ack timeout value as defined in 8.4.1.15, and
+     * Block Ack starting sequence control as defined in 8.3.1.8
+     */
+    /* TODO: Still figuring out how to parse these ones,
+     * need a sample capture with at least HEX Dump
+     */
+    proto_item_append_text(ti, " :RIC Descriptors: Block ACK Params");
+    proto_tree_add_item(tree, hf_ieee80211_tag_ric_desc_var_params, tvb,
+                        offset, tag_len-1, ENC_NA);
+    offset += tag_len -1;
+  }else {
+    /* 0,2-255 are reserved*/
+    proto_item_append_text(ti, " :RIC Descriptors: 0(Reserved)");
+  }
+  return offset;
+}
+static int
 dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gboolean vs)
 {
   proto_item *ti;
@@ -11251,6 +11362,13 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       dissect_timeout_interval(tree, tvb, offset + 2, tag_len);
       break;
 
+    case TAG_RIC_DATA: /* RIC Data (RDE) (57) */
+     /* Assigning the return value will ensure that the IE after RIC is processed
+      * only once. This gives us a good looking RIC IE :-)
+      */
+      tag_len = dissect_ric_data(pinfo, tree, tvb, offset + 2, tag_len, ti, ti_len, ftype);
+      break;
+
     case TAG_LINK_IDENTIFIER:
       dissect_link_identifier(tree, tvb, offset + 2, tag_len);
       break;
@@ -11314,6 +11432,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_RM_ENABLED_CAPABILITY: /* RM Enabled Capabilities (70) */
       dissect_rm_enabled_capabilities_ie(pinfo, tree, ti, ti_len, tag_len, tvb, offset+2, tag_end);
+      break;
+
+    case TAG_RIC_DESCRIPTOR: /* RIC Descriptor (75) */
+      dissect_ric_descriptor(pinfo, tree, tvb, offset + 2, tag_len, ti, ti_len);
       break;
 
     case TAG_MESH_PEERING_MGMT:
@@ -18943,6 +19065,29 @@ proto_register_ieee80211 (void)
      {"Wrapped Key (IGTK)", "wlan_mgt.ft.subelem.igtk.key",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    /* RIC Data IE: 802.11-2012: 8.4.2.52 */
+    {&hf_ieee80211_tag_ric_data_id,
+     {"Resource Handshake Identifier", "wlan_mgt.ric_data.id",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ric_data_desc_cnt,
+     {"Resource Descriptor Count", "wlan_mgt.ric_data.desc_cnt",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ric_data_status_code,
+     {"Status Code", "wlan_mgt.ric_data.status_code",
+      FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ieee80211_status_code_ext, 0,
+      "Status of requested Resource", HFILL }},
+
+    /* RIC Descriptor IE: 802.11-2012: 8.4.2.53 */
+    {&hf_ieee80211_tag_ric_desc_rsrc_type,
+     {"Resource Type", "wlan_mgt.ric_desc.rsrc_type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ric_desc_var_params,
+     {"Variable Params", "wlan_mgt.ric_desc.var_params",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     /* MMIE */
     {&hf_ieee80211_tag_mmie_keyid,
      {"KeyID", "wlan_mgt.mmie.keyid",
@@ -19411,6 +19556,7 @@ proto_register_ieee80211 (void)
     &ett_gas_anqp,
     &ett_nai_realm,
     &ett_nai_realm_eap,
+    &ett_tag_ric_data_desc_ie,
     &ett_anqp_vendor_capab
   };
   module_t *wlan_module;
