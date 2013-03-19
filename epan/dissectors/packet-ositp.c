@@ -356,7 +356,7 @@ static gchar *print_tsap(const guchar *tsap, int length)
   gboolean allprintable;
   gint idx = 0, returned_length;
 
-  cur=ep_alloc(MAX_TSAP_LEN * 2 + 3);
+  cur=(gchar *)ep_alloc(MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
     g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
@@ -435,8 +435,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
         }
         checksum_ok = check_atn_ec_16(tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
-                                      pinfo->dst.len, pinfo->dst.data,
-                                      pinfo->src.len, pinfo->src.data);
+                                      pinfo->dst.len, (guint8 *)pinfo->dst.data,
+                                      pinfo->src.len, (guint8 *)pinfo->src.data);
         proto_tree_add_text(tree, tvb, offset, length,
             "ATN extended checksum : 0x%04x (%s)",
                               tvb_get_ntohs(tvb, offset),
@@ -466,8 +466,8 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
         }
         checksum_ok = check_atn_ec_32( tvb, tpdu_len , offset,
                                       offset_iso8073_checksum,
-                                      pinfo->dst.len, pinfo->dst.data,
-                                      pinfo->src.len, pinfo->src.data);
+                                      pinfo->dst.len, (guint8 *)pinfo->dst.data,
+                                      pinfo->src.len, (guint8 *)pinfo->src.data);
         proto_tree_add_text(tree, tvb, offset, length,
              "ATN extended checksum : 0x%08x (%s)",
                               tvb_get_ntohl(tvb, offset),
@@ -992,10 +992,10 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         else
           fragment = TRUE;
         is_extended = FALSE;
-        prev_dst_ref = p_get_proto_data (pinfo->fd, proto_clnp);
+        prev_dst_ref = (guint32 *)p_get_proto_data (pinfo->fd, proto_clnp);
         if (!prev_dst_ref) {
           /* First COTP in frame - save previous dst_ref as offset */
-          prev_dst_ref = se_alloc (sizeof (guint32));
+          prev_dst_ref = se_new(guint32);
           *prev_dst_ref = cotp_dst_ref;
           p_add_proto_data (pinfo->fd, proto_clnp, prev_dst_ref);
         } else if (cotp_frame_reset) {

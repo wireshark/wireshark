@@ -67,16 +67,17 @@ struct sap_query
 #define IPX_RIP_REQUEST (0x1)
 #define IPX_RIP_RESPONSE (0x2)
 
+typedef struct _ipx_rt_def
+{
+	guint32 network ;
+	guint16 hops ;
+	guint16 ticks ;
+} ipx_rt_def_t;
+
 struct ipx_rip_packet
 {
 	guint16 operation ;
-	struct ipx_rt_def
-	{
-		guint32 network ;
-		guint16 hops ;
-		guint16 ticks ;
-	}
-	rt[1] ;
+	ipx_rt_def_t rt[1] ;
 };
 
 #define IPX_BROADCAST_NODE ("\xff\xff\xff\xff\xff\xff")

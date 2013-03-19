@@ -149,7 +149,7 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
     attr_type    = xmpp_get_attr(packet, "type");
 
     conversation = find_or_create_conversation(pinfo);
-    xmpp_info    = conversation_get_proto_data(conversation, proto_xmpp);
+    xmpp_info    = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
 
     xmpp_iq_item = proto_tree_add_item(tree, hf_xmpp_iq, tvb, packet->offset, packet->length, ENC_LITTLE_ENDIAN);
     xmpp_iq_tree = proto_item_add_subtree(xmpp_iq_item,ett_xmpp_iq);
@@ -168,28 +168,28 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
     {
         gchar *jingle_sid, *ibb_sid, *gtalk_sid;
 
-        jingle_sid = se_tree_lookup_string(xmpp_info->jingle_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        jingle_sid = (gchar *)se_tree_lookup_string(xmpp_info->jingle_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
 
         if (jingle_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_jingle_session, tvb, 0, 0, jingle_sid);
             PROTO_ITEM_SET_GENERATED(it);
         }
 
-        ibb_sid = se_tree_lookup_string(xmpp_info->ibb_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        ibb_sid = (gchar *)se_tree_lookup_string(xmpp_info->ibb_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
 
         if (ibb_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_ibb, tvb, 0, 0, ibb_sid);
             PROTO_ITEM_SET_GENERATED(it);
         }
 
-        gtalk_sid = se_tree_lookup_string(xmpp_info->gtalk_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        gtalk_sid = (gchar *)se_tree_lookup_string(xmpp_info->gtalk_sessions, attr_id->value, EMEM_TREE_STRING_NOCASE);
 
         if (gtalk_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_gtalk, tvb, 0, 0, gtalk_sid);
             PROTO_ITEM_SET_GENERATED(it);
         }
 
-        reqresp_trans = se_tree_lookup_string(xmpp_info->req_resp, attr_id->value, EMEM_TREE_STRING_NOCASE);
+        reqresp_trans = (xmpp_transaction_t *)se_tree_lookup_string(xmpp_info->req_resp, attr_id->value, EMEM_TREE_STRING_NOCASE);
         /*displays request/response field in each iq packet*/
         if (reqresp_trans) {
 
@@ -403,7 +403,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     id = xmpp_get_attr(packet, "id");
 
     conversation = find_or_create_conversation(pinfo);
-    xmpp_info = conversation_get_proto_data(conversation, proto_xmpp);
+    xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
 
     message_item = proto_tree_add_item(tree, hf_xmpp_message, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     message_tree = proto_item_add_subtree(message_item, ett_xmpp_message);
@@ -423,7 +423,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     {
         gchar *ibb_sid;
 
-        ibb_sid = se_tree_lookup_string(xmpp_info->ibb_sessions, id->value, EMEM_TREE_STRING_NOCASE);
+        ibb_sid = (gchar *)se_tree_lookup_string(xmpp_info->ibb_sessions, id->value, EMEM_TREE_STRING_NOCASE);
 
         if (ibb_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_ibb, tvb, 0, 0, ibb_sid);

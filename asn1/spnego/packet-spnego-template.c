@@ -337,23 +337,23 @@ arcfour_mic_key(void *key_data, size_t key_size, int key_type,
 	memcpy(L40 + 10, T, sizeof(T));
 	md5_hmac(
                 L40, 14,
-                key_data,
+                (guint8 *)key_data,
                 key_size,
-	            k5_data);
+	        k5_data);
 	memset(&k5_data[7], 0xAB, 9);
     } else {
 	md5_hmac(
                 T, 4,
-                key_data,
+                (guint8 *)key_data,
                 key_size,
-	            k5_data);
+	        k5_data);
     }
 
     md5_hmac(
-	cksum_data, cksum_size,
-	k5_data,
+	(guint8 *)cksum_data, cksum_size,
+	(guint8 *)k5_data,
 	16,
-	key6_data);
+	(guint8 *)key6_data);
 
     return 0;
 }
@@ -402,9 +402,9 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
     t[2] = (rc4_usage >> 16) & 0xFF;
     t[3] = (rc4_usage >> 24) & 0xFF;
     md5_append(&ms, t, 4);
-    md5_append(&ms, v1, l1);
-    md5_append(&ms, v2, l2);
-    md5_append(&ms, v3, l3);
+    md5_append(&ms, (guint8 *)v1, l1);
+    md5_append(&ms, (guint8 *)v2, l2);
+    md5_append(&ms, (guint8 *)v3, l3);
     md5_finish(&ms, digest);
     md5_hmac(digest, 16, ksign_c, 16, cksum);
 

@@ -3971,12 +3971,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Do we already have a state structure for this conv
    */
-  reload_info = conversation_get_proto_data(conversation, proto_reload);
+  reload_info = (reload_conv_info_t *)conversation_get_proto_data(conversation, proto_reload);
   if (!reload_info) {
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    reload_info = se_alloc(sizeof(reload_conv_info_t));
+    reload_info = se_new(reload_conv_info_t);
     reload_info->transaction_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "reload_transaction_pdus");
     conversation_add_proto_data(conversation, proto_reload, reload_info);
   }
@@ -4162,9 +4162,9 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!pinfo->fd->flags.visited) {
 
-    if ((reload_trans =
+    if ((reload_trans = (reload_transaction_t *)
            se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {
-      reload_trans = se_alloc(sizeof(reload_transaction_t));
+      reload_trans = se_new(reload_transaction_t);
       reload_trans->req_frame = 0;
       reload_trans->rep_frame = 0;
       reload_trans->req_time = pinfo->fd->abs_ts;
@@ -4187,12 +4187,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   else {
-    reload_trans = se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key);
+    reload_trans = (reload_transaction_t *)se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key);
   }
 
   if (!reload_trans) {
     /* create a "fake" pana_trans structure */
-    reload_trans = ep_alloc(sizeof(reload_transaction_t));
+    reload_trans = ep_new(reload_transaction_t);
     reload_trans->req_frame = 0;
     reload_trans->rep_frame = 0;
     reload_trans->req_time = pinfo->fd->abs_ts;
@@ -5885,7 +5885,7 @@ proto_register_reload(void)
             sizeof(kind_t),
             "reload_kindids",               /* filename */
             TRUE,                           /* from_profile */
-            (void*) &kindidlist_uats,       /* data_ptr */
+            (void**) &kindidlist_uats,      /* data_ptr */
             &nreloadkinds,                  /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */

@@ -435,8 +435,8 @@ static gint get_zoneobj_len(tvbuff_t *tvb, gint offset);
 static gint
 fcswils_equal(gconstpointer v, gconstpointer w)
 {
-    const fcswils_conv_key_t *v1 = v;
-    const fcswils_conv_key_t *v2 = w;
+    const fcswils_conv_key_t *v1 = (const fcswils_conv_key_t *)v;
+    const fcswils_conv_key_t *v2 = (const fcswils_conv_key_t *)w;
 
     return (v1->conv_idx == v2->conv_idx);
 }
@@ -444,7 +444,7 @@ fcswils_equal(gconstpointer v, gconstpointer w)
 static guint
 fcswils_hash(gconstpointer v)
 {
-    const fcswils_conv_key_t *key = v;
+    const fcswils_conv_key_t *key = (const fcswils_conv_key_t *)v;
     guint val;
 
     val = key->conv_idx;
@@ -758,7 +758,7 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             char *flagsbuf;
             gint stroff, returned_length;
 
-            flagsbuf=ep_alloc(MAX_FLAGS_LEN);
+            flagsbuf=(char *)ep_alloc(MAX_FLAGS_LEN);
             stroff = 0;
 
             returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
@@ -1806,10 +1806,10 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_alloc(sizeof(fcswils_conv_key_t));
+            req_key = se_new(fcswils_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_alloc(sizeof(fcswils_conv_data_t));
+            cdata = se_new(fcswils_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert(fcswils_req_hash, req_key, cdata);

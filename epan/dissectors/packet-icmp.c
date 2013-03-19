@@ -1019,9 +1019,9 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 
 	/* Handle the conversation tracking */
 	conversation = _find_or_create_conversation(pinfo);
-	icmp_info = conversation_get_proto_data(conversation, proto_icmp);
+	icmp_info = (icmp_conv_info_t *)conversation_get_proto_data(conversation, proto_icmp);
 	if (icmp_info == NULL) {
-		icmp_info = se_alloc(sizeof(icmp_conv_info_t));
+		icmp_info = se_new(icmp_conv_info_t);
 		icmp_info->unmatched_pdus =
 		    se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
 						  "icmp_unmatched_pdus");
@@ -1041,7 +1041,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		icmp_key[1].length = 0;
 		icmp_key[1].key = NULL;
 
-		icmp_trans = se_alloc(sizeof(icmp_transaction_t));
+		icmp_trans = se_new(icmp_transaction_t);
 		icmp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
 		icmp_trans->resp_frame = 0;
 		icmp_trans->rqst_time = pinfo->fd->abs_ts;
@@ -1060,7 +1060,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		icmp_key[2].key = NULL;
 
 		icmp_trans =
-		    se_tree_lookup32_array(icmp_info->matched_pdus,
+		    (icmp_transaction_t *)se_tree_lookup32_array(icmp_info->matched_pdus,
 					   icmp_key);
 	}
 	if (icmp_trans == NULL) {
@@ -1101,7 +1101,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		return NULL;
 	}
 
-	icmp_info = conversation_get_proto_data(conversation, proto_icmp);
+	icmp_info = (icmp_conv_info_t *)conversation_get_proto_data(conversation, proto_icmp);
 	if (icmp_info == NULL) {
 		return NULL;
 	}
@@ -1114,7 +1114,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		icmp_key[1].length = 0;
 		icmp_key[1].key = NULL;
 		icmp_trans =
-		    se_tree_lookup32_array(icmp_info->unmatched_pdus,
+		    (icmp_transaction_t *)se_tree_lookup32_array(icmp_info->unmatched_pdus,
 					   icmp_key);
 		if (icmp_trans == NULL) {
 			return NULL;
@@ -1155,7 +1155,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 		icmp_key[2].key = NULL;
 
 		icmp_trans =
-		    se_tree_lookup32_array(icmp_info->matched_pdus,
+		    (icmp_transaction_t *)se_tree_lookup32_array(icmp_info->matched_pdus,
 					   icmp_key);
 
 		if (icmp_trans == NULL) {

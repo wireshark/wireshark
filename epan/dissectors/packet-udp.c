@@ -107,7 +107,7 @@ init_udp_conversation_data(void)
   struct udp_analysis *udpd;
 
   /* Initialize the udp protocol data structure to add to the udp conversation */
-  udpd = se_alloc0(sizeof(struct udp_analysis));
+  udpd = se_new0(struct udp_analysis);
   /*
   udpd->flow1.username = NULL;
   udpd->flow1.command = NULL;
@@ -129,7 +129,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
 	  conv = find_or_create_conversation(pinfo);
 
   /* Get the data for this conversation */
-  udpd=conversation_get_proto_data(conv, proto_udp);
+  udpd=(struct udp_analysis *)conversation_get_proto_data(conv, proto_udp);
 
   /* If the conversation was just created or it matched a
    * conversation with template options, udpd will not
@@ -179,7 +179,7 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     return;
   }
 
-  udpd = conversation_get_proto_data(conv, proto_udp);
+  udpd = (struct udp_analysis *)conversation_get_proto_data(conv, proto_udp);
   if (!udpd) {
     return;
   }
@@ -302,7 +302,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   struct udp_analysis *udpd = NULL;
   proto_tree *process_tree;
 
-  udph=ep_alloc(sizeof(e_udphdr));
+  udph=ep_new(e_udphdr);
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
@@ -452,9 +452,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (((ip_proto == IP_PROTO_UDP) && (udp_check_checksum)) ||
         ((ip_proto == IP_PROTO_UDPLITE) && (udplite_check_checksum))) {
       /* Set up the fields of the pseudo-header. */
-      cksum_vec[0].ptr = pinfo->src.data;
+      cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
       cksum_vec[0].len = pinfo->src.len;
-      cksum_vec[1].ptr = pinfo->dst.data;
+      cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
       cksum_vec[1].len = pinfo->dst.len;
       cksum_vec[2].ptr = (const guint8 *)&phdr;
       switch (pinfo->src.type) {

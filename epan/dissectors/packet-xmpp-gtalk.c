@@ -333,7 +333,7 @@ xmpp_gtalk_usersetting(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp
     for(i = 0; i < g_list_length(element->elements); i++)
     {
         GList *elem_l = g_list_nth(element->elements,i);
-        xmpp_element_t *elem = elem_l?elem_l->data:NULL;
+        xmpp_element_t *elem = (xmpp_element_t *)(elem_l?elem_l->data:NULL);
 
         if(elem)
         {

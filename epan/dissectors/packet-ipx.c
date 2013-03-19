@@ -488,12 +488,12 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 	spx_hash_value		*value;
 
 	/* Now remember the packet, so we can find it if we later. */
-	key = se_alloc(sizeof(spx_hash_key));
+	key = se_new(spx_hash_key);
 	key->conversation = conversation;
 	key->spx_src = spx_src;
 	key->spx_seq = spx_seq;
 
-	value = se_alloc0(sizeof(spx_hash_value));
+	value = se_new0(spx_hash_value);
 
 	g_hash_table_insert(spx_hash, key, value);
 
@@ -510,7 +510,7 @@ spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
 	key.spx_src = spx_src;
 	key.spx_seq = spx_seq;
 
-	return g_hash_table_lookup(spx_hash, &key);
+	return (spx_hash_value *)g_hash_table_lookup(spx_hash, &key);
 }
 
 /* ================================================================= */
@@ -728,7 +728,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Found in the hash table.  Mark this frame as
 				 * a retransmission.
 				 */
-				spx_rexmit_info_p = se_alloc(sizeof(spx_rexmit_info));
+				spx_rexmit_info_p = se_new(spx_rexmit_info);
 				spx_rexmit_info_p->num = pkt_value->num;
 				p_add_proto_data(pinfo->fd, proto_spx,
 				    spx_rexmit_info_p);
@@ -740,7 +740,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * data indicates which frame had the original
 			 * transmission.
 			 */
-			spx_rexmit_info_p = p_get_proto_data(pinfo->fd,
+			spx_rexmit_info_p = (spx_rexmit_info *)p_get_proto_data(pinfo->fd,
 			    proto_spx);
 		}
 	}
@@ -862,7 +862,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*rip_tree;
 	proto_item	*ti, *hidden_item;
 	guint16		operation;
-	struct ipx_rt_def route;
+	ipx_rt_def_t 	route;
 	int		cursor;
 	int		available_length;
 

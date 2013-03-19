@@ -767,7 +767,7 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
   int           skip, l;
 
   spos=tvb_get_ptr(tvb, offset, len);
-  buf=g_malloc(len);
+  buf=(guint8 *)g_malloc(len);
   dpos=buf;
   skip=0;
   l=len;
@@ -800,7 +800,7 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
     fm_config_frame *frame;
 
     /* get a new frame and initialize it */
-    frame = wmem_alloc(wmem_file_scope(), sizeof(fm_config_frame));
+    frame = (fm_config_frame *)wmem_alloc(wmem_file_scope(), sizeof(fm_config_frame));
 
     /* Get data packet setup information from config message and copy into ai_info (if required) */
     frame->cfg_cmd        = tvb_get_ntohs(tvb, offset);
@@ -824,7 +824,7 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
     /* Update offset pointer */
     offset += 6;
 
-    frame->analogs = wmem_alloc(wmem_file_scope(), frame->num_ai * sizeof(fm_analog_info));
+    frame->analogs = (fm_analog_info *)wmem_alloc(wmem_file_scope(), frame->num_ai * sizeof(fm_analog_info));
 
     /* Get AI Channel Details and copy into ai_info */
     for (count = 0; count < frame->num_ai; count++) {
@@ -1005,13 +1005,13 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
     /* Search for previously-encountered Configuration information to dissect the frame */
     {
-        conv = p_get_proto_data(pinfo->fd, proto_selfm);
+        conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm);
 
         if (conv) {
             wmem_slist_frame_t *frame = wmem_slist_front(conv->fm_config_frames);
             /* Cycle through possible instances of multiple fm_config_data_blocks, looking for match */
             while (frame && !config_found) {
-                cfg_data = wmem_slist_frame_data(frame);
+                cfg_data = (fm_config_frame *)wmem_slist_frame_data(frame);
                 config_cmd = cfg_data->cfg_cmd;
 
                 /* If the stored config_cmd matches the expected one we are looking for, mark that the config data was found */
@@ -1808,10 +1808,10 @@ dissect_selfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Find a conversation, create a new if no one exists */
         conversation = find_or_create_conversation(pinfo);
 
-        conv_data = conversation_get_proto_data(conversation, proto_selfm);
+        conv_data = (fm_conversation *)conversation_get_proto_data(conversation, proto_selfm);
 
         if (conv_data == NULL) {
-            conv_data = wmem_alloc(wmem_file_scope(), sizeof(fm_conversation));
+            conv_data = (fm_conversation *)wmem_alloc(wmem_file_scope(), sizeof(fm_conversation));
             conv_data->fm_config_frames = wmem_slist_new(wmem_file_scope());
             conversation_add_proto_data(conversation, proto_selfm, (void *)conv_data);
         }

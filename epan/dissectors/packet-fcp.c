@@ -429,18 +429,18 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         fchdr->itlq->lun = lun;
 
     if (!pinfo->fd->flags.visited) {
-        proto_data = se_alloc(sizeof(fcp_proto_data_t));
+        proto_data = se_new(fcp_proto_data_t);
         proto_data->lun = lun;
         p_add_proto_data(pinfo->fd, proto_fcp, proto_data);
     }
 
     request_data = (fcp_request_data_t*)se_tree_lookup32(fcp_conv_data->luns, lun);
     if (!request_data) {
-        request_data = se_alloc(sizeof(fcp_request_data_t));
+        request_data = se_new(fcp_request_data_t);
         request_data->request_frame = pinfo->fd->num;
         request_data->response_frame = 0;
         request_data->request_time = pinfo->fd->abs_ts;
-        request_data->itl = se_alloc(sizeof(itl_nexus_t));
+        request_data->itl = se_new(itl_nexus_t);
         request_data->itl->cmdset = 0xff;
         request_data->itl->conversation = conversation;
         se_tree_insert32(fcp_conv_data->luns, lun, request_data);
@@ -704,10 +704,10 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      pinfo->ptype, pinfo->srcport,
                      pinfo->destport, 0);
     if (fc_conv != NULL) {
-        fcp_conv_data = conversation_get_proto_data(fc_conv, proto_fcp);
+        fcp_conv_data = (fcp_conv_data_t *)conversation_get_proto_data(fc_conv, proto_fcp);
     }
     if (!fcp_conv_data) {
-        fcp_conv_data = se_alloc(sizeof(fcp_conv_data_t));
+        fcp_conv_data = se_new(fcp_conv_data_t);
         fcp_conv_data->luns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
         conversation_add_proto_data(fc_conv, proto_fcp, fcp_conv_data);
     }
@@ -716,11 +716,11 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        The only way that consistently works is to save the lun on the first pass when packets
        are guaranteed to be parsed consecutively */
     if (!pinfo->fd->flags.visited) {
-        proto_data = se_alloc(sizeof(fcp_proto_data_t));
+        proto_data = se_new(fcp_proto_data_t);
         proto_data->lun = fchdr->itlq->lun;
         p_add_proto_data(pinfo->fd, proto_fcp, proto_data);
     } else {
-        proto_data = p_get_proto_data(pinfo->fd, proto_fcp);
+        proto_data = (fcp_proto_data_t *)p_get_proto_data(pinfo->fd, proto_fcp);
         fchdr->itlq->lun = proto_data->lun;
     }
 

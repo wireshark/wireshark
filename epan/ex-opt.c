@@ -42,7 +42,7 @@ gboolean ex_opt_add(const gchar* optarg) {
     splitted = g_strsplit(optarg,":",2);
     
     if (splitted[0] && splitted[1]) {
-        GPtrArray* this_opts = g_hash_table_lookup(ex_opts,splitted[0]);
+        GPtrArray* this_opts = (GPtrArray *)g_hash_table_lookup(ex_opts,splitted[0]);
         
         if (this_opts) {
             g_ptr_array_add(this_opts,splitted[1]);
@@ -68,7 +68,7 @@ gint ex_opt_count(const gchar* key) {
     if (! ex_opts)
         return 0;
     
-    this_opts = g_hash_table_lookup(ex_opts,key);
+    this_opts = (GPtrArray *)g_hash_table_lookup(ex_opts,key);
     
     if (this_opts) {
         return this_opts->len;
@@ -83,11 +83,11 @@ const gchar* ex_opt_get_nth(const gchar* key, guint index) {
     if (! ex_opts)
         return 0;
     
-    this_opts = g_hash_table_lookup(ex_opts,key);
+    this_opts = (GPtrArray *)g_hash_table_lookup(ex_opts,key);
     
     if (this_opts) {
         if (this_opts->len > index) {
-            return g_ptr_array_index(this_opts,index);
+            return (const gchar *)g_ptr_array_index(this_opts,index);
         } else {
             /* XXX: assert? */
             return NULL;
@@ -104,11 +104,11 @@ extern const gchar* ex_opt_get_next(const gchar* key) {
     if (! ex_opts)
         return 0;
     
-    this_opts = g_hash_table_lookup(ex_opts,key);
+    this_opts = (GPtrArray *)g_hash_table_lookup(ex_opts,key);
     
     if (this_opts) {
         if (this_opts->len)
-            return g_ptr_array_remove_index(this_opts,0);
+            return (const gchar *)g_ptr_array_remove_index(this_opts,0);
         else 
             return NULL;
     } else {

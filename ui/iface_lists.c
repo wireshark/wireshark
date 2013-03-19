@@ -48,7 +48,7 @@ capture_options global_capture_opts;
 gint
 if_list_comparator_alph(const void *first_arg, const void *second_arg)
 {
-    const if_info_t *first = first_arg, *second = second_arg;
+    const if_info_t *first = (const if_info_t *)first_arg, *second = (const if_info_t *)second_arg;
 
     if (first != NULL && first->friendly_name != NULL &&
         second != NULL && second->friendly_name != NULL) {
@@ -98,7 +98,7 @@ scan_local_interfaces(void)
     if_list = capture_interface_list(&err, NULL);
     count = 0;
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-        if_info = if_entry->data;
+        if_info = (if_info_t *)if_entry->data;
         ip_str = g_string_new("");
         ips = 0;
         if (strstr(if_info->name, "rpcap:")) {
@@ -112,7 +112,7 @@ scan_local_interfaces(void)
         }
         device.hidden = FALSE;
         device.locked = FALSE;
-        temp = g_malloc0(sizeof(if_info_t));
+        temp = (if_info_t *)g_malloc0(sizeof(if_info_t));
         temp->name = g_strdup(if_info->name);
         temp->friendly_name = g_strdup(if_info->friendly_name);
         temp->vendor_description = g_strdup(if_info->vendor_description);
@@ -163,7 +163,7 @@ scan_local_interfaces(void)
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
         caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
-            temp_addr = g_malloc0(sizeof(if_addr_t));
+            temp_addr = (if_addr_t *)g_malloc0(sizeof(if_addr_t));
             if (ips != 0) {
                 g_string_append(ip_str, "\n");
             }
@@ -215,7 +215,7 @@ scan_local_interfaces(void)
             device.monitor_mode_supported = caps->can_set_rfmon;
 #endif
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-                data_link_info = lt_entry->data;
+                data_link_info = (data_link_info_t *)lt_entry->data;
                 if (linktype_count == 0) {
                     device.active_dlt = data_link_info->dlt;
                 }
@@ -372,7 +372,7 @@ hide_interface(gchar* new_hide)
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         found = FALSE;
         for (entry = hidden_devices; entry != NULL; entry = g_list_next(entry)) {
-            if (strcmp(entry->data, device.name)==0) {
+            if (strcmp((char *)entry->data, device.name)==0) {
                 device.hidden = TRUE;
                 if (device.selected) {
                     device.selected = FALSE;

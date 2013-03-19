@@ -406,7 +406,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_clear(pinfo->cinfo, COL_INFO);
 
     conversation = find_or_create_conversation(pinfo);
-    xmpp_info = conversation_get_proto_data(conversation, proto_xmpp);
+    xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
 
     if (xmpp_info && xmpp_info->ssl_proceed &&
             xmpp_info->ssl_proceed < pinfo->fd->num)
@@ -447,7 +447,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         return;
 
     if (!xmpp_info) {
-        xmpp_info = se_alloc(sizeof (xmpp_conv_info_t));
+        xmpp_info = se_new(xmpp_conv_info_t);
         xmpp_info->req_resp = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_req_resp");
         xmpp_info->jingle_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_jingle_sessions");
         xmpp_info->ibb_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_ibb_sessions");

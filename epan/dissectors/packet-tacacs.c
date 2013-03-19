@@ -355,7 +355,7 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 
 	tvb_memcpy(tvb, session_id, 4,4);
 
-	buff = tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
+	buff = (guint8 *)tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
 
 
 	md5_xor( buff, key, len, session_id,version, tvb_get_guint8(tvb,2) );
@@ -793,8 +793,8 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 static int
 cmp_conv_address( gconstpointer p1, gconstpointer p2 )
 {
-	const tacplus_key_entry *a1=p1;
-	const tacplus_key_entry *a2=p2;
+	const tacplus_key_entry *a1=(const tacplus_key_entry *)p1;
+	const tacplus_key_entry *a2=(const tacplus_key_entry *)p2;
 	gint32	ret;
 	/*
 	printf("p1=>");
@@ -837,8 +837,8 @@ mkipv4_address( address **addr, const char *str_addr )
 {
 	char *addr_data;
 
-	*addr=g_malloc( sizeof(address) );
-	addr_data=g_malloc( 4 );
+	*addr=(address *)g_malloc( sizeof(address) );
+	addr_data=(char *)g_malloc( 4 );
 	inet_pton( AF_INET, str_addr, addr_data );
 	SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
 }
@@ -846,7 +846,7 @@ static void
 parse_tuple( char *key_from_option )
 {
 	char *client,*key;
-	tacplus_key_entry *tacplus_data=g_malloc( sizeof(tacplus_key_entry) );
+	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)g_malloc( sizeof(tacplus_key_entry) );
 	/*
 	printf("keys: %s\n", key_from_option );
 	*/
