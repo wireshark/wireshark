@@ -1263,6 +1263,36 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     return 0;
 }
 
+static int TvbRange_uncompress(lua_State* L) {
+	/* Obtain a uncompressed TvbRange from a TvbRange */
+#define WSLUA_ARG_TvbRange_tvb_NAME 2 /* The name to be given to the new data-source. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    const gchar* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Uncompressed");
+    tvbuff_t *uncompr_tvb;
+
+    if (!(tvbr && tvbr->tvb)) return 0;
+    
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+#ifdef HAVE_LIBZ
+    uncompr_tvb = tvb_child_uncompress(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
+    if (uncompr_tvb) {
+       add_new_data_source (lua_pinfo, uncompr_tvb, name);
+       if ((tvbr = new_TvbRange(L,uncompr_tvb,0,tvb_length(uncompr_tvb)))) {
+          PUSH_TVBRANGE(L,tvbr);
+          WSLUA_RETURN(1); /* The TvbRange */
+       }
+    }
+#else
+    luaL_error(L,"Missing support for ZLIB");
+#endif
+
+    return 0;
+}
+
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TvbRange__gc(lua_State* L) {
     TvbRange tvbr = checkTvbRange(L,1);
@@ -1344,6 +1374,7 @@ static const luaL_Reg TvbRange_methods[] = {
     {"ustring", TvbRange_ustring},
     {"le_ustringz", TvbRange_le_ustringz},
     {"ustringz", TvbRange_ustringz},
+    {"uncompress", TvbRange_uncompress},
     { NULL, NULL }
 };
 
