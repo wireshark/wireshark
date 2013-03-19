@@ -982,7 +982,7 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
     return NULL;
 
   spos=tvb_get_ptr(tvb, offset, len);
-  buf=g_malloc(len);
+  buf=(guint8 *)g_malloc(len);
   dpos=buf;
   skip=0;
   l=len;

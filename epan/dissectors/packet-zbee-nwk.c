@@ -367,11 +367,11 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up hint structures */
     if (!pinfo->fd->flags.visited) {
         /* Allocate frame data with hints for upper layers */
-        nwk_hints = se_alloc0(sizeof(zbee_nwk_hints_t));
+        nwk_hints = se_new0(zbee_nwk_hints_t);
         p_add_proto_data(pinfo->fd, proto_zbee_nwk, nwk_hints);
     } else {
         /* Retrieve existing structure */
-        nwk_hints = p_get_proto_data(pinfo->fd, proto_zbee_nwk);
+        nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd, proto_zbee_nwk);
     }
 
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,

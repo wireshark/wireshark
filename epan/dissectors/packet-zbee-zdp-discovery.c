@@ -418,8 +418,8 @@ dissect_zbee_zdp_req_set_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* No Length field in ZigBee 2003 & earlier, uses a fixed length of 16. */
         user_length = 16;
     }
-    user        = ep_alloc(user_length+1);
-    user        = tvb_memcpy(tvb, user, offset, user_length);
+    user        = (gchar *)ep_alloc(user_length+1);
+    user        = (gchar *)tvb_memcpy(tvb, user, offset, user_length);
     user[user_length] = '\0';
     if (tree) {
         proto_tree_add_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, user);

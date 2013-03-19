@@ -121,9 +121,9 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Retrieve information from conversation
 	 * or add it if it isn't there yet
 	 */
-	hash_info = conversation_get_proto_data(conversation, proto_rsh);
+	hash_info = (rsh_hash_entry_t *)conversation_get_proto_data(conversation, proto_rsh);
 	if(!hash_info){
-		hash_info = se_alloc(sizeof(rsh_hash_entry_t));
+		hash_info = se_new(rsh_hash_entry_t);
 
 		hash_info->first_packet_number = pinfo->fd->num;
 		hash_info->second_packet_number = 0;

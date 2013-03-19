@@ -386,7 +386,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	DISSECTOR_ASSERT( conversation);	/* should always find a conversation */
 
-	hash_info = conversation_get_proto_data(conversation, proto_socks);
+	hash_info = (socks_hash_entry_t *)conversation_get_proto_data(conversation, proto_socks);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
 
@@ -980,7 +980,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* the payload, and restore the pinfo port after that is done.		*/
 
 	guint32 *ptr;
-	struct tcpinfo *tcpinfo = pinfo->private_data;
+	struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
 	guint16 save_can_desegment;
 	struct tcp_analysis *tcpd=NULL;
 
@@ -1040,9 +1040,9 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 
 	conversation = find_or_create_conversation(pinfo);
-	hash_info = conversation_get_proto_data(conversation,proto_socks);
+	hash_info = (socks_hash_entry_t *)conversation_get_proto_data(conversation,proto_socks);
 	if ( !hash_info){
-    		hash_info = se_alloc(sizeof(socks_hash_entry_t));
+    		hash_info = se_new(socks_hash_entry_t);
 		hash_info->start_done_row = G_MAXINT;
     		hash_info->state = None;
 		hash_info->port = 0;

@@ -1014,8 +1014,8 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
     proto_item  *field_root;
     proto_tree  *field_tree;
 
-    gchar   *str = ep_alloc(length);
-    gchar   *complex = ep_alloc(max_len);
+    gchar   *str = (gchar *)ep_alloc(length);
+    gchar   *complex = (gchar *)ep_alloc(max_len);
     guint8  tag;
 
     if ((tree) && (ettindex != -1)) {

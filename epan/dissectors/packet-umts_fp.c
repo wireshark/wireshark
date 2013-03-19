@@ -3762,7 +3762,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
              * with the corresponding generator polynomial: G(D) = D7+D6+D2+1. See subclause 7.2.
              */
             length =  tvb_length(tvb);
-            buf = ep_tvb_memdup(tvb, 0, length);
+            buf = (unsigned char *)ep_tvb_memdup(tvb, 0, length);
             buf[0] = 01;
 
             calc_crc = crc7update(calc_crc, buf, length);
@@ -3884,7 +3884,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             if(fpi->hsdsch_entity == hs /*&& !rlc_is_ciphered(pinfo)*/){
                 for(i=0; i<MAX_NUM_HSDHSCH_MACDFLOW; i++){
                     /*Figure out if this channel is multiplexed (signaled from RRC)*/
-                    if((cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)p_conv_data->hrnti))) != NULL){
+                    if((cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)p_conv_data->hrnti))) != NULL){
                         j = 1 << i;
                         fpi->hsdhsch_macfdlow_is_mux[i] = j & *cur_val;
                     }else{

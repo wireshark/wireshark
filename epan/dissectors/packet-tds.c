@@ -1182,7 +1182,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 len *= 2;
                 val = (gchar*)tvb_get_ephemeral_string(tvb, offset2, len);
-                val2 = ep_alloc((len/2)+1);
+                val2 = (char *)ep_alloc((len/2)+1);
 
                 for(j = 0, k = 0; j < len; j += 2, k++) {
                     val[j] ^= 0xA5;
@@ -1310,7 +1310,7 @@ dissect_tds_col_info_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint of
             return FALSE;
         }
 
-        nl_data->columns[col] = ep_alloc(sizeof(struct _tds_col));
+        nl_data->columns[col] = ep_new(struct _tds_col);
 
         nl_data->columns[col]->name[0] ='\0';
 
@@ -1368,7 +1368,7 @@ read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, gui
     cur += 2;
 
     for (i = 0; i < nl_data->num_cols; i++) {
-        nl_data->columns[i] = ep_alloc(sizeof(struct _tds_col));
+        nl_data->columns[i] = ep_new(struct _tds_col);
         name_len = tvb_get_guint8(tvb,cur);
         cur ++;
         cur += name_len;

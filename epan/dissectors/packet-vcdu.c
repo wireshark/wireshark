@@ -169,7 +169,7 @@ static guint          num_channels_uat = 0;
 UAT_DEC_CB_DEF(uat_bitchannels, channel, uat_channel_t)
 
 static void vcdu_uat_data_update_cb(void* p, const char** err) {
-    uat_channel_t *ud = p;
+    uat_channel_t *ud = (uat_channel_t *)p;
 
     if (ud->channel >= 64) {
         *err = ep_strdup_printf("Channel must be between 0-63.");
@@ -617,7 +617,7 @@ proto_register_vcdu(void)
         sizeof(uat_channel_t),
         "vcdu_bitstream_channels",
         TRUE,
-        (void*)&uat_bitchannels,
+        (void**)&uat_bitchannels,
         &num_channels_uat,
         UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
         NULL,

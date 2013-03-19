@@ -334,9 +334,9 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
   conversation = find_or_create_conversation(pinfo);
 
-  tftp_info = conversation_get_proto_data(conversation, proto_tftp);
+  tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
   if (!tftp_info) {
-    tftp_info = se_alloc(sizeof(tftp_conv_info_t));
+    tftp_info = se_new(tftp_conv_info_t);
     tftp_info->blocksize = 512; /* TFTP default block size */
     tftp_info->source_file = NULL;
     tftp_info->destination_file = NULL;
@@ -406,9 +406,9 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  return;
 	  }
 	}
-	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
+	tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
         if (!tftp_info) {
-	  tftp_info = se_alloc(sizeof(tftp_conv_info_t));
+	  tftp_info = se_new(tftp_conv_info_t);
 	  tftp_info->blocksize = 512; /* TFTP default block size */
 	  tftp_info->source_file = NULL;
 	  tftp_info->destination_file = NULL;

@@ -417,7 +417,7 @@ try_again:
     sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
     i=0;
     end_off_message = FALSE;
-    buff = g_malloc(length-offset);
+    buff = (guint8 *)g_malloc(length-offset);
     if (udvm_print_detail_level>2)
         proto_tree_add_text(sigcomp_tree, tvb, offset, -1,"Starting to remove escape digits");
     while ((offset < length) && (end_off_message == FALSE)){
@@ -714,7 +714,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             /*
              * Note: The allocated buffer must be zeroed or some strange effects might occur.
              */
-            buff = g_malloc0(UDVM_MEMORY_SIZE);
+            buff = (guint8 *)g_malloc0(UDVM_MEMORY_SIZE);
 
 
             p_id_start = 0;

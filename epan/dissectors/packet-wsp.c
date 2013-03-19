@@ -5155,7 +5155,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, NULL)) {
-                        guint8* save_private_data = pinfo->private_data;
+                        guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
                         pinfo->private_data = NULL; /* TODO: parameters */
@@ -5250,7 +5250,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, NULL)) {
-                        guint8* save_private_data = pinfo->private_data;
+                        guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
                         pinfo->private_data = NULL; /* TODO: parameters */
@@ -5334,7 +5334,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
                                 tmp_tvb, pinfo, tree, NULL)) {
-                        guint8* save_private_data = pinfo->private_data;
+                        guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
                         pinfo->private_data = NULL; /* TODO: parameters */
@@ -5822,7 +5822,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 
     if (valueEnd < valueStart)
     {
-        valueBuffer = ep_alloc (1);
+        valueBuffer = (char *)ep_alloc (1);
         valueBuffer[0] = 0;
         valueEnd = valueStart;
     }
@@ -5935,7 +5935,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         if (! found_match) {
             if (! dissector_try_heuristic(heur_subdissector_list,
                         tmp_tvb, pinfo, mpart_tree, NULL)) {
-                guint8* save_private_data = pinfo->private_data;
+                guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                 pinfo->match_string = contentTypeStr;
                 pinfo->private_data = NULL; /* TODO: parameters */

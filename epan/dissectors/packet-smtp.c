@@ -331,12 +331,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Is there a request structure attached to this conversation?
    */
-  session_state = conversation_get_proto_data(conversation, proto_smtp);
+  session_state = (struct smtp_session_state *)conversation_get_proto_data(conversation, proto_smtp);
   if (!session_state) {
     /*
      * No - create one and attach it.
      */
-    session_state                    = wmem_alloc(wmem_file_scope(), sizeof(struct smtp_session_state));
+    session_state                    = (struct smtp_session_state *)wmem_alloc(wmem_file_scope(), sizeof(struct smtp_session_state));
     session_state->smtp_state        = SMTP_STATE_READING_CMDS;
     session_state->auth_state        = SMTP_AUTH_STATE_NONE;
     session_state->first_auth_frame  = 0;
@@ -382,7 +382,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Is there any data attached to this frame?
    */
-  spd_frame_data = p_get_proto_data(pinfo->fd, proto_smtp);
+  spd_frame_data = (struct smtp_proto_data *)p_get_proto_data(pinfo->fd, proto_smtp);
 
   if (!spd_frame_data) {
 
@@ -394,7 +394,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /*
        * Create a frame data structure and attach it to the packet.
        */
-      spd_frame_data = wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_proto_data));
+      spd_frame_data = (struct smtp_proto_data *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_proto_data));
 
       spd_frame_data->conversation_id = conversation->index;
       spd_frame_data->more_frags = TRUE;

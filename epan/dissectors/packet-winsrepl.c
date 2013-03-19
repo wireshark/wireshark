@@ -566,7 +566,7 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	}
 
 	/* REPLIICATION_CMD */
-	command = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
+	command = (enum wrepl_replication_cmd)tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
 	proto_tree_add_uint(repl_tree, hf_winsrepl_replication_command, winsrepl_tvb, winsrepl_offset, 4, command);
 	winsrepl_offset += 4;
 
@@ -661,7 +661,7 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 4;
 
 	/* MESSAGE_TYPE */
-	mess_type = tvb_get_ntohl(tvb, offset);
+	mess_type = (enum wrepl_mess_type)tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_mess_type, tvb, offset, 4, mess_type);
 	offset += 4;
 

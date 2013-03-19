@@ -143,7 +143,7 @@ struct _norm_hf
 	int nack_flags_object;
 	struct flaglist {
 		int repair;
-		int explicit;
+		int norm_explicit;
 		int info;
 		int unreliable;
 		int file;

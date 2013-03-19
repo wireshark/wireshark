@@ -64,7 +64,7 @@ dissect_telkonet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELKONET");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	type = tvb_get_guint8(tvb, offset);
+	type = (telkonet_type_t)tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Telkonet type: %s",
 		val_to_str(type, telkonet_type_vals, "Unknown (0x%02x)"));

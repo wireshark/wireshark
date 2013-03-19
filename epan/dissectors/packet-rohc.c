@@ -914,7 +914,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             /* Set mode at first pass? Do we need a new context for the following frames?
              *
              */
-            rohc_cid_context->mode = (tvb_get_guint8(tvb,offset) & 0x30)>>4;
+            rohc_cid_context->mode = (enum rohc_mode)((tvb_get_guint8(tvb,offset) & 0x30)>>4);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_acktype, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1535,7 +1535,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             return offset;
         }
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_x, tvb, offset, 1, ENC_BIG_ENDIAN);
-        rohc_cid_context->mode = (tvb_get_guint8(tvb,offset) &  0x0c)>>2;
+        rohc_cid_context->mode = (enum rohc_mode)((tvb_get_guint8(tvb,offset) &  0x0c)>>2);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_tis, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_tss, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1848,7 +1848,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
             rohc_cid_context->rohc_ip_version = tmp_prev_rohc_ip_version;
-            rohc_cid_context->mode = tmp_prev_mode;
+            rohc_cid_context->mode = (enum rohc_mode)tmp_prev_mode;
             rohc_cid_context->rnd = tmp_prev_rnd;
             rohc_cid_context->udp_checksum_present = tmp_prev_udp_checksum_present;
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
@@ -1970,7 +1970,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
             rohc_cid_context->rohc_ip_version = tmp_prev_rohc_ip_version;
-            rohc_cid_context->mode = tmp_prev_mode;
+            rohc_cid_context->mode = (enum rohc_mode)tmp_prev_mode;
             rohc_cid_context->rnd = tmp_prev_rnd;
             rohc_cid_context->udp_checksum_present = tmp_prev_udp_checksum_present;
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
@@ -2045,7 +2045,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_rohc_info.last_created_item    = NULL;
         p_rohc_info = &g_rohc_info;
     }else{
-        p_rohc_info = pinfo->private_data;
+        p_rohc_info = (rohc_info *)pinfo->private_data;
         memset(&g_rohc_info, 0, sizeof(rohc_info));
     }
 
@@ -2274,7 +2274,7 @@ start_over:
             gint len;
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
             len = tvb_length_remaining(tvb, offset) - val_len;
-            data = ep_alloc(len);
+            data = (guint8 *)ep_alloc(len);
             tvb_memcpy(tvb, data, offset, 1);
             tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
             next_tvb = tvb_new_child_real_data(tvb, data, len, len);

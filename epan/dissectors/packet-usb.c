@@ -1126,7 +1126,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     hfi = proto_registrar_get_nth(hf_usb_idProduct);
     field_description_length = (gint)strlen(hfi->name) + 14;
-    field_description = ep_alloc(field_description_length);
+    field_description = (guint8 *)ep_alloc(field_description_length);
     g_strlcpy(field_description, hfi->name, field_description_length);
     g_strlcat(field_description, ": %s (0x%04x)", field_description_length);
 

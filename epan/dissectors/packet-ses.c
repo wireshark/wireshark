@@ -1090,10 +1090,10 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			has_user_information = TRUE;
 			break;
 		case SES_MAJOR_SYNC_POINT:
-			pres_ctx_id = p_get_proto_data (pinfo->fd, proto_ses);
+			pres_ctx_id = (guint32 *)p_get_proto_data (pinfo->fd, proto_ses);
 			if (ses_rtse_reassemble != 0 && !pres_ctx_id) {
 				/* First time visited - save pres_ctx_id */
-				pres_ctx_id = se_alloc (sizeof (guint32));
+				pres_ctx_id = se_new(guint32);
 				*pres_ctx_id = ses_pres_ctx_id;
 				p_add_proto_data (pinfo->fd, proto_ses, pres_ctx_id);
 			}

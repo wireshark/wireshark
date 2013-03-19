@@ -151,8 +151,8 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
 static void* user_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
-    const user_encap_t *o = orig;
-    user_encap_t *d = dest;
+    const user_encap_t *o = (const user_encap_t *)orig;
+    user_encap_t *d = (user_encap_t *)dest;
 
     d->payload_proto_name = g_strdup(o->payload_proto_name);
     d->header_proto_name  = g_strdup(o->header_proto_name);
@@ -163,7 +163,7 @@ static void* user_copy_cb(void* dest, const void* orig, size_t len _U_)
 
 static void user_free_cb(void* record)
 {
-    user_encap_t *u = record;
+    user_encap_t *u = (user_encap_t *)record;
 
     g_free(u->payload_proto_name);
     g_free(u->header_proto_name);
@@ -219,7 +219,7 @@ void proto_register_user_encap(void)
                          sizeof(user_encap_t),
                          "user_dlts",
                          TRUE,
-                         (void*) &encaps,
+                         (void**) &encaps,
                          &num_encaps,
                          UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                          "ChUserDLTsSection",

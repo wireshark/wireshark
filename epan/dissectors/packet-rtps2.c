@@ -1226,7 +1226,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
      */
 
   /* Calc indent string */
-  indent_string = ep_alloc((indent_level*2)+1);
+  indent_string = (char *)ep_alloc((indent_level*2)+1);
   memset(indent_string, ' ', indent_level*2);
   indent_string[indent_level*2] = '\0';
 

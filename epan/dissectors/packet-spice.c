@@ -3134,7 +3134,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     spice_info = (spice_conversation_t*)conversation_get_proto_data(conversation, proto_spice);
     if (!spice_info) {
-        spice_info = se_alloc0(sizeof(spice_conversation_t));
+        spice_info = se_new0(spice_conversation_t);
         spice_info->destport           = pinfo->destport;
         spice_info->channel_type       = SPICE_CHANNEL_NONE;
         spice_info->next_state         = SPICE_LINK_CLIENT;
@@ -3147,9 +3147,9 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         conversation_set_dissector(conversation, spice_handle);
     }
 
-    per_packet_info = p_get_proto_data(pinfo->fd, proto_spice);
+    per_packet_info = (spice_packet_t *)p_get_proto_data(pinfo->fd, proto_spice);
     if (!per_packet_info) {
-        per_packet_info = se_alloc(sizeof(spice_packet_t));
+        per_packet_info = se_new(spice_packet_t);
         per_packet_info->state = spice_info->next_state;
         p_add_proto_data(pinfo->fd, proto_spice, per_packet_info);
     }

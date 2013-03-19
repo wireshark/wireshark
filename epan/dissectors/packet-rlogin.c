@@ -387,7 +387,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 static void
 dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct tcpinfo *tcpinfo = pinfo->private_data;
+	struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
 	guint length;
@@ -397,11 +397,11 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation = find_or_create_conversation(pinfo);
 
 	/* Get or create data associated with this conversation */
-	hash_info = conversation_get_proto_data(conversation, proto_rlogin);
+	hash_info = (rlogin_hash_entry_t *)conversation_get_proto_data(conversation, proto_rlogin);
 	if (!hash_info)
 	{
 		/* Populate new data struct... */
-		hash_info = se_alloc(sizeof(rlogin_hash_entry_t));
+		hash_info = se_new(rlogin_hash_entry_t);
 		hash_info->state = NONE;
 		hash_info->info_framenum = 0;  /* no frame has the number 0 */
 		hash_info->user_name[0] = '\0';

@@ -79,7 +79,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
         proto_tree *x29_tree = NULL;
         proto_item *ti;
-	gboolean *q_bit_set = pinfo->private_data;
+	gboolean *q_bit_set = (gboolean *)pinfo->private_data;
 	guint8 msg_code;
 	guint8 error_type;
 	guint8 type_ref;

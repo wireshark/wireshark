@@ -476,18 +476,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     /*
      * Do we already have a state structure for this conv
      */
-    stun_info = conversation_get_proto_data(conversation, proto_stun);
+    stun_info = (stun_conv_info_t *)conversation_get_proto_data(conversation, proto_stun);
     if (!stun_info) {
         /* No.  Attach that information to the conversation, and add
          * it to the list of information structures.
          */
-        stun_info = se_alloc(sizeof(stun_conv_info_t));
+        stun_info = se_new(stun_conv_info_t);
         stun_info->transaction_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "stun_transaction_pdus");
         conversation_add_proto_data(conversation, proto_stun, stun_info);
     }
 
     if (!pinfo->fd->flags.visited) {
-        if ((stun_trans =
+        if ((stun_trans = (stun_transaction_t *)
              se_tree_lookup32_array(stun_info->transaction_pdus,
                                     transaction_id_key)) == NULL) {
 
@@ -496,7 +496,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             transaction_id_key[1].length = 0;
             transaction_id_key[1].key = NULL;
 
-            stun_trans=se_alloc(sizeof(stun_transaction_t));
+            stun_trans=se_new(stun_transaction_t);
             stun_trans->req_frame=0;
             stun_trans->rep_frame=0;
             stun_trans->req_time=pinfo->fd->abs_ts;
@@ -519,13 +519,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
         }
     } else {
-        stun_trans=se_tree_lookup32_array(stun_info->transaction_pdus,
+        stun_trans=(stun_transaction_t *)se_tree_lookup32_array(stun_info->transaction_pdus,
                                             transaction_id_key);
     }
 
     if (!stun_trans) {
         /* create a "fake" pana_trans structure */
-        stun_trans=ep_alloc(sizeof(stun_transaction_t));
+        stun_trans=ep_new(stun_transaction_t);
         stun_trans->req_frame=0;
         stun_trans->rep_frame=0;
         stun_trans->req_time=pinfo->fd->abs_ts;

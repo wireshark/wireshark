@@ -2171,7 +2171,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 	/* Initialise stat info for passing to tap */
-	stat_info = ep_alloc0(sizeof(sip_info_value_t));
+	stat_info = ep_new0(sip_info_value_t);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
@@ -3648,8 +3648,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		/* Need to create a new table entry */
 
 		/* Allocate a new key and value */
-		p_key = se_alloc(sizeof(sip_hash_key));
-		p_val = se_alloc(sizeof(sip_hash_value));
+		p_key = se_new(sip_hash_key);
+		p_val = se_new(sip_hash_value);
 
 		/* Fill in key and value details */
 		g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
@@ -3740,7 +3740,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
-		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
+		sip_frame_result = se_new0(sip_frame_result_value);
 	}
 
 	/* Store return value with this packet */
@@ -3844,7 +3844,7 @@ guint sip_find_request(packet_info *pinfo,
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
-		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
+		sip_frame_result = se_new0(sip_frame_result_value);
 	}
 
 	sip_frame_result->response_request_frame_num = result;
@@ -3964,7 +3964,7 @@ guint sip_find_invite(packet_info *pinfo,
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
-		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
+		sip_frame_result = se_new0(sip_frame_result_value);
 	}
 
 	sip_frame_result->response_request_frame_num = result;

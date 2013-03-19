@@ -892,9 +892,9 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conversation = find_or_create_conversation(pinfo);
 
   /* Do we already have XMCP state for this conversation? */
-  xmcp_conv_info = conversation_get_proto_data(conversation, proto_xmcp);
+  xmcp_conv_info = (xmcp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmcp);
   if (!xmcp_conv_info) {
-    xmcp_conv_info = se_alloc(sizeof(xmcp_conv_info_t));
+    xmcp_conv_info = se_new(xmcp_conv_info_t);
     xmcp_conv_info->transaction_pdus =
       se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
                                     "xmcp_pdus");
@@ -902,10 +902,10 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Find existing transaction entry or create a new one */
-  xmcp_trans = se_tree_lookup32_array(xmcp_conv_info->transaction_pdus,
+  xmcp_trans = (xmcp_transaction_t *)se_tree_lookup32_array(xmcp_conv_info->transaction_pdus,
                                       transaction_id_key);
   if (!xmcp_trans) {
-      xmcp_trans = se_alloc(sizeof(xmcp_transaction_t));
+      xmcp_trans = se_new(xmcp_transaction_t);
       xmcp_trans->request_frame = 0;
       xmcp_trans->response_frame = 0;
       xmcp_trans->request_time = pinfo->fd->abs_ts;

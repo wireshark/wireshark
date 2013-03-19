@@ -267,13 +267,13 @@ void rdt_add_address(packet_info *pinfo,
     conversation_set_dissector(p_conv, rdt_handle);
 
     /* Check if the conversation has data associated with it. */
-    p_conv_data = conversation_get_proto_data(p_conv, proto_rdt);
+    p_conv_data = (struct _rdt_conversation_info *)conversation_get_proto_data(p_conv, proto_rdt);
 
     /* If not, add a new data item. */
     if (!p_conv_data)
     {
         /* Create conversation data */
-        p_conv_data = se_alloc(sizeof(struct _rdt_conversation_info));
+        p_conv_data = se_new(struct _rdt_conversation_info);
         conversation_add_proto_data(p_conv, proto_rdt, p_conv_data);
     }
 
@@ -1233,7 +1233,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct _rdt_conversation_info *p_conv_data;
 
     /* Use existing packet info if available */
-    p_conv_data = p_get_proto_data(pinfo->fd, proto_rdt);
+    p_conv_data = (struct _rdt_conversation_info *)p_get_proto_data(pinfo->fd, proto_rdt);
 
     if (!p_conv_data)
     {
@@ -1245,12 +1245,12 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             /* Create space for conversation info */
             struct _rdt_conversation_info *p_conv_packet_data;
-            p_conv_data = conversation_get_proto_data(p_conv, proto_rdt);
+            p_conv_data = (struct _rdt_conversation_info *)conversation_get_proto_data(p_conv, proto_rdt);
 
             if (p_conv_data)
             {
                 /* Save this conversation info into packet info */
-                p_conv_packet_data = se_alloc(sizeof(struct _rdt_conversation_info));
+                p_conv_packet_data = se_new(struct _rdt_conversation_info);
                 g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RDT_SETUP_METHOD_SIZE);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_conv_packet_data->feature_level = p_conv_data->feature_level;

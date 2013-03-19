@@ -656,7 +656,7 @@ static char *
 dte_address_util(tvbuff_t *tvb, int offset, guint8 len)
 {
 	int i;
-	char *tmpbuf = ep_alloc(258);
+	char *tmpbuf = (char *)ep_alloc(258);
 
 	for (i = 0; (i<len)&&(i<256); i++) {
 		if (i % 2 == 0) {
@@ -1019,8 +1019,8 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     guint8 byte;
     int localoffset;
 
-    addr1=ep_alloc(16);
-    addr2=ep_alloc(16);
+    addr1=(char *)ep_alloc(16);
+    addr2=(char *)ep_alloc(16);
 
     byte = tvb_get_guint8(tvb, *offset);
     len1 = (byte >> 0) & 0x0F;
@@ -1100,8 +1100,8 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     guint8 byte;
     int localoffset;
 
-    addr1=ep_alloc(256);
-    addr2=ep_alloc(256);
+    addr1=(char *)ep_alloc(256);
+    addr2=(char *)ep_alloc(256);
 
     len1 = tvb_get_guint8(tvb, *offset);
     if (tree) {

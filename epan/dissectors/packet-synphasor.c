@@ -126,12 +126,14 @@ typedef enum { integer,		/* 16 bit signed integer */
 	       floating_point	/* single precision floating point */
 } data_format;
 
-typedef enum { rect, polar } phasor_notation;
+typedef enum { rect, polar } phasor_notation_e;
+
+typedef enum { V, A } unit_e;
 
 /* holds the information required to dissect a single phasor */
 typedef struct {
 	char	      name[CHNAM_LEN + 1];
-	enum { V, A } unit;
+	unit_e        unit;
 	guint32	      conv; /* conversation factor in 10^-5 scale */
 } phasor_info;
 
@@ -148,7 +150,7 @@ typedef struct {
 	data_format	format_fr;	     /* data format of FREQ and DFREQ  */
 	data_format	format_ph;	     /* data format of PHASORS	       */
 	data_format	format_an;	     /* data format of ANALOG	       */
-	phasor_notation phasor_notation;     /* format of the phasors	       */
+	phasor_notation_e phasor_notation;   /* format of the phasors	       */
 	guint		fnom;		     /* nominal line frequency	       */
 	guint		num_dg;		     /* number of digital status words */
 	GArray	       *phasors;	     /* array of phasor_infos	       */
@@ -551,7 +553,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									 0);
 
 			if (conversation) {
-				config_frame *conf = conversation_get_proto_data(conversation, proto_synphasor);
+				config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
 				/* no problem if 'conf' is NULL, the DATA frame dissector checks this again */
 				p_add_proto_data(pinfo->fd, proto_synphasor, conf);
 			}
@@ -792,7 +794,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 	/* search for configuration information to dissect the frame */
 	{
 		gboolean config_found = FALSE;
-		conf = p_get_proto_data(pinfo->fd, proto_synphasor);
+		conf = (config_frame *)p_get_proto_data(pinfo->fd, proto_synphasor);
 
 		if (conf) {
 			/* check if the size of the current frame is the
@@ -891,7 +893,7 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 static int dissect_single_phasor(tvbuff_t *tvb, int offset,
 					double* mag, double* phase, /* returns the resulting values here */
 					data_format	format,	    /* information needed to... */
-					phasor_notation notation)   /*	 ...dissect the phasor	*/
+					phasor_notation_e notation)   /*	 ...dissect the phasor	*/
 {
 	if (floating_point == format) {
 		if (polar == notation) {

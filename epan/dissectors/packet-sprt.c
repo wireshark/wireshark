@@ -807,14 +807,14 @@ void sprt_add_address(packet_info *pinfo,
     /*
      * Check if the conversation has data associated with it.
      */
-    p_conv_data = conversation_get_proto_data(p_conv, proto_sprt);
+    p_conv_data = (struct _sprt_conversation_info *)conversation_get_proto_data(p_conv, proto_sprt);
 
     /*
      * If not, add a new data item.
      */
     if (!p_conv_data) {
         /* Create conversation data */
-        p_conv_data = se_alloc(sizeof(struct _sprt_conversation_info));
+        p_conv_data = se_new(struct _sprt_conversation_info);
         p_conv_data->stream_started = FALSE;
         p_conv_data->seqnum[0] = 0;
         p_conv_data->seqnum[1] = 0;

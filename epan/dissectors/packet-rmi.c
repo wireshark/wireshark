@@ -124,7 +124,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint epid_len;
 
     offset     = 0;
-    rmitype    = 0;
+    rmitype    = (rmi_type)0;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");

@@ -298,7 +298,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
    * Copy packet data to a buffer, and replace the connection index with
    * the protocol type (which is always TCP), to give the actual IP header.
    */
-  buffer = tvb_memdup(tvb, 0, isize);
+  buffer = (guint8 *)tvb_memdup(tvb, 0, isize);
   buffer[IP_FIELD_PROTOCOL] = IP_PROTO_TCP;
 
   /* Check IP checksum */
@@ -445,7 +445,7 @@ vj_init(void)
 static slcompress *
 slhc_init(void)
 {
-  slcompress *comp = se_alloc0(sizeof(slcompress));
+  slcompress *comp = se_new0(slcompress);
   int         i;
 
   /*
@@ -476,7 +476,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   DISSECTOR_ASSERT(src_tvb);
 
   /* Get decompressed header stored in fd protocol area */
-  hdr_buf = p_get_proto_data(pinfo->fd, proto_vj);
+  hdr_buf = (vj_header_t *)p_get_proto_data(pinfo->fd, proto_vj);
   if(hdr_buf == NULL) {
     col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (previous data bad or missing)");
     return VJ_ERROR;
@@ -492,7 +492,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   hdr_len  = lo_nibble(data_ptr[0]) * 4;
   hdr_len += hi_nibble(data_ptr[hdr_len + 12]) * 4;
   buf_len  = tvb_length(src_tvb) + hdr_len - offset;
-  pbuf     = g_malloc(buf_len);
+  pbuf     = (guint8 *)g_malloc(buf_len);
   memcpy(pbuf, data_ptr, hdr_len);
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
   memcpy(&tot_len, data_ptr + 2, 2);
@@ -726,7 +726,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     ip->cksum = ip_csum((guint8 *)ip, lo_nibble(ip->ihl_version) * 4);
 
     /* Store the reconstructed header in frame data area */
-    buf_hdr = se_alloc(sizeof (vj_header_t));
+    buf_hdr = se_new(vj_header_t);
     buf_hdr->offset = offset;  /* Offset in tvbuff is also stored */
     data_ptr = buf_hdr->data;
     memcpy(data_ptr, ip, IP_HDR_LEN);

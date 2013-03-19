@@ -1436,7 +1436,7 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
 
   if (assoc && trace_sccp) {
     if ( ! PINFO_FD_VISITED(pinfo)) {
-      sccp_msg_info_t *msg = se_alloc0(sizeof(sccp_msg_info_t));
+      sccp_msg_info_t *msg = se_new0(sccp_msg_info_t);
       msg->framenum = framenum;
       msg->offset = offset;
       msg->data.co.next = NULL;
@@ -3337,7 +3337,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     decode_mtp3_standard = mtp3_addr_p->type;
   } else {
-    decode_mtp3_standard = mtp3_standard;
+    decode_mtp3_standard = (Standard_Type)mtp3_standard;
   }
 
   /* Make entry in the Protocol column on summary display */
@@ -4001,7 +4001,7 @@ proto_register_sccp(void)
 
 
   uat_t *users_uat = uat_new("SCCP Users Table", sizeof(sccp_user_t),
-                             "sccp_users", TRUE, (void*) &sccp_users,
+                             "sccp_users", TRUE, (void**) &sccp_users,
                              &num_sccp_users, UAT_AFFECTS_DISSECTION,
                              "ChSccpUsers", sccp_users_copy_cb,
                              sccp_users_update_cb, sccp_users_free_cb,

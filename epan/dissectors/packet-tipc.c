@@ -574,7 +574,7 @@ tipc_addr_to_str(guint tipc_address)
 	guint16 processor;
 	gchar *buff;
 
-	buff = ep_alloc(MAX_TIPC_ADDRESS_STR_LEN);
+	buff = (gchar *)ep_alloc(MAX_TIPC_ADDRESS_STR_LEN);
 
 	processor = tipc_address & 0x0fff;
 

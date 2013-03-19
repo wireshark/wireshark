@@ -1418,7 +1418,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   tree = proto_item_add_subtree(pi, ett_rdp_SendData);
 
   conversation = find_or_create_conversation(pinfo);
-  rdp_info = conversation_get_proto_data(conversation, proto_rdp);
+  rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info &&
       ((rdp_info->licenseAgreed == 0) ||
@@ -1627,10 +1627,10 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   conversation = find_or_create_conversation(pinfo);
 
-  rdp_info = conversation_get_proto_data(conversation, proto_rdp);
+  rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info == NULL) {
-    rdp_info = se_alloc0(sizeof(rdp_conv_info_t));
+    rdp_info = se_new0(rdp_conv_info_t);
     rdp_info->staticChannelId  = -1;
     rdp_info->encryptionMethod = 0;
     rdp_info->encryptionLevel  = 0;
@@ -1773,10 +1773,10 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   conversation = find_or_create_conversation(pinfo);
 
-  rdp_info = conversation_get_proto_data(conversation, proto_rdp);
+  rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info == NULL) {
-    rdp_info = se_alloc0(sizeof(rdp_conv_info_t));
+    rdp_info = se_new0(rdp_conv_info_t);
     rdp_info->staticChannelId  = -1;
     rdp_info->encryptionMethod = 0;
     rdp_info->encryptionLevel  = 0;

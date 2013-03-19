@@ -488,7 +488,7 @@ t30_get_string_numbers(tvbuff_t *tvb, int offset, int len)
     if (len != LENGTH_T30_NUM)
         return NULL;
 
-    buf=ep_alloc(LENGTH_T30_NUM+1);
+    buf=(gchar *)ep_alloc(LENGTH_T30_NUM+1);
 
     for (i=0; i<LENGTH_T30_NUM; i++)
         buf[LENGTH_T30_NUM-i-1] = reverse_byte(tvb_get_guint8(tvb, offset+i));
@@ -548,7 +548,7 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     if (pinfo->private_data)
         g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "Frm num: %d", reverse_byte(octet));
 
-    t4_data = ep_alloc(len-1);
+    t4_data = (guint8 *)ep_alloc(len-1);
     tvb_memcpy(tvb, t4_data, offset, len-1);
     proto_tree_add_bytes(tree, hf_t30_t4_data, tvb, offset, len-1, t4_data);
 }
@@ -571,7 +571,7 @@ dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int 
     proto_tree_add_uint(tree, hf_t30_fif_country_code, tvb, offset, 1, octet);
     offset++;
 
-    non_standard_bytes = ep_alloc(len-1);
+    non_standard_bytes = (guint8 *)ep_alloc(len-1);
     tvb_memcpy(tvb, non_standard_bytes, offset, len-1);
     proto_tree_add_bytes(tree, hf_t30_fif_non_stand_bytes, tvb, offset, len-1, non_standard_bytes);
 
@@ -624,7 +624,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     int frame_count = 0;
     int frame;
 #define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
-    gchar *buf = ep_alloc(BUF_SIZE);
+    gchar *buf = (gchar *)ep_alloc(BUF_SIZE);
     gchar *buf_top = buf;
 
     if (len != 32) {

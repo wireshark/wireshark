@@ -42,7 +42,7 @@ static int proto_time = -1;
 static int hf_time_time = -1;
 
 static gint ett_time = -1;
-static gint time_display_type = ABSOLUTE_TIME_LOCAL;
+static absolute_time_display_e time_display_type = ABSOLUTE_TIME_LOCAL;
 
 /* This dissector works for TCP and UDP time packets */
 #define TIME_PORT 37
@@ -102,7 +102,7 @@ proto_register_time(void)
 				       "display_time_type",
 				       "Time Display",
 				       "Time display type",
-				       &time_display_type,
+				       (gint *)&time_display_type,
 				       time_display_types,
 				       FALSE);
 

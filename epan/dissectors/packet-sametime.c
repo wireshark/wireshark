@@ -529,7 +529,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_str(pinfo->cinfo, COL_INFO, " ");
 
 	/* message type statistic */
-	sinfo = ep_alloc(sizeof(struct SametimeTap ));
+	sinfo = ep_new(struct SametimeTap);
 	sinfo->message_type = message_type;
 	sinfo->send_type = -1;
 	sinfo->user_status = -1;

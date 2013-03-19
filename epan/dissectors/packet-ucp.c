@@ -1823,7 +1823,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     OT  = 10 * OT + (tvb_get_guint8(tvb, UCP_OT_OFFSET + 1) - '0');
 
     /* Create Tap record */
-    tap_rec = ep_alloc0(sizeof(ucp_tap_rec_t));
+    tap_rec = ep_new0(ucp_tap_rec_t);
     tap_rec->message_type = (O_R == 'O' ? 0 : 1);
     tap_rec->operation = OT;
 

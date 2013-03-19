@@ -277,7 +277,7 @@ static void dissect_norm_data(struct _norm *norm, proto_tree *tree,
 	flags = tvb_get_guint8(tvb, offset);
 	flag_tree = proto_item_add_subtree(ti, ett.flags);
 	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.norm_explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf.flag.info, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf.flag.unreliable, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf.flag.file, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -315,7 +315,7 @@ static void dissect_norm_info(struct _norm *norm, proto_tree *tree,
 	ti = proto_tree_add_item(tree, hf.flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	flag_tree = proto_item_add_subtree(ti, ett.flags);
 	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.norm_explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf.flag.info, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf.flag.unreliable, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flag_tree, hf.flag.file, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -702,7 +702,7 @@ void proto_register_norm(void)
 			{ "Flags", "norm.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 		{ &hf.flag.repair,
 			{ "Repair Flag", "norm.flag.repair", FT_BOOLEAN, 8, NULL, NORM_FLAG_REPAIR, NULL, HFILL }},
-		{ &hf.flag.explicit,
+		{ &hf.flag.norm_explicit,
 			{ "Explicit Flag", "norm.flag.explicit", FT_BOOLEAN, 8, NULL, NORM_FLAG_EXPLICIT, NULL, HFILL }},
 		{ &hf.flag.info,
 			{ "Info Flag", "norm.flag.info", FT_BOOLEAN, 8, NULL, NORM_FLAG_INFO, NULL, HFILL }},

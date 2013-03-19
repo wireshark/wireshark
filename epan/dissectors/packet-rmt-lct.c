@@ -407,7 +407,7 @@ gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, prot
 				break;
 		}
 
-		tmp = ep_alloc(l.lct->toi_size);
+		tmp = (guint8 *)ep_alloc(l.lct->toi_size);
 		tvb_memcpy(tvb, tmp, *offset, l.lct->toi_size);
 		l.lct->toi_extended = tmp;
 

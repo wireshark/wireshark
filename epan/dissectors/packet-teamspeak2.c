@@ -391,8 +391,8 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* XXX: Following fragmentation stuff should be separate from the GUI stuff ??    */
 	/* Get our stored fragmentation data or create one! */
-	if ( ! ( frag = p_get_proto_data(pinfo->fd, proto_ts2) ) ) {
-		frag = se_alloc(sizeof(ts2_frag));
+	if ( ! ( frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2) ) ) {
+		frag = se_new(ts2_frag);
 		frag->frag_num=0;
 	}
 
@@ -419,7 +419,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	}
 
 	/* Get our stored fragmentation data */
-	frag = p_get_proto_data(pinfo->fd, proto_ts2);
+	frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2);
 
 	proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 16, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, ENC_LITTLE_ENDIAN);
@@ -698,7 +698,7 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
 	}
 	else
 	{
-		conversation_data = se_alloc(sizeof(*conversation_data));
+		conversation_data = se_new(ts2_conversation);
 		conversation_data->last_inorder_server_frame=0; /* sequence number should never be zero so we can use this as an initial number */
 		conversation_data->last_inorder_client_frame=0;
 		conversation_data->server_port=pinfo->srcport;
@@ -825,7 +825,7 @@ static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *t
 {
 	guint8 *zero;
 	guint32 ocrc32;
-	zero = ep_alloc0(4);
+	zero = (guint8 *)ep_alloc0(4);
 	ocrc32 = crc32_ccitt_tvb(tvb, offset);
 	ocrc32 = crc32_ccitt_seed(zero, 4, 0xffffffff-ocrc32);
 	ocrc32 = crc32_ccitt_tvb_offset_seed(tvb, offset+4, tvb_reported_length_remaining(tvb, offset+4), 0xffffffff-ocrc32);

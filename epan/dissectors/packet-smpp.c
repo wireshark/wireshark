@@ -2721,7 +2721,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } /* if (tree || (command_id == 4)) */
 
         /* Queue packet for Tap */
-        tap_rec = ep_alloc0(sizeof(smpp_tap_rec_t));
+        tap_rec = ep_new0(smpp_tap_rec_t);
         tap_rec->command_id = command_id;
         tap_rec->command_status = command_status;
         tap_queue_packet(smpp_tap, pinfo, tap_rec);
