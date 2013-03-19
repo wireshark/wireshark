@@ -2114,11 +2114,10 @@ cap_pipe_open_live(char *pipename,
 
     pcap_opts->from_cap_pipe = TRUE;
 
-    if ((pcap_opts->from_cap_socket)
-#ifndef _WIN32
-         || 1
+#ifdef _WIN32
+    if (pcap_opts->from_cap_socket)
 #endif
-         ) {
+    {
         /* read the pcap header */
         bytes_read = 0;
         while (bytes_read < sizeof magic) {
@@ -2205,11 +2204,10 @@ cap_pipe_open_live(char *pipename,
         goto error;
     }
 
-    if ((pcap_opts->from_cap_socket)
-#ifndef _WIN32
-         || 1
+#ifdef _WIN32
+    if (pcap_opts->from_cap_socket)
 #endif
-         ) {
+    {
         /* Read the rest of the header */
         bytes_read = 0;
         while (bytes_read < sizeof(struct pcap_hdr)) {
@@ -2321,11 +2319,10 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         /* Fall through */
 
     case STATE_READ_REC_HDR:
-        if ((pcap_opts->from_cap_socket)
-#ifndef _WIN32
-           || 1
+#ifdef _WIN32
+        if (pcap_opts->from_cap_socket)
 #endif
-           ) {
+        {
             b = cap_pipe_read(pcap_opts->cap_pipe_fd, ((char *)&pcap_opts->cap_pipe_rechdr)+pcap_opts->cap_pipe_bytes_read,
                  pcap_opts->cap_pipe_bytes_to_read - pcap_opts->cap_pipe_bytes_read, pcap_opts->from_cap_socket);
             if (b <= 0) {
@@ -2381,11 +2378,10 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         /* Fall through */
 
     case STATE_READ_DATA:
-        if ((pcap_opts->from_cap_socket)
-#ifndef _WIN32
-           || 1
+#ifdef _WIN32
+        if (pcap_opts->from_cap_socket)
 #endif
-           ) {
+        {
             b = cap_pipe_read(pcap_opts->cap_pipe_fd,
                               data+pcap_opts->cap_pipe_bytes_read,
                               pcap_opts->cap_pipe_bytes_to_read - pcap_opts->cap_pipe_bytes_read,
@@ -2408,7 +2404,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
             g_get_current_time(&wait_time);
             g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
             q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
-#endif
+#endif /* GLIB_CHECK_VERSION(2,31,18) */
             if (pcap_opts->cap_pipe_err == PIPEOF) {
                 result = PD_PIPE_EOF;
                 break;
@@ -2420,7 +2416,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
                 return 0;
             }
         }
-#endif
+#endif /* _WIN32 */
         if (pcap_opts->cap_pipe_bytes_read < pcap_opts->cap_pipe_bytes_to_read)
             return 0;
         result = PD_DATA_READ;

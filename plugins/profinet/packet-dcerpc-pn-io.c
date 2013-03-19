@@ -4848,7 +4848,7 @@ dissect_CheckSyncDifference_block(tvbuff_t *tvb, int offset,
 
 
     proto_item_append_text(sub_item, "CheckSyncMode: SyncMaster:%d, CableDelay:%d",
-        (u16CheckSyncMode & 0x2) && 1, (u16CheckSyncMode & 0x1) && 1);
+        (u16CheckSyncMode >> 1) & 1, u16CheckSyncMode & 1);
 
     proto_item_append_text(item, " : SyncMaster:%d, CableDelay:%d",
         (u16CheckSyncMode >> 1) & 1, u16CheckSyncMode & 1);
