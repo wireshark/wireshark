@@ -54,6 +54,9 @@ static const value_string bluetooth_pid_vals[] = {
 	{ 0,	NULL }
 };
 
+void proto_register_bt_oui(void);
+void proto_reg_handoff_bt_oui(void);
+
 /*
  * NOTE: there's no dissector here, just registration routines to set
  * up the dissector table for the Bluetooth OUI

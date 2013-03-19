@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/oui.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-wap.h"
 #include "packet-btl2cap.h"
@@ -573,6 +574,9 @@ static const value_string player_subtype_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_btavrcp(void);
+void proto_reg_handoff_btavrcp(void);
+
 static  gint
 dissect_attribute_id_list(tvbuff_t *tvb, proto_tree *tree, gint offset,
                           guint count)
@@ -1067,7 +1071,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             k_op = pdu_id | (company_id << 8);
             k_frame_number = pinfo->fd->num;
 
-            fragment = se_new(fragment_t);
+            fragment = wmem_new(wmem_file_scope(), fragment_t);
             fragment->start_frame_number = pinfo->fd->num;
             fragment->end_frame_number = 0;
             fragment->state = 0;
@@ -1075,9 +1079,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             fragment->count = 1;
             fragment->fragments = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp fragments");
 
-            data_fragment = se_new(data_fragment_t);
+            data_fragment = wmem_new(wmem_file_scope(), data_fragment_t);
             data_fragment->length = length;
-            data_fragment->data = (guint8 *)se_alloc(data_fragment->length);
+            data_fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), data_fragment->length);
             tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
 
             se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
@@ -1142,9 +1146,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fragment->count += 1;
                 fragment->state = 0;
 
-                data_fragment = se_new(data_fragment_t);
+                data_fragment = wmem_new(wmem_file_scope(), data_fragment_t);
                 data_fragment->length = length;
-                data_fragment->data = (guint8 *)se_alloc(data_fragment->length);
+                data_fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
                 se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
@@ -1193,9 +1197,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fragment->count += 1;
                 fragment->state = 2;
 
-                data_fragment = se_new(data_fragment_t);
+                data_fragment = wmem_new(wmem_file_scope(), data_fragment_t);
                 data_fragment->length = length;
-                data_fragment->data = (guint8 *)se_alloc(data_fragment->length);
+                data_fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
                 se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
@@ -1210,7 +1214,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     length += data_fragment->length;
                 }
 
-                reassembled = (guint8 *)se_alloc(length);
+                reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), length);
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
                     data_fragment = (data_fragment_t *)se_tree_lookup32_le(fragment->fragments, i_frame);
@@ -2193,7 +2197,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     max_response_time = 100;
                 }
 
-                timing_info = se_new(timing_info_t);
+                timing_info = wmem_new(wmem_file_scope(), timing_info_t);
                 timing_info->command_frame_number = pinfo->fd->num;
                 timing_info->command_timestamp = pinfo->fd->abs_ts;
                 timing_info->response_frame_number = 0;

@@ -91,6 +91,9 @@ static const value_string response_code_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_btmcap(void);
+void proto_reg_handoff_btmcap(void);
+
 static void
 dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

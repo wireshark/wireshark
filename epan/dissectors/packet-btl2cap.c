@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
@@ -372,6 +373,8 @@ static const range_string cid_rvals[] = {
     { 0, 0, NULL }
 };
 
+void proto_register_btl2cap(void);
+void proto_reg_handoff_btl2cap(void);
 
 static int
 dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
@@ -495,7 +498,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         k_cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
         k_frame_number = pinfo->fd->num;
 
-        psm_data = se_new(psm_data_t);
+        psm_data = wmem_new(wmem_file_scope(), psm_data_t);
         psm_data->scid = (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000));
         psm_data->dcid = 0;
         psm_data->psm  = psm;
@@ -1408,11 +1411,11 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
 
         if (!pinfo->fd->flags.visited) {
-            mfp              = se_new(sdu_reassembly_t);
+            mfp              = wmem_new(wmem_file_scope(), sdu_reassembly_t);
             mfp->first_frame = pinfo->fd->num;
             mfp->last_frame  = 0;
             mfp->tot_len     = sdulen;
-            mfp->reassembled = (guint8 *)se_alloc(sdulen);
+            mfp->reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), sdulen);
             tvb_memcpy(tvb, mfp->reassembled, offset, sdulen);
             mfp->cur_off     = sdulen;
             se_tree_insert32(config_data->start_fragments, pinfo->fd->num, mfp);
@@ -1637,7 +1640,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     acl_data = (bthci_acl_data_t *)pinfo->private_data;
-    l2cap_data = ep_new(btl2cap_data_t);
+    l2cap_data = wmem_new(wmem_packet_scope(), btl2cap_data_t);
 
     l2cap_data->interface_id     = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1947,7 +1950,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
 {
-    btsdp_data_t *sdp_data = (btsdp_data_t *) arg2;
+    const btsdp_data_t *sdp_data = (const btsdp_data_t *) arg2;
 
     if (sdp_data->protocol == BTSDP_L2CAP_PROTOCOL_UUID) {
         psm_service_t     *psm_service;
@@ -1994,7 +1997,7 @@ btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *ed
                 psm_service->adapter_id == adapter_id &&
                 psm_service->chandle == chandle &&
                 psm_service->psm == psm)) {
-            psm_service = se_new0(psm_service_t);
+            psm_service = wmem_new(wmem_file_scope(), psm_service_t);
             psm_service->interface_id = interface_id;
             psm_service->adapter_id   = adapter_id;
             psm_service->chandle      = chandle;
@@ -2468,7 +2471,7 @@ proto_register_btl2cap(void)
     };
 
     /* Register the protocol name and description */
-    proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "L2CAP", "btl2cap");
+    proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "BT L2CAP", "btl2cap");
 
     register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
 

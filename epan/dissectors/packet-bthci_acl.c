@@ -86,6 +86,8 @@ static const value_string bc_flag_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_bthci_acl(void);
+void proto_reg_handoff_bthci_acl(void);
 
 /* Code to actually dissect the packets */
 static void
@@ -132,7 +134,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     hci_data = (hci_data_t *) pinfo->private_data;
-    acl_data = ep_new(bthci_acl_data_t);
+    acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
 
     acl_data->interface_id = hci_data->interface_id;
     acl_data->adapter_id   = hci_data->adapter_id;
@@ -349,11 +351,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (!(pb_flag & 0x01)) { /* first fragment */
             if (!pinfo->fd->flags.visited) {
-                mfp = se_new(multi_fragment_pdu_t);
+                mfp = (multi_fragment_pdu_t *) wmem_new(wmem_file_scope(), multi_fragment_pdu_t);
                 mfp->first_frame = pinfo->fd->num;
                 mfp->last_frame  = 0;
                 mfp->tot_len     = l2cap_length + 4;
-                mfp->reassembled = (char *)se_alloc(mfp->tot_len);
+                mfp->reassembled = (char *) wmem_alloc(wmem_file_scope(), mfp->tot_len);
                 len = tvb_length_remaining(tvb, offset);
                 if (len <= mfp->tot_len) {
                     tvb_memcpy(tvb, (guint8 *) mfp->reassembled, offset, len);

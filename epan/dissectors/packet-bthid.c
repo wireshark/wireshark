@@ -398,6 +398,8 @@ static const value_string keycode_vals[] = {
 
 value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
+void proto_register_bthid(void);
+void proto_reg_handoff_bthid(void);
 
 static gint
 dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

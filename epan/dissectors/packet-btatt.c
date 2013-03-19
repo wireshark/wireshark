@@ -247,6 +247,9 @@ static const value_string flags_vals[] = {
     {0x0, NULL}
 };
 
+void proto_register_btatt(void);
+void proto_reg_handoff_btatt(void);
+
 static void
 dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

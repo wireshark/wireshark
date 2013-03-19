@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
@@ -94,6 +95,8 @@ static const value_string ipid_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_btavctp(void);
+void proto_reg_handoff_btavctp(void);
 
 static void
 dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -168,7 +171,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset +=2;
     }
 
-    avctp_data = ep_new(btavctp_data_t);
+    avctp_data = wmem_new(wmem_packet_scope(), btavctp_data_t);
     avctp_data->cr           = cr;
     avctp_data->interface_id = l2cap_data->interface_id;
     avctp_data->adapter_id   = l2cap_data->adapter_id;
@@ -230,12 +233,12 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (packet_type == PACKET_TYPE_START) {
             if (!pinfo->fd->flags.visited) {
-                fragment = se_new(fragment_t);
+                fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
-                fragment->data = (guint8 *)se_alloc(fragment->length);
+                fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
-                fragments = se_new(fragments_t);
+                fragments = wmem_new(wmem_file_scope(), fragments_t);
                 fragments->number_of_packets = number_of_packets;
                 fragments->pid = pid;
 
@@ -270,9 +273,9 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragments = NULL;
 
             if (!pinfo->fd->flags.visited && fragments != NULL) {
-                fragment = se_new(fragment_t);
+                fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
-                fragment->data = (guint8 *)se_alloc(fragment->length);
+                fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments->count++;
@@ -318,9 +321,9 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragments = NULL;
 
             if (!pinfo->fd->flags.visited && fragments != NULL) {
-                fragment = se_new(fragment_t);
+                fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
-                fragment->data = (guint8 *)se_alloc(fragment->length);
+                fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments->count++;
@@ -366,7 +369,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     length += fragment->length;
                 }
 
-                reassembled = (guint8 *)se_alloc(length);
+                reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), length);
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
                     fragment = (fragment_t *)se_tree_lookup32_le(fragments->fragment, i_frame);

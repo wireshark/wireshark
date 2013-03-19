@@ -37,6 +37,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/uat.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
@@ -235,6 +236,13 @@ static const value_string vs_cr[] = {
     {0, NULL}
 };
 
+void proto_register_btrfcomm(void);
+void proto_reg_handoff_btrfcomm(void);
+void proto_register_btdun(void);
+void proto_reg_handoff_btdun(void);
+void proto_register_btspp(void);
+void proto_reg_handoff_btspp(void);
+
 static dissector_handle_t
 find_proto_by_channel(guint channel) {
     guint i_channel;
@@ -337,7 +345,7 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 
         dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
-            dlci_state = se_new0(dlci_state_t);
+            dlci_state = wmem_new0(wmem_file_scope(), dlci_state_t);
             se_tree_insert32(dlci_table, token, dlci_state);
         }
 
@@ -608,7 +616,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
-            dlci_state = se_new0(dlci_state_t);
+            dlci_state = wmem_new0(wmem_file_scope(), dlci_state_t);
             se_tree_insert32(dlci_table, token, dlci_state);
         }
     }
@@ -977,7 +985,7 @@ proto_register_btrfcomm(void)
 static int
 btrfcomm_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
 {
-    btsdp_data_t *sdp_data = (btsdp_data_t *) arg2;
+    const btsdp_data_t *sdp_data = (const btsdp_data_t *) arg2;
 
     if (sdp_data->protocol == BTSDP_RFCOMM_PROTOCOL_UUID) {
         guint32       token;
@@ -988,7 +996,7 @@ btrfcomm_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *e
 
         dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
-            dlci_state = se_new0(dlci_state_t);
+            dlci_state = wmem_new0(wmem_file_scope(), dlci_state_t);
             se_tree_insert32(dlci_table, token, dlci_state);
         }
         dlci_state->service = sdp_data->service;

@@ -31,6 +31,7 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-btrfcomm.h"
 #include "packet-btl2cap.h"
@@ -545,6 +546,9 @@ static value_string_ext pbap_application_parameters_vals_ext = VALUE_STRING_EXT_
 static value_string_ext bpp_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(bpp_application_parameters_vals);
 static value_string_ext bip_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(bip_application_parameters_vals);
 
+void proto_register_btobex(void);
+void proto_reg_handoff_btobex(void);
+
 static void
 defragment_init(void)
 {
@@ -593,7 +597,7 @@ display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, char **data)
     * Allocate a buffer for the string; "len" is the length in
     * bytes, not the length in characters.
     */
-    str = (char *)ep_alloc(len/2);
+    str = (char *) wmem_alloc(wmem_packet_scope(), len / 2);
 
     /* - this assumes the string is just ISO 8859-1 */
     charoffset = offset;
@@ -1093,7 +1097,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
-                    if ((item_length - 3) > 0) {
+                    if (item_length > 3) {
                         char *str;
 
                         display_unicode_string(tvb, hdr_tree, offset, &str);
@@ -1197,7 +1201,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 key[5].length = 0;
                                 key[5].key = NULL;
 
-                                obex_profile_data = se_new(obex_profile_data_t);
+                                obex_profile_data = wmem_new(wmem_file_scope(), obex_profile_data_t);
                                 obex_profile_data->interface_id = interface_id;
                                 obex_profile_data->adapter_id = adapter_id;
                                 obex_profile_data->chandle = chandle;
@@ -1271,7 +1275,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     save_fragmented = pinfo->fragmented;
 
     if (!pinfo->fd->flags.visited && pinfo->layer_names && !g_strrstr(pinfo->layer_names->str, "btrfcomm")) {
-        se_tree_insert32(obex_over_l2cap, pinfo->fd->num, (void *) "l2cap");
+        se_tree_insert32(obex_over_l2cap, pinfo->fd->num, (void *) TRUE);
     } else {
         is_obex_over_l2cap = se_tree_lookup32(obex_over_l2cap, pinfo->fd->num) ? TRUE : FALSE;
     }
@@ -1451,7 +1455,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[6].length = 0;
                 key[6].key = NULL;
 
-                obex_last_opcode_data = se_new(obex_last_opcode_data_t);
+                obex_last_opcode_data = wmem_new(wmem_file_scope(), obex_last_opcode_data_t);
                 obex_last_opcode_data->interface_id = interface_id;
                 obex_last_opcode_data->adapter_id = adapter_id;
                 obex_last_opcode_data->chandle = chandle;

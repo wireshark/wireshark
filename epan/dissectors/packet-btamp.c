@@ -128,6 +128,9 @@ static const value_string disc_status_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_btamp(void);
+void proto_reg_handoff_btamp(void);
+
 static int
 dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {

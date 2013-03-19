@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
@@ -402,6 +403,12 @@ typedef struct _cid_type_data_t {
     sep_entry_t  *sep;
 } cid_type_data_t;
 
+void proto_register_btavdtp(void);
+void proto_reg_handoff_btavdtp(void);
+void proto_register_bta2dp(void);
+void proto_reg_handoff_bta2dp(void);
+void proto_register_btvdp(void);
+void proto_reg_handoff_btvdp(void);
 
 static const char *
 get_sep_type(guint32 frame_number, guint seid)
@@ -505,7 +512,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
         key[2].key = NULL;
 
         if (!pinfo->fd->flags.visited) {
-            sep_data = se_new(sep_entry_t);
+            sep_data = wmem_new(wmem_file_scope(), sep_entry_t);
             sep_data->seid = seid;
             sep_data->type = type;
             sep_data->codec = -1;
@@ -965,7 +972,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!force_avdtp && !pinfo->fd->flags.visited && (l2cap_data->first_scid_frame == pinfo->fd->num ||
                 l2cap_data->first_dcid_frame == pinfo->fd->num)) {
-        cid_type_data = se_new(cid_type_data_t);
+        cid_type_data = wmem_new(wmem_file_scope(), cid_type_data_t);
         cid_type_data->type = STREAM_TYPE_MEDIA;
         cid_type_data->cid = l2cap_data->cid;
         cid_type_data->sep = NULL;
@@ -2026,7 +2033,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     save_private_data = pinfo->private_data;
 
-    btavdtp_data = ep_new(btavdtp_data_t);
+    btavdtp_data = wmem_new(wmem_packet_scope(), btavdtp_data_t);
     btavdtp_data->codec_dissector = codec_dissector;
 
     pinfo->private_data = btavdtp_data;
@@ -2139,7 +2146,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     save_private_data = pinfo->private_data;
 
-    btavdtp_data = ep_new(btavdtp_data_t);
+    btavdtp_data = wmem_new(wmem_packet_scope(), btavdtp_data_t);
     btavdtp_data->codec_dissector = codec_dissector;
 
     pinfo->private_data = btavdtp_data;

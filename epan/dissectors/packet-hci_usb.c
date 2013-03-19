@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-usb.h"
 #include "packet-bluetooth-hci.h"
@@ -88,6 +89,8 @@ static const fragment_items hci_usb_msg_frag_items = {
     "Message fragments"
 };
 
+void proto_register_hci_usb(void);
+void proto_reg_handoff_hci_usb(void);
 
 static int
 dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -138,7 +141,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     session_id = usb_data->bus_id << 16 | usb_data->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | usb_data->endpoint;
 
-    hci_data = ep_alloc(sizeof(hci_data_t));
+    hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
     hci_data->interface_id = HCI_INTERFACE_USB;
     hci_data->adapter_id = usb_data->bus_id << 8 | usb_data->device_address;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
@@ -151,9 +154,9 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if (!pinfo->fd->flags.visited && usb_data->endpoint <= 0x02) {
         fragment_info_t  *fragment_info;
 
-        fragment_info = se_tree_lookup32(fragment_info_table, session_id);
+        fragment_info = (fragment_info_t *) se_tree_lookup32(fragment_info_table, session_id);
         if (fragment_info == NULL) {
-            fragment_info = se_alloc(sizeof(fragment_info_t));
+            fragment_info = (fragment_info_t *) wmem_new(wmem_file_scope(), fragment_info_t);
             fragment_info->fragment_id = 0;
             fragment_info->remaining_length = 0;
 

@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-bluetooth-hci.h"
 
@@ -61,6 +62,9 @@ static const value_string hci_h4_direction_vals[] = {
 	{P2P_DIR_UNKNOWN,	"Unspecified"},
 	{0, NULL}
 };
+
+void proto_register_hci_h4(void);
+void proto_reg_handoff_hci_h4(void);
 
 static void
 dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -94,13 +98,13 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	type = tvb_get_guint8(tvb, 0);
 
-	if(tree){
+	if (tree) {
 		ti = proto_tree_add_item(tree, proto_hci_h4, tvb, 0, 1, ENC_NA);
 		hci_h4_tree = proto_item_add_subtree(ti, ett_hci_h4);
 	}
 
 	pd_save = pinfo->private_data;
-	hci_data = ep_alloc(sizeof(hci_data_t));
+	hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
 	hci_data->interface_id = HCI_INTERFACE_H4;
 	hci_data->adapter_id = HCI_ADAPTER_DEFAULT;
 	hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
@@ -109,7 +113,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hci_data->localhost_name = localhost_name;
 	pinfo->private_data = hci_data;
 
-	ti=proto_tree_add_uint(hci_h4_tree, hf_hci_h4_direction, tvb, 0, 0, pinfo->p2p_dir);
+	ti = proto_tree_add_uint(hci_h4_tree, hf_hci_h4_direction, tvb, 0, 0, pinfo->p2p_dir);
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(hci_h4_tree, hf_hci_h4_type,
@@ -118,7 +122,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
-	if(!dissector_try_uint(hci_h4_table, type, next_tvb, pinfo, tree)) {
+	if (!dissector_try_uint(hci_h4_table, type, next_tvb, pinfo, tree)) {
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 

@@ -137,6 +137,9 @@ static const value_string filter_multi_addr_response_message_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_btbnep(void);
+void proto_reg_handoff_btbnep(void);
+
 static int
 dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {

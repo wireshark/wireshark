@@ -102,6 +102,8 @@ static const value_string register_vals[] = {
     { 0, NULL }
 };
 
+void proto_register_bthcrp(void);
+void proto_reg_handoff_bthcrp(void);
 
 static gint
 dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

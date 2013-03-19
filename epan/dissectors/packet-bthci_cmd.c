@@ -1113,6 +1113,9 @@ static const value_string cmd_le_test_pkt_payload[] = {
     { 0, NULL }
 };
 
+void proto_register_bthci_cmd(void);
+void proto_reg_handoff_bthci_cmd(void);
+
 static int 
 dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -1187,26 +1190,26 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
     }
 
     i=0;
-    while(i<data_size){
-        length = tvb_get_guint8(tvb, offset+i);
+    while (i < data_size) {
+        length = tvb_get_guint8(tvb, offset + i);
         if (length != 0) {
 
             proto_item *ti_data_struct;
             proto_tree *ti_data_struct_subtree;
 
-            ti_data_struct = proto_tree_add_text(ti_data_subtree, tvb, offset+i, length+1, "%s", "");
+            ti_data_struct = proto_tree_add_text(ti_data_subtree, tvb, offset + i, length + 1, "%s", "");
             ti_data_struct_subtree = proto_item_add_subtree(ti_data_struct, ett_eir_struct_subtree);
 
-            type = tvb_get_guint8(tvb, offset+i+1);
+            type = tvb_get_guint8(tvb, offset + i + 1);
 
-            proto_item_append_text(ti_data_struct,"%s", val_to_str(type, bthci_cmd_eir_data_type_vals, "Unknown"));
+            proto_item_append_text(ti_data_struct, "%s", val_to_str_const(type, bthci_cmd_eir_data_type_vals, "Unknown"));
 
-            proto_tree_add_item(ti_data_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset+i, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ti_data_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset+i+1, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_data_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset + i, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_data_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset + i + 1, 1, ENC_LITTLE_ENDIAN);
 
             switch (type) {
                 case 0x01: /* flags */
-                    if(length-1 > 0)
+                    if (length > 1)
                     {
                         proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_flags_limited_disc_mode, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(ti_data_struct_subtree, hf_bthci_cmd_flags_general_disc_mode, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);

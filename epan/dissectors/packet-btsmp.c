@@ -113,6 +113,9 @@ static const value_string reason_vals[] = {
     {0x0, NULL}
 };
 
+void proto_register_btsmp(void);
+void proto_reg_handoff_btsmp(void);
+
 static int
 dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -121,16 +124,16 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     guint8 param;
 
     param = tvb_get_guint8(tvb, offset);
-    ti_param=proto_tree_add_text(tree, tvb, offset, 1, "AuthReq: ");
-    st_param=proto_item_add_subtree(ti_param, ett_btsmp_auth_req);
+    ti_param = proto_tree_add_text(tree, tvb, offset, 1, "AuthReq: ");
+    st_param = proto_item_add_subtree(ti_param, ett_btsmp_auth_req);
     proto_tree_add_item(st_param, hf_btsmp_bonding_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti_param, "%s, ", val_to_str(param&0x03, bonding_flag_vals, "<unknown>"));
+    proto_item_append_text(ti_param, "%s, ", val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>"));
     proto_tree_add_item(st_param, hf_btsmp_mitm_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti_param, "%s", (param&0x04)?"MITM":"No MITM");
+    proto_item_append_text(ti_param, "%s", (param & 0x04) ? "MITM" : "No MITM");
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, %s", val_to_str(param&0x03, bonding_flag_vals, "<unknown>"), (param&0x04)?"MITM":"No MITM");
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s, %s", val_to_str_const(param & 0x03, bonding_flag_vals, "<unknown>"), (param & 0x04) ? "MITM" : "No MITM");
 
-    return offset+1;
+    return offset + 1;
 }
 
 static int
@@ -139,35 +142,35 @@ dissect_btsmp_key_dist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     proto_item *ti_param;
     proto_tree *st_param;
     guint8 param;
-        
+
     param = tvb_get_guint8(tvb, offset);
-    if(initiator) {
+    if (initiator) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Initiator Key(s): ");
-        ti_param=proto_tree_add_text(tree, tvb, offset, 1, "Initiator Key Distribution: ");
+        ti_param = proto_tree_add_text(tree, tvb, offset, 1, "Initiator Key Distribution: ");
     }
     else {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Responder Key(s): ");
-        ti_param=proto_tree_add_text(tree, tvb, offset, 1, "Responder Key Distribution: ");
+        ti_param = proto_tree_add_text(tree, tvb, offset, 1, "Responder Key Distribution: ");
     }
-    
-    st_param=proto_item_add_subtree(ti_param, ett_btsmp_key_dist);
+
+    st_param = proto_item_add_subtree(ti_param, ett_btsmp_key_dist);
     proto_tree_add_item(st_param, hf_btsmp_key_dist_enc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(st_param, hf_btsmp_key_dist_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(st_param, hf_btsmp_key_dist_sign, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    if( param & 0x01 ) {
+    if (param & 0x01) {
         proto_item_append_text(ti_param, "LTK ");
         col_append_fstr(pinfo->cinfo, COL_INFO, "LTK ");
     }
-    if( param & 0x02 ) {
+    if (param & 0x02) {
         proto_item_append_text(ti_param, "IRK ");
         col_append_fstr(pinfo->cinfo, COL_INFO, "IRK ");
     }
-    if( param & 0x04 ) {
+    if (param & 0x04) {
         proto_item_append_text(ti_param, "CSRK ");
         col_append_fstr(pinfo->cinfo, COL_INFO, "CSRK ");
     }
 
-    return offset+1;
+    return offset + 1;
 }
 
 static void
@@ -179,7 +182,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 opcode;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMP");
-    
+
     switch (pinfo->p2p_dir)
     {
     case P2P_DIR_SENT:
@@ -209,21 +212,21 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     opcode = tvb_get_guint8(tvb, 0);
     offset++;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, opcode_vals, "<unknown>"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(opcode, opcode_vals, "<unknown>"));
 
     switch (opcode) {
     case 0x01: /* Pairing Request */
     case 0x02: /* Pairing Response */
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ": ");
-        
+
         proto_tree_add_item(st, hf_btsmp_io_capabilities, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_item(st, hf_btsmp_oob_data_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         offset = dissect_btsmp_auth_req(tvb, offset, pinfo, st);
-        
+
         proto_tree_add_item(st, hf_btsmp_max_enc_key_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
@@ -241,10 +244,10 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(st, hf_btsmp_random, tvb, offset, 16, ENC_NA);
         offset += 16;
         break;
-        
+
     case 0x05: /* Pairing Failed */
         proto_tree_add_item(st, hf_btsmp_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(tvb_get_guint8(tvb, offset), reason_vals, "<unknown>"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(tvb_get_guint8(tvb, offset), reason_vals, "<unknown>"));
         offset++;
         break;
 
@@ -274,7 +277,7 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, ": ");
         offset = dissect_btsmp_auth_req(tvb, offset, pinfo, st);
         break;
-     
+
     default:
         break;
     }
@@ -282,86 +285,86 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_btsmp(void)
-{                   
+{
     static hf_register_info hf[] = {
         {&hf_btsmp_opcode,
             {"Opcode", "btsmp.opcode",
-            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_reason,
             {"Reason", "btsmp.reason",
-            FT_UINT8, BASE_HEX, VALS(reason_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(reason_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_io_capabilities,
             {"IO Capability", "btsmp.io_capability",
-            FT_UINT8, BASE_HEX, VALS(io_capability_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(io_capability_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_oob_data_flags,
             {"OOB Data Flags", "btsmp.oob_data_flags",
-            FT_UINT8, BASE_HEX, VALS(oob_data_flag_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(oob_data_flag_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_cfm_value,
             {"Confirm Value", "btsmp.cfm_value",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_random,
             {"Random Value", "btsmp.random_value",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_long_term_key,
             {"Long Term Key", "btsmp.long_term_key",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_id_resolving_key,
             {"Identity Resolving Key", "btsmp.id_resolving_key",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_signature_key,
             {"Signature Key", "btsmp.signature_key",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btsmp_bonding_flags,
             {"Bonding Flags", "btsmp.bonding_flags",
-            FT_UINT8, BASE_HEX, VALS(bonding_flag_vals), 0x03,          
+            FT_UINT8, BASE_HEX, VALS(bonding_flag_vals), 0x03,
             NULL, HFILL}
         },
         {&hf_btsmp_mitm_flag,
             {"MITM Flag", "btsmp.mitm_flag",
-            FT_UINT8, BASE_DEC, NULL, 0x04,          
+            FT_UINT8, BASE_DEC, NULL, 0x04,
             NULL, HFILL}
         },
         {&hf_btsmp_max_enc_key_size,
             {"Max Encryption Key Size", "btsmp.max_enc_key_size",
-            FT_UINT8, BASE_DEC, NULL, 0x00,          
+            FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL}
         },
         {&hf_btsmp_key_dist_enc,
             {"Encryption Key (LTK)", "btsmp.key_dist_enc",
-            FT_UINT8, BASE_DEC, NULL, 0x01,          
+            FT_UINT8, BASE_DEC, NULL, 0x01,
             NULL, HFILL}
         },
         {&hf_btsmp_key_dist_id,
             {"Id Key (IRK)", "btsmp.key_dist_id",
-            FT_UINT8, BASE_DEC, NULL, 0x02,          
+            FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL}
         },
         {&hf_btsmp_key_dist_sign,
             {"Signature Key (CSRK)", "btsmp.key_dist_sign",
-            FT_UINT8, BASE_DEC, NULL, 0x04,          
+            FT_UINT8, BASE_DEC, NULL, 0x04,
             NULL, HFILL}
         },
         {&hf_btsmp_ediv,
             {"Encrypted Diversifier (EDIV)", "btsmp.ediv",
-            FT_UINT16, BASE_HEX, NULL, 0x00,          
+            FT_UINT16, BASE_HEX, NULL, 0x00,
             NULL, HFILL}
         }
     };
@@ -405,4 +408,3 @@ proto_reg_handoff_btsmp(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

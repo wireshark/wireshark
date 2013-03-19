@@ -36,6 +36,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-bluetooth-hci.h"
 
@@ -850,6 +851,9 @@ static const value_string evt_master_clock_accuray[] = {
     { 0, NULL }
 };
 
+void proto_register_bthci_evt(void);
+void proto_reg_handoff_bthci_evt(void);
+
 static int
 dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, guint8 *bdaddr)
@@ -964,7 +968,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
         key[4].length = 0;
         key[4].key    = NULL;
 
-        remote_bdaddr = se_alloc(sizeof(remote_bdaddr_t));
+        remote_bdaddr = (remote_bdaddr_t *) wmem_new(wmem_file_scope(), remote_bdaddr_t);
         remote_bdaddr->interface_id = hci_data->interface_id;
         remote_bdaddr->adapter_id = hci_data->adapter_id;
         remote_bdaddr->chandle = connection_handle;
@@ -1209,10 +1213,10 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_name = se_alloc(sizeof(device_name_t));
+        device_name = (device_name_t *) wmem_new(wmem_file_scope(), device_name_t);
         device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
         device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
-        device_name->name = se_strdup(name);
+        device_name->name = wmem_strdup(wmem_file_scope(), name);
 
         se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
     }
@@ -1552,26 +1556,26 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     i=0;
-    while(i<size){
+    while (i < size) {
         length = tvb_get_guint8(tvb, offset+i);
-        if( length != 0 ){
+        if (length != 0) {
 
             proto_item *ti_eir_struct;
             proto_tree *ti_eir_struct_subtree;
 
-            ti_eir_struct = proto_tree_add_text(ti_eir_subtree, tvb, offset+i, length+1, "%s", "");
+            ti_eir_struct = proto_tree_add_text(ti_eir_subtree, tvb, offset + i, length + 1, "%s", "");
             ti_eir_struct_subtree = proto_item_add_subtree(ti_eir_struct, ett_eir_struct_subtree);
 
-            type = tvb_get_guint8(tvb, offset+i+1);
+            type = tvb_get_guint8(tvb, offset + i + 1);
 
             proto_item_append_text(ti_eir_struct,"%s", val_to_str_ext_const(type, &bthci_cmd_eir_data_type_vals_ext, "Unknown"));
 
-            proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_length, tvb, offset+i, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_type, tvb, offset+i+1, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_length, tvb, offset + i, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_type, tvb, offset + i + 1, 1, ENC_LITTLE_ENDIAN);
 
             switch(type) {
                 case 0x01: /* Flags */
-                    if(length-1 > 0)
+                    if (length > 1)
                     {
                         proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_limited_disc_mode, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
                         proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_flags_general_disc_mode, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
@@ -1635,10 +1639,10 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         key[3].length = 0;
                         key[3].key    = NULL;
 
-                        device_name = se_alloc(sizeof(device_name_t));
+                        device_name = (device_name_t *) wmem_new(wmem_file_scope(), device_name_t);
                         device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
                         device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
-                        device_name->name = se_strdup(name);
+                        device_name->name = wmem_strdup(wmem_file_scope(), name);
 
                         se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
                     }
@@ -2194,7 +2198,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 key[3].length = 0;
                 key[3].key    = NULL;
 
-                localhost_bdaddr_entry = se_alloc(sizeof(localhost_bdaddr_entry_t));
+                localhost_bdaddr_entry = (localhost_bdaddr_entry_t *) wmem_new(wmem_file_scope(), localhost_bdaddr_entry_t);
                 localhost_bdaddr_entry->interface_id = k_interface_id;
                 localhost_bdaddr_entry->adapter_id = k_adapter_id;
                 memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
@@ -2395,10 +2399,10 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 key[3].length = 0;
                 key[3].key    = NULL;
 
-                localhost_name_entry = se_alloc(sizeof(localhost_name_entry_t));
+                localhost_name_entry = (localhost_name_entry_t *) wmem_new(wmem_file_scope(), localhost_name_entry_t);
                 localhost_name_entry->interface_id = k_interface_id;
                 localhost_name_entry->adapter_id = k_adapter_id;
-                localhost_name_entry->name = se_strdup(name);
+                localhost_name_entry->name = wmem_strdup(wmem_file_scope(), name);
 
                 se_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
             }
@@ -3336,7 +3340,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     evt_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(bthci_evt_tree, " - %s", val_to_str(evt_code, evt_code_vals, "Unknown 0x%08x"));
+    proto_item_append_text(bthci_evt_tree, " - %s", val_to_str_const(evt_code, evt_code_vals, "Unknown 0x%08x"));
     offset++;
 
     param_length = tvb_get_guint8(tvb, offset);
@@ -3346,7 +3350,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT");
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(evt_code, evt_code_vals, "Unknown 0x%08x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(evt_code, evt_code_vals, "Unknown 0x%08x"));
 
     if (param_length > 0) {
         switch(evt_code) {

@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-bluetooth-hci.h"
 
@@ -56,12 +57,15 @@ static const value_string hci_h1_direction_vals[] = {
 	{0, NULL}
 };
 
+void proto_register_hci_h1(void);
+void proto_reg_handoff_hci_h1(void);
+
 static void
 dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8      type;
 	tvbuff_t   *next_tvb;
-	proto_item *ti=NULL;
+	proto_item *ti = NULL;
 	proto_tree *hci_h1_tree = NULL;
 	void       *pd_save;
 	hci_data_t *hci_data;
@@ -72,7 +76,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	type = pinfo->pseudo_header->bthci.channel;
 
-	if(tree){
+	if (tree) {
 		ti = proto_tree_add_item(tree, proto_hci_h1, tvb, 0, 0, ENC_NA);
 		hci_h1_tree = proto_item_add_subtree(ti, ett_hci_h1);
 
@@ -106,7 +110,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	pd_save = pinfo->private_data;
-	hci_data = ep_alloc(sizeof(hci_data_t));
+	hci_data = wmem_new(wmem_packet_scope(),hci_data_t);
 	hci_data->interface_id = HCI_INTERFACE_H4;
 	hci_data->adapter_id = HCI_ADAPTER_DEFAULT;
 	hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
@@ -115,11 +119,11 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hci_data->localhost_name = localhost_name;
 	pinfo->private_data = hci_data;
 
-	ti=proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
+	ti = proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	next_tvb = tvb_new_subset_remaining(tvb, 0);
-	if(!dissector_try_uint(hci_h1_table, type, next_tvb, pinfo, tree)) {
+	if (!dissector_try_uint(hci_h1_table, type, next_tvb, pinfo, tree)) {
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 
@@ -149,7 +153,7 @@ proto_register_hci_h1(void)
 		&ett_hci_h1,
 	};
 
-	proto_hci_h1 = proto_register_protocol("Bluetooth HCI",
+	proto_hci_h1 = proto_register_protocol("Bluetooth HCI H1",
 	    "HCI_H1", "hci_h1");
 
 	register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
