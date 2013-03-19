@@ -2854,7 +2854,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                       hf_dcerpc_cn_num_trans_items, &num_trans_items);
 
         if (dcerpc_tree) {
-            proto_item_append_text(ctx_item, "[%u]: ID:%u", i+1, ctx_id);
+            proto_item_append_text(ctx_item, "[%u]: Context ID:%u", i+1, ctx_id);
         }
 
         /* padding */
@@ -2872,10 +2872,12 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                            offset, 16, (e_guid_t *) &if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
                 proto_item_append_text(iface_item, ": %s", uuid_name);
+                proto_item_append_text(ctx_item, ", %s", uuid_name);
             } else {
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                            offset, 16, (e_guid_t *) &if_id, "Interface UUID: %s", uuid_str);
                 proto_item_append_text(iface_item, ": %s", uuid_str);
+                proto_item_append_text(ctx_item, ", %s", uuid_str);
             }
         }
         offset += 16;
@@ -2916,10 +2918,12 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                                offset, 16, (e_guid_t *) &trans_id,
                                                "Transport Syntax: %s UUID:%s", uuid_name, uuid_str);
                     proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_name);
+                    proto_item_append_text(ctx_item, ", %s", uuid_name);
                 } else {
                     proto_tree_add_guid_format(trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
                                                offset, 16, (e_guid_t *) &trans_id, "Transport Syntax: %s", uuid_str);
                     proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_str);
+                    proto_item_append_text(ctx_item, ", %s", uuid_str);
                 }
             }
             offset += 16;
@@ -2988,6 +2992,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32           trans_ver;
     dcerpc_auth_info  auth_info;
     const char       *uuid_name = NULL;
+    const char       *result_str = NULL;
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_max_xmit, &max_xmit);
@@ -3022,10 +3027,10 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     for (i = 0; i < num_results; i++) {
         proto_tree *ctx_tree = NULL;
+        proto_item *ctx_item = NULL;
 
         if (dcerpc_tree) {
-            proto_item *ctx_item;
-            ctx_item = proto_tree_add_text(dcerpc_tree, tvb, offset, 24, "Context ID[%u]", i+1);
+            ctx_item = proto_tree_add_text(dcerpc_tree, tvb, offset, 24, "Ctx Item[%u]:", i+1);
             ctx_tree = proto_item_add_subtree(ctx_item, ett_dcerpc_cn_ctx);
         }
 
@@ -3044,13 +3049,18 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             offset += 2;
         }
 
-        dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
-        uuid_name = guids_get_uuid_name(&trans_id);
+        result_str = val_to_str(result, p_cont_result_vals, "Unknown result (%u)");
 
         if (ctx_tree) {
+            dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
+            uuid_name = guids_get_uuid_name(&trans_id);
+            if (! uuid_name) {
+                uuid_name = guid_to_str((e_guid_t *) &trans_id);
+            }
             proto_tree_add_guid_format(ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
                                        offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s",
-                                       uuid_name?uuid_name:guid_to_str((e_guid_t *) &trans_id));
+                                       uuid_name);
+            proto_item_append_text(ctx_item, " %s, %s", result_str, uuid_name);
         }
         offset += 16;
 
@@ -3059,8 +3069,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         if (i > 0)
             col_append_fstr(pinfo->cinfo, COL_INFO, ",");
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                        val_to_str(result, p_cont_result_vals, "Unknown result (%u)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", result_str);
     }
 
     /*
@@ -5921,3 +5930,16 @@ proto_reg_handoff_dcerpc(void)
     guids_add_uuid(&uuid_bind_time_feature_nego, "bind time feature negotiation");
     guids_add_uuid(&uuid_asyncemsmdb, "async MAPI");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
