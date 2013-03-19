@@ -8586,7 +8586,7 @@ typedef enum
     ANSI_A_E_NONE        /* NONE */
 }
 elem_idx_t;
-static elem_idx_t ansi_a_elem_1_max = 0;
+static elem_idx_t ansi_a_elem_1_max = (elem_idx_t)0;
 
 #define MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
 #define MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
@@ -11587,7 +11587,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
     guint32     curr_offset;
     guint32     consumed;
     guint       curr_len;
-    elem_idx_t  idx;
+    unsigned    idx;
     guint8      oct;
 
     curr_offset = offset;
@@ -11603,16 +11603,16 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
          */
         oct = tvb_get_guint8(tvb, curr_offset);
 
-        for (idx=0; idx < ansi_a_elem_1_max; idx++)
+        for (idx=0; idx < (unsigned)ansi_a_elem_1_max; idx++)
         {
             if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
             {
-                ELEM_OPT_TLV(idx, "");
+                ELEM_OPT_TLV((elem_idx_t)idx, "");
                 break;
             }
         }
 
-        if (idx == ansi_a_elem_1_max)
+        if (idx == (elem_idx_t)ansi_a_elem_1_max)
         {
             /*
              * didn't recognize the T(ype)
@@ -12219,14 +12219,14 @@ proto_reg_handoff_ansi_a(void)
         ansi_a_bsmap_strings = ansi_a_ios501_bsmap_strings;
         ansi_a_dtap_strings = ansi_a_ios501_dtap_strings;
         ansi_a_elem_1_strings = ansi_a_ios501_elem_1_strings;
-        ansi_a_elem_1_max = MAX_IOS501_NUM_ELEM_1;
+        ansi_a_elem_1_max = (elem_idx_t)MAX_IOS501_NUM_ELEM_1;
         break;
 
     default:
         ansi_a_bsmap_strings = ansi_a_ios401_bsmap_strings;
         ansi_a_dtap_strings = ansi_a_ios401_dtap_strings;
         ansi_a_elem_1_strings = ansi_a_ios401_elem_1_strings;
-        ansi_a_elem_1_max = MAX_IOS401_NUM_ELEM_1;
+        ansi_a_elem_1_max = (elem_idx_t)MAX_IOS401_NUM_ELEM_1;
         break;
     }
 }
