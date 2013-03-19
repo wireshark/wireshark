@@ -143,7 +143,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     e_uuid_t     iid;
     e_uuid_t     iid_null = DCERPC_UUID_NULL;
     dcerpc_info *info = (dcerpc_info *) pinfo->private_data;
-    remunk_remqueryinterface_call_t *call = info->call_data->private_data;
+    remunk_remqueryinterface_call_t *call = (remunk_remqueryinterface_call_t *)info->call_data->private_data;
     guint64      oxid;
     guint64      oid;
     e_uuid_t     ipid;
@@ -185,7 +185,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
         /* add interface instance to database (we currently only handle IPv4) */
         if(pinfo->net_src.type == AT_IPv4) {
             dcom_interface_new(pinfo,
-                               pinfo->net_src.data,
+                               (guint8 *)pinfo->net_src.data,
                                &iid, oxid, oid, &ipid);
         }
 

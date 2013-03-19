@@ -579,13 +579,13 @@ lowpan_context_find(guint8 cid, guint16 pan)
     /* Lookup the context from the table. */
     key.pan = pan;
     key.cid = cid;
-    data = g_hash_table_lookup(lowpan_context_table, &key);
+    data = (lowpan_context_data *)g_hash_table_lookup(lowpan_context_table, &key);
     if (data) return data;
 
     /* If we didn't find a match, try again with the broadcast PAN. */
     if (pan != IEEE802154_BCAST_PAN) {
         key.pan = IEEE802154_BCAST_PAN;
-        data = g_hash_table_lookup(lowpan_context_table, &key);
+        data = (lowpan_context_data *)g_hash_table_lookup(lowpan_context_table, &key);
         if (data) return data;
     }
 
@@ -625,7 +625,7 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
     key.cid = cid;
     if (g_hash_table_lookup_extended(lowpan_context_table, &key, &pkey, &pdata)) {
         /* Context already exists. */
-        data = pdata;
+        data = (lowpan_context_data *)pdata;
         if ( (data->plen == plen) && (memcmp(&data->prefix, prefix, (plen+7)/8) == 0) ) {
             /* Context already exists with no change. */
             return;
@@ -636,7 +636,7 @@ lowpan_context_insert(guint8 cid, guint16 pan, guint8 plen, struct e_in6_addr *p
     }
 
     /* Create a new context */
-    data = se_alloc(sizeof(lowpan_context_data));
+    data = se_new(lowpan_context_data);
     data->frame = frame;
     data->plen = plen;
     memset(&data->prefix, 0, sizeof(struct e_in6_addr)); /* Ensure zero paddeding */

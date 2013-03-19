@@ -89,7 +89,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Get message parameters */
 	oct[1] = tvb_get_guint8(tvb, offset);
 
-	gmr1_get_msg_params(pd, oct[1], &msg_str, &ett_tree, &hf_idx, &msg_func);
+	gmr1_get_msg_params((gmr1_pd_e)pd, oct[1], &msg_str, &ett_tree, &hf_idx, &msg_func);
 
 	/* Create protocol tree */
 	if (msg_str == NULL)

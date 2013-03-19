@@ -5062,7 +5062,7 @@ static void
 dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
 {
   guint8          responseLen  = tvb_get_guint8 (tvb, start_offset + 0);
-  responseType_e  responseType = tvb_get_guint8 (tvb, start_offset + 2);
+  responseType_e  responseType = (responseType_e)tvb_get_guint8 (tvb, start_offset + 2);
   tvbuff_t       *payload_tvb  = tvb_new_subset (tvb, start_offset, responseLen, responseLen);
 
   if (tree)

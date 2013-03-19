@@ -507,11 +507,11 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Calculate the IFG */
 
     /* Check for an existing ifg value associated with the frame */
-    p_ifg_info = p_get_proto_data(pinfo->fd, proto_ixveriwave);
+    p_ifg_info = (ifg_info *)p_get_proto_data(pinfo->fd, proto_ixveriwave);
     if (!p_ifg_info)
     {
         /* allocate the space */
-        p_ifg_info = se_alloc0(sizeof(struct ifg_info));
+        p_ifg_info = se_new0(struct ifg_info);
 
         /* Doesn't exist, so we need to calculate the value */
         if (previous_frame_data.previous_frame_num !=0 && (pinfo->fd->num - previous_frame_data.previous_frame_num == 1))

@@ -1768,7 +1768,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     if(decrypt_ok && (decrypted_len > esp_iv_len))
                     {
-                        tvb_decrypted = tvb_new_child_real_data(tvb, g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
+                        tvb_decrypted = tvb_new_child_real_data(tvb, (guint8 *)g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
                             decrypted_len - esp_iv_len),
                             decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
                         g_free(decrypted_data);
@@ -2167,7 +2167,7 @@ proto_register_ipsec(void)
             sizeof(uat_esp_sa_record_t),    /* record size */
             "esp_sa",                       /* filename */
             TRUE,                           /* from_profile */
-            (void*) &uat_esp_sa_records,    /* data_ptr */
+            (void**) &uat_esp_sa_records,   /* data_ptr */
             &num_sa_uat,                    /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* help */

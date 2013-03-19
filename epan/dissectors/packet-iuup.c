@@ -324,7 +324,7 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
 
     DISSECTOR_ASSERT(bit_offset < 8);
 
-    shifted_buffer = ep_tvb_memdup(tvb,offset,len+1);
+    shifted_buffer = (guint8 *)ep_tvb_memdup(tvb,offset,len+1);
 
     for(i = 0; i < len; i++) {
         shifted_buffer[i] <<= bit_offset;
@@ -355,7 +355,7 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     if ( ! dissect_fields ) {
         return;
     } else if ( ! pinfo->circuit_id
-                || ! ( iuup_circuit  = g_hash_table_lookup(circuits,GUINT_TO_POINTER(pinfo->circuit_id)) ) ) {
+                || ! ( iuup_circuit  = (iuup_circuit_t *)g_hash_table_lookup(circuits,GUINT_TO_POINTER(pinfo->circuit_id)) ) ) {
         proto_item_set_expert_flags(pi, PI_UNDECODED, PI_WARN);
         return;
     }
@@ -409,7 +409,7 @@ static guint dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
     guint i;
 
     do {
-        iuup_rfci_t *rfci = se_alloc0(sizeof(iuup_rfci_t));
+        iuup_rfci_t *rfci = se_new0(iuup_rfci_t);
         guint len = 0;
 
         DISSECTOR_ASSERT(c < 64);
@@ -474,15 +474,15 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     iuup_circuit_t* iuup_circuit = NULL;
 
     if (pinfo->circuit_id) {
-        iuup_circuit = g_hash_table_lookup(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
+        iuup_circuit = (iuup_circuit_t *)g_hash_table_lookup(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
 
         if (iuup_circuit) {
             g_hash_table_remove(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
         }
 
-        iuup_circuit = se_alloc0(sizeof(iuup_circuit_t));
+        iuup_circuit = se_new0(iuup_circuit_t);
     } else {
-        iuup_circuit = ep_alloc0(sizeof(iuup_circuit_t));
+        iuup_circuit = ep_new0(iuup_circuit_t);
     }
 
     iuup_circuit->id = pinfo->circuit_id;

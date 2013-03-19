@@ -354,7 +354,7 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 	json_token_type_t value_id = JSON_TOKEN_INVALID;
 
 	if (tok->sub)
-		value_id = tok->sub->id;
+		value_id = (json_token_type_t)tok->sub->id;
 
 	switch (value_id) {
 		case JSON_TOKEN_STRING:

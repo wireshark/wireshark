@@ -564,7 +564,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
                     *pgt++ = 0;
                 }
 
-                addr = ep_alloc(sizeof(address));
+                addr = ep_new(address);
                 addr->type = AT_IPv4;
                 addr->len  = 4;
                 addr->data = ep_alloc(4);
@@ -744,7 +744,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     /* XXX we need a way to handle replayed iscsi itt here */
     cdata=(iscsi_conv_data_t *)se_tree_lookup32(iscsi_session->itlq, tvb_get_ntohl(tvb, offset+16));
     if(!cdata){
-        cdata = se_alloc (sizeof(iscsi_conv_data_t));
+        cdata = se_new(iscsi_conv_data_t);
         cdata->itlq.lun=0xffff;
         cdata->itlq.scsi_opcode=0xffff;
         cdata->itlq.task_flags=0;
@@ -814,7 +814,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
         itl=(itl_nexus_t *)se_tree_lookup32(iscsi_session->itl, lun);
         if(!itl){
-            itl=se_alloc(sizeof(itl_nexus_t));
+            itl=se_new(itl_nexus_t);
             itl->cmdset=0xff;
             itl->conversation=conversation;
             se_tree_insert32(iscsi_session->itl, lun, itl);
@@ -1595,7 +1595,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             /* We have a variable length CDB where bytes >16 is transported
              * in the AHS.
              */
-            cdb_buf=g_malloc(16+ahs_cdb_length);
+            cdb_buf=(guint8 *)g_malloc(16+ahs_cdb_length);
             /* the 16 first bytes of the cdb */
             tvb_memcpy(tvb, cdb_buf, cdb_offset, 16);
             /* the remainder of the cdb from the ahs */
@@ -2344,9 +2344,9 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         /* make sure we have a conversation for this session */
         conversation = find_or_create_conversation(pinfo);
 
-        iscsi_session=conversation_get_proto_data(conversation, proto_iscsi);
+        iscsi_session=(iscsi_session_t *)conversation_get_proto_data(conversation, proto_iscsi);
         if(!iscsi_session){
-            iscsi_session=se_alloc(sizeof(iscsi_session_t));
+            iscsi_session=se_new(iscsi_session_t);
             iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
             iscsi_session->itlq=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "iSCSI ITLQ");
             iscsi_session->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "iSCSI ITL");

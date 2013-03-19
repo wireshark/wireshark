@@ -1426,7 +1426,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
-    hdlc_type = erf_hdlc_type;
+    hdlc_type = (erf_hdlc_type_vals)erf_hdlc_type;
 
     if (hdlc_type == ERF_HDLC_GUESS) {
       /* Try to guess the type. */

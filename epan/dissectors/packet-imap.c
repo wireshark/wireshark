@@ -78,8 +78,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int             iter;
 	int             commandlen;
 
-	tokenbuf = ep_alloc(MAX_BUFFER);
-	command_token = ep_alloc(MAX_BUFFER);
+	tokenbuf = (guchar *)ep_alloc(MAX_BUFFER);
+	command_token = (guchar *)ep_alloc(MAX_BUFFER);
 	memset(tokenbuf, '\0', MAX_BUFFER);
 	memset(command_token, '\0', MAX_BUFFER);
 	commandlen = 0;

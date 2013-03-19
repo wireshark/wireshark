@@ -58,7 +58,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
     int         offset = 0;
     gchar       *eom_msg;
 
-    eom_msg = ep_alloc(MAX_EOM_MSG_SIZE);
+    eom_msg = (gchar *)ep_alloc(MAX_EOM_MSG_SIZE);
     eom_msg[0] = 0;
 
     col_clear(pinfo->cinfo, COL_INFO);

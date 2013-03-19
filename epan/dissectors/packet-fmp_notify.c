@@ -84,7 +84,7 @@ dissect_fmp_notify_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval
 {
         fmpStat status;
 
-        status = tvb_get_ntohl(tvb, offset);
+        status = (fmpStat)tvb_get_ntohl(tvb, offset);
 
         switch (status) {
         case FMP_OK:
@@ -168,7 +168,7 @@ dissect_revokeHandleListReason(tvbuff_t *tvb, int offset, proto_tree *tree)
 	revokeHandleListReason reason;
 
   	if (tree) {
-		reason  = tvb_get_ntohl(tvb, offset);
+		reason  = (revokeHandleListReason)tvb_get_ntohl(tvb, offset);
 		switch (reason) {
 		case FMP_LIST_USER_QUOTA_EXCEEDED:
 			proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",

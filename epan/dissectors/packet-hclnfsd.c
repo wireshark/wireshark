@@ -150,7 +150,7 @@ hclnfsd_decode_obscure(const char *ident, int ident_len)
 	char *ident_decoded, *ident_out;
 	int j, x, y;
 
-	ident_decoded = ep_alloc(ident_len);
+	ident_decoded = (char *)ep_alloc(ident_len);
 	ident_out = ident_decoded;
 	for (x = -1, j = 0; j < ident_len; j++)
 	{

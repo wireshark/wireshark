@@ -306,7 +306,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, guint32 marker_offset,
 
 	/* allocate memory for the marker-free buffer */
 	mfree_buff_length = orig_length - (MPA_MARKER_LEN * num_markers);
-	mfree_buff = g_malloc(mfree_buff_length);
+	mfree_buff = (guint8 *)g_malloc(mfree_buff_length);
 
 	tot_copy = 0;
 	source_offset = 0;
@@ -801,7 +801,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	/* FPDU */
 	if (tvb_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
 
-		tcpinfo = pinfo->private_data;
+		tcpinfo = (struct tcpinfo *)pinfo->private_data;
 
 		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);

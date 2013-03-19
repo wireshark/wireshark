@@ -1655,7 +1655,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
 {
   guchar *encoded = tvb_get_ephemeral_string (tvb, offset, length);
-  guchar *decoded = ep_alloc0 ((size_t)(length * 1.2) + 1);
+  guchar *decoded = (guchar *)ep_alloc0 ((size_t)(length * 1.2) + 1);
   guchar  rest = 0, bits = 1;
   gint    len = 0, i;
 
@@ -1725,7 +1725,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
   gchar      *sic = NULL;
 
   key = tvb_get_guint8 (tvb, offset);
-  sic = ep_alloc (MAX_SIC_LEN);
+  sic = (gchar *)ep_alloc (MAX_SIC_LEN);
 
   if (key <= 0xB6) {
     /* 2 bytes, single 3-character SIC, characters [A-Z0-9] only */
@@ -4970,7 +4970,7 @@ void proto_register_dmp (void)
                                   sizeof(dmp_security_class_t),
                                   "dmp_security_classifications",
                                   TRUE,
-                                  (void*) &dmp_security_classes,
+                                  (void**) &dmp_security_classes,
                                   &num_dmp_security_classes,
                                   UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                   "ChDMPSecurityClassifications",

@@ -398,7 +398,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
     bit_offset = *start_bit_offset;
 
     /* prepare the string */
-    str = ep_alloc(256);
+    str = (char *)ep_alloc(256);
     str[0] = '\0';
     for (bit=0; bit<((int)(bit_offset&0x07)); bit++) {
         if (bit && (!(bit%4))) {
@@ -1062,7 +1062,7 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
     int       i;
     gchar    *buff;
 
-    buff = g_malloc(length);
+    buff = (gchar *)g_malloc(length);
     for (i = 0; i < length; i++) {
         if ((i + 2 < length) && (tvb_get_ntoh24(tvb, offset) == 0x000003)) {
             buff[NumBytesInRBSP++] = tvb_get_guint8(tvb, offset);

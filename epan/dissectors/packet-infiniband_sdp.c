@@ -225,7 +225,7 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             return 0;   /* no infiniband handle? can't get our proto-data; sorry, can't help you without this */
         proto_infiniband = dissector_handle_get_protocol_index(infiniband_handle);
     }
-    convo_data = conversation_get_proto_data(conv, proto_infiniband);
+    convo_data = (conversation_infiniband_data *)conversation_get_proto_data(conv, proto_infiniband);
 
     if (!(convo_data->service_id & SERVICE_ID_MASK))
         return 0;   /* the service id doesn't match that of SDP - nothing for us to do here */

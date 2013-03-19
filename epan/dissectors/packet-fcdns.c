@@ -136,8 +136,8 @@ static dissector_handle_t data_handle;
 static gint
 fcdns_equal(gconstpointer v, gconstpointer w)
 {
-  const fcdns_conv_key_t *v1 = v;
-  const fcdns_conv_key_t *v2 = w;
+  const fcdns_conv_key_t *v1 = (const fcdns_conv_key_t *)v;
+  const fcdns_conv_key_t *v2 = (const fcdns_conv_key_t *)w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -145,7 +145,7 @@ fcdns_equal(gconstpointer v, gconstpointer w)
 static guint
 fcdns_hash (gconstpointer v)
 {
-    const fcdns_conv_key_t *key = v;
+    const fcdns_conv_key_t *key = (const fcdns_conv_key_t *)v;
     guint val;
 
     val = key->conv_idx;
@@ -1506,10 +1506,10 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_alloc (sizeof(fcdns_conv_key_t));
+            req_key = se_new(fcdns_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_alloc (sizeof(fcdns_conv_data_t));
+            cdata = se_new(fcdns_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert (fcdns_req_hash, req_key, cdata);

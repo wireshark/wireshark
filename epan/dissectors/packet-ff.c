@@ -1822,9 +1822,9 @@ static const true_false_string tfs_do_not_clear_clear = { "Do not clear", "Clear
 static const true_false_string tfs_confirmed_unconfirmed = { "Confirmed", "Unconfirmed" };
 
 static const char *
-val_to_str_err_code(guint8 class, guint8 code)
+val_to_str_err_code(guint8 errclass, guint8 code)
 {
-    switch (class) {
+    switch (errclass) {
         case 1:
             return (val_to_str_const(code, names_err_code_vfd_state, "Unknown"));
 

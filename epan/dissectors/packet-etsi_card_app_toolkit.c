@@ -763,7 +763,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint8 g8;
 		guint16 tag;
 		guint32 len;
-		void *ptr = NULL;
+		guint8 *ptr = NULL;
 		unsigned int i;
 
 		tag = tvb_get_guint8(tvb, pos++) & 0x7f;

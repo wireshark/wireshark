@@ -419,7 +419,7 @@ gadu_gadu_create_conversation(packet_info *pinfo, guint32 uin)
 	struct gadu_gadu_conv_data *gg_conv;
 
 	conv = find_or_create_conversation(pinfo);
-	gg_conv = conversation_get_proto_data(conv, proto_gadu_gadu);
+	gg_conv = (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, proto_gadu_gadu);
 	if (!gg_conv) {
 		gg_conv = se_new(struct gadu_gadu_conv_data);
 		gg_conv->uin = uin;
@@ -437,7 +437,7 @@ gadu_gadu_get_conversation_data(packet_info *pinfo)
 	
 	conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conv)
-		return conversation_get_proto_data(conv, proto_gadu_gadu);
+		return (struct gadu_gadu_conv_data *)conversation_get_proto_data(conv, proto_gadu_gadu);
 	return NULL;
 }
 

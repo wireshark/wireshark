@@ -60,7 +60,7 @@ ieee802a_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 {
 	oui_info_t *new_info;
 
-	new_info = g_malloc(sizeof (oui_info_t));
+	new_info = (oui_info_t *)g_malloc(sizeof (oui_info_t));
 	new_info->table = register_dissector_table(table_name,
 	    table_ui_name, FT_UINT16, BASE_HEX);
 	new_info->field_info = hf_item;
@@ -113,7 +113,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Do we have information for this OUI?
 	 */
 	if (oui_info_table != NULL &&
-	    (oui_info = g_hash_table_lookup(oui_info_table,
+	    (oui_info = (oui_info_t *)g_hash_table_lookup(oui_info_table,
 	      GUINT_TO_POINTER(oui))) != NULL) {
 		/*
 		 * Yes - use it.
@@ -164,7 +164,7 @@ proto_register_ieee802a(void)
 static void
 register_hf(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
-	oui_info_t *info = value;
+	oui_info_t *info = (oui_info_t *)value;
 
 	proto_register_field_array(proto_ieee802a, info->field_info, 1);
 }

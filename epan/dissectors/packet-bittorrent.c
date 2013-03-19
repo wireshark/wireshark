@@ -346,10 +346,10 @@ dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
             proto_tree_add_item(tree, hf_bittorrent_bstr, tvb, offset+used, stringlen, ENC_ASCII|ENC_NA);
 
             if (treeadd==1) {
-               proto_item_append_text(ti, " Key: %s", format_text(ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
+               proto_item_append_text(ti, " Key: %s", format_text((guchar *)ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
             }
             if (treeadd==2) {
-               proto_item_append_text(ti, "  Value: %s", format_text(ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
+               proto_item_append_text(ti, "  Value: %s", format_text((guchar *)ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
             }
          }
          return used+stringlen;

@@ -101,7 +101,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* this is a ugly hack to find the first byte of the IP source address */
     if (pinfo->net_src.type == AT_IPv4) {
-      ipsrc = pinfo->net_src.data;
+      ipsrc = (guint8 *)pinfo->net_src.data;
       network = ipsrc[0];
     } else
       network = 0; /* XXX - shouldn't happen */

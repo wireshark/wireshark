@@ -219,7 +219,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
 
 
-    kfp=ep_alloc(sizeof(kingfisher_packet_t));
+    kfp=ep_new(kingfisher_packet_t);
 
     /* Verify that it looks like kingfisher */
     /* the packet must be at least 9 bytes */

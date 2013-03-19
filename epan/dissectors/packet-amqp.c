@@ -1867,7 +1867,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conv = find_or_create_conversation(pinfo);
     conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
     if (conn == NULL) {
-        conn = se_alloc0(sizeof(amqp_conv));
+        conn = se_new0(amqp_conv);
         conversation_add_proto_data(conv, proto_amqp, conn);
     }
     check_amqp_version(tvb, conn);

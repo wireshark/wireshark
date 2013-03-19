@@ -1808,7 +1808,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tvb_get_guint8(tvb, offset + IP6H_SRC + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_SRC + 11) == 0xfffe) {  /* RFC 4291 appendix A */
-      mac_addr = ep_alloc(6);
+      mac_addr = (guint8 *)ep_alloc(6);
       tvb_memcpy(tvb, mac_addr, offset + IP6H_SRC + 8, 3);
       tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_SRC + 13, 3);
       mac_addr[0] &= ~0x02;
@@ -1895,7 +1895,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tvb_get_guint8(tvb, offset + IP6H_DST + 8) & 0x02 && tvb_get_ntohs(tvb, offset + IP6H_DST + 11) == 0xfffe) { /* RFC 4291 appendix A */
-      mac_addr = ep_alloc(6);
+      mac_addr = (guint8 *)ep_alloc(6);
       tvb_memcpy(tvb, mac_addr, offset + IP6H_DST + 8, 3);
       tvb_memcpy(tvb, mac_addr+3, offset+ IP6H_DST + 13, 3);
       mac_addr[0] &= ~0x02;

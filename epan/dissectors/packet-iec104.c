@@ -1067,7 +1067,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	asduh = ep_alloc(sizeof(struct asduheader));
+	asduh = ep_new(struct asduheader);
 	res = ep_strbuf_new_label(NULL);
 
 	/*** *** START: Common to 'Packet List' and 'Packet Details' *** ***/
@@ -1521,7 +1521,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	apcih = ep_alloc(sizeof(struct apciheader));
+	apcih = ep_new(struct apciheader);
 
 	/*** *** START: Common to 'Packet List' and 'Packet Details' *** ***/
 	Start = 0;

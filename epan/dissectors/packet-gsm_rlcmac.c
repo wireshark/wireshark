@@ -7702,7 +7702,7 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     RlcMacDownlink_t * data;
 
     /* allocate a data structure and guess the coding scheme */
-    data = ep_alloc(sizeof(RlcMacDownlink_t));
+    data = ep_new(RlcMacDownlink_t);
 
     if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {
@@ -7752,7 +7752,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     RlcMacUplink_t *data;
 
     /* allocate a data structure and set the coding scheme */
-   data = ep_alloc(sizeof(RlcMacUplink_t));
+   data = ep_new(RlcMacUplink_t);
 
     if ((pinfo->private_data != NULL) && (((RlcMacPrivateData_t *)(pinfo->private_data))->magic == GSM_RLC_MAC_MAGIC_NUMBER))
     {

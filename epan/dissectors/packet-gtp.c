@@ -7859,12 +7859,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /*
     * Do we already know this conversation?
     */
-    gtp_info = conversation_get_proto_data(conversation, proto_gtp);
+    gtp_info = (gtp_conv_info_t *)conversation_get_proto_data(conversation, proto_gtp);
     if (gtp_info == NULL) {
         /* No.  Attach that information to the conversation, and add
         * it to the list of information structures.
         */
-        gtp_info = g_malloc(sizeof(gtp_conv_info_t));
+        gtp_info = (gtp_conv_info_t *)g_malloc(sizeof(gtp_conv_info_t));
         /*Request/response matching tables*/
         gtp_info->matched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_matched);
         gtp_info->unmatched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_unmatched);

@@ -514,9 +514,7 @@ typedef enum
 }
 bsslap_elem_idx_t;
 */
-elem_fcn bsslap_elem_fcn[];
-
-guint16 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
+elem_fcn bsslap_elem_fcn[] = {
 	/* BSS LAP Elements 5 */
 	NULL,	/* Reserved */
 	de_ta,	/* Timing Advance */

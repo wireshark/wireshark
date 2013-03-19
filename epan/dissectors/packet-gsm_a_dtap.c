@@ -2950,7 +2950,7 @@ static guint16
 de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
 {
 	guint        saved_offset;
-	gint8        class;
+	gint8        appclass;
 	gboolean     pc;
 	gboolean     ind           = FALSE;
 	guint32      component_len = 0;
@@ -2972,7 +2972,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 
 		/* Get the length of the component there can be more than one component in a facility message */
 
-		header_end_offset = get_ber_identifier(tvb, offset, &class, &pc, &comp_type_tag);
+		header_end_offset = get_ber_identifier(tvb, offset, &appclass, &pc, &comp_type_tag);
 		header_end_offset = get_ber_length(tvb, header_end_offset, &component_len, &ind);
 		header_len = header_end_offset - offset;
 		component_len = header_len + component_len;
@@ -6615,7 +6615,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tap_p->pdu_type = GSM_A_PDU_TYPE_DTAP;
 	tap_p->message_type = (nsd ? (oct & 0x3f) : oct);
-	tap_p->protocol_disc = pd;
+	tap_p->protocol_disc = (gsm_a_pd_str_e)pd;
 
 	tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 

@@ -439,7 +439,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
         addrstr = gsm_sms_chars_to_utf8(addrbuf, i);
         break;
     default:
-        addrstr = ep_alloc(numdigocts*2 + 1);
+        addrstr = (gchar *)ep_alloc(numdigocts*2 + 1);
         for (i = 0; i < numdigocts; i++)
         {
             oct = tvb_get_guint8(tvb, offset + i);
@@ -1748,7 +1748,7 @@ gsm_sms_chars_to_utf8(const unsigned char* src, int len)
     }
 
     /* Now allocate a buffer for the output string and fill it in */
-    outbuf = ep_alloc(outlen + 1);
+    outbuf = (gchar *)ep_alloc(outlen + 1);
     for (i = 0, j = 0; j < len;  j++)
     {
         if (char_is_escape(src[j])) {
@@ -2703,7 +2703,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         }
 
         /* Store udl and length for later decoding of reassembled SMS */
-        p_frag_params = se_alloc0(sizeof(sm_fragment_params));
+        p_frag_params = se_new0(sm_fragment_params);
         p_frag_params->udl = udl;
         p_frag_params->length = length;
         g_hash_table_insert(g_sm_fragment_params_table,

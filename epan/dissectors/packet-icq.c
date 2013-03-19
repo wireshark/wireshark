@@ -1477,7 +1477,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     rounded_size = ((((capturedsize - ICQ5_CL_SESSIONID) + 3)/4)*4) + ICQ5_CL_SESSIONID;
     /* rounded_size might exceed the tvb bounds so we can't just use tvb_memdup here. */
-    decr_pd = g_malloc(rounded_size);
+    decr_pd = (guint8 *)g_malloc(rounded_size);
     tvb_memcpy(tvb, decr_pd, 0, capturedsize);
     decrypt_v5(decr_pd, rounded_size, key);
 

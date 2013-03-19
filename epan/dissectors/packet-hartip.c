@@ -268,7 +268,7 @@ static int
 hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                          epan_dissect_t* edt _U_, const void* p)
 {
-  const hartip_tap_info *tapinfo = p;
+  const hartip_tap_info *tapinfo = (const hartip_tap_info *)p;
   const gchar           *message_type_node_str, *message_id_node_str;
   int                    message_type_node;
 
@@ -385,7 +385,7 @@ dissect_string(proto_tree *tree, int hf, const char *name, int len,
   proto_item *ti;
   char       *str;
 
-  str = ep_alloc(256);
+  str = (char *)ep_alloc(256);
 
   ti = proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
   if (len < 256) {
@@ -411,12 +411,12 @@ dissect_packAscii(proto_tree *tree, int hf, const char *name, int len,
   guint8     *tmp;
   char       *str = NULL;
 
-  str = ep_alloc(256+1);
+  str = (char *)ep_alloc(256+1);
 
   ti = proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
 
   DISSECTOR_ASSERT(len < 3 * (256/4));
-  tmp = ep_alloc0(len);
+  tmp = (guint8 *)ep_alloc0(len);
   tvb_memcpy(tvb, tmp, offset, len);
 
   iIndex = 0;
@@ -877,7 +877,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset++;
 
   /* Setup statistics for tap. */
-  tapinfo = ep_alloc(sizeof(hartip_tap_info));
+  tapinfo = ep_new(hartip_tap_info);
   tapinfo->message_type = message_type;
   tapinfo->message_id   = message_id;
   tap_queue_packet(hartip_tap, pinfo, tapinfo);

@@ -287,14 +287,14 @@ static gint ett_h248_pkg_bt_bit= -1;
 
 static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
 	tvbuff_t* bctp_tvb = NULL;
-	gint8 class;
+	gint8 appclass;
 	gboolean pc;
 	gint32 tag;
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	get_ber_identifier(tvb, 0, &appclass, &pc, &tag);
 
 	/* XXX: is this enough to guess it? */
 	if (tag==BER_UNI_TAG_OCTETSTRING) {

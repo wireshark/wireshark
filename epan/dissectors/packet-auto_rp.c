@@ -179,7 +179,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
 
         /* sizeof map header + n * sizeof encoded group addresses */
         ti = proto_tree_add_text(auto_rp_tree, tvb, offset, 6 + group_count * 6,
-                                 "RP %s: %u group%s", ip_to_str((void *)&rp_addr),
+                                 "RP %s: %u group%s", ip_to_str((guint8 *)&rp_addr),
                                  group_count, plurality(group_count, "", "s"));
         map_tree = proto_item_add_subtree(ti, ett_auto_rp_map);
 
@@ -200,7 +200,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
                 mask_len = tvb_get_guint8(tvb, offset + 1);
                 group_addr = tvb_get_ipv4(tvb, offset + 2);
                 gi = proto_tree_add_text(map_tree, tvb, offset, 6, "Group %s/%u (%s)",
-                                         ip_to_str((void *)&group_addr), mask_len,
+                                         ip_to_str((guint8 *)&group_addr), mask_len,
                                          val_to_str_const(sign&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));
                 grp_tree = proto_item_add_subtree(gi, ett_auto_rp_group);
 

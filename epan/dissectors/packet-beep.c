@@ -867,7 +867,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * elsewhere for other frames
      */
 
-    beep_frame_data = se_alloc(sizeof(struct beep_proto_data));
+    beep_frame_data = se_new(struct beep_proto_data);
 
     beep_frame_data->pl_left = pl_left;
     beep_frame_data->pl_size = 0;

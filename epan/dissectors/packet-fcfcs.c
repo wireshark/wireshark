@@ -96,8 +96,8 @@ static dissector_handle_t data_handle;
 static gint
 fcfcs_equal(gconstpointer v, gconstpointer w)
 {
-  const fcfcs_conv_key_t *v1 = v;
-  const fcfcs_conv_key_t *v2 = w;
+  const fcfcs_conv_key_t *v1 = (const fcfcs_conv_key_t *)v;
+  const fcfcs_conv_key_t *v2 = (const fcfcs_conv_key_t *)w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -105,7 +105,7 @@ fcfcs_equal(gconstpointer v, gconstpointer w)
 static guint
 fcfcs_hash (gconstpointer v)
 {
-    const fcfcs_conv_key_t *key = v;
+    const fcfcs_conv_key_t *key = (const fcfcs_conv_key_t *)v;
     guint val;
 
     val = key->conv_idx;
@@ -817,10 +817,10 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = se_alloc (sizeof(fcfcs_conv_key_t));
+            req_key = se_new(fcfcs_conv_key_t);
             req_key->conv_idx = conversation->index;
 
-            cdata = se_alloc (sizeof(fcfcs_conv_data_t));
+            cdata = se_new(fcfcs_conv_data_t);
             cdata->opcode = opcode;
 
             g_hash_table_insert (fcfcs_req_hash, req_key, cdata);

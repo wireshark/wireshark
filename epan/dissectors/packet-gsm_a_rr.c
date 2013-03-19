@@ -10626,7 +10626,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tap_p->pdu_type = GSM_A_PDU_TYPE_DTAP;
     tap_p->message_type = (nsd ? (oct & 0x3f) : oct);
-    tap_p->protocol_disc = pd;
+    tap_p->protocol_disc = (gsm_a_pd_str_e)pd;
 
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 
@@ -10780,7 +10780,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tap_p->pdu_type = GSM_A_PDU_TYPE_SACCH;
     tap_p->message_type = mess_type;
-    tap_p->protocol_disc = short_pd;
+    tap_p->protocol_disc = (gsm_a_pd_str_e)short_pd;
 
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 

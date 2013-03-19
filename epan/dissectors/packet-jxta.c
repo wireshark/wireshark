@@ -693,7 +693,7 @@ static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
     tpt_conv_data = (jxta_stream_conversation_data *) conversation_get_proto_data(tpt_conversation, proto_jxta);
 
     if (NULL == tpt_conv_data) {
-        tpt_conv_data = se_alloc(sizeof(jxta_stream_conversation_data));
+        tpt_conv_data = se_new(jxta_stream_conversation_data);
         tpt_conv_data->tpt_ptype = pinfo->ptype;
 
         SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
@@ -1257,7 +1257,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         }
 
         if ((AT_URI == pinfo->src.type) && (AT_URI == pinfo->dst.type)) {
-            jxta_tap_header *tap_header = se_alloc(sizeof(jxta_tap_header));
+            jxta_tap_header *tap_header = se_new(jxta_tap_header);
 
             tap_header->src_address = pinfo->src;
             tap_header->dest_address = pinfo->dst;
@@ -1367,7 +1367,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_names_count, tvb, tree_offset, (int)sizeof(guint16), msg_names_count);
         tree_offset += (int)sizeof(guint16);
 
-        names_table = ep_alloc((msg_names_count + 2) * sizeof(const gchar *));
+        names_table = (const gchar **)ep_alloc((msg_names_count + 2) * sizeof(const gchar *));
         names_table[0] = "";
         names_table[1] = "jxta";
 
