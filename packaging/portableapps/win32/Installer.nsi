@@ -59,6 +59,7 @@ VIAddVersionKey OriginalFilename "${FILENAME}.paf.exe"
 ;SetDatablockOptimize on
 ;SetCompress off
 SetCompressor /SOLID lzma
+SetCompressorDictSize 64 ; MB
 CRCCheck on
 AutoCloseWindow True
 RequestExecutionLevel user
