@@ -4135,11 +4135,11 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_key = se_alloc(sizeof(ndps_req_hash_key));
+    request_key = se_new(ndps_req_hash_key);
     request_key->conversation = conversation;
     request_key->ndps_xport = ndps_xport;
 
-    request_value = se_alloc(sizeof(ndps_req_hash_value));
+    request_value = se_new(ndps_req_hash_value);
     request_value->ndps_prog = 0;
     request_value->ndps_func = 0;
     request_value->ndps_frame_num = 0;
@@ -4160,7 +4160,7 @@ ndps_hash_lookup(conversation_t *conversation, guint32 ndps_xport)
     request_key.conversation = conversation;
     request_key.ndps_xport = ndps_xport;
 
-    return g_hash_table_lookup(ndps_req_hash, &request_key);
+    return (ndps_req_hash_value *)g_hash_table_lookup(ndps_req_hash, &request_key);
 }
 
 /* ================================================================= */
@@ -4338,7 +4338,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t      *conversation;
 
     /* Get SPX info from SPX dissector */
-    spx_info_p = pinfo->private_data;
+    spx_info_p = (spx_info *)pinfo->private_data;
     /* Check to see if defragmentation is enabled in the dissector */
     if (!ndps_defragment) {
         dissect_ndps(tvb, pinfo, tree);
@@ -4371,7 +4371,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
     {
         /* Get request value data */
-        request_value = p_get_proto_data(pinfo->fd, proto_ndps);
+        request_value = (ndps_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ndps);
     }
     if (!request_value)
     {
@@ -6989,7 +6989,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         /* else... we haven't seen an NDPS Request for that conversation. */
     }
     else {
-        request_value = p_get_proto_data(pinfo->fd, proto_ndps);
+        request_value = (ndps_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ndps);
     }
     if (request_value) {
         ndps_prog = request_value->ndps_prog;

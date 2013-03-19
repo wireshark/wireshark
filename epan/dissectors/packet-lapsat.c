@@ -269,7 +269,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int is_
 	const char *frame_type;
 	char *info;
 
-	info = ep_alloc(80);
+	info = (char *)ep_alloc(80);
 
 	/* Grab complete control field */
 	ctl = tvb_get_ntohs(tvb, 1) >> 4;
@@ -506,7 +506,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ((plen + hlen) == tvb_length(tvb)) {
 		/* Need to integrate the last nibble */
-		guint8 *data = ep_alloc(plen);
+		guint8 *data = (guint8 *)ep_alloc(plen);
 		tvb_memcpy(tvb, data, hlen, plen);
 		data[plen-1] |= tvb_get_guint8(tvb, 2) << 4;
 		payload = tvb_new_child_real_data(tvb, data, plen, plen);

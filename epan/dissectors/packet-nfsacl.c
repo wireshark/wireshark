@@ -307,8 +307,8 @@ dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Get access mask to check and save it for comparison to the access reply. */
 	amask = tvb_get_ntohl(tvb, offset);
-	acc_request = se_memdup( &amask, sizeof(guint32));
-	civ = pinfo->private_data;
+	acc_request = (guint32 *)se_memdup( &amask, sizeof(guint32));
+	civ = (rpc_call_info_value *)pinfo->private_data;
 	civ->private_data = acc_request;
 
 	display_access_items(tvb, offset, pinfo, tree, amask, 'C', 3, NULL, "Check") ;

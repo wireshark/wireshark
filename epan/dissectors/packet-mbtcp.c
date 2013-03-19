@@ -457,7 +457,7 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_remove_proto_data(pinfo->fd, proto_modbus);
 
     /* Create enough context for Modbus dissector */
-    request_info = ep_alloc(sizeof(modbus_request_info_t));
+    request_info = ep_new(modbus_request_info_t);
     request_info->packet_type = (guint8)packet_type;
     request_info->register_addr_type = (guint8)global_mbus_tcp_register_addr_type;
     request_info->register_format = (guint8)global_mbus_tcp_register_format;
@@ -601,7 +601,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_remove_proto_data(pinfo->fd, proto_modbus);
 
     /* Create enough context for Modbus dissector */
-    request_info = ep_alloc(sizeof(modbus_request_info_t));
+    request_info = ep_new(modbus_request_info_t);
     request_info->packet_type = (guint8)packet_type;
     request_info->register_addr_type = (guint8)global_mbus_rtu_register_addr_type;
     request_info->register_format = (guint8)global_mbus_rtu_register_format;
@@ -840,7 +840,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* See if we have any context */
-    request_info = p_get_proto_data( pinfo->fd, proto_modbus );
+    request_info = (modbus_request_info_t *)p_get_proto_data( pinfo->fd, proto_modbus );
     if (request_info != NULL)
     {
         packet_type = request_info->packet_type;

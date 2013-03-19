@@ -600,7 +600,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
                 type = tvb_get_guint8(tvb, offset + 11);
                 command_id = tvb_get_ntohl(tvb, offset + 5);
 
-                cd = se_alloc(sizeof(openwire_conv_data));
+                cd = se_new(openwire_conv_data);
                 cd->caching = FALSE;
                 cd->tight = FALSE;
                 if (command_id > (1 << 24))
@@ -636,7 +636,7 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
         cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
         if (!cd)
         {
-            cd = se_alloc(sizeof(openwire_conv_data));
+            cd = se_new(openwire_conv_data);
             cd->tight = TRUE;
             cd->caching = FALSE; /* Dummy value */
             conversation_add_proto_data(conv, proto_openwire, cd);

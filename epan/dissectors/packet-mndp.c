@@ -124,7 +124,7 @@ static const ext_value_string mndp_body_tlv_vals[] = {
 	{ 5, "Identity", &hf_mndp_identity, NULL, NULL },
 	{ 7, "Version", &hf_mndp_version, NULL, NULL },
 	{ 8, "Platform", &hf_mndp_platform, NULL, NULL },
-	{ 10, "Uptime", &hf_mndp_uptime, NULL, (void *)TRUE },
+	{ 10, "Uptime", &hf_mndp_uptime, NULL, (ext_value_string *)TRUE },
 	{ 11, "Software-ID", &hf_mndp_softwareid, NULL, NULL },
 	{ 12, "Board", &hf_mndp_board, NULL, NULL },
 	{ 14, "Unpack", &hf_mndp_unpack, NULL, NULL },

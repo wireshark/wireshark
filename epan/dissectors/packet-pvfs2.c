@@ -847,7 +847,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 		tmpstr = (char *) tvb_get_ephemeral_string(tvb, data_offset,
 				string_length_copy);
 
-		string_buffer = memcpy(ep_alloc(string_length_copy+1), tmpstr, string_length_copy);
+		string_buffer = (char *)memcpy(ep_alloc(string_length_copy+1), tmpstr, string_length_copy);
 	} else {
 		string_buffer = (char *) tvb_memcpy(tvb,
 				ep_alloc(string_length_copy+1), data_offset, string_length_copy);
@@ -3084,10 +3084,10 @@ pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
 	pvfs2_io_tracking_value_t *value;
 	pvfs2_io_tracking_key_t *newkey;
 
-	newkey = (pvfs2_io_tracking_key_t *) se_alloc0(sizeof(*newkey));
+	newkey = se_new0(pvfs2_io_tracking_key_t);
 	newkey->tag = tag;
 
-	value = se_alloc0(sizeof(*value));
+	value = se_new0(pvfs2_io_tracking_value_t);
 
 	g_hash_table_insert(pvfs2_io_tracking_value_table, newkey, value);
 
@@ -3159,7 +3159,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		memset(&key, 0, sizeof(key));
 		key.tag = tag;
 
-		val = g_hash_table_lookup(pvfs2_io_tracking_value_table, &key);
+		val = (pvfs2_io_tracking_value_t *)g_hash_table_lookup(pvfs2_io_tracking_value_table, &key);
 
 		/* If this frame contains a known PVFS_SERV_IO tag, track it */
 		if (val && !pinfo->fd->flags.visited)

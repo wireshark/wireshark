@@ -166,7 +166,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * widen it past 8 bits, so there shouldn't
 			 * be an overflow.
 			 */
-			data = ep_alloc((guint)length + 1);
+			data = (guint8 *)ep_alloc((guint)length + 1);
 			tvb_memcpy(tvb, data, ++offset, length);
 			offset += length;
 

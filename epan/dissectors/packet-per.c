@@ -163,7 +163,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   if (offset & 0x07) {  /* unaligned */
     shift1 = offset & 0x07;
     shift0 = 8 - shift1;
-    buf = g_malloc(actual_length);
+    buf = (guint8 *)g_malloc(actual_length);
     octet0 = tvb_get_guint8(tvb, boffset);
     for (i=0; i<actual_length; i++) {
       octet1 = octet0;
@@ -304,7 +304,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 
 		/* prepare the string (max number of bits + quartet separators + prepended space) */
 		str_length = 256+64+1;
-		str=ep_alloc(str_length+1);
+		str=(char *)ep_alloc(str_length+1);
 		str_index = 0;
 
 		str_length = g_snprintf(str, str_length+1, " ");
@@ -635,7 +635,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 
 
-	buf = g_malloc(length+1);
+	buf = (guint8 *)g_malloc(length+1);
 	old_offset=offset;
 	for(char_pos=0;char_pos<length;char_pos++){
 		guchar val;
@@ -1382,7 +1382,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
 		str_length = 512+128+(int)strlen(hfi->name)+2;
-		str = ep_alloc(str_length+1);
+		str = (char *)ep_alloc(str_length+1);
 		str_index = 0;
 		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){

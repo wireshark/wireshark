@@ -289,7 +289,7 @@ mtp3_pc_to_str(const guint32 pc)
 {
   gchar *str;
 
-  str=ep_alloc(MAX_STRUCTURED_PC_LENGTH);
+  str=(gchar *)ep_alloc(MAX_STRUCTURED_PC_LENGTH);
   mtp3_pc_to_str_buf(pc, str, MAX_STRUCTURED_PC_LENGTH);
   return str;
 }
@@ -611,11 +611,11 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
-  mtp3_addr_opc->type = mtp3_standard;
+  mtp3_addr_opc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_opc->pc = opc;
   SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 
-  mtp3_addr_dpc->type = mtp3_standard;
+  mtp3_addr_dpc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_dpc->pc = dpc;
   SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 }
@@ -698,7 +698,7 @@ reset_mtp3_standard(void)
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
+    mtp3_tap_rec_t* tap_rec = ep_new0(mtp3_tap_rec_t);
     gint heuristic_standard;
     guint8 si;
 
@@ -752,8 +752,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
     }
 
-    mtp3_addr_opc = wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
-    mtp3_addr_dpc = wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+    mtp3_addr_opc = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+    mtp3_addr_dpc = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
 
     /* Dissect the packet (even if !tree so can call sub-dissectors and update
      * the source and destination address columns) */

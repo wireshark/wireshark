@@ -637,7 +637,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if (strncmp(p->strptr, header_name, strlen(p->strptr)) == 0)
                 {
-                    header_type = p->value;
+                    header_type = (HEADER_TYPE)p->value;
                     break;
                 }
             }

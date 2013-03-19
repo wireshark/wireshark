@@ -143,16 +143,16 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
 
-  frame_data_p = p_get_proto_data(pinfo->fd, proto_pop);
+  frame_data_p = (struct pop_proto_data *)p_get_proto_data(pinfo->fd, proto_pop);
 
   conversation = find_or_create_conversation(pinfo);
-  data_val = conversation_get_proto_data(conversation, proto_pop);
+  data_val = (struct pop_data_val *)conversation_get_proto_data(conversation, proto_pop);
   if (!data_val) {
 
      /*
       * No conversation - create one and attach it.
       */
-     data_val = se_alloc0(sizeof(struct pop_data_val));
+     data_val = se_new0(struct pop_data_val);
 
      conversation_add_proto_data(conversation, proto_pop, data_val);
   }
@@ -223,7 +223,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         data_val->msg_read_len += tvb_length(tvb);
 
-        frame_data_p = se_alloc(sizeof(struct pop_proto_data));
+        frame_data_p = se_new(struct pop_proto_data);
 
         frame_data_p->conversation_id = conversation->index;
         frame_data_p->more_frags = data_val->msg_read_len < data_val->msg_tot_len;

@@ -908,11 +908,11 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 break;
             case PDCP_LTE_LOG_CHAN_TYPE_TAG:
-                p_pdcp_lte_info->channelType = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->channelType = (LogicalChannelType)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_BCCH_TRANSPORT_TYPE_TAG:
-                p_pdcp_lte_info->BCCHTransport = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->BCCHTransport = (BCCHTransportType)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_IP_VERSION_TAG:
@@ -928,7 +928,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 break;
             case PDCP_LTE_ROHC_MODE_TAG:
-                p_pdcp_lte_info->mode = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->mode = (enum rohc_mode)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_RND_TAG:
@@ -991,7 +991,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
     /* Look for attached packet info! */
-    p_pdcp_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte);
     /* Can't dissect anything without it... */
     if (p_pdcp_info == NULL) {
         return;

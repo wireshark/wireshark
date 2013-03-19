@@ -76,7 +76,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree	*qllc_tree = NULL;
     proto_item	*qllc_ti = NULL;
-    gboolean	*q_bit_set = pinfo->private_data;
+    gboolean	*q_bit_set = (gboolean *)pinfo->private_data;
     guint8	addr, ctrl;
     gboolean	command = FALSE;
 

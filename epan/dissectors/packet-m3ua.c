@@ -1160,7 +1160,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   guint16 ulp_length;
   tvbuff_t *payload_tvb;
   proto_item *item, *gen_item;
-  mtp3_tap_rec_t* mtp3_tap = ep_alloc0(sizeof(mtp3_tap_rec_t));
+  mtp3_tap_rec_t* mtp3_tap = ep_new0(mtp3_tap_rec_t);
   proto_tree *q708_tree;
   gint heuristic_standard;
   guint8 si;
@@ -1191,13 +1191,13 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
       PROTO_ITEM_SET_GENERATED(gen_item);
   }
 
-  mtp3_tap->addr_dpc.type = mtp3_standard;
+  mtp3_tap->addr_dpc.type = (Standard_Type)mtp3_standard;
   mtp3_tap->addr_dpc.pc = dpc;
   mtp3_tap->addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
   SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_dpc);
 
 
-  mtp3_tap->addr_opc.type = mtp3_standard;
+  mtp3_tap->addr_opc.type = (Standard_Type)mtp3_standard;
   mtp3_tap->addr_opc.pc = opc;
   mtp3_tap->addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
   SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_opc);

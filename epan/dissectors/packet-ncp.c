@@ -263,12 +263,12 @@ mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwta
     /* Now remember the request, so we can find it if we later
        a reply to it. Track by conversation, connection, and task number.
        in NetWare these values determine each unique session */
-    key = se_alloc(sizeof(mncp_rhash_key));
+    key = se_new(mncp_rhash_key);
     key->conversation = conversation;
     key->nwconnection = nwconnection;
     key->nwtask = nwtask;
 
-    value = se_alloc(sizeof(mncp_rhash_value));
+    value = se_new(mncp_rhash_value);
 
     g_hash_table_insert(mncp_rhash, key, value);
 
@@ -290,7 +290,7 @@ mncp_hash_lookup(conversation_t *conversation, guint32 nwconnection, guint8 nwta
     key.nwconnection = nwconnection;
     key.nwtask = nwtask;
 
-    return g_hash_table_lookup(mncp_rhash, &key);
+    return (mncp_rhash_value *)g_hash_table_lookup(mncp_rhash, &key);
 }
 
 /*

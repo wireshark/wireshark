@@ -459,9 +459,9 @@ get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-	*strval = ep_tvb_memdup(tvb, offset+1, len-1);
+	*strval = (const char *)ep_tvb_memdup(tvb, offset+1, len-1);
     else
-	*strval = ep_tvb_memdup(tvb, offset, len);
+	*strval = (const char *)ep_tvb_memdup(tvb, offset, len);
     DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }

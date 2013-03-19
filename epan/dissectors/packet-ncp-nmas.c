@@ -204,7 +204,7 @@ nmas_string(tvbuff_t* tvb, int hfinfo, proto_tree *nmas_tree, int offset, gboole
         guint16 c_char;
         guint32 length_remaining = 0;
 
-        buffer=ep_alloc(ITEM_LABEL_LENGTH+1);
+        buffer=(char *)ep_alloc(ITEM_LABEL_LENGTH+1);
         if (little) {
             str_length = tvb_get_letohl(tvb, foffset);
         }

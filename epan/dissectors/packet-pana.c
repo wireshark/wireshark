@@ -541,12 +541,12 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        /*
         * Do we already have a state structure for this conv
         */
-       pana_info = conversation_get_proto_data(conversation, proto_pana);
+       pana_info = (pana_conv_info_t *)conversation_get_proto_data(conversation, proto_pana);
        if (!pana_info) {
                /* No.  Attach that information to the conversation, and add
                 * it to the list of information structures.
                 */
-               pana_info = se_alloc(sizeof(pana_conv_info_t));
+               pana_info = se_new(pana_conv_info_t);
                pana_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "pana_pdus");
 
                conversation_add_proto_data(conversation, proto_pana, pana_info);
@@ -555,24 +555,24 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        if(!pinfo->fd->flags.visited){
                if(flags&PANA_FLAG_R){
                       /* This is a request */
-                      pana_trans=se_alloc(sizeof(pana_transaction_t));
+                      pana_trans=se_new(pana_transaction_t);
                       pana_trans->req_frame=pinfo->fd->num;
                       pana_trans->rep_frame=0;
                       pana_trans->req_time=pinfo->fd->abs_ts;
                       se_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
                } else {
-                      pana_trans=se_tree_lookup32(pana_info->pdus, seq_num);
+                      pana_trans=(pana_transaction_t *)se_tree_lookup32(pana_info->pdus, seq_num);
                       if(pana_trans){
                               pana_trans->rep_frame=pinfo->fd->num;
                       }
                }
        } else {
-               pana_trans=se_tree_lookup32(pana_info->pdus, seq_num);
+               pana_trans=(pana_transaction_t *)se_tree_lookup32(pana_info->pdus, seq_num);
        }
 
        if(!pana_trans){
                /* create a "fake" pana_trans structure */
-               pana_trans=ep_alloc(sizeof(pana_transaction_t));
+               pana_trans=ep_new(pana_transaction_t);
                pana_trans->req_frame=0;
                pana_trans->rep_frame=0;
                pana_trans->req_time=pinfo->fd->abs_ts;

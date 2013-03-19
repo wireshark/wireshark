@@ -206,7 +206,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	DISSECTOR_ASSERT( conversation);	/* should always find a conversation */
 
-	redirect_info = conversation_get_proto_data(conversation,
+	redirect_info = (redirect_entry_t *)conversation_get_proto_data(conversation,
 		proto_msproxy);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
@@ -277,17 +277,17 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	}
 
 	conversation = find_conversation( pinfo->fd->num, &pinfo->src,
-		&pinfo->dst, hash_info->proto, hash_info->server_int_port,
+		&pinfo->dst, (port_type)hash_info->proto, hash_info->server_int_port,
 		hash_info->clnt_port, 0);
 
 	if ( !conversation) {
 		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
-			hash_info->proto, hash_info->server_int_port,
+			(port_type)hash_info->proto, hash_info->server_int_port,
 			hash_info->clnt_port, 0);
 	}
 	conversation_set_dissector(conversation, msproxy_sub_handle);
 
-	new_conv_info = se_alloc(sizeof(redirect_entry_t));
+	new_conv_info = se_new(redirect_entry_t);
 
 	new_conv_info->remote_addr = hash_info->dst_addr;
 	new_conv_info->clnt_port = hash_info->clnt_port;
@@ -1085,9 +1085,9 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conversation = find_or_create_conversation(pinfo);
 
-	hash_info = conversation_get_proto_data(conversation, proto_msproxy);
+	hash_info = (hash_entry_t *)conversation_get_proto_data(conversation, proto_msproxy);
 	if ( !hash_info) {
-    		hash_info = se_alloc(sizeof(hash_entry_t));
+    		hash_info = se_new(hash_entry_t);
 		conversation_add_proto_data(conversation, proto_msproxy,
 			hash_info);
 	}

@@ -856,7 +856,7 @@ static char *decode_key_name(int unicode)
 {
     char *key_name;
 
-    key_name = ep_alloc(10);
+    key_name = (char *)ep_alloc(10);
 
     if ((unicode <= 0x20)
         || (unicode == 0x7F)
@@ -1116,7 +1116,7 @@ static void decode_evt(proto_tree  *tree,
                 pt_length  -= 1;
             }
             unicode_value = decode_utf8(utf8_value);
-            key_name      = ep_alloc(30);
+            key_name      = (char *)ep_alloc(30);
             g_snprintf(key_name, 30, "\"%s\"", decode_key_name((int)unicode_value));
 
             /* add text to the frame "INFO" column */
@@ -1207,22 +1207,22 @@ static void decode_mtd(proto_tree  *tree,
                        guint        offset,
                        guint        length)
 {
-    guint8 class = tvb_get_guint8(tvb, offset);
+    guint8 noe_class = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_noe_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* add text to the frame "INFO" column */
     if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-        val_to_str_ext_const(class, &val_str_class_ext, "Unknown"));
+        val_to_str_ext_const(noe_class, &val_str_class_ext, "Unknown"));
     /* update text of the main proto item */
     proto_item_append_text(tree, ", %s",
-        val_to_str_ext_const(class, &val_str_class_ext, "Unknown"));
+        val_to_str_ext_const(noe_class, &val_str_class_ext, "Unknown"));
 
     offset += 1;
     length -= 1;
 
-    if (class >= C_DYNAMIC)
+    if (noe_class >= C_DYNAMIC)
     {
         proto_tree_add_item(tree, hf_noe_objectid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;

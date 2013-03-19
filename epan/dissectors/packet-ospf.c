@@ -990,7 +990,7 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
         item = proto_tree_add_uint(parent_tree, hfindex, tvb, offset, length, flags);
         tree = proto_item_add_subtree(item, *bfinfo->ett);
 
-        str = ep_alloc(MAX_OPTIONS_LEN);
+        str = (char *)ep_alloc(MAX_OPTIONS_LEN);
         str[0] = 0;
         for (i = 0, pos = 0; i < bfinfo->num; i++) {
             idx = hf_ospf_filter[bfinfo->idx[i]];
@@ -1199,9 +1199,9 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    and a prepended IPv6 pseudo-header. */
 
                 /* Set up the fields of the pseudo-header. */
-                cksum_vec[0].ptr = pinfo->src.data;
+                cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
                 cksum_vec[0].len = pinfo->src.len;
-                cksum_vec[1].ptr = pinfo->dst.data;
+                cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
                 cksum_vec[1].len = pinfo->dst.len;
                 cksum_vec[2].ptr = (const guint8 *)&phdr;
                 phdr[0] = g_htonl(ospflen);

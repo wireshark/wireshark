@@ -977,7 +977,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 break;
             }
 
-            addr=ep_alloc0(addr_size);
+            addr=(guint8 *)ep_alloc0(addr_size);
 
             for(ax=0; ax+1 <= prefix_len_octets; ax++)
                 addr[ax]=tvb_get_guint8(tvb, offset+ax);
@@ -1052,7 +1052,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 break;
             }
 
-            addr=ep_alloc0(addr_size);
+            addr=(guint8 *)ep_alloc0(addr_size);
 
             for(ax=0; ax+1 <= host_len; ax++)
                 addr[ax]=tvb_get_guint8(tvb, offset+ax);
@@ -1315,7 +1315,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     ti=proto_tree_add_text(tree, tvb, offset, rem, "Addresses");
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
-    addr=ep_alloc(addr_size);
+    addr=(guint8 *)ep_alloc(addr_size);
 
     for(ix=1; rem >= addr_size; ix++, offset += addr_size,
             rem -= addr_size) {

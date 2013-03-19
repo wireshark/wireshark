@@ -176,7 +176,7 @@ pcnfsd_decode_obscure(const char* data, int len)
 	char *decoded_buf;
 	char *decoded_data;
 
-	decoded_buf = ep_alloc(len);
+	decoded_buf = (char *)ep_alloc(len);
 	decoded_data = decoded_buf;
 	for ( ; len>0 ; len--, data++, decoded_data++) {
 		*decoded_data = (*data ^ 0x5b) & 0x7f;

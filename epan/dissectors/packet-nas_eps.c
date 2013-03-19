@@ -1012,7 +1012,7 @@ unpack_eps_mid_digits(tvbuff_t *tvb) {
 
     length = tvb_length(tvb);
 
-    digit_str = ep_alloc(length*2);
+    digit_str = (char *)ep_alloc(length*2);
 
     /* Get identity digit 1 */
     octet = tvb_get_guint8(tvb,offset);

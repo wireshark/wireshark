@@ -605,7 +605,7 @@ struct mikey_dissector_entry {
 
 /* Forward declaration we need below */
 void proto_reg_handoff_mikey(void);
-static int dissect_payload(enum payload_t payload, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_payload(int payload, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
 /* Initialize the protocol and registered fields */
@@ -675,7 +675,7 @@ static const struct mikey_dissector_entry cs_id_map[] = {
 };
 
 static int
-dissect_payload_cs_id(enum cs_id_map_t type, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_cs_id(int type, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	const struct mikey_dissector_entry *entry;
 
@@ -1094,7 +1094,7 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	tvb_ensure_bytes_exist(tvb, offset+0, 5);
 	length = tvb_get_ntohs(tvb, offset+3);
 	no     = tvb_get_guint8(tvb, offset+1);
-	type   = tvb_get_guint8(tvb, offset+2);
+	type   = (enum sp_prot_t)tvb_get_guint8(tvb, offset+2);
 
 	if (tree) {
 		proto_item *parent;
@@ -1328,7 +1328,7 @@ static const struct mikey_dissector_entry payload_map[] = {
 };
 
 static int
-dissect_payload(enum payload_t payload, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload(int payload, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	const struct mikey_dissector_entry *entry;
 
@@ -1352,10 +1352,10 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	int	    payload;
 	mikey_t	   *mikey;
 
-	mikey = p_get_proto_data(pinfo->fd, proto_mikey);
+	mikey = (mikey_t *)p_get_proto_data(pinfo->fd, proto_mikey);
 
 	if (!mikey) {
-		mikey = se_alloc0(sizeof(mikey_t));
+		mikey = se_new0(mikey_t);
 		mikey->type = -1;
 		p_add_proto_data(pinfo->fd, proto_mikey, mikey);
 	}

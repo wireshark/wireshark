@@ -267,7 +267,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            (tvb_get_guint8(tvb, INFO_TYPE_OFFSET) == 0x00) )
       {
 #define MAX_BUFFER 255
-        szTemp=ep_alloc(MAX_BUFFER);
+        szTemp=(guchar *)ep_alloc(MAX_BUFFER);
 
         /* everything ok */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");

@@ -3600,7 +3600,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     case 2:
     {
-        struct e_in6_addr *ad = ep_alloc0(sizeof (struct e_in6_addr));
+        struct e_in6_addr *ad = ep_new0(struct e_in6_addr);
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
         proto_tree_add_text(field_tree, tvb, offset + 3, length - 3, "%s: %s",
@@ -3611,7 +3611,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     case 3:
     {
-        struct e_in6_addr *ad = ep_alloc0(sizeof (struct e_in6_addr));
+        struct e_in6_addr *ad = ep_new0(struct e_in6_addr);
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
         proto_tree_add_text(field_tree, tvb, offset + 3, length - 3, "%s: %s",
@@ -4548,7 +4548,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_ensure_bytes_exist (tvb, 0, hdr_len);  /* ip_hdr_len + 8 */
 
     /* allocate a copy of the IP packet */
-    ip_packet = tvb_memdup(tvb, 0, length);
+    ip_packet = (guchar *)tvb_memdup(tvb, 0, length);
 
     /* restore the proper values to the IP and UDP length fields */
     ip_packet[2] = length >> 8;
@@ -4904,7 +4904,7 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
     guint8     octet;
     tvbuff_t  *next_tvb;
 
-    buff = g_malloc(length);
+    buff = (guint8 *)g_malloc(length);
     i = 0;
     while (scanned_len < length) {
         octet = tvb_get_guint8(tvb, offset);

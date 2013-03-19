@@ -279,7 +279,7 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		hello_type = "";
 		if (pinfo->dl_dst.type == AT_ETHER) {
-			const guint8 *dstmac = pinfo->dl_dst.data;
+			const guint8 *dstmac = (const guint8 *)pinfo->dl_dst.data;
 
 			switch (dstmac[5]) {
 

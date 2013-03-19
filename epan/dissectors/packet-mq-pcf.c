@@ -210,7 +210,7 @@ dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*mqroot_tree = NULL;
 	proto_item	*ti = NULL;
 	gint offset = 0;
-	struct mqinfo* mqinfo = pinfo->private_data;
+	struct mqinfo* mqinfo = (struct mqinfo *)pinfo->private_data;
 	gboolean bLittleEndian;
 	bLittleEndian = ((mqinfo->encoding & MQ_ENC_INTEGER_REVERSED) != 0) ? TRUE : FALSE;
 
@@ -254,7 +254,7 @@ dissect_mqpcf_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
 	if (tvb_length(tvb) >= 36)
 	{
-		struct mqinfo* mqinfo = pinfo->private_data;
+		struct mqinfo* mqinfo = (struct mqinfo *)pinfo->private_data;
 		if (strncmp((const char*)mqinfo->format, MQ_FMT_ADMIN, 8) == 0
 			|| strncmp((const char*)mqinfo->format, MQ_FMT_EVENT, 8) == 0
 			|| strncmp((const char*)mqinfo->format, MQ_FMT_PCF, 8) == 0)

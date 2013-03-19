@@ -1063,11 +1063,11 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
 
             if ( global_scm_udid_autoset == TRUE )
             {
-                tempString = ep_alloc0(128 * sizeof(char));
+                tempString = (char *)ep_alloc0(128 * sizeof(char));
                 g_snprintf ( tempString, 18, "%s", tvb_bytes_to_str_punct(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6, ':' ) );
                 if ( memcmp ( global_scm_udid, tempString, 17 ) != 0 )
                 {
-					local_scm_udid = se_alloc0(18 * sizeof(char));
+					local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
 					g_snprintf(local_scm_udid, 18, "%s", tempString );
 					expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_NOTE, "Auto detected payload as SCM UDID [%s].", tempString);
                 }
@@ -1094,11 +1094,11 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
 
             if ( global_scm_udid_autoset == TRUE )
             {
-                tempString = ep_alloc0(18 * sizeof(char));
+                tempString = (char *)ep_alloc0(18 * sizeof(char));
                 g_snprintf ( tempString, 18, "%s", tvb_bytes_to_str_punct(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6, ':' ) );
                 if ( memcmp ( global_scm_udid, tempString, 17 ) != 0 )
                 {
-                    local_scm_udid = se_alloc0(18 * sizeof(char));
+                    local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
                     g_snprintf(local_scm_udid, 18, "%s", tempString );
                     expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_NOTE, "Auto detected payload as SCM UDID [%s].", tempString);
                 }

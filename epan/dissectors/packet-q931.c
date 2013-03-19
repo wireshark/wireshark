@@ -2579,7 +2579,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	fragment_data *fd_head;
 	tvbuff_t *next_tvb = NULL;
 
-	q931_pi=ep_alloc(sizeof(q931_packet_info));
+	q931_pi=ep_new(q931_packet_info);
 
 	/* Init struct for collecting q931_packet_info */
 	reset_q931_packet_info(q931_pi);
