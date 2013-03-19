@@ -792,7 +792,7 @@ process_libs:
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. WpdPack_$(PCAP_VERSION).zip
+		. WpdPack_$(WPD_VERSION).zip
 !ENDIF
 !IFDEF AIRPCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
