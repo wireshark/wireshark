@@ -30,10 +30,6 @@
 #include "wmem_core.h"
 #include "wmem_allocator.h"
 
-#ifdef WMEM_DEBUG
-#include <stdio.h>
-#endif
-
 /* AUTHOR'S NOTE:
  *
  * This turned into one of the most interesting excercises in algorithms I've
@@ -173,6 +169,28 @@ typedef struct _wmem_block_allocator_t {
 
 /* DEBUG */
 #ifdef WMEM_DEBUG
+#include <stdio.h>
+static void
+wmem_block_debug_chunk_chain(wmem_block_chunk_t *chunk)
+{
+    guint32 total_len = 0;
+
+    printf("VERIFYING CHUNK CHAIN\n");
+    g_assert(chunk->prev == 0);
+
+    while (chunk) {
+        total_len += chunk->len;
+
+        if (WMEM_CHUNK_NEXT(chunk)) {
+            g_assert(chunk->len == WMEM_CHUNK_NEXT(chunk)->prev);
+        }
+
+        chunk = WMEM_CHUNK_NEXT(chunk);
+    }
+
+    g_assert(total_len == WMEM_BLOCK_SIZE);
+}
+
 static void
 wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
 {
@@ -180,36 +198,30 @@ wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
     wmem_block_chunk_t *free_list;
     wmem_block_free_t  *free_head;
 
-    printf("\nSTART DEBUG FREE LIST\n");
-
+    printf("VERIFYING FREE LIST\n");
     if (allocator->free_insert_point == NULL) {
         seen_insert_point = TRUE;
     }
 
     free_list = allocator->free_list_head;
+    g_assert(WMEM_GET_FREE(free_list)->prev == NULL);
 
     while (free_list) {
         free_head = WMEM_GET_FREE(free_list);
 
         if (free_list == allocator->free_insert_point) {
             seen_insert_point = TRUE;
-            printf(" * ");
         }
-        else {
-            printf("   ");
-        }
-
-        printf("Free chunk at %p (prev: %p; next:%p)\n",
-                free_list, free_head->prev, free_head->next);
 
         g_assert(free_head->in_free_list);
+        if (free_head->next) {
+            g_assert(WMEM_GET_FREE(free_head->next)->prev == free_list);
+        }
 
         free_list = free_head->next;
     }
 
     g_assert(seen_insert_point);
-
-    printf("END DEBUG FREE LIST\n");
 }
 #endif
 
@@ -698,6 +710,10 @@ wmem_block_free_all(void *private_data)
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
     GSList *tmp;
 
+#ifdef WMEM_DEBUG
+    wmem_block_debug_free_list(allocator);
+#endif
+
     /* the existing free list is entirely irrelevant */
     allocator->free_list_head = NULL;
     allocator->free_insert_point = NULL;
@@ -706,6 +722,9 @@ wmem_block_free_all(void *private_data)
     tmp = allocator->block_list;
 
     while (tmp) {
+#ifdef WMEM_DEBUG
+        wmem_block_debug_chunk_chain((wmem_block_chunk_t *) tmp->data);
+#endif
         wmem_block_init_block(allocator, tmp->data);
         tmp = tmp->next;
     }
@@ -729,6 +748,10 @@ wmem_block_gc(void *private_data)
 
     while (tmp) {
         chunk = (wmem_block_chunk_t *) tmp->data;
+
+#ifdef WMEM_DEBUG
+        wmem_block_debug_chunk_chain(chunk);
+#endif
 
         if (!chunk->used && chunk->last) {
             /* if the first chunk is also the last, and is unused, then

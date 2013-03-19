@@ -154,8 +154,8 @@ wmem_init_scopes(void)
     g_assert(in_packet_scope == FALSE);
     g_assert(in_file_scope   == FALSE);
 
-    packet_scope = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
-    file_scope   = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
+    packet_scope = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+    file_scope   = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
     epan_scope   = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 }
 
