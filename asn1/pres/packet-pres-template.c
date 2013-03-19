@@ -139,7 +139,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 		return;
 	}
 
-	pco=se_alloc(sizeof(pres_ctx_oid_t));
+	pco=se_new(pres_ctx_oid_t);
 	pco->ctx_id=idx;
 	pco->oid=se_strdup(oid);
 	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -203,8 +203,8 @@ find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 static void *
 pres_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-	pres_user_t *u = dest;
-	const pres_user_t *o = orig;
+	pres_user_t *u = (pres_user_t *)dest;
+	const pres_user_t *o = (const pres_user_t *)orig;
 
 	u->ctx_id = o->ctx_id;
 	u->oid = g_strdup(o->oid);
@@ -215,7 +215,7 @@ pres_copy_cb(void *dest, const void *orig, size_t len _U_)
 static void
 pres_free_cb(void *r)
 {
-	pres_user_t *u = r;
+	pres_user_t *u = (pres_user_t *)r;
 
 	g_free(u->oid);
 }
@@ -411,7 +411,7 @@ void proto_register_pres(void) {
                              sizeof(pres_user_t),
                              "pres_context_list",
                              TRUE,
-                             (void*) &pres_users,
+                             (void**) &pres_users,
                              &num_pres_users,
                              UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                              "ChPresContextList",

@@ -7232,10 +7232,10 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
     opcode = 0;
     application_context_version = 0;
     if (actx->pinfo->private_data != NULL){
-        p_private_tcap=actx->pinfo->private_data;
+        p_private_tcap=(struct tcap_private_t *)actx->pinfo->private_data;
 
         if (p_private_tcap->acv==TRUE ){
-            version_ptr = strrchr(p_private_tcap->oid,'.');
+            version_ptr = strrchr((char *)p_private_tcap->oid,'.');
             if (version_ptr)
                 application_context_version = atoi(version_ptr+1);
         }

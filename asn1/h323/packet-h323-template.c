@@ -43,7 +43,7 @@
 gef_ctx_t* gef_ctx_alloc(gef_ctx_t *parent, const gchar *type) {
   gef_ctx_t *gefx;
 
-  gefx = ep_alloc0(sizeof(gef_ctx_t));
+  gefx = ep_new0(gef_ctx_t);
   gefx->signature = GEF_CTX_SIGNATURE;
   gefx->parent = parent;
   gefx->type = type;
@@ -62,7 +62,7 @@ gef_ctx_t* gef_ctx_get(void *ptr) {
     actx = NULL;
 
   if (actx)
-    gefx = actx->private_data;
+    gefx = (gef_ctx_t *)actx->private_data;
 
   if (!gef_ctx_check_signature(gefx)) 
     gefx = NULL;

@@ -88,7 +88,6 @@ static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 
 #include "packet-h248-ett.c"
 
-static dissector_handle_t h248_term_handle;
 static dissector_table_t subdissector_table;
 
 static emem_tree_t* msgs = NULL;
@@ -877,7 +876,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 
 s_h248_package_t *s_find_package_id(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
-    s_pkg = g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+    s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     return s_pkg;
 }
 
@@ -894,7 +893,7 @@ static gint32 comparePkgID(gconstpointer a, gconstpointer b) {
 
 gboolean is_pkg_default(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
-    s_pkg = g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+    s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     if(! s_pkg ) return TRUE;
     return s_pkg->is_default;
 }
@@ -912,7 +911,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
         while (base_package_name_vals[i].strptr != NULL) {
             pkg_found = g_new0(h248_package_t, 1); /* create a h248 package structure */
             pkg_found->id = base_package_name_vals[i].value;
-            vst = wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
+            vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
             vst[0].strptr = base_package_name_vals[i].strptr;
             pkg_found->param_names = vst;
             pkg_found->hfid = &hf_h248_pkg_name;
@@ -925,7 +924,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
                     j++; 
                 };
                 if (idx < j) {
-                    vst = wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
+                    vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
                     for (k=0;idx<j;k++) {
                         vst[k].strptr = base_event_name_vals[idx].strptr;
                         vst[k].value = (base_event_name_vals[idx].value & 0xffff);

@@ -544,11 +544,11 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   %(ACTX)s->value_ptr = &guid_tvb;
 %(DEFAULT_BODY)s
   if (guid_tvb)
-    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = ep_alloc(sizeof(e_guid_t)));
+    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = ep_new(e_guid_t));
   %(ACTX)s->value_ptr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS GloballyUniqueID  VAL_PTR = %(ACTX)s->value_ptr
+#.FN_PARS GloballyUniqueID  VAL_PTR = (tvbuff_t **)%(ACTX)s->value_ptr
 #----------------------------------------------------------------------------------------
 #.FN_PARS RequestSeqNum  VAL_PTR = &(h225_pi->requestSeqNum)
 #----------------------------------------------------------------------------------------

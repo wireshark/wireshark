@@ -563,7 +563,6 @@ static gint ett_h248_SigParameterV1 = -1;
 /*--- End of included file: packet-h248-ett.c ---*/
 #line 90 "../../asn1/h248/packet-h248-template.c"
 
-static dissector_handle_t h248_term_handle;
 static dissector_table_t subdissector_table;
 
 static emem_tree_t* msgs = NULL;
@@ -1352,7 +1351,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 
 s_h248_package_t *s_find_package_id(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
-    s_pkg = g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+    s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     return s_pkg;
 }
 
@@ -1369,7 +1368,7 @@ static gint32 comparePkgID(gconstpointer a, gconstpointer b) {
 
 gboolean is_pkg_default(guint16 pkgid) {
     s_h248_package_t *s_pkg = NULL;
-    s_pkg = g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+    s_pkg = (s_h248_package_t *)g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
     if(! s_pkg ) return TRUE;
     return s_pkg->is_default;
 }
@@ -1387,7 +1386,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
         while (base_package_name_vals[i].strptr != NULL) {
             pkg_found = g_new0(h248_package_t, 1); /* create a h248 package structure */
             pkg_found->id = base_package_name_vals[i].value;
-            vst = wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
+            vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
             vst[0].strptr = base_package_name_vals[i].strptr;
             pkg_found->param_names = vst;
             pkg_found->hfid = &hf_h248_pkg_name;
@@ -1400,7 +1399,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
                     j++; 
                 };
                 if (idx < j) {
-                    vst = wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
+                    vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
                     for (k=0;idx<j;k++) {
                         vst[k].strptr = base_event_name_vals[idx].strptr;
                         vst[k].value = (base_event_name_vals[idx].value & 0xffff);
@@ -2227,7 +2226,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term->type = 0; /* unknown */
 
 		if (curr_info.term->len) {
-			curr_info.term->buffer = ep_tvb_memdup(new_tvb,0,curr_info.term->len);
+			curr_info.term->buffer = (guint8 *)ep_tvb_memdup(new_tvb,0,curr_info.term->len);
 			curr_info.term->str = bytes_to_str(curr_info.term->buffer,curr_info.term->len);
 		}
 
@@ -5366,7 +5365,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1409 "../../asn1/h248/packet-h248-template.c"
+#line 1408 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6785,7 +6784,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1571 "../../asn1/h248/packet-h248-template.c"
+#line 1570 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6951,7 +6950,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1589 "../../asn1/h248/packet-h248-template.c"
+#line 1588 "../../asn1/h248/packet-h248-template.c"
     };
 
     module_t *h248_module;

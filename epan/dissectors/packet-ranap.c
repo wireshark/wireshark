@@ -2074,7 +2074,7 @@ dissect_ranap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
+    { NULL, (asn1_par_type)0 }
   };
   asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
 
@@ -2096,7 +2096,7 @@ dissect_ranap_ProtocolIE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, as
   static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
+    { NULL, (asn1_par_type)0 }
   };
   asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
 
@@ -4776,7 +4776,7 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
 	   
 		guint len = tvb_length(imsi_tvb);
-		guint8* bytes = ep_tvb_memdup(imsi_tvb,0,len);
+		guint8* bytes = (guint8 *)ep_tvb_memdup(imsi_tvb,0,len);
 
 		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
 			se_strdup_printf("IMSI: %s", bytes_to_str(bytes, len) );

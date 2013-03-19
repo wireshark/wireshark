@@ -2767,7 +2767,7 @@ dissect_h225_SEQUENCE_OF_CallReferenceValue(tvbuff_t *tvb _U_, int offset _U_, a
 int
 dissect_h225_GloballyUniqueID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       16, 16, FALSE, actx->value_ptr);
+                                       16, 16, FALSE, (tvbuff_t **)actx->value_ptr);
 
   return offset;
 }
@@ -2882,7 +2882,7 @@ dissect_h225_T_guid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   offset = dissect_h225_GloballyUniqueID(tvb, offset, actx, tree, hf_index);
 
   if (guid_tvb)
-    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = ep_alloc(sizeof(e_guid_t)));
+    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = ep_new(e_guid_t));
   actx->value_ptr = NULL;
 
 

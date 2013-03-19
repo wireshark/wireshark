@@ -327,7 +327,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   }
 
   /* The hash string needs to contain src and dest to distiguish differnt flows */
-  buf = ep_alloc(MAX_TID_STR_LEN);
+  buf = (char *)ep_alloc(MAX_TID_STR_LEN);
   buf[0] = '\0';
   /* Reverse order to invoke */
   g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",

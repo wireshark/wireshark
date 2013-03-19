@@ -649,7 +649,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
 dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
-  gint8 class;
+  gint8 appclass;
   gboolean pc;
   gint32 tag;
   guint32 len;
@@ -662,11 +662,11 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
   offset++;
   while (offset < ie_end) {
     hoffset = offset;
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_identifier(tvb, offset, &appclass, &pc, &tag);
     offset = get_ber_length(tvb, offset, &len, NULL);
     eoffset = offset + len;
     next_tvb =  tvb_new_subset(tvb, hoffset, eoffset - hoffset, eoffset - hoffset);
-    switch (class) {
+    switch (appclass) {
       case BER_CLASS_CON:
         switch (tag) {
           case 10 :  /* Network Facility Extension */

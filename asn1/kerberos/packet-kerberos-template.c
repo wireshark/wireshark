@@ -843,18 +843,13 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_TD_REQ_NONCE              107
 #define KRB5_TD_REQ_SEQ                108
 /* preauthentication types >127 (i.e. negative ones) are app specific.
-   Hopefully there will be no collisions here or we will have to
-   come up with something better.
-   XXX: Although KRB5_PA_PAC_REQUEST is " >127 " and thus presumably
-         would be encoded as a negative number, various captures seen all
-         have this pa-data-type encoded as a positive number (0x0080).
-         We'll assume that KRB5_PA_S4U2SELF is also encoded as a positive number.
+   however since Microsoft is the dominant(only?) user of types in this range
+   we also treat the type as unsigned.
 */
 #define KRB5_PA_PAC_REQUEST              128    /* (Microsoft extension) */
-#define KRB5_PA_S4U2SELF                 129    /* Impersonation (Microsoft extension) */
+#define KRB5_PA_FOR_USER                 129    /* Impersonation (Microsoft extension) See [MS-SFU] */
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
-
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN        0
 #define KRB5_NT_PRINCIPAL      1
@@ -1095,7 +1090,7 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
     { KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
     { KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
-    { KRB5_PA_S4U2SELF             , "PA-S4U2SELF" },
+    { KRB5_PA_FOR_USER             , "PA-FOR-USER" },
     { KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
     { 0                            , NULL },
 };
