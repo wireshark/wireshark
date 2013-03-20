@@ -195,7 +195,7 @@ since_attr since=\042
 <LOADING>{xmlpi_start} BEGIN LOADING_XMLPI;
 <LOADING_XMLPI>{whitespace} ;
 <LOADING_XMLPI>{entityname} {
-	xmlpi = g_malloc(sizeof(wimaxasncp_dict_xmlpi_t));
+	xmlpi = g_new(wimaxasncp_dict_xmlpi_t,1);
 	xmlpi->name = g_strdup(yytext);
 	xmlpi->key = NULL;
 	xmlpi->value = NULL;
@@ -219,7 +219,7 @@ since_attr since=\042
 
 <LOADING>{start_entity} BEGIN ENTITY;
 <ENTITY>{entityname} {
-	entity_t *e = g_malloc(sizeof(entity_t));
+	entity_t *e = g_new(entity_t,1);
 	D(("ENTITY: %s\n",yytext));
 	e->name = g_strdup(yytext);
 	e->next = ents.next;
@@ -385,7 +385,7 @@ since_attr since=\042
 <IN_DICT>{tlv_start}	{
 	D(("tlv_start\n"));
 
-	tlv = g_malloc(sizeof(wimaxasncp_dict_tlv_t));
+	tlv = g_new(wimaxasncp_dict_tlv_t,1);
 	tlv->type = 0;
 	tlv->name = NULL;
 	tlv->description = NULL;
@@ -425,7 +425,7 @@ since_attr since=\042
 <IN_TLV>{enum_start} {
 	D(("enum_start\n"));
 
-	enumitem = g_malloc(sizeof(wimaxasncp_dict_enum_t));
+	enumitem = g_new(wimaxasncp_dict_enum_t,1);
 	enumitem->name = NULL;
 	enumitem->code = 0;
 	enumitem->next = NULL;
@@ -539,11 +539,11 @@ void wimaxasncp_dict_unused(void) {
 static void append_to_buffer(const gchar *txt, int len) {
 
 	if (strbuf == NULL) {
-		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);
+		read_ptr = write_ptr = strbuf = (gchar *)g_malloc(size_strbuf);
 	}
 
 	if ( (len_strbuf + len + 1) >= size_strbuf ) {
-		read_ptr = strbuf = g_realloc(strbuf,size_strbuf *= 2);
+		read_ptr = strbuf = (gchar *)g_realloc(strbuf,size_strbuf *= 2);
 	}
 
 	write_ptr = strbuf + len_strbuf;
@@ -626,7 +626,7 @@ wimaxasncp_dict_t *wimaxasncp_dict_scan(
 		wimaxasncp_dict_free(dict);
 	}
 
-	dict = g_malloc(sizeof(wimaxasncp_dict_t));
+	dict = g_new(wimaxasncp_dict_t,1);
 	dict->tlvs = NULL;
 	dict->xmlpis = NULL;
 

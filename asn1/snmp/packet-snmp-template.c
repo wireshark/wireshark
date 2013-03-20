@@ -106,6 +106,11 @@ static int proto_smux = -1;
 static gboolean display_oid = TRUE;
 static gboolean snmp_var_in_tree = TRUE;
 
+void proto_register_snmp(void);
+void proto_reg_handoff_snmp(void);
+void proto_register_smux(void);
+void proto_reg_handoff_smux(void);
+
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 
@@ -701,7 +706,7 @@ show_oid_index:
 										proto_tree_add_ether(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
 										break;
 									case OID_KEY_TYPE_IPADDR: {
-										guint32* ipv4_p = (void*)buf;
+										guint32* ipv4_p = (guint32*)buf;
 										proto_tree_add_ipv4(pt_name,k->hfid,tvb,name_offset,buf_len, *ipv4_p);
 										}
 										break;
@@ -1481,7 +1486,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	return clear_tvb;
 
 on_gcry_error:
-	*error = (void*)gpg_strerror(err);
+	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
 #else
@@ -1551,7 +1556,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	return clear_tvb;
 
 on_gcry_error:
-	*error = (void*)gpg_strerror(err);
+	*error = (const gchar *)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
 }
@@ -1590,7 +1595,7 @@ snmp_usm_priv_aes256(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gcha
 #endif
 }
 
-gboolean
+static gboolean
 check_ScopedPdu(tvbuff_t* tvb)
 {
 	int offset;

@@ -103,6 +103,10 @@
 #define PSNAME "ANSI MAP"
 #define PFNAME "ansi_map"
 
+
+void proto_register_ansi_map(void);
+void proto_reg_handoff_ansi_map(void);
+
 /* Preference settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -4286,7 +4290,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
     guint8 *dst_str;
     char *buf;
 
-    buf=ep_alloc(1024);
+    buf=(char *)ep_alloc(1024);
 
     /* Data from the TCAP dissector */
     if (actx->pinfo->private_data != NULL){

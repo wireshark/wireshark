@@ -45,6 +45,9 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
+void proto_register_udp(void);
+void proto_reg_handoff_udp(void);
+
 static int udp_tap = -1;
 static int udp_follow_tap = -1;
 
@@ -452,9 +455,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (((ip_proto == IP_PROTO_UDP) && (udp_check_checksum)) ||
         ((ip_proto == IP_PROTO_UDPLITE) && (udplite_check_checksum))) {
       /* Set up the fields of the pseudo-header. */
-      cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
+      cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
       cksum_vec[0].len = pinfo->src.len;
-      cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
+      cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
       cksum_vec[1].len = pinfo->dst.len;
       cksum_vec[2].ptr = (const guint8 *)&phdr;
       switch (pinfo->src.type) {

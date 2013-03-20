@@ -440,7 +440,7 @@ static guint16
 in_checksum (void *buf, guint32 count)
 {
     guint32 sum = 0;
-    guint16 *addr = buf;
+    guint16 *addr = (guint16 *)buf;
 
     while (count > 1) {
         /*  This is the inner loop */
