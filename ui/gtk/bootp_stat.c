@@ -86,13 +86,15 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar *unused 
 		/* Maybe we should display the hexadecimal value ? */
 		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new(data->name  /* string_buff */);
-		ws_gtk_grid_attach_defaults(GTK_GRID(data->sp->grid_message_type), tmp, x, y, 1, 1);
+		ws_gtk_grid_attach_extended(GTK_GRID(data->sp->grid_message_type), tmp, x, y, 1, 1,
+                                            GTK_EXPAND|GTK_FILL, 0, 0, 0);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
 		g_snprintf(string_buff, sizeof(string_buff), "%9d", data->packets);
 		data->widget = gtk_label_new(string_buff);
-		ws_gtk_grid_attach_defaults(GTK_GRID(data->sp->grid_message_type), data->widget, x+1, y, 1, 1);
+		ws_gtk_grid_attach_extended(GTK_GRID(data->sp->grid_message_type), data->widget, x+1, y, 1, 1,
+                                            GTK_EXPAND|GTK_FILL, 0, 0, 0);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(data->widget);
 
@@ -205,7 +207,7 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 
 	/* Status Codes frame */
 	message_type_fr = gtk_frame_new("DHCP Message Type");
-	gtk_box_pack_start(GTK_BOX(vbox), message_type_fr, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), message_type_fr, TRUE, TRUE, 0);
 	gtk_widget_show(message_type_fr);
 
 	sp->grid_message_type = ws_gtk_grid_new();
