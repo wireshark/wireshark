@@ -1395,6 +1395,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 #ifdef HAVE_GEOIP
     GtkWidget *map_bt;
 #endif
+    gint tl_width, ht_width, ht_height;
 
     hosttable=g_new(hostlist_table,1);
 
@@ -1456,6 +1457,13 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
     g_signal_connect(hosttable->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(hosttable->win, "destroy", G_CALLBACK(hostlist_win_destroy_cb), hosttable);
+
+    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
+    gtk_window_get_size(GTK_WINDOW(hosttable->win), &ht_width, &ht_height);
+    tl_width = tl_width * 8 / 10;
+    if (tl_width > ht_width) {
+      gtk_window_resize(GTK_WINDOW(hosttable->win), tl_width, ht_height);
+    }
 
     gtk_widget_show_all(hosttable->win);
     window_present(hosttable->win);
@@ -1636,6 +1644,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_GEOIP
     GtkWidget *map_bt;
 #endif
+    gint tl_width, hn_width, hn_height;
 
 
     pages = (void **)g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
@@ -1680,7 +1689,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
-    gtk_box_pack_start(GTK_BOX(hbox), resolv_cb, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), resolv_cb, FALSE, FALSE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_widget_set_tooltip_text(resolv_cb,
         "Show results of name resolutions rather than the \"raw\" values. Please note: The corresponding name resolution must be enabled.");
@@ -1688,7 +1697,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-    gtk_box_pack_start(GTK_BOX(hbox), filter_cb, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), filter_cb, FALSE, FALSE, DLG_UNRELATED_SPACING);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to endpoints matching the current display filter.");
 
@@ -1726,6 +1735,13 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(win, "destroy", G_CALLBACK(hostlist_win_destroy_notebook_cb), pages);
+
+    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
+    gtk_window_get_size(GTK_WINDOW(win), &hn_width, &hn_height);
+    tl_width = tl_width * 8 / 10;
+    if (tl_width > hn_width) {
+      gtk_window_resize(GTK_WINDOW(win), tl_width, hn_height);
+    }
 
     gtk_widget_show_all(win);
     window_present(win);

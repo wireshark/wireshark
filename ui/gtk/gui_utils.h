@@ -540,6 +540,13 @@ GtkWidget * gtk_separator_new (GtkOrientation orientation);
 void gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba);
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 
+/** Create a new frame with no border and a bold title on appropriate platforms.
+ *
+ * @param title The title for the new frame
+ * @return The newly created window
+ */
+extern GtkWidget *frame_new(const gchar *title);
+
 
 /* GtkTable is deprecated in Gtk3 ...
  *

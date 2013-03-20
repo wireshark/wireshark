@@ -2609,6 +2609,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     GtkWidget *graph_b_a_bt;
     gboolean add_follow_stream_button = FALSE;
     gboolean add_graph_buttons = FALSE;
+    gint tl_width, ct_width, ct_height;
 
     conversations=g_new0(conversations_table,1);
 
@@ -2704,6 +2705,13 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
     /* Initially there is no conversation selection to reselect */
     conversations->reselection_idx = -1;
+
+    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
+    gtk_window_get_size(GTK_WINDOW(conversations->win), &ct_width, &ct_height);
+    tl_width = tl_width * 8 / 10;
+    if (tl_width > ct_width) {
+      gtk_window_resize(GTK_WINDOW(conversations->win), tl_width, ct_height);
+    }
 
     gtk_widget_show_all(conversations->win);
     window_present(conversations->win);
@@ -2888,6 +2896,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *follow_stream_bt;
     GtkWidget *graph_a_b_bt;
     GtkWidget *graph_b_a_bt;
+    gint tl_width, cn_width, cn_height;
 
     pages = (void **)g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
@@ -2931,14 +2940,14 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
-    gtk_box_pack_start(GTK_BOX (hbox), resolv_cb, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (hbox), resolv_cb, FALSE, FALSE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_widget_set_tooltip_text(resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
                                  "Please note: The corresponding name resolution must be enabled.");
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(ct_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-    gtk_box_pack_start(GTK_BOX (hbox), filter_cb, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (hbox), filter_cb, FALSE, FALSE, DLG_UNRELATED_SPACING);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to conversations matching the current display filter.");
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(ct_filter_toggle_dest), pages);
@@ -2997,6 +3006,13 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(win, "destroy", G_CALLBACK(ct_win_destroy_notebook_cb), pages);
+
+    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
+    gtk_window_get_size(GTK_WINDOW(win), &cn_width, &cn_height);
+    tl_width = tl_width * 8 / 10;
+    if (tl_width > cn_width) {
+      gtk_window_resize(GTK_WINDOW(win), tl_width, cn_height);
+    }
 
     gtk_widget_show_all(win);
     window_present(win);

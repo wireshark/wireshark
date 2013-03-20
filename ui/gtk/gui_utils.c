@@ -1865,6 +1865,27 @@ gtk_separator_new(GtkOrientation orientation)
 }
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 
+GtkWidget *
+frame_new(const gchar *title) {
+    GtkWidget *frame, *frame_lb;
+    GString *mu_title = g_string_new("");
+
+    frame = gtk_frame_new(NULL);
+    gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
+    if (title) {
+#if !defined(_WIN32) && !defined(__APPLE__)
+        g_string_printf(mu_title, "%s", title);
+#else
+        g_string_printf(mu_title, "<b>%s</b>", title);
+#endif
+        frame_lb = gtk_label_new(NULL);
+        gtk_label_set_markup(GTK_LABEL(frame_lb), mu_title->str);
+        gtk_frame_set_label_widget(GTK_FRAME(frame), frame_lb);
+    }
+    g_string_free(mu_title, TRUE);
+
+    return frame;
+}
 
 
 /* ---------------------------------
