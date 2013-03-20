@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V11.4.0 (2012-12)
+-- 3GPP TS 25.331 V11.5.0 (2013-03)
 -- $Id$
 --
 Internode-definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -109,6 +109,7 @@ FROM PDU-definitions
 	SRB-InformationSetupList-r6,
 	SRB-InformationSetupList-r7,
 	SRB-InformationSetupList-r8,
+	SRB-InformationSetupList-r11,
 -- Transport Channel IEs :
 	CPCH-SetID,
 	DL-CommonTransChInfo,
@@ -536,17 +537,21 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 								r10								SEQUENCE {
 									sRNC-RelocationInfo-r10			SRNC-RelocationInfo-r10-IEs,
 									sRNC-RelocationInfo-r10-add-ext	BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+									v9c0NonCriticalExtensions		SEQUENCE {
+										sRNC-RelocationInfo-v9c0ext	
+															SRNC-RelocationInfo-v9c0ext-IEs,
+										vab0NonCriticalExtensions			SEQUENCE {
+											sRNC-RelocationInfo-vab0ext	
+															SRNC-RelocationInfo-vab0ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				CHOICE {
 									r11								SEQUENCE {
 										sRNC-RelocationInfo-r11			SRNC-RelocationInfo-r11-IEs,
 										sRNC-RelocationInfo-r11-add-ext	BIT STRING		OPTIONAL,
-									v9c0NonCriticalExtensions		SEQUENCE {
-										sRNC-RelocationInfo-v9c0ext	
-															SRNC-RelocationInfo-v9c0ext-IEs,
 										nonCriticalExtensions	SEQUENCE {}	OPTIONAL
-									}	OPTIONAL
 									},
 									criticalExtensions				SEQUENCE {}
 								}
@@ -1383,6 +1388,8 @@ SRNC-RelocationInfo-r10-IEs ::=			SEQUENCE {
 		mbmsSelectedServiceInfo			MBMS-SelectedServiceInfo			OPTIONAL
 }
 
+SRNC-RelocationInfo-vab0ext-IEs ::=		SRNC-RelocationInfo-v970ext-IEs
+ 
 SRNC-RelocationInfo-r11-IEs ::=			SEQUENCE {
 	-- Non-RRC IEs
 		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
@@ -1442,7 +1449,7 @@ SRNC-RelocationInfo-r11-IEs ::=			SEQUENCE {
 		interRATCellInfoIndication		InterRATCellInfoIndication			OPTIONAL,
 	-- Radio bearer IEs
 		predefinedConfigStatusList		PredefinedConfigStatusList,
-		srb-InformationList				SRB-InformationSetupList-r8,
+		srb-InformationList				SRB-InformationSetupList-r11,
 		rab-InformationList				RAB-InformationSetupList-r11			OPTIONAL,
 		pdcp-ROHC-TargetMode			PDCP-ROHC-TargetMode				OPTIONAL,
 	-- Transport channel IEs
@@ -1782,6 +1789,15 @@ OngoingMeasRep-r10 ::=				SEQUENCE {
 	measurementIdentity					MeasurementIdentity,
 	measurementCommandWithType			MeasurementCommandWithType-r10,
 	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	-- if any of the additional measurement ID is within the range 17 to 32,
+	-- "OngoingMeasRep-v970ext-IEs" (in SRNC-RelocationInfo-vab0ext-IEs)should be present 
+	-- and should include the IE "measurementIdentity" and 
+	-- "additionalMeasurementID-List". In this case, the value of the IE "measurementIdentity" in
+	-- "OngoingMeasRep-v970ext-IEs" (in SRNC-RelocationInfo-vab0ext-IEs) should be the same as the 
+	-- "measurementIdentity" value in "OngoingMeasRep-r10", and "additionalMeasurementID-List"
+	-- should contain the complete list.
+	-- The IE "additionalMeasurementID-List" in "OngoingMeasRep-r10" should still 
+	-- contain the additional measurement ID which value is within the range 1 to 16. 
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
 }
 

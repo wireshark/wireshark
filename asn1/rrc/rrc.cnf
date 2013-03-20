@@ -65,7 +65,6 @@ UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
 RRCConnectionRelease-CCCH-va40ext-IEs
-AdditionalDLSecCellInfoListFDD2
 #.END
 
 #.PDU_NEW
@@ -187,6 +186,10 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY CellUpdate
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdate");
+%(DEFAULT_BODY)s
+
+#.FN_BODY CellUpdateFDD-r11
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateFDD-r11");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellUpdateConfirm-CCCH

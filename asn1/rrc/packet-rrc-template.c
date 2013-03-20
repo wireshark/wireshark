@@ -24,7 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref: 3GPP TS 25.331 V11.4.0 (2012-12)
+ * Ref: 3GPP TS 25.331 V11.5.0 (2013-03)
  */
 
 /**

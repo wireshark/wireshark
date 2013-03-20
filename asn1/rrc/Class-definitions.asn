@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V11.4.0 (2012-12)
+-- 3GPP TS 25.331 V11.5.0 (2013-03)
 -- $Id$
 --
 Class-definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -14,6 +14,7 @@ IMPORTS
 	CellChangeOrderFromUTRAN,
 	CellChangeOrderFromUTRANFailure,
 	CellUpdate,
+	CellUpdateFDD-r11,
 	CellUpdateConfirm-CCCH,
 	CellUpdateConfirm,
 	CounterCheck,
@@ -230,7 +231,9 @@ DL-CCCH-MessageType ::= CHOICE {
 	rrcConnectionRelease				RRCConnectionRelease-CCCH,
 	rrcConnectionSetup					RRCConnectionSetup,
 	uraUpdateConfirm					URAUpdateConfirm-CCCH,
-	etwsPrimaryNotificationWithSecurity	ETWSPrimaryNotificationWithSecurity,
+	-- dummy is not used in the specification. If received it is ignored by the UE. 
+	-- See TS 23.041 for handling of warning security information by Cell Broadcast Center.
+	dummy							ETWSPrimaryNotificationWithSecurity,
 	spare2								NULL,
 	spare1								NULL
 }
@@ -250,7 +253,14 @@ UL-CCCH-MessageType ::= CHOICE {
 	cellUpdate							CellUpdate,
 	rrcConnectionRequest				RRCConnectionRequest,
 	uraUpdate							URAUpdate,
-	spare								NULL
+	uL-CCCH-MessageType-r11				UL-CCCH-MessageType-r11
+}
+
+UL-CCCH-MessageType-r11 ::= CHOICE {
+	cellUpdate							CellUpdateFDD-r11,
+	spare3								NULL,
+	spare2								NULL,
+	spare1								NULL
 }
 
 --**************************************************************
