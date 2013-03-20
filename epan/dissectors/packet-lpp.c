@@ -30,7 +30,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 11.1.0 Release 11
+ * Ref 3GPP TS 36.355 version 11.2.0 Release 11
  * http://www.3gpp.org
  */
 
@@ -266,6 +266,7 @@ static int hf_lpp_earfcnRef = -1;                 /* ARFCN_ValueEUTRA */
 static int hf_lpp_antennaPortConfig = -1;         /* T_antennaPortConfig */
 static int hf_lpp_cpLength = -1;                  /* T_cpLength */
 static int hf_lpp_prsInfo = -1;                   /* PRS_Info */
+static int hf_lpp_earfcnRef_v9a0 = -1;            /* ARFCN_ValueEUTRA_v9a0 */
 static int hf_lpp_prs_Bandwidth = -1;             /* T_prs_Bandwidth */
 static int hf_lpp_prs_ConfigurationIndex = -1;    /* INTEGER_0_4095 */
 static int hf_lpp_numDL_Frames = -1;              /* T_numDL_Frames */
@@ -283,6 +284,7 @@ static int hf_lpp_slotNumberOffset = -1;          /* INTEGER_0_19 */
 static int hf_lpp_prs_SubframeOffset = -1;        /* INTEGER_0_1279 */
 static int hf_lpp_expectedRSTD = -1;              /* INTEGER_0_16383 */
 static int hf_lpp_expectedRSTD_Uncertainty = -1;  /* INTEGER_0_1023 */
+static int hf_lpp_earfcn_v9a0 = -1;               /* ARFCN_ValueEUTRA_v9a0 */
 static int hf_lpp_otdoaSignalMeasurementInformation = -1;  /* OTDOA_SignalMeasurementInformation */
 static int hf_lpp_systemFrameNumber = -1;         /* BIT_STRING_SIZE_10 */
 static int hf_lpp_physCellIdRef = -1;             /* INTEGER_0_503 */
@@ -295,6 +297,7 @@ static int hf_lpp_cellGlobalIdNeighbour = -1;     /* ECGI */
 static int hf_lpp_earfcnNeighbour = -1;           /* ARFCN_ValueEUTRA */
 static int hf_lpp_rstd = -1;                      /* INTEGER_0_12711 */
 static int hf_lpp_rstd_Quality = -1;              /* OTDOA_MeasQuality */
+static int hf_lpp_earfcnNeighbour_v9a0 = -1;      /* ARFCN_ValueEUTRA_v9a0 */
 static int hf_lpp_error_Resolution = -1;          /* BIT_STRING_SIZE_2 */
 static int hf_lpp_error_Value = -1;               /* BIT_STRING_SIZE_5 */
 static int hf_lpp_error_NumSamples = -1;          /* BIT_STRING_SIZE_3 */
@@ -302,7 +305,10 @@ static int hf_lpp_assistanceAvailability = -1;    /* BOOLEAN */
 static int hf_lpp_otdoa_Mode = -1;                /* T_otdoa_Mode */
 static int hf_lpp_supportedBandListEUTRA = -1;    /* SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA */
 static int hf_lpp_supportedBandListEUTRA_item = -1;  /* SupportedBandEUTRA */
-static int hf_lpp_bandEUTRA = -1;                 /* INTEGER_1_64 */
+static int hf_lpp_supportedBandListEUTRA_v9a0 = -1;  /* SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0 */
+static int hf_lpp_supportedBandListEUTRA_v9a0_item = -1;  /* SupportedBandEUTRA_v9a0 */
+static int hf_lpp_bandEUTRA = -1;                 /* INTEGER_1_maxFBI */
+static int hf_lpp_bandEUTRA_v9a0 = -1;            /* INTEGER_maxFBI_Plus1_maxFBI2 */
 static int hf_lpp_locationServerErrorCauses = -1;  /* OTDOA_LocationServerErrorCauses */
 static int hf_lpp_targetDeviceErrorCauses = -1;   /* OTDOA_TargetDeviceErrorCauses */
 static int hf_lpp_cause = -1;                     /* T_cause */
@@ -834,6 +840,7 @@ static int hf_lpp_arfcnEUTRA = -1;                /* ARFCN_ValueEUTRA */
 static int hf_lpp_rsrp_Result = -1;               /* INTEGER_0_97 */
 static int hf_lpp_rsrq_Result = -1;               /* INTEGER_0_34 */
 static int hf_lpp_ue_RxTxTimeDiff = -1;           /* INTEGER_0_4095 */
+static int hf_lpp_arfcnEUTRA_v9a0 = -1;           /* ARFCN_ValueEUTRA_v9a0 */
 static int hf_lpp_requestedMeasurements = -1;     /* T_requestedMeasurements */
 static int hf_lpp_ecid_MeasSupported = -1;        /* T_ecid_MeasSupported */
 static int hf_lpp_locationServerErrorCauses_02 = -1;  /* ECID_LocationServerErrorCauses */
@@ -888,6 +895,7 @@ static int hf_lpp_T_requestedMeasurements_ueRxTxReq = -1;
 static int hf_lpp_T_ecid_MeasSupported_rsrpSup = -1;
 static int hf_lpp_T_ecid_MeasSupported_rsrqSup = -1;
 static int hf_lpp_T_ecid_MeasSupported_ueRxTxSup = -1;
+static int hf_lpp_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lpp-hf.c ---*/
 #line 50 "../../asn1/lpp/packet-lpp-template.c"
@@ -1012,7 +1020,9 @@ static gint ett_lpp_OTDOA_RequestLocationInformation = -1;
 static gint ett_lpp_OTDOA_ProvideCapabilities = -1;
 static gint ett_lpp_T_otdoa_Mode = -1;
 static gint ett_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA = -1;
+static gint ett_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0 = -1;
 static gint ett_lpp_SupportedBandEUTRA = -1;
+static gint ett_lpp_SupportedBandEUTRA_v9a0 = -1;
 static gint ett_lpp_OTDOA_RequestCapabilities = -1;
 static gint ett_lpp_OTDOA_Error = -1;
 static gint ett_lpp_OTDOA_LocationServerErrorCauses = -1;
@@ -1201,9 +1211,15 @@ static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 
 /*--- Included file: packet-lpp-val.h ---*/
 #line 1 "../../asn1/lpp/packet-lpp-val.h"
+#define maxEARFCN                      65535
+#define maxEARFCN_Plus1                65536
+#define maxEARFCN2                     262143
 #define maxEPDU                        16
 #define maxFreqLayers                  3
 #define maxBands                       64
+#define maxFBI                         64
+#define maxFBI_Plus1                   65
+#define maxFBI2                        256
 
 /*--- End of included file: packet-lpp-val.h ---*/
 #line 61 "../../asn1/lpp/packet-lpp-template.c"
@@ -2190,16 +2206,16 @@ dissect_lpp_T_otdoa_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static int
-dissect_lpp_INTEGER_1_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_INTEGER_1_maxFBI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 64U, NULL, FALSE);
+                                                            1U, maxFBI, NULL, FALSE);
 
   return offset;
 }
 
 
 static const per_sequence_t SupportedBandEUTRA_sequence[] = {
-  { &hf_lpp_bandEUTRA       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_1_64 },
+  { &hf_lpp_bandEUTRA       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_1_maxFBI },
   { NULL, 0, 0, NULL }
 };
 
@@ -2226,9 +2242,48 @@ dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA(tvbuff_t *tvb _U_, in
 }
 
 
+
+static int
+dissect_lpp_INTEGER_maxFBI_Plus1_maxFBI2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            maxFBI_Plus1, maxFBI2, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SupportedBandEUTRA_v9a0_sequence[] = {
+  { &hf_lpp_bandEUTRA_v9a0  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_maxFBI_Plus1_maxFBI2 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_SupportedBandEUTRA_v9a0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_SupportedBandEUTRA_v9a0, SupportedBandEUTRA_v9a0_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0_sequence_of[1] = {
+  { &hf_lpp_supportedBandListEUTRA_v9a0_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_SupportedBandEUTRA_v9a0 },
+};
+
+static int
+dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0, SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0_sequence_of,
+                                                  1, maxBands, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t OTDOA_ProvideCapabilities_sequence[] = {
   { &hf_lpp_otdoa_Mode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_otdoa_Mode },
   { &hf_lpp_supportedBandListEUTRA, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA },
+  { &hf_lpp_supportedBandListEUTRA_v9a0, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3159,6 +3214,16 @@ dissect_lpp_INTEGER_0_86399(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
+dissect_lpp_INTEGER_1_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 64U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lpp_INTEGER_0_16383(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 16383U, NULL, FALSE);
@@ -3372,7 +3437,30 @@ dissect_lpp_CellGlobalIdEUTRA_AndUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 int
 dissect_lpp_ARFCN_ValueEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
+                                                            0U, maxEARFCN, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lpp_ARFCN_ValueEUTRA_v9a0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            maxEARFCN_Plus1, maxEARFCN2, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_eag_1_sequence[] = {
+  { &hf_lpp_earfcn_v9a0     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_T_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, T_eag_1_sequence);
 
   return offset;
 }
@@ -3382,6 +3470,7 @@ static const per_sequence_t T_eUTRA_sequence[] = {
   { &hf_lpp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalIdEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
   { &hf_lpp_earfcn          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_ARFCN_ValueEUTRA },
+  { &hf_lpp_dummy_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_T_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5736,6 +5825,19 @@ dissect_lpp_PRS_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 
 
+static const per_sequence_t OTDOA_ReferenceCellInfo_eag_1_sequence[] = {
+  { &hf_lpp_earfcnRef_v9a0  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_OTDOA_ReferenceCellInfo_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, OTDOA_ReferenceCellInfo_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t OTDOA_ReferenceCellInfo_sequence[] = {
   { &hf_lpp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalId    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ECGI },
@@ -5743,6 +5845,7 @@ static const per_sequence_t OTDOA_ReferenceCellInfo_sequence[] = {
   { &hf_lpp_antennaPortConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_antennaPortConfig },
   { &hf_lpp_cpLength        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_cpLength },
   { &hf_lpp_prsInfo         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_PRS_Info },
+  { &hf_lpp_dummy_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_OTDOA_ReferenceCellInfo_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5807,6 +5910,19 @@ dissect_lpp_INTEGER_0_1279(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const per_sequence_t OTDOA_NeighbourCellInfoElement_eag_1_sequence[] = {
+  { &hf_lpp_earfcn_v9a0     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_OTDOA_NeighbourCellInfoElement_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, OTDOA_NeighbourCellInfoElement_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t OTDOA_NeighbourCellInfoElement_sequence[] = {
   { &hf_lpp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalId    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ECGI },
@@ -5818,6 +5934,7 @@ static const per_sequence_t OTDOA_NeighbourCellInfoElement_sequence[] = {
   { &hf_lpp_prs_SubframeOffset, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_1279 },
   { &hf_lpp_expectedRSTD    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_16383 },
   { &hf_lpp_expectedRSTD_Uncertainty, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_1023 },
+  { &hf_lpp_dummy_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_OTDOA_NeighbourCellInfoElement_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7306,12 +7423,26 @@ dissect_lpp_INTEGER_0_12711(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const per_sequence_t NeighbourMeasurementElement_eag_1_sequence[] = {
+  { &hf_lpp_earfcnNeighbour_v9a0, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_NeighbourMeasurementElement_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, NeighbourMeasurementElement_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t NeighbourMeasurementElement_sequence[] = {
   { &hf_lpp_physCellIdNeighbor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalIdNeighbour, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ECGI },
   { &hf_lpp_earfcnNeighbour , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA },
   { &hf_lpp_rstd            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_12711 },
   { &hf_lpp_rstd_Quality    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_OTDOA_MeasQuality },
+  { &hf_lpp_dummy_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_NeighbourMeasurementElement_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7338,6 +7469,19 @@ dissect_lpp_NeighbourMeasurementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
+static const per_sequence_t OTDOA_SignalMeasurementInformation_eag_1_sequence[] = {
+  { &hf_lpp_earfcnRef_v9a0  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_OTDOA_SignalMeasurementInformation_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, OTDOA_SignalMeasurementInformation_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t OTDOA_SignalMeasurementInformation_sequence[] = {
   { &hf_lpp_systemFrameNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BIT_STRING_SIZE_10 },
   { &hf_lpp_physCellIdRef   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
@@ -7345,6 +7489,7 @@ static const per_sequence_t OTDOA_SignalMeasurementInformation_sequence[] = {
   { &hf_lpp_earfcnRef       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA },
   { &hf_lpp_referenceQuality, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_OTDOA_MeasQuality },
   { &hf_lpp_neighbourMeasurementList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_NeighbourMeasurementList },
+  { &hf_lpp_dummy_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_OTDOA_SignalMeasurementInformation_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7392,6 +7537,19 @@ dissect_lpp_INTEGER_0_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
+static const per_sequence_t MeasuredResultsElement_eag_1_sequence[] = {
+  { &hf_lpp_arfcnEUTRA_v9a0 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_ARFCN_ValueEUTRA_v9a0 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_MeasuredResultsElement_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, MeasuredResultsElement_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MeasuredResultsElement_sequence[] = {
   { &hf_lpp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_503 },
   { &hf_lpp_cellGlobalId_01 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_CellGlobalIdEUTRA_AndUTRA },
@@ -7400,6 +7558,7 @@ static const per_sequence_t MeasuredResultsElement_sequence[] = {
   { &hf_lpp_rsrp_Result     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_97 },
   { &hf_lpp_rsrq_Result     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_34 },
   { &hf_lpp_ue_RxTxTimeDiff , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_4095 },
+  { &hf_lpp_dummy_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_MeasuredResultsElement_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -8887,6 +9046,10 @@ void proto_register_lpp(void) {
       { "prsInfo", "lpp.prsInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "PRS_Info", HFILL }},
+    { &hf_lpp_earfcnRef_v9a0,
+      { "earfcnRef-v9a0", "lpp.earfcnRef_v9a0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA_v9a0", HFILL }},
     { &hf_lpp_prs_Bandwidth,
       { "prs-Bandwidth", "lpp.prs_Bandwidth",
         FT_UINT32, BASE_DEC, VALS(lpp_T_prs_Bandwidth_vals), 0,
@@ -8955,6 +9118,10 @@ void proto_register_lpp(void) {
       { "expectedRSTD-Uncertainty", "lpp.expectedRSTD_Uncertainty",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
+    { &hf_lpp_earfcn_v9a0,
+      { "earfcn-v9a0", "lpp.earfcn_v9a0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA_v9a0", HFILL }},
     { &hf_lpp_otdoaSignalMeasurementInformation,
       { "otdoaSignalMeasurementInformation", "lpp.otdoaSignalMeasurementInformation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9003,6 +9170,10 @@ void proto_register_lpp(void) {
       { "rstd-Quality", "lpp.rstd_Quality",
         FT_NONE, BASE_NONE, NULL, 0,
         "OTDOA_MeasQuality", HFILL }},
+    { &hf_lpp_earfcnNeighbour_v9a0,
+      { "earfcnNeighbour-v9a0", "lpp.earfcnNeighbour_v9a0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA_v9a0", HFILL }},
     { &hf_lpp_error_Resolution,
       { "error-Resolution", "lpp.error_Resolution",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -9031,10 +9202,22 @@ void proto_register_lpp(void) {
       { "SupportedBandEUTRA", "lpp.SupportedBandEUTRA",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lpp_supportedBandListEUTRA_v9a0,
+      { "supportedBandListEUTRA-v9a0", "lpp.supportedBandListEUTRA_v9a0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0", HFILL }},
+    { &hf_lpp_supportedBandListEUTRA_v9a0_item,
+      { "SupportedBandEUTRA-v9a0", "lpp.SupportedBandEUTRA_v9a0",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lpp_bandEUTRA,
       { "bandEUTRA", "lpp.bandEUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_64", HFILL }},
+        "INTEGER_1_maxFBI", HFILL }},
+    { &hf_lpp_bandEUTRA_v9a0,
+      { "bandEUTRA-v9a0", "lpp.bandEUTRA_v9a0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_maxFBI_Plus1_maxFBI2", HFILL }},
     { &hf_lpp_locationServerErrorCauses,
       { "locationServerErrorCauses", "lpp.locationServerErrorCauses",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11159,6 +11342,10 @@ void proto_register_lpp(void) {
       { "ue-RxTxTimeDiff", "lpp.ue_RxTxTimeDiff",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_4095", HFILL }},
+    { &hf_lpp_arfcnEUTRA_v9a0,
+      { "arfcnEUTRA-v9a0", "lpp.arfcnEUTRA_v9a0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA_v9a0", HFILL }},
     { &hf_lpp_requestedMeasurements,
       { "requestedMeasurements", "lpp.requestedMeasurements",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -11493,7 +11680,9 @@ void proto_register_lpp(void) {
     &ett_lpp_OTDOA_ProvideCapabilities,
     &ett_lpp_T_otdoa_Mode,
     &ett_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA,
+    &ett_lpp_SEQUENCE_SIZE_1_maxBands_OF_SupportedBandEUTRA_v9a0,
     &ett_lpp_SupportedBandEUTRA,
+    &ett_lpp_SupportedBandEUTRA_v9a0,
     &ett_lpp_OTDOA_RequestCapabilities,
     &ett_lpp_OTDOA_Error,
     &ett_lpp_OTDOA_LocationServerErrorCauses,
