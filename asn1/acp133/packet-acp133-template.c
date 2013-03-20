@@ -44,6 +44,9 @@
 #define PSNAME "ACP133"
 #define PFNAME "acp133"
 
+void proto_register_acp133(void);
+void proto_reg_handoff_acp133(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_acp133 = -1;
 

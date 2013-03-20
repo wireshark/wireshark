@@ -44,6 +44,8 @@
 #define PSNAME "ANSI_TCAP"
 #define PFNAME "ansi_tcap"
 
+void proto_register_ansi_tcap(void);
+void proto_reg_handoff_ansi_tcap(void);
 
 /* Preferences defaults */
 gint ansi_tcap_response_matching_type = 0;

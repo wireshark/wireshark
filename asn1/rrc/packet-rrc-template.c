@@ -85,6 +85,8 @@ enum nas_sys_info_gsm_map {
 static guint32 rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 /* Forward declarations */
+void proto_register_rrc(void);
+void proto_reg_handoff_rrc(void);
 static int dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SysInfoTypeSB1_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SysInfoTypeSB2_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -164,19 +166,21 @@ static int get_max_counter(int com_context){
 }
 #endif
 /** Utility functions used for various comparisons/cleanups in tree **/
-gint rrc_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
+static gint rrc_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
     if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
         return  -1;
     }
     return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
 }
-void rrc_free_key(gpointer key _U_){
+
+static void rrc_free_key(gpointer key _U_){
             /*Keys should be de allocated elsewhere.*/
 
-    }
-void rrc_free_value(gpointer value ){
+}
+
+static void rrc_free_value(gpointer value ){
             g_free(value);
-    }
+}
 #include "packet-rrc-fn.c"
 
 #include "packet-rrc.h"
@@ -231,7 +235,7 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-void rrc_init(void){
+static void rrc_init(void){
     /*Cleanup*/
     if(hsdsch_muxed_flows){
         g_tree_destroy(hsdsch_muxed_flows);

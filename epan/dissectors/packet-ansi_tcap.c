@@ -52,6 +52,8 @@
 #define PSNAME "ANSI_TCAP"
 #define PFNAME "ansi_tcap"
 
+void proto_register_ansi_tcap(void);
+void proto_reg_handoff_ansi_tcap(void);
 
 /* Preferences defaults */
 gint ansi_tcap_response_matching_type = 0;
@@ -124,7 +126,7 @@ static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
 static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
 
 /*--- End of included file: packet-ansi_tcap-hf.c ---*/
-#line 64 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 66 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -170,7 +172,7 @@ static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
 
 /*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 83 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 85 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -1392,7 +1394,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 350 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 352 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1738,7 +1740,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 487 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 489 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1776,7 +1778,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 498 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 500 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static const enum_val_t ansi_tcap_response_matching_type_values[] = {

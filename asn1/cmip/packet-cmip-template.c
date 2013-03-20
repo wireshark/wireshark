@@ -39,6 +39,9 @@
 #define PSNAME "CMIP"
 #define PFNAME "cmip"
 
+void proto_register_cmip(void);
+void proto_reg_handoff_cmip(void);
+
 /* XXX some stuff we need until we can get rid of it */
 #include "packet-ses.h"
 #include "packet-pres.h"
