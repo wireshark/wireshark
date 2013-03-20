@@ -1873,7 +1873,7 @@ frame_new(const gchar *title) {
     frame = gtk_frame_new(NULL);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
     if (title) {
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__)
         g_string_printf(mu_title, "%s", title);
 #else
         g_string_printf(mu_title, "<b>%s</b>", title);
