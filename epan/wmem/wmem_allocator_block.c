@@ -178,7 +178,7 @@ wmem_block_debug_chunk_chain(wmem_block_chunk_t *chunk)
     printf("VERIFYING CHUNK CHAIN\n");
     g_assert(chunk->prev == 0);
 
-    while (chunk) {
+    do {
         total_len += chunk->len;
 
         if (WMEM_CHUNK_NEXT(chunk)) {
@@ -186,7 +186,7 @@ wmem_block_debug_chunk_chain(wmem_block_chunk_t *chunk)
         }
 
         chunk = WMEM_CHUNK_NEXT(chunk);
-    }
+    } while (chunk);
 
     g_assert(total_len == WMEM_BLOCK_SIZE);
 }

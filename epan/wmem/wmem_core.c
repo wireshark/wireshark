@@ -59,7 +59,9 @@ wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
     
     buf = wmem_alloc(allocator, size);
 
-    return memset(buf, 0, size);
+    memset(buf, 0, size);
+
+    return buf;
 }
 
 void
