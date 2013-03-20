@@ -54,6 +54,7 @@
 #include "packet-e212.h"
 #include "packet-ranap.h"
 #include "packet-rrc.h"
+#include "packet-rtcp.h"
 #include "packet-rtp.h"
 #include "packet-gsm_map.h"
 
@@ -3841,6 +3842,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     if ((!pinfo->fd->flags.visited) && rtp_port != 0 && rtp_handle && addr_type != 0) {
         rtp_add_address(pinfo, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->fd->num, FALSE, 0);
+		rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->fd->num);
     }
     return(curr_offset - offset);
 }
