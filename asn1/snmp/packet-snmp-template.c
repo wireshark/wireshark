@@ -2316,7 +2316,7 @@ void proto_register_snmp(void) {
 			      sizeof(snmp_ue_assoc_t),
 			      "snmp_users",
 			      TRUE,
-			      (void*)&ueas,
+			      (void**)&ueas,
 			      &num_ueas,
 			      UAT_AFFECTS_DISSECTION,	/* affects dissection of packets, but not set of named fields */
 			      "ChSNMPUsersSection",
@@ -2337,7 +2337,7 @@ void proto_register_snmp(void) {
                                       sizeof(snmp_st_assoc_t),
                                       "snmp_specific_traps",
                                       TRUE,
-                                      (void*) &specific_traps,
+                                      (void**)&specific_traps,
                                       &num_specific_traps,
                                       UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                       "ChSNMPEnterpriseSpecificTrapTypes",

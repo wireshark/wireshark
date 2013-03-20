@@ -1902,7 +1902,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             int i;
 
             p = tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier);
-            modifiermap[m] =
+            modifiermap[m] = (int *)
                 g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
 
             tikc = proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
@@ -1947,7 +1947,7 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
             tvb_ensure_bytes_exist(tvb, *offsetp, 4 * keysyms_per_keycode);
             keycodemap[keycode]
-                  = g_malloc(sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
+                  =  (int *)g_malloc(sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
 
             for(i = 0; i < keysyms_per_keycode; ++i) {
                   /* keysymvalue = byte3 * 256 + byte4. */
@@ -2133,7 +2133,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
                   l = STRING16_MAX_DISPLAYED_LENGTH;
             }
 
-            *s = ep_alloc(l + 3);
+            *s = (char *)ep_alloc(l + 3);
             dp = *s;
             *dp++ = '"';
             if (truncated) l -= 3;
@@ -3041,7 +3041,7 @@ static void tryExtension(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *off
       if (!extension)
             return;
 
-      func = g_hash_table_lookup(extension_table, extension);
+      func = (void (*)(tvbuff_t *, packet_info *, int *, proto_tree *, guint))g_hash_table_lookup(extension_table, extension);
       if (func)
             func(tvb, pinfo, offsetp, t, byte_order);
 }
@@ -3051,7 +3051,7 @@ static void tryExtensionReply(int opcode, tvbuff_t *tvb, packet_info *pinfo, int
 {
       void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order);
 
-      func = g_hash_table_lookup(state->reply_funcs, GINT_TO_POINTER(opcode));
+      func = (void (*)(tvbuff_t *, packet_info *, int *, proto_tree *, guint))g_hash_table_lookup(state->reply_funcs, GINT_TO_POINTER(opcode));
       if (func)
             func(tvb, pinfo, offsetp, t, byte_order);
       else
@@ -3063,7 +3063,7 @@ static void tryExtensionEvent(int event, tvbuff_t *tvb, int *offsetp, proto_tree
 {
       void (*func)(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order);
 
-      func = g_hash_table_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
+      func = (void (*)(tvbuff_t *, int *, proto_tree *, guint))g_hash_table_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
       if (func)
             func(tvb, offsetp, t, byte_order);
 }
@@ -3078,7 +3078,7 @@ static void register_extension(x11_conv_data_t *state, value_string *vals_p,
 
       vals_p->value = major_opcode;
 
-      error_string = g_hash_table_lookup(error_table, vals_p->strptr);
+      error_string = (const char **)g_hash_table_lookup(error_table, vals_p->strptr);
       while (error_string && *error_string && first_error <= LastExtensionError) {
             /* store string of extension error */
             for (i = 0; i <= LastExtensionError; i++) {
@@ -3096,7 +3096,7 @@ static void register_extension(x11_conv_data_t *state, value_string *vals_p,
             error_string++;
       }
 
-      event_info = g_hash_table_lookup(event_table, vals_p->strptr);
+      event_info = (x11_event_info *)g_hash_table_lookup(event_table, vals_p->strptr);
       while (event_info && event_info->name && first_event <= LastExtensionEvent) {
             /* store string of extension event */
             for (i = 0; i <= LastExtensionEvent; i++) {
@@ -3118,7 +3118,7 @@ static void register_extension(x11_conv_data_t *state, value_string *vals_p,
             event_info++;
       }
 
-      reply_info = g_hash_table_lookup(reply_table, vals_p->strptr);
+      reply_info = (x11_reply_info *)g_hash_table_lookup(reply_table, vals_p->strptr);
       if (reply_info)
             for (i = 0; reply_info[i].dissect; i++)
                   g_hash_table_insert(state->reply_funcs,
@@ -4327,7 +4327,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
             /*
              * Is there state attached to this conversation?
              */
-            if ((state = conversation_get_proto_data(conversation, proto_x11))
+            if ((state = (x11_conv_data_t *)conversation_get_proto_data(conversation, proto_x11))
             == NULL)
                 state = x11_stateinit(conversation);
 
@@ -4553,7 +4553,7 @@ x11_stateinit(conversation_t *conversation)
       static x11_conv_data_t stateinit;
       int i;
 
-      state = g_malloc(sizeof (x11_conv_data_t));
+      state = (x11_conv_data_t *)g_malloc(sizeof (x11_conv_data_t));
       *state = stateinit;
       state->next = x11_conv_data_list;
       x11_conv_data_list = state;
@@ -4622,7 +4622,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /*
        * Is there state attached to this conversation?
        */
-      if ((state = conversation_get_proto_data(conversation, proto_x11))
+      if ((state = (x11_conv_data_t *)conversation_get_proto_data(conversation, proto_x11))
           == NULL) {
             /*
              * No - create a state structure and attach it.
@@ -4833,7 +4833,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         break;
                   }
 
-                  vals_p = g_hash_table_lookup(state->valtable,
+                  vals_p = (value_string *)g_hash_table_lookup(state->valtable,
                                                GINT_TO_POINTER(sequence_number));
                   if (vals_p != NULL) {
                         major_opcode = VALUE8(tvb, offset + 9);
