@@ -251,19 +251,25 @@ wmem_block_remove_from_free_list(wmem_block_allocator_t *allocator,
         return;
     }
 
+    /* Update our predecessor's 'next' pointer */
     if (freeChunk->prev) {
         g_assert(WMEM_GET_FREE(freeChunk->prev)->in_free_list);
+        g_assert(WMEM_GET_FREE(freeChunk->prev)->next == chunk);
         WMEM_GET_FREE(freeChunk->prev)->next = freeChunk->next;
     }
     else {
+        g_assert(allocator->free_list_head == chunk);
         allocator->free_list_head = freeChunk->next;
     }
 
+    /* Update our successor's 'prev' pointer */
     if (freeChunk->next) {
         g_assert(WMEM_GET_FREE(freeChunk->next)->in_free_list);
+        g_assert(WMEM_GET_FREE(freeChunk->next)->prev == chunk);
         WMEM_GET_FREE(freeChunk->next)->prev = freeChunk->prev;
     }
 
+    /* If we were the insert point, our predecessor is now */
     if (allocator->free_insert_point == chunk) {
         allocator->free_insert_point = freeChunk->prev;
     }
@@ -304,7 +310,7 @@ wmem_block_add_to_free_list_after(wmem_block_allocator_t *allocator,
         freeChunk->next = WMEM_GET_FREE(insertPoint)->next;
         freeChunk->prev = insertPoint;
 
-        WMEM_GET_FREE(insertPoint)->next     = chunk;
+        WMEM_GET_FREE(insertPoint)->next = chunk;
         if (freeChunk->next) {
             WMEM_GET_FREE(freeChunk->next)->prev = chunk;
         }
@@ -381,11 +387,16 @@ wmem_block_merge_free(wmem_block_allocator_t *allocator,
         tmp->len += chunk->len;
 
         /* The chunk pointer passed in is no longer valid, it's been merged to
-         * its left, so return the chunk to our left */
-        return tmp;
+         * its left, so use the chunk to our left */
+        chunk = tmp;
     }
 
-    /* Otherwise return the chunk as passed in */
+    /* Now update the following chunk to have the correct 'prev' count */
+    tmp = WMEM_CHUNK_NEXT(chunk);
+    if (tmp) {
+        tmp->prev = chunk->len;
+    }
+
     return chunk;
 }
 
@@ -492,6 +503,12 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     extra->last = last;
     extra->prev = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     extra->used = FALSE;
+
+    /* Correctly update the following chunk's back-pointer */
+    chunk = WMEM_CHUNK_NEXT(extra);
+    if (chunk) {
+        chunk->prev = extra->len;
+    }
 }
 
 /* Takes a used chunk and a size, and splits it into two chunks if possible.
@@ -539,6 +556,12 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     extra->last = last;
     extra->prev = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     extra->used = FALSE;
+
+    /* Correctly update the following chunk's back-pointer */
+    chunk = WMEM_CHUNK_NEXT(extra);
+    if (chunk) {
+        chunk->prev = extra->len;
+    }
 
     /* merge it to its right if possible (it can't be merged left, obviously) */
     wmem_block_merge_free(allocator, extra);
@@ -672,14 +695,27 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
 
     if (size > WMEM_CHUNK_DATA_LEN(chunk)) {
         /* grow */
-        if (WMEM_CHUNK_NEXT(chunk) &&
-            (!WMEM_CHUNK_NEXT(chunk)->used) &&
-            (size < WMEM_CHUNK_DATA_LEN(chunk) + WMEM_CHUNK_NEXT(chunk)->len)) {
+        wmem_block_chunk_t *tmp;
+
+        tmp = WMEM_CHUNK_NEXT(chunk);
+
+        if (tmp && (!tmp->used) &&
+            (size < WMEM_CHUNK_DATA_LEN(chunk) + tmp->len)) {
+
             /* the next chunk is free and has enough extra, so just grab
              * from that */
-            wmem_block_split_free_chunk(allocator, chunk,
+            wmem_block_split_free_chunk(allocator, tmp,
                     (size - WMEM_CHUNK_DATA_LEN(chunk)
                      - sizeof(wmem_block_chunk_t)));
+
+            /* Now update our 'next' count and our successor's 'prev' count */
+            chunk->len += tmp->len;
+            tmp = WMEM_CHUNK_NEXT(chunk);
+            if (tmp) {
+                tmp->prev = chunk->len;
+            }
+
+            /* And return the same old pointer */
             return ptr;
         }
         else {

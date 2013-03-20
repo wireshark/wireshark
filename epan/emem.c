@@ -43,6 +43,7 @@
 
 #include "proto.h"
 #include "emem.h"
+#include "wmem/wmem.h"
 
 #ifdef _WIN32
 #include <windows.h>	/* VirtualAlloc, VirtualProtect */
@@ -841,7 +842,22 @@ emem_alloc_glib(size_t size, emem_pool_t *mem)
 static void *
 emem_alloc(size_t size, emem_pool_t *mem)
 {
-	void *buf = mem->memory_alloc(size, mem);
+	void *buf;
+	
+#if 0
+	/* For testing wmem, effectively redirects most emem memory to wmem.
+	 * You will also have to comment out several assertions in
+	 * wmem_packet_scope() and wmem_file_scope() since they are much
+	 * stricter about when they are permitted to be called. */
+	if (mem == &ep_packet_mem) {
+		return wmem_alloc(wmem_packet_scope(), size);
+	}
+	else if (mem == &se_packet_mem) {
+		return wmem_alloc(wmem_file_scope(), size);
+	}
+#endif
+
+	buf = mem->memory_alloc(size, mem);
 
 	/*  XXX - this is a waste of time if the allocator function is going to
 	 *  memset this straight back to 0.
