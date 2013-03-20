@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 
     /* Write out each sorted frame in turn */
     for (i = 0; i < frames->len; i++) {
-        FrameRecord_t *frame = frames->pdata[i];
+        FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
         /* Avoid writing if already sorted and configured to */
         if (write_output_regardless || (wrong_order_count > 0)) {

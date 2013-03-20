@@ -153,7 +153,7 @@ guids_get_guid_name(e_guid_t *guid)
 	guidkey[0].length=4;
 	guidkey[1].length=0;
 
-	if((name = pe_tree_lookup32_array(guid_to_name_tree, &guidkey[0]))){
+	if((name = (char *)pe_tree_lookup32_array(guid_to_name_tree, &guidkey[0]))){
 		return name;
 	}
 

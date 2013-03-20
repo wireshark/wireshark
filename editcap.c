@@ -814,7 +814,7 @@ list_encap_types(void) {
     struct string_elem *encaps;
     GSList *list = NULL;
 
-    encaps = g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
+    encaps = (struct string_elem *)g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
     fprintf(stderr, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         encaps[i].sstr = wtap_encap_short_string(i);

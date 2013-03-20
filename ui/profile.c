@@ -297,7 +297,7 @@ copy_profile_list(void)
 
     /* copy the list entries */
     while(flp_src) {
-        profile = (flp_src)->data;
+        profile = (profile_def *)(flp_src)->data;
 
         current_profiles = add_profile_entry(current_profiles, profile->name,
                 profile->reference, profile->status,

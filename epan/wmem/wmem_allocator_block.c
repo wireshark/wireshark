@@ -474,17 +474,17 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
              * then update anything that may have pointed to it to point to the
              * new address instead */
             wmem_block_chunk_t *prev, *next;
-            wmem_block_free_t  *old, *new;
+            wmem_block_free_t  *old_blk, *new_blk;
 
-            old = WMEM_GET_FREE(chunk);
-            new = WMEM_GET_FREE(extra);
+            old_blk = WMEM_GET_FREE(chunk);
+            new_blk = WMEM_GET_FREE(extra);
 
-            prev = old->prev;
-            next = old->next;
+            prev = old_blk->prev;
+            next = old_blk->next;
 
-            new->in_free_list = TRUE;
-            new->prev = prev;
-            new->next = next;
+            new_blk->in_free_list = TRUE;
+            new_blk->prev = prev;
+            new_blk->next = next;
 
             if (prev) WMEM_GET_FREE(prev)->next = extra;
             if (next) WMEM_GET_FREE(next)->prev = extra;

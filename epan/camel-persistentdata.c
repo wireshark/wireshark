@@ -194,9 +194,9 @@ new_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
      with the tcap transaction Id as main Key
      Once created, this entry will be updated later */
 
-  p_new_camelsrt_call_key = se_alloc(sizeof(struct camelsrt_call_info_key_t));
+  p_new_camelsrt_call_key = se_new(struct camelsrt_call_info_key_t);
   p_new_camelsrt_call_key->SessionIdKey = p_camelsrt_call_key->SessionIdKey;
-  p_new_camelsrt_call = se_alloc(sizeof(struct camelsrt_call_t));
+  p_new_camelsrt_call = se_new(struct camelsrt_call_t);
   raz_camelsrt_call(p_new_camelsrt_call);
   p_new_camelsrt_call->session_id = camelsrt_global_SessionId++;
 #ifdef DEBUG_CAMELSRT
@@ -302,7 +302,7 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case 64: /*EventReportSMS*/
     /* Session has been explicity closed without TC_END */
     camelsrt_close_call_matching(pinfo, p_camelsrt_info);
-    tcapsrt_close(p_camelsrt_info->tcap_context, pinfo);
+    tcapsrt_close((struct tcaphash_context_t *)p_camelsrt_info->tcap_context, pinfo);
     break;
 
   case 80: /*EventReportGPRS*/
@@ -352,7 +352,7 @@ camelsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case 66: /*ReleaseSMS*/
     /* Session has been closed by Network */
     camelsrt_close_call_matching(pinfo, p_camelsrt_info);
-    tcapsrt_close(p_camelsrt_info->tcap_context,pinfo);
+    tcapsrt_close((struct tcaphash_context_t *)p_camelsrt_info->tcap_context,pinfo);
     break;
 
   case 79: /*ReleaseGPRS*/
@@ -425,7 +425,7 @@ camelsrt_begin_call_matching(packet_info *pinfo,
     dbg(10,"New key %lu ",camelsrt_call_key.SessionIdKey);
 #endif
     p_camelsrt_call = new_camelsrt_call(&camelsrt_call_key);
-    p_camelsrt_call->tcap_context=p_camelsrt_info->tcap_context;
+    p_camelsrt_call->tcap_context=(struct tcaphash_context_t *)p_camelsrt_info->tcap_context;
     update_camelsrt_call(p_camelsrt_call, pinfo,CAMELSRT_SESSION);
 
 #ifdef DEBUG_CAMELSRT

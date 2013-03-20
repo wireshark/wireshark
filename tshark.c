@@ -903,7 +903,7 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs_p;
   char                 badopt;
-  GLogLevelFlags       log_flags;
+  int                  log_flags;
   int                  optind_initial;
   gchar               *output_only = NULL;
 
@@ -1039,18 +1039,18 @@ main(int argc, char *argv[])
                     G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
-                    log_flags,
+                    (GLogLevelFlags)log_flags,
                     tshark_log_handler, NULL /* user_data */);
   g_log_set_handler(LOG_DOMAIN_MAIN,
-                    log_flags,
+                    (GLogLevelFlags)log_flags,
                     tshark_log_handler, NULL /* user_data */);
 
 #ifdef HAVE_LIBPCAP
   g_log_set_handler(LOG_DOMAIN_CAPTURE,
-                    log_flags,
+                    (GLogLevelFlags)log_flags,
                     tshark_log_handler, NULL /* user_data */);
   g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                    log_flags,
+                    (GLogLevelFlags)log_flags,
                     tshark_log_handler, NULL /* user_data */);
 #endif
 
@@ -2392,7 +2392,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if (do_dissection) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_open((capture_file *)capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:

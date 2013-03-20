@@ -67,7 +67,7 @@ register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* us
 {
 	stat_cmd_arg *newsca;
 
-	newsca=g_malloc(sizeof(stat_cmd_arg));
+	newsca=(stat_cmd_arg *)g_malloc(sizeof(stat_cmd_arg));
 	newsca->cmd=cmd;
 	newsca->func=func;
 	newsca->userdata=userdata;
@@ -86,9 +86,9 @@ process_stat_cmd_arg(char *optstr)
 	stat_requested *tr;
 
 	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
-		sca=entry->data;
+		sca=(stat_cmd_arg *)entry->data;
 		if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
-			tr=g_malloc(sizeof (stat_requested));
+			tr=(stat_requested *)g_malloc(sizeof (stat_requested));
 			tr->sca = sca;
 			tr->arg=g_strdup(optstr);
 			stats_requested=g_slist_append(stats_requested, tr);
@@ -108,7 +108,7 @@ list_stat_cmd_args(void)
 	stat_cmd_arg *sca;
 
 	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
-		sca=entry->data;
+		sca=(stat_cmd_arg *)entry->data;
 		fprintf(stderr,"     %s\n",sca->cmd);
 	}
 }
@@ -122,7 +122,7 @@ start_requested_stats(void)
 	stat_requested *sr;
 
 	while(stats_requested){
-		sr=stats_requested->data;
+		sr=(stat_requested *)stats_requested->data;
 		(*sr->sca->func)(sr->arg,sr->sca->userdata);
 		g_free(sr->arg);
 		g_free(sr);

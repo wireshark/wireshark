@@ -679,7 +679,7 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
      */
     if (enc_len != 0) {
         tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
-        *bits = g_malloc (enc_len);
+        *bits = (guchar *)g_malloc (enc_len);
     } else {
 	/*
 	 * If the length is 0, we allocate a 1-byte buffer, as
@@ -687,7 +687,7 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
 	 * and our caller expects us to return a pointer to a
 	 * buffer.
 	 */
-	*bits = g_malloc (1);
+	*bits = (guchar *)g_malloc (1);
     }
 
     ptr = *bits;
@@ -737,7 +737,7 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
      */
     if (enc_len != 0)
 	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
-    *octets = g_malloc (enc_len+1);
+    *octets = (guchar *)g_malloc (enc_len+1);
 
     eoc = asn1->offset + enc_len;
     ptr = *octets;
@@ -904,7 +904,7 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     eoc = asn1->offset + enc_len;
 
     size = enc_len + 1;
-    *oid = g_malloc(size * sizeof(gulong));
+    *oid = (guint32 *)g_malloc(size * sizeof(gulong));
     optr = *oid;
 
     ret = asn1_subid_decode (asn1, &subid);

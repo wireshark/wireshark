@@ -550,7 +550,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                     }
                     if (iap_conv->pnext == NULL)
                     {
-                        iap_conv->pnext = se_alloc(sizeof(iap_conversation_t));
+                        iap_conv->pnext = se_new(iap_conversation_t);
                         iap_conv = iap_conv->pnext;
                         break;
                     }
@@ -560,7 +560,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             else
             {
                 conv = conversation_new(pinfo->fd->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
-                iap_conv = se_alloc(sizeof(iap_conversation_t));
+                iap_conv = se_new(iap_conversation_t);
                 conversation_add_proto_data(conv, proto_iap, (void*)iap_conv);
             }
 
@@ -1224,7 +1224,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
 
             if (lmp_conv->pnext == NULL)
             {
-                lmp_conv->pnext = se_alloc(sizeof(lmp_conversation_t));
+                lmp_conv->pnext = se_new(lmp_conversation_t);
                 lmp_conv = lmp_conv->pnext;
                 break;
             }
@@ -1234,7 +1234,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     else
     {
         conv = conversation_new(pinfo->fd->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
-        lmp_conv = se_alloc(sizeof(lmp_conversation_t));
+        lmp_conv = se_new(lmp_conversation_t);
         conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
     }
 

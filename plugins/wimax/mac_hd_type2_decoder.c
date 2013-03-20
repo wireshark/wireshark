@@ -51,7 +51,7 @@ static gint hf_mac_header_type_2_value_bytes = -1;
 #define WIMAX_MAC_HEADER_SIZE  6
 
 /* WiMax MAC Header Type II Feedback Types */
-enum
+typedef enum
 {
 	CQI_MIMO_FB,         /* 0 */
 	DL_AVG_CINR,         /* 1 */
@@ -68,7 +68,7 @@ enum
 	CINR_FB,             /* 12 */
 	CL_MIMO_FB,          /* 13 */
 	TYPE_II_FB_TYPE_MAX
-} TYPE_II_FB_TYPE;
+} TYPE_II_FB_TYPE_e;
 
 static const char *type2_fb_type_abbrv[TYPE_II_FB_TYPE_MAX] =
 {

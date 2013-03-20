@@ -71,7 +71,7 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 	} else {
 		guint length = tvb_length(tvb);
 		guint offset;
-		guint8 *data = g_malloc(length);
+		guint8 *data = (guint8 *)g_malloc(length);
 		guint8 *dst = data;
 		tvbuff_t *next_tvb;
 

@@ -117,7 +117,7 @@ static int
 icmpv6stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
     icmpv6stat_t *icmpv6stat = (icmpv6stat_t *)tapdata;
-    const icmp_transaction_t *trans = data;
+    const icmp_transaction_t *trans = (const icmp_transaction_t *)data;
     double resp_time, *rt;
 
     if (trans == NULL)

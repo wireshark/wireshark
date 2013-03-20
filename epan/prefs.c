@@ -1509,7 +1509,7 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
       col_l_elt = col_l_elt->next;
 
       /* Parse the format to see if it's valid.  */
-      if (!parse_column_format(&cfmt_check, col_l_elt->data)) {
+      if (!parse_column_format(&cfmt_check, (char *)col_l_elt->data)) {
         /* It's not a valid column format.  */
         prefs_clear_string_list(col_l);
         return PREFS_SET_SYNTAX_ERR;
@@ -1537,9 +1537,9 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
       cfmt           = g_new(fmt_data,1);
-      cfmt->title    = (gchar *)g_strdup(col_l_elt->data);
+      cfmt->title    = g_strdup((gchar *)col_l_elt->data);
       col_l_elt      = col_l_elt->next;
-      parse_column_format(cfmt, col_l_elt->data);
+      parse_column_format(cfmt, (char *)col_l_elt->data);
       cfmt->visible   = prefs_is_column_visible((gchar*)(*hidden_pref->varp.string), cfmt);
       col_l_elt      = col_l_elt->next;
       *pref->varp.list = g_list_append(*pref->varp.list, cfmt);

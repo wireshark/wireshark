@@ -65,7 +65,7 @@ void asn1_ctx_clean_epdv(asn1_ctx_t *actx) {
 void asn1_stack_frame_push(asn1_ctx_t *actx, const gchar *name) {
   asn1_stack_frame_t *frame;
 
-  frame = ep_alloc0(sizeof(asn1_stack_frame_t));
+  frame = ep_new0(asn1_stack_frame_t);
   frame->name = name;
   frame->next = actx->stack;
   actx->stack = frame;
@@ -113,7 +113,7 @@ static asn1_par_t *push_new_par(asn1_ctx_t *actx) {
 
   DISSECTOR_ASSERT(actx->stack);
 
-  par = ep_alloc0(sizeof(asn1_par_t));
+  par = ep_new0(asn1_par_t);
 
   pp = &(actx->stack->par);
   while (*pp)

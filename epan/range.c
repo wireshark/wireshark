@@ -49,7 +49,7 @@ range_t *range_empty(void)
 {
    range_t *range;
 
-   range = g_malloc(RANGE_HDR_SIZE);
+   range = (range_t *)g_malloc(RANGE_HDR_SIZE);
    range->nranges = 0;
    return range;
 }
@@ -109,7 +109,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
        return CVT_SYNTAX_ERROR;
    
    /* Allocate a range; this has room for one subrange. */
-   range = g_malloc(RANGE_HDR_SIZE + sizeof (range_admin_t));
+   range = (range_t *)g_malloc(RANGE_HDR_SIZE + sizeof (range_admin_t));
    range->nranges = 0;
    nranges = 1;
 
@@ -140,7 +140,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
 	    nranges = 4;
 	 else
 	    nranges += 4;
-	 range = g_realloc(range, RANGE_HDR_SIZE +
+	 range = (range_t *)g_realloc(range, RANGE_HDR_SIZE +
 			   nranges*sizeof (range_admin_t));
       }
 
@@ -358,7 +358,7 @@ range_copy(range_t *src)
        return NULL;
    
    range_size = RANGE_HDR_SIZE + src->nranges*sizeof (range_admin_t);
-   dst = g_malloc(range_size);
+   dst = (range_t *)g_malloc(range_size);
    memcpy(dst, src, range_size);
    return dst;
 }

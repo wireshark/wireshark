@@ -43,7 +43,7 @@ static GHashTable *registered_codecs = NULL;
 codec_handle_t
 find_codec(const char *name)
 {
-	return (registered_codecs) ? g_hash_table_lookup(registered_codecs, name) : NULL;
+	return (registered_codecs) ? (codec_handle_t)g_hash_table_lookup(registered_codecs, name) : NULL;
 }
 
 /* Register a codec by name. */
@@ -61,7 +61,7 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(registered_codecs, name) == NULL);
 
-	handle = g_malloc(sizeof (struct codec_handle));
+	handle = (struct codec_handle *)g_malloc(sizeof (struct codec_handle));
 	handle->name = name;
 	handle->init_fn = init_fn;
 	handle->release_fn = release_fn;

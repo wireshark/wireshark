@@ -130,7 +130,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 {
 	tvbuff_t	*decomp_tvb;
 	/* UDVM memory must be initialised to zero */
-	guint8		*buff = ep_alloc0(UDVM_MEMORY_SIZE);
+	guint8		*buff = (guint8 *)ep_alloc0(UDVM_MEMORY_SIZE);
 	char		string[2];
 	guint8		*out_buff;		/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536 */
 	guint32		i = 0;
@@ -316,7 +316,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 
 	}
 	/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536  */
-	out_buff = g_malloc(UDVM_MEMORY_SIZE);
+	out_buff = (guint8 *)g_malloc(UDVM_MEMORY_SIZE);
 	/* Start executing code */
 	current_address = udvm_start_ip;
 	input_address = 0;
@@ -2666,7 +2666,7 @@ execute_next_instruction:
 			byte_copy_left = buff[64] << 8;
 			byte_copy_left = byte_copy_left | buff[65];
 			while ( n < no_of_state_create + 1 ){
-				sha1buff = g_malloc(state_length_buff[n]+8);
+				sha1buff = (guint8 *)g_malloc(state_length_buff[n]+8);
 				sha1buff[0] = state_length_buff[n] >> 8;
 				sha1buff[1] = state_length_buff[n] & 0xff;
 				sha1buff[2] = state_address_buff[n] >> 8;

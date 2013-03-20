@@ -47,7 +47,7 @@ wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
 
     len = strlen(src) + 1; /* +1 for the null-terminator */
 
-    return memcpy(wmem_alloc(allocator, len), src, len);
+    return (gchar *)memcpy(wmem_alloc(allocator, len), src, len);
 }
 
 gchar *
@@ -56,7 +56,7 @@ wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
     gchar *dst;
     guint i;
 
-    dst = wmem_alloc(allocator, len+1);
+    dst = (gchar *)wmem_alloc(allocator, len+1);
 
     for (i=0; (i < len) && src[i]; i++) {
         dst[i] = src[i];
@@ -91,7 +91,7 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 
     len = g_printf_string_upper_bound(fmt, ap);
 
-    dst = wmem_alloc(allocator, len+1);
+    dst = (gchar *)wmem_alloc(allocator, len+1);
     g_vsnprintf(dst, (gulong) len, fmt, ap2);
     va_end(ap2);
 

@@ -75,8 +75,8 @@ static uat_t * plen_uat = NULL;
 static guint num_plen_uat = 0;
 
 static void* uat_plen_record_copy_cb(void* n, const void* o, size_t siz _U_) {
-	const uat_plen_record_t *r = o;
-	uat_plen_record_t *rn = n;
+	const uat_plen_record_t *r = (const uat_plen_record_t *)o;
+	uat_plen_record_t *rn = (uat_plen_record_t *)n;
 
 	if (r->packet_range)
 		rn->packet_range = range_copy(r->packet_range);
@@ -150,7 +150,7 @@ static const gchar* st_str_plen = "Packet Lengths";
 
 static void plen_stats_tree_init(stats_tree* st) {
 	guint i;
-	char **str_range_array = ep_alloc(num_plen_uat*sizeof(char*));
+	char **str_range_array = (char **)ep_alloc(num_plen_uat*sizeof(char*));
 
 	/* Convert the ranges to strings for the stats tree API */
 	for (i = 0; i < num_plen_uat; i++) {
@@ -217,7 +217,7 @@ void register_pinfo_stat_trees(void) {
 			sizeof(uat_plen_record_t),  /* record size */
 			"packet_lengths",           /* filename */
 			TRUE,                       /* from_profile */
-			(void*) &uat_plen_records,  /* data_ptr */
+			(void**) &uat_plen_records, /* data_ptr */
 			&num_plen_uat,              /* numitems_ptr */
 			0,                          /* not a dissector, so affects neither dissection nor fields */
 			NULL,                       /* help */

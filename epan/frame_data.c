@@ -62,7 +62,7 @@ p_compare(gconstpointer a, gconstpointer b)
 void
 p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 {
-  frame_proto_data *p1 = wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
+  frame_proto_data *p1 = (frame_proto_data *)wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
 
   p1->proto = proto;
   p1->proto_data = proto_data;

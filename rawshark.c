@@ -445,7 +445,7 @@ main(int argc, char *argv[])
     gchar               *rfilters[64];
     e_prefs             *prefs_p;
     char                 badopt;
-    GLogLevelFlags       log_flags;
+    int                  log_flags;
     GPtrArray           *disp_fields = g_ptr_array_new();
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
@@ -515,10 +515,10 @@ main(int argc, char *argv[])
         G_LOG_LEVEL_DEBUG;
 
     g_log_set_handler(NULL,
-                      log_flags,
+                      (GLogLevelFlags)log_flags,
                       log_func_ignore, NULL /* user_data */);
     g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-                      log_flags,
+                      (GLogLevelFlags)log_flags,
                       log_func_ignore, NULL /* user_data */);
 
     timestamp_set_type(TS_RELATIVE);
@@ -1427,14 +1427,14 @@ protocolinfo_init(char *field)
             printf("%u %s %s - ",
                    g_cmd_line_index,
                    ftenum_to_string(hfi),
-                   absolute_time_display_e_to_string(hfi->display));
+                   absolute_time_display_e_to_string((absolute_time_display_e)hfi->display));
             break;
 
         default:
             printf("%u %s %s - ",
                    g_cmd_line_index,
                    ftenum_to_string(hfi),
-                   base_display_e_to_string(hfi->display));
+                   base_display_e_to_string((base_display_e)hfi->display));
             break;
     }
 

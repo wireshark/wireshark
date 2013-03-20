@@ -628,7 +628,7 @@ sigcomp_init_udvm(void){
 	/*
 	 * Store static dictionaries in hash table
 	 */
-	sip_sdp_buff = g_malloc(SIP_SDP_STATE_LENGTH + 8);
+	sip_sdp_buff = (guint8 *)g_malloc(SIP_SDP_STATE_LENGTH + 8);
 
 	partial_state_str = bytes_to_str(sip_sdp_state_identifier, 6);
 
@@ -652,7 +652,7 @@ sigcomp_init_udvm(void){
 	 *  g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
 	 */
 
-	presence_buff = g_malloc(PRESENCE_STATE_LENGTH + 8);
+	presence_buff = (guint8 *)g_malloc(PRESENCE_STATE_LENGTH + 8);
 
 	partial_state_str = bytes_to_str(presence_state_identifier, 6);
 
@@ -713,7 +713,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	 *	g_warning("g_hash_table_lookup = 0x%x",state_buff);
 	 * g_warning("State Access: partial state =%s",partial_state_str);
 	 */
-	state_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
+	state_buff = (guint8 *)g_hash_table_lookup(state_buffer_table, partial_state_str);
 	if ( state_buff == NULL ){
 		result_code = 2; /* No state match */
 		return result_code;
@@ -820,7 +820,7 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 	}
 	partial_state_str = bytes_to_str(partial_state, p_id_length);
 
-	dummy_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
+	dummy_buff = (gchar *)g_hash_table_lookup(state_buffer_table, partial_state_str);
 	if ( dummy_buff == NULL ){
 		g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), state_buff);
 	}else{

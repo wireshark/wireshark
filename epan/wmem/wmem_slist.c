@@ -99,14 +99,14 @@ wmem_slist_remove(wmem_slist_t *slist, void *data)
 void
 wmem_slist_prepend(wmem_slist_t *slist, void *data)
 {
-    wmem_slist_frame_t *new;
+    wmem_slist_frame_t *new_frame;
 
-    new = wmem_new(slist->allocator, wmem_slist_frame_t);
+    new_frame = wmem_new(slist->allocator, wmem_slist_frame_t);
 
-    new->data = data;
-    new->next = slist->front;
+    new_frame->data = data;
+    new_frame->next = slist->front;
 
-    slist->front = new;
+    slist->front = new_frame;
     slist->count++;
 }
 

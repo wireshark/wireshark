@@ -134,7 +134,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 		gint *key=g_new(gint,1);
 		wsp_status_code_t *sc;
 		*key=value->status_code ;
-		sc = g_hash_table_lookup(
+		sc = (wsp_status_code_t *)g_hash_table_lookup(
 				sp->hash,
 				key);
 		if (!sc) {

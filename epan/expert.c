@@ -176,7 +176,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	if (!tap)
 		return;
 
-	ei = ep_alloc(sizeof(expert_info_t));
+	ei = ep_new(expert_info_t);
 
 	ei->packet_num  = PINFO_FD_NUM(pinfo);
 	ei->group       = group;

@@ -51,7 +51,7 @@ static gint hf_mac_header_type_1_value_bytes = -1;
 #define WIMAX_MAC_HEADER_SIZE  6
 
 /* WiMax MAC Header Type I Sub Types */
-enum
+typedef enum
 {
 	BR_INCREMENTAL,            /* 0 */
 	BR_AGGREGATE,              /* 1 */
@@ -62,7 +62,7 @@ enum
 	SN_REPORT,                 /* 6 */
 	CQICH_ALLOCATION_REQUEST,  /* 7 */
 	TYPE_I_SUBTYPE_MAX
-} TYPE_I_SUBTYPE;
+} TYPE_I_SUBTYPE_e;
 
 static const char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
 {

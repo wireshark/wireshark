@@ -37,7 +37,7 @@ sna_fid_to_str(const address *addr)
 {
   gchar	*cur;
 
-  cur=ep_alloc(14);
+  cur=(gchar *)ep_alloc(14);
   sna_fid_to_str_buf(addr, cur, 14);
   return cur;
 }
@@ -51,12 +51,12 @@ sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len)
   switch (addr->len) {
 
   case 1:
-    addrdata = addr->data;
+    addrdata = (guint8 *)addr->data;
     g_snprintf(buf, buf_len, "%04X", addrdata[0]);
     break;
 
   case 2:
-    addrdata = addr->data;
+    addrdata = (guint8 *)addr->data;
     g_snprintf(buf, buf_len, "%04X", pntohs(&addrdata[0]));
     break;
 

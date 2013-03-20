@@ -2655,7 +2655,7 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
                   struct wtap_pkthdr *phdr, const guint8 *pd,
           void *argsp)
 {
-  FILE           *fh = argsp;
+  FILE           *fh = (FILE *)argsp;
   epan_dissect_t  edt;
 
   /* Create the protocol tree, but don't fill in the column information. */
@@ -2725,7 +2725,7 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
                   struct wtap_pkthdr *phdr, const guint8 *pd,
           void *argsp)
 {
-  FILE           *fh = argsp;
+  FILE           *fh = (FILE *)argsp;
   epan_dissect_t  edt;
   gboolean        proto_tree_needed;
 
@@ -2800,7 +2800,7 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
                  struct wtap_pkthdr *phdr, const guint8 *pd,
                  void *argsp)
 {
-  FILE           *fh = argsp;
+  FILE           *fh = (FILE *)argsp;
   epan_dissect_t  edt;
   gboolean        proto_tree_needed;
 
@@ -2875,7 +2875,7 @@ write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
              struct wtap_pkthdr *phdr,
              const guint8 *pd, void *argsp)
 {
-  FILE           *fh = argsp;
+  FILE           *fh = (FILE *)argsp;
   epan_dissect_t  edt;
 
   epan_dissect_init(&edt, TRUE, TRUE);

@@ -314,7 +314,7 @@ G_GNUC_NORETURN WS_MSVC_NORETURN void except_throwd(long group, long code, const
  */
 G_GNUC_NORETURN WS_MSVC_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
 {
-    char *buf = except_alloc(XCEPT_BUFFER_SIZE);
+    char *buf = (char *)except_alloc(XCEPT_BUFFER_SIZE);
     va_list vl;
 
     va_start (vl, fmt);

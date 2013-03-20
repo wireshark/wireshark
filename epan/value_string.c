@@ -136,7 +136,7 @@ value_string_ext_new(value_string *vs, guint vs_tot_num_entries, const gchar *vs
     g_assert (vs_name != NULL);
     g_assert (vs_tot_num_entries > 0);
     g_assert (vs[vs_tot_num_entries-1].strptr == NULL); /* Null-terminated value-string ? */
-    vse                  = g_malloc(sizeof (value_string_ext));
+    vse                  = (value_string_ext *)g_malloc(sizeof (value_string_ext));
     vse->_vs_p           = vs;
     vse->_vs_num_entries = vs_tot_num_entries - 1; /* remember the actual number of entries */
     vse->_vs_first_value = 0;                      /* initialized in _match_strval_ext_init */

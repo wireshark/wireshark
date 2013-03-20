@@ -60,7 +60,7 @@ static int
 dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	const dcerpc_info *ri=(const dcerpc_info *)pri;
-	rpcstat_t *rs=prs;
+	rpcstat_t *rs=(rpcstat_t *)prs;
 	nstime_t delta;
 	rpc_procedure_t *rp;
 

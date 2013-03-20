@@ -58,16 +58,16 @@ wmem_strbuf_sized_new(wmem_allocator_t *allocator,
 {
     wmem_strbuf_t *strbuf;
 
-    g_assert(alloc_len <= max_len);
+    g_assert((max_len == 0) || (alloc_len <= max_len));
 
-    strbuf = wmem_alloc(allocator, sizeof(wmem_strbuf_t));
+    strbuf = (wmem_strbuf_t *)wmem_alloc(allocator, sizeof(wmem_strbuf_t));
 
     strbuf->allocator = allocator;
     strbuf->len       = 0;
     strbuf->alloc_len = alloc_len ? alloc_len : DEFAULT_MINIMUM_LEN;
     strbuf->max_len   = max_len;
 
-    strbuf->str    = wmem_alloc(strbuf->allocator, strbuf->alloc_len);
+    strbuf->str    = (gchar *)wmem_alloc(strbuf->allocator, strbuf->alloc_len);
     strbuf->str[0] = '\0';
 
     return strbuf;
@@ -119,7 +119,7 @@ wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
         return;
     }
 
-    strbuf->str = wmem_realloc(strbuf->allocator, strbuf->str, new_alloc_len);
+    strbuf->str = (gchar *)wmem_realloc(strbuf->allocator, strbuf->str, new_alloc_len);
 
     strbuf->alloc_len = new_alloc_len;
 }

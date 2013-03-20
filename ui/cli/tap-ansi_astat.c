@@ -83,7 +83,7 @@ static void
 ansi_a_stat_draw(
     void		*tapdata)
 {
-    ansi_a_stat_t	*stat_p = tapdata;
+    ansi_a_stat_t	*stat_p = (ansi_a_stat_t *)tapdata;
     guint8		i;
 
 
@@ -133,7 +133,7 @@ ansi_a_stat_init(const char *optarg _U_, void* userdata _U_)
     ansi_a_stat_t	*stat_p;
     GString		*err_p;
 
-    stat_p = g_malloc(sizeof(ansi_a_stat_t));
+    stat_p = (ansi_a_stat_t *)g_malloc(sizeof(ansi_a_stat_t));
 
     memset(stat_p, 0, sizeof(ansi_a_stat_t));
 

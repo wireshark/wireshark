@@ -124,8 +124,8 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 
 	if (pi->msg_tag < 21) {
 		/* */
-		rascategory = pi->msg_tag / 3;
-		rasmsg_type = pi->msg_tag % 3;
+		rascategory = (ras_category)(pi->msg_tag / 3);
+		rasmsg_type = (ras_type)(pi->msg_tag % 3);
 	}
 	else {
 		/* No SRT yet (ToDo) */

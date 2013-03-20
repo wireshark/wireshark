@@ -50,7 +50,7 @@ void funnel_register_menu(const char *name,
                           void (*callback)(gpointer),
                           gpointer callback_data,
                           gboolean retap) {
-    funnel_menu_t* m = g_malloc(sizeof(funnel_menu_t));
+    funnel_menu_t* m = (funnel_menu_t *)g_malloc(sizeof(funnel_menu_t));
     m->name = g_strdup(name);
     m->group = group;
     m->callback = callback;

@@ -243,7 +243,7 @@ gtk_rtspstat_init(const char *optarg,void* userdata _U_)
 		filter=NULL;
 	}
 	
-	sp = g_malloc( sizeof(rtspstat_t) );
+	sp = (rtspstat_t *)g_malloc( sizeof(rtspstat_t) );
 	if(filter){
 		sp->filter=g_strdup(filter);
 	} else {

@@ -90,7 +90,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
 guint
 pref_unstash(pref_t *pref, gpointer changed_p)
 {
-  gboolean *pref_changed_p = changed_p;
+  gboolean *pref_changed_p = (gboolean *)changed_p;
 
   /* Revert the preference to its saved value. */
   switch (pref->type) {

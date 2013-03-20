@@ -123,7 +123,7 @@ register_tap(const char *name)
 			return tap_id;
 	}
 
-	td=g_malloc(sizeof(tap_dissector_t));
+	td=(tap_dissector_t *)g_malloc(sizeof(tap_dissector_t));
 	td->next=NULL;
 	td->name = g_strdup(name);
 
@@ -399,7 +399,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 		return error_string;
 	}
 
-	tl=g_malloc(sizeof(tap_listener_t));
+	tl=(tap_listener_t *)g_malloc(sizeof(tap_listener_t));
 	tl->code=NULL;
 	tl->needs_redraw=TRUE;
 	tl->flags=flags;
