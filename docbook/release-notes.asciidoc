@@ -36,6 +36,8 @@ type for this to work.
 strict SI prefixes instead of old-style binary prefixes.
 * Capinfos now prints human-readable statistics with SI suffixes by
 default.
+* It is now possible to open a referenced packet (such as the matched request or
+response packet) in a new window.
 
 === New Protocol Support
 
@@ -80,6 +82,7 @@ Media-Independent Handover (MIH)
 MPLS-TP Fault-Management
 MPLS-TP Lock-Instruct
 Mojito DHT
+NASDAQ's SoupBinTCP
 OpenVPN Protocol
 Pseudo-Wire OAM
 RPKI-Router Protocol
