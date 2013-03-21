@@ -1906,13 +1906,13 @@ static void dissect_zcl_big_int(tvbuff_t *tvb, proto_tree *tree, guint *offset, 
  */
 static guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offset, int *hf_zbee_zcl)
 {
-        guint attr_uint;
+    guint attr_uint;
 
-        attr_uint = tvb_get_guint8(tvb, *offset);
-        proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)sizeof(guint8), attr_uint);
-        (*offset)++;
+    attr_uint = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)sizeof(guint8), attr_uint);
+    (*offset)++;
 
-        return attr_uint;
+    return attr_uint;
 } /* dissect_zcl_attr_uint8 */
 
 /*FUNCTION:------------------------------------------------------
@@ -1931,13 +1931,13 @@ static guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offs
  */
 static guint dissect_zcl_attr_uint16(tvbuff_t *tvb, proto_tree *tree, guint *offset, int *hf_zbee_zcl)
 {
-        guint attr_uint;
+    guint attr_uint;
 
-        attr_uint = tvb_get_letohs(tvb, *offset);
-        proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)sizeof(guint16), attr_uint);
-        *offset += (int)sizeof(guint16);
+    attr_uint = tvb_get_letohs(tvb, *offset);
+    proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)sizeof(guint16), attr_uint);
+    *offset += (int)sizeof(guint16);
 
-        return attr_uint;
+    return attr_uint;
 } /* dissect_zcl_attr_uint16 */
 
 /*FUNCTION:------------------------------------------------------
@@ -1956,10 +1956,10 @@ static guint dissect_zcl_attr_uint16(tvbuff_t *tvb, proto_tree *tree, guint *off
  */
 static void dissect_zcl_attr_bytes(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint length)
 {
-        proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, length, ENC_NA);
-        *offset += length;
+    proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, length, ENC_NA);
+    *offset += length;
 
-        return;
+    return;
 } /* dissect_dcl_attr_bytes */
 
 /*FUNCTION:------------------------------------------------------
@@ -2041,29 +2041,29 @@ static void zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto
  */
 static guint64 tvb_get_letohi(tvbuff_t *tvb, guint offset, guint length, gboolean signed_flag)
 {
-        guint64 result;
-        guint   shift;
+    guint64 result;
+    guint   shift;
 
-        DISSECTOR_ASSERT((length>=1) && (length<=8));
+    DISSECTOR_ASSERT((length>=1) && (length<=8));
 
-        result = 0;
-        shift = 0;
-        /* build big int of length bytes */
-        while ( length-- ) {
-            result += (guint64)tvb_get_guint8(tvb, offset) << shift;
-            offset += (int)sizeof(guint8);
+    result = 0;
+    shift = 0;
+    /* build big int of length bytes */
+    while ( length-- ) {
+        result += (guint64)tvb_get_guint8(tvb, offset) << shift;
+        offset += (int)sizeof(guint8);
+        shift += 8;
+    }
+
+    if ( signed_flag && (result >> (shift - 1)) ) {
+        /* sign extend remaining bytes */
+        while ( shift < ((int)sizeof(guint64) * 8) ) {
+            result += (guint64)0xff << shift;
             shift += 8;
         }
+    }
 
-        if ( signed_flag && (result >> (shift - 1)) ) {
-            /* sign extend remaining bytes */
-            while ( shift < ((int)sizeof(guint64) * 8) ) {
-                result += (guint64)0xff << shift;
-                shift += 8;
-            }
-        }
-
-        return result;
+    return result;
 } /* tvb_get_letohi */
 
 /*FUNCTION:------------------------------------------------------

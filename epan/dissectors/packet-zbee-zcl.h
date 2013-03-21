@@ -29,10 +29,10 @@
 
 /*  Structure to contain the ZCL frame information */
 typedef struct{
-    gboolean    mfr_spec; 
+    gboolean    mfr_spec;
     gboolean    direction;
     gboolean    disable_default_resp;
- 
+
     guint8      frame_type;
     guint16     mfr_code;
     guint8      tran_seqno;
@@ -135,11 +135,11 @@ typedef struct{
 #define ZBEE_ZCL_INVALID_LONG_STR_LENGTH        0xffff
 #define ZBEE_ZCL_NUM_INDIVIDUAL_ETT             2
 #define ZBEE_ZCL_NUM_ATTR_ETT                   64
-#define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT				16
-#define ZBEE_ZCL_NUM_TOTAL_ETT					(ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)		
+#define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT             16
+#define ZBEE_ZCL_NUM_TOTAL_ETT                  (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
 #define ZBEE_ZCL_DIR_REPORTED                   0
 #define ZBEE_ZCL_DIR_RECEIVED                   1
-/* seconds elapsed from year 1970 to 2000 */ 
+/* seconds elapsed from year 1970 to 2000 */
 #define ZBEE_ZCL_NSTIME_UTC_OFFSET              (((3*365 + 366)*7 + 2*365)*24*3600)
 #define IS_ANALOG_SUBTYPE(x)    ( (x & 0xe0) == 0x20 || (x & 0xe0) == 0xe0 )
 
