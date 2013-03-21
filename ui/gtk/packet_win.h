@@ -34,8 +34,9 @@
 /** Create a new packet window.
  *
  * @param widget parent widget (unused)
+ * @param reference open current packet or reference packet
  */
-extern void new_packet_window(GtkWidget *widget, gboolean editable);
+extern void new_packet_window(GtkWidget *widget, gboolean reference, gboolean editable);
 
 /** Destroy all popup packet windows.
  */

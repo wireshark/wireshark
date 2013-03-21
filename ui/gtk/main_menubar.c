@@ -349,7 +349,13 @@ build_conversation_filter(int action, gboolean show_dialog)
 static void
 new_window_cb(GtkWidget *widget)
 {
-    new_packet_window(widget, FALSE);
+    new_packet_window(widget, FALSE, FALSE);
+}
+
+static void
+new_window_cb_ref(GtkWidget *widget)
+{
+    new_packet_window(widget, TRUE, FALSE);
 }
 
 static void
@@ -2996,6 +3002,7 @@ static const char *ui_desc_tree_view_menu_popup =
 "     <menuitem name='DisableProtocol' action='/DisableProtocol'/>\n"
 "     <menuitem name='ResolveName' action='/ResolveName'/>\n"
 "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
+"     <menuitem name='ShowPacketRefinNewWindow' action='/ShowPacketRefinNewWindow'/>\n"
 "  </popup>\n"
 "</ui>\n";
 
@@ -3047,6 +3054,7 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/DisableProtocol",         WIRESHARK_STOCK_CHECKBOX,       "Disable Protocol...",                  NULL, NULL, G_CALLBACK(proto_disable_cb) },
   { "/ResolveName",                                 NULL,       "_Resolve Name",                        NULL, NULL, G_CALLBACK(resolve_name_cb) },
   { "/GotoCorrespondingPacket",                     NULL,       "_Go to Corresponding Packet",          NULL, NULL, G_CALLBACK(goto_framenum_cb) },
+  { "/ShowPacketRefinNewWindow",                    NULL,       "Show Packet Reference in New Window",  NULL, NULL, G_CALLBACK(new_window_cb_ref) },
 };
 
 static const char *ui_desc_bytes_menu_popup =
@@ -5640,6 +5648,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
         properties = prefs_is_registered_protocol(abbrev);
         set_menu_sensitivity(ui_manager_tree_view_menu,
                              "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+        set_menu_sensitivity(ui_manager_tree_view_menu,
+                             "/TreeViewPopup/ShowPacketRefinNewWindow", hfinfo->type == FT_FRAMENUM);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
                              TRUE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/AsFilter",

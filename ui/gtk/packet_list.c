@@ -1253,7 +1253,7 @@ static void
 packet_list_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
 				GtkTreeViewColumn *col _U_, gpointer userdata _U_)
 {
-	new_packet_window(GTK_WIDGET(treeview), FALSE);
+	new_packet_window(GTK_WIDGET(treeview), FALSE, FALSE);
 }
 
 gboolean

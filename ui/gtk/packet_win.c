@@ -866,24 +866,53 @@ static void modifed_frame_data_free(gpointer data) {
 
 #endif /* WANT_PACKET_EDITOR */
 
-void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
+void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _U_)
 {
 #define NewWinTitleLen 1000
 	char Title[NewWinTitleLen] = "";
 	const char *TextPtr;
 	GtkWidget *main_w, *main_vbox, *pane,
-		*tree_view, *tv_scrollw,
-		*bv_nb_ptr;
+		  *tree_view, *tv_scrollw,
+		  *bv_nb_ptr;
 	struct PacketWinData *DataPtr;
 	int i;
+	frame_data *fd;
+	
+	if(reference) {
+		guint32            framenum;
+		header_field_info *hfinfo;
 
-	if (!cfile.current_frame) {
+		if (! cfile.finfo_selected) {
+			return;
+		}
+
+		hfinfo = cfile.finfo_selected->hfinfo;
+
+		g_assert(hfinfo);
+
+		if (hfinfo->type != FT_FRAMENUM) {
+			return;
+		}
+
+		framenum = fvalue_get_uinteger(&cfile.finfo_selected->value);
+
+		if (framenum == 0) {
+			return;
+		}
+
+		fd = frame_data_sequence_find(cfile.frames, framenum);
+	}
+	else {
+		fd = cfile.current_frame;
+	}
+
+	if (!fd) {
 		/* nothing has been captured so far */
 		return;
 	}
 
 	/* With the new packetlists "lazy columns" it's neccesary to reread the frame */
-	if (!cf_read_frame(&cfile, cfile.current_frame)) {
+	if (!cf_read_frame(&cfile, fd)) {
 		/* error reading the frame */
 		return;
 	}
@@ -891,7 +920,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 	/* Allocate data structure to represent this window. */
 	DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
-	DataPtr->frame = cfile.current_frame;
+	DataPtr->frame = fd;
 	DataPtr->phdr  = cfile.phdr;
 	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
 	memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
@@ -1110,3 +1139,16 @@ redraw_packet_bytes_packet_wins(void)
 {
 	g_list_foreach(detail_windows, redraw_packet_bytes_cb, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
