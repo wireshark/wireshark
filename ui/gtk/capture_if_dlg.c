@@ -680,7 +680,7 @@ capture_if_refresh_if_list(void)
 
   /* This is the icon column, used to display which kind of interface we have */
   if_lb = gtk_label_new("");
-  ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), if_lb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(if_grid), if_lb, 0, row, 1, 1, 0, 0, 0, 0);
 
   if_lb = gtk_label_new("Device");
   ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), if_lb, 1, row, 3, 1);
@@ -689,13 +689,13 @@ capture_if_refresh_if_list(void)
   ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), if_lb, 4, row, 1, 1);
 
   if_lb = gtk_label_new(" IP ");
-  ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), if_lb, 5, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(if_grid), if_lb, 5, row, 1, 1, 0, 0, 0, 0);
 
   if_lb = gtk_label_new("Packets");
-  ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), if_lb, 6, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(if_grid), if_lb, 6, row, 1, 1, 0, 0, 0, 0);
 
   if_lb = gtk_label_new(" Packets/s ");
-  ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), if_lb, 7, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(if_grid), if_lb, 7, row, 1, 1, 0, 0, 0, 0);
   row++;
 
   height += 30;
@@ -714,7 +714,7 @@ capture_if_refresh_if_list(void)
       continue;
     }
     data.choose_bt = gtk_check_button_new();
-    ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.choose_bt, 0, row, 1, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(if_grid), data.choose_bt, 0, row, 1, 1, 0, 0, 0, 0);
     if (gbl_capture_in_progress) {
       gtk_widget_set_sensitive(data.choose_bt, FALSE);
     } else {
@@ -724,7 +724,7 @@ capture_if_refresh_if_list(void)
     g_signal_connect(data.choose_bt, "toggled", G_CALLBACK(store_selected), device.name);
     /* Kind of adaptor (icon) */
     icon = capture_get_if_icon(&(device));
-    ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), icon, 1, row, 1, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(if_grid), icon, 1, row, 1, 1, 0, 0, 0, 0);
 
      /* device name */
 #ifdef _WIN32
@@ -738,6 +738,7 @@ capture_if_refresh_if_list(void)
     data.device_lb = gtk_label_new(device.name);
 #endif
     gtk_misc_set_alignment(GTK_MISC(data.device_lb), 0.0f, 0.5f);
+    gtk_label_set_ellipsize(GTK_LABEL(data.device_lb), PANGO_ELLIPSIZE_MIDDLE);
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.device_lb, 2, row, 2, 1);
 
     /* description */
@@ -752,6 +753,7 @@ capture_if_refresh_if_list(void)
         data.descr_lb = gtk_label_new("");
     }
     gtk_misc_set_alignment(GTK_MISC(data.descr_lb), 0.0f, 0.5f);
+    gtk_label_set_ellipsize(GTK_LABEL(data.descr_lb), PANGO_ELLIPSIZE_MIDDLE);
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.descr_lb, 4, row, 1, 1);
 
     /* IP address */
@@ -765,7 +767,7 @@ capture_if_refresh_if_list(void)
     }
     eb = gtk_event_box_new ();
     gtk_container_add(GTK_CONTAINER(eb), data.ip_lb);
-    ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), eb, 5, row, 1, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(if_grid), eb, 5, row, 1, 1, 0, 0, 0, 0);
     if (get_ip_addr_count(device.if_info.addrs) > 1) {
       /* More than one IP address, make it possible to toggle */
       g_object_set_data(G_OBJECT(eb), CAPTURE_IF_IP_ADDR_LABEL, data.ip_lb);
@@ -776,17 +778,17 @@ capture_if_refresh_if_list(void)
 
     /* packets */
     data.curr_lb = gtk_label_new("-");
-    ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.curr_lb, 6, row, 1, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(if_grid), data.curr_lb, 6, row, 1, 1, 0, 0, 0, 0);
 
     /* packets/s */
     data.last_lb = gtk_label_new("-");
-    ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.last_lb, 7, row, 1, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(if_grid), data.last_lb, 7, row, 1, 1, 0, 0, 0, 0);
 
     /* details button */
 #ifdef _WIN32
     data.details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
     gtk_widget_set_tooltip_text(data.details_bt, "Open the capture details dialog of this interface.");
-    ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.details_bt, 8, row, 1, 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(if_grid), data.details_bt, 8, row, 1, 1, 0, 0, 0, 0);
     if (capture_if_has_details(device.name)) {
       g_signal_connect(data.details_bt, "clicked", G_CALLBACK(capture_details_cb), device.name);
     } else {
@@ -883,14 +885,14 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   /*      ToDo: Fix this !                                                                 */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
-  cap_if_top_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  cap_if_top_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
   gtk_container_add(GTK_CONTAINER(cap_if_w), cap_if_top_vb);
+  gtk_container_set_border_width(GTK_CONTAINER(cap_if_top_vb), DLG_OUTER_MARGIN);
 
   /* Button row: close, help, stop, start, and options button */
   bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_CAPTURE_START, WIRESHARK_STOCK_CAPTURE_OPTIONS, WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_CLOSE, NULL);
 
-  gtk_container_set_border_width(GTK_CONTAINER(bbox), 0);
-  gtk_box_pack_end(GTK_BOX(cap_if_top_vb), bbox, FALSE, FALSE, 10);
+  gtk_box_pack_end(GTK_BOX(cap_if_top_vb), bbox, FALSE, FALSE, 0);
   help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 

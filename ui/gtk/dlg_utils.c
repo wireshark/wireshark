@@ -223,7 +223,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     }
     va_end(stock_id_list);
 
-    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_BUTTON_SPACING, FALSE);
     gtk_widget_show(hbox);
 
     button_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
