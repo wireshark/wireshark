@@ -203,13 +203,13 @@ add_new_program(rpc_program_t *rp)
 static gboolean
 rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg)
 {
-	const rpc_call_info_value *ri = arg;
+	const rpc_call_info_value *ri = (rpc_call_info_value *)arg;
 	nstime_t       delta;
 	rpc_program_t *rp;
 
 	if (!prog_list) {
 		/* the list was empty */
-		rp = g_malloc(sizeof(rpc_program_t));
+		rp = (rpc_program_t *)g_malloc(sizeof(rpc_program_t));
 		add_new_program(rp);
 		rp->next = NULL;
 		rp->program = ri->prog;
@@ -220,7 +220,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	} else if ( (ri->prog < prog_list->program)
 		||  ((ri->prog == prog_list->program) && (ri->vers < prog_list->version))) {
 		/* we should be first entry in list */
-		rp = g_malloc(sizeof(rpc_program_t));
+		rp = (rpc_program_t *)g_malloc(sizeof(rpc_program_t));
 		add_new_program(rp);
 		rp->next = prog_list;
 		rp->program = ri->prog;
@@ -240,7 +240,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			|| (  (rp->next->program == ri->prog)
 			   && (rp->next->version > ri->vers))) {
 				rpc_program_t *trp;
-				trp = g_malloc(sizeof(rpc_program_t));
+				trp = (rpc_program_t *)g_malloc(sizeof(rpc_program_t));
 				add_new_program(trp);
 				trp->next    = rp->next;
 				trp->program = ri->prog;
@@ -406,7 +406,7 @@ gtk_rpcprogs_init(const char *opt_arg _U_, void* userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(win, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

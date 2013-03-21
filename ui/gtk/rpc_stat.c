@@ -91,7 +91,7 @@ rpcstat_set_title(rpcstat_t *rs)
 static void
 rpcstat_reset(void *arg)
 {
-	rpcstat_t *rs = arg;
+	rpcstat_t *rs = (rpcstat_t *)arg;
 
 	reset_srt_table_data(&rs->srt_table);
 	rpcstat_set_title(rs);
@@ -101,8 +101,8 @@ rpcstat_reset(void *arg)
 static gboolean
 rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
-	rpcstat_t *rs = arg;
-	const rpc_call_info_value *ri = arg2;
+	rpcstat_t *rs = (rpcstat_t *)arg;
+	const rpc_call_info_value *ri = (rpc_call_info_value *)arg2;
 
 	/* we are only interested in reply packets */
 	if(ri->request){
@@ -137,7 +137,7 @@ rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 static void
 rpcstat_draw(void *arg)
 {
-	rpcstat_t *rs = arg;
+	rpcstat_t *rs = (rpcstat_t *)arg;
 
 	draw_srt_table_data(&rs->srt_table);
 }
@@ -243,7 +243,7 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 
 	rpc_program=program;
 	rpc_version=version;
-	rs=g_malloc(sizeof(rpcstat_t));
+	rs=(rpcstat_t *)g_malloc(sizeof(rpcstat_t));
 	rs->prog=rpc_prog_name(rpc_program);
 	rs->program=rpc_program;
 	rs->version=rpc_version;
@@ -298,7 +298,7 @@ gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -355,9 +355,9 @@ rpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 	GtkWidget *vers_combo_box;
 	int i;
 
-	vers_combo_box = user_data;
+	vers_combo_box = (GtkWidget *)user_data;
 
-	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer)&k)) {
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer *)&k)) {
 		g_assert_not_reached();  /* Programming error: somehow no active item */
 	}
 	rpc_program=k->prog;
@@ -386,7 +386,7 @@ rpcstat_list_programs(gpointer *key, gpointer *value, gpointer user_data)
 {
 	rpc_prog_info_key *k=(rpc_prog_info_key *)key;
 	rpc_prog_info_value *v=(rpc_prog_info_value *)value;
-	GtkComboBox *prog_combo_box = user_data;
+	GtkComboBox *prog_combo_box = (GtkComboBox *)user_data;
 
 	ws_combo_box_append_text_and_pointer(prog_combo_box, v->progname, k);
 
@@ -502,11 +502,11 @@ gtk_rpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+	start_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
 	g_signal_connect_swapped(start_button, "clicked",
 				 G_CALLBACK(rpcstat_start_button_clicked), NULL);
 
-	cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* Give the initial focus to the "Filter" entry box. */

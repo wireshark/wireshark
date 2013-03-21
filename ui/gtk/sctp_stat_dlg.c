@@ -657,7 +657,7 @@ void sctp_stat_start(GtkAction *action _U_, gpointer user_data _U_)
 {
 	prevent_update = FALSE;
 	filter_applied = FALSE;
-	sctp_assocs = g_malloc(sizeof(sctp_allassocs_info_t));
+	sctp_assocs = (sctp_allassocs_info_t *)g_malloc(sizeof(sctp_allassocs_info_t));
 	sctp_assocs = (sctp_allassocs_info_t*)sctp_stat_get_info();
 	/* Register the tap listener */
 	if (sctp_stat_get_info()->is_registered == FALSE)

@@ -113,7 +113,7 @@ dcerpcstat_set_title(dcerpcstat_t *rs)
 static void
 dcerpcstat_reset(void *rs_arg)
 {
-	dcerpcstat_t *rs = rs_arg;
+	dcerpcstat_t *rs = (dcerpcstat_t *)rs_arg;
 
 	reset_srt_table_data(&rs->srt_table);
 	dcerpcstat_set_title(rs);
@@ -123,8 +123,8 @@ dcerpcstat_reset(void *rs_arg)
 static gboolean
 dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ri_arg)
 {
-	dcerpcstat_t *rs = rs_arg;
-	const dcerpc_info *ri = ri_arg;
+	dcerpcstat_t *rs = (dcerpcstat_t *)rs_arg;
+	const dcerpc_info *ri = (dcerpc_info *)ri_arg;
 
 	if(!ri->call_data){
 		return FALSE;
@@ -159,7 +159,7 @@ dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 static void
 dcerpcstat_draw(void *rs_arg)
 {
-	dcerpcstat_t *rs = rs_arg;
+	dcerpcstat_t *rs = (dcerpcstat_t *)rs_arg;
 
 	draw_srt_table_data(&rs->srt_table);
 }
@@ -246,7 +246,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	}
 	ver = major;
 
-	rs = g_malloc(sizeof(dcerpcstat_t));
+	rs = (dcerpcstat_t *)g_malloc(sizeof(dcerpcstat_t));
 	rs->prog = dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
@@ -326,7 +326,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -385,7 +385,7 @@ dcerpcstat_version_select(GtkWidget *vers_combo_box, gpointer user_data _U_)
 {
 	dcerpc_uuid_key *k;
 
-	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(vers_combo_box), (gpointer)&k)) {
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(vers_combo_box), (gpointer *)&k)) {
 		g_assert_not_reached();  /* Programming error: somehow no active item */
 	}
 
@@ -396,7 +396,7 @@ static void
 dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer user_data)
 {
 	dcerpc_uuid_key *k = (dcerpc_uuid_key *)key;
-	GtkWidget       *vers_combo_box = user_data;
+	GtkWidget       *vers_combo_box = (GtkWidget *)user_data;
 	char vs[5];
 
 	if(!uuid_equal(&(k->uuid), dcerpc_uuid_program)){
@@ -412,9 +412,9 @@ dcerpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 	dcerpc_uuid_key *k;
 	GtkWidget *vers_combo_box;
 
-	vers_combo_box = user_data;
+	vers_combo_box = (GtkWidget *)user_data;
 
-	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer)&k)) {
+	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(prog_combo_box), (gpointer *)&k)) {
 		g_assert_not_reached();  /* Programming error: somehow no active item */
 	}
 
@@ -687,11 +687,11 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+	start_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
 	g_signal_connect_swapped(start_button, "clicked",
 				 G_CALLBACK(dcerpcstat_start_button_clicked), NULL);
 
-	cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

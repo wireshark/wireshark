@@ -606,7 +606,7 @@ create_analyse_window(struct sctp_analyse *u_data)
 	GtkWidget *hbox_l1, *hbox_l2, *label, *h_button_box;
 	GtkWidget *chunk_stat_bt, *close_bt, *graph_bt1, *graph_bt2, *chunk_bt1, *bt_filter;
 
-	u_data->analyse_nb = g_malloc(sizeof(struct notes));
+	u_data->analyse_nb = (struct notes *)g_malloc(sizeof(struct notes));
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_position (GTK_WINDOW(window), GTK_WIN_POS_CENTER);
 	g_signal_connect(window, "destroy", G_CALLBACK(on_destroy), u_data);
@@ -696,7 +696,7 @@ create_analyse_window(struct sctp_analyse *u_data)
 	page2 = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page2), 8);
 
-	u_data->analyse_nb->page2 = g_malloc(sizeof(struct page));
+	u_data->analyse_nb->page2 = (struct page *)g_malloc(sizeof(struct page));
 
 	u_data->analyse_nb->page2->addr_frame = gtk_frame_new(NULL);
 	gtk_box_pack_start(GTK_BOX(page2), u_data->analyse_nb->page2->addr_frame, TRUE, TRUE, 0);
@@ -804,7 +804,7 @@ create_analyse_window(struct sctp_analyse *u_data)
 	page3 = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page3), 8);
 
-	u_data->analyse_nb->page3 = g_malloc(sizeof(struct page));
+	u_data->analyse_nb->page3 = (struct page *)g_malloc(sizeof(struct page));
 
 	u_data->analyse_nb->page3->addr_frame = gtk_frame_new(NULL);
 	gtk_box_pack_start(GTK_BOX(page3), u_data->analyse_nb->page3->addr_frame, TRUE, TRUE, 0);
@@ -922,7 +922,7 @@ assoc_analyse(sctp_assoc_info_t* assoc)
 	struct sctp_analyse *u_data;
 	int i;
 
-	u_data = g_malloc(sizeof(struct sctp_analyse));
+	u_data = (struct sctp_analyse *)g_malloc(sizeof(struct sctp_analyse));
 	u_data->assoc			= assoc;
 	u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
 	u_data->window			= NULL;
@@ -1044,7 +1044,7 @@ struct sctp_analyse *u_data;
 	/* (redissect all packets) */
 
 	sctp_stat_scan();
-	u_data = g_malloc(sizeof(struct sctp_analyse));
+	u_data = (struct sctp_analyse *)g_malloc(sizeof(struct sctp_analyse));
 	u_data->assoc        = NULL;
 	u_data->children     = NULL;
 	u_data->analyse_nb   = NULL;
@@ -1067,7 +1067,7 @@ sctp_analyse_start(GtkAction *action _U_, gpointer user_data _U_)
 
 	sctp_stat_scan();
 
-	u_data = g_malloc(sizeof(struct sctp_analyse));
+	u_data = (struct sctp_analyse *)g_malloc(sizeof(struct sctp_analyse));
 	u_data->assoc        = NULL;
 	u_data->children     = NULL;
 	u_data->analyse_nb   = NULL;

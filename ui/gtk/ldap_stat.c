@@ -72,7 +72,7 @@ ldapstat_reset(void *pldap)
 static int
 ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
-	const ldap_call_response_t *ldap=psi;
+	const ldap_call_response_t *ldap=(ldap_call_response_t *)psi;
 	ldapstat_t *fs=(ldapstat_t *)pldap;
 
 	/* we are only interested in reply packets */
@@ -145,7 +145,7 @@ gtk_ldapstat_init(const char *opt_arg, void *userdata _U_)
 		filter=NULL;
 	}
 
-	ldap=g_malloc(sizeof(ldapstat_t));
+	ldap=(ldapstat_t *)g_malloc(sizeof(ldapstat_t));
 
 	ldap->win = dlg_window_new("ldap-stat");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ldap->win), TRUE);
@@ -210,7 +210,7 @@ gtk_ldapstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(ldap->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(ldap->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

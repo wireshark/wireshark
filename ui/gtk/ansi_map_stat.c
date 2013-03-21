@@ -200,7 +200,7 @@ static void
 ansi_map_stat_reset(
     void        *tapdata)
 {
-    ansi_map_stat_t *stat_p = tapdata;
+    ansi_map_stat_t *stat_p = (ansi_map_stat_t *)tapdata;
 
     memset(stat_p, 0, sizeof(ansi_map_stat_t));
 }
@@ -213,8 +213,8 @@ ansi_map_stat_packet(
     epan_dissect_t  *edt _U_,
     const void      *data)
 {
-    ansi_map_stat_t *stat_p = tapdata;
-    const ansi_map_tap_rec_t    *data_p = data;
+    ansi_map_stat_t *stat_p = (ansi_map_stat_t *)tapdata;
+    const ansi_map_tap_rec_t    *data_p = (const ansi_map_tap_rec_t *)data;
 
 #if 0   /* always false because message_type is 8 bit value */
     if (data_p->message_type >= ANSI_MAP_MAX_NUM_MESSAGE_TYPES)
@@ -237,7 +237,7 @@ static void
 ansi_map_stat_draw(
     void        *tapdata)
 {
-    ansi_map_stat_t *stat_p = tapdata;
+    ansi_map_stat_t *stat_p = (ansi_map_stat_t *)tapdata;
     int         i;
     float       avg;
     GtkListStore *list_store;
@@ -313,7 +313,7 @@ ansi_map_stat_gtk_win_create(
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 
     window_set_cancel_button(dlg_p->win, bt_close, window_cancel_button_cb);
 

@@ -158,7 +158,7 @@ gtk_megacostat_init(const char *opt_arg, void *userdata _U_)
 		return;
 	}
 
-	ms=g_malloc(sizeof(megacostat_t));
+	ms=(megacostat_t *)g_malloc(sizeof(megacostat_t));
 
 	if(strncmp(opt_arg,"megaco,srt,",11) == 0){
 		ms->filter=g_strdup(opt_arg+11);
@@ -195,7 +195,7 @@ gtk_megacostat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(ms->vbox), bbox, FALSE, FALSE, 0);
 
-	bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(ms->win, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(ms->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

@@ -97,7 +97,7 @@ flow_graph_reset(void *ptr _U_)
 		list = g_list_first(graph_analysis->list);
 		while (list)
 		{
-			graph_item = list->data;
+			graph_item = (graph_analysis_item_t *)list->data;
 			g_free(graph_item->frame_label);
 			g_free(graph_item->comment);
 			g_free(list->data);
@@ -112,7 +112,7 @@ flow_graph_reset(void *ptr _U_)
 /****************************************************************************/
 static void
 flow_graph_data_init(void) {
-	graph_analysis = g_malloc(sizeof(graph_analysis_info_t));
+	graph_analysis = (graph_analysis_info_t *)g_malloc(sizeof(graph_analysis_info_t));
 	graph_analysis->nconv = 0;
 	graph_analysis->list = NULL;
 }
@@ -230,7 +230,7 @@ flow_graph_frame_add_to_graph(packet_info *pinfo)
 
 	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
 		if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
-			gai = g_malloc(sizeof(graph_analysis_item_t));
+			gai = (graph_analysis_item_t *)g_malloc(sizeof(graph_analysis_item_t));
 			COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
 			COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));
 		}
@@ -238,7 +238,7 @@ flow_graph_frame_add_to_graph(packet_info *pinfo)
 
 	} else {
 		if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
-			gai = g_malloc(sizeof(graph_analysis_item_t));
+			gai = (graph_analysis_item_t *)g_malloc(sizeof(graph_analysis_item_t));
 			COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
 			COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
 		}
@@ -319,7 +319,7 @@ flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
 	gboolean flags_found = FALSE;
 	gchar flags[64];
 
-	gai = g_malloc(sizeof(graph_analysis_item_t));
+	gai = (graph_analysis_item_t *)g_malloc(sizeof(graph_analysis_item_t));
 	gai->fd = pinfo->fd;
 	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
 		COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
@@ -386,7 +386,7 @@ flow_graph_frame_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt 
 static gboolean
 flow_graph_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
 {
-	const struct tcpheader *tcph = tcp_info;
+	const struct tcpheader *tcph = (struct tcpheader *)tcp_info;
 
 	if ((type_of_packets == TYPE_OF_PACKETS_ALL)||(pinfo->fd->flags.passed_dfilter==1)){
 		flow_graph_tcp_add_to_graph(pinfo,tcph);
@@ -455,7 +455,7 @@ flow_graph_on_ok(GtkButton       *button _U_,
 		graph_analysis_update(graph_analysis_data);		/* refresh it xxx */
 	}
 	else{
-		graph_analysis_data->dlg.parent_w = user_data;
+		graph_analysis_data->dlg.parent_w = (GtkWidget *)user_data;
 		graph_analysis_create(graph_analysis_data);
 	}
 }

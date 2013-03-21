@@ -602,7 +602,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
     GtkWidget *bt_close;
 
 
-    sctp_graph_t *io = g_malloc(sizeof(sctp_graph_t));
+    sctp_graph_t *io = (sctp_graph_t *)g_malloc(sizeof(sctp_graph_t));
     io->window = NULL;
     u_data->io = io;
     u_data->io->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -672,7 +672,7 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     gchar      label_txt[50];
     int        i, row;
 
-    sctp_graph_t *io = g_malloc(sizeof(sctp_graph_t));
+    sctp_graph_t *io = (sctp_graph_t *)g_malloc(sizeof(sctp_graph_t));
 
     io->window = NULL;
     u_data->io = io;
@@ -777,14 +777,14 @@ sctp_chunk_dlg_show(struct sctp_analyse* userdata)
     gint i;
     struct sctp_udata *u_data;
 
-    u_data = g_malloc(sizeof(struct sctp_udata));
-    u_data->assoc  = g_malloc(sizeof(sctp_assoc_info_t));
+    u_data = (struct sctp_udata *)g_malloc(sizeof(struct sctp_udata));
+    u_data->assoc  = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
     u_data->assoc  = userdata->assoc;
     u_data->io     = NULL;
     u_data->parent = userdata;
 
     if (selected_stream == NULL)
-        selected_stream = g_malloc(sizeof(sctp_assoc_info_t));
+        selected_stream = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
 
     selected_stream = u_data->assoc;
     for (i=0; i<NUM_CHUNKS; i++)
@@ -802,14 +802,14 @@ sctp_chunk_stat_dlg_show(unsigned int direction, struct sctp_analyse* userdata)
 {
     struct sctp_udata *u_data;
 
-    u_data = g_malloc(sizeof(struct sctp_udata));
-    u_data->assoc  = g_malloc(sizeof(sctp_assoc_info_t));
+    u_data = (struct sctp_udata *)g_malloc(sizeof(struct sctp_udata));
+    u_data->assoc  = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
     u_data->assoc  = userdata->assoc;
     u_data->io     = NULL;
     u_data->parent = userdata;
 
     if (selected_stream == NULL)
-        selected_stream = g_malloc(sizeof(sctp_assoc_info_t));
+        selected_stream = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
     selected_stream = u_data->assoc;
     selected_stream->addr_chunk_count = u_data->assoc->addr_chunk_count;
 

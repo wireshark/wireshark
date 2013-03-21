@@ -121,8 +121,8 @@ static gboolean save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs)
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		file_selection_set_current_folder(fs, get_last_open_dir());
-		gtk_file_chooser_set_current_name(fs, "");
+		file_selection_set_current_folder((GtkWidget *)fs, get_last_open_dir());
+		gtk_file_chooser_set_current_name((GtkFileChooser *)fs, "");
 		return FALSE;
 	}
 
@@ -188,8 +188,8 @@ rtpstream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 /****************************************************************************/
 static gint rtp_stream_info_cmp_reverse(gconstpointer aa, gconstpointer bb)
 {
-	const struct _rtp_stream_info* a = aa;
-	const struct _rtp_stream_info* b = bb;
+	const struct _rtp_stream_info* a = (struct _rtp_stream_info *)aa;
+	const struct _rtp_stream_info* b = (struct _rtp_stream_info *)bb;
 
 	if (a==NULL || b==NULL)
 		return 1;

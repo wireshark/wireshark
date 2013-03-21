@@ -108,26 +108,26 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar *unused 
 static void
 dhcpstat_reset(void *psp)
 {
-	dhcpstat_t *sp = psp;
+	dhcpstat_t *sp = (dhcpstat_t *)psp;
 	g_hash_table_foreach(sp->hash, (GHFunc)dhcp_reset_hash, NULL);
 }
 
 static gboolean
 dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	dhcpstat_t               *sp    = psp;
-	const bootp_info_value_t  value = pri;
+	dhcpstat_t               *sp    = (dhcpstat_t *)psp;
+	const bootp_info_value_t  value = (const bootp_info_value_t)pri;
 	dhcp_message_type_t      *sc;
 
 	if (sp == NULL)
 		return FALSE;
 
-	sc = g_hash_table_lookup(
+	sc = (dhcp_message_type_t *)g_hash_table_lookup(
 			sp->hash,
 			value);
 	if (!sc) {
 		/*g_warning("%s:%d What's Wrong for %s, doc ?", __FILE__, __LINE__, value);*/
-		sc = g_malloc(sizeof(dhcp_message_type_t));
+		sc = (dhcp_message_type_t *)g_malloc(sizeof(dhcp_message_type_t));
 		sc->packets = 1;
 		sc->name    = value;
 		sc->widget  = NULL;
@@ -148,7 +148,7 @@ dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 static void
 dhcpstat_draw(void *psp)
 {
-	dhcpstat_t *sp = psp;
+	dhcpstat_t *sp = (dhcpstat_t *)psp;
 
 	g_hash_table_foreach(sp->hash, (GHFunc)dhcp_draw_message_type, NULL);
 }
@@ -186,7 +186,7 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 		filter = NULL;
 	}
 
-	sp = g_malloc(sizeof(dhcpstat_t));
+	sp = (dhcpstat_t *)g_malloc(sizeof(dhcpstat_t));
 	sp->hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_free);
 	if(filter) {
 		sp->filter = g_strdup(filter);
@@ -238,7 +238,7 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(sp->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

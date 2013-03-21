@@ -78,7 +78,7 @@ diameterstat_reset(void *pdiameter)
 static int
 diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pdi)
 {
-	const diameter_req_ans_pair_t *diameter=pdi;
+	const diameter_req_ans_pair_t *diameter=(diameter_req_ans_pair_t *)pdi;
 	diameterstat_t *fs=(diameterstat_t *)pdiameter;
 	int* idx = NULL;
 
@@ -90,7 +90,7 @@ diameterstat_packet(void *pdiameter, packet_info *pinfo, epan_dissect_t *edt _U_
 
 	idx = (int*) g_hash_table_lookup(cmd_str_hash, diameter->cmd_str);
 	if (idx == NULL) {
-		idx = g_malloc(sizeof(int));
+		idx = (int *)g_malloc(sizeof(int));
 		*idx = (int) g_hash_table_size(cmd_str_hash);
 		g_hash_table_insert(cmd_str_hash, (gchar*) diameter->cmd_str, idx);
 		init_srt_table_row(&fs->diameter_srt_table, *idx,  (const char*) diameter->cmd_str);
@@ -144,8 +144,8 @@ gtk_diameterstat_init(const char *opt_arg, void *userdata _U_)
 		filter="diameter"; /*NULL doesn't work here like in LDAP. Too little time/lazy to find out why ?*/
 	}
 
-	diameter=g_malloc(sizeof(diameterstat_t));
-	idx = g_malloc(sizeof(int));
+	diameter=(diameterstat_t *)g_malloc(sizeof(diameterstat_t));
+	idx = (int *)g_malloc(sizeof(int));
 	*idx = 0;
 	cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
 	g_hash_table_insert(cmd_str_hash, (gchar *)"Unknown", idx);
@@ -194,7 +194,7 @@ gtk_diameterstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(diameter->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(diameter->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

@@ -166,7 +166,7 @@ comparestat_set_title(compstat_t *cs)
 static void
 comparestat_reset(void *arg)
 {
-	compstat_t *cs=arg;
+	compstat_t *cs=(compstat_t *)arg;
 
 	SET_ADDRESS(&cs->eth_src, AT_ETHER, 0, NULL);
 	SET_ADDRESS(&cs->eth_dst, AT_ETHER, 0, NULL);
@@ -184,8 +184,8 @@ comparestat_reset(void *arg)
 static int
 comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
-	compstat_t *cs=arg;
-	const ws_ip *ci=arg2;
+	compstat_t *cs=(compstat_t *)arg;
+	const ws_ip *ci=(ws_ip *)arg2;
 	frame_info *fInfo, *fInfoTemp;
 	vec_t cksum_vec[3];
 	guint16 computed_cksum=0;
@@ -203,14 +203,14 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	cksum_vec[1].ptr=&ci->ip_p;
 	cksum_vec[1].len=1;
 	/* skip header checksum and ip's (because of NAT)*/
-	cksum_vec[2].ptr=ci->ip_dst.data;
+	cksum_vec[2].ptr=(guint8 *)ci->ip_dst.data;
 	cksum_vec[2].ptr=cksum_vec[2].ptr+ci->ip_dst.len;
 	/* dynamic computation */
 	cksum_vec[2].len=pinfo->iphdrlen-20;
 	computed_cksum=in_cksum(&cksum_vec[0], 3);
 
 	/* Set up the new order to create the zebra effect */
-	fInfoTemp=se_tree_lookup32(cs->packet_tree, pinfo->fd->num);
+	fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, pinfo->fd->num);
 	if((fInfoTemp!=NULL)){
 		col_set_time(pinfo->cinfo, COL_INFO, &fInfoTemp->zebra_time, "ZebraTime");
 	}
@@ -253,7 +253,7 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 	pinfo->fd=(frame_data*)ep_alloc(sizeof(frame_data));
 	pinfo->fd->num = fInfo->num;
 
-	fInfoTemp=se_tree_lookup32(cs->ip_id_tree, fInfo->id);
+	fInfoTemp=(frame_info *)se_tree_lookup32(cs->ip_id_tree, fInfo->id);
 	if(fInfoTemp==NULL){
 		/* Detect ongoing package loss */
 		if((cs->last_hit==FALSE)&&(cs->start_ongoing_hits>compare_start)&&(cs->stop_ongoing_hits<compare_stop)){
@@ -325,7 +325,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 	frame_info *fInfo=(frame_info*)value, *fInfoTemp;
 
 	/* overwrite Info column for new ordering */
-	fInfoTemp=se_tree_lookup32(cs->nr_tree, fInfo->id);
+	fInfoTemp=(frame_info *)se_tree_lookup32(cs->nr_tree, fInfo->id);
 	if(fInfoTemp==NULL){
 		if(TTL_method==FALSE){
 			if((ADDRESSES_EQUAL(&cs->eth_dst, &fInfo->dl_dst)) || (ADDRESSES_EQUAL(&cs->eth_src, &fInfo->dl_dst))){
@@ -400,7 +400,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 	}
 
 	if((fInfo->num==tot_packet_amount)&&(cs->stop_packet_nr_first==G_MAXINT32)&&(cs->start_packet_nr_first!=G_MAXINT32)){
-		fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
+		fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
 		if(fInfoTemp==NULL){
 			fprintf(stderr,"ERROR: Incorrect start number\n");
 		}
@@ -414,10 +414,10 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			if(cs->stop_packet_nr_first>cs->start_packet_nr_second){
 				cs->stop_packet_nr_first=cs->start_packet_nr_second-1;
 			}
-			fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+			fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			while((fInfoTemp!=NULL)?fmod(!fInfoTemp->zebra_time.nsecs, 2):TRUE){
 				cs->stop_packet_nr_first--;
-				fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+				fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			}
 		} else {
 			/*this only happens if we have too many MAC's or TTL*/
@@ -425,10 +425,10 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			if(cs->stop_packet_nr_first>tot_packet_amount-cs->first_file_amount){
 				cs->stop_packet_nr_first=tot_packet_amount-cs->first_file_amount;
 			}
-			fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+			fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			while((fInfoTemp!=NULL)?fmod(fInfoTemp->zebra_time.nsecs, 2):TRUE){
 				cs->stop_packet_nr_first--;
-				fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+				fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			}
 		}
 		/* set second stop location */
@@ -536,7 +536,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static void
 comparestat_draw(void *arg)
 {
-	compstat_t *cs = arg;
+	compstat_t *cs = (compstat_t *)arg;
 	GString *filter_str = g_string_new("");
 	const gchar *statis_string;
 	frame_info *fInfo;
@@ -606,14 +606,14 @@ comparestat_draw(void *arg)
 
 	/* add start and stop of scanning */
 	if(cs->start_packet_nr_first!=G_MAXINT32&&compare_start!=0&&compare_stop!=0){
-		fInfo=se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
+		fInfo=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
 		if(fInfo){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
 			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Start scanning", COUNT, 0, DELTA, 0.0, -1);
 		}
 	}
 	if(cs->stop_packet_nr_first!=G_MAXINT32&&compare_start!=0&&compare_stop!=0){
-		fInfo=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+		fInfo=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 		if(fInfo){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
 			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Stop scanning", COUNT, 0, DELTA, 0.0, -1);
@@ -651,7 +651,7 @@ new_tree_view_selection_changed(GtkTreeSelection *sel, gpointer user_data)
 			cf_goto_frame(&cfile, cs->stop_packet_nr_first);
 			return;
 		}
-		fInfo=se_tree_lookup32(cs->ip_id_tree, id);
+		fInfo=(frame_info *)se_tree_lookup32(cs->ip_id_tree, id);
 		if(fInfo != NULL){
 			cf_goto_frame(&cfile, fInfo->num);
 		}
@@ -722,7 +722,7 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	TTL_method=ttl;
 	ON_method=order;
 
-	cs=g_malloc(sizeof(compstat_t));
+	cs=(compstat_t *)g_malloc(sizeof(compstat_t));
 	nstime_set_unset(&cs->current_time);
 	cs->ip_ttl_list=g_array_new(FALSE, FALSE, sizeof(guint8));
 	cs->last_hit=FALSE;
@@ -809,10 +809,10 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(cs->win, close_bt, window_cancel_button_cb);
 
-	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_COMPARE_FILES_DIALOG);
 
 	g_signal_connect(cs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -1035,10 +1035,10 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+	start_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
 	g_signal_connect_swapped(start_button, "clicked", G_CALLBACK(comparestat_start_button_clicked), NULL);
 
-	cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* give the initial focus to the "filter" entry box. */

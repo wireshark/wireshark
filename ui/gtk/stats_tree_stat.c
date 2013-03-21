@@ -77,10 +77,10 @@ setup_gtk_node_pr(stat_node* node)
 {
 	GtkTreeIter* parent =  NULL;
 
-	node->pr = g_malloc(sizeof(st_node_pres));
+	node->pr = (st_node_pres *)g_malloc(sizeof(st_node_pres));
 
 	if (node->st->pr->store) {
-		node->pr->iter = g_malloc0(sizeof(GtkTreeIter));
+		node->pr->iter = (GtkTreeIter *)g_malloc0(sizeof(GtkTreeIter));
 
 		if ( node->parent && node->parent->pr ) {
 			parent = node->parent->pr->iter;
@@ -120,7 +120,7 @@ draw_gtk_node(stat_node* node)
 static void
 draw_gtk_tree(void *psp)
 {
-	stats_tree *st = psp;
+	stats_tree *st = (stats_tree *)psp;
 	stat_node* child;
 
 	for (child = st->root.children; child; child = child->next ) {
@@ -166,7 +166,7 @@ clear_node_pr(stat_node* n)
 static void
 reset_tap(void* p)
 {
-	stats_tree* st = p;
+	stats_tree* st = (stats_tree *)p;
 	stat_node* c;
 	for (c = st->root.children; c; c = c->next) {
 		clear_node_pr(c);
@@ -182,7 +182,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 	gchar *abbr = stats_tree_get_abbr(opt_arg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;
-	tree_pres* pr = g_malloc(sizeof(tree_pres));
+	tree_pres* pr = (tree_pres *)g_malloc(sizeof(tree_pres));
 	gchar* title = NULL;
 	gchar* window_name = NULL;
 	GString* error_string;
@@ -314,7 +314,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-	bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(st->pr->win, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(GTK_WINDOW(st->pr->win), "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -334,11 +334,11 @@ static tap_param tree_stat_params[] = {
 static void
 register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 {
-	stats_tree_cfg* cfg = v;
+	stats_tree_cfg* cfg = (stats_tree_cfg *)v;
 
-	cfg->pr = g_malloc(sizeof(tree_pres));
+	cfg->pr = (tree_cfg_pres *)g_malloc(sizeof(tree_cfg_pres));
 
-	cfg->pr->stat_dlg = g_malloc(sizeof(tap_param_dlg));
+	cfg->pr->stat_dlg = (tap_param_dlg *)g_malloc(sizeof(tap_param_dlg));
 
 	cfg->pr->stat_dlg->win_title = g_strdup_printf("%s Stats Tree",cfg->name);
 	cfg->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",cfg->abbr);

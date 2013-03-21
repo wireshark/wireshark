@@ -145,7 +145,7 @@ static int
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225rassrt_t *hs=(h225rassrt_t *)phs;
-	const h225_packet_info *pi=phi;
+	const h225_packet_info *pi=(h225_packet_info *)phi;
 
 	ras_type rasmsg_type = RAS_OTHER;
 	ras_category rascategory = RAS_OTHERS;
@@ -157,8 +157,8 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 
 	if (pi->msg_tag < 21) {
 		/* */
-		rascategory = pi->msg_tag / 3;
-		rasmsg_type = pi->msg_tag % 3;
+		rascategory = (ras_category)(pi->msg_tag / 3);
+		rasmsg_type = (ras_type)(pi->msg_tag % 3);
 	}
 	else {
 		/* No SRT yet (ToDo) */
@@ -279,7 +279,7 @@ gtk_h225rassrt_init(const char *opt_arg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	hs=g_malloc(sizeof(h225rassrt_t));
+	hs=(h225rassrt_t *)g_malloc(sizeof(h225rassrt_t));
 
 	if(strncmp(opt_arg,"h225,srt,",9) == 0){
 		hs->filter=g_strdup(opt_arg+9);
@@ -316,7 +316,7 @@ gtk_h225rassrt_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(hs->vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(hs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

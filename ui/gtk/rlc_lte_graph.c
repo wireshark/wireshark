@@ -2186,7 +2186,7 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
     else {
         x = (int) event->x;
         y = (int) event->y;
-        state = event->state;
+        state = (GdkModifierType)event->state;
     }
 
     if (state & GDK_BUTTON3_MASK) {

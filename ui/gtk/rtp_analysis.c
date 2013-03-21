@@ -309,7 +309,7 @@ static void dialog_graph_reset(user_data_t* user_data);
 static void
 rtp_reset(void *user_data_arg)
 {
-	user_data_t *user_data = user_data_arg;
+	user_data_t *user_data = (user_data_t *)user_data_arg;
 
 	user_data->forward.statinfo.first_packet    = TRUE;
 	user_data->reversed.statinfo.first_packet   = TRUE;
@@ -485,8 +485,8 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 static int
 rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtpinfo_arg)
 {
-	user_data_t	       *user_data    = user_data_arg;
-	const struct _rtp_info *rtpinfo	     = rtpinfo_arg;
+	user_data_t	       *user_data    = (user_data_t *)user_data_arg;
+	const struct _rtp_info *rtpinfo	     = (struct _rtp_info *)rtpinfo_arg;
 	gboolean		rtp_selected = FALSE;
 
 	/* we ignore packets that are not displayed */
@@ -1495,8 +1495,8 @@ dialog_graph_redraw(user_data_t* user_data)
 static void
 quit(GtkWidget *widget _U_, user_data_t *user_data)
 {
-	GtkWidget      *bt_save	     = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
-	surface_info_t *surface_info = g_object_get_data(G_OBJECT(bt_save), "surface-info");
+	GtkWidget      *bt_save	     = (GtkWidget *)g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
+	surface_info_t *surface_info = (surface_info_t *)g_object_get_data(G_OBJECT(bt_save), "surface-info");
 
 	g_free(surface_info);
 	user_data->dlg.dialog_graph.window = NULL;
@@ -1522,7 +1522,7 @@ draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 static gint
 expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
-	user_data_t *user_data = data;
+	user_data_t *user_data = (user_data_t *)data;
 	cairo_t	    *cr	       = gdk_cairo_create (gtk_widget_get_window(widget));
 
 
@@ -1544,7 +1544,7 @@ expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 static gint
 configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
-	user_data_t    *user_data    = data;
+	user_data_t    *user_data    = (user_data_t *)data;
 	GtkWidget      *bt_save;
 	GtkAllocation	widget_alloc;
 	cairo_t	       *cr;
@@ -1581,7 +1581,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 	user_data->dlg.dialog_graph.surface_width = widget_alloc.width;
 	user_data->dlg.dialog_graph.surface_height = widget_alloc.height;
 
-	bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
+	bt_save = (GtkWidget *)g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
 #if GTK_CHECK_VERSION(2,22,0)
 	surface_info->surface = user_data->dlg.dialog_graph.surface;
 	surface_info->width   = widget_alloc.width;
@@ -1969,10 +1969,10 @@ dialog_graph_init_window(user_data_t* user_data)
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
-	bt_close = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_CLOSE);
+	bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(hbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(user_data->dlg.dialog_graph.window, bt_close, window_cancel_button_cb);
 
-	bt_save = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_SAVE);
+	bt_save = (GtkWidget *)g_object_get_data(G_OBJECT(hbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(bt_save, FALSE);
 	gtk_widget_set_tooltip_text(bt_save, "Save the displayed graph to a file");
 	g_signal_connect(bt_save, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
@@ -2141,8 +2141,8 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		file_selection_set_current_folder(fc, get_last_open_dir());
-		gtk_file_chooser_set_current_name(fc, "");
+		file_selection_set_current_folder((GtkWidget *)fc, get_last_open_dir());
+		gtk_file_chooser_set_current_name((GtkFileChooser *)fc, "");
 		return FALSE; /* run the dialog again */
 	}
 
@@ -2767,8 +2767,8 @@ save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		file_selection_set_current_folder(fc, get_last_open_dir());
-		gtk_file_chooser_set_current_name(fc, "");
+		file_selection_set_current_folder((GtkWidget *)fc, get_last_open_dir());
+		gtk_file_chooser_set_current_name((GtkFileChooser *)fc, "");
 		return FALSE; /* run the dialog again */
 	}
 
@@ -3738,7 +3738,7 @@ process_node(proto_node *ptree_node, header_field_info *hfinformation,
 			finfo = PNODE_FINFO(ptree_node);
 			if (hfssrc == finfo->hfinfo) {
 				if (hfinformation->type == FT_IPv4) {
-					ipv4 = fvalue_get(&finfo->value);
+					ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
 					*p_result = ipv4_get_net_order_addr(ipv4);
 				}
 				else {
@@ -3818,7 +3818,7 @@ rtp_analysis(address *src_fwd,
 	char *tempname;
 
 	/* init */
-	user_data = g_malloc(sizeof(user_data_t));
+	user_data = (user_data_t *)g_malloc(sizeof(user_data_t));
 
 	COPY_ADDRESS(&(user_data->src_fwd), src_fwd);
 	user_data->port_src_fwd = port_src_fwd;

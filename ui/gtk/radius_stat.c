@@ -129,7 +129,7 @@ static int
 radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	radiusstat_t *rs=(radiusstat_t *)prs;
-	const radius_info_t *ri=pri;
+	const radius_info_t *ri=(radius_info_t *)pri;
 	nstime_t delta;
 	radius_category radius_cat = RADIUS_CAT_OTHERS;
 	int ret = 0;
@@ -315,7 +315,7 @@ gtk_radiusstat_init(const char *opt_arg, void *userdata _U_)
 	GtkWidget *bt_close;
 	GtkWidget *bbox;
 
-	rs=g_malloc(sizeof(radiusstat_t));
+	rs=(radiusstat_t *)g_malloc(sizeof(radiusstat_t));
 
 	if(strncmp(opt_arg,"radius,srt,",11) == 0){
 		rs->filter=g_strdup(opt_arg+11);
@@ -351,7 +351,7 @@ gtk_radiusstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(rs->vbox), bbox, FALSE, FALSE, 0);
 
-	bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	bt_close = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, bt_close, window_cancel_button_cb);
 
 	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

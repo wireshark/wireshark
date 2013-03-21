@@ -213,11 +213,11 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	/* Build a new filter based on frame numbers */
 	lista = g_list_first(voip_calls_get_info()->callsinfo_list);
 	while (lista) {
-		listinfo = lista->data;
+		listinfo = (voip_calls_info_t *)lista->data;
 		if (listinfo->selected) {
 			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 			while (listb) {
-				gai = listb->data;
+				gai = (graph_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
 					g_string_append_printf(filter_string_fwd, "%sframe.number == %u", is_first?"":" or ", gai->fd->num);
 					is_first = FALSE;
@@ -242,20 +242,20 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 		/* Build a new filter based on protocol fields */
 		lista = g_list_first(voip_calls_get_info()->callsinfo_list);
 		while (lista) {
-			listinfo = lista->data;
+			listinfo = (voip_calls_info_t *)lista->data;
 			if (listinfo->selected) {
 				if (!is_first)
 					g_string_append_printf(filter_string_fwd, " or ");
 				switch (listinfo->protocol) {
 				case VOIP_SIP:
-					sipinfo = listinfo->prot_info;
+					sipinfo = (sip_calls_info_t *)listinfo->prot_info;
 					g_string_append_printf(filter_string_fwd,
 						"(sip.Call-ID == \"%s\")",
 						sipinfo->call_identifier
 					);
 					break;
 				case VOIP_ISUP:
-					isupinfo = listinfo->prot_info;
+					isupinfo = (isup_calls_info_t *)listinfo->prot_info;
 					g_string_append_printf(filter_string_fwd,
 						"(isup.cic == %i and frame.number >= %i and frame.number <= %i and mtp3.network_indicator == %i and ((mtp3.dpc == %i) and (mtp3.opc == %i)) or ((mtp3.dpc == %i) and (mtp3.opc == %i)))",
 						isupinfo->cic, listinfo->start_fd->num,
@@ -265,7 +265,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 					);
 					break;
 				case VOIP_H323:
-					h323info = listinfo->prot_info;
+					h323info = (h323_calls_info_t *)listinfo->prot_info;
 					g_string_append_printf(filter_string_fwd,
 						"((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x)",
 						guid_to_str(&h323info->guid[0]),
@@ -275,7 +275,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 						(guint8)((h323info->q931_crv2 & 0xff00)>>8));
 					listb = g_list_first(h323info->h245_list);
 					while (listb) {
-						h245_add = listb->data;
+						h245_add = (h245_address_t *)listb->data;
 						g_string_append_printf(filter_string_fwd,
 							" || (ip.addr == %s && tcp.port == %d && h245)",
 							ip_to_str((guint8 *)(h245_add->h245_address.data)), h245_add->h245_port);
@@ -284,7 +284,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 					g_string_append_printf(filter_string_fwd, ")");
 					break;
 				case TEL_H248:
-					ctx = listinfo->prot_info;
+					ctx = (gcp_ctx_t *)listinfo->prot_info;
 					g_string_append_printf(filter_string_fwd,
 						"(h248.ctx == 0x%x)", ctx->id);
 					break;
@@ -351,7 +351,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	/* reset the "display" parameter in graph analysis */
 	listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 	while (listb) {
-		gai = listb->data;
+		gai = (graph_analysis_item_t *)listb->data;
 		gai->display = FALSE;
 		listb = g_list_next(listb);
 	}
@@ -359,11 +359,11 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	/* set the display for selected calls */
 	lista = g_list_first(voip_calls_get_info()->callsinfo_list);
 	while (lista) {
-		listinfo = lista->data;
+		listinfo = (voip_calls_info_t *)lista->data;
 		if (listinfo->selected) {
 			listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 			while (listb) {
-				gai = listb->data;
+				gai = (graph_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
 					gai->display = TRUE;
 				}
@@ -450,12 +450,12 @@ add_to_list_store(voip_calls_info_t* strinfo)
 	/* Add comments based on the protocol */
 	switch (strinfo->protocol) {
 		case VOIP_ISUP:
-			isupinfo = strinfo->prot_info;
+			isupinfo = (isup_calls_info_t *)strinfo->prot_info;
 			g_snprintf(field[CALL_COL_COMMENTS],30, "%i-%i -> %i-%i", isupinfo->ni, isupinfo->opc,
 				isupinfo->ni, isupinfo->dpc);
 			break;
 		case VOIP_H323:
-			h323info = strinfo->prot_info;
+			h323info = (h323_calls_info_t *)strinfo->prot_info;
 			if (strinfo->call_state == VOIP_CALL_SETUP)
 				flag = h323info->is_faststart_Setup;
 			else

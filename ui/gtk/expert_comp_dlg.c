@@ -155,7 +155,7 @@ static void expert_dlg_display_reset(expert_tapdata_t * etd)
 static void
 expert_dlg_reset(void *tapdata)
 {
-    expert_tapdata_t * etd = tapdata;
+    expert_tapdata_t * etd = (expert_tapdata_t *)tapdata;
 
     etd->chat_events = 0;
     etd->note_events = 0;
@@ -176,7 +176,7 @@ static int
 expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
     expert_info_t    *ei;
-    expert_tapdata_t *etd = tapdata;
+    expert_tapdata_t *etd = (expert_tapdata_t *)tapdata;
 
     g_array_append_val(etd->ei_array, *(expert_info_t *)pointer);
     etd->last = etd->ei_array->len;
@@ -259,7 +259,7 @@ static gboolean
 error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *prv)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
-    const expert_info_t *error_pkt=prv;
+    const expert_info_t *error_pkt=(expert_info_t *)prv;
 
     /* if return value is 0 then no error */
     if(error_pkt==NULL){
@@ -366,7 +366,7 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 static expert_tapdata_t * expert_dlg_new_table(void)
 {
     expert_tapdata_t * etd;
-    etd=g_malloc0(sizeof(expert_tapdata_t));
+    etd=(expert_tapdata_t *)g_malloc0(sizeof(expert_tapdata_t));
 
     etd->ei_array = g_array_sized_new(FALSE, FALSE, sizeof(expert_info_t), 1000);
     etd->text = g_string_chunk_new(100);
@@ -643,7 +643,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 static void
 expert_dlg_draw(void *data)
 {
-    expert_tapdata_t *etd = data;
+    expert_tapdata_t *etd = (expert_tapdata_t *)data;
     expert_info_t *ei;
     gchar *title;
     const char *entries[2];   /**< column entries */
@@ -773,7 +773,7 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     GtkWidget *help_bt;
     expert_tapdata_t *etd;
 
-    ss=g_malloc(sizeof(expert_comp_dlg_t));
+    ss=(expert_comp_dlg_t *)g_malloc(sizeof(expert_comp_dlg_t));
 
     ss->pkt_comments_events = 0;
     ss->disp_events = 0;
@@ -919,10 +919,10 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPERT_INFO_DIALOG);
     gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
 

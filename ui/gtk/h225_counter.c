@@ -160,7 +160,7 @@ static int
 h225counter_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225counter_t *hs=(h225counter_t *)phs;
-	const h225_packet_info *pi=phi;
+	const h225_packet_info *pi=(h225_packet_info *)phi;
 
 	switch (pi->msg_type) {
 
@@ -511,7 +511,7 @@ gtk_h225counter_init(const char *opt_arg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	hs=g_malloc(sizeof(h225counter_t));
+	hs=(h225counter_t *)g_malloc(sizeof(h225counter_t));
 
 	if(strncmp(opt_arg,"h225,counter,",13) == 0){
 		hs->filter=g_strdup(opt_arg+13);
@@ -549,7 +549,7 @@ gtk_h225counter_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(hs->vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(hs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

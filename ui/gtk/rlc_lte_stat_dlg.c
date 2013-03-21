@@ -321,7 +321,7 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_
         return NULL;
     }
 
-    if (!(ep = g_malloc(sizeof(rlc_lte_ep_t)))) {
+    if (!(ep = (rlc_lte_ep_t *)g_malloc(sizeof(rlc_lte_ep_t)))) {
         return NULL;
     }
 
@@ -1295,7 +1295,7 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 
 
     /* Create dialog */
-    hs = g_malloc(sizeof(rlc_lte_stat_t));
+    hs = (rlc_lte_stat_t *)g_malloc(sizeof(rlc_lte_stat_t));
     hs->ep_list = NULL;
 
     /* Copy filter (so can be used for window title at reset) */
@@ -1624,10 +1624,10 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     gtk_box_pack_end(GTK_BOX(top_level_vbox), bbox, FALSE, FALSE, 0);
 
     /* Add the close button */
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(hs->dlg_w, close_bt, window_cancel_button_cb);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_LTE_RLC_TRAFFIC_DIALOG);
 
     /* Set callbacks */

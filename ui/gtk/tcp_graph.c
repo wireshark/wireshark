@@ -3230,7 +3230,7 @@ draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 #else
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("expose_event()");
@@ -3632,7 +3632,7 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
     else {
         x = (int) event->x;
         y = (int) event->y;
-        state = event->state;
+        state = (GdkModifierType)event->state;
     }
 
     /* Testing just (state & GDK_BUTTON1_MASK) is not enough since when button1

@@ -237,7 +237,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
     if (!si)
         return NULL;
 
-    ep = g_malloc (sizeof(wlan_ep_t));
+    ep = (wlan_ep_t *)g_malloc (sizeof(wlan_ep_t));
 
     SE_COPY_ADDRESS (&ep->bssid, &si->bssid);
     ep->stats.channel      = si->stats.channel;
@@ -263,7 +263,7 @@ alloc_wlan_details_ep (address *addr)
     if (!addr)
         return NULL;
 
-    if (!(d_ep = g_malloc (sizeof(wlan_details_ep_t))))
+    if (!(d_ep = (wlan_details_ep_t *)g_malloc (sizeof(wlan_details_ep_t))))
         return NULL;
 
     SE_COPY_ADDRESS (&d_ep->addr, addr);
@@ -1481,7 +1481,7 @@ wlan_create_popup_menu(wlanstat_t *hs)
 
     action_group = gtk_action_group_new ("WlanFilterPopupActionGroup");
     gtk_action_group_add_actions (action_group,                             /* the action group */
-                                  (gpointer)wlans_stat_popup_entries,       /* an array of action descriptions */
+                                  (GtkActionEntry *)wlans_stat_popup_entries,       /* an array of action descriptions */
                                   G_N_ELEMENTS(wlans_stat_popup_entries),   /* the number of entries */
                                   hs);                                      /* data to pass to the action callbacks */
 
@@ -1698,7 +1698,7 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 
     action_group = gtk_action_group_new ("WlanDetailsPopupActionGroup");
     gtk_action_group_add_actions (action_group,                                  /* the action group */
-                                  (gpointer)wlan_details_list_popup_entries,     /* an array of action descriptions */
+                                  (GtkActionEntry *)wlan_details_list_popup_entries,     /* an array of action descriptions */
                                   G_N_ELEMENTS(wlan_details_list_popup_entries), /* the number of entries */
                                   hs);                                           /* data to pass to the action callbacks */
 
@@ -1743,7 +1743,7 @@ wlanstat_dlg_create (void)
     char  title[256];
     gint  i;
 
-    hs = g_malloc (sizeof(wlanstat_t));
+    hs = (wlanstat_t *)g_malloc (sizeof(wlanstat_t));
     hs->num_entries        = 0;
     hs->ep_list            = NULL;
     hs->number_of_packets  = 0;
@@ -1929,16 +1929,16 @@ wlanstat_dlg_create (void)
 
     gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button (wlanstat_dlg_w, close_bt, window_cancel_button_cb);
 
-    copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
+    copy_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 /*  gtk_button_set_label(GTK_BUTTON(copy_bt), "Copy Overview"); */
     gtk_widget_set_tooltip_text(copy_bt,
                  "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_WLAN_TRAFFIC_DIALOG);
 
     g_signal_connect (wlanstat_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

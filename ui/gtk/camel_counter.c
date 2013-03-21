@@ -92,7 +92,7 @@ static int gtk_camelcounter_packet(void *phs,
 				   const void *phi)
 {
   struct camelcounter_t * p_counter =(struct camelcounter_t *)phs;
-  const struct camelsrt_info_t * pi=phi;
+  const struct camelsrt_info_t * pi=(struct camelsrt_info_t *)phi;
   if (pi->opcode != 255)
     p_counter->camel_msg[pi->opcode]++;
 
@@ -158,7 +158,7 @@ static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
     filter=NULL;
   }
 
-  p_camelcounter=g_malloc(sizeof(struct camelcounter_t));
+  p_camelcounter=(struct camelcounter_t *)g_malloc(sizeof(struct camelcounter_t));
   p_camelcounter->filter=g_strdup(filter);
 
   gtk_camelcounter_reset(p_camelcounter);
@@ -195,7 +195,7 @@ static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
   bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
   gtk_box_pack_end(GTK_BOX(p_camelcounter->vbox), bbox, FALSE, FALSE, 0);
 
-  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(p_camelcounter->win, close_bt, window_cancel_button_cb);
 
   g_signal_connect(p_camelcounter->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

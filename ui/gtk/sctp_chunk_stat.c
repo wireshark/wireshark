@@ -115,7 +115,7 @@ static sctp_ep_t* alloc_sctp_ep(struct _sctp_info *si)
 	if(!si)
 		return NULL;
 
-	if (!(ep = g_malloc(sizeof(sctp_ep_t))))
+	if (!(ep = (sctp_ep_t *)g_malloc(sizeof(sctp_ep_t))))
 		return NULL;
 
 	COPY_ADDRESS(&ep->src,&si->ip_src);
@@ -266,7 +266,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	hs=g_malloc(sizeof(sctpstat_t));
+	hs=(sctpstat_t *)g_malloc(sizeof(sctpstat_t));
 	if(strncmp(opt_arg,"sctp,stat,",10) == 0){
 		hs->filter=g_strdup(opt_arg+10);
 	} else {
@@ -306,7 +306,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(hs->vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(hs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

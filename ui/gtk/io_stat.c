@@ -232,7 +232,7 @@ io_stat_reset(io_stat_t *io)
     for (i=0; i<MAX_GRAPHS; i++) {
         for (j=0; j<NUM_IO_ITEMS; j++) {
             io_item_t *ioi;
-            ioi = io->graphs[i].items[j];
+            ioi = (io_item_t *)io->graphs[i].items[j];
 
             ioi->frames     = 0;
             ioi->bytes      = 0;
@@ -264,7 +264,7 @@ io_stat_reset(io_stat_t *io)
 static void
 tap_iostat_reset(void *g)
 {
-    io_stat_graph_t *gio = g;
+    io_stat_graph_t *gio = (io_stat_graph_t *)g;
 
     io_stat_reset(gio->io);
 }
@@ -272,7 +272,7 @@ tap_iostat_reset(void *g)
 static gboolean
 tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
-    io_stat_graph_t *graph = g;
+    io_stat_graph_t *graph = (io_stat_graph_t *)g;
     io_stat_t       *io;
     io_item_t       *it;
     nstime_t         time_delta;
@@ -317,7 +317,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
     }
 
     /* Point to the appropriate io_item_t struct */
-    it = graph->items[idx];
+    it = (io_item_t *)graph->items[idx];
 
     /* Set the first and last frame num in current interval matching the target field+filter  */
     if (it->first_frame_in_invl == 0) {
@@ -410,7 +410,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
                 it->fields++;
                 break;
             case FT_RELATIVE_TIME:
-                new_time = fvalue_get(&((field_info *)gp->pdata[0])->value);
+                new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[0])->value);
 
                 switch (graph->calc_type) {
                     guint64 t, pt; /* time in us */
@@ -506,7 +506,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
     io_item_t *it;
     guint32    interval;
 
-    it = io->graphs[graph].items[idx];
+    it = (io_item_t *)io->graphs[graph].items[idx];
 
     switch (io->count_type) {
     case COUNT_TYPE_FRAMES:
@@ -1268,7 +1268,7 @@ io_stat_redraw(io_stat_t *io)
 static void
 tap_iostat_draw(void *g)
 {
-    io_stat_graph_t *git = g;
+    io_stat_graph_t *git = (io_stat_graph_t *)g;
 
     io_stat_draw(git->io);
 }
@@ -1448,10 +1448,10 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
 static void
 draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 {
-    io_stat_t      *io           = user_data;
+    io_stat_t      *io           = (io_stat_t *)user_data;
     int             i,j;
-    GtkWidget      *save_bt      = g_object_get_data(G_OBJECT(io->window), "save_bt");
-    surface_info_t *surface_info = g_object_get_data(G_OBJECT(save_bt), "surface-info");
+    GtkWidget      *save_bt      = (GtkWidget *)g_object_get_data(G_OBJECT(io->window), "save_bt");
+    surface_info_t *surface_info = (surface_info_t *)g_object_get_data(G_OBJECT(save_bt), "surface-info");
 
     g_free(surface_info);
 
@@ -1478,7 +1478,7 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 static gboolean
 pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 {
-    io_stat_t       *io        = g;
+    io_stat_t       *io        = (io_stat_t *)g;
     io_stat_graph_t *graph;
     io_item_t       *it;
     guint32          draw_width, interval, last_interval;
@@ -1527,7 +1527,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
         for (i=0; i<MAX_GRAPHS; i++) {
             graph = &io->graphs[i];
             if (graph->display) {
-                it = graph->items[interval];
+                it = (io_item_t *)graph->items[interval];
                 if (event->button == 1) {
                     if ((frame_num == 0) || (it->first_frame_in_invl < frame_num))
                         frame_num = it->first_frame_in_invl;
@@ -1562,7 +1562,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 static gboolean
 draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
-    io_stat_t      *io           = user_data;
+    io_stat_t      *io           = (io_stat_t *)user_data;
     GtkWidget      *save_bt;
     GtkAllocation   widget_alloc;
     cairo_t        *cr;
@@ -1598,7 +1598,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
     io->surface_width = widget_alloc.width;
     io->surface_height = widget_alloc.height;
 
-    save_bt = g_object_get_data(G_OBJECT(io->window), "save_bt");
+    save_bt = (GtkWidget *)g_object_get_data(G_OBJECT(io->window), "save_bt");
 #if GTK_CHECK_VERSION(2,22,0)
     surface_info->surface = io->surface;
     surface_info->width = widget_alloc.width;
@@ -1625,7 +1625,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 static void
 scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
     guint32    mi;
 
     mi = (guint32) (gtk_adjustment_get_value(io->scrollbar_adjustment)
@@ -1643,7 +1643,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 static gboolean
 draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
-    io_stat_t     *io = user_data;
+    io_stat_t     *io = (io_stat_t *)user_data;
     GtkAllocation  allocation;
 
     gtk_widget_get_allocation (widget, &allocation);
@@ -1658,7 +1658,7 @@ draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 static gboolean
 draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
     cairo_t   *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1706,7 +1706,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 static void
 tick_interval_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
     int i;
 
     i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
@@ -1720,7 +1720,7 @@ tick_interval_select(GtkWidget *item, gpointer user_data)
 static void
 pixels_per_tick_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
     int i;
 
     i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
@@ -1731,7 +1731,7 @@ pixels_per_tick_select(GtkWidget *item, gpointer user_data)
 static void
 plot_style_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_graph_t *ppt = user_data;
+    io_stat_graph_t *ppt = (io_stat_graph_t *)user_data;
     int val;
 
     val = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
@@ -1763,7 +1763,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io)
 static void
 yscale_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
     int        i;
 
     i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
@@ -1775,7 +1775,7 @@ yscale_select(GtkWidget *item, gpointer user_data)
 static void
 filter_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
     int        i;
 
     i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
@@ -1866,7 +1866,7 @@ create_filter_menu_items(io_stat_t *io)
 static void
 count_type_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_t       *io = user_data;
+    io_stat_t       *io = (io_stat_t *)user_data;
     int              i;
     GtkAllocation    widget_alloc;
     static gboolean  advanced_visible = FALSE;
@@ -1937,7 +1937,7 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, GtkWidget * (*
 static void
 view_as_time_toggle_dest(GtkWidget *widget _U_, gpointer user_data)
 {
-    io_stat_t *io = user_data;
+    io_stat_t *io = (io_stat_t *)user_data;
 
     io->view_as_time = io->view_as_time ? FALSE : TRUE;
 
@@ -1993,7 +1993,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 static void
 filter_callback(GtkWidget *widget, gpointer user_data)
 {
-    io_stat_graph_t   *gio   = user_data;
+    io_stat_graph_t   *gio   = (io_stat_graph_t *)user_data;
     const char        *filter;
     const char        *field = NULL;
     header_field_info *hfi;
@@ -2117,7 +2117,7 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 static void
 calc_type_select(GtkWidget *item, gpointer user_data)
 {
-    io_stat_graph_t *gio = user_data;
+    io_stat_graph_t *gio = (io_stat_graph_t *)user_data;
 
     gio->calc_type = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
@@ -2196,7 +2196,7 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 static void
 filter_button_clicked(GtkWidget *w, gpointer user_data)
 {
-    io_stat_graph_t *gio = user_data;
+    io_stat_graph_t *gio = (io_stat_graph_t *)user_data;
 
     display_filter_construct_cb(w, gio->args);
     return;
@@ -2205,7 +2205,7 @@ filter_button_clicked(GtkWidget *w, gpointer user_data)
 static void
 smooth_filter_toggled(GtkWidget *w, gpointer user_data)
 {
-    io_stat_graph_t *gio = user_data;
+    io_stat_graph_t *gio = (io_stat_graph_t *)user_data;
 
     gio->follow_smooth =
         gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
@@ -2348,7 +2348,7 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
     char        string[15];
     GtkClipboard *cb;
     GString     *CSV_str = g_string_new("");
-    io_stat_t   *io = user_data;
+    io_stat_t   *io = (io_stat_t *)user_data;
 
     g_string_append(CSV_str, "\"Interval start\"");
     for (i=0; i<MAX_GRAPHS; i++) {
@@ -2411,22 +2411,22 @@ init_io_stat_window(io_stat_t *io)
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
     gtk_widget_set_tooltip_text(close_bt,  "Close this dialog");
-    save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
+    save_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
     gtk_widget_set_sensitive(save_bt, FALSE);
     gtk_widget_set_tooltip_text(save_bt, "Save the displayed graph to a file");
     g_signal_connect(save_bt, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
     g_object_set_data(G_OBJECT(io->window), "save_bt", save_bt);
 
-    copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
+    copy_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_widget_set_tooltip_text(copy_bt,
                                 "Copy values from selected graphs to the clipboard in"
                                 " CSV (Comma Separated Values) format");
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), io);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_IO_GRAPH_DIALOG);
     gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
     g_signal_connect(io->window, "delete-event", G_CALLBACK(window_delete_event_cb), NULL);

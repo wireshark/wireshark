@@ -73,7 +73,7 @@ gtpstat_reset(void *pgtp)
 static int
 gtpstat_packet(void *pgtp, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
-	const gtp_msg_hash_t *gtp=psi;
+	const gtp_msg_hash_t *gtp=(gtp_msg_hash_t *)psi;
 	gtpstat_t *fs=(gtpstat_t *)pgtp;
 	int idx=0;
 
@@ -151,7 +151,7 @@ gtk_gtpstat_init(const char *opt_arg, void *userdata _U_)
 		filter="gtp"; /*NULL doesn't work here like in LDAP. Too little time/lazy to find out why ?*/
 	}
 
-	gtp=g_malloc(sizeof(gtpstat_t));
+	gtp=(gtpstat_t *)g_malloc(sizeof(gtpstat_t));
 
 	gtp->win = dlg_window_new("gtp-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(gtp->win), TRUE);
@@ -196,7 +196,7 @@ gtk_gtpstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(gtp->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(gtp->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

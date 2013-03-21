@@ -303,7 +303,7 @@ static int
 ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	ncpstat_t *ss=(ncpstat_t *)pss;
-    const ncp_req_hash_value *request_val=prv;
+    const ncp_req_hash_value *request_val=(ncp_req_hash_value *)prv;
 
 	/* if we havent seen the request, just ignore it */
 	if(!request_val || request_val->ncp_rec==0){
@@ -500,7 +500,7 @@ gtk_ncpstat_init(const char *opt_arg, void *userdata _U_)
         filter=NULL;
     }
 
-    ss=g_malloc(sizeof(ncpstat_t));
+    ss=(ncpstat_t *)g_malloc(sizeof(ncpstat_t));
 
 	ss->win = dlg_window_new("ncp-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
@@ -694,7 +694,7 @@ gtk_ncpstat_init(const char *opt_arg, void *userdata _U_)
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
     g_signal_connect(ss->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
