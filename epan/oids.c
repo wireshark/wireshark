@@ -248,8 +248,8 @@ static void smi_error_handler(char *path, int line, int severity, char *msg, cha
 
 
 static void* smi_mod_copy_cb(void* dest, const void* orig, size_t len _U_) {
-	const smi_module_t* m = orig;
-	smi_module_t* d = dest;
+	const smi_module_t* m = (const smi_module_t*)orig;
+	smi_module_t* d = (smi_module_t*)dest;
 
 	d->name = g_strdup(m->name);
 
@@ -257,7 +257,7 @@ static void* smi_mod_copy_cb(void* dest, const void* orig, size_t len _U_) {
 }
 
 static void smi_mod_free_cb(void* p) {
-	smi_module_t* m = p;
+	smi_module_t* m = (smi_module_t*)p;
 	g_free(m->name);
 }
 
@@ -322,7 +322,7 @@ static const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"enum",SMI_BASETYPE_ENUM,&integer_type},
 		{"bits",SMI_BASETYPE_BITS,&bytes_type},
 		{"unk",SMI_BASETYPE_UNKNOWN,&unknown_type},
-		{NULL,0,NULL}
+		{NULL,SMI_BASETYPE_UNKNOWN,NULL} /* SMI_BASETYPE_UNKNOWN = 0 */
 	};
 	const struct _type_mapping_t* t;
 	SmiType* sT = smiType;
@@ -421,7 +421,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 				typedata =  get_typedata(elType);
 
-				k = g_malloc(sizeof(oid_key_t));
+				k = g_new(oid_key_t,1);
 
 				oid1 = smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED);
 				oid2 = smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME);
@@ -748,7 +748,7 @@ void oid_pref_init(module_t *nameres)
                             sizeof(smi_module_t),
                             "smi_paths",
                             FALSE,
-                            (void*)&smi_paths,
+                            (void**)&smi_paths,
                             &num_smi_paths,
     /* affects dissection of packets (as the MIBs and PIBs affect the
        interpretation of e.g. SNMP variable bindings), but not set of
@@ -776,7 +776,7 @@ void oid_pref_init(module_t *nameres)
                               sizeof(smi_module_t),
                               "smi_modules",
                               FALSE,
-                              (void*)&smi_modules,
+                              (void**)&smi_modules,
                               &num_smi_modules,
     /* affects dissection of packets (as the MIBs and PIBs affect the
        interpretation of e.g. SNMP variable bindings), but not set of

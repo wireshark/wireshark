@@ -259,7 +259,7 @@ rtp_key_destroy(gpointer key)
 static void
 rtp_channel_value_destroy(gpointer rci_arg)
 {
-	rtp_channel_info_t *rci = rci_arg;
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)rci_arg;
 
 	g_array_free(rci->samples, TRUE);
 	g_free(rci);
@@ -270,14 +270,14 @@ rtp_channel_value_destroy(gpointer rci_arg)
 static void
 rtp_stream_value_destroy(gpointer rsi_arg)
 {
-	rtp_stream_info_t *rsi = rsi_arg;
+	rtp_stream_info_t *rsi = (rtp_stream_info_t *)rsi_arg;
 	GList*  rtp_packets_list;
 	rtp_packet_t *rp;
 
 	rtp_packets_list = g_list_first(rsi->rtp_packets_list);
 	while (rtp_packets_list)
 	{
-		rp = rtp_packets_list->data;
+		rp = (rtp_packet_t *)rtp_packets_list->data;
 
 		g_free(rp->info);
 		g_free(rp->payload_data);
@@ -296,7 +296,7 @@ rtp_stream_value_destroy(gpointer rsi_arg)
 static void
 rtp_decoder_value_destroy(gpointer dec_arg)
 {
-	rtp_decoder_t *dec = dec_arg;
+	rtp_decoder_t *dec = (rtp_decoder_t *)dec_arg;
 
 	if (dec->handle)
 		codec_release(dec->handle, dec->context);
@@ -373,11 +373,11 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 		pinfo->destport, rtp_info->info_sync_src );
 
 	/* lookup for this RTP packet in the stream hash table */
-	stream_info =  g_hash_table_lookup( rtp_streams_hash, key_str->str);
+	stream_info =  (rtp_stream_info_t *)g_hash_table_lookup( rtp_streams_hash, key_str->str);
 
 	/* if it is not in the hash table, create a new stream */
 	if (stream_info==NULL) {
-		stream_info = g_malloc(sizeof(rtp_stream_info_t));
+		stream_info = g_new(rtp_stream_info_t,1);
 		COPY_ADDRESS(&(stream_info->src_addr), &(pinfo->src));
 		stream_info->src_port = pinfo->srcport;
 		COPY_ADDRESS(&(stream_info->dest_addr), &(pinfo->dst));
@@ -401,14 +401,14 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	stream_info->num_packets++;
 
 	/* Add the RTP packet to the list */
-	new_rtp_packet = g_malloc(sizeof(rtp_packet_t));
-	new_rtp_packet->info = g_malloc(sizeof(struct _rtp_info));
+	new_rtp_packet = g_new(rtp_packet_t,1);
+	new_rtp_packet->info = (struct _rtp_info *)g_malloc(sizeof(struct _rtp_info));
 
 	memcpy(new_rtp_packet->info, rtp_info, sizeof(struct _rtp_info));
 	new_rtp_packet->arrive_offset = nstime_to_msec(&pinfo->fd->rel_ts) - stream_info->start_time;
 	/* copy the RTP payload to the rtp_packet to be decoded later */
 	if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
-		new_rtp_packet->payload_data = g_malloc(rtp_info->info_payload_len);
+		new_rtp_packet->payload_data = (guint8 *)g_malloc(rtp_info->info_payload_len);
 		memcpy(new_rtp_packet->payload_data, &(rtp_info->info_data[rtp_info->info_payload_offset]), rtp_info->info_payload_len);
 	} else {
 		new_rtp_packet->payload_data = NULL;
@@ -440,14 +440,14 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	graph_list = g_list_first(voip_calls->graph_analysis->list);
 	while (graph_list)
 	{
-		graph_item = graph_list->data;
+		graph_item = (graph_analysis_item_t *)graph_list->data;
 		if (rsi->first_frame_number == graph_item->fd->num) {
 			rsi->call_num = graph_item->conv_num;
 			/* if it is in the graph list, then check if the voip_call is selected */
 			voip_calls_list = g_list_first(voip_calls->callsinfo_list);
 			while (voip_calls_list)
 			{
-				tmp_voip_call = voip_calls_list->data;
+				tmp_voip_call = (voip_calls_info_t *)voip_calls_list->data;
 				if ( (tmp_voip_call->call_num == rsi->call_num) && (tmp_voip_call->selected == TRUE) ) {
 					rsi->play = TRUE;
 					total_packets += rsi->num_packets;
@@ -493,9 +493,9 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 	payload_type = rp->info->info_payload_type;
 
 	/* Look for registered codecs */
-	decoder = g_hash_table_lookup(decoders_hash, GUINT_TO_POINTER(payload_type));
+	decoder = (rtp_decoder_t *)g_hash_table_lookup(decoders_hash, GUINT_TO_POINTER(payload_type));
 	if (!decoder) {  /* Put either valid or empty decoder into the hash table */
-		decoder = g_malloc(sizeof(rtp_decoder_t));
+		decoder = g_new(rtp_decoder_t,1);
 		decoder->handle = NULL;
 		decoder->context = NULL;
 		p = match_strval_ext(payload_type, &rtp_payload_type_short_vals_ext);
@@ -508,7 +508,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 	}
 	if (decoder->handle) {  /* Decode with registered codec */
 		tmp_buff_len = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, NULL, NULL);
-		tmp_buff = g_malloc(tmp_buff_len);
+		tmp_buff = (SAMPLE *)g_malloc(tmp_buff_len);
 		decoded_bytes = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, tmp_buff, &tmp_buff_len);
 		*out_buff = tmp_buff;
 		return decoded_bytes;
@@ -519,13 +519,13 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 	switch (payload_type) {
 
 	case PT_PCMU:	/* G.711 u-law */
-		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
+		tmp_buff = (SAMPLE *)g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711u(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break;
 
 	case PT_PCMA:	/* G.711 A-law */
-		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
+		tmp_buff = (SAMPLE *)g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711a(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break;
@@ -646,11 +646,11 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	}
 
 	/* lookup for this stream in the channel hash table */
-	rci =  g_hash_table_lookup( rtp_channels_hash, key_str->str);
+	rci =  (rtp_channel_info_t *)g_hash_table_lookup( rtp_channels_hash, key_str->str);
 
 	/* ..if it is not in the hash, create an entry */
 	if (rci == NULL) {
-		rci = g_malloc(sizeof(rtp_channel_info_t));
+		rci = g_new(rtp_channel_info_t,1);
 		rci->call_num = rsi->call_num;
 		rci->start_time = rsi->start_time;
 		rci->start_time_abs = rsi->start_time_abs;
@@ -729,7 +729,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		}
 
 
-		rp = rtp_packets_list->data;
+		rp = (rtp_packet_t *)rtp_packets_list->data;
 		if (first == TRUE) {
 			start_timestamp = rp->info->info_timestamp; /* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
 			start_rtp_time = 0;
@@ -862,7 +862,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 static gint
 h_scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci = user_data;
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
 	rci->cursor_catch = TRUE;
 	return TRUE;
 }
@@ -1234,7 +1234,7 @@ static int paCallback( const void *inputBuffer _U_, void *outputBuffer,
 static void
 on_bt_check_clicked(GtkButton *button _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci = user_data;
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
 
 	if (rci->selected) {
 		if (rtp_channels->rci[0] == rci) {
@@ -1593,7 +1593,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 /****************************************************************************/
 static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-	rtp_channel_info_t *rci = user_data;
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
 	cairo_t *cr;
 
 	if (gtk_widget_is_drawable(widget)){
@@ -1616,7 +1616,7 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 static gboolean
 configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci = user_data;
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
 	int i;
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
@@ -1707,7 +1707,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 static gboolean
 button_press_event_channel(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data)
 {
-	rtp_channel_info_t *rci = user_data;
+	rtp_channel_info_t *rci = (rtp_channel_info_t *)user_data;
 	int this_channel;
 	unsigned long prev_index;
 
@@ -2487,7 +2487,7 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 #endif /* HAVE_G729_G723 */
 
 	if (!rtp_channels) {
-		rtp_channels = g_malloc(sizeof(rtp_play_channels_t));
+		rtp_channels = g_new(rtp_play_channels_t,1);
 	}
 
 	reset_rtp_channels();

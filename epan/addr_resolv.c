@@ -373,7 +373,7 @@ add_async_dns_ipv4(int type, guint32 addr)
 {
   async_dns_queue_msg_t *msg;
 
-  msg = g_malloc(sizeof(async_dns_queue_msg_t));
+  msg = g_new(async_dns_queue_msg_t,1);
 #ifdef HAVE_C_ARES
   msg->family = type;
   msg->addr.ip4 = addr;
@@ -727,7 +727,7 @@ c_ares_ghba_cb(void *arg, int status, struct hostent *he) {
 #else
 c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
 #endif
-  async_dns_queue_msg_t *caqm = arg;
+  async_dns_queue_msg_t *caqm = (async_dns_queue_msg_t *)arg;
   char **p;
 
   if (!caqm) return;
@@ -825,7 +825,7 @@ host_lookup(const guint addr, gboolean *found)
        * else call gethostbyaddr and hope for the best
        */
 
-      hostp = gethostbyaddr((char *)&addr, 4, AF_INET);
+      hostp = gethostbyaddr((const char *)&addr, 4, AF_INET);
 
       if (hostp != NULL) {
         g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
@@ -906,7 +906,7 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
   if ((gbl_resolv_flags.concurrent_dns) &&
       name_resolve_concurrency > 0 &&
       async_dns_initialized) {
-    caqm = g_malloc(sizeof(async_dns_queue_msg_t));
+    caqm = g_new(async_dns_queue_msg_t,1);
     caqm->family = AF_INET6;
     memcpy(&caqm->addr.ip6, addr, sizeof(caqm->addr.ip6));
     async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) caqm);
@@ -924,7 +924,7 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
 #endif /* HAVE_C_ARES */
 
   /* Quick hack to avoid DNS/YP timeout */
-  hostp = gethostbyaddr((char *)addr, sizeof(*addr), AF_INET6);
+  hostp = gethostbyaddr((const char *)addr, sizeof(*addr), AF_INET6);
 
   if (hostp != NULL) {
     g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
@@ -3257,7 +3257,7 @@ c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
    * XXX - If we wanted to be really fancy we could cache results here and
    * look them up in get_host_ipaddr* below.
    */
-  async_hostent_t *ahp = arg;
+  async_hostent_t *ahp = (async_hostent_t *)arg;
   if (status == ARES_SUCCESS && hp && ahp && hp->h_length == ahp->addr_size) {
     memcpy(ahp->addrp, hp->h_addr, hp->h_length);
     ahp->copied = hp->h_length;

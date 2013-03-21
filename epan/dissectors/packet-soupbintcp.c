@@ -64,6 +64,8 @@
 /* For tcp_dissect_pdus() */
 #include "packet-tcp.h"
 
+void proto_register_soupbintcp(void);
+void proto_reg_handoff_soupbintcp(void);
 
 /** Session data stored in the conversation */
 struct conv_data {
@@ -246,7 +248,7 @@ dissect_soupbintcp_common(
                                 0);
 
         /* Store starting sequence number for session's packets */
-        conv_data = wmem_alloc(wmem_file_scope(), sizeof(struct conv_data));
+        conv_data = (struct conv_data *)wmem_alloc(wmem_file_scope(), sizeof(struct conv_data));
         conv_data->next_seq = next_seq;
         conversation_add_proto_data(conv, proto_soupbintcp, conv_data);
     }
@@ -265,7 +267,7 @@ dissect_soupbintcp_common(
             if (!conv) {
                 this_seq = 0;
             } else {
-                conv_data = conversation_get_proto_data(conv,
+                conv_data = (struct conv_data *)conversation_get_proto_data(conv,
                                                         proto_soupbintcp);
                 if (conv_data) {
                     this_seq = conv_data->next_seq++;
