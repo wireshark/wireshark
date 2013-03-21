@@ -79,6 +79,8 @@ static void  zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 
 static guint64 tvb_get_letohi (tvbuff_t *tvb, guint offset, guint length, gboolean signed_flag);
 
+static void dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num);
+
 /********************
  * Global Variables *
  ********************
@@ -132,11 +134,14 @@ static int hf_zbee_zcl_attr_maxnum = -1;
 static int hf_zbee_zcl_attr_str_len = -1;
 static int hf_zbee_zcl_attr_str = -1;
 static int hf_zbee_zcl_attr_ostr = -1;
+static int hf_zbee_zcl_attr_array_elements_type = -1;
+static int hf_zbee_zcl_attr_array_elements_num = -1;
 
 /* Subtree indices. */
 static gint ett_zbee_zcl = -1;
 static gint ett_zbee_zcl_fcf = -1;
 static gint ett_zbee_zcl_attr[ZBEE_ZCL_NUM_ATTR_ETT];
+static gint ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
 
 /* Dissector Handles. */
 static dissector_handle_t   data_handle;
@@ -1448,6 +1453,8 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
     gint      attr_int;
     guint8   *attr_string;
     guint8    attr_uint8[4];
+    guint8    elements_type;
+    guint16   elements_num;
     gfloat    attr_float;
     gdouble   attr_double;
     nstime_t  attr_time;
@@ -1753,6 +1760,31 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             *offset += attr_uint;
             break;
 
+        case ZBEE_ZCL_ARRAY:
+            /* BYTE 0 - Elements type */
+            elements_type = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_array_elements_type, tvb, *offset, (int)sizeof(guint8), elements_type);
+            *offset += (int)sizeof(guint8);
+            /* BYTE 1-2 - Element number */
+            elements_num = tvb_get_letohs(tvb, *offset);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_array_elements_num, tvb, *offset, (int)sizeof(guint16), elements_num);
+            *offset += (int)sizeof(guint16);
+            /* BYTE ... - Elements */
+            dissect_zcl_array_type(tvb, tree, offset, elements_type, elements_num);
+            break;
+
+        case ZBEE_ZCL_SET:
+            /* ToDo */
+            break;
+
+        case ZBEE_ZCL_STRUCT:
+            /* ToDo */
+            break;
+
+        case ZBEE_ZCL_BAG:
+            /* ToDo */
+            break;
+
         case ZBEE_ZCL_TIME:
             /* Dissect Time of Day */
             attr_uint8[0] = dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_hours);
@@ -1929,6 +1961,43 @@ static void dissect_zcl_attr_bytes(tvbuff_t *tvb, proto_tree *tree, guint *offse
 
         return;
 } /* dissect_dcl_attr_bytes */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_array_type
+ *  DESCRIPTION
+ *      Helper dissector for ZCL attribute array type.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
+ *      offset              - offset into the tvb to begin dissection.
+ *      elements_type       - element type
+ *      elements_num        - elements number
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num)
+{
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
+
+    guint tvb_len;
+    guint i = 1;   /* First element has a 1-index value */
+
+    tvb_len = tvb_length(tvb);
+    while ( (*offset < tvb_len) && (i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT) && (elements_num != 0) ) {
+        /* Create subtree for array element field */
+        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Element #%d", i);
+        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[i]);
+        dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type);
+        elements_num--;
+        i++;
+    }
+
+    return;
+} /* dissect_zcl_array_type */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2197,11 +2266,20 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_attr_ostr,
             { "Octet String",   "zbee_zcl.attr.ostr", FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_array_elements_type,
+            { "Elements Type",   "zbee_zcl.attr.array.elements_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &zbee_zcl_data_type_names_ext, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_array_elements_num,
+            { "Elements Number",   "zbee_zcl.attr.array.elements_num", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }}
     };
 
     /* ZCL subtrees */
-    gint *ett[ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT];
+    gint *ett[ZBEE_ZCL_NUM_TOTAL_ETT];
 
     ett[0] = &ett_zbee_zcl;
     ett[1] = &ett_zbee_zcl_fcf;
@@ -2212,6 +2290,11 @@ void proto_register_zbee_zcl(void)
     for ( i = 0; i < ZBEE_ZCL_NUM_ATTR_ETT; i++, j++) {
         ett_zbee_zcl_attr[i] = -1;
         ett[j] = &ett_zbee_zcl_attr[i];
+    }
+
+    for ( i = 0; i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT; i++, j++ ) {
+        ett_zbee_zcl_array_elements[i] = -1;
+        ett[j] = &ett_zbee_zcl_array_elements[i];
     }
 
     /* Register ZigBee ZCL protocol with Wireshark. */
