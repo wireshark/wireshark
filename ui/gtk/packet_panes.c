@@ -1352,8 +1352,13 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
             field_info   *fi;
 
             if(gtk_tree_selection_get_selected (sel, &model, &iter)) {
-                gtk_tree_model_get(model, &iter, 1, &fi, -1);
-                tree_view_follow_link(fi);
+                if (event->state & GDK_SHIFT_MASK) {
+                    new_packet_window(NULL, TRUE, FALSE);
+                }
+                else {
+                    gtk_tree_model_get(model, &iter, 1, &fi, -1);
+                    tree_view_follow_link(fi);
+                }
             }
         }
         else if (((GdkEventButton *)event)->button != 1) {
