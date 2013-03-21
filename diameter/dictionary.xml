@@ -2918,7 +2918,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="CG-Address" code="846" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<!-- ETSI TS 132 299 V7.6.0 (2007-06) -->
 		<avp name="GGSN-Address" code="847" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
