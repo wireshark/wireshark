@@ -741,6 +741,7 @@ capture_if_refresh_if_list(void)
     gtk_misc_set_alignment(GTK_MISC(data.device_lb), 0.0f, 0.5f);
     if (strlen(gtk_label_get_text(GTK_LABEL(data.device_lb))) > SOFT_LABEL_LEN) {
         gtk_label_set_ellipsize(GTK_LABEL(data.device_lb), PANGO_ELLIPSIZE_MIDDLE);
+        gtk_label_set_width_chars(GTK_LABEL(data.device_lb), SOFT_LABEL_LEN);
     }
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.device_lb, 2, row, 2, 1);
 
@@ -758,6 +759,7 @@ capture_if_refresh_if_list(void)
     gtk_misc_set_alignment(GTK_MISC(data.descr_lb), 0.0f, 0.5f);
     if (strlen(gtk_label_get_text(GTK_LABEL(data.descr_lb))) > SOFT_LABEL_LEN) {
         gtk_label_set_ellipsize(GTK_LABEL(data.descr_lb), PANGO_ELLIPSIZE_MIDDLE);
+        gtk_label_set_width_chars(GTK_LABEL(data.descr_lb), SOFT_LABEL_LEN);
     }
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.descr_lb, 4, row, 1, 1);
 
