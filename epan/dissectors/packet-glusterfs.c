@@ -512,11 +512,11 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		items = tvb_get_ntohl(tvb, offset);
 
 	proto_item_append_text(subtree_item, ", contains %d item%s", items, items == 1 ? "" : "s");
-	proto_tree_add_text(subtree, tvb, offset, 4, "Items: %d", items);
 
 	if (len == 0)
 		return offset;
 
+	proto_tree_add_text(subtree, tvb, offset, 4, "Items: %d", items);
 	offset += 4;
 
 	for (i = 0; i < items; i++) {
@@ -534,15 +534,27 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		offset += key_len;
 
 		/* read the value, possibly '\0' terminated */
-		value = tvb_get_ephemeral_string(tvb, offset, value_len);
 		if (tree) {
 			/* keys named "gfid-req" contain a GFID in hex */
 			if (value_len == 16 && !strncmp("gfid-req", key, 8)) {
-				char *gfid;
-				gfid = guid_to_str((e_guid_t*) value);
-				proto_item_append_text(dict_item, "%s", gfid);
-			} else
+				char *gfid_s;
+				e_guid_t gfid;
+
+				/* Gluster is not very endianness friendly */
+				tvb_get_letohguid(tvb, offset, &gfid);
+
+				gfid_s = guid_to_str(&gfid);
+				proto_item_append_text(dict_item, "%s", gfid_s);
+			/* this is a changelog in binary format */
+			} else if (value_len == 12 && !strncmp("trusted.afr.", key, 12)) {
+				proto_item_append_text(dict_item, "0x%.8x%.8x%.8x",
+						       tvb_get_letohl(tvb, offset + 0),
+						       tvb_get_letohl(tvb, offset + 4),
+						       tvb_get_letohl(tvb, offset + 8));
+			} else {
+				value = tvb_get_ephemeral_string(tvb, offset, value_len);
 				proto_item_append_text(dict_item, "%s", value);
+			}
 		}
 		offset += value_len;
 		proto_item_set_len (dict_item, offset - start_offset2);
