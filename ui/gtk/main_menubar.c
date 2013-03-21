@@ -362,7 +362,7 @@ static void
 edit_window_cb(GtkWidget *widget _U_)
 {
 #ifdef WANT_PACKET_EDITOR
-    new_packet_window(widget, TRUE);
+    new_packet_window(widget, FALSE, TRUE);
 #endif
 }
 
