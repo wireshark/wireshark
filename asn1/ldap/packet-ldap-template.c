@@ -2280,7 +2280,7 @@ void proto_register_ldap(void) {
                            sizeof(attribute_type_t),
                            "custom_ldap_attribute_types",
                            TRUE,
-                           (void*) &attribute_types,
+                           (void**) &attribute_types,
                            &num_attribute_types,
                            /* specifies named fields, so affects dissection
                               and the set of named fields */

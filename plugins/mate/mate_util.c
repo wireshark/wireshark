@@ -127,7 +127,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 	guint* ip = NULL;
 	size_t len = 0;
 
-	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer *)&ip);
+	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer *)&orig,(gpointer *)&ip);
 
 	if (ip) {
 		(*ip)++;
@@ -309,11 +309,11 @@ extern void avp_init(void) {
  *
  **/
 extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
-	AVP*   new_avp = (AVP*)g_slice_new(any_avp_type);
+	AVP*   new_avp_val = (AVP*)g_slice_new(any_avp_type);
 	gchar* value;
 	gchar* repr = NULL;
 
-	new_avp->n = scs_subscribe(avp_strings, name);
+	new_avp_val->n = scs_subscribe(avp_strings, name);
 
 	if (finfo->value.ftype->val_to_string_repr) {
 		repr = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL);
@@ -331,15 +331,15 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 		value = scs_subscribe(avp_strings, "");
 	}
 
-	new_avp->v = value;
+	new_avp_val->v = value;
 
-	new_avp->o = '=';
+	new_avp_val->o = '=';
 
 #ifdef _AVP_DEBUGGING
-	dbg_print (dbg_avp,1,dbg_fp,"new_avp_from_finfo: %X %s%c%s;",(guint32) new_avp,new_avp->n,new_avp->o,new_avp->v);
+	dbg_print (dbg_avp,1,dbg_fp,"new_avp_from_finfo: %X %s%c%s;",(guint32) new_avp_val,new_avp_val->n,new_avp_val->o,new_avp_val->v);
 #endif
 
-	return new_avp;
+	return new_avp_val;
 }
 
 
@@ -355,16 +355,16 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
  *
  **/
 extern AVP* new_avp(const gchar* name, const gchar* value, gchar o) {
-	AVP* new_avp = (AVP*)g_slice_new(any_avp_type);
+	AVP* new_avp_val = (AVP*)g_slice_new(any_avp_type);
 
-	new_avp->n = scs_subscribe(avp_strings, name);
-	new_avp->v = scs_subscribe(avp_strings, value);
-	new_avp->o = o;
+	new_avp_val->n = scs_subscribe(avp_strings, name);
+	new_avp_val->v = scs_subscribe(avp_strings, value);
+	new_avp_val->o = o;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avp,1,dbg_fp,"new_avp: %X %s%c%s;",(guint32) new_avp,new_avp->n,new_avp->o,new_avp->v);
+	dbg_print(dbg_avp,1,dbg_fp,"new_avp_val: %X %s%c%s;",(guint32) new_avp_val,new_avp_val->n,new_avp_val->o,new_avp_val->v);
 #endif
-	return new_avp;
+	return new_avp_val;
 }
 
 
@@ -396,17 +396,17 @@ extern void delete_avp(AVP* avp) {
  *
  **/
 extern AVP* avp_copy(AVP* from) {
-	AVP* new_avp = (AVP*)g_slice_new(any_avp_type);
+	AVP* new_avp_val = (AVP*)g_slice_new(any_avp_type);
 
-	new_avp->n = scs_subscribe(avp_strings, from->n);
-	new_avp->v = scs_subscribe(avp_strings, from->v);
-	new_avp->o = from->o;
+	new_avp_val->n = scs_subscribe(avp_strings, from->n);
+	new_avp_val->v = scs_subscribe(avp_strings, from->v);
+	new_avp_val->o = from->o;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avp,1,dbg_fp,"copy_avp: %X %s%c%s;",(guint32) new_avp,new_avp->n,new_avp->o,new_avp->v);
+	dbg_print(dbg_avp,1,dbg_fp,"copy_avp: %X %s%c%s;",(guint32) new_avp_val,new_avp_val->n,new_avp_val->o,new_avp_val->v);
 #endif
 
-	return new_avp;
+	return new_avp_val;
 }
 
 /**
@@ -453,13 +453,13 @@ extern void rename_avpl(AVPL* avpl, gchar* name) {
  *         it is not inserted.
  **/
 extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
-	AVPN* new_avp = (AVPN*)g_slice_new(any_avp_type);
+	AVPN* new_avp_val = (AVPN*)g_slice_new(any_avp_type);
 	AVPN* c;
 
-	new_avp->avp = avp;
+	new_avp_val->avp = avp;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpn: %X",new_avp);
+	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpn: %X",new_avp_val);
 	dbg_print(dbg_avpl_op,4,dbg_fp,"insert_avp: %X %X %s%c%s;",avpl,avp,avp->n,avp->o,avp->v);
 #endif
 
@@ -475,9 +475,9 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
 			if (avp->v == c->avp->v) {
 				if (avp->o == AVP_OP_EQUAL) {
 #ifdef _AVP_DEBUGGING
-					dbg_print(dbg_avpl_op,7,dbg_fp,"delete_avpn: %X",new_avp);
+					dbg_print(dbg_avpl_op,7,dbg_fp,"delete_avpn: %X",new_avp_val);
 #endif
-					g_slice_free(any_avp_type,(any_avp_type*)new_avp);
+					g_slice_free(any_avp_type,(any_avp_type*)new_avp_val);
 					return FALSE;
 				}
 			}
@@ -492,10 +492,10 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
 	dbg_print(dbg_avpl,5,dbg_fp,"insert_avp:  inserting %X in %X before %X;",avp,avpl,c);
 #endif
 
-	new_avp->next = c;
-	new_avp->prev = c->prev;
-	c->prev->next = new_avp;
-	c->prev = new_avp;
+	new_avp_val->next = c;
+	new_avp_val->prev = c->prev;
+	c->prev->next = new_avp_val;
+	c->prev = new_avp_val;
 
 	avpl->len++;
 

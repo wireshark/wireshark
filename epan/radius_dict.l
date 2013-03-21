@@ -531,7 +531,7 @@ static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
 		g_free((void*)vs->strptr);
 	}
 
-	g_array_free(v,TRUE);
+	g_array_free((GArray*)v,TRUE);
 	return TRUE;
 }
 

@@ -122,8 +122,8 @@ geoip_dat_scan_dir(const char *dirname) {
 
 /* UAT callbacks */
 static void* geoip_db_path_copy_cb(void* dest, const void* orig, size_t len _U_) {
-    const geoip_db_path_t *m = orig;
-    geoip_db_path_t *d = dest;
+    const geoip_db_path_t *m = (geoip_db_path_t *)orig;
+    geoip_db_path_t *d = (geoip_db_path_t *)dest;
 
     d->path = g_strdup(m->path);
 
@@ -131,7 +131,7 @@ static void* geoip_db_path_copy_cb(void* dest, const void* orig, size_t len _U_)
 }
 
 static void geoip_db_path_free_cb(void* p) {
-    geoip_db_path_t *m = p;
+    geoip_db_path_t *m = (geoip_db_path_t *)p;
     g_free(m->path);
 }
 
@@ -181,12 +181,12 @@ static void geoip_db_post_update_cb(void) {
      * (using "City" in reality) */
 
     /* latitude */
-    gi = g_malloc(sizeof (GeoIP));
+    gi = (GeoIP *)g_malloc(sizeof (GeoIP));
     gi->databaseType = WS_LAT_FAKE_EDITION;
     g_array_append_val(geoip_dat_arr, gi);
 
     /* longitude */
-    gi = g_malloc(sizeof (GeoIP));
+    gi = (GeoIP *)g_malloc(sizeof (GeoIP));
     gi->databaseType = WS_LON_FAKE_EDITION;
     g_array_append_val(geoip_dat_arr, gi);
 }
@@ -206,7 +206,7 @@ geoip_db_pref_init(module_t *nameres)
             sizeof(geoip_db_path_t),
             "geoip_db_paths",
             FALSE,
-            (void*)&geoip_db_paths,
+            (void**)&geoip_db_paths,
             &num_geoip_db_paths,
             /* affects dissection of packets (as the GeoIP database is
                used when dissecting), but not set of named fields */
@@ -244,10 +244,10 @@ geoip_db_init(void) {
         GeoIP *gi_lat;
         GeoIP *gi_lon;
 
-        gi_lat = g_malloc(sizeof (GeoIP));
+        gi_lat = (GeoIP *)g_malloc(sizeof (GeoIP));
         gi_lat->databaseType = WS_LAT_FAKE_EDITION;
         g_array_append_val(geoip_dat_arr, gi_lat);
-        gi_lon = g_malloc(sizeof (GeoIP));
+        gi_lon = (GeoIP *)g_malloc(sizeof (GeoIP));
         gi_lon->databaseType = WS_LON_FAKE_EDITION;
         g_array_append_val(geoip_dat_arr, gi_lon);
     }
