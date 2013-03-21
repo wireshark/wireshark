@@ -2242,7 +2242,6 @@ static int hf_lte_rrc_plmn_Id_r9 = -1;            /* T_plmn_Id_r9 */
 static int hf_lte_rrc_plmn_Index_r9 = -1;         /* INTEGER_1_maxPLMN_r11 */
 static int hf_lte_rrc_explicitValue_r9 = -1;      /* PLMN_Identity */
 static int hf_lte_rrc_serviceId_r9 = -1;          /* OCTET_STRING_SIZE_3 */
-static int hf_lte_rrc_plmn_Identity_r11_01 = -1;  /* PLMN_Identity */
 static int hf_lte_rrc_criticalExtensions_38 = -1;  /* T_criticalExtensions_38 */
 static int hf_lte_rrc_c1_34 = -1;                 /* T_c1_34 */
 static int hf_lte_rrc_handoverCommand_r8 = -1;    /* HandoverCommand_r8_IEs */
@@ -3459,7 +3458,6 @@ static gint ett_lte_rrc_MBMS_SessionInfo_r9 = -1;
 static gint ett_lte_rrc_PMCH_Config_r9 = -1;
 static gint ett_lte_rrc_TMGI_r9 = -1;
 static gint ett_lte_rrc_T_plmn_Id_r9 = -1;
-static gint ett_lte_rrc_VarConnEstFailReport_r11 = -1;
 static gint ett_lte_rrc_HandoverCommand = -1;
 static gint ett_lte_rrc_T_criticalExtensions_38 = -1;
 static gint ett_lte_rrc_T_c1_34 = -1;
@@ -32895,21 +32893,6 @@ dissect_lte_rrc_UE_EUTRA_Capability_v9a0_IEs(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const per_sequence_t VarConnEstFailReport_r11_sequence[] = {
-  { &hf_lte_rrc_connEstFailReport_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ConnEstFailReport_r11 },
-  { &hf_lte_rrc_plmn_Identity_r11_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PLMN_Identity },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_VarConnEstFailReport_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_VarConnEstFailReport_r11, VarConnEstFailReport_r11_sequence);
-
-  return offset;
-}
-
-
 
 static int
 dissect_lte_rrc_T_handoverCommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -42329,10 +42312,6 @@ void proto_register_lte_rrc(void) {
       { "serviceId-r9", "lte-rrc.serviceId_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_3", HFILL }},
-    { &hf_lte_rrc_plmn_Identity_r11_01,
-      { "plmn-Identity-r11", "lte-rrc.plmn_Identity_r11",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "PLMN_Identity", HFILL }},
     { &hf_lte_rrc_criticalExtensions_38,
       { "criticalExtensions", "lte-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_criticalExtensions_38_vals), 0,
@@ -44017,7 +43996,6 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_PMCH_Config_r9,
     &ett_lte_rrc_TMGI_r9,
     &ett_lte_rrc_T_plmn_Id_r9,
-    &ett_lte_rrc_VarConnEstFailReport_r11,
     &ett_lte_rrc_HandoverCommand,
     &ett_lte_rrc_T_criticalExtensions_38,
     &ett_lte_rrc_T_c1_34,

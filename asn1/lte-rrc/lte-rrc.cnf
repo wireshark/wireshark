@@ -52,6 +52,7 @@ VarMeasConfig
 VarMeasReportList
 VarMeasReport
 CellsTriggeredList
+VarConnEstFailReport-r11
 VarLogMeasConfig-r10
 VarLogMeasReport-r10
 LogMeasInfoList2-r10
