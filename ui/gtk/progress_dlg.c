@@ -91,7 +91,7 @@ create_progress_dlg(const gpointer top_level_window _U_, const gchar *task_title
     gchar     *task_title_dup;
     gchar     *item_title_dup;
 
-    dlg = g_malloc(sizeof (progdlg_t));
+    dlg = (progdlg_t *)g_malloc(sizeof (progdlg_t));
 
     /* limit the item_title to some reasonable length */
     item_title_dup = g_strdup(item_title);
@@ -203,7 +203,7 @@ create_progress_dlg(const gpointer top_level_window _U_, const gchar *task_title
     gtk_container_add(GTK_CONTAINER(main_vb), bbox);
     gtk_widget_show(bbox);
 
-    cancel_bt = g_object_get_data(G_OBJECT(bbox), terminate_is_stop ? GTK_STOCK_STOP :
+    cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), terminate_is_stop ? GTK_STOCK_STOP :
                                 GTK_STOCK_CANCEL);
     gtk_widget_grab_default(cancel_bt);
 
@@ -388,7 +388,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 	}
 
 	/* update progress bar */
-	prog_bar = g_object_get_data(G_OBJECT(dlg_w), PROG_BAR_KEY);
+	prog_bar = (GtkWidget *)g_object_get_data(G_OBJECT(dlg_w), PROG_BAR_KEY);
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
 
 	/*

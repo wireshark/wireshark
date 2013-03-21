@@ -308,8 +308,8 @@ static const GtkActionEntry proto_hier_stats_popup_entries[] = {
 static void
 fill_in_tree_node(GNode *node, gpointer data)
 {
-    ph_stats_node_t *stats = node->data;
-    draw_info_t     *di = data;
+    ph_stats_node_t *stats = (ph_stats_node_t *)node->data;
+    draw_info_t     *di = (draw_info_t *)data;
     ph_stats_t      *ps = di->ps;
     draw_info_t     child_di;
     double          seconds;
@@ -416,7 +416,7 @@ proto_hier_create_popup_menu(void)
 
     action_group = gtk_action_group_new ("ProtoHierStatsTFilterPopupActionGroup");
     gtk_action_group_add_actions (action_group,                                 /* the action group */
-                                (gpointer)proto_hier_stats_popup_entries,       /* an array of action descriptions */
+                                (GtkActionEntry *)proto_hier_stats_popup_entries,       /* an array of action descriptions */
                                 G_N_ELEMENTS(proto_hier_stats_popup_entries),   /* the number of entries */
                                 NULL);                                          /* data to pass to the action callbacks */
 
@@ -584,10 +584,10 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(dlg, close_bt, window_cancel_button_cb);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_PROTO_HIERARCHY_DIALOG);
 
     g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

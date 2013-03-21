@@ -1031,7 +1031,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
          user whether to save the capture. */
       if (cfile.is_tempfile) {
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
-                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
                                             "Do you want to save the captured packets before merging another capture file into it?");
@@ -1044,7 +1044,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
          */
         display_basename = g_filename_display_basename(cfile.filename);
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
-                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
                                             "Do you want to save the changes you've made "
@@ -1140,7 +1140,7 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
          to save the data. */
       if (cf->is_tempfile) {
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
-                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
                                             capture_in_progress ?
@@ -1157,14 +1157,14 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
         display_basename = g_filename_display_basename(cf->filename);
         if (capture_in_progress) {
           msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
-                                              GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                              (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                               GTK_MESSAGE_QUESTION,
                                               GTK_BUTTONS_NONE,
                                               "Do you want to stop the capture and save the captured packets%s?",
                                               before_what);
         } else {
           msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
-                                              GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                              (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                               GTK_MESSAGE_QUESTION,
                                               GTK_BUTTONS_NONE,
                                               "Do you want to save the changes you've made "
@@ -2343,7 +2343,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 
     /* Write out the filters (all, or only the ones that are currently
        displayed or selected) to the file with the specified name. */
-    if (!color_filters_export(cf_name, filter_list, color_selected)) {
+    if (!color_filters_export(cf_name, (GSList *)filter_list, color_selected)) {
       /* The write failed; don't dismiss the open dialog box,
          just leave it around so that the user can, after they
          dismiss the alert box popped up for the error, try again. */

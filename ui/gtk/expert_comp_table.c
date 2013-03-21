@@ -606,7 +606,7 @@ error_create_popup_menu(error_equiv_table *err)
 
     action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup");
     gtk_action_group_add_actions (action_group,                            /* the action group */
-                                (gpointer)expert_popup_entries,            /* an array of action descriptions */
+                                (GtkActionEntry *)expert_popup_entries,    /* an array of action descriptions */
                                 G_N_ELEMENTS(expert_popup_entries),        /* the number of entries */
                                 err);                                      /* data to pass to the action callbacks */
 

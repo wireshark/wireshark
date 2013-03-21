@@ -589,7 +589,7 @@ setup_file_import(GtkWidget *main_w)
 {
     GtkWidget *input_frm, *import_frm;
 
-    text_import_info_t *text_import_info = g_malloc0(sizeof(text_import_info_t));
+    text_import_info_t *text_import_info = (text_import_info_t *)g_malloc0(sizeof(text_import_info_t));
 
     /* Retrieve the input and import settings from the dialog */
 
@@ -622,7 +622,7 @@ setup_file_import(GtkWidget *main_w)
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(offset_hex_rb)) ? OFFSET_HEX :
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(offset_oct_rb)) ? OFFSET_OCT :
             gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(offset_dec_rb)) ? OFFSET_DEC :
-            0;
+            OFFSET_NONE;
         text_import_info->date_timestamp = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(timefmt_cb));
         text_import_info->date_timestamp_format = g_strdup(gtk_entry_get_text(GTK_ENTRY(timefmt_te)));
     }
@@ -815,7 +815,7 @@ file_import_ok_cb(GtkWidget *widget _U_, gpointer data)
        If they cancel out of it, don't open the file. */
     if (do_file_close(&cfile, FALSE, " before opening a new capture file")) {
         /* open the new file */
-        text_import_info = setup_file_import(data);
+        text_import_info = setup_file_import((GtkWidget *)data);
         if (text_import_info)
             file_import_open(text_import_info);
     }
@@ -1153,15 +1153,15 @@ file_import_dlg_new(void)
     bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
     gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_IMPORT_DIALOG);
     gtk_widget_set_tooltip_text(help_bt, "Show topic specific help");
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     window_set_cancel_button(main_w, close_bt, window_cancel_button_cb);
     gtk_widget_set_tooltip_text(close_bt, "Close this dialog");
 
-    ok_bt =  g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    ok_bt =  (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(file_import_ok_cb), main_w);
     gtk_widget_grab_default(ok_bt);
     gtk_widget_set_tooltip_text(ok_bt, "Import the selected file into a temporary capture file");

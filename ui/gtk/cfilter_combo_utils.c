@@ -49,7 +49,7 @@ cfilter_combo_add(gchar *s) {
   while (li) {
     /* If the filter is already in the list, remove the old one and
      * append the new one at the latest position (at g_list_append() below) */
-    if (li->data && strcmp(s, li->data) == 0) {
+    if (li->data && strcmp(s, (char *)li->data) == 0) {
       fl = g_list_remove(fl, li->data);
       break;
     }

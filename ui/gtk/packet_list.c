@@ -239,7 +239,7 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	gchar        *escaped_title;
 	gboolean      recreate = FALSE;
 
-	col = g_object_get_data (G_OBJECT(w), COL_EDIT_COLUMN);
+	col = (GtkTreeViewColumn *)g_object_get_data (G_OBJECT(w), COL_EDIT_COLUMN);
 	col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 
 	title = gtk_entry_get_text(GTK_ENTRY(g_object_get_data (G_OBJECT(w), COL_EDIT_TITLE_TE)));
@@ -302,10 +302,10 @@ col_details_format_changed_cb(GtkWidget *w, gpointer data _U_)
 	GtkWidget *field_lb, *field_te, *occurrence_lb, *occurrence_te;
 	gint       cur_fmt;
 
-	field_lb = g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_LB);
-	field_te = g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_TE);
-	occurrence_lb = g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_LB);
-	occurrence_te = g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_TE);
+	field_lb = (GtkWidget *)g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_LB);
+	field_te = (GtkWidget *)g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_TE);
+	occurrence_lb = (GtkWidget *)g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_LB);
+	occurrence_te = (GtkWidget *)g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_TE);
 
 	cur_fmt = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
 
@@ -407,7 +407,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+	ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
 	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_COLUMN, col);
 	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_FORMAT_CMB, format_cmb);
 	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_TITLE_TE, title_te);
@@ -431,7 +431,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	dlg_set_activate(field_te, ok_bt);
 	dlg_set_activate(occurrence_te, ok_bt);
 
-	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	g_signal_connect(cancel_bt, "clicked", G_CALLBACK(col_title_change_cancel), win);
 	window_set_cancel_button(win, cancel_bt, NULL);
 
@@ -675,7 +675,7 @@ static gboolean
 packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	GtkWidget *col = (GtkWidget *) data;
-	GtkWidget *menu = g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
+	GtkWidget *menu = (GtkWidget *)g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
 	gint       col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	gboolean   right_justify = right_justify_column (col_id);
 
@@ -702,7 +702,7 @@ column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 	list = columns = gtk_tree_view_get_columns(tree_view);
 	while (columns) {
-		column = columns->data;
+		column = (GtkTreeViewColumn *)columns->data;
 		old_col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(column), E_MPACKET_LIST_COL_KEY));
 
 		clp = g_list_nth (prefs.col_list, old_col_id);
@@ -1343,7 +1343,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
 		color_on = TRUE;
 	} else if (fdata->color_filter) {
-		const color_filter_t *color_filter = fdata->color_filter;
+		const color_filter_t *color_filter = (const color_filter_t *)fdata->color_filter;
 
 		color_t_to_gdkcolor(&fg_gdk, &color_filter->fg_color);
 		color_t_to_gdkcolor(&bg_gdk, &color_filter->bg_color);
@@ -1676,7 +1676,7 @@ packet_list_return_all_comments(GtkTextBuffer *buffer)
 		}
 		if (gtk_text_buffer_get_char_count(buffer) > MAX_COMMENTS_TO_FETCH) {
 			buf_str = g_strdup_printf("[ Comment text exceeds %s. Stopping. ]",
-						  format_size(MAX_COMMENTS_TO_FETCH, format_size_unit_bytes|format_size_prefix_si));
+						  format_size(MAX_COMMENTS_TO_FETCH, (format_size_flags_e)(format_size_unit_bytes|format_size_prefix_si)));
 			gtk_text_buffer_insert_at_cursor (buffer, buf_str, -1);
 			return;
 		}

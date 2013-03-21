@@ -100,7 +100,7 @@ proto_tree_model_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter, Gtk
 
 	if (parent) {
 		g_return_val_if_fail(parent->stamp == model->stamp, FALSE);
-		node = parent->user_data;
+		node = (proto_node *)parent->user_data;
 	} else
 		node = model->protocol_tree;
 
@@ -190,7 +190,7 @@ proto_tree_model_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint col
 	g_return_if_fail(iter->stamp == model->stamp);
 	g_return_if_fail(column == 0 || column == 1);
 
-	node = iter->user_data;
+	node = (proto_node *)iter->user_data;
 	fi = PNODE_FINFO(node);
 
 	/* dissection with an invisible proto tree? */
@@ -230,7 +230,7 @@ proto_tree_model_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	g_return_val_if_fail(iter->stamp == model->stamp, FALSE);
 
-	current = iter->user_data;
+	current = (proto_node *)iter->user_data;
 	current = current->next;
 	while (current) {
 		if (model->with_hidden || !PROTO_ITEM_IS_HIDDEN(current)) {
@@ -262,7 +262,7 @@ proto_tree_model_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	if (iter) {
 		g_return_val_if_fail(iter->stamp == model->stamp, 0);
-		node = iter->user_data;
+		node = (proto_node *)iter->user_data;
 	} else
 		node = model->protocol_tree;
 
@@ -292,7 +292,7 @@ proto_tree_model_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	g_return_val_if_fail(iter != NULL, NULL);
 	g_return_val_if_fail(iter->stamp == model->stamp, NULL);
 
-	node = iter->user_data;
+	node = (proto_node *)iter->user_data;
 	g_return_val_if_fail(node != model->protocol_tree, NULL);
 
 	path = gtk_tree_path_new();
@@ -336,7 +336,7 @@ proto_tree_model_iter_has_child(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	if (iter) {
 		g_return_val_if_fail(iter->stamp == model->stamp, FALSE);
-		node = iter->user_data;
+		node = (proto_node *)iter->user_data;
 	} else
 		node = model->protocol_tree;
 
@@ -364,7 +364,7 @@ proto_tree_model_iter_parent(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTre
 	g_return_val_if_fail(iter != NULL, FALSE);
 	g_return_val_if_fail(child->stamp == model->stamp, FALSE);
 
-	node = child->user_data;
+	node = (proto_node *)child->user_data;
 	if (node->parent == model->protocol_tree)
 		return FALSE;
 	g_return_val_if_fail(node->parent != NULL, FALSE);

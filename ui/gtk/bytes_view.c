@@ -1212,7 +1212,7 @@ bytes_view_class_init(BytesViewClass *klass)
 	widget_class->set_scroll_adjustments_signal =
 		g_signal_new(g_intern_static_string("set-scroll-adjustments"),
 			G_OBJECT_CLASS_TYPE(object_class),
-			G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+			(GSignalFlags)(G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION),
 			G_STRUCT_OFFSET(BytesViewClass, set_scroll_adjustments),
 			NULL, NULL,
 			bv_VOID__OBJECT_OBJECT,
@@ -1400,7 +1400,7 @@ bytes_view_set_encoding(BytesView *bv, int enc)
 {
 	g_assert(enc == PACKET_CHAR_ENC_CHAR_ASCII || enc == PACKET_CHAR_ENC_CHAR_EBCDIC);
 
-	bv->encoding = enc;
+	bv->encoding = (packet_char_enc)enc;
 }
 
 void
@@ -1408,7 +1408,7 @@ bytes_view_set_format(BytesView *bv, int format)
 {
 	g_assert(format == BYTES_HEX || format == BYTES_BITS);
 
-	bv->format = format;
+	bv->format = (bytes_view_type)format;
 
 	switch (format) {
 		case BYTES_BITS:

@@ -373,7 +373,7 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_use_pref_save =
 		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
-	prefs.gui_version_placement =
+	prefs.gui_version_placement = (version_info_e)
 		fetch_enum_value(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY), gui_version_placement_vals);
 
 	prefs.gui_auto_scroll_on_expand =

@@ -1099,7 +1099,7 @@ sctp_graph_redraw(struct sctp_udata *u_data)
 static void
 on_sack_bt(GtkWidget *widget _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 
 	u_data->io->graph_type=2;
 	sctp_graph_redraw(u_data);
@@ -1108,7 +1108,7 @@ on_sack_bt(GtkWidget *widget _U_, gpointer user_data)
 static void
 on_tsn_bt(GtkWidget *widget _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 
 	u_data->io->graph_type=1;
 	sctp_graph_redraw(u_data);
@@ -1117,7 +1117,7 @@ on_tsn_bt(GtkWidget *widget _U_, gpointer user_data)
 static void
 on_both_bt(GtkWidget *widget _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 
 	u_data->io->graph_type=0;
 	sctp_graph_redraw(u_data);
@@ -1126,7 +1126,7 @@ on_both_bt(GtkWidget *widget _U_, gpointer user_data)
 static void
 sctp_graph_close_cb(GtkWidget* widget _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 
 	gtk_grab_remove(GTK_WIDGET(u_data->io->window));
 	gtk_widget_destroy(GTK_WIDGET(u_data->io->window));
@@ -1136,7 +1136,7 @@ sctp_graph_close_cb(GtkWidget* widget _U_, gpointer user_data)
 static gboolean
 configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
@@ -1199,7 +1199,7 @@ draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 static gboolean
 expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-	sctp_graph_t *ios = user_data;
+	sctp_graph_t *ios = (sctp_graph_t *)user_data;
 	cairo_t *cr;
 
 	g_assert(ios != NULL);
@@ -1223,12 +1223,12 @@ expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 static void
 on_zoomin_bt (GtkWidget *widget _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	sctp_min_max_t *tmp_minmax;
 
 	if (u_data->io->rectangle_present==TRUE)
 	{
-		tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+		tmp_minmax = (sctp_min_max_t *)g_malloc(sizeof(sctp_min_max_t));
 
 		u_data->io->tmp_min_tsn1=u_data->io->y1_tmp+u_data->io->min_y;
 		u_data->io->tmp_max_tsn1=u_data->io->y2_tmp+1+u_data->io->min_y;
@@ -1261,7 +1261,7 @@ zoomin_bt_fcn (struct sctp_udata *u_data)
 {
 	sctp_min_max_t *tmp_minmax;
 
-	tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+	tmp_minmax = (sctp_min_max_t *)g_malloc(sizeof(sctp_min_max_t));
 
 	u_data->io->tmp_min_tsn1=u_data->io->y1_tmp+u_data->io->min_y;
 	u_data->io->tmp_max_tsn1=u_data->io->y2_tmp+1+u_data->io->min_y;
@@ -1290,7 +1290,7 @@ zoomin_bt_fcn (struct sctp_udata *u_data)
 static void
 on_zoomout_bt (GtkWidget *widget _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	sctp_min_max_t *tmp_minmax, *mm;
 	gint l;
 
@@ -1347,7 +1347,7 @@ on_zoomout_bt (GtkWidget *widget _U_, gpointer user_data)
 static gboolean
 on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	sctp_graph_t *ios;
 	cairo_t *cr;
 
@@ -1400,7 +1400,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 static gboolean
 on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	sctp_graph_t *ios;
 	guint32 helpx, helpy, x1_tmp, x2_tmp,  y_value, t_size=0, s_size=0, i, y_tolerance;
 	gint label_width, label_height;
@@ -1750,7 +1750,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 	sctp_graph_t *io;
 	sctp_min_max_t* tmp_minmax;
 
-	io=g_malloc(sizeof(sctp_graph_t));
+	io=(sctp_graph_t *)g_malloc(sizeof(sctp_graph_t));
 	io->needs_redraw=TRUE;
 	io->x_interval=1000;
 	io->window=NULL;
@@ -1774,7 +1774,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 	u_data->io->tmp_max_tsn2=u_data->assoc->max_tsn2;
 	u_data->io->tmp=FALSE;
 
-	tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+	tmp_minmax = (sctp_min_max_t *)g_malloc(sizeof(sctp_min_max_t));
 	tmp_minmax->tmp_min_secs = u_data->assoc->min_secs;
 	tmp_minmax->tmp_min_usecs=u_data->assoc->min_usecs;
 	tmp_minmax->tmp_max_secs=u_data->assoc->max_secs;
@@ -1795,7 +1795,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 static void
 quit(GObject *object _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data=user_data;
+	struct sctp_udata *u_data=(struct sctp_udata *)user_data;
 
 	decrease_childcount(u_data->parent);
 	remove_child(u_data, u_data->parent);
@@ -1836,7 +1836,7 @@ create_graph(guint16 dir, struct sctp_analyse* userdata)
 {
 	struct sctp_udata *u_data;
 
-	u_data=g_malloc(sizeof(struct sctp_udata));
+	u_data=(struct sctp_udata *)g_malloc(sizeof(struct sctp_udata));
 	u_data->assoc=userdata->assoc;
 	u_data->io=NULL;
 	u_data->dir = dir;

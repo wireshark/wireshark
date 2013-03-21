@@ -163,7 +163,7 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
     guint scrollw_y_size;
     GList *childs;
 
-    child_box = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
+    child_box = (GtkWidget *)g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
     max_cnt = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_MAX_CHILDS));
 
     /* get the current number of children */
@@ -203,8 +203,8 @@ scroll_box_dynamic_reset(GtkWidget *parent_box)
     GtkWidget *child_box, *scrollw;
 
 
-    child_box = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
-    scrollw = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW);
+    child_box = (GtkWidget *)g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
+    scrollw = (GtkWidget *)g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW);
 
     if(scrollw != NULL) {
         /* move the child_box back from scrolled window into the parent_box */
@@ -310,7 +310,7 @@ welcome_button(const gchar *stock_item,
 static gboolean
 welcome_button_callback_helper(GtkWidget *w, GdkEventButton *event _U_, gpointer user_data)
 {
-    void (*funct)(GtkWidget *, gpointer) = user_data;
+    void (*funct)(GtkWidget *, gpointer) = (void (*)(GtkWidget *,gpointer))user_data;
     (*funct)(w, NULL);
     return TRUE;
 }
@@ -407,7 +407,7 @@ welcome_header_pop_msg(void) {
     }
 
     if (status_messages) {
-        msg = status_messages->data;
+        msg = (gchar *)status_messages->data;
     }
 
     welcome_header_set_message(msg);
@@ -481,7 +481,7 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
 static gboolean
 welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer data)
 {
-    menu_open_filename(data);
+    menu_open_filename((gchar *)data);
 
     return FALSE;
 }
@@ -520,7 +520,7 @@ static void *get_recent_item_status(void *data)
     g_mutex_lock(recent_mtx);
     ri_stat->err = err;
     if(err == 0) {
-        size_str = format_size(stat_buf.st_size, format_size_unit_bytes|format_size_prefix_si);
+        size_str = format_size(stat_buf.st_size, (format_size_flags_e)(format_size_unit_bytes|format_size_prefix_si));
 
         /* pango format string */
         g_string_prepend(ri_stat->str, "<span foreground='blue'>");
@@ -629,7 +629,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
     gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
     gtk_widget_set_sensitive(w, FALSE);
 
-    ri_stat = g_malloc(sizeof(recent_item_status));
+    ri_stat = (recent_item_status *)g_malloc(sizeof(recent_item_status));
     ri_stat->filename = g_strdup(filename);
     ri_stat->label = w;
     ri_stat->menu_item = menu_item;
@@ -681,7 +681,7 @@ main_welcome_reset_recent_capture_files(void)
         child_list_item = child_list;
 
         while(child_list_item) {
-            gtk_container_remove(GTK_CONTAINER(child_box), child_list_item->data);
+            gtk_container_remove(GTK_CONTAINER(child_box), (GtkWidget *)child_list_item->data);
             child_list_item = g_list_next(child_list_item);
         }
 
@@ -765,7 +765,7 @@ static gboolean activate_ifaces(GtkTreeModel  *model,
     GtkTreeSelection *selection;
     selected_name_t  *entry = (selected_name_t *)userdata;
 
-    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    view = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
     if (strcmp(if_name, entry->name) == 0) {
@@ -785,7 +785,7 @@ void change_interface_selection(gchar* name, gboolean activate)
     GtkTreeModel     *model;
     selected_name_t  entry;
 
-    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    view = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
     entry.name = g_strdup(name);
     entry.activate = activate;
@@ -813,7 +813,7 @@ change_interface_name(gchar *oldname, guint indx)
     GtkTreeSelection *entry;
     gchar            *optname;
 
-    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    view = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
@@ -864,19 +864,19 @@ clear_capture_box(void)
 {
     GtkWidget         *item_hb;
 
-    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_INTERFACE_LIST);
+    item_hb = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_INTERFACE_LIST);
     if (item_hb) {
         gtk_widget_destroy(item_hb);
     }
-    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_START);
+    item_hb = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_START);
     if (item_hb) {
         gtk_widget_destroy(item_hb);
     }
-    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_CAPTURE);
+    item_hb = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_CAPTURE);
     if (item_hb) {
         gtk_widget_destroy(item_hb);
     }
-    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH);
+    item_hb = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH);
     if (item_hb) {
         gtk_widget_destroy(item_hb);
     }
@@ -968,11 +968,11 @@ static void fill_capture_box(void)
     DWORD ce_size = sizeof(chimney_enabled);
 #endif
 
-    label = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_LABEL);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_LABEL);
     if (label) {
         gtk_widget_destroy(label);
     }
-    box_to_fill = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_VIEW);
+    box_to_fill = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_VIEW);
     if (global_capture_opts.all_ifaces->len > 0) {
         item_hb_interface_list = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
                                                 "Interface List",
@@ -1142,7 +1142,7 @@ welcome_if_panel_reload(void)
             update_capture_box();
         } else {
             GtkWidget *item_hb;
-            item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH);
+            item_hb = (GtkWidget *)g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_REFRESH);
             if (item_hb) {
                 gtk_widget_destroy(item_hb);
             }
@@ -1411,7 +1411,7 @@ welcome_new(void)
     gtk_widget_show_all(welcome_scrollw);
 
 #if GLIB_CHECK_VERSION(2,31,0)
-    recent_mtx = g_malloc(sizeof(GMutex));
+    recent_mtx = (GMutex *)g_malloc(sizeof(GMutex));
     g_mutex_init(recent_mtx);
 #else
     recent_mtx = g_mutex_new();

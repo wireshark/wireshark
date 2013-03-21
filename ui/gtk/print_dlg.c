@@ -134,7 +134,7 @@ file_print_cmd(gboolean print_selected)
   /* get settings from preferences (and other initial values) only once */
   if(print_prefs_init == FALSE) {
     print_prefs_init          = TRUE;
-    args->format              = prefs.pr_format;
+    args->format              = (print_format_e)prefs.pr_format;
     args->to_file             = prefs.pr_dest;
     args->file                = g_strdup(prefs.pr_file);
     args->cmd                 = g_strdup(prefs.pr_cmd);
@@ -791,7 +791,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK);
 
   g_object_set_data(G_OBJECT(main_win), PRINT_BT_KEY, ok_bt);
 
@@ -817,19 +817,19 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(print_ok_cb), main_win);
   gtk_widget_set_tooltip_text (ok_bt, "Start output");
 
-  cancel_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt  = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(main_win, cancel_bt, window_cancel_button_cb);
   gtk_widget_set_tooltip_text (cancel_bt, "Cancel and exit dialog");
 
   if(action == output_action_print) {
-    help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt  = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PRINT_DIALOG);
   } else {
 #ifdef _WIN32
-    help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt  = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_WIN32_DIALOG);
 #else
-    help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt  = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_DIALOG);
 #endif
   }
@@ -1128,7 +1128,7 @@ print_destroy_cb(GtkWidget *win, gpointer user_data)
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */
-  fs = g_object_get_data(G_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = (GtkWidget *)g_object_get_data(G_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */

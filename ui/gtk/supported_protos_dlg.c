@@ -149,7 +149,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   window_set_cancel_button(supported_w, ok_bt, window_cancel_button_cb);
 
   g_signal_connect(supported_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

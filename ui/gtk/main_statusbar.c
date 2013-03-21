@@ -709,7 +709,7 @@ statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file
     status_expert_update();
 
     /* statusbar */
-    size_str = format_size(file_length, format_size_unit_bytes|format_size_prefix_si);
+    size_str = format_size(file_length, (format_size_flags_e)(format_size_unit_bytes|format_size_prefix_si));
 
     statusbar_push_file_msg(" File: \"%s\" %s %02lu:%02lu:%02lu",
                             (file_name) ? file_name : "", size_str,
@@ -828,7 +828,7 @@ static void
 statusbar_capture_update_continue_cb(capture_options *capture_opts)
 {
     GString *interface_names;
-    capture_file *cf = capture_opts->cf;
+    capture_file *cf = (capture_file *)capture_opts->cf;
 
     status_expert_update();
 
@@ -857,7 +857,7 @@ statusbar_capture_update_continue_cb(capture_options *capture_opts)
 static void
 statusbar_capture_update_finished_cb(capture_options *capture_opts)
 {
-    capture_file *cf = capture_opts->cf;
+    capture_file *cf = (capture_file *)capture_opts->cf;
 
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
@@ -884,7 +884,7 @@ statusbar_capture_fixed_started_cb(capture_options *capture_opts)
 static void
 statusbar_capture_fixed_continue_cb(capture_options *capture_opts)
 {
-    capture_file *cf = capture_opts->cf;
+    capture_file *cf = (capture_file *)capture_opts->cf;
     gchar *capture_msg;
 
 
@@ -998,28 +998,28 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_opened):
         break;
     case(cf_cb_file_closing):
-        statusbar_cf_file_closing_cb(data);
+        statusbar_cf_file_closing_cb((capture_file *)data);
         break;
     case(cf_cb_file_closed):
-        statusbar_cf_file_closed_cb(data);
+        statusbar_cf_file_closed_cb((capture_file *)data);
         break;
     case(cf_cb_file_read_started):
-        statusbar_cf_file_read_started_cb(data, "Loading");
+        statusbar_cf_file_read_started_cb((capture_file *)data, "Loading");
         break;
     case(cf_cb_file_read_finished):
-        statusbar_cf_file_read_finished_cb(data);
+        statusbar_cf_file_read_finished_cb((capture_file *)data);
         break;
     case(cf_cb_file_reload_started):
-        statusbar_cf_file_read_started_cb(data, "Reloading");
+        statusbar_cf_file_read_started_cb((capture_file *)data, "Reloading");
         break;
     case(cf_cb_file_reload_finished):
-        statusbar_cf_file_read_finished_cb(data);
+        statusbar_cf_file_read_finished_cb((capture_file *)data);
         break;
     case(cf_cb_file_rescan_started):
-        statusbar_cf_file_read_started_cb(data, "Rescanning");
+        statusbar_cf_file_read_started_cb((capture_file *)data, "Rescanning");
         break;
     case(cf_cb_file_rescan_finished):
-        statusbar_cf_file_read_finished_cb(data);
+        statusbar_cf_file_read_finished_cb((capture_file *)data);
         break;
     case(cf_cb_file_fast_save_finished):
         break;
@@ -1028,10 +1028,10 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_packet_unselected):
         break;
     case(cf_cb_field_unselected):
-        statusbar_cf_field_unselected_cb(data);
+        statusbar_cf_field_unselected_cb((capture_file *)data);
         break;
     case(cf_cb_file_save_started):
-        statusbar_cf_file_save_started_cb(data);
+        statusbar_cf_file_save_started_cb((gchar *)data);
         break;
     case(cf_cb_file_save_finished):
         statusbar_cf_file_save_finished_cb(data);
@@ -1043,7 +1043,7 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         statusbar_cf_file_save_stopped_cb(data);
         break;
     case(cf_cb_file_export_specified_packets_started):
-        statusbar_cf_file_export_specified_packets_started_cb(data);
+        statusbar_cf_file_export_specified_packets_started_cb((gchar *)data);
         break;
     case(cf_cb_file_export_specified_packets_finished):
         statusbar_cf_file_export_specified_packets_finished_cb(data);

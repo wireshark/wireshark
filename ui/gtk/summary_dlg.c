@@ -655,15 +655,15 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   bbox = dlg_button_row_new(GTK_STOCK_CANCEL, GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, TRUE, TRUE, 0);
 
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(summary_dlg, cancel_bt, window_cancel_button_cb);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect (ok_bt, "clicked",
                     G_CALLBACK(summary_ok_cb), comment_view);
   gtk_widget_grab_focus(ok_bt);
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_SUMMARY_DIALOG);
 
 
@@ -980,14 +980,14 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
   bbox = dlg_button_row_new (GTK_STOCK_COPY, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  copy_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_COPY);
+  copy_bt = (GtkWidget *)g_object_get_data (G_OBJECT(bbox), GTK_STOCK_COPY);
   g_signal_connect (copy_bt, "clicked", G_CALLBACK(comment_summary_copy_to_clipboard_cb), view);
   gtk_widget_set_sensitive (copy_bt, TRUE);
 
-  cancel_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt = (GtkWidget *)g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button (view_capture_and_pkt_comments_dlg, cancel_bt, window_cancel_button_cb);
 
-  help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
 #if 0
   g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
 #endif

@@ -415,7 +415,7 @@ select_filter(GtkWidget *w, gpointer data _U_)
 
 
     if (ws_combo_box_get_active_pointer(GTK_COMBO_BOX(w), &ptr))
-        cur_type = GPOINTER_TO_UINT(ptr);
+        cur_type = (rule_type_t)GPOINTER_TO_UINT(ptr);
     else
         cur_type = RT_NONE; /* If nothing selected (eg: nothing in filter list) */
 
@@ -756,7 +756,7 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
         return FALSE; /* run the dialog again */
     }
 
-    rule_info = g_object_get_data(G_OBJECT(fs), WS_RULE_INFO_KEY);
+    rule_info = (rule_info_t *)g_object_get_data(G_OBJECT(fs), WS_RULE_INFO_KEY);
     fh = ws_fopen(to_name, "w");
     if (fh == NULL) {
         open_failure_alert_box(to_name, errno, TRUE);

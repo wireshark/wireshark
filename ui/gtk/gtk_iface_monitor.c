@@ -79,7 +79,7 @@ gtk_iface_mon_start(void)
     iface_mon_channel = g_io_channel_unix_new(sock);
     g_io_channel_set_encoding(iface_mon_channel, NULL, NULL);
     g_io_add_watch(iface_mon_channel,
-                             G_IO_IN|G_IO_ERR|G_IO_HUP,
+                             (GIOCondition)(G_IO_IN|G_IO_ERR|G_IO_HUP),
                              &gtk_iface_mon_event,
                              NULL);
     return 0;

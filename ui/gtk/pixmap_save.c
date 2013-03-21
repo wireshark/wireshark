@@ -50,7 +50,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 {
 	GtkWidget *save_as_w;
 #if GTK_CHECK_VERSION(2,22,0)
-	surface_info_t *surface_info = g_object_get_data(G_OBJECT(w), "surface-info");
+	surface_info_t *surface_info = (surface_info_t *)g_object_get_data(G_OBJECT(w), "surface-info");
 #else
 	GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
 #endif
@@ -108,7 +108,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	file_formats = gdk_pixbuf_get_formats();
 	ffp = file_formats;
 	while(ffp) {
-		pixbuf_format = ffp->data;
+		pixbuf_format = (GdkPixbufFormat *)ffp->data;
 		if (gdk_pixbuf_format_is_writable(pixbuf_format)) {
 			format_name = gdk_pixbuf_format_get_name(pixbuf_format);
 			 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(type_cm),

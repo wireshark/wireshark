@@ -505,7 +505,7 @@ init_columns_menu(void)
   columns_action_group = gtk_action_group_new ("ColumnsPopUpMenuActionGroup");
 
   gtk_action_group_add_actions (columns_action_group,            /* the action group */
-      (gpointer)columns_menu_popup_action_entries,               /* an array of action descriptions */
+      (GtkActionEntry *)columns_menu_popup_action_entries,       /* an array of action descriptions */
       G_N_ELEMENTS(columns_menu_popup_action_entries),           /* the number of entries */
       columns_menu_object);                                      /* data to pass to the action callbacks */
 
@@ -2044,9 +2044,9 @@ compile_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
     text = (gchar *)g_hash_table_lookup(compile_results, name);
     textview = (GtkWidget *)g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB);
     if (error == 1) {
-      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), TRUE);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_CHAR);
     } else {
-      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), FALSE);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_NONE);
     }
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
     gtk_text_buffer_set_text(buffer, text, -1);
@@ -2264,9 +2264,9 @@ compile_results_win(gchar *text, gboolean error)
   gtk_container_add(GTK_CONTAINER(scrolled_win), textview);
   gtk_box_pack_start(GTK_BOX(main_box), scrolled_win, TRUE, TRUE, 0);
   if (error == 1) {
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), TRUE);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_CHAR);
   } else {
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), FALSE);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_NONE);
   }
   buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
   gtk_text_buffer_set_text(buffer, g_strdup(text), -1);
@@ -5181,7 +5181,7 @@ capture_start_confirmed(void)
     return;
 
   /* close the currently loaded capture file */
-  cf_close(global_capture_opts.cf);
+  cf_close((capture_file *)global_capture_opts.cf);
 
   /* Copy the selected interfaces to the set of interfaces to use for
      this capture. */

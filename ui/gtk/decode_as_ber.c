@@ -93,7 +93,7 @@ decode_ber(GtkWidget *notebook_pg)
 static void
 decode_ber_add_to_list(gpointer key, gpointer value, gpointer user_data)
 {
-    decode_add_to_list("ASN.1", key, value, user_data);
+    decode_add_to_list("ASN.1", (gchar *)key, value, user_data);
 }
 
 

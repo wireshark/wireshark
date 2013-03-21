@@ -302,7 +302,7 @@ srt_create_popup_menu(srt_stat_table *rst)
 
 	action_group = gtk_action_group_new ("ServiceRespTFilterPopupActionGroup");
 	gtk_action_group_add_actions (action_group,						/* the action group */
-				      (gpointer)service_resp_t__popup_entries,		/* an array of action descriptions */
+				      (GtkActionEntry *)service_resp_t__popup_entries,		/* an array of action descriptions */
 				      G_N_ELEMENTS(service_resp_t__popup_entries),	/* the number of entries */
 				      rst);											/* data to pass to the action callbacks */
 
@@ -477,7 +477,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	gtk_widget_show(rst->scrolled_window);
 
 	rst->num_procs=num_procs;
-	rst->procedures=g_malloc(sizeof(srt_procedure_t)*num_procs);
+	rst->procedures=(srt_procedure_t *)g_malloc(sizeof(srt_procedure_t)*num_procs);
 	for(i=0;i<num_procs;i++){
 		time_stat_init(&rst->procedures[i].stats);
 		rst->procedures[i].index = 0;
@@ -501,7 +501,7 @@ init_srt_table_row(srt_stat_table *rst, int indx, const char *procedure)
 		int i;
 
 		rst->num_procs=indx+1;
-		rst->procedures=g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
+		rst->procedures=(srt_procedure_t *)g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
 		for(i=old_num_procs;i<rst->num_procs;i++){
 			time_stat_init(&rst->procedures[i].stats);
 			rst->procedures[i].index = i;

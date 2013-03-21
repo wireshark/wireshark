@@ -178,7 +178,7 @@ store_selected(GtkWidget *choose_bt, gpointer name)
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-    if (strcmp(name, device.if_info.name) == 0) {
+    if (strcmp((char *)name, device.if_info.name) == 0) {
       if (!device.locked) {
         device.selected ^= 1;
         if (device.selected) {

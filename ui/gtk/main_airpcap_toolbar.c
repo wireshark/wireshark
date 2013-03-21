@@ -396,7 +396,7 @@ void airpcap_toolbar_show(GtkWidget *lcl_wireless_tb _U_)
 
   case AIRPCAP_DLL_OLD:
     if(recent.airpcap_driver_check_show) {
-      driver_warning_dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+      driver_warning_dialog = (GtkWidget *)simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
                         "WARNING: The version of AirPcap on this system\n"
                         "does not support driver-level decryption.  Please\n"
                         "download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");

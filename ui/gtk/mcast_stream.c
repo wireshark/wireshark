@@ -83,8 +83,8 @@ static mcaststream_tapinfo_t the_tapinfo_struct =
 static gint
 mcast_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
-	const struct _mcast_stream_info* a = aa;
-	const struct _mcast_stream_info* b = bb;
+	const struct _mcast_stream_info* a = (const struct _mcast_stream_info *)aa;
+	const struct _mcast_stream_info* b = (const struct _mcast_stream_info *)bb;
 
         if (a==b)
                 return 0;
@@ -136,7 +136,7 @@ mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
 static void
 mcaststream_reset_cb(void *arg)
 {
-	mcaststream_reset(arg);
+	mcaststream_reset((mcaststream_tapinfo_t *)arg);
 }
 
 /****************************************************************************/
@@ -158,7 +158,7 @@ mcaststream_draw(void *arg _U_)
 static int
 mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_)
 {
-	mcaststream_tapinfo_t *tapinfo = arg;
+	mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)arg;
         mcast_stream_info_t tmp_strinfo;
         mcast_stream_info_t *strinfo = NULL;
         GList* list;
@@ -175,8 +175,8 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	 * address (for IPv6).
 	 */
 	if ((pinfo->dl_dst.type != AT_ETHER) ||
-	    ((g_ascii_strncasecmp("01005E", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0) &&
-	     (g_ascii_strncasecmp("3333", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 4) != 0)) )
+	    ((g_ascii_strncasecmp("01005E", bytes_to_str((guint8 *)pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0) &&
+	     (g_ascii_strncasecmp("3333", bytes_to_str((guint8 *)pinfo->dl_dst.data, pinfo->dl_dst.len), 4) != 0)) )
 		return 0;
 
 	/* check whether we already have a stream with these parameters in the list */
@@ -223,14 +223,14 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		tmp_strinfo.element.buffstatus=0;
 		tmp_strinfo.element.maxbw=0;
 
-		strinfo = g_malloc(sizeof(mcast_stream_info_t));
+		strinfo = (mcast_stream_info_t *)g_malloc(sizeof(mcast_stream_info_t));
 		*strinfo = tmp_strinfo;  /* memberwise copy of struct */
 		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
 		strinfo->element.buff = (struct timeval *)g_malloc(buffsize * sizeof(struct timeval));
 
 		/* set time with the first packet */
 		if (tapinfo->npackets == 0) {
-			tapinfo->allstreams = g_malloc(sizeof(mcast_stream_info_t));
+			tapinfo->allstreams = (mcast_stream_info_t *)g_malloc(sizeof(mcast_stream_info_t));
 			tapinfo->allstreams->element.buff =
 					(struct timeval *)g_malloc(buffsize * sizeof(struct timeval));
 			tapinfo->allstreams->start_rel_sec = (guint32) pinfo->fd->rel_ts.secs;

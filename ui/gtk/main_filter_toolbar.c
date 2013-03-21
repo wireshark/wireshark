@@ -88,9 +88,9 @@ filter_activate_cb(GtkWidget *w _U_, gpointer data)
 static void
 filter_changed_cb(GtkWidget *w _U_, gpointer data)
 {
-    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_APPLY_KEY), TRUE);
-    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_CLEAR_KEY), TRUE);
-    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_SAVE_KEY), TRUE);
+    gtk_widget_set_sensitive ((GtkWidget *)g_object_get_data (G_OBJECT(data), E_DFILTER_APPLY_KEY), TRUE);
+    gtk_widget_set_sensitive ((GtkWidget *)g_object_get_data (G_OBJECT(data), E_DFILTER_CLEAR_KEY), TRUE);
+    gtk_widget_set_sensitive ((GtkWidget *)g_object_get_data (G_OBJECT(data), E_DFILTER_SAVE_KEY), TRUE);
 }
 
 /* redisplay with no display filter */
@@ -99,7 +99,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
 {
     GtkWidget *filter_te = NULL;
 
-    if ((filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY))) {
+    if ((filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY))) {
         gtk_entry_set_text(GTK_ENTRY(filter_te), "");
     }
     main_filter_packets(&cfile, NULL, FALSE);
@@ -334,7 +334,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
  * of the combo box GList to the user's recent file */
 void
 dfilter_recent_combo_write_all(FILE *rf) {
-    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+    GtkWidget *filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
     GtkTreeModel *model = gtk_combo_box_get_model (GTK_COMBO_BOX(filter_cm));
     GtkTreeIter   iter;
     GValue value = { 0, {{0}}};
@@ -357,7 +357,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
 /* add a display filter coming from the user's recent file to the dfilter combo box */
 gboolean
 dfilter_combo_add_recent(const gchar *s) {
-    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+    GtkWidget *filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
     char      *dupstr;
 
     dupstr = g_strdup(s);
@@ -369,7 +369,7 @@ dfilter_combo_add_recent(const gchar *s) {
 gboolean
 main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
-    GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+    GtkWidget *filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
     gboolean   free_filter = TRUE;
     char      *s;
     cf_status_t cf_status;
@@ -379,10 +379,10 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     cf_status = cf_filter_packets(cf, s, force);
 
     if (cf_status == CF_OK) {
-        gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY), FALSE);
+        gtk_widget_set_sensitive ((GtkWidget *)g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY), FALSE);
         if (!s || strlen (s) == 0) {
-            gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);
-            gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY), FALSE);
+            gtk_widget_set_sensitive ((GtkWidget *)g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);
+            gtk_widget_set_sensitive ((GtkWidget *)g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY), FALSE);
         }
     }
 

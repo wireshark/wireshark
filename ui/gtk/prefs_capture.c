@@ -1943,7 +1943,7 @@ ifopts_write_new_buffersize(void)
 	gchar		*new_buffersize;
 
 	/* new preferences interfaces buffer size string */
-	new_buffersize = g_malloc0(MAX_VAL_LEN);
+	new_buffersize = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get buffer size for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
@@ -2002,7 +2002,7 @@ ifopts_write_new_snaplen(void)
 	gchar		*new_snaplen;
 
 	/* new preferences interfaces snap length string */
-	new_snaplen = g_malloc0(MAX_VAL_LEN);
+	new_snaplen = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get snap length for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
@@ -2060,7 +2060,7 @@ ifopts_write_new_pmode(void)
 	gchar		*new_pmode;
 
 	/* new preferences interfaces promiscuous mode string */
-	new_pmode = g_malloc0(MAX_VAL_LEN);
+	new_pmode = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get promiscuous mode for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));

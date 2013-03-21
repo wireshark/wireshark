@@ -84,17 +84,17 @@ toolbar_redraw_all(void)
     GtkWidget     *main_tb;
     GtkWidget     *filter_tb;
 
-    main_tb = g_object_get_data(G_OBJECT(top_level), E_TB_MAIN_KEY);
+    main_tb = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_TB_MAIN_KEY);
 
     gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
-                          prefs.gui_toolbar_main_style);
+                          (GtkToolbarStyle)prefs.gui_toolbar_main_style);
 
-	filter_tb = g_object_get_data(G_OBJECT(top_level), E_TB_FILTER_KEY);
+	filter_tb = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_TB_FILTER_KEY);
 
 	/* In case the filter toolbar hasn't been built */
 	if(filter_tb)
 		gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
-                          prefs.gui_toolbar_filter_style);
+                          (GtkToolbarStyle)prefs.gui_toolbar_filter_style);
 }
 
 /* Enable or disable toolbar items based on whether you have a capture file

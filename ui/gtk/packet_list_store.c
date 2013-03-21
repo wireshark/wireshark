@@ -294,7 +294,7 @@ packet_list_get_flags(GtkTreeModel *tree_model)
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model),
 				 (GtkTreeModelFlags)0);
 
-	return (GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST);
+	return (GtkTreeModelFlags)(GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST);
 }
 
 static gint
@@ -645,11 +645,11 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
-	newrecord = se_alloc(sizeof(PacketListRecord));
+	newrecord = se_new(PacketListRecord);
 	newrecord->columnized   = FALSE;
 	newrecord->colorized    = FALSE;
-	newrecord->col_text_len = se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_text_cols);
-	newrecord->col_text     = se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_text_cols);
+	newrecord->col_text_len = (gushort *)se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_text_cols);
+	newrecord->col_text     = (const gchar **)se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_text_cols);
 	newrecord->fdata        = fdata;
 #ifdef PACKET_PARANOID_CHECKS
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);

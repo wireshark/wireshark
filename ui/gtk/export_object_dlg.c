@@ -294,7 +294,7 @@ eo_draw(void *tapdata)
 		gtk_tree_store_append(object_list->store, &new_iter,
 				      object_list->iter);
 
-		size_str = format_size(eo_entry->payload_len, format_size_unit_bytes|format_size_prefix_si);
+		size_str = format_size(eo_entry->payload_len, (format_size_flags_e)(format_size_unit_bytes|format_size_prefix_si));
 		gtk_tree_store_set(object_list->store, &new_iter,
 				   EO_PKT_NUM_COLUMN, eo_entry->pkt_num,
 				   EO_HOSTNAME_COLUMN, eo_entry->hostname,

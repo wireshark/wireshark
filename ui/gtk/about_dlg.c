@@ -277,7 +277,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
     prog_bar = (GtkWidget *)g_object_get_data(G_OBJECT(win), "progress_bar");
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
 
-    percentage_lb = g_object_get_data(G_OBJECT(win), "percentage_label");
+    percentage_lb = (GtkWidget *)g_object_get_data(G_OBJECT(win), "percentage_label");
     g_snprintf(tmp, sizeof(tmp), "%lu%%", ul_percentage);
     gtk_label_set_text((GtkLabel*)percentage_lb, tmp);
 
@@ -578,7 +578,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_box_pack_start(GTK_BOX(main_box), bbox, FALSE, FALSE, 0);
 
-  ok_btn = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_btn = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   gtk_widget_grab_focus(ok_btn);
   gtk_widget_grab_default(ok_btn);
   window_set_cancel_button(about_wireshark_w, ok_btn, window_cancel_button_cb);

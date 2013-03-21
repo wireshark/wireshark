@@ -120,7 +120,7 @@ get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
     tvbuff_t *byte_view_tvb;
     const guint8 *data_ptr;
 
-    byte_view_tvb = g_object_get_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY);
+    byte_view_tvb = (tvbuff_t *)g_object_get_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY);
     if (byte_view_tvb == NULL)
         return NULL;
 
@@ -146,7 +146,7 @@ set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
          (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
          num++) {
         bv = gtk_bin_get_child(GTK_BIN(bv_page));
-        bv_tvb = g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
+        bv_tvb = (tvbuff_t *)g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
         if (bv_tvb == tvb) {
             /* Found it. */
             gtk_notebook_set_current_page(GTK_NOTEBOOK(nb_ptr), num);
@@ -289,7 +289,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     int           byte = -1;
     tvbuff_t     *tvb;
 
-    tree = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
+    tree = (proto_tree *)g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
     if (tree == NULL) {
         /*
          * Somebody clicked on the dummy byte view; do nothing.
@@ -306,7 +306,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     }
 
     /* Get the data source tvbuff */
-    tvb = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TVBUFF_KEY);
+    tvb = (tvbuff_t *)g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TVBUFF_KEY);
 
     return highlight_field(tvb, byte, tree_view, tree);
 }
@@ -512,7 +512,7 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
      * of all the data sources for the specified frame.
      */
     for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
-        src = src_le->data;
+        src = (struct data_source *)src_le->data;
         add_byte_tab(byte_nb_ptr, get_data_source_name(src), get_data_source_tvb(src), edt->tree,
                      tree_view);
     }
@@ -647,7 +647,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
     g_assert(data_p != NULL);
 
     flags = data_type & CD_FLAGSMASK;
-    data_type = data_type & CD_TYPEMASK;
+    data_type = (copy_data_type)(data_type & CD_TYPEMASK);
 
     if(flags & CD_FLAGS_SELECTEDONLY) {
         int start, end;

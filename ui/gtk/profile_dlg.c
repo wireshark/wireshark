@@ -90,7 +90,7 @@ fill_list(GtkWidget *main_w)
        * and use it later without any crashes.  This may not be a
        * valid assumption.
        */
-      l_select = g_memdup(&iter, sizeof(iter));
+      l_select = (GtkTreeIter *)g_memdup(&iter, sizeof(iter));
     }
     fl_entry = g_list_next(fl_entry);
   }
@@ -227,8 +227,8 @@ profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
   GtkWidget    *main_w      = gtk_widget_get_toplevel(profile_l);
   GtkTreeModel *model;
   GtkTreeIter   iter;
-  GtkWidget    *name_te     = g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
-  GtkWidget    *del_bt      = g_object_get_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY);
+  GtkWidget    *name_te     = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
+  GtkWidget    *del_bt      = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY);
   profile_def  *profile;
   gchar        *name        = NULL;
   GList        *fl_entry;
@@ -276,7 +276,7 @@ static void
 profile_new_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget    *main_w    = gtk_widget_get_toplevel(w);
-  GtkWidget    *name_te   = g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
+  GtkWidget    *name_te   = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
   GtkTreeView  *profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
   GtkListStore *store;
   GtkTreeIter   iter;
@@ -300,7 +300,7 @@ static void
 profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget    *main_w    = gtk_widget_get_toplevel(w);
-  GtkWidget    *name_te   = g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
+  GtkWidget    *name_te   = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
   GtkTreeView  *profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
   GtkListStore *store;
   GtkTreeIter   iter;
@@ -352,8 +352,8 @@ static void
 profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget   *main_w    = gtk_widget_get_toplevel(w);
-  GtkWidget   *name_te   = g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
-  GtkWidget   *profile_l = g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY);
+  GtkWidget   *name_te   = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
+  GtkWidget   *profile_l = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY);
   profile_def *profile;
   GList       *fl_entry;
   const gchar *name;
@@ -390,7 +390,7 @@ static void
 profile_del_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget *main_w    = gtk_widget_get_toplevel(w);
-  GtkWidget *profile_l = g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY);
+  GtkWidget *profile_l = (GtkWidget *)g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY);
   GList     *fl_entry;
 
   GtkTreeSelection *sel;
@@ -577,7 +577,7 @@ profile_dialog_new(void)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
   gtk_widget_show(bbox);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(profile_dlg_ok_cb), NULL);
   gtk_widget_set_tooltip_text(ok_bt, "Apply the profiles and close this dialog");
 
@@ -588,16 +588,16 @@ profile_dialog_new(void)
      handle the Return key has the input focus. */
   dlg_set_activate(name_te, ok_bt);
 
-  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+  apply_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   g_signal_connect(apply_bt, "clicked", G_CALLBACK(profile_dlg_apply_cb), NULL);
   gtk_widget_set_tooltip_text(apply_bt, "Apply the profiles and keep this dialog open");
 
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_widget_set_tooltip_text(cancel_bt, "Cancel the changes");
   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_dlg_cancel_cb), NULL);
   window_set_cancel_button(main_w, cancel_bt, NULL);
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CONFIG_PROFILES_DIALOG);
   gtk_widget_set_tooltip_text(help_bt, "Show topic specific help");
 
@@ -729,8 +729,8 @@ static void
 profile_name_edit_ok(GtkWidget *w _U_, gpointer parent_w)
 {
   gint          operation    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "operation"));
-  GtkComboBox  *combo_box    = g_object_get_data(G_OBJECT(w), "create_from");
-  GtkWidget    *entry        = g_object_get_data(G_OBJECT(w), "entry");
+  GtkComboBox  *combo_box    = (GtkComboBox *)g_object_get_data(G_OBJECT(w), "create_from");
+  GtkWidget    *entry        = (GtkWidget *)g_object_get_data(G_OBJECT(w), "entry");
   GtkTreeStore *store;
   GtkTreeIter   iter;
   const gchar  *new_name     = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -946,7 +946,7 @@ profile_name_edit_dlg(gint operation)
   bbox = dlg_button_row_new(GTK_STOCK_CANCEL, GTK_STOCK_OK, NULL);
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_object_set_data(G_OBJECT(ok_bt), "entry", entry);
   g_object_set_data(G_OBJECT(ok_bt), "create_from", combo_box);
   g_object_set_data(G_OBJECT(ok_bt), "operation", GINT_TO_POINTER(operation));
@@ -955,7 +955,7 @@ profile_name_edit_dlg(gint operation)
   dlg_set_activate(entry, ok_bt);
   gtk_widget_grab_focus(entry);
 
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_name_edit_cancel), win);
   window_set_cancel_button(win, cancel_bt, NULL);
 

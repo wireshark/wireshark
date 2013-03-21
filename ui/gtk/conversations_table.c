@@ -1940,7 +1940,7 @@ ct_create_popup_menu(conversations_table *ct)
 
     action_group = gtk_action_group_new ("ConvActionGroup");
     gtk_action_group_add_actions (action_group,                             /* the action group */
-                                  (gpointer)conv_filter_menu_entries,       /* an array of action descriptions */
+                                  (GtkActionEntry *)conv_filter_menu_entries,       /* an array of action descriptions */
                                   G_N_ELEMENTS(conv_filter_menu_entries),   /* the number of entries */
                                   (gpointer)ct);                            /* data to pass to the action callbacks */
 

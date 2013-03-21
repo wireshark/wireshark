@@ -107,7 +107,7 @@ file_selection_new(const gchar *title, file_selection_action_t action)
 
     default:
         g_assert_not_reached();
-        gtk_action = -1;
+        gtk_action = (GtkFileChooserAction)-1;
         ok_button_text = NULL;
         break;
     }
@@ -339,7 +339,7 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
   if ((statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0) {
     display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(chooser_w),
-                                        GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                         GTK_MESSAGE_QUESTION,
                                         GTK_BUTTONS_NONE,
                                         "The file \"%s\" is read-only.",
@@ -430,7 +430,7 @@ file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
     /* Get the widget that requested that we be popped up.
        (It should arrange to destroy us if it's destroyed, so
        that we don't get a pointer to a non-existent window here.) */
-    caller = g_object_get_data(G_OBJECT(win), E_FS_CALLER_PTR_KEY);
+    caller = (GtkWidget *)g_object_get_data(G_OBJECT(win), E_FS_CALLER_PTR_KEY);
 
     /* Tell it we no longer exist. */
     g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);

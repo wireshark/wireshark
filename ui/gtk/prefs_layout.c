@@ -152,7 +152,7 @@ static layout_pane_content_e  layout_pane_get_content(GtkWidget * radio_vb) {
         return layout_pane_content_pbytes;
 
     g_assert_not_reached();
-    return -1;
+    return (layout_pane_content_e)-1;
 }
 
 static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e pane_content) {
@@ -180,35 +180,35 @@ static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e 
 
 static void layout_set(GtkWidget * main_vb, layout_t *layout) {
     GtkWidget	*radio_vb;
-    GtkWidget ** layout_type_buttons = g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = (GtkWidget **)g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(layout_type_buttons[layout->type - 1]), TRUE);
 
-    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY);
+    radio_vb = (GtkWidget *)g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY);
     layout_pane_set_content(radio_vb, layout->content[0]);
-    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY);
+    radio_vb = (GtkWidget *)g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY);
     layout_pane_set_content(radio_vb, layout->content[1]);
-    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY);
+    radio_vb = (GtkWidget *)g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY);
     layout_pane_set_content(radio_vb, layout->content[2]);
 }
 
 static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
     GtkWidget	*radio_vb;
-    GtkWidget ** layout_type_buttons = g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = (GtkWidget **)g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
     int i;
 
     for (i=0; i<LAYOUT_QTY; ++i) {
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(layout_type_buttons[i]))) {
-            layout_out->type = i + 1;
+            layout_out->type = (layout_type_e)(i + 1);
             break;
         }
     }
 
-    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY);
+    radio_vb = (GtkWidget *)g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY);
     layout_out->content[0] = layout_pane_get_content(radio_vb);
-    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY);
+    radio_vb = (GtkWidget *)g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY);
     layout_out->content[1] = layout_pane_get_content(radio_vb);
-    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY);
+    radio_vb = (GtkWidget *)g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY);
     layout_out->content[2] = layout_pane_get_content(radio_vb);
 }
 
@@ -251,9 +251,9 @@ static void layout_validate_cb(GtkWidget *rb, gpointer data) {
     int pane = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(rb), LAYOUT_PANE_KEY));
     layout_t    layout;
 
-    layout_get(data, &layout);
+    layout_get((GtkWidget *)data, &layout);
     layout_validate(&layout, pane);
-    layout_set(data, &layout);
+    layout_set((GtkWidget *)data, &layout);
 }
 
 static void
@@ -268,7 +268,7 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data)
         }
     };
 
-    layout_set(data, &default_layout);
+    layout_set((GtkWidget *)data, &default_layout);
 }
 
 #define ALTERN_COLORS_KEY               "altern_colors"
@@ -315,7 +315,7 @@ layout_prefs_show(void)
     GtkWidget	*filter_toolbar_placement_om;
     GtkWidget	*window_title_te;
 
-    GtkWidget ** layout_type_buttons = g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
+    GtkWidget ** layout_type_buttons = (GtkWidget **)g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
     GtkWidget *layout_pixbufs[LAYOUT_QTY];
 
     int        pos = 0;
@@ -495,7 +495,7 @@ layout_prefs_apply(GtkWidget *w _U_)
 void
 layout_prefs_destroy(GtkWidget *main_vb)
 {
-    GtkWidget ** layout_type_buttons = g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = (GtkWidget **)g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
 
     g_free(layout_type_buttons);
 }

@@ -188,7 +188,7 @@ proto_hier_tree_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint colu
 	g_return_if_fail(iter->stamp == model->stamp);
 	g_return_if_fail(column == 0 || column == 1);
 
-	hfinfo = iter->user_data3;
+	hfinfo = (header_field_info *)iter->user_data3;
 
 	switch (column) {
 		case 0:	/* hfinfo */

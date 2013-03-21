@@ -231,7 +231,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
     /* delete all hosts */
     for(i=0;i<hosts->num_hosts;i++){
         hostlist_talker_t *host = &g_array_index(hosts->hosts, hostlist_talker_t, i);
-        g_free((gpointer)host->address.data);
+        g_free((gpointer)host->myaddress.data);
     }
 
     if (hosts->hosts)
@@ -315,7 +315,7 @@ hostlist_sort_column(GtkTreeModel *model,
 
     switch(data_column){
     case 0: /* Address */
-        return(CMP_ADDRESS(&host1->address, &host2->address));
+        return(CMP_ADDRESS(&host1->myaddress, &host2->myaddress));
     case 1: /* (Port) */
         CMP_INT(host1->port, host2->port);
 #ifdef HAVE_GEOIP
@@ -374,10 +374,10 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
     sport=hostlist_port_to_str(host->port_type, host->port);
 
     str = g_strdup_printf("%s==%s%s%s%s%s",
-                          hostlist_get_filter_name(&host->address, host->sat, host->port_type,  FN_ANY_ADDRESS),
-                          ep_address_to_str(&host->address),
+                          hostlist_get_filter_name(&host->myaddress, host->sat, host->port_type,  FN_ANY_ADDRESS),
+                          ep_address_to_str(&host->myaddress),
                           sport?" && ":"",
-                          sport?hostlist_get_filter_name(&host->address, host->sat, host->port_type,  FN_ANY_PORT):"",
+                          sport?hostlist_get_filter_name(&host->myaddress, host->sat, host->port_type,  FN_ANY_PORT):"",
                           sport?"==":"",
                           sport?sport:"");
 
@@ -624,9 +624,9 @@ get_hostlist_table_address(hostlist_table *hl, hostlist_talker_t *host, const ch
     guint32 pt;
 
     if (!hl->resolve_names)
-        entries[0] = ep_address_to_str(&host->address);
+        entries[0] = ep_address_to_str(&host->myaddress);
     else
-        entries[0] = (char *)get_addr_name(&host->address);
+        entries[0] = (char *)get_addr_name(&host->myaddress);
 
     pt = host->port_type;
     if(!hl->resolve_names) pt = PT_NONE;
@@ -716,7 +716,7 @@ draw_hostlist_table_data(hostlist_table *hl)
             char *geoip[NUM_GEOIP_COLS];
             guint j;
 
-            if ((host->address.type == AT_IPv4 || host->address.type == AT_IPv6) && !hl->geoip_visible) {
+            if ((host->myaddress.type == AT_IPv4 || host->myaddress.type == AT_IPv6) && !hl->geoip_visible) {
                 GList             *columns, *list;
                 GtkTreeViewColumn *column;
                 columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(hl->table));
@@ -739,12 +739,12 @@ draw_hostlist_table_data(hostlist_table *hl)
 
             /* Filled in from the GeoIP config, if any */
             for (j = 0; j < NUM_GEOIP_COLS; j++) {
-                if (host->address.type == AT_IPv4 && j < geoip_db_num_dbs()) {
-                    const guchar *name = geoip_db_lookup_ipv4(j, pntohl(host->address.data), "-");
+                if (host->myaddress.type == AT_IPv4 && j < geoip_db_num_dbs()) {
+                    const guchar *name = geoip_db_lookup_ipv4(j, pntohl(host->myaddress.data), "-");
                     geoip[j] = g_strdup(name);
-                } else if (host->address.type == AT_IPv6 && j < geoip_db_num_dbs()) {
+                } else if (host->myaddress.type == AT_IPv6 && j < geoip_db_num_dbs()) {
                     const guchar *name;
-                    const struct e_in6_addr *addr = (const struct e_in6_addr *) host->address.data;
+                    const struct e_in6_addr *addr = (const struct e_in6_addr *) host->myaddress.data;
 
                     name = geoip_db_lookup_ipv6(j, *addr, "-");
                     geoip[j] = g_strdup(name);
@@ -1755,7 +1755,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
  * is to be exact.
  */
 typedef struct {
-    address  address;
+    address  myaddress;
     guint32  port;
 } host_key_t;
 
@@ -1766,7 +1766,7 @@ host_hash(gconstpointer v)
     guint hash_val;
 
     hash_val = 0;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->address);
+    ADD_ADDRESS_TO_HASH(hash_val, &key->myaddress);
     hash_val += key->port;
     return hash_val;
 }
@@ -1781,7 +1781,7 @@ host_match(gconstpointer v, gconstpointer w)
     const host_key_t *v2 = (const host_key_t *)w;
 
     if (v1->port == v2->port &&
-        ADDRESSES_EQUAL(&v1->address, &v2->address)) {
+        ADDRESSES_EQUAL(&v1->myaddress, &v2->myaddress)) {
         return 1;
     }
     /*
@@ -1810,7 +1810,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         /* try to find it among the existing known conversations */
         host_key_t existing_key;
 
-        existing_key.address = *addr;
+        existing_key.myaddress = *addr;
         existing_key.port = port;
         talker_idx = GPOINTER_TO_UINT(g_hash_table_lookup(hl->hashtable, &existing_key));
         if (talker_idx) {
@@ -1825,7 +1825,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         host_key_t *new_key;
         hostlist_talker_t host;
 
-        COPY_ADDRESS(&host.address, addr);
+        COPY_ADDRESS(&host.myaddress, addr);
         host.sat=sat;
         host.port_type=port_type_val;
         host.port=port;
@@ -1842,7 +1842,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
 
         /* hl->hosts address is not a constant but address.data is */
         new_key = g_new(host_key_t,1);
-        SET_ADDRESS(&new_key->address, talker->address.type, talker->address.len, talker->address.data);
+        SET_ADDRESS(&new_key->myaddress, talker->myaddress.type, talker->myaddress.len, talker->myaddress.data);
         new_key->port = port;
         g_hash_table_insert(hl->hashtable, new_key, GUINT_TO_POINTER(talker_idx +1));
         hl->num_hosts++;

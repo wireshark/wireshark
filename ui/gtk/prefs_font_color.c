@@ -344,8 +344,8 @@ font_fetch(void)
 static void
 select_font(GtkWidget *w, gpointer data _U_)
 {
-  GtkWidget *font_sample = g_object_get_data(G_OBJECT(w), FONT_SAMPLE_KEY);
-  GtkWidget *color_sample = g_object_get_data(G_OBJECT(w), COLOR_SAMPLE_KEY);
+  GtkWidget *font_sample = (GtkWidget *)g_object_get_data(G_OBJECT(w), FONT_SAMPLE_KEY);
+  GtkWidget *color_sample = (GtkWidget *)g_object_get_data(G_OBJECT(w), COLOR_SAMPLE_KEY);
   const gchar *font_name;
 
   if (!font_sample || !color_sample)
@@ -361,7 +361,7 @@ select_font(GtkWidget *w, gpointer data _U_)
 
 static void
 update_text_color(GObject *obj, GParamSpec *pspec _U_, gpointer data _U_) {
-  GtkTextView   *sample = g_object_get_data(G_OBJECT(obj), COLOR_SAMPLE_KEY);
+  GtkTextView   *sample = (GtkTextView *)g_object_get_data(G_OBJECT(obj), COLOR_SAMPLE_KEY);
   GtkTextBuffer *buf;
   GtkTextTag    *tag;
 

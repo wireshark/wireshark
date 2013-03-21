@@ -243,13 +243,13 @@ capture_options *capture_opts)
     gtk_misc_set_alignment(GTK_MISC(info->counts[i].percent_lb), 1.0f, 0.5f);
 
     ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].label,
-                                0, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                                0, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].value_lb,
-                                1, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                                1, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].percent_pb,
-                                2, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                                2, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].percent_lb,
-                                3, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                                3, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
 
     gtk_widget_show(info->counts[i].label);
     gtk_widget_show(info->counts[i].value_lb);
@@ -268,23 +268,23 @@ capture_options *capture_opts)
   gtk_misc_set_alignment(GTK_MISC(running_label), 0.0f, 0.0f);
   gtk_widget_show(running_label);
   ws_gtk_grid_attach_extended(GTK_GRID(running_grid), running_label,
-                              0, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                              0, 0, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
 
   info->running_time_lb = gtk_label_new("00:00:00");
   gtk_misc_set_alignment(GTK_MISC(info->running_time_lb), 0.5f, 0.0f);
   gtk_widget_show(info->running_time_lb);
   ws_gtk_grid_attach_extended(GTK_GRID(running_grid), info->running_time_lb,
-                              1, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 5, 0);  /* effect: pads *all* the columns ?? */
+                              1, 0, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 5, 0);  /* effect: pads *all* the columns ?? */
 
   /* two dummy cols to match the 4 cols above */
   lb = gtk_label_new("");
   gtk_widget_show(lb);
   ws_gtk_grid_attach_extended(GTK_GRID(running_grid), lb,
-                              2, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                              2, 0, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
   lb = gtk_label_new("");
   gtk_widget_show(lb);
   ws_gtk_grid_attach_extended(GTK_GRID(running_grid), lb,
-                              3, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                              3, 0, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
 
   gtk_box_pack_start(GTK_BOX(main_vb), running_grid, FALSE, FALSE, 3);
   gtk_widget_show(running_grid);

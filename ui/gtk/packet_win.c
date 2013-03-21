@@ -893,7 +893,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 
 	DataPtr->frame = cfile.current_frame;
 	DataPtr->phdr  = cfile.phdr;
-	DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
+	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
 	memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
@@ -988,7 +988,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 static void
 destroy_new_window(GObject *object _U_, gpointer user_data)
 {
-	struct PacketWinData *DataPtr = user_data;
+	struct PacketWinData *DataPtr = (struct PacketWinData *)user_data;
 
 	detail_windows = g_list_remove(detail_windows, DataPtr);
 	proto_tree_draw(NULL, DataPtr->tree_view);

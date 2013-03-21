@@ -157,7 +157,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
             end_dlg_list = end_dlg_list->next;
         }
         end_dlg_list->dlg = NULL;
-        end_dlg_list->param_items = g_malloc(dlg_data->nparams * sizeof (GtkWidget *));
+        end_dlg_list->param_items = (GtkWidget **)g_malloc(dlg_data->nparams * sizeof (GtkWidget *));
         end_dlg_list->cont.win_title = dlg_data->win_title;
         end_dlg_list->cont.init_string = dlg_data->init_string;
         end_dlg_list->cont.tap_init_cb = dlg_data->tap_init_cb;
@@ -281,11 +281,11 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+    start_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
     g_signal_connect(start_button, "clicked",
                      G_CALLBACK(tap_param_dlg_start_button_clicked), current_dlg);
 
-    cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+    cancel_button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     window_set_cancel_button(current_dlg->dlg, cancel_button, window_cancel_button_cb);
 
     /* Catch the "activate" signal on all the text entries, so that

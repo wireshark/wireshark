@@ -97,7 +97,7 @@ follow_read_stream(follow_info_t *follow_info,
 
 	default :
 		g_assert_not_reached();
-		return 0;
+		return (frs_return_t)0;
 	}
 }
 
@@ -352,7 +352,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 	if(last_pos_mark)
 		gtk_text_buffer_get_iter_at_mark(buffer, &iter, last_pos_mark);
 
-	found = gtk_text_iter_forward_search(&iter, find_string, 0,
+	found = gtk_text_iter_forward_search(&iter, find_string, (GtkTextSearchFlags)0,
 					     &match_start,
 					     &match_end,
 					     NULL);

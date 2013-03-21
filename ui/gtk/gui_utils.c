@@ -666,7 +666,7 @@ pipe_input_cb(GIOChannel   *source _U_,
         /* restore pipe handler */
         pipe_input->pipe_input_id = g_io_add_watch_full(pipe_input->channel,
                                                         G_PRIORITY_HIGH,
-                                                        G_IO_IN|G_IO_ERR|G_IO_HUP,
+                                                        (GIOCondition)(G_IO_IN|G_IO_ERR|G_IO_HUP),
                                                         pipe_input_cb,
                                                         pipe_input,
                                                         NULL);
@@ -701,7 +701,7 @@ pipe_input_set_handler(gint             source,
     g_io_channel_set_encoding(pipe_input.channel, NULL, NULL);
     pipe_input.pipe_input_id = g_io_add_watch_full(pipe_input.channel,
                                                    G_PRIORITY_HIGH,
-                                                   G_IO_IN|G_IO_ERR|G_IO_HUP,
+                                                   (GIOCondition)(G_IO_IN|G_IO_ERR|G_IO_HUP),
                                                    pipe_input_cb,
                                                    &pipe_input,
                                                    NULL);
@@ -1764,7 +1764,7 @@ gdk_pixbuf_get_from_surface(cairo_surface_t *surface,
     g_return_val_if_fail(surface != NULL, NULL);
     g_return_val_if_fail(width > 0 && height > 0, NULL);
 
-    content = cairo_surface_get_content(surface) | CAIRO_CONTENT_COLOR;
+    content = (cairo_content_t)(cairo_surface_get_content(surface) | CAIRO_CONTENT_COLOR);
     dest    = gdk_pixbuf_new(GDK_COLORSPACE_RGB,
                              !!(content & CAIRO_CONTENT_ALPHA),
                              8,

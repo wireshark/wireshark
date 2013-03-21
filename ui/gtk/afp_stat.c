@@ -74,7 +74,7 @@ static int
 afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	afpstat_t *ss=(afpstat_t *)pss;
-	const afp_request_val *request_val=prv;
+	const afp_request_val *request_val=(const afp_request_val *)prv;
 
 	/* if we havnt seen the request, just ignore it */
 	if(!request_val){
@@ -128,7 +128,7 @@ gtk_afpstat_init(const char *opt_arg, void *userdata _U_)
 		filter=NULL;
 	}
 
-	ss=g_malloc(sizeof(afpstat_t));
+	ss=(afpstat_t *)g_malloc(sizeof(afpstat_t));
 
 	ss->win=dlg_window_new("afp-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
@@ -172,7 +172,7 @@ gtk_afpstat_init(const char *opt_arg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
 	g_signal_connect(ss->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

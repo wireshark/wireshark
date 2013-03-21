@@ -630,7 +630,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 void
 match_selected_plist_cb(gpointer data, MATCH_SELECTED_E action)
 {
-    match_selected_cb_do(g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY),
+    match_selected_cb_do((GtkWidget *)g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY),
         action,
         get_filter_from_packet_list_row_and_column((GtkWidget *)data));
 }
@@ -2188,7 +2188,7 @@ main(int argc, char *argv[])
   GtkWidget           *splash_win = NULL;
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
-  gboolean             jump_backwards = FALSE;
+  search_direction     jump_backwards = SD_FORWARD;
   dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
   int                  status;
@@ -2498,14 +2498,14 @@ main(int argc, char *argv[])
 
   /* We might want to have component specific log levels later ... */
 
-  log_flags =
-            G_LOG_LEVEL_ERROR|
+  log_flags = (GLogLevelFlags)
+            (G_LOG_LEVEL_ERROR|
             G_LOG_LEVEL_CRITICAL|
             G_LOG_LEVEL_WARNING|
             G_LOG_LEVEL_MESSAGE|
             G_LOG_LEVEL_INFO|
             G_LOG_LEVEL_DEBUG|
-            G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
+            G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION);
 
   g_log_set_handler(NULL,
             log_flags,
@@ -2644,7 +2644,7 @@ main(int argc, char *argv[])
         dfilter = optarg;
         break;
       case 'j':        /* Search backwards for a matching packet from filter in option J */
-        jump_backwards = TRUE;
+        jump_backwards = SD_BACKWARD;
         break;
       case 'g':        /* Go to packet with the given packet number */
         go_to_packet = get_positive_int(optarg, "go to packet");

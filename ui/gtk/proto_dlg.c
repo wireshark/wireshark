@@ -316,20 +316,20 @@ build_protocols_treeview(void)
   gtk_box_pack_start(GTK_BOX(proto_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(proto_ok_cb), proto_w);
   gtk_widget_grab_default(ok_bt);
 
-  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+  apply_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   g_signal_connect(apply_bt, "clicked", G_CALLBACK(proto_apply_cb), proto_w);
 
-  save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
+  save_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   g_signal_connect(save_bt, "clicked", G_CALLBACK(proto_save_cb), proto_w);
 
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, cancel_bt, proto_cancel_cb);
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_ENABLED_PROTOCOLS_DIALOG);
 
   g_signal_connect(proto_w, "delete_event", G_CALLBACK(proto_delete_event_cb), NULL);
@@ -438,7 +438,7 @@ toggle_all_cb(GtkWidget *button _U_, gpointer pl)
   GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl)));
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = entry->data;
+    protocol_data_t *p = (protocol_data_t *)entry->data;
 
     if (p->enabled)
       p->enabled = FALSE;
@@ -457,7 +457,7 @@ set_active_all(GtkWidget *w, gboolean new_state)
   GSList *entry;
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = entry->data;
+    protocol_data_t *p = (protocol_data_t *)entry->data;
 
     p->enabled = new_state;
     gtk_list_store_set(s, &p->iter, 0, new_state, -1);
@@ -468,14 +468,14 @@ set_active_all(GtkWidget *w, gboolean new_state)
 static void
 enable_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-  set_active_all(pl, TRUE);
+  set_active_all((GtkWidget *)pl, TRUE);
 }
 
 /* Disable All */
 static void
 disable_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-  set_active_all(pl, FALSE);
+  set_active_all((GtkWidget *)pl, FALSE);
 }
 
 static void
@@ -531,7 +531,7 @@ update_was_enabled(void)
   GSList *entry;
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = entry->data;
+    protocol_data_t *p = (protocol_data_t *)entry->data;
     p->was_enabled = p->enabled;
   }
 }
@@ -627,7 +627,7 @@ set_proto_selection(GtkWidget *parent_w _U_)
   gboolean need_redissect = FALSE;
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = entry->data;
+    protocol_data_t *p = (protocol_data_t *)entry->data;
     protocol_t *protocol;
 
     protocol = find_protocol_by_id(p->hfinfo_index);
@@ -651,7 +651,7 @@ revert_proto_selection(void)
    * Undo all the changes we've made to protocol enable flags.
    */
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    protocol_data_t *p = entry->data;
+    protocol_data_t *p = (protocol_data_t *)entry->data;
     protocol_t *protocol;
 
     protocol = find_protocol_by_id(p->hfinfo_index);
@@ -687,7 +687,7 @@ create_protocol_list(void)
   for (i = proto_get_first_protocol(&cookie); i != -1;
        i = proto_get_next_protocol(&cookie)) {
       if (proto_can_toggle_protocol(i)) {
-        p = g_malloc(sizeof(protocol_data_t));
+        p = (protocol_data_t *)g_malloc(sizeof(protocol_data_t));
         protocol = find_protocol_by_id(i);
         p->name = proto_get_protocol_name(i);
         p->abbrev = proto_get_protocol_short_name(protocol);
@@ -778,7 +778,7 @@ show_proto_selection(GtkListStore *proto_store)
     create_protocol_list();
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
-    p = entry->data;
+    p = (protocol_data_t *)entry->data;
 
     gtk_list_store_append(proto_store, &p->iter);
     gtk_list_store_set(proto_store, &p->iter,

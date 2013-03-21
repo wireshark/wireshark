@@ -334,19 +334,19 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, TRUE, TRUE, 0);
 
-  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+  apply_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   g_signal_connect(apply_bt, "clicked", G_CALLBACK(time_shift_apply_cb),
     time_shift_frame_w);
   gtk_widget_set_tooltip_text(apply_bt,
     "Apply the Time Shift options to the frame data.");
 
-  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(time_shift_frame_w, close_bt, window_cancel_button_cb);
   g_signal_connect(close_bt, "clicked", G_CALLBACK(time_shift_close_cb),
     time_shift_frame_w);
   gtk_widget_set_tooltip_text(close_bt, "Close this dialog box.");
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
     (gpointer)HELP_TIME_SHIFT_DIALOG);
   gtk_widget_set_tooltip_text(help_bt,

@@ -128,7 +128,7 @@ GSList *decode_dimmable = NULL;
  * modified in a callback routine, and read in the routine that
  * handles a click in the "OK" button for the dialog.
  */
-enum action_type  requested_action = -1;
+enum action_type  requested_action = (enum action_type)-1;
 
 
 /**************************************************/
@@ -458,12 +458,12 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
     g_assert(user_data);
     g_assert(value);
 
-    current = (dissector_handle_t)dtbl_entry_get_handle(value);
+    current = (dissector_handle_t)dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current == NULL)
         current_proto_name = "(none)";
     else
         current_proto_name = dissector_handle_get_short_name(current);
-    initial = (dissector_handle_t)dtbl_entry_get_initial_handle(value);
+    initial = (dissector_handle_t)dtbl_entry_get_initial_handle((dtbl_entry_t *)value);
     if (initial == NULL)
         initial_proto_name = "(none)";
     else
@@ -1042,11 +1042,11 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     void *binding = NULL;
 
     /* Call the right routine for the page that was currently in front. */
-    notebook =  g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
+    notebook =  (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
     page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
     notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
-    func = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
+    func = (void (*)(GtkWidget *))g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
@@ -1087,7 +1087,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
     page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
     notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
-    func = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
+    func = (void (*)(GtkWidget *))g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
     func(notebook_pg);
 
     redissect_packets();
@@ -1199,7 +1199,7 @@ decode_update_action (GtkWidget *w _U_, gpointer user_data)
     GSList *tmp;
     gboolean enable;
 
-    requested_action = GPOINTER_TO_INT(user_data);
+    requested_action = (enum action_type)GPOINTER_TO_INT(user_data);
     enable = (requested_action == E_DECODE_YES);
     for (tmp = decode_dimmable; tmp; tmp = g_slist_next(tmp)) {
         gtk_widget_set_sensitive((GtkWidget *)tmp->data, enable);
@@ -1748,7 +1748,7 @@ decode_sctp_update_srcdst_combo_box(GtkWidget *w _U_, GtkWidget *page)
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gpointer)"sctp.port");
     g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
     g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
-    sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
+    sctp_store = (GtkListStore *)g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
     gtk_list_store_clear(sctp_store);
     decode_sctp_list_menu_start(&list, &scrolled_window);
     dissector_table_foreach_handle("sctp.port", decode_proto_add_to_list, list);

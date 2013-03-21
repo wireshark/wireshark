@@ -749,7 +749,7 @@ sctp_graph_close_cb(GtkWidget* widget _U_, gpointer u_data)
 static gboolean
 on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
@@ -811,7 +811,7 @@ on_draw_area_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 static gboolean
 on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-	sctp_graph_t *ios = user_data;
+	sctp_graph_t *ios = (sctp_graph_t *)user_data;
 	cairo_t *cr;
 
 	g_assert(ios != NULL);
@@ -839,7 +839,7 @@ on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 
 	if (u_data->io->rectangle==TRUE)
 	{
-		tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+		tmp_minmax = (sctp_min_max_t *)g_malloc(sizeof(sctp_min_max_t));
 
 		u_data->io->tmp_min_tsn1=u_data->io->y1_tmp+u_data->io->min_y;
 		u_data->io->tmp_max_tsn1=u_data->io->y2_tmp+1+u_data->io->min_y;
@@ -872,7 +872,7 @@ zoomin_bt_fcn (struct sctp_udata *u_data)
 {
 	sctp_min_max_t *tmp_minmax;
 
-	tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+	tmp_minmax = (sctp_min_max_t *)g_malloc(sizeof(sctp_min_max_t));
 
 	u_data->io->tmp_min_tsn1=u_data->io->y1_tmp+u_data->io->min_y;
 	u_data->io->tmp_max_tsn1=u_data->io->y2_tmp+1+u_data->io->min_y;
@@ -956,7 +956,7 @@ on_zoomout_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 static gboolean
 on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	sctp_graph_t *ios;
 	cairo_t *cr;
 
@@ -1010,7 +1010,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 static gboolean
 on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-	struct sctp_udata *u_data = user_data;
+	struct sctp_udata *u_data = (struct sctp_udata *)user_data;
 	sctp_graph_t *ios;
 	guint32 helpx, helpy, x1_tmp, x2_tmp, y_value;
 	gint label_width, label_height;
@@ -1334,7 +1334,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 	sctp_graph_t *io;
 	sctp_min_max_t* tmp_minmax;
 
-	io=g_malloc(sizeof(sctp_graph_t));
+	io=(sctp_graph_t *)g_malloc(sizeof(sctp_graph_t));
 	io->needs_redraw=TRUE;
 	io->x_interval=1000;
 	io->window=NULL;
@@ -1359,7 +1359,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 	u_data->io->tmp_min_tsn2=0;
 	u_data->io->tmp_max_tsn2=u_data->assoc->max_bytes2;
 	u_data->io->tmp=FALSE;
-	tmp_minmax = g_malloc(sizeof(sctp_min_max_t));
+	tmp_minmax = (sctp_min_max_t *)g_malloc(sizeof(sctp_min_max_t));
 	tmp_minmax->tmp_min_secs = u_data->assoc->min_secs;
 	tmp_minmax->tmp_min_usecs=u_data->assoc->min_usecs;
 	tmp_minmax->tmp_max_secs=u_data->assoc->max_secs;
@@ -1379,7 +1379,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 static void
 quit(GObject *object _U_, gpointer user_data)
 {
-	struct sctp_udata *u_data=user_data;
+	struct sctp_udata *u_data=(struct sctp_udata *)user_data;
 
 	decrease_childcount(u_data->parent);
 	remove_child(u_data, u_data->parent);
@@ -1421,7 +1421,7 @@ static void insertion(GPtrArray *array, guint32 N)
 		j=i;
 		while (j>=1 && ((struct tsn_sort*)(g_ptr_array_index(array, j-1)))->tsnumber > v)
 		{
-			help=g_ptr_array_index(array, j);
+			help=(struct tsn_sort *)g_ptr_array_index(array, j);
 			g_ptr_array_index(array, j)=g_ptr_array_index(array, j-1);
 			g_ptr_array_index(array, j-1)=help;
 			j--;
@@ -1521,8 +1521,8 @@ void create_byte_graph(guint16 dir, struct sctp_analyse* userdata)
 {
 	struct sctp_udata *u_data;
 
-	u_data=g_malloc(sizeof(struct sctp_udata));
-	u_data->assoc=g_malloc(sizeof(sctp_assoc_info_t));
+	u_data=(struct sctp_udata *)g_malloc(sizeof(struct sctp_udata));
+	u_data->assoc=(sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
 	u_data->assoc=userdata->assoc;
 	u_data->io=NULL;
 	u_data->dir = dir;

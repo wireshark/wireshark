@@ -90,7 +90,7 @@ GtkWidget * text_page_new(const char *absolute_path)
  */
 static void text_page_insert(GtkWidget *page, const char *buffer, int nchars)
 {
-    GtkWidget *txt = g_object_get_data(G_OBJECT(page), TEXT_KEY);
+    GtkWidget *txt = (GtkWidget *)g_object_get_data(G_OBJECT(page), TEXT_KEY);
 
     GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     GtkTextIter    iter;

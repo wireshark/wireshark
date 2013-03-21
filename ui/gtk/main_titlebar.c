@@ -49,7 +49,7 @@ main_set_window_name(const gchar *window_name)
     gchar *old_window_name;
 
     /* Attach the new un-decorated window name to the window. */
-    old_window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
+    old_window_name = (gchar *)g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
     g_free(old_window_name);
     g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
 
@@ -66,7 +66,7 @@ main_titlebar_update(void)
     gchar *title;
 
     /* Get the current filename or other title set in main_set_window_name */
-    window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
+    window_name = (gchar *)g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
     if (window_name != NULL) {
         /* Optionally append the user-defined window title */
         title = create_user_window_title(window_name);

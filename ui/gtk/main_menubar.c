@@ -449,7 +449,7 @@ goto_conversation_frame(gboolean dir)
         return;
     }
 
-    found_packet = cf_find_packet_dfilter(&cfile, dfcode, dir);
+    found_packet = cf_find_packet_dfilter(&cfile, dfcode, dir?SD_BACKWARD:SD_FORWARD);
 
     if (!found_packet) {
         /* We didn't find a packet */
@@ -496,7 +496,7 @@ static void
 copy_as_filter_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     /* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
-    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+    match_selected_ptree_cb( popup_menu_object, (MATCH_SELECTED_E)(MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY));
 }
 
 static void
@@ -1939,9 +1939,9 @@ apply_selected_filter_cb(GtkAction *action, gpointer user_data)
     /* path starts with "<Actions>" */
     if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
         /* Use different callbacks depending action path */
-        match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+        match_selected_plist_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW));
     } else {
-        match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW));
     }
 }
 
@@ -1953,9 +1953,9 @@ apply_not_selected_cb(GtkAction *action, gpointer user_data)
     /* path starts with "<Actions>" */
     if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
         /* Use different callbacks depending action path */
-        match_selected_plist_cb(user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+        match_selected_plist_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW));
     } else {
-        match_selected_ptree_cb(user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW));
     }
 }
 
@@ -1967,9 +1967,9 @@ apply_and_selected_cb(GtkAction *action, gpointer user_data)
     /* path starts with "<Actions>" */
     if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
         /* Use different callbacks depending action path */
-        match_selected_plist_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+        match_selected_plist_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW));
     } else {
-        match_selected_ptree_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW));
     }
 }
 
@@ -1981,9 +1981,9 @@ apply_or_selected_cb(GtkAction *action, gpointer user_data)
     /* path starts with "<Actions>" */
     if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
         /* Use different callbacks depending action path */
-        match_selected_plist_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+        match_selected_plist_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW));
     } else {
-        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW));
     }
 }
 
@@ -1995,9 +1995,9 @@ apply_and_not_selected_cb(GtkAction *action, gpointer user_data)
     /* path starts with "<Actions>" */
     if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
         /* Use different callbacks depending action path */
-        match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+        match_selected_plist_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW));
     } else {
-        match_selected_ptree_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW));
     }
 }
 
@@ -2009,9 +2009,9 @@ apply_or_not_selected_cb(GtkAction *action, gpointer user_data)
     /* path starts with "<Actions>" */
     if (strncmp (path+9,"/PacketListPopUpMenuActionGroup",31) == 0){
         /* Use different callbacks depending action path */
-        match_selected_plist_cb(user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+        match_selected_plist_cb(user_data,(MATCH_SELECTED_E)(MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW));
     } else {
-        match_selected_ptree_cb(user_data, MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW));
     }
 }
 
@@ -2485,37 +2485,37 @@ packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 static void
 packet_list_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+    match_selected_plist_cb(user_data, (MATCH_SELECTED_E)(MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY));
 }
 
 static void
 packet_list_menu_copy_bytes_oht_cb(GtkAction *action _U_, gpointer user_data)
 {
-    copy_hex_cb( NULL /* widget _U_ */ , user_data,  CD_ALLINFO | CD_FLAGS_SELECTEDONLY);
+    copy_hex_cb( NULL /* widget _U_ */ , user_data, (copy_data_type)(CD_ALLINFO | CD_FLAGS_SELECTEDONLY));
 }
 
 static void
 packet_list_menu_copy_bytes_oh_cb(GtkAction *action _U_, gpointer user_data)
 {
-    copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY);
+    copy_hex_cb( NULL /* widget _U_ */ , user_data, (copy_data_type)(CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY));
 }
 
 static void
 packet_list_menu_copy_bytes_text_cb(GtkAction *action _U_, gpointer user_data)
 {
-    copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY);
+    copy_hex_cb( NULL /* widget _U_ */ , user_data, (copy_data_type)(CD_TEXTONLY | CD_FLAGS_SELECTEDONLY));
 }
 
 static void
 packet_list_menu_copy_bytes_hex_strm_cb(GtkAction *action _U_, gpointer user_data)
 {
-    copy_hex_cb( NULL /* widget _U_ */ , user_data,  CD_HEX | CD_FLAGS_SELECTEDONLY);
+    copy_hex_cb( NULL /* widget _U_ */ , user_data,  (copy_data_type)(CD_HEX | CD_FLAGS_SELECTEDONLY));
 }
 
 static void
 packet_list_menu_copy_bytes_bin_strm_cb(GtkAction *action _U_, gpointer user_data)
 {
-    copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_BINARY | CD_FLAGS_SELECTEDONLY);
+    copy_hex_cb( NULL /* widget _U_ */ , user_data, (copy_data_type)(CD_BINARY | CD_FLAGS_SELECTEDONLY));
 }
 
 /* tree */
@@ -2609,7 +2609,7 @@ static void
 tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data _U_)
 {
     /* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
-    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+    match_selected_ptree_cb( popup_menu_object, (MATCH_SELECTED_E)(MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY));
 }
 
 static const char *ui_desc_packet_list_heading_menu_popup =
@@ -3325,7 +3325,7 @@ menus_init(void)
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(packet_list_heading_action_group,                     /* the action group */
-                                    (gpointer)packet_list_heading_menu_toggle_action_entries,     /* an array of action descriptions */
+                                    (GtkToggleActionEntry *)packet_list_heading_menu_toggle_action_entries,     /* an array of action descriptions */
                                     G_N_ELEMENTS(packet_list_heading_menu_toggle_action_entries), /* the number of entries */
                                     NULL);                                                        /* data to pass to the action callbacks */
 
@@ -3352,13 +3352,13 @@ menus_init(void)
         packet_list_action_group = gtk_action_group_new ("PacketListPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
-            (gpointer)packet_list_menu_popup_action_entries,                       /* an array of action descriptions */
+            (GtkActionEntry *)packet_list_menu_popup_action_entries,                       /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_menu_popup_action_entries),                   /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         /* Add the filter menu items */
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
-            (gpointer)apply_prepare_filter_action_entries,                         /* an array of action descriptions */
+            (GtkActionEntry *)apply_prepare_filter_action_entries,                         /* an array of action descriptions */
             G_N_ELEMENTS(apply_prepare_filter_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
@@ -3387,14 +3387,14 @@ menus_init(void)
         packet_list_details_action_group = gtk_action_group_new ("PacketListDetailsMenuPopUpActionGroup");
 
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
-            (gpointer)tree_view_menu_popup_action_entries,                         /* an array of action descriptions */
+            (GtkActionEntry *)tree_view_menu_popup_action_entries,                 /* an array of action descriptions */
             G_N_ELEMENTS(tree_view_menu_popup_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         /* Add the filter menu items */
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
-            (gpointer)apply_prepare_filter_action_entries,                        /* an array of action descriptions */
-            G_N_ELEMENTS(apply_prepare_filter_action_entries),                    /* the number of entries */
+            (GtkActionEntry *)apply_prepare_filter_action_entries,                 /* an array of action descriptions */
+            G_N_ELEMENTS(apply_prepare_filter_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
 
@@ -3432,7 +3432,7 @@ menus_init(void)
 
 
         gtk_action_group_add_radio_actions  (packet_list_byte_menu_action_group,            /* the action group */
-                                    (gpointer)bytes_menu_radio_action_entries,              /* an array of radio action descriptions  */
+                                    (GtkRadioActionEntry *)bytes_menu_radio_action_entries, /* an array of radio action descriptions  */
                                     G_N_ELEMENTS(bytes_menu_radio_action_entries),          /* the number of entries */
                                     recent.gui_bytes_view,                                  /* the value of the action to activate initially, or -1 if no action should be activated  */
                                     G_CALLBACK(select_bytes_view_cb),                       /* the callback to connect to the changed signal  */
@@ -3479,7 +3479,7 @@ menus_init(void)
 
         /* Add the filter menu actions */
         gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
-                                    (gpointer)apply_prepare_filter_action_entries,      /* an array of action descriptions */
+                                    (GtkActionEntry *)apply_prepare_filter_action_entries,      /* an array of action descriptions */
                                     G_N_ELEMENTS(apply_prepare_filter_action_entries),  /* the number of entries */
                                     popup_menu_object);                                 /* data to pass to the action callbacks */
 
@@ -3535,7 +3535,7 @@ menus_init(void)
         statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (statusbar_profiles_action_group,   /* the action group */
-            (gpointer)statusbar_profiles_menu_action_entries,            /* an array of action descriptions */
+            (GtkActionEntry *)statusbar_profiles_menu_action_entries,    /* an array of action descriptions */
             G_N_ELEMENTS(statusbar_profiles_menu_action_entries),        /* the number of entries */
             popup_menu_object);                                          /* data to pass to the action callbacks */
 
@@ -3610,7 +3610,7 @@ ws_menubar_build_external_menus(void)
     void (*callback)(gpointer);
 
     while (build_menubar_items_callback_list != NULL) {
-        callback = build_menubar_items_callback_list->data;
+        callback = (void (*)(gpointer))build_menubar_items_callback_list->data;
         callback(ui_manager_main_menubar);
         build_menubar_items_callback_list = g_list_next(build_menubar_items_callback_list);
     }
@@ -4646,13 +4646,13 @@ menu_recent_read_finished(void)
 
     switch (recent.gui_seconds_format) {
     case TS_SECONDS_DEFAULT:
-        recent.gui_seconds_format = -1;
+        recent.gui_seconds_format = (ts_seconds_type)-1;
         /* set_active will not trigger the callback when deactivating an inactive item! */
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
         break;
     case TS_SECONDS_HOUR_MIN_SEC:
-        recent.gui_seconds_format = -1;
+        recent.gui_seconds_format = (ts_seconds_type)-1;
         /* set_active will not trigger the callback when activating an active item! */
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);

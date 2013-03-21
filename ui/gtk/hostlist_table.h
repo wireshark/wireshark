@@ -34,7 +34,7 @@
 
 /** Hostlist information */
 typedef struct _hostlist_talker_t {
-	address address;        /**< address */
+	address myaddress;      /**< address */
 	SAT_E   sat;            /**< address type */
 	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
 	guint32 port;           /**< port */
