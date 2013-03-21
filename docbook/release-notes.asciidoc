@@ -38,6 +38,9 @@ strict SI prefixes instead of old-style binary prefixes.
 default.
 * It is now possible to open a referenced packet (such as the matched request or
 response packet) in a new window.
+* It is now possible for tshark to display only the hex/ascii packet data
+without also requiring that the packet summary and/or packet details are also
+displayed.  If you want the old behavior, use -Px instead of just -x.
 
 === New Protocol Support
 

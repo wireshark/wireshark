@@ -580,8 +580,8 @@ promiscuous mode.
 
 =item -P
 
-Decode and display packets even while writing raw packet data using the
-B<-w> option.
+Decode and display the packet summary, even if writing raw packet data using
+the B<-w> option.
 
 =item -q
 
@@ -696,8 +696,7 @@ Print the version and exit.
 
 =item -V
 
-Cause B<TShark> to print a view of the packet details rather
-than a one-line summary of the packet.
+Cause B<TShark> to print a view of the packet details.
 
 =item -w  E<lt>outfileE<gt> | -
 
@@ -727,7 +726,7 @@ B<n> write network address resolution information (pcapng only)
 =item -x
 
 Cause B<TShark> to print a hex and ASCII dump of the packet data
-after printing the summary or details.
+after printing the summary and/or details, if either are also being displayed.
 
 =item -X E<lt>eXtension optionsE<gt>
 
