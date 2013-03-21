@@ -363,7 +363,7 @@ fail:
 /*
  * Add an encapsulation type to cf->linktypes.
  */
-void
+static void
 cf_add_encapsulation_type(capture_file *cf, int encap)
 {
   guint i;

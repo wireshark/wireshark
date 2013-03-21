@@ -646,7 +646,7 @@ do_cpuid(guint32 *CPUInfo, int selector _U_){
  * the get_cpuid() routine will return 0 in CPUInfo[0] if cpuinfo isn't available.
  */
 
-void get_cpu_info(GString *str _U_)
+static void get_cpu_info(GString *str _U_)
 {
 	int CPUInfo[4];
 	char CPUBrandString[0x40];
@@ -675,7 +675,7 @@ void get_cpu_info(GString *str _U_)
 
 }
 
-void get_mem_info(GString *str _U_)
+static void get_mem_info(GString *str _U_)
 {
 #if defined(_WIN32)
 	MEMORYSTATUSEX statex;
