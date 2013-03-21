@@ -91,6 +91,7 @@
 
 #define CAPTURE_IF_IP_ADDR_LABEL      "capture_if_ip_addr_label"
 #define CAPTURE_IF_SELECTED_IP_ADDR   "capture_if_selected_ip_addr"
+#define SOFT_LABEL_LEN 50
 
 /*
  * Keep a static pointer to the current "Capture Interfaces" window, if
@@ -738,7 +739,9 @@ capture_if_refresh_if_list(void)
     data.device_lb = gtk_label_new(device.name);
 #endif
     gtk_misc_set_alignment(GTK_MISC(data.device_lb), 0.0f, 0.5f);
-    gtk_label_set_ellipsize(GTK_LABEL(data.device_lb), PANGO_ELLIPSIZE_MIDDLE);
+    if (strlen(gtk_label_get_text(GTK_LABEL(data.device_lb))) > SOFT_LABEL_LEN) {
+        gtk_label_set_ellipsize(GTK_LABEL(data.device_lb), PANGO_ELLIPSIZE_MIDDLE);
+    }
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.device_lb, 2, row, 2, 1);
 
     /* description */
@@ -753,7 +756,9 @@ capture_if_refresh_if_list(void)
         data.descr_lb = gtk_label_new("");
     }
     gtk_misc_set_alignment(GTK_MISC(data.descr_lb), 0.0f, 0.5f);
-    gtk_label_set_ellipsize(GTK_LABEL(data.descr_lb), PANGO_ELLIPSIZE_MIDDLE);
+    if (strlen(gtk_label_get_text(GTK_LABEL(data.descr_lb))) > SOFT_LABEL_LEN) {
+        gtk_label_set_ellipsize(GTK_LABEL(data.descr_lb), PANGO_ELLIPSIZE_MIDDLE);
+    }
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.descr_lb, 4, row, 1, 1);
 
     /* IP address */
