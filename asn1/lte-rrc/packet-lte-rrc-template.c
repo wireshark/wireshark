@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.1.2 Release 11) packet dissection
+ * (3GPP TS 36.331 V11.3.0 Release 11) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2013, Pascal Quantin
  *
@@ -34,7 +34,6 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
-#include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
@@ -168,14 +167,6 @@ static int hf_lte_rrc_serialNumber_upd_nb = -1;
 static int hf_lte_rrc_warningType_value = -1;
 static int hf_lte_rrc_warningType_emergency_user_alert = -1;
 static int hf_lte_rrc_warningType_popup = -1;
-static int hf_lte_rrc_warningSecurityInfo_yr = -1;
-static int hf_lte_rrc_warningSecurityInfo_mo = -1;
-static int hf_lte_rrc_warningSecurityInfo_day = -1;
-static int hf_lte_rrc_warningSecurityInfo_hr = -1;
-static int hf_lte_rrc_warningSecurityInfo_min = -1;
-static int hf_lte_rrc_warningSecurityInfo_sec = -1;
-static int hf_lte_rrc_warningSecurityInfo_tz = -1;
-static int hf_lte_rrc_warningSecurityInfo_digital_signature = -1;
 static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
 static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 
@@ -195,7 +186,6 @@ static gint ett_lte_rrc_dedicatedInfoNAS = -1;
 static gint ett_lte_rrc_timeInfo = -1;
 static gint ett_lte_rrc_serialNumber = -1;
 static gint ett_lte_rrc_warningType = -1;
-static gint ett_lte_rrc_warningSecurityInfo = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 
@@ -365,8 +355,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_40_val = {
   "EUTRA RRC_CONNECTED to UTRA TDD CELL_DCH CS handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_41_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "Measurement reporting event: Event B1 - Neighbour > threshold for UTRAN FDD - Supported",
+  "Measurement reporting event: Event B1 - Neighbour > threshold for UTRAN FDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_42_val = {
   "Undefined - Supported",
@@ -2492,38 +2482,6 @@ void proto_register_lte_rrc(void) {
       { "Popup", "lte-rrc.warningType.popup",
         FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
         NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_yr,
-      { "Year", "lte-rrc.warningSecurityInfo.yr",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_mo,
-      { "Month", "lte-rrc.warningSecurityInfo.mo",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_day,
-      { "Day", "lte-rrc.warningSecurityInfo.day",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_hr,
-      { "Hours", "lte-rrc.warningSecurityInfo.hr",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_min,
-      { "Minutes", "lte-rrc.warningSecurityInfo.min",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_sec,
-      { "Seconds", "lte-rrc.warningSecurityInfo.sec",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_tz,
-      { "Time Zone", "lte-rrc.warningSecurityInfo.tz",
-        FT_UINT8, BASE_HEX, NULL, 0,
-        NULL, HFILL }},
-    { &hf_lte_rrc_warningSecurityInfo_digital_signature,
-      { "Digital Signature", "lte-rrc.warningSecurityInfo.digital_signature",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_lte_rrc_warningMessageSegment_nb_pages,
       { "Number of Pages", "lte-rrc.warningMessageSegment.nb_pages",
         FT_UINT8, BASE_DEC, NULL, 0,
@@ -2550,7 +2508,6 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_timeInfo,
     &ett_lte_rrc_serialNumber,
     &ett_lte_rrc_warningType,
-    &ett_lte_rrc_warningSecurityInfo,
     &ett_lte_rrc_dataCodingScheme,
     &ett_lte_rrc_warningMessageSegment
   };

@@ -56,7 +56,6 @@ VarLogMeasConfig-r10
 VarLogMeasReport-r10
 LogMeasInfoList2-r10
 VarRLF-Report-r10
-VarConnEstFail-Report-r11
 VarLogMeasConfig-r11
 VarLogMeasReport-r11
 VarRLF-Report-r11
@@ -330,7 +329,7 @@ if(ue_cap_tvb){
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
     bits = tvb_get_bits64(async_system_time_tvb, 0, 49, ENC_BIG_ENDIAN);
-    ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00 (midnight) UTC on 1980-01-06 */
+    ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(((bits%153600)*8*1000000000)/1228800);
     proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
     proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
@@ -347,7 +346,7 @@ if(ue_cap_tvb){
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
     bits = tvb_get_bits64(sync_system_time_tvb, 0, 39, ENC_BIG_ENDIAN);
-    ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00 (midnight) UTC on 1980-01-06 */
+    ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(bits%100)*10000000;
     proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
     proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
@@ -518,38 +517,6 @@ SystemInformationBlockType10/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
     proto_tree_add_item(subtree, hf_lte_rrc_warningType_popup, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
-#.FN_BODY SystemInformationBlockType10/warningSecurityInfo VAL_PTR=&warning_sec_info_tvb
-  tvbuff_t *warning_sec_info_tvb = NULL;
-%(DEFAULT_BODY)s
-
-#.FN_FTR SystemInformationBlockType10/warningSecurityInfo
-  if (warning_sec_info_tvb) {
-    guint8 oct, tz;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningSecurityInfo);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 0);
-    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_yr, warning_sec_info_tvb, 0, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 1);
-    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_mo, warning_sec_info_tvb, 1, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 2);
-    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_day, warning_sec_info_tvb, 2, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 3);
-    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_hr, warning_sec_info_tvb, 3, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 4);
-    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_min, warning_sec_info_tvb, 4, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 5);
-    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_sec, warning_sec_info_tvb, 5, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
-    oct = tvb_get_guint8(warning_sec_info_tvb, 6);
-    if (oct == 0xff) {
-      proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_tz, warning_sec_info_tvb, 6, 1, oct, "Unknown (0x%02x)", oct);
-    } else {
-      tz = (oct >> 4) + (oct & 0x07) * 10;
-      proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_tz, warning_sec_info_tvb, 6, 1, oct, "GMT %c %d hr %d min (0x%02x)",
-      (oct & 0x08)?'-':'+', tz/4, (tz%4)*15, oct);
-    }
-    proto_tree_add_item(subtree, hf_lte_rrc_warningSecurityInfo_digital_signature, warning_sec_info_tvb, 7, 43, ENC_NA);
-  }
-
 #.TYPE_ATTR
 SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
 
@@ -659,57 +626,42 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
   }
 
 #.TYPE_ATTR
-SystemInformationBlockType16-r11/dayLightSavingTime TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_daylightSavingTime_vals)
+SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_daylightSavingTime_vals)
 
-#.FN_BODY SystemInformationBlockType16-r11/dayLightSavingTime VAL_PTR=&daylight_saving_time_tvb HF_INDEX=-1
+#.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 VAL_PTR=&daylight_saving_time_tvb HF_INDEX=-1
   tvbuff_t *daylight_saving_time_tvb = NULL;
 %(DEFAULT_BODY)s
 
-#.FN_FTR SystemInformationBlockType16-r11/dayLightSavingTime
+#.FN_FTR SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11
   if (daylight_saving_time_tvb) {
     actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, tvb_get_bits8(daylight_saving_time_tvb, 0, 2));
   }
 
-#.FN_BODY SystemInformationBlockType16-r11/leapSeconds
+#.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/leapSeconds-r11
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
 
 #.TYPE_ATTR
-SystemInformationBlockType16-r11/localTimeOffset DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_localTimeOffset_fmt
+SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_localTimeOffset_fmt
 
-#.FN_BODY SystemInformationBlockType16-r11/timeInfo/timeInfoGPS VAL_PTR=&time_info_gps_tvb
-  tvbuff_t *time_info_gps_tvb = NULL;
+#.TYPE_ATTR
+SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 TYPE = FT_UINT64
+
+#.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 VAL_PTR=&timeInfo FN_VARIANT = _64b
+  guint64 timeInfo;
+  proto_tree *subtree;
+  nstime_t ts;
+  guint32 old_offset = offset;
 %(DEFAULT_BODY)s
 
-#.FN_FTR SystemInformationBlockType16-r11/timeInfo/timeInfoGPS
-  if (time_info_gps_tvb) {
-    guint64 bits;
-    nstime_t ts;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-    bits = tvb_get_bits64(time_info_gps_tvb, 0, 39, ENC_BIG_ENDIAN);
-    ts.secs = (time_t)(bits/100) + 315964800; /* GPS epoch is 00:00 (midnight) UTC on 1980-01-06 */
-    ts.nsecs = (int)(bits%100)*10000000;
-    proto_tree_add_text(subtree, time_info_gps_tvb, 0, -1, "GPS   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, time_info_gps_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
-  }
-
-#.FN_BODY SystemInformationBlockType16-r11/timeInfo/timeInfoUTC VAL_PTR=&time_info_utc_tvb
-  tvbuff_t *time_info_utc_tvb = NULL;
-%(DEFAULT_BODY)s
-
-#.FN_FTR SystemInformationBlockType16-r11/timeInfo/timeInfoUTC
-  if (time_info_utc_tvb) {
-    guint64 bits;
-    nstime_t ts;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-    bits = tvb_get_bits64(time_info_utc_tvb, 0, 39, ENC_BIG_ENDIAN);
-    ts.secs = (time_t)(bits/100);
-    ts.nsecs = (int)(bits%100)*10000000;
-    proto_tree_add_text(subtree, time_info_utc_tvb, 0, -1, "UTC   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
-    proto_tree_add_text(subtree, time_info_utc_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
-  }
+#.FN_FTR SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11
+  subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */ 
+  ts.nsecs = (int)(timeInfo%100)*10000000;
+  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
+                      "UTC   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
+                      "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
 
 #.FN_BODY RRCConnectionReject-r8-IEs/waitTime
 %(DEFAULT_BODY)s

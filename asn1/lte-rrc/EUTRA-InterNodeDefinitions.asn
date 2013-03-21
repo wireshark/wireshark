@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.2.0 (2012-12)
+-- 3GPP TS 36.331 V11.3.0 (2013-03)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -6,19 +6,19 @@ EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-	AffectedCarrierFreqList-r11,
 	AntennaInfoCommon,
+	ARFCN-ValueEUTRA,
+	ARFCN-ValueEUTRA-v9e0,
 	CellIdentity,
 	C-RNTI,
 	DL-DCCH-Message,
-	ARFCN-ValueEUTRA,
+	InDeviceCoexIndication-r11,
 	MasterInformationBlock,
 	maxFreq,
 	MBMSInterestIndication-r11,
 	MeasConfig,
 	OtherConfig-r9,
 	PhysCellId,
-	PowerPrefIndication-r11,
 	RadioResourceConfigDedicated,
 	RSRP-Range,
 	RSRQ-Range,
@@ -28,7 +28,7 @@ IMPORTS
 	SystemInformationBlockType1,
 	SystemInformationBlockType1-v890-IEs,
 	SystemInformationBlockType2,
-	TDM-AssistanceInfo-r11,
+	UEAssistanceInformation-r11,
 	UECapabilityInformation,
 	UE-CapabilityRAT-ContainerList
 FROM EUTRA-RRC-Definitions;
@@ -81,11 +81,16 @@ HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 
 HandoverPreparationInformation-v9d0-IEs	::= SEQUENCE {
 	lateNonCriticalExtension			OCTET STRING									OPTIONAL,
-	nonCriticalExtension				HandoverPreparationInformation-v11x0-IEs		OPTIONAL
+	nonCriticalExtension				HandoverPreparationInformation-v9e0-IEs			OPTIONAL
 }
 
-HandoverPreparationInformation-v11x0-IEs	::= SEQUENCE {
-	as-Context-v11x0					AS-Context-v11x0				OPTIONAL,	-- Cond HO2
+HandoverPreparationInformation-v9e0-IEs	::= SEQUENCE {
+	as-Config-v9e0						AS-Config-v9e0					OPTIONAL,	-- Cond HO2
+	nonCriticalExtension				HandoverPreparationInformation-v1130-IEs		OPTIONAL
+}
+
+HandoverPreparationInformation-v1130-IEs	::= SEQUENCE {
+	as-Context-v1130					AS-Context-v1130				OPTIONAL,	-- Cond HO2
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -129,24 +134,22 @@ AS-Config ::=				SEQUENCE {
 	]]
 }
 
+AS-Config-v9e0 ::=				SEQUENCE {
+	sourceDl-CarrierFreq-v9e0		ARFCN-ValueEUTRA-v9e0
+}
+
 
 AS-Context ::=							SEQUENCE {
 	reestablishmentInfo						ReestablishmentInfo			OPTIONAL	-- Cond HO
 }
 
-AS-Context-v11x0 ::=					SEQUENCE {
-	idc-Context-r11							IDC-Context-r11				OPTIONAL,	-- Cond HO2
+AS-Context-v1130 ::=					SEQUENCE {
+	idc-Indication-r11						OCTET STRING (CONTAINING
+											InDeviceCoexIndication-r11)	OPTIONAL,	-- Cond HO2
 	mbmsInterestIndication-r11				OCTET STRING (CONTAINING
 											MBMSInterestIndication-r11)	OPTIONAL,	-- Cond HO2
-	powerPrefIndication-r11					PowerPrefIndication-r11		OPTIONAL,	-- Cond HO2
-	...
-}
-
-
-
-IDC-Context-r11 ::=				SEQUENCE {
-	affectedCarrierFreqList-r11			AffectedCarrierFreqList-r11 	OPTIONAL,
-	tdm-AssistanceInfo-r11				TDM-AssistanceInfo-r11			OPTIONAL,
+	powerPrefIndication-r11					OCTET STRING (CONTAINING
+											UEAssistanceInformation-r11)	OPTIONAL,	-- Cond HO2
 	...
 }
 
@@ -194,7 +197,9 @@ CandidateCellInfo-r10 ::=		SEQUENCE {
 	-- available measurement results
 	rsrpResult-r10					RSRP-Range			OPTIONAL,
 	rsrqResult-r10					RSRQ-Range			OPTIONAL,
-	...
+	...,
+	[[	dl-CarrierFreq-v1090			ARFCN-ValueEUTRA-v9e0		OPTIONAL
+	]]
 }
 
 
