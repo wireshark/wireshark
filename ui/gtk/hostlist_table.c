@@ -69,6 +69,7 @@
 
 #define HOST_PTR_KEY "hostlist-pointer"
 #define NB_PAGES_KEY "notebook-pages"
+#define HL_DLG_HEIGHT 550
 
 #define CMP_INT(i1, i2)         \
     if ((i1) > (i2))            \
@@ -1395,7 +1396,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 #ifdef HAVE_GEOIP
     GtkWidget *map_bt;
 #endif
-    gint tl_width, ht_width, ht_height;
+    window_geometry_t tl_geom;
 
     hosttable=g_new(hostlist_table,1);
 
@@ -1408,11 +1409,12 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     hosttable->win = dlg_window_new(title);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(hosttable->win), TRUE);
 
-    gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
+    window_get_geometry(top_level, &tl_geom);
+    gtk_window_set_default_size(GTK_WINDOW(hosttable->win), tl_geom.width * 8 / 10, HL_DLG_HEIGHT);
 
-    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
     gtk_container_add(GTK_CONTAINER(hosttable->win), vbox);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), DLG_OUTER_MARGIN);
 
     ret = init_hostlist_table_page(hosttable, vbox, hide_ports, table_name, tap_name, filter, packet_func);
     if(ret == FALSE) {
@@ -1457,13 +1459,6 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
     g_signal_connect(hosttable->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(hosttable->win, "destroy", G_CALLBACK(hostlist_win_destroy_cb), hosttable);
-
-    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
-    gtk_window_get_size(GTK_WINDOW(hosttable->win), &ht_width, &ht_height);
-    tl_width = tl_width * 8 / 10;
-    if (tl_width > ht_width) {
-      gtk_window_resize(GTK_WINDOW(hosttable->win), tl_width, ht_height);
-    }
 
     gtk_widget_show_all(hosttable->win);
     window_present(hosttable->win);
@@ -1644,8 +1639,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_GEOIP
     GtkWidget *map_bt;
 #endif
-    gint tl_width, hn_width, hn_height;
-
+    window_geometry_t tl_geom;
 
     pages = (void **)g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
 
@@ -1656,11 +1650,13 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_snprintf(title, sizeof(title), "Endpoints: %s", display_name);
     g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(win), title);
-    gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
 
-    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
+    window_get_geometry(top_level, &tl_geom);
+    gtk_window_set_default_size(GTK_WINDOW(win), tl_geom.width * 8 / 10, HL_DLG_HEIGHT);
+
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
     gtk_container_add(GTK_CONTAINER(win), vbox);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), DLG_OUTER_MARGIN);
 
     nb = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX(vbox), nb, TRUE, TRUE, 0);
@@ -1685,7 +1681,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages[0] = GINT_TO_POINTER(page);
 
-    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_UNRELATED_SPACING, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
@@ -1697,7 +1693,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-    gtk_box_pack_start(GTK_BOX(hbox), filter_cb, FALSE, FALSE, DLG_UNRELATED_SPACING);
+    gtk_box_pack_start(GTK_BOX(hbox), filter_cb, FALSE, FALSE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to endpoints matching the current display filter.");
 
@@ -1735,13 +1731,6 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(win, "destroy", G_CALLBACK(hostlist_win_destroy_notebook_cb), pages);
-
-    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
-    gtk_window_get_size(GTK_WINDOW(win), &hn_width, &hn_height);
-    tl_width = tl_width * 8 / 10;
-    if (tl_width > hn_width) {
-      gtk_window_resize(GTK_WINDOW(win), tl_width, hn_height);
-    }
 
     gtk_widget_show_all(win);
     window_present(win);

@@ -65,6 +65,7 @@
 #define GRAPH_A_B_BT_KEY     "graph-a-b-button"
 #define GRAPH_B_A_BT_KEY     "graph-b-a-button"
 #define NO_BPS_STR "N/A"
+#define CONV_DLG_HEIGHT 550
 
 #define CMP_NUM(n1, n2)                         \
     if ((n1) > (n2))                            \
@@ -2609,7 +2610,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     GtkWidget *graph_b_a_bt;
     gboolean add_follow_stream_button = FALSE;
     gboolean add_graph_buttons = FALSE;
-    gint tl_width, ct_width, ct_height;
+    window_geometry_t tl_geom;
 
     conversations=g_new0(conversations_table,1);
 
@@ -2622,11 +2623,12 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     conversations->win = dlg_window_new(title);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(conversations->win), TRUE);
 
-    gtk_window_set_default_size(GTK_WINDOW(conversations->win), 750, 400);
+    window_get_geometry(top_level, &tl_geom);
+    gtk_window_set_default_size(GTK_WINDOW(conversations->win), tl_geom.width * 8 / 10, CONV_DLG_HEIGHT);
 
-    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
     gtk_container_add(GTK_CONTAINER(conversations->win), vbox);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), DLG_OUTER_MARGIN);
 
     ret = init_ct_table_page(conversations, vbox, hide_ports, table_name, tap_name, filter, packet_func);
     if(ret == FALSE) {
@@ -2684,14 +2686,14 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     if (add_graph_buttons) {
         /* Graph A->B */
         graph_a_b_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_A_B);
-        gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph A->B.");
+        gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph traffic from address A to address B.");
         g_object_set_data(G_OBJECT(graph_a_b_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
         g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, conversations);
         g_signal_connect(graph_a_b_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)FALSE);
 
         /* Graph B->A */
         graph_b_a_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_B_A);
-        gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph B->A.");
+        gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph traffic from address B to address A.");
         g_object_set_data(G_OBJECT(graph_b_a_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
         g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, conversations);
         g_signal_connect(graph_b_a_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)TRUE);
@@ -2705,13 +2707,6 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
     /* Initially there is no conversation selection to reselect */
     conversations->reselection_idx = -1;
-
-    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
-    gtk_window_get_size(GTK_WINDOW(conversations->win), &ct_width, &ct_height);
-    tl_width = tl_width * 8 / 10;
-    if (tl_width > ct_width) {
-      gtk_window_resize(GTK_WINDOW(conversations->win), tl_width, ct_height);
-    }
 
     gtk_widget_show_all(conversations->win);
     window_present(conversations->win);
@@ -2744,7 +2739,7 @@ ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer dat
         if (strcmp(((conversations_table *)pages[page])->name, "TCP") == 0) {
             gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP Stream.");
             gtk_widget_set_sensitive(follow_stream_bt, TRUE);
-            gtk_widget_set_tooltip_text(follow_stream_bt, "Graph A->B.");
+            gtk_widget_set_tooltip_text(follow_stream_bt, "Graph traffic from address A to address B.");
             gtk_widget_set_sensitive(graph_a_b_bt, TRUE);
             gtk_widget_set_sensitive(graph_b_a_bt, TRUE);
         } else if (strcmp(((conversations_table *)pages[page])->name, "UDP") == 0) {
@@ -2896,7 +2891,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *follow_stream_bt;
     GtkWidget *graph_a_b_bt;
     GtkWidget *graph_b_a_bt;
-    gint tl_width, cn_width, cn_height;
+    window_geometry_t tl_geom;
 
     pages = (void **)g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
@@ -2906,11 +2901,12 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     win = dlg_window_new(title);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
 
-    gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
+    window_get_geometry(top_level, &tl_geom);
+    gtk_window_set_default_size(GTK_WINDOW(win), tl_geom.width * 8 / 10, CONV_DLG_HEIGHT);
 
-    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
     gtk_container_add(GTK_CONTAINER(win), vbox);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), DLG_OUTER_MARGIN);
 
     nb = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX (vbox), nb, TRUE, TRUE, 0);
@@ -2936,7 +2932,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages[0] = GINT_TO_POINTER(page);
 
-    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_UNRELATED_SPACING, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
@@ -2947,7 +2943,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(ct_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-    gtk_box_pack_start(GTK_BOX (hbox), filter_cb, FALSE, FALSE, DLG_UNRELATED_SPACING);
+    gtk_box_pack_start(GTK_BOX (hbox), filter_cb, FALSE, FALSE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to conversations matching the current display filter.");
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(ct_filter_toggle_dest), pages);
@@ -2975,7 +2971,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     /* Graph A->B */
     graph_a_b_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_A_B);
-    gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph A->B.");
+    gtk_widget_set_tooltip_text(graph_a_b_bt, "Graph traffic from address A to address B.");
     g_object_set_data(G_OBJECT(graph_a_b_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
     g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, pages[page]);
     g_signal_connect(graph_a_b_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)FALSE);
@@ -2983,7 +2979,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     /* Graph B->A */
     graph_b_a_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_B_A);
-    gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph B->A.");
+    gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph traffic from address B to address A.");
     g_object_set_data(G_OBJECT(graph_b_a_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
     g_object_set_data(G_OBJECT(graph_b_a_bt), CONV_PTR_KEY, pages[page]);
     g_signal_connect(graph_b_a_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)TRUE);
@@ -3006,13 +3002,6 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(win, "destroy", G_CALLBACK(ct_win_destroy_notebook_cb), pages);
-
-    gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
-    gtk_window_get_size(GTK_WINDOW(win), &cn_width, &cn_height);
-    tl_width = tl_width * 8 / 10;
-    if (tl_width > cn_width) {
-      gtk_window_resize(GTK_WINDOW(win), tl_width, cn_height);
-    }
 
     gtk_widget_show_all(win);
     window_present(win);

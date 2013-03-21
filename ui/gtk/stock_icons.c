@@ -29,6 +29,7 @@
 
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/toolbar_icons.h"
+#include "ui/utf8_entities.h"
 
 /* these icons are derived from the original stock icons */
 #include "../../image/toolbar/capture_interfaces_24.xpm"
@@ -108,8 +109,8 @@ void stock_icons_init(void) {
 #ifdef HAVE_GEOIP
         { (char *)WIRESHARK_STOCK_MAP,                   (char *)"Map",                   NO_MOD, 0, NULL },
 #endif
-        { (char *)WIRESHARK_STOCK_GRAPH_A_B,             (char *)"Graph A->B",            NO_MOD, 0, NULL },
-        { (char *)WIRESHARK_STOCK_GRAPH_B_A,             (char *)"Graph B->A",            NO_MOD, 0, NULL },
+        { (char *)WIRESHARK_STOCK_GRAPH_A_B,             (char *)"Graph A" UTF8_RIGHTWARDS_ARROW "B", NO_MOD, 0, NULL },
+        { (char *)WIRESHARK_STOCK_GRAPH_B_A,             (char *)"Graph B" UTF8_RIGHTWARDS_ARROW "A", NO_MOD, 0, NULL },
         { (char *)WIRESHARK_STOCK_FOLLOW_STREAM,         (char *)"Follow Stream",         NO_MOD, 0, NULL },
         { (char *)WIRESHARK_STOCK_DISPLAY_FILTER,        (char *)"Display _Filter",       NO_MOD, 0, NULL },
         { (char *)WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  (char *)"F_ilter:",  NO_MOD, 0, NULL },

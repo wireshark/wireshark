@@ -4430,7 +4430,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeViewColumn *column;
   gboolean           if_present = TRUE;
   GList             *all_cfilter_list, *cf_entry;
-  gint               tl_width, co_width, co_height;
+  window_geometry_t  tl_geom;
 
   if (interfaces_dialog_window_present()) {
     destroy_if_window();
@@ -4784,6 +4784,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(file_bt, "clicked", G_CALLBACK(capture_prep_file_cb), file_te);
 
   /* multiple files table */
+  /* XXX We want multi_grid to shrink to its minimum size horizontally
+   * and be left-aligned within file_fr. Using a horizontal GtkBox works
+   * in Gtk2 but not Gtk3. The situation gets sillier below with limit_fr
+   * and limit_grid because we have both horizontal and vertical GtkBoxes.
+   */
   multi_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start(GTK_BOX(file_vb), multi_hb, FALSE, FALSE, 0);
   multi_grid = ws_gtk_grid_new();
@@ -4906,7 +4911,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Capture limits frame */
-  limit_fr = frame_new("Stop Capture ...");
+  limit_fr = frame_new("Stop Capture...");
   gtk_box_pack_start(GTK_BOX (left_vb), limit_fr, TRUE, TRUE, 0);
 
   limit_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
@@ -4923,7 +4928,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row = 0;
 
   /* Packet count row */
-  stop_packets_cb = gtk_check_button_new_with_label("... after");
+  stop_packets_cb = gtk_check_button_new_with_label("after");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_packets_cb),
                                global_capture_opts.has_autostop_packets);
   g_signal_connect(stop_packets_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
@@ -4943,7 +4948,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Filesize row */
-  stop_filesize_cb = gtk_check_button_new_with_label("... after");
+  stop_filesize_cb = gtk_check_button_new_with_label("after");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_filesize_cb),
                                global_capture_opts.has_autostop_filesize);
   g_signal_connect(stop_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
@@ -4966,7 +4971,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Duration row */
-  stop_duration_cb = gtk_check_button_new_with_label("... after");
+  stop_duration_cb = gtk_check_button_new_with_label("after");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_duration_cb),
                                global_capture_opts.has_autostop_duration);
   g_signal_connect(stop_duration_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
@@ -5139,12 +5144,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(cap_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(cap_open_w, "destroy", G_CALLBACK(capture_prep_destroy_cb), NULL);
 
-  gtk_window_get_size(GTK_WINDOW(top_level), &tl_width, NULL);
-  gtk_window_get_size(GTK_WINDOW(cap_open_w), &co_width, &co_height);
-  tl_width = tl_width * 8 / 10;
-  if (tl_width > co_width) {
-    gtk_window_resize(GTK_WINDOW(cap_open_w), tl_width, co_height);
-  }
+  window_get_geometry(top_level, &tl_geom);
+  gtk_window_set_default_size(GTK_WINDOW(cap_open_w), tl_geom.width * 8 / 10, -1);
   
   gtk_widget_show_all(cap_open_w);
   window_present(cap_open_w);
@@ -5461,7 +5462,7 @@ capture_dlg_prep(gpointer parent_w) {
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
           "%sStop Capture: Requested filesize too large!%s\n\n"
-          "The setting \"... after x byte(s)\" can't be greater than %u bytes (2GB).",
+          "The setting \"after x byte(s)\" can't be greater than %u bytes (2GB).",
           simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
         return FALSE;
       }
