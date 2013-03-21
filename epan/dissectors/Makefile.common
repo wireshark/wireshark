@@ -1062,6 +1062,7 @@ DISSECTOR_SRC = \
 	packet-sndcp.c		\
 	packet-socketcan.c	\
 	packet-socks.c		\
+	packet-soupbintcp.c	\
 	packet-spice.c		\
 	packet-spp.c		\
 	packet-spray.c		\
