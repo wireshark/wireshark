@@ -102,7 +102,7 @@ static void destroy_scs_collection(SCS_collection* c) {
 }
 
 static SCS_collection* scs_init(void) {
-	SCS_collection* c = g_malloc(sizeof(SCS_collection));
+	SCS_collection* c = (SCS_collection *)g_malloc(sizeof(SCS_collection));
 
 	c->hash =  g_hash_table_new(g_str_hash,g_str_equal);
 
@@ -127,7 +127,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 	guint* ip = NULL;
 	size_t len = 0;
 
-	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer)&ip);
+	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer *)&ip);
 
 	if (ip) {
 		(*ip)++;
@@ -150,7 +150,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 			g_warning("mate SCS: string truncated due to huge size");
 		}
 
-                orig = g_slice_alloc(len);
+                orig = (gchar *)g_slice_alloc(len);
 		g_strlcpy(orig,s,len);
 
 		g_hash_table_insert(c->hash,orig,ip);
@@ -172,7 +172,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 	guint* ip = NULL;
 	size_t len = 0xffff;
 
-	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer)&ip);
+	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer *)&orig,(gpointer *)&ip);
 
 	if (ip) {
 		if (*ip == 0) {
@@ -309,11 +309,11 @@ extern void avp_init(void) {
  *
  **/
 extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
-	AVP*   new = (AVP*)g_slice_new(any_avp_type);
+	AVP*   new_avp = (AVP*)g_slice_new(any_avp_type);
 	gchar* value;
 	gchar* repr = NULL;
 
-	new->n = scs_subscribe(avp_strings, name);
+	new_avp->n = scs_subscribe(avp_strings, name);
 
 	if (finfo->value.ftype->val_to_string_repr) {
 		repr = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL);
@@ -331,15 +331,15 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 		value = scs_subscribe(avp_strings, "");
 	}
 
-	new->v = value;
+	new_avp->v = value;
 
-	new->o = '=';
+	new_avp->o = '=';
 
 #ifdef _AVP_DEBUGGING
-	dbg_print (dbg_avp,1,dbg_fp,"new_avp_from_finfo: %X %s%c%s;",(guint32) new,new->n,new->o,new->v);
+	dbg_print (dbg_avp,1,dbg_fp,"new_avp_from_finfo: %X %s%c%s;",(guint32) new_avp,new_avp->n,new_avp->o,new_avp->v);
 #endif
 
-	return new;
+	return new_avp;
 }
 
 
@@ -355,16 +355,16 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
  *
  **/
 extern AVP* new_avp(const gchar* name, const gchar* value, gchar o) {
-	AVP* new = (AVP*)g_slice_new(any_avp_type);
+	AVP* new_avp = (AVP*)g_slice_new(any_avp_type);
 
-	new->n = scs_subscribe(avp_strings, name);
-	new->v = scs_subscribe(avp_strings, value);
-	new->o = o;
+	new_avp->n = scs_subscribe(avp_strings, name);
+	new_avp->v = scs_subscribe(avp_strings, value);
+	new_avp->o = o;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avp,1,dbg_fp,"new_avp: %X %s%c%s;",(guint32) new,new->n,new->o,new->v);
+	dbg_print(dbg_avp,1,dbg_fp,"new_avp: %X %s%c%s;",(guint32) new_avp,new_avp->n,new_avp->o,new_avp->v);
 #endif
-	return new;
+	return new_avp;
 }
 
 
@@ -396,17 +396,17 @@ extern void delete_avp(AVP* avp) {
  *
  **/
 extern AVP* avp_copy(AVP* from) {
-	AVP* new = (AVP*)g_slice_new(any_avp_type);
+	AVP* new_avp = (AVP*)g_slice_new(any_avp_type);
 
-	new->n = scs_subscribe(avp_strings, from->n);
-	new->v = scs_subscribe(avp_strings, from->v);
-	new->o = from->o;
+	new_avp->n = scs_subscribe(avp_strings, from->n);
+	new_avp->v = scs_subscribe(avp_strings, from->v);
+	new_avp->o = from->o;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avp,1,dbg_fp,"copy_avp: %X %s%c%s;",(guint32) new,new->n,new->o,new->v);
+	dbg_print(dbg_avp,1,dbg_fp,"copy_avp: %X %s%c%s;",(guint32) new_avp,new_avp->n,new_avp->o,new_avp->v);
 #endif
 
-	return new;
+	return new_avp;
 }
 
 /**
@@ -453,13 +453,13 @@ extern void rename_avpl(AVPL* avpl, gchar* name) {
  *         it is not inserted.
  **/
 extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
-	AVPN* new = (AVPN*)g_slice_new(any_avp_type);
+	AVPN* new_avp = (AVPN*)g_slice_new(any_avp_type);
 	AVPN* c;
 
-	new->avp = avp;
+	new_avp->avp = avp;
 
 #ifdef _AVP_DEBUGGING
-	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpn: %X",new);
+	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpn: %X",new_avp);
 	dbg_print(dbg_avpl_op,4,dbg_fp,"insert_avp: %X %X %s%c%s;",avpl,avp,avp->n,avp->o,avp->v);
 #endif
 
@@ -475,9 +475,9 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
 			if (avp->v == c->avp->v) {
 				if (avp->o == AVP_OP_EQUAL) {
 #ifdef _AVP_DEBUGGING
-					dbg_print(dbg_avpl_op,7,dbg_fp,"delete_avpn: %X",new);
+					dbg_print(dbg_avpl_op,7,dbg_fp,"delete_avpn: %X",new_avp);
 #endif
-					g_slice_free(any_avp_type,(any_avp_type*)new);
+					g_slice_free(any_avp_type,(any_avp_type*)new_avp);
 					return FALSE;
 				}
 			}
@@ -492,10 +492,10 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
 	dbg_print(dbg_avpl,5,dbg_fp,"insert_avp:  inserting %X in %X before %X;",avp,avpl,c);
 #endif
 
-	new->next = c;
-	new->prev = c->prev;
-	c->prev->next = new;
-	c->prev = new;
+	new_avp->next = c;
+	new_avp->prev = c->prev;
+	c->prev->next = new_avp;
+	c->prev = new_avp;
 
 	avpl->len++;
 

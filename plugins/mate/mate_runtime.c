@@ -106,14 +106,14 @@ static gboolean return_true(gpointer k _U_, gpointer v _U_, gpointer p _U_) {
 }
 
 static void destroy_pdus_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_pdu* c =  v;
+	mate_cfg_pdu* c = (mate_cfg_pdu *)v;
 	g_hash_table_foreach_remove(c->items,destroy_mate_pdus,NULL);
 	c->last_id = 0;
 }
 
 
 static void destroy_gops_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_gop* c =  v;
+	mate_cfg_gop* c = (mate_cfg_gop *)v;
 
 	g_hash_table_foreach_remove(c->gop_index,return_true,NULL);
 	g_hash_table_destroy(c->gop_index);
@@ -128,7 +128,7 @@ static void destroy_gops_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
 }
 
 static void destroy_gogs_in_cfg(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_gog* c =  v;
+	mate_cfg_gog* c = (mate_cfg_gog *)v;
 	g_hash_table_foreach_remove(c->items,destroy_mate_gogs,NULL);
 	c->last_id = 0;
 }
@@ -139,7 +139,7 @@ extern void initialize_mate_runtime(void) {
 
 	if (( mc = mate_cfg() )) {
 		if (rd == NULL ) {
-			rd = g_malloc(sizeof(mate_runtime_data));
+			rd = (mate_runtime_data *)g_malloc(sizeof(mate_runtime_data));
 		} else {
 			g_hash_table_foreach(mc->pducfgs,destroy_pdus_in_cfg,NULL);
 			g_hash_table_foreach(mc->gopcfgs,destroy_gops_in_cfg,NULL);
@@ -271,7 +271,7 @@ static void apply_transforms(GPtrArray* transforms, AVPL* avpl) {
 	guint i;
 
 	for (i = 0; i < transforms->len; i++) {
-		transform = g_ptr_array_index(transforms,i);
+		transform = (AVPL_Transf *)g_ptr_array_index(transforms,i);
 		avpl_transform(avpl, transform);
 	}
 }
@@ -291,7 +291,7 @@ static void gog_remove_keys (mate_gog* gog) {
 	gogkey* gog_key;
 
 	while (gog->gog_keys->len) {
-		gog_key =  g_ptr_array_remove_index_fast(gog->gog_keys,0);
+		gog_key = (gogkey *)g_ptr_array_remove_index_fast(gog->gog_keys,0);
 
 		if (g_hash_table_lookup(gog_key->cfg->gog_index,gog_key->key) == gog) {
 			g_hash_table_remove(gog_key->cfg->gog_index,gog_key->key);
@@ -333,11 +333,11 @@ static void reanalyze_gop(mate_gop* gop) {
 		gog_keys = gog->cfg->keys;
 
 		while (( curr_gogkey = get_next_avpl(gog_keys,&cookie) )) {
-			gop_cfg = g_hash_table_lookup(mc->gopcfgs,curr_gogkey->name);
+			gop_cfg = (mate_cfg_gop *)g_hash_table_lookup(mc->gopcfgs,curr_gogkey->name);
 
 			if (( gogkey_match = new_avpl_exact_match(gop_cfg->name,gog->avpl,curr_gogkey,FALSE) )) {
 
-				gog_key = g_malloc(sizeof(gogkey));
+				gog_key = (gogkey *)g_malloc(sizeof(gogkey));
 
 				gog_key->key = avpl_to_str(gogkey_match);
 				delete_avpl(gogkey_match,FALSE);
@@ -387,7 +387,7 @@ static void analyze_gop(mate_gop* gop) {
 		/* no gog, let's either find one or create it if due */
 		dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: no gog");
 
-		gog_keys = g_hash_table_lookup(mc->gogs_by_gopname,gop->cfg->name);
+		gog_keys = (LoAL *)g_hash_table_lookup(mc->gogs_by_gopname,gop->cfg->name);
 
 		if ( ! gog_keys ) {
 			dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: no gog_keys for this gop");
@@ -405,7 +405,7 @@ static void analyze_gop(mate_gop* gop) {
 
 				dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: got gogkey_match: %s",key);
 
-				if (( gog = g_hash_table_lookup(gop->cfg->gog_index,key) )) {
+				if (( gog = (mate_gog *)g_hash_table_lookup(gop->cfg->gog_index,key) )) {
 					dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: got already a matching gog");
 
 					if (gog->num_of_counting_gops == gog->num_of_released_gops && gog->expiration < rd->now) {
@@ -426,7 +426,7 @@ static void analyze_gop(mate_gop* gop) {
 				} else {
 					dbg_print (dbg_gog,1,dbg_facility,"analyze_gop: no such gog in hash, let's create a new %s",curr_gogkey->name);
 
-					cfg = g_hash_table_lookup(mc->gogcfgs,curr_gogkey->name);
+					cfg = (mate_cfg_gog *)g_hash_table_lookup(mc->gogcfgs,curr_gogkey->name);
 
 					if (cfg) {
 						gog = new_gog(cfg,gop);
@@ -483,13 +483,13 @@ static void analyze_pdu(mate_pdu* pdu) {
 
 	dbg_print (dbg_gop,1,dbg_facility,"analyze_pdu: %s",pdu->cfg->name);
 
-	if (! (cfg = g_hash_table_lookup(mc->gops_by_pduname,pdu->cfg->name)) )
+	if (! (cfg = (mate_cfg_gop *)g_hash_table_lookup(mc->gops_by_pduname,pdu->cfg->name)) )
 		return;
 
 	if ((gopkey_match = new_avpl_exact_match("gop_key_match",pdu->avpl,cfg->key, TRUE))) {
 		gop_key = avpl_to_str(gopkey_match);
 
-		g_hash_table_lookup_extended(cfg->gop_index,(gconstpointer)gop_key,(gpointer)&orig_gop_key,(gpointer)&gop);
+		g_hash_table_lookup_extended(cfg->gop_index,(gconstpointer)gop_key,(gpointer *)&orig_gop_key,(gpointer *)&gop);
 
 		if ( gop ) {
 			g_free(gop_key);
@@ -548,7 +548,7 @@ static void analyze_pdu(mate_pdu* pdu) {
 
 				apply_extras(pdu->avpl,gopkey_match,cfg->extra);
 
-				gog_keys = g_hash_table_lookup(mc->gogs_by_gopname,cfg->name);
+				gog_keys = (LoAL *)g_hash_table_lookup(mc->gogs_by_gopname,cfg->name);
 
 				if (gog_keys) {
 
@@ -746,7 +746,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	data.tree = tree;
 
 	/* first we create the proto range */
-	proto_range = g_malloc(sizeof(mate_range));
+	proto_range = (mate_range *)g_malloc(sizeof(mate_range));
 	proto_range->start = proto->start;
 	proto_range->end = proto->start + proto->length;
 	g_ptr_array_add(data.ranges,proto_range);
@@ -772,7 +772,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 			}
 
 			if ( range_fi ) {
-				range = g_malloc(sizeof(*range));
+				range = (mate_range *)g_malloc(sizeof(*range));
 				range->start = range_fi->start;
 				range->end = range_fi->start + range_fi->length;
 				g_ptr_array_add(data.ranges,range);
@@ -809,7 +809,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 				}
 
 				if ( range_fi ) {
-					range = g_malloc(sizeof(*range));
+					range = (mate_range *)g_malloc(sizeof(*range));
 					range->start = range_fi->start;
 					range->end = range_fi->start + range_fi->length;
 					g_ptr_array_add(data.ranges,range);
@@ -852,7 +852,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 		 && rd->highest_analyzed_frame < pinfo->fd->num ) {
 		for ( i = 0; i < mc->pducfglist->len; i++ ) {
 
-			cfg = g_ptr_array_index(mc->pducfglist,i);
+			cfg = (mate_cfg_pdu *)g_ptr_array_index(mc->pducfglist,i);
 
 			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: trying to extract: %s",cfg->name);
 			protos = proto_get_finfo_ptr_array(tree, cfg->hfid_proto);

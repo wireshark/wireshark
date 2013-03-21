@@ -96,7 +96,7 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 			incl = " ";
 		}
 
-		current_frame = g_ptr_array_index(mc->config_stack,(guint)i);
+		current_frame = (mate_config_frame *)g_ptr_array_index(mc->config_stack,(guint)i);
 
 		g_string_append_printf(mc->config_error,"%s%s at line %u",incl, current_frame->filename, current_frame->linenum);
 	}
@@ -108,7 +108,7 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 }
 
 static AVPL_Transf* new_transform_elem(AVPL* match, AVPL* replace, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
-	 AVPL_Transf* t = g_malloc(sizeof(AVPL_Transf));
+	 AVPL_Transf* t = (AVPL_Transf *)g_malloc(sizeof(AVPL_Transf));
 
 	 t->name = NULL;
 	 t->match = match;
@@ -313,7 +313,7 @@ gop_lifetime_default ::= .
 gop_drop_unassigned_default ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { mc->defaults.gop.drop_unassigned = B; }
 gop_drop_unassigned_default ::= .
 
-gop_tree_mode_default ::= SHOW_TREE_KW gop_tree_mode(B) SEMICOLON. { mc->defaults.gop.pdu_tree_mode = B; }
+gop_tree_mode_default ::= SHOW_TREE_KW gop_tree_mode(B) SEMICOLON. { mc->defaults.gop.pdu_tree_mode = (gop_pdu_tree_t)B; }
 gop_tree_mode_default ::= .
 
 gop_show_times_default ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { mc->defaults.gop.show_times = B; }
@@ -367,25 +367,25 @@ transform_statement(A) ::= transform_match(Match) transform_action(Action) SEMIC
 }
 
 transform_match(A) ::= MATCH_KW  match_mode(Mode) avpl(Avpl). {
-    A = g_malloc(sizeof(transf_match_t));
+    A = (transf_match_t *)g_malloc(sizeof(transf_match_t));
     A->match_mode = Mode;
     A->avpl = Avpl;
 }
 
 transform_match(A) ::= . {
-    A = g_malloc(sizeof(transf_match_t));
+    A = (transf_match_t *)g_malloc(sizeof(transf_match_t));
     A->match_mode = AVPL_STRICT;
     A->avpl = new_avpl("");
 
 }
 
 transform_action(A) ::= . {
-    A = g_malloc(sizeof(transf_action_t));
+    A = (transf_action_t *)g_malloc(sizeof(transf_action_t));
     A->replace_mode = AVPL_INSERT;
     A->avpl = new_avpl("");
 }
 transform_action(A) ::= action_mode(Mode) avpl(Avpl). {
-    A = g_malloc(sizeof(transf_action_t));
+    A = (transf_action_t *)g_malloc(sizeof(transf_action_t));
     A->replace_mode = Mode;
     A->avpl = Avpl;
 }
@@ -464,7 +464,7 @@ payload_statement(A) ::= PAYLOAD_KW proto_stack(B) SEMICOLON. { A = B; }
 
 criteria_statement(A) ::= . { A = NULL; }
 criteria_statement(A) ::= CRITERIA_KW accept_mode(B) match_mode(C) avpl(D) SEMICOLON. {
-	A = g_malloc(sizeof(pdu_criteria_t));
+	A = (pdu_criteria_t *)g_malloc(sizeof(pdu_criteria_t));
 	A->criterium_avpl = D;
 	A->criterium_match_mode = C;
 	A->criterium_accept_mode = B;
@@ -478,7 +478,7 @@ extraction_statements(A) ::= extraction_statements(B) extraction_statement(C). {
 extraction_statements(A) ::= extraction_statement(B). { A = B; A->last = A; }
 
 extraction_statement(A) ::= EXTRACT_KW NAME(NAME) FROM_KW field(FIELD) SEMICOLON. {
-	A = g_malloc(sizeof(extraction_t));
+	A = (extraction_t *)g_malloc(sizeof(extraction_t));
 	A->as = NAME;
 	A->hfi = FIELD;
 	A->next = A->last = NULL;
@@ -495,7 +495,7 @@ last_extracted_statement(A) ::= LAST_PDU_KW true_false(B) SEMICOLON. { A = B; }
 last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }
 
 proto_stack(A) ::= proto_stack(B) SLASH field(C). {
-	int* hfidp = g_malloc(sizeof(int));
+	int* hfidp = (int *)g_malloc(sizeof(int));
 
 	g_string_append_printf(mc->fields_filter,"||%s",C->abbrev);
 
@@ -505,7 +505,7 @@ proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 }
 
 proto_stack(A) ::= field(B). {
-	int* hfidp = g_malloc(sizeof(int));
+	int* hfidp = (int *)g_malloc(sizeof(int));
 	*hfidp = B->id;
 
 	g_string_append_printf(mc->fields_filter,"||%s",B->abbrev);
@@ -546,7 +546,7 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
 	cfg->key = Key;
 	cfg->drop_unassigned = DropUnassigned;
 	cfg->show_times = ShowTimes;
-	cfg->pdu_tree_mode = TreeMode;
+	cfg->pdu_tree_mode = (gop_pdu_tree_t)TreeMode;
 	cfg->expiration = Expiration;
 	cfg->idle_timeout = IdleTimeout;
 	cfg->lifetime = Lifetime;
@@ -568,7 +568,7 @@ gop_stop_statement(A) ::= STOP_KW avpl(B) SEMICOLON. { A = B; }
 gop_stop_statement(A) ::= . { A = NULL; }
 
 show_goptree_statement(A) ::= SHOW_TREE_KW gop_tree_mode(B) SEMICOLON. { A = B; }
-show_goptree_statement(A) ::= . { A = mc->defaults.gop.pdu_tree_mode; }
+show_goptree_statement(A) ::= . { A = (gop_tree_mode_t)mc->defaults.gop.pdu_tree_mode; }
 
 show_times_statement(A) ::= SHOW_TIMES_KW true_false(B) SEMICOLON. { A = B; }
 show_times_statement(A) ::= . { A = mc->defaults.gop.show_times; }
@@ -582,17 +582,17 @@ idle_timeout_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 lifetime_statement(A) ::= LIFETIME_KW time_value(B) SEMICOLON. { A = B; }
 lifetime_statement(A) ::= . { A = mc->defaults.gop.lifetime; }
 
-gop_tree_mode(A) ::= NO_TREE_KW.    { A = GOP_NO_TREE; }
-gop_tree_mode(A) ::= PDU_TREE_KW.   { A = GOP_PDU_TREE; }
-gop_tree_mode(A) ::= FRAME_TREE_KW. { A = GOP_FRAME_TREE; }
-gop_tree_mode(A) ::= BASIC_TREE_KW. { A = GOP_BASIC_PDU_TREE; }
+gop_tree_mode(A) ::= NO_TREE_KW.    { A = (gop_tree_mode_t)GOP_NO_TREE; }
+gop_tree_mode(A) ::= PDU_TREE_KW.   { A = (gop_tree_mode_t)GOP_PDU_TREE; }
+gop_tree_mode(A) ::= FRAME_TREE_KW. { A = (gop_tree_mode_t)GOP_FRAME_TREE; }
+gop_tree_mode(A) ::= BASIC_TREE_KW. { A = (gop_tree_mode_t)GOP_BASIC_PDU_TREE; }
 
 true_false(A) ::= TRUE_KW. { A = TRUE; }
 true_false(A) ::= FALSE_KW. { A = FALSE; }
 
 pdu_name(A) ::= NAME(B). {
 	mate_cfg_pdu* c;
-	if (( c =  g_hash_table_lookup(mc->pducfgs,B) )) {
+	if (( c =  (mate_cfg_pdu *)g_hash_table_lookup(mc->pducfgs,B) )) {
 		A = c->name;
 	} else {
 		configuration_error(mc,"No such Pdu: '%s'",B);
@@ -665,7 +665,7 @@ gog_key_statement(A) ::= MEMBER_KW gop_name(B) avpl(C) SEMICOLON. {
 
 gop_name(A) ::= NAME(B). {
 	mate_cfg_gop* c;
-	if (( c = g_hash_table_lookup(mc->gopcfgs,B) )) {
+	if (( c = (mate_cfg_gop *)g_hash_table_lookup(mc->gopcfgs,B) )) {
 		A = c->name;
 	} else {
 		configuration_error(mc,"No Gop called '%s' has been already declared",B);
@@ -694,7 +694,7 @@ transform_list(A) ::= transform(B). {
 transform(A) ::= NAME(B). {
 	AVPL_Transf* t;
 
-	if (( t = g_hash_table_lookup(mc->transfs,B) )) {
+	if (( t = (AVPL_Transf *)g_hash_table_lookup(mc->transfs,B) )) {
 		A = t;
 	} else {
 		configuration_error(mc,"There's no such Transformation: %s",B);

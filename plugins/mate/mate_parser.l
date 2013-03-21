@@ -191,7 +191,7 @@ blk_cmnt_stop  "*/"
 
 	} else {
 
-		current_frame = g_malloc(sizeof(mate_config_frame));
+		current_frame = (mate_config_frame *)g_malloc(sizeof(mate_config_frame));
 		current_frame->filename = g_strdup(yytext);
 		current_frame->linenum = 1;
 
@@ -213,7 +213,7 @@ blk_cmnt_stop  "*/"
 
 		g_free(current_frame->filename);
 		g_free(current_frame);
-		current_frame = g_ptr_array_remove_index(mc->config_stack,mc->config_stack->len-1);
+		current_frame = (mate_config_frame *)g_ptr_array_remove_index(mc->config_stack,mc->config_stack->len-1);
 	}
 }
 
@@ -303,7 +303,7 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 
 	mc->config_stack = g_ptr_array_new();
 
-	current_frame = g_malloc(sizeof(mate_config_frame));
+	current_frame = (mate_config_frame *)g_malloc(sizeof(mate_config_frame));
 	current_frame->filename = g_strdup(filename);
 	current_frame->linenum = 1;
 
