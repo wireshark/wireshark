@@ -961,6 +961,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* Pop-up a new window */
     add_key_window = dlg_window_new ("Add Decryption Key");
+    gtk_window_set_transient_for(GTK_WINDOW(add_key_window), GTK_WINDOW(airpcap_advanced_w));
     gtk_widget_set_name (add_key_window, "add_key_window");
     gtk_container_set_border_width (GTK_CONTAINER (add_key_window), 5);
     gtk_window_set_resizable (GTK_WINDOW (add_key_window), FALSE);
@@ -1170,6 +1171,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* Pop-up a new window */
     edit_key_window = dlg_window_new("Edit Decryption Key");
+    gtk_window_set_transient_for(GTK_WINDOW(edit_key_window), GTK_WINDOW(airpcap_advanced_w));
     gtk_widget_set_name (edit_key_window, "edit_key_window");
     gtk_container_set_border_width (GTK_CONTAINER (edit_key_window), 5);
     gtk_window_set_resizable (GTK_WINDOW (edit_key_window), FALSE);
