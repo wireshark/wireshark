@@ -51,19 +51,56 @@ CalledFreephoneNrArg ::= CalledFreephoneNr
 -- the Bearer capability, High layer compatibility (optional) and Low layer compatibility 
 -- (optional) information elements shall be embedded in q931InfoElement.
 
+  monitor-T-FPH OPERATION ::=
+    {
+        ARGUMENT Monitor-T-FPHArg     
+
+        ERRORS {    notAvailable|
+                    notImplemented}
+        
+        CODE global:{fPHOID monitor-T-FPH-operation(2)}   
+    }
+
+Monitor-T-FPHArg ::= SEQUENCE {
+                                q931InfoElement         Q931InformationElement,
+                                servedUserDestination   PartyNumber,
+                                queueIdentity           QueueIdentity OPTIONAL}
+
 --Free-T-FPH      ::= OPERATION
 --                    ARGUMENT SEQUENCE {
 --                                servedUserDestination   PartyNumber,
 --                                fPHReference            FPHReference}
 --
+  free-T-FPH OPERATION ::=
+    {
+        ARGUMENT Free-T-FPHArg     
+        
+        CODE global:{fPHOID free-T-FPH-operation(3)}   
+    }
+
+    Free-T-FPHArg ::= SEQUENCE {
+        servedUserDestination   PartyNumber,
+       fPHReference            FPHReference}
+
 --Call-T-FPH      ::= OPERATION
 --                    ARGUMENT SEQUENCE {
 --                                fPHReference            FPHReference,
 --                                calledFreephoneNr       CalledFreephoneNr OPTIONAL}
 
---FPHReference		::= INTEGER (0..127)
+   call-T-FPH OPERATION ::=
+    {
+        ARGUMENT Call-T-FPHArg     
+        
+        CODE global:{fPHOID call-T-FPH-operation(4)}   
+    }
+
+    Call-T-FPHArg ::= SEQUENCE {
+        fPHReference            FPHReference,
+        calledFreephoneNr       CalledFreephoneNr OPTIONAL}
+
+FPHReference		::= INTEGER (0..127)
 CalledFreephoneNr	::= PartyNumber
---QueueIdentity		::= INTEGER (0..127)
+QueueIdentity		::= INTEGER (0..127)
 
 fPHOID	OBJECT IDENTIFIER		::= {itu-t(0) identified-organization(4) etsi(0) 210
 								     freephone-operations(1)}
