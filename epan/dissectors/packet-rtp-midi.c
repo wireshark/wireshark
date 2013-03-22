@@ -2198,7 +2198,7 @@ static const true_false_string rtp_midi_cs_flag_p= {
 };
 
 static const true_false_string rtp_midi_js_flag_y = {
-	"System-jounral present",
+	"System-journal present",
 	"System-journal NOT present"
 };
 
