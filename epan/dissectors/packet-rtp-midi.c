@@ -2909,7 +2909,7 @@ void proto_reg_handoff_rtp_midi( void );
  * This decodes the delta-time before a MIDI-command
  */
 static int
-decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int cmd_len)
+decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset)
 {
 	guint8		octet;
 	unsigned int	consumed;
@@ -2922,10 +2922,6 @@ decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 
 	/* RTP-MIDI deltatime is "compressed" using only the necessary amount of octets */
 	for ( i=0; i < 4; i++ ) {
-
-		if ( !cmd_len ) {
-			return -1;
-		}
 
 		octet = tvb_get_guint8( tvb, offset + consumed );
 		deltatime = ( deltatime << 7 ) | ( octet & RTP_MIDI_DELTA_TIME_OCTET_MASK );
@@ -5574,14 +5570,7 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 	unsigned int	helpoffset;
 #endif
 
-	/* extra sanity check */
-	if ( !cmd_len ) {
-		return -1;
-	}
-
-
 	octet = tvb_get_guint8( tvb, offset );
-
 
 	/* midi realtime-data -> one octet  -- unlike serial-wired MIDI realtime-commands in RTP-MIDI will
 	 * not be intermingled with other MIDI-commands, so we handle this case right here and return */
@@ -7096,11 +7085,6 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 
 
-	/* Make sanity check for consumed data vs. stated length of system journal */
-	if ( consumed <= sysjourlen ) {
-		return -1;
-	}
-
 	/* Do we have a Sysex chapter? */
 	if ( systemflags & RTP_MIDI_SJ_FLAG_X ) {
 		ext_consumed = decode_sj_chapter_x( tvb, pinfo, rtp_midi_sj_chapters_tree, offset, sysjourlen - consumed );
@@ -7203,12 +7187,8 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 			/* for the first command we only have a delta-time if Z-Flag is set */
 			if ( ( cmd_count ) || ( flags & RTP_MIDI_CS_FLAG_Z ) ) {
 
-				/* Decode a delta-time - if 0 is returned something went wrong */
-				consumed = decodetime( tvb, pinfo, rtp_midi_commands_tree, offset, cmd_len );
-				if ( -1 == consumed ) {
-					THROW( ReportedBoundsError );
-					return;
-				}
+				/* Decode a delta-time */
+				consumed = decodetime( tvb, pinfo, rtp_midi_commands_tree, offset );
 
 				/* seek to next command and set remaining length */
 				offset  += consumed;
