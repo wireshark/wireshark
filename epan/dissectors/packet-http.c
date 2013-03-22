@@ -2323,9 +2323,19 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 	/*
 	 * Fetch the value.
+	 *
+	 * XXX - the line may well have a NUL in it.  Wireshark should
+	 * really treat strings extracted from packets as counted
+	 * strings, so that NUL isn't any different from any other
+	 * character.  For now, we just allocate a buffer that's
+	 * value_len+1 bytes long, copy value_len bytes, and stick
+	 * in a NUL terminator, so that the buffer for value actually
+	 * has value_len bytes in it.
 	 */
 	value_len = line_end_offset - value_offset;
-	value = ep_strndup(&line[value_offset - offset], value_len);
+	value = (char *)ep_alloc(value_len+1);
+	memcpy(value, &line[value_offset - offset], value_len);
+	value[value_len] = '\0';
 
 	if (hf_index == -1) {
 		/*
@@ -2399,7 +2409,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 
 			for (i = 0; i < value_len; i++) {
 				c = value[i];
-				if (c == ';' || isspace(c)) {
+				if (c == ';' || g_ascii_isspace(c)) {
 					/*
 					 * End of subtype - either
 					 * white space or a ";"
@@ -2413,7 +2423,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				 * Map the character to lower case;
 				 * content types are case-insensitive.
 				 */
-				eh_ptr->content_type[i] = tolower(eh_ptr->content_type[i]);
+				eh_ptr->content_type[i] = g_ascii_tolower(eh_ptr->content_type[i]);
 			}
 			eh_ptr->content_type[i] = '\0';
 			/*
@@ -2424,7 +2434,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			i++;
 			while (i < value_len) {
 				c = eh_ptr->content_type[i];
-				if (c == ';' || isspace(c))
+				if (c == ';' || g_ascii_isspace(c))
 					/* Skip till start of parameters */
 					i++;
 				else
