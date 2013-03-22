@@ -2583,7 +2583,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     keep_rb = gtk_radio_button_new_with_mnemonic (NULL, "Keep");
     gtk_widget_set_name (keep_rb, "keep_rb");
     gtk_widget_show (keep_rb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), keep_rb, 0, 1, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), keep_rb, 0, 0, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (keep_rb), radio_bt_group);
@@ -2592,7 +2592,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     merge_rb = gtk_radio_button_new_with_mnemonic (NULL, "Merge");
     gtk_widget_set_name (merge_rb, "merge_rb");
     gtk_widget_show (merge_rb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), merge_rb, 0, 1, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), merge_rb, 0, 1, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (merge_rb), radio_bt_group);
@@ -2601,7 +2601,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     import_rb = gtk_radio_button_new_with_mnemonic (NULL, "Import");
     gtk_widget_set_name (import_rb, "import_rb");
     gtk_widget_show (import_rb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), import_rb, 0, 1, 2, 3,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), import_rb, 0, 2, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (import_rb), radio_bt_group);
@@ -2610,7 +2610,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     ignore_rb = gtk_radio_button_new_with_mnemonic (NULL, "Ignore");
     gtk_widget_set_name (ignore_rb, "ignore_rb");
     gtk_widget_show (ignore_rb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), ignore_rb, 0, 1, 3, 4,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), ignore_rb, 0, 3, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (ignore_rb), radio_bt_group);
@@ -2621,7 +2621,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
         ("Use Wireshark keys, thus overwriting AirPcap adapter(s) ones.");
     gtk_widget_set_name (keep_lb, "keep_lb");
     gtk_widget_show (keep_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), keep_lb, 1, 2, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), keep_lb, 1, 0, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (keep_lb), 0, 0.5f);
@@ -2629,7 +2629,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     merge_lb = gtk_label_new ("Merge Wireshark and AirPcap adapter(s) keys.");
     gtk_widget_set_name (merge_lb, "merge_lb");
     gtk_widget_show (merge_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), merge_lb, 1, 2, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), merge_lb, 1, 1, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (merge_lb), 0, 0.5f);
@@ -2639,7 +2639,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
         ("Use AirPcap adapter(s) keys, thus overwriting Wireshark ones.");
     gtk_widget_set_name (import_lb, "import_lb");
     gtk_widget_show (import_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), import_lb, 1, 2, 2, 3,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), import_lb, 1, 2, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (import_lb), 0, 0.5f);
@@ -2649,7 +2649,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
         ("Keep using different set of keys. Remember that in this case, this dialog box will appear whenever you will attempt to modify/add/remove decryption keys.");
     gtk_widget_set_name (ignore_lb, "ignore_lb");
     gtk_widget_show (ignore_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), ignore_lb, 1, 2, 3, 4,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), ignore_lb, 1, 3, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_line_wrap (GTK_LABEL (ignore_lb), TRUE);
