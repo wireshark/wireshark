@@ -201,8 +201,7 @@ static gint decode_option = DECODE_NONE;
 static gboolean use_relative_msgid = TRUE;
 static gboolean use_seq_ack_analysis = TRUE;
 
-static GHashTable *p_mul_fragment_table = NULL;
-static GHashTable *p_mul_reassembled_table = NULL;
+static reassembly_table p_mul_reassembly_table;
 
 static guint32 message_id_offset = 0;
 
@@ -1294,8 +1293,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (pdu_type == Address_PDU && no_pdus > 0) {
       /* Start fragment table */
-      fragment_start_seq_check (pinfo, message_id, p_mul_fragment_table,
-                                no_pdus - 1);
+      fragment_start_seq_check (&p_mul_reassembly_table,
+                                pinfo, message_id, NULL, no_pdus - 1);
     } else if (pdu_type == Data_PDU) {
       fragment_data *frag_msg;
       tvbuff_t      *new_tvb;
@@ -1303,10 +1302,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       pinfo->fragmented = TRUE;
 
       /* Add fragment to fragment table */
-      frag_msg = fragment_add_seq_check (tvb, offset, pinfo, message_id,
-                                         p_mul_fragment_table,
-                                         p_mul_reassembled_table, seq_no - 1,
-                                         data_len, TRUE);
+      frag_msg = fragment_add_seq_check (&p_mul_reassembly_table,
+                                         tvb, offset, pinfo, message_id, NULL,
+                                         seq_no - 1, data_len, TRUE);
       new_tvb = process_reassembled_data (tvb, offset, pinfo,
                                           "Reassembled P_MUL", frag_msg,
                                           &p_mul_frag_items, NULL, tree);
@@ -1338,8 +1336,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void p_mul_init_routine (void)
 {
-  fragment_table_init (&p_mul_fragment_table);
-  reassembled_table_init (&p_mul_reassembled_table);
+  reassembly_table_init (&p_mul_reassembly_table,
+                         &addresses_reassembly_table_functions);
   message_id_offset = 0;
 
   if (p_mul_id_hash_table) {

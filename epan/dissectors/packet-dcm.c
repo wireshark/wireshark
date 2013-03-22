@@ -402,9 +402,8 @@ static const fragment_items dcm_pdv_fragment_items = {
     "Message fragments"
 };
 
-/* Structures to handle fragmented DICOM PDU packets */
-static GHashTable *dcm_pdv_fragment_table = NULL;
-static GHashTable *dcm_pdv_reassembled_table = NULL;
+/* Structure to handle fragmented DICOM PDU packets */
+static reassembly_table dcm_pdv_reassembly_table;
 
 typedef struct dcm_open_tag {
 
@@ -3976,8 +3975,8 @@ dcm_init(void)
     }
 
     /* Register processing of fragmented DICOM PDVs */
-    fragment_table_init(&dcm_pdv_fragment_table);
-    reassembled_table_init(&dcm_pdv_reassembled_table);
+    reassembly_table_init(&dcm_pdv_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static dcm_state_t *
@@ -6665,9 +6664,8 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	*/
 	reassembly_id = (((conv->index) & 0x00FFFFFF) << 8) + pdv->pctx_id;
 
-	head = fragment_add_seq_next(tvb, offset, pinfo, reassembly_id,
-				dcm_pdv_fragment_table,
-				dcm_pdv_reassembled_table,
+	head = fragment_add_seq_next(&dcm_pdv_reassembly_table,
+				tvb, offset, pinfo, reassembly_id, NULL,
 				pdv_body_len,
 				!(pdv->is_last_fragment));
 

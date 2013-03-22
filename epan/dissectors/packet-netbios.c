@@ -188,9 +188,8 @@ static const value_string nb_name_type_vals[] = {
 	{0x00,	NULL}
 };
 
-/* Tables for reassembly of fragments. */
-static GHashTable *netbios_fragment_table = NULL;
-static GHashTable *netbios_reassembled_table = NULL;
+/* Table for reassembly of fragments. */
+static reassembly_table netbios_reassembly_table;
 
 /* defragmentation of NetBIOS Frame */
 static gboolean netbios_defragment = TRUE;
@@ -1169,10 +1168,9 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			len = tvb_reported_length_remaining(tvb, offset);
 			if (netbios_defragment &&
 			    tvb_bytes_exist(tvb, offset, len)) {
-				fd_head = fragment_add_seq_next(tvb, offset,
-				    pinfo, session_id,
-				    netbios_fragment_table,
-				    netbios_reassembled_table,
+				fd_head = fragment_add_seq_next(&netbios_reassembly_table,
+				    tvb, offset,
+				    pinfo, session_id, NULL,
 				    len, command == NB_DATA_FIRST_MIDDLE);
 				if (fd_head != NULL) {
 					if (fd_head->next != NULL) {
@@ -1232,10 +1230,10 @@ static void
 netbios_init(void)
 {
 	/*
-	 * Initialize the fragment and reassembly tables.
+	 * Initialize the reassembly table.
 	 */
-	fragment_table_init(&netbios_fragment_table);
-	reassembled_table_init(&netbios_reassembled_table);
+	reassembly_table_init(&netbios_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void proto_register_netbios(void)

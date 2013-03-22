@@ -106,8 +106,7 @@ static const value_string openvpn_message_types[] =
 };
 
 /* everything used during the reassembly process */
-static GHashTable *msg_fragment_table = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+static reassembly_table msg_reassembly_table;
 
 static gint ett_openvpn_fragment = -1;
 static gint ett_openvpn_fragments = -1;
@@ -148,8 +147,8 @@ static const fragment_items openvpn_frag_items = {
 static void
 openvpn_reassemble_init(void)
 {
-  fragment_table_init(&msg_fragment_table);
-  reassembled_table_init(&msg_reassembled_table);
+  reassembly_table_init(&msg_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 /* we check the leading 4 byte of a suspected hmac for 0x00 bytes,
@@ -347,12 +346,12 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->fragmented = TRUE;
 
   frag_msg = fragment_add_seq_next(
+    &msg_reassembly_table,
     tvb,
     offset,
     pinfo,
     msg_sessionid,         /* ID for fragments belonging together */
-    msg_fragment_table,    /* list of message fragments           */
-    msg_reassembled_table, /* list of reassembled messages        */
+    NULL,
     msg_length_remaining,  /* fragment length - to the end        */
     !(msg_lastframe));     /* More fragments ?                    */
 

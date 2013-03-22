@@ -86,8 +86,7 @@ static gboolean    stmp_decryption_enabled     = FALSE;
 static gboolean    smtp_desegment              = TRUE;
 static gboolean    smtp_data_desegment         = TRUE;
 
-static GHashTable *smtp_data_segment_table     = NULL;
-static GHashTable *smtp_data_reassembled_table = NULL;
+static reassembly_table smtp_data_reassembly_table;
 
 static const fragment_items smtp_data_frag_items = {
   /* Fragment subtrees */
@@ -664,8 +663,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         plurality (length_remaining, "", "s"));
 
       if (smtp_data_desegment) {
-        frag_msg = fragment_add_seq_next(tvb, 0, pinfo, spd_frame_data->conversation_id,
-                                         smtp_data_segment_table, smtp_data_reassembled_table,
+        frag_msg = fragment_add_seq_next(&smtp_data_reassembly_table, tvb, 0,
+                                         pinfo, spd_frame_data->conversation_id, NULL,
                                          tvb_length(tvb), spd_frame_data->more_frags);
       } else {
         /*
@@ -692,13 +691,13 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (smtp_data_desegment) {
         /* add final data segment */
         if (loffset)
-          fragment_add_seq_next(tvb, 0, pinfo, spd_frame_data->conversation_id,
-                                smtp_data_segment_table, smtp_data_reassembled_table,
+          fragment_add_seq_next(&smtp_data_reassembly_table, tvb, 0,
+                                pinfo, spd_frame_data->conversation_id, NULL,
                                 loffset, spd_frame_data->more_frags);
 
         /* terminate the desegmentation */
-        frag_msg = fragment_end_seq_next (pinfo, spd_frame_data->conversation_id, smtp_data_segment_table,
-                                          smtp_data_reassembled_table);
+        frag_msg = fragment_end_seq_next(&smtp_data_reassembly_table,
+                                         pinfo, spd_frame_data->conversation_id, NULL);
       }
       break;
 
@@ -781,8 +780,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           if (smtp_data_desegment && !spd_frame_data->more_frags) {
             /* terminate the desegmentation */
-            frag_msg = fragment_end_seq_next (pinfo, spd_frame_data->conversation_id, smtp_data_segment_table,
-                                              smtp_data_reassembled_table);
+            frag_msg = fragment_end_seq_next(&smtp_data_reassembly_table,
+                                             pinfo, spd_frame_data->conversation_id, NULL);
           }
         }
         /*
@@ -940,8 +939,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 smtp_data_reassemble_init (void)
 {
-  fragment_table_init (&smtp_data_segment_table);
-  reassembled_table_init (&smtp_data_reassembled_table);
+  reassembly_table_init(&smtp_data_reassembly_table,
+                        &addresses_ports_reassembly_table_functions);
 }
 
 

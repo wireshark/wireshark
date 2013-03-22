@@ -1039,12 +1039,20 @@ fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)
 static gboolean smb_trans_reassembly = TRUE;
 gboolean smb_dcerpc_reassembly = TRUE;
 
-static GHashTable *smb_trans_fragment_table = NULL;
+static reassembly_table smb_trans_reassembly_table;
 
 static void
 smb_trans_reassembly_init(void)
 {
-	fragment_table_init(&smb_trans_fragment_table);
+	/*
+	 * XXX - addresses_ports_reassembly_table_functions?
+	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
+	 * as stuff from two different connections should
+	 * probably not be combined, but what about other
+	 * transports for SMB, e.g. NBF or Netware?
+	 */
+	reassembly_table_init(&smb_trans_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 static fragment_data *
@@ -1074,11 +1082,12 @@ smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 	}
 
 	if (!pinfo->fd->flags.visited) {
-		fd_head = fragment_add(tvb, offset, pinfo,
-				       si->sip->frame_req, smb_trans_fragment_table,
+		fd_head = fragment_add(&smb_trans_reassembly_table, tvb, offset,
+				       pinfo, si->sip->frame_req, NULL,
 				       pos, count, more_frags);
 	} else {
-		fd_head = fragment_get(pinfo, si->sip->frame_req, smb_trans_fragment_table);
+		fd_head = fragment_get(&smb_trans_reassembly_table,
+				       pinfo, si->sip->frame_req, NULL);
 	}
 
 	if (!fd_head || !(fd_head->flags & FD_DEFRAGMENTED)) {

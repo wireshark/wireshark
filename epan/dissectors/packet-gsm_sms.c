@@ -192,8 +192,7 @@ static gboolean  g_is_wsp;
 
 static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
-static GHashTable *g_sm_fragment_table = NULL;
-static GHashTable *g_sm_reassembled_table = NULL;
+static reassembly_table g_sm_reassembly_table;
 static GHashTable *g_sm_fragment_params_table = NULL;
 static gint ett_gsm_sms_ud_fragment = -1;
 static gint ett_gsm_sms_ud_fragments = -1;
@@ -242,8 +241,8 @@ typedef struct {
 static void
 gsm_sms_defragment_init (void)
 {
-    fragment_table_init (&g_sm_fragment_table);
-    reassembled_table_init(&g_sm_reassembled_table);
+    reassembly_table_init(&g_sm_reassembly_table,
+                          &addresses_reassembly_table_functions);
     if (g_sm_fragment_params_table) {
         g_hash_table_destroy(g_sm_fragment_params_table);
     }
@@ -2672,10 +2671,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         try_gsm_sms_ud_reassemble = TRUE;
         save_fragmented = g_pinfo->fragmented;
         g_pinfo->fragmented = TRUE;
-        fd_sm = fragment_add_seq_check (tvb, offset, g_pinfo,
+        fd_sm = fragment_add_seq_check (&g_sm_reassembly_table, tvb, offset,
+                                        g_pinfo,
                                         g_sm_id, /* guint32 ID for fragments belonging together */
-                                        g_sm_fragment_table, /* list of message fragments */
-                                        g_sm_reassembled_table, /* list of reassembled messages */
+                                        NULL,
                                         g_frag-1, /* guint32 fragment sequence number */
                                         length, /* guint32 fragment length */
                                         (g_frag != g_frags)); /* More fragments? */

@@ -554,15 +554,14 @@ static const value_string tipcv2_networkplane_strings[] = {
 static void dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void proto_reg_handoff_tipc(void);
 
-static GHashTable *tipc_msg_fragment_table    = NULL;
-static GHashTable *tipc_msg_reassembled_table = NULL;
+static reassembly_table tipc_msg_reassembly_table;
 
 
 static void
 tipc_defragment_init(void)
 {
-	fragment_table_init (&tipc_msg_fragment_table);
-	reassembled_table_init(&tipc_msg_reassembled_table);
+	reassembly_table_init(&tipc_msg_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 
@@ -1386,11 +1385,12 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				save_fragmented = pinfo->fragmented;
 				pinfo->fragmented = TRUE;
 
-				frag_msg = fragment_add_seq_check(tipc_tvb, offset, pinfo,
+				frag_msg = fragment_add_seq_check(&tipc_msg_reassembly_table,
+						tipc_tvb, offset,
+						pinfo, 
 						frag_msg_no,					/* ID for fragments belonging together */
+						NULL,
 						/* TODO: make sure that fragments are on the same LINK */
-						tipc_msg_fragment_table,			/* list of message fragments */
-						tipc_msg_reassembled_table,			/* list of reassembled messages */
 						/* TIPC starts with "1" but we * need "0" */
 						(frag_no-1),					/* number of the fragment */
 						len,						/* fragment length - to the end of the data */
@@ -1920,10 +1920,11 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			if (tipc_defragment) {
 				pinfo->fragmented = TRUE;
 
-				frag_msg = fragment_add_seq_next(tvb, offset, pinfo,
+				frag_msg = fragment_add_seq_next(&tipc_msg_reassembly_table,
+						tvb, offset,
+						pinfo,
 						link_sel,				/* ID for fragments belonging together - NEEDS IMPROVING? */
-						tipc_msg_fragment_table,		/* list of message fragments */
-						tipc_msg_reassembled_table,		/* list of reassembled messages */
+						NULL,
 						tvb_length_remaining(tvb, offset),	/* fragment length - to the end */
 						TRUE);					/* More fragments? */
 				if (msg_type == TIPC_FIRST_SEGMENT) {
@@ -1935,7 +1936,9 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 					no_of_segments = reassembled_msg_length/(msg_size - 28);
 					if (reassembled_msg_length > (no_of_segments * (msg_size - 28)))
 						no_of_segments++;
-					fragment_set_tot_len(pinfo, link_sel, tipc_msg_fragment_table, no_of_segments-1);
+					fragment_set_tot_len(&tipc_msg_reassembly_table,
+						pinfo, link_sel, NULL,
+						no_of_segments-1);
 					item = proto_tree_add_text(tipc_tree, tvb, offset, -1, "Segmented message size %u bytes -> No segments = %i",
 							reassembled_msg_length, no_of_segments);
 					PROTO_ITEM_SET_GENERATED(item);

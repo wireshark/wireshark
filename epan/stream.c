@@ -312,9 +312,8 @@ static stream_pdu_fragment_t *fragment_hash_insert( const stream_t *stream, guin
 
 /*****************************************************************************/
 
-/* fragmentation hash tables */
-static GHashTable *stream_fragment_table = NULL;
-static GHashTable *stream_reassembled_table = NULL;
+/* reassembly table */
+static reassembly_table stream_reassembly_table;
 
 /* Initialise a new stream. Call this when you first identify a distinct
  * stream. */
@@ -378,8 +377,8 @@ void stream_init( void )
     init_fragment_hash();
     stream_init_pdu_data();
 
-    fragment_table_init(&stream_fragment_table);
-    reassembled_table_init(&stream_reassembled_table);
+    reassembly_table_init(&stream_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 /*****************************************************************************/
@@ -410,8 +409,8 @@ stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guin
     }
 
     /* add it to the reassembly tables */
-    fd_head = fragment_add_seq_next(tvb, 0, pinfo, pdu->id,
-                                    stream_fragment_table, stream_reassembled_table,
+    fd_head = fragment_add_seq_next(&stream_reassembly_table,
+                                    tvb, 0, pinfo, pdu->id, NULL,
                                     tvb_reported_length(tvb), more_frags);
     /* add it to our hash */
     frag_data = fragment_hash_insert( stream, framenum, offset, tvb_reported_length(tvb));

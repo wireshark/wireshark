@@ -182,8 +182,7 @@ static int proto_clses          = -1;
 
 static dissector_handle_t pres_handle = NULL;
 
-static GHashTable *ses_fragment_table = NULL;
-static GHashTable *ses_reassembled_table = NULL;
+static reassembly_table ses_reassembly_table;
 
 static const fragment_items ses_frag_items = {
   /* Segment subtrees */
@@ -1148,9 +1147,10 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		ti = proto_tree_add_item (ses_tree, hf_ses_segment_data, tvb, offset,
 					  fragment_len, ENC_NA);
 		proto_item_append_text (ti, " (%d byte%s)", fragment_len, plurality (fragment_len, "", "s"));
-		frag_msg = fragment_add_seq_next (tvb, offset, pinfo,
-						  ses_id, ses_fragment_table,
-						  ses_reassembled_table, fragment_len,
+		frag_msg = fragment_add_seq_next (&ses_reassembly_table,
+						  tvb, offset,
+						  pinfo, ses_id, NULL,
+						  fragment_len,
 						  (enclosure_item_flags & END_SPDU) ? FALSE : TRUE);
 		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled SES",
 						     frag_msg, &ses_frag_items, NULL,
@@ -1221,8 +1221,8 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void ses_reassemble_init (void)
 {
-	fragment_table_init (&ses_fragment_table);
-	reassembled_table_init (&ses_reassembled_table);
+	reassembly_table_init (&ses_reassembly_table,
+		&addresses_reassembly_table_functions);
 }
 
 void

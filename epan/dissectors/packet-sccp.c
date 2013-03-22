@@ -738,8 +738,7 @@ static const fragment_items sccp_xudt_msg_frag_items = {
   "SCCP XUDT Message fragments"
 };
 
-static GHashTable *sccp_xudt_msg_fragment_table = NULL;
-static GHashTable *sccp_xudt_msg_reassembled_table = NULL;
+static reassembly_table sccp_xudt_msg_reassembly_table;
 
 
 #define SCCP_USER_DATA   0
@@ -2870,10 +2869,11 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     } else {
       save_fragmented = pinfo->fragmented;
       pinfo->fragmented = TRUE;
-      frag_msg = fragment_add_seq_next(tvb, variable_pointer1 + 1, pinfo,
+      frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
+                                       tvb, variable_pointer1 + 1,
+                                       pinfo,
                                        source_local_ref,                      /* ID for fragments belonging together */
-                                       sccp_xudt_msg_fragment_table,          /* list of message fragments */
-                                       sccp_xudt_msg_reassembled_table,       /* list of reassembled messages */
+                                       NULL,
                                        tvb_get_guint8(tvb,variable_pointer1), /* fragment length - to the end */
                                        more);                                 /* More fragments? */
 
@@ -3109,15 +3109,17 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
-        frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
+        frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
+                                         tvb, variable_pointer3 + 1,
+                                         pinfo,
                                          source_local_ref,                            /* ID for fragments belonging together */
-                                         sccp_xudt_msg_fragment_table,                /* list of message fragments */
-                                         sccp_xudt_msg_reassembled_table,             /* list of reassembled messages */
+                                         NULL,
                                          tvb_get_guint8(tvb,variable_pointer3),       /* fragment length - to the end */
                                          more_frag);                          /* More fragments? */
 
         if ((octet & 0x80) == 0x80) /*First segment, set number of segments*/
-          fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
+          fragment_set_tot_len(&sccp_xudt_msg_reassembly_table,
+                               pinfo, source_local_ref, NULL, (octet & 0xf));
 
         new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
                                            pinfo, "Reassembled SCCP",
@@ -3196,15 +3198,17 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
-        frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
+        frag_msg = fragment_add_seq_next(&sccp_xudt_msg_reassembly_table,
+                                         tvb, variable_pointer3 + 1,
+                                         pinfo,
                                          source_local_ref,                            /* ID for fragments belonging together */
-                                         sccp_xudt_msg_fragment_table,                /* list of message fragments */
-                                         sccp_xudt_msg_reassembled_table,             /* list of reassembled messages */
+                                         NULL,
                                          tvb_get_guint8(tvb,variable_pointer3),       /* fragment length - to the end */
                                          more_frag);                          /* More fragments? */
 
         if ((octet & 0x80) == 0x80) /*First segment, set number of segments*/
-          fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
+          fragment_set_tot_len(&sccp_xudt_msg_reassembly_table,
+                               pinfo, source_local_ref, NULL, (octet & 0xf));
 
         new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
                                            pinfo, "Reassembled SCCP",
@@ -3470,9 +3474,8 @@ static void
 init_sccp(void)
 {
   next_assoc_id = 1;
-  fragment_table_init (&sccp_xudt_msg_fragment_table);
-  reassembled_table_init(&sccp_xudt_msg_reassembled_table);
-
+  reassembly_table_init (&sccp_xudt_msg_reassembly_table,
+                         &addresses_reassembly_table_functions);
 }
 
 /* Register the protocol with Wireshark */

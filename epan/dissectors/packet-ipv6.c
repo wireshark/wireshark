@@ -320,8 +320,7 @@ static gboolean g_ipv6_rpl_srh_strict_rfc_checking = FALSE;
 /*
  * defragmentation of IPv6
  */
-static GHashTable *ipv6_fragment_table = NULL;
-static GHashTable *ipv6_reassembled_table = NULL;
+static reassembly_table ipv6_reassembly_table;
 
 /* http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-12-22) */
 static const value_string ipv6_opt_vals[] = {
@@ -556,8 +555,8 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const struct e_in6_
 static void
 ipv6_reassemble_init(void)
 {
-  fragment_table_init(&ipv6_fragment_table);
-  reassembled_table_init(&ipv6_reassembled_table);
+  reassembly_table_init(&ipv6_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 enum {
@@ -1965,9 +1964,8 @@ again:
       frag = offlg & (IP6F_OFF_MASK | IP6F_MORE_FRAG);
       save_fragmented |= frag;
       if (ipv6_reassemble && frag && tvb_bytes_exist(tvb, offset, plen)) {
-        ipfd_head = fragment_add_check(tvb, offset, pinfo, ident,
-        ipv6_fragment_table,
-        ipv6_reassembled_table,
+        ipfd_head = fragment_add_check(&ipv6_reassembly_table,
+          tvb, offset, pinfo, ident, NULL,
           offlg & IP6F_OFF_MASK,
           plen,
           offlg & IP6F_MORE_FRAG);

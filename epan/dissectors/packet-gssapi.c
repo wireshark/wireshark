@@ -98,12 +98,13 @@ static const fragment_items gssapi_frag_items = {
 };
 
 
-static GHashTable *gssapi_fragment_table = NULL;
+static reassembly_table gssapi_reassembly_table;
 
 static void
 gssapi_reassembly_init(void)
 {
-	fragment_table_init(&gssapi_fragment_table);
+	reassembly_table_init(&gssapi_reassembly_table,
+	                      &addresses_reassembly_table_functions);
 }
 
 /*
@@ -255,8 +256,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				goto done;
 			}
 			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
-			fd_head=fragment_add(tvb, 0, pinfo, fi->first_frame,
-				gssapi_fragment_table, gss_info->frag_offset,
+			fd_head=fragment_add(&gssapi_reassembly_table,
+				tvb, 0, pinfo, fi->first_frame, NULL,
+				gss_info->frag_offset,
 				tvb_length(tvb), TRUE);
 			gss_info->frag_offset+=tvb_length(tvb);
 
@@ -279,7 +281,8 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&&  (gssapi_reassembly) ){
 			fi=(gssapi_frag_info_t *)se_tree_lookup32(gss_info->frags, pinfo->fd->num);
 			if(fi){
-				fd_head=fragment_get(pinfo, fi->first_frame, gssapi_fragment_table);
+				fd_head=fragment_get(&gssapi_reassembly_table,
+					pinfo, fi->first_frame, NULL);
 				if(fd_head && (fd_head->flags&FD_DEFRAGMENTED)){
 					if(pinfo->fd->num==fi->reassembled_in){
 					        proto_item *frag_tree_item;
@@ -424,10 +427,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			fi->reassembled_in=0;
 			se_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
 
-			fragment_add(gss_tvb, 0, pinfo, pinfo->fd->num,
-				gssapi_fragment_table, 0,
-				tvb_length(gss_tvb), TRUE);
-			fragment_set_tot_len(pinfo, pinfo->fd->num, gssapi_fragment_table, len1+oid_start_offset);
+			fragment_add(&gssapi_reassembly_table,
+				gss_tvb, 0, pinfo, pinfo->fd->num, NULL,
+				0, tvb_length(gss_tvb), TRUE);
+			fragment_set_tot_len(&gssapi_reassembly_table,
+				pinfo, pinfo->fd->num, NULL, len1+oid_start_offset);
 
 			gss_info->do_reassembly=TRUE;
 			gss_info->first_frame=pinfo->fd->num;

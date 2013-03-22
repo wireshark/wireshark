@@ -97,7 +97,7 @@ typedef struct  _rtp_private_conv_info {
 	emem_tree_t *multisegment_pdus;
 } rtp_private_conv_info;
 
-static GHashTable *fragment_table = NULL;
+static reassembly_table rtp_reassembly_table;
 
 static int hf_rtp_fragments = -1;
 static int hf_rtp_fragment = -1;
@@ -790,7 +790,8 @@ static const value_string srtp_auth_alg_vals[] =
 static void
 rtp_fragment_init(void)
 {
-	fragment_table_init(&fragment_table);
+	reassembly_table_init(&rtp_reassembly_table,
+			      &addresses_reassembly_table_functions);
 }
 
 void
@@ -1110,8 +1111,10 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * first pass, that's our best guess, and if it's not, what we
 		 * say gets ignored anyway.
 		 */
-		fd_head = fragment_add_seq(tvb, offset, pinfo, fid, fragment_table,
-					   seqno-msp->startseq, data_len, FALSE);
+		fd_head = fragment_add_seq(&rtp_reassembly_table,
+					   tvb, offset, pinfo, fid, NULL,
+					   seqno-msp->startseq, data_len,
+					   FALSE, 0);
 
 		newtvb = process_reassembled_data(tvb,offset, pinfo, "Reassembled RTP", fd_head,
 						  &rtp_fragment_items, NULL, tree);
@@ -1134,7 +1137,8 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				g_debug("\tNo complete pdus in payload" );
 #endif
 				/* Mark the fragments and not complete yet */
-				fragment_set_partial_reassembly(pinfo, fid, fragment_table);
+				fragment_set_partial_reassembly(&rtp_reassembly_table,
+								pinfo, fid, NULL);
 
 				/* we must need another segment */
 				msp->endseq = MIN(msp->endseq,seqno) + 1;
@@ -1201,8 +1205,9 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Add the fragment to the fragment table
 		 */
-		fd_head = fragment_add_seq(newtvb,deseg_offset, pinfo, seqno, fragment_table, 0, frag_len,
-					   TRUE );
+		fd_head = fragment_add_seq(&rtp_reassembly_table,
+					   newtvb, deseg_offset, pinfo, seqno, NULL, 0, frag_len,
+					   TRUE, 0);
 
 		if(fd_head != NULL)
 		{

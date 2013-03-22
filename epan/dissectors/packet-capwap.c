@@ -43,8 +43,7 @@ static gboolean global_capwap_draft_8_cisco = FALSE;
 static gboolean global_capwap_reassemble = TRUE;
 static gboolean global_capwap_swap_frame_control = TRUE;
 
-static GHashTable *capwap_fragment_table = NULL;
-static GHashTable *capwap_reassembled_table = NULL;
+static reassembly_table capwap_reassembly_table;
 
 /* TODO LIST !
 * add decryption of DLTS Message
@@ -705,8 +704,8 @@ static const value_string last_failure_type_vals[] = {
 
 static void capwap_reassemble_init(void)
 {
-    fragment_table_init(&capwap_fragment_table);
-    reassembled_table_init(&capwap_reassembled_table);
+    reassembly_table_init(&capwap_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static void
@@ -1405,9 +1404,8 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         pinfo->fragmented = TRUE;
 
-        frag_msg = fragment_add_check(tvb, offset, pinfo,fragment_id,
-                                      capwap_fragment_table,
-                                      capwap_reassembled_table,
+        frag_msg = fragment_add_check(&capwap_reassembly_table,
+                                      tvb, offset, pinfo, fragment_id, NULL,
                                       fragment_offset,
                                       len_rem,
                                       fragment_more);
@@ -1493,9 +1491,8 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         pinfo->fragmented = TRUE;
 
-        frag_msg = fragment_add_check(tvb, offset, pinfo,fragment_id,
-                                      capwap_fragment_table,
-                                      capwap_reassembled_table,
+        frag_msg = fragment_add_check(&capwap_reassembly_table,
+                                      tvb, offset, pinfo, fragment_id, NULL,
                                       fragment_offset,
                                       len_rem,
                                       fragment_more);

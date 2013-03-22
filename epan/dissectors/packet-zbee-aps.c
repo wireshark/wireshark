@@ -143,9 +143,8 @@ static dissector_handle_t   zbee_apf_handle;
 /* Dissector List. */
 static dissector_table_t    zbee_aps_dissector_table;
 
-/* Fragment and Reassembly tables. */
-static GHashTable   *zbee_aps_fragment_table = NULL;
-static GHashTable   *zbee_aps_reassembled_table = NULL;
+/* Reassembly table. */
+static reassembly_table     zbee_aps_reassembly_table;
 
 static const fragment_items zbee_aps_frag_items = {
     /* Fragment subtrees */
@@ -879,7 +878,7 @@ dissect_zbee_aps_no_endpt:
          * the block number is the block being sent.
          */
         if (packet.fragmentation == ZBEE_APS_EXT_FCF_FRAGMENT_FIRST) {
-            fragment_set_tot_len(pinfo, msg_id, zbee_aps_fragment_table, packet.block_number);
+            fragment_set_tot_len(&zbee_aps_reassembly_table, pinfo, msg_id, NULL, packet.block_number);
             block_num = 0;  /* first packet. */
         }
         else {
@@ -887,8 +886,9 @@ dissect_zbee_aps_no_endpt:
         }
 
         /* Add this fragment to the reassembly handler. */
-        frag_msg = fragment_add_seq_check(payload_tvb, 0, pinfo, msg_id, zbee_aps_fragment_table,
-                zbee_aps_reassembled_table, block_num, tvb_length(payload_tvb), TRUE);
+        frag_msg = fragment_add_seq_check(&zbee_aps_reassembly_table,
+                payload_tvb, 0, pinfo, msg_id, NULL,
+                block_num, tvb_length(payload_tvb), TRUE);
 
         new_tvb = process_reassembled_data(payload_tvb, 0, pinfo, "Reassembled ZigBee APS" ,
                 frag_msg, &zbee_aps_frag_items, NULL, aps_tree);
@@ -2009,7 +2009,7 @@ void proto_reg_handoff_zbee_aps(void)
  */
 static void proto_init_zbee_aps(void)
 {
-    fragment_table_init(&zbee_aps_fragment_table);
-    reassembled_table_init(&zbee_aps_reassembled_table);
+    reassembly_table_init(&zbee_aps_reassembly_table,
+                          &addresses_reassembly_table_functions);
 } /* proto_init_zbee_aps */
 

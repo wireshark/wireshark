@@ -1067,8 +1067,7 @@ static gint ett_dnp3_al_obj_point = -1;
 static gint ett_dnp3_al_obj_point_perms = -1;
 
 /* Tables for reassembly of fragments. */
-static GHashTable *al_fragment_table     = NULL;
-static GHashTable *al_reassembled_table  = NULL;
+static reassembly_table al_reassembly_table;
 static GHashTable *dl_conversation_table = NULL;
 
 /* Data-Link-Layer Conversation Key Structure */
@@ -3069,9 +3068,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         * if it's done.
         */
 
-        frag_msg = fragment_add_seq_next(al_tvb, 0, pinfo, conv_seq_number,
-            al_fragment_table,
-            al_reassembled_table,
+        frag_msg = fragment_add_seq_next(&al_reassembly_table,
+            al_tvb, 0, pinfo, conv_seq_number, NULL,
             tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
             !tr_fin);
 
@@ -3172,8 +3170,8 @@ dnp3_init(void)
   }
   dl_conversation_table = g_hash_table_new(dl_conversation_hash, dl_conversation_equal);
 
-  fragment_table_init(&al_fragment_table);
-  reassembled_table_init(&al_reassembled_table);
+  reassembly_table_init(&al_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 /* Register the protocol with Wireshark */

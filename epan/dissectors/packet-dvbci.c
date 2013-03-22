@@ -1041,10 +1041,8 @@ static int hf_dvbci_sas_msg_len = -1;
 
 static dissector_table_t sas_msg_dissector_table;
 
-static GHashTable *tpdu_fragment_table = NULL;
-static GHashTable *tpdu_reassembled_table = NULL;
-static GHashTable *spdu_fragment_table = NULL;
-static GHashTable *spdu_reassembled_table = NULL;
+static reassembly_table tpdu_reassembly_table;
+static reassembly_table spdu_reassembly_table;
 
 static const fragment_items tpdu_frag_items = {
     &ett_dvbci_link_frag,
@@ -1525,10 +1523,10 @@ dvbci_init(void)
     buf_size_cam  = 0;
     buf_size_host = 0;
 
-    fragment_table_init(&tpdu_fragment_table);
-    reassembled_table_init(&tpdu_reassembled_table);
-    fragment_table_init(&spdu_fragment_table);
-    reassembled_table_init(&spdu_reassembled_table);
+    reassembly_table_init(&tpdu_reassembly_table,
+                          &addresses_reassembly_table_functions);
+    reassembly_table_init(&spdu_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 
@@ -4224,10 +4222,8 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             input to reassembly routines */
         body_tvb = tvb_new_subset(tvb, offset, body_len, body_len);
         /* dissect_dvbci_tpdu_hdr() checked that lpdu_tcid==t_c_id */
-        frag_msg = fragment_add_seq_next(body_tvb, 0, pinfo,
-                SPDU_SEQ_ID_BASE+lpdu_tcid,
-                spdu_fragment_table,
-                spdu_reassembled_table,
+        frag_msg = fragment_add_seq_next(&spdu_reassembly_table,
+                body_tvb, 0, pinfo, SPDU_SEQ_ID_BASE+lpdu_tcid, NULL,
                 body_len,
                 hdr_tag == T_DATA_MORE ? 1 : 0);
         payload_tvb = process_reassembled_data(body_tvb, 0, pinfo,
@@ -4309,10 +4305,8 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 buf_size_host);
     }
 
-    frag_msg = fragment_add_seq_next(tvb, 2, pinfo,
-            TPDU_SEQ_ID_BASE+tcid,
-            tpdu_fragment_table,
-            tpdu_reassembled_table,
+    frag_msg = fragment_add_seq_next(&tpdu_reassembly_table,
+            tvb, 2, pinfo, TPDU_SEQ_ID_BASE+tcid, NULL,
             tvb_reported_length_remaining(tvb, 2),
             more_last == ML_MORE ? 1 : 0);
 

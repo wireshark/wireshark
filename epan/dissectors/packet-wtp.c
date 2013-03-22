@@ -226,12 +226,13 @@ static dissector_handle_t wsp_handle;
 /*
  * reassembly of WSP
  */
-static GHashTable *wtp_fragment_table = NULL;
+static reassembly_table wtp_reassembly_table;
 
 static void
 wtp_defragment_init(void)
 {
-    fragment_table_init(&wtp_fragment_table);
+    reassembly_table_init(&wtp_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 /*
@@ -685,8 +686,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             gboolean save_fragmented = pinfo->fragmented;
 
             pinfo->fragmented = TRUE;
-            fd_wtp = fragment_add_seq(tvb, dataOffset, pinfo, TID,
-                    wtp_fragment_table, psn, dataLen, !fTTR);
+            fd_wtp = fragment_add_seq(&wtp_reassembly_table, tvb, dataOffset,
+                    pinfo, TID, NULL, psn, dataLen, !fTTR, 0);
             /* XXX - fragment_add_seq() yields NULL unless Wireshark knows
              * that the packet is part of a reassembled whole. This means
              * that fd_wtp will be NULL as long as Wireshark did not encounter

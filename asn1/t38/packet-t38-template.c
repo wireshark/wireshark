@@ -148,7 +148,7 @@ static gboolean primary_part = TRUE;
 static guint32 seq_number = 0;
 
 /* Tables for reassembly of Data fragments. */
-static GHashTable *data_fragment_table = NULL;
+static reassembly_table data_reassembly_table;
 
 static const fragment_items data_frag_items = {
 	/* Fragment subtrees */
@@ -203,8 +203,9 @@ static t38_packet_info *t38_info=NULL;
 
 static void t38_defragment_init(void)
 {
-	/* Init reassemble tables */
-	fragment_table_init(&data_fragment_table);
+	/* Init reassembly table */
+	reassembly_table_init(&data_reassembly_table,
+                              &addresses_reassembly_table_functions);
 }
 
 
@@ -289,21 +290,14 @@ void t38_add_address(packet_info *pinfo,
 
 
 fragment_data *
-force_reassemble_seq(packet_info *pinfo, guint32 id,
-	     GHashTable *fragment_table)
+force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 {
-	fragment_key key;
 	fragment_data *fd_head;
 	fragment_data *fd_i;
 	fragment_data *last_fd;
 	guint32 dfpos, size, packet_lost, burst_lost, seq_num;
 
-	/* create key to search hash with */
-	key.src = pinfo->src;
-	key.dst = pinfo->dst;
-	key.id  = id;
-
-	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
+	fd_head = fragment_get(table, pinfo, id, NULL);
 
 	/* have we already seen this frame ?*/
 	if (pinfo->fd->flags.visited) {
@@ -334,8 +328,8 @@ force_reassemble_seq(packet_info *pinfo, guint32 id,
 	}
 
 	/* we have received an entire packet, defragment it and
-     * free all fragments
-     */
+	 * free all fragments
+	 */
 	size=0;
 	last_fd=NULL;
 	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {

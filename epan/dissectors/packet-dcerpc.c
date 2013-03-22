@@ -646,16 +646,127 @@ static gboolean dcerpc_cn_desegment = TRUE;
    are coming in out of sequence, but that will hurt in a lot of other places as well.
 */
 static gboolean dcerpc_reassemble = TRUE;
-static GHashTable *dcerpc_co_fragment_table = NULL;
-static GHashTable *dcerpc_co_reassemble_table = NULL;
-static GHashTable *dcerpc_cl_reassemble_table = NULL;
+static reassembly_table dcerpc_co_reassembly_table;
+static reassembly_table dcerpc_cl_reassembly_table;
+
+typedef struct _dcerpc_fragment_key {
+	address src;
+	address dst;
+	guint32 id;
+	e_uuid_t act_id;
+} dcerpc_fragment_key;
+
+static guint
+dcerpc_fragment_hash(gconstpointer k)
+{
+	const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
+	guint hash_val;
+
+	hash_val = 0;
+
+	hash_val += key->id;
+	hash_val += key->act_id.Data1;
+	hash_val += key->act_id.Data2 << 16;
+	hash_val += key->act_id.Data3;
+
+	return hash_val;
+}
+
+static gint
+dcerpc_fragment_equal(gconstpointer k1, gconstpointer k2)
+{
+	const dcerpc_fragment_key* key1 = (const dcerpc_fragment_key*) k1;
+	const dcerpc_fragment_key* key2 = (const dcerpc_fragment_key*) k2;
+
+	/*key.id is the first item to compare since item is most
+	  likely to differ between sessions, thus shortcircuiting
+	  the comparison of addresses.
+	*/
+	return (((key1->id == key2->id)
+		  && (ADDRESSES_EQUAL(&key1->src, &key2->src))
+		  && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
+		  && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_uuid_t)) == 0))
+		 ? TRUE : FALSE);
+}
+
+/* allocate a persistent dcerpc fragment key to insert in the hash */
+static void *
+dcerpc_fragment_temporary_key(const packet_info *pinfo, const guint32 id,
+                              const void *data)
+{
+	dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
+	e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
+
+	key->src = pinfo->src;
+	key->dst = pinfo->dst;
+	key->id = id;
+	key->act_id = hdr->act_id;
+
+	return key;
+}
+
+/* allocate a persistent dcerpc fragment key to insert in the hash */
+static void *
+dcerpc_fragment_persistent_key(const packet_info *pinfo, const guint32 id,
+                               const void *data)
+{
+	dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
+	e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
+
+	COPY_ADDRESS(&key->src, &pinfo->src);
+	COPY_ADDRESS(&key->dst, &pinfo->dst);
+	key->id = id;
+	key->act_id = hdr->act_id;
+
+	return key;
+}
+
+static void
+dcerpc_fragment_free_temporary_key(gpointer ptr)
+{
+	dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
+
+	if(key)
+		g_slice_free(dcerpc_fragment_key, key);
+}
+
+static void
+dcerpc_fragment_free_persistent_key(gpointer ptr)
+{
+	dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
+
+	if(key){
+		/*
+		 * Free up the copies of the addresses from the old key.
+		 */
+		g_free((gpointer)key->src.data);
+		g_free((gpointer)key->dst.data);
+
+		g_slice_free(dcerpc_fragment_key, key);
+	}
+}
+
+static const reassembly_table_functions dcerpc_cl_reassembly_table_functions = {
+	dcerpc_fragment_hash,
+	dcerpc_fragment_equal,
+	dcerpc_fragment_temporary_key,
+	dcerpc_fragment_persistent_key,
+	dcerpc_fragment_free_temporary_key,
+	dcerpc_fragment_free_persistent_key
+};
 
 static void
 dcerpc_reassemble_init(void)
 {
-    fragment_table_init(&dcerpc_co_fragment_table);
-    reassembled_table_init(&dcerpc_co_reassemble_table);
-    dcerpc_fragment_table_init(&dcerpc_cl_reassemble_table);
+    /*
+     * XXX - addresses_ports_reassembly_table_functions?
+     * Or can a single connection-oriented DCE RPC session persist
+     * over multiple transport layer connections?
+     */
+    reassembly_table_init(&dcerpc_co_reassembly_table,
+                          &addresses_reassembly_table_functions);
+    reassembly_table_init(&dcerpc_cl_reassembly_table,
+                          &dcerpc_cl_reassembly_table_functions);
 }
 
 /*
@@ -3261,7 +3372,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
        then exit
     */
     if (pinfo->fd->flags.visited) {
-        fd_head = fragment_get_reassembled(frame, dcerpc_co_reassemble_table);
+        fd_head = fragment_get_reassembled(&dcerpc_co_reassembly_table, frame);
         goto end_cn_stub;
     }
 
@@ -3298,8 +3409,8 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * just use fragment_add_seq_next() and hope that TCP/SMB segments coming
      * in with the correct sequence.
      */
-    fd_head = fragment_add_seq_next(decrypted_tvb, 0, pinfo, frame,
-                                    dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
+    fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
+                                    decrypted_tvb, 0, pinfo, frame, NULL,
                                     tvb_length(decrypted_tvb),
                                     hdr->flags&PFC_LAST_FRAG ? FALSE : TRUE /* more_frags */);
 
@@ -3929,8 +4040,9 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 }
                 if (hdr->flags&PFC_FIRST_FRAG) {  /* FIRST fragment */
                     if ( (!pinfo->fd->flags.visited) && value->rep_frame ) {
-                        fragment_add_seq_next(tvb, offset, pinfo, value->rep_frame,
-                                              dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
+                        fragment_add_seq_next(&dcerpc_co_reassembly_table,
+                                              tvb, offset,
+                                              pinfo, value->rep_frame, NULL,
                                               stub_length,
                                               TRUE);
                     }
@@ -3938,9 +4050,9 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     if ( value->rep_frame ) {
                         fragment_data *fd_head;
 
-                        fd_head = fragment_add_seq_next(tvb, offset, pinfo,
-                                                        value->rep_frame,
-                                                        dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
+                        fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
+                                                        tvb, offset,
+                                                        pinfo, value->rep_frame, NULL,
                                                         stub_length,
                                                         TRUE);
 
@@ -3977,8 +4089,9 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     }
                 } else {  /* MIDDLE fragment(s) */
                     if ( (!pinfo->fd->flags.visited) && value->rep_frame ) {
-                        fragment_add_seq_next(tvb, offset, pinfo, value->rep_frame,
-                                              dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
+                        fragment_add_seq_next(&dcerpc_co_reassembly_table,
+                                              tvb, offset,
+                                              pinfo, value->rep_frame, NULL,
                                               stub_length,
                                               TRUE);
                     }
@@ -4933,10 +5046,11 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
             }
         }
 
-        fd_head = fragment_add_dcerpc_dg(tvb, offset, pinfo,
-                                         hdr->seqnum, &hdr->act_id, dcerpc_cl_reassemble_table,
-                                         hdr->frag_num, stub_length,
-                                         !(hdr->flags1 & PFCL1_LASTFRAG));
+        fd_head = fragment_add_seq(&dcerpc_cl_reassembly_table,
+                                   tvb, offset,
+                                   pinfo, hdr->seqnum, (void *)hdr,
+                                   hdr->frag_num, stub_length,
+                                   !(hdr->flags1 & PFCL1_LASTFRAG), 0);
         if (fd_head != NULL) {
             /* We completed reassembly... */
             if (pinfo->fd->num == fd_head->reassembled_in) {

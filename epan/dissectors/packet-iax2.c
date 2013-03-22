@@ -508,7 +508,7 @@ typedef struct {
 
 /* tables */
 static GHashTable *iax_fid_table       = NULL;
-static GHashTable *iax_fragment_table  = NULL;
+static reassembly_table iax_reassembly_table;
 
 static GHashTable *iax_circuit_hashtab = NULL;
 static guint circuitcount = 0;
@@ -674,7 +674,8 @@ static void iax_init_hash( void )
     g_hash_table_destroy(iax_fid_table);
   iax_fid_table = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-  fragment_table_init(&iax_fragment_table);
+  reassembly_table_init(&iax_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 
@@ -2156,8 +2157,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     }
 
     /* fragment_add checks for already-added */
-    fd_head = fragment_add(tvb, 0, pinfo, fid,
-                           iax_fragment_table,
+    fd_head = fragment_add(&iax_reassembly_table, tvb, 0, pinfo, fid, NULL,
                            frag_offset,
                            frag_len, !complete);
 
@@ -2177,7 +2177,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       if (pinfo->desegment_len &&
           (pinfo->desegment_offset < old_len)) {
         /* oops, it wasn't actually complete */
-        fragment_set_partial_reassembly(pinfo, fid, iax_fragment_table);
+        fragment_set_partial_reassembly(&iax_reassembly_table, pinfo, fid, NULL);
         if (pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
           /* only one more byte should be enough for a retry */
           dirdata->current_frag_minlen = fd_head->datalen + 1;
@@ -2244,8 +2244,8 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       dirdata->current_frag_minlen = frag_len + pinfo->desegment_len;
     }
 
-    fd_head = fragment_add(tvb, deseg_offset, pinfo, fid,
-                           iax_fragment_table,
+    fd_head = fragment_add(&iax_reassembly_table,
+                           tvb, deseg_offset, pinfo, fid, NULL,
                            0, frag_len, TRUE);
 #ifdef DEBUG_DESEGMENT
     g_debug("Start offset of undissected bytes: %u; "

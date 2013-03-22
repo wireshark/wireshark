@@ -188,8 +188,7 @@ static int hf_btobex_reassembled_length = -1;
 static gint ett_btobex_fragment = -1;
 static gint ett_btobex_fragments = -1;
 
-static GHashTable *fragment_table;
-static GHashTable *reassembled_table;
+static reassembly_table btobex_reassembly_table;
 
 static const fragment_items btobex_frag_items = {
     &ett_btobex_fragment,
@@ -552,8 +551,8 @@ void proto_reg_handoff_btobex(void);
 static void
 defragment_init(void)
 {
-    fragment_table_init(&fragment_table);
-    reassembled_table_init(&reassembled_table);
+    reassembly_table_init(&btobex_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static int
@@ -1327,10 +1326,11 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     complete = FALSE;
 
-    if (fragment_get(pinfo, pinfo->p2p_dir, fragment_table)) {
+    if (fragment_get(&btobex_reassembly_table, pinfo, pinfo->p2p_dir, NULL)) {
         /* not the first fragment */
-        frag_msg = fragment_add_seq_next(tvb, 0, pinfo, pinfo->p2p_dir,
-                                fragment_table, reassembled_table, tvb_length(tvb), TRUE);
+        frag_msg = fragment_add_seq_next(&btobex_reassembly_table,
+                                tvb, 0, pinfo, pinfo->p2p_dir, NULL,
+                                tvb_length(tvb), TRUE);
 
         new_tvb = process_reassembled_data(tvb, 0, pinfo,
                         "Reassembled Obex packet", frag_msg, &btobex_frag_items, NULL, tree);
@@ -1343,10 +1343,13 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tvb_get_ntohs(tvb, offset+1) > (no_of_segments * tvb_length(tvb)))
                 no_of_segments++;
 
-            frag_msg = fragment_add_seq_next(tvb, 0, pinfo, pinfo->p2p_dir,
-                                fragment_table, reassembled_table, tvb_length(tvb), TRUE);
+            frag_msg = fragment_add_seq_next(&btobex_reassembly_table,
+                                tvb, 0, pinfo, pinfo->p2p_dir, NULL,
+                                tvb_length(tvb), TRUE);
 
-            fragment_set_tot_len(pinfo, pinfo->p2p_dir, fragment_table, no_of_segments-1);
+            fragment_set_tot_len(&btobex_reassembly_table,
+                                pinfo, pinfo->p2p_dir, NULL,
+                                no_of_segments-1);
 
             new_tvb = process_reassembled_data(tvb, 0, pinfo,
                         "Reassembled Obex packet", frag_msg, &btobex_frag_items, NULL, tree);

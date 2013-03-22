@@ -516,8 +516,7 @@ static gboolean reassemble_x25 = TRUE;
 
 /* Reassembly of X.25 */
 
-static GHashTable *x25_segment_table = NULL;
-static GHashTable *x25_reassembled_table = NULL;
+static reassembly_table x25_reassembly_table;
 
 static dissector_table_t x25_subdissector_table;
 static heur_dissector_list_t x25_heur_subdissector_list;
@@ -1941,10 +1940,9 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     */
 		    frag_key |= 0x10000;
 		}
-		fd_head = fragment_add_seq_next(tvb, localoffset,
-						pinfo, frag_key,
-						x25_segment_table,
-						x25_reassembled_table,
+		fd_head = fragment_add_seq_next(&x25_reassembly_table,
+						tvb, localoffset,
+						pinfo, frag_key, NULL,
 						payload_len, m_bit_set);
 		pinfo->fragmented = m_bit_set;
 
@@ -2127,8 +2125,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 x25_reassemble_init(void)
 {
-  fragment_table_init(&x25_segment_table);
-  reassembled_table_init(&x25_reassembled_table);
+  reassembly_table_init(&x25_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void

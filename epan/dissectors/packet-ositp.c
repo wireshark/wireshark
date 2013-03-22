@@ -296,8 +296,7 @@ static heur_dissector_list_t cltp_heur_subdissector_list;
 /*
  * Reassembly of COTP.
  */
-static GHashTable *cotp_segment_table = NULL;
-static GHashTable *cotp_reassembled_table = NULL;
+static reassembly_table cotp_reassembly_table;
 static guint16    cotp_dst_ref = 0;
 static gboolean   cotp_frame_reset = FALSE;
 static gboolean   cotp_last_fragment = FALSE;
@@ -1184,10 +1183,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
      * Note also that TP0 has no sequence number, and relies on
      * the protocol atop which it runs to guarantee in-order delivery.
      */
-    fd_head = fragment_add_seq_next(next_tvb, 0, pinfo, dst_ref,
-				     cotp_segment_table,
-				     cotp_reassembled_table,
-				     fragment_length, fragment);
+    fd_head = fragment_add_seq_next(&cotp_reassembly_table,
+				    next_tvb, 0, pinfo, dst_ref, NULL,
+				    fragment_length, fragment);
     if (fd_head && fd_head->next) {
       /* don't use -1 if fragment length is zero (throws Exception) */
       proto_tree_add_text(cotp_tree, tvb, offset, (fragment_length) ? -1 : 0,
@@ -2259,8 +2257,16 @@ static gint dissect_ositp_inactive(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 cotp_reassemble_init(void)
 {
-  fragment_table_init(&cotp_segment_table);
-  reassembled_table_init(&cotp_reassembled_table);
+  /*
+   * XXX - this is a connection-oriented transport-layer protocol,
+   * so we should probably use more than just network-layer
+   * endpoint addresses to match segments together, but the functions
+   * in addresses_ports_reassembly_table_functions do matching based
+   * on port numbers, so they won't let us ensure that segments from
+   * different connections don't get assembled together.
+   */
+  reassembly_table_init(&cotp_reassembly_table,
+                        &addresses_reassembly_table_functions);
   cotp_dst_ref = 0;
 }
 

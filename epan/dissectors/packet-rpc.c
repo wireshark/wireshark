@@ -2941,8 +2941,15 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Defragmentation of RPC-over-TCP records */
 /* table to hold defragmented RPC records */
-static GHashTable *rpc_fragment_table = NULL;
+static reassembly_table rpc_fragment_table;
 
+/*
+ * XXX - can we eliminate this by defining our own key-handling functions
+ * for rpc_fragment_table?  (Note that those functions must look at
+ * not only the addresses of the endpoints, but the ports of the endpoints,
+ * so that they don't try to combine fragments from different TCP
+ * connections.)
+ */
 static GHashTable *rpc_reassembly_table = NULL;
 
 typedef struct _rpc_fragment_key {
@@ -3302,8 +3309,9 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * Start defragmentation.
 			 */
-			ipfd_head = fragment_add_multiple_ok(tvb, offset + 4,
-			    pinfo, rfk->start_seq, rpc_fragment_table,
+			ipfd_head = fragment_add_multiple_ok(&rpc_fragment_table,
+			    tvb, offset + 4,
+			    pinfo, rfk->start_seq, NULL,
 			    rfk->offset, len - 4, TRUE);
 
 			/*
@@ -3359,8 +3367,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * a record.  This means we must defragment it.
 		 * Add it to the defragmentation lists.
 		 */
-		ipfd_head = fragment_add_multiple_ok(tvb, offset + 4, pinfo,
-		    rfk->start_seq, rpc_fragment_table,
+		ipfd_head = fragment_add_multiple_ok(&rpc_fragment_table,
+		    tvb, offset + 4, pinfo, rfk->start_seq, NULL,
 		    rfk->offset, len - 4, !(rpc_rm & RPC_RM_LASTFRAG));
 
 		if (ipfd_head == NULL) {
@@ -3782,7 +3790,8 @@ rpc_init_protocol(void)
 	rpc_reassembly_table = g_hash_table_new(rpc_fragment_hash,
 	    rpc_fragment_equal);
 
-	fragment_table_init(&rpc_fragment_table);
+	reassembly_table_init(&rpc_fragment_table,
+	    &addresses_ports_reassembly_table_functions);
 }
 
 /* will be called once from register.c at startup time */

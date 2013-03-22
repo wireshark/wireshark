@@ -83,6 +83,9 @@ static const fragment_items nds_frag_items = {
     "segments"
 };
 
+/* Table for reassembly of fragments. */
+static reassembly_table nds_reassembly_table;
+
 #define NDS_TAG_NO_SUCH_ENTRY           0x00000000
 #define NDS_TAG_LOCAL_ENTRY             0x00000001
 #define NDS_TAG_REMOTE_ENTRY            0x00000002
@@ -1695,8 +1698,8 @@ ncp_init_protocol(void)
     int i;
 
     /* fragment */
-    fragment_table_init(&nds_fragment_table);
-    reassembled_table_init(&nds_reassembled_table);
+    reassembly_table_init(&nds_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     for (i = 0; i < 99; i++) {
         frags[i].nds_frag = 0xfffffff0;
@@ -7236,7 +7239,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 frags[frag_count].nds_frag_version = request_value->nds_version;
                 frags[frag_count].nds_frag_flags = request_value->req_nds_flags;
                 frags[frag_count].nds_frag_prot_flags = request_value->req_nds_prot_flags;
-                fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, nds_fragment_table, nds_reassembled_table, len, request_value->nds_frag);
+                fd_head = fragment_add_seq_next(&nds_reassembly_table, tvb, 0, pinfo, tid, NULL, len, request_value->nds_frag);
                 frags[frag_count].sequence = sequence;
                 frags[frag_count].nds_length = 1;
             }
@@ -7248,7 +7251,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 if (!pinfo->fd->flags.visited)
                 {
                     if (sequence != frags[frag_count].sequence) {
-                        fd_head = fragment_add_seq_next(tvb, 16, pinfo, tid, nds_fragment_table, nds_reassembled_table, len-16, request_value->nds_frag);
+                        fd_head = fragment_add_seq_next(&nds_reassembly_table, tvb, 16, pinfo, tid, NULL, len-16, request_value->nds_frag);
                         frags[frag_count].sequence = sequence;
                     }
                     else
@@ -7261,7 +7264,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 }
                 else
                 {
-                    fd_head = fragment_add_seq_next(tvb, 16, pinfo, tid, nds_fragment_table, nds_reassembled_table, len-16, request_value->nds_frag);
+                    fd_head = fragment_add_seq_next(&nds_reassembly_table, tvb, 16, pinfo, tid, NULL, len-16, request_value->nds_frag);
                     frags[frag_count].sequence = sequence;
                 }
             }

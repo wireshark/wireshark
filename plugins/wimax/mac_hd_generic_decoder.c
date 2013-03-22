@@ -87,7 +87,7 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item);
 
 /* Static variables */
-static GHashTable *payload_frag_table = NULL;
+static reassembly_table payload_reassembly_table;
 
 gint proto_mac_header_generic_decoder = -1;
 static gint ett_mac_header_generic_decoder = -1;
@@ -598,7 +598,8 @@ void wimax_defragment_init(void)
 {
 	gint i;
 
-	fragment_table_init(&payload_frag_table);
+	reassembly_table_init(&payload_reassembly_table,
+	    &addresses_reassembly_table_functions);
 
 	/* Init fragmentation variables. */
 	for (i = 0; i < MAX_CID; i++)
@@ -1073,7 +1074,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				/* Use dl_src and dl_dst in defrag. */
 				pinfo->src = pinfo->dl_src;
 				pinfo->dst = pinfo->dl_dst;
-				payload_frag = fragment_add_seq(tvb, offset, pinfo, cid, payload_frag_table, frag_number[cid_index], frag_len, ((frag_type==LAST_FRAG)?0:1));
+				payload_frag = fragment_add_seq(&payload_reassembly_table, tvb, offset, pinfo, cid, NULL, frag_number[cid_index], frag_len, ((frag_type==LAST_FRAG)?0:1), 0);
 				/* Restore address pointers. */
 				pinfo->src = save_src;
 				pinfo->dst = save_dst;

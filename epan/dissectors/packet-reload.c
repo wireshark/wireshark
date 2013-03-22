@@ -1020,14 +1020,13 @@ static const value_string applicationids[] = {
 /*
  * defragmentation
  */
-static GHashTable *reload_fragment_table    = NULL;
-static GHashTable *reload_reassembled_table = NULL;
+static reassembly_table reload_reassembly_table;
 
 static void
 reload_defragment_init(void)
 {
-  fragment_table_init(&reload_fragment_table);
-  reassembled_table_init(&reload_reassembled_table);
+  reassembly_table_init(&reload_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 
@@ -4119,10 +4118,10 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     reload_fd_head = NULL;
 
     if (tvb_bytes_exist(tvb, offset, msg_length - offset)) {
-      reload_fd_head = fragment_add_check(tvb, offset, pinfo,
+      reload_fd_head = fragment_add_check(&reload_reassembly_table, tvb, offset,
+                         pinfo,
                          transaction_id[0]^transaction_id[1],
-                         reload_fragment_table,
-                         reload_reassembled_table,
+                         NULL,
                          fragment,
                          msg_length - offset,
                          !last_fragment);

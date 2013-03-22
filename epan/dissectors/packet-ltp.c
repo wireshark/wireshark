@@ -44,8 +44,7 @@
 void proto_reg_handoff_ltp(void);
 
 /* For reassembling LTP segments */
-static GHashTable *ltp_fragment_table = NULL;
-static GHashTable *ltp_reassembled_table = NULL;
+static reassembly_table ltp_reassembly_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_ltp = -1;
@@ -316,14 +315,16 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		frame_offset += rpt_sno_size;
 
 		more_frags = FALSE;
-		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, (guint32)session_num, ltp_fragment_table,
-			  ltp_reassembled_table, (guint32)offset, (guint32)length, more_frags);
+		frag_msg = fragment_add_check(&ltp_reassembly_table,
+			  tvb, frame_offset, pinfo, (guint32)session_num, NULL,
+			  (guint32)offset, (guint32)length, more_frags);
 	}
 	else
 	{
 		more_frags = TRUE;
-		frag_msg = fragment_add_check(tvb, frame_offset, pinfo, (guint32)session_num, ltp_fragment_table,
-			 ltp_reassembled_table, (guint32)offset, (guint32)length, more_frags);
+		frag_msg = fragment_add_check(&ltp_reassembly_table,
+			 tvb, frame_offset, pinfo, (guint32)session_num, NULL,
+			 (guint32)offset, (guint32)length, more_frags);
 
 	}
 
@@ -777,8 +778,8 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 static void
 ltp_defragment_init(void) {
-    fragment_table_init(&ltp_fragment_table);
-    reassembled_table_init(&ltp_reassembled_table);
+	reassembly_table_init(&ltp_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 /* Register the protocol with Wireshark */

@@ -58,8 +58,7 @@ static emem_tree_t *localhost_name          = NULL;
 static emem_tree_t *localhost_bdaddr        = NULL;
 static emem_tree_t *fragment_info_table     = NULL;
 
-static GHashTable *fragment_table     = NULL;
-static GHashTable *reassembled_table  = NULL;
+static reassembly_table hci_usb_reassembly_table;
 
 typedef struct _fragment_info_t {
     gint remaining_length;
@@ -175,14 +174,16 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         fragment_info->remaining_length -= tvb_ensure_length_remaining(tvb, offset);
 
-        fragment_add_seq_check(tvb, offset, pinfo, session_id, fragment_table, reassembled_table, fragment_info->fragment_id, tvb_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
+        fragment_add_seq_check(&hci_usb_reassembly_table,
+                               tvb, offset, pinfo, session_id, NULL,
+                               fragment_info->fragment_id, tvb_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
         if (fragment_info->remaining_length > 0)
             fragment_info->fragment_id += 1;
         else
             fragment_info->fragment_id = 0;
     }
 
-    reassembled = fragment_get_reassembled_id(pinfo, session_id, reassembled_table);
+    reassembled = fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, session_id);
     if (reassembled && pinfo->fd->num < reassembled->reassembled_in) {
         pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Fragment");
         PROTO_ITEM_SET_GENERATED(pitem);
@@ -294,8 +295,8 @@ proto_register_hci_usb(void)
         &ett_hci_usb_msg_fragments,
     };
 
-    fragment_table_init(&fragment_table);
-    reassembled_table_init(&reassembled_table);
+    reassembly_table_init(&hci_usb_reassembly_table,
+                          &addresses_reassembly_table_functions);
     fragment_info_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb fragment_info");
 
     chandle_to_bdaddr_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb adapter/chandle to bdaddr");

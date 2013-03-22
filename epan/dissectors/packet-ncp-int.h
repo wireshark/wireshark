@@ -155,8 +155,6 @@ extern gint ett_nds_segments;
 extern gint ett_nds_segment;
 
 /*extern dissector_handle_t nds_data_handle;*/
-extern GHashTable *nds_fragment_table;
-extern GHashTable *nds_reassembled_table;
 
 /*
  * NCP packet types.

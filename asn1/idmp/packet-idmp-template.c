@@ -67,8 +67,7 @@ static int hf_idmp_final = -1;
 static int hf_idmp_length = -1;
 static int hf_idmp_PDU = -1;
 
-static GHashTable *idmp_segment_table     = NULL;
-static GHashTable *idmp_reassembled_table = NULL;
+static reassembly_table idmp_reassembly_table;
 
 static int hf_idmp_fragments = -1;
 static int hf_idmp_fragment = -1;
@@ -195,8 +194,8 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
                             idmp_final ? "Final " : "" ,
                             idmp_length, plurality(idmp_length, "", "s"));
 
-        fd_head = fragment_add_seq_next(tvb, offset, pinfo, dst_ref,
-                                        idmp_segment_table, idmp_reassembled_table,
+        fd_head = fragment_add_seq_next(&idmp_reassembly_table, tvb, offset,
+                                        pinfo, dst_ref, NULL,
                                         idmp_length, !idmp_final);
 
         if(fd_head && fd_head->next) {
@@ -258,8 +257,8 @@ static void dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pare
 
 static void idmp_reassemble_init (void)
 {
-    fragment_table_init (&idmp_segment_table);
-    reassembled_table_init (&idmp_reassembled_table);
+    reassembly_table_init (&idmp_reassembly_table,
+                           &addresses_reassembly_table_functions);
 
     saved_protocolID = NULL;
 }

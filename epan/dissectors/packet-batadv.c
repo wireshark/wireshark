@@ -581,8 +581,7 @@ static int batadv_tap = -1;
 static int batadv_follow_tap = -1;
 
 /* segmented messages */
-static GHashTable *msg_fragment_table = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+static reassembly_table msg_reassembly_table;
 
 static unsigned int batadv_ethertype = ETH_P_BATMAN;
 
@@ -2320,10 +2319,9 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining < 0)
 		length_remaining = 0;
-	frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
-		unicast_frag_packeth->seqno + head,
-		msg_fragment_table,
-		msg_reassembled_table,
+	frag_msg = fragment_add_seq_check(&msg_reassembly_table,
+		tvb, offset,
+		pinfo, unicast_frag_packeth->seqno + head, NULL,
 		1 - head,
 		length_remaining,
 		head);
@@ -2435,10 +2433,9 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	length_remaining = tvb_length_remaining(tvb, offset);
 	if (length_remaining < 0)
 		length_remaining = 0;
-	frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
-		unicast_frag_packeth->seqno + head,
-		msg_fragment_table,
-		msg_reassembled_table,
+	frag_msg = fragment_add_seq_check(&msg_reassembly_table,
+		tvb, offset,
+		pinfo, unicast_frag_packeth->seqno + head, NULL,
 		1 - head,
 		length_remaining,
 		head);
@@ -3159,8 +3156,8 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static void batadv_init_routine(void)
 {
-        fragment_table_init(&msg_fragment_table);
-        reassembled_table_init(&msg_reassembled_table);
+        reassembly_table_init(&msg_reassembly_table,
+                              &addresses_reassembly_table_functions);
 }
 
 void proto_register_batadv(void)

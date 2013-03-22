@@ -353,8 +353,7 @@ static int scsi_tap = -1;
 /* Defragment of SCSI DATA IN/OUT */
 static gboolean scsi_defragment = FALSE;
 
-static GHashTable *scsi_fragment_table = NULL;
-static GHashTable *scsi_reassembled_table = NULL;
+static reassembly_table scsi_reassembly_table;
 
 /*
  * Required by all commands
@@ -371,8 +370,8 @@ const int *cdb_control_fields[6] = {
 static void
 scsi_defragment_init(void)
 {
-    fragment_table_init(&scsi_fragment_table);
-    reassembled_table_init(&scsi_reassembled_table);
+    reassembly_table_init(&scsi_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static const fragment_items scsi_frag_items = {
@@ -5093,10 +5092,10 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ((tvb_length_remaining(tvb,offset) + relative_offset) != expected_length) {
         more_frags = TRUE;
     }
-    ipfd_head = fragment_add_check(tvb, offset, pinfo,
+    ipfd_head = fragment_add_check(&scsi_reassembly_table, tvb, offset,
+                                   pinfo,
                                    itlq->first_exchange_frame, /* key */
-                                   scsi_fragment_table,
-                                   scsi_reassembled_table,
+                                   NULL,
                                    relative_offset,
                                    tvb_length_remaining(tvb, offset),
                                    more_frags);

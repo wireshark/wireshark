@@ -298,7 +298,7 @@ static dissector_handle_t data_handle;
 
 /* Defragment fragmented SNA BIUs*/
 static gboolean sna_defragment = TRUE;
-static GHashTable *sna_fragment_table = NULL;
+static reassembly_table sna_reassembly_table;
 
 /* Format Identifier */
 static const value_string sna_th_fid_vals[] = {
@@ -1684,9 +1684,9 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 		/* XXX - check length ??? */
 		frag_len = tvb_reported_length_remaining(tvb, offset);
 		if (tvb_bytes_exist(tvb, offset, frag_len)) {
-			fd_head = fragment_add_seq(tvb, offset, pinfo, id,
-			    sna_fragment_table, frag_number, frag_len,
-			    more_frags);
+			fd_head = fragment_add_seq(&sna_reassembly_table,
+			    tvb, offset, pinfo, id, NULL,
+			    frag_number, frag_len, more_frags, 0);
 
 			/* We added the LAST segment and reassembly didn't
 			 * complete. Insert a zero-length MIDDLE segment to
@@ -1695,9 +1695,9 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 		         * See above long comment about this trickery. */
 
 			if (mpf == MPF_LAST_SEGMENT && !fd_head) {
-				fd_head = fragment_add_seq(tvb, offset, pinfo,
-				    id, sna_fragment_table,
-				    MIDDLE_FRAG_NUMBER, 0, TRUE);
+				fd_head = fragment_add_seq(&sna_reassembly_table,
+				    tvb, offset, pinfo, id, NULL,
+				    MIDDLE_FRAG_NUMBER, 0, TRUE, 0);
 			}
 
 			if (fd_head != NULL) {
@@ -2610,7 +2610,8 @@ dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 sna_init(void)
 {
-	fragment_table_init(&sna_fragment_table);
+	reassembly_table_init(&sna_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 

@@ -3264,14 +3264,20 @@ proto_register_pipe_lanman(void)
 
 static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
-static GHashTable *dcerpc_fragment_table = NULL;
-static GHashTable *dcerpc_reassembled_table = NULL;
+static reassembly_table dcerpc_reassembly_table;
 
 static void
 smb_dcerpc_reassembly_init(void)
 {
-	fragment_table_init(&dcerpc_fragment_table);
-	reassembled_table_init(&dcerpc_reassembled_table);
+	/*
+	 * XXX - addresses_ports_reassembly_table_functions?
+	 * Probably correct for SMB-over-NBT and SMB-over-TCP,
+	 * as stuff from two different connections should
+	 * probably not be combined, but what about other
+	 * transports for SMB, e.g. NBF or Netware?
+	 */
+	reassembly_table_init(&dcerpc_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 gboolean
@@ -3328,7 +3334,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		 * in this direction, by searching for its reassembly
 		 * structure.
 		 */
-		fd_head=fragment_get(pinfo, fid, dcerpc_fragment_table);
+		fd_head=fragment_get(&dcerpc_reassembly_table, pinfo, fid, NULL);
 		if(!fd_head){
 			/* No reassembly, so this is a new pdu. check if the
 			   dissector wants us to reassemble it or if we
@@ -3350,12 +3356,11 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			   more data ?
 			*/
 			if(pinfo->desegment_len){
-				fragment_add_check(d_tvb, 0, pinfo, fid,
-					dcerpc_fragment_table,
-					dcerpc_reassembled_table,
+				fragment_add_check(&dcerpc_reassembly_table,
+					d_tvb, 0, pinfo, fid, NULL,
 					0, reported_len, TRUE);
-				fragment_set_tot_len(pinfo, fid,
-					dcerpc_fragment_table,
+				fragment_set_tot_len(&dcerpc_reassembly_table,
+					pinfo, fid, NULL,
 					pinfo->desegment_len+reported_len);
 			}
 			goto clean_up_and_exit;
@@ -3372,8 +3377,8 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		while(fd_head->next){
 			fd_head=fd_head->next;
 		}
-		fd_head=fragment_add_check(d_tvb, 0, pinfo, fid,
-			dcerpc_fragment_table, dcerpc_reassembled_table,
+		fd_head=fragment_add_check(&dcerpc_reassembly_table,
+			d_tvb, 0, pinfo, fid, NULL,
 			fd_head->offset+fd_head->len,
 			reported_len, TRUE);
 
@@ -3406,8 +3411,8 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	 * up so that we don't have to distinguish between the first
 	 * pass and subsequent passes?
 	 */
-	fd_head=fragment_add_check(d_tvb, 0, pinfo, fid, dcerpc_fragment_table,
-	    dcerpc_reassembled_table, 0, 0, TRUE);
+	fd_head=fragment_add_check(&dcerpc_reassembly_table,
+	    d_tvb, 0, pinfo, fid, NULL, 0, 0, TRUE);
 	if(!fd_head){
 		/* we didnt find it, try any of the heuristic dissectors
 		   and bail out

@@ -549,8 +549,7 @@ static const fragment_items tds_frag_items = {
 };
 
 /* Tables for reassembly of fragments. */
-static GHashTable *tds_fragment_table = NULL;
-static GHashTable *tds_reassembled_table = NULL;
+static reassembly_table tds_reassembly_table;
 
 /* defragmentation of multi-buffer TDS PDUs */
 static gboolean tds_defragment = TRUE;
@@ -2387,8 +2386,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * XXX - I've seen captures that start with a login
          * packet with a sequence number of 2.
          */
-        fd_head = fragment_add_seq_check(tvb, offset, pinfo, channel,
-                                         tds_fragment_table, tds_reassembled_table,
+        fd_head = fragment_add_seq_check(&tds_reassembly_table, tvb, offset,
+                                         pinfo, channel, NULL,
                                          packet_number - 1, len, (status & STATUS_LAST_BUFFER) == 0);
         next_tvb = process_reassembled_data(tvb, offset, pinfo,
                                             "Reassembled TDS", fd_head, &tds_frag_items, NULL,
@@ -2694,11 +2693,13 @@ static void
 tds_init(void)
 {
     /*
-     * Initialize the fragment and reassembly tables.
+     * Initialize the reassembly table.
+     *
+     * XXX - should fragments be reassembled across multiple TCP
+     * connections?
      */
-    fragment_table_init(&tds_fragment_table);
-    reassembled_table_init(&tds_reassembled_table);
-
+    reassembly_table_init(&tds_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 }
 
 /* Register the protocol with Wireshark */

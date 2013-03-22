@@ -117,8 +117,7 @@ static dissector_table_t rtse_oid_dissector_table=NULL;
 static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
 
-static GHashTable *rtse_segment_table = NULL;
-static GHashTable *rtse_reassembled_table = NULL;
+static reassembly_table rtse_reassembly_table;
 
 static int hf_rtse_segment_data = -1;
 static int hf_rtse_fragments = -1;
@@ -732,7 +731,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 185 "../../asn1/rtse/packet-rtse-template.c"
+#line 184 "../../asn1/rtse/packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -786,8 +785,8 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		session->rtse_reassemble = TRUE;
 	}
 	if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
-		frag_msg = fragment_end_seq_next (pinfo, rtse_id, rtse_segment_table,
-						  rtse_reassembled_table);
+		frag_msg = fragment_end_seq_next (&rtse_reassembly_table,
+						  pinfo, rtse_id, NULL);
 		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled RTSE",
 						     frag_msg, &rtse_frag_items, NULL, parent_tree);
 	}
@@ -803,9 +802,10 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			fragment_length = tvb_length_remaining (data_tvb, 0);
 			proto_item_append_text(asn1_ctx.created_item, " (%u byte%s)", fragment_length,
       	                              plurality(fragment_length, "", "s"));
-			frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo,
-							  rtse_id, rtse_segment_table,
-							  rtse_reassembled_table, fragment_length, TRUE);
+			frag_msg = fragment_add_seq_next (&rtse_reassembly_table,
+							  data_tvb, 0, pinfo,
+							  rtse_id, NULL,
+							  fragment_length, TRUE);
 			if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
 				/* Add a "Reassembled in" link if not reassembled in this frame */
 				proto_tree_add_uint (tree, *(rtse_frag_items.hf_reassembled_in),
@@ -855,8 +855,8 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 static void rtse_reassemble_init (void)
 {
-	fragment_table_init (&rtse_segment_table);
-	reassembled_table_init (&rtse_reassembled_table);
+	reassembly_table_init (&rtse_reassembly_table,
+			       &addresses_reassembly_table_functions);
 }
 
 /*--- proto_register_rtse -------------------------------------------*/

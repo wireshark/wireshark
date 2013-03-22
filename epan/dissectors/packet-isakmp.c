@@ -370,8 +370,7 @@ static gint ett_isakmp_decrypted_payloads = -1;
 
 static dissector_handle_t eap_handle = NULL;
 
-static GHashTable *isakmp_fragment_table = NULL;
-static GHashTable *isakmp_reassembled_table = NULL;
+static reassembly_table isakmp_reassembly_table;
 
 static const fragment_items isakmp_frag_items = {
   /* Fragment subtrees */
@@ -3814,10 +3813,10 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
+    frag_msg = fragment_add_seq_check(&isakmp_reassembly_table, tvb, offset,
+                                      pinfo,
                                       12345,                    /*FIXME:  Fragmented packet id, guint16, somehow get CKY here */
-                                      isakmp_fragment_table,    /* list of message fragments */
-                                      isakmp_reassembled_table, /* list of reassembled messages */
+                                      NULL,
                                       seq-1,                    /* fragment sequence number, starting from 0 */
                                       tvb_length_remaining(tvb, offset), /* fragment length - to the end */
                                       last);                    /* More fragments? */
@@ -4870,8 +4869,8 @@ isakmp_init_protocol(void) {
   decrypt_data_t *decr;
   guint8   *ic_key;
 #endif /* HAVE_LIBGCRYPT */
-  fragment_table_init(&isakmp_fragment_table);
-  reassembled_table_init(&isakmp_reassembled_table);
+  reassembly_table_init(&isakmp_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
 #ifdef HAVE_LIBGCRYPT
   if (isakmp_hash) {

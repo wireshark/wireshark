@@ -174,7 +174,7 @@ static gint ett_dtls_fragments         = -1;
 
 static GHashTable         *dtls_session_hash         = NULL;
 static GHashTable         *dtls_key_hash             = NULL;
-static GHashTable         *dtls_fragment_table       = NULL;
+static reassembly_table    dtls_reassembly_table;
 static GTree*              dtls_associations         = NULL;
 static dissector_handle_t  dtls_handle               = NULL;
 static StringInfo          dtls_compressed_data      = {NULL, 0};
@@ -220,7 +220,7 @@ dtls_init(void)
   pref_t   *keys_list_pref;
 
   ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
-  fragment_table_init (&dtls_fragment_table);
+  reassembly_table_init (&dtls_reassembly_table, &addresses_reassembly_table_functions);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
   if (dtls_module) {
@@ -1223,11 +1223,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             /* Don't pass the reassembly code data that doesn't exist */
             tvb_ensure_bytes_exist(tvb, offset+12, fragment_length);
 
-            frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
-                                    dtls_fragment_table,
+            frag_msg = fragment_add(&dtls_reassembly_table,
+                                    tvb, offset+12, pinfo, message_seq, NULL,
                                     fragment_offset, fragment_length, TRUE);
-            fragment_set_tot_len(pinfo, message_seq, dtls_fragment_table,
-                                 length);
+            fragment_set_tot_len(&dtls_reassembly_table,
+                                 pinfo, message_seq, NULL, length);
 
             if (frag_msg && (fragment_length + fragment_offset) == length)
               {

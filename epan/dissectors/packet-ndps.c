@@ -42,9 +42,8 @@
 /* Limit the number of items we can add to the tree. */
 #define NDPS_MAX_ITEMS 100
 
-/* Tables for reassembly of fragments. */
-static GHashTable *ndps_fragment_table = NULL;
-static GHashTable *ndps_reassembled_table = NULL;
+/* Table for reassembly of fragments. */
+static reassembly_table ndps_reassembly_table;
 
 /* desegmentation of ndps */
 static gboolean ndps_defragment = TRUE;
@@ -4103,8 +4102,8 @@ static void
 ndps_init_protocol(void)
 {
     /* fragment */
-    fragment_table_init(&ndps_fragment_table);
-    reassembled_table_init(&ndps_reassembled_table);
+    reassembly_table_init(&ndps_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     if (ndps_req_hash)
         g_hash_table_destroy(ndps_req_hash);
@@ -4393,7 +4392,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         len = tvb_reported_length(tvb);
         if (tvb_length(tvb) >= len)
         {
-            fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, ndps_fragment_table, ndps_reassembled_table, len, !spx_info_p->eom);
+            fd_head = fragment_add_seq_next(&ndps_reassembly_table, tvb, 0, pinfo, tid, NULL, len, !spx_info_p->eom);
             if (fd_head != NULL)
             {
                 /* Is this the last fragment? EOM will indicate */

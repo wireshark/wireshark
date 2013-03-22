@@ -283,8 +283,7 @@ static const fragment_items ndmp_frag_items = {
        "NDMP fragments"
 };
 
-static GHashTable *ndmp_fragment_table = NULL;
-static GHashTable *ndmp_reassembled_table = NULL;
+static reassembly_table ndmp_reassembly_table;
 
 /* XXX someone should start adding the new stuff from v3, v4 and v5*/
 #define NDMP_PROTOCOL_UNKNOWN	0
@@ -3249,10 +3248,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			pinfo->fragmented = TRUE;
 
-			frag_msg = fragment_add_seq_check(tvb, 4, pinfo,
-				seq,
-				ndmp_fragment_table,
-				ndmp_reassembled_table,
+			frag_msg = fragment_add_seq_check(&ndmp_reassembly_table,
+				tvb, 4, pinfo, seq, NULL,
 				frag_num,
 				tvb_length_remaining(tvb, offset)-4,
 				!(ndmp_rm & RPC_RM_LASTFRAG));
@@ -3538,8 +3535,8 @@ dissect_ndmp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static void
 ndmp_init(void)
 {
-	fragment_table_init(&ndmp_fragment_table);
-	reassembled_table_init(&ndmp_reassembled_table);
+	reassembly_table_init(&ndmp_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 

@@ -55,7 +55,7 @@ static dissector_handle_t wimax_hack_burst_handle;
 static dissector_handle_t wimax_pdu_burst_handle;
 static dissector_handle_t wimax_phy_attributes_burst_handle;
 
-static GHashTable *pdu_frag_table  = NULL;
+static reassembly_table pdu_reassembly_table;
 
 static gint proto_m2m    = -1;
 
@@ -158,7 +158,8 @@ static gint hf_m2m_phy_attributes = -1;
 static void
 m2m_defragment_init(void)
 {
-	fragment_table_init(&pdu_frag_table);
+	reassembly_table_init(&pdu_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 
@@ -454,7 +455,7 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 	}
 	else	/* fragmented PDU */
 	{	/* add the frag */
-		pdu_frag = fragment_add_seq(tvb, offset, pinfo, burst_number, pdu_frag_table, frag_number - 1, length, ((frag_type==TLV_LAST_FRAG)?0:1));
+		pdu_frag = fragment_add_seq(&pdu_reassembly_table, tvb, offset, pinfo, burst_number, NULL, frag_number - 1, length, ((frag_type==TLV_LAST_FRAG)?0:1), 0);
 		if(pdu_frag && frag_type == TLV_LAST_FRAG)
 		{
 			/* create the new tvb for defraged frame */

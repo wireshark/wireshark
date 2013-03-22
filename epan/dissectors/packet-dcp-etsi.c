@@ -100,8 +100,7 @@ static gint ett_tpl = -1;
 static gint ett_edcp_fragment = -1;
 static gint ett_edcp_fragments = -1;
 
-static GHashTable *dcp_fragment_table = NULL;
-static GHashTable *dcp_reassembled_table = NULL;
+static reassembly_table dcp_reassembly_table;
 
 static const fragment_items dcp_frag_items = {
 /* Fragment subtrees */
@@ -132,8 +131,8 @@ static const fragment_items dcp_frag_items = {
 static void
 dcp_init_protocol(void)
 {
-  fragment_table_init (&dcp_fragment_table);
-  reassembled_table_init (&dcp_reassembled_table);
+  reassembly_table_init (&dcp_reassembly_table,
+                         &addresses_reassembly_table_functions);
 }
 
 
@@ -292,7 +291,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     got = (guint32 *)ep_alloc(fcount*sizeof(guint32));
 
     /* make a list of the findex (offset) numbers of the fragments we have */
-    fd = fragment_get(pinfo, seq, dcp_fragment_table);
+    fd = fragment_get(&dcp_reassembly_table, pinfo, seq, NULL);
     for (fd_head = fd; fd_head != NULL && fragments < fcount; fd_head = fd_head->next) {
       if(fd_head->data) {
         got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
@@ -324,8 +323,8 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
           return NULL;
         }
         for(; current_findex<next_fragment_we_have; current_findex++) {
-          frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,
-                                         dcp_fragment_table, dcp_reassembled_table,
+          frag = fragment_add_seq_check (&dcp_reassembly_table,
+                                         dummytvb, 0, pinfo, seq, NULL,
                                          current_findex, plen, (current_findex+1!=fcount));
         }
         current_findex++; /* skip over the fragment we have */
@@ -399,9 +398,9 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   first = findex == 0;
   last = fcount == (findex+1);
   frag_edcp = fragment_add_seq_check (
-    tvb, offset, pinfo,
-    seq,
-    dcp_fragment_table, dcp_reassembled_table,
+    &dcp_reassembly_table,
+    tvb, offset,
+    pinfo, seq, NULL,
     findex,
     plen,
     !last);

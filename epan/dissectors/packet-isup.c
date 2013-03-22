@@ -3066,15 +3066,14 @@ static const fragment_items isup_apm_msg_frag_items = {
   "ISUP APM Message fragments"
 };
 
-static GHashTable *isup_apm_msg_fragment_table = NULL;
-static GHashTable *isup_apm_msg_reassembled_table = NULL;
+static reassembly_table isup_apm_msg_reassembly_table;
 
 
 static void
 isup_apm_defragment_init(void)
 {
-  fragment_table_init (&isup_apm_msg_fragment_table);
-  reassembled_table_init(&isup_apm_msg_reassembled_table);
+  reassembly_table_init (&isup_apm_msg_reassembly_table,
+                         &addresses_reassembly_table_functions);
 }
 
 /* Info for the tap that must be passed between procedures */
@@ -5004,16 +5003,21 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
       if (si_and_apm_seg_ind == 0)
         more_frag = FALSE;
 
-      frag_msg = fragment_add_seq_next(parameter_tvb, offset, pinfo,
+      frag_msg = fragment_add_seq_next(&isup_apm_msg_reassembly_table,
+                                       parameter_tvb, offset,
+                                       pinfo,
                                        (apm_Segmentation_local_ref & 0x7f),         /* ID for fragments belonging together */
-                                       isup_apm_msg_fragment_table,                 /* list of message fragments */
-                                       isup_apm_msg_reassembled_table,              /* list of reassembled messages */
+                                       NULL,
                                        tvb_length_remaining(parameter_tvb, offset), /* fragment length - to the end */
                                        more_frag);                                  /* More fragments? */
 
       if ((si_and_apm_seg_ind & 0x3f) !=0 && (si_and_apm_seg_ind &0x40) !=0) {
         /* First fragment set number of fragments */
-        fragment_set_tot_len(pinfo, apm_Segmentation_local_ref & 0x7f, isup_apm_msg_fragment_table, (si_and_apm_seg_ind & 0x3f));
+        fragment_set_tot_len(&isup_apm_msg_reassembly_table,
+                             pinfo,
+                             apm_Segmentation_local_ref & 0x7f,
+                             NULL,
+                             (si_and_apm_seg_ind & 0x3f));
       }
 
       new_tvb = process_reassembled_data(parameter_tvb, offset, pinfo,

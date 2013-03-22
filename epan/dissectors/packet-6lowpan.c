@@ -412,8 +412,7 @@ static const fragment_items lowpan_frag_items = {
     "6LoWPAN fragments"
 };
 
-static GHashTable *lowpan_fragment_table = NULL;
-static GHashTable *lowpan_reassembled_table = NULL;
+static reassembly_table lowpan_reassembly_table;
 static GHashTable *lowpan_context_table = NULL;
 
 /* Link-Local prefix used by 6LoWPAN (FF80::/10) */
@@ -2325,8 +2324,8 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     tvb_set_reported_length(frag_tvb, frag_size);
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    frag_data = fragment_add_check(frag_tvb, 0, pinfo, dgram_tag,
-                    lowpan_fragment_table, lowpan_reassembled_table,
+    frag_data = fragment_add_check(&lowpan_reassembly_table,
+                    frag_tvb, 0, pinfo, dgram_tag, NULL,
                     0, frag_size, (frag_size < dgram_size));
 
     /* Attempt reassembly. */
@@ -2417,8 +2416,8 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add this datagram to the fragment table. */
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    frag_data = fragment_add_check(tvb, offset, pinfo, dgram_tag,
-                    lowpan_fragment_table, lowpan_reassembled_table,
+    frag_data = fragment_add_check(&lowpan_reassembly_table,
+                    tvb, offset, pinfo, dgram_tag, NULL,
                     dgram_offset, frag_size, ((dgram_offset + frag_size) < dgram_size));
 
     /* Attempt reassembly. */
@@ -2784,8 +2783,8 @@ static void
 proto_init_6lowpan(void)
 {
     /* Initialize the fragment reassembly table. */
-    fragment_table_init(&lowpan_fragment_table);
-    reassembled_table_init(&lowpan_reassembled_table);
+    reassembly_table_init(&lowpan_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     /* Initialize the context table. */
     if (lowpan_context_table)

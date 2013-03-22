@@ -2329,9 +2329,8 @@ uni_to_string(char * data, gsize str_length, char *dest_buf);
 
 /* <<<< formerly bacapp.h */
 
-/* some hashes for segmented messages */
-static GHashTable *msg_fragment_table    = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+/* reassembly table for segmented messages */
+static reassembly_table msg_reassembly_table;
 
 /* some necessary forward function prototypes */
 static guint
@@ -10804,10 +10803,11 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         pinfo->fragmented = TRUE;
 
-        frag_msg = fragment_add_seq_check(tvb, data_offset, pinfo,
+        frag_msg = fragment_add_seq_check(&msg_reassembly_table,
+            tvb, data_offset,
+            pinfo,
             bacapp_invoke_id,      /* ID for fragments belonging together */
-            msg_fragment_table,    /* list of message fragments */
-            msg_reassembled_table, /* list of reassembled messages */
+            NULL,
             bacapp_seqno,          /* fragment sequence number */
             tvb_reported_length_remaining(tvb, data_offset), /* fragment length - to the end */
             flag & BACAPP_MORE_SEGMENTS); /* Last fragment reached? */
@@ -10846,8 +10846,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 bacapp_init_routine(void)
 {
-    fragment_table_init(&msg_fragment_table);
-    reassembled_table_init(&msg_reassembled_table);
+    reassembly_table_init(&msg_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static guint32

@@ -1684,8 +1684,7 @@ print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *
 #define TCPH_MIN_LEN            20
 
 /* Desegmentation of TCP streams */
-/* table to hold defragmented TCP streams */
-static GHashTable *tcp_fragment_table = NULL;
+static reassembly_table tcp_reassembly_table;
 
 /* functions to trace tcp segments */
 /* Enable desegmenting of TCP streams */
@@ -1790,8 +1789,9 @@ again:
         }
         last_fragment_len = len;
 
-        ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
-                                 tcp_fragment_table, seq - msp->seq, len,
+        ipfd_head = fragment_add(&tcp_reassembly_table, tvb, offset,
+                                 pinfo, msp->first_frame, NULL,
+                                 seq - msp->seq, len,
                                  (LT_SEQ (nxtseq,msp->nxtpdu)) );
 
         if (!PINFO_FD_VISITED(pinfo)
@@ -1916,7 +1916,8 @@ again:
                  * being a new higher-level PDU that also
                  * needs desegmentation).
                  */
-                fragment_set_partial_reassembly(pinfo,msp->first_frame, tcp_fragment_table);
+                fragment_set_partial_reassembly(&tcp_reassembly_table,
+                                                pinfo, msp->first_frame, NULL);
 
                 /* Update msp->nxtpdu to point to the new next
                  * pdu boundary.
@@ -2057,8 +2058,9 @@ again:
             }
 
             /* add this segment as the first one for this new pdu */
-            fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
-                         tcp_fragment_table, 0, nxtseq - deseg_seq,
+            fragment_add(&tcp_reassembly_table, tvb, deseg_offset,
+                         pinfo, msp->first_frame, NULL,
+                         0, nxtseq - deseg_seq,
                          LT_SEQ(nxtseq, msp->nxtpdu));
         }
     }
@@ -4760,8 +4762,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if(msp) {
             fragment_data *ipfd_head;
 
-            ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
-                                     tcp_fragment_table,
+            ipfd_head = fragment_add(&tcp_reassembly_table, tvb, offset,
+                                     pinfo, msp->first_frame, NULL,
                                      tcph->th_seq - msp->seq,
                                      tcph->th_seglen,
                                      FALSE );
@@ -4854,7 +4856,8 @@ static void
 tcp_init(void)
 {
     tcp_stream_index = 0;
-    fragment_table_init(&tcp_fragment_table);
+    reassembly_table_init(&tcp_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 }
 
 void

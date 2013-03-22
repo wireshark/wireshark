@@ -451,14 +451,13 @@ static dissector_handle_t tapa_handle;
 /*
  * defragmentation of IPv4
  */
-static GHashTable *ip_fragment_table = NULL;
-static GHashTable *ip_reassembled_table = NULL;
+static reassembly_table ip_reassembly_table;
 
 static void
 ip_defragment_init(void)
 {
-  fragment_table_init(&ip_fragment_table);
-  reassembled_table_init(&ip_reassembled_table);
+  reassembly_table_init(&ip_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void
@@ -2340,9 +2339,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
       tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
       ipsum == 0) {
-    ipfd_head = fragment_add_check(tvb, offset, pinfo,
+    ipfd_head = fragment_add_check(&ip_reassembly_table, tvb, offset,
+                                   pinfo,
                                    iph->ip_p ^ iph->ip_id ^ src32 ^ dst32,
-                                   ip_fragment_table, ip_reassembled_table,
+                                   NULL,
                                    (iph->ip_off & IP_OFFSET) * 8,
                                    pinfo->iplen - pinfo->iphdrlen,
                                    iph->ip_off & IP_MF);

@@ -49,8 +49,7 @@ void proto_register_atalk(void);
 void proto_reg_handoff_atalk(void);
 
 /* Tables for reassembly of fragments. */
-static GHashTable *atp_fragment_table = NULL;
-static GHashTable *atp_reassembled_table = NULL;
+static reassembly_table atp_reassembly_table;
 
 /* desegmentation of ATP */
 static gboolean atp_defragment = TRUE;
@@ -896,9 +895,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (frag_number != 0)
       hdr += 4; /* asp header */
     len = tvb_reported_length_remaining(tvb, hdr);
-    fd_head = fragment_add_seq_check(tvb, hdr, pinfo, tid,
-                                     atp_fragment_table,
-                                     atp_reassembled_table,
+    fd_head = fragment_add_seq_check(&atp_reassembly_table,
+                                     tvb, hdr, pinfo, tid, NULL,
                                      frag_number,
                                      len,
                                      more_fragment);
@@ -1864,8 +1862,8 @@ static void
 atp_init(void)
 {
   /* fragment */
-  fragment_table_init(&atp_fragment_table);
-  reassembled_table_init(&atp_reassembled_table);
+  reassembly_table_init(&atp_reassembly_table,
+                        &addresses_reassembly_table_functions);
   /* bitmap */
   if (atp_request_hash)
     g_hash_table_destroy(atp_request_hash);

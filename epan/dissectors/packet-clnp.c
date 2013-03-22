@@ -182,8 +182,7 @@ static heur_dissector_list_t clnp_heur_subdissector_list;
 /*
  * Reassembly of CLNP.
  */
-static GHashTable *clnp_segment_table = NULL;
-static GHashTable *clnp_reassembled_table = NULL;
+static reassembly_table clnp_reassembly_table;
 
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
@@ -435,9 +434,9 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
       segment_length > cnf_hdr_len &&
       cksum_status != CKSUM_NOT_OK) {
-    fd_head = fragment_add_check(tvb, offset, pinfo, du_id, clnp_segment_table,
-                                 clnp_reassembled_table, segment_offset,
-                                 segment_length - cnf_hdr_len,
+    fd_head = fragment_add_check(&clnp_reassembly_table,
+                                 tvb, offset, pinfo, du_id, NULL,
+                                 segment_offset, segment_length - cnf_hdr_len,
                                  cnf_type & CNF_MORE_SEGS);
 
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CLNP",
@@ -546,8 +545,8 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 clnp_reassemble_init(void)
 {
-  fragment_table_init(&clnp_segment_table);
-  reassembled_table_init(&clnp_reassembled_table);
+  reassembly_table_init(&clnp_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 void

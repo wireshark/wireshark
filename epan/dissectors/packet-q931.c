@@ -141,9 +141,8 @@ static const fragment_items q931_frag_items = {
 	"segments"
 };
 
-/* Tables for reassembly of fragments. */
-static GHashTable *q931_fragment_table = NULL;
-static GHashTable *q931_reassembled_table = NULL;
+/* Table for reassembly of fragments. */
+static reassembly_table q931_reassembly_table;
 
 /* Preferences */
 static gboolean q931_reassembly = TRUE;
@@ -2670,13 +2669,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 1 + 1 + info_element_len;
 	/* Reassembly */
 	frag_len = tvb_reported_length_remaining(tvb, offset);
-	if (first_frag && fragment_get(pinfo, call_ref_val,	q931_fragment_table)) {
+	if (first_frag && fragment_get(&q931_reassembly_table, pinfo, call_ref_val, NULL)) {
 		/* there are some unreassembled segments, ignore them */
-		fragment_end_seq_next(pinfo, call_ref_val, q931_fragment_table, q931_reassembled_table);
+		fragment_end_seq_next(&q931_reassembly_table, pinfo, call_ref_val, NULL);
 	}
-	fd_head = fragment_add_seq_next(tvb, offset, pinfo, call_ref_val,
-									q931_fragment_table, q931_reassembled_table,
-									frag_len, more_frags);
+	fd_head = fragment_add_seq_next(&q931_reassembly_table,
+					tvb, offset, pinfo, call_ref_val, NULL,
+					frag_len, more_frags);
 	if (fd_head) {
 		if (pinfo->fd->num == fd_head->reassembled_in) {  /* last fragment */
 			if (fd_head->next != NULL) {  /* 2 or more segments */
@@ -3338,8 +3337,8 @@ dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 q931_init(void) {
 	/* Initialize the fragment and reassembly tables */
-	fragment_table_init(&q931_fragment_table);
-	reassembled_table_init(&q931_reassembled_table);
+	reassembly_table_init(&q931_reassembly_table,
+				&addresses_reassembly_table_functions);
 }
 
 void

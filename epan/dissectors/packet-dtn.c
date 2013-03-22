@@ -61,8 +61,7 @@ static int add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, con
 static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *field_id);
 
 /* For Reassembling TCP Convergence Layer segments */
-static GHashTable *msg_fragment_table = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+static reassembly_table msg_reassembly_table;
 
 static char magic[] = {'d', 't', 'n', '!'};
 
@@ -382,10 +381,10 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Convergence layer header.
              */
 
-            frag_msg = fragment_add_seq_next(tvb, frame_offset + convergence_hdr_size,
-                                           pinfo, 0, msg_fragment_table,
-                                           msg_reassembled_table, segment_length,
-                                           more_frags);
+            frag_msg = fragment_add_seq_next(&msg_reassembly_table,
+                                             tvb, frame_offset + convergence_hdr_size,
+                                             pinfo, 0, NULL,
+                                             segment_length, more_frags);
             if(frag_msg && !more_frags) {
                 proto_item *ti;
 
@@ -2432,8 +2431,8 @@ add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, const char *f
 
 static void
 bundle_defragment_init(void) {
-    fragment_table_init(&msg_fragment_table);
-    reassembled_table_init(&msg_reassembled_table);
+    reassembly_table_init(&msg_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

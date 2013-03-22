@@ -368,8 +368,7 @@ static heur_dissector_list_t mq_heur_subdissector_list;
 static gboolean mq_desegment = TRUE;
 static gboolean mq_reassembly = TRUE;
 
-static GHashTable *mq_fragment_table = NULL;
-static GHashTable *mq_reassembled_table = NULL;
+static reassembly_table mq_reassembly_table;
 
 
 #define MQ_PORT_TCP    1414
@@ -2425,7 +2424,9 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     fragment_data* fd_head;
                     guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
                     if (opcode > 0x80 && !bFirstSegment) iBeginLength = 28;
-                    fd_head = fragment_add_seq_next(tvb, iBeginLength, pinfo, iConnectionId, mq_fragment_table, mq_reassembled_table,
+                    fd_head = fragment_add_seq_next(&mq_reassembly_table,
+                                                    tvb, iBeginLength,
+                                                    pinfo, iConnectionId, NULL,
                                                     iSegmentLength - iBeginLength, !bLastSegment);
                     if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in)
                     {
@@ -2556,8 +2557,8 @@ dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static void
 mq_init(void)
 {
-    fragment_table_init(&mq_fragment_table);
-    reassembled_table_init(&mq_reassembled_table);
+    reassembly_table_init(&mq_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

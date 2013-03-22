@@ -36,8 +36,7 @@ static int hf_midi_cable_number = -1;
 static int hf_midi_code_index = -1;
 static int hf_midi_event = -1;
 
-static GHashTable *midi_data_segment_table = NULL;
-static GHashTable *midi_data_reassembled_table = NULL;
+static reassembly_table midi_data_reassembly_table;
 
 static gint ett_usb_audio = -1;
 
@@ -182,19 +181,21 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
 
         if (code == 0x04)
         {
-            frag_sysex_msg = fragment_add_seq_next(tvb, offset+1, pinfo,
+            frag_sysex_msg = fragment_add_seq_next(&midi_data_reassembly_table,
+                tvb, offset+1,
+                pinfo,
                 cable, /* ID for fragments belonging together */
-                midi_data_segment_table,
-                midi_data_reassembled_table,
+                NULL,
                 3,
                 TRUE);
         }
         else
         {
-            frag_sysex_msg = fragment_add_seq_next(tvb, offset+1, pinfo,
+            frag_sysex_msg = fragment_add_seq_next(&midi_data_reassembly_table,
+                tvb, offset+1,
+                pinfo,
                 cable, /* ID for fragments belonging together */
-                midi_data_segment_table,
-                midi_data_reassembled_table,
+                NULL,
                 (gint)(code - 4),
                 FALSE);
         }
@@ -265,8 +266,8 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 static void
 midi_data_reassemble_init(void)
 {
-    fragment_table_init(&midi_data_segment_table);
-    reassembled_table_init(&midi_data_reassembled_table);
+    reassembly_table_init(&midi_data_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

@@ -101,14 +101,12 @@ static dissector_handle_t ip_handle;
 
 /* reassembly of N-PDU
  */
-static GHashTable       *npdu_fragment_table = NULL;
-static GHashTable       *sndcp_reassembled_table = NULL;
+static reassembly_table npdu_reassembly_table;
 
 static void
 sndcp_defragment_init(void)
 {
-  fragment_table_init(&npdu_fragment_table);
-  reassembled_table_init(&sndcp_reassembled_table);
+  reassembly_table_init(&npdu_reassembly_table, &addresses_reassembly_table_functions);
 }
 
 /* value strings
@@ -332,11 +330,11 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->fragmented = TRUE;
 
     if (unack)
-      fd_npdu  = fragment_add_seq_check(tvb, offset, pinfo, npdu,
-                                        npdu_fragment_table, sndcp_reassembled_table, segment, len, more_frags);
+      fd_npdu  = fragment_add_seq_check(&npdu_reassembly_table, tvb, offset,
+                                        pinfo, npdu, NULL, segment, len, more_frags);
     else
-      fd_npdu  = fragment_add(tvb, offset, pinfo, npdu,
-                              npdu_fragment_table, offset, len, more_frags);
+      fd_npdu  = fragment_add(&npdu_reassembly_table, tvb, offset, pinfo, npdu, NULL,
+                              offset, len, more_frags);
 
     npdu_tvb = process_reassembled_data(tvb, offset, pinfo,
                                         "Reassembled N-PDU", fd_npdu, &npdu_frag_items,

@@ -78,8 +78,7 @@ static dissector_handle_t ssl_handle = NULL;
 /* desegmentation of POP command and response lines */
 static gboolean pop_data_desegment = TRUE;
 
-static GHashTable *pop_data_segment_table = NULL;
-static GHashTable *pop_data_reassembled_table = NULL;
+static reassembly_table pop_data_reassembly_table;
 
 static const fragment_items pop_data_frag_items = {
   /* Fragment subtrees */
@@ -231,10 +230,10 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         p_add_proto_data(pinfo->fd, proto_pop, frame_data_p);
       }
 
-      frag_msg = fragment_add_seq_next(tvb, 0, pinfo,
+      frag_msg = fragment_add_seq_next(&pop_data_reassembly_table, tvb, 0,
+                                       pinfo,
                                        frame_data_p->conversation_id,
-                                       pop_data_segment_table,
-                                       pop_data_reassembled_table,
+                                       NULL,
                                        tvb_length(tvb),
                                        frame_data_p->more_frags);
 
@@ -386,8 +385,8 @@ static gboolean response_is_continuation(const guchar *data)
 
 static void pop_data_reassemble_init (void)
 {
-  fragment_table_init (&pop_data_segment_table);
-  reassembled_table_init (&pop_data_reassembled_table);
+  reassembly_table_init (&pop_data_reassembly_table,
+                         &addresses_ports_reassembly_table_functions);
 }
 
 void

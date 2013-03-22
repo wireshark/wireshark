@@ -289,8 +289,7 @@ static gint ett_msg_fragments = -1;
     "Message fragments"
     };
 
-static GHashTable *msg_fragment_table = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+static reassembly_table msg_reassembly_table;
 
 
 
@@ -1059,10 +1058,11 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 memcpy(&pinfo_tmp, pinfo, sizeof(*pinfo));
 
-                frag_msg = fragment_add_seq_check(tvb, tmpOffsetBegin, pinfo,
+                frag_msg = fragment_add_seq_check(&msg_reassembly_table,
+                    tvb, tmpOffsetBegin,
+                    pinfo,
                     msg_seqid,                       /* ID for fragments belonging together */
-                    msg_fragment_table,              /* list of message fragments */
-                    msg_reassembled_table,           /* list of reassembled messages */
+                    NULL,
                     msg_num,                         /* fragment sequence number */
                     (tmpOffsetEnd-tmpOffsetBegin)+1, /* fragment length */
                     msg_flag); /* More fragments? */
@@ -1134,8 +1134,8 @@ mux27010_init(void)
     /*
      * Initialize the fragment and reassembly tables.
      */
-    fragment_table_init(&msg_fragment_table);
-    reassembled_table_init(&msg_reassembled_table);
+    reassembly_table_init(&msg_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 /*Register the protocol*/

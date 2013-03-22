@@ -372,11 +372,12 @@ void proto_reg_handoff_ssl(void);
 
 /* Desegmentation of SSL streams */
 /* table to hold defragmented SSL streams */
-static GHashTable *ssl_fragment_table = NULL;
+static reassembly_table ssl_reassembly_table;
 static void
 ssl_fragment_init(void)
 {
-    fragment_table_init(&ssl_fragment_table);
+    reassembly_table_init(&ssl_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 }
 
 /* initialize/reset per capture state data (ssl sessions cache) */
@@ -1029,8 +1030,9 @@ again:
             len = MIN(nxtseq, msp->nxtpdu) - seq;
         }
 
-        ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
-                                 ssl_fragment_table, seq - msp->seq,
+        ipfd_head = fragment_add(&ssl_reassembly_table, tvb, offset,
+                                 pinfo, msp->first_frame, NULL,
+                                 seq - msp->seq,
                                  len, (LT_SEQ (nxtseq,msp->nxtpdu)));
 
         if (msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
@@ -1134,7 +1136,8 @@ again:
                  * being a new higher-level PDU that also
                  * needs desegmentation).
                  */
-                fragment_set_partial_reassembly(pinfo, msp->first_frame, ssl_fragment_table);
+                fragment_set_partial_reassembly(&ssl_reassembly_table,
+                                                pinfo, msp->first_frame, NULL);
                 /* Update msp->nxtpdu to point to the new next
                  * pdu boundary.
                  */
@@ -1279,8 +1282,9 @@ again:
             }
 
             /* add this segment as the first one for this new pdu */
-            fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
-                         ssl_fragment_table, 0, nxtseq - deseg_seq,
+            fragment_add(&ssl_reassembly_table, tvb, deseg_offset,
+                         pinfo, msp->first_frame, NULL,
+                         0, nxtseq - deseg_seq,
                          LT_SEQ(nxtseq, msp->nxtpdu));
         }
     }

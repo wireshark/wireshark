@@ -151,7 +151,7 @@ typedef struct _fc_conv_data_t {
 /* Reassembly stuff */
 static gboolean fc_reassemble = TRUE;
 static guint32  fc_max_frame_size = 1024;
-static GHashTable *fc_fragment_table = NULL;
+static reassembly_table fc_reassembly_table;
 
 typedef struct _fcseq_conv_key {
     guint32 conv_idx;
@@ -189,7 +189,8 @@ fcseq_hash (gconstpointer v)
 static void
 fc_exchange_init_protocol(void)
 {
-    fragment_table_init(&fc_fragment_table);
+    reassembly_table_init(&fc_reassembly_table,
+                          &addresses_reassembly_table_functions);
 
     if (fcseq_req_hash)
         g_hash_table_destroy(fcseq_req_hash);
@@ -1159,8 +1160,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
              frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;
 
              /* We assume that all frames are of the same max size */
-             fcfrag_head = fragment_add (tvb, FC_HEADER_SIZE, pinfo, frag_id,
-                                         fc_fragment_table,
+             fcfrag_head = fragment_add (&fc_reassembly_table,
+                                         tvb, FC_HEADER_SIZE,
+                                         pinfo, frag_id, NULL,
                                          real_seqcnt * fc_max_frame_size,
                                          frag_size,
                                          !is_lastframe_inseq);

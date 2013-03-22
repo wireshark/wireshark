@@ -79,13 +79,15 @@ VAL_PTR=&Data_Field_field_type_value
 
             /* if reass_start_seqnum=-1 it means we have received the end of the fragmente, without received any fragment data */
             if (p_t38_packet_conv_info->reass_start_seqnum != -1) {
-                frag_msg = fragment_add_seq(tvb, offset, actx->pinfo,
+                frag_msg = fragment_add_seq(&data_reassembly_table, /* reassembly table */
+                    tvb, offset, actx->pinfo,
                     p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
-                    data_fragment_table, /* list of message fragments */
+                    NULL,
                     seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter,  /* fragment sequence number */
                     /*0,*/
                     0, /* fragment length */
-                    FALSE); /* More fragments */
+                    FALSE, /* More fragments */
+                    0);
                 if ( Data_Field_field_type_value == 7 ) {
                     /* if there was packet lost or other errors during the defrag then frag_msg is NULL. This could also means
                      * there are out of order packets (e.g, got the tail frame t4-non-ecm-sig-end before the last fragment),
@@ -93,9 +95,9 @@ VAL_PTR=&Data_Field_field_type_value
                      * and get some stat, like packet lost and burst number of packet lost
                     */
                     if (!frag_msg) {
-                        force_reassemble_seq(actx->pinfo,
-                            p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
-                            data_fragment_table /* list of message fragments */
+                        force_reassemble_seq(&data_reassembly_table, /* reassembly table */
+                            actx->pinfo,
+                            p_t38_packet_conv_info->reass_ID /* ID for fragments belonging together */
                         );
                     } else {
                         col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");
@@ -201,12 +203,15 @@ VAL_PTR=&Data_Field_field_type_value
                      p_t38_conv_info->additional_hdlc_data_field_counter =  p_t38_packet_conv_info->additional_hdlc_data_field_counter;
                    }
 	    }
-            frag_msg = fragment_add_seq(value_tvb, 0, actx->pinfo,
+            frag_msg = fragment_add_seq(&data_reassembly_table,
+                value_tvb, 0,
+                actx->pinfo,
                 p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
-                data_fragment_table, /* list of message fragments */
+                NULL,
                 seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter, /* fragment sequence number */
                 value_len, /* fragment length */
-                TRUE); /* More fragments */
+                TRUE, /* More fragments */
+                0);
             p_t38_packet_conv_info->seqnum_prev_data_field = (gint32)seq_number;
             process_reassembled_data(tvb, offset, actx->pinfo,
                         "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);

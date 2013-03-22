@@ -42,8 +42,7 @@
 
 static int proto_lapsat = -1;
 
-static GHashTable *lapsat_fragment_table = NULL;
-static GHashTable *lapsat_reassembled_table = NULL;
+static reassembly_table lapsat_reassembly_table;
 
 static dissector_table_t lapsat_sapi_dissector_table;
 
@@ -251,8 +250,8 @@ static const fragment_items lapsat_frag_items = {
 static void
 lapsat_defragment_init(void)
 {
-	fragment_table_init(&lapsat_fragment_table);
-	reassembled_table_init(&lapsat_reassembled_table);
+	reassembly_table_init(&lapsat_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 
@@ -535,10 +534,11 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Fragment reconstruction helpers */
 		fd_m = fragment_add_seq_next(
-			payload, 0, pinfo,
+			&lapsat_reassembly_table,
+			payload, 0,
+			pinfo,
 			fragment_id,		/* To group fragments */
-			lapsat_fragment_table,
-			lapsat_reassembled_table,
+			NULL,
 			plen,
 			!!(addr & LAPSAT_SI)	/* More fragment ? */
 		);

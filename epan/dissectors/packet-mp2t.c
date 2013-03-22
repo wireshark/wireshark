@@ -418,11 +418,10 @@ get_pid_analysis(guint32 pid, conversation_t *conv)
 	}
 	return pid_data;
 }
-/* Structures to handle packets, spanned across
+/* Structure to handle packets, spanned across
  * multiple MPEG packets
  */
-static GHashTable *mp2t_fragment_table = NULL;
-static GHashTable *mp2t_reassembled_table = NULL;
+static reassembly_table mp2t_reassembly_table;
 
 static void
 mp2t_dissect_packet(tvbuff_t *tvb, enum pid_payload_type pload_type,
@@ -467,7 +466,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
 
 	remaining_len = tvb_length_remaining(tvb, offset);
-	frag = fragment_get(pinfo, frag_id, mp2t_fragment_table);
+	frag = fragment_get(&mp2t_reassembly_table, pinfo, frag_id, NULL);
 	if (frag)
 		frag = frag->next;
 
@@ -537,9 +536,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 	pinfo->fragmented = TRUE;
 
 	/* check length; send frame for reassembly */
-	frag_msg = fragment_add_check(tvb, offset, pinfo,
-			frag_id, mp2t_fragment_table,
-			mp2t_reassembled_table,
+	frag_msg = fragment_add_check(&mp2t_reassembly_table,
+			tvb, offset, pinfo, frag_id, NULL,
 			frag_offset,
 			frag_len,
 			!fragment_last);
@@ -1289,8 +1287,8 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 static void
 mp2t_init(void) {
-	fragment_table_init(&mp2t_fragment_table);
-	reassembled_table_init(&mp2t_reassembled_table);
+	reassembly_table_init(&mp2t_reassembly_table,
+	    &addresses_reassembly_table_functions);
 }
 
 void

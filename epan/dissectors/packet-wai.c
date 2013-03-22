@@ -61,8 +61,7 @@
 #define FLAG_BIT6       0x40
 #define FLAG_BIT7       0x80
 
-static GHashTable *wai_fragment_table    = NULL;
-static GHashTable *wai_reassembled_table = NULL;
+static reassembly_table wai_reassembly_table;
 
 static int proto_wai = -1;
 
@@ -881,10 +880,11 @@ Figure 18 from [ref:1]
         proto_tree_add_item(wai_tree, hf_wai_flag,      tvb, 11, 1, ENC_BIG_ENDIAN);
     }
 
-    frag_msg =  fragment_add_seq_check (tvb, WAI_DATA_OFFSET, pinfo,
+    frag_msg =  fragment_add_seq_check (&wai_reassembly_table,
+                                        tvb, WAI_DATA_OFFSET,
+                                        pinfo,
                                         packet_num,
-                                        wai_fragment_table,
-                                        wai_reassembled_table,
+                                        NULL,
                                         fragment_num,
                                         length,
                                         flags);
@@ -926,8 +926,8 @@ Figure 18 from [ref:1]
 
 static void wai_reassemble_init (void)
 {
-    fragment_table_init(&wai_fragment_table);
-    reassembled_table_init(&wai_reassembled_table);
+    reassembly_table_init(&wai_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 void

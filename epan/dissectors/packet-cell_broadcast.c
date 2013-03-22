@@ -138,8 +138,7 @@ static gint ett_gsm_cbs_page_content         = -1;
 static gint ett_gsm_cbs_pages          = -1;
 
 /* reassembly of GSM multi-page messages */
-static GHashTable	*gsm_cbs_page_table = NULL;
-static GHashTable	*gsm_cbs_message_table = NULL;
+static reassembly_table	gsm_cbs_reassembly_table;
 
 /* Structure needed for the fragmentation routines in reassemble.c */
 static const fragment_items gsm_page_items = {
@@ -163,8 +162,8 @@ static const fragment_items gsm_page_items = {
 
 static void gsm_cbs_message_reassembly_init(void)
 {
-  fragment_table_init(&gsm_cbs_page_table);
-  reassembled_table_init(&gsm_cbs_message_table);
+  reassembly_table_init(&gsm_cbs_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 guint16 dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
@@ -357,8 +356,8 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          /* now we have a complete page, try to concatenate the full message */
         /* we can use the serial number and message ID as keys, as they are the same for all pages of a message */
         msg_key = (serial_number << 16) + message_id;
-        frag_data = fragment_add_check(cbs_page_tvb, 0, pinfo, msg_key,
-                                       gsm_cbs_page_table, gsm_cbs_message_table,
+        frag_data = fragment_add_check(&gsm_cbs_reassembly_table,
+                                       cbs_page_tvb, 0, pinfo, msg_key, NULL,
                                        ((current_page -1) * GSM_CBS_PAGE_SIZE),
                                        GSM_CBS_PAGE_SIZE, (current_page!=total_pages));
         cbs_msg_tvb = process_reassembled_data(cbs_page_tvb, 0, pinfo, "Reassembled Cell Broadcast message",

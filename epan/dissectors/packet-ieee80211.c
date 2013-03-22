@@ -137,9 +137,8 @@ static gboolean wlan_ignore_draft_ht = FALSE;
 #define WLAN_IGNORE_WEP_W_IV   2
 static gint wlan_ignore_wep = WLAN_IGNORE_WEP_NO;
 
-/* Tables for reassembly of fragments. */
-static GHashTable *wlan_fragment_table = NULL;
-static GHashTable *wlan_reassembled_table = NULL;
+/* Table for reassembly of fragments. */
+static reassembly_table wlan_reassembly_table;
 
 /* Statistical data */
 static struct _wlan_stats wlan_stats;
@@ -5469,14 +5468,13 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   return offset - start;
 }
 
-static GHashTable *gas_fragment_table    = NULL;
-static GHashTable *gas_reassembled_table = NULL;
+static reassembly_table gas_reassembly_table;
 
 static void
 ieee80211_gas_reassembly_init(void)
 {
-  fragment_table_init(&gas_fragment_table);
-  reassembled_table_init(&gas_reassembled_table);
+  reassembly_table_init(&gas_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 static gint ett_gas_resp_fragment = -1;
@@ -5547,10 +5545,9 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
 
       save_fragmented = g_pinfo->fragmented;
       g_pinfo->fragmented = TRUE;
-      frag_msg = fragment_add_seq_check(tvb, offset, g_pinfo, dialog_token,
-                                        gas_fragment_table,
-                                        gas_reassembled_table, frag, resp_len,
-                                        more);
+      frag_msg = fragment_add_seq_check(&gas_reassembly_table, tvb, offset,
+                                        g_pinfo, dialog_token, NULL,
+                                        frag, resp_len, more);
       new_tvb = process_reassembled_data(tvb, offset, g_pinfo,
                                          "Reassembled GAS Query Response",
                                          frag_msg, &gas_resp_frag_items,
@@ -13416,9 +13413,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
      */
     if (reported_len < 0)
       THROW(ReportedBoundsError);
-    fd_head = fragment_add_seq_802_11(next_tvb, hdr_len, pinfo, seq_number,
-        wlan_fragment_table,
-        wlan_reassembled_table,
+    fd_head = fragment_add_seq_802_11(&wlan_reassembly_table,
+        next_tvb, hdr_len, pinfo, seq_number, NULL,
         frag_number,
         reported_len,
         more_frags);
@@ -13630,8 +13626,8 @@ dissect_ieee80211_ht (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 wlan_defragment_init(void)
 {
-  fragment_table_init(&wlan_fragment_table);
-  reassembled_table_init(&wlan_reassembled_table);
+  reassembly_table_init(&wlan_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 /* ------------- */

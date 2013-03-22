@@ -1323,12 +1323,11 @@ printf("dissect BER length %d, offset %d (remaining %d)\n", tmp_length, offset, 
     return offset;
 }
 
-static GHashTable *octet_segment_table     = NULL;
-static GHashTable *octet_reassembled_table = NULL;
+static reassembly_table octet_segment_reassembly_table;
 
 static void ber_defragment_init(void) {
-    fragment_table_init(&octet_segment_table);
-    reassembled_table_init(&octet_reassembled_table);
+    reassembly_table_init(&octet_segment_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static int
@@ -1394,9 +1393,8 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
             /* Don't cause an assertion in the reassembly code. */
             THROW(ReportedBoundsError);
         }
-        fd_head = fragment_add_seq_next(next_tvb, 0, actx->pinfo, dst_ref,
-                                        octet_segment_table,
-                                        octet_reassembled_table,
+        fd_head = fragment_add_seq_next(&octet_segment_reassembly_table,
+                                        next_tvb, 0, actx->pinfo, dst_ref, NULL,
                                         tvb_length(next_tvb),
                                         fragment);
 

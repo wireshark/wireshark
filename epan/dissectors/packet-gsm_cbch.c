@@ -93,8 +93,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t cbs_handle;
 
 /* reassembly of CHCH blocks */
-static GHashTable *fragment_block_table      = NULL;
-static GHashTable *reassembled_message_table = NULL;
+static reassembly_table cbch_block_reassembly_table;
 
 /* Structure needed for the fragmentation routines in reassemble.c
  */
@@ -119,8 +118,8 @@ static const fragment_items cbch_frag_items = {
 static void
 cbch_defragment_init(void)
 {
-    fragment_table_init(&fragment_block_table);
-    reassembled_table_init(&reassembled_message_table);
+    reassembly_table_init(&cbch_block_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 static void
@@ -370,8 +369,8 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                this information is carried in the initial sequence number, not the payload,
                so we prepend the reassembly with the octet containing the initial sequence number
                to allow later dissection of the payload */
-            frag_data = fragment_add_seq_check(tvb, offset, pinfo, 0,
-                                               fragment_block_table, reassembled_message_table,
+            frag_data = fragment_add_seq_check(&cbch_block_reassembly_table,
+                                               tvb, offset, pinfo, 0, NULL,
                                                seq_num & 0x03, CBCH_FRAGMENT_SIZE + 1, !lb);
             reass_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CBCH message",
                                                  frag_data, &cbch_frag_items, NULL, cbch_tree);
@@ -382,9 +381,9 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case 0x03:
             pinfo->fragmented = TRUE;
             offset++; /* step to beginning of payload */
-            frag_data = fragment_add_seq_check(tvb, offset, pinfo, 0,
-                                               fragment_block_table, reassembled_message_table, seq_num,
-                                               CBCH_FRAGMENT_SIZE, !lb);
+            frag_data = fragment_add_seq_check(&cbch_block_reassembly_table,
+                                               tvb, offset, pinfo, 0, NULL,
+                                               seq_num, CBCH_FRAGMENT_SIZE, !lb);
             reass_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CBCH message",
                                                  frag_data, &cbch_frag_items, NULL, cbch_tree);
             break;

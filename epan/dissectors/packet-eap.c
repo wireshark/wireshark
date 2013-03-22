@@ -320,7 +320,7 @@ from RFC2716, pg 17
 /*
  * reassembly of EAP-TLS
  */
-static GHashTable *eap_tls_fragment_table = NULL;
+static reassembly_table eap_tls_reassembly_table;
 
 static int hf_eap_tls_flags = -1;
 static int hf_eap_tls_flag_l = -1;
@@ -413,7 +413,8 @@ test_flag(unsigned char flag, unsigned char mask)
 static void
 eap_tls_defragment_init(void)
 {
-  fragment_table_init(&eap_tls_fragment_table);
+  reassembly_table_init(&eap_tls_reassembly_table,
+                        &addresses_reassembly_table_functions);
 }
 
 static void
@@ -1002,12 +1003,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
              */
             save_fragmented   = pinfo->fragmented;
             pinfo->fragmented = TRUE;
-            fd_head = fragment_add_seq(tvb, offset, pinfo,
-                                       eap_reass_cookie,
-                                       eap_tls_fragment_table,
+            fd_head = fragment_add_seq(&eap_tls_reassembly_table,
+                                       tvb, offset,
+                                       pinfo, eap_reass_cookie, NULL,
                                        eap_tls_seq,
                                        size,
-                                       more_fragments);
+                                       more_fragments, 0);
 
             if (fd_head != NULL)            /* Reassembled  */
             {

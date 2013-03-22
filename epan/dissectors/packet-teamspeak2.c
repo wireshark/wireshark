@@ -302,8 +302,7 @@ typedef struct
 
 #define my_init_count 5
 
-static GHashTable *msg_fragment_table = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+static reassembly_table msg_reassembly_table;
 
 /* forward reference */
 static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset, guint32 icrc32);
@@ -433,7 +432,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		frag_msg = NULL;
 		pinfo->fragmented = TRUE;
 		fragment_number = tvb_get_letohs(tvb, 18);
-		frag_msg = fragment_add_seq_check(tvb, 24, pinfo, type,	msg_fragment_table, msg_reassembled_table, frag->frag_num, tvb_length_remaining(tvb, 24), fragment_number);
+		frag_msg = fragment_add_seq_check(&msg_reassembly_table, tvb, 24, pinfo, type, NULL, frag->frag_num, tvb_length_remaining(tvb, 24), fragment_number);
 		new_tvb = process_reassembled_data(tvb, 24, pinfo,"Reassembled TeamSpeak2", frag_msg, &msg_frag_items, NULL, ts2_tree);
 		if (frag_msg) /* XXX: should be if (new_tvb) ?? */
 		{ /* Reassembled */
@@ -843,8 +842,8 @@ static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *t
 
 static void ts2_init(void)
 {
-	fragment_table_init(&msg_fragment_table);
-	reassembled_table_init(&msg_reassembled_table);
+	reassembly_table_init(&msg_reassembly_table,
+			      &addresses_reassembly_table_functions);
 }
 
 /*
