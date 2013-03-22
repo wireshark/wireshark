@@ -158,6 +158,7 @@ enum {
     SUB_DATA = 0,
     SUB_FELICA,
     SUB_MIFARE,
+    SUB_ISO7816,
     
     SUB_MAX
 };
@@ -515,6 +516,18 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
             call_dissector(sub_handles[SUB_MIFARE], next_tvb, pinfo, tree);
             } 
             
+            if (sub_selected == SUB_ISO7816) {
+            /* Logical target number */
+            proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
+
+            /* Seems to work for EMV payloads sent using TAMA shell scripts */
+            next_tvb = tvb_new_subset_remaining(tvb, 3);
+            
+            /* Need to do this, for the ISO7816 dissector to work, it seems */
+            pinfo->p2p_dir = P2P_DIR_SENT;
+            call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
+            }
+            
             else {
             }
             
@@ -698,7 +711,8 @@ void proto_register_pn532(void)
     static const enum_val_t sub_enum_vals[] = {
         { "data", "Data", SUB_DATA },
         { "felica", "Sony FeliCa", SUB_FELICA },
-        { "mifare", "NXP MiFare", SUB_MIFARE },        
+        { "mifare", "NXP MiFare", SUB_MIFARE },
+        { "iso7816", "ISO 7816", SUB_ISO7816 }, 
         { NULL, NULL, 0 }
     };
     
@@ -721,7 +735,8 @@ void proto_reg_handoff_pn532(void)
     
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_FELICA] = find_dissector("felica");
-    sub_handles[SUB_MIFARE] = find_dissector("mifare");    
+    sub_handles[SUB_MIFARE] = find_dissector("mifare");
+    sub_handles[SUB_ISO7816] = find_dissector("iso7816");    
 }
 
 /*
