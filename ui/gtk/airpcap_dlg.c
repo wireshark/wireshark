@@ -1622,6 +1622,8 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     /* Create the new window */
     airpcap_advanced_w = dlg_window_new("Advanced Wireless Settings");  /* transient_for top_level */
+    gtk_window_set_modal(GTK_WINDOW(airpcap_advanced_w), TRUE);
+    gtk_window_set_transient_for(GTK_WINDOW(airpcap_advanced_w), GTK_WINDOW(gtk_widget_get_toplevel(w)));
     gtk_window_set_destroy_with_parent (GTK_WINDOW(airpcap_advanced_w), TRUE);
 
     gtk_container_set_border_width (GTK_CONTAINER (airpcap_advanced_w), 5);

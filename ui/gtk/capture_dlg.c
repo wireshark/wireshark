@@ -1781,6 +1781,8 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_interface);
   opt_remote_w = dlg_window_new("Remote Capture Settings");
+  gtk_window_set_modal(GTK_WINDOW(opt_remote_w), TRUE);
+  gtk_window_set_transient_for(GTK_WINDOW(opt_remote_w), GTK_WINDOW(caller));
   g_object_set_data(G_OBJECT(opt_remote_w), E_OPT_REMOTE_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_REMOTE_DIALOG_PTR_KEY, opt_remote_w);
 
