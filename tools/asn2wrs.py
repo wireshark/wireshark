@@ -1905,7 +1905,7 @@ class EthCtx:
           fx.write('\n')
         if rep['var']:
           var = rep['var']
-          var_list = var.split('.')
+          var_list = var.split('.', 1)
           cls = var_list[0]
           del var_list[0]
           if (cls in self.oassign_cls):
@@ -7127,11 +7127,18 @@ def p_cls_syntax_3 (t):
 def p_cls_syntax_4 (t):
   '''cls_syntax : ARGUMENT Type
                  | RESULT Type
-                 | PARAMETER Type
-                 | CODE Value '''
+                 | PARAMETER Type '''
   t[0] = { get_class_fieled(t[1]) : t[2] }
 
 def p_cls_syntax_5 (t):
+  'cls_syntax : CODE Value'
+  fld = get_class_fieled(t[1]);
+  t[0] = { fld : t[2] }
+  if isinstance(t[2], ChoiceValue):
+    fldt = fld + '.' + t[2].choice
+    t[0][fldt] = t[2]
+
+def p_cls_syntax_6 (t):
   '''cls_syntax : ARGUMENT Type OPTIONAL BooleanValue
                  | RESULT Type OPTIONAL BooleanValue
                  | PARAMETER Type OPTIONAL BooleanValue '''
