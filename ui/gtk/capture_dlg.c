@@ -3168,7 +3168,7 @@ static gboolean get_all_prom_mode(void)
   for (i = 0; i < global_capture_opts.ifaces->len; i++) {
     interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
     if (!interface_opts.promisc_mode) {
-    	return FALSE;
+      return FALSE;
     }
   }
   return TRUE;
@@ -4469,10 +4469,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     if (err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
       g_free(err_str);
-	}
+    }
   }else{
     decryption_cb = (GtkWidget *)g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-	/* XXXX update_decryption_mode_list() trigers a rescan, should only be done if the mode is changed */
+    /* XXXX update_decryption_mode_list() trigers a rescan, should only be done if the mode is changed */
     update_decryption_mode_list(decryption_cb);
     /* select the first as default (THIS SHOULD BE CHANGED) */
     airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
@@ -5986,3 +5986,16 @@ refresh_non_local_interface_lists(void)
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
