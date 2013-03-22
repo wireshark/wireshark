@@ -256,6 +256,7 @@ static int hf_diameter_avp_flags_reserved6 = -1;
 static int hf_diameter_avp_flags_reserved7 = -1;
 static int hf_diameter_avp_vendor_id = -1;
 static int hf_diameter_avp_data_wrong_length = -1;
+static int hf_diameter_avp_pad = -1;
 
 static int hf_diameter_answer_in = -1;
 static int hf_diameter_answer_to = -1;
@@ -393,7 +394,10 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 	diam_vnd_t *vendor;
 	const char *code_str;
 	const char *avp_str;
+	guint8 pad_len;
+
 	len &= 0x00ffffff;
+	pad_len =  (len % 4) ? 4 - (len % 4) : 0 ;
 
 	if (!a) {
 		a = &unknown_avp;
@@ -435,12 +439,12 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 	/* Code */
 	if (a == &unknown_avp) {
 		proto_tree *tu = proto_item_add_subtree(pi,ett_unknown);
-		proto_item *iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown AVP, "
-		                                     "if you know what this is you can add it to dictionary.xml");
-		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
+		pi = proto_tree_add_text(tu,tvb,offset,4,"Unknown AVP, "
+					 "if you know what this is you can add it to dictionary.xml");
+		expert_add_info_format(c->pinfo, pi, PI_UNDECODED, PI_WARN,
 		                       "Unknown AVP %u (vendor=%s)", code,
 		                       val_to_str_ext_const(vendorid, &sminmpec_values_ext, "Unknown"));
-		PROTO_ITEM_SET_GENERATED(iu);
+		PROTO_ITEM_SET_GENERATED(pi);
 	}
 
 	offset += 4;
@@ -477,23 +481,25 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 		pi = proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,ENC_BIG_ENDIAN);
 		if (vendor == &unknown_vendor) {
 			proto_tree *tu = proto_item_add_subtree(pi,ett_unknown);
-			proto_item *iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown Vendor, "
-			                                     "if you know whose this is you can add it to dictionary.xml");
-			expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown Vendor");
-			PROTO_ITEM_SET_GENERATED(iu);
+			pi = proto_tree_add_text(tu,tvb,offset,4,"Unknown Vendor, "
+					     "if you know whose this is you can add it to dictionary.xml");
+			expert_add_info_format(c->pinfo, pi, PI_UNDECODED, PI_WARN, "Unknown Vendor");
+			PROTO_ITEM_SET_GENERATED(pi);
 		}
 		offset += 4;
 	}
 
 	if ( len == (guint32)(vendor_flag ? 12 : 8) ) {
 		/* Data is empty so return now */
-		proto_item *iu = proto_tree_add_text(avp_tree,tvb,offset,0,"No data");
-		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Data is empty");
-		PROTO_ITEM_SET_GENERATED(iu);
-		return len;
+		pi = proto_tree_add_text(avp_tree,tvb,offset,0,"No data");
+		expert_add_info_format(c->pinfo, pi, PI_UNDECODED, PI_WARN, "Data is empty");
+		PROTO_ITEM_SET_GENERATED(pi);
+		/* pad_len is always 0 in this case, but kept here for consistency */
+		return len+pad_len;
 	}
 
 	subtvb = tvb_new_subset(tvb,offset,len-(8+(vendor_flag?4:0)),len-(8+(vendor_flag?4:0)));
+	offset += len-(8+(vendor_flag?4:0));
 
 	save_tree = c->tree;
 	c->tree = avp_tree;
@@ -524,7 +530,19 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 	proto_tree_add_text(avp_tree, subtvb, 0, -1, "AVP %u data, Vendor Id %u ",code,vendorid);
 	*/
 
-	return len;
+	if (pad_len) {
+		guint8 i;
+
+		pi = proto_tree_add_item(avp_tree, hf_diameter_avp_pad, tvb, offset, pad_len, ENC_NA);
+		for (i=0; i < pad_len; i++) {
+			if (tvb_get_guint8(tvb, offset++) != 0) {
+				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE, "Padding is non-zero");
+				break;
+			}
+		}
+	}
+
+	return len+pad_len;
 }
 
 static const char *
@@ -819,7 +837,6 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 
 	while (offset < len) {
 		offset += dissect_diameter_avp(c, tvb, offset);
-		offset +=  (offset % 4) ? 4 - (offset % 4) : 0 ;
 	}
 
 	c->tree = pt;
@@ -1068,11 +1085,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Dissect AVPs until the end of the packet is reached */
 	while (offset < packet_len) {
 		offset += dissect_diameter_avp(c, tvb, offset);
-
-		/* Skip to next 4-byte boundary */
-		offset +=  (offset % 4) ? 4 - (offset % 4) : 0 ;
 	}
-
 
 	/* Handle requests for which no answers were found and
 	 * anawers for which no requests were found in the tap listener.
@@ -1715,6 +1728,8 @@ real_proto_register_diameter(void)
 	{ &hf_diameter_avp_len,
 		  { "AVP Length","diameter.avp.len", FT_UINT24, BASE_DEC,
 			  NULL, 0x0, NULL, HFILL }},
+	{ &hf_diameter_avp_code,
+		  { "AVP Code", "diameter.avp.code", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_diameter_avp_flags,
 		  { "AVP Flags","diameter.avp.flags", FT_UINT8, BASE_HEX,
 			  NULL, 0x0, NULL, HFILL }},
@@ -1746,15 +1761,13 @@ real_proto_register_diameter(void)
 		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 			  &sminmpec_values_ext, 0x0, NULL, HFILL }},
 	{ &(unknown_avp.hf_value),
-		  { "Value","diameter.avp.unknown", FT_BYTES, BASE_NONE,
-			  NULL, 0x0, NULL, HFILL }},
+		  { "Value","diameter.avp.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_diameter_avp_data_wrong_length,
-		  { "Data","diameter.avp.invalid-data", FT_BYTES, BASE_NONE,
-		    NULL, 0x0, NULL, HFILL }},
+		  { "Data","diameter.avp.invalid-data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ &hf_diameter_avp_pad,
+		  { "Padding","diameter.avp.pad", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_diameter_code,
 		  { "Command Code", "diameter.cmd.code", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_diameter_avp_code,
-		  { "AVP Code", "diameter.avp.code", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_diameter_answer_in,
 		{ "Answer In", "diameter.answer_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"The answer to this diameter request is in this frame", HFILL }},
@@ -1766,20 +1779,16 @@ real_proto_register_diameter(void)
 		"The time between the request and the answer", HFILL }},
 	{ &hf_framed_ipv6_prefix_reserved,
 	    { "Framed IPv6 Prefix Reserved byte", "diameter.framed_ipv6_prefix_reserved",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    NULL, HFILL }},
+	    FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_framed_ipv6_prefix_length,
 	    { "Framed IPv6 Prefix length (in bits)", "diameter.framed_ipv6_prefix_length",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    NULL, HFILL }},
+	    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_framed_ipv6_prefix_bytes,
 	    { "Framed IPv6 Prefix as a bytestring", "diameter.framed_ipv6_prefix_bytes",
-	    FT_BYTES, BASE_NONE, NULL, 0,
-	    NULL, HFILL }},
+	    FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_framed_ipv6_prefix_ipv6,
 	    { "Framed IPv6 Prefix as an IPv6 address", "diameter.framed_ipv6_prefix_ipv6",
-	    FT_IPv6, BASE_NONE, NULL, 0,
-	    "This field is present only if the prefix length is 128", HFILL }}
+	    FT_IPv6, BASE_NONE, NULL, 0, "This field is present only if the prefix length is 128", HFILL }}
 	};
 
 	gint *ett_base[] = {
