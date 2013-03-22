@@ -1720,7 +1720,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     channel_lb = gtk_label_new ("Channel:");
     gtk_widget_set_name (channel_lb, "channel_lb");
     gtk_widget_show (channel_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_lb, 0, 1, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_lb, 0, 0, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (channel_lb), 0, 0.5f);
@@ -1728,8 +1728,8 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     capture_type_lb = gtk_label_new ("Capture Type:");
     gtk_widget_set_name (capture_type_lb, "capture_type_lb");
     gtk_widget_show (capture_type_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), capture_type_lb, 0, 1, 2,
-                      3, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0),
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), capture_type_lb, 0, 2, 1,
+                      1, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0),
                       0, 0);
     gtk_misc_set_alignment (GTK_MISC (capture_type_lb), 0, 0.5f);
 
@@ -1737,7 +1737,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     channel_offset_lb = gtk_label_new ("Channel Offset:");
     gtk_widget_set_name (channel_offset_lb, "channel_offset_lb");
     gtk_widget_show (channel_offset_lb);
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_offset_lb, 0, 1, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_offset_lb, 0, 1, 1, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (channel_offset_lb), 0, 0.5f);
@@ -1751,7 +1751,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_widget_show(channel_offset_cb);
 
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_offset_cb, 1, 2, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_offset_cb, 1, 1, 1, 1,
                   (GtkAttachOptions) (GTK_FILL),
                   (GtkAttachOptions) (0), 0, 0);
     /* End: Channel offset combo box */
@@ -1759,7 +1759,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     channel_cb = gtk_combo_box_text_new();
     gtk_widget_set_name (channel_cb, "channel_cb");
     gtk_widget_show (channel_cb);
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_cb, 1, 2, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_cb, 1, 0, 1, 1,
                       (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
@@ -1775,8 +1775,8 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_widget_set_name (capture_type_cb, "capture_type_cb");
     gtk_widget_show (capture_type_cb);
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), capture_type_cb, 1, 2, 2,
-                      3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), capture_type_cb, 1, 2, 1,
+                      1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
     /* Current interface value */
@@ -1805,7 +1805,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     }
 
     gtk_widget_show (fcs_ck);
-    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), fcs_ck, 2, 3, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), fcs_ck, 3, 0, 2, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
@@ -1814,7 +1814,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
                          "basic_parameters_fcs_h_box");
     gtk_widget_show (basic_parameters_fcs_h_box);
     ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid),
-                      basic_parameters_fcs_h_box, 2, 3, 2, 3,
+                      basic_parameters_fcs_h_box, 3, 2, 2, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (GTK_FILL), 3, 0);
 
