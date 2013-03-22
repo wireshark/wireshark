@@ -8,28 +8,28 @@
 	<!-- Any files added here need to be added to Makefile.am and
 	     packaging/nsis/wireshark.nsi -->
 
-	<!ENTITY nasreq			      SYSTEM "nasreq.xml">
-	<!ENTITY eap			        SYSTEM "eap.xml">
-	<!ENTITY mobileipv4		    SYSTEM "mobileipv4.xml">
+	<!ENTITY nasreq			SYSTEM "nasreq.xml">
+	<!ENTITY eap			SYSTEM "eap.xml">
+	<!ENTITY mobileipv4		SYSTEM "mobileipv4.xml">
 	<!ENTITY chargecontrol		SYSTEM "chargecontrol.xml">
-	<!ENTITY sunping		      SYSTEM "sunping.xml">
-	<!ENTITY imscxdx		      SYSTEM "imscxdx.xml">
-	<!ENTITY TGPPGmb		      SYSTEM "TGPPGmb.xml">
-	<!ENTITY TGPPS9			      SYSTEM "TGPPS9.xml">
-	<!ENTITY TGPPSh			      SYSTEM "TGPPSh.xml">
-	<!ENTITY TGPPRx			      SYSTEM "TGPPRx.xml">
-	<!ENTITY sip			        SYSTEM "sip.xml">
-	<!ENTITY gqpolicy		      SYSTEM "gqpolicy.xml">
-	<!ENTITY etsie2e4		      SYSTEM "etsie2e4.xml">
-	<!ENTITY Ericsson		      SYSTEM "Ericsson.xml">
-	<!ENTITY Tango			      SYSTEM "Tango.xml">
-	<!ENTITY mobileipv6		    SYSTEM "mobileipv6.xml">
-	<!ENTITY Cisco			      SYSTEM "Cisco.xml">
-	<!ENTITY Vodafone		      SYSTEM "Vodafone.xml">
+	<!ENTITY sunping		SYSTEM "sunping.xml">
+	<!ENTITY imscxdx		SYSTEM "imscxdx.xml">
+	<!ENTITY TGPPGmb		SYSTEM "TGPPGmb.xml">
+	<!ENTITY TGPPS9			SYSTEM "TGPPS9.xml">
+	<!ENTITY TGPPSh			SYSTEM "TGPPSh.xml">
+	<!ENTITY TGPPRx			SYSTEM "TGPPRx.xml">
+	<!ENTITY sip			SYSTEM "sip.xml">
+	<!ENTITY gqpolicy		SYSTEM "gqpolicy.xml">
+	<!ENTITY etsie2e4		SYSTEM "etsie2e4.xml">
+	<!ENTITY Ericsson		SYSTEM "Ericsson.xml">
+	<!ENTITY Tango			SYSTEM "Tango.xml">
+	<!ENTITY mobileipv6		SYSTEM "mobileipv6.xml">
+	<!ENTITY Cisco			SYSTEM "Cisco.xml">
+	<!ENTITY Vodafone		SYSTEM "Vodafone.xml">
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
-	<!ENTITY Nokia			      SYSTEM "Nokia.xml">
-  <!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
-  <!ENTITY SKT	            SYSTEM "SKT.xml">
+	<!ENTITY Nokia			SYSTEM "Nokia.xml">
+	<!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
+	<!ENTITY SKT			SYSTEM "SKT.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -168,10 +168,10 @@
 		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
 		<vendor vendor-id="Huawei" code="2011" name="Huawei"/>
 		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
-    <vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
-    <vendor vendor-id="Cisco" code="5771" name="Cisco"/>
-    <vendor vendor-id="SKT" code="5806" name="SK Telecom"/>
-    <vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
+		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
+		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
+		<vendor vendor-id="SKT" code="5806" name="SK Telecom"/>
+		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
@@ -2596,38 +2596,38 @@
 		584 Key-Lifetime [RFC-ietf-dime-local-keytran-14]
 		585 Key-SPI [RFC-ietf-dime-local-keytran-14]
 		586 Key-Name [RFC-ietf-dime-local-keytran-14]
-    587 IKEv2-Nonces [RFC6738] 
-    588 Ni [RFC6738] 
-    589 Nr [RFC6738] 
-    590 IKEv2-Identity [RFC6738] 
-    591 Initiator-Identity [RFC6738] 
-    592 ID-Type [RFC6738] 
-    593 Identification-Data [RFC6738] 
-    594 Responder-Identity [RFC6738] 
-    595 NC-Request-Type [RFC6736] 
-    596 NAT-Control-Install [RFC6736] 
-    597 NAT-Control-Remove [RFC6736] 
-    598 NAT-Control-Definition [RFC6736] 
-    599 NAT-Internal-Address [RFC6736] 
-    600 NAT-External-Address [RFC6736] 
-    601 Max-NAT-Bindings [RFC6736] 
-    602 NAT-Control-Binding-Template [RFC6736] 
-    603 Duplicate-Session-Id [RFC6736] 
-    604 NAT-External-Port-Style [RFC6736] 
-    605 NAT-Control-Record [RFC6736] 
-    606 NAT-Control-Binding-Status [RFC6736] 
-    607 Current-NAT-Bindings [RFC6736] 
-    608 Dual-Priority [RFC6735] 
-    609 Preemption-Priority [RFC6735] 
-    610 Defending-Priority [RFC6735] 
-    611 Admission-Priority [RFC6735] 
-    612 SIP-Resource-Priority [RFC6735] 
-    613 SIP-Resource-Priority-Namespace [RFC6735] 
-    614 SIP-Resource-Priority-Value [RFC6735] 
-    615 Application-Level-Resource-Priority [RFC6735] 
-    616 ALRP-Namespace [RFC6735] 
-    617 ALRP-Value [RFC6735] 
-    618-0xffffff Unassigned  -->
+		587 IKEv2-Nonces [RFC6738] 
+		588 Ni [RFC6738] 
+		589 Nr [RFC6738] 
+		590 IKEv2-Identity [RFC6738] 
+		591 Initiator-Identity [RFC6738] 
+		592 ID-Type [RFC6738] 
+		593 Identification-Data [RFC6738] 
+		594 Responder-Identity [RFC6738] 
+		595 NC-Request-Type [RFC6736] 
+		596 NAT-Control-Install [RFC6736] 
+		597 NAT-Control-Remove [RFC6736] 
+		598 NAT-Control-Definition [RFC6736] 
+		599 NAT-Internal-Address [RFC6736] 
+		600 NAT-External-Address [RFC6736] 
+		601 Max-NAT-Bindings [RFC6736] 
+		602 NAT-Control-Binding-Template [RFC6736] 
+		603 Duplicate-Session-Id [RFC6736] 
+		604 NAT-External-Port-Style [RFC6736] 
+		605 NAT-Control-Record [RFC6736] 
+		606 NAT-Control-Binding-Status [RFC6736] 
+		607 Current-NAT-Bindings [RFC6736] 
+		608 Dual-Priority [RFC6735] 
+		609 Preemption-Priority [RFC6735] 
+		610 Defending-Priority [RFC6735] 
+		611 Admission-Priority [RFC6735] 
+		612 SIP-Resource-Priority [RFC6735] 
+		613 SIP-Resource-Priority-Namespace [RFC6735] 
+		614 SIP-Resource-Priority-Value [RFC6735] 
+		615 Application-Level-Resource-Priority [RFC6735] 
+		616 ALRP-Namespace [RFC6735] 
+		617 ALRP-Value [RFC6735] 
+		618-0xffffff Unassigned  -->
 
 		<!-- **************************************************************************** -->
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
@@ -3195,7 +3195,7 @@
 				<gavp name="3GPP-PDP Type"/>
 				<gavp name="PDP-Address"/>
 				<gavp name="Dynamic-Address-Flag"/>
-        <gavp name="Dynamic-Address-Flag-Extension"/>
+				<gavp name="Dynamic-Address-Flag-Extension"/>
 				<gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/> <!-- ??-->
 				<gavp name="QoS-Information"/>
 				<gavp name="SGSN-Address"/>
@@ -3511,22 +3511,22 @@
 			<enum name="UE_TIME_ZONE_CHANGE"				code="25"/>
 			<enum name="TAI_CHANGE"						code="26"/>
 			<enum name="ECGI_CHANGE"					code="27"/>
-			<enum name="CHARGING_CORRELATION_EXCHANGE"					code="28"/>
+			<enum name="CHARGING_CORRELATION_EXCHANGE"			code="28"/>
 			<enum name="APN-AMBR_MODIFICATION_FAILURE"			code="29"/>
 			<enum name="USER_CSG_INFORMATION_CHANGE"			code="30"/>
-			<enum name="USAGE_REPORT"					                            code="33"/>
-			<enum name="DEFAULT-EPS-BEARER-QOS_MODIFICATION_FAILURE"	    code="34"/>
-			<enum name="USER_CSG_HYBRID_SUBSCRIBED_INFORMATION_CHANGE"	  code="35"/>
+			<enum name="USAGE_REPORT"					code="33"/>
+			<enum name="DEFAULT-EPS-BEARER-QOS_MODIFICATION_FAILURE"	code="34"/>
+			<enum name="USER_CSG_HYBRID_SUBSCRIBED_INFORMATION_CHANGE"	code="35"/>
 			<enum name="USER_CSG_ HYBRID_UNSUBSCRIBED_INFORMATION_CHANGE"	code="36"/>
-			<enum name="ROUTING_RULE_CHANGE"				      code="37"/>
-			<enum name="MAX_MBR_APN_AMBR_CHANGE"				  code="38"/>
-			<enum name="APPLICATION_START"					      code="39"/>
-			<enum name="APPLICATION_STOP"					        code="40"/>
-			<enum name="ADC_REVALIDATION_TIMEOUT"					code="41"/>
-			<enum name="CS_TO_PS_HANDOVER"					      code="42"/>
-			<enum name="UE_LOCAL_IP_ADDRESS_CHANGE"	      code="43"/>
-			<enum name="H(E)NB_LOCAL_IP_ADDRESS_CHANGE"   code="44"/>
-			<enum name="ACCESS_NETWORK_INFO_REPORT"	      code="45"/>
+			<enum name="ROUTING_RULE_CHANGE"				code="37"/>
+			<enum name="MAX_MBR_APN_AMBR_CHANGE"				code="38"/>
+			<enum name="APPLICATION_START"					code="39"/>
+			<enum name="APPLICATION_STOP"					code="40"/>
+			<enum name="ADC_REVALIDATION_TIMEOUT"				code="41"/>
+			<enum name="CS_TO_PS_HANDOVER"					code="42"/>
+			<enum name="UE_LOCAL_IP_ADDRESS_CHANGE"				code="43"/>
+			<enum name="H(E)NB_LOCAL_IP_ADDRESS_CHANGE"			code="44"/>
+			<enum name="ACCESS_NETWORK_INFO_REPORT"				code="45"/>
 			<enum name="TIME_CHANGE"					code="100"/>
 			<enum name="TFT DELETED"					code="1000"/>
 			<enum name="LOSS OF BEARER"					code="1001"/>
@@ -3687,9 +3687,9 @@
 			<enum name="RESOURCE_ALLOCATION_FAILURE"	code="10"/>
 			<enum name="UNSUCCESSFUL_QOS_VALIDATION"	code="11"/>
 			<enum name="INCORRECT_FLOW_INFORMATION"	code="12"/>
-      <enum name="PS_TO_CS_HANDOVER"	code="13"/>
-      <enum name="Unused code value"	code="14"/>
-      <enum name="NO_BEARER_BOUND"	code="15"/>
+			<enum name="PS_TO_CS_HANDOVER"	code="13"/>
+			<enum name="Unused code value"	code="14"/>
+			<enum name="NO_BEARER_BOUND"	code="15"/>
 		</avp>
 		<avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated" />
@@ -6289,9 +6289,9 @@
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777216"	name="3GPP Cx"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777224"	name="3GPP Gx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
-  <application id="16777227" name="Ericsson MSI" uri="http://www.lmera.ericsson.se/~snmp/diameter-assignments.html"></application>
-  <application id="16777228" name="Ericsson Zx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm"></application>
-  <application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
+	<application id="16777227"	name="Ericsson MSI"		uri="http://www.lmera.ericsson.se/~snmp/diameter-assignments.html"></application>
+	<application id="16777228"	name="Ericsson Zx"		uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm"></application>
+	<application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
 	<application id="16777238"	name="3GPP Gx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777250"	name="3GPP STa"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777251"	name="3GPP S6a/S6d"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
@@ -6325,6 +6325,6 @@
 	&Vodafone;
 	&AlcatelLucent;
 	&Nokia;
-  &NokiaSiemensNetworks;
-  &SKT;
+	&NokiaSiemensNetworks;
+	&SKT;
 </dictionary>
