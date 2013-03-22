@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-isdn-sup.c                                                          */
-/* ../../tools/asn2wrs.py -b -k -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn */
+/* ../../tools/asn2wrs.py -b -k -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn Freephone-Operations.asn */
 
 /* Input file: packet-isdn-sup-template.c */
 
@@ -48,6 +48,7 @@
 
 /*--- Included file: packet-isdn-sup-val.h ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-val.h"
+#define fPHOID                         "0.4.0.210.1"
 
 /*--- End of included file: packet-isdn-sup-val.h ---*/
 #line 41 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -69,6 +70,12 @@ typedef struct _isdn_sup_op_t {
   new_dissector_t arg_pdu;
   new_dissector_t res_pdu;
 } isdn_sup_op_t;
+
+typedef struct _isdn_global_sup_op_t {
+  const char*  oid;
+  new_dissector_t arg_pdu;
+  new_dissector_t res_pdu;
+} isdn_sup_global_op_t;
 
 
 typedef struct isdn_sup_err_t {
@@ -111,7 +118,7 @@ static const value_string isdn_sup_str_operation[] = {
   {   1, "userUserService" },
 
 /*--- End of included file: packet-isdn-sup-table10.c ---*/
-#line 68 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 74 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
@@ -152,7 +159,7 @@ static const value_string isdn_sup_str_error[] = {
   {    2, "rejectedByTheUser" },
 
 /*--- End of included file: packet-isdn-sup-table20.c ---*/
-#line 74 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 80 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
@@ -193,6 +200,10 @@ static int hf_isdn_sup_DivertingLegInformation1Arg_PDU = -1;  /* DivertingLegInf
 static int hf_isdn_sup_DivertingLegInformation2Arg_PDU = -1;  /* DivertingLegInformation2Arg */
 static int hf_isdn_sup_DivertingLegInformation3Arg_PDU = -1;  /* DivertingLegInformation3Arg */
 static int hf_isdn_sup_UserUserServiceArg_PDU = -1;  /* UserUserServiceArg */
+static int hf_isdn_sup_CalledFreephoneNrArg_PDU = -1;  /* CalledFreephoneNrArg */
+static int hf_isdn_sup_Monitor_T_FPHArg_PDU = -1;  /* Monitor_T_FPHArg */
+static int hf_isdn_sup_Free_T_FPHArg_PDU = -1;    /* Free_T_FPHArg */
+static int hf_isdn_sup_Call_T_FPHArg_PDU = -1;    /* Call_T_FPHArg */
 static int hf_isdn_sup_presentationAllowedAddress = -1;  /* AddressScreened */
 static int hf_isdn_sup_presentationRestricted = -1;  /* NULL */
 static int hf_isdn_sup_numberNotAvailableDueToInterworking = -1;  /* NULL */
@@ -309,9 +320,13 @@ static int hf_isdn_sup_allNumbers = -1;           /* NULL */
 static int hf_isdn_sup_ServedUserNumberList_item = -1;  /* PartyNumber */
 static int hf_isdn_sup_service = -1;              /* Service */
 static int hf_isdn_sup_preferred = -1;            /* Preferred */
+static int hf_isdn_sup_servedUserDestination = -1;  /* PartyNumber */
+static int hf_isdn_sup_queueIdentity = -1;        /* QueueIdentity */
+static int hf_isdn_sup_fPHReference = -1;         /* FPHReference */
+static int hf_isdn_sup_calledFreephoneNr = -1;    /* CalledFreephoneNr */
 
 /*--- End of included file: packet-isdn-sup-hf.c ---*/
-#line 80 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 86 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Initialize the subtree pointers */
@@ -381,9 +396,12 @@ static gint ett_isdn_sup_IntResult = -1;
 static gint ett_isdn_sup_ServedUserNr = -1;
 static gint ett_isdn_sup_ServedUserNumberList = -1;
 static gint ett_isdn_sup_UserUserServiceArg = -1;
+static gint ett_isdn_sup_Monitor_T_FPHArg = -1;
+static gint ett_isdn_sup_Free_T_FPHArg = -1;
+static gint ett_isdn_sup_Call_T_FPHArg = -1;
 
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
-#line 86 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 92 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Preference settings default */
@@ -2138,6 +2156,90 @@ dissect_isdn_sup_UserUserServiceArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   return offset;
 }
 
+
+
+static int
+dissect_isdn_sup_CalledFreephoneNr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_PartyNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_CalledFreephoneNrArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_CalledFreephoneNr(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_QueueIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Monitor_T_FPHArg_sequence[] = {
+  { &hf_isdn_sup_q931InfoElement, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_Q931InformationElement },
+  { &hf_isdn_sup_servedUserDestination, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_PartyNumber },
+  { &hf_isdn_sup_queueIdentity, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_isdn_sup_QueueIdentity },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_Monitor_T_FPHArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Monitor_T_FPHArg_sequence, hf_index, ett_isdn_sup_Monitor_T_FPHArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_FPHReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Free_T_FPHArg_sequence[] = {
+  { &hf_isdn_sup_servedUserDestination, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_PartyNumber },
+  { &hf_isdn_sup_fPHReference, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_FPHReference },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_Free_T_FPHArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Free_T_FPHArg_sequence, hf_index, ett_isdn_sup_Free_T_FPHArg);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Call_T_FPHArg_sequence[] = {
+  { &hf_isdn_sup_fPHReference, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_FPHReference },
+  { &hf_isdn_sup_calledFreephoneNr, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_CalledFreephoneNr },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_Call_T_FPHArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Call_T_FPHArg_sequence, hf_index, ett_isdn_sup_Call_T_FPHArg);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_ChargingRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -2364,10 +2466,38 @@ static int dissect_UserUserServiceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset = dissect_isdn_sup_UserUserServiceArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_UserUserServiceArg_PDU);
   return offset;
 }
+static int dissect_CalledFreephoneNrArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_CalledFreephoneNrArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_CalledFreephoneNrArg_PDU);
+  return offset;
+}
+static int dissect_Monitor_T_FPHArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_Monitor_T_FPHArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_Monitor_T_FPHArg_PDU);
+  return offset;
+}
+static int dissect_Free_T_FPHArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_Free_T_FPHArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_Free_T_FPHArg_PDU);
+  return offset;
+}
+static int dissect_Call_T_FPHArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_Call_T_FPHArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_Call_T_FPHArg_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-isdn-sup-fn.c ---*/
-#line 93 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 99 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 static const isdn_sup_op_t isdn_sup_op_tab[] = {
 
@@ -2404,9 +2534,23 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* userUserService          */ {   1, dissect_UserUserServiceArg_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table11.c ---*/
-#line 96 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 102 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
+
+static const isdn_sup_global_op_t isdn_sup_global_op_tab[] = {
+
+
+/*--- Included file: packet-isdn-sup-table31.c ---*/
+#line 1 "../../asn1/isdn-sup/packet-isdn-sup-table31.c"
+  /* callFPH                  */ { fPHOID".1", dissect_CalledFreephoneNrArg_PDU, NULL },
+  /* monitor-T-FPH            */ { fPHOID".2", dissect_Monitor_T_FPHArg_PDU, NULL },
+  /* free-T-FPH               */ { fPHOID".3", dissect_Free_T_FPHArg_PDU, NULL },
+  /* call-T-FPH               */ { fPHOID".4", dissect_Call_T_FPHArg_PDU, NULL },
+
+/*--- End of included file: packet-isdn-sup-table31.c ---*/
+#line 108 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+};
 
 static const isdn_sup_err_t isdn_sup_err_tab[] = {
 
@@ -2444,7 +2588,7 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
   /* rejectedByTheUser        */ {    2, NULL },
 
 /*--- End of included file: packet-isdn-sup-table21.c ---*/
-#line 101 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 112 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
@@ -2632,6 +2776,13 @@ void proto_reg_handoff_isdn_sup(void) {
     dissector_add_uint("q932.ros.etsi.local.res", isdn_sup_op_tab[i].opcode, isdn_sup_res_handle);
   }
 
+  for (i=0; i<(int)array_length(isdn_sup_global_op_tab); i++) {
+	  if(isdn_sup_global_op_tab->arg_pdu)
+		  dissector_add_string("q932.ros.global.arg", isdn_sup_global_op_tab[i].oid, new_create_dissector_handle(isdn_sup_global_op_tab[i].arg_pdu, proto_isdn_sup));
+	  if(isdn_sup_global_op_tab->res_pdu)
+		  dissector_add_string("q932.ros.global.res", isdn_sup_global_op_tab[i].oid, new_create_dissector_handle(isdn_sup_global_op_tab[i].res_pdu, proto_isdn_sup));
+  }
+
   isdn_sup_err_handle = new_create_dissector_handle(dissect_isdn_sup_err, proto_isdn_sup);
 
   for (i=0; i<(int)array_length(isdn_sup_err_tab); i++) {
@@ -2790,6 +2941,22 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
     { &hf_isdn_sup_UserUserServiceArg_PDU,
       { "UserUserServiceArg", "isdn-sup.UserUserServiceArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_CalledFreephoneNrArg_PDU,
+      { "CalledFreephoneNrArg", "isdn-sup.CalledFreephoneNrArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_Monitor_T_FPHArg_PDU,
+      { "Monitor-T-FPHArg", "isdn-sup.Monitor_T_FPHArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_Free_T_FPHArg_PDU,
+      { "Free-T-FPHArg", "isdn-sup.Free_T_FPHArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_Call_T_FPHArg_PDU,
+      { "Call-T-FPHArg", "isdn-sup.Call_T_FPHArg",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_isdn_sup_presentationAllowedAddress,
@@ -3256,9 +3423,25 @@ void proto_register_isdn_sup(void) {
       { "preferred", "isdn-sup.preferred",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_isdn_sup_servedUserDestination,
+      { "servedUserDestination", "isdn-sup.servedUserDestination",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
+        "PartyNumber", HFILL }},
+    { &hf_isdn_sup_queueIdentity,
+      { "queueIdentity", "isdn-sup.queueIdentity",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_fPHReference,
+      { "fPHReference", "isdn-sup.fPHReference",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_calledFreephoneNr,
+      { "calledFreephoneNr", "isdn-sup.calledFreephoneNr",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
+        NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 318 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 336 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -3329,9 +3512,12 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_ServedUserNr,
     &ett_isdn_sup_ServedUserNumberList,
     &ett_isdn_sup_UserUserServiceArg,
+    &ett_isdn_sup_Monitor_T_FPHArg,
+    &ett_isdn_sup_Free_T_FPHArg,
+    &ett_isdn_sup_Call_T_FPHArg,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 325 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 343 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* Register fields and subtrees */

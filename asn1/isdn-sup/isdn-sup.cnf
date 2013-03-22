@@ -38,11 +38,15 @@ NumberScreened
 #.FIELD_RENAME
 #.END                                
 
-#.TABLE10_BODY OPERATION
+#.TABLE10_BODY OPERATION.&operationCode.local
   { %(&operationCode)3s, "%(_name)s" },
 #.END
 
-#.TABLE11_BODY OPERATION
+#.TABLE11_BODY OPERATION.&operationCode.local
+  /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
+#.END
+
+#.TABLE31_BODY OPERATION.&operationCode.global
   /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
 #.END
 

@@ -36,7 +36,8 @@ ASN_FILE_LIST = \
 	Conference-Add-On-Operations.asn \
 	Diversion-Operations.asn \
 	MCID-Operations.asn \
-	User-To-User-Signalling-Operations.asn
+	User-To-User-Signalling-Operations.asn \
+	Freephone-Operations.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
