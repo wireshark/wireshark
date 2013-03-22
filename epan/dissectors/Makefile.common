@@ -899,6 +899,7 @@ DISSECTOR_SRC = \
 	packet-osi.c		\
 	packet-ositp.c		\
 	packet-ospf.c		\
+	packet-ouch.c		\
 	packet-p_mul.c		\
 	packet-packetbb.c	\
 	packet-packetlogger.c	\

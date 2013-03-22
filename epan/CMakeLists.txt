@@ -978,6 +978,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-osi.c
 	dissectors/packet-ositp.c
 	dissectors/packet-ospf.c
+	dissectors/packet-ouch.c
 	dissectors/packet-p_mul.c
 	dissectors/packet-packetbb.c
 	dissectors/packet-packetlogger.c
