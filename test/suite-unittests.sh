@@ -78,6 +78,11 @@ unittests_step_tvbtest() {
 	unittests_step_test
 }
 
+unittests_step_wmem_test() {
+	DUT=../epan/wmem/wmem_test
+	unittests_step_test
+}
+
 unittests_cleanup_step() {
 	rm -f ./testout.txt
 }
@@ -88,6 +93,7 @@ unittests_suite() {
 	test_step_add "exntest" unittests_step_exntest
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest
+	test_step_add "wmem_test" unittests_step_wmem_test
 }
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
