@@ -607,11 +607,12 @@ format_tif(
 }
 
 
-static void
+static int
 dissect_ouch(
     tvbuff_t *tvb,
     packet_info *pinfo,
-    proto_tree *tree)
+    proto_tree *tree,
+    void *data _U_)
 {
     proto_item *ti;
     proto_tree *ouch_tree = NULL;
@@ -1261,6 +1262,8 @@ dissect_ouch(
             break;
         }
     }
+
+    return offset;
 }
 
 
@@ -1393,7 +1396,7 @@ dissect_ouch_heur(
     }
 
     /* Peform dissection of this (initial) packet */
-    dissect_ouch(tvb, pinfo, tree);
+    dissect_ouch(tvb, pinfo, tree, NULL);
 
     return TRUE;
 }
@@ -1611,7 +1614,7 @@ proto_register_ouch(void)
 void
 proto_reg_handoff_ouch(void)
 {
-    ouch_handle = create_dissector_handle(dissect_ouch, proto_ouch);
+    ouch_handle = new_create_dissector_handle(dissect_ouch, proto_ouch);
     heur_dissector_add("soupbintcp", dissect_ouch_heur, proto_ouch);
 }
 
