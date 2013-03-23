@@ -130,7 +130,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 8;
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	tvb_get_nstringz0(tvb, offset, sizeof(version), version);
-	offset += 4;
+	/*offset += 4;*/
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
             /* XXX - is this really a string? */
@@ -148,7 +148,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 8;
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
 	tvb_get_nstringz0(tvb, offset, sizeof(version), version);
-	offset += 4;
+	/*offset += 4;*/
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
             /* XXX - is this really a string? */
