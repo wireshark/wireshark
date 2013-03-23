@@ -67,10 +67,6 @@
 #include <epan/tvbuff.h>
 #include <epan/reassemble.h>
 
-#if 0
-#include <epan/dissectors/packet-dcerpc.h>
-#endif
-
 #define ASSERT(b) do_test((b),"Assertion failed at line %i: %s\n", __LINE__, #b)
 #define ASSERT_EQ(exp,act) do_test((exp)==(act),"Assertion failed at line %i: %s==%s (%i==%i)\n", __LINE__, #exp, #act, exp, act)
 #define ASSERT_NE(exp,act) do_test((exp)!=(act),"Assertion failed at line %i: %s!=%s (%i!=%i)\n", __LINE__, #exp, #act, exp, act)
@@ -986,98 +982,6 @@ test_fragment_add_seq_duplicate_conflict(void)
 #endif
 }
 
-#if 0
-/*
- * reassemble.c no longer exports DCE RPC-specific routines; instead,
- * it allows dissectors to supply their own key-handling routines, and
- * DCE RPC does that for datagrams.
- *
- * This means that the underlying logic in reassemble.c no longer
- * knows anything about particular types of keys, so it's not clear
- * that there's anything DCE RPC-specific that needs to be tested.
- */
-
-/**********************************************************************************
- *
- * fragment_add_dcerpc_dg
- *
- *********************************************************************************/
-
-/* This can afford to be reasonably minimal, as it's just the same logic with a
- * different hash key to fragment_add_seq
- */
-static void
-test_fragment_add_dcerpc_dg(void)
-{
-    e_uuid_t act_id = {1,2,3,{4,5,6,7,8,9,10,11}};
-
-    fragment_data *fd_head, *fdh0;
-    GHashTable *fragment_table = NULL;
-
-    printf("Starting test test_fragment_add_dcerpc_dg\n");
-
-    /* we need our own fragment table */
-    dcerpc_fragment_table_init(&fragment_table);
-    fd_head=fragment_add_dcerpc_dg(tvb, 10, &pinfo, 12, &act_id, NULL,
-                                   0, 50, TRUE);
-
-    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
-    ASSERT_EQ(NULL,fd_head);
-
-    /* start another pdu (just to confuse things) */
-    pinfo.fd->num = 2;
-    fd_head=fragment_add_dcerpc_dg(tvb, 15, &pinfo, 13, &act_id, NULL,
-                             0, 60, TRUE);
-    ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
-    ASSERT_EQ(NULL,fd_head);
-
-    /* another pdu, with the same fragment_id, but a different act_id, to the
-     * first one */
-    pinfo.fd->num = 3;
-    act_id.Data1=2;
-    fd_head=fragment_add_dcerpc_dg(tvb, 15, &pinfo, 12, &act_id, NULL,
-                                   0, 60, TRUE);
-    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.fragment_table));
-    ASSERT_EQ(NULL,fd_head);
-    act_id.Data1=1;
-
-    /* now we add the terminal fragment of the first datagram */
-    pinfo.fd->num = 4;
-    fd_head=fragment_add_dcerpc_dg(tvb, 5, &pinfo, 12, &act_id, NULL,
-                                   1, 60, FALSE);
-
-    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.fragment_table));
-    ASSERT_NE(NULL,fd_head);
-
-    /* check the contents of the structure */
-    ASSERT_EQ(0,fd_head->frame);  /* unused */
-    ASSERT_EQ(0,fd_head->offset); /* unused */
-    ASSERT_EQ(110,fd_head->len); /* the length of data we have */
-    ASSERT_EQ(1,fd_head->datalen); /* seqno of the last fragment we have */
-    ASSERT_EQ(4,fd_head->reassembled_in);
-    ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
-    ASSERT_NE(NULL,fd_head->next);
-
-    /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+5,60));
-
-    /* what happens if we revisit the packets now? */
-    fdh0 = fd_head;
-    pinfo.fd->flags.visited = 1;
-    pinfo.fd->num = 1;
-    fd_head=fragment_add_dcerpc_dg(tvb, 10, &pinfo, 12, &act_id, NULL,
-                                   0, 50, TRUE);
-    /*
-     * this api relies on the caller to check fd_head -> reassembled_in
-     *
-     * Redoing all the tests seems like overkill - just check the pointer
-     */
-    ASSERT_EQ(fdh0,fd_head);
-}
-#endif
-
 /**********************************************************************************
  *
  * fragment_add_seq_check
@@ -1628,18 +1532,15 @@ int
 main(int argc _U_, char **argv _U_)
 {
     frame_data fd;
-    char src[] = {1,2,3,4}, dst[] = {5,6,7,8};
+    static const guint8 src[] = {1,2,3,4}, dst[] = {5,6,7,8};
     unsigned int i;
-    void (*tests[])(void) = {
+    static void (*tests[])(void) = {
         test_simple_fragment_add_seq,              /* frag table only   */
         test_fragment_add_seq_partial_reassembly,
         test_fragment_add_seq_duplicate_first,
         test_fragment_add_seq_duplicate_middle,
         test_fragment_add_seq_duplicate_last,
         test_fragment_add_seq_duplicate_conflict,
-#if 0
-        test_fragment_add_dcerpc_dg,
-#endif
         test_fragment_add_seq_check,               /* frag + reassemble */
         test_fragment_add_seq_check_1,
         test_fragment_add_seq_802_11_0,
