@@ -2670,7 +2670,7 @@ new_ud_msg(packet_info *pinfo, guint32 msg_type _U_)
   return m;
 }
 
-static void
+static int
 dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                      proto_tree *tree)
 {
@@ -3319,6 +3319,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     }
   }
 
+  return offset;
 }
 
 static void
