@@ -1891,7 +1891,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               }
               offset += 2; /*now at the end of the telegram*/
        }
-       return tvb_length(tvb);
+       return offset;
 /*End of dissect_sbus*/
 }
 
