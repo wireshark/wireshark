@@ -39,9 +39,9 @@
 /*
  * See
  *
- *	http://www.rtnet.org/
+ *        http://www.rtnet.org/
  *
- *	http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
+ *        http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
  */
 
 #define RTMAC_TYPE_TDMA     0x0001 /* since version 2    */
@@ -733,7 +733,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
          if( config_length > 0 ) {
            proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, config_length, ENC_NA );
-           offset += config_length;
+           /*offset += config_length;*/
          }
 
          break;
@@ -765,7 +765,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          offset += 1;
 
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, ENC_BIG_ENDIAN );
-         offset += 1;
+         /*offset += 1;*/
 
          break;
 
@@ -796,7 +796,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          offset += 1;
 
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_padding, tvb, offset, 1, ENC_BIG_ENDIAN );
-         offset += 1;
+         /*offset += 1;*/
 
          break;
 
@@ -823,7 +823,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          if( config_length > 0 ) {
            len = tvb_reported_length_remaining(tvb, offset);
            proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, ENC_NA );
-           offset += len;
+           /*offset += len;*/
          }
 
          break;
@@ -834,12 +834,12 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
          len = tvb_reported_length_remaining(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, ENC_NA );
-         offset += len;
+         /*offset += len;*/
          break;
 
        case RTCFG_MSG_ACK:
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_ack_length, tvb, offset, 4, ENC_BIG_ENDIAN );
-         offset += 4;
+         /*offset += 4;*/
 
          break;
 
@@ -870,14 +870,14 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
            case WTAP_ENCAP_ETHERNET:
              proto_tree_add_bytes_format( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
                                           NULL, "Client Hardware Address: %s",
-					  tvb_ether_to_str(tvb, offset));
+                                          tvb_ether_to_str(tvb, offset));
              break;
 
            default:
              proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32, ENC_NA );
              break;
          }
-         offset += 32;
+         /*offset += 32;*/
 
          break;
 
