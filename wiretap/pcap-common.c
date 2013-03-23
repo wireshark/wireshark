@@ -235,10 +235,11 @@ static const struct {
 	{ 131,		WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
 	{ 133,		WTAP_ENCAP_JUNIPER_GGSN},
 	/*
-	 * Values 132-134, 136 not listed here are reserved for use
+	 * Values 132 and 134 not listed here are reserved for use
 	 * in Juniper hardware.
 	 */
 	{ 135,		WTAP_ENCAP_JUNIPER_ATM2 }, /* various encapsulations captured on the ATM2 PIC */
+	{ 136,		WTAP_ENCAP_JUNIPER_SVCS }, /* various encapsulations captured on the services PIC */
 	{ 137,		WTAP_ENCAP_JUNIPER_ATM1 }, /* various encapsulations captured on the ATM1 PIC */
 
 	{ 138,		WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 },

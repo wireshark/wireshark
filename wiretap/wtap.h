@@ -242,6 +242,7 @@ extern "C" {
 #define WTAP_ENCAP_AX25                         149
 #define WTAP_ENCAP_SCTP                         150
 #define WTAP_ENCAP_INFINIBAND                   151
+#define WTAP_ENCAP_JUNIPER_SVCS                 152
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

@@ -1212,6 +1212,37 @@ static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
   dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_IP, offset+18);
 }
 
+/* Wrapper for Juniper service PIC coookie dissector */
+static void
+dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint      offset = 0;
+  int bytes_processed = 0;
+  guint8     flags;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Services");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_text (tree, tvb, 0, 4, "Juniper Services cookie");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if (bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  if (flags & JUNIPER_FLAG_PKT_IN) {
+      proto_tree_add_uint(juniper_subtree, hf_juniper_proto, tvb, offset, 2, PROTO_IP);
+      offset += 16;
+  } else {
+      offset += 12;
+  }
+
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_IP, offset);
+}
 
 /* list of Juniper supported PPP proto IDs */
 static gboolean
@@ -1445,6 +1476,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_chdlc_handle;
   dissector_handle_t juniper_ggsn_handle;
   dissector_handle_t juniper_vp_handle;
+  dissector_handle_t juniper_svcs_handle;
 
   osinl_subdissector_table = find_dissector_table("osinl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
@@ -1471,6 +1503,7 @@ proto_reg_handoff_juniper(void)
   juniper_chdlc_handle  = create_dissector_handle(dissect_juniper_chdlc,  proto_juniper);
   juniper_ggsn_handle   = create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
   juniper_vp_handle     = create_dissector_handle(dissect_juniper_vp,     proto_juniper);
+  juniper_svcs_handle   = create_dissector_handle(dissect_juniper_svcs,   proto_juniper);
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2,   juniper_atm2_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1,   juniper_atm1_handle);
@@ -1483,6 +1516,7 @@ proto_reg_handoff_juniper(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC,  juniper_chdlc_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN,   juniper_ggsn_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VP,     juniper_vp_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_SVCS,   juniper_svcs_handle);
 
 }
 
