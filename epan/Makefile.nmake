@@ -386,7 +386,13 @@ dtd_grammar.c: $(LEMON)\lemon.exe $(LEMON)\lempar.c dtd_grammar.lemon
 # routines, and thus they import stuff from the library rather than
 # exporting stuff from the library.
 #
+exntest.obj: exntest.c
+	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
+
 reassemble_test.obj: reassemble_test.c
+	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
+
+tvbtest.obj: tvbtest.c
 	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
 
 checkapi:
