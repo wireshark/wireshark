@@ -1007,7 +1007,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 
 		if (srtp_info->auth_tag_len) {
 			proto_tree_add_item(rtp_tree, hf_srtp_auth_tag, newtvb, offset, srtp_info->auth_tag_len, ENC_NA);
-			offset += srtp_info->auth_tag_len;
+			/*offset += srtp_info->auth_tag_len;*/
 		}
 	}
 
