@@ -1691,7 +1691,6 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
         goto done;
 
     len = tvb_get_ntohs(tvb, hdr_offset+6) + hdr_offset;
-    off = hdr_offset + 8;
     for (off = hdr_offset + 8; (off < len) && tvb_bytes_exist(tvb, off, 3); off += obj_length) {
         obj_length = tvb_get_ntohs(tvb, off);
         if (obj_length == 0)
@@ -4762,7 +4761,6 @@ dissect_rsvp_message_id_list(proto_tree *ti, proto_tree *rsvp_object_tree,
         break;
 
     default:
-        mylen = obj_length - 4;
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
                             "C-type: Unknown (%u)",
                             type);
@@ -6232,7 +6230,6 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int         offset2;
 
     offset       = 0;
-    len          = 0;
     ver_flags    = tvb_get_guint8(tvb, 0);
     msg_length   = tvb_get_ntohs(tvb, 6);
     message_type = tvb_get_guint8(tvb, 1);
