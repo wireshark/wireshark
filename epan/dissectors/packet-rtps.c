@@ -1771,7 +1771,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         offset += 4;
 
         /* Recursive decode seq typecode */
-        offset += rtps_util_add_typecode(
+        /*offset += */rtps_util_add_typecode(
                           tree,
                           tvb,
                           offset,
@@ -1812,7 +1812,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         }
 
         /* Recursive decode seq typecode */
-        offset += rtps_util_add_typecode(
+        /*offset += */rtps_util_add_typecode(
                           tree,
                           tvb,
                           offset,
@@ -2881,7 +2881,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         "filterExpression",
                         NULL,
                         0);
-        temp_offset = rtps_util_add_seq_string(rtps_parameter_tree,
+        /*temp_offset = */rtps_util_add_seq_string(rtps_parameter_tree,
                         tvb,
                         temp_offset,
                         little_endian,
@@ -3486,7 +3486,7 @@ static void dissect_DATA(tvbuff_t *tvb,
   /* SerializedData */
   if ((flags & FLAG_DATA_D) != 0) {
     if (is_builtin_entity) {
-      offset = dissect_parameter_sequence(tree, pinfo, tvb, offset,
+      /*offset =*/ dissect_parameter_sequence(tree, pinfo, tvb, offset,
                         little_endian, octets_to_next_header, "serializedData");
     } else {
       proto_tree_add_item(tree,
@@ -4189,7 +4189,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
   if ((flags & FLAG_INFO_REPLY_IP4_M) != 0) {
     rtps_util_add_locator_udp_v4(tree, pinfo, tvb, offset,
                         "multicastReplyLocator", little_endian);
-    offset += 8;
+    /*offset += 8;*/
   }
 }
 
@@ -4306,7 +4306,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
   /* multicastReplyLocatorList */
   if ((flags & FLAG_INFO_REPLY_M) != 0) {
     rtps_util_add_locator_list(tree, pinfo, tvb, offset, "multicastReplyLocatorList", little_endian);
-    offset += 8;
+    /*offset += 8;*/
   }
 }
 
