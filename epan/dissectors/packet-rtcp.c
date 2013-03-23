@@ -1042,7 +1042,6 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                      val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
         offset         += 4;
         packet_len     -= 4;
-        app_length      = app_length -8;
         if ( packet_len == 0 )
             return offset;      /* No more data */
         /* Applications specific data */
@@ -3079,7 +3078,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
         if (srtcp_info->auth_tag_len) {
             proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, ENC_NA);
-            srtcp_offset += srtcp_info->auth_tag_len;
+            /*srtcp_offset += srtcp_info->auth_tag_len;*/
         }
     }
     /* offset should be total_packet_length by now... */
