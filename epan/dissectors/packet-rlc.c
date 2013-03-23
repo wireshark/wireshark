@@ -1561,7 +1561,6 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
         }else{
             col_append_str(pinfo->cinfo, COL_INFO, "[Deciphered Data]");
-            tvb = t;
 
             /*TODO: Old tvb should be freed here?*/
         }
