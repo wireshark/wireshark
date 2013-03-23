@@ -464,6 +464,12 @@ reassembly_table_init(reassembly_table *table,
 void
 reassembly_table_destroy(reassembly_table *table)
 {
+	/*
+	 * Clear the function pointers.
+	 */
+	table->temporary_key_func = NULL;
+	table->persistent_key_func = NULL;
+	table->free_temporary_key_func = NULL;
 	if (table->fragment_table != NULL) {
 		/*
 		 * The fragment hash table exists.
@@ -477,8 +483,34 @@ reassembly_table_destroy(reassembly_table *table)
 		g_hash_table_foreach_remove(table->fragment_table,
 					    free_all_fragments, NULL);
 
+		/*
+		 * Now destroy the hash table.
+		 */
 		g_hash_table_destroy(table->fragment_table);
 		table->fragment_table = NULL;
+	}
+	if (table->reassembled_table != NULL) {
+		GPtrArray *allocated_fragments;
+
+		/*
+		 * The reassembled-packet hash table exists.
+		 *
+		 * Remove all entries and free reassembled packet
+		 * data and key for each entry.
+		 */
+
+		allocated_fragments = g_ptr_array_new();
+		g_hash_table_foreach_remove(table->reassembled_table,
+				free_all_reassembled_fragments, allocated_fragments);
+
+		g_ptr_array_foreach(allocated_fragments, free_fragments, NULL);
+		g_ptr_array_free(allocated_fragments, TRUE);
+
+		/*
+		 * Now destroy the hash table.
+		 */
+		g_hash_table_destroy(table->reassembled_table);
+		table->reassembled_table = NULL;
 	}
 }
 
