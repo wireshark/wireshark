@@ -323,7 +323,6 @@ dissect_soupbintcp_common(
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_text,
                                 tvb, offset, expected_len - 1, ENC_ASCII|ENC_NA);
-            offset += expected_len - 1;
             break;
 
         case 'A': /* Login Accept */
@@ -337,19 +336,16 @@ dissect_soupbintcp_common(
                                                hf_soupbintcp_next_seq_num,
                                                tvb, offset, 20,
                                                "X", "%d", atoi(tmp_buf));
-            offset += 20;
             break;
 
         case 'J': /* Login Reject */
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_reject_code,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
             break;
 
         case 'U': /* Unsequenced Data */
             /* Display handled by sub-dissector */
-            offset += expected_len - 1;
             break;
 
         case 'S': /* Sequenced Data */
@@ -362,7 +358,6 @@ dissect_soupbintcp_common(
                                                this_seq);
 
             /* Display handled by sub-dissector */
-            offset += expected_len - 1;
             break;
 
         case 'L': /* Login Request */
@@ -386,7 +381,6 @@ dissect_soupbintcp_common(
                                                hf_soupbintcp_req_seq_num,
                                                tvb, offset, 20,
                                                "X", "%d", atoi(tmp_buf));
-            offset += 20;
             break;
 
         case 'H': /* Server Heartbeat */
@@ -406,7 +400,6 @@ dissect_soupbintcp_common(
             proto_tree_add_item(tree,
                                 hf_soupbintcp_message,
                                 tvb, offset, -1, ENC_ASCII|ENC_NA);
-            offset += expected_len - 1;
             break;
         }
     }
