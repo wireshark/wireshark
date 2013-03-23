@@ -1,4 +1,4 @@
-/* packet-sccp.c
+/* packet-sccpmg.c
  * Routines for Signalling Connection Control Part (SCCP) Management dissection
  *
  * It is hopefully compliant to:
@@ -169,7 +169,6 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 				      hf_sccpmg_affected_pc_cluster,
 				      hf_sccpmg_affected_pc_member, 0, 0);
 
-		offset += ANSI_PC_LENGTH;
 	}
 }
 
