@@ -502,7 +502,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
         WSLUA_ERROR(Field__call,"Fields cannot be used outside dissectors or taps");
     }
 
-    for (;in;in = in->same_name_next) {
+    for (;in;in = in->same_name_prev) {
         GPtrArray* found = proto_get_finfo_ptr_array(lua_tree->tree, in->id);
         guint i;
         if (found) {
