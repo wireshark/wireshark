@@ -43,18 +43,18 @@ wmem_test_block_allocator(void)
 
     wmem_block_verify(allocator);
 
-    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(allocator, 8);
+    for (i=0; i<1024; i++) ptrs[i] = (char *)wmem_alloc(allocator, 8);
     for (i=0; i<1024; i++) wmem_free(allocator, ptrs[i]);
 
     wmem_block_verify(allocator);
 
-    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(allocator, 64);
+    for (i=0; i<1024; i++) ptrs[i] = (char *)wmem_alloc(allocator, 64);
     for (i=0; i<1024; i++) wmem_free(allocator, ptrs[i]);
 
     wmem_block_verify(allocator);
 
-    for (i=0; i<1024; i++)  ptrs[i] = wmem_alloc(allocator, 512);
-    for (i=1023; i>=0; i--) ptrs[i] = wmem_realloc(allocator, ptrs[i], 16*1024);
+    for (i=0; i<1024; i++)  ptrs[i] = (char *)wmem_alloc(allocator, 512);
+    for (i=1023; i>=0; i--) ptrs[i] = (char *)wmem_realloc(allocator, ptrs[i], 16*1024);
     for (i=0; i<1024; i++)  wmem_free(allocator, ptrs[i]);
 
     wmem_block_verify(allocator);
