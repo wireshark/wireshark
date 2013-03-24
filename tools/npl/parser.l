@@ -79,6 +79,7 @@ typedef enum {
 	TOKEN_GEQUAL,
 
 	TOKEN_ASSIGN,
+	TOKEN_ASSIGN_PLUS,
 	TOKEN_PLUS,
 	TOKEN_MINUS,
 	TOKEN_MULTIPLY,
@@ -170,6 +171,7 @@ or   return TOKEN_OROR;
 ">=" return TOKEN_GEQUAL;
 "<=" return TOKEN_LEQUAL;
 
+"+=" return TOKEN_ASSIGN_PLUS;
 "=" return TOKEN_ASSIGN;
 "+" return TOKEN_PLUS;
 "-" return TOKEN_MINUS;
@@ -881,14 +883,12 @@ parse_expression13(npl_expression_t *expr)
 		expr->c.test_expr = operand;
 
 		e = xnew(npl_expression_t);
-//		parse_expression13(e);
 		parse_expression(e);
 		expr->c.true_expr = e;
 		accept(TOKEN_COLON);
 
 		e = xnew(npl_expression_t);
-//		parse_expression13(e);
-		parse_expression(e);
+		parse_expression13(e);
 		expr->c.false_expr = e;
 
 		expr->type = EXPRESSION_COND;
@@ -907,14 +907,21 @@ xparse_expression(void)
 static void
 parse_expression(npl_expression_t *expr)
 {
+	npl_op2_t op;
+
 	parse_expression13(expr);
 
-	if (is_token_accept(TOKEN_ASSIGN)) {
+	op = 
+		(is_token_accept(TOKEN_ASSIGN)) ? OP2_ASSIGN :
+		(is_token_accept(TOKEN_ASSIGN_PLUS)) ? OP2_ASSIGN_PLUS : 
+		OP2_INVALID;
+
+	if (op != OP2_INVALID) {
 		npl_expression_t *operand = xdup(npl_expression_t, expr);
 
 		expr->b.operand2 = xparse_expression();
 
-		expr->b.operator = OP2_ASSIGN;
+		expr->b.operator = op;
 		expr->b.operand1 = operand;
 		expr->type = EXPRESSION_BINARY;
 	}
@@ -1136,7 +1143,6 @@ parse_statement(npl_statement_t *st)
 	st->f.t_id = accept_id();
 
 	if (is_token_accept(TOKEN_LPAREN)) {
-		/* XXX, WTF: StringTerm(Property.XMLEncoding, "<", true, false, false) Reason; */
 		parse_expression_list(&st->f.params);
 		accept(TOKEN_RPAREN);
 

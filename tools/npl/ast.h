@@ -9,6 +9,7 @@ typedef enum {
 	OP2_INVALID = 0,
 
 	OP2_ASSIGN,
+	OP2_ASSIGN_PLUS,
 
 	OP2_PLUS,
 	OP2_MINUS,
