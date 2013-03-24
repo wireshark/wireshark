@@ -167,15 +167,12 @@ typedef struct _wmem_block_allocator_t {
     wmem_block_chunk_t *free_insert_point;
 } wmem_block_allocator_t;
 
-/* DEBUG */
-#ifdef WMEM_DEBUG
-#include <stdio.h>
+/* DEBUG AND TEST */
 static void
-wmem_block_debug_chunk_chain(wmem_block_chunk_t *chunk)
+wmem_block_verify_chunk_chain(wmem_block_chunk_t *chunk)
 {
     guint32 total_len = 0;
 
-    printf("VERIFYING CHUNK CHAIN\n");
     g_assert(chunk->prev == 0);
 
     do {
@@ -192,13 +189,12 @@ wmem_block_debug_chunk_chain(wmem_block_chunk_t *chunk)
 }
 
 static void
-wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
+wmem_block_verify_free_list(wmem_block_allocator_t *allocator)
 {
     gboolean            seen_insert_point = FALSE;
     wmem_block_chunk_t *free_list;
     wmem_block_free_t  *free_head;
 
-    printf("VERIFYING FREE LIST\n");
     if (allocator->free_insert_point == NULL) {
         seen_insert_point = TRUE;
     }
@@ -223,7 +219,34 @@ wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
 
     g_assert(seen_insert_point);
 }
-#endif
+
+void
+wmem_block_verify(wmem_allocator_t *allocator)
+{
+    GSList                 *tmp;
+    wmem_block_allocator_t *private_allocator;
+
+    /* Normally it would be bad for an allocator helper function to depend
+     * on receiving the right type of allocator, but this is for testing only
+     * and is not part of any real API. */
+    g_assert(allocator->type == WMEM_ALLOCATOR_BLOCK);
+    
+    private_allocator = (wmem_block_allocator_t*) allocator->private_data;
+
+    if (private_allocator->block_list == NULL) {
+        g_assert(! private_allocator->free_list_head);
+        g_assert(! private_allocator->free_insert_point);
+        return;
+    }
+
+    wmem_block_verify_free_list(private_allocator);
+
+    tmp = private_allocator->block_list;
+    while (tmp) {
+        wmem_block_verify_chunk_chain((wmem_block_chunk_t *)tmp->data);
+        tmp = tmp->next;
+    }
+}
 
 /* HELPERS */
 
@@ -746,10 +769,6 @@ wmem_block_free_all(void *private_data)
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
     GSList *tmp;
 
-#ifdef WMEM_DEBUG
-    wmem_block_debug_free_list(allocator);
-#endif
-
     /* the existing free list is entirely irrelevant */
     allocator->free_list_head = NULL;
     allocator->free_insert_point = NULL;
@@ -758,9 +777,6 @@ wmem_block_free_all(void *private_data)
     tmp = allocator->block_list;
 
     while (tmp) {
-#ifdef WMEM_DEBUG
-        wmem_block_debug_chunk_chain((wmem_block_chunk_t *) tmp->data);
-#endif
         wmem_block_init_block(allocator, tmp->data);
         tmp = tmp->next;
     }
@@ -778,16 +794,8 @@ wmem_block_gc(void *private_data)
      * block list. */
     tmp = allocator->block_list;
 
-#ifdef WMEM_DEBUG
-    wmem_block_debug_free_list(allocator);
-#endif
-
     while (tmp) {
         chunk = (wmem_block_chunk_t *) tmp->data;
-
-#ifdef WMEM_DEBUG
-        wmem_block_debug_chunk_chain(chunk);
-#endif
 
         if (!chunk->used && chunk->last) {
             /* if the first chunk is also the last, and is unused, then

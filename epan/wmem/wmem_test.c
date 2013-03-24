@@ -23,10 +23,66 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-int main(void);
+#include <glib.h>
+#include "wmem.h"
+#include "wmem_allocator.h"
+#include "wmem_allocator_block.h"
+#include "config.h"
 
-int main(void)
+typedef struct _wmem_test_fixture_t {
+    wmem_allocator_t *allocator;
+} wmem_test_fixture_t;
+
+static void
+wmem_test_block_allocator_setup(wmem_test_fixture_t *fixture,
+        const void *extra _U_)
 {
+    /* we call the functions direct to ensure our type doesn't get overridden */
+    fixture->allocator = wmem_block_allocator_new();
+    fixture->allocator->type = WMEM_ALLOCATOR_BLOCK;
+}
+
+static void
+wmem_test_teardown(wmem_test_fixture_t *fixture, const void *extra _U_)
+{
+    wmem_destroy_allocator(fixture->allocator);
+}
+
+static void
+wmem_test_block_allocator(wmem_test_fixture_t *fixture, const void *extra _U_)
+{
+    char *ptrs[1024];
+    int i;
+
+    wmem_block_verify(fixture->allocator);
+
+    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(fixture->allocator, 8);
+    for (i=0; i<1024; i++) wmem_free(fixture->allocator, ptrs[i]);
+
+    wmem_block_verify(fixture->allocator);
+
+    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(fixture->allocator, 64);
+    for (i=0; i<1024; i++) wmem_free(fixture->allocator, ptrs[i]);
+
+    wmem_block_verify(fixture->allocator);
+
+    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(fixture->allocator, 512);
+    for (i=0; i<1024; i++) wmem_free(fixture->allocator, ptrs[i]);
+
+    wmem_block_verify(fixture->allocator);
+}
+
+int
+main(int argc, char **argv)
+{
+    g_test_init(&argc, &argv, NULL);
+
+    g_test_add("/wmem/block-allocator", wmem_test_fixture_t, NULL,
+            wmem_test_block_allocator_setup,
+            wmem_test_block_allocator,
+            wmem_test_teardown);
+
+    /* return g_test_run(); */
     return 0;
 }
 

@@ -35,6 +35,10 @@ extern "C" {
 wmem_allocator_t *
 wmem_block_allocator_new(void);
 
+/* Exposed only for testing purposes */
+void
+wmem_block_verify(wmem_allocator_t *allocator);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
