@@ -1370,9 +1370,11 @@ static void get_sgsap_msg_params(guint8 oct, const gchar **msg_str, int *ett_tre
     gint            idx;
 
     *msg_str   = match_strval_idx_ext((guint32) (oct & 0xff), &sgsap_msg_strings_ext, &idx);
-    *ett_tree  = ett_sgsap_msg[idx];
     *hf_idx    = hf_sgsap_msg_type;
-    *msg_fcn_p = sgsap_msg_fcn[idx];
+    if (*msg_str != NULL) {
+        *ett_tree  = ett_sgsap_msg[idx];
+        *msg_fcn_p = sgsap_msg_fcn[idx];
+    }
 
     return;
 }
