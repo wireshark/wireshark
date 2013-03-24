@@ -1624,8 +1624,8 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 #define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
 #define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either ftypes.UINT{8,16,24,32} or ftypes.STRING (defaults to ftypes.UINT32) */
 #define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX or base.HEX_DEC (defaults to base.DEC) */
-    gchar* name = (gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
-    gchar* ui_name = (gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
+    const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
+    const gchar* ui_name = (const gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = (enum ftenum)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     unsigned base = (unsigned)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
 

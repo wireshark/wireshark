@@ -152,7 +152,7 @@ typedef struct _wslua_proto_t {
 
 struct _wslua_distbl_t {
     dissector_table_t table;
-    gchar* name;
+    const gchar* name;
 };
 
 struct _wslua_col_info {
