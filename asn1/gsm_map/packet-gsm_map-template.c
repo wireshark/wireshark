@@ -1915,13 +1915,13 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1);
     match_strval_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
-    tap_rec.invoke = FALSE;
-    if ( gsmmap_pdu_type  == 1 )
-	tap_rec.invoke = TRUE;
-    tap_rec.opr_code_idx = op_idx;
-    tap_rec.size = gsm_map_pdu_size;
+    if (op_idx != -1) {
+        tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;
+        tap_rec.opr_code_idx = op_idx;
+        tap_rec.size = gsm_map_pdu_size;
 
-    tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+        tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+    }
 }
 
 const value_string ssCode_vals[] = {
