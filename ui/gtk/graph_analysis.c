@@ -1710,10 +1710,13 @@ static gboolean pane_callback(GtkWidget *widget _U_, GParamSpec *pspec _U_, gpoi
 	GtkAllocation          draw_area_comments_alloc, draw_area_alloc;
 	cairo_t               *cr;
 
+	/* If we want to limit minimum and maximum size of graph window, we can include this code. */
+#if 0
 	if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) > user_data->dlg.surface_width)
 		gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), user_data->dlg.surface_width);
 	else if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) < NODE_WIDTH*2)
 		gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), NODE_WIDTH*2);
+#endif
 
 	/* repaint the comment area because when moving the pane position there are times that the expose_event_comments is not called */
 
@@ -1773,6 +1776,7 @@ static void v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 {
 	GtkWidget      *hbox;
+	GtkWidget      *hpane_l;
 	GtkWidget      *viewport;
 	GtkWidget      *scroll_window_comments;
 	GtkWidget      *viewport_comments;
@@ -1822,10 +1826,8 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 
 	/* create main Graph draw area */
 	user_data->dlg.draw_area = gtk_drawing_area_new();
-	if (user_data->num_nodes < 2)
-		user_data->dlg.surface_width = 2 * NODE_WIDTH;
-	else
-		user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
+	/* allow a little extra space (2*NODE_WIDTH) for wide labels */
+	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH + 2*NODE_WIDTH; 
 	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
 	user_data->dlg.scroll_window = gtk_scrolled_window_new(NULL, NULL);
 	if ( user_data->num_nodes < 6)
@@ -1889,16 +1891,20 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_widget_show(user_data->dlg.scroll_window);
 	gtk_widget_show(scroll_window_comments);
 
-	/* Allow the hbox with time to expand (TRUE, TRUE) */
-	gtk_box_pack_start(GTK_BOX(hbox), frame_time, FALSE, FALSE, 3);
-
 	user_data->dlg.hpane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
 	gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
 	g_signal_connect(user_data->dlg.hpane, "notify::position",  G_CALLBACK(pane_callback), user_data);
 	gtk_widget_show(user_data->dlg.hpane);
 
-	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
+	/* Allow the hbox with time to expand (TRUE, TRUE) */
+	hpane_l = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_paned_pack1(GTK_PANED (hpane_l), frame_time, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED (hpane_l), user_data->dlg.hpane, TRUE, TRUE);
+	g_signal_connect(hpane_l, "notify::position",  G_CALLBACK(pane_callback), user_data);
+	gtk_widget_show(hpane_l);
+
+	gtk_box_pack_start(GTK_BOX(hbox), hpane_l, TRUE, TRUE, 0);
 
 	/* Create the scroll_vbox to include the vertical scroll and a box at the bottom */
 	scroll_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -2092,7 +2098,7 @@ void graph_analysis_update(graph_analysis_data_t *user_data)
 	get_nodes(user_data);
 
 	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
-	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_width);
+	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
 	if (user_data->num_nodes < 6)
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
 	else
