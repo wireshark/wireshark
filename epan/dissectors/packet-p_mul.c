@@ -295,14 +295,14 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
 
 static guint p_mul_id_hash (gconstpointer k)
 {
-  p_mul_id_key *p_mul = (p_mul_id_key *)k;
+  const p_mul_id_key *p_mul = (const p_mul_id_key *)k;
   return p_mul->id;
 }
 
 static gint p_mul_id_hash_equal (gconstpointer k1, gconstpointer k2)
 {
-  p_mul_id_key *p_mul1 = (p_mul_id_key *)k1;
-  p_mul_id_key *p_mul2 = (p_mul_id_key *)k2;
+  const p_mul_id_key *p_mul1 = (const p_mul_id_key *)k1;
+  const p_mul_id_key *p_mul2 = (const p_mul_id_key *)k2;
 
   if (p_mul1->id != p_mul2->id)
     return 0;
