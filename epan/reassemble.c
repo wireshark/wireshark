@@ -543,7 +543,7 @@ lookup_fd_head(reassembly_table *table, const packet_info *pinfo,
 /*
  * Insert an fd_head into the fragment table, and return the key used.
  */
-gpointer
+static gpointer
 insert_fd_head(reassembly_table *table, fragment_data *fd_head,
 	       const packet_info *pinfo, const guint32 id, const void *data)
 {
