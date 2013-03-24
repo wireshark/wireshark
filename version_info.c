@@ -192,7 +192,8 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 {
 	CFStringRef cfstring;
 
-	cfstring = CFDictionaryGetValue(dict, key);
+	cfstring = (CFStringRef)CFDictionaryGetValue((CFDictionaryRef)dict,
+	    (const void *)key);
 	if (cfstring == NULL)
 		return NULL;
 	if (CFGetTypeID(cfstring) != CFStringGetTypeID()) {
@@ -263,11 +264,11 @@ get_os_x_version_info(GString *str)
 		}
 	}
 #ifdef HAVE_CFPROPERTYLISTCREATEWITHSTREAM
-	version_dict = CFPropertyListCreateWithStream(NULL,
+	version_dict = (CFDictionaryRef)CFPropertyListCreateWithStream(NULL,
 	    version_plist_stream, 0, kCFPropertyListImmutable,
 	    NULL, NULL);
 #else
-	version_dict = CFPropertyListCreateFromStream(NULL,
+	version_dict = (CFDictionaryRef)CFPropertyListCreateFromStream(NULL,
 	    version_plist_stream, 0, kCFPropertyListImmutable,
 	    NULL, NULL);
 #endif

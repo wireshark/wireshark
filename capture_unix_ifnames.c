@@ -78,7 +78,7 @@ get_unix_interface_friendly_name(const char *ifname)
 
 	num_interfaces = CFArrayGetCount(interfaces);
 	for (i = 0; i < num_interfaces; i++) {
-		interface = CFArrayGetValueAtIndex(interfaces, i);
+		interface = (SCNetworkInterfaceRef)CFArrayGetValueAtIndex(interfaces, i);
 		bsdname_CFString = SCNetworkInterfaceGetBSDName(interface);
 		if (bsdname_CFString == NULL) {
 			/*
