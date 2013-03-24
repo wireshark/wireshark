@@ -302,7 +302,7 @@ ouch_tree_add_timestamp(
     gint offset)
 {
     guint64 ts = tvb_get_ntoh64(tvb, offset);
-    char *buf = wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
+    char *buf = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH);
     guint32 tmp, hours, mins, secs, nsecs;
 
     nsecs = (guint32)(ts % G_GUINT64_CONSTANT(1000000000));
