@@ -3856,7 +3856,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 					} else if (hfinfo->display & BASE_EXT_STRING) {
 						g_strlcpy(result+offset_r,
 							  val_to_str_ext(u_integer,
-									 (value_string_ext *)(hfinfo->strings),
+									 (const value_string_ext *)(hfinfo->strings),
 									 "%u"), size-offset_r);
 					} else {
 						g_strlcpy(result+offset_r,
@@ -3924,7 +3924,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 					} else if (hfinfo->display & BASE_EXT_STRING) {
 						g_strlcpy(result+offset_r,
 							  val_to_str_ext(integer,
-									 (value_string_ext *)(hfinfo->strings),
+									 (const value_string_ext *)(hfinfo->strings),
 									 "%d"),
 							  size-offset_r);
 					} else {
@@ -5495,7 +5495,7 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	/* Fill in the textual info using stored (shifted) value */
 	if (hfinfo->display == BASE_CUSTOM) {
 		gchar tmp[ITEM_LABEL_LENGTH];
-		custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+		const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hfinfo->strings;
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
@@ -5511,7 +5511,7 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 		} else if (hfinfo->display & BASE_EXT_STRING) {
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 				 format,  hfinfo->name,
-				 val_to_str_ext_const(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
+				 val_to_str_ext_const(value, (const value_string_ext *) hfinfo->strings, "Unknown"), value);
 		} else {
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 				   format,  hfinfo->name,
@@ -5542,7 +5542,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	/* Fill in the textual info */
 	if (hfinfo->display == BASE_CUSTOM) {
 		gchar tmp[ITEM_LABEL_LENGTH];
-		custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+		const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hfinfo->strings;
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
@@ -5557,7 +5557,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 		} else if (hfinfo->display & BASE_EXT_STRING) {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				 format,  hfinfo->name,
-				 val_to_str_ext_const(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
+				 val_to_str_ext_const(value, (const value_string_ext *) hfinfo->strings, "Unknown"), value);
 		} else {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   format,  hfinfo->name,
@@ -5609,7 +5609,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 	/* Fill in the textual info */
 	if (hfinfo->display == BASE_CUSTOM) {
 		gchar tmp[ITEM_LABEL_LENGTH];
-		custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+		const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hfinfo->strings;
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
@@ -5624,7 +5624,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 		} else if (hfinfo->display & BASE_EXT_STRING) {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				 format,  hfinfo->name,
-				 val_to_str_ext_const(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
+				 val_to_str_ext_const(value, (const value_string_ext *) hfinfo->strings, "Unknown"), value);
 		} else {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   format,  hfinfo->name,
@@ -6515,11 +6515,11 @@ proto_registrar_dump_values(void)
 				     hfinfo->type == FT_INT64)) {
 
 					if (hfinfo->display & BASE_EXT_STRING) {
-						vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
+						vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)hfinfo->strings);
 					} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
-						vals = (value_string *)hfinfo->strings;
+						vals = (const value_string *)hfinfo->strings;
 					} else {
-						range = (range_string *)hfinfo->strings;
+						range = (const range_string *)hfinfo->strings;
 					}
 				}
 				else if (hfinfo->type == FT_BOOLEAN) {
@@ -6530,7 +6530,7 @@ proto_registrar_dump_values(void)
 			/* Print value strings? */
 			if (vals) {
 				if (hfinfo->display & BASE_EXT_STRING) {
-					value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
+					const value_string_ext *vse_p = (const value_string_ext *)hfinfo->strings;
 					if (!value_string_ext_validate(vse_p)) {
 						g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
 						continue;
@@ -7284,7 +7284,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		case FT_UINT32:
 			if (hf->display == BASE_CUSTOM) {
 				gchar lbl[ITEM_LABEL_LENGTH];
-				custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hf->strings;
+				const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hf->strings;
 
 				DISSECTOR_ASSERT(fmtfunc);
 				fmtfunc(lbl, tmpval);
@@ -7298,7 +7298,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 							       hf->name, rval_to_str(tmpval, (const range_string *)hf->strings, "Unknown"));
 				} else if (hf->display & BASE_EXT_STRING) {
 					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-							       hf->name, val_to_str_ext_const(tmpval, (value_string_ext *) (hf->strings), "Unknown"));
+							       hf->name, val_to_str_ext_const(tmpval, (const value_string_ext *) (hf->strings), "Unknown"));
 				} else {
 					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
 							       hf->name, val_to_str_const(tmpval, cVALS(hf->strings), "Unknown"));
@@ -7906,7 +7906,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	}
 }
 
-proto_item *
+static proto_item *
 proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 				 tvbuff_t *tvb, const guint bit_offset,
 				 const gint no_of_bits, void *value_ptr,

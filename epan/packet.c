@@ -1264,11 +1264,11 @@ dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 	return dtbl_entry->current;
 }
 
-gint
+static gint
 dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector_b)
 {
-	dissector_handle_t a = (dissector_handle_t)dissector_a;
-	dissector_handle_t b = (dissector_handle_t)dissector_b;
+	const dissector_handle_t a = (const dissector_handle_t)dissector_a;
+	const dissector_handle_t b = (const dissector_handle_t)dissector_b;
 	const char *a_name, *b_name;
 	gint ret;
 
