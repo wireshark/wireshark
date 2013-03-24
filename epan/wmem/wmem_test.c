@@ -29,47 +29,37 @@
 #include "wmem_allocator_block.h"
 #include "config.h"
 
-typedef struct _wmem_test_fixture_t {
-    wmem_allocator_t *allocator;
-} wmem_test_fixture_t;
-
 static void
-wmem_test_block_allocator_setup(wmem_test_fixture_t *fixture,
-        const void *extra _U_)
+wmem_test_block_allocator(void)
 {
-    /* we call the functions direct to ensure our type doesn't get overridden */
-    fixture->allocator = wmem_block_allocator_new();
-    fixture->allocator->type = WMEM_ALLOCATOR_BLOCK;
-}
-
-static void
-wmem_test_teardown(wmem_test_fixture_t *fixture, const void *extra _U_)
-{
-    wmem_destroy_allocator(fixture->allocator);
-}
-
-static void
-wmem_test_block_allocator(wmem_test_fixture_t *fixture, const void *extra _U_)
-{
-    char *ptrs[1024];
     int i;
+    char *ptrs[1024];
+    wmem_allocator_t *allocator;
 
-    wmem_block_verify(fixture->allocator);
+    /* we set up our allocator directly to ensure our type doesn't get
+     * overridden */
+    allocator = wmem_block_allocator_new();
+    allocator->type = WMEM_ALLOCATOR_BLOCK;
 
-    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(fixture->allocator, 8);
-    for (i=0; i<1024; i++) wmem_free(fixture->allocator, ptrs[i]);
+    wmem_block_verify(allocator);
 
-    wmem_block_verify(fixture->allocator);
+    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(allocator, 8);
+    for (i=0; i<1024; i++) wmem_free(allocator, ptrs[i]);
 
-    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(fixture->allocator, 64);
-    for (i=0; i<1024; i++) wmem_free(fixture->allocator, ptrs[i]);
+    wmem_block_verify(allocator);
 
-    wmem_block_verify(fixture->allocator);
+    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(allocator, 64);
+    for (i=0; i<1024; i++) wmem_free(allocator, ptrs[i]);
 
-    for (i=0; i<1024; i++) ptrs[i] = wmem_alloc(fixture->allocator, 512);
-    for (i=0; i<1024; i++) wmem_free(fixture->allocator, ptrs[i]);
+    wmem_block_verify(allocator);
 
-    wmem_block_verify(fixture->allocator);
+    for (i=0; i<1024; i++)  ptrs[i] = wmem_alloc(allocator, 512);
+    for (i=1023; i>=0; i--) ptrs[i] = wmem_realloc(allocator, ptrs[i], 16*1024);
+    for (i=0; i<1024; i++)  wmem_free(allocator, ptrs[i]);
+
+    wmem_block_verify(allocator);
+
+    wmem_destroy_allocator(allocator);
 }
 
 int
@@ -77,13 +67,9 @@ main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
 
-    g_test_add("/wmem/block-allocator", wmem_test_fixture_t, NULL,
-            wmem_test_block_allocator_setup,
-            wmem_test_block_allocator,
-            wmem_test_teardown);
+    g_test_add_func("/wmem/block-allocator", wmem_test_block_allocator);
 
-    /* return g_test_run(); */
-    return 0;
+    return g_test_run();
 }
 
 /*

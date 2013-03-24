@@ -352,13 +352,13 @@ wmem_block_add_to_free_list(wmem_block_allocator_t *allocator,
 {
     g_assert(!chunk->used);
 
+    if (WMEM_CHUNK_DATA_LEN(chunk) >= sizeof(wmem_block_free_t)) {
+        /* it's still big enough to store the struct, so check the flag */
+        g_assert(! WMEM_GET_FREE(chunk)->in_free_list);
+    }
+
     if (chunk->len < WMEM_RECLAIM_LEN) {
         /* it's not big enough to claim */
-        if (WMEM_CHUNK_DATA_LEN(chunk) >= sizeof(wmem_block_free_t)) {
-            /* it's still big enough to store the struct, so set the flag
-             * so we know in future it wasn't added */
-            WMEM_GET_FREE(chunk)->in_free_list = FALSE;
-        }
         return;
     }
 
@@ -390,10 +390,12 @@ wmem_block_merge_free(wmem_block_allocator_t *allocator,
 
     if (tmp && !tmp->used) {
         /* Remove it from the free list since we're merging it, then add its
-         * length to our length since the two free chunks are now one.
+         * length to our length since the two free chunks are now one. Also
+         * update our last flag, since we may now be last if tmp was.
          * Our 'chunk' pointer is still the master header. */
         wmem_block_remove_from_free_list(allocator, tmp);
         chunk->len += tmp->len;
+        chunk->last = tmp->last;
     }
 
     /* check the chunk to our left */
@@ -406,8 +408,10 @@ wmem_block_merge_free(wmem_block_allocator_t *allocator,
         wmem_block_remove_from_free_list(allocator, tmp);
 
         /* Add our length to its length since the two free chunks
-         * are now one. */
+         * are now one. Also update its last flag, since it may now be the
+         * last chunk in the block. */
         tmp->len += chunk->len;
+        tmp->last = chunk->last;
 
         /* The chunk pointer passed in is no longer valid, it's been merged to
          * its left, so use the chunk to our left */
@@ -418,6 +422,13 @@ wmem_block_merge_free(wmem_block_allocator_t *allocator,
     tmp = WMEM_CHUNK_NEXT(chunk);
     if (tmp) {
         tmp->prev = chunk->len;
+    }
+
+    /* Chunk can be pointing to any of three possible places after the merge,
+     * and we don't know what leftover free_list values they might have, so
+     * reset the in_free_list flag to FALSE if we can to avoid confusion. */
+    if (WMEM_CHUNK_DATA_LEN(chunk) >= sizeof(wmem_block_free_t)) {
+        WMEM_GET_FREE(chunk)->in_free_list = FALSE;
     }
 
     return chunk;
@@ -587,7 +598,11 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     }
 
     /* merge it to its right if possible (it can't be merged left, obviously) */
-    wmem_block_merge_free(allocator, extra);
+    chunk = wmem_block_merge_free(allocator, extra);
+
+    /* assert that chunk == extra; if not then it was merged left which should
+     * be impossible! */
+    g_assert(chunk == extra);
 
     /* add it to the free list */
     wmem_block_add_to_free_list(allocator, extra);
@@ -700,7 +715,7 @@ wmem_block_free(void *private_data, void *ptr)
 
     /* merge it with any other free chunks adjacent to it, so that contiguous
      * free space doesn't get fragmented */
-    wmem_block_merge_free(allocator, chunk);
+    chunk = wmem_block_merge_free(allocator, chunk);
 
     /* Add it to the free list. If it isn't big enough, this is a no-op */
     wmem_block_add_to_free_list(allocator, chunk);
