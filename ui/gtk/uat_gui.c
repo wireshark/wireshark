@@ -70,6 +70,7 @@
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/packet_win.h"
 
 # define BUTTON_SIZE_X -1
 # define BUTTON_SIZE_Y -1
@@ -725,6 +726,7 @@ static void uat_apply_changes(uat_t *uat) {
 			/* Just redissect packets if we have any */
 			if (cfile.state != FILE_CLOSED) {
 				redissect_packets ();
+				redissect_all_packet_windows ();
 			}
 		}
 	}

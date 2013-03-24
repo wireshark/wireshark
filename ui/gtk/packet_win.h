@@ -45,4 +45,7 @@ void destroy_packet_wins(void);
 /** Redraw the packet bytes panes of all packet windows. */
 void redraw_packet_bytes_packet_wins(void);
 
+/** Redissect all packet windows **/
+void redissect_all_packet_windows(void);
+
 #endif

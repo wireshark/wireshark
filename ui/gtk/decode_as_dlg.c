@@ -50,6 +50,7 @@
 #include "ui/gtk/decode_as_ber.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/packet_win.h"
 
 #undef DEBUG
 
@@ -578,6 +579,7 @@ decode_clear_all(gboolean redissect)
 
     if (redissect) {
       redissect_packets();
+      redissect_all_packet_windows();
     }
 }
 
@@ -1062,6 +1064,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     decode_dimmable = NULL;
 
     redissect_packets();
+    redissect_all_packet_windows();
 }
 
 /*
@@ -1091,6 +1094,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
     func(notebook_pg);
 
     redissect_packets();
+    redissect_all_packet_windows();
 }
 
 /*

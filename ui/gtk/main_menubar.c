@@ -5168,6 +5168,7 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
         prefs_main_write();
     }
     redissect_packets();
+    redissect_all_packet_windows();
 }
 
 static void
@@ -5189,6 +5190,7 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
             prefs_main_write();
         }
         redissect_packets();
+        redissect_all_packet_windows();
     }
 }
 
@@ -5259,6 +5261,7 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
             prefs_main_write();
         }
         redissect_packets();
+        redissect_all_packet_windows();
     }
 
     window_destroy(GTK_WIDGET(parent_w));

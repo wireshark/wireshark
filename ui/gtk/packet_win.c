@@ -157,6 +157,52 @@ button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
 	return FALSE;
 }
 
+/* Returns dynamically allocated memory, must be freed by caller after use */
+static char*
+create_packet_window_title(void)
+{
+	GString *title;
+	char *ret;
+	int i;
+
+	title = g_string_new("");
+
+	/*
+	 * Build title of window by getting column data constructed when the
+	 * frame was dissected.
+	 */
+	for (i = 0; i < cfile.cinfo.num_cols; ++i) {
+		g_string_append(title, cfile.cinfo.col_data[i]);
+		g_string_append_c(title, ' ');
+	}
+
+	ret = title->str;
+
+	g_string_free(title, FALSE);
+
+	return ret;
+}
+
+static void
+redissect_packet_window(gpointer object, gpointer user_data _U_)
+{
+	struct PacketWinData *DataPtr = (struct PacketWinData *)object;
+	char *title;
+
+	/* XXX, can be optimized? */
+	proto_tree_draw(NULL, DataPtr->tree_view);
+	epan_dissect_cleanup(&(DataPtr->edt));
+	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
+	add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
+	proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
+
+	/* update the window title */
+	title = create_packet_window_title();
+	gtk_window_set_title(GTK_WINDOW(DataPtr->main), title);
+	g_free(title);
+}
+
 #ifdef WANT_PACKET_EDITOR
 static field_info *
 proto_finfo_find(proto_tree *tree, field_info *old_finfo)
@@ -804,13 +850,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 
 	/* redissect if changed */
 	if (data.val != -1) {
-		/* XXX, can be optimized? */
-		proto_tree_draw(NULL, DataPtr->tree_view);
-		epan_dissect_cleanup(&(DataPtr->edt));
-		epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-		epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
-		add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
-		proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
+		redissect_packet_window(DataPtr, NULL);
 	}
 
 	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
@@ -868,14 +908,11 @@ static void modifed_frame_data_free(gpointer data) {
 
 void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _U_)
 {
-#define NewWinTitleLen 1000
-	char Title[NewWinTitleLen] = "";
-	const char *TextPtr;
+	char  *title;
 	GtkWidget *main_w, *main_vbox, *pane,
 		  *tree_view, *tv_scrollw,
 		  *bv_nb_ptr;
 	struct PacketWinData *DataPtr;
-	int i;
 	frame_data *fd;
 	
 	if(reference) {
@@ -930,19 +967,10 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 
-	/*
-	 * Build title of window by getting column data constructed when the
-	 * frame was dissected.
-	 */
-	for (i = 0; i < cfile.cinfo.num_cols; ++i) {
-		TextPtr = cfile.cinfo.col_data[i];
-		if ((strlen(Title) + strlen(TextPtr)) < NewWinTitleLen - 1) {
-			g_strlcat(Title, TextPtr, NewWinTitleLen);
-			g_strlcat(Title, " ", NewWinTitleLen);
-		}
-	}
-
-	main_w = window_new(GTK_WINDOW_TOPLEVEL, Title);
+	/* update the window title */
+	title = create_packet_window_title();
+	main_w = window_new(GTK_WINDOW_TOPLEVEL, title);
+	g_free(title);
 	gtk_window_set_default_size(GTK_WINDOW(main_w), DEF_WIDTH, -1);
 
 	/* Container for paned windows  */
@@ -1012,6 +1040,12 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 		DataPtr->frame->file_off = -1;
 	}
 #endif
+}
+
+void
+redissect_all_packet_windows(void)
+{
+	g_list_foreach(detail_windows, redissect_packet_window, NULL);
 }
 
 static void

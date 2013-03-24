@@ -56,6 +56,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/dlg_utils.h"
+#include "ui/gtk/packet_win.h"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1425,6 +1426,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
     redissect_packets();
+    redissect_all_packet_windows();
   }
 
 }
@@ -1455,6 +1457,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
     redissect_packets();
+    redissect_all_packet_windows();
   }
 }
 
@@ -1491,6 +1494,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
     redissect_packets();
+    redissect_all_packet_windows();
   }
 }
 
@@ -1539,6 +1543,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
     redissect_packets();
+    redissect_all_packet_windows();
   }
 }
 

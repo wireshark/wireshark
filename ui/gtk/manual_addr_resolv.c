@@ -39,6 +39,7 @@
 #include "ui/gtk/menus.h"
 #include "ui/gtk/manual_addr_resolv.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/packet_win.h"
 
 GtkWidget *man_addr_resolv_dlg = NULL;
 
@@ -86,6 +87,7 @@ man_addr_resolv_ok(GtkWidget *w _U_, gpointer data _U_)
 
   if (redissect) {
     redissect_packets();
+    redissect_all_packet_windows();
   }
   window_destroy(man_addr_resolv_dlg);
   man_addr_resolv_dlg = NULL;

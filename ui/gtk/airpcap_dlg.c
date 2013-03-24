@@ -51,6 +51,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/packet_win.h"
 
 #include <airpcap.h>
 #include "airpcap_loader.h"
@@ -1364,6 +1365,7 @@ on_decryption_mode_cb_changed(GtkWidget *cb, gpointer data _U_)
 
     /* Redissect all the packets, and re-evaluate the display filter. */
     redissect_packets();
+    redissect_all_packet_windows();
 }
 
 /*
