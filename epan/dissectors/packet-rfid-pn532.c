@@ -506,69 +506,81 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         break;
 
     case IN_DATA_EXCHANGE_REQ:
-      
-            if (sub_selected == SUB_MIFARE) {
+
+        if (sub_selected == SUB_MIFARE) {
             /* Logical target number */
             proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
 
             /* Seems to work for payloads from LibNFC's "nfc-mfultralight" command */
             next_tvb = tvb_new_subset_remaining(tvb, 3);
             call_dissector(sub_handles[SUB_MIFARE], next_tvb, pinfo, tree);
-            } 
-            
-            if (sub_selected == SUB_ISO7816) {
+        } 
+        else if (sub_selected == SUB_ISO7816) {
             /* Logical target number */
             proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
 
             /* Seems to work for EMV payloads sent using TAMA shell scripts */
             next_tvb = tvb_new_subset_remaining(tvb, 3);
-            
+
             /* Need to do this, for the ISO7816 dissector to work, it seems */
             pinfo->p2p_dir = P2P_DIR_SENT;
             call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
-            }
-            
-            else {
-            }
-            
+        }
+        else {
+        }
+
         break;
 
     case IN_DATA_EXCHANGE_RSP:
+
+        if (sub_selected == SUB_ISO7816) {
+
+            /* Seems to work for identifying responses to Select File requests...
+               Might need to investigate "Status Words", later */
+            next_tvb = tvb_new_subset_remaining(tvb, 2);
+
+            /* Need to do this, for the ISO7816 dissector to work, it seems */
+            pinfo->p2p_dir = P2P_DIR_RECV;
+            call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
+        }
+        else {
+        }
+            
         break;
 
     case IN_COMMUNICATE_THRU_REQ:
-      
-       if (sub_selected == SUB_FELICA) {
-            
-        /* Alleged payload length for FeliCa */
+
+        if (sub_selected == SUB_FELICA) {
+
+            /* Alleged payload length for FeliCa */
             proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-        /* Attempt to dissect FeliCa payloads */
+            /* Attempt to dissect FeliCa payloads */
             next_tvb = tvb_new_subset_remaining(tvb, 3);
             call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
-            }
-            
-            /* MiFare transmissions may identify as spurious FeliCa packets, in some cases */
-            else {
-            }
+        }
+
+        /* MiFare transmissions may identify as spurious FeliCa packets, in some cases */
+        else {
+        }
       
         break;
 
     case IN_COMMUNICATE_THRU_RSP:
-       if (sub_selected == SUB_FELICA) {
-            
-        /* Alleged payload length for FeliCa */
+        if (sub_selected == SUB_FELICA) {
+
+            /* Alleged payload length for FeliCa */
             proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-        /* Attempt to dissect FeliCa payloads */
+            /* Attempt to dissect FeliCa payloads */
             next_tvb = tvb_new_subset_remaining(tvb, 4);
             call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
-            }
-            
-            /* MiFare transmissions may identify as spurious FeliCa packets, in some cases */
-            else {
-            }
-      
+        }
+
+        /* MiFare transmissions may identify as spurious FeliCa packets, in some cases */
+        else {
+        }
+
         break;
 
     /* Deselect a token */
