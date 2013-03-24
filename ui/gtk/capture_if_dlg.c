@@ -808,18 +808,10 @@ capture_if_refresh_if_list(void)
     row++;
     if (row <= 20) {
       /* Add up to 20 rows of interfaces, otherwise the window may become too high */
-      /* XXX: Testing on Windows & Fedora (Gtk2 & Gtk3) seems to show that the height
-       *      determined below is the same whether or not the 'get_preferred_size' in enclosed
-       *       in 'widget_show'/'widget_hide'
-       */
 #ifdef _WIN32
-      gtk_widget_show(GTK_WIDGET(data.details_bt));
       gtk_widget_get_preferred_size(GTK_WIDGET(data.details_bt), &requisition, NULL);
-      gtk_widget_hide(GTK_WIDGET(data.details_bt));
 #else
-      gtk_widget_show(GTK_WIDGET(data.choose_bt));
       gtk_widget_get_preferred_size(GTK_WIDGET(data.choose_bt), &requisition, NULL);
-      gtk_widget_hide(GTK_WIDGET(data.choose_bt));
 #endif
       height += requisition.height;
     }
