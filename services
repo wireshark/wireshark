@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-03-07
+# 2013-03-21
 # 
 # Expert(s)
 # 
@@ -7320,7 +7320,13 @@ d2000kernel	3119/tcp	# D2000 Kernel Port
 d2000kernel	3119/udp	# D2000 Kernel Port
 d2000webserver	3120/tcp	# D2000 Webserver Port         [Tomas_Rajcan]                                     [Tomas_Rajcan]
 d2000webserver	3120/udp	# D2000 Webserver Port         [Tomas_Rajcan]                                     [Tomas_Rajcan]
-# 3121               Unassigned                                                                                                                                             2003-09-17
+# The pacemaker remote
+# (pcmk-remote) service
+pcmk-remote	3121/tcp	# extends high availability    [David_Vossel]                                     [Andrew_Beekhof]                                          2013-03-15                                                                     port 3121 previously noted "Removed on 2003-09-17"
+# functionality outside of the
+# Linux cluster into remote
+# nodes.
+# 3121        udp    Reserved                                                                                                                                                                                                                 port 3121 previously noted "Removed on 2003-09-17"
 vtr-emulator	3122/tcp	# MTI VTR Emulator port        [John_Mertus]                                      [John_Mertus]
 vtr-emulator	3122/udp	# MTI VTR Emulator port        [John_Mertus]                                      [John_Mertus]
 edix	3123/tcp	# EDI Translation Protocol     [William_Randolph_Roy]                             [William_Randolph_Roy]
@@ -12735,7 +12741,10 @@ iwg1	7071/udp	# IWGADTS Aircraft             [Don_Sullivan]                     
 # 7072-7079            Unassigned
 empowerid	7080/tcp	# EmpowerID Communication      [Matthew_Whited]                                   [Matthew_Whited]                                          2008-01-16
 empowerid	7080/udp	# EmpowerID Communication      [Matthew_Whited]                                   [Matthew_Whited]                                          2008-01-16
-# 7081-7098            Unassigned
+# 7081-7094            Unassigned
+jdp-disc	7095/udp	# Java Discovery Protocol      [OpenJDK]                                          [Florian_Weimer]                                          2013-03-12
+# 7095        tcp    Reserved
+# 7096-7098            Unassigned
 lazy-ptop	7099/tcp	# lazy-ptop                    [Guy_Keren]                                        [Guy_Keren]
 lazy-ptop	7099/udp	# lazy-ptop                    [Guy_Keren]                                        [Guy_Keren]
 font-service	7100/tcp	# X Font Service               [Stephen_Gildea]                                   [Stephen_Gildea]
@@ -12888,7 +12897,11 @@ rtps-dd-mt	7402/udp	# RTPS Data-Distribution       [Gerardo_Pardo_Castel]       
 # 7403-7409            Unassigned
 ionixnetmon	7410/tcp	# Ionix Network Monitor        [Maxime_Deputter]                                  [Maxime_Deputter]                                         2006-04
 ionixnetmon	7410/udp	# Ionix Network Monitor        [Maxime_Deputter]                                  [Maxime_Deputter]                                         2006-04
-# 7411-7420            Unassigned
+daqstream	7411/tcp	# Streaming of measurement     [Hottinger_Baldwin_Messtechnik_GmbH]               [Stephan_Gatzka]                                          2013-03-15
+# data
+daqstream	7411/udp	# Streaming of measurement     [Hottinger_Baldwin_Messtechnik_GmbH]               [Stephan_Gatzka]                                          2013-03-15
+# data
+# 7412-7420            Unassigned
 mtportmon	7421/tcp	# Matisse Port Monitor         [Didier_Cabannes]                                  [Didier_Cabannes]                                         2004-11
 mtportmon	7421/udp	# Matisse Port Monitor         [Didier_Cabannes]                                  [Didier_Cabannes]                                         2004-11
 # 7422-7425            Unassigned
@@ -15539,7 +15552,10 @@ profinet-cm	34964/udp	# PROFInet Context Manager     [Peter_Wenzel]             
 # 34965-34979           Unassigned
 ethercat	34980/tcp	# EtherCAT Port                [Martin_Rostan]                                    [Martin_Rostan]                                           2003-11
 ethercat	34980/udp	# EhterCAT Port                [Martin_Rostan]                                    [Martin_Rostan]                                           2003-11
-# 34981-35353           Unassigned
+# 34981-34999           Unassigned
+heathview	35000/tcp	# HeathView                    [Heathwest_Systems_Limited]                        [Andrew_Porrer]                                           2013-03-21
+# 35000       udp    Reserved
+# 35001-35353           Unassigned
 kitim	35354/tcp	# KIT Messenger                [Rudi_Visser]                                      [Rudi_Visser]                                             2011-07-07
 # 35354       udp    Reserved
 altova-lm	35355/tcp	# Altova License Management    [Alexander_Falk_2]                                 [Alexander_Falk_2]                                        2011-07-07
@@ -17369,6 +17385,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andres_Seco_Hernande]                                    Andres Seco Hernandez                           mailto:AndresSH&alamin.org
 # [Andrew_Aksyonoff]                                        Andrew Aksyonoff                                mailto:shodan&sphinxsearch.com                                2009-10-20
 # [Andrew_Andrews]                                          Andrew Andrews                                  mailto:Andrew.Andrews&nsius.com                               2011-09-01
+# [Andrew_Beekhof ]                                         Andrew Beekhof                                  mailto:andrew&beekhof.net                                     2013-03-15
 # [Andrew_Borisov]                                          Andrew Borisov                                  mailto:hdr&chat.ru
 # [Andrew_Chernow]                                          Andrew Chernow                                  mailto:andrew&esilo.com                                       2007-01
 # [Andrew_Crockford]                                        Andrew Crockford                                mailto:andrew.crockford&modus-interactive.co.uk
@@ -17382,6 +17399,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andrew_Mather]                                           Andrew Mather                                   mailto:info&balaena.com                                       2008-02-14
 # [Andrew_Morgan]                                           Andrew Morgan                                   mailto:andrew.morgan&sun.com                                  2009-12-08
 # [Andrew_Mossberg]                                         Andrew Mossberg                                 mailto:amossberg&asoki.net
+# [Andrew_Porrer]                                           Andrew Porrer             Heathwest Systems     mailto:Andrew.Porrer&heathwest.com                            2013-03-21
+# Limited
 # [Andrew_Schultz]                                          Andrew Schultz                                  mailto:aschultz&strykercom.com                                2003-08
 # [Andrew_Sharpe]                                           Andrew Sharpe                                   mailto:help&smartsims.com
 # [Andrew_Shire]                                            Andrew Shire                                    mailto:sndrewsh&sco.com
@@ -18261,6 +18280,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [David_Turner]                                            David Turner                                    mailto:digital&quetico.tbaytel.net
 # [David_V_Raskin]                                          David V. Raskin                                 mailto:draskin&rimage.com                                     2006-02
 # [David_Vest]                                              David Vest                                      mailto:dave&mythicsoft.com                                    2008-11-19
+# [David_Vossel]                                            David Vossel                                    mailto:dvossel&redhat.com                                     2013-03-15
 # [David_W_Radcliffe]                                       David W. Radcliffe                              mailto:info&radsolution.co.uk
 # [David_Walend]                                            David Walend                                    mailto:david&walend.net
 # mailto:dev&salutafugijms.dev.java.net
@@ -18589,6 +18609,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Filippo_Fadda]                                           Filippo Fadda                                   mailto:fadda&osway.com                                        2003-08
 # [FLIR_Systems_AB]                                                                   FLIR Systems AB       mailto:bjorn.roth&flir.se                                     2011-10-20
 # [Florence_Wyman]                                          Florence Wyman                                  mailto:wyman&peabody.plk.af.mil
+# [Florian_Weimer]                                          Florian Weimer                                  mailto:fweimer&redhat.com                                     2013-03-12
 # [Fons_Rademakers]                                         Fons Rademakers                                 mailto:Fons.Rademakers&cern.ch
 # [Forest_Hill]                                             Forest Hill                                     mailto:forest&apple.com
 # [Found_Software]                                                                    Found Software, Inc.  mailto:john&foundapp.com                                      2012-04-11
@@ -18870,6 +18891,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Harvey_S_Schultz]                                        Harvey S. Schultz                               mailto:harvey&acm.org
 # [Heath_Barber]                                            Heath Barber              Datacolor             mailto:hbarber&datacolor.com                                  2011-10-14
 # [Heath_Raftery]                                           Heath Raftery                                   mailto:heath&hrsoftworks.net
+# [Heathwest_Systems_Limited]                                                         Heathwest Systems     mailto:info&heathwest.com                                     2013-03-21
+# Limited
 # [Heikki_E]                                                Heikki Ellil SQRTS                              mailto:heikki.ellila&western.fi                               2009-06-18
 # [Heiko_Kretschmer]                                        Heiko Kretschmer                                mailto:info&wurst-wasser.net
 # [Heiko_Rupp]                                              Heiko Rupp                                      mailto:hwr&pilhuhn.de
@@ -18932,6 +18955,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Hong_Jungkih]                                            Hong, Jungkih                                   mailto:jungkih.hong&samsung.com                               2010-09-20
 # [Horizon_Digital_Ente]                                                              Horizon Digital       mailto:info&hde.co.jp
 # Enterprise Inc.
+# [Hottinger_Baldwin_Messtechnik_GmbH]                                                Hottinger Baldwin     mailto:stephan.gatzka&hbm.com                                 2013-03-15
+# Messtechnik GmbH
 # [Howard_Amos]                                             Howard Amos                                     mailto:amos&ccww.co.uk                                        2006-04
 # [Howard_Cole]                                             Howard Cole                                     mailto:hcole&tumbleweed.nrcabq.com
 # [Howard_Gordon]                                           Howard Gordon                                   mailto:hgordon&system.xingtech.com
@@ -20436,6 +20461,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Open Mobile Alliance
 # [Open_Mobile_Alliance_Device_Management_DM_Working_Group] Device Management (DM)                          mailto:Technical-Comments&mail.openmobilealliance.org         2011-08-19
 # Working Group
+# [OpenJDK]                                                                           OpenJDK               mailto:discuss&openjdk.java.net                               2013-03-12
 # [OpenMail_Encyclopedi]                                                              OpenMail Encyclopedia mailto:opencyc&hpopd.pwd.hp.com
 # [OpenRemote_Inc]                                                                    OpenRemote, Inc.      mailto:juha&openremote.org                                    2012-12-18
 # [OPNET_Technologies_Inc]                                                            OPNET Technologies    mailto:tmacomber&opnet.com                                    2011-09-21
@@ -21327,6 +21353,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Stephen_Cipolli]                                         Stephen Cipolli                                 mailto:scipolli&radvision.com
 # [Stephen_Dunne]                                           Stephen Dunne                                   mailto:sdun&isma.co.uk
 # [Stephen_Egbert]                                          Stephen Egbert                                  mailto:egbert&ra.timeplex.com
+# [Stephan_Gatzka]                                          Stephan Gatzka            Hottinger Baldwin     mailto:stephan.gatzka&hbm.com                                 2013-03-15
+# Messtechnik GmbH
 # [Stephen_Gildea]                                          Stephen Gildea                                  mailto:gildea&lcs.mit.edu
 # [Stephen_Hanna]                                           Stephen Hanna                                   mailto:hanna&world.std.com
 # [Stephen_Hanna_2]                                         Stephen Hanna                                   mailto:steve.hanna&sun.com
