@@ -6426,22 +6426,30 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * octet 1
 	 */
+	/* Initialize hf_idx, ett_tree and dtap_msg_fcn.
+	   ett_tree and dtap_msg_fcn will not be used if msg_str == NULL. */
 	switch (pd)
 	{
 	case 3:
 		msg_str = match_strval_idx((guint32) (oct & DTAP_CC_IEI_MASK), gsm_a_dtap_msg_cc_strings, &idx);
-		ett_tree = ett_gsm_dtap_msg_cc[idx];
+		if (msg_str != NULL)
+		{
+			ett_tree = ett_gsm_dtap_msg_cc[idx];
+			dtap_msg_fcn = dtap_msg_cc_fcn[idx];
+		}
 		hf_idx = hf_gsm_a_dtap_msg_cc_type;
-		dtap_msg_fcn = dtap_msg_cc_fcn[idx];
 		ti = (oct_1 & DTAP_TI_MASK) >> 4;
 		nsd = TRUE;
 		break;
 
 	case 5:
 		msg_str = match_strval_idx((guint32) (oct & DTAP_MM_IEI_MASK), gsm_a_dtap_msg_mm_strings, &idx);
-		ett_tree = ett_gsm_dtap_msg_mm[idx];
+		if (msg_str != NULL)
+		{
+			ett_tree = ett_gsm_dtap_msg_mm[idx];
+			dtap_msg_fcn = dtap_msg_mm_fcn[idx];
+		}
 		hf_idx = hf_gsm_a_dtap_msg_mm_type;
-		dtap_msg_fcn = dtap_msg_mm_fcn[idx];
 		nsd = TRUE;
 		break;
 
@@ -6455,9 +6463,12 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case 9:
 		msg_str = match_strval_idx((guint32) (oct & DTAP_SMS_IEI_MASK), gsm_a_dtap_msg_sms_strings, &idx);
-		ett_tree = ett_gsm_dtap_msg_sms[idx];
 		hf_idx = hf_gsm_a_dtap_msg_sms_type;
-		dtap_msg_fcn = dtap_msg_sms_fcn[idx];
+		if (msg_str != NULL)
+		{
+			ett_tree = ett_gsm_dtap_msg_sms[idx];
+			dtap_msg_fcn = dtap_msg_sms_fcn[idx];
+		}
 		ti = (oct_1 & DTAP_TI_MASK) >> 4;
 		break;
 
@@ -6468,18 +6479,24 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case 11:
 		msg_str = match_strval_idx((guint32) (oct & DTAP_SS_IEI_MASK), gsm_a_dtap_msg_ss_strings, &idx);
-		ett_tree = ett_gsm_dtap_msg_ss[idx];
 		hf_idx = hf_gsm_a_dtap_msg_ss_type;
-		dtap_msg_fcn = dtap_msg_ss_fcn[idx];
+		if (msg_str != NULL)
+		{
+			ett_tree = ett_gsm_dtap_msg_ss[idx];
+			dtap_msg_fcn = dtap_msg_ss_fcn[idx];
+		}
 		ti = (oct_1 & DTAP_TI_MASK) >> 4;
 		nsd = TRUE;
 		break;
 
 	case 15:
 		msg_str = match_strval_idx((guint32) (oct & DTAP_TP_IEI_MASK), gsm_a_dtap_msg_tp_strings, &idx);
-		ett_tree = ett_gsm_dtap_msg_tp[idx];
 		hf_idx = hf_gsm_a_dtap_msg_tp_type;
-		dtap_msg_fcn = dtap_msg_tp_fcn[idx];
+		if (msg_str != NULL)
+		{
+			ett_tree = ett_gsm_dtap_msg_tp[idx];
+			dtap_msg_fcn = dtap_msg_tp_fcn[idx];
+		}
 		nsd = TRUE;
 		break;
 

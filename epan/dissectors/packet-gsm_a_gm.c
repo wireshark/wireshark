@@ -7117,9 +7117,11 @@ get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx
 	gint idx;
 
 	*msg_str      = match_strval_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
-	*ett_tree     = ett_gsm_dtap_msg_gmm[idx];
 	*hf_idx	      = hf_gsm_a_dtap_msg_gmm_type;
-	*dtap_msg_fcn = dtap_msg_gmm_fcn[idx];
+	if (*msg_str != NULL) {
+		*ett_tree     = ett_gsm_dtap_msg_gmm[idx];
+		*dtap_msg_fcn = dtap_msg_gmm_fcn[idx];
+	}
 
 	return;
 }
@@ -7130,9 +7132,11 @@ get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx,
 	gint idx;
 
 	*msg_str      = match_strval_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
-	*ett_tree     = ett_gsm_dtap_msg_sm[idx];
 	*hf_idx	      = hf_gsm_a_dtap_msg_sm_type;
-	*dtap_msg_fcn = dtap_msg_sm_fcn[idx];
+	if (*msg_str != NULL) {
+		*ett_tree     = ett_gsm_dtap_msg_sm[idx];
+		*dtap_msg_fcn = dtap_msg_sm_fcn[idx];
+	}
 
 	return;
 }
