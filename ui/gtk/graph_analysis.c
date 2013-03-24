@@ -1511,7 +1511,7 @@ comments_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 /****************************************************************************/
 static gboolean draw_time(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation          allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
