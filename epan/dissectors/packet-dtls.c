@@ -534,11 +534,12 @@ static gboolean
 dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Stronger confirmation of DTLS packet is provided by verifying the
-   * payload length against the remainder of the UDP packet size. */
+   * captured payload length against the remainder of the UDP packet size. */
   guint length = tvb_length(tvb);
   guint offset = 0;
 
   if (tvb_reported_length(tvb) == length) {
+    /* The entire payload was captured. */
     while (offset + 13 <= length && looks_like_dtls(tvb, offset)) {
       /* Advance offset to the end of the current DTLS record */
       offset += tvb_get_ntohs(tvb, offset + 11) + 13;
@@ -555,7 +556,8 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     return FALSE;
   }
 
-  /* We've got a truncated packet - do our best with what we've got. */
+  /* This packet was truncated by the capture process due to a snapshot
+   * length - do our best with what we've got. */
   while (tvb_length_remaining(tvb, offset) >= 3) {
     if (!looks_like_dtls(tvb, offset))
       return FALSE;
@@ -1160,13 +1162,16 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       const gchar   *frag_str = NULL;
       gboolean       fragmented;
 
-      msg_type        = tvb_get_guint8(tvb, offset);
-      msg_type_str    = match_strval(msg_type, ssl_31_handshake_type);
-      length          = tvb_get_ntoh24(tvb, offset + 1);
-      message_seq     = tvb_get_ntohs(tvb,offset + 4);
-      fragment_offset = tvb_get_ntoh24(tvb, offset + 6);
-      fragment_length = tvb_get_ntoh24(tvb, offset + 9);
-      fragmented      = fragment_length != length;
+      if (tree)
+        {
+          /* add a subtree for the handshake protocol */
+          ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
+                                   offset, -1, ENC_NA);
+          ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
+        }
+
+      msg_type = tvb_get_guint8(tvb, offset);
+      msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
 
       if (!msg_type_str && !first_iteration)
         {
@@ -1189,6 +1194,38 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
                         ? msg_type_str : "Encrypted Handshake Message");
+
+      if (ssl_hand_tree)
+        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_type,
+                            tvb, offset, 1, msg_type);
+      offset++;
+
+      length = tvb_get_ntoh24(tvb, offset);
+      if (ssl_hand_tree)
+        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
+                            tvb, offset, 3, length);
+      offset += 3;
+
+      message_seq = tvb_get_ntohs(tvb,offset);
+      if (ssl_hand_tree)
+        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
+                            tvb, offset, 2, message_seq);
+      offset += 2;
+
+      fragment_offset = tvb_get_ntoh24(tvb, offset);
+      if (ssl_hand_tree)
+        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
+                            tvb, offset, 3, fragment_offset);
+      offset += 3;
+
+      fragment_length = tvb_get_ntoh24(tvb, offset);
+      if (ssl_hand_tree)
+        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_length,
+                            tvb, offset, 3, fragment_length);
+      offset += 3;
+      proto_item_set_len(ti, fragment_length + 12);
+
+      fragmented = fragment_length != length;
 
       /* Handle fragments of known message type */
       if (fragmented)
@@ -1221,10 +1258,10 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             pinfo->fragmented = TRUE;
 
             /* Don't pass the reassembly code data that doesn't exist */
-            tvb_ensure_bytes_exist(tvb, offset+12, fragment_length);
+            tvb_ensure_bytes_exist(tvb, offset, fragment_length);
 
             frag_msg = fragment_add(&dtls_reassembly_table,
-                                    tvb, offset+12, pinfo, message_seq, NULL,
+                                    tvb, offset, pinfo, message_seq, NULL,
                                     fragment_offset, fragment_length, TRUE);
             fragment_set_tot_len(&dtls_reassembly_table,
                                  pinfo, message_seq, NULL, length);
@@ -1232,7 +1269,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (frag_msg && (fragment_length + fragment_offset) == length)
               {
                 /* Reassembled */
-                new_tvb = process_reassembled_data(tvb, offset+12, pinfo,
+                new_tvb = process_reassembled_data(tvb, offset, pinfo,
                                                    "Reassembled DTLS",
                                                    frag_msg,
                                                    &dtls_frag_items,
@@ -1249,8 +1286,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           }
         }
 
-      if (tree)
-        {
+        if (tree) {
           /* set the label text on the record layer expanding node */
           if (first_iteration)
             {
@@ -1270,11 +1306,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                   (frag_str!=NULL) ? frag_str : "");
             }
 
-          /* add a subtree for the handshake protocol */
-          ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
-                                   offset, fragment_length + 12, ENC_NA);
-          ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
-
           if (ssl_hand_tree)
             {
               /* set the text label on the subtree node */
@@ -1289,33 +1320,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       if (!msg_type_str)
         return;
 
-      /* if we are doing ssl decryption we must dissect some requests type */
       if (ssl_hand_tree || ssl)
         {
           tvbuff_t *sub_tvb = NULL;
-
-          /* add nodes for the message type and message length */
-          if (ssl_hand_tree)
-            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_type,
-                                tvb, offset, 1, msg_type);
-          offset++;
-          if (ssl_hand_tree)
-            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
-                                tvb, offset, 3, length);
-          offset += 3;
-
-          if (ssl_hand_tree)
-            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
-                                tvb, offset, 2, message_seq);
-          offset += 2;
-          if (ssl_hand_tree)
-            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
-                                tvb, offset, 3, fragment_offset);
-          offset += 3;
-          if (ssl_hand_tree)
-            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_length,
-                                tvb, offset, 3, fragment_length);
-          offset += 3;
 
           if (fragmented && !new_tvb)
             {
@@ -1441,9 +1448,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           }
 
         }
-      else{
-        offset += 12;        /* skip the handshake header when handshake is not processed*/
-      }
     }
 }
 
