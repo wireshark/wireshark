@@ -826,8 +826,8 @@ capture_if_refresh_if_list(void)
   }
 
   gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
-  /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
-  height += requisition.height + 40 + ifs;
+  /* height + static offset + grid spacing */
+  height += requisition.height + 40 + (row * 3);
 
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
