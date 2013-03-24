@@ -494,12 +494,6 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunsafe-loop-optimizations)
 		#
-		# A ton of code blocks this one - it warns about
-		# implict conversions of void * to/from arbitrary
-		# pointer types, for example.
-		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat, C)
-		#
 		# All the registration functions block these for now.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
@@ -529,6 +523,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpragmas)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat, C)
 
 #
 # XXX - OK for C++?
