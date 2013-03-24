@@ -2133,7 +2133,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   iph->ip_sum = tvb_get_ntohs(tvb, offset + 10);
 
   /*
-   * If we have the entire IP header available, check the checksum.
+   * If checksum checking is enabled, and we have the entire IP header
+   * available, and this isn't inside an ICMP error packet, check the
+   * checksum.
    */
   if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen)&&(!pinfo->flags.in_error_pkt)) {
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
@@ -2182,9 +2184,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb,
                                         offset + 10, 2, iph->ip_sum,
                                         "Header checksum: 0x%04x [%s]",
-                                        iph->ip_sum, ip_check_checksum ?
-                                        "not all data available" :
-                                        "validation disabled");
+                                        iph->ip_sum,
+                                        ip_check_checksum ?
+                                            (pinfo->flags.in_error_pkt ?
+                                             "in ICMP error packet" :
+                                             "not all data available") :
+                                            "validation disabled");
       checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
       item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
                                     offset + 10, 2, FALSE);
