@@ -1126,6 +1126,7 @@ DISSECTOR_SRC = \
 	packet-ucp.c		\
 	packet-udld.c		\
 	packet-udp.c		\
+	packet-uhd.c		\
 	packet-uma.c		\
 	packet-umts_fp.c	\
 	packet-umts_mac.c	\
@@ -1153,6 +1154,7 @@ DISSECTOR_SRC = \
 	packet-vnc.c		\
 	packet-vntag.c		\
 	packet-vrrp.c		\
+	packet-vrt.c        \
 	packet-vssmonitoring.c	\
 	packet-vtp.c		\
 	packet-vuze-dht.c	\

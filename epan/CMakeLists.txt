@@ -1205,6 +1205,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
 	dissectors/packet-udp.c
+	dissectors/packet-uhd.c
 	dissectors/packet-uma.c
 	dissectors/packet-umts_fp.c
 	dissectors/packet-umts_mac.c
@@ -1232,6 +1233,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vnc.c
 	dissectors/packet-vntag.c
 	dissectors/packet-vrrp.c
+	dissectors/packet-vrt.c
 	dissectors/packet-vssmonitoring.c
 	dissectors/packet-vtp.c
 	dissectors/packet-vuze-dht.c
