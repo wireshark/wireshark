@@ -358,8 +358,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			*err = file_error(wth->fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
-			g_free(wth->priv);
-			wth->priv = NULL;
 			return -1;
 		}
 
@@ -377,8 +375,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 					*err = file_error(wth->fh, err_info);
 					if (*err == 0)
 						*err = WTAP_ERR_SHORT_READ;
-					g_free(wth->priv);
-					wth->priv = NULL;
 					return -1;
 				}
 
@@ -419,8 +415,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
-						g_free(wth->priv);
-						wth->priv = NULL;
 						*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
 						    board_type);
@@ -433,16 +427,12 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				/* Go back header number of bytes so that lanalyzer_read
 				 * can read this header */
 				if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
-					g_free(wth->priv);
-					wth->priv = NULL;
 					return -1;
 				}
 				return 1;
 
 			default:
 				if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
-					g_free(wth->priv);
-					wth->priv = NULL;
 					return -1;
 				}
 				break;

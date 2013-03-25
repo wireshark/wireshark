@@ -241,18 +241,12 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(dummy, 4, wth->fh);
     if (bytes_read != 4) {
         if (*err != 0) {
-            wth->priv = NULL;
-            g_free(nettl);
             return -1;
         }
         if (bytes_read != 0) {
             *err = WTAP_ERR_SHORT_READ;
-            wth->priv = NULL;
-            g_free(nettl);
             return -1;
         }
-        wth->priv = NULL;
-        g_free(nettl);
         return 0;
     }
 
@@ -290,7 +284,6 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     }
 
     if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1) {
-        g_free(nettl);
 	return -1;
     }
     wth->tsprecision = WTAP_FILE_TSPREC_USEC;

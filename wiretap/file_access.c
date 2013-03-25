@@ -98,6 +98,14 @@
  * If the routine handles this type of file, it should set the "file_type"
  * field in the "struct wtap" to the type of the file.
  *
+ * Note that the routine does not have to free the private data pointer on
+ * error. The caller takes care of that by calling wtap_close on error.
+ * (See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8518)
+ *
+ * However, the caller does have to free the private data pointer when
+ * returning 0, since the next file type will be called and will likely
+ * just overwrite the pointer.
+ *
  * Put the trace files that are merely saved telnet-sessions last, since it's
  * possible that you could have captured someone a router telnet-session
  * using another tool. So, a libpcap trace of an toshiba "snoop" session

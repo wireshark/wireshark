@@ -225,7 +225,6 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
      offset that we can apply to each packet.
    */
   if (wtap_fstat(wth, &statbuf, err) == -1) {
-    g_free(ascend);
     return -1;
   }
   ascend->inittime = statbuf.st_ctime;

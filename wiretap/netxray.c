@@ -901,7 +901,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Seek to the beginning of the data records. */
 	if (file_seek(wth->fh, netxray->start_offset, SEEK_SET, err) == -1) {
-		g_free(netxray);
 		return -1;
 	}
 

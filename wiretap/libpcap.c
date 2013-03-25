@@ -364,7 +364,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->priv);
 			return -1;
 
 		case THIS_FORMAT:
@@ -373,7 +372,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-				g_free(wth->priv);
 				return -1;
 			}
 			goto done;
@@ -394,7 +392,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990915;
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-			g_free(wth->priv);
 			return -1;
 		}
 	} else {
@@ -416,7 +413,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->priv);
 			return -1;
 
 		case THIS_FORMAT:
@@ -426,7 +422,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-				g_free(wth->priv);
 				return -1;
 			}
 			goto done;
@@ -445,7 +440,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990417;
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-			g_free(wth->priv);
 			return -1;
 		}
 		switch (libpcap_try(wth, err)) {
@@ -455,7 +449,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, we couldn't even read it.
 			 * Give up.
 			 */
-			g_free(wth->priv);
 			return -1;
 
 		case THIS_FORMAT:
@@ -464,7 +457,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-				g_free(wth->priv);
 				return -1;
 			}
 			goto done;
@@ -485,7 +477,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		wth->file_type = WTAP_FILE_PCAP_NOKIA;
 		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
-			g_free(wth->priv);
 			return -1;
 		}
 	}
