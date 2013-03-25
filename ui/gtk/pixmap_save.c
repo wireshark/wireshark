@@ -52,7 +52,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 #if GTK_CHECK_VERSION(2,22,0)
 	surface_info_t *surface_info = (surface_info_t *)g_object_get_data(G_OBJECT(w), "surface-info");
 #else
-	GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
+	GdkPixmap *pixmap = (GdkPixmap *)g_object_get_data(G_OBJECT(w), "pixmap");
 #endif
 	GdkPixbuf *pixbuf;
 	GdkPixbufFormat *pixbuf_format;

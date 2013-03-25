@@ -4304,7 +4304,7 @@ menu_open_recent_file_cmd(GtkAction *action)
 #if GTK_CHECK_VERSION(2,16,0)
     cf_name = gtk_action_get_label(action);
 #else
-    cf_name = g_object_get_data(G_OBJECT(action), "FileName");
+    cf_name = (const gchar *)g_object_get_data(G_OBJECT(action), "FileName");
 #endif
 
     /* open and read the capture file (this will close an existing file) */
