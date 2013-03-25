@@ -641,6 +641,26 @@ fragment_get_reassembled_id(reassembly_table *table, const packet_info *pinfo,
 	return fd_head;
 }
 
+/* To specify the offset for the fragment numbering, the first fragment is added with 0, and
+ * afterwards this offset is set. All additional calls to off_seq_check will calculate
+ * the number in sequence in regards to the offset */
+void
+fragment_add_seq_offset(reassembly_table *table, const packet_info *pinfo, const guint32 id,
+		const void *data, const guint32 fragment_offset)
+{
+	fragment_data *fd_head;
+
+	fd_head = lookup_fd_head(table, pinfo, id, data, NULL);
+	if (!fd_head)
+		return;
+
+	/* Reseting the offset is not allowed */
+	if ( fd_head->fragment_nr_offset != 0 )
+		return;
+
+	fd_head->fragment_nr_offset = fragment_offset;
+}
+
 /* This function can be used to explicitly set the total length (if known)
  * for reassembly of a PDU.
  * This is useful for reassembly of PDUs where one may have the total length specified
@@ -853,6 +873,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
 	fd->offset = frag_offset;
+	fd->fragment_nr_offset = 0; /* will only be used with sequence */
 	fd->len  = frag_data_len;
 	fd->data = NULL;
 
@@ -1348,11 +1369,18 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fragment_data *fd_i;
 	fragment_data *last_fd;
 	guint32 max, dfpos;
+	guint32 frag_number_work;
+
+	/* Enables the use of fragment sequence numbers, which do not start with 0 */
+	frag_number_work = frag_number;
+	if ( fd_head->fragment_nr_offset != 0 )
+		if ( frag_number_work >= fd_head->fragment_nr_offset )
+			frag_number_work = frag_number - fd_head->fragment_nr_offset;
 
 	/* if the partial reassembly flag has been set, and we are extending
 	 * the pdu, un-reassemble the pdu. This means pointing old fds to malloc'ed data.
 	 */
-	if(fd_head->flags & FD_DEFRAGMENTED && frag_number >= fd_head->datalen &&
+	if(fd_head->flags & FD_DEFRAGMENTED && frag_number_work >= fd_head->datalen &&
 		fd_head->flags & FD_PARTIAL_REASSEMBLY){
 		guint32 lastdfpos = 0;
 		dfpos = 0;
@@ -1383,7 +1411,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
-	fd->offset = frag_number;
+	fd->offset = frag_number_work;
 	fd->len  = frag_data_len;
 	fd->data = NULL;
 
@@ -1852,6 +1880,7 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 		fd_head->next = NULL;
 		fd_head->datalen = tot_len;
 		fd_head->offset = 0;
+		fd_head->fragment_nr_offset = 0;
 		fd_head->len = 0;
 		fd_head->flags = FD_BLOCKSEQUENCE|FD_DATALEN_SET;
 		fd_head->data = NULL;

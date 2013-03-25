@@ -74,6 +74,9 @@ typedef struct _fragment_data {
 	guint32 frame;
 	guint32	offset;
 	guint32	len;
+	guint32 fragment_nr_offset; /* offset for frame numbering, for sequences, where the
+	                             * provided fragment number of the first fragment does
+	                             * not start with 0 */
 	guint32 datalen; /* Only valid in first item of list and when
                           * flags&FD_DATALEN_SET is set;
                           * number of bytes or (if flags&FD_BLOCKSEQUENCE set)
@@ -264,6 +267,14 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 WS_DLL_PUBLIC fragment_data *
 fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 		      const guint32 id, const void *data);
+
+/* To specify the offset for the fragment numbering, the first fragment is added with 0, and
+ * afterwards this offset is set. All additional calls to off_seq_check will calculate
+ * the number in sequence in regards to the offset */
+WS_DLL_PUBLIC void
+fragment_add_seq_offset(reassembly_table *table, const packet_info *pinfo, const guint32 id,
+                    const void *data, const guint32 fragment_offset);
+
 /* to specify how much to reassemble, for fragmentation where last fragment can not be
  * identified by flags or such.
  * note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.
