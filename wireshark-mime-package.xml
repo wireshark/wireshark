@@ -16,6 +16,7 @@
       <match type="little32" offset="0" value="0xa1b2cd34"/>
     </magic>
     <glob pattern="*.pcap"/>
+    <glob pattern="*.pcap.gz"/>
   </mime-type>
 
   <mime-type type="application/x-pcapng">
@@ -31,6 +32,8 @@
     </magic>
     <glob pattern="*.pcapng"/>
     <glob pattern="*.ntar"/>
+    <glob pattern="*.pcapng.gz"/>
+    <glob pattern="*.ntar.gz"/>
   </mime-type>
 
   <mime-type type="application/x-snoop">
@@ -40,6 +43,7 @@
       <match type="string" offset="0" value="snoop"/>
     </magic>
     <glob pattern="*.snoop"/>
+    <glob pattern="*.snoop.gz"/>
   </mime-type>
 
   <mime-type type="application/x-iptrace">
@@ -59,6 +63,7 @@
       <match type="little16" offset="0" value="0x1007"/>
     </magic>
     <glob pattern="*.tr1"/>
+    <glob pattern="*.tr1.gz"/>
   </mime-type>
 
   <mime-type type="application/x-nettl">
@@ -69,6 +74,8 @@
     </magic>
     <glob pattern="*.trc0"/>
     <glob pattern="*.trc1"/>
+    <glob pattern="*.trc0.gz"/>
+    <glob pattern="*.trc1.gz"/>
   </mime-type>
 
   <mime-type type="application/x-radcom">
@@ -88,6 +95,9 @@
     <glob pattern="*.tpc"/>
     <glob pattern="*.apc"/>
     <glob pattern="*.wpz"/>
+    <glob pattern="*.tpc.gz"/>
+    <glob pattern="*.apc.gz"/>
+    <glob pattern="*.wpz.gz"/>
   </mime-type>
 
   <mime-type type="application/x-visualnetworks">
@@ -105,6 +115,7 @@
       <match type="string" offset="0" value="ObserverPktBuffe"/>
     </magic>
     <glob pattern="*.bfr"/>
+    <glob pattern="*.bfr.gz"/>
   </mime-type>
 
   <mime-type type="application/x-5view">
@@ -114,5 +125,6 @@
       <match type="string" offset="0" value="\xaa\xaa\xaa\xaa"/>
     </magic>
     <glob pattern="*.5vw"/>
+    <glob pattern="*.5vw.gz"/>
   </mime-type>
 </mime-info>
