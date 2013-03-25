@@ -322,7 +322,6 @@ init_pipe_args(int *argc) {
 gboolean
 sync_pipe_start(capture_options *capture_opts) {
     char ssnap[ARGV_NUMBER_LEN];
-    char sdlt[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
     char sfilesize[ARGV_NUMBER_LEN];
     char sfile_duration[ARGV_NUMBER_LEN];
@@ -452,8 +451,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
         if (interface_opts.linktype != -1) {
             argv = sync_pipe_add_arg(argv, &argc, "-y");
-            g_snprintf(sdlt, ARGV_NUMBER_LEN, "%s", linktype_val_to_name(interface_opts.linktype));
-            argv = sync_pipe_add_arg(argv, &argc, sdlt);
+            argv = sync_pipe_add_arg(argv, &argc, linktype_val_to_name(interface_opts.linktype));
         }
 
         if (!interface_opts.promisc_mode) {
