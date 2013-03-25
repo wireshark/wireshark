@@ -2537,7 +2537,7 @@ host_name_lookup_init(void) {
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
-  if (adns_init(&ads, 0, 0 /*0=>stderr*/) != 0) {
+  if (adns_init(&ads, adns_if_none, 0 /*0=>stderr*/) != 0) {
     /*
      * XXX - should we report the error?  I'm assuming that some crashes
      * reported on a Windows machine with TCP/IP not configured are due
@@ -2657,7 +2657,7 @@ host_name_lookup_process(void) {
       g_snprintf(addr_str, sizeof addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
                  addr_bytes[2], addr_bytes[1], addr_bytes[0]);
       /* XXX - what if it fails? */
-      adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
+      adns_submit (ads, addr_str, adns_r_ptr, adns_qf_none, NULL, &almsg->query);
       almsg->submitted = TRUE;
       async_dns_in_flight++;
     }
