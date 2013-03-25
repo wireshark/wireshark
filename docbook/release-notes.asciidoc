@@ -98,9 +98,11 @@ SEL Fast Message
 Smart Message Language (SML)
 SPNEGO Extended Negotiation Security Mechanism (NEGOEX)
 Simple Packet Relay Transport (SPRT)
+UHD/USRP
 USB Audio
 USB Video
 v.150.1 State Signaling Event (SSE)
+VITA 49 Radio Transport
 VNTAG
 WebRTC Datachannel Protocol (RTCDC)
 WiMAX OFDMA PHY SAP
