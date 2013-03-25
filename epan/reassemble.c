@@ -901,7 +901,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 			 * past the end of a buffer sooner or later).
 			 */
 			g_slice_free(fragment_data, fd);
-			THROW(ReassemblyError);
+			THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
 		}
 	}
 
