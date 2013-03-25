@@ -1269,7 +1269,7 @@ static const ip_tcp_opt osinlcp_opts[] = {
 #define CI_CCP_PUDDLE   3       /* Puddle Jumper (RFC1962) */
 #define CI_CCP_HPPPC    16      /* Hewlett-Packard PPC (RFC1962) */
 #define CI_CCP_STAC     17      /* stac Electronics LZS (RFC1974) */
-#define CI_CCP_MPPE     18      /* Microsoft PPE/C (RFC2218/3078) */
+#define CI_CCP_MPPE     18      /* Microsoft PPE/C (RFC2118/3078) */
 #define CI_CCP_GFZA     19      /* Gandalf FZA (RFC1962) */
 #define CI_CCP_V42BIS   20      /* V.42bis compression */
 #define CI_CCP_BSDLZW   21      /* BSD LZW Compress (RFC1977) */
