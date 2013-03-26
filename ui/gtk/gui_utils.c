@@ -1877,7 +1877,8 @@ void
 ws_gtk_grid_attach_defaults(GtkGrid *grid, GtkWidget *child, gint left, gint top, gint width, gint height)
 {
     /* Use defaults for [x|y]options and [x|y]padding which match those for gtk_table_attach_defaults() */
-    ws_gtk_grid_attach_extended(grid, child, left, top, width, height, GTK_EXPAND|GTK_FILL, GTK_EXPAND|GTK_FILL, 0, 0);
+    ws_gtk_grid_attach_extended(grid, child, left, top, width, height,
+          (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), 0, 0);
 }
 
 void
