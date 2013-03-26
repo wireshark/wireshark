@@ -881,19 +881,22 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 					   tvb, offset + 2, 2, cksum,
 					   "Checksum: 0x%04x [correct]",
 					   cksum);
-	} else {
 		hidden_item =
 		    proto_tree_add_boolean(ext_tree,
 					   hf_icmp_ext_checksum_bad, tvb,
-					   offset + 2, 2, TRUE);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-
+					   offset + 2, 2, FALSE);
+	} else {
 		proto_tree_add_uint_format(ext_tree, hf_icmp_ext_checksum,
 					   tvb, offset + 2, 2, cksum,
 					   "Checksum: 0x%04x [incorrect, should be 0x%04x]",
 					   cksum, in_cksum_shouldbe(cksum,
 								    computed_cksum));
+		hidden_item =
+		    proto_tree_add_boolean(ext_tree,
+					   hf_icmp_ext_checksum_bad, tvb,
+					   offset + 2, 2, TRUE);
 	}
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	if (version != 1 && version != 2) {
 		/* Unsupported version */
@@ -1033,7 +1036,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 	}
 
 	if (!PINFO_FD_VISITED(pinfo)) {
-		/* this is a new request, create a new transaction structure and map it to the 
+		/* this is a new request, create a new transaction structure and map it to the
 		   unmatched table
 		 */
 		icmp_key[0].length = 2;
@@ -1362,12 +1365,12 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						   2, 2, cksum,
 						   "Checksum: 0x%04x [correct]",
 						   cksum);
-		} else {
 			item =
 			    proto_tree_add_boolean(icmp_tree,
 						   hf_icmp_checksum_bad,
-						   tvb, 2, 2, TRUE);
+						   tvb, 2, 2, FALSE);
 			PROTO_ITEM_SET_HIDDEN(item);
+		} else {
 			proto_tree_add_uint_format(icmp_tree,
 						   hf_icmp_checksum, tvb,
 						   2, 2, cksum,
@@ -1375,6 +1378,11 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						   cksum,
 						   in_cksum_shouldbe(cksum,
 								     computed_cksum));
+			item =
+			    proto_tree_add_boolean(icmp_tree,
+						   hf_icmp_checksum_bad,
+						   tvb, 2, 2, TRUE);
+			PROTO_ITEM_SET_HIDDEN(item);
 		}
 	} else {
 		proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
