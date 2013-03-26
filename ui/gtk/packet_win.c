@@ -525,7 +525,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 
 	GtkWidget *dialog = gtk_dialog_new_with_buttons("Editing finfo: ....",
 			GTK_WINDOW(w),
-			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			(GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
 			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
 			NULL);
@@ -597,7 +597,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 	} else if (finfo_type == FT_STRING || finfo_type == FT_STRINGZ) {
 		fvalue_edit = gtk_entry_new();
 		gtk_entry_set_max_length(GTK_ENTRY(fvalue_edit), finfo->length);
-		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), fvalue_get(&finfo->value));
+		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), (const gchar*) fvalue_get(&finfo->value));
 		g_signal_connect(fvalue_edit, "changed", G_CALLBACK(finfo_string_changed), DataPtr);
 
 	} else if (finfo_type == FT_BOOLEAN) {
@@ -606,7 +606,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 		g_signal_connect(fvalue_edit, "toggled", G_CALLBACK(finfo_boolean_changed), DataPtr);
 
 	} else if (finfo_type == FT_IPv4) {
-		guint32 net_addr = ipv4_get_net_order_addr(fvalue_get(&finfo->value));
+		guint32 net_addr = ipv4_get_net_order_addr((ipv4_addr *)fvalue_get(&finfo->value));
 #if GTK_CHECK_VERSION(3,0,0)
 		GtkAdjustment *adj;
 #else
@@ -714,7 +714,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 
 		data.frame = DataPtr->frame;
 		data.phdr  = DataPtr->phdr;
-		data.pd = g_memdup(DataPtr->pd, DataPtr->frame->cap_len);
+		data.pd = (guint8 *) g_memdup(DataPtr->pd, DataPtr->frame->cap_len);
 		data.start_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
 
 		data.finfo = finfo;
@@ -854,7 +854,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	}
 
 	for (src_le = DataPtr->edt.pi.data_src; src_le != NULL; src_le = src_le->next) {
-		const struct data_source *src = src_le->data;
+		const struct data_source *src = (const struct data_source *)src_le->data;
 		tvbuff_t *tvb = get_data_source_tvb(src);
 
 		if (tvb && tvb->real_data == DataPtr->pd) {
@@ -878,7 +878,7 @@ static void
 edit_pkt_destroy_new_window(GObject *object _U_, gpointer user_data)
 {
 	/* like destroy_new_window, but without freeding DataPtr->pd */
-	struct PacketWinData *DataPtr = user_data;
+	struct PacketWinData *DataPtr = (struct PacketWinData *)user_data;
 
 	detail_windows = g_list_remove(detail_windows, DataPtr);
 	proto_tree_draw(NULL, DataPtr->tree_view);
@@ -1029,7 +1029,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 #ifdef WANT_PACKET_EDITOR
 	if (editable && DataPtr->frame->cap_len != 0) {
 		/* XXX, there's no Save button here, so lets assume packet is always edited */
-		modified_frame_data *mfd = g_malloc(sizeof(modified_frame_data));
+		modified_frame_data *mfd = (modified_frame_data *)g_malloc(sizeof(modified_frame_data));
 
 		mfd->pd = DataPtr->pd;
 		mfd->phdr = DataPtr->phdr;
