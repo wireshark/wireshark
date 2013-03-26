@@ -315,12 +315,19 @@ _match_strval_ext_init(const guint32 val, const value_string_ext *a_vse)
       type = VS_BIN_TREE;
     }
     /* XXX: Should check for dups ?? */
-    if ((type == VS_BIN_TREE) &&
-        ((prev_value > vs_p[i].value) || (first_value > vs_p[i].value))) {
-      type = VS_SEARCH;
-      g_warning("Extended value string %s forced to fall back to linear search",
-              vse->_vs_name);
-      break;
+    if (type == VS_BIN_TREE) {
+      if (prev_value > vs_p[i].value) {
+        g_warning("Extended value string %s forced to fall back to linear search: entry %u, value %u < previous entry, value %u",
+                  vse->_vs_name, i, vs_p[i].value, prev_value);
+        type = VS_SEARCH;
+        break;
+      }
+      if (first_value > vs_p[i].value) {
+        g_warning("Extended value string %s forced to fall back to linear search: entry %u, value %u < first entry, value %u",
+                  vse->_vs_name, i, vs_p[i].value, first_value);
+        type = VS_SEARCH;
+        break;
+      }
     }
 
     prev_value = vs_p[i].value;
