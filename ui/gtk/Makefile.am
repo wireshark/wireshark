@@ -135,10 +135,10 @@ pipe_icon.h:
 toolbar_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	for icon16 in gnome_emblem_web toolbar_wireshark_file ; do \
+	for icon16 in gnome_emblem_web toolbar_wireshark_file capture_options capture_restart capture_start capture_stop ; do \
 		gdk-pixbuf-csource --raw --name=$${icon16}_16_pb_data $(top_srcdir)/image/toolbar/$${icon16}_16.png >> $@ ;\
 	done
-	for icon24 in gnome_emblem_web toolbar_wireshark_file ; do \
+	for icon24 in gnome_emblem_web toolbar_wireshark_file capture_options capture_restart capture_start capture_stop ; do \
 		gdk-pixbuf-csource --raw --name=$${icon24}_24_pb_data $(top_srcdir)/image/toolbar/$${icon24}_24.png >> $@ ;\
 	done
 
