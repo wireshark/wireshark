@@ -271,7 +271,7 @@ capture_prefs_fetch(GtkWidget *w)
 	pcap_ng_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PCAP_NG_KEY);
 	sync_cb    = (GtkWidget *)g_object_get_data(G_OBJECT(w), CAPTURE_REAL_TIME_KEY);
 	auto_scroll_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), AUTO_SCROLL_KEY);
-        show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
+	show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
 
 	if (prefs.capture_device != NULL) {
 		g_free(prefs.capture_device);
@@ -703,7 +703,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 #endif
-  renderer = gtk_cell_renderer_toggle_new ();
+	renderer = gtk_cell_renderer_toggle_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Has snap length mode", renderer,
 							   "active", HASSNAP_COLUMN,
 							   NULL);
@@ -715,6 +715,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	column = gtk_tree_view_column_new_with_attributes ("Default snap length", renderer,
 							   "text", SNAPLEN_COLUMN,
 							   NULL);
+	gtk_tree_view_column_set_resizable(column, FALSE);
 
 	renderer = gtk_cell_renderer_toggle_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Default to promiscuous mode", renderer,
@@ -874,7 +875,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_snaplen_cb, 1, row, 1, 1);
 	gtk_widget_show(if_snaplen_cb);
 	row++;
-	
+
 	/* create "promiscuous mode" label and button */
 	if_pmode_lb = gtk_label_new("Promiscuous mode:");
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_pmode_lb, 0, row, 1, 1);
@@ -1085,8 +1086,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 }
 
 static gint
-ifopts_description_to_val (const char *if_name, gboolean monitor_mode,
-    const char *descr)
+ifopts_description_to_val (const char *if_name, gboolean monitor_mode, const char *descr)
 {
 	if_capabilities_t *caps;
 	int dlt = -1;
@@ -1469,7 +1469,7 @@ ifopts_edit_snaplen_changed_cb(GtkSpinButton *sb _U_, gpointer udata _U_)
 	} else {
 		hassnap = FALSE;
 	}
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); 
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata)));
 	gtk_list_store_set  (list_store, &list_iter,
 				     SNAPLEN_COLUMN, snaplen,
 				     HASSNAP_COLUMN, hassnap,
@@ -1495,7 +1495,7 @@ ifopts_edit_hassnap_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	}
 	hassnap = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt));
 
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); 
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata)));
 	gtk_list_store_set  (list_store, &list_iter,
 				     HASSNAP_COLUMN, hassnap,
 				     -1);
@@ -1520,8 +1520,8 @@ ifopts_edit_pmode_changed_cb(GtkToggleButton *tbt, gpointer udata)
 		return;
 	}
 	pmode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt));
-	
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); 
+
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata)));
 	gtk_list_store_set  (list_store, &list_iter,
 				     PMODE_COLUMN, pmode,
 				     -1);
