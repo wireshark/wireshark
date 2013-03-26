@@ -343,7 +343,7 @@ gtk_osx_openFile (GtkosxApplication *app _U_, gchar *path, gpointer user_data _U
     gchar* selection_path;
     size_t length = strlen(path);
 
-    selection_path = g_malloc(length + 3);
+    selection_path = (gchar *)g_malloc(length + 3);
     memcpy(selection_path, path, length);
 
     selection_path[length] = '\r';

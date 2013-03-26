@@ -3147,7 +3147,7 @@ main_menu_new(GtkAccelGroup ** table)
 #endif
 
 #ifdef HAVE_GTKOSXAPPLICATION
-    theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+    theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
 
     if(prefs.gui_macosx_style) {
         gtk_widget_hide(menubar);

@@ -1887,7 +1887,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
         main_capture_cb_capture_update_started(capture_opts);
 #ifdef HAVE_GTKOSXAPPLICATION
-        theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+        theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
         gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsiconcap48_xpm));
 #endif
         break;
@@ -1914,7 +1914,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         /* Beware: this state won't be called, if the capture child
          * closes the capturing on its own! */
 #ifdef HAVE_GTKOSXAPPLICATION
-        theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+        theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
         gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
 #endif
         main_capture_cb_capture_stopping(capture_opts);
@@ -3207,7 +3207,7 @@ main(int argc, char *argv[])
   profile_store_persconffiles (FALSE);
 
 #ifdef HAVE_GTKOSXAPPLICATION
-  theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+  theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
   gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
   gtkosx_application_ready(theApp);
 #endif
