@@ -64,7 +64,7 @@
 
 struct tcap_private_t {
   gboolean acv; /* Is the Application Context Version present */
-  void * oid;
+  const void * oid;
   guint32 session_id;
   void * context;
   gchar *TransactionID_str;
