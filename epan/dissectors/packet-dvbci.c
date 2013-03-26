@@ -1894,6 +1894,8 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             prog_num = tvb_get_ntohs(tvb, offset);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "Program number 0x%x", prog_num);
+            proto_tree_add_item(cc_item_tree, hf_dvbci_cc_prog_num,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case CC_ID_KEY_REGISTER:
             proto_tree_add_item(cc_item_tree, hf_dvbci_cc_key_register,
