@@ -763,7 +763,6 @@ EXTRA_DIST = \
 	image/lo16-app-wireshark.png	\
 	image/lo32-app-wireshark.png	\
 	image/lo48-app-wireshark.png	\
-	image/make-icons			\
 	image/Makefile.nmake			\
 	image/mergecap.rc.in			\
 	image/minus-8.png			\
