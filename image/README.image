@@ -1,7 +1,7 @@
-This directory contains a set of images and icons for the Wireshark suite of
-applications.  Of particular note for people creating packages for
-distribution are the files wireshark.ico, hi??-app-wireshark.png, and
-lo??-app-wireshark.png.
+This directory contains a set of images and icons for the Wireshark
+suite of applications.  Of particular note for people creating packages
+for distribution are the files wireshark.ico, wiresharkdoc.ico,
+wsicon*.png, and WiresharkDoc-*.png
 
 File descriptions:
 
@@ -10,26 +10,21 @@ File				Description
 clist_ascend.xpm		Packet list sort ascending and descending
 clist_descend.xpm		indicators
 
-wsicon.svg			Canonical vector source for the wireshark icon.
-wsicon256.png			Canonical raster source for the wireshark icon.
-				Generated from wsicon.svg.
+wsicon.svg			Old vector source for the wireshark icon.
 
-wsiconcap.svg			Canonical vector source for the "capture" icon.
-wsiconcap256.png		Canonical raster source for the "capture" icon.
-				Generated from wsiconcap.svg.
+wsiconcap.svg			Old vector source for the "capture" icon.
 
-wsicondoc.svg			Canonical vector source for the "document" icon.
-wsicondoc256.png		Canonical raster source for the "document" icon.
-				Generated from wsiconcap.svg.
+wsicondoc.svg			Old vector source for the "document" icon.
 
 wsicon16.png			Wireshark icons in various sizes
+wsicon24.png
 wsicon32.png
 wsicon48.png
 wsicon64.png
-wsicon16.xpm
-wsicon32.xpm
-wsicon48.xpm
-wsicon64.xpm
+wsicon128.png
+wsicon256.png
+wsicon512.png
+wsicon1024.png
 
 wireshark.ico			Windows application icon file with 16 and 32
 				pixel 3D logo icons, high and low color

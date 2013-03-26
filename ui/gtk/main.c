@@ -183,13 +183,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #ifdef HAVE_LIBPCAP
-#include "../../image/wsicon16.xpm"
-#include "../../image/wsicon32.xpm"
-#include "../../image/wsicon48.xpm"
-#include "../../image/wsicon64.xpm"
-#include "../../image/wsiconcap16.xpm"
-#include "../../image/wsiconcap32.xpm"
-#include "../../image/wsiconcap48.xpm"
+#include "wsicon.h"
+#include "wsiconcap.h"
 #endif
 
 #ifdef HAVE_AIRPCAP
@@ -1522,10 +1517,10 @@ main_cf_cb_file_rescan_finished(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static GList *icon_list_create(
-    const char **icon16_xpm,
-    const char **icon32_xpm,
-    const char **icon48_xpm,
-    const char **icon64_xpm)
+    const guint8 *icon16_pb,
+    const guint8 *icon32_pb,
+    const guint8 *icon48_pb,
+    const guint8 *icon64_pb)
 {
   GList *icon_list = NULL;
   GdkPixbuf * pixbuf16;
@@ -1534,26 +1529,26 @@ static GList *icon_list_create(
   GdkPixbuf * pixbuf64;
 
 
-  if(icon16_xpm != NULL) {
-      pixbuf16 = gdk_pixbuf_new_from_xpm_data(icon16_xpm);
+  if(icon16_pb != NULL) {
+      pixbuf16 = gdk_pixbuf_new_from_inline(-1, icon16_pb, FALSE, NULL);
       g_assert(pixbuf16);
       icon_list = g_list_append(icon_list, pixbuf16);
   }
 
-  if(icon32_xpm != NULL) {
-      pixbuf32 = gdk_pixbuf_new_from_xpm_data(icon32_xpm);
+  if(icon32_pb != NULL) {
+      pixbuf32 = gdk_pixbuf_new_from_inline(-1, icon32_pb, FALSE, NULL);
       g_assert(pixbuf32);
       icon_list = g_list_append(icon_list, pixbuf32);
   }
 
-  if(icon48_xpm != NULL) {
-      pixbuf48 = gdk_pixbuf_new_from_xpm_data(icon48_xpm);
+  if(icon48_pb != NULL) {
+      pixbuf48 = gdk_pixbuf_new_from_inline(-1, icon48_pb, FALSE, NULL);
       g_assert(pixbuf48);
       icon_list = g_list_append(icon_list, pixbuf48);
   }
 
-  if(icon64_xpm != NULL) {
-      pixbuf64 = gdk_pixbuf_new_from_xpm_data(icon64_xpm);
+  if(icon64_pb != NULL) {
+      pixbuf64 = gdk_pixbuf_new_from_inline(-1, icon64_pb, FALSE, NULL);
       g_assert(pixbuf64);
       icon_list = g_list_append(icon_list, pixbuf64);
   }
@@ -1580,7 +1575,7 @@ main_capture_cb_capture_prepared(capture_options *capture_opts)
     main_capture_set_main_window_title(capture_opts);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
+        icon_list = icon_list_create(wsiconcap_16_pb_data, wsiconcap_32_pb_data, wsiconcap_48_pb_data, wsiconcap_64_pb_data);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1640,7 +1635,7 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
     main_set_for_capture_file(TRUE);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
+        icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1681,7 +1676,7 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
     main_set_window_name("The Wireshark Network Analyzer");
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
+        icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1726,7 +1721,7 @@ main_capture_cb_capture_failed(capture_options *capture_opts _U_)
     main_set_for_capture_file(FALSE);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
+        icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1888,7 +1883,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         main_capture_cb_capture_update_started(capture_opts);
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-        gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsiconcap48_xpm));
+        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsiconcap_48_pb_data, FALSE, NULL);
 #endif
         break;
     case(capture_cb_capture_update_continue):
@@ -1915,7 +1910,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
          * closes the capturing on its own! */
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-        gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
+        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL);
 #endif
         main_capture_cb_capture_stopping(capture_opts);
         break;
@@ -3208,7 +3203,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_GTKOSXAPPLICATION
   theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-  gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
+  gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL);
   gtkosx_application_ready(theApp);
 #endif
 

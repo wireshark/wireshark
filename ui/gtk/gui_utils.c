@@ -54,10 +54,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-#include "image/wsicon16.xpm"
-#include "image/wsicon32.xpm"
-#include "image/wsicon48.xpm"
-#include "image/wsicon64.xpm"
+#include "ui/gtk/wsicon.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -116,13 +113,13 @@ window_icon_realize_cb(GtkWidget *win,
     GList     *ws_icon_list = NULL;
     GdkPixbuf *icon;
 
-    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon16_xpm);
+    icon = gdk_pixbuf_new_from_inline(-1, wsicon_16_pb_data, FALSE, NULL);
     ws_icon_list = g_list_append(ws_icon_list, icon);
-    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon32_xpm);
+    icon = gdk_pixbuf_new_from_inline(-1, wsicon_32_pb_data, FALSE, NULL);
     ws_icon_list = g_list_append(ws_icon_list, icon);
-    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon48_xpm);
+    icon = gdk_pixbuf_new_from_inline(-1, wsicon_48_pb_data, FALSE, NULL);
     ws_icon_list = g_list_append(ws_icon_list, icon);
-    icon = gdk_pixbuf_new_from_xpm_data((const char **)wsicon64_xpm);
+    icon = gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL);
     ws_icon_list = g_list_append(ws_icon_list, icon);
 
     gtk_window_set_icon_list(GTK_WINDOW(win), ws_icon_list);
@@ -453,26 +450,6 @@ window_destroy(GtkWidget *win)
 
     gtk_widget_destroy(win);
 }
-
-#if 0
-/* Do we need this one ? */
-/* convert an xpm to a GtkWidget, using the window settings from its parent */
-/* (be sure that the parent window is already being displayed) */
-GtkWidget *
-xpm_to_widget_from_parent(GtkWidget   *parent,
-                          const char **xpm)
-{
-    GdkPixbuf *pixbuf;
-    GdkPixmap *pixmap;
-    GdkBitmap *bitmap;
-
-
-    pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-    gdk_pixbuf_render_pixmap_and_mask_for_colormap(pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
-
-    return gtk_image_new_from_pixmap(pixmap, bitmap);
-}
-#endif
 
 static GtkWidget *
 _gtk_image_new_from_pixbuf_unref(GdkPixbuf *pixbuf) {

@@ -511,7 +511,7 @@
   <action name="actionHelpWiki">
    <property name="icon">
     <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/menu/help/wiki_24.xpm</normaloff>:/menu/help/wiki_24.xpm</iconset>
+     <normaloff>:/menu/help/gnome_emblem_web_16.png</normaloff>:/menu/help/gnome_emblem_web_16.png</iconset>
    </property>
    <property name="text">
     <string>Wiki</string>
@@ -528,7 +528,7 @@
   <action name="actionHelpAbout">
    <property name="icon">
     <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/menu/help/wsicon16.xpm</normaloff>:/menu/help/wsicon16.xpm</iconset>
+     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
    </property>
    <property name="text">
     <string>&amp;About Wireshark</string>

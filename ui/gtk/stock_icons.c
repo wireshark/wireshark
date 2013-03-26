@@ -29,6 +29,8 @@
 
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/toolbar_icons.h"
+#include "ui/gtk/wsicon.h"
+
 #include "ui/utf8_entities.h"
 
 /* these icons are derived from the original stock icons */
@@ -40,14 +42,12 @@
 #include "../../image/toolbar/capture_filter_24.xpm"
 #include "../../image/toolbar/capture_details_24.xpm"
 #include "../../image/toolbar/display_filter_24.xpm"
-#include "../../image/wsicon16.xpm"
 #include "../../image/toolbar/colorize_24.xpm"
 #include "../../image/toolbar/autoscroll_24.xpm"
 #include "../../image/toolbar/resize_columns_24.xpm"
 #include "../../image/toolbar/time_24.xpm"
 #include "../../image/toolbar/internet_24.xpm"
 #include "../../image/toolbar/web_support_24.xpm"
-#include "../../image/toolbar/wiki_24.xpm"
 #include "../../image/toolbar/conversations_16.xpm"
 #include "../../image/toolbar/endpoints_16.xpm"
 #include "../../image/toolbar/expert_info_16.xpm"
@@ -183,14 +183,12 @@ void stock_icons_init(void) {
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },
-        { WIRESHARK_STOCK_ABOUT,                 wsicon16_xpm },
         { WIRESHARK_STOCK_COLORIZE,              colorize_24_xpm },
         { WIRESHARK_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
         { WIRESHARK_STOCK_RESIZE_COLUMNS,        resize_columns_24_xpm},
         { WIRESHARK_STOCK_TIME,                  time_24_xpm},
         { WIRESHARK_STOCK_INTERNET,              internet_24_xpm},
         { WIRESHARK_STOCK_WEB_SUPPORT,           web_support_24_xpm},
-        { WIRESHARK_STOCK_WIKI,                  wiki_24_xpm},
         { WIRESHARK_STOCK_CONVERSATIONS,         conversations_16_xpm},
         { WIRESHARK_STOCK_ENDPOINTS,             endpoints_16_xpm},
         { WIRESHARK_STOCK_EXPERT_INFO,           expert_info_16_xpm},
@@ -224,7 +222,9 @@ void stock_icons_init(void) {
     };
 
     static const stock_pixbuf_t pixbufs[] = {
+        { WIRESHARK_STOCK_ABOUT,         wsicon_16_pb_data, wsicon_24_pb_data },
         { WIRESHARK_STOCK_SAVE,          toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
+        { WIRESHARK_STOCK_WIKI,          gnome_emblem_web_16_pb_data, gnome_emblem_web_24_pb_data },
         { NULL, NULL, NULL }
     };
     /* Register our stock items */

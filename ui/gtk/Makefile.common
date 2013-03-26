@@ -145,8 +145,10 @@ WIRESHARK_GTK_SRC = \
 about_dlg.c main_welcome.c: ../../image/wssplash.xpm ../../image/wssplash-dev.xpm remote_icons.h
 main_statusbar.c: expert_indicators.h capture_comment_icons.h
 capture_if_dlg.c: network_icons.h remote_icons.h pipe_icon.h
-stock_icons.c: toolbar_icons.h
+stock_icons.c: stock_icons.h toolbar_icons.h wsicon.h
 prefs_layout.c: layouts.h
+main.c: wsicon.h wsiconcap.h
+gui_utils.c: wsicon.h
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\
@@ -344,4 +346,6 @@ noinst_HEADERS = \
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h	\
+	wsiconcap.h \
+	wsicon.h \
 	$(WIRESHARK_CUSTOM_HDRS)

@@ -808,6 +808,8 @@ EXTRA_DIST = \
 	image/toolbar/file_set_next_16.xpm	\
 	image/toolbar/file_set_previous_16.xpm	\
 	image/toolbar/flow_graph_16.xpm	\
+	image/toolbar/gnome_emblem_web_16.png	\
+	image/toolbar/gnome_emblem_web_24.png	\
 	image/toolbar/graphs_16.xpm	\
 	image/toolbar/icon_color_0.xpm	\
 	image/toolbar/icon_color_1.xpm	\
@@ -841,7 +843,6 @@ EXTRA_DIST = \
 	image/toolbar/voip_flow_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wep_closed_24.xpm \
-	image/toolbar/wiki_24.xpm	\
 	image/tshark.rc.in	\
 	image/voip_bg.xpm	\
 	image/voip_select.xpm	\
@@ -860,21 +861,19 @@ EXTRA_DIST = \
 	image/wiretap.rc.in	\
 	image/wsicon.svg	\
 	image/wsicon16.png	\
-	image/wsicon16.xpm	\
-	image/wsicon256.png	\
+	image/wsicon24.png	\
 	image/wsicon32.png	\
-	image/wsicon32.xpm	\
 	image/wsicon48.png	\
-	image/wsicon48.xpm	\
 	image/wsicon64.png	\
-	image/wsicon64.xpm	\
+	image/wsicon256.png	\
+	image/wsicon512.png	\
+	image/wsicon1024.png	\
 	image/wsicon-ask.png	\
 	image/wsicon-ask.svg	\
 	image/wsiconcap.svg	\
-	image/wsiconcap16.xpm	\
 	image/wsiconcap256.png	\
-	image/wsiconcap32.xpm	\
-	image/wsiconcap48.xpm	\
+	image/wsiconcap512.png	\
+	image/wsiconcap1024.png	\
 	image/wsiconinst.svg	\
 	image/wsiconinst256.png	\
 	image/wslogo-dev.svg	\

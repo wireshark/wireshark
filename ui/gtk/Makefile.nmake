@@ -73,6 +73,16 @@ layouts.h:
 	for %n in (1 2 3 4 5 6) do \
 	gdk-pixbuf-csource --raw --name=layout_%n_pb_data ../../image/layout_%n.png >> $@
 
+wsicon.h:
+	echo /* This file was automatically generated. DO NOT EDIT. */ > $@
+	echo. $@
+	for %n in (16 24 32 48 64) do \
+	gdk-pixbuf-csource --raw --name=wsicon_%n_pb_data ../../image/wsicon%n.png >> $@
+wsiconcap.h:
+	echo /* This file was automatically generated. DO NOT EDIT. */ > $@
+	echo. $@
+	for %n in (16 24 32 48 64) do \
+	gdk-pixbuf-csource --raw --name=wsiconcap_%n_pb_data ../../image/wsiconcap%n.png >> $@
 
 # The shell script runs slowly, as multiple greps and seds are run
 # for each input file; this is especially slow on Windows.  Therefore,
