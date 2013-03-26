@@ -850,13 +850,13 @@ EXTRA_DIST = \
 	image/wireshark.rc.in	\
 	image/wiresharkdoc.ico	\
 	image/wiresharkinst.ico	\
-	image/WiresharkDoc-128.png	\
 	image/WiresharkDoc-16.png	\
 	image/WiresharkDoc-24.png	\
-	image/WiresharkDoc-256.png	\
 	image/WiresharkDoc-32.png	\
 	image/WiresharkDoc-48.png	\
 	image/WiresharkDoc-64.png	\
+	image/WiresharkDoc-128.png	\
+	image/WiresharkDoc-256.png	\
 	image/wiretap.rc.in	\
 	image/wsicon.svg	\
 	image/wsicon16.png	\
@@ -864,6 +864,7 @@ EXTRA_DIST = \
 	image/wsicon32.png	\
 	image/wsicon48.png	\
 	image/wsicon64.png	\
+	image/wsicon128.png	\
 	image/wsicon256.png	\
 	image/wsicon512.png	\
 	image/wsicon1024.png	\
@@ -1018,7 +1019,7 @@ patch-bzip2: distdir
 	fi
 	$(am__remove_distdir)
 
-# Install some desktop files (for use with GNOME and/or freedesktop.org-compliant desktops?)
+# Install some desktop files (for use with GNOME, KDE, or any other freedesktop.org-compliant desktops)
 # No, these do not go into $(datarootdir): the desktop won't look for them there.
 # Yes, that violate's autofoo's principle of relocatability.
 # What we (probably) should do is check `pkg-config --variable=prefix gtk+-2.0` to know where
@@ -1031,7 +1032,7 @@ install_desktop_files:
 	else \
 		install -m 644 -T wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
 	fi
-	for size in 16 32 48 64 256 ; \
+	for size in 16 24 32 48 64 128 256; \
 	do \
 		mkdir -p $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/{apps,mimetypes} ; \
 		install -m 644 image/wsicon$${size}.png  $(DESTDIR)/usr/share/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
