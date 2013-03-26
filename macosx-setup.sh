@@ -99,17 +99,17 @@ fi
 #
 # The following libraries and tools are required.
 #
-GETTEXT_VERSION=0.18.1.1
-GLIB_VERSION=2.32.3
-PKG_CONFIG_VERSION=0.27
-ATK_VERSION=2.4.0
-PANGO_VERSION=1.30.0
-PNG_VERSION=1.5.13
+GETTEXT_VERSION=0.18.2
+GLIB_VERSION=2.36.0
+PKG_CONFIG_VERSION=0.28
+ATK_VERSION=2.8.0
+PANGO_VERSION=1.30.1
+PNG_VERSION=1.5.14
 PIXMAN_VERSION=0.26.0
 CAIRO_VERSION=1.12.2
-GDK_PIXBUF_VERSION=2.26.1
+GDK_PIXBUF_VERSION=2.28.0
 if [ -z "$GTK3" ]; then
-  GTK_VERSION=2.24.10
+  GTK_VERSION=2.24.17
 else
   GTK_VERSION=3.5.2
 fi
@@ -118,10 +118,10 @@ fi
 # Some package need xz to unpack their current source.
 # xz is not available on OSX (Snow Leopard).
 #
-XZ_VERSION=5.0.3
+XZ_VERSION=5.0.4
 
 # In case we want to build with cmake
-CMAKE_VERSION=2.8.8
+CMAKE_VERSION=2.8.10.2
 
 #
 # The following libraries are optional.
