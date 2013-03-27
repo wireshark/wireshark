@@ -418,16 +418,37 @@ static int hf_homeplug_av_enet_phy_cnf_status    = -1;
 static int hf_homeplug_av_enet_phy_cnf_speed     = -1;
 static int hf_homeplug_av_enet_phy_cnf_duplex    = -1;
 
-static int hf_homeplug_av_tone_map_req           = -1;
-static int hf_homeplug_av_tone_map_req_mac       = -1;
-static int hf_homeplug_av_tone_map_req_slot      = -1;
+static int hf_homeplug_av_tone_map_tx_req          = -1;
+static int hf_homeplug_av_tone_map_tx_req_mac      = -1;
+static int hf_homeplug_av_tone_map_tx_req_slot     = -1;
+static int hf_homeplug_av_tone_map_tx_req_coupling = -1;
 
-static int hf_homeplug_av_tone_map_cnf           = -1;
-static int hf_homeplug_av_tone_map_cnf_status    = -1;
-static int hf_homeplug_av_tone_map_cnf_slot      = -1;
-static int hf_homeplug_av_tone_map_cnf_num_tms   = -1;
-static int hf_homeplug_av_tone_map_cnf_num_act   = -1;
+static int hf_homeplug_av_tone_map_rx_req          = -1;
+static int hf_homeplug_av_tone_map_rx_req_mac      = -1;
+static int hf_homeplug_av_tone_map_rx_req_slot     = -1;
+static int hf_homeplug_av_tone_map_rx_req_coupling = -1;
 
+static int hf_homeplug_av_tone_map_tx_cnf          = -1;
+static int hf_homeplug_av_tone_map_tx_cnf_status   = -1;
+static int hf_homeplug_av_tone_map_tx_cnf_len      = -1;
+static int hf_homeplug_av_tone_map_tx_cnf_mac      = -1;
+static int hf_homeplug_av_tone_map_tx_cnf_slot     = -1;
+static int hf_homeplug_av_tone_map_tx_cnf_num_tms  = -1;
+static int hf_homeplug_av_tone_map_tx_cnf_num_act  = -1;
+
+static int hf_homeplug_av_tone_map_rx_cnf          = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_status   = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_len      = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_subver   = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_coupling = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_mac      = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_slot     = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_num_tms  = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_num_act  = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_agc      = -1;
+static int hf_homeplug_av_tone_map_rx_cnf_gil      = -1;
+
+static int hf_homeplug_av_tone_map_carriers        = -1;
 static int hf_homeplug_av_tone_map_carrier       = -1;
 static int hf_homeplug_av_tone_map_carrier_lo    = -1;
 static int hf_homeplug_av_tone_map_carrier_hi    = -1;
@@ -504,8 +525,11 @@ static gint ett_homeplug_av_op_attr_cnf          = -1;
 static gint ett_homeplug_av_op_attr_data         = -1;
 static gint ett_homeplug_av_enet_phy_req         = -1;
 static gint ett_homeplug_av_enet_phy_cnf         = -1;
-static gint ett_homeplug_av_tone_map_req         = -1;
-static gint ett_homeplug_av_tone_map_cnf         = -1;
+static gint ett_homeplug_av_tone_map_tx_req      = -1;
+static gint ett_homeplug_av_tone_map_rx_req      = -1;
+static gint ett_homeplug_av_tone_map_tx_cnf      = -1;
+static gint ett_homeplug_av_tone_map_rx_cnf      = -1;
+static gint ett_homeplug_av_tone_map_carriers    = -1;
 static gint ett_homeplug_av_tone_map_carrier     = -1;
 
 #define HOMEPLUG_AV_MMHDR_LEN                   3 /* MM version (1) + MM type (2) */
@@ -575,8 +599,10 @@ static gint ett_homeplug_av_tone_map_carrier     = -1;
 #define HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF      0xA069
 #define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ 0xA06C
 #define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF 0xA06D
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ     0xA070
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF     0xA071
+#define HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_REQ  0xA070
+#define HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_CNF  0xA071
+#define HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_REQ  0xA090
+#define HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_CNF  0xA091
 
 static const value_string homeplug_av_mmtype_vals[] = {
     /* Public MMEs */
@@ -644,18 +670,22 @@ static const value_string homeplug_av_mmtype_vals[] = {
     { HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF,       "Get Device Attributes Confirmation" },
     { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ,  "Get Ethernet PHY Settings Request" },
     { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF,  "Get Ethernet PHY Settings Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ,      "Tone Map Characteristics Request" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF,      "Tone Map Characteristics Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_REQ,   "Tone Map Tx Characteristics Request" },
+    { HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_CNF,   "Tone Map Tx Characteristics Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_REQ,   "Tone Map Rx Characteristics Request" },
+    { HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_CNF,   "Tone Map Rx Characteristics Confirmation" },
     { 0, NULL }
 };
 static value_string_ext homeplug_av_mmtype_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_mmtype_vals);
 
 /* Versions */
 #define HOMEPLUG_AV_MMVER_MASK 0x01
+#define HOMEPLUG_AV_MMVER_1_0       0x00
+#define HOMEPLUG_AV_MMVER_1_1       0x01
 
 static const value_string homeplug_av_mmver_vals[] = {
-    { 0x00, "1.0" },
-    { 0x01, "1.1" },
+    { HOMEPLUG_AV_MMVER_1_0, "1.0" },
+    { HOMEPLUG_AV_MMVER_1_1, "1.1" },
     { 0, NULL }
 };
 
@@ -1125,7 +1155,10 @@ static const value_string homeplug_av_op_attr_report_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_TONE_MAP_MASK 0x07
+#define HOMEPLUG_AV_TONE_MAP_MAX_NUM_CARRIERS_A 1155
+#define HOMEPLUG_AV_TONE_MAP_MAX_NUM_CARRIERS_B 2880
+
+#define HOMEPLUG_AV_TONE_MAP_MASK               0x0f
 
 static const value_string homeplug_av_tone_map_vals[] = {
    { 0x00, "No modulation" },
@@ -1136,10 +1169,9 @@ static const value_string homeplug_av_tone_map_vals[] = {
    { 0x05, "64-QAM" },
    { 0x06, "256-QAM" },
    { 0x07, "1024-QAM" },
+   { 0x08, "4096-QAM" },
    { 0, NULL }
 };
-
-#define HOMEPLUG_AV_TONE_MAP_STATUS_MASK 0x03
 
 static const value_string homeplug_av_tone_map_status_vals[] = {
    { 0x00, "Success" },
@@ -2753,72 +2785,219 @@ dissect_homeplug_av_get_enet_phy_cnf(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_tone_map_req(ptvcursor_t *cursor)
+dissect_homeplug_av_tone_map_tx_req(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
 
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_req, -1, ENC_NA);
-
-   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_req);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_tx_req, -1, ENC_NA);
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_tx_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_req_mac, 6, ENC_NA);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_req_slot, 1, ENC_BIG_ENDIAN);
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_req_mac, 6, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_req_slot, 1, ENC_BIG_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_req_coupling, 1, ENC_LITTLE_ENDIAN);
+   }
+      else
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_req_mac, 6, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_req_slot, 1, ENC_BIG_ENDIAN);
+      }
    }
    ptvcursor_pop_subtree(cursor);
 }
 
 static void
-dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor)
+dissect_homeplug_av_tone_map_rx_req(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
 
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier, -1, ENC_NA);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_rx_req, -1, ENC_NA);
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_rx_req);
+   {
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_req_mac, 6, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_req_slot, 1, ENC_BIG_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_req_coupling, 1, ENC_LITTLE_ENDIAN);
+      }
+      else
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_req_mac, 6, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_req_slot, 1, ENC_BIG_ENDIAN);
+      }
+   }
+   ptvcursor_pop_subtree(cursor);
+}
+
+static void
+dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, guint16 num_carriers)
+{
+   proto_item *it, *ittm;
+   guint8 hilo, hi_bits, lo_bits, hi_snr, lo_snr;
+   guint16 num_carrier_bytes, cb, cid;
+   guint16 num_act_carriers=0, total_bits=0, total_snr=0;
+
+   static const guint8 map_carrier2modbits[]    = { 0, 1, 2, 3,  4,  6,  8, 10, 12, 0, 0, 0, 0, 0, 0, 0 }; /* Carrier-Nibble to #Modulated-Bits Mapping */
+   static const guint8 map_carrier2modbitsSnr[] = { 0, 2, 4, 7, 10, 16, 22, 28, 36, 0, 0, 0, 0, 0, 0, 0 }; /* Carrier-Nibble to #Modulated-Bits-SNR Mapping */
+
+   if (!ptvcursor_tree(cursor))
+      return;
+   num_carrier_bytes = num_carriers / 2;
+
+   /* check if number of carriers is odd */
+   if (num_carriers & 1)
+     num_carrier_bytes += 1;
+
+   ittm = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carriers, num_carrier_bytes, ENC_NA);
+   ptvcursor_push_subtree(cursor, ittm, ett_homeplug_av_tone_map_carriers);
+
+   for (cb = 0; cb < num_carrier_bytes; cb++)
+   {
+      it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier, 1, ENC_NA);
+      cid = cb*2;
+      proto_item_append_text(it, " (Carrier #%d/#%d)", cid, cid+1 );
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_carrier);
    {
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier_lo, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_carrier_hi, 1, ENC_BIG_ENDIAN);
+         hilo = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+         lo_bits = map_carrier2modbits[ (hilo & 0x0f) ];
+         hi_bits = map_carrier2modbits[ (hilo & 0xf0) >> 4 ];
+         if(lo_bits) num_act_carriers++;
+         if(hi_bits) num_act_carriers++;
+         lo_snr = map_carrier2modbitsSnr[ (hilo & 0x0f) ];
+         hi_snr = map_carrier2modbitsSnr[ (hilo & 0xf0) >> 4 ];
+
+         it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier_lo, 1, ENC_BIG_ENDIAN);
+         proto_item_prepend_text(it, "Carrier #%d -> %u bits@SNR %udB: ", cid  , lo_bits, lo_snr);
+         it = ptvcursor_add(cursor, hf_homeplug_av_tone_map_carrier_hi, 1, ENC_BIG_ENDIAN);
+         proto_item_prepend_text(it, "Carrier #%d -> %u bits@SNR %udB: ", cid+1, hi_bits, hi_snr );
+   }
+   ptvcursor_pop_subtree(cursor);
+      total_bits += (hi_bits+lo_bits);
+      total_snr  += (hi_snr+lo_snr);
+}
+   /* Append to TM-Subtree: total modulated bits, number of active carriers, Average #Bits/Carrier, Average SNR/Carrier */
+   proto_item_append_text(ittm, " (Total #ModulatedBits=%d bit, Active #Carriers=%d, Average #Bits/Carrier=%.2f bit), Average SNR/Carrier=%.2f dB)",
+         total_bits, num_act_carriers, (float) total_bits/num_act_carriers, (float) total_snr/num_act_carriers );
+   ptvcursor_pop_subtree(cursor);
+}
+
+static void
+dissect_homeplug_av_tone_map_tx_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+{
+   proto_item *it;
+   guint16     num_act_carriers;
+
+   if (!ptvcursor_tree(cursor))
+      return;
+
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_tx_cnf, -1, ENC_NA);
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_tx_cnf);
+   {
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_status, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_len, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 2, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_mac, 6, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_slot, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_num_tms, 2, ENC_LITTLE_ENDIAN);
+
+         num_act_carriers = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
+
+         if (num_act_carriers)
+         {
+            dissect_homeplug_av_tone_map_carrier(cursor, num_act_carriers);
+         }
+      }
+      else
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_status, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_slot, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_num_tms, 1, ENC_LITTLE_ENDIAN);
+
+         num_act_carriers = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_tx_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
+
+         if (num_act_carriers)
+         {
+            dissect_homeplug_av_tone_map_carrier(cursor, num_act_carriers);
+         }
+      }
    }
    ptvcursor_pop_subtree(cursor);
 }
 
 static void
-dissect_homeplug_av_tone_map_cnf(ptvcursor_t *cursor)
+dissect_homeplug_av_tone_map_rx_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
-   guint16     i;
    guint16     num_act_carriers;
-   guint16     max_carriers;
 
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_cnf, -1, ENC_NA);
-
-   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_cnf);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_rx_cnf, -1, ENC_NA);
+   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_rx_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_status, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_slot, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_tms, 1, ENC_BIG_ENDIAN);
-      num_act_carriers = tvb_get_letohs(ptvcursor_tvbuff(cursor),
-                                        ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_status, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_len, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_subver, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_mac, 6, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_slot, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_coupling, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_num_tms, 1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
 
-      if (num_act_carriers) {
-         max_carriers = num_act_carriers / 2;
+         num_act_carriers = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
 
-          /* check if number of carriers is odd */
-         if (num_act_carriers & 1)
-            max_carriers += 1;
+         if (num_act_carriers)
+         {
+            ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
+            ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_gil, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+            ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_agc, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
 
-         for (i = 0; i < max_carriers; i++) {
-            dissect_homeplug_av_tone_map_carrier(cursor);
+            dissect_homeplug_av_tone_map_carrier(cursor, num_act_carriers);
+         }
+      }
+      else
+      {
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_status,  1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_slot,    1, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_num_tms, 1, ENC_LITTLE_ENDIAN);
+
+         num_act_carriers = tvb_get_letohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+         ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
+
+         if (num_act_carriers)
+         {
+            dissect_homeplug_av_tone_map_carrier(cursor, num_act_carriers);
+
+            if (num_act_carriers > HOMEPLUG_AV_TONE_MAP_MAX_NUM_CARRIERS_A)
+               ptvcursor_add(cursor, hf_homeplug_av_reserved, (HOMEPLUG_AV_TONE_MAP_MAX_NUM_CARRIERS_B-num_act_carriers) >>1 , ENC_NA);
+            else
+               ptvcursor_add(cursor, hf_homeplug_av_reserved, (HOMEPLUG_AV_TONE_MAP_MAX_NUM_CARRIERS_A-num_act_carriers) >>1 , ENC_NA);
+
+            ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_gil, 1, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_tone_map_rx_cnf_agc, 1, ENC_LITTLE_ENDIAN);
          }
       }
    }
@@ -2986,11 +3165,17 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 h
    case HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF:
       dissect_homeplug_av_get_enet_phy_cnf(cursor);
       break;
-   case HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ:
-      dissect_homeplug_av_tone_map_req(cursor);
+   case HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_REQ:
+      dissect_homeplug_av_tone_map_rx_req(cursor, homeplug_av_mmver);
       break;
-   case HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF:
-      dissect_homeplug_av_tone_map_cnf(cursor);
+   case HOMEPLUG_AV_MMTYPE_TONE_MAP_RX_CNF:
+      dissect_homeplug_av_tone_map_rx_cnf(cursor, homeplug_av_mmver);
+      break;
+   case HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_REQ:
+      dissect_homeplug_av_tone_map_tx_req(cursor, homeplug_av_mmver);
+      break;
+   case HOMEPLUG_AV_MMTYPE_TONE_MAP_TX_CNF:
+      dissect_homeplug_av_tone_map_tx_cnf(cursor, homeplug_av_mmver);
       break;
    default:
       break;
@@ -4337,41 +4522,119 @@ proto_register_homeplug_av(void)
         { "Duplex", "homeplug_av.enet_phy.duplex",
           FT_UINT8, BASE_DEC, VALS(homeplug_av_enet_phy_duplex_vals), HOMEPLUG_AV_ENET_PHY_DUPLEX_MASK, "Unknown", HFILL },
       },
-      /* Tone Map Characteristics Request */
-      { &hf_homeplug_av_tone_map_req,
-        { "Tone Map Characteristics Request", "homeplug_av.tone_map_req",
+      /* Tone Map Tx Characteristics Request */
+      { &hf_homeplug_av_tone_map_tx_req,
+        { "Tone Map Tx Characteristics Request", "homeplug_av.tone_map_tx_req",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_tone_map_req_mac,
-        { "Peer address", "homeplug_av.tone_map_req.mac",
+      { &hf_homeplug_av_tone_map_tx_req_mac,
+        { "Peer address", "homeplug_av.tone_map_tx_req.mac",
           FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_tone_map_req_slot,
-        { "Tone Map slot", "homeplug_av.tone_map_req.slot",
+      { &hf_homeplug_av_tone_map_tx_req_slot,
+        { "Tone Map slot", "homeplug_av.tone_map_tx_req.slot",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      /* Tone Map Characteristics Confirmation */
-      { &hf_homeplug_av_tone_map_cnf,
-        { "Tone Map Characteristics Confirmation", "homeplug_av.tone_map_cnf",
+      { &hf_homeplug_av_tone_map_tx_req_coupling,
+        { "Coupling", "homeplug_av.tone_map_tx_req.coupling",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
+      },
+      /* Tone Map Rx Characteristics Request */
+      { &hf_homeplug_av_tone_map_rx_req,
+        { "Tone Map Rx Characteristics Request", "homeplug_av.tone_map_rx_req",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_tone_map_cnf_status,
-        { "Status", "homeplug_av.tone_map_cnf.status",
-          FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_status_vals), HOMEPLUG_AV_TONE_MAP_STATUS_MASK, NULL, HFILL }
+      { &hf_homeplug_av_tone_map_rx_req_mac,
+        { "Peer address", "homeplug_av.tone_map_rx_req.mac",
+          FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_tone_map_cnf_slot,
-        { "Slot", "homeplug_av.tone_map_cnf.slot",
+      { &hf_homeplug_av_tone_map_rx_req_slot,
+        { "Tone Map slot", "homeplug_av.tone_map_rx_req.slot",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_tone_map_cnf_num_tms,
-        { "Number of Tone Maps in use", "homeplug_av.tone_map_cnf.num_tms",
-          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      { &hf_homeplug_av_tone_map_rx_req_coupling,
+        { "Coupling", "homeplug_av.tone_map_rx_req.coupling",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
       },
-      { &hf_homeplug_av_tone_map_cnf_num_act,
-        { "Tone map number of active carriers", "homeplug_av.tone_map_cnf.num_act",
+      /* Tone Map Tx Characteristics  Confirmation */
+      { &hf_homeplug_av_tone_map_tx_cnf,
+        { "Tone Map Tx Characteristics Confirmation", "homeplug_av.tone_map_tx_cnf",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_tx_cnf_status,
+        { "Status", "homeplug_av.tone_map_tx_cnf.status",
+          FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_status_vals), 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_tx_cnf_len,
+        { "Length", "homeplug_av.tone_map_tx_cnf.len",
           FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
+      { &hf_homeplug_av_tone_map_tx_cnf_mac,
+        { "Peer address", "homeplug_av.tone_map_tx_cnf.mac",
+          FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_tx_cnf_slot,
+        { "Slot", "homeplug_av.tone_map_tx_cnf.slot",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_tx_cnf_num_tms,
+        { "Number of Tone Maps in use", "homeplug_av.tone_map_tx_cnf.num_tms",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_tx_cnf_num_act,
+        { "Tone map number of active carriers", "homeplug_av.tone_map_tx_cnf.num_act",
+          FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      /* Tone Map Rx Characteristics Confirmation */
+      { &hf_homeplug_av_tone_map_rx_cnf,
+        { "Tone Map Rx Characteristics Confirmation", "homeplug_av.tone_map_rx_cnf",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_status,
+        { "Status", "homeplug_av.tone_map_rx_cnf.status",
+          FT_UINT8, BASE_HEX, VALS(homeplug_av_tone_map_status_vals), 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_len,
+        { "Length", "homeplug_av.tone_map_rx_cnf.len",
+          FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_subver,
+        { "MME Subversion", "homeplug_av.tone_map_rx_cnf.mmesubversion",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_mac,
+        { "Peer address", "homeplug_av.tone_map_rx_cnf.mac",
+          FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_slot,
+        { "Slot", "homeplug_av.tone_map_rx_cnf.slot",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_coupling,
+        { "Coupling", "homeplug_av.tone_map_rx_cnf.coupling",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_num_tms,
+        { "Number of Tone Maps in use", "homeplug_av.tone_map_rx_cnf.num_tms",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_num_act,
+        { "Tone map number of active carriers", "homeplug_av.tone_map_rx_cnf.num_act",
+          FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_agc,
+        { "Automatic Gain Control (AGC)", "homeplug_av.tone_map_rx_cnf.agc",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_tone_map_rx_cnf_gil,
+        { "Guard Interval Length (GIL)", "homeplug_av.tone_map_rx_cnf.gil",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
       /* Tone Map Carrier informations */
+      { &hf_homeplug_av_tone_map_carriers,
+        { "Tone Map carriers", "homeplug_av.tone_map_cnf.carriers",
+          FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
       { &hf_homeplug_av_tone_map_carrier,
         { "Modulation per carrier", "homeplug_av.tone_map_cnf.carrier",
           FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
@@ -4459,8 +4722,11 @@ proto_register_homeplug_av(void)
       &ett_homeplug_av_op_attr_data,
       &ett_homeplug_av_enet_phy_req,
       &ett_homeplug_av_enet_phy_cnf,
-      &ett_homeplug_av_tone_map_req,
-      &ett_homeplug_av_tone_map_cnf,
+      &ett_homeplug_av_tone_map_tx_req,
+      &ett_homeplug_av_tone_map_rx_req,
+      &ett_homeplug_av_tone_map_tx_cnf,
+      &ett_homeplug_av_tone_map_rx_cnf,
+      &ett_homeplug_av_tone_map_carriers,
       &ett_homeplug_av_tone_map_carrier
    };
 
