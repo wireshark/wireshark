@@ -311,6 +311,19 @@ free_frame_data_sequence(frame_data_sequence *fds)
   g_free(fds);
 }
 
+void
+find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
+{
+  frame_data   *dependent_fd;
+  guint32       dependent_frame = GPOINTER_TO_UINT(data);
+  frame_data_sequence *frames   = (frame_data_sequence *)user_data;
+
+  if (dependent_frame && frames) {
+    dependent_fd = frame_data_sequence_find(frames, dependent_frame);
+    dependent_fd->flags.dependent_of_displayed = 1;
+  }
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

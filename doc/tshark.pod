@@ -35,7 +35,8 @@ S<[ B<-P> ]>
 S<[ B<-q> ]>
 S<[ B<-Q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
-S<[ B<-R> E<lt>read (display) filterE<gt> ]>
+S<[ B<-R> E<lt>Read filterE<gt> ]>
+S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> ad|a|r|d|dd|e ]>
@@ -611,12 +612,32 @@ Read packet data from I<infile>, can be any supported capture file format
 (including gzipped files).  It's B<not> possible to use named pipes
 or stdin here!
 
-=item -R  E<lt>read (display) filterE<gt>
+=item -R  E<lt>Read filterE<gt>
 
 Cause the specified filter (which uses the syntax of read/display filters,
 rather than that of capture filters) to be applied before printing a
 decoded form of packets or writing packets to a file; packets not
 matching the filter are discarded rather than being printed or written.
+
+See the '-Y' option for information about using this at the same time the
+'-Y' option is used.
+
+=item -Y  E<lt>displaY filterE<gt>
+
+Cause the specified filter (which uses the syntax of read/display filters,
+rather than that of capture filters) to be applied before printing a
+decoded form of packets or writing packets to a file.  Packets matching the
+filter are printed or written to file; packets that the matching packets 
+depend upon (e.g., fragments), are not printed but are wrtitten to file;
+packets not matching the filter nor depended upon are discarded rather 
+than being printed or written.  This mode also performs a two-pass
+analysis as is done with the '-2' option, without needing '-2' to be set.
+
+If the '-R' read filter option is also set, then the read filter is applied
+first, and only packets passing that will be considered for the display
+filter, including dependent packets.  In other words, if the '-R' filters
+out fragments, they will not be included even if a packet matching the 
+display filter depended on the fragments.
 
 =item -s  E<lt>capture snaplenE<gt>
 
