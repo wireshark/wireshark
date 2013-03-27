@@ -3787,7 +3787,7 @@ static guint16
 be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
-    guint8  addr_type = 0;
+    guint8  addr_type;
     guint32 rtp_ipv4_address;
     guint16 rtp_port;
     address rtp_dst_addr;
@@ -3824,8 +3824,6 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     curr_offset+=2;
 
     switch (addr_type) {
-    case 0:
-        break;
     case 1:
         /* IPv4 */
         rtp_dst_addr.type = AT_IPv4;
@@ -3840,7 +3838,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         break;
     }
 
-    if ((!pinfo->fd->flags.visited) && rtp_port != 0 && rtp_handle && addr_type != 0) {
+    if ((!pinfo->fd->flags.visited) && rtp_port != 0 && rtp_handle) {
         rtp_add_address(pinfo, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->fd->num, FALSE, 0);
 		rtcp_add_address(pinfo, &rtp_dst_addr, rtp_port+1, 0, "BSS MAP", pinfo->fd->num);
     }
