@@ -1081,6 +1081,7 @@ AC_SUBST(GLIB_MIN_VERSION)
 # 2.30.0: 27 Sep 2011
 # 2.32.0: 24 Mar 2012
 # 2.34.0: 24 Sep 2012
+# 2.36.0: 25 Mar 2013
 
 have_wireshark_cxx="false"
 if test "$have_gtk" = "no" ; then
