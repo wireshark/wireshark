@@ -102,18 +102,19 @@ wmem_test_block_allocator(void)
 
     /* Run ~64,000 iterations */
     for (i=0; i<1024*64; i++) {
-        gint index;
+        gint ptrs_index;
         gint new_size;
         
-        /* returns value 0 <= x < MAX_SIMULTANEOUS_ALLOCS which is a valid index into ptrs */
-        index = g_test_rand_int_range(0, MAX_SIMULTANEOUS_ALLOCS);
+        /* returns value 0 <= x < MAX_SIMULTANEOUS_ALLOCS which is a valid
+         * index into ptrs */
+        ptrs_index = g_test_rand_int_range(0, MAX_SIMULTANEOUS_ALLOCS);
 
-        if (ptrs[index] == NULL) {
+        if (ptrs[ptrs_index] == NULL) {
             /* if that index is unused, allocate some random amount of memory
              * between 0 and MAX_ALLOC_SIZE */
             new_size = g_test_rand_int_range(0, MAX_ALLOC_SIZE);
 
-            ptrs[index] = (char *) wmem_alloc0(allocator, new_size);
+            ptrs[ptrs_index] = (char *) wmem_alloc0(allocator, new_size);
         }
         else if (g_test_rand_bit()) {
             /* the index is used, and our random bit has determined we will be
@@ -122,17 +123,17 @@ wmem_test_block_allocator(void)
              * new memory */
             new_size = g_test_rand_int_range(0, MAX_ALLOC_SIZE);
 
-            ptrs[index] = (char *) wmem_realloc(allocator, ptrs[index],
-                    new_size);
+            ptrs[ptrs_index] = (char *) wmem_realloc(allocator,
+                    ptrs[ptrs_index], new_size);
 
-            memset(ptrs[index], 0, new_size);
+            memset(ptrs[ptrs_index], 0, new_size);
         }
         else {
             /* the index is used, and our random bit has determined we will be
              * freeing instead of reallocating. Do so and NULL the pointer for
              * the next iteration. */
-            wmem_free(allocator, ptrs[index]);
-            ptrs[index] = NULL;
+            wmem_free(allocator, ptrs[ptrs_index]);
+            ptrs[ptrs_index] = NULL;
         }
         wmem_block_verify(allocator);
     }
