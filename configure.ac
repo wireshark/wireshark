@@ -1012,6 +1012,7 @@ AC_SUBST(QT_MIN_VERSION)
 # 3.2.0:  25 Sep 2011
 # 3.4.0:  26 Mar 2012
 # 3.6.0:  24 Sep 2012
+# 3.8.0:  25 Mar 2012
 
 if test "x$enable_wireshark" = "xyes"; then
 	if test "x$with_qt" = "xyes"; then
