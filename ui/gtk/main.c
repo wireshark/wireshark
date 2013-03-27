@@ -1883,7 +1883,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         main_capture_cb_capture_update_started(capture_opts);
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsiconcap_48_pb_data, FALSE, NULL);
+        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsiconcap_48_pb_data, FALSE, NULL));
 #endif
         break;
     case(capture_cb_capture_update_continue):
@@ -1910,7 +1910,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
          * closes the capturing on its own! */
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL);
+        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
 #endif
         main_capture_cb_capture_stopping(capture_opts);
         break;
@@ -3203,7 +3203,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_GTKOSXAPPLICATION
   theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-  gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL);
+  gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
   gtkosx_application_ready(theApp);
 #endif
 
