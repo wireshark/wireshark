@@ -6315,6 +6315,9 @@ add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, int offset)
   offset += add_fixed_field(tree, tvb, offset, FIELD_PA_ACTION_CODE);
 
   switch (code) {
+  case PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT:
+    offset += add_ff_extended_channel_switch_announcement(tree, tvb, offset);
+    break;
   case PA_VENDOR_SPECIFIC:
     oui = tvb_get_ntoh24(tvb, offset);
     proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
