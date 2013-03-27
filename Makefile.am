@@ -789,7 +789,8 @@ EXTRA_DIST = \
 	image/toolbar/capture_details_24.xpm	\
 	image/toolbar/capture_ethernet_16.xpm	\
 	image/toolbar/capture_filter_24.xpm	\
-	image/toolbar/capture_interfaces_24.xpm	\
+	image/toolbar/capture_interfaces_16.png	\
+	image/toolbar/capture_interfaces_24.png	\
 	image/toolbar/capture_options_16.png	\
 	image/toolbar/capture_options_24.png	\
 	image/toolbar/capture_prepare_16.xpm	\
