@@ -326,6 +326,24 @@ gchar *col_index_to_name(gint indx)
     return col_name;
 }
 
+static
+gint col_title_to_index(gchar *name)
+{
+  if (strcmp(name, "Capture") == 0) return CAPTURE;
+  if (strcmp(name, "Interface") == 0) return INTERFACE;
+  if (strcmp(name, "Link-layer header") == 0) return LINK;
+  if (strcmp(name, "Prom. Mode") == 0) return PMODE;
+  if (strcmp(name, "Snaplen [B]") == 0) return SNAPLEN;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+  if (strcmp(name, "Buffer [MB]") == 0) return BUFFER;
+#endif
+#if defined (HAVE_PCAP_CREATE)
+  if (strcmp(name, "Mon. Mode") == 0) return MONITOR;
+#endif
+  if (strcmp(name, "Capture Filter") == 0) return FILTER;
+  return -1;
+}
+
 static void
 set_capture_column_visible(gchar *col, gboolean visible _U_)
 {
@@ -5581,51 +5599,53 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
   GtkTreeModel      *model     = gtk_tree_view_get_model (tree_view);
   GtkTreePath       *path      = NULL;
   gchar             *tmp;
-  gchar             *pathstring;
   GtkTreeViewColumn *column;
-  int                col;
   GtkCellRenderer*   renderer  = NULL;
   GList             *renderer_list;
+  gint               idx;
 
   char               buffer[512];
 
-   if (!gtk_tree_view_get_tooltip_context (tree_view, &x, &y, keyboard_tip, &model, &path, &iter))
+  if (!gtk_tree_view_get_tooltip_context (tree_view, &x, &y, keyboard_tip, &model, &path, &iter))
     return FALSE;
 
   gtk_tree_model_get (model, &iter, 0, &tmp, -1);
-  pathstring = gtk_tree_path_to_string (path);
 
   if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), (gint) x, (gint) y, NULL, &column, NULL, NULL)) {
-    for (col = 0; col < NUM_COLUMNS; col++) {
-      if (gtk_tree_view_get_column(tree_view, col) == column)
-        break;
-    }
-    switch (col)
+    idx = col_title_to_index((gchar *)gtk_tree_view_column_get_title(column));
+
+    switch (idx)
     {
-      case 0: g_snprintf (buffer, sizeof(buffer), "Choose which interface (network adapter) will be used to capture packets from. "
+      case CAPTURE: g_snprintf (buffer, sizeof(buffer), "Choose which interface (network adapter) will be used to capture packets from. "
                 "Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
               break;
-      case 2: g_snprintf (buffer, sizeof(buffer), "Lists the interface name and the IP address(es) assigned to it. ");
+      case INTERFACE: g_snprintf (buffer, sizeof(buffer), "Lists the interface name and the IP address(es) assigned to it. ");
               break;
-      case 3: g_snprintf (buffer, sizeof(buffer), "Link-layer type the interface supports.");
+      case LINK: g_snprintf (buffer, sizeof(buffer), "Link-layer type the interface supports.");
               break;
-      case 4: g_snprintf (buffer, sizeof(buffer), "Usually a network adapter will only capture the traffic sent to its own network address. "
+      case PMODE: g_snprintf (buffer, sizeof(buffer), "Usually a network adapter will only capture the traffic sent to its own network address. "
                 "If you want to capture all traffic that the network adapter can \"see\", promiscuous mode should be configured.");
               break;
-      case 5: g_snprintf(buffer, sizeof(buffer), "Limit the maximum number of bytes to be captured from each packet. This size includes the "
+      case SNAPLEN: g_snprintf(buffer, sizeof(buffer), "Limit the maximum number of bytes to be captured from each packet. This size includes the "
                 "link-layer header and all subsequent headers.");
               break;
-      case 6: g_snprintf (buffer, sizeof(buffer), "The memory buffer size used while capturing. "
+#if defined(HAVE_PCAP_CREATE)
+      case BUFFER: g_snprintf (buffer, sizeof(buffer), "The memory buffer size used while capturing. "
                 "If you notice packet drops, you can try increasing this size.");
               break;
-      case 7: g_snprintf (buffer, sizeof(buffer), "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
+      case MONITOR: g_snprintf (buffer, sizeof(buffer), "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
                 "the traffic on the BSS to which it's associated. "
                 "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", select this option. "
                 "In order to see IEEE 802.11 headers or to see radio information for captured packets, "
                 "it might be necessary to turn this option on.\n\n"
                 "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.");
               break;
-      case 8: g_snprintf(buffer, sizeof(buffer), "Selected capture filter to reduce the amount of packets to be captured.");
+#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+      case BUFFER: g_snprintf (buffer, sizeof(buffer), "The memory buffer size used while capturing. "
+                "If you notice packet drops, you can try increasing this size.");
+              break;
+#endif
+      case FILTER: g_snprintf(buffer, sizeof(buffer), "Selected capture filter to reduce the amount of packets to be captured.");
               break;
       default: g_snprintf(buffer, sizeof(buffer), "another option");
     }
@@ -5639,7 +5659,6 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
     }
   }
   gtk_tree_path_free (path);
-  g_free (pathstring);
 
   return TRUE;
 }
