@@ -759,8 +759,14 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
 
             wmem_block_split_free_chunk(allocator, tmp, split_size);
 
-            /* Now update our 'next' count and our successor's 'prev' count */
+            /* Now do a 'quickie' merge between the current block and the left-
+             * hand side of the split. Simply calling wmem_block_merge_free
+             * might confuse things, since we temporarilly may have two blocks
+             * to our right that are both free (and it isn't guaranteed to
+             * handle that case). Update our 'next' count and last flag, and
+             * our (new) successor's 'prev' count */
             chunk->len += tmp->len;
+            chunk->last = tmp->last;
             tmp = WMEM_CHUNK_NEXT(chunk);
             if (tmp) {
                 tmp->prev = chunk->len;
