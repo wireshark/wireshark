@@ -173,19 +173,19 @@ wmem_block_verify_chunk_chain(wmem_block_chunk_t *chunk)
 {
     guint32 total_len = 0;
 
-    g_assert(chunk->prev == 0);
+    g_assert_cmpuint(chunk->prev, ==, 0);
 
     do {
         total_len += chunk->len;
 
         if (WMEM_CHUNK_NEXT(chunk)) {
-            g_assert(chunk->len == WMEM_CHUNK_NEXT(chunk)->prev);
+            g_assert_cmpuint(chunk->len, ==, WMEM_CHUNK_NEXT(chunk)->prev);
         }
 
         chunk = WMEM_CHUNK_NEXT(chunk);
     } while (chunk);
 
-    g_assert(total_len == WMEM_BLOCK_SIZE);
+    g_assert_cmpuint(total_len, ==, WMEM_BLOCK_SIZE);
 }
 
 static void
@@ -312,7 +312,7 @@ wmem_block_add_to_free_list_after(wmem_block_allocator_t *allocator,
     wmem_block_free_t  *freeChunk;
 
     g_assert(!chunk->used);
-    g_assert(WMEM_CHUNK_DATA_LEN(chunk) >= sizeof(wmem_block_free_t));
+    g_assert_cmpuint(WMEM_CHUNK_DATA_LEN(chunk), >=, sizeof(wmem_block_free_t));
 
     freeChunk = WMEM_GET_FREE(chunk);
 
@@ -450,7 +450,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     gboolean last;
 
     g_assert(!chunk->used);
-    g_assert(WMEM_CHUNK_DATA_LEN(chunk) >= size);
+    g_assert_cmpuint(WMEM_CHUNK_DATA_LEN(chunk), >=, size);
 
     aligned_size = WMEM_ALIGN_SIZE(size);
 
@@ -559,7 +559,7 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     gboolean last;
 
     g_assert(chunk->used);
-    g_assert(WMEM_CHUNK_DATA_LEN(chunk) >= size);
+    g_assert_cmpuint(WMEM_CHUNK_DATA_LEN(chunk), >=, size);
 
     aligned_size = WMEM_ALIGN_SIZE(size);
 
@@ -657,7 +657,7 @@ wmem_block_alloc(void *private_data, const size_t size)
 
     /* We can't allocate more than will fit in a block (less our header),
      * which is an awful lot. */
-    g_assert(size < WMEM_BLOCK_SIZE - sizeof(wmem_block_chunk_t));
+    g_assert_cmpuint(size, <, WMEM_BLOCK_SIZE - sizeof(wmem_block_chunk_t));
 
     if (allocator->free_list_head == NULL) {
         /* No free chunks at all, grab a new block */
@@ -681,13 +681,13 @@ wmem_block_alloc(void *private_data, const size_t size)
     chunk = allocator->free_list_head;
 
     /* if we still don't have the space at this point, something is wrong */
-    g_assert(size <= WMEM_CHUNK_DATA_LEN(chunk));
+    g_assert_cmpuint(size, <=, WMEM_CHUNK_DATA_LEN(chunk));
 
     /* Split our chunk into two to preserve any trailing free space */
     wmem_block_split_free_chunk(allocator, chunk, size);
 
     /* if our split reduced our size too much, something went wrong */
-    g_assert(size <= WMEM_CHUNK_DATA_LEN(chunk));
+    g_assert_cmpuint(size, <=, WMEM_CHUNK_DATA_LEN(chunk));
 
     /* the resulting chunk should not be in the free list */
     g_assert(chunk != allocator->free_list_head);
@@ -739,12 +739,25 @@ wmem_block_realloc(void *private_data, void *ptr, const size_t size)
 
         if (tmp && (!tmp->used) &&
             (size < WMEM_CHUNK_DATA_LEN(chunk) + tmp->len)) {
-
             /* the next chunk is free and has enough extra, so just grab
              * from that */
-            wmem_block_split_free_chunk(allocator, tmp,
-                    (size - WMEM_CHUNK_DATA_LEN(chunk)
-                     - sizeof(wmem_block_chunk_t)));
+            size_t split_size;
+            
+            /* we ask for the next chunk to be split, but we don't end up
+             * using the split chunk header (it just gets merged into this one),
+             * so we want the split to be of (size - curdatalen - header_size).
+             * However, this can underflow by header_size, so we do a quick
+             * check here and floor the value to 0. */
+            split_size = size - WMEM_CHUNK_DATA_LEN(chunk);
+
+            if (split_size < sizeof(wmem_block_chunk_t)) {
+                split_size = 0;
+            }
+            else {
+                split_size -= sizeof(wmem_block_chunk_t);
+            }
+
+            wmem_block_split_free_chunk(allocator, tmp, split_size);
 
             /* Now update our 'next' count and our successor's 'prev' count */
             chunk->len += tmp->len;
