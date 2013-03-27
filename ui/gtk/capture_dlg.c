@@ -5215,6 +5215,10 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
+  /* XXX - will closing this remove a temporary file? */
+  if(!do_file_close(&cfile, FALSE, " before starting a new capture")){
+	  return;
+  }
   if (cap_open_w) {
     /*
      * There's an options dialog; get the values from it and close it.
@@ -5238,10 +5242,8 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
         "You didn't specify an interface on which to capture packets.");
     return;
   }
-
-  /* XXX - will closing this remove a temporary file? */
-  if (do_file_close(&cfile, FALSE, " before starting a new capture"))
-    capture_start_confirmed();
+  
+  capture_start_confirmed();
 }
 
 
