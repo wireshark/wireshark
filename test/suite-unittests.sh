@@ -51,7 +51,7 @@ unittests_step_test() {
 		DUT=../wireshark-gtk2/`basename $DUT`
 	fi
 
-	$DUT > testout.txt 2>&1
+	$DUT $ARGS > testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
@@ -65,21 +65,25 @@ unittests_step_test() {
 
 unittests_step_exntest() {
 	DUT=../epan/exntest
+	ARGS=
 	unittests_step_test
 }
 
 unittests_step_reassemble_test() {
 	DUT=../epan/reassemble_test
+	ARGS=
 	unittests_step_test
 }
 
 unittests_step_tvbtest() {
 	DUT=../epan/tvbtest
+	ARGS=
 	unittests_step_test
 }
 
 unittests_step_wmem_test() {
 	DUT=../epan/wmem/wmem_test
+	ARGS=--verbose
 	unittests_step_test
 }
 
