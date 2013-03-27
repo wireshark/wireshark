@@ -23,6 +23,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdio.h>
 #include <glib.h>
 #include "wmem.h"
 #include "wmem_allocator.h"
@@ -176,23 +177,25 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
 static void
 wmem_time_allocator(wmem_allocator_type_t type)
 {
-    int i;
+    int i, j;
     wmem_allocator_t *allocator;
 
     allocator = wmem_allocator_force_new(type);
 
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        wmem_alloc(allocator, 8);
-    }
-    wmem_free_all(allocator);
+    for (j=0; j<128; j++) {
+        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+            wmem_alloc(allocator, 8);
+        }
+        wmem_free_all(allocator);
 
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        wmem_alloc(allocator, 256);
-    }
-    wmem_free_all(allocator);
+        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+            wmem_alloc(allocator, 256);
+        }
+        wmem_free_all(allocator);
 
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        wmem_alloc(allocator, 1024);
+        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+            wmem_alloc(allocator, 1024);
+        }
     }
 
     wmem_destroy_allocator(allocator);
@@ -211,6 +214,7 @@ wmem_time_allocators(void)
     wmem_time_allocator(WMEM_ALLOCATOR_BLOCK);
     block_time = g_test_timer_elapsed();
 
+    printf("(simple: %lf; block: %lf)", simple_time, block_time);
     g_assert(simple_time > block_time);
 }
 
