@@ -2152,12 +2152,12 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 		{ &hf_tp_bip_tcp_local,
-			{ "TCP client mode local connection", "gsm_sim.tp.bip.tcp_remote",
+			{ "TCP client mode local connection", "gsm_sim.tp.bip.tcp_local",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
 			  NULL, HFILL }
 		},
 		{ &hf_tp_bip_udp_local,
-			{ "UDP client mode local connection", "gsm_sim.tp.bip.udp_remote",
+			{ "UDP client mode local connection", "gsm_sim.tp.bip.udp_local",
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
 			  NULL, HFILL }
 		},
