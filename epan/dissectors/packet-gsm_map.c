@@ -20403,7 +20403,7 @@ void proto_register_gsm_map(void) {
           FT_UINT8, BASE_DEC, VALS(gsm_map_disc_par_vals), 0,
           NULL, HFILL }},
       { &hf_gsm_map_dlci,
-        { "DLCI", "gsm_map.disc_par",
+        { "DLCI", "gsm_map.dlci",
           FT_UINT8, BASE_DEC, NULL, 0,
           "Data Link Connection Indicator", HFILL }},
       { &hf_gsm_apn_str,
