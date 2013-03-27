@@ -172,6 +172,11 @@ wsiconcap.h:
 		gdk-pixbuf-csource --raw --name=wsiconcap_$${layout_num}_pb_data $(top_srcdir)/image/wsiconcap$${layout_num}.png >> $@ ;\
 	done
 
+wssplash.h:
+	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
+	echo >> $@
+	gdk-pixbuf-csource --raw --name=wssplash_pb_data $(top_srcdir)/image/wssplash_dev.png >> $@
+
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\

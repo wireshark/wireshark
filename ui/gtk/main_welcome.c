@@ -57,6 +57,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/stock_icons.h"
+#include "ui/gtk/wssplash.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
@@ -64,7 +65,6 @@
 #include "ui/gtk/webbrowser.h"
 #endif
 #endif /* HAVE_LIBPCAP */
-#include "../../image/wssplash-dev.xpm"
 #include "../version_info.h"
 
 #ifdef _WIN32
@@ -369,8 +369,7 @@ welcome_header_new(void)
     item_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
-    /*icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);*/
-    icon = xpm_to_widget(wssplash_xpm);
+    icon = pixbuf_to_widget(wssplash_pb_data);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
     header_lb = gtk_label_new(NULL);

@@ -52,8 +52,8 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/plugins_dlg.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/wssplash.h"
 
-#include "../../image/wssplash-dev.xpm"
 #include "webbrowser.h"
 
 /*
@@ -81,7 +81,7 @@ about_wireshark(GtkWidget *parent _U_, GtkWidget *main_vb)
   const char  *title = "Network Protocol Analyzer";
 
   /*icon = xpm_to_widget_from_parent(parent, wssplash_xpm);*/
-  icon = xpm_to_widget(wssplash_xpm);
+  icon = pixbuf_to_widget(wssplash_pb_data);
 
   gtk_box_pack_start(GTK_BOX(main_vb), icon, TRUE, TRUE, 0);
 

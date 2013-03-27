@@ -3,7 +3,13 @@
 hash optipng 2>/dev/null && HAVE_OPTIPNG="True"
 hash optipng 2>/dev/null && HAVE_OPTIPNG="True"
 
-find . -type f -name "*.png" | while read PNG_FILE ; do
+FILE_LIST_CMD="find . -type f -name \"*.png\""
+
+if [ -n "$1" ] ; then
+    FILE_LIST_CMD="echo $1"
+fi
+
+$FILE_LIST_CMD | while read PNG_FILE ; do
     echo Compressing $PNG_FILE
     hash optipng 2>/dev/null  && optipng -o3 -quiet "$PNG_FILE"
     hash advpng 2>/dev/null   && advpng -z -4 "$PNG_FILE"
