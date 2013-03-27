@@ -1,3 +1,5 @@
+/* This file was automatically generated. DO NOT EDIT. */
+
 /* GdkPixbuf RGBA C-Source image dump */
 
 #ifdef __SUNPRO_C

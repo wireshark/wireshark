@@ -132,13 +132,22 @@ pipe_icon.h:
 	echo >> $@
 	gdk-pixbuf-csource --raw --name=pipe_pb_data $(top_srcdir)/image/toolbar/pipe_16.png >> $@
 
+TOOLBAR_COMMON_ICONS = \
+	capture_interfaces \
+	capture_options \
+	capture_restart \
+	capture_start \
+	capture_stop \
+	gnome_emblem_web \
+	toolbar_wireshark_file
+
 toolbar_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	for icon16 in gnome_emblem_web toolbar_wireshark_file capture_options capture_restart capture_start capture_stop ; do \
+	for icon16 in $(TOOLBAR_COMMON_ICONS) ; do \
 		gdk-pixbuf-csource --raw --name=$${icon16}_16_pb_data $(top_srcdir)/image/toolbar/$${icon16}_16.png >> $@ ;\
 	done
-	for icon24 in gnome_emblem_web toolbar_wireshark_file capture_options capture_restart capture_start capture_stop ; do \
+	for icon24 in $(TOOLBAR_COMMON_ICONS) ; do \
 		gdk-pixbuf-csource --raw --name=$${icon24}_24_pb_data $(top_srcdir)/image/toolbar/$${icon24}_24.png >> $@ ;\
 	done
 

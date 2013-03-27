@@ -34,7 +34,6 @@
 #include "ui/utf8_entities.h"
 
 /* these icons are derived from the original stock icons */
-#include "../../image/toolbar/capture_interfaces_24.xpm"
 #include "../../image/toolbar/capture_filter_24.xpm"
 #include "../../image/toolbar/capture_details_24.xpm"
 #include "../../image/toolbar/display_filter_24.xpm"
@@ -165,8 +164,20 @@ void stock_icons_init(void) {
         { (char *)WIRESHARK_STOCK_SAVE,                  (char *)"Save",                   NO_MOD, 0, NULL }
     };
 
+    static const stock_pixbuf_t pixbufs[] = {
+        { WIRESHARK_STOCK_ABOUT,              wsicon_16_pb_data, wsicon_24_pb_data },
+        { WIRESHARK_STOCK_CAPTURE_INTERFACES, capture_interfaces_16_pb_data, capture_interfaces_24_pb_data },
+        { WIRESHARK_STOCK_CAPTURE_OPTIONS,    capture_options_16_pb_data, capture_options_24_pb_data },
+        { WIRESHARK_STOCK_CAPTURE_RESTART,    capture_restart_16_pb_data, capture_restart_24_pb_data },
+        { WIRESHARK_STOCK_CAPTURE_START,      capture_start_16_pb_data, capture_start_24_pb_data },
+        { WIRESHARK_STOCK_CAPTURE_STOP,       capture_stop_16_pb_data, capture_stop_24_pb_data },
+        { WIRESHARK_STOCK_SAVE,               toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
+        { WIRESHARK_STOCK_WIKI,               gnome_emblem_web_16_pb_data, gnome_emblem_web_24_pb_data },
+        { NULL, NULL, NULL }
+    };
+
+    /* New images should be PNGs + pixbufs above. Please don't add to this list. */
     static const stock_pixmap_t pixmaps[] = {
-        { WIRESHARK_STOCK_CAPTURE_INTERFACES,    capture_interfaces_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       capture_details_24_xpm },
@@ -213,16 +224,6 @@ void stock_icons_init(void) {
         { NULL, NULL }
     };
 
-    static const stock_pixbuf_t pixbufs[] = {
-        { WIRESHARK_STOCK_ABOUT,           wsicon_16_pb_data, wsicon_24_pb_data },
-        { WIRESHARK_STOCK_CAPTURE_OPTIONS, capture_options_16_pb_data, capture_options_24_pb_data },
-        { WIRESHARK_STOCK_CAPTURE_RESTART, capture_restart_16_pb_data, capture_restart_24_pb_data },
-        { WIRESHARK_STOCK_CAPTURE_START,   capture_start_16_pb_data, capture_start_24_pb_data },
-        { WIRESHARK_STOCK_CAPTURE_STOP,    capture_stop_16_pb_data, capture_stop_24_pb_data },
-        { WIRESHARK_STOCK_SAVE,            toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
-        { WIRESHARK_STOCK_WIKI,            gnome_emblem_web_16_pb_data, gnome_emblem_web_24_pb_data },
-        { NULL, NULL, NULL }
-    };
     /* Register our stock items */
     gtk_stock_add (stock_items, G_N_ELEMENTS (stock_items));
 
