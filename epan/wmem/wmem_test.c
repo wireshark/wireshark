@@ -174,6 +174,47 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
 }
 
 static void
+wmem_time_allocator(wmem_allocator_type_t type)
+{
+    int i;
+    wmem_allocator_t *allocator;
+
+    allocator = wmem_allocator_force_new(type);
+
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+        wmem_alloc(allocator, 8);
+    }
+    wmem_free_all(allocator);
+
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+        wmem_alloc(allocator, 256);
+    }
+    wmem_free_all(allocator);
+
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+        wmem_alloc(allocator, 1024);
+    }
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
+wmem_time_allocators(void)
+{
+    double simple_time, block_time;
+
+    g_test_timer_start();
+    wmem_time_allocator(WMEM_ALLOCATOR_SIMPLE);
+    simple_time = g_test_timer_elapsed();
+
+    g_test_timer_start();
+    wmem_time_allocator(WMEM_ALLOCATOR_BLOCK);
+    block_time = g_test_timer_elapsed();
+
+    g_assert(simple_time > block_time);
+}
+
+static void
 wmem_test_allocator_block(void)
 {
     wmem_test_allocator(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify);
@@ -199,6 +240,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/allocator/block",  wmem_test_allocator_block);
     g_test_add_func("/wmem/allocator/simple", wmem_test_allocator_simple);
     g_test_add_func("/wmem/allocator/strict", wmem_test_allocator_strict);
+    g_test_add_func("/wmem/allocator/times",  wmem_time_allocators);
 
     return g_test_run();
 }
