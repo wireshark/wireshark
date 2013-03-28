@@ -884,7 +884,7 @@ EXTRA_DIST = \
 	image/wslogo-dev.svg	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
-	image/wssplash-dev.png	\
+	image/wssplash_dev.png	\
 	image/wssplash.png	\
 	ipmap.html		\
 	macosx-setup.sh		\
