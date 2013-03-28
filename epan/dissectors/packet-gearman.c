@@ -486,7 +486,7 @@ proto_register_gearman(void)
     { &hf_gearman_magic_code, { "Magic Code", "gearman.magic_code", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_gearman_pkt_type, { "Packet Type", "gearman.pkt_type", FT_UINT32, BASE_DEC_HEX, VALS(gearman_command_names), 0x0, NULL, HFILL} },
     { &hf_gearman_data_size, { "Data Length", "gearman.data_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} },
-    { &hf_gearman_data_content, { "Data Content", "gearman.data_size", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_gearman_data_content, { "Data Content", "gearman.data_content", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_option_name, { "Option Name", "gearman.opt.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_func_name, { "Function Name", "gearman.func.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_func_namez, { "Function Name", "gearman.func.name", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
