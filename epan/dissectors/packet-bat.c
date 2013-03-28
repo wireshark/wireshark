@@ -201,7 +201,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	version = tvb_get_guint8(tvb, 0);
 	switch (version) {
 	case 5:
-		while (tvb_reported_length_remaining(tvb, offset)) {
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			offset = dissect_bat_batman_v5(tvb, offset, pinfo, tree);
 		}
 		break;
@@ -363,7 +363,7 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int ip_pos;
 
 	tvbuff_t *next_tvb;
-	guint length_remaining;
+	gint length_remaining;
 	int offset = 0;
 
 	gw_packeth = ep_new(struct gw_packet);
@@ -419,7 +419,7 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = ip_pos + 4;
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
-	if (length_remaining != 0) {
+	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(bat_follow_tap)) {
@@ -464,7 +464,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_tree *bat_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
-	guint length_remaining, i;
+	gint length_remaining, i;
 	int offset = 0;
 
 	vis_packeth = ep_new(struct vis_packet_v22);
@@ -532,7 +532,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	}
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
-	if (length_remaining != 0) {
+	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(bat_follow_tap)) {
@@ -597,7 +597,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_tree *bat_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
-	guint length_remaining, i;
+	gint length_remaining, i;
 	int offset = 0;
 
 	vis_packeth = ep_new(struct vis_packet_v23);
@@ -665,7 +665,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	}
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
-	if (length_remaining != 0) {
+	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (have_tap_listener(bat_follow_tap)) {
