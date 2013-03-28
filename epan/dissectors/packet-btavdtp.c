@@ -796,7 +796,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 losc = 0;
                 break;
             case SERVICE_CATEGORY_CONTENT_PROTECTION:
-                pitem = proto_tree_add_item(service_tree, hf_btavdtp_content_protection_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_content_protection_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
                 losc -= 2;
 

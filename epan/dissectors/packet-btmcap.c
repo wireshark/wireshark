@@ -187,7 +187,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_item_append_text(pitem, " (Reserved)");
                     }
 
-                    pitem = proto_tree_add_item(main_tree, hf_btmcap_configuration, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(main_tree, hf_btmcap_configuration, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                 }
                 break;
@@ -197,7 +197,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
                 break;
             case 0x13: /* MD_SYNC_SET_REQ */
-                pitem = proto_tree_add_item(main_tree, hf_btmcap_timestamp_update_information, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(main_tree, hf_btmcap_timestamp_update_information, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
                 pitem = proto_tree_add_item(main_tree, hf_btmcap_bluetooth_clock_sync_time, tvb, offset, 4, ENC_BIG_ENDIAN);
