@@ -33,6 +33,9 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 
+void proto_register_x224(void);
+void proto_reg_handoff_x224(void);
+
 /* X.224 header fields             */
 static int proto_x224			= -1;
 static int hf_x224_length		= -1;

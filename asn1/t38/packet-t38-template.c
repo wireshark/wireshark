@@ -64,6 +64,9 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 
+void proto_register_t38(void);
+void proto_reg_handoff_t38(void);
+
 #define PORT_T38 6004
 static guint global_t38_tcp_port = PORT_T38;
 static guint global_t38_udp_port = PORT_T38;

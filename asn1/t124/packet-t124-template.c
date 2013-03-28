@@ -44,6 +44,9 @@
 #define PSNAME "T.124"
 #define PFNAME "t124"
 
+void proto_register_t124(void);
+void proto_reg_handoff_t124(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_t124 = -1;
 static proto_tree *top_tree = NULL;

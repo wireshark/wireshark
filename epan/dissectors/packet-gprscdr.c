@@ -46,6 +46,8 @@
 #define PSNAME "GPRSCDR"
 #define PFNAME "gprscdr"
 
+void proto_register_gprscdr(void);
+
 /* Define the GPRS CDR proto */
 static int proto_gprscdr = -1;
 
@@ -301,7 +303,7 @@ static int hf_gprscdr_ServiceConditionChange_tAIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 45 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 47 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
@@ -363,7 +365,7 @@ static gint ett_gprscdr_ServiceConditionChange = -1;
 static gint ett_gprscdr_TimeQuotaMechanism = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 50 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 52 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},
@@ -2685,7 +2687,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 60 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 62 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -3684,7 +3686,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 70 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 72 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -3749,7 +3751,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_TimeQuotaMechanism,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 78 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 80 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);

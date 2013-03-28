@@ -59,6 +59,9 @@
 /* Dissector will use SCTP PPID 18 or SCTP port. IANA assigned port = 36412 */
 #define SCTP_PORT_S1AP	36412
 
+void proto_register_s1ap(void);
+void proto_reg_handoff_s1ap(void);
+
 static dissector_handle_t nas_eps_handle;
 static dissector_handle_t lppa_handle;
 static dissector_handle_t bssgp_handle;

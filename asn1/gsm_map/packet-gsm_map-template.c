@@ -73,6 +73,9 @@
 #define PSNAME "GSM_MAP"
 #define PFNAME "gsm_map"
 
+void proto_register_gsm_map(void);
+void proto_reg_handoff_gsm_map(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_gsm_map = -1;
 static int proto_gsm_map_dialogue = -1;

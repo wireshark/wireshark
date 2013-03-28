@@ -71,6 +71,8 @@
 /* see UCA Implementation Guideline for IEC 61850-9-2 */
 #define Q_DERIVED				(1 << 13)
 
+void proto_register_sv(void);
+void proto_reg_handoff_sv(void);
 
 /* Data for SV tap */
 static int sv_tap = -1;

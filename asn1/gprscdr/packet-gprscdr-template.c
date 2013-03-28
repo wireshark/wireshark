@@ -38,6 +38,8 @@
 #define PSNAME "GPRSCDR"
 #define PFNAME "gprscdr"
 
+void proto_register_gprscdr(void);
+
 /* Define the GPRS CDR proto */
 static int proto_gprscdr = -1;
 

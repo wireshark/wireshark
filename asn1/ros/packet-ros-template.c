@@ -40,6 +40,9 @@
 #define PSNAME "ROS"
 #define PFNAME "ros"
 
+void proto_register_ros(void);
+void proto_reg_handoff_ros(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ros = -1;
 

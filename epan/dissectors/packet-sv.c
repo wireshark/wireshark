@@ -79,6 +79,8 @@
 /* see UCA Implementation Guideline for IEC 61850-9-2 */
 #define Q_DERIVED				(1 << 13)
 
+void proto_register_sv(void);
+void proto_reg_handoff_sv(void);
 
 /* Data for SV tap */
 static int sv_tap = -1;
@@ -125,7 +127,7 @@ static int hf_sv_seqData = -1;                    /* Data */
 static int hf_sv_smpMod = -1;                     /* T_smpMod */
 
 /*--- End of included file: packet-sv-hf.c ---*/
-#line 103 "../../asn1/sv/packet-sv-template.c"
+#line 105 "../../asn1/sv/packet-sv-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sv = -1;
@@ -141,7 +143,7 @@ static gint ett_sv_SEQUENCE_OF_ASDU = -1;
 static gint ett_sv_ASDU = -1;
 
 /*--- End of included file: packet-sv-ett.c ---*/
-#line 110 "../../asn1/sv/packet-sv-template.c"
+#line 112 "../../asn1/sv/packet-sv-template.c"
 
 #if 0
 static const value_string sv_q_validity_vals[] = {
@@ -446,7 +448,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 191 "../../asn1/sv/packet-sv-template.c"
+#line 193 "../../asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -620,7 +622,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 308 "../../asn1/sv/packet-sv-template.c"
+#line 310 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -637,7 +639,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 316 "../../asn1/sv/packet-sv-template.c"
+#line 318 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* Register protocol */

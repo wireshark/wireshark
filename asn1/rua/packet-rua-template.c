@@ -48,6 +48,8 @@
 /* Dissector to use SCTP PPID 19 or a configured SCTP port. IANA assigned port = 29169*/
 #define SCTP_PORT_RUA              29169;
 
+void proto_register_rua(void);
+
 #include "packet-rua-val.h"
 
 /* Initialize the protocol and registered fields */

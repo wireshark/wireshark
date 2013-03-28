@@ -41,6 +41,9 @@
 #define PSNAME "X509AF"
 #define PFNAME "x509af"
 
+void proto_register_x509af(void);
+void proto_reg_handoff_x509af(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_x509af = -1;
 static int hf_x509af_algorithm_id = -1;

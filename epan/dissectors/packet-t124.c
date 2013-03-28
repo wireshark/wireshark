@@ -52,6 +52,9 @@
 #define PSNAME "T.124"
 #define PFNAME "t124"
 
+void proto_register_t124(void);
+void proto_reg_handoff_t124(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_t124 = -1;
 static proto_tree *top_tree = NULL;
@@ -284,7 +287,7 @@ static int hf_t124_Segmentation_begin = -1;
 static int hf_t124_Segmentation_end = -1;
 
 /*--- End of included file: packet-t124-hf.c ---*/
-#line 52 "../../asn1/t124/packet-t124-template.c"
+#line 55 "../../asn1/t124/packet-t124-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t124 = -1;
@@ -407,7 +410,7 @@ static gint ett_t124_TokenTestConfirm = -1;
 static gint ett_t124_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t124-ett.c ---*/
-#line 69 "../../asn1/t124/packet-t124-template.c"
+#line 72 "../../asn1/t124/packet-t124-template.c"
 
 
 /*--- Included file: packet-t124-fn.c ---*/
@@ -2877,7 +2880,7 @@ dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 /*--- End of included file: packet-t124-fn.c ---*/
-#line 71 "../../asn1/t124/packet-t124-template.c"
+#line 74 "../../asn1/t124/packet-t124-template.c"
 
 static const per_sequence_t t124Heur_sequence[] = {
   { &hf_t124_t124Identifier , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Key },
@@ -3897,7 +3900,7 @@ void proto_register_t124(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t124-hfarr.c ---*/
-#line 198 "../../asn1/t124/packet-t124-template.c"
+#line 201 "../../asn1/t124/packet-t124-template.c"
   };
 
   /* List of subtrees */
@@ -4010,7 +4013,7 @@ void proto_register_t124(void) {
     &ett_t124_DomainMCSPDU,
 
 /*--- End of included file: packet-t124-ettarr.c ---*/
-#line 205 "../../asn1/t124/packet-t124-template.c"
+#line 208 "../../asn1/t124/packet-t124-template.c"
   };
   
   /* Register protocol */

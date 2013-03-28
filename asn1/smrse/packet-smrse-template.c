@@ -38,6 +38,9 @@
 
 #define TCP_PORT_SMRSE 4321
 
+void proto_register_smrse(void);
+void proto_reg_handoff_smrse(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_smrse = -1;
 static int hf_smrse_reserved = -1;

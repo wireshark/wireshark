@@ -39,6 +39,8 @@
 #define PSNAME "T.125"
 #define PFNAME "t125"
 
+void proto_register_t125(void);
+void proto_reg_handoff_t125(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_t125 = -1;

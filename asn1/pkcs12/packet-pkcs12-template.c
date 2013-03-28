@@ -57,6 +57,9 @@
 #define PKCS12_PBE_3DES_SHA1_OID	"1.2.840.113549.1.12.1.3"
 #define PKCS12_PBE_RC2_40_SHA1_OID	"1.2.840.113549.1.12.1.6"
 
+void proto_register_pkcs12(void);
+void proto_reg_handoff_pkcs12(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_pkcs12 = -1;
 

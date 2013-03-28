@@ -46,6 +46,9 @@
 
 #define TCP_PORT_SMRSE 4321
 
+void proto_register_smrse(void);
+void proto_reg_handoff_smrse(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_smrse = -1;
 static int hf_smrse_reserved = -1;
@@ -83,7 +86,7 @@ static int hf_smrse_sm_diag_info = -1;            /* RP_UD */
 static int hf_smrse_ms_address = -1;              /* SMS_Address */
 
 /*--- End of included file: packet-smrse-hf.c ---*/
-#line 48 "../../asn1/smrse/packet-smrse-template.c"
+#line 51 "../../asn1/smrse/packet-smrse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_smrse = -1;
@@ -103,7 +106,7 @@ static gint ett_smrse_RPError = -1;
 static gint ett_smrse_RPAlertSC = -1;
 
 /*--- End of included file: packet-smrse-ett.c ---*/
-#line 52 "../../asn1/smrse/packet-smrse-template.c"
+#line 55 "../../asn1/smrse/packet-smrse-template.c"
 
 
 
@@ -479,7 +482,7 @@ dissect_smrse_RPAlertSC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-smrse-fn.c ---*/
-#line 55 "../../asn1/smrse/packet-smrse-template.c"
+#line 58 "../../asn1/smrse/packet-smrse-template.c"
 
 static const value_string tag_vals[] = {
 	{  1,	"AliveTest" },
@@ -692,7 +695,7 @@ void proto_register_smrse(void) {
         "SMS_Address", HFILL }},
 
 /*--- End of included file: packet-smrse-hfarr.c ---*/
-#line 159 "../../asn1/smrse/packet-smrse-template.c"
+#line 162 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* List of subtrees */
@@ -714,7 +717,7 @@ void proto_register_smrse(void) {
     &ett_smrse_RPAlertSC,
 
 /*--- End of included file: packet-smrse-ettarr.c ---*/
-#line 165 "../../asn1/smrse/packet-smrse-template.c"
+#line 168 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* Register protocol */

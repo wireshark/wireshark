@@ -49,6 +49,9 @@
 #define	QSIG_IE_TRANSIT_COUNTER 0x31
 #define	QSIG_IE_PARTY_CATEGORY  0x32
 
+void proto_register_qsig(void);
+void proto_reg_handoff_qsig(void);
+
 static const value_string qsig_str_ie_type_cs4[] = {
   { QSIG_IE_TRANSIT_COUNTER , "Transit counter" },
   { 0, NULL}

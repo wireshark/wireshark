@@ -41,6 +41,8 @@
 #define PSNAME "ULP"
 #define PFNAME "ulp"
 
+void proto_register_ulp(void);
+
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t lpp_handle;
 

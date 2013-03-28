@@ -44,6 +44,9 @@
 #define PSNAME "M3AP"
 #define PFNAME "m3ap"
 
+void proto_register_m3ap(void);
+void proto_reg_handoff_m3ap(void);
+
 /* M3AP uses port 36444 as recommended by IANA. */
 #define M3AP_PORT 36444
 static dissector_handle_t m3ap_handle=NULL;
