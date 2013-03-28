@@ -858,7 +858,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                                  val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
             }
             else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
-                guint8 tmf = tvb_get_guint8(tvb, offset + 1);
+                guint8 tmf = tvb_get_guint8(tvb, offset + 1) & 0x7f;
                 col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
                                  val_to_str (tmf, iscsi_task_management_functions, "0x%x"));
             }
