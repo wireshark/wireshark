@@ -879,7 +879,7 @@ proto_register_kdsp(void)
         NULL, HFILL }
     },
     { &hf_kdsp_source_name,
-      { "Source Name", "kdsp.server.version",
+      { "Source Name", "kdsp.source.name",
         FT_STRING, BASE_NONE,
         NULL, 0x0,
         NULL, HFILL }
