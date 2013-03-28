@@ -577,7 +577,7 @@ static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 offse
 	proto_tree *dereg_req_data;
 
 	guint8	 reason_flag;
-	gboolean first_flag = TRUE;
+	static gboolean first_flag = TRUE;
 
 
 	emem_strbuf_t *reasonflags_strbuf = ep_strbuf_new_label("");
