@@ -884,8 +884,8 @@ EXTRA_DIST = \
 	image/wslogo-dev.svg	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
-	image/wssplash-dev.xpm	\
-	image/wssplash.xpm	\
+	image/wssplash-dev.png	\
+	image/wssplash.png	\
 	ipmap.html		\
 	macosx-setup.sh		\
 	macosx-support-lib-patches/glib-pkgconfig.patch \
