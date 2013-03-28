@@ -1195,55 +1195,55 @@ The accessors are:
 
 Bit accessors for a maximum of 8-bits, 16-bits 32-bits and 64-bits:
 
-guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits);
-guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
-guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
-guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits);
+guint16 tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
+guint32 tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
+guint64 tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
 
 Single-byte accessor:
 
-guint8  tvb_get_guint8(tvbuff_t*, gint offset);
+guint8  tvb_get_guint8(tvbuff_t *tvb, const gint offset);
 
 Network-to-host-order accessors for 16-bit integers (guint16), 24-bit
 integers, 32-bit integers (guint32), 40-bit integers, 48-bit integers,
 56-bit integers and 64-bit integers (guint64):
 
-guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
-guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
-guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
-guint64 tvb_get_ntoh40(tvbuff_t*, gint offset);
-guint64 tvb_get_ntoh48(tvbuff_t*, gint offset);
-guint64 tvb_get_ntoh56(tvbuff_t*, gint offset);
-guint64 tvb_get_ntoh64(tvbuff_t*, gint offset);
+guint16 tvb_get_ntohs(tvbuff_t *tvb, const gint offset);
+guint32 tvb_get_ntoh24(tvbuff_t *tvb, const gint offset);
+guint32 tvb_get_ntohl(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_ntoh40(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_ntoh48(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_ntoh56(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_ntoh64(tvbuff_t *tvb, const gint offset);
 
 Network-to-host-order accessors for single-precision and
 double-precision IEEE floating-point numbers:
 
-gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
-gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
+gfloat tvb_get_ntohieee_float(tvbuff_t *tvb, const gint offset);
+gdouble tvb_get_ntohieee_double(tvbuff_t *tvb, const gint offset);
 
 Little-Endian-to-host-order accessors for 16-bit integers (guint16),
 24-bit integers, 32-bit integers (guint32), 40-bit integers, 48-bit
 integers, 56-bit integers, and 64-bit integers (guint64):
 
-guint16 tvb_get_letohs(tvbuff_t*, gint offset);
-guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
-guint32 tvb_get_letohl(tvbuff_t*, gint offset);
-guint64 tvb_get_letoh40(tvbuff_t*, gint offset);
-guint64 tvb_get_letoh48(tvbuff_t*, gint offset);
-guint64 tvb_get_letoh56(tvbuff_t*, gint offset);
-guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
+guint16 tvb_get_letohs(tvbuff_t *tvb, const gint offset);
+guint32 tvb_get_letoh24(tvbuff_t *tvb, const gint offset);
+guint32 tvb_get_letohl(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_letoh40(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_letoh48(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_letoh56(tvbuff_t *tvb, const gint offset);
+guint64 tvb_get_letoh64(tvbuff_t *tvb, const gint offset);
 
 Little-Endian-to-host-order accessors for single-precision and
 double-precision IEEE floating-point numbers:
 
-gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
-gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
+gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
+gdouble tvb_get_letohieee_double(tvbuff_t *tvb, const gint offset);
 
 Accessors for IPv4 and IPv6 addresses:
 
-guint32 tvb_get_ipv4(tvbuff_t*, gint offset);
-void tvb_get_ipv6(tvbuff_t*, gint offset, struct e_in6_addr *addr);
+guint32 tvb_get_ipv4(tvbuff_t *tvb, const gint offset);
+void tvb_get_ipv6(tvbuff_t *tvb, const gint offset, struct e_in6_addr *addr);
 
 NOTE: IPv4 addresses are not to be converted to host byte order before
 being passed to "proto_tree_add_ipv4()".  You should use "tvb_get_ipv4()"
@@ -1261,16 +1261,18 @@ from the specified tvbuff, starting at the specified offset.
 
 Accessors for GUID:
 
-void tvb_get_ntohguid(tvbuff_t *, gint offset, e_guid_t *guid);
-void tvb_get_letohguid(tvbuff_t *, gint offset, e_guid_t *guid);
+void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
+void tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
+void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation);
 
 String accessors:
 
-guint8 *tvb_get_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length);
 gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
-guint8 *tvb_get_ephemeral_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
+guint8 *tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
-guint8 *tvb_get_seasonal_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length);
 
 Returns a null-terminated buffer containing data from the specified
 tvbuff, starting at the specified offset, and containing the specified
@@ -1301,11 +1303,15 @@ with a lifetime of the current capture session. You do not need to
 free() this buffer, it will happen automatically once the a new capture or
 file is opened.
 
-guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
-const guint8 *tvb_get_const stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
-guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+const guint8 *tvb_get_const stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+guint8 *tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 gchar  *tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
-guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
+gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 
 Returns a null-terminated buffer containing data from the specified tvbuff,
 starting at the specified offset, and containing all characters from the
@@ -1371,13 +1377,13 @@ A pointer to the EP allocated string will be returned.
 Note: a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
 
 Copying memory:
-guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
+guint8* tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length);
 
 Copies into the specified target the specified length's worth of data
 from the specified tvbuff, starting at the specified offset.
 
-guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
-guint8* ep_tvb_memdup(tvbuff_t*, gint offset, gint length);
+guint8* tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
+guint8* ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
 
 Returns a buffer, allocated with "g_malloc()", containing the specified
 length's worth of data from the specified tvbuff, starting at the
@@ -1390,7 +1396,7 @@ Pointer-retrieval:
  * no guarantee that the user will honor the 'length' and not overstep the
  * boundaries of the buffer.  Also see the warning in the Portability section.
  */
-guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
+guint8* tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length);
 
 
 1.5 Functions to handle columns in the traffic summary window.
@@ -2111,6 +2117,12 @@ protocol or field labels to the proto_tree:
     proto_tree_add_item(tree, id, tvb, start, length, encoding);
 
     proto_item*
+    proto_tree_add_text(tree, tvb, start, length, format, ...);
+
+    proto_item*
+    proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
+
+    proto_item*
     proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
 
     proto_item*
@@ -2173,6 +2185,9 @@ protocol or field labels to the proto_tree:
         value_ptr, format, ...);
 
     proto_item *
+    proto_tree_add_ax25(tree, id, tvb, start, length, value);
+
+    proto_item *
     proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
 
     proto_item *
@@ -2181,6 +2196,28 @@ protocol or field labels to the proto_tree:
 
     proto_item *
     proto_tree_add_ether_format_value(tree, id, tvb, start, length,
+        value_ptr, format, ...);
+
+    proto_item *
+    proto_tree_add_guid(tree, id, tvb, start, length, value_ptr);
+
+    proto_item *
+    proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
+        format, ...);
+
+    proto_item *
+    proto_tree_add_guid_format_value(tree, id, tvb, start, length,
+        value_ptr, format, ...);
+
+    proto_item *
+    proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
+
+    proto_item *
+    proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
+        format, ...);
+
+    proto_item *
+    proto_tree_add_oid_format_value(tree, id, tvb, start, length,
         value_ptr, format, ...);
 
     proto_item *
@@ -2193,6 +2230,9 @@ protocol or field labels to the proto_tree:
     proto_item *
     proto_tree_add_string_format_value(tree, id, tvb, start, length,
         value_ptr, format, ...);
+
+    proto_item *
+    proto_tree_add_unicode_string(tree, id, tvb, start, length, value);
 
     proto_item *
     proto_tree_add_boolean(tree, id, tvb, start, length, value);
@@ -2271,30 +2311,6 @@ protocol or field labels to the proto_tree:
     proto_tree_add_int64_format_value(tree, id, tvb, start, length,
         value, format, ...);
 
-    proto_item*
-    proto_tree_add_text(tree, tvb, start, length, format, ...);
-
-    proto_item*
-    proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
-
-    proto_item *
-    proto_tree_add_guid(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_guid_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
     proto_item *
     proto_tree_add_eui64(tree, id, tvb, start, length, value);
 
@@ -2307,28 +2323,20 @@ protocol or field labels to the proto_tree:
         value, format, ...);
 
     proto_item *
-    proto_tree_add_oid_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item*
-    proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits,
-        little_endian);
-
-    proto_item *
-    proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits,
-        return_value, little_endian);
-
-    proto_item *
     proto_tree_add_bitmask(tree, tvb, start, header, ett, fields,
-        little_endian);
+        encoding);
 
     proto_item *
     proto_tree_add_bitmask_len(tree, tvb, start, len, header, ett, fields,
-        little_endian);
+        encoding);
 
     proto_item *
     proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
-        ett, fields, little_endian, flags);
+        ett, fields, encoding, flags);
+
+    proto_item*
+    proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits,
+        encoding);
 
     proto_item *
     proto_tree_add_split_bits_item_ret_val(tree, hf_index, tvb, bit_offset,
@@ -2337,6 +2345,26 @@ protocol or field labels to the proto_tree:
     void
     proto_tree_add_split_bits_crumb(tree, hf_index, tvb, bit_offset,
         crumb_spec, crumb_index);
+
+    proto_item *
+    proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits,
+        return_value, encoding);
+
+    proto_item *
+    proto_tree_add_uint_bits_format_value(tree, id, tvb, bit_offset,
+        no_of_bits, value, format, ...);
+
+    proto_item *
+    proto_tree_add_boolean_bits_format_value(tree, id, tvb, bit_offset,
+        no_of_bits, value, format, ...);
+
+    proto_item *
+    proto_tree_add_int_bits_format_value(tree, id, tvb, bit_offset,
+        no_of_bits, value, format, ...);
+
+    proto_item *
+    proto_tree_add_float_bits_format_value(tree, id, tvb, bit_offset,
+        no_of_bits, value, format, ...);
 
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
@@ -2788,18 +2816,18 @@ both 'name' and 'fallback' arguments as NULL, and a flags of
 
 The proto_tree_add_bitmask_len() function is intended for protocols where
 bitmask length is permitted to vary, so a length is specified explicitly
-along with the bitmask value. USB Video "bmControl" and "bControlSize" 
-fields follow this pattern. The primary intent of this is "forward 
+along with the bitmask value. USB Video "bmControl" and "bControlSize"
+fields follow this pattern. The primary intent of this is "forward
 compatibility," enabling an interpreter coded for version M of a structure
 to comprehend fields in version N of the structure, where N > M and
 bControlSize increases from version M to version N.
 
 proto_tree_add_bitmask_len() is an extended version of proto_tree_add_bitmask()
 that uses an explicitly specified (rather than inferred) length to control
-dissection. Because of this, it may encounter two cases that 
+dissection. Because of this, it may encounter two cases that
 proto_tree_add_bitmask() and proto_tree_add_bitmask_text() may not:
 - A length that exceeds that of the 'header' and bitmask subfields.
-  In this case the least-significant bytes of the bitmask are dissected. 
+  In this case the least-significant bytes of the bitmask are dissected.
   An expert warning is generated in this case, because the dissection code
   likely needs to be updated for a new revision of the protocol.
 - A length that is shorter than that of the 'header' and bitmask subfields.
@@ -2807,7 +2835,7 @@ proto_tree_add_bitmask() and proto_tree_add_bitmask_text() may not:
   and other subfields are not. No warning is generated in this case,
   because the dissection code is likely for a later revision of the protocol
   than the packet it was called to interpret.
-  
+
 
 PROTO_ITEM_SET_GENERATED()
 --------------------------
