@@ -26,6 +26,8 @@
 #ifndef __EMEM_H__
 #define __EMEM_H__
 
+#include <glib.h>
+
 #include "ws_symbol_export.h"
 
 /** @file
