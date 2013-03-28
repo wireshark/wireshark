@@ -89,6 +89,7 @@ static int hf_tprof_b28 = -1;
 static int hf_tprof_b29 = -1;
 static int hf_tprof_b30 = -1;
 static int hf_tprof_b31 = -1;
+static int hf_tprof_b32 = -1;
 /* First byte */
 static int hf_tp_prof_dld = -1;
 static int hf_tp_sms_data_dld = -1;
@@ -305,6 +306,13 @@ static int hf_tp_cat_over_modem_itf = -1;
 static int hf_tp_evt_incoming_data_ims = -1;
 static int hf_tp_evt_ims_registration = -1;
 static int hf_tp_pa_prof_env_cont = -1;
+/* 32th byte */
+static int hf_tp_bip_ims = -1;
+static int hf_tp_pa_prov_loci_henb_ip_addr = -1;
+static int hf_tp_pa_prov_loci_henb_surround_macro = -1;
+static int hf_tp_launch_params_support_open_chan_server_mode = -1;
+static int hf_tp_direct_com_support_open_chan_server_mode = -1;
+static int hf_tp_rfu11 = -1;
 
 static int hf_cat_ber_tag = -1;
 
@@ -344,6 +352,7 @@ static int ett_tprof_b28 = -1;
 static int ett_tprof_b29 = -1;
 static int ett_tprof_b30 = -1;
 static int ett_tprof_b31 = -1;
+static int ett_tprof_b32 = -1;
 
 static dissector_handle_t sub_handle_cap;
 
@@ -651,6 +660,16 @@ static const int *tprof_b31_fields[] = {
 	&hf_tp_evt_incoming_data_ims,
 	&hf_tp_evt_ims_registration,
 	&hf_tp_pa_prof_env_cont,
+	NULL
+};
+
+static const int *tprof_b32_fields[] = {
+	&hf_tp_bip_ims,
+	&hf_tp_pa_prov_loci_henb_ip_addr,
+	&hf_tp_pa_prov_loci_henb_surround_macro,
+	&hf_tp_launch_params_support_open_chan_server_mode,
+	&hf_tp_direct_com_support_open_chan_server_mode,
+	&hf_tp_rfu11,
 	NULL
 };
 
@@ -1272,6 +1291,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		ADD_TP_BYTE(29);
 		ADD_TP_BYTE(30);
 		ADD_TP_BYTE(31);
+		ADD_TP_BYTE(32);
 		break;
 	case 0x12: /* FETCH */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
@@ -1616,6 +1636,7 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  "TP Display of the Extension Text", HFILL }
 		},
+
 		/* Terminal Profile Byte 3 */
 		{ &hf_tprof_b3,
 			{ "Terminal Profile Byte 3 (Proactive SIM)", "gsm_sim.tp.b3",
@@ -1662,6 +1683,7 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
+
 		/* Terminal Profile Byte 4 */
 		{ &hf_tprof_b4,
 			{ "Terminal Profile Byte 4 (Proactive SIM)", "gsm_sim.tp.b4",
@@ -1708,6 +1730,7 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
+
 		/* Terminal Profile Byte 5 */
 		{ &hf_tprof_b5,
 			{ "Terminal Profile Byte 5 (Event driven information)", "gsm_sim.tp.b5",
@@ -1754,6 +1777,7 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
+
 		/* Terminal Profile Byte 6 */
 		{ &hf_tprof_b6,
 			{ "Terminal Profile Byte 6 (Event driven information extension)", "gsm_sim.tp.b6",
@@ -1800,6 +1824,7 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
 			  NULL, HFILL }
 		},
+
 		/* Terminal Profile Byte 7 */
 		{ &hf_tprof_b7,
 			{ "Terminal Profile Byte 7 (Multiple card proactive commands)", "gsm_sim.tp.b7",
@@ -1836,6 +1861,7 @@ proto_register_gsm_sim(void)
 			  FT_UINT8, BASE_HEX, NULL, 0xe0,
 			  NULL, HFILL },
 		},
+
 		/* Terminal Profile Byte 8 */
 		{ &hf_tprof_b8,
 			{ "Terminal Profile Byte 8 (Proactive SIM)", "gsm_sim.tp.b8",
@@ -2661,6 +2687,43 @@ proto_register_gsm_sim(void)
 			  NULL, HFILL }
 		},
 
+		/* Terminal Profile Byte 32 */
+		{ &hf_tprof_b32,
+			{ "Terminal Profile Byte 32", "gsm_sim.tp.b32",
+			  FT_UINT8, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_tp_bip_ims,
+			{ "IMS bearer", "gsm_sim.tp.bip.ims",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_henb_ip_addr,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (H(e)NB IP address)", "gsm_sim.tp.pa.prov_loci_henb_ip_addr",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_pa_prov_loci_henb_surround_macro,
+			{ "Proactive SIM: PROVIDE LOCAL INFORMATION (H(e)NB surrounding macrocells)", "gsm_sim.tp.pa.prov_loci_henb_surround_macro",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_launch_params_support_open_chan_server_mode,
+			{ "Launch parameters supported for OPEN CHANNEL in Terminal Server Mode", "gsm_sim.tp.launch_params_support_open_chan_server_mode",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_direct_com_support_open_chan_server_mode,
+			{ "Direct communication channel supported for OPEN CHANNEL in Terminal Server Mode", "gsm_sim.tp.direct_com_support_open_chan_server_mode",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_tp_rfu11,
+			{ "RFU", "gsm_sim.tp.rfu",
+			  FT_UINT8, BASE_HEX, NULL, 0xe0,
+			  NULL, HFILL },
+		},
+
 		{ &hf_cat_ber_tag,
 			{ "BER-TLV Tag", "gsm_sim.cat.ber_tlv_tag",
 			  FT_UINT8, BASE_HEX, VALS(ber_tlv_cat_tag_vals), 0,
@@ -2715,6 +2778,7 @@ proto_register_gsm_sim(void)
 		&ett_tprof_b29,
 		&ett_tprof_b30,
 		&ett_tprof_b31,
+		&ett_tprof_b32,
 	};
 
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
