@@ -148,6 +148,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     hci_data->localhost_bdaddr = localhost_bdaddr;
     hci_data->localhost_name = localhost_name;
     pinfo->private_data = hci_data;
+    pinfo->ptype = PT_BLUETOOTH;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (!pinfo->fd->flags.visited && usb_data->endpoint <= 0x02) {

@@ -1927,6 +1927,7 @@ decode_as_ok(void)
         cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP ||
         cfile.edt->pi.mpls_label ||
         cfile.cd_t == WTAP_FILE_BER ||
+        cfile.edt->pi.ptype == PT_BLUETOOTH ||
         wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
         wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
 }
@@ -2019,7 +2020,8 @@ decode_add_notebook (GtkWidget *format_hb)
     }
 
     if (wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4 ||
-            wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) {
+            wtap_file_encap(cfile.wth) == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR ||
+            cfile.edt->pi.ptype == PT_BLUETOOTH) {
         gint               page_l2cap_service = -1;
         gint               page_l2cap_cid = -1;
         gint               page_l2cap_psm = -1;
