@@ -1148,12 +1148,12 @@ proto_register_nhrp(void)
             "D bit", HFILL }
         },
         { &hf_nhrp_flag_U1,
-          { "Uniqueness Bit", "nhrp.flag.u1",
+          { "Uniqueness Bit", "nhrp.flag.u",
             FT_BOOLEAN, 16, NULL, 0x1000,
             "U bit", HFILL }
         },
         { &hf_nhrp_flag_U2,
-          { "Uniqueness Bit", "nhrp.flag.u1",
+          { "Uniqueness Bit", "nhrp.flag.u",
             FT_BOOLEAN, 16, NULL, 0x8000,
             "U bit", HFILL }
         },
