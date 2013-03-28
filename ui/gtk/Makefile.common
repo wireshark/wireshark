@@ -349,4 +349,5 @@ noinst_HEADERS = \
 	webbrowser.h	\
 	wsiconcap.h \
 	wsicon.h \
+	wssplash.h \
 	$(WIRESHARK_CUSTOM_HDRS)
