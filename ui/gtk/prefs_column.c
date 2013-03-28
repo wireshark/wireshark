@@ -253,18 +253,18 @@ column_prefs_show(GtkWidget *prefs_window) {
 
     lb = gtk_label_new("Field type:");
     gtk_misc_set_alignment(GTK_MISC(lb), 0.0f, 0.5f);
-    ws_gtk_grid_attach_extended(GTK_GRID(grid), lb, 0, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(grid), lb, 0, 0, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_tooltip_text(lb, "Select which packet information to present in the column.");
     gtk_widget_show(lb);
 
     props_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
-    ws_gtk_grid_attach_extended(GTK_GRID(grid), props_hb, 1, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(grid), props_hb, 1, 0, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_tooltip_text(props_hb, "Select which packet information to present in the column.");
     gtk_widget_show(props_hb);
 
     field_lb = gtk_label_new("Field name:");
     gtk_misc_set_alignment(GTK_MISC(field_lb), 0.0f, 0.5f);
-    ws_gtk_grid_attach_extended(GTK_GRID(grid), field_lb, 0, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(grid), field_lb, 0, 1, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_sensitive(field_lb, FALSE);
     gtk_widget_set_tooltip_text(field_lb,
                           "Field name used when field type is \"Custom\". "
@@ -285,7 +285,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
     g_signal_connect(prefs_window, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     colorize_filter_te_as_empty(field_te);
-    ws_gtk_grid_attach_extended(GTK_GRID(grid), field_te, 1, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(grid), field_te, 1, 1, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_sensitive(field_te, FALSE);
     gtk_widget_set_tooltip_text(field_te,
                           "Field name used when field type is \"Custom\". "
@@ -294,7 +294,7 @@ column_prefs_show(GtkWidget *prefs_window) {
 
     occurrence_lb = gtk_label_new("Field occurrence:");
     gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 0.0f, 0.5f);
-    ws_gtk_grid_attach_extended(GTK_GRID(grid), occurrence_lb, 2, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(grid), occurrence_lb, 2, 1, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_sensitive(occurrence_lb, FALSE);
     gtk_widget_set_tooltip_text(occurrence_lb,
                           "Field occurrence to use. "
@@ -310,7 +310,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     column_occurrence_changed_handler_id =
         g_signal_connect(occurrence_te, "changed", G_CALLBACK(column_occurrence_changed_cb), column_l);
 
-    ws_gtk_grid_attach_extended(GTK_GRID(grid), occurrence_te, 3, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(grid), occurrence_te, 3, 1, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_sensitive(occurrence_te, FALSE);
     gtk_widget_set_tooltip_text(occurrence_te,
                           "Field occurrence to use. "

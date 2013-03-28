@@ -472,7 +472,7 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 
 		/* background */
 #if GTK_CHECK_VERSION(3, 0, 0)
-		gtk_style_context_get_background_color(context, GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_SELECTED, &bg_color);
+		gtk_style_context_get_background_color(context, (GtkStateFlags)(GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_SELECTED), &bg_color);
 		gdk_cairo_set_source_rgba(cr, &bg_color);
 #else
 		gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[bv->state]);
@@ -483,7 +483,7 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 
 	/* text */
 #if GTK_CHECK_VERSION(3, 0, 0)
-	gtk_style_context_get_color(context, GTK_STATE_FLAG_FOCUSED | (bv->state == GTK_STATE_SELECTED ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_NORMAL), &fg_color);
+	gtk_style_context_get_color(context, (GtkStateFlags)(GTK_STATE_FLAG_FOCUSED | (bv->state == GTK_STATE_SELECTED ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_NORMAL)), &fg_color);
 	gdk_cairo_set_source_rgba(cr, &fg_color);
 #else
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->text[bv->state]);
@@ -813,7 +813,7 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 	/* clear */
 #if GTK_CHECK_VERSION(3, 0, 0)
 	context = gtk_widget_get_style_context(GTK_WIDGET(bv));
-	gtk_style_context_get_background_color(context, GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_NORMAL, &bg_color);
+	gtk_style_context_get_background_color(context, (GtkStateFlags)(GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_NORMAL), &bg_color);
 	gdk_cairo_set_source_rgba(cr, &bg_color);
 #else
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[GTK_STATE_NORMAL]);
@@ -1069,11 +1069,11 @@ bytes_view_set_property(GObject *object, guint prop_id, const GValue *value, GPa
 
 	switch (prop_id) {
 		case PROP_HADJUSTMENT:
-			bytes_view_set_scroll_adjustments(bv, g_value_get_object(value), bv->vadj);
+			bytes_view_set_scroll_adjustments(bv, (GtkAdjustment *)g_value_get_object(value), bv->vadj);
 			break;
 
 		case PROP_VADJUSTMENT:
-			bytes_view_set_scroll_adjustments(bv, bv->hadj, g_value_get_object(value));
+			bytes_view_set_scroll_adjustments(bv, bv->hadj, (GtkAdjustment *)g_value_get_object(value));
 			break;
 
 		case PROP_HSCROLL_POLICY:

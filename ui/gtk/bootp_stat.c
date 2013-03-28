@@ -87,14 +87,14 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar *unused 
 		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new(data->name  /* string_buff */);
 		ws_gtk_grid_attach_extended(GTK_GRID(data->sp->grid_message_type), tmp, x, y, 1, 1,
-                                            GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                                            (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
 		g_snprintf(string_buff, sizeof(string_buff), "%9d", data->packets);
 		data->widget = gtk_label_new(string_buff);
 		ws_gtk_grid_attach_extended(GTK_GRID(data->sp->grid_message_type), data->widget, x+1, y, 1, 1,
-                                            GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                                            (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(data->widget);
 

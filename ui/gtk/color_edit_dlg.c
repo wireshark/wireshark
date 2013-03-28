@@ -418,8 +418,8 @@ color_edit_dlg_ok_cb(GtkWidget *w _U_, gpointer user_data)
 
     context = gtk_widget_get_style_context (cedi->filt_name_entry);
 
-    gtk_style_context_get_color(context, GTK_STATE_NORMAL, &new_rgba_fg_color);  /* aka foreground color */
-    gtk_style_context_get_background_color(context, GTK_STATE_NORMAL, &new_rgba_bg_color);
+    gtk_style_context_get_color(context, (GtkStateFlags)GTK_STATE_NORMAL, &new_rgba_fg_color);  /* aka foreground color */
+    gtk_style_context_get_background_color(context, (GtkStateFlags)GTK_STATE_NORMAL, &new_rgba_bg_color);
 
     gdkRGBAcolor_to_color_t(&colorf->fg_color, &new_rgba_fg_color);
     gdkRGBAcolor_to_color_t(&colorf->bg_color, &new_rgba_bg_color);

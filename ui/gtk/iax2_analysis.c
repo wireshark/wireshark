@@ -1453,7 +1453,7 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 static
 gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
-	user_data_t   *user_data = data;
+	user_data_t   *user_data = (user_data_t *)data;
 	GtkAllocation  allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
@@ -1637,12 +1637,12 @@ create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &dgg->rgba_color);
+	gtk_widget_override_color(label, (GtkStateFlags)GTK_STATE_FLAG_NORMAL, &dgg->rgba_color);
 	/* XXX gtk_widget_override_color() takes flags not state */
-	gtk_widget_override_color(label, GTK_STATE_ACTIVE, &dgg->rgba_color);
-	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &dgg->rgba_color);
-	gtk_widget_override_color(label, GTK_STATE_SELECTED, &dgg->rgba_color);
-	gtk_widget_override_color(label, GTK_STATE_INSENSITIVE, &dgg->rgba_color);
+	gtk_widget_override_color(label, (GtkStateFlags)GTK_STATE_ACTIVE, &dgg->rgba_color);
+	gtk_widget_override_color(label, (GtkStateFlags)GTK_STATE_PRELIGHT, &dgg->rgba_color);
+	gtk_widget_override_color(label, (GtkStateFlags)GTK_STATE_SELECTED, &dgg->rgba_color);
+	gtk_widget_override_color(label, (GtkStateFlags)GTK_STATE_INSENSITIVE, &dgg->rgba_color);
 #else
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &dgg->color);

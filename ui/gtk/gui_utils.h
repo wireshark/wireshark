@@ -608,7 +608,7 @@ typedef GtkTable GtkGrid;
     gtk_table_attach_defaults(grid, child, left, left+width, top, top+height)
 
 #define ws_gtk_grid_attach_extended(grid, child, left, top, width, height, xoptions, yoptions, xpadding, ypadding) \
-    gtk_table_attach(grid, child, left, left+width, top, top+height, (GtkAttachOptions)(xoptions), (GtkAttachOptions)(yoptions), xpadding, ypadding)
+    gtk_table_attach(grid, child, left, left+width, top, top+height, xoptions, yoptions, xpadding, ypadding)
 
 #define ws_gtk_grid_set_homogeneous(grid, homogeneous) \
     gtk_table_set_homogeneous(grid, homogeneous)

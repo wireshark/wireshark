@@ -1134,13 +1134,13 @@ static GtkWidget *control_panel_create_zoom_group(struct graph *g)
 
     zoom_grid = ws_gtk_grid_new();
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_grid), zoom_h_label, 0, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_grid), zoom_h_entry, 1, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_grid), zoom_v_label, 0, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_grid), zoom_v_entry, 1, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
 
     zoom_separator2 = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
 
@@ -1167,17 +1167,17 @@ static GtkWidget *control_panel_create_zoom_group(struct graph *g)
 
     zoom_step_grid = ws_gtk_grid_new();
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_step_grid), zoom_h_step_label, 0, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_step_grid), zoom_h_step, 1, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_step_grid), zoom_v_step_label, 0, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_step_grid), zoom_v_step, 1, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_step_grid), zoom_same_toggle, 0, 2, 2, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(zoom_step_grid), zoom_ratio_toggle, 0, 3, 2, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
 
     zoom_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(zoom_box), zoom_inout_box,  TRUE, TRUE, 0);
@@ -1308,21 +1308,21 @@ static GtkWidget *control_panel_create_magnify_group(struct graph *g)
 
     mag_wh_grid = ws_gtk_grid_new();
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_width_label, 0, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_width, 1, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_height_label, 0, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_height, 1, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_x_label, 0, 2, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_x, 1, 2, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_y_label, 0, 3, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_wh_grid), mag_y, 1, 3, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 5, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 5, 0);
 
     mag_h_zoom_label = gtk_label_new("Horizontal:");
     mag_h_zoom_adj   = (GtkAdjustment *)gtk_adjustment_new(10.0, 1.0, 25.0, (gfloat)0.1, 1, 0);
@@ -1337,17 +1337,17 @@ static GtkWidget *control_panel_create_magnify_group(struct graph *g)
 
     mag_zoom_grid = ws_gtk_grid_new();
     ws_gtk_grid_attach_extended(GTK_GRID(mag_zoom_grid), mag_h_zoom_label, 0, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_zoom_grid), mag_h_zoom, 1, 0, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_zoom_grid), mag_v_zoom_label, 0, 1 , 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_zoom_grid), mag_v_zoom, 1, 1, 1, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_zoom_grid), mag_zoom_same, 0, 2, 2, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
     ws_gtk_grid_attach_extended(GTK_GRID(mag_zoom_grid), mag_zoom_ratio, 0, 3, 2, 1,
-                                GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                                (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
 
     mag_zoom_frame = gtk_frame_new("Magnify zoom");
     gtk_container_add(GTK_CONTAINER(mag_zoom_frame), mag_zoom_grid);
@@ -3206,7 +3206,7 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
 static gboolean
 draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     debug(DBS_FENTRY) puts("draw_event()");
 

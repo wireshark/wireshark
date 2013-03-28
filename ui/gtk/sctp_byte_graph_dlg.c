@@ -797,7 +797,7 @@ on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer use
 static gboolean
 on_draw_area_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
-	sctp_graph_t *ios = user_data;
+	sctp_graph_t *ios = (sctp_graph_t *)user_data;
 	GtkAllocation allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);

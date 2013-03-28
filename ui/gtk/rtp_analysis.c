@@ -1507,7 +1507,7 @@ quit(GtkWidget *widget _U_, user_data_t *user_data)
 static gboolean
 draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
-	user_data_t   *user_data = data;
+	user_data_t   *user_data = (user_data_t *)data;
 	GtkAllocation  allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);

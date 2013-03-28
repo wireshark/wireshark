@@ -180,7 +180,7 @@ font_color_prefs_show(void)
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
   ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label,
                               0, GRID_FONT_ROW, 1, 1,
-                              GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                              (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
   gtk_widget_show(label);
 
   font_button = gtk_font_button_new_with_font(prefs.gui_gtk2_font_name);
@@ -200,7 +200,7 @@ font_color_prefs_show(void)
   gtk_text_buffer_insert(buf, &iter, preview_string->str, -1);
   ws_gtk_grid_attach_extended(GTK_GRID(main_grid), font_sample,
                               2, GRID_FONT_ROW, 1, 1,
-                              GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                              (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
   g_signal_connect(font_button, "font-set", G_CALLBACK(select_font), NULL);
   gtk_widget_show(font_sample);
 
@@ -211,7 +211,7 @@ font_color_prefs_show(void)
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
   ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label,
                               0, GRID_COLOR_ROW, 1, 1,
-                              GTK_EXPAND|GTK_FILL, 0, 0,0);
+                              (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0,0);
   gtk_widget_show(label);
 
   /* We have to create this now, and configure it below. */
@@ -274,13 +274,13 @@ font_color_prefs_show(void)
 
   ws_gtk_grid_attach_extended(GTK_GRID(main_grid), color_sample,
                               2, GRID_COLOR_ROW, 1, 2,
-                              GTK_EXPAND|GTK_FILL, 0, 0, 0);
+                              (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
   gtk_widget_show(color_sample);
 
   gtk_color_xxx_set_yyy(GTK_COLOR_XXX(colorsel), curcolor);
   ws_gtk_grid_attach_extended(GTK_GRID(main_grid), colorsel,
                               1, GRID_COLOR_SEL_ROW, 2, 1,
-                              GTK_FILL|GTK_EXPAND, 0, 0, 0);
+                              (GtkAttachOptions)(GTK_FILL|GTK_EXPAND), (GtkAttachOptions)0, 0, 0);
 
   g_object_set_data(G_OBJECT(combo_box), COLOR_SAMPLE_KEY, color_sample);
   g_object_set_data(G_OBJECT(colorsel),  COLOR_SAMPLE_KEY, color_sample);
