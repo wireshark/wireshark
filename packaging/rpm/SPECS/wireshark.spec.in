@@ -94,13 +94,14 @@ Requires(pre):	shadow-utils
 Requires(post):	desktop-file-utils
 
 %if %{setcap_dumpcap}
-%if 0%{?suse_version}
-# SuSE's rpmbuild is in this package:
+# Actually we require rpmbuild (the program) >= 4.7.0 but the package name
+# where we can find it varies.  So we check the 'rpm' version because either
+# rpmbuild is in that package (e.g., in older distros) or it's in the
+# 'rpm-build' package which generally requires a matching version of 'rpm'.
+#
+# All of this is to save users the trouble of getting through an full compile
+# only to have rpmbuild barf because it doesn't understand capabilities.
 BuildRequires:	rpm >= 4.7.0
-%else
-# ... while Redhat's is in this one:
-BuildRequires:	rpm-build >= 4.7.0
-%endif
 %endif
 
 
@@ -174,6 +175,8 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %endif
   --disable-warnings-as-errors
 
+# Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
+# %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
 make %{?_smp_mflags}
 
 %install
@@ -275,6 +278,9 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_mandir}/man1/wireshark.*
 
 %changelog
+* Thu Mar 28 2013 Jeff Morriss
+- Simplify check for rpmbuild's version.
+
 * Fri Mar  8 2013 Jeff Morriss
 - Put all icons in hicolor
 - Use SuSE's desktop-update macro.
