@@ -793,7 +793,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     int         offset = 0;
     int         length;
     guint8      value;
-    guint32     value32;
+    guint32     uvalue32;
+    gint32      svalue32;
 
     /*subtree = proto_item_add_subtree(item, ett_gsm_a_geo_desc);*/
 
@@ -824,17 +825,21 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             return;
         proto_tree_add_item(tree, hf_gsm_a_geo_loc_sign_of_lat, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        value32  = tvb_get_ntoh24(tvb,offset)&0x7fffff;
+        uvalue32  = tvb_get_ntoh24(tvb,offset);
         /* convert degrees (X/0x7fffff) * 90 = degrees */
         lat_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_lat, tvb, offset, 3, ENC_BIG_ENDIAN);
-        proto_item_append_text(lat_item, "(%.5f degrees)", (((double)value32/8388607) * 90));
+        proto_item_append_text(lat_item, " (%s%.5f degrees)",
+            (uvalue32 & 0x00800000) ? "-" : "",
+            ((double)(uvalue32 & 0x7fffff)/8388607.0) * 90);
         if (length < 7)
             return;
         offset    = offset + 3;
-        value32   = tvb_get_ntoh24(tvb,offset)&0x7fffff;
+        svalue32   = tvb_get_ntoh24(tvb,offset);
+        svalue32 |= (svalue32 & 0x800000) ? 0xff000000 : 0x00000000;
         long_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_long, tvb, offset, 3, ENC_BIG_ENDIAN);
         /* (X/0xffffff) *360 = degrees */
-        proto_item_append_text(long_item, "(%.5f degrees)", (((double)value32/16777215) * 360));
+        proto_item_append_text(long_item, " (%.5f degrees)",
+            ((double)svalue32/16777215.0) * 360);
         offset = offset + 3;
         if (type_of_shape == ELLIPSOID_POINT_WITH_UNCERT_CIRC) {
             /* Ellipsoid Point with uncertainty Circle */
@@ -843,7 +848,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             /* Uncertainty code */
             value = tvb_get_guint8(tvb,offset)&0x7f;
             uncer_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(uncer_item, "(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
+            proto_item_append_text(uncer_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
         }else if (type_of_shape == ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE) {
             /* Ellipsoid Point with uncertainty Ellipse */
             /* Uncertainty semi-major octet 10
@@ -851,14 +856,14 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
              */
             value      = tvb_get_guint8(tvb,offset) & 0x7f;
             major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(major_item, "(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
+            proto_item_append_text(major_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
             /* Uncertainty semi-minor Octet 11
              * To convert to metres 10*(((1.1)^X)-1)
              */
             value      = tvb_get_guint8(tvb,offset)&0x7f;
             minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(minor_item, "(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
+            proto_item_append_text(minor_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
             /* Orientation of major axis octet 12
              * allowed value from 0-179 to convert
@@ -888,14 +893,14 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
              */
             value      = tvb_get_guint8(tvb,offset)&0x7f;
             major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(major_item, "(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
+            proto_item_append_text(major_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
             /* Uncertainty semi-minor Octet 11
              * To convert to metres 10*(((1.1)^X)-1)
              */
             value      = tvb_get_guint8(tvb,offset)&0x7f;
             minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(minor_item, "(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
+            proto_item_append_text(minor_item, " (%.1f m)", 10 * (pow(1.1, (double)value) - 1));
             offset++;
             /* Orientation of major axis octet 12
              * allowed value from 0-179 to convert
@@ -909,7 +914,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
              */
             value = tvb_get_guint8(tvb,offset)&0x7f;
             alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_altitude, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(alt_item, "(%.1f m)", 45 * (pow(1.025, (double)value) - 1));
+            proto_item_append_text(alt_item, " (%.1f m)", 45 * (pow(1.025, (double)value) - 1));
             offset++;
             /* Confidence octet 14
              */
@@ -1613,7 +1618,7 @@ guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 i
 
     (void)elem_ett;
     (void)elem_funcs;
-    
+
     oct = tvb_get_guint8(tvb, curr_offset);
 
     if (oct == iei)
@@ -4262,13 +4267,13 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_deg_of_lat,
-        { "Degrees of latitude", "gsm_a.gad.sign_of_latitude",
+        { "Degrees of latitude", "gsm_a.gad.deg_of_latitude",
         FT_UINT24, BASE_DEC, NULL, 0x7fffff,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_deg_of_long,
-        { "Degrees of longitude", "gsm_a.gad.sign_of_longitude",
-        FT_UINT24, BASE_DEC, NULL, 0xffffff,
+        { "Degrees of longitude", "gsm_a.gad.deg_of_longitude",
+        FT_INT24, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_uncertainty_code,
