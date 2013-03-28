@@ -170,7 +170,7 @@ The BER dissector might infinitely loop.
 Capture filters aren't applied when capturing from named pipes.
 (ws-buglink:1814)
 
-Filtering tshark captures with display filters (-R) no longer works.
+Filtering tshark captures with read filters (-R) no longer works.
 (ws-buglink:2234[])
 
 The 64-bit Windows installer does not support Kerberos decryption.
