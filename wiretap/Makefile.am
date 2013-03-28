@@ -30,7 +30,7 @@ include Makefile.common
 noinst_LTLIBRARIES = libwiretap_generated.la
 lib_LTLIBRARIES = libwiretap.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwiretap_la_LDFLAGS = -version-info 0:2:0 @LDFLAGS_SHAREDLIB@
+libwiretap_la_LDFLAGS = -version-info 0:3:0 @LDFLAGS_SHAREDLIB@
 
 AM_NON_GENERATED_CFLAGS =-DWS_BUILD_DLL
 

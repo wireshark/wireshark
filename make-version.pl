@@ -75,7 +75,7 @@ my $set_release = 0;
 my %version_pref = (
 	"version_major" => 1,
 	"version_minor" => 9,
-	"version_micro" => 2,
+	"version_micro" => 3,
 	"version_build" => 0,
 
 	"enable"        => 1,
@@ -85,12 +85,12 @@ my %version_pref = (
 	"is_release"    => 0,
 
 	# Normal development builds
-	#"pkg_enable" => 1,
-	#"pkg_format" => "-SVN-%#",
+	"pkg_enable" => 1,
+	"pkg_format" => "-SVN-%#",
 
 	# Development releases
-	"pkg_enable" => 0,
-	"pkg_format" => "",
+	#"pkg_enable" => 0,
+	#"pkg_format" => "",
 	);
 my $srcdir = ".";
 my $info_cmd = "";
@@ -628,7 +628,7 @@ make-version.pl [options] [source directory]
     --set-svn, -s              Set the information in svnversion.h
     --set-version, -v          Set the major, minor, and micro versions in
                                configure.ac, config.nmake, debian/changelog,
-			       and docbook/release_notes.xml.
+			       and docbook/asciidoc.conf.
                                Resets the release information when used by
 			       itself.
     --set-release, -r          Set the release information in configure.ac
