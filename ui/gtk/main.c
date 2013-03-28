@@ -3049,15 +3049,6 @@ main(int argc, char *argv[])
 
   g_timeout_add(info_update_freq, resolv_update_cb, NULL);
 
-  if (dfilter) {
-    GtkWidget *filter_te;
-    filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
-    gtk_entry_set_text(GTK_ENTRY(filter_te), dfilter);
-
-    /* Run the display filter so it goes in effect. */
-    main_filter_packets(&cfile, dfilter, FALSE);
-  }
-
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
      up an alert box, the alert box is more likely to come up on
@@ -3195,6 +3186,16 @@ main(int argc, char *argv[])
     set_capture_if_dialog_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
   }
+
+  if (dfilter) {
+    GtkWidget *filter_te;
+    filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
+    gtk_entry_set_text(GTK_ENTRY(filter_te), dfilter);
+
+    /* Run the display filter so it goes in effect. */
+    main_filter_packets(&cfile, dfilter, FALSE);
+  }
+
 
   /* register our pid if we are being run from a U3 device */
   u3_register_pid();
