@@ -106,6 +106,7 @@ EXTRA_DIST = \
 	idl2deb						\
 	idl2wrs						\
 	indexcap.py					\
+	install_rpms_for_devel.sh			\
 	lex.py						\
 	list_protos_in_cap.sh				\
 	Makefile.nmake					\
