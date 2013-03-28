@@ -1,6 +1,10 @@
 /* packet-vrt.c
  * Routines for VRT (VITA 49) packet disassembly
- * Copyright 2013, Alexander Chemeris (alexander.chemeris@gmail.com), Dario Lombardo (lomato@gmail.com)
+ * Copyright 2012 Ettus Research LLC - Nick Foster <nick@ettus.com>: original dissector
+ * Copyright 2013 Alexander Chemeris <alexander.chemeris@gmail.com>: dissector improvement
+ * Copyright 2013 Dario Lombardo (lomato@gmail.com): Official Wireshark port
+ *
+ * Original dissector repository: https://github.com/bistromath/vrt-dissector
  *
  * $Id$
  *
@@ -22,12 +26,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-
-/*
- * Original dissector can be found here
- * https://github.com/chemeris/vrt-dissector
-*/
 
 
 #include "config.h"
