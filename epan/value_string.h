@@ -51,6 +51,16 @@ WS_DLL_PUBLIC
 const gchar*
 try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx);
 
+/* STRING TO VALUE MATCHING */
+
+WS_DLL_PUBLIC
+guint32
+str_to_val(const gchar *val, const value_string *vs, const guint32 err_val);
+
+WS_DLL_PUBLIC
+gint
+str_to_val_idx(const gchar *val, const value_string *vs);
+
 /* EXTENDED VALUE TO STRING MATCHING */
 
 struct _value_string_ext;

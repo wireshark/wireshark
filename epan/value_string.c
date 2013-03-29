@@ -102,6 +102,48 @@ try_val_to_str(const guint32 val, const value_string *vs)
     return try_val_to_str_idx(val, vs, &ignore_me);
 }
 
+/* REVERSE VALUE STRING */
+
+/* We use the same struct as for regular value strings, but we look up strings
+ * and return values instead */
+
+/* Like val_to_str except backwards */
+guint32
+str_to_val(const gchar *val, const value_string *vs, const guint32 err_val)
+{
+    gint index;
+
+    index = str_to_val_idx(val, vs);
+
+    if (index >= 0) {
+        return vs[index].value;
+    }
+
+    return err_val;
+}
+
+/* Find the index of a string in a value_string, or -1 when not present */
+gint
+str_to_val_idx(const gchar *val, const value_string *vs)
+{
+    gint i = 0;
+
+    if(vs) {
+
+        while (vs[i].strptr) {
+
+            if (strcmp(vs[i].strptr, val) == 0) {
+                return i;
+            }
+
+            i++;
+        }
+
+    }
+
+    return -1;
+}
+
 /* EXTENDED VALUE STRING */
 
 /* Extended value strings allow fast(er) value_string array lookups by
