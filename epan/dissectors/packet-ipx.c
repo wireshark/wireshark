@@ -538,7 +538,7 @@ spx_conn_ctrl(guint8 ctrl)
 		{ 0x00,                        NULL }
 	};
 
-	p = match_strval((ctrl & 0xf0), conn_vals );
+	p = try_val_to_str((ctrl & 0xf0), conn_vals );
 
 	if (p) {
 		return p;

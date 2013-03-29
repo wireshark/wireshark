@@ -1504,7 +1504,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 					proto_tree_add_uint(tree2, hf_cell_h_vci, tvb, 1, 3, (unsigned)pd->vci);
 
 					item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 3, 1, ENC_BIG_ENDIAN);
-					if (NULL == match_strval(pd->pti, atm_pt_vals))
+					if (NULL == try_val_to_str(pd->pti, atm_pt_vals))
 					{
 						expert_add_info_format(pinfo, item2, PI_UNDECODED, PI_WARN,
 							"Unknown value of PTI field (%d) in the ATM cell header",
@@ -1568,7 +1568,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 					if (MODE_11(pd->mode))
 					{
 						item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 0, 1, ENC_BIG_ENDIAN);
-						if (NULL == match_strval(pd->pti, atm_pt_vals))
+						if (NULL == try_val_to_str(pd->pti, atm_pt_vals))
 						{
 							expert_add_info_format(pinfo, item2, PI_UNDECODED, PI_WARN,
 								"Unknown value of PTI field (%d) in the atm-specific byte"

@@ -2641,7 +2641,7 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_operation, tvb, 0, 0, opcode);
-  p = match_strval(opcode, VALS(isdn_sup_str_operation));
+  p = try_val_to_str(opcode, VALS(isdn_sup_str_operation));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -2687,7 +2687,7 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_operation, tvb, 0, 0, opcode);
-  p = match_strval(opcode, VALS(isdn_sup_str_operation));
+  p = try_val_to_str(opcode, VALS(isdn_sup_str_operation));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -2734,7 +2734,7 @@ dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
 
   proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_error, tvb, 0, 0, errcode);
-  p = match_strval(errcode, VALS(isdn_sup_str_error));
+  p = try_val_to_str(errcode, VALS(isdn_sup_str_error));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
     proto_item_append_text(rctx->d.code_item, " - %s", p);

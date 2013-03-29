@@ -395,7 +395,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *bfcp_tree = NULL;
 
 	primitive = tvb_get_guint8(tvb, 1);
-	str = match_strval(primitive, map_bfcp_primitive);
+	str = try_val_to_str(primitive, map_bfcp_primitive);
 
 	/* Make entries in Protocol column and Info column on summary display*/
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFCP");
@@ -474,7 +474,7 @@ dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if ((primitive < 1) || (primitive > 18))
 		return FALSE;
 
-	str = match_strval(primitive, map_bfcp_primitive);
+	str = try_val_to_str(primitive, map_bfcp_primitive);
 	if (NULL == str)
 		return FALSE;
 

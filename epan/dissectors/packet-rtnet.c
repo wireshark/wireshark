@@ -568,7 +568,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   flags = tvb_get_guint8(tvb, offset+3);
 
   if (ver == 1) {
-    type_str = match_strval(type, rtmac_type_vals);
+    type_str = try_val_to_str(type, rtmac_type_vals);
     if (!type_str) {
       dissector = dissector_get_uint_handle(ethertype_table, type);
     }

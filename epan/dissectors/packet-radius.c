@@ -1316,7 +1316,7 @@ is_radius(tvbuff_t *tvb)
 	guint16 length;
 
 	code=tvb_get_guint8(tvb, 0);
-	if (match_strval_ext(code, &radius_pkt_type_codes_ext) == NULL) {
+	if (try_val_to_str_ext(code, &radius_pkt_type_codes_ext) == NULL) {
 		return FALSE;
 	}
 

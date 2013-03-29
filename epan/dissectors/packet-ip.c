@@ -755,7 +755,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   /* Analyze payload start to decide whether it should be dissected
      according to RFC 791 or RFC 1108 */
     val = tvb_get_ntohs(tvb, curr_offset);
-    if (match_strval(val, secl_rfc791_vals)) {
+    if (try_val_to_str(val, secl_rfc791_vals)) {
       /* Dissect as RFC 791 */
       proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_sec,
                           tvb, curr_offset, 2, ENC_BIG_ENDIAN);

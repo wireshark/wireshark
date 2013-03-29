@@ -403,7 +403,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
-  p = match_strval(opcode, VALS(qsig_str_operation));
+  p = try_val_to_str(opcode, VALS(qsig_str_operation));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -412,7 +412,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   }
 
   ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, service);
-  p = match_strval(service, VALS(qsig_str_service_name));
+  p = try_val_to_str(service, VALS(qsig_str_service_name));
   if (p) proto_item_append_text(ti_tmp, " - %s", p);
 
   if (op_ptr->arg_pdu)
@@ -454,7 +454,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
-  p = match_strval(opcode, VALS(qsig_str_operation));
+  p = try_val_to_str(opcode, VALS(qsig_str_operation));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -463,7 +463,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   }
 
   ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, service);
-  p = match_strval(service, VALS(qsig_str_service_name));
+  p = try_val_to_str(service, VALS(qsig_str_service_name));
   if (p) proto_item_append_text(ti_tmp, " - %s", p);
 
   if (op_ptr->res_pdu)
@@ -504,7 +504,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_error, tvb, 0, 0, errcode);
-  p = match_strval(errcode, VALS(qsig_str_error));
+  p = try_val_to_str(errcode, VALS(qsig_str_error));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
     proto_item_append_text(rctx->d.code_item, " - %s", p);

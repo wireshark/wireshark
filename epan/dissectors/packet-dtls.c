@@ -1057,10 +1057,10 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 
   /* first lookup the names for the alert level and description */
   byte  = tvb_get_guint8(tvb, offset); /* grab the level byte */
-  level = match_strval(byte, ssl_31_alert_level);
+  level = try_val_to_str(byte, ssl_31_alert_level);
 
   byte  = tvb_get_guint8(tvb, offset+1); /* grab the desc byte */
-  desc  = match_strval(byte, ssl_31_alert_description);
+  desc  = try_val_to_str(byte, ssl_31_alert_description);
 
   /* now set the text in the record layer line */
   if (level && desc)
@@ -1171,7 +1171,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         }
 
       msg_type = tvb_get_guint8(tvb, offset);
-      msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
+      msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
 
       if (!msg_type_str && !first_iteration)
         {
@@ -1486,7 +1486,7 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
   /* first lookup the names for the message type and the payload length */
   byte = tvb_get_guint8(tvb, offset);
-  type = match_strval(byte, tls_heartbeat_type);
+  type = try_val_to_str(byte, tls_heartbeat_type);
 
   payload_length = tvb_get_ntohs(tvb, offset + 1);
   padding_length = record_length - 3 - payload_length;

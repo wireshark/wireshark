@@ -3311,7 +3311,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
     guint32 val = 0, off = val_start, len;    \
     \
     wkh_1_WellKnownValue; \
-        val_str = match_strval_ext(val_id & 0x7F, valueStringExtAddr); \
+        val_str = try_val_to_str_ext(val_id & 0x7F, valueStringExtAddr); \
         if (val_str) { \
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
             ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
@@ -3330,7 +3330,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
             get_long_integer(val, tvb, off, len, ok); \
             if (ok) { \
                 val = val; /* hack to prevent 'set but not used' gcc warning */ \
-                val_str = match_strval_ext(val_id & 0x7F, valueStringExtAddr); \
+                val_str = try_val_to_str_ext(val_id & 0x7F, valueStringExtAddr); \
                 if (val_str) { \
                     tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
                     ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
@@ -3364,7 +3364,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
-        val_str = match_strval_ext(val, &vals_cache_control_ext);
+        val_str = try_val_to_str_ext(val, &vals_cache_control_ext);
         if (val_str) {
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
             ti = proto_tree_add_string(tree, hf_hdr_cache_control,
@@ -3487,7 +3487,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
-        val_str = match_strval_ext(val, &vals_wsp_warning_code_ext);
+        val_str = try_val_to_str_ext(val, &vals_wsp_warning_code_ext);
         if (val_str) {
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
             ti = proto_tree_add_string(tree, hf_hdr_warning,
@@ -3505,7 +3505,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
         warn_code = tvb_get_guint8(tvb, off);
         if (warn_code & 0x80) { /* Well known warn code */
             val = warn_code & 0x7f;
-            val_str = match_strval_ext(val, &vals_wsp_warning_code_short_ext);
+            val_str = try_val_to_str_ext(val, &vals_wsp_warning_code_short_ext);
             if (val_str) { /* OK */
                 str = ep_strdup_printf("code=%s", val_str);
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
@@ -3553,7 +3553,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
-        val_str = match_strval_ext(val, &vals_wsp_profile_warning_code_ext);
+        val_str = try_val_to_str_ext(val, &vals_wsp_profile_warning_code_ext);
         if (val_str) {
             tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
             ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
@@ -3566,7 +3566,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         off = val_start + val_len_len;
         warn_code = tvb_get_guint8(tvb, off++);
         if (warn_code & 0x80) { /* Well known warn code */
-            val_str = match_strval_ext(val, &vals_wsp_profile_warning_code_ext);
+            val_str = try_val_to_str_ext(val, &vals_wsp_profile_warning_code_ext);
             if (val_str) { /* OK */
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
@@ -3776,7 +3776,7 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
         off = val_start + val_len_len;
         val = tvb_get_guint8(tvb, off);
         if (val & 0x80) { /* Well-known-TE */
-            val_str = match_strval_ext((val & 0x7F), &vals_well_known_te_ext);
+            val_str = try_val_to_str_ext((val & 0x7F), &vals_well_known_te_ext);
             if (val_str) {
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_te,

@@ -5693,7 +5693,7 @@ dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 leng
     const gchar *as;
     guint32 alarm_len;
 
-    if (!(ai = match_strval_ext (tvb_get_guint8 (payload_tvb, offset + 1), &r3_alarmidnames_ext)))
+    if (!(ai = try_val_to_str_ext (tvb_get_guint8 (payload_tvb, offset + 1), &r3_alarmidnames_ext)))
     {
       ai = "[Unknown Alarm ID]";
       as = "N/A";

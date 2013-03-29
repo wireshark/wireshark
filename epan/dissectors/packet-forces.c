@@ -364,7 +364,7 @@ dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         type = tvb_get_ntohs(tvb,offset);
         ti = proto_tree_add_item(oper_tree, hf_forces_lfbselect_tlv_type_operation_type,
                                  tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (match_strval(type, operation_type_vals) == NULL)
+        if (try_val_to_str(type, operation_type_vals) == NULL)
             expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
                 "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
 

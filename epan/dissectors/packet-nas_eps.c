@@ -4577,7 +4577,7 @@ get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 {
     gint            idx;
 
-    *msg_str   = match_strval_idx_ext((guint32) (oct & 0xff), &nas_msg_esm_strings_ext, &idx);
+    *msg_str   = try_val_to_str_idx_ext((guint32) (oct & 0xff), &nas_msg_esm_strings_ext, &idx);
     *hf_idx    = hf_nas_eps_msg_esm_type;
     if (*msg_str != NULL) {
         *ett_tree  = ett_nas_msg_esm[idx];
@@ -4635,7 +4635,7 @@ get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 {
     gint            idx;
 
-    *msg_str   = match_strval_idx_ext((guint32) (oct & 0xff), &nas_msg_emm_strings_ext, &idx);
+    *msg_str   = try_val_to_str_idx_ext((guint32) (oct & 0xff), &nas_msg_emm_strings_ext, &idx);
     *hf_idx    = hf_nas_eps_msg_emm_type;
     if (*msg_str != NULL) {
         *ett_tree  = ett_nas_msg_emm[idx];

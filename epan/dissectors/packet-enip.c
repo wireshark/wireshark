@@ -2089,7 +2089,7 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
    /* Get the command type and see if it's valid. */
    encap_cmd = tvb_get_letohs( tvb, 0 );
-   if (match_strval(encap_cmd, encap_cmd_vals) == NULL)
+   if (try_val_to_str(encap_cmd, encap_cmd_vals) == NULL)
       return 0;   /* not a known command */
 
    dissect_enip_pdu(tvb, pinfo, tree);
@@ -2107,7 +2107,7 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
    /* Get the command type and see if it's valid. */
    encap_cmd = tvb_get_letohs( tvb, 0 );
-   if (match_strval(encap_cmd, encap_cmd_vals) == NULL)
+   if (try_val_to_str(encap_cmd, encap_cmd_vals) == NULL)
       return 0;   /* not a known command */
 
    tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4, get_enip_pdu_len, dissect_enip_pdu);

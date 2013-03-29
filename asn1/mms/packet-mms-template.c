@@ -136,7 +136,7 @@ dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		return FALSE;
 
 	/* see if the tag is a valid MMS PDU */
-	match_strval_idx(tmp_tag, mms_MMSpdu_vals, &idx);
+	try_val_to_str_idx(tmp_tag, mms_MMSpdu_vals, &idx);
 	if  (idx == -1) {
 	 	return FALSE;  /* no, it isn't an MMS PDU */
 	}

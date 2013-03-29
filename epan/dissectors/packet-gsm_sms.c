@@ -3490,7 +3490,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         msg_type |= ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x04 : 0x00);
 
-        str = match_strval_idx(msg_type, msg_type_strings, &idx);
+        str = try_val_to_str_idx(msg_type, msg_type_strings, &idx);
 
         /*
          * create the GSM_SMS protocol tree

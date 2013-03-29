@@ -697,7 +697,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     case 2:
         if (request_value) {
             subverb = request_value->req_nds_flags;
-            str = match_strval(subverb, sss_verb_enum);
+            str = try_val_to_str(subverb, sss_verb_enum);
             if (str) {
                 proto_tree_add_text(atree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Verb: %s", str);
             }
@@ -713,7 +713,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         {
             foffset += 4;
             return_code = tvb_get_letohl(tvb, foffset);
-            str = match_strval(return_code, sss_errors_enum);
+            str = try_val_to_str(return_code, sss_errors_enum);
             if (str)
             {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);

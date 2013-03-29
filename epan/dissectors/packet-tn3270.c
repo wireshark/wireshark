@@ -4708,7 +4708,7 @@ dissect_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
       sf_id_len = 2;
     }
 
-    sf_id_str = match_strval(sf_id, direction_inbound ?
+    sf_id_str = try_val_to_str(sf_id, direction_inbound ?
                              vals_inbound_structured_fields : vals_outbound_structured_fields);
     if (sf_id_str != NULL) {
       sf_tree = display_sf_hdr(tn3270_tree, tvb, offset,
@@ -4724,7 +4724,7 @@ dissect_structured_fields(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
     }
 
     /* Not found above: See if an "outbound-inbound" field */
-    sf_id_str = match_strval(sf_id, vals_outbound_inbound_structured_fields);
+    sf_id_str = try_val_to_str(sf_id, vals_outbound_inbound_structured_fields);
     if (sf_id_str != NULL) {
       sf_tree = display_sf_hdr(tn3270_tree, tvb, offset,
                                sf_length, sf_id, sf_id_len, sf_id_str);

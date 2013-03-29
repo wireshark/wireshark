@@ -310,7 +310,7 @@ gchar		   *aux_smb_fid_type_string;
 	if (eo_info->smbversion==1) {
 		/* Is this an eo_smb supported file_type? (right now we only support FILE) */
 		is_supported_filetype = (eo_info->fid_type == SMB_FID_TYPE_FILE);
-		aux_smb_fid_type_string=g_strdup(match_strval(eo_info->fid_type, smb_fid_types));
+		aux_smb_fid_type_string=g_strdup(try_val_to_str(eo_info->fid_type, smb_fid_types));
 
 		/* What kind of data this packet contains? */
 		switch(eo_info->cmd) {
@@ -329,7 +329,7 @@ gchar		   *aux_smb_fid_type_string;
 	} else {
 		/* Is this an eo_smb supported file_type? (right now we only support FILE) */
 		is_supported_filetype = (eo_info->fid_type == SMB2_FID_TYPE_FILE );
-		aux_smb_fid_type_string=g_strdup(match_strval(eo_info->fid_type, smb2_fid_types));
+		aux_smb_fid_type_string=g_strdup(try_val_to_str(eo_info->fid_type, smb2_fid_types));
 
 		/* What kind of data this packet contains? */
 		switch(eo_info->cmd) {
@@ -382,7 +382,7 @@ gchar		   *aux_smb_fid_type_string;
 				aux_smb_fid_type_string,
 				new_file->data_gathered,
 				new_file->file_length,
-				match_strval(contains, smb_eo_contains_string));
+				try_val_to_str(contains, smb_eo_contains_string));
 		} else {
 			if (new_file->file_length > 0) {
 				percent = (gfloat) (100*new_file->data_gathered/new_file->file_length);
@@ -395,7 +395,7 @@ gchar		   *aux_smb_fid_type_string;
 				aux_smb_fid_type_string,
 				new_file->data_gathered,
 				new_file->file_length,
-				match_strval(contains, smb_eo_contains_string),
+				try_val_to_str(contains, smb_eo_contains_string),
 				percent);
 		}
 
@@ -417,7 +417,7 @@ gchar		   *aux_smb_fid_type_string;
 				aux_smb_fid_type_string,
 				current_file->data_gathered,
 				current_file->file_length,
-				match_strval(current_file->flag_contains, smb_eo_contains_string));
+				try_val_to_str(current_file->flag_contains, smb_eo_contains_string));
 		} else {
 			percent = (gfloat) (100*current_file->data_gathered/current_file->file_length);
 			current_entry->content_type =
@@ -425,7 +425,7 @@ gchar		   *aux_smb_fid_type_string;
 				aux_smb_fid_type_string,
 				current_file->data_gathered,
 				current_file->file_length,
-				match_strval(current_file->flag_contains, smb_eo_contains_string),
+				try_val_to_str(current_file->flag_contains, smb_eo_contains_string),
 				percent);
 		}
 	}

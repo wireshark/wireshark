@@ -928,7 +928,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			cmd_vs = (value_string *)(void *)all_cmds->data;
 
 			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id, tvb, 8, 4, ENC_BIG_ENDIAN);
-			if (match_strval(fourth, dictionary.applications) == NULL) {
+			if (try_val_to_str(fourth, dictionary.applications) == NULL) {
 				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
 				proto_item *iu = proto_tree_add_text(tu, tvb, 8, 4, "Unknown Application Id, "
 				                                     "if you know what this is you can add it to dictionary.xml");

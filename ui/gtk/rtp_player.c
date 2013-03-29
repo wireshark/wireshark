@@ -498,7 +498,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 		decoder = g_new(rtp_decoder_t,1);
 		decoder->handle = NULL;
 		decoder->context = NULL;
-		p = match_strval_ext(payload_type, &rtp_payload_type_short_vals_ext);
+		p = try_val_to_str_ext(payload_type, &rtp_payload_type_short_vals_ext);
 		if (p) {
 			decoder->handle = find_codec(p);
 			if (decoder->handle)

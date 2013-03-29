@@ -530,7 +530,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item (memcache_tree, hf_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  if (match_strval (magic, magic_vals) == NULL) {
+  if (try_val_to_str (magic, magic_vals) == NULL) {
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown magic byte: %d", magic);
   }
 
@@ -538,7 +538,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item (memcache_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  if (match_strval (opcode, opcode_vals) == NULL) {
+  if (try_val_to_str (opcode, opcode_vals) == NULL) {
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown opcode: %d", opcode);
   }
 
@@ -1915,7 +1915,7 @@ dissect_memcache_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   magic = tvb_get_guint8 (tvb, offset);
 
-  if (match_strval (magic, magic_vals) != NULL) {
+  if (try_val_to_str (magic, magic_vals) != NULL) {
     tcp_dissect_pdus (tvb, pinfo, tree, memcache_desegment_body, 12,
                       get_memcache_pdu_len, dissect_memcache);
   } else {
@@ -1932,7 +1932,7 @@ dissect_memcache_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   magic = tvb_get_guint8 (tvb, offset);
 
-  if (match_strval (magic, magic_vals) != NULL) {
+  if (try_val_to_str (magic, magic_vals) != NULL) {
     dissect_memcache (tvb, pinfo, tree);
   } else {
     dissect_memcache_message (tvb, 0, pinfo, tree);

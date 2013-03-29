@@ -2529,7 +2529,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
     offset_start=offset;
 
     tag = tvb_get_guint8(tvb, offset);
-    tag_str = match_strval(tag, mpeg_descriptor_ciplus_tag_vals);
+    tag_str = try_val_to_str(tag, mpeg_descriptor_ciplus_tag_vals);
     if (!tag_str)
         return 0;
 
@@ -2768,7 +2768,7 @@ proto_mpeg_descriptor_loop_dissect(tvbuff_t *tvb, guint offset, guint loop_len, 
          /* the default descriptor function takes precedence
             however, if it does not know the current descriptor, we search for a context-specific subfunction
             this subfunction gets to see the entire descriptor, including tag and len */
-        if (match_strval(tag, mpeg_descriptor_tag_vals)) {
+        if (try_val_to_str(tag, mpeg_descriptor_tag_vals)) {
             desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
         }
         else {

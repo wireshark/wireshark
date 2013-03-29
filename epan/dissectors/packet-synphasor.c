@@ -1128,7 +1128,7 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 		temp_item = proto_tree_add_text(temp_tree, tvb, offset, 4,
 						"Factor for analog value #%i: %s",
 						i + 1,
-						match_strrval((tmp >> 24) & 0x000000FF, conf_anconvnames));
+						try_rval_to_str((tmp >> 24) & 0x000000FF, conf_anconvnames));
 
 			tmp &= 0x00FFFFFF;
 		if (	tmp &  0x00800000) /* sign bit set */

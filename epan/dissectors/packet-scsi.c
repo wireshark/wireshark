@@ -3511,7 +3511,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
         plen = tvb_get_guint8(tvb, offset + 1);
     }
 
-    if (match_strval(pcode & SCSI_MS_PCODE_BITS,
+    if (try_val_to_str(pcode & SCSI_MS_PCODE_BITS,
                      scsi_spc_modepage_val) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
@@ -3546,7 +3546,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
         default:
             /*
              * The "val_to_str()" lookup will fail in this table
-             * (it failed in "match_strval()"), so it'll return
+             * (it failed in "try_val_to_str()"), so it'll return
              * "Unknown (XXX)", which is what we want.
              */
             modepage_val = scsi_spc_modepage_val;
@@ -3798,7 +3798,7 @@ dissect_scsi_pagecode(tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     pcode = tvb_get_guint8(tvb, offset);
-    if (match_strval(pcode & SCSI_MS_PCODE_BITS,
+    if (try_val_to_str(pcode & SCSI_MS_PCODE_BITS,
                      scsi_spc_modepage_val) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
@@ -4871,8 +4871,8 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 #endif
 
-    if ((valstr = match_strval(opcode, scsi_spc_vals)) == NULL) {
-        valstr = match_strval(opcode, csdata->cdb_vals);
+    if ((valstr = try_val_to_str(opcode, scsi_spc_vals)) == NULL) {
+        valstr = try_val_to_str(opcode, csdata->cdb_vals);
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {

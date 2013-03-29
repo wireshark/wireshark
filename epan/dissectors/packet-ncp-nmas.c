@@ -594,7 +594,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     break;
                 case 7:
                     encrypt_error = tvb_get_ntohl(tvb, foffset);
-                    str = match_strval(encrypt_error, nmas_errors_enum);
+                    str = try_val_to_str(encrypt_error, nmas_errors_enum);
                     if (str)
                     {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", str);
@@ -618,7 +618,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 break;
             }
         }
-        str = match_strval(return_code, nmas_errors_enum);
+        str = try_val_to_str(return_code, nmas_errors_enum);
         if (str)
         {
             expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);

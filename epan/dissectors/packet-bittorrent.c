@@ -624,10 +624,10 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          }
       }
 
-      msgtype = match_strval(type, bittorrent_messages);
+      msgtype = try_val_to_str(type, bittorrent_messages);
 #if 0
       if (msgtype == NULL && isamp) {
-         msgtype = match_strval(type, azureus_messages);
+         msgtype = try_val_to_str(type, azureus_messages);
       }
 #endif
       if (msgtype == NULL) {

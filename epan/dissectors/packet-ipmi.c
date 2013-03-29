@@ -1040,7 +1040,7 @@ ipmi_get_completion_code(guint8 completion, ipmi_cmd_t *cmd)
 	}
 
 	if (completion >= 0x80 && completion <= 0xbe) {
-		if (cmd && cmd->cs_cc && (res = match_strval(completion, cmd->cs_cc)) != NULL) {
+		if (cmd && cmd->cs_cc && (res = try_val_to_str(completion, cmd->cs_cc)) != NULL) {
 			return res;
 		}
 		return "Standard command-specific code";

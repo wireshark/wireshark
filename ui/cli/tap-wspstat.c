@@ -249,7 +249,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	for (i=0;i<sp->num_pdus; i++)
 	{
 		sp->pdu_stats[i].packets=0;
-		sp->pdu_stats[i].type = match_strval_ext( index2pdut( i ), &wsp_vals_pdu_type_ext) ;
+		sp->pdu_stats[i].type = try_val_to_str_ext( index2pdut( i ), &wsp_vals_pdu_type_ext) ;
 	}
 
 	error_string = register_tap_listener(

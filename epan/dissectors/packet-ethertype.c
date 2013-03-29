@@ -311,7 +311,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		/* Label protocol */
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", etype);
 
-		description = match_strval(etype, etype_vals);
+		description = try_val_to_str(etype, etype_vals);
 		if (description) {
 			col_add_str(pinfo->cinfo, COL_INFO, description);
 		}

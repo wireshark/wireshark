@@ -4686,7 +4686,7 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
          */
         oct = tvb_get_guint8(tvb, curr_offset++);
 
-        str = match_strval_idx((guint32) oct, bssmap_field_element_ids, &idx);
+        str = try_val_to_str_idx((guint32) oct, bssmap_field_element_ids, &idx);
         ie_len = tvb_get_guint8(tvb, curr_offset++);
 
         if (!str)
@@ -6976,7 +6976,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = match_strval_idx_ext((guint32) oct, &gsm_a_bssmap_msg_strings_ext, &idx);
+    str = try_val_to_str_idx_ext((guint32) oct, &gsm_a_bssmap_msg_strings_ext, &idx);
 
     if (sccp_msg_p && !sccp_msg_p->data.co.label) {
         sccp_msg_p->data.co.label = se_strdup(val_to_str_ext((guint32)oct,

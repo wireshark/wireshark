@@ -1759,10 +1759,10 @@ gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
 	gint idx;
 
 	if (dcch)
-		m = match_strval_idx((guint32)oct | 0x100, gmr1_msg_rr_strings, &idx);
+		m = try_val_to_str_idx((guint32)oct | 0x100, gmr1_msg_rr_strings, &idx);
 
 	if (!m)
-		m = match_strval_idx((guint32)oct, gmr1_msg_rr_strings, &idx);
+		m = try_val_to_str_idx((guint32)oct, gmr1_msg_rr_strings, &idx);
 
 	*msg_str = m;
 	*hf_idx = hf_rr_msg_type;

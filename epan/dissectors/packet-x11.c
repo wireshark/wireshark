@@ -1331,7 +1331,7 @@ static void atom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       else {
             header_field_info *hfi = proto_registrar_get_nth(hf);
             if (hfi -> strings)
-                  interpretation = match_strval(v, cVALS(hfi -> strings));
+                  interpretation = try_val_to_str(v, cVALS(hfi -> strings));
       }
       if (!interpretation) interpretation = "error in Xlib client program ?";
       proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: %u (%s)",
@@ -2219,7 +2219,7 @@ static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       const gchar *enumValue = NULL;
 
       if (hfi -> strings)
-            enumValue = match_strval(v, cVALS(hfi -> strings));
+            enumValue = try_val_to_str(v, cVALS(hfi -> strings));
       if (enumValue)
             proto_tree_add_uint_format(t, hf, tvb, *offsetp, 1, v,
             hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
@@ -2238,7 +2238,7 @@ static guint32 field16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       const gchar *enumValue = NULL;
 
       if (hfi -> strings)
-            enumValue = match_strval(v, cVALS(hfi -> strings));
+            enumValue = try_val_to_str(v, cVALS(hfi -> strings));
       if (enumValue)
             proto_tree_add_uint_format(t, hf, tvb, *offsetp, 2, v,
             hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
@@ -2258,7 +2258,7 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       const gchar *nameAsChar = hfi -> name;
 
       if (hfi -> strings)
-            enumValue = match_strval(v, cVALS(hfi -> strings));
+            enumValue = try_val_to_str(v, cVALS(hfi -> strings));
       if (enumValue)
             proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v,
                                        hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%08x (%s)",
@@ -3037,7 +3037,7 @@ static void tryExtension(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *off
       const gchar *extension;
       void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order);
 
-      extension = match_strval(opcode, state->opcode_vals);
+      extension = try_val_to_str(opcode, state->opcode_vals);
       if (!extension)
             return;
 

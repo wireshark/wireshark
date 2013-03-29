@@ -2643,7 +2643,7 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     mnc   = 10 * mnc1 + mnc2;
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
-    if (!match_strval_ext(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext)) {
+    if (!try_val_to_str_ext(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext)) {
         mnc = 10 * mnc + mnc3;
         long_mnc = TRUE;
     }

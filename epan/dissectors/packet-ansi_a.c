@@ -63,7 +63,7 @@ void proto_register_ansi_a(void);
 void proto_reg_handoff_ansi_a(void);
 
 static const gchar *
-my_match_strval_idx(guint32 val, const ext_value_string_t *vs, gint *idx, gint *dec_idx)
+my_try_val_to_str_idx(guint32 val, const ext_value_string_t *vs, gint *idx, gint *dec_idx)
 {
     gint i = 0;
 
@@ -3381,7 +3381,7 @@ elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
         rec_type = tvb_get_guint8(tvb, curr_offset);
 
-        str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
+        str = try_val_to_str_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
 
         if (str == NULL)
         {
@@ -5318,7 +5318,7 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     adds_app = oct & 0x3f;
 
-    str = match_strval_idx((guint32) adds_app, ansi_a_adds_strings, &idx);
+    str = try_val_to_str_idx((guint32) adds_app, ansi_a_adds_strings, &idx);
     if (str == NULL)
     {
         str = "Reserved";
@@ -6273,7 +6273,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
         rec_type = tvb_get_guint8(tvb, curr_offset);
 
-        str = match_strval_idx((guint32) rec_type, ansi_fwd_ms_info_rec_str, &idx);
+        str = try_val_to_str_idx((guint32) rec_type, ansi_fwd_ms_info_rec_str, &idx);
 
         if (str == NULL)
         {
@@ -6564,7 +6564,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
         rec_type = tvb_get_guint8(tvb, curr_offset);
 
-        str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
+        str = try_val_to_str_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
 
         if (str == NULL)
         {
@@ -11669,7 +11669,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = my_match_strval_idx((guint32) oct, ansi_a_bsmap_strings, &idx, &dec_idx);
+    msg_str = my_try_val_to_str_idx((guint32) oct, ansi_a_bsmap_strings, &idx, &dec_idx);
 
     /*
      * create the a protocol tree
@@ -11786,7 +11786,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = my_match_strval_idx((guint32) oct, ansi_a_dtap_strings, &idx, &dec_idx);
+    msg_str = my_try_val_to_str_idx((guint32) oct, ansi_a_dtap_strings, &idx, &dec_idx);
 
     /*
      * create the a protocol tree

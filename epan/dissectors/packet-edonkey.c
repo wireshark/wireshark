@@ -597,7 +597,7 @@ static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint leng
 {
     guint8 *tag_name;
 
-    if (match_strval(special_tagtype, edonkey_special_tags) == NULL) {
+    if (try_val_to_str(special_tagtype, edonkey_special_tags) == NULL) {
         gint idx;
         tag_name = tvb_get_ephemeral_string(tvb, start, length);
         idx = lookup_str_index(tag_name, length, edonkey_special_tags);
@@ -613,7 +613,7 @@ static proto_item* edonkey_tree_add_metatag_name(proto_tree *tree, tvbuff_t *tvb
                                                  gint start, gint length, guint8 special_tagtype)
 {
     const gchar *tag_name;
-    tag_name = match_strval(special_tagtype, edonkey_special_tags);
+    tag_name = try_val_to_str(special_tagtype, edonkey_special_tags);
     if (tag_name == NULL) {
         return proto_tree_add_item(tree, hf_edonkey_metatag_name, tvb, start, length, ENC_ASCII|ENC_NA);
     }
@@ -2955,7 +2955,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     protocol = tvb_get_guint8(tvb, offset);
     msg_len = tvb_get_letohl(tvb, offset+1);
 
-    protocol_name = match_strval(protocol, edonkey_protocols);
+    protocol_name = try_val_to_str(protocol, edonkey_protocols);
 
     /* Add edonkey message tree */
     if (edonkey_tree) {
@@ -3034,7 +3034,7 @@ static int dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         return 0;
 
     protocol = tvb_get_guint8(tvb, 0);
-    if (match_strval(protocol, edonkey_protocols) == NULL)
+    if (try_val_to_str(protocol, edonkey_protocols) == NULL)
         return 0; /* Not a known protocol */
 
     col_clear(pinfo->cinfo, COL_INFO);
@@ -3058,7 +3058,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         return 0;
 
     protocol = tvb_get_guint8(tvb, offset);
-    if (match_strval(protocol, edonkey_protocols) == NULL)
+    if (try_val_to_str(protocol, edonkey_protocols) == NULL)
         return 0; /* Not a known protocol */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");

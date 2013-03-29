@@ -774,7 +774,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
             pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 
-            if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
+            if (pkg->signal_names && ( strval = try_val_to_str(name_minor, pkg->signal_names) )) {
                 strval = ep_strdup_printf("%s (%d)",strval,name_minor);
             } else {
                 strval = ep_strdup_printf("Unknown (%d)",name_minor);
@@ -916,7 +916,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
             pkg_found->param_names = vst;
             pkg_found->hfid = &hf_h248_pkg_name;
             pkg_found->ett = &ett_packagename;
-            match_strval_idx((pkg_found->id)<<16,base_event_name_vals, &j);
+            try_val_to_str_idx((pkg_found->id)<<16,base_event_name_vals, &j);
             /* now look for events and signals that may be defined for package.  If found, create value_strings */
             if (j != -1) {
                 j++; idx=j;
@@ -934,7 +934,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
                 }
             }
             /* now look at signals */
-            if (!match_strval_idx((pkg_found->id)<<16, base_signal_name_vals, &j)) {
+            if (!try_val_to_str_idx((pkg_found->id)<<16, base_signal_name_vals, &j)) {
                 j++; idx=j;
                 while((base_signal_name_vals[j].strptr != NULL) && ((base_signal_name_vals[j].value>>16) == (pkg_found->id))) {
                 };
@@ -1031,7 +1031,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
             proto_item* pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
             const gchar* strval;
 
-            if (pkg->param_names && ( strval = match_strval(name_minor, pkg->param_names) )) {
+            if (pkg->param_names && ( strval = try_val_to_str(name_minor, pkg->param_names) )) {
                 strval = ep_strdup_printf("%s (%d)",strval,name_minor);
             } else {
                 strval = ep_strdup_printf("Unknown (%d)",name_minor);
@@ -1094,7 +1094,7 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
             proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_event_code, tvb, offset-2, 2, name_minor);
             const gchar* strval;
 
-            if (pkg->event_names && ( strval = match_strval(name_minor, pkg->event_names) )) {
+            if (pkg->event_names && ( strval = try_val_to_str(name_minor, pkg->event_names) )) {
                 strval = ep_strdup_printf("%s (%d)",strval,name_minor);
             } else {
                 strval = ep_strdup_printf("Unknown (%d)",name_minor);
@@ -1159,7 +1159,7 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
             proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_signal_code, tvb, offset-2, 2, name_minor);
             const gchar* strval;
 
-            if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
+            if (pkg->signal_names && ( strval = try_val_to_str(name_minor, pkg->signal_names) )) {
                 strval = ep_strdup_printf("%s (%d)",strval,name_minor);
             } else {
                 strval = ep_strdup_printf("Unknown (%d)",name_minor);
@@ -1252,7 +1252,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
         }
     }
 
-    if (curr_info.sig && curr_info.sig->param_names && ( strval = match_strval(param_id, curr_info.sig->param_names) )) {
+    if (curr_info.sig && curr_info.sig->param_names && ( strval = try_val_to_str(param_id, curr_info.sig->param_names) )) {
         strval = ep_strdup_printf("%s (%d)",strval,param_id);
     } else {
         strval = ep_strdup_printf("Unknown (%d)",param_id);
@@ -1329,7 +1329,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
         curr_info.par = &no_param;
     }
 
-    if (curr_info.evt && curr_info.evt->param_names && ( strval = match_strval(param_id, curr_info.evt->param_names) )) {
+    if (curr_info.evt && curr_info.evt->param_names && ( strval = try_val_to_str(param_id, curr_info.evt->param_names) )) {
         strval = ep_strdup_printf("%s (%d)",strval,param_id);
     } else {
         strval = ep_strdup_printf("Unknown (%d)",param_id);

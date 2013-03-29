@@ -2370,11 +2370,11 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (command_length > 64 * 1024 || command_length < SMPP_MIN_LENGTH)
         return FALSE;
     command_id = tvb_get_ntohl(tvb, 4);         /* Only known commands  */
-    if (match_strval(command_id, vals_command_id) == NULL)
+    if (try_val_to_str(command_id, vals_command_id) == NULL)
         return FALSE;
     command_status = tvb_get_ntohl(tvb, 8);     /* ..with known status  */
-    if (match_strval(command_status, vals_command_status) == NULL &&
-                match_strrval(command_status, reserved_command_status) == NULL)
+    if (try_val_to_str(command_status, vals_command_status) == NULL &&
+                try_rval_to_str(command_status, reserved_command_status) == NULL)
         return FALSE;
     dissect_smpp(tvb, pinfo, tree);
     return TRUE;
@@ -2460,7 +2460,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     command_status = tvb_get_ntohl(tvb, offset);
     if (command_id & 0x80000000) {
         /* PDU is a response. */
-        command_status_str = match_strval(command_status, vals_command_status);
+        command_status_str = try_val_to_str(command_status, vals_command_status);
         if (command_status_str == NULL) {
                 /* Check if the reserved value is in the vendor-specific range. */
                 command_status_str = (command_status >= 0x400 && command_status <= 0x4FF ?

@@ -1668,7 +1668,7 @@ get_control_selector_name(guint8 entity_id, guint8 control_sel, usb_conv_info_t 
     selectors = get_control_selector_values(entity_id, usb_conv_info);
 
     if (selectors)
-        control_name = match_strval_ext(control_sel, selectors);
+        control_name = try_val_to_str_ext(control_sel, selectors);
 
     return control_name;
 }

@@ -273,7 +273,7 @@ static const char* get_message_type(tvbuff_t *tvb) {
   * Returns the Message Type.
   */
   int msg_code = tvb_get_letohl(tvb, 4);
-  const gchar *message_type =  match_strval(msg_code, slsk_tcp_msgs);
+  const gchar *message_type =  try_val_to_str(msg_code, slsk_tcp_msgs);
   if (message_type == NULL) {
     if (check_slsk_format(tvb, 4, "bisis"))
       message_type = "Distributed Search";

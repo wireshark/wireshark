@@ -429,7 +429,7 @@ for_req_cancel(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	oct = tvb_get_guint8(tvb, offset);
 
-	str = match_strval_idx((oct & 0xf0) >> 4, for_req_type_strings, &idx);
+	str = try_val_to_str_idx((oct & 0xf0) >> 4, for_req_type_strings, &idx);
 	if (str == NULL)
 	{
 		str = "Reserved";
@@ -466,7 +466,7 @@ for_reject(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	oct = tvb_get_guint8(tvb, offset);
 
-	str = match_strval_idx((oct & 0xf0) >> 4, rev_req_type_strings, &idx);
+	str = try_val_to_str_idx((oct & 0xf0) >> 4, rev_req_type_strings, &idx);
 	if (str == NULL)
 	{
 		str = "Reserved";
@@ -1156,7 +1156,7 @@ rev_reject(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	oct = tvb_get_guint8(tvb, offset);
 
-	str = match_strval_idx((oct & 0xf0) >> 4, for_req_type_strings, &idx);
+	str = try_val_to_str_idx((oct & 0xf0) >> 4, for_req_type_strings, &idx);
 	if (str == NULL)
 	{
 		str = "Reserved";
@@ -1388,7 +1388,7 @@ rev_pr_can_ack(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	oct = tvb_get_guint8(tvb, offset);
 
-	str = match_strval_idx((oct & 0xf0) >> 4, for_req_type_strings, &idx);
+	str = try_val_to_str_idx((oct & 0xf0) >> 4, for_req_type_strings, &idx);
 	if (str == NULL)
 	{
 		str = "Reserved";
@@ -1494,7 +1494,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 				    "%s :  Reserved",
 				    bigbuf);
 
-		str = match_strval_idx(oct & 0x0f, for_req_type_strings, &idx);
+		str = try_val_to_str_idx(oct & 0x0f, for_req_type_strings, &idx);
 		if (str == NULL)
 		{
 			return;
@@ -1569,7 +1569,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 			    "%s :  Unsolicited response indicator",
 			    bigbuf);
 
-	str = match_strval_idx(oct & 0x0f, for_rsp_type_strings, &idx);
+	str = try_val_to_str_idx(oct & 0x0f, for_rsp_type_strings, &idx);
 
 	if (str == NULL)
 	{
@@ -1629,7 +1629,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 				    "%s :  Reserved",
 				    bigbuf);
 
-		str = match_strval_idx(oct & 0x0f, rev_req_type_strings, &idx);
+		str = try_val_to_str_idx(oct & 0x0f, rev_req_type_strings, &idx);
 		if (str == NULL)
 		{
 			return;
@@ -1701,7 +1701,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 			    "%s :  Unsolicited response indicator",
 			    bigbuf);
 
-	str = match_strval_idx(oct & 0x0f, rev_rsp_type_strings, &idx);
+	str = try_val_to_str_idx(oct & 0x0f, rev_rsp_type_strings, &idx);
 
 	if (str == NULL)
 	{

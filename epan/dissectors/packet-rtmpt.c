@@ -724,7 +724,7 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, guint32 remain, rtmpt_conv_
                 if (tp->len<2 || remain<2) return NULL;
 
                 iUCM = tvb_get_ntohs(tvb, offset);
-                sFunc = match_strval(iUCM, rtmpt_ucm_vals);
+                sFunc = try_val_to_str(iUCM, rtmpt_ucm_vals);
                 if (sFunc==NULL) {
                         *deschasopcode = TRUE;
                         sFunc = ep_strdup_printf("User Control Message 0x%01x", iUCM);

@@ -815,7 +815,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 "Fill bytes");
         
         marker = tvb_get_ntohs(tvb, start_marker);
-        str = match_strval(marker, vals_marker);
+        str = try_val_to_str(marker, vals_marker);
         if (str) { /* Known marker */
             if (marker_has_length(marker)) { /* Marker segment */
                 /* Length of marker segment = 2 + len */

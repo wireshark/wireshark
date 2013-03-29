@@ -2674,7 +2674,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
     }
     else if (tag==T_DATE_TIME) {
         if (len_field!=5 && len_field!=7) {
-            tag_str = match_strval(tag, dvbci_apdu_tag);
+            tag_str = try_val_to_str(tag, dvbci_apdu_tag);
             pi = proto_tree_add_text(tree, tvb, APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
                     "Invalid APDU length field");
             expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
@@ -3752,7 +3752,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
     app_tree = proto_item_add_subtree(ti, ett_dvbci_application);
 
     tag = tvb_get_ntoh24(tvb, 0);
-    tag_str = match_strval(tag, dvbci_apdu_tag);
+    tag_str = try_val_to_str(tag, dvbci_apdu_tag);
     offset = APDU_TAG_SIZE;
 
     col_set_str(pinfo->cinfo, COL_INFO,
@@ -3880,7 +3880,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     sess_tree = proto_item_add_subtree(ti, ett_dvbci_session);
 
     tag = tvb_get_guint8(tvb,0);
-    tag_str = match_strval(tag, dvbci_spdu_tag);
+    tag_str = try_val_to_str(tag, dvbci_spdu_tag);
     col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str_const(tag, dvbci_spdu_tag, "Invalid SPDU"));
     if (tag_str) {
@@ -4071,7 +4071,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
     offset_new++;
 
     sb_value = tvb_get_guint8(tvb, offset_new);
-    sb_str = match_strval(sb_value, dvbci_sb_value);
+    sb_str = try_val_to_str(sb_value, dvbci_sb_value);
     if (sb_str) {
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", sb_str);
         proto_tree_add_item(tree, hf_dvbci_sb_value, tvb,
@@ -4106,7 +4106,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (direction==DATA_HOST_TO_CAM) {
         c_tpdu_tag = tvb_get_guint8(tvb, 0);
         tag = &c_tpdu_tag;
-        c_tpdu_str = match_strval(c_tpdu_tag, dvbci_c_tpdu);
+        c_tpdu_str = try_val_to_str(c_tpdu_tag, dvbci_c_tpdu);
         if (c_tpdu_str) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", c_tpdu_str);
             proto_tree_add_item(tree, hf_dvbci_c_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -4124,7 +4124,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         r_tpdu_tag = tvb_get_guint8(tvb, 0);
         tag = &r_tpdu_tag;
-        r_tpdu_str = match_strval(r_tpdu_tag, dvbci_r_tpdu);
+        r_tpdu_str = try_val_to_str(r_tpdu_tag, dvbci_r_tpdu);
         if (r_tpdu_str) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", r_tpdu_str);
             proto_tree_add_item(tree, hf_dvbci_r_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -4288,7 +4288,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(link_tree, hf_dvbci_tcid, tvb, 0, 1, ENC_BIG_ENDIAN);
 
     more_last = tvb_get_guint8(tvb, 1);
-    if (match_strval(more_last, dvbci_ml)) {
+    if (try_val_to_str(more_last, dvbci_ml)) {
         proto_tree_add_item(link_tree, hf_dvbci_ml, tvb, 1, 1, ENC_BIG_ENDIAN);
     }
     else {
@@ -4644,7 +4644,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     offset_evt = offset;
     event = tvb_get_guint8(tvb, offset++);
-    event_str = match_strval(event, dvbci_event);
+    event_str = try_val_to_str(event, dvbci_event);
     if (!event_str)
         return 0;
 

@@ -1748,7 +1748,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_WARN
                                 ,"Unused bits of TLV must be all zeroes");
                     }
-                    if (NULL != match_strval(ql, esmc_quality_level_opt_1_vals))
+                    if (NULL != try_val_to_str(ql, esmc_quality_level_opt_1_vals))
                     {
                         proto_tree_add_item(tree_b, hf_esmc_quality_level_opt_1, tvb, offset, 1, ENC_BIG_ENDIAN);
                     }

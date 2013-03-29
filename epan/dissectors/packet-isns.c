@@ -720,7 +720,7 @@ dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* Get the function id from the packet */
     function_id =  tvb_get_ntohs(tvb, 2);
-    if (match_strval_ext(function_id, &isns_function_ids_ext) == NULL) {
+    if (try_val_to_str_ext(function_id, &isns_function_ids_ext) == NULL) {
         /* Unknown function ID */
         return 0;
     }
@@ -751,7 +751,7 @@ dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* Get the function id from the packet */
     function_id =  tvb_get_ntohs(tvb, 2);
-    if (match_strval_ext(function_id, &isns_function_ids_ext) == NULL) {
+    if (try_val_to_str_ext(function_id, &isns_function_ids_ext) == NULL) {
         /* Unknown function ID */
         return 0;
     }

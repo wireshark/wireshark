@@ -200,7 +200,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (tree) {
-    if ((op_str = match_strval(ar_op, op_vals)))
+    if ((op_str = try_val_to_str(ar_op, op_vals)))
       ti = proto_tree_add_protocol_format(tree, proto_aarp, tvb, 0,
 				      MIN_AARP_HEADER_SIZE + 2*ar_hln +
 				      2*ar_pln, "AppleTalk Address Resolution Protocol (%s)", op_str);

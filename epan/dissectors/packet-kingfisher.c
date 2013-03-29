@@ -230,7 +230,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* the function code must be known */
     kfp->function = tvb_get_guint8( tvb, 6 );
-    if (match_strval(kfp->function, function_code_vals) == NULL) {
+    if (try_val_to_str(kfp->function, function_code_vals) == NULL) {
         /* This appears not to be a kingfisher packet */
         return FALSE;
     }

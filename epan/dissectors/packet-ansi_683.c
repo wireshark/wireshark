@@ -4679,7 +4679,7 @@ dissect_ansi_683_for_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 
     msg_type = tvb_get_guint8(tvb, 0);
 
-    str = match_strval_idx(msg_type, for_msg_type_strings, &idx);
+    str = try_val_to_str_idx(msg_type, for_msg_type_strings, &idx);
 
     if (str == NULL)
     {
@@ -4709,7 +4709,7 @@ dissect_ansi_683_rev_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 
     msg_type = tvb_get_guint8(tvb, 0);
 
-    str = match_strval_idx(msg_type, rev_msg_type_strings, &idx);
+    str = try_val_to_str_idx(msg_type, rev_msg_type_strings, &idx);
 
     if (str == NULL)
     {

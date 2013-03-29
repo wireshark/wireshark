@@ -813,7 +813,7 @@ dissect_UDPR1(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 seq_num, status;
 
 	status = tvb_get_letohl(tvb, 0);
-	status_string = match_strval_ext(status, &error_code_mapping_ext);
+	status_string = try_val_to_str_ext(status, &error_code_mapping_ext);
 	if (status_string) {
 		*info_string = ep_strdup_printf("UDPR1 Status: %s", status_string);
 	} else {
@@ -847,7 +847,7 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 i, status, seq_num;
 
 	status = tvb_get_letohl(tvb, 0);
-	status_string = match_strval_ext(status, &error_code_mapping_ext);
+	status_string = try_val_to_str_ext(status, &error_code_mapping_ext);
 	if (status_string) {
 	        *info_string = ep_strdup_printf("UDPR2 Status: %s", status_string);
 	} else {
@@ -934,7 +934,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 data_type, i, status, seq_num;
 
 	status = tvb_get_letohl(tvb, 0);
-	status_string = match_strval_ext(status, &error_code_mapping_ext);
+	status_string = try_val_to_str_ext(status, &error_code_mapping_ext);
 	if (status_string) {
 		*info_string = ep_strdup_printf("UDPR4 Status: %s", status_string);
 	} else {

@@ -191,7 +191,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 	{
 		guint8 cw_lm;
 		cw_lm = tvb_get_guint8(tvb_original, 0) & 0x0b /*l+mod*/;
-		if (NULL == match_strval(cw_lm, vals_cw_lm))
+		if (NULL == try_val_to_str(cw_lm, vals_cw_lm))
 		{
 			properties |= PWC_CW_SUSPECT_LM;
 		}

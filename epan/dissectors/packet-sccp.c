@@ -909,7 +909,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     RETURN_FALSE;
 
   msgtype = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
-  if (!match_strval(msgtype, sccp_message_type_acro_values)) {
+  if (!try_val_to_str(msgtype, sccp_message_type_acro_values)) {
     RETURN_FALSE;
   }
   offset = SCCP_MSG_TYPE_LENGTH;
@@ -963,7 +963,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
         msgtype == SCCP_MSG_TYPE_LUDTS) {
 
       cause = tvb_get_guint8(tvb, offset);
-      if (!match_strval(cause, sccp_return_cause_values))
+      if (!try_val_to_str(cause, sccp_return_cause_values))
         RETURN_FALSE;
       offset += RETURN_CAUSE_LENGTH;
     }
@@ -1088,7 +1088,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
     cause = tvb_get_guint8(tvb, offset);
-    if (!match_strval(cause, sccp_refusal_cause_values))
+    if (!try_val_to_str(cause, sccp_refusal_cause_values))
       RETURN_FALSE;
     offset += REFUSAL_CAUSE_LENGTH;
 
@@ -1122,7 +1122,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     offset += SOURCE_LOCAL_REFERENCE_LENGTH;
 
     cause = tvb_get_guint8(tvb, offset);
-    if (!match_strval(cause, sccp_release_cause_values))
+    if (!try_val_to_str(cause, sccp_release_cause_values))
       RETURN_FALSE;
     offset += RELEASE_CAUSE_LENGTH;
 
@@ -1161,7 +1161,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
     cause = tvb_get_guint8(tvb, offset);
-    if (!match_strval(cause, sccp_error_cause_values))
+    if (!try_val_to_str(cause, sccp_error_cause_values))
       RETURN_FALSE;
   }
   break;
@@ -1264,7 +1264,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 
     opt_param = tvb_get_guint8(tvb, opt_ptr);
     /* Check if the (1st) optional parameter tag is valid */
-    if (!match_strval(opt_param, sccp_parameter_values))
+    if (!try_val_to_str(opt_param, sccp_parameter_values))
       RETURN_FALSE;
 
     /* Check that the (1st) parameter length is within bounds */
@@ -2069,7 +2069,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     pi = proto_tree_add_item(tree, hf_sccp_handling, tvb, 0, length, ENC_NA);
     handling >>= CLASS_SPARE_HANDLING_SHIFT;
 
-    if (match_strval(handling, sccp_class_handling_values) == NULL) {
+    if (try_val_to_str(handling, sccp_class_handling_values) == NULL) {
       expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Invalid message handling");
     }
   }

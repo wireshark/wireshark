@@ -185,7 +185,7 @@ static void dissect_caps(proto_item *pitem, tvbuff_t *tvb, int offset)
 	for (bit = 7; bit >= 0; bit--)
 	{
 		thisbit = 1 << bit;
-		strval = match_strval(thisbit, iapp_cap_vals);
+		strval = try_val_to_str(thisbit, iapp_cap_vals);
 		if (strval)
 		{
 			other_decode_bitfield_value(bitval, val, thisbit, 8);
@@ -300,7 +300,7 @@ append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 			for (mask = 0x80; mask; mask >>= 1)
 				if (val & mask)
 				{
-					strval = match_strval(mask, iapp_cap_vals);
+					strval = try_val_to_str(mask, iapp_cap_vals);
 					if (strval)
 					{
 						if (!first)

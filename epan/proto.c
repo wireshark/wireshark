@@ -6535,7 +6535,7 @@ proto_registrar_dump_values(void)
 						g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
 						continue;
 					}
-					match_strval_ext(0, vse_p); /* "prime" the extended value_string */
+					try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
 					printf("E\t%s\t%d\t%s\t%s\n",
 					       hfinfo->abbrev,
 					       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
@@ -6973,11 +6973,11 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_INT24:
 		case FT_INT32:
 			if (hfinfo->display & BASE_RANGE_STRING) {
-				str = match_strrval(fvalue_get_sinteger(&finfo->value), (const range_string *)hfinfo->strings);
+				str = try_rval_to_str(fvalue_get_sinteger(&finfo->value), (const range_string *)hfinfo->strings);
 			} else if (hfinfo->display & BASE_EXT_STRING) {
-				str = match_strval_ext(fvalue_get_sinteger(&finfo->value), (const value_string_ext *)hfinfo->strings);
+				str = try_val_to_str_ext(fvalue_get_sinteger(&finfo->value), (const value_string_ext *)hfinfo->strings);
 			} else {
-				str = match_strval(fvalue_get_sinteger(&finfo->value), (const value_string *)hfinfo->strings);
+				str = try_val_to_str(fvalue_get_sinteger(&finfo->value), (const value_string *)hfinfo->strings);
 			}
 			break;
 
@@ -6986,11 +6986,11 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_UINT24:
 		case FT_UINT32:
 			if (hfinfo->display & BASE_RANGE_STRING) {
-				str = match_strrval(fvalue_get_uinteger(&finfo->value), (const range_string *)hfinfo->strings);
+				str = try_rval_to_str(fvalue_get_uinteger(&finfo->value), (const range_string *)hfinfo->strings);
 			} else if (hfinfo->display & BASE_EXT_STRING) {
-				str = match_strval_ext(fvalue_get_uinteger(&finfo->value), (const value_string_ext *)hfinfo->strings);
+				str = try_val_to_str_ext(fvalue_get_uinteger(&finfo->value), (const value_string_ext *)hfinfo->strings);
 			} else {
-				str = match_strval(fvalue_get_uinteger(&finfo->value), (const value_string *)hfinfo->strings);
+				str = try_val_to_str(fvalue_get_uinteger(&finfo->value), (const value_string *)hfinfo->strings);
 			}
 			break;
 

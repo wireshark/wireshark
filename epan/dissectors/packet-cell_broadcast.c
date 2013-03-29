@@ -188,7 +188,7 @@ guint16 dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 
    const char *msg_id_string = NULL;
 
    msg_id = tvb_get_ntohs(tvb, offset);
-   msg_id_string = match_strval(msg_id, message_id_values);
+   msg_id_string = try_val_to_str(msg_id, message_id_values);
    if (msg_id_string == NULL)
    {
       if (msg_id < 1000)

@@ -411,7 +411,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
               while (len > 0) {
                 rsn = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item( tree, hf_tn3270_request, tvb, offset, 1, ENC_NA );
-                if (match_strval(rsn, tn3270_request_vals) == NULL)
+                if (try_val_to_str(rsn, tn3270_request_vals) == NULL)
                     break;
 
                 offset++;

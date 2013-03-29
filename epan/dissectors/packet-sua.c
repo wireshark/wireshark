@@ -1896,7 +1896,7 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     /* If it's a known parameter it's present in the value_string.
      * If param_tag_str = NULL then this is an unknown parameter
      */
-        param_tag_str    = match_strval(tag, parameter_tag_values);
+        param_tag_str    = try_val_to_str(tag, parameter_tag_values);
         if(param_tag_str) {
             /* The parameter exists */
             parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", param_tag_str);

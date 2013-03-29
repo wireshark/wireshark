@@ -1463,7 +1463,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;       /* not enough data to check message type */
 
     type = tvb_get_guint8(tvb, offset);
-    if (match_strval(type, a11_types) == NULL)
+    if (try_val_to_str(type, a11_types) == NULL)
         return 0;       /* not a known message type */
 
     /* Make entries in Protocol column and Info column on summary display */

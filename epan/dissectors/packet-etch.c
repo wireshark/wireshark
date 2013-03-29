@@ -167,7 +167,7 @@ void proto_reg_handoff_etch(void);
  *  a. Upon startup & whenever symbol folder changed: Read from file(s)
  *     and add all hash/symbol pairs to a GArray;
  *  b. When file reads complete, sort the GArray and then create a
- *     value_string_ext from the array for use by match_strval_ext & friends.
+ *     value_string_ext from the array for use by try_val_to_str_ext & friends.
  *  (Code based upon code in packet-diameter.c)
  */
 static GArray           *gbl_symbols_array  = NULL;
@@ -528,7 +528,7 @@ read_number(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     gbl_symbol_buffer = ep_strbuf_new_label("");  /* no symbol found yet */
     if (byteLength == 4) {
       hash = tvb_get_ntohl(tvb, *offset);
-      symbol = match_strval_ext(hash, gbl_symbols_vs_ext);
+      symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
       if(symbol != NULL) {
         asWhat = hf_etch_symbol;
         gbl_have_symbol = TRUE;
@@ -693,7 +693,7 @@ get_column_info(tvbuff_t *tvb)
     const gchar *symbol;
     guint32      hash;
     hash   = tvb_get_ntohl(tvb, my_offset);
-    symbol = match_strval_ext(hash, gbl_symbols_vs_ext);
+    symbol = try_val_to_str_ext(hash, gbl_symbols_vs_ext);
     if (symbol != NULL) {
       ep_strbuf_append_printf(result_buf, "%s()", symbol);
     }

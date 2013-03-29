@@ -131,7 +131,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	/*
 	 * Simple sanity check - make sure the type is one we know about.
 	 */
-	if (match_strval(bvlc_type, bvlc_types) == NULL)
+	if (try_val_to_str(bvlc_type, bvlc_types) == NULL)
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BVLC");

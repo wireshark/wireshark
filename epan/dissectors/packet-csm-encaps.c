@@ -177,11 +177,11 @@ csm_to_host(guint16 fc, guint16 ct)
 {
     if (fc == 0x0000)
     {
-        return (match_strval(ct, exclusive_to_host_ct_vals) != NULL);
+        return (try_val_to_str(ct, exclusive_to_host_ct_vals) != NULL);
     }
     else
     {
-        return (match_strval(fc, exclusive_to_host_vals) != NULL);
+        return (try_val_to_str(fc, exclusive_to_host_vals) != NULL);
     }
 }
 

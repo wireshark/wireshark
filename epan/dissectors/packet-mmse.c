@@ -642,7 +642,7 @@ dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tvb_get_guint8(tvb, 0) != MM_MTYPE_HDR)
 	return FALSE;
     pdut = tvb_get_guint8(tvb, 1);
-    if (match_strval(pdut, vals_message_type) == NULL)
+    if (try_val_to_str(pdut, vals_message_type) == NULL)
 	return FALSE;
     if ((tvb_get_guint8(tvb, 2) != MM_TID_HDR) &&
 	(tvb_get_guint8(tvb, 2) != MM_VERSION_HDR))

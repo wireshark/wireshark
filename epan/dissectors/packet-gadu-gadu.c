@@ -1741,7 +1741,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case GG_OWN_RESOURCE_INFO:
 			default:
 			{
-				const char *pkt_name = match_strval(pkt_type, gadu_gadu_packets_type_recv);
+				const char *pkt_name = try_val_to_str(pkt_type, gadu_gadu_packets_type_recv);
 
 				if (pkt_name)
 					col_set_str(pinfo->cinfo, COL_INFO, pkt_name);
@@ -1865,7 +1865,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case GG_LOGIN105:
 			default:
 			{
-				const char *pkt_name = match_strval(pkt_type, gadu_gadu_packets_type_send);
+				const char *pkt_name = try_val_to_str(pkt_type, gadu_gadu_packets_type_send);
 
 				if (pkt_name)
 					col_set_str(pinfo->cinfo, COL_INFO, pkt_name);

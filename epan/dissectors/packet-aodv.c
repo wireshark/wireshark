@@ -769,7 +769,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* Check the type of AODV packet. */
     type = tvb_get_guint8(tvb, 0);
-    if (match_strval(type, type_vals) == NULL) {
+    if (try_val_to_str(type, type_vals) == NULL) {
 	/*
 	 * We assume this is not an AODV packet.
 	 */

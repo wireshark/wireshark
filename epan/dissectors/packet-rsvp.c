@@ -3571,7 +3571,7 @@ dissect_rsvp_adspec(proto_item *ti, proto_tree *rsvp_object_tree,
 
             id = tvb_get_guint8(tvb, offset2);
             phdr_length = tvb_get_ntohs(tvb, offset2+2);
-            str = match_strval_ext(id, &adspec_params_ext);
+            str = try_val_to_str_ext(id, &adspec_params_ext);
             if (str) {
                 switch(id) {
                 case 4:

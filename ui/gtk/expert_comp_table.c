@@ -769,9 +769,9 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &procedure->iter, NULL);  /* Acquire an iterator */
 
-        /* match_strval return a static constant  or null */
+        /* try_val_to_str return a static constant  or null */
         gtk_tree_store_set (store, &procedure->iter,
-                    GROUP_COLUMN, match_strval(expert_data->group, expert_group_vals),
+                    GROUP_COLUMN, try_val_to_str(expert_data->group, expert_group_vals),
                     PROTOCOL_COLUMN, procedure->entries[0],
                     SUMMARY_COLUMN,  procedure->entries[1], -1);
 

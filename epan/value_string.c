@@ -44,7 +44,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
 
     DISSECTOR_ASSERT(fmt != NULL);
 
-    ret = match_strval(val, vs);
+    ret = try_val_to_str(val, vs);
     if (ret != NULL)
         return ret;
 
@@ -62,7 +62,7 @@ val_to_str_const(const guint32 val, const value_string *vs,
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
-    ret = match_strval(val, vs);
+    ret = try_val_to_str(val, vs);
     if (ret != NULL)
         return ret;
 
@@ -74,7 +74,7 @@ val_to_str_const(const guint32 val, const value_string *vs,
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
 const gchar*
-match_strval_idx(const guint32 val, const value_string *vs, gint *idx)
+try_val_to_str_idx(const guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
 
@@ -94,12 +94,12 @@ match_strval_idx(const guint32 val, const value_string *vs, gint *idx)
     return NULL;
 }
 
-/* Like match_strval_idx(), but doesn't return the index. */
+/* Like try_val_to_str_idx(), but doesn't return the index. */
 const gchar*
-match_strval(const guint32 val, const value_string *vs)
+try_val_to_str(const guint32 val, const value_string *vs)
 {
     gint ignore_me;
-    return match_strval_idx(val, vs, &ignore_me);
+    return try_val_to_str_idx(val, vs, &ignore_me);
 }
 
 /* EXTENDED VALUE STRING */
@@ -157,15 +157,15 @@ value_string_ext_new(value_string *vs, guint vs_tot_num_entries,
      * simple way to do lazy initialization of extended value strings.
      * The init function also sets up _vs_first_value for us. */
     vse->_vs_first_value = 0;
-    vse->_vs_match2      = _match_strval_ext_init;
+    vse->_vs_match2      = _try_val_to_str_ext_init;
     vse->_vs_name        = vs_name;
 
     return vse;
 }
 
-/* Like match_strval for extended value strings */
+/* Like try_val_to_str for extended value strings */
 const gchar*
-match_strval_ext(const guint32 val, const value_string_ext *vse)
+try_val_to_str_ext(const guint32 val, const value_string_ext *vse)
 {
     if (vse) {
         const value_string *vs = vse->_vs_match2(val, vse);
@@ -178,9 +178,9 @@ match_strval_ext(const guint32 val, const value_string_ext *vse)
     return NULL;
 }
 
-/* Like match_strval_idx for extended value strings */
+/* Like try_val_to_str_idx for extended value strings */
 const gchar*
-match_strval_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
+try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
 {
     if (vse) {
         const value_string *vs = vse->_vs_match2(val, vse);
@@ -201,7 +201,7 @@ val_to_str_ext(const guint32 val, const value_string_ext *vse, const char *fmt)
 
     DISSECTOR_ASSERT(fmt != NULL);
 
-    ret = match_strval_ext(val, vse);
+    ret = try_val_to_str_ext(val, vse);
     if (ret != NULL)
         return ret;
 
@@ -217,7 +217,7 @@ val_to_str_ext_const(const guint32 val, const value_string_ext *vse,
 
     DISSECTOR_ASSERT(unknown_str != NULL);
 
-    ret = match_strval_ext(val, vse);
+    ret = try_val_to_str_ext(val, vse);
     if (ret != NULL)
         return ret;
 
@@ -226,7 +226,7 @@ val_to_str_ext_const(const guint32 val, const value_string_ext *vse,
 
 /* Fallback linear matching algorithm for extended value strings */
 static const value_string *
-_match_strval_linear(const guint32 val, const value_string_ext *vse)
+_try_val_to_str_linear(const guint32 val, const value_string_ext *vse)
 {
     const value_string *vs_p = vse->_vs_p;
     guint i;
@@ -239,7 +239,7 @@ _match_strval_linear(const guint32 val, const value_string_ext *vse)
 
 /* Constant-time matching algorithm for contiguous extended value strings */
 static const value_string *
-_match_strval_index(const guint32 val, const value_string_ext *vse)
+_try_val_to_str_index(const guint32 val, const value_string_ext *vse)
 {
     guint i;
 
@@ -253,7 +253,7 @@ _match_strval_index(const guint32 val, const value_string_ext *vse)
 
 /* log(n)-time matching algorithm for sorted extended value strings */
 static const value_string *
-_match_strval_bsearch(const guint32 val, const value_string_ext *vse)
+_try_val_to_str_bsearch(const guint32 val, const value_string_ext *vse)
 {
     guint low, i, max;
     guint32 item;
@@ -280,12 +280,12 @@ _match_strval_bsearch(const guint32 val, const value_string_ext *vse)
  * - Verifies that the value_string is terminated by {0, NULL}
  */
 const value_string *
-_match_strval_ext_init(const guint32 val, const value_string_ext *a_vse)
+_try_val_to_str_ext_init(const guint32 val, const value_string_ext *a_vse)
 {
     /* Cast away the constness!
      * It's better if the prototype for this function matches the other
-     * _match_strval_* functions (so we don't have to cast it when storing it
-     * in _match_strval so the compiler will notice if the prototypes get out
+     * _try_val_to_str_* functions (so we don't have to cast it when storing it
+     * in _try_val_to_str so the compiler will notice if the prototypes get out
      * of sync), but the init function is unique in that it does actually
      * modify the vse.
      */
@@ -357,13 +357,13 @@ _match_strval_ext_init(const guint32 val, const value_string_ext *a_vse)
 
     switch (type) {
         case VS_SEARCH:
-            vse->_vs_match2 = _match_strval_linear;
+            vse->_vs_match2 = _try_val_to_str_linear;
             break;
         case VS_BIN_TREE:
-            vse->_vs_match2 = _match_strval_bsearch;
+            vse->_vs_match2 = _try_val_to_str_bsearch;
             break;
         case VS_INDEX:
-            vse->_vs_match2 = _match_strval_index;
+            vse->_vs_match2 = _try_val_to_str_index;
             break;
         default:
             g_assert_not_reached();
@@ -386,16 +386,16 @@ str_to_str(const gchar *val, const string_string *vs, const char *fmt)
 
     DISSECTOR_ASSERT(fmt != NULL);
 
-    ret = match_strstr(val, vs);
+    ret = try_str_to_str(val, vs);
     if (ret != NULL)
         return ret;
 
     return ep_strdup_printf(fmt, val);
 }
 
-/* Like match_strval_idx except for string_string */
+/* Like try_val_to_str_idx except for string_string */
 const gchar*
-match_strstr_idx(const gchar *val, const string_string *vs, gint *idx)
+try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx)
 {
     gint i = 0;
 
@@ -413,12 +413,12 @@ match_strstr_idx(const gchar *val, const string_string *vs, gint *idx)
     return NULL;
 }
 
-/* Like match_strval except for string_string */
+/* Like try_val_to_str except for string_string */
 const gchar*
-match_strstr(const gchar *val, const string_string *vs)
+try_str_to_str(const gchar *val, const string_string *vs)
 {
     gint ignore_me;
-    return match_strstr_idx(val, vs, &ignore_me);
+    return try_str_to_str_idx(val, vs, &ignore_me);
 }
 
 /* RANGE TO STRING MATCHING */
@@ -434,16 +434,16 @@ rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
 
     DISSECTOR_ASSERT(fmt != NULL);
 
-    ret = match_strrval(val, rs);
+    ret = try_rval_to_str(val, rs);
     if(ret != NULL)
         return ret;
 
     return ep_strdup_printf(fmt, val);
 }
 
-/* Like match_strval_idx except for range_string */
+/* Like try_val_to_str_idx except for range_string */
 const gchar *
-match_strrval_idx(const guint32 val, const range_string *rs, gint *idx)
+try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx)
 {
     gint i = 0;
 
@@ -461,12 +461,12 @@ match_strrval_idx(const guint32 val, const range_string *rs, gint *idx)
     return NULL;
 }
 
-/* Like match_strval except for range_string */
+/* Like try_val_to_str except for range_string */
 const gchar *
-match_strrval(const guint32 val, const range_string *rs)
+try_rval_to_str(const guint32 val, const range_string *rs)
 {
     gint ignore_me = 0;
-    return match_strrval_idx(val, rs, &ignore_me);
+    return try_rval_to_str_idx(val, rs, &ignore_me);
 }
 
 /* MISC */
@@ -478,10 +478,10 @@ value_string_ext_validate(const value_string_ext *vse)
 {
     if (vse == NULL)
         return FALSE;
-    if ((vse->_vs_match2 == _match_strval_ext_init) ||
-            (vse->_vs_match2 == _match_strval_linear)   ||
-            (vse->_vs_match2 == _match_strval_bsearch)  ||
-            (vse->_vs_match2 == _match_strval_index))
+    if ((vse->_vs_match2 == _try_val_to_str_ext_init) ||
+            (vse->_vs_match2 == _try_val_to_str_linear)   ||
+            (vse->_vs_match2 == _try_val_to_str_bsearch)  ||
+            (vse->_vs_match2 == _try_val_to_str_index))
         return TRUE;
     return FALSE;
 }
@@ -489,11 +489,11 @@ value_string_ext_validate(const value_string_ext *vse)
 const gchar *
 value_string_ext_match_type_str(const value_string_ext *vse)
 {
-    if (vse->_vs_match2 == _match_strval_linear)
+    if (vse->_vs_match2 == _try_val_to_str_linear)
         return "[Linear Search]";
-    if (vse->_vs_match2 == _match_strval_bsearch)
+    if (vse->_vs_match2 == _try_val_to_str_bsearch)
         return "[Binary Search]";
-    if (vse->_vs_match2 == _match_strval_index)
+    if (vse->_vs_match2 == _try_val_to_str_index)
         return "[Direct (indexed) Access]";
     return "[Match Type not initialized or invalid]";
 }

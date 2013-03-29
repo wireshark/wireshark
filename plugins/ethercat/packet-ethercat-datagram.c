@@ -386,7 +386,7 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
 static void EcCmdFormatter(guint8 cmd, char *szText, gint nMax)
 {
    gint idx=0;
-   const gchar *szCmd = match_strval_idx((guint32)cmd, EcCmdLong, &idx);
+   const gchar *szCmd = try_val_to_str_idx((guint32)cmd, EcCmdLong, &idx);
 
    if ( idx != -1 )
       g_snprintf(szText, nMax, "Cmd        : %d (%s)", cmd, szCmd);

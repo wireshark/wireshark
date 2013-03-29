@@ -105,7 +105,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	type = (rmcp_class & RMCP_TYPE_MASK) >> 7;
 	rmcp_class &= RMCP_CLASS_MASK;
 
-	class_str = match_strval(rmcp_class, rmcp_class_vals);
+	class_str = try_val_to_str(rmcp_class, rmcp_class_vals);
 	if (class_str == NULL)
 		return 0;	/* unknown class value */
 

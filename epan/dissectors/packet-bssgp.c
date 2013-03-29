@@ -6347,7 +6347,7 @@ static void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tre
 {
     gint            idx;
 
-    *msg_str = match_strval_idx_ext((guint32) (oct & 0xff), &bssgp_msg_strings_ext, &idx);
+    *msg_str = try_val_to_str_idx_ext((guint32) (oct & 0xff), &bssgp_msg_strings_ext, &idx);
     *hf_idx = hf_bssgp_msg_type;
     if (*msg_str != NULL) {
         *ett_tree = ett_bssgp_msg[idx];

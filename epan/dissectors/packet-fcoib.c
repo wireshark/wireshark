@@ -212,9 +212,9 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             return FALSE;   /* the sig field in the FCoIB Encap. header MUST be 2'b01*/
         if (!tvb_bytes_exist(tvb, eof_offset + 1, 3) || tvb_get_ntoh24(tvb, eof_offset + 1) != 0)
             return FALSE;   /* 3 bytes of RESERVED field immediately after eEOF MUST be 0 */
-        if (!match_strval(sof, fcoib_sof_vals))
+        if (!try_val_to_str(sof, fcoib_sof_vals))
             return FALSE;   /* invalid value for SOF */
-        if (!match_strval(eof, fcoib_eof_vals))
+        if (!try_val_to_str(eof, fcoib_eof_vals))
             return FALSE;   /* invalid value for EOF */
     }
 

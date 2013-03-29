@@ -86,7 +86,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 	if (!tvb_bytes_exist(tvb, offset, 4))
 		return 0;	/* not enough bytes to check */
 	udp_ident = tvb_get_ntohl(tvb, offset);
-	udp_ident_string = match_strval(udp_ident, laplink_udp_magic);
+	udp_ident_string = try_val_to_str(udp_ident, laplink_udp_magic);
 	if (udp_ident_string == NULL)
 		return 0;	/* unknown */
 

@@ -556,7 +556,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	total_length = tvb_get_ntohl(tvb, 0); /* Get the pdu length */
 	command_id = tvb_get_ntohl(tvb, 4); /* get the pdu command id */
 
-	if (match_strval(command_id, vals_command_Id) == NULL)
+	if (try_val_to_str(command_id, vals_command_Id) == NULL)
 	{
 		/* Should never happen: we checked this in dissect_cmpp() */
 		return;
@@ -648,7 +648,7 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	if (total_length < CMPP_FIX_HEADER_LENGTH || total_length > 1000)
 		return 0;
 
-	if (match_strval(command_id, vals_command_Id) == NULL)
+	if (try_val_to_str(command_id, vals_command_Id) == NULL)
 		return 0;
 
 	col_clear(pinfo->cinfo, COL_INFO);

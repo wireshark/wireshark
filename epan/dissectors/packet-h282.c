@@ -4265,7 +4265,7 @@ dissect_h282_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                  &msg_type);
 
 #line 27 "../../asn1/h282/h282.cnf"
-  p = match_strval(msg_type, VALS(h282_RequestPDU_vals));
+  p = try_val_to_str(msg_type, VALS(h282_RequestPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RequestPDU/%s", p);
 
@@ -4308,7 +4308,7 @@ dissect_h282_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  &msg_type);
 
 #line 38 "../../asn1/h282/h282.cnf"
-  p = match_strval(msg_type, VALS(h282_ResponsePDU_vals));
+  p = try_val_to_str(msg_type, VALS(h282_ResponsePDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "ResponsePDU/%s", p);
 
@@ -4343,7 +4343,7 @@ dissect_h282_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                  &msg_type);
 
 #line 49 "../../asn1/h282/h282.cnf"
-  p = match_strval(msg_type, VALS(h282_IndicationPDU_vals));
+  p = try_val_to_str(msg_type, VALS(h282_IndicationPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "IndicationPDU/%s", p);
 

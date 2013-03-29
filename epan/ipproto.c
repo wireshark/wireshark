@@ -273,7 +273,7 @@ value_string_ext ipproto_val_ext = VALUE_STRING_EXT_INIT(ipproto_val);
 const char *ipprotostr(const int proto) {
     const char *s;
 
-    if ((s = match_strval_ext(proto, &ipproto_val_ext)) != NULL)
+    if ((s = try_val_to_str_ext(proto, &ipproto_val_ext)) != NULL)
     return s;
 
     s = "Unknown";

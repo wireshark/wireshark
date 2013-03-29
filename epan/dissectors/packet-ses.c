@@ -1962,7 +1962,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	/*   get SPDU type */
 	type = tvb_get_guint8(tvb, offset);
 	/* check SPDU type */
-	if (match_strval(type, ses_vals) == NULL)
+	if (try_val_to_str(type, ses_vals) == NULL)
 	{
 		return FALSE;  /* no, it isn't a session PDU */
 	}
@@ -1973,7 +1973,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		/*   get SPDU type */
 		type = tvb_get_guint8(tvb, offset+2);
 		/* check SPDU type */
-		if (match_strval(type, ses_vals) == NULL)
+		if (try_val_to_str(type, ses_vals) == NULL)
 		{
 			return FALSE;  /* no, it isn't a session PDU */
 		}
@@ -1985,7 +1985,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	 * so if the parameter type is unknown, it's probably SIMATIC */
 	if(type == 0x32 && tvb_length(tvb) >= 3) {
 		type = tvb_get_guint8(tvb, offset+2);
-		if (match_strval(type, param_vals) == NULL) {
+		if (try_val_to_str(type, param_vals) == NULL) {
 			return FALSE; /* it's probably a SIMATIC protocol */
 		}
 	}
@@ -2004,7 +2004,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	if (tvb_length(tvb) > 1+(guint) len) {
 	  type = tvb_get_guint8(tvb, offset + len + 1);
 	  /* check SPDU type */
-	  if (match_strval(type, ses_vals) == NULL) {
+	  if (try_val_to_str(type, ses_vals) == NULL) {
 	    return FALSE;  /* no, it isn't a session PDU */
 	  }
 	}

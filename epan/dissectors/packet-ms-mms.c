@@ -651,7 +651,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* Flag value is in 5th byte */
         value = tvb_get_letohs(tvb, 4) & 0xff00;
         /* Reject packet if not a recognised packet type */
-        if (match_strval(value, tcp_flags_vals) == NULL)
+        if (try_val_to_str(value, tcp_flags_vals) == NULL)
         {
             return 0;
         }

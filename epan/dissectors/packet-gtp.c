@@ -7835,7 +7835,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         return 0;
     }
     octet = tvb_get_guint8(tvb, 1);
-    if (octet == GTP_MSG_UNKNOWN || match_strval(octet, gtp_message_type) == NULL) {
+    if (octet == GTP_MSG_UNKNOWN || try_val_to_str(octet, gtp_message_type) == NULL) {
         /* Unknown message type; reject the packet */
         return 0;
     }

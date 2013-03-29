@@ -7116,7 +7116,7 @@ get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx
 {
 	gint idx;
 
-	*msg_str      = match_strval_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
+	*msg_str      = try_val_to_str_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
 	*hf_idx	      = hf_gsm_a_dtap_msg_gmm_type;
 	if (*msg_str != NULL) {
 		*ett_tree     = ett_gsm_dtap_msg_gmm[idx];
@@ -7131,7 +7131,7 @@ get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx,
 {
 	gint idx;
 
-	*msg_str      = match_strval_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
+	*msg_str      = try_val_to_str_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
 	*hf_idx	      = hf_gsm_a_dtap_msg_sm_type;
 	if (*msg_str != NULL) {
 		*ett_tree     = ett_gsm_dtap_msg_sm[idx];

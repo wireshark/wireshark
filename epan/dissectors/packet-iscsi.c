@@ -1502,7 +1502,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 
         next_opcode = tvb_get_guint8(tvb, offset) & 0x3f;
-        next_opcode_str = match_strval(next_opcode, iscsi_opcodes);
+        next_opcode_str = try_val_to_str(next_opcode, iscsi_opcodes);
 
         tf = proto_tree_add_text(ti, tvb, offset, -1, "Rejected Header");
         tt = proto_item_add_subtree(tf, ett_iscsi_RejectHeader);
@@ -1850,7 +1850,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* Function must be known */
-        if(!match_strval(tmpbyte&0x7f, iscsi_task_management_functions)){
+        if(!try_val_to_str(tmpbyte&0x7f, iscsi_task_management_functions)){
             return FALSE;
         }
         /* bytes 2,3 must be null */
@@ -1904,7 +1904,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* Reason code must be known */
-        if(!match_strval(tmpbyte&0x7f, iscsi_logout_reasons)){
+        if(!try_val_to_str(tmpbyte&0x7f, iscsi_logout_reasons)){
             return FALSE;
         }
         /* bytes 2,3 must be null */
@@ -1935,7 +1935,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* type must be known */
-        if(!match_strval(tmpbyte&0x0f, iscsi_snack_types)){
+        if(!try_val_to_str(tmpbyte&0x0f, iscsi_snack_types)){
             return FALSE;
         }
         /* for status/snack and datack itt must be 0xffffffff
@@ -2003,7 +2003,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* reason must be known */
-        if(!match_strval(tvb_get_guint8(tvb,offset+2), iscsi_reject_reasons)){
+        if(!try_val_to_str(tvb_get_guint8(tvb,offset+2), iscsi_reject_reasons)){
             return FALSE;
         }
         /* byte 3 must be 0 */
@@ -2119,7 +2119,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* status must be known */
-        if(!match_strval(tvb_get_guint8(tvb,offset+3), scsi_status_val)){
+        if(!try_val_to_str(tvb_get_guint8(tvb,offset+3), scsi_status_val)){
             return FALSE;
         }
         /* the 32bit words at offsets 8, 12
@@ -2165,7 +2165,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* response must be known */
-        if(!match_strval(tvb_get_guint8(tvb,offset+2), iscsi_logout_response)){
+        if(!try_val_to_str(tvb_get_guint8(tvb,offset+2), iscsi_logout_response)){
             return FALSE;
         }
         /* byte 3 must be 0 */
@@ -2245,7 +2245,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         opcode = tvb_get_guint8(tvb, offset + 0);
         opcode &= OPCODE_MASK;
 
-        opcode_str = match_strval(opcode, iscsi_opcodes);
+        opcode_str = try_val_to_str(opcode, iscsi_opcodes);
         if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION ||
            opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE ||
            opcode == ISCSI_OPCODE_R2T ||

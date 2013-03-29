@@ -1736,7 +1736,7 @@ dissect_ucp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         (tvb_get_guint8(tvb, UCP_OT_OFFSET  + UCP_OT_LEN)  != '/'))
         return FALSE;
 
-    if (match_strval(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
+    if (try_val_to_str(tvb_get_guint8(tvb, UCP_O_R_OFFSET), vals_hdr_O_R) == NULL)
         return FALSE;
 
     /*

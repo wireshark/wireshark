@@ -794,10 +794,10 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			offset+=1;
 			for (;count > 0;count-=client_size) {
 			       value = tvb_get_guint8 (tvb, offset);
-			       valBulk = match_strval_ext(value, &wtls_vals_cipher_bulk_ext);
+			       valBulk = try_val_to_str_ext(value, &wtls_vals_cipher_bulk_ext);
 			       offset++;
 			       client_size=1;
-			       valMac = match_strval_ext(tvb_get_guint8 (tvb, offset), &wtls_vals_cipher_mac_ext);
+			       valMac = try_val_to_str_ext(tvb_get_guint8 (tvb, offset), &wtls_vals_cipher_mac_ext);
 			       if (valBulk != NULL)
 			       {
 				       if (valMac != NULL)

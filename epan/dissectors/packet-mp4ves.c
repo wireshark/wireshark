@@ -793,7 +793,7 @@ dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	DISSECTOR_ASSERT(actx);
 
 	lvl = tvb_get_ntohs(tvb, offset);
-	p = match_strval(lvl, VALS(mp4ves_level_indication_vals));
+	p = try_val_to_str(lvl, VALS(mp4ves_level_indication_vals));
 	if (p) {
 		proto_item_append_text(actx->created_item, " - profileAndLevel %s", p);
 	}
@@ -812,7 +812,7 @@ dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	DISSECTOR_ASSERT(actx);
 
 	lvl = tvb_get_ntohs(tvb, offset);
-	p = match_strval(lvl, VALS(mp4ves_video_object_type_vals));
+	p = try_val_to_str(lvl, VALS(mp4ves_video_object_type_vals));
 	if (p) {
 		proto_item_append_text(actx->created_item, " - video_object_type %s", p);
 	}

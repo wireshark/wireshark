@@ -1020,7 +1020,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
     /* UDP is only used for packets */
     return FALSE;
   }
-  if (match_strval(msg_type, message_type) == NULL)
+  if (try_val_to_str(msg_type, message_type) == NULL)
     /* Unknown message type */
     return FALSE;
   offset++;
@@ -1029,7 +1029,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   if (msg_value > 0) {
     if (msg_type == RPCAP_MSG_ERROR) {
       /* Must have a valid error code */
-      if (match_strval(msg_value, error_codes) == NULL)
+      if (try_val_to_str(msg_value, error_codes) == NULL)
 	return FALSE;
     } else if (msg_type != RPCAP_MSG_FINDALLIF_REPLY) {
       return FALSE;

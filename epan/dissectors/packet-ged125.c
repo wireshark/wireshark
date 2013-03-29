@@ -1284,7 +1284,7 @@ dissect_ged125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	message_type = tvb_get_ntohl(tvb, 4);
 
 	/*checks to make sure it's of a ged125 base message type*/
-	if (match_strval(message_type, base_message_values) == NULL)
+	if (try_val_to_str(message_type, base_message_values) == NULL)
 		return 0;   /* not a known command */
 
 	if (tree)

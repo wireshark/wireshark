@@ -248,7 +248,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         return 0;
 
     /* check if message type is correct */
-    msg_type_str = match_strval(msg_type, messages);
+    msg_type_str = try_val_to_str(msg_type, messages);
     if (msg_type_str == NULL)
         return 0;
 

@@ -261,10 +261,10 @@ wsp_init_table(wspstat_t *sp)
 		/* Maybe we should display the hexadecimal value ? */
 #if 0
 		g_snprintf(buffer, sizeof(buffer), "%s  (0X%x)",
-			   match_strval_ext(index2pdut(i), &wsp_vals_pdu_type_ext), index2pdut(i));
+			   try_val_to_str_ext(index2pdut(i), &wsp_vals_pdu_type_ext), index2pdut(i));
 #endif
 		add_table_entry(sp,
-				match_strval_ext(index2pdut(i), &wsp_vals_pdu_type_ext), /* or buffer, */
+				try_val_to_str_ext(index2pdut(i), &wsp_vals_pdu_type_ext), /* or buffer, */
 				x,
 				pos,
 				0

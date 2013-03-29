@@ -241,7 +241,7 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
         we dissect it ourselves
        otherwise, we assume it's a generic DVB-SI descriptor and pass it
         on to packet-mpeg-descriptor */
-    if (match_strval(tag, ait_descr_tag)) {
+    if (try_val_to_str(tag, ait_descr_tag)) {
 
         offset_start = offset;
         descr_tree_ti = proto_tree_add_text(tree, tvb, offset_start, len+2,

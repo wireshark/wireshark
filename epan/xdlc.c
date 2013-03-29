@@ -207,11 +207,11 @@ check_xdlc_control(tvbuff_t *tvb, int offset,
 		u_modifier_short_vals_resp = modifier_short_vals_resp;
 	control = tvb_get_guint8(tvb, offset);
 	if (is_response) {
-		if (match_strval(control & XDLC_U_MODIFIER_MASK,
+		if (try_val_to_str(control & XDLC_U_MODIFIER_MASK,
 		    u_modifier_short_vals_resp) == NULL)
 			return FALSE;	/* unknown modifier */
 	} else {
-		if (match_strval(control & XDLC_U_MODIFIER_MASK,
+		if (try_val_to_str(control & XDLC_U_MODIFIER_MASK,
 		    u_modifier_short_vals_cmd) == NULL)
 			return FALSE;	/* unknown modifier */
 	}

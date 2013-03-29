@@ -2027,7 +2027,7 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, 
     DISSECTOR_ASSERT(actx);
 
     lvl = tvb_get_ntohs(tvb, offset);
-    p = match_strval(lvl, VALS(h264_par_level_values));
+    p = try_val_to_str(lvl, VALS(h264_par_level_values));
     if (p) {
         proto_item_append_text(actx->created_item, " - Level %s", p);
     }

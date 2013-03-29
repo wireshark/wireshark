@@ -127,7 +127,7 @@ is_armagetronad_packet(tvbuff_t * tvb)
 		 * with the table, that's why we don't consider that as
 		 * a heuristic
 		 */
-		if (!match_strval(tvb_get_ntohs(tvb, offset), descriptors))
+		if (!try_val_to_str(tvb_get_ntohs(tvb, offset), descriptors))
 			/* DescriptorID not found in the table */
 			return FALSE;
 #endif

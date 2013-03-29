@@ -1916,7 +1916,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
 
     dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, &asn1_ctx, tree, -1);
-    match_strval_idx(opcode, gsm_map_opr_code_strings, &op_idx);
+    try_val_to_str_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
     if (op_idx != -1) {
         tap_rec.invoke = (gsmmap_pdu_type == 1) ? TRUE : FALSE;

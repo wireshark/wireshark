@@ -2633,7 +2633,7 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(llrp_tree, hf_llrp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if (match_strval_ext(type, &message_types_ext))
+    if (try_val_to_str_ext(type, &message_types_ext))
         dissect_llrp_message(tvb, pinfo, llrp_tree, type, offset);
 }
 

@@ -6135,7 +6135,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       }
 
       /* Check to see if service is 'generic' */
-      match_strval_idx((service & 0x7F), cip_sc_vals, &service_index);
+      try_val_to_str_idx((service & 0x7F), cip_sc_vals, &service_index);
       if (service_index >= 0)
       {
           /* See if object dissector wants to override generic service handling */
@@ -6211,7 +6211,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       }
 
       /* Check to see if service is 'generic' */
-      match_strval_idx(service, cip_sc_vals, &service_index);
+      try_val_to_str_idx(service, cip_sc_vals, &service_index);
       if (service_index >= 0)
       {
           /* See if object dissector wants to override generic service handling */

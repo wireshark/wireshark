@@ -6893,7 +6893,7 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 	if (token_map) { /* Found map */
 		if ((vs = val_to_valstr (codepage, token_map))) {
 			/* Found codepage map */
-			s = match_strval (token, vs);
+			s = try_val_to_str (token, vs);
 			if (s) { /* Found valid token */
 				DebugLog(("map_token(codepage = %u, token = %u: [%s]\n", codepage, token, s));
 				return s;

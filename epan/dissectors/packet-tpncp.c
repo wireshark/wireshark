@@ -290,7 +290,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_uint(tpncp_tree, hf_tpncp_reserved, tvb, 6, 2, reserved);
 
         if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) {
-            if (match_strval(id, tpncp_events_id_vals)) {
+            if (try_val_to_str(id, tpncp_events_id_vals)) {
                 proto_tree_add_uint(tpncp_tree, hf_tpncp_event_id, tvb, 8, 4, id);
                 proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
                 offset += 16;
@@ -302,7 +302,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             }
         }
         else {
-            if (match_strval(id, tpncp_commands_id_vals)) {
+            if (try_val_to_str(id, tpncp_commands_id_vals)) {
                 proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
                 offset += 12;
                 if (tpncp_commands_info_db[id].tpncp_data_field_size) {

@@ -2064,7 +2064,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     {
     case 9:
         label_value = tvb_get_ntohl(tvb, foffset+5);
-        label = match_strval(label_value, object_ids_7);
+        label = try_val_to_str(label_value, object_ids_7);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2075,7 +2075,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 10:
         label_value = tvb_get_ntohl(tvb, foffset+6);
-        label = match_strval(label_value, object_ids_8);
+        label = try_val_to_str(label_value, object_ids_8);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2086,7 +2086,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 11:
         label_value = tvb_get_ntohl(tvb, foffset+7);
-        label = match_strval(label_value, object_ids_9);
+        label = try_val_to_str(label_value, object_ids_9);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2097,7 +2097,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 12:
         label_value = tvb_get_ntohl(tvb, foffset+8);
-        label = match_strval(label_value, object_ids_10);
+        label = try_val_to_str(label_value, object_ids_10);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2108,7 +2108,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 13:
         label_value = tvb_get_ntohl(tvb, foffset+9);
-        label = match_strval(label_value, object_ids_11);
+        label = try_val_to_str(label_value, object_ids_11);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2119,7 +2119,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 14:
         label_value = tvb_get_ntohl(tvb, foffset+10);
-        label = match_strval(label_value, object_ids_12);
+        label = try_val_to_str(label_value, object_ids_12);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2130,7 +2130,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 15:
         label_value = tvb_get_ntohl(tvb, foffset+11);
-        label = match_strval(label_value, object_ids_13);
+        label = try_val_to_str(label_value, object_ids_13);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2141,7 +2141,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 16:
         label_value = tvb_get_ntohl(tvb, foffset+12);
-        label = match_strval(label_value, object_ids_14);
+        label = try_val_to_str(label_value, object_ids_14);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2152,7 +2152,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 17:
         label_value = tvb_get_ntohl(tvb, foffset+13);
-        label = match_strval(label_value, object_ids_15);
+        label = try_val_to_str(label_value, object_ids_15);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2163,7 +2163,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 18:
         label_value = tvb_get_ntohl(tvb, foffset+14);
-        label = match_strval(label_value, object_ids_16);
+        label = try_val_to_str(label_value, object_ids_16);
         if (label==NULL)
         {
             aitem = proto_tree_add_text(ndps_tree, tvb, foffset, length, "Unknown ID");
@@ -2180,7 +2180,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     if (!found)
     {
         label_value = 1;
-        label = match_strval(label_value, object_ids_7);
+        label = try_val_to_str(label_value, object_ids_7);
     }
     if (ndps_show_oids)
     {
@@ -2705,7 +2705,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     if (global_attribute_name==NULL)
     {
         label_value = 1;
-        label = match_strval(label_value, object_ids_7);
+        label = try_val_to_str(label_value, object_ids_7);
         global_attribute_name = label;
     }
     attribute_type = tvb_get_ntohl(tvb, foffset);
@@ -4222,7 +4222,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
         proto_tree_add_item(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, ENC_BIG_ENDIAN);
         foffset += 4;
         ndps_prog = tvb_get_ntohl(tvb, foffset);
-        ndps_program_string = match_strval(ndps_prog, spx_ndps_program_vals);
+        ndps_program_string = try_val_to_str(ndps_prog, spx_ndps_program_vals);
         if( ndps_program_string != NULL)
         {
             proto_tree_add_item(ndps_tree, hf_spx_ndps_program, tvb, foffset, 4, ENC_BIG_ENDIAN);
@@ -4239,27 +4239,27 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
             {
                 case 0x060976:
                     ndps_hfname = hf_spx_ndps_func_print;
-                    ndps_func_string = match_strval(ndps_func, spx_ndps_print_func_vals);
+                    ndps_func_string = try_val_to_str(ndps_func, spx_ndps_print_func_vals);
                     break;
                 case 0x060977:
                     ndps_hfname = hf_spx_ndps_func_broker;
-                    ndps_func_string = match_strval(ndps_func, spx_ndps_broker_func_vals);
+                    ndps_func_string = try_val_to_str(ndps_func, spx_ndps_broker_func_vals);
                     break;
                 case 0x060978:
                     ndps_hfname = hf_spx_ndps_func_registry;
-                    ndps_func_string = match_strval(ndps_func, spx_ndps_registry_func_vals);
+                    ndps_func_string = try_val_to_str(ndps_func, spx_ndps_registry_func_vals);
                     break;
                 case 0x060979:
                     ndps_hfname = hf_spx_ndps_func_notify;
-                    ndps_func_string = match_strval(ndps_func, spx_ndps_notify_func_vals);
+                    ndps_func_string = try_val_to_str(ndps_func, spx_ndps_notify_func_vals);
                     break;
                 case 0x06097a:
                     ndps_hfname = hf_spx_ndps_func_resman;
-                    ndps_func_string = match_strval(ndps_func, spx_ndps_resman_func_vals);
+                    ndps_func_string = try_val_to_str(ndps_func, spx_ndps_resman_func_vals);
                     break;
                 case 0x06097b:
                     ndps_hfname = hf_spx_ndps_func_delivery;
-                    ndps_func_string = match_strval(ndps_func, spx_ndps_deliver_func_vals);
+                    ndps_func_string = try_val_to_str(ndps_func, spx_ndps_deliver_func_vals);
                     break;
                 default:
                     ndps_hfname = 0;
@@ -7028,7 +7028,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     proto_tree_add_uint(ndps_tree, hf_ndps_error_val, tvb, foffset, 4, error_val);
     foffset += 4;
     /* Some functions return an error with no data, 0 is ok */
-    if (match_strval(tvb_get_ntohl(tvb, foffset), ndps_error_types) && tvb_length_remaining(tvb,foffset) < 8 && (tvb_get_ntohl(tvb, foffset)!=0))
+    if (try_val_to_str(tvb_get_ntohl(tvb, foffset), ndps_error_types) && tvb_length_remaining(tvb,foffset) < 8 && (tvb_get_ntohl(tvb, foffset)!=0))
     {
         expert_status = tvb_get_ntohl(tvb, foffset);
         expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, ENC_BIG_ENDIAN);

@@ -1117,7 +1117,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMRON");
 
 
-    cmd_str = match_strval_idx(command_code, command_code_cv, &cmd_str_idx);
+    cmd_str = try_val_to_str_idx(command_code, command_code_cv, &cmd_str_idx);
     if (cmd_str_idx == -1)
         cmd_str = ep_strdup_printf("Unknown (%d)", command_code);
 

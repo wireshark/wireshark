@@ -469,7 +469,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	oct = tvb_get_guint8(tvb, offset++);
 
-	str = match_strval_idx((guint32) oct, gsm_rp_msg_strings, &idx);
+	str = try_val_to_str_idx((guint32) oct, gsm_rp_msg_strings, &idx);
 
 	/*
 	 * create the protocol tree

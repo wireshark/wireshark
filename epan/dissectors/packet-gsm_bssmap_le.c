@@ -947,7 +947,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	oct = tvb_get_guint8(tvb, offset++);
 
-	str = match_strval_idx((guint32) oct, gsm_bssmap_le_msg_strings, &idx);
+	str = try_val_to_str_idx((guint32) oct, gsm_bssmap_le_msg_strings, &idx);
 
 	if (sccp_msg_p && !sccp_msg_p->data.co.label) {
 		sccp_msg_p->data.co.label = se_strdup(val_to_str((guint32) oct, gsm_bssmap_le_msg_strings, "BSSMAP LE(0x%02x)"));

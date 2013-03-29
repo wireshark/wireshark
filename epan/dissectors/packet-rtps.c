@@ -861,7 +861,7 @@ int rtps_util_add_entity_id(proto_tree *tree, tvbuff_t * tvb, gint offset,
   guint32 entity_id   = tvb_get_ntohl(tvb, offset);
   guint32 entity_key  = (entity_id >> 8);
   guint8  entity_kind = (entity_id & 0xff);
-  const char *str_predef = match_strval(entity_id, entity_id_vals);
+  const char *str_predef = try_val_to_str(entity_id, entity_id_vals);
 
   if (entity_id_out != NULL) {
     *entity_id_out = entity_id;
@@ -916,7 +916,7 @@ void rtps_util_add_generic_entity_id(proto_tree *tree,
   guint32 entity_id   = tvb_get_ntohl(tvb, offset);
   guint32 entity_key  = (entity_id >> 8);
   guint8  entity_kind = (entity_id & 0xff);
-  const char *str_predef = match_strval(entity_id, entity_id_vals);
+  const char *str_predef = try_val_to_str(entity_id, entity_id_vals);
   guint8  temp_buffer[MAX_GUID_SIZE];
 
   if (str_predef == NULL) {

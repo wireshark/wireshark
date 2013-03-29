@@ -681,11 +681,11 @@ expert_dlg_draw(void *data)
             packet_no = ei->packet_num;
         }
 
-        /*  match_strval return a static string or NULL
+        /*  try_val_to_str return a static string or NULL
             severity */
-        severity_str = match_strval(ei->severity, expert_severity_vals);
+        severity_str = try_val_to_str(ei->severity, expert_severity_vals);
         /* group */
-        group_str = match_strval(ei->group, expert_group_vals);
+        group_str = try_val_to_str(ei->group, expert_group_vals);
 
         /* protocol */
         if(ei->protocol) {

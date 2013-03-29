@@ -816,7 +816,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree == NULL)
         return;
 
-    if (match_strval(frmtyp, frame_type) == NULL) {
+    if (try_val_to_str(frmtyp, frame_type) == NULL) {
         /*
          * Unknown message type.
          */

@@ -251,7 +251,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if (!tvb_bytes_exist(tvb, offset, 1))
 		return 0;	/* not even an opcode */
 	opcode = tvb_get_guint8(tvb, offset);
-	opcode_str = match_strval(opcode, slimp3_opcode_vals);
+	opcode_str = try_val_to_str(opcode, slimp3_opcode_vals);
 	if (opcode_str == NULL)
 		return 0;
 

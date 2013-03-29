@@ -1167,7 +1167,7 @@ trans_param_tele_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 
     ansi_637_trans_tele_id = value;
 
-    str = match_strval(value, ansi_tele_id_strings);
+    str = try_val_to_str(value, ansi_tele_id_strings);
 
     if (NULL == str)
     {
@@ -1779,7 +1779,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = match_strval_idx((guint32) oct, ansi_tele_param_strings, &idx);
+    str = try_val_to_str_idx((guint32) oct, ansi_tele_param_strings, &idx);
 
     if (NULL == str)
     {
@@ -1868,7 +1868,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * create the ansi_637 protocol tree
 	 */
-	str = match_strval(value, ansi_tele_id_strings);
+	str = try_val_to_str(value, ansi_tele_id_strings);
 
 	if (NULL == str)
 	{
@@ -1965,7 +1965,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = match_strval_idx((guint32) oct, ansi_trans_param_strings, &idx);
+    str = try_val_to_str_idx((guint32) oct, ansi_trans_param_strings, &idx);
 
     if (NULL == str)
     {
@@ -2055,7 +2055,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	oct = tvb_get_guint8(tvb, 0);
 
-	str = match_strval_idx(oct, ansi_trans_msg_type_strings, &idx);
+	str = try_val_to_str_idx(oct, ansi_trans_msg_type_strings, &idx);
 
 	if (NULL == str)
 	{

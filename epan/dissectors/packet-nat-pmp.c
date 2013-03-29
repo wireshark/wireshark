@@ -335,7 +335,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   }
 
   start_opcode_offset = offset;
-  if (match_strval(opcode, opcode_vals) != NULL)
+  if (try_val_to_str(opcode, opcode_vals) != NULL)
   {
     opcode_ti = proto_tree_add_text(pcp_tree, tvb, offset, 0, "%s", op_str);
     opcode_tree = proto_item_add_subtree (opcode_ti, ett_opcode);
@@ -420,7 +420,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
   /* Now see if there are any options for the supported opcodes */
   if ((tvb_reported_length_remaining(tvb, offset) > 0) &&
-      (match_strval(opcode, opcode_vals) != NULL))
+      (try_val_to_str(opcode, opcode_vals) != NULL))
   {
     start_option_offset = offset;
     option_ti = proto_tree_add_text(opcode_tree, tvb, offset, 0, "Options");

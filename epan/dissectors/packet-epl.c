@@ -823,7 +823,7 @@ decode_epl_address (guchar adr)
 {
     const gchar *addr_str;
 
-    addr_str = match_strval(adr, addr_str_vals);
+    addr_str = try_val_to_str(adr, addr_str_vals);
 
     if (addr_str != NULL)
     {

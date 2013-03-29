@@ -405,7 +405,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 	stream = tvb_get_guint8(tvb, 3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *s = match_strval(stream, mpeg_pes_T_stream_vals);
+		const char *s = try_val_to_str(stream, mpeg_pes_T_stream_vals);
 		if (s != NULL)
 			col_set_str(pinfo->cinfo, COL_INFO, s);
 	}
@@ -423,7 +423,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 		frame_type = tvb_get_guint8(tvb, 5) >> 3 & 0x07;
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			const char *s = match_strval(frame_type,
+			const char *s = try_val_to_str(frame_type,
 					mpeg_pes_T_frame_type_vals);
 			if (s != NULL)
 				col_set_str(pinfo->cinfo, COL_INFO, s);

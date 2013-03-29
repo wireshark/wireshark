@@ -1164,10 +1164,10 @@ static void format_custom_msgtype(gchar *out, guint32 in)
 
 	switch (global_oml_dialect) {
 	case OML_DIALECT_SIEMENS:
-		tmp = match_strval(in, oml_fom_msgtype_vals_bs11);
+		tmp = try_val_to_str(in, oml_fom_msgtype_vals_bs11);
 		break;
 	case OML_DIALECT_IPA:
-		tmp = match_strval(in, oml_fom_msgtype_vals_ipa);
+		tmp = try_val_to_str(in, oml_fom_msgtype_vals_ipa);
 		break;
 	case OML_DIALECT_ETSI:
 	default:
@@ -1189,10 +1189,10 @@ static void format_custom_attr(gchar *out, guint32 in)
 
 	switch (global_oml_dialect) {
 	case OML_DIALECT_SIEMENS:
-		tmp = match_strval(in, oml_fom_attr_vals_bs11);
+		tmp = try_val_to_str(in, oml_fom_attr_vals_bs11);
 		break;
 	case OML_DIALECT_IPA:
-		tmp = match_strval(in, oml_fom_attr_vals_ipa);
+		tmp = try_val_to_str(in, oml_fom_attr_vals_ipa);
 		break;
 	case OML_DIALECT_ETSI:
 	default:

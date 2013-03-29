@@ -349,9 +349,9 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             commhdr += 4;
         }
         /* Check to see if this is a valid offset, otherwise increment for packet signature */
-        if (match_strval(tvb_get_ntohs(tvb, commhdr), ncp_type_vals)==NULL) {
+        if (try_val_to_str(tvb_get_ntohs(tvb, commhdr), ncp_type_vals)==NULL) {
             /* Check to see if we have a valid type after packet signature length */
-            if (match_strval(tvb_get_ntohs(tvb, commhdr+8), ncp_type_vals)!=NULL) {
+            if (try_val_to_str(tvb_get_ntohs(tvb, commhdr+8), ncp_type_vals)!=NULL) {
                 proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, commhdr, 8, ENC_NA);
                 commhdr += 8;
             }

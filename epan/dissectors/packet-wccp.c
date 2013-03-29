@@ -296,7 +296,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	wccp_message_type = tvb_get_ntohl(tvb, offset);
 
 	/* Check if this is really a WCCP message */
-	if (match_strval(wccp_message_type, wccp_type_vals) == NULL)
+	if (try_val_to_str(wccp_message_type, wccp_type_vals) == NULL)
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCCP");

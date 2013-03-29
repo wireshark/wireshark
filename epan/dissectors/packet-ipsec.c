@@ -1967,7 +1967,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp));
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    p = match_strval(g_ntohs(ipcomp.comp_cpi), cpi2val);
+    p = try_val_to_str(g_ntohs(ipcomp.comp_cpi), cpi2val);
     if (p == NULL) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=0x%04x)",
 		   g_ntohs(ipcomp.comp_cpi));

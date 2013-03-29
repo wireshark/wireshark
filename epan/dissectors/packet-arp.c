@@ -1118,7 +1118,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if ((op_str = match_strval(ar_op, atmop_vals)))
+    if ((op_str = try_val_to_str(ar_op, atmop_vals)))
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
                                           "ATM Address Resolution Protocol (%s)",
                                           op_str);
@@ -1358,7 +1358,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if ((op_str = match_strval(ar_op, op_vals)))  {
+    if ((op_str = try_val_to_str(ar_op, op_vals)))  {
       if (is_gratuitous && (ar_op == ARPOP_REQUEST))
         op_str = "request/gratuitous ARP";
       if (is_gratuitous && (ar_op == ARPOP_REPLY))
@@ -1727,7 +1727,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if ((op_str = match_strval(ar_op, op_vals)))  {
+    if ((op_str = try_val_to_str(ar_op, op_vals)))  {
       if (is_gratuitous && (ar_op == ARPOP_REQUEST))
         op_str = "request/gratuitous ARP";
       if (is_gratuitous && (ar_op == ARPOP_REPLY))

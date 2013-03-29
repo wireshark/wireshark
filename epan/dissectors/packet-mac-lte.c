@@ -2934,7 +2934,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
         /* Flag unknown lcid values in expert info */
-        if (match_strval(lcids[number_of_headers],
+        if (try_val_to_str(lcids[number_of_headers],
                          (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals) == NULL) {
             expert_add_info_format(pinfo, pdu_subheader_ti, PI_MALFORMED, PI_ERROR,
                                    "%cL-SCH: Unexpected LCID received (%u)",
@@ -3968,7 +3968,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
 
         /* Flag unknown lcid values in expert info */
-        if (match_strval(lcids[number_of_headers],mch_lcid_vals) == NULL) {
+        if (try_val_to_str(lcids[number_of_headers],mch_lcid_vals) == NULL) {
             expert_add_info_format(pinfo, pdu_subheader_ti, PI_MALFORMED, PI_ERROR,
                                    "MCH: Unexpected LCID received (%u)",
                                    lcids[number_of_headers]);

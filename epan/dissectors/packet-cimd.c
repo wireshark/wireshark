@@ -724,7 +724,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
       break;
 
     PC = decimal_int_value(tvb, offset + 1, CIMD_PC_LENGTH);
-    match_strval_idx(PC, cimd_vals_PC, &idx);
+    try_val_to_str_idx(PC, cimd_vals_PC, &idx);
     if (idx != -1 && tree)
     {
       (vals_hdr_PC[idx].diss)(tvb, cimd_tree, idx, offset, endOffset);
@@ -813,7 +813,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   /* Try getting the operation-code */
   opcode  = decimal_int_value(tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH);
-  if (match_strval(opcode, vals_hdr_OC) == NULL)
+  if (try_val_to_str(opcode, vals_hdr_OC) == NULL)
     return FALSE;
 
   if (tvb_get_guint8(tvb, CIMD_OC_OFFSET + CIMD_OC_LENGTH) != CIMD_COLON)
