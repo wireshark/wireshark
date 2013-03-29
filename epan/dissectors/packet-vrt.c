@@ -183,7 +183,7 @@ static void dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* get packet type */
     type = tvb_get_guint8(tvb, offset) >> 4;
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(type, packet_types, "Reserved packet type (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, packet_types, "Reserved packet type (0x%02x)"));
 
     /* get SID, CID, T, TSI, and TSF flags */
     sidflag = (type & 1) || (type == 4);

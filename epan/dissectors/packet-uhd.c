@@ -171,7 +171,7 @@ dissect_uhd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "UHD");
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(id, uhd_ids, "Unknown UHD message type '%c'"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(id, uhd_ids, "Unknown UHD message type '%c'"));
 
 	if (tree) {
 
