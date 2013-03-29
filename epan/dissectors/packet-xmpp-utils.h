@@ -27,6 +27,8 @@
 #define XMPP_UTILS_H
 
 #include "ws_symbol_export.h"
+#include "tvbuff.h"
+#include "dissectors/packet-xml.h"
 
 #define xmpp_elem_cdata(elem) \
 elem->data?elem->data->value:""
