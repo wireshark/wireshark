@@ -33,6 +33,7 @@ example: udp.srcport != udp.dstport). The two fields must be of the same
 type for this to work.
 * The Windows installers ship with WinPcap 4.1.3, which supports Windows 8.
 * USB type and product name support has been improved.
+* All Bluetooth profiles and protocols are now supported.
 * Wireshark now calculates HTTP response times and presents the result in a new
 field in the HTTP response. Links from the request's frame to the response's
 frame and vice-versa are also added.
@@ -45,6 +46,7 @@ response packet) in a new window.
 * It is now possible for tshark to display only the hex/ascii packet data
 without also requiring that the packet summary and/or packet details are also
 displayed.  If you want the old behavior, use -Px instead of just -x.
+* Wireshark can be compiled using GTK+ 3.
 * The Wireshark application icon, capture toolbar icons, and other icons
 have been updated.
 
