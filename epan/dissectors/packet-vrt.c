@@ -265,11 +265,11 @@ void dissect_header(tvbuff_t *tvb, proto_tree *tree, int type, int _offset)
 
     hdr_tree = proto_item_add_subtree(hdr_item, ett_header);
     proto_tree_add_item(hdr_tree, hf_vrt_type, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(hdr_tree, hf_vrt_cidflag, tvb, offset, 1, ENC_NA);
+    proto_tree_add_bits_item(hdr_tree, hf_vrt_cidflag, tvb, (offset * 8) + 5, 1, ENC_NA);
     if(type == 4) {
         proto_tree_add_item(hdr_tree, hf_vrt_tsmflag, tvb, offset, 1, ENC_NA);
     } else {
-        proto_tree_add_item(hdr_tree, hf_vrt_tflag, tvb, offset, 1, ENC_NA);
+        proto_tree_add_bits_item(hdr_tree, hf_vrt_tflag, tvb, (offset * 8) + 6, 1, ENC_NA);
     }
     offset += 1;
     proto_tree_add_item(hdr_tree, hf_vrt_tsi, tvb, offset, 1, ENC_NA);
@@ -311,7 +311,7 @@ void dissect_trailer(tvbuff_t *tvb, proto_tree *tree, int offset)
         }
     }
     offset += 3;
-    proto_tree_add_item(trailer_tree, hf_vrt_trailer_e, tvb, offset, 1, ENC_NA);
+    proto_tree_add_bits_item(trailer_tree, hf_vrt_trailer_e, tvb, offset * 8, 1, ENC_NA);
     proto_tree_add_item(trailer_tree, hf_vrt_trailer_acpc, tvb, offset, 1, ENC_NA);
 }
 
@@ -349,14 +349,14 @@ proto_register_vrt(void)
         },
         { &hf_vrt_cidflag,
             { "Class ID included", "vrt.cidflag",
-            FT_BOOLEAN, 1,
-            NULL, 0x08,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_tflag,
             { "Trailer included", "vrt.tflag",
-            FT_BOOLEAN, 1,
-            NULL, 0x04,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_tsmflag,
@@ -396,13 +396,13 @@ proto_register_vrt(void)
             NULL, HFILL }
         },
         { &hf_vrt_ts_frac_sample,
-            { "Fractional timestamp (samples)", "vrt.ts_frac",
+            { "Fractional timestamp (samples)", "vrt.ts_frac_sample",
             FT_UINT64, BASE_DEC,
             NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_ts_frac_picosecond,
-            { "Fractional timestamp (picoseconds)", "vrt.ts_frac",
+            { "Fractional timestamp (picoseconds)", "vrt.ts_frac_picosecond",
             FT_DOUBLE, BASE_NONE,
             NULL, 0x00,
             NULL, HFILL }
@@ -445,8 +445,8 @@ proto_register_vrt(void)
         },
         { &hf_vrt_trailer_e,
             { "Associated context packet count enabled", "vrt.e",
-            FT_BOOLEAN, 1,
-            NULL, 0x80,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_acpc,
@@ -457,146 +457,146 @@ proto_register_vrt(void)
         },
         { &hf_vrt_trailer_ind_caltime,
             { "Calibrated time indicator", "vrt.caltime",
-            FT_BOOLEAN, 1,
-            NULL, 0x08,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_valid,
             { "Valid signal indicator", "vrt.valid",
-            FT_BOOLEAN, 1,
-            NULL, 0x04,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_reflock,
             { "Reference lock indicator", "vrt.reflock",
-            FT_BOOLEAN, 1,
-            NULL, 0x02,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_agc,
             { "AGC/MGC indicator", "vrt.agc",
-            FT_BOOLEAN, 1,
-            NULL, 0x01,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_sig,
             { "Signal detected indicator", "vrt.sig",
-            FT_BOOLEAN, 1,
-            NULL, 0x80,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_inv,
             { "Spectral inversion indicator", "vrt.inv",
-            FT_BOOLEAN, 1,
-            NULL, 0x40,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_overrng,
             { "Overrange indicator", "vrt.overrng",
-            FT_BOOLEAN, 1,
-            NULL, 0x20,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_sampleloss,
             { "Lost sample indicator", "vrt.sampleloss",
-            FT_BOOLEAN, 1,
-            NULL, 0x10,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user0,
             { "User indicator 0", "vrt.user0",
-            FT_BOOLEAN, 1,
+            FT_BOOLEAN, BASE_NONE,
             NULL, 0x000,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user1,
             { "User indicator 1", "vrt.user1",
-            FT_BOOLEAN, 1,
-            NULL, 0x0000,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user2,
             { "User indicator 2", "vrt.user2",
-            FT_BOOLEAN, 1,
+            FT_BOOLEAN, BASE_NONE,
             NULL, 0x000,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_ind_user3,
             { "User indicator 3", "vrt.user3",
-            FT_BOOLEAN, 1,
-            NULL, 0x0000,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_caltime,
             { "Calibrated time indicator enable", "vrt.caltime_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x80,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_valid,
             { "Valid signal indicator enable", "vrt.valid_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x40,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_reflock,
             { "Reference lock indicator enable", "vrt.reflock_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x20,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_agc,
             { "AGC/MGC indicator enable", "vrt.agc_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x10,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_sig,
             { "Signal detected indicator enable", "vrt.sig_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x08,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_inv,
             { "Spectral inversion indicator enable", "vrt.inv_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x04,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_overrng,
             { "Overrange indicator enable", "vrt.overrng_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x02,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_sampleloss,
             { "Lost sample indicator enable", "vrt.sampleloss_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x01,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user0,
             { "User indicator 0 enable", "vrt.user0_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x80,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user1,
             { "User indicator 1 enable", "vrt.user1_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x0000,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user2,
             { "User indicator 2 enable", "vrt.user2_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x20,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_trailer_en_user3,
             { "User indicator 3 enable", "vrt.user3_en",
-            FT_BOOLEAN, 1,
-            NULL, 0x0000,
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_vrt_cid_oui,
