@@ -135,17 +135,12 @@ try_rval_to_str_idx(const guint32 val, const range_string *rs, gint *idx);
 
 /* MISC (generally do not use) */
 
-gboolean value_string_ext_validate(const value_string_ext *vse);
-const gchar *value_string_ext_match_type_str(const value_string_ext *vse);
+WS_DLL_LOCAL
+gboolean
+value_string_ext_validate(const value_string_ext *vse);
 
-/* Generate a string describing an enumerated bitfield (an N-bit field
-   with various specific values having particular names). */
-WS_DLL_PUBLIC const char *decode_enumerated_bitfield(const guint32 val, const guint32 mask,
-  const int width, const value_string *tab, const char *fmt);
-
-/* Generate a string describing an enumerated bitfield (an N-bit field
-   with various specific values having particular names). */
-WS_DLL_PUBLIC const char *decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask,
-  const int width, const value_string *tab, const char *fmt);
+WS_DLL_LOCAL
+const gchar*
+value_string_ext_match_type_str(const value_string_ext *vse);
 
 #endif /* __VALUE_STRING_H__ */

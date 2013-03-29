@@ -6706,9 +6706,17 @@ dissect_nfs_fattr4_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 	{
 		if (expire_type == FH4_PERSISTENT)
 		{
-			proto_tree_add_text(expire_type_tree, tvb, offset, 4, "%s",
-				decode_enumerated_bitfield(expire_type, 0xFFFFFFFF, 32,
-				nfs4_fattr4_fh_expire_type_names, "%s"));
+			char *p, *buf;
+
+			/* TODO: this should be replaced with a named field and
+			 * proto_tree_add_item */
+			buf = (char *)ep_alloc(1025);
+			p = decode_bitfield_value(buf, expire_type, 0xFFFFFFFF, 32);
+			g_snprintf(p, (gulong) (1024-(p-buf)), "%s",
+				val_to_str_const(expire_type,
+					nfs4_fattr4_fh_expire_type_names,
+					"Unknown"));
+			proto_tree_add_text(expire_type_tree, tvb, offset, 4, "%s", buf);
 		}
 		else
 		{
@@ -12758,3 +12766,16 @@ proto_reg_handoff_nfs(void)
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

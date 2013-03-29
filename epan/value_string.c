@@ -498,42 +498,6 @@ value_string_ext_match_type_str(const value_string_ext *vse)
     return "[Match Type not initialized or invalid]";
 }
 
-/* Functions for bitfield generation, do they even belong here? */
-
-/* Generate a string describing an enumerated bitfield (an N-bit field
-   with various specific values having particular names). */
-const char *
-decode_enumerated_bitfield(const guint32 val, const guint32 mask,
-        const int width, const value_string *tab, const char *fmt)
-{
-    static char buf[1025];
-    char *p;
-
-    p = decode_bitfield_value(buf, val, mask, width);
-    g_snprintf(p, (gulong) (1024-(p-buf)), fmt, val_to_str_const(val & mask, tab, "Unknown"));
-    return buf;
-}
-
-/* Generate a string describing an enumerated bitfield (an N-bit field
-   with various specific values having particular names). */
-const char *
-decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask,
-        const int width, const value_string *tab, const char *fmt)
-{
-    static char buf[1025];
-    char *p;
-    int shift = 0;
-
-    /* Compute the number of bits we have to shift the bitfield right
-       to extract its value. */
-    while ((mask & (1<<shift)) == 0)
-        shift++;
-
-    p = decode_bitfield_value(buf, val, mask, width);
-    g_snprintf(p, (gulong) (1024-(p-buf)), fmt, val_to_str_const((val & mask) >> shift, tab, "Unknown"));
-    return buf;
-}
-
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
