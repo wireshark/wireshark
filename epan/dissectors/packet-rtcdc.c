@@ -1,9 +1,15 @@
-/* packet-rtcdc.c
+/*
+ * packet-rtcdc.c
  * Routines for the RTCWeb Data Channel Protocol dissection
  * as specified in 
  * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
- *
- * Copyright 2012, Michael Tuexen <tuexen@wireshark.org>
+ * and the new version specified in 
+ * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-04
+ * which got accepted as a WG item.
+ * We might want to remove the support of 
+ * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
+ * in the future, but leave it in for now.
+ * Copyright 2012 - 2013, Michael Tuexen <tuexen@wireshark.org>
  *
  * $Id$
  *
@@ -51,20 +57,29 @@ static int hf_priority = -1;
 static int hf_label = -1;
 static int hf_error = -1;
 static int hf_sid = -1;
+static int hf_new_channel_type = -1;
+static int hf_new_reliability = -1;
+static int hf_new_priority = -1;
+static int hf_new_label_length = -1;
+static int hf_new_protocol_length = -1;
+static int hf_new_label = -1;
+static int hf_new_protocol = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_rtcdc = -1;
 static gint ett_flags = -1;
 
-#define DATA_CHANNEL_OPEN_REQUEST   0x00
-#define DATA_CHANNEL_OPEN_RESPONSE  0x01
-#define DATA_CHANNEL_ACK            0x02
+#define DATA_CHANNEL_OPEN_REQUEST     0x00
+#define DATA_CHANNEL_OPEN_RESPONSE    0x01
+#define DATA_CHANNEL_ACK              0x02
+#define DATA_CHANNEL_NEW_OPEN_REQUEST 0x03
 
 static const value_string message_type_values[] = {
-	{ DATA_CHANNEL_OPEN_REQUEST,  "DATA_CHANNEL_OPEN_REQUEST"  },
-	{ DATA_CHANNEL_OPEN_RESPONSE, "DATA_CHANNEL_OPEN_RESPONSE" },
-	{ DATA_CHANNEL_ACK,           "DATA_CHANNEL_ACK"           },
-	{ 0,                          NULL                         }
+	{ DATA_CHANNEL_OPEN_REQUEST,     "DATA_CHANNEL_OPEN_REQUEST"  },
+	{ DATA_CHANNEL_OPEN_RESPONSE,    "DATA_CHANNEL_OPEN_RESPONSE" },
+	{ DATA_CHANNEL_ACK,              "DATA_CHANNEL_ACK"           },
+	{ DATA_CHANNEL_NEW_OPEN_REQUEST, "DATA_CHANNEL_OPEN_REQUEST"  },
+	{ 0,                             NULL                         }
 };
 
 #define DATA_CHANNEL_RELIABLE                0x00
@@ -95,7 +110,8 @@ static const value_string channel_type_values[] = {
 #define DATA_CHANNEL_FLAG_RESERVED_MASK             0xFFFE
 
 static void
-dissect_open_request_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcdc_tree, proto_item *rtcdc_item _U_) {
+dissect_open_request_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtcdc_tree, proto_item *rtcdc_item _U_)
+{
 	if (rtcdc_tree) {
 		proto_tree *flags_tree;
 		proto_item *flags_item;
@@ -120,7 +136,8 @@ dissect_open_request_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 #define SID_OFFSET                   (FLAGS_OFFSET + FLAGS_LENGTH)
 
 static void
-dissect_open_response_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree, proto_item *rtcdc_item) {
+dissect_open_response_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree, proto_item *rtcdc_item)
+{
 	if (tvb_length(tvb) > DATA_CHANNEL_RESPONSE_LENGTH) {
 		expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Message too long");
 	}
@@ -135,9 +152,81 @@ dissect_open_response_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtc
 #define DATA_CHANNEL_ACK_LENGTH MESSAGE_TYPE_LENGTH
 
 static void
-dissect_open_ack_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree _U_, proto_item *rtcdc_item) {
+dissect_open_ack_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree _U_, proto_item *rtcdc_item)
+{
 	if (tvb_length(tvb) > DATA_CHANNEL_ACK_LENGTH) {
 		expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Message too long");
+	}
+	return;
+}
+
+#define NEW_DATA_CHANNEL_RELIABLE                          0x00
+#define NEW_DATA_CHANNEL_PARTIAL_RELIABLE_REXMIT           0x01
+#define NEW_DATA_CHANNEL_PARTIAL_RELIABLE_TIMED            0x02
+#define NEW_DATA_CHANNEL_RELIABLE_UNORDERED                0x80
+#define NEW_DATA_CHANNEL_PARTIAL_RELIABLE_REXMIT_UNORDERED 0x81
+#define NEW_DATA_CHANNEL_PARTIAL_RELIABLE_TIMED_UNORDERED  0x82
+
+static const value_string new_channel_type_values[] = {
+	{ NEW_DATA_CHANNEL_RELIABLE,                          "DATA_CHANNEL_RELIABLE"                          },
+	{ NEW_DATA_CHANNEL_PARTIAL_RELIABLE_REXMIT,           "DATA_CHANNEL_PARTIAL_RELIABLE_REXMIT"           },
+	{ NEW_DATA_CHANNEL_PARTIAL_RELIABLE_TIMED,            "DATA_CHANNEL_PARTIAL_RELIABLE_TIMED"            },
+	{ NEW_DATA_CHANNEL_RELIABLE_UNORDERED,                "DATA_CHANNEL_RELIABLE_UNORDERED"                },
+	{ NEW_DATA_CHANNEL_PARTIAL_RELIABLE_REXMIT_UNORDERED, "DATA_CHANNEL_PARTIAL_RELIABLE_REXMIT_UNORDERED" },
+	{ NEW_DATA_CHANNEL_PARTIAL_RELIABLE_TIMED_UNORDERED,  "DATA_CHANNEL_PARTIAL_RELIABLE_TIMED_UNORDERED"  },
+	{ 0,                                                  NULL                                             }
+};
+
+#define NEW_MESSAGE_TYPE_LENGTH    1
+#define NEW_CHANNEL_TYPE_LENGTH    1
+#define NEW_RELIABILITY_LENGTH     2
+#define NEW_PRIORITY_LENGTH        2
+#define NEW_LABEL_LENGTH_LENGTH    2
+#define NEW_PROTOCOL_LENGTH_LENGTH 2
+#define NEW_OPEN_REQUEST_HEADER_LENGTH (guint)(NEW_MESSAGE_TYPE_LENGTH + \
+                                               NEW_CHANNEL_TYPE_LENGTH + \
+                                               NEW_RELIABILITY_LENGTH + \
+                                               NEW_PRIORITY_LENGTH + \
+                                               NEW_LABEL_LENGTH_LENGTH + \
+                                               NEW_PROTOCOL_LENGTH_LENGTH)
+
+#define NEW_MESSAGE_TYPE_OFFSET    0
+#define NEW_CHANNEL_TYPE_OFFSET    (NEW_MESSAGE_TYPE_OFFSET + NEW_MESSAGE_TYPE_LENGTH)
+#define NEW_RELIABILITY_OFFSET     (NEW_CHANNEL_TYPE_OFFSET + NEW_CHANNEL_TYPE_LENGTH)
+#define NEW_PRIORITY_OFFSET        (NEW_RELIABILITY_OFFSET + NEW_RELIABILITY_LENGTH)
+#define NEW_LABEL_LENGTH_OFFSET    (NEW_PRIORITY_OFFSET + NEW_PRIORITY_LENGTH)
+#define NEW_PROTOCOL_LENGTH_OFFSET (NEW_LABEL_LENGTH_OFFSET + NEW_LABEL_LENGTH_LENGTH)
+#define NEW_LABEL_OFFSET           (NEW_PROTOCOL_LENGTH_OFFSET + NEW_PROTOCOL_LENGTH_LENGTH)
+
+static void
+dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtcdc_tree, proto_item *rtcdc_item)
+{
+	if (rtcdc_tree) {
+		guint8 channel_type;
+		guint16 reliability;
+		guint16 label_length;
+		guint16 protocol_length;
+
+		proto_tree_add_item(rtcdc_tree, hf_new_channel_type, tvb, NEW_CHANNEL_TYPE_OFFSET, NEW_CHANNEL_TYPE_LENGTH, ENC_BIG_ENDIAN);
+		channel_type = 	tvb_get_guint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
+		if ((channel_type & 0x7f) > 0x02) {
+			expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Unknown channel type");
+		}
+		proto_tree_add_item(rtcdc_tree, hf_new_reliability, tvb, NEW_RELIABILITY_OFFSET, NEW_RELIABILITY_LENGTH, ENC_BIG_ENDIAN);
+		reliability = tvb_get_ntohs(tvb, NEW_RELIABILITY_OFFSET);
+		if ((reliability > 0) && ((channel_type & 0x80) == 0)) {
+			expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Reliability parameter non zero for reliable channel");
+		}
+		proto_tree_add_item(rtcdc_tree, hf_new_priority, tvb, NEW_PRIORITY_OFFSET, NEW_PRIORITY_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rtcdc_tree, hf_new_label_length, tvb, NEW_LABEL_LENGTH_OFFSET, NEW_LABEL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rtcdc_tree, hf_new_protocol_length, tvb, NEW_PROTOCOL_LENGTH_OFFSET, NEW_PROTOCOL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+		label_length = tvb_get_ntohs(tvb, NEW_LABEL_LENGTH_OFFSET);
+		protocol_length = tvb_get_ntohs(tvb, NEW_PROTOCOL_LENGTH_OFFSET);
+		if (NEW_OPEN_REQUEST_HEADER_LENGTH + (guint)label_length + (guint)protocol_length != tvb_length(tvb)) {
+			expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Inconsistent label and parameter length");
+		}
+		proto_tree_add_item(rtcdc_tree, hf_new_label, tvb, NEW_LABEL_OFFSET, label_length, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rtcdc_tree, hf_new_protocol, tvb, NEW_LABEL_OFFSET + label_length, protocol_length, ENC_BIG_ENDIAN);
 	}
 	return;
 }
@@ -171,6 +260,9 @@ dissect_rtcdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	case DATA_CHANNEL_ACK:
 		dissect_open_ack_message(tvb, pinfo, rtcdc_tree, rtcdc_item);
 		break;
+	case DATA_CHANNEL_NEW_OPEN_REQUEST:
+		dissect_new_open_request_message(tvb, pinfo, rtcdc_tree, rtcdc_item);
+		break;
 	default:
 		expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Unknown message type");
 		break;
@@ -183,16 +275,23 @@ proto_register_rtcdc(void)
 {
 	module_t *rtcdc_module;
 	static hf_register_info hf[] = {
-		{ &hf_message_type,      { "Message type",              "rtcdc.message_type",            FT_UINT8,   BASE_DEC,  VALS(message_type_values), 0x0,                                         NULL, HFILL } },
-		{ &hf_channel_type,      { "Channel type",              "rtcdc.channel_type",            FT_UINT8,   BASE_DEC,  VALS(channel_type_values), 0x0,                                         NULL, HFILL } },
-		{ &hf_flags,             { "Flags",                     "rtcdc.flags",                   FT_UINT16,  BASE_HEX,  NULL,                      0x0,                                         NULL, HFILL } },
-		{ &hf_flags_reserved,    { "Reserved",                  "rtcdc.flags_reserved",          FT_UINT16,  BASE_HEX,  NULL,                      DATA_CHANNEL_FLAG_RESERVED_MASK,             NULL, HFILL } },
-		{ &hf_unordered_allowed, { "Unordered allowed",         "rtcdc.flags_unordered_allowed", FT_BOOLEAN, 16,        NULL,                      DATA_CHANNEL_FLAG_OUT_OF_ORDER_ALLOWED_MASK, NULL, HFILL } },
-		{ &hf_reliability,       { "Reliability parameter",     "rtcdc.reliability_parameter",   FT_UINT16,  BASE_DEC,  NULL,                      0x0,                                         NULL, HFILL } },
-		{ &hf_priority,          { "Priority",                  "rtcdc.priority",                FT_UINT16,  BASE_DEC,  NULL,                      0x0,                                         NULL, HFILL } },
-		{ &hf_label,             { "Label",                     "rtcdc.label",                   FT_STRING,  BASE_NONE, NULL,                      0x0,                                         NULL, HFILL } },
-		{ &hf_error,             { "Error",                     "rtcdc.error",                   FT_UINT8,   BASE_DEC,  NULL,                      0x0,                                         NULL, HFILL } },
-		{ &hf_sid,               { "Reverse stream identifier", "rtcdc.reverse_stream_id",       FT_UINT16,  BASE_DEC,  NULL,                      0x0,                                         NULL, HFILL } }
+		{ &hf_message_type,        { "Message type",              "rtcdc.message_type",            FT_UINT8,   BASE_DEC,  VALS(message_type_values),     0x0,                                         NULL, HFILL } },
+		{ &hf_channel_type,        { "Channel type",              "rtcdc.channel_type",            FT_UINT8,   BASE_DEC,  VALS(channel_type_values),     0x0,                                         NULL, HFILL } },
+		{ &hf_flags,               { "Flags",                     "rtcdc.flags",                   FT_UINT16,  BASE_HEX,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_flags_reserved,      { "Reserved",                  "rtcdc.flags_reserved",          FT_UINT16,  BASE_HEX,  NULL,                          DATA_CHANNEL_FLAG_RESERVED_MASK,             NULL, HFILL } },
+		{ &hf_unordered_allowed,   { "Unordered allowed",         "rtcdc.flags_unordered_allowed", FT_BOOLEAN, 16,        NULL,                          DATA_CHANNEL_FLAG_OUT_OF_ORDER_ALLOWED_MASK, NULL, HFILL } },
+		{ &hf_reliability,         { "Reliability parameter",     "rtcdc.reliability_parameter",   FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_priority,            { "Priority",                  "rtcdc.priority",                FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_label,               { "Label",                     "rtcdc.label",                   FT_STRING,  BASE_NONE, NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_error,               { "Error",                     "rtcdc.error",                   FT_UINT8,   BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_sid,                 { "Reverse stream identifier", "rtcdc.reverse_stream_id",       FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_channel_type,    { "Channel type",              "rtcdc.channel_type",            FT_UINT8,   BASE_DEC,  VALS(new_channel_type_values), 0x0,                                         NULL, HFILL } },
+		{ &hf_new_reliability,     { "Reliability parameter",     "rtcdc.reliability_parameter",   FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_priority,        { "Priority",                  "rtcdc.priority",                FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_label_length,    { "Label length",              "rtcdc.label_length",            FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_protocol_length, { "Protocol length",           "rtcdc.protocol_length",         FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_label,           { "Label",                     "rtcdc.label",                   FT_STRING,  BASE_NONE, NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_protocol,        { "Protocol",                  "rtcdc.protocol",                FT_STRING,  BASE_NONE, NULL,                          0x0,                                         NULL, HFILL } }
 	};
 	static gint *ett[] = {
 		&ett_rtcdc,
