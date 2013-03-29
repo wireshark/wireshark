@@ -79,7 +79,7 @@ install: build
 	#cp debian/wireshark-root.desktop $(CURDIR)/debian/tmp/usr/share/applications/
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/pixmaps/
 	cp image/hi48-app-wireshark.png $(CURDIR)/debian/tmp/usr/share/pixmaps/
-	cp image/wsicon32.png $(CURDIR)/debian/tmp/usr/share/pixmaps/
+	cp image/wsicon32.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/
 	mkdir -p $(CURDIR)/debian/tmp/etc/wireshark/
 	mv $(CURDIR)/debian/tmp/usr/share/wireshark/init.lua \
 		$(CURDIR)/debian/tmp/etc/wireshark/
