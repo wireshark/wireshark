@@ -171,7 +171,32 @@ typedef struct _btsdp_data_t {
                               peer device) and/or a secondary PSM */
 } btsdp_data_t;
 
+
+typedef struct _service_info_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint32  sdp_psm;
+    guint32  direction;
+    guint32  bd_addr_oui;
+    guint32  bd_addr_id;
+    guint32  type;
+    guint32  channel;
+
+    guint32  uuid;
+    gint     protocol_order; /* main service protocol has 0, goep -1, additional protocol 1, 2... */
+
+    void    *data;        /* Used to transfer service record data to profiles */
+
+    struct _service_info_t *parent_info;
+} service_info_t;
+
+#define SDP_PSM_DEFAULT  1
+
 extern value_string_ext vs_service_classes_ext;
+
+typedef struct _sdp_package_t {
+    emem_tree_t *service_infos;
+} sdp_package_t;
 
 #endif
 
