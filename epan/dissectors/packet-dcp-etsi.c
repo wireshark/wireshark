@@ -259,7 +259,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   fragment_data *fdx
 )
 {
-  guint16 decoded_size;
+  guint32 decoded_size;
   guint32 c_max;
   guint32 rx_min;
   tvbuff_t *new_tvb=NULL;
@@ -338,11 +338,11 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                             NULL, tree);
     }
   }
-  if(new_tvb) {
+  if(new_tvb && tvb_length(new_tvb) > 0) {
     gboolean decoded = TRUE;
     tvbuff_t *dtvb = NULL;
     const guint8 *input = tvb_get_ptr(new_tvb, 0, -1);
-    guint16 reassembled_size = tvb_length(new_tvb);
+    guint32 reassembled_size = tvb_length(new_tvb);
     guint8 *deinterleaved = (guint8*) g_malloc (reassembled_size);
     guint8 *output = (guint8*) g_malloc (decoded_size);
     rs_deinterleave(input, deinterleaved, plen, fcount);
