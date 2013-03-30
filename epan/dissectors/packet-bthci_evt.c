@@ -644,6 +644,28 @@ static const value_string bthci_evt_comp_id[] = {
     {0x00A3, "Meta Watch Ltd."},
     {0x00A4, "LINAK A/S"},
     {0x00A5, "OTL Dynamics LLC"},
+    {0x00A6, "Panda Ocean Inc."},
+    {0x00A7, "Visteon Corporation"},
+    {0x00A8, "ARP Devices Limited"},
+    {0x00A9, "Magneti Marelli S.p.A."},
+    {0x00AA, "CAEN RFID srl"},
+    {0x00AB, "Ingenieur-Systemgruppe Zahn GmbH"},
+    {0x00AC, "Green Throttle Games"},
+    {0x00AD, "Peter Systemtechnik GmbH"},
+    {0x00AE, "Omegawave Oy"},
+    {0x00AF, "Cinetix"},
+    {0x00B0, "Passif Semiconductor Corp"},
+    {0x00B1, "Saris Cycling Group, Inc"},
+    {0x00B2, "Bekey A/S"},
+    {0x00B3, "Clarinox Technologies Pty. Ltd."},
+    {0x00B4, "BDE Technology Co., Ltd."},
+    {0x00B5, "Swirl Networks"},
+    {0x00B6, "Meso international"},
+    {0x00B7, "TreLab Ltd"},
+    {0x00B8, "Qualcomm Innovation Center, Inc. (QuIC)"},
+    {0x00B9, "Johnson Controls, Inc."},
+    {0x00BA, "Starkey Laboratories Inc."},
+    {0x00BB, "S-Power Electronics Limited"},
     {0xFFFF, "For use in internal and interoperability tests."},
     {0, NULL }
 };
@@ -2881,7 +2903,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_physical_link_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
-            
+
         case 0x1801: /* Read Loopback Mode */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;

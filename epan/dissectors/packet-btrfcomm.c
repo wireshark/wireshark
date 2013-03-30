@@ -105,16 +105,10 @@ static gint ett_mcc_dlci = -1;
 static gint ett_btdun = -1;
 static gint ett_btspp = -1;
 
-static emem_tree_t *dlci_table;
+static emem_tree_t *sdp_service_infos = NULL;
 
-/* Initialize dissector table */
-dissector_table_t rfcomm_service_dissector_table;
-dissector_table_t rfcomm_channel_dissector_table;
-
-typedef struct _dlci_state_t {
-    guint32 service;
-    char    do_credit_fc;
-} dlci_state_t;
+static dissector_table_t rfcomm_service_dissector_table;
+static dissector_table_t rfcomm_channel_dissector_table;
 
 typedef struct {
     guint               channel;
@@ -265,13 +259,13 @@ get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *va
     do {
         byte = tvb_get_guint8(tvb, offset);
         offset += 1;
-        val |= ((byte>>1)&0xff) << (bc++ * 7);
+        val |= ((byte >> 1) & 0xff) << (bc++ * 7);
     } while ((byte & 0x1) == 0);
 
     *val_ptr = val;
 
     if (hf_index > 0) {
-        proto_tree_add_uint(tree, hf_index, tvb, start_offset, offset-start_offset, val);
+        proto_tree_add_uint(tree, hf_index, tvb, start_offset, offset - start_offset, val);
     }
 
     return offset;
@@ -279,15 +273,13 @@ get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *va
 
 
 static int
-dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, int cr_flag, guint8 *mcc_channel)
+dissect_ctrl_pn(proto_tree *t, tvbuff_t *tvb, int offset, guint8 *mcc_channel)
 {
     proto_tree   *st;
     proto_item   *ti;
     proto_tree   *dlci_tree;
     proto_item   *dlci_item;
     int           mcc_dlci;
-    int           cl;
-    dlci_state_t *dlci_state;
     guint8        flags;
 
     proto_tree_add_item(t, hf_mcc_pn_zeros_padding, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -304,11 +296,9 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
     proto_tree_add_item(dlci_tree, hf_mcc_pn_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    /* cl */
     flags = tvb_get_guint8(tvb, offset);
-    cl = flags&0xf0;
 
-    ti = proto_tree_add_text(t, tvb, offset, 1, "I1-I4: 0x%x, C1-C4: 0x%x", flags&0xf, (flags>>4)&0xf);
+    ti = proto_tree_add_text(t, tvb, offset, 1, "I1-I4: 0x%x, C1-C4: 0x%x", flags & 0xf, (flags >> 4) & 0xf);
     st = proto_item_add_subtree(ti, ett_ctrl_pn_ci);
 
     proto_tree_add_item(st, hf_pn_c14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -335,32 +325,6 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
     proto_tree_add_item(t, hf_error_recovery_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (!pinfo->fd->flags.visited) {
-        guint32 token;
-
-        if (pinfo->p2p_dir == cr_flag)
-            token = mcc_dlci | 0x01; /* local service */
-        else
-            token = mcc_dlci;
-
-        dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
-        if (!dlci_state) {
-            dlci_state = wmem_new0(wmem_file_scope(), dlci_state_t);
-            se_tree_insert32(dlci_table, token, dlci_state);
-        }
-
-        if (!cl) {
-            /* sender does not do credit based flow control */
-            dlci_state->do_credit_fc = 0;
-        } else if (cr_flag && (cl == 0xf0)) {
-            /* sender requests to use credit based flow control */
-            dlci_state->do_credit_fc |= 1;
-        } else if ((!cr_flag) && (cl == 0xe0)) {
-            /* receiver also knows how to handle credit based
-               flow control */
-            dlci_state->do_credit_fc |= 2;
-        }
-    }
     return offset;
 }
 
@@ -411,13 +375,13 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, guint8 *m
         offset += 1;
     }
 
-    proto_item_set_len(it, offset-start_offset);
+    proto_item_set_len(it, offset - start_offset);
 
     return offset;
 }
 
 static int
-dissect_btrfcomm_Address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea_flagp, guint8 *cr_flagp, guint8 *dlcip)
+dissect_btrfcomm_address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea_flagp, guint8 *cr_flagp, guint8 *dlcip)
 {
     proto_item *ti;
     proto_tree *addr_tree;
@@ -427,17 +391,17 @@ dissect_btrfcomm_Address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea
 
     flags = tvb_get_guint8(tvb, offset);
 
-    ea_flag = flags&0x01;
+    ea_flag = flags & 0x01;
     if (ea_flagp) {
         *ea_flagp = ea_flag;
     }
 
-    cr_flag = (flags&0x02) ? 1 : 0;
+    cr_flag = (flags & 0x02) ? 1 : 0;
     if (cr_flagp) {
         *cr_flagp = cr_flag;
     }
 
-    dlci = flags>>2;
+    dlci = flags >> 2;
     if (dlcip) {
         *dlcip = dlci;
     }
@@ -460,7 +424,7 @@ dissect_btrfcomm_Address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea
 }
 
 static int
-dissect_btrfcomm_Control(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *pf_flagp, guint8 *frame_typep)
+dissect_btrfcomm_control(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *pf_flagp, guint8 *frame_typep)
 {
     proto_item *ti;
     proto_tree *hctl_tree;
@@ -468,12 +432,12 @@ dissect_btrfcomm_Control(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *pf
 
     flags = tvb_get_guint8(tvb, offset);
 
-    pf_flag = (flags&0x10) ? 1 : 0;
+    pf_flag = (flags & 0x10) ? 1 : 0;
     if (pf_flagp) {
         *pf_flagp = pf_flag;
     }
 
-    frame_type = flags&0xef;
+    frame_type = flags & 0xef;
     if (frame_typep) {
         *frame_typep = frame_type;
     }
@@ -492,7 +456,7 @@ dissect_btrfcomm_Control(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *pf
 
 
 static int
-dissect_btrfcomm_PayloadLen(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *frame_lenp)
+dissect_btrfcomm_payload_length(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *frame_lenp)
 {
     guint16 frame_len;
     int     start_offset = offset;
@@ -500,7 +464,7 @@ dissect_btrfcomm_PayloadLen(tvbuff_t *tvb, int offset, proto_tree *tree, guint16
     frame_len = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    if (frame_len&0x01) {
+    if (frame_len & 0x01) {
         frame_len >>= 1; /* 0 - 127 */
     } else {
         frame_len >>= 1; /* 128 - ... */
@@ -508,7 +472,7 @@ dissect_btrfcomm_PayloadLen(tvbuff_t *tvb, int offset, proto_tree *tree, guint16
         offset += 1;
     }
 
-    proto_tree_add_uint(tree, hf_len, tvb, start_offset, offset-start_offset, frame_len);
+    proto_tree_add_uint(tree, hf_len, tvb, start_offset, offset - start_offset, frame_len);
 
     if (frame_lenp) {
         *frame_lenp = frame_len;
@@ -528,7 +492,7 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mc
 
     flags = tvb_get_guint8(tvb, offset);
 
-    mcc_cr_flag = (flags&0x2) ? 1 : 0;
+    mcc_cr_flag = (flags & 0x2) ? 1 : 0;
     if (mcc_cr_flagp) {
         *mcc_cr_flagp = mcc_cr_flag;
     }
@@ -539,18 +503,18 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mc
     }
 
     offset = get_le_multi_byte_value(tvb, offset, tree, &mcc_type, -1);
-    mcc_type = (mcc_type>>1) & 0x3f; /* shift c/r flag off */
+    mcc_type = (mcc_type >> 1) & 0x3f; /* shift c/r flag off */
     if (mcc_typep) {
         *mcc_typep = mcc_type;
     }
 
-    ti = proto_tree_add_text(tree, tvb, start_offset, offset-start_offset,
+    ti = proto_tree_add_text(tree, tvb, start_offset, offset - start_offset,
                              "Type: %s (0x%x), C/R flag = %d, E/A flag = %d",
                              val_to_str_const(mcc_type, vs_ctl, "Unknown"),
                              mcc_type, mcc_cr_flag, mcc_ea_flag);
     mcc_tree = proto_item_add_subtree(ti, ett_mcc);
 
-    proto_tree_add_item(mcc_tree, hf_mcc_cmd, tvb, start_offset, offset-start_offset, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mcc_tree, hf_mcc_cmd, tvb, start_offset, offset - start_offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mcc_tree, hf_mcc_cr, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mcc_tree, hf_mcc_ea, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
 
@@ -572,12 +536,16 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8               dlci, cr_flag, ea_flag;
     guint8               frame_type, pf_flag;
     guint16              frame_len;
-    dlci_state_t        *dlci_state = NULL;
+    btl2cap_data_t      *l2cap_data;
+    service_info_t      *service_info;
 
     ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
+
+    l2cap_data = (btl2cap_data_t *) pinfo->private_data;
+
     switch (pinfo->p2p_dir) {
 
     case P2P_DIR_SENT:
@@ -600,24 +568,75 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* flags and dlci */
-    offset = dissect_btrfcomm_Address(tvb, offset, rfcomm_tree, &ea_flag, &cr_flag, &dlci);
+    offset = dissect_btrfcomm_address(tvb, offset, rfcomm_tree, &ea_flag, &cr_flag, &dlci);
     /* pf and frame type */
-    offset = dissect_btrfcomm_Control(tvb, offset, rfcomm_tree, &pf_flag, &frame_type);
+    offset = dissect_btrfcomm_control(tvb, offset, rfcomm_tree, &pf_flag, &frame_type);
     /* payload length */
-    offset = dissect_btrfcomm_PayloadLen(tvb, offset, rfcomm_tree, &frame_len);
+    offset = dissect_btrfcomm_payload_length(tvb, offset, rfcomm_tree, &frame_len);
 
     if (dlci && (frame_len || (frame_type == 0xef) || (frame_type == 0x2f))) {
-        guint32 token;
+        emem_tree_key_t  key[10];
+        guint32          k_interface_id;
+        guint32          k_adapter_id;
+        guint32          k_sdp_psm;
+        guint32          k_direction;
+        guint32          k_bd_addr_oui;
+        guint32          k_bd_addr_id;
+        guint32          k_service_type;
+        guint32          k_service_channel;
+        guint32          k_frame_number;
 
-        if (pinfo->p2p_dir == cr_flag)
-            token = dlci | 0x01; /* local service */
-        else
-            token = dlci;
+        k_interface_id    = l2cap_data->interface_id;
+        k_adapter_id      = l2cap_data->adapter_id;
+        k_sdp_psm         = SDP_PSM_DEFAULT;
+        k_direction       = (dlci & 0x01) ? P2P_DIR_SENT : P2P_DIR_RECV;
+        if (k_direction == P2P_DIR_RECV) {
+            k_bd_addr_oui     = l2cap_data->remote_bd_addr_oui;
+            k_bd_addr_id      = l2cap_data->remote_bd_addr_id;
+        } else {
+            k_bd_addr_oui     = 0;
+            k_bd_addr_id      = 0;
+        }
+        k_service_type    = BTSDP_RFCOMM_PROTOCOL_UUID;
+        k_service_channel = dlci >> 1;
+        k_frame_number    = pinfo->fd->num;
 
-        dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
-        if (!dlci_state) {
-            dlci_state = wmem_new0(wmem_file_scope(), dlci_state_t);
-            se_tree_insert32(dlci_table, token, dlci_state);
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_sdp_psm;
+        key[3].length = 1;
+        key[3].key = &k_direction;
+        key[4].length = 1;
+        key[4].key = &k_bd_addr_oui;
+        key[5].length = 1;
+        key[5].key = &k_bd_addr_id;
+        key[6].length = 1;
+        key[6].key = &k_service_type;
+        key[7].length = 1;
+        key[7].key = &k_service_channel;
+        key[8].length = 1;
+        key[8].key = &k_frame_number;
+        key[9].length = 0;
+        key[9].key = NULL;
+
+        service_info = (service_info_t *) se_tree_lookup32_array_le(sdp_service_infos, key);
+        if (service_info && service_info->interface_id == l2cap_data->interface_id &&
+                service_info->adapter_id == l2cap_data->adapter_id &&
+                service_info->sdp_psm == SDP_PSM_DEFAULT &&
+                ((service_info->direction == P2P_DIR_RECV &&
+                service_info->bd_addr_oui == l2cap_data->remote_bd_addr_oui &&
+                service_info->bd_addr_id == l2cap_data->remote_bd_addr_id) ||
+                (service_info->direction != P2P_DIR_RECV &&
+                service_info->bd_addr_oui == 0 &&
+                service_info->bd_addr_id == 0)) &&
+                service_info->type == BTSDP_RFCOMM_PROTOCOL_UUID &&
+                service_info->channel == (dlci >> 1)) {
+
+        } else {
+            service_info = wmem_new0(wmem_packet_scope(), service_info_t);
         }
     }
 
@@ -625,22 +644,19 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == 0x2f))
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-                        val_to_str_ext_const(dlci_state->service, &vs_service_classes_ext, "Unknown"));
+                        val_to_str_ext_const(service_info->uuid, &vs_service_classes_ext, "Unknown"));
 
     /* UID frame */
     if ((frame_type == 0xef) && dlci && pf_flag) {
         col_append_str(pinfo->cinfo, COL_INFO, "UID ");
-        if ((dlci_state->do_credit_fc & 0x03) == 0x03) {
-/*QQQ use tvb_length_remaining() == 2 and !frame_len as heuristics to catch this as well? */
-            /* add credit based flow control byte */
-            proto_tree_add_item(rfcomm_tree, hf_fc_credits, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
-        }
+
+        /* add credit based flow control byte */
+        proto_tree_add_item(rfcomm_tree, hf_fc_credits, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
     }
 
-
     fcs_offset = offset + frame_len;
-
 
     /* multiplexer control command */
     if (!dlci && frame_len) {
@@ -670,7 +686,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch(mcc_type) {
         case 0x20: /* DLC Parameter Negotiation */
-            dissect_ctrl_pn(pinfo, ctrl_tree, tvb, offset, mcc_cr_flag, &mcc_channel);
+            dissect_ctrl_pn(ctrl_tree, tvb, offset, &mcc_channel);
             break;
         case 0x24: /* Remote Port Negotiation */
             mcc_dlci = tvb_get_guint8(tvb, offset) >> 2;
@@ -706,9 +722,8 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         offset += length;
 
-        proto_item_set_len(mcc_ti, offset-start_offset);
+        proto_item_set_len(mcc_ti, offset - start_offset);
     }
-
 
     /* try to find a higher layer dissector that has registered to handle data
      * for this kind of service, if none is found dissect it as raw "data"
@@ -716,29 +731,29 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (dlci && frame_len) {
         dissector_handle_t  decode_by_dissector;
         tvbuff_t           *next_tvb;
-        btl2cap_data_t     *l2cap_data;
-        btrfcomm_data_t     rfcomm_data;
+        btrfcomm_data_t    *rfcomm_data;
 
         next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
 
-        l2cap_data = (btl2cap_data_t *)pinfo->private_data;
-        pinfo->private_data = &rfcomm_data;
+        rfcomm_data = (btrfcomm_data_t *) wmem_new(wmem_packet_scope(), btrfcomm_data_t);
+        rfcomm_data->interface_id = l2cap_data->interface_id;
+        rfcomm_data->adapter_id   = l2cap_data->adapter_id;
+        rfcomm_data->chandle      = l2cap_data->chandle;
+        rfcomm_data->cid          = l2cap_data->cid;
+        rfcomm_data->dlci         = dlci;
+        pinfo->private_data = rfcomm_data;
 
-        rfcomm_data.interface_id = l2cap_data->interface_id;
-        rfcomm_data.adapter_id   = l2cap_data->adapter_id;
-        rfcomm_data.chandle      = l2cap_data->chandle;
-        rfcomm_data.cid          = l2cap_data->cid;
-        rfcomm_data.dlci         = dlci;
-
-        decode_by_dissector = find_proto_by_channel(dlci >> 1);
-        if (rfcomm_channels_enabled && decode_by_dissector) {
-            call_dissector(decode_by_dissector, next_tvb, pinfo, tree);
-        } else if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
+        if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
                 next_tvb, pinfo, tree)) {
-            if (!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service,
+            if (!dissector_try_uint(rfcomm_service_dissector_table, service_info->uuid,
                         next_tvb, pinfo, tree)) {
-                /* unknown service, let the data dissector handle it */
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+                decode_by_dissector = find_proto_by_channel(dlci >> 1);
+                if (rfcomm_channels_enabled && decode_by_dissector) {
+                    call_dissector(decode_by_dissector, next_tvb, pinfo, tree);
+                } else {
+                    /* unknown service, let the data dissector handle it */
+                    call_dissector(data_handle, next_tvb, pinfo, tree);
+                }
             }
         }
     }
@@ -951,8 +966,6 @@ proto_register_btrfcomm(void)
     rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "RFCOMM SERVICE", FT_UINT16, BASE_HEX);
     rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "RFCOMM Channel", FT_UINT16, BASE_DEC);
 
-    dlci_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
-
     module = prefs_register_protocol(proto_btrfcomm, NULL);
     prefs_register_static_text_preference(module, "rfcomm.version",
             "Bluetooth Protocol RFCOMM version: 1.1", "Version of protocol supported by this dissector.");
@@ -985,22 +998,12 @@ proto_register_btrfcomm(void)
 static int
 btrfcomm_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
 {
-    const btsdp_data_t *sdp_data = (const btsdp_data_t *) arg2;
+    const sdp_package_t *sdp_package = (const sdp_package_t *) arg2;
 
-    if (sdp_data->protocol == BTSDP_RFCOMM_PROTOCOL_UUID) {
-        guint32       token;
-        dlci_state_t *dlci_state;
-
-        /* rfcomm channel * 2 = dlci */
-        token = (sdp_data->channel<<1) | (sdp_data->flags & BTSDP_LOCAL_SERVICE_FLAG_MASK);
-
-        dlci_state = (dlci_state_t *)se_tree_lookup32(dlci_table, token);
-        if (!dlci_state) {
-            dlci_state = wmem_new0(wmem_file_scope(), dlci_state_t);
-            se_tree_insert32(dlci_table, token, dlci_state);
-        }
-        dlci_state->service = sdp_data->service;
+    if (sdp_service_infos == NULL) {
+        sdp_service_infos = sdp_package->service_infos;
     }
+
     return 0;
 }
 
@@ -1038,7 +1041,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     st = proto_item_add_subtree(ti, ett_btdun);
 
     is_at_cmd = TRUE;
-    for(i=0; i<length && is_at_cmd; i++) {
+    for(i = 0; i < length && is_at_cmd; i++) {
         is_at_cmd = tvb_get_guint8(tvb, i) < 0x7d;
     }
 
@@ -1078,7 +1081,7 @@ proto_register_btdun(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_btdun,
+        &ett_btdun
     };
 
     proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BT DUN", "btdun");
@@ -1115,9 +1118,9 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btspp);
 
-    length = MIN(length,60);
+    length = MIN(length, 60);
     ascii_only = TRUE;
-    for(i=0; i<length && ascii_only; i++) {
+    for(i = 0; i < length && ascii_only; i++) {
         ascii_only = tvb_get_guint8(tvb, i) < 0x80;
     }
 
@@ -1138,13 +1141,13 @@ proto_register_btspp(void)
         { &hf_data,
           { "Data", "btspp.data",
             FT_BYTES, BASE_NONE, NULL, 0,
-            NULL, HFILL}
+            NULL, HFILL }
         },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_btspp,
+        &ett_btspp
     };
 
     proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BT SPP", "btspp");

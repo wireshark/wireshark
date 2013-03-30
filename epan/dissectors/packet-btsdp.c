@@ -308,6 +308,8 @@ static gint btsdp_tap = -1;
 
 static emem_tree_t *tid_requests        = NULL;
 static emem_tree_t *continuation_states = NULL;
+static emem_tree_t *service_infos       = NULL;
+
 
 static sdp_package_t sdp_package;
 
@@ -894,6 +896,73 @@ extern value_string_ext usb_langid_vals_ext;
 
 void proto_register_btsdp(void);
 void proto_reg_handoff_btsdp(void);
+
+static void
+save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protocol_order, service_info_t *parent_service_info)
+{
+    emem_tree_key_t  key[10];
+    guint32          k_interface_id;
+    guint32          k_adapter_id;
+    guint32          k_sdp_psm;
+    guint32          k_direction;
+    guint32          k_bd_addr_oui;
+    guint32          k_bd_addr_id;
+    guint32          k_service_type;
+    guint32          k_service_channel;
+    guint32          k_frame_number;
+    service_info_t  *service_info;
+
+    service_info = (service_info_t *) wmem_new(wmem_file_scope(), service_info_t);
+    service_info->interface_id   = parent_service_info->interface_id;
+    service_info->adapter_id     = parent_service_info->adapter_id;
+    service_info->sdp_psm        = parent_service_info->sdp_psm;
+    service_info->direction      = parent_service_info->direction;
+    service_info->bd_addr_oui    = parent_service_info->bd_addr_oui;
+    service_info->bd_addr_id     = parent_service_info->bd_addr_id;
+
+    service_info->type           = protocol;
+    service_info->channel        = channel;
+
+    service_info->uuid           = parent_service_info->uuid;
+
+    service_info->protocol_order = protocol_order;
+    service_info->parent_info    = parent_service_info;
+    service_info->data           = parent_service_info->data;
+
+
+    k_interface_id    = service_info->interface_id;
+    k_adapter_id      = service_info->adapter_id;
+    k_sdp_psm         = service_info->sdp_psm;
+    k_direction       = service_info->direction;
+    k_bd_addr_oui     = service_info->bd_addr_oui;
+    k_bd_addr_id      = service_info->bd_addr_id;
+    k_service_type    = service_info->type;
+    k_service_channel = service_info->channel;
+    k_frame_number    = pinfo->fd->num;
+
+    key[0].length = 1;
+    key[0].key = &k_interface_id;
+    key[1].length = 1;
+    key[1].key = &k_adapter_id;
+    key[2].length = 1;
+    key[2].key = &k_sdp_psm;
+    key[3].length = 1;
+    key[3].key = &k_direction;
+    key[4].length = 1;
+    key[4].key = &k_bd_addr_oui;
+    key[5].length = 1;
+    key[5].key = &k_bd_addr_id;
+    key[6].length = 1;
+    key[6].key = &k_service_type;
+    key[7].length = 1;
+    key[7].key = &k_service_channel;
+    key[8].length = 1;
+    key[8].key = &k_frame_number;
+    key[9].length = 0;
+    key[9].key = NULL;
+
+    se_tree_insert32_array(service_infos, key, service_info);
+}
 
 static gint
 get_type_length(tvbuff_t *tvb, gint offset, gint *length)
@@ -1556,7 +1625,7 @@ dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static gint
 dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         packet_info *pinfo, gint offset, gint size, gchar *str,
-        gint start_strpos, gint *protocol_order)
+        gint start_strpos, service_info_t  *service_info, gint *protocol_order)
 {
     proto_tree    *feature_tree;
     proto_item    *feature_item;
@@ -1617,12 +1686,16 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                 proto_item_append_text(feature_item, ", PSM: %u", value);
                 proto_item_append_text(entry_item, ", PSM: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_psm, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
+                if (!pinfo->fd->flags.visited && service_info)
+                    save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
             } else if (uuid == BTSDP_RFCOMM_PROTOCOL_UUID) {
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, ":%u", value);
                 proto_item_append_text(feature_item, ", RFCOMM Channel: %u", value);
                 proto_item_append_text(entry_item, ", RFCOMM Channel: %u", value);
                 proto_tree_add_item(sub_tree, hf_sdp_protocol_channel, tvb, entry_offset, 1, ENC_BIG_ENDIAN);
+                if (!pinfo->fd->flags.visited && service_info)
+                    save_channel(pinfo, BTSDP_RFCOMM_PROTOCOL_UUID, value, *protocol_order, service_info);
                 *protocol_order += 1;
             } else if (uuid == BTSDP_ATT_PROTOCOL_UUID) {
                 proto_item_append_text(feature_item, ", GATT Handle Start: 0x%04x", value);
@@ -1996,6 +2069,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_ftp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     g_snprintf(str, MAX_SDP_LEN, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited  && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 default:
                     found = FALSE;
@@ -2245,6 +2320,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_opp_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     g_snprintf(str, MAX_SDP_LEN, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x303:
                     list_offset = offset;
@@ -2486,6 +2563,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     g_snprintf(str, MAX_SDP_LEN, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x310:
                     proto_tree_add_item(next_tree, hf_bip_supported_capabilities_reserved_4_7, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2579,6 +2658,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     g_snprintf(str, MAX_SDP_LEN, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x312:
                     proto_tree_add_item(next_tree, hf_bip_supported_functions_reserved_13_31, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2601,6 +2682,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
                     psm = tvb_get_ntohs(tvb, offset);
                     g_snprintf(str, MAX_SDP_LEN, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
                     break;
                 case 0x312:
                     proto_tree_add_item(next_tree, hf_bip_supported_functions_reserved_11_31, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2793,7 +2876,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case 0x004:
             protocol_order = 0;
             strpos = dissect_protocol_descriptor_list(next_tree, tvb, pinfo,
-                    offset, size, str, strpos, &protocol_order);
+                    offset, size, str, strpos, service_info, &protocol_order);
             break;
         case 0x005:
             list_offset = offset;
@@ -2937,7 +3020,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 strpos += g_snprintf(str + strpos, MAX_SDP_LEN - strpos, "[");
                 strpos = dissect_protocol_descriptor_list(entry_tree, tvb,
                         pinfo, list_offset, list_length, str, strpos,
-                        &protocol_order);
+                        service_info, &protocol_order);
 
                 list_offset += list_length;
 
@@ -3348,6 +3431,18 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint             new_offset;
     guint16          service_uuid = 0;
     gint             service_offset;
+    emem_tree_key_t  key[10];
+    guint32          k_interface_id;
+    guint32          k_adapter_id;
+    guint32          k_sdp_psm;
+    guint32          k_direction;
+    guint32          k_bd_addr_oui;
+    guint32          k_bd_addr_id;
+    guint32          k_service_type;
+    guint32          k_service_channel;
+    guint32          k_frame_number;
+    service_info_t  *service_info;
+    btl2cap_data_t  *l2cap_data = (btl2cap_data_t *) pinfo->private_data;
 
     offset = get_type_length(tvb, offset, &len);
 
@@ -3384,10 +3479,69 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
         number_of_attributes += 1;
     }
 
+    if (!pinfo->fd->flags.visited) {
+        service_info = (service_info_t *) wmem_new(wmem_file_scope(), service_info_t);
+        service_info->interface_id   = l2cap_data->interface_id;
+        service_info->adapter_id     = l2cap_data->adapter_id;
+        service_info->sdp_psm        = l2cap_data->psm;
+        service_info->direction      = pinfo->p2p_dir;
+        if (service_info->direction == P2P_DIR_RECV) {
+            service_info->bd_addr_oui = l2cap_data->remote_bd_addr_oui;
+            service_info->bd_addr_id  = l2cap_data->remote_bd_addr_id;
+        } else {
+            service_info->bd_addr_oui = 0;
+            service_info->bd_addr_id  = 0;
+        }
+
+        service_info->uuid           = service_uuid;
+
+        service_info->type           = 0;
+        service_info->channel        = 0;
+        service_info->protocol_order = 0;
+        service_info->parent_info    = NULL;
+    } else {
+        service_info = NULL;
+    }
+
     service_offset = offset;
     while ((offset - start_offset) < len) {
         offset = dissect_sdp_service_attribute(next_tree, tvb, offset, pinfo,
-                service_uuid, service_offset, NULL, number_of_attributes);
+                service_uuid, service_offset, service_info, number_of_attributes);
+    }
+
+    if (!pinfo->fd->flags.visited) {
+        k_interface_id    = l2cap_data->interface_id;
+        k_adapter_id      = l2cap_data->adapter_id;
+        k_sdp_psm         = l2cap_data->psm;
+        k_direction       = service_info->direction;
+        k_bd_addr_oui     = service_info->bd_addr_oui;
+        k_bd_addr_id      = service_info->bd_addr_id;
+        k_service_type    = service_info->type;
+        k_service_channel = service_info->channel;
+        k_frame_number    = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_sdp_psm;
+        key[3].length = 1;
+        key[3].key = &k_direction;
+        key[4].length = 1;
+        key[4].key = &k_bd_addr_oui;
+        key[5].length = 1;
+        key[5].key = &k_bd_addr_id;
+        key[6].length = 1;
+        key[6].key = &k_service_type;
+        key[7].length = 1;
+        key[7].key = &k_service_channel;
+        key[8].length = 1;
+        key[8].key = &k_frame_number;
+        key[9].length = 0;
+        key[9].key = NULL;
+
+        se_tree_insert32_array(service_infos, key, service_info);
     }
 
     proto_item_set_len(list_item, offset - start_offset);
@@ -5016,6 +5170,9 @@ proto_register_btsdp(void)
     continuation_states = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,
             "btsdp reassembling by continuation state");
 
+    service_infos = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,
+            "btsdp service infos");
+    sdp_package.service_infos = service_infos;
     btsdp_tap = register_tap("btsdp");
 
     module = prefs_register_protocol(proto_btsdp, NULL);

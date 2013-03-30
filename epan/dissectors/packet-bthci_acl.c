@@ -139,6 +139,8 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     acl_data->interface_id = hci_data->interface_id;
     acl_data->adapter_id   = hci_data->adapter_id;
     acl_data->chandle      = flags & 0x0fff;
+    acl_data->remote_bd_addr_oui = 0;
+    acl_data->remote_bd_addr_id  = 0;
 
     pd_save                = pinfo->private_data;
     pinfo->private_data    = acl_data;
@@ -176,6 +178,9 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
         bd_addr_id  = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
+
+        acl_data->remote_bd_addr_oui = bd_addr_oui;
+        acl_data->remote_bd_addr_id  = bd_addr_id;
 
         k_bd_addr_oui  = bd_addr_oui;
         k_bd_addr_id   = bd_addr_id;
