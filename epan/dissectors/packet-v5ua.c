@@ -270,15 +270,10 @@ tei = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH)>>1;
 		"Envelope function address: %s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
 	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);
 	  }
-	  else if(efa >= 8181){
+	  else {
 	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
 		"Envelope function address: RESERVED (%u)", efa);
 	  proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
-	  }
-	  else {
-	  	proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-		"Envelope function address: %u", efa);
-	  	proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%u)",sapi,tei,efa);
 	  }
   }
   /* if SAPI & TEI set to ZERO, EFA also shall be set to ZERO and didn't comply with value for ISDN protocol */
