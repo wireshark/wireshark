@@ -4829,14 +4829,16 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(multi_files_on_cb,
     "Instead of using a single capture file, multiple files will be created. "
     "The generated file names will contain an incrementing number and the start time of the capture.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), multi_files_on_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), multi_files_on_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   /* Pcap-NG row */
   pcap_ng_cb = gtk_check_button_new_with_mnemonic("Use pcap-ng format");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
   gtk_widget_set_tooltip_text(pcap_ng_cb, "Capture packets in the next-generation capture file format. "
                        "This is still experimental.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), pcap_ng_cb, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), pcap_ng_cb, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
   row++;
 
   /* Ring buffer filesize row */
@@ -4847,17 +4849,20 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(ring_filesize_cb,
     "If the selected file size is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), ring_filesize_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), ring_filesize_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   ring_filesize_sb = gtk_spin_button_new (ring_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_filesize_sb), TRUE);
   gtk_widget_set_size_request(ring_filesize_sb, 80, -1);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), ring_filesize_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), ring_filesize_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   ring_filesize_cbx = size_unit_combo_box_new(global_capture_opts.autostop_filesize);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), ring_filesize_cbx, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), ring_filesize_cbx, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = size_unit_combo_box_set_value(global_capture_opts.autostop_filesize);
   gtk_adjustment_set_value(ring_filesize_adj, (gfloat) value);
@@ -4873,17 +4878,20 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(file_duration_cb,
     "If the selected duration is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), file_duration_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_duration_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   file_duration_adj = (GtkAdjustment *)gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   file_duration_sb = gtk_spin_button_new (file_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (file_duration_sb), TRUE);
   gtk_widget_set_size_request(file_duration_sb, 80, -1);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), file_duration_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_duration_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   file_duration_cbx = time_unit_combo_box_new(global_capture_opts.file_duration);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), file_duration_cbx, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), file_duration_cbx, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = time_unit_combo_box_convert_value(global_capture_opts.file_duration);
   gtk_adjustment_set_value(file_duration_adj, (gfloat) value);
@@ -4898,7 +4906,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "After capturing has switched to the next file and the given number of files has exceeded, "
     "the oldest file will be removed."
     );
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), ringbuffer_nbf_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), ringbuffer_nbf_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) global_capture_opts.ring_num_files,
     2/*RINGBUFFER_MIN_NUM_FILES*/, RINGBUFFER_MAX_NUM_FILES, 1.0, 10.0, 0.0);
@@ -4906,11 +4915,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ringbuffer_nbf_sb), TRUE);
   gtk_widget_set_size_request(ringbuffer_nbf_sb, 80, -1);
   g_signal_connect(ringbuffer_nbf_sb, "changed", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), ringbuffer_nbf_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), ringbuffer_nbf_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   ringbuffer_nbf_lb = gtk_label_new("files");
   gtk_misc_set_alignment(GTK_MISC(ringbuffer_nbf_lb), 0, 0.5f);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), ringbuffer_nbf_lb, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), ringbuffer_nbf_lb, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
+
   row++;
 
   /* Files row */
@@ -4919,18 +4931,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                global_capture_opts.has_autostop_files);
   g_signal_connect(stop_files_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(stop_files_cb, "Stop capturing after the given number of \"file switches\" have been done.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), stop_files_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), stop_files_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)global_capture_opts.autostop_files,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_files_sb = gtk_spin_button_new (stop_files_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_files_sb), TRUE);
   gtk_widget_set_size_request(stop_files_sb, 80, -1);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), stop_files_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), stop_files_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_files_lb = gtk_label_new("file(s)");
   gtk_misc_set_alignment(GTK_MISC(stop_files_lb), 0, 0.5f);
-  ws_gtk_grid_attach_defaults(GTK_GRID (multi_grid), stop_files_lb, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), stop_files_lb, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
+
   row++;
 
   /* Capture limits frame */
@@ -4956,18 +4972,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                global_capture_opts.has_autostop_packets);
   g_signal_connect(stop_packets_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(stop_packets_cb, "Stop capturing after the given number of packets have been captured.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_packets_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_packets_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_packets_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)global_capture_opts.autostop_packets,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_packets_sb = gtk_spin_button_new (stop_packets_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_packets_sb), TRUE);
   gtk_widget_set_size_request(stop_packets_sb, 80, -1);
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_packets_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_packets_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_packets_lb = gtk_label_new("packet(s)");
   gtk_misc_set_alignment(GTK_MISC(stop_packets_lb), 0, 0.5f);
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_packets_lb, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_packets_lb, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
+
   row++;
 
   /* Filesize row */
@@ -4976,17 +4996,20 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                global_capture_opts.has_autostop_filesize);
   g_signal_connect(stop_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(stop_filesize_cb, "Stop capturing after the given amount of capture data has been captured.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_filesize_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_filesize_sb = gtk_spin_button_new (stop_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_filesize_sb), TRUE);
   gtk_widget_set_size_request(stop_filesize_sb, 80, -1);
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_filesize_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_filesize_cbx = size_unit_combo_box_new(global_capture_opts.autostop_filesize);
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_filesize_cbx, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cbx, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = size_unit_combo_box_set_value(global_capture_opts.autostop_filesize);
   gtk_adjustment_set_value(stop_filesize_adj, (gfloat) value);
@@ -4999,17 +5022,20 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                global_capture_opts.has_autostop_duration);
   g_signal_connect(stop_duration_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(stop_duration_cb, "Stop capturing after the given time is exceeded.");
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_duration_cb, 0, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_duration_sb = gtk_spin_button_new (stop_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_duration_sb), TRUE);
   gtk_widget_set_size_request(stop_duration_sb, 80, -1);
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_duration_sb, 1, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_duration_cbx = time_unit_combo_box_new(global_capture_opts.autostop_duration);
-  ws_gtk_grid_attach_defaults(GTK_GRID (limit_grid), stop_duration_cbx, 2, row, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cbx, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = time_unit_combo_box_convert_value(global_capture_opts.autostop_duration);
   gtk_adjustment_set_value(stop_duration_adj, (gfloat) value);
