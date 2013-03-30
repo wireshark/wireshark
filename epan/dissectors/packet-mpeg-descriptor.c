@@ -2494,6 +2494,18 @@ proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint len
 /* Private descriptors
    these functions replace proto_mpeg_descriptor_dissect(), they get to see the whole descriptor */
 
+#define CIPLUS_DESC_TAG_CNT_LBL 0xCB
+#define CIPLUS_DESC_TAG_SVC     0xCC
+#define CIPLUS_DESC_TAG_PROT    0xCE
+
+static const value_string mpeg_descriptor_ciplus_tag_vals[] = {
+    /* From CI+ 1.3.1 */
+    { CIPLUS_DESC_TAG_CNT_LBL, "CI+ Content Label Descriptor" },
+    { CIPLUS_DESC_TAG_SVC,     "CI+ Service Descriptor" },
+    { CIPLUS_DESC_TAG_PROT,    "CI+ Protection Descriptor" },
+    { 0x00, NULL}
+};
+
 /* 0xCB CI+ Content Label Descriptor */
 static int hf_mpeg_descr_ciplus_cl_cb_min = -1;
 static int hf_mpeg_descr_ciplus_cl_cb_max = -1;
@@ -2509,12 +2521,14 @@ static int hf_mpeg_descr_ciplus_svc_lcn = -1;
 static int hf_mpeg_descr_ciplus_svc_prov_name = -1;
 static int hf_mpeg_descr_ciplus_svc_name = -1;
 
-static const value_string mpeg_descriptor_ciplus_tag_vals[] = {
-    /* From CI+ 1.3.1 */
-    { 0xCB, "CI+ Content Label Descriptor" },
-    { 0xCC, "CI+ Service Descriptor" },
-    { 0x00, NULL}
-};
+/* 0xCE CI+ Protection Descriptor */
+static int hf_mpeg_descr_ciplus_prot_free_ci_mode = -1;
+static int hf_mpeg_descr_ciplus_prot_match_brand_flag = -1;
+static int hf_mpeg_descr_ciplus_prot_num_entries = -1;
+static int hf_mpeg_descr_ciplus_prot_brand_id = -1;
+
+static const true_false_string tfs_prot_noprot = { "CI+ protection required", "CI+ protection not required" };
+
 
 static guint
 proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -2524,7 +2538,6 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
     const gchar *tag_str;
     proto_item  *di;
     proto_tree  *descriptor_tree;
-    guint8       str_len_byte;
 
     offset_start=offset;
 
@@ -2543,7 +2556,7 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
     proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    if (tag == 0xCB) {
+    if (tag==CIPLUS_DESC_TAG_CNT_LBL) {
         proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_cb_min, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
@@ -2556,7 +2569,9 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
         proto_tree_add_item(tree, hf_mpeg_descr_ciplus_cl_label, tvb, offset, len-offset, ENC_BIG_ENDIAN);
         offset += len-offset;
     }
-    else if (tag == 0xCC) {
+    else if (tag==CIPLUS_DESC_TAG_SVC) {
+        guint8  str_len_byte;
+
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -2575,6 +2590,32 @@ proto_mpeg_descriptor_dissect_private_ciplus(tvbuff_t *tvb, guint offset, proto_
         str_len_byte = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_svc_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
         offset += 1+str_len_byte;
+    }
+    else if (tag==CIPLUS_DESC_TAG_PROT) {
+        gboolean  match_brand_flag;
+        guint8    num_brands, i;
+        guint     remaining;
+
+        proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_free_ci_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+        match_brand_flag = ((tvb_get_guint8(tvb, offset) & 0x40) == 0x40);
+        proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_match_brand_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        if (match_brand_flag) {
+            num_brands = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_num_entries, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            for (i=0; i<num_brands; i++) {
+                proto_tree_add_item(descriptor_tree, hf_mpeg_descr_ciplus_prot_brand_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+            }
+        }
+
+        remaining = offset_start+2+len - offset;
+        if (remaining > 0) {
+            proto_tree_add_text(descriptor_tree, tvb, offset, remaining, "Private data bytes");
+            offset += remaining;
+        }
     }
 
     proto_item_set_len(di, offset-offset_start);
@@ -4151,6 +4192,26 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_ciplus_svc_name, {
             "Service Name", "mpeg_descr.ciplus_svc.name",
             FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ciplus_prot_free_ci_mode, {
+            "Free CI mode", "mpeg_descr.ciplus_prot.free_ci_mode",
+            FT_BOOLEAN, 8, TFS(&tfs_prot_noprot), 0x80, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ciplus_prot_match_brand_flag, {
+            "Match brand flag", "mpeg_descr.ciplus_prot.match_brand_flag",
+            FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ciplus_prot_num_entries, {
+            "Number of entries", "mpeg_descr.ciplus_prot.num_entries",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_ciplus_prot_brand_id, {
+            "CICAM brand identifier", "mpeg_descr.ciplus_prot.brand_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
         } }
     };
 
