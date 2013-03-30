@@ -2886,9 +2886,12 @@ dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, guint16 num_carriers)
       total_snr  += (hi_snr+lo_snr);
    }
 
-   /* Append to TM-Subtree: total modulated bits, number of active carriers, Average #Bits/Carrier, Average SNR/Carrier */
-   proto_item_append_text(ittm, " (Total #ModulatedBits=%d bit, Active #Carriers=%d, Average #Bits/Carrier=%.2f bit), Average SNR/Carrier=%.2f dB)",
-         total_bits, num_act_carriers, (float) total_bits/num_act_carriers, (float) total_snr/num_act_carriers );
+   if (num_act_carriers)
+   {
+      /* Append to TM-Subtree: total modulated bits, number of active carriers, Average #Bits/Carrier, Average SNR/Carrier */
+      proto_item_append_text(ittm, " (Total #ModulatedBits=%d bit, Active #Carriers=%d, Average #Bits/Carrier=%.2f bit), Average SNR/Carrier=%.2f dB)",
+            total_bits, num_act_carriers, (float) total_bits/num_act_carriers, (float) total_snr/num_act_carriers );
+   }
    ptvcursor_pop_subtree(cursor);
 }
 
