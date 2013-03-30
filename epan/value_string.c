@@ -111,12 +111,12 @@ try_val_to_str(const guint32 val, const value_string *vs)
 guint32
 str_to_val(const gchar *val, const value_string *vs, const guint32 err_val)
 {
-    gint index;
+    gint i;
 
-    index = str_to_val_idx(val, vs);
+    i = str_to_val_idx(val, vs);
 
-    if (index >= 0) {
-        return vs[index].value;
+    if (i >= 0) {
+        return vs[i].value;
     }
 
     return err_val;
