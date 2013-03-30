@@ -103,7 +103,7 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     guint       offset = 0, length = 0;
-    guint       descriptor_len, descriptor_end;
+    guint       descriptor_len;
     guint16     svc_id;
 
     proto_item *ti;
@@ -166,10 +166,7 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         descriptor_len = tvb_get_ntohs(tvb, offset) & DVB_SDT_DESCRIPTORS_LOOP_LENGTH_MASK;
         offset += 2;
 
-        descriptor_end = offset + descriptor_len;
-        while (offset < descriptor_end)
-            offset += proto_mpeg_descriptor_dissect(tvb, offset, dvb_sdt_service_tree);
-
+        offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, dvb_sdt_service_tree);
     }
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_sdt_tree, 0, offset);
