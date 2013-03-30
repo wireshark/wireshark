@@ -11,7 +11,6 @@ S<[ B<-b> E<lt>capture ring buffer optionE<gt> ] ...>
 S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-C> E<lt>configuration profileE<gt> ]>
-S<[ B<-d> E<lt>display filterE<gt> ]>
 S<[ B<-D> ]>
 S<[ B<--display=>E<lt>X display to useE<gt> ] >
 S<[ B<-f> E<lt>capture filterE<gt> ]>
@@ -41,6 +40,7 @@ S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
+S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ E<lt>infileE<gt> ]>
 
@@ -300,10 +300,6 @@ data.
 =item -C  E<lt>configuration profileE<gt>
 
 Start with the given configuration profile.
-
-=item -d  E<lt>display filterE<gt>
-
-Start with the given display filter.
 
 =item -D
 
@@ -605,6 +601,10 @@ If used after an B<-i> option, it sets the capture link type for
 the interface specified by the last B<-i> option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
+
+=item -Y  E<lt>displaY filterE<gt>
+
+Start with the given display filter.
 
 =item -z  E<lt>statisticsE<gt>
 

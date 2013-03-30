@@ -1190,7 +1190,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "\n");
   fprintf(output, "User interface:\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-  fprintf(output, "  -d <display filter>      start with the given display filter\n");
+  fprintf(output, "  -Y <display filter>      start with the given display filter\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
   fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
   fprintf(output, "                           filter\n");
@@ -2211,7 +2211,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:Y:z:"
 
   static const char optstring[] = OPTSTRING;
 
@@ -2635,9 +2635,6 @@ main(int argc, char *argv[])
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
         break;
-      case 'd':
-        dfilter = optarg;
-        break;
       case 'j':        /* Search backwards for a matching packet from filter in option J */
         jump_backwards = SD_BACKWARD;
         break;
@@ -2768,6 +2765,9 @@ main(int argc, char *argv[])
       case 'X':
           /* ext ops were already processed just ignore them this time*/
           break;
+      case 'Y':
+        dfilter = optarg;
+        break;
       case 'z':
         /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered
