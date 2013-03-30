@@ -313,6 +313,7 @@ extern "C" {
 #define WTAP_FILE_MPEG_2_TS                     61
 #define WTAP_FILE_VWR_80211                     62
 #define WTAP_FILE_VWR_ETH                       63
+#define WTAP_FILE_CAMINS                        64
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

@@ -30,6 +30,7 @@ set(WIRETAP_FILES
 	ber.c
 	btsnoop.c
 	buffer.c
+	camins.c
 	catapult_dct2000.c
 	commview.c
 	cosine.c
