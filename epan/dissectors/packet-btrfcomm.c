@@ -542,7 +542,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8               frame_type, pf_flag;
     guint16              frame_len;
     btl2cap_data_t      *l2cap_data;
-    service_info_t      *service_info;
+    service_info_t      *service_info = NULL;
 
     ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
