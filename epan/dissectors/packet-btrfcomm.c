@@ -75,7 +75,8 @@ static int hf_msc_l = -1;
 static int hf_fcs = -1;
 
 static int hf_dun_at_cmd = -1;
-static int hf_data = -1;
+static int hf_spp_data = -1;
+static int hf_gnss_data = -1;
 
 static int hf_mcc_dlci = -1;
 static int hf_mcc_channel = -1;
@@ -90,6 +91,7 @@ static int hf_mcc_pn_zeros_padding = -1;
 static int proto_btrfcomm = -1;
 static int proto_btdun = -1;
 static int proto_btspp = -1;
+static int proto_btgnss = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btrfcomm = -1;
@@ -104,6 +106,7 @@ static gint ett_mcc_dlci = -1;
 
 static gint ett_btdun = -1;
 static gint ett_btspp = -1;
+static gint ett_btgnss = -1;
 
 static emem_tree_t *sdp_service_infos = NULL;
 
@@ -236,6 +239,8 @@ void proto_register_btdun(void);
 void proto_reg_handoff_btdun(void);
 void proto_register_btspp(void);
 void proto_reg_handoff_btspp(void);
+void proto_register_btgnss(void);
+void proto_reg_handoff_btgnss(void);
 
 static dissector_handle_t
 find_proto_by_channel(guint channel) {
@@ -948,7 +953,6 @@ proto_register_btrfcomm(void)
 
     /* Register the protocol name and description */
     proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "BT RFCOMM", "btrfcomm");
-
     register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
 
     /* Required function calls to register the header fields and subtrees used */
@@ -1077,6 +1081,7 @@ proto_register_btdun(void)
     };
 
     proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BT DUN", "btdun");
+    register_dissector("btdun", dissect_btdun, proto_btdun);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btdun, hf, array_length(hf));
@@ -1088,7 +1093,7 @@ proto_reg_handoff_btdun(void)
 {
     dissector_handle_t btdun_handle;
 
-    btdun_handle = create_dissector_handle(dissect_btdun, proto_btdun);
+    btdun_handle = find_dissector("btdun");
 
     dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
     dissector_add_handle("btrfcomm.channel", btdun_handle);
@@ -1123,14 +1128,14 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      (tvb_length(tvb) > length) ? "..." : "");
     }
 
-    proto_tree_add_item(st, hf_data, tvb, 0, -1, ENC_NA);
+    proto_tree_add_item(st, hf_spp_data, tvb, 0, -1, ENC_NA);
 }
 
 void
 proto_register_btspp(void)
 {
     static hf_register_info hf[] = {
-        { &hf_data,
+        { &hf_spp_data,
           { "Data", "btspp.data",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
@@ -1143,6 +1148,7 @@ proto_register_btspp(void)
     };
 
     proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BT SPP", "btspp");
+    register_dissector("btspp", dissect_btspp, proto_btspp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btspp, hf, array_length(hf));
@@ -1154,10 +1160,65 @@ proto_reg_handoff_btspp(void)
 {
     dissector_handle_t btspp_handle;
 
-    btspp_handle = create_dissector_handle(dissect_btspp, proto_btspp);
+    btspp_handle = find_dissector("btspp");
 
     dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
     dissector_add_handle("btrfcomm.channel", btspp_handle);
+}
+
+
+/* Bluetooth Global Navigation Satellite System profile (GNSS) dissection */
+static void
+dissect_btgnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *main_item;
+    proto_tree *main_tree;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GNSS");
+
+    main_item = proto_tree_add_item(tree, proto_btgnss, tvb, 0, -1, ENC_NA);
+    main_tree = proto_item_add_subtree(main_item, ett_btgnss);
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+            (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
+            tvb_format_text(tvb, 0, tvb_length(tvb)));
+
+    /* GNSS using NMEA-0183 protocol, but it is not available */
+    proto_tree_add_item(main_tree, hf_gnss_data, tvb, 0, -1, ENC_NA | ENC_ASCII);
+}
+
+void
+proto_register_btgnss(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_gnss_data,
+        { "Data", "btgnss.data",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] = {
+        &ett_btgnss
+    };
+
+    proto_btgnss = proto_register_protocol("Bluetooth GNSS Profile", "BT GNSS", "btgnss");
+    register_dissector("btgnss", dissect_btgnss, proto_btgnss);
+
+    proto_register_field_array(proto_btgnss, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_btgnss(void)
+{
+    dissector_handle_t btgnss_handle;
+
+    btgnss_handle = find_dissector("btgnss");
+
+    dissector_add_uint("btrfcomm.service", BTSDP_GNSS_UUID, btgnss_handle);
+    dissector_add_uint("btrfcomm.service", BTSDP_GNSS_SERVER_UUID, btgnss_handle);
+    dissector_add_handle("btrfcomm.channel", btgnss_handle);
 }
 
 /*
