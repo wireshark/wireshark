@@ -344,7 +344,7 @@ static const value_string usb_langid_vals[] = {
     {0xfcff, "HID (Vendor Defined 4)"},
     {0, NULL}
 };
-static value_string_ext usb_langid_vals_ext = VALUE_STRING_EXT_INIT(usb_langid_vals);
+value_string_ext usb_langid_vals_ext = VALUE_STRING_EXT_INIT(usb_langid_vals);
 
 static const value_string usb_class_vals[] = {
     {IF_CLASS_DEVICE,                   "Device"},
