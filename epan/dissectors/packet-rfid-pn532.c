@@ -60,6 +60,9 @@ static int hf_pn532_14443b_pupi = -1;
 static int hf_pn532_14443b_app_data = -1;
 static int hf_pn532_14443b_proto_info = -1;
 
+/* SAM Mode */
+static int hf_pn532_sam_mode = -1;
+
 /* Diagnose hardware status */
 #define DIAGNOSE_REQ               0x00
 #define DIAGNOSE_RSP               0x01
@@ -83,7 +86,8 @@ static int hf_pn532_14443b_proto_info = -1;
 #define SET_SERIAL_BAUD_RATE       0x10
 #define SET_PARAMETERS_REQ         0x12
 #define SET_PARAMETERS_RSP         0x13
-#define SAM_CONFIGURATION          0x14
+#define SAM_CONFIGURATION_REQ      0x14
+#define SAM_CONFIGURATION_RSP      0x15
 #define POWER_DOWN                 0x16
 
 /* RF Communication Commands */
@@ -153,6 +157,12 @@ static int hf_pn532_14443b_proto_info = -1;
 #define NO_ERROR                   0x00
 #define UNACCEPTABLE_CMD           0x27
 
+/* SAM Modes */
+#define SAM_NORMAL_MODE            0x01
+#define SAM_VIRTUAL_CARD           0x02
+#define SAM_WIRED_CARD             0x03
+#define SAM_DUAL_CARD              0x04 
+
 /* Table of payload types - adapted from the I2C dissector */
 enum {
     SUB_DATA = 0,
@@ -193,7 +203,10 @@ static const value_string pn532_commands[] = {
     {SET_PARAMETERS_REQ,         "SetParameters"},
     {SET_PARAMETERS_RSP,         "SetParameters (Response)"},
     
-    {SAM_CONFIGURATION,          "SAMConfiguration"},
+    /* Secure Application Module Configuration */
+    {SAM_CONFIGURATION_REQ,          "SAMConfiguration"},
+    {SAM_CONFIGURATION_RSP,          "SAMConfiguration (Response)"},
+    
     {POWER_DOWN,                 "PowerDown"},
 
     /* RF Configuration */
@@ -285,6 +298,16 @@ static const value_string pn532_brtypes[] = {
     {0x00, NULL}
 };
 
+/* SAM Modes */
+static const value_string pn532_sam_modes[] = {
+    {SAM_NORMAL_MODE,             "Normal Mode"},
+    {SAM_VIRTUAL_CARD,            "Virtual Card Mode"},
+    {SAM_WIRED_CARD,              "Wired Card Mode"},
+    {SAM_DUAL_CARD,               "Dual Card Mode"},
+
+    /* End of SAM modes */
+    {0x00, NULL}
+};
 
 static dissector_table_t pn532_dissector_table;
 
@@ -366,9 +389,19 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case SET_PARAMETERS_RSP:
         break;
 
-    case SAM_CONFIGURATION:
+    /* Secure Application/Security Access Module Configuration Request */
+    case SAM_CONFIGURATION_REQ:
+        /* Mode */
+        proto_tree_add_item(pn532_tree, hf_pn532_sam_mode, tvb, 2, 1, ENC_BIG_ENDIAN);
+        
+        /* Timeout */
+        
+        /* IRQ */
         break;
-
+        
+    case SAM_CONFIGURATION_RSP:
+        break;
+        
     case POWER_DOWN:
         break;
 
@@ -712,6 +745,9 @@ void proto_register_pn532(void)
         {&hf_pn532_14443b_proto_info,
          {"ISO/IEC 14443-B Protocol Info", "pn532.iso.14443b.protocol.info", FT_UINT64, BASE_HEX,
           NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_sam_mode,
+         {"SAM Mode", "pn532.sam.mode", FT_UINT8, BASE_HEX,
+          VALS(pn532_sam_modes), 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
