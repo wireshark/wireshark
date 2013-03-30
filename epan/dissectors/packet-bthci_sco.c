@@ -52,6 +52,19 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree *bthci_sco_tree;
     int         offset = 0;
 
+    switch (pinfo->p2p_dir) {
+        case P2P_DIR_SENT:
+            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            break;
+        case P2P_DIR_RECV:
+            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            break;
+        default:
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+                pinfo->p2p_dir);
+            break;
+    }
+
     ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, -1, ENC_NA);
     bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
 

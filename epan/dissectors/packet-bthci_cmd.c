@@ -2644,9 +2644,21 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16     opcode, ocf;
     guint8      param_length, ogf;
     int         offset         = 0;
-
     proto_item *ti_opcode;
     proto_tree *opcode_tree;
+
+    switch (pinfo->p2p_dir) {
+        case P2P_DIR_SENT:
+            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+            break;
+        case P2P_DIR_RECV:
+            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+            break;
+        default:
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+                pinfo->p2p_dir);
+            break;
+    }
 
     if (tree) {
         ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
@@ -2661,7 +2673,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
 
     ti_opcode = proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     opcode_tree = proto_item_add_subtree(ti_opcode, ett_opcode);

@@ -1390,23 +1390,17 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         code = tvb_get_guint8(next_tvb, offset) & BTOBEX_CODE_VALS_MASK;
         final_flag = tvb_get_guint8(next_tvb, offset) & 0x80;
 
-        switch (pinfo->p2p_dir)
-        {
-        case P2P_DIR_SENT:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Sent ");
-            break;
-
-        case P2P_DIR_RECV:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd ");
-            break;
-
-        case P2P_DIR_UNKNOWN:
-            break;
-
-        default:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
-                pinfo->p2p_dir);
-            break;
+        switch (pinfo->p2p_dir) {
+            case P2P_DIR_SENT:
+                col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
+                break;
+            case P2P_DIR_RECV:
+                col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+                break;
+            default:
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+                    pinfo->p2p_dir);
+                break;
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
