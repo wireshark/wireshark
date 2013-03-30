@@ -123,6 +123,7 @@ Too many protocols have been updated to list here.
 --sort-and-group--
 
 AIX iptrace
+CAM Inspector
 Catapult DCT2000
 Citrix NetScaler
 DBS Etherwatch (VMS)
