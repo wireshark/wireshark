@@ -2866,8 +2866,8 @@ dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, guint16 num_carriers)
       cid = cb*2;
       proto_item_append_text(it, " (Carrier #%d/#%d)", cid, cid+1 );
 
-   ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_carrier);
-   {
+      ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_carrier);
+      {
          hilo = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
          lo_bits = map_carrier2modbits[ (hilo & 0x0f) ];
          hi_bits = map_carrier2modbits[ (hilo & 0xf0) >> 4 ];
@@ -2880,11 +2880,12 @@ dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor, guint16 num_carriers)
          proto_item_prepend_text(it, "Carrier #%d -> %u bits@SNR %udB: ", cid  , lo_bits, lo_snr);
          it = ptvcursor_add(cursor, hf_homeplug_av_tone_map_carrier_hi, 1, ENC_BIG_ENDIAN);
          proto_item_prepend_text(it, "Carrier #%d -> %u bits@SNR %udB: ", cid+1, hi_bits, hi_snr );
-   }
-   ptvcursor_pop_subtree(cursor);
+      }
+      ptvcursor_pop_subtree(cursor);
       total_bits += (hi_bits+lo_bits);
       total_snr  += (hi_snr+lo_snr);
-}
+   }
+
    /* Append to TM-Subtree: total modulated bits, number of active carriers, Average #Bits/Carrier, Average SNR/Carrier */
    proto_item_append_text(ittm, " (Total #ModulatedBits=%d bit, Active #Carriers=%d, Average #Bits/Carrier=%.2f bit), Average SNR/Carrier=%.2f dB)",
          total_bits, num_act_carriers, (float) total_bits/num_act_carriers, (float) total_snr/num_act_carriers );
