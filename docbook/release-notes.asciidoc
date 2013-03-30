@@ -49,6 +49,9 @@ displayed.  If you want the old behavior, use -Px instead of just -x.
 * Wireshark can be compiled using GTK+ 3.
 * The Wireshark application icon, capture toolbar icons, and other icons
 have been updated.
+* Tshark's filtering and multi-pass analysis have been reworked for consistency
+and in order to support dependent frame calculations during reassembly. See the
+man page descriptions for -2, -R, and -Y.
 
 === New Protocol Support
 

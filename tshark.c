@@ -165,10 +165,10 @@ static void report_counts_siginfo(int);
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64, dfilter_t *dfcode);
+static int load_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 static gboolean process_packet(capture_file *cf, gint64 offset,
-    struct wtap_pkthdr *whdr,
-    const guchar *pd, gboolean filtering_tap_listeners, guint tap_flags);
+    struct wtap_pkthdr *whdr, const guchar *pd,
+    gboolean filtering_tap_listeners, guint tap_flags);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
@@ -284,7 +284,7 @@ print_usage(gboolean print_ver)
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
-  fprintf(output, "  -2                       perform a two-pass analysis (automatic if -Y used)\n");
+  fprintf(output, "  -2                       perform a two-pass analysis\n");
   fprintf(output, "  -R <read filter>         packet Read filter in Wireshark display filter syntax\n");
   fprintf(output, "  -Y <display filter>      packet displaY filter in Wireshark display filter syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
@@ -1477,7 +1477,6 @@ main(int argc, char *argv[])
       break;
     case 'Y':
       dfilter = optarg;
-      perform_two_pass_analysis = TRUE;
       break;
     case 'z':
       /* We won't call the init function for the stat this soon
@@ -1523,18 +1522,18 @@ main(int argc, char *argv[])
         return 1;
   }
 
-  /* If no capture filter or read filter has been specified, and there are
+  /* If no capture filter or display filter has been specified, and there are
      still command-line arguments, treat them as the tokens of a capture
-     filter (if no "-r" flag was specified) or a read filter (if a "-r"
+     filter (if no "-r" flag was specified) or a display filter (if a "-r"
      flag was specified. */
   if (optind < argc) {
     if (cf_name != NULL) {
-      if (rfilter != NULL) {
-        cmdarg_err("Read filters were specified both with \"-R\" "
+      if (dfilter != NULL) {
+        cmdarg_err("Display filters were specified both with \"-d\" "
             "and with additional command-line arguments.");
         return 1;
       }
-      rfilter = get_args_as_string(argc, argv, optind);
+      dfilter = get_args_as_string(argc, argv, optind);
     } else {
 #ifdef HAVE_LIBPCAP
       guint i;
@@ -1630,6 +1629,11 @@ main(int argc, char *argv[])
     for (ps = strtok (output_only, ","); ps; ps = strtok (NULL, ",")) {
       g_hash_table_insert(output_only_tables, (gpointer)ps, (gpointer)ps);
     }
+  }
+
+  if (rfilter != NULL && !perform_two_pass_analysis) {
+    /* Just a warning, so we don't return */
+    cmdarg_err("-R without -2 is deprecated. For single-pass filtering use -Y.");
   }
 
 #ifdef HAVE_LIBPCAP
@@ -1789,17 +1793,6 @@ main(int argc, char *argv[])
   capture_opts_trim_ring_num_files(&global_capture_opts);
 #endif
 
-  /* If a display filter was set but no read filter, we'll make the read 
-   * filter the same as the display filter; BUT we also set the cfile's
-   * dfilter string to it, as a hack - its existence tells later functions
-   * that the rfilter is really the dfilter too, and they need to know
-   * that because they need to include dependents if the rfilter is a dfilter.
-   */
-  if (dfilter != NULL && rfilter == NULL) {
-    rfilter = dfilter;
-    cfile.dfilter = dfilter;
-  }
-
   if (rfilter != NULL) {
     if (!dfilter_compile(rfilter, &rfcode)) {
       cmdarg_err("%s", dfilter_error_msg);
@@ -1825,10 +1818,6 @@ main(int argc, char *argv[])
   }
   cfile.rfcode = rfcode;
 
-  /* if a display filter is set, we test it as was done for read filter above, but
-   * instead of saving the compiled filter to the capture file, we'll pass it in the
-   * function call to the second pass. (no need to clutter up capture file info with it)
-   */
   if (dfilter != NULL) {
     if (!dfilter_compile(dfilter, &dfcode)) {
       cmdarg_err("%s", dfilter_error_msg);
@@ -1852,6 +1841,7 @@ main(int argc, char *argv[])
       return 2;
     }
   }
+  cfile.dfcode = dfcode;
 
   if (print_packet_info) {
     /* If we're printing as text or PostScript, we have
@@ -1932,10 +1922,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
       err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
-          global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0,
-          dfcode);
+          global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-      err = load_cap_file(&cfile, NULL, out_file_type, out_file_name_res, 0, 0, dfcode);
+      err = load_cap_file(&cfile, NULL, out_file_type, out_file_name_res, 0, 0);
 #endif
     }
     CATCH(OutOfMemoryError) {
@@ -2668,13 +2657,8 @@ capture_cleanup(int signum _U_)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-/* With a two-pass analysis, if the display filter is set, then we
- * mark dependencies of reassembled packets in this first pass, and
- * in the second pass only print/allow them if the packets match the
- * display filter or are dependents of packets which matched the filter.
- */
 static gboolean
-process_packet_first_pass(capture_file *cf, dfilter_t *dfcode,
+process_packet_first_pass(capture_file *cf,
                gint64 offset, struct wtap_pkthdr *whdr,
                const guchar *pd)
 {
@@ -2683,7 +2667,6 @@ process_packet_first_pass(capture_file *cf, dfilter_t *dfcode,
   gboolean       create_proto_tree = FALSE;
   epan_dissect_t edt;
   gboolean       passed;
-  gboolean       as_display_filter = FALSE;
 
   /* The frame number of this packet is one more than the count of
      frames in this packet. */
@@ -2693,12 +2676,6 @@ process_packet_first_pass(capture_file *cf, dfilter_t *dfcode,
      packet information, we don't need to do a dissection. This means
      that all packets can be marked as 'passed'. */
   passed = TRUE;
-
-  /* If cfile's dfilter string is not NULL, it means we want to treat
-   * the rfcode filter as a display filter */
-  if (cf->dfilter) {
-    as_display_filter = TRUE;
-  }
 
   frame_data_init(&fdlocal, framenum, whdr, offset, cum_bytes);
 
@@ -2711,7 +2688,7 @@ process_packet_first_pass(capture_file *cf, dfilter_t *dfcode,
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    /* If we're going to be applying a read filter, we'll need to
+    /* If we're going to be applying a filter, we'll need to
        create a protocol tree against which to apply the filter. */
     if (cf->rfcode)
       create_proto_tree = TRUE;
@@ -2735,36 +2712,11 @@ process_packet_first_pass(capture_file *cf, dfilter_t *dfcode,
       passed = dfilter_apply_edt(cf->rfcode, &edt);
   }
 
-  /* if the filter is actually a display filter, we add _all_ frames to the frame list,
-   * so that later frames which depend on them can include them in the second pass.
-   */
-  if (passed || as_display_filter) {
+  if (passed) {
     frame_data_set_after_dissect(&fdlocal, &cum_bytes);
     prev_cap = prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
 
-    /* if the read filter is a real read filter, but we also have a display filter,
-     * we need to run the display filter now, and for those frames which
-     * pass it, we need to check if they depended on previous frames.
-     * If the read filter is in fact the display filter, we don't need to 
-     * run it again, but just check if the passed ones have dependents
-     */
-    if (passed && !as_display_filter && dfcode) {
-      epan_dissect_t edt2;
-      epan_dissect_init(&edt2, TRUE, FALSE);
-      epan_dissect_prime_dfilter(&edt2, dfcode);
-      epan_dissect_run(&edt2, whdr, pd, &fdlocal, NULL);
-      if (dfilter_apply_edt(dfcode, &edt2)) {
-        g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
-      }
-      epan_dissect_cleanup(&edt2);
-    }
-    else if (passed && as_display_filter) {
-      /* This frame passed the read filter which is also a display filter, and may depend on previous
-       * (potentially not displayed-later) frames.  Find those frames and mark them
-       * as depended upon now, so in second pass we print them before this packet.
-       */
-      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
-    }
+    g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
 
     cf->count++;
   } else {
@@ -2786,28 +2738,18 @@ process_packet_first_pass(capture_file *cf, dfilter_t *dfcode,
 
 static gboolean
 process_packet_second_pass(capture_file *cf, frame_data *fdata,
-               struct wtap_pkthdr *phdr, const guchar *pd, dfilter_t *dfcode,
+               struct wtap_pkthdr *phdr, const guchar *pd,
                gboolean filtering_tap_listeners, guint tap_flags)
 {
   gboolean        create_proto_tree;
   column_info    *cinfo;
   epan_dissect_t  edt;
   gboolean        passed;
-  dfilter_t      *fcode = NULL;
 
   /* If we're not running a display filter and we're not printing any
      packet information, we don't need to do a dissection. This means
      that all packets can be marked as 'passed'. */
   passed = TRUE;
-
-  /* If cfile's dfilter string is not NULL, it means we want to treat
-   * the rfcode filter as a display filter */
-  if (dfcode) {
-    fcode = dfcode;
-  }
-  else if (cf->rfcode) {
-    fcode = cf->rfcode;
-  }
 
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
@@ -2818,7 +2760,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    if (fcode || print_details || filtering_tap_listeners ||
+    if (cf->dfcode || print_details || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
@@ -2830,10 +2772,10 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
        ("packet_details" is true). */
     epan_dissect_init(&edt, create_proto_tree, print_packet_info && print_details);
 
-    /* If we're running a read filter, prime the epan_dissect_t with that
+    /* If we're running a display filter, prime the epan_dissect_t with that
        filter. */
-    if (fcode)
-      epan_dissect_prime_dfilter(&edt, fcode);
+    if (cf->dfcode)
+      epan_dissect_prime_dfilter(&edt, cf->dfcode);
 
     col_custom_prime_edt(&edt, &cf->cinfo);
 
@@ -2851,8 +2793,8 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     epan_dissect_run_with_taps(&edt, phdr, pd, fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
-    if (fcode)
-      passed = dfilter_apply_edt(fcode, &edt);
+    if (cf->dfcode)
+      passed = dfilter_apply_edt(cf->dfcode, &edt);
   }
 
   if (passed) {
@@ -2903,7 +2845,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
 
 static int
 load_cap_file(capture_file *cf, char *save_file, int out_file_type,
-    gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count, dfilter_t *dfcode)
+    gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
 {
   gint         linktype;
   int          snapshot_length;
@@ -3015,7 +2957,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     cf->frames = new_frame_data_sequence();
 
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-      if (process_packet_first_pass(cf, dfcode, data_offset, wtap_phdr(cf->wth),
+      if (process_packet_first_pass(cf, data_offset, wtap_phdr(cf->wth),
                          wtap_buf_ptr(cf->wth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
@@ -3043,7 +2985,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->phdr,
           cf->pd, fdata->cap_len, &err, &err_info)) {
         if (process_packet_second_pass(cf, fdata,
-                           &cf->phdr, cf->pd, dfcode,
+                           &cf->phdr, cf->pd,
                            filtering_tap_listeners, tap_flags)) {
           /* Either there's no read filtering or this packet passed the
              filter, so, if we're writing to a capture file, write
@@ -3263,7 +3205,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
-    if (cf->rfcode || print_details || filtering_tap_listeners ||
+    if (cf->rfcode || cf->dfcode || print_details || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
@@ -3275,10 +3217,12 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
        ("packet_details" is true). */
     epan_dissect_init(&edt, create_proto_tree, print_packet_info && print_details);
 
-    /* If we're running a read filter, prime the epan_dissect_t with that
+    /* If we're running a filter, prime the epan_dissect_t with that
        filter. */
     if (cf->rfcode)
       epan_dissect_prime_dfilter(&edt, cf->rfcode);
+    if (cf->dfcode)
+      epan_dissect_prime_dfilter(&edt, cf->dfcode);
 
     col_custom_prime_edt(&edt, &cf->cinfo);
 
@@ -3299,9 +3243,11 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
     epan_dissect_run_with_taps(&edt, whdr, pd, &fdata, cinfo);
 
-    /* Run the read filter if we have one. */
+    /* Run the filters if we have them. */
     if (cf->rfcode)
       passed = dfilter_apply_edt(cf->rfcode, &edt);
+    if (passed && cf->dfcode)
+      passed = dfilter_apply_edt(cf->dfcode, &edt);
   }
 
   if (passed) {
