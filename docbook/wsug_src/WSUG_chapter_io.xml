@@ -10,7 +10,7 @@
     <itemizedlist>
     <listitem>
       <para>
-        Open/Import capture files in various capture file formats
+        Open capture files in various capture file formats
       </para>
     </listitem>
     <listitem>
@@ -21,6 +21,11 @@
     <listitem>
       <para>
       Merge capture files together
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Import text files containing hex dumps of packets
       </para>
     </listitem>
     <listitem>
@@ -684,7 +689,7 @@
     </section>
   </section>
 
-  <section id="ChIOImportSection"><title>Import text file</title>
+  <section id="ChIOImportSection"><title>Import hex dump</title>
     <para>
     Wireshark can read in an ASCII hex dump and write the data described 
     into a temporary libpcap capture file. It can read hex dumps with multiple 

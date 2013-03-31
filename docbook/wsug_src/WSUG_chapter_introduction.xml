@@ -65,18 +65,30 @@
     </listitem>
     <listitem>
       <para>
+        <command>Open</command> files containing packet data captured with
+        tcpdump/WinDump, Wireshark, and a number of other packet capture
+        programs.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <command>Import</command> packets from text files containing hex
+        dumps of packet data.
+      </para>
+    <listitem>
+      <para>
         Display packets with <command>very detailed protocol information</command>.
       </para>
     </listitem>
     <listitem>
       <para>
-        <command>Open and Save</command> packet data captured.
+        <command>Save</command> packet data captured.
       </para>
     </listitem>
     <listitem>
       <para>
-        <command>Import and Export</command> packet data from and to a lot of
-        other capture programs.
+        <command>Export</command> some or all packets in a number of
+        capture file formats.
       </para>
     </listitem>
     <listitem>
