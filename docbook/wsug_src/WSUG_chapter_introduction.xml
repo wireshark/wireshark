@@ -75,6 +75,7 @@
         <command>Import</command> packets from text files containing hex
         dumps of packet data.
       </para>
+    </listitem>
     <listitem>
       <para>
         Display packets with <command>very detailed protocol information</command>.
