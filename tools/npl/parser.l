@@ -33,7 +33,7 @@
 %{
 #define YY_DECL static token_type_t yylex(void)
 
-#include <stdarg.h>
+#include <setjmp.h>
 #include "ast.h"
 #include "xmem.h"
 
@@ -305,6 +305,10 @@ static const char *token_name(token_type_t tok) {
 	return buf;
 }
 
+static jmp_buf parser_exception;
+
+static void xfail(void) { longjmp(parser_exception, 1); }
+
 static void next_token(void) { token = yylex(); }
 
 static inline int is_token(token_type_t tok) { return (token == tok); }
@@ -316,14 +320,14 @@ static void _strange(int line) {
 
 static void _nomatch(int line) {
 	fprintf(stdout, "!!!! %s:%d got: %d (%s) @%s:%d\n", __FILE__, line, token, yytext, yyfilename, yylineno);
-	abort();
+	xfail();
 }
 #define nomatch() _nomatch(__LINE__)
 
 static void _accept(token_type_t tok, int line) {
 	if (tok != token) {
 		fprintf(stdout, "%s:%d got: %d (%s) expected %s @%s:%d\n", __FILE__, line, token, yytext, token_name(tok), yyfilename, yylineno);
-		abort();
+		xfail();
 	}
 	next_token();
 }
@@ -349,7 +353,7 @@ static char *_accept_id(int line) {
 
 	if (!is_id()) {
 		fprintf(stdout, "%s:%d got: %d (%s) expected %s @%s:%d\n", __FILE__, line, token, yytext, token_name(TOKEN_ID), yyfilename, yylineno);
-		abort();
+		xfail();
 	}
 	
 	id = xstrdup(yytext);
@@ -365,7 +369,7 @@ static unsigned int _accept_int(int line) {
 
 	if (token != TOKEN_DIGIT) {
 		fprintf(stdout, "%s:%d got: %d (%s) expected %s @%s:%d\n", __FILE__, line, token, yytext, token_name(TOKEN_DIGIT), yyfilename, yylineno);
-		abort();
+		xfail();
 	}
 
 	if (yytext[0] == '0' && yytext[1] == 'x')
@@ -387,13 +391,13 @@ static char *_accept_str(int line) {
 
 	if (token != TOKEN_STR) {
 		fprintf(stdout, "%s:%d got: %d (%s) expected %s @%s:%d\n", __FILE__, line, token, yytext, token_name(TOKEN_STR), yyfilename, yylineno);
-		abort();
+		xfail();
 	}
 
 	len = strlen(yytext);
 
 	if (len < 2 || yytext[0] != '"' || yytext[len-1] != '"')
-		abort();
+		xfail();
 #if 0
 	char *ptr;
 	size_t i;
@@ -434,7 +438,7 @@ static char *_accept_str(int line) {
 						break;
 
 					default:
-						fprintf(stderr, "unrecog: %c @ %d\n", yytext[i], yylineno);
+						fprintf(stdout, "unrecog: %c @ %d\n", yytext[i], yylineno);
 						*ptr++ = yytext[i];
 				}
 
@@ -474,8 +478,10 @@ parse_params(npl_params_t *p)
 
 	accept(TOKEN_LPAREN);
 	do {
-		if (i == NPL_PARAMS_MAX)
-			abort();
+		if (i == NPL_PARAMS_MAX) {
+			fprintf(stdout, "i == NPL_PARAMS_MAX");
+			xfail();
+		}
 
 		p->args[i++] = accept_id();
 
@@ -506,14 +512,14 @@ parse_primary(npl_expression_t *expr)
 	if (is_token(TOKEN_FLOAT)) {
 		// XXX ast
 		accept(TOKEN_FLOAT);
-		expr->type = 0;
+		expr->type = -1;
 		return;
 	}
 
 	if (is_token(TOKEN_CHAR)) {
 		// XXX ast
 		accept(TOKEN_CHAR);
-		expr->type = 0;
+		expr->type = -2;
 		return;
 	}
 
@@ -929,15 +935,13 @@ parse_expression(npl_expression_t *expr)
 
 static int is_attribute(void) { return is_token(TOKEN_LBRACKET); }
 
-static void
-parse_attributes(npl_attr_t *attr)
+static npl_attribute_list_t **
+pparse_attributes(npl_attribute_list_t **ptr)
 {
-	npl_expression_list_t **ptr = &attr->expr_list;
-
 	accept(TOKEN_LBRACKET);
 
 	do {
-		npl_expression_list_t *cur = xnew(npl_expression_list_t);
+		npl_attribute_list_t *cur = xnew(npl_attribute_list_t);
 
 		*ptr = cur;
 		ptr = &(cur->next);
@@ -952,7 +956,15 @@ parse_attributes(npl_attr_t *attr)
 //	while (is_token_accept(TOKEN_COMMA));
 
 	accept(TOKEN_RBRACKET);
-	*ptr = NULL;
+	return ptr;
+}
+
+static void
+parse_all_attributes(npl_attribute_list_t **attr_ptr)
+{
+	while (is_attribute())
+		attr_ptr = pparse_attributes(attr_ptr);
+	*attr_ptr = NULL;
 }
 
 static void parse_statement(npl_statement_t *st);
@@ -1097,11 +1109,7 @@ static void parse_struct(npl_struct_t *s, int statement);
 static void
 parse_statement(npl_statement_t *st)
 {
-	while (is_attribute()) {
-		// XXX ast
-		npl_attr_t a = { };
-		parse_attributes(&a);
-	}
+	parse_all_attributes(&st->attr_list);
 
 	if (is_token(TOKEN_WHILE)) {
 		parse_while(st);
@@ -1135,6 +1143,7 @@ parse_statement(npl_statement_t *st)
 #if 1
 	if (is_token(TOKEN_SEMICOLON)) {
 		accept(TOKEN_SEMICOLON);
+		st->type = -3;
 		return;
 	}
 #endif
@@ -1330,7 +1339,7 @@ parse_type(npl_type_t *t)
 			nomatch();
 #if 0
 		if (*ptr)
-			fprintf(stderr, "already got %s attr!\n", str);
+			fprintf(stdout, "already got %s attr!\n", str);
 #endif
 		accept(TOKEN_ASSIGN);
 		*ptr = xparse_expression();
@@ -1366,11 +1375,9 @@ parse_const(npl_const_t *c)
 static void
 parse_decl(npl_decl_t *d)
 {
-	if (is_token(TOKEN_LBRACKET)) {
-		d->type = DECL_ATTR;
-		parse_attributes(&d->a.data);
+	parse_all_attributes(&d->attr_list);
 
-	} else if (is_token(TOKEN_STRUCT)) {
+	if (is_token(TOKEN_STRUCT)) {
 		d->type = DECL_STRUCT;
 		parse_struct(&d->s.data, 0);
 
@@ -1418,16 +1425,19 @@ parse_npl(npl_code_t *code)
 int
 npl_parse_file(npl_code_t *code, FILE *f, const char *filename)
 {
-	int parse_ok = 0;
+	volatile int parse_ok = 0;
+
 	yyfilename = filename;
 	yyin = f;
 
-	next_token();
-	parse_npl(code);
-	parse_ok = 1;
+	if (!setjmp(parser_exception)) {
+		next_token();
+		parse_npl(code);
+		parse_ok = 1;
+	}
 
 	yylex_destroy();
 
-	return parse_ok;
+	return (parse_ok == 1);
 }
 

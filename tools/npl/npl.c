@@ -19,6 +19,7 @@
  */
 
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -26,10 +27,6 @@
 #include "xmem.h"
 
 int npl_parse_file(npl_code_t *code, FILE *f, const char *filename); /* parser.l */
-
-static struct symbol *gen_expr(FILE *f, npl_expression_t *e);
-static void gen_statements(FILE *f, struct _npl_statements *sts);
-static void gen_struct(FILE *f, npl_struct_t *s);
 
 struct ettinfo {
 	struct ettinfo *next;
@@ -39,8 +36,8 @@ struct ettinfo {
 struct hfinfo {
 	struct hfinfo *next;
 	struct _npl_statement_field *st;
+	const char *parent;
 
-	unsigned int id;
 	const char *hf_type;
 };
 
@@ -52,17 +49,34 @@ enum symbol_type {
 	SYMBOL_TYPE   = (1 << 3),
 	SYMBOL_FIELD  = (1 << 4),
 
-	SYMBOL_SIMPLE = (1 << 5)
+	SYMBOL_SIMPLE = (1 << 5),
+	SYMBOL_PROTO  = (1 << 6),
 };
 
 struct symbol {
 	struct symbol *next;
 
 	const char *id;
-	enum symbol_type type;
-	int lvl;
 	void *data;
+
+	unsigned int hash;
+	enum symbol_type type;
+
+	int lvl;
+	int is_static:1;
+	int is_used:1;
 };
+
+struct parent_info {
+	const char *id;
+	npl_expression_t *byte_order;
+
+	/* size, offset, bitoffset, ... ? */
+};
+
+static struct symbol *gen_expr(FILE *f, npl_expression_t *e);
+static void gen_statements(FILE *f, struct parent_info *parent, struct _npl_statements *sts);
+static void gen_struct(FILE *f, npl_struct_t *s, npl_attribute_list_t *attr_list);
 
 struct symbol *symbols;
 struct hfinfo *hfs;
@@ -104,13 +118,29 @@ symbols_pop(struct symbol *sym)
 	}
 }
 
+static unsigned int
+symbol_hash(const char *str)
+{
+	unsigned int hash = 5381;
+
+	while (*str) {
+		hash = ((hash << 5) + hash) + tolower(*str);
+		str++;
+	}
+
+	return hash;
+}
+
 static struct symbol *
 symbol_find(const char *id, int type)
 {
 	struct symbol *sym;
+	unsigned int hash;
+
+	hash = symbol_hash(id);
 
 	for (sym = symbols; sym; sym = sym->next) {
-		if (!strcasecmp(sym->id, id)) {
+		if (sym->hash == hash && !strcasecmp(sym->id, id)) {
 			// XXX, check type
 			return sym;
 		}
@@ -135,6 +165,7 @@ symbol_add(const char *id, enum symbol_type type, void *data)
 	sym = xnew(struct symbol);
 
 	sym->id = id;
+	sym->hash = symbol_hash(id);
 	sym->type = type;
 	sym->lvl = symbols_lvl;
 	sym->data = data;
@@ -169,14 +200,12 @@ ett_var(const struct ettinfo *ett)
 }
 
 static struct hfinfo *
-hfi_add(struct _npl_statement_field *st)
+hfi_add(struct _npl_statement_field *st, const struct parent_info *parent)
 {
-	static unsigned int _hf_id = 0;
-
 	struct hfinfo *new = xnew(struct hfinfo);
 
 	new->st = st;
-	new->id = ++_hf_id;
+	new->parent = parent->id;
 
 	new->next = hfs;
 	hfs = new;
@@ -184,13 +213,54 @@ hfi_add(struct _npl_statement_field *st)
 	return new;
 }
 
+static size_t
+hfi_put_name(char *buf, size_t buflen, const char *str)
+{
+	size_t pos = 0;
+	int i;
+
+	int t = 0;
+	int toldup = -1;
+
+	for (i = 0; str[i]; i++) {
+		int tup = isupper(str[i]);
+
+		if (toldup != tup && tup) {
+			if (t > 0) {
+				if (pos < buflen)
+					buf[pos++] = '_';
+			}
+			t++;
+		}
+		toldup = tup;
+
+		if (pos < buflen)
+			buf[pos++] = tolower(str[i]);
+	}
+	return pos;
+}
+
 static const char *
 hfi_var(const struct hfinfo *hfi)
 {
-	/* XXX nicer name */
-	static char hf_name[64];
+	static char hf_name[256];
+	size_t pos;
 
-	snprintf(hf_name, sizeof(hf_name), "hf_field_%u", hfi->id);
+	pos = snprintf(hf_name, sizeof(hf_name), "hf_field_");
+	xassert(pos < sizeof(hf_name));
+
+	if (hfi->parent) {
+		pos += hfi_put_name(hf_name + pos, sizeof(hf_name) - pos, hfi->parent);
+		xassert(pos < sizeof(hf_name));
+
+		hf_name[pos++] = '_';
+		xassert(pos < sizeof(hf_name));
+	}
+
+	pos += hfi_put_name(hf_name + pos, sizeof(hf_name) - pos, hfi->st->id);
+	xassert(pos < sizeof(hf_name));
+
+	hf_name[pos++] = '\0';
 
 	return hf_name;
 }
@@ -204,8 +274,26 @@ hfi_name(const struct hfinfo *hfi)
 static const char *
 hfi_filter(const struct hfinfo *hfi)
 {
-	/* TODO stub */
-	return "";
+	static char filter_name[1024];
+	size_t pos;
+
+	pos = 0;
+
+	if (hfi->parent) {
+		pos += hfi_put_name(filter_name + pos, sizeof(filter_name)-pos, hfi->parent);
+		xassert(pos < sizeof(filter_name));
+
+		filter_name[pos++] = '.';
+		xassert(pos < sizeof(filter_name));
+	}
+
+	pos += hfi_put_name(filter_name + pos, sizeof(filter_name)-pos, hfi->st->id);
+	xassert(pos < sizeof(filter_name));
+
+	filter_name[pos++] = '\0';
+	xassert(pos < sizeof(filter_name));
+
+	return filter_name;
 }
 
 static const char *
@@ -252,11 +340,11 @@ expr_to_symbol(const npl_expression_t *e)
 		const char *id = e->id.id;
 
 		sym = symbol_find(id, SYMBOL_ANY);
-
 		if (!sym) {
 			fprintf(stderr, "can't find id: %s\n", id);
 			abort();
 		}
+		/* XXX, sym->is_used */
 
 		if (sym->type == SYMBOL_EXPR) {
 			struct symbol *new_sym = expr_to_symbol(sym->data);
@@ -292,6 +380,7 @@ expr_to_const_int(const npl_expression_t *e, int *val)
 				*val = !(*val);
 				return 1;
 		}
+		return 0;
 	}
 
 	sym = expr_to_symbol(e);
@@ -330,7 +419,7 @@ type_to_ctype(const npl_type_t *t, int size)
 
 			fprintf(stderr, "!!! decimal, size: %d\n", size);
 			return NULL;
-				
+
 		case FIELD_NUMBER:
 			if (size == 1)
 				return "gint8";
@@ -364,19 +453,22 @@ type_to_ctype(const npl_type_t *t, int size)
 	return NULL;
 }
 
+#define NPL_ENDIAN_LE 0
+#define NPL_ENDIAN_BE 1
+
 static const char *
 type_to_tvb(const npl_type_t *t, int size, int endian)
 {
 	switch (t->type) {
 		case FIELD_DECIMAL:
-			if (size == 4 && endian == 0)
+			if (size == 4 && endian == NPL_ENDIAN_LE)
 				return "tvb_get_letohieee_float";
-			if (size == 4 && endian == 1)
+			if (size == 4 && endian == NPL_ENDIAN_BE)
 				return "tvb_get_ntohieee_float";
 
-			if (size == 8 && endian == 0)
+			if (size == 8 && endian == NPL_ENDIAN_LE)
 				return "tvb_get_letohieee_double";
-			if (size == 8 && endian == 1)
+			if (size == 8 && endian == NPL_ENDIAN_BE)
 				return "tvb_get_ntohieee_double";
 
 			fprintf(stderr, "!!! decimal, size: %d, endian: %d\n", size, endian);
@@ -387,19 +479,19 @@ type_to_tvb(const npl_type_t *t, int size, int endian)
 			if (size == 1)
 				return "tvb_get_guint8";
 
-			if (size == 2 && endian == 0)
+			if (size == 2 && endian == NPL_ENDIAN_LE)
 				return "tvb_get_letohs";
-			if (size == 2 && endian == 1)
+			if (size == 2 && endian == NPL_ENDIAN_BE)
 				return "tvb_get_ntohs";
 
-			if (t->type == FIELD_UNSIGNED_NUMBER && size == 3 && endian == 0)
+			if (t->type == FIELD_UNSIGNED_NUMBER && size == 3 && endian == NPL_ENDIAN_LE)
 				return "tvb_get_letoh24";
-			if (t->type == FIELD_UNSIGNED_NUMBER && size == 3 && endian == 1)
+			if (t->type == FIELD_UNSIGNED_NUMBER && size == 3 && endian == NPL_ENDIAN_BE)
 				return "tvb_get_ntoh24";
 
-			if (size == 4 && endian == 0)
+			if (size == 4 && endian == NPL_ENDIAN_LE)
 				return "tvb_get_letohl";
-			if (size == 4 && endian == 1)
+			if (size == 4 && endian == NPL_ENDIAN_BE)
 				return "tvb_get_ntohl";
 
 			fprintf(stderr, "!!! number, size: %d, endian: %d\n", size, endian);
@@ -421,7 +513,7 @@ type_to_ft(const npl_type_t *t, int size)
 
 			fprintf(stderr, "!!! decimal, size: %d\n", size);
 			return NULL;
-				
+
 		case FIELD_NUMBER:
 			if (size == 1)
 				return "FT_INT8";
@@ -520,6 +612,84 @@ op2_to_str(npl_op2_t op)
 	return "";
 }
 
+
+static int
+resolve_attr_id(const char *id)
+{
+	if (!strcasecmp(id, "property"))
+		return 0;
+	if (!strcasecmp(id, "Global"))
+		return 1;
+	if (!strcasecmp(id, "local"))
+		return 2;
+	if (!strcasecmp(id, "conversation"))
+		return 3;
+	if (!strcasecmp(id, "post"))
+		return 4;
+
+	fprintf(stderr, ":: attr-id: %s\n", id);
+	return -1;
+}
+
+static int
+resolve_attr_expr(npl_attribute_list_t *attr, const struct _npl_expression *expr)
+{
+	int flags = 0;
+
+	switch (expr->type) {
+		case EXPRESSION_ID:
+			resolve_attr_id(expr->id.id);
+			break;
+			
+		case EXPRESSION_FIELD:
+			flags |= resolve_attr_expr(attr, expr->fld.base);
+			resolve_attr_id(expr->fld.field);
+			break;
+
+		default:
+			fprintf(stderr, "resolve_attr_expr() %d\n", expr->type);
+			break;
+	}
+	return flags;
+}
+
+static void
+resolve_attr_list(npl_attribute_list_t *attr)
+{
+	while (attr) {
+		struct _npl_expression *expr = NULL;
+		const char *id = NULL;
+		int flags = 0;
+
+		if (attr->expr->type == EXPRESSION_BINARY && attr->expr->b.operator == OP2_ASSIGN) {
+			/* XXX, handle: a = b = c ? */
+			expr = attr->expr->b.operand1;
+			attr->assign_expr = attr->expr->b.operand2;
+		} else
+			expr = attr->expr;
+
+		switch (expr->type) {
+			case EXPRESSION_ID:
+				id = expr->id.id;
+				break;
+
+			case EXPRESSION_FIELD:
+				flags = resolve_attr_expr(attr, expr->fld.base);
+				id = expr->fld.field;
+				break;
+
+			default:
+				fprintf(stderr, "resolve_attr_list() expr: %d\n", expr->type);
+				break;
+		}
+
+		attr->flags = flags;
+		attr->resolved = id;
+
+		attr = attr->next;
+	}
+}
+
 static void
 gen_expr_field(FILE *f, struct _npl_statement_field *field)
 {
@@ -561,6 +731,7 @@ gen_expr(FILE *f, npl_expression_t *e)
 				fprintf(stderr, "can't find id: %s\n", e->id.id);
 				abort();
 			}
+			sym->is_used = 1;
 
 			if (sym->type == SYMBOL_EXPR)
 				gen_expr(f, sym->data);
@@ -658,17 +829,18 @@ gen_expr(FILE *f, npl_expression_t *e)
 	return NULL;
 }
 
-static int
+enum table_struct { TABLE_FULL, TABLE_VALUE_STRING, TABLE_STRING_STRING };
+
+static enum table_struct
 gen_table_struct(FILE *f, npl_table_t *t)
 {
-	enum { CANT, VALUE_STRING, STRING_STRING } type;
 	struct npl_table_case *c;
 
 	int all_int = 1;
 	int all_str = 1;
 
-	if (t->params.count || !t->switch_expr || t->default_expr)
-		return 0;
+	if (t->params.count > 1 || !t->switch_expr)
+		return TABLE_FULL;
 
 	for (c = t->cases; c; c = c->next) {
 		const char *str;
@@ -683,22 +855,16 @@ gen_table_struct(FILE *f, npl_table_t *t)
 			all_str = 0;
 
 		if (!all_int && !all_str)
-			return 0;
+			return TABLE_FULL;
 	}
 
-	if (all_int)
-		type = VALUE_STRING;
-	else if (all_str)
-		type = STRING_STRING;
-	else
-		type = CANT;
-
 	/* table can be converted to value_string, generate one */
-	if (f && type == VALUE_STRING) {
+	if (all_int) {
 		gen_fprintf(f,
-			"static const value_string %s[] = {\n",
+			"static const value_string %s_vals[] = {\n",
 			t->id);
 
+		if (f)
 		for (c = t->cases; c; c = c->next) {
 			const char *str;
 			int val;
@@ -713,15 +879,16 @@ gen_table_struct(FILE *f, npl_table_t *t)
 		}
 		gen_fprintf(f, "\t{ 0, NULL }\n");
 		gen_fprintf(f, "};\n");
-		return 1;
+		return TABLE_VALUE_STRING;
 	}
 
 	/* table can be converted to string_string, generate one */
-	if (f && type == STRING_STRING) {
+	if (all_str) {
 		gen_fprintf(f,
-			"static const string_string %s[] = {\n",
+			"static const string_string %s_vals[] = {\n",
 			t->id);
 
+		if (f)
 		for (c = t->cases; c; c = c->next) {
 			const char *str;
 			const char *val;
@@ -736,41 +903,16 @@ gen_table_struct(FILE *f, npl_table_t *t)
 		}
 		gen_fprintf(f, "\t{ NULL, NULL }\n");
 		gen_fprintf(f, "};\n");
-		return 1;
+		return TABLE_STRING_STRING;
 	}
 
-	return 0;
+	return TABLE_FULL;
 }
 
 static void
 gen_table_func(FILE *f, npl_table_t *t)
 {
-	struct symbol *symroot;
 	struct npl_table_case *c;
-
-	gen_fprintf(f,
-		"static const char *\n"
-		"format_table_%s", t->id);
-
-	symroot = symbols_push();
-
-	gen_fprintf(f, "(");
-	if (t->params.count) {
-		int i;
-
-		for (i = 0; i < t->params.count; i++) {
-			if (i)
-				gen_fprintf(f, ", ");
-			gen_fprintf(f, "TYPE %s", t->params.args[i]);
-			symbol_add(t->params.args[i], SYMBOL_SIMPLE, t->params.args[i]);
-		}
-
-	} else {
-		/* default */
-		gen_fprintf(f, "TYPE value");
-		symbol_add("value", SYMBOL_SIMPLE, "value");
-	}
-	gen_fprintf(f, ")\n{\n");
 
 	if (t->switch_expr) {
 		gen_fprintf(f, "\tswitch (");
@@ -824,17 +966,6 @@ again2:
 			}
 		}
 	}
-
-	if (t->default_expr) {
-		gen_fprintf(f, "\treturn ");
-		gen_expr(f, t->default_expr);
-		gen_fprintf(f, ";\n");
-	} else
-		gen_fprintf(f, "\treturn \"\";\n");
-
-	gen_fprintf(f, "}\n");
-
-	symbols_pop(symroot);
 }
 
 static void
@@ -847,39 +978,126 @@ decl_table(npl_table_t *t)
 static void
 gen_table(FILE *f, npl_table_t *t)
 {
-	if (!gen_table_struct(f, t))
-		gen_table_func(f, t);
+	struct symbol *symroot;
+	const char *first_arg;
+	enum table_struct type;
 
-	gen_fprintf(f, "\n");
+	t->sym->is_static = 1;
+	gen_fprintf(f,
+		"static const char *\n"
+		"format_table_%s", t->id);
+
+	symroot = symbols_push();
+
+	gen_fprintf(f, "(");
+	if (t->params.count) {
+		int i;
+
+		for (i = 0; i < t->params.count; i++) {
+			if (i)
+				gen_fprintf(f, ", ");
+			gen_fprintf(f, "TYPE %s", t->params.args[i]);
+			symbol_add(t->params.args[i], SYMBOL_SIMPLE, t->params.args[i]);
+		}
+		first_arg = t->params.args[0];
+
+	} else {
+		/* default */
+		gen_fprintf(f, "TYPE value");
+		symbol_add("value", SYMBOL_SIMPLE, "value");
+		first_arg = "value";
+	}
+	gen_fprintf(f, ")\n{\n");
+
+	type = gen_table_struct(f, t);
+	switch (type) {
+		case TABLE_VALUE_STRING:
+			gen_fprintf(f, "\n");
+			gen_fprintf(f, "\tconst char *tmp = match_strval(%s_vals, %s);\n", t->id, first_arg);
+			gen_fprintf(f, "\tif (tmp)\n\t\treturn tmp;\n");
+			break;
+
+		case TABLE_STRING_STRING:
+			gen_fprintf(f, "\tconst char *tmp = match_strstr(%s_vals, %s);\n", t->id, first_arg);
+			gen_fprintf(f, "\tif (tmp)\n\t\treturn tmp;\n");
+			break;
+
+		case TABLE_FULL:
+		default:
+			gen_table_func(f, t);
+			break;
+	}
+
+	if (t->default_expr) {
+		gen_fprintf(f, "\treturn ");
+		gen_expr(f, t->default_expr);
+		gen_fprintf(f, ";\n");
+	} else
+		gen_fprintf(f, "\treturn \"\";\n");
+
+	gen_fprintf(f, "}\n\n");
+
+	symbols_pop(symroot);
 }
 
 static void
-gen_field_struct(FILE *f, npl_statement_t *st, npl_struct_t *s)
+gen_field_struct(FILE *f, struct _npl_statement_field *field, npl_struct_t *s)
 {
 	// XXX st->f.bits, st->f.arr, st->f.format, st->f.sts
 	// XXX, st->f.generate_var
 
-	gen_fprintf(f, "\toffset = dissect_struct_%s(tvb, pinfo, tree, %s, offset);\n", s->tmpid, hfi_var(st->f.hfi));
+	gen_fprintf(f, "\toffset = dissect_struct_%s(tvb, pinfo, tree, %s, offset);\n", s->tmpid, hfi_var(field->hfi));
 
-	st->f.hfi->hf_type = "FT_BYTES";
+	field->hfi->hf_type = "FT_BYTES";
 }
 
 static void
-gen_field_type(FILE *f, npl_statement_t *st, npl_type_t *t)
+gen_field_size(FILE *f, struct symbol *sym_size, int size)
+{
+	if (sym_size) {
+		/* runtime */
+		if (sym_size->type == SYMBOL_FIELD) {
+			gen_fprintf(f, "_field_%s", sym_size->id);
+
+		} else if (sym_size->type == SYMBOL_EXPR) {
+			gen_fprintf(f, "(");
+			gen_expr(f, sym_size->data);
+			gen_fprintf(f, ") ");
+
+		} else if (sym_size->type == SYMBOL_SIMPLE) {
+			gen_fprintf(f, "%s ", (const char *) sym_size->data);
+
+		} else {
+			fprintf(stderr, "::: %s (%d)\n", sym_size->id, sym_size->type);
+			gen_fprintf(f, "<<SYMBOL %s>>\n", sym_size->id);
+		}
+
+	} else {
+		/* const */
+		gen_fprintf(f, "%d", size);
+	}
+}
+
+static void
+gen_field_type(FILE *f, struct _npl_statement_field *field, npl_type_t *t)
 {
 	struct symbol *symroot;
 	int i;
 
-	// XXX st->f.bits, st->f.arr, st->f.sts
+	// XXX field.bits, field..arr, field..sts
 
 	int size = -1;
-	struct symbol *sym_size = NULL;
+	struct symbol *size_sym = NULL;
 
 	int byte_order = -1;
-	npl_expression_t *display_format = t->display_format;
+	npl_expression_t *byte_order_expr;
+	struct symbol *byte_order_sym = NULL;
+
+	npl_expression_t *display_format;
+
 	const char *hf_type;
 
-	npl_expression_list_t *argv = st->f.params;
+	npl_expression_list_t *argv = field->params;
 	int argc = count_expression_list(argv);
 
 	if (t->params.count != argc) {
@@ -896,19 +1114,33 @@ gen_field_type(FILE *f, npl_statement_t *st, npl_type_t *t)
 
 	xassert(t->size != NULL);
 	if (!expr_to_const_int(t->size, &size)) {
-		sym_size = expr_to_symbol(t->size);
+		size_sym = expr_to_symbol(t->size);
 
-		if (!sym_size) {
+		if (!size_sym) {
 			fprintf(stderr, "!!! expr_to_const_int, _symbol(size) failed for type: %s\n", t->id);
 			abort();
 		}
 	}
 
-	if (t->byte_order && !expr_to_const_int(t->byte_order, &byte_order))
-		fprintf(stderr, "!!! expr_to_const_int(byte_order) failed for type: %s\n", t->id);
+	if (field->byte_order_attr)
+		byte_order_expr = field->byte_order_attr;
+	else if (t->byte_order)
+		byte_order_expr = t->byte_order;
+	else
+		byte_order_expr = NULL;
 
-	if (st->f.generate_var) {
-		/* XXX, sym_size */
+	if (byte_order_expr) {
+		if (!expr_to_const_int(byte_order_expr, &byte_order)) {
+			byte_order_sym = expr_to_symbol(byte_order_expr);
+			if (!byte_order_sym) {
+				fprintf(stderr, "!!! expr_to_const_int, _symbol(byte_order) failed for type: %s\n", t->id);
+				abort();
+			}
+		}
+	}
+
+	if (field->generate_var) {
+		/* XXX, size_sym, byte_order_sym */
 
 		const char *ctype = type_to_ctype(t, size);
 		const char *fetch_func = type_to_tvb(t, size, byte_order);
@@ -919,29 +1151,31 @@ gen_field_type(FILE *f, npl_statement_t *st, npl_type_t *t)
 */
 
 		/* XXX, we should declare variable on begin of block (< C99) */
-		gen_fprintf(f, "\t%s _field_%s = %s(tvb, offset);\n", ctype, st->f.id, fetch_func);
+		gen_fprintf(f, "\t%s _field_%s = %s(tvb, offset);\n", ctype, field->id, fetch_func);
 	}
 
-	if (sym_size) {
-		if (sym_size->type == SYMBOL_FIELD) {
-			struct _npl_statement_field *field = sym_size->data;
+	if (size_sym) {
+		if (size_sym->type == SYMBOL_FIELD) {
+			struct _npl_statement_field *sym_field = size_sym->data;
 
-			xassert(field->generate_var || f == NULL);
+			xassert(sym_field->generate_var || f == NULL);
 
-			field->generate_var = 1;
+			sym_field->generate_var = 1;
 		} else
-			fprintf(stderr, "::: %s (%d)\n", sym_size->id, sym_size->type);
+			fprintf(stderr, "::: %s (%d)\n", size_sym->id, size_sym->type);
 
 		hf_type = NULL;
 
 	} else
 		hf_type = type_to_ft(t, size);
 
-	st->f.hfi->hf_type = hf_type;
+	field->hfi->hf_type = hf_type;
 
 	/* prefer statement format over type one (?) */
-	if (st->f.format)
-		display_format = st->f.format;
+	if (field->format)
+		display_format = field->format;
+	else
+		display_format = t->display_format;
 
 	/* XXX, when generate_var we can use fetched value, not proto_tree_add_item() */
 
@@ -950,43 +1184,78 @@ gen_field_type(FILE *f, npl_statement_t *st, npl_type_t *t)
 		fprintf(stderr, "XXX, format\n");
 	else
 #endif
-	gen_fprintf(f, "\tproto_tree_add_item(tree, %s, tvb, offset, %d, %s); ",
-		hfi_var(st->f.hfi),
-		size,
-		(byte_order == 0) ? "ENC_LITTLE_ENDIAN" : 
-		(byte_order == 1) ? "ENC_BIG_ENDIAN" : 
+	gen_fprintf(f, "\tproto_tree_add_item(tree, %s, tvb, offset, ", hfi_var(field->hfi));
+	/* XXX, emit temporary variable? expressions might be time-consuming, we could also check if size < 0 */
+	gen_field_size(f, size_sym, size);
+	gen_fprintf(f, ", %s);\n",
+		(byte_order == NPL_ENDIAN_LE) ? "ENC_LITTLE_ENDIAN" : 
+		(byte_order == NPL_ENDIAN_BE) ? "ENC_BIG_ENDIAN" : 
 		"ENC_NA");
 
-	if (sym_size) {
-		/* runtime */
-		if (sym_size->type == SYMBOL_FIELD) {
-			gen_fprintf(f, "offset += _field_%s;\n", sym_size->id);
-
-		} else if (sym_size->type == SYMBOL_EXPR) {
-			gen_fprintf(f, "\n\t");
-			gen_fprintf(f, "offset += (");
-			gen_expr(f, sym_size->data);
-			gen_fprintf(f, ");\n");
-
-		} else if (sym_size->type == SYMBOL_SIMPLE) {
-			gen_fprintf(f, "offset += %s;\n", (const char *) sym_size->data);
-
-		} else {
-			fprintf(stderr, "::: %s (%d)\n", sym_size->id, sym_size->type);
-			gen_fprintf(f, "offset += XXX;\n");
-		}
-
-	} else {
-		/* const */
-		gen_fprintf(f, "offset += %d;\n", size);
-	}
+	gen_fprintf(f, "\toffset += ");
+	gen_field_size(f, size_sym, size);
+	gen_fprintf(f, ";\n");
 
 	symbols_pop(symroot);
 }
 
 static void
-gen_statement(FILE *f, npl_statement_t *st)
+gen_statement_field(FILE *f, struct parent_info *parent, struct _npl_statement_field *field, npl_attribute_list_t *attr_list)
 {
+	struct symbol *sym;
+
+	if (!field->hfi) {
+		field->hfi = hfi_add(field, parent);
+		xassert(f == NULL);
+	}
+
+	sym = symbol_find(field->t_id, SYMBOL_STRUCT | SYMBOL_TYPE);
+	if (!sym) {
+		fprintf(stderr, "can't find: %s\n", field->t_id);
+		abort();
+	}
+	sym->is_used = 1;
+
+	symbol_add(field->id, SYMBOL_FIELD, field);
+
+	field->byte_order_attr = parent->byte_order;
+
+	/* already resolved */
+	while (attr_list) {
+		const char *attr_name = attr_list->resolved;
+		npl_expression_t *attr_expr = attr_list->assign_expr;
+		int flags = attr_list->flags;
+
+		if (attr_name) {
+			if (!strcasecmp(attr_name, "DataFieldByteOrder")) {
+				xassert(flags == 0);
+				xassert(attr_expr != NULL);
+
+				field->byte_order_attr = attr_expr;
+			} else
+				fprintf(stderr, "!!! generating field attr: %s not handled!\n", attr_name);
+		} else
+			fprintf(stderr, "!!! generating field attr: not resolved!\n");
+
+		attr_list = attr_list->next;
+	}
+
+	if (sym->type == SYMBOL_STRUCT)
+		gen_field_struct(f, field, sym->data);
+	else if (sym->type == SYMBOL_TYPE)
+		gen_field_type(f, field, sym->data);
+	else {
+		/* XXX, SYMBOL_TABLE? */
+		fprintf(stderr, "%s: wrong type [%d]\n", sym->id, sym->type);
+		abort();
+	}
+}
+
+static void
+gen_statement(FILE *f, struct parent_info *parent, npl_statement_t *st)
+{
+	resolve_attr_list(st->attr_list);
+
 	switch (st->type) {
 		case STATEMENT_WHILE:
 			// XXX ->id
@@ -994,46 +1263,20 @@ gen_statement(FILE *f, npl_statement_t *st)
 			gen_expr(f, &st->w.expr);
 			gen_fprintf(f, ") {\n");
 
-			gen_statements(f, st->w.sts);
+			gen_statements(f, parent, st->w.sts);
 
 			gen_fprintf(f, "\t}\n"); 
 			return;
 
 		case STATEMENT_STRUCT:
-			gen_struct(NULL, &st->s.data);
+			gen_struct(NULL, &st->s.data, NULL);
 			// XXX put st->s.data somewhere to create this proc.
 			gen_fprintf(f, "\toffset = dissect_struct_%s(tvb, pinfo, tree, hf_costam, offset);\n", st->s.data.tmpid);
 			return;
 
 		case STATEMENT_FIELD:
-		{
-			struct symbol *sym;
-			
-			if (!st->f.hfi) {
-				st->f.hfi = hfi_add(&st->f);
-				xassert(f == NULL);
-			}
-
-			sym = symbol_find(st->f.t_id, SYMBOL_STRUCT | SYMBOL_TYPE);
-
-			if (!sym) {
-				fprintf(stderr, "can't find: %s\n", st->f.t_id);
-				abort();
-			}
-
-			symbol_add(st->f.id, SYMBOL_FIELD, &st->f);
-
-			if (sym->type == SYMBOL_STRUCT)
-				gen_field_struct(f, st, sym->data);
-			else if (sym->type == SYMBOL_TYPE)
-				gen_field_type(f, st, sym->data);
-			else {
-				/* XXX, SYMBOL_TABLE? */
-				fprintf(stderr, "%s: wrong type [%d]\n", st->f.t_id, sym->type);
-				abort();
-			}
+			gen_statement_field(f, parent, &st->f, st->attr_list);
 			return;
-		}
 
 		/* case STATEMENT_DYNAMIC_SWITCH: */
 		case STATEMENT_SWITCH:
@@ -1052,7 +1295,7 @@ gen_statement(FILE *f, npl_statement_t *st)
 
 					if (c->st) {
 						gen_fprintf(f, "\t\t");
-						gen_statement(f, c->st);
+						gen_statement(f, parent, c->st);
 						gen_fprintf(f, "\t\t\tbreak;\n");
 					}
 					c = c->next;
@@ -1061,7 +1304,7 @@ gen_statement(FILE *f, npl_statement_t *st)
 				if (st->sw.data.default_st) {
 					gen_fprintf(f, "\t\tdefault:\n");
 					gen_fprintf(f, "\t\t");
-					gen_statement(f, st->sw.data.default_st);
+					gen_statement(f, parent, st->sw.data.default_st);
 				}
 
 				gen_fprintf(f, "\t}\n");
@@ -1100,7 +1343,7 @@ gen_statement(FILE *f, npl_statement_t *st)
 					}
 					gen_fprintf(f, ") {\n");
 					gen_fprintf(f, "\t");
-					gen_statement(f, case_st);
+					gen_statement(f, parent, case_st);
 					gen_fprintf(f, "\t} ");
 
 					if (c || default_st)
@@ -1110,13 +1353,13 @@ gen_statement(FILE *f, npl_statement_t *st)
 				if (default_st) {
 					gen_fprintf(f, "{\n");
 					gen_fprintf(f, "\t");
-					gen_statement(f, default_st);
+					gen_statement(f, parent, default_st);
 					gen_fprintf(f, "\t}\n");
 				}
 
 			} else {
 				if (st->sw.data.default_st)
-					gen_statement(f, st->sw.data.default_st);
+					gen_statement(f, parent, st->sw.data.default_st);
 			}
 			return;
 		}
@@ -1125,14 +1368,14 @@ gen_statement(FILE *f, npl_statement_t *st)
 }
 
 static void
-gen_statements(FILE *f, struct _npl_statements *sts)
+gen_statements(FILE *f, struct parent_info *parent, struct _npl_statements *sts)
 {
 	struct symbol *symroot;
 
 	symroot = symbols_push();
 
 	while (sts) {
-		gen_statement(f, &sts->st);
+		gen_statement(f, parent, &sts->st);
 
 		sts = sts->next;
 	}
@@ -1141,11 +1384,21 @@ gen_statements(FILE *f, struct _npl_statements *sts)
 }
 
 static void
-gen_protocol(FILE *f, npl_protocol_t *p)
+decl_protocol(npl_protocol_t *p)
 {
+	if (!p->sym)
+		p->sym = symbol_add(p->id, SYMBOL_PROTO, p);
+}
+
+static void
+gen_protocol(FILE *f, npl_protocol_t *p, npl_attribute_list_t *attr_list)
+{
+	struct parent_info this;
+
+	p->sym->is_static = 1;
 	gen_fprintf(f, 
 		"static int\n"
-		"dissect_%s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)\n", p->id);
+		"dissect_%s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)\n", p->id);
 
 	gen_fprintf(f, "{\n");
 	gen_fprintf(f, 
@@ -1155,12 +1408,43 @@ gen_protocol(FILE *f, npl_protocol_t *p)
 		"\n"
 	);
 
+	resolve_attr_list(attr_list);
+	while (attr_list) {
+		const char *attr_name = attr_list->resolved;
+		npl_expression_t *attr_expr = attr_list->assign_expr;
+		int flags = attr_list->flags;
+
+		if (attr_name) {
+			if (!strcasecmp(attr_name, "DataTypeByteOrder")) {
+				xassert(flags == 0);
+				xassert(attr_expr != NULL);
+
+				p->byte_order_attr = attr_expr;
+
+			} else
+				fprintf(stderr, "!!! generating protocol attr: %s not handled!\n", attr_name);
+		} else
+			fprintf(stderr, "!!! generating protocol attr: not resolved!\n");
+
+		attr_list = attr_list->next;
+	}
+
+	gen_fprintf(f,
+		"\tif (parent_tree) {\n"
+		"\t\tti = proto_tree_add_item(parent_tree, proto_%s, tvb, offset, -1, ENC_NA);\n"
+		"\t\ttree = proto_item_add_subtree(ti, ett_%s);\n"
+		"\t}\n", p->id, p->id);
+
 	if (p->format) {
 
 
 	}
 
-	gen_statements(f, p->sts);
+	memset(&this, 0, sizeof(this));
+	this.id = p->id;
+	this.byte_order = p->byte_order_attr;
+
+	gen_statements(f, &this, p->sts);
 
 	gen_fprintf(f, "\tproto_item_set_len(ti, offset);\n");
 	gen_fprintf(f, "\treturn offset;\n");
@@ -1178,9 +1462,10 @@ decl_struct(npl_struct_t *s)
 }
 
 static void
-gen_struct(FILE *f, npl_struct_t *s)
+gen_struct(FILE *f, npl_struct_t *s, npl_attribute_list_t *attr_list)
 {
 	const char *id = s->tmpid;
+	struct parent_info this;
 
 	if (!id)
 		id = s->tmpid = s->id;
@@ -1200,6 +1485,8 @@ gen_struct(FILE *f, npl_struct_t *s)
 		fprintf(stderr, "TODO: s->count_expr");
 	}
 
+	if (s->sym)
+		s->sym->is_static = 1;
 	gen_fprintf(f,
 			"static int\n"
 			"dissect_struct_%s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int hf_index%s, int offset)\n"
@@ -1208,12 +1495,18 @@ gen_struct(FILE *f, npl_struct_t *s)
 	if (!s->private) {
 		gen_fprintf(f, "\tconst int org_offset = offset;\n");
 
-		gen_fprintf(f, "\tproto_tree *tree = NULL\n");
+		gen_fprintf(f, "\tproto_tree *tree = NULL;\n");
 		gen_fprintf(f, "\tproto_item *ti = NULL;\n");
 	} else
-		gen_fprintf(f, "\tproto_tree *tree = parent_tree\n");
+		gen_fprintf(f, "\tproto_tree *tree = parent_tree;\n");
 
 	gen_fprintf(f,"\n");
+
+	resolve_attr_list(attr_list);
+	while (attr_list) {
+		/* XXX, attr */
+		attr_list = attr_list->next;
+	}
 
 	if (!s->private) {
 /*
@@ -1228,16 +1521,19 @@ gen_struct(FILE *f, npl_struct_t *s)
 
 		gen_fprintf(f,
 			"\tif (parent_tree) {\n"
-			"\t\tti = proto_tree_add_bytes_format(parent_tree, hf_index, tvb, offset, 0, NULL, \"%s\");\n"
+			"\t\tti = proto_tree_add_bytes_format_value(parent_tree, hf_index, tvb, offset, 0, NULL, \"%s\");\n"
 			"\t\ttree = proto_item_add_subtree(ti, %s);\n"
-			"\t}\n", "description", ett_var(s->ett));
+			"\t}\n", "", ett_var(s->ett));
 
 	} else {
 		if (s->format)
 			fprintf(stderr, "s->private && s->format?\n");
 	}
 
-	gen_statements(f, s->sts);
+	memset(&this, 0, sizeof(this));
+	this.id = s->id;
+
+	gen_statements(f, &this, s->sts);
 
 	if (!s->private)
 		gen_fprintf(f, "\tproto_item_set_len(ti, offset - org_offset);\n");
@@ -1271,49 +1567,42 @@ decl_type(npl_type_t *t)
 }
 
 static void
-gen_attr(FILE *f, npl_attr_t *a)
-{
-	fprintf(stderr, "gen_attr() TODO\n");
-}
-
-static void
 walk_decl(FILE *f, npl_decl_t *d, int full_run)
 {
 	switch (d->type) {
-		case DECL_ATTR:
-			if (!full_run)
-				return;
-			gen_attr(f, &d->a.data);
-			return;
 		case DECL_STRUCT:
 			decl_struct(&d->s.data);
 			if (!full_run)
 				return;
-			gen_struct(f, &d->s.data);
+			gen_struct(f, &d->s.data, d->attr_list);
 			return;
 		case DECL_TABLE:
+			xassert(d->attr_list == NULL);
 			decl_table(&d->t.data);
 			if (!full_run)
 				return;
 			gen_table(f, &d->t.data);
 			return;
 		case DECL_PROTOCOL:
-			/* XXX decl_protocol */
+			decl_protocol(&d->p.data);
 			if (!full_run)
 				return;
-			gen_protocol(f, &d->p.data);
+			gen_protocol(f, &d->p.data, d->attr_list);
 			return;
 		case DECL_CONST:
+			xassert(d->attr_list == NULL);
 			decl_const(&d->c.data);
 			if (!full_run)
 				return;
 			return;
 		case DECL_TYPE:
+			xassert(d->attr_list == NULL);
 			decl_type(&d->ty.data);
 			if (!full_run)
 				return;
 			return;
 		case DECL_INCLUDE:
+			xassert(d->attr_list == NULL);
 			/* done in parse_includes() */
 			return;
 	}
@@ -1398,8 +1687,8 @@ gen_proto_register(FILE *f, const char *proto_name)
 	for (hfi = hfs; hfi; hfi = hfi->next) {
 		gen_fprintf(f,
 			"\t\t{ &%s,\n"
-				"\t\t\t{ \"%s\", \"%s\", %s, %s, NULL, 0x%.2x, NULL, HFILL }\n"
-			"\t\t},\n", hfi_var(hfi), hfi_name(hfi), hfi_filter(hfi), hfi_type(hfi), hfi_display(hfi), hfi_mask(hfi) );
+				"\t\t\t{ \"%s\", \"%s.%s\", %s, %s, NULL, 0x%.2x, NULL, HFILL }\n"
+			"\t\t},\n", hfi_var(hfi), hfi_name(hfi), proto_name, hfi_filter(hfi), hfi_type(hfi), hfi_display(hfi), hfi_mask(hfi) );
 	}
 	gen_fprintf(f, "\t};\n\n");
 
@@ -1410,12 +1699,12 @@ gen_proto_register(FILE *f, const char *proto_name)
 	gen_fprintf(f, "\t};\n\n");
 
 
-	gen_fprintf(f, "\tproto_%s = proto_register_protocol(\"foo1\", \"foo2\", \"%s\");\n\n", proto_name, proto_name);
+	gen_fprintf(f, "\tproto_%s = proto_register_protocol(\"%s\", \"%s\", \"%s\");\n\n", proto_name, proto_name, proto_name, proto_name);
 
 	gen_fprintf(f, "\tproto_register_field_array(proto_%s, hf, array_length(hf));\n", proto_name);
 	gen_fprintf(f, "\tproto_register_subtree_array(ett, array_length(ett));\n");
 
-	gen_fprintf(f, "}\n");
+	gen_fprintf(f, "}\n\n");
 }
 
 static void
@@ -1433,7 +1722,7 @@ gen_proto_handoff(FILE *f, const char *proto_name)
 
 	xml_handle = find_dissector("xml");
 #endif
-	gen_fprintf(f, "}\n");
+	gen_fprintf(f, "}\n\n");
 }
 
 static const npl_protocol_t *
@@ -1484,6 +1773,7 @@ int main(int argc, char **argv) {
 
 		if (!(f = fopen(argv[i], "rb"))) {
 			fprintf(stderr, "can't open: %s\n", argv[i]);
+			continue;
 			return 1;
 		}
 
@@ -1499,10 +1789,12 @@ int main(int argc, char **argv) {
 		merge_code(&code, &mcode);
 	}
 
+#if 1
 	{
 		const npl_protocol_t *proto = get_protocol(&code);
 		const char *proto_name = (proto) ? proto->id : "noname";
 		FILE *out;
+		struct symbol *sym;
 
 		parse_includes(&code);
 		walk_code(NULL, &code, 1);
@@ -1515,9 +1807,30 @@ int main(int argc, char **argv) {
 		gen_fprintf(out, "#include <epan/packet.h>\n");
 		gen_fprintf(out, "\n");
 
-		/* TODO declare forward */
+		/* declare forward (or extern) */
+		/* XXX, not enough to generate from table (like private structs) */
+		for (sym = symbols; sym; sym = sym->next) {
+			const char *sstatic = (sym->is_static) ? "static " : "";
+
+			if (!sym->is_used)
+				continue;
+
+			switch (sym->type) {
+				case SYMBOL_TABLE:
+					gen_fprintf(out, "%sconst char *format_table_%s(...)\n", sstatic, sym->id);
+					break;
+				case SYMBOL_STRUCT:
+					gen_fprintf(out, "%sint dissect_struct_%s(tvbuff_t *, packet_info *, proto_tree *, int, int);\n", sstatic, sym->id);
+					break;
+				case SYMBOL_PROTO:
+					gen_fprintf(out, "%sint dissect_%s(tvbuff_t *, packet_info *, proto_tree *, void *);\n", sstatic, sym->id);
+					break;
+			}
+		}
+		gen_fprintf(out, "\n");
 
 		gen_fprintf(out, "static int proto_%s = -1;\n", proto_name);
+		gen_fprintf(out, "static int ett_%s = -1;\n", proto_name);
 		gen_vars(out);
 
 		walk_code(out, &code, 1);
@@ -1527,6 +1840,7 @@ int main(int argc, char **argv) {
 
 		fclose(out);
 	}
+#endif
 	return 0;
 }
 

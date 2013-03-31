@@ -223,14 +223,26 @@ typedef struct {
 
 } npl_switch_t;
 
+typedef struct _npl_attribute_list {
+	struct _npl_attribute_list *next;
+	struct _npl_expression *expr;
+
+	/* code generator */
+	const char *resolved;
+	npl_expression_t *assign_expr;
+	int flags;
+} npl_attribute_list_t;
+
 typedef struct _npl_statement {
 	union {
 		struct {
 			npl_statement_type_t type;
+			npl_attribute_list_t *attr_list;
 		};
 
 		struct {
 			npl_statement_type_t type;	/* STATEMENT_WHILE */
+			npl_attribute_list_t *attr_list;
 
 			char *id;
 			npl_expression_t expr;
@@ -240,24 +252,28 @@ typedef struct _npl_statement {
 
 		struct {
 			npl_statement_type_t type;	/* STATEMENT_TABLE */
+			npl_attribute_list_t *attr_list;
 
 			npl_table_t data;
 		} t;
 
 		struct {
 			npl_statement_type_t type;	/* STATEMENT_STRUCT */
+			npl_attribute_list_t *attr_list;
 
 			npl_struct_t data;
 		} s;
 
 		struct {
 			npl_statement_type_t type;	/* STATEMENT_SWITCH or STATEMENT_DYNAMIC_SWITCH */
+			npl_attribute_list_t *attr_list;
 
 			npl_switch_t data;
 		} sw;
 
 		struct _npl_statement_field {
 			npl_statement_type_t type;	/* STATEMENT_FIELD */
+			npl_attribute_list_t *attr_list;
 			
 			char *t_id;
 			char *id;
@@ -271,6 +287,7 @@ typedef struct _npl_statement {
 
 			/* code generator */
 			struct hfinfo *hfi;
+			npl_expression_t *byte_order_attr;
 			int generate_var;
 		} f;
 
@@ -290,6 +307,9 @@ typedef struct {
 	npl_expression_t *format;
 	struct _npl_statements *sts;
 
+	/* code generator */
+	struct symbol *sym;
+	npl_expression_t *byte_order_attr;
 } npl_protocol_t;
 
 typedef enum {
@@ -320,7 +340,6 @@ typedef struct {
 typedef enum {
 	DECL_INVALID = 0,
 
-	DECL_ATTR,
 	DECL_INCLUDE,
 	DECL_STRUCT,
 	DECL_TABLE,
@@ -331,53 +350,50 @@ typedef enum {
 } npl_decl_type_t;
 
 typedef struct {
-	npl_expression_list_t *expr_list;
-} npl_attr_t;
-
-typedef struct {
 	union {
 		struct {
 			npl_decl_type_t type;
+			npl_attribute_list_t *attr_list;
 		};
 
 		struct {
-			npl_decl_type_t type;	/* DECL_ATTR */
-
-			npl_attr_t data;
-		} a;
-
-		struct {
 			npl_decl_type_t type;	/* DECL_INCLUDE */
+			npl_attribute_list_t *attr_list;
 
 			char *file;
 		} i;
 
 		struct {
 			npl_decl_type_t type;	/* DECL_STRUCT */
+			npl_attribute_list_t *attr_list;
 
 			npl_struct_t data;
 		} s;
 
 		struct {
 			npl_decl_type_t type;	/* DECL_TABLE */
+			npl_attribute_list_t *attr_list;
 
 			npl_table_t data;
 		} t;
 
 		struct {
 			npl_decl_type_t type;	/* DECL_PROTOCOL */
+			npl_attribute_list_t *attr_list;
 
 			npl_protocol_t data;
 		} p;
 
 		struct {
 			npl_decl_type_t type;	/* DECL_CONST */
+			npl_attribute_list_t *attr_list;
 
 			npl_const_t data;
 		} c;
 
 		struct {
 			npl_decl_type_t type;	/* DECL_TYPE */
+			npl_attribute_list_t *attr_list;
 
 			npl_type_t data;
 		} ty;
