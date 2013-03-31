@@ -203,6 +203,10 @@ static int hf_rsvp_pi_seg_flags_1plus1_unidirectional = -1;
 static int hf_rsvp_pi_seg_flags_1plus1_bidirectional = -1;
 static int hf_rsvp_frr_flags_one2one_backup = -1;
 static int hf_rsvp_frr_flags_facility_backup = -1;
+static int hf_rsvp_c_type = -1;
+static int hf_rsvp_3gpp_obj_tid = -1;
+static int hf_rsvp_3gpp_obj_ie_len = -1;
+static int hf_rsvp_3gpp_obj_ie_type = -1;
 
 static dissector_table_t rsvp_dissector_table;
 
@@ -354,6 +358,7 @@ enum {
     TT_GEN_UNI,
     TT_GEN_UNI_SUBOBJ,
     TT_CALL_ID,
+	TT_3GPP2_OBJECT,
     TT_BUNDLE_COMPMSG,
     TT_RESTART_CAP,
     TT_PROTECTION_INFO,
@@ -668,9 +673,7 @@ static const value_string rsvp_class_vals[] = {
 */
     { RSVP_CLASS_GENERALIZED_UNI,       "GENERALIZED-UNI object"},
     { RSVP_CLASS_CALL_ID,               "CALL-ID object"},
-/*
-    RSVP_CLASS_3GPP2_OBJECT,
-*/
+    { RSVP_CLASS_3GPP2_OBJECT,          "3GPP2 object"},
 
     { RSVP_CLASS_VENDOR_PRIVATE_9,      "VENDOR PRIVATE object (11bbbbbb: "
                                          "forward if unknown)"},
@@ -1300,6 +1303,7 @@ enum hf_rsvp_filter_keys {
     RSVPF_ASSOCIATION,
     RSVPF_GENERALIZED_UNI,
     RSVPF_CALL_ID,
+    RSVPF_3GPP2_OBJECT,
     RSVPF_UNKNOWN_OBJ,
 
     /* Session object */
@@ -1556,6 +1560,8 @@ rsvp_class_to_filter_num(int classnum)
         return RSVPF_GENERALIZED_UNI;
     case RSVP_CLASS_CALL_ID :
         return RSVPF_CALL_ID;
+    case RSVP_CLASS_3GPP2_OBJECT :
+        return RSVPF_3GPP2_OBJECT;
     case RSVP_CLASS_DCLASS :
         return RSVPF_DCLASS;
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
@@ -1658,6 +1664,8 @@ rsvp_class_to_tree_type(int classnum)
         return TT_GEN_UNI;
     case RSVP_CLASS_CALL_ID :
         return TT_CALL_ID;
+    case RSVP_CLASS_3GPP2_OBJECT :
+        return TT_3GPP2_OBJECT;
     case RSVP_CLASS_DCLASS :
         return TT_DCLASS;
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
@@ -5766,6 +5774,46 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
+ * 3GPP2_OBJECT X.S0057-0 v1.0
+ *------------------------------------------------------------------------------*/
+static const value_string rsvp_3gpp_object_ie_type_vals[] = {
+    { 0, "TFTIPv4"},
+    { 2, "TFTIPv6"},
+    { 0, NULL}
+};
+
+static void
+dissect_rsvp_3gpp_object(proto_tree *ti, proto_tree *rsvp_object_tree,
+                     tvbuff_t *tvb,
+                     int offset, int obj_length,
+                     int rsvp_class _U_, int c_type)
+{
+    guint16 length;
+
+    offset+=3;
+    proto_tree_add_item(rsvp_object_tree, hf_rsvp_c_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Set obj_length to the remaining bytes */
+    obj_length = obj_length - 4;
+    if(c_type==1){
+        /* Transaction ID */
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        obj_length = obj_length - 4;
+        /* IE List */
+        while(obj_length>0){
+            length = tvb_get_ntohs(tvb, offset); 
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ie_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            proto_tree_add_text(rsvp_object_tree, tvb, offset, length-2, "IE Data");
+            obj_length = obj_length - length;
+        }
+    }
+
+}
+/*------------------------------------------------------------------------------
  * RESTART CAPABILITY
  *------------------------------------------------------------------------------*/
 static void
@@ -6485,6 +6533,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_rsvp_call_id(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
+        case RSVP_CLASS_3GPP2_OBJECT:
+            dissect_rsvp_3gpp_object(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            break;
+
         case RSVP_CLASS_RESTART_CAP:
             dissect_rsvp_restart_cap(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
@@ -7078,6 +7130,11 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
+        {&hf_rsvp_filter[RSVPF_3GPP2_OBJECT],
+         { "3GPP2 OBJECT", "rsvp.3gpp2_object",
+           FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }
+        },
         {&hf_rsvp_filter[RSVPF_PRIVATE_OBJ],
          { "Private object", "rsvp.obj_private",
            FT_NONE, BASE_NONE, NULL, 0x0,
@@ -7744,6 +7801,26 @@ proto_register_rsvp(void)
         {&hf_rsvp_frr_flags_facility_backup,
          { "Facility Backup", "rsvp.frr.flags.facility_backup",
            FT_BOOLEAN, 8, TFS(&tfs_desired_not_desired), 0x02,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_c_type,
+         { "C-Type", "rsvp.ctype",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tid,
+         { "Transaction ID", "rsvp.3gpp_obj.tid",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_ie_len,
+         { "Length", "rsvp.3gpp_obj.length",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_ie_type,
+         { "IE Type", "rsvp.3gpp_obj.ie_type",
+           FT_UINT32, BASE_DEC, VALS(rsvp_3gpp_object_ie_type_vals), 0,
            NULL, HFILL }
         },
 
