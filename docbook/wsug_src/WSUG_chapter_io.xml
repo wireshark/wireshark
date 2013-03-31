@@ -743,13 +743,14 @@
     handle these dumps.
     </para>
       <section id="ChIOImportDialog">
-      <title>The "File import" dialog box</title>
+      <title>The "Import from Hex Dump" dialog box</title>
       <para>
-      This dialog box lets you select a file to be imported and set import parameters.
+      This dialog box lets you select a text file, containing a hex dump
+      of packet data, to be imported and set import parameters.
       </para>
       <para>
     <figure id="ChIOFileImportDialog">
-      <title>The "File Import" dialog</title>
+      <title>The "Import from Hex Dump" dialog</title>
       <graphic entityref="WiresharkFileImportDialog" format="PNG"/>
     </figure>
     </para>
