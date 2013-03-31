@@ -116,8 +116,9 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
 			    rb_data.fsuffix, NULL);
 
-  if (rfile->name == NULL && err != NULL) {
-    *err = ENOMEM;
+  if (rfile->name == NULL) {
+    if (err != NULL)
+      *err = ENOMEM;
     return -1;
   }
 
