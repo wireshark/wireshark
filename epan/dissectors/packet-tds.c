@@ -997,18 +997,13 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, td
 
 static void
 dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree) {
-    gboolean is_unicode = FALSE;
     char *msg;
 
     proto_tree_add_text(tree, tvb, offset, 1 , "Status: %u", tvb_get_guint8(tvb, offset));
     offset += 1;
     len    -= 1;
 
-    if (is_unicode)
-        msg = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
-    else
-        msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
-
+    msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
     proto_tree_add_text(tree, tvb, offset, len, "Language text: %s", msg);
 }
 
