@@ -258,7 +258,6 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
       else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
       else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
       else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
-      else {};
 
       if(efa <= 8175) {
          proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
@@ -288,7 +287,6 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
       else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
       else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
       else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
-      else {};
 
       if(efa <= 8175) {
 
@@ -1372,13 +1370,13 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
          col_append_str(pinfo->cinfo, COL_INFO, " | ");
          col_append_fstr(pinfo->cinfo, COL_INFO, "LinkId: %u", linkIdentifier);
       }
-   } else {};
+   }
 
    if (sa_bit_id > -1) {
       col_append_str(pinfo->cinfo, COL_INFO, " | ");
       col_append_fstr(pinfo->cinfo, COL_INFO, "SA7bit: %u", sa_bit_id);
       sa_bit_id = -1;
-   } else {};
+   }
 
    if (link_status_operational > -1) {
       if (link_status_operational == 0) {
@@ -1386,10 +1384,9 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
       }
       else if (link_status_operational == 1) {
          col_append_str(pinfo->cinfo, COL_INFO, " | non-operational");
-      }else {
       }
       link_status_operational = -1;
-   } else {};
+   }
 
 }
 
