@@ -313,7 +313,7 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
 //        wsApp->setLastOpenDir(dir_path);
 //        g_free(dir_path);
 //    }
-//    set_display_filename(cf);
+//    set_titlebar_for_capture_file(cf);
 
     /* Update the appropriate parts of the main window. */
     updateForUnsavedChanges();

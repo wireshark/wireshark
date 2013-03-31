@@ -1344,7 +1344,7 @@ resolv_update_cb(gpointer data _U_)
 
 /* Set main_window_name and its icon title to the capture filename */
 static void
-set_display_filename(capture_file *cf)
+set_titlebar_for_capture_file(capture_file *cf)
 {
   gchar *display_name;
   gchar *window_name;
@@ -1368,7 +1368,7 @@ set_display_filename(capture_file *cf)
 void
 main_update_for_unsaved_changes(capture_file *cf)
 {
-  set_display_filename(cf);
+  set_titlebar_for_capture_file(cf);
   set_menus_for_capture_file(cf);
   set_toolbar_for_capture_file(cf);
 }
@@ -1664,7 +1664,7 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping = FALSE;
 
-    /*set_display_filename(cf);*/
+    /*set_titlebar_for_capture_file(cf);*/
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */

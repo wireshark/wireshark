@@ -1259,7 +1259,8 @@ void MainWindow::setMenusForFileSet(bool enable_list_files) {
 }
 
 void MainWindow::updateForUnsavedChanges() {
-//    set_display_filename(cf);
+//    set_titlebar_for_capture_file(cf);
+//    this->setWindowModified(cf->unsaved_changes);
     setMenusForCaptureFile();
 //    set_toolbar_for_capture_file(cf);
 
