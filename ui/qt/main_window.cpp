@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     gbl_cur_main_window = this;
     main_ui_->setupUi(this);
+    setTitlebarForCaptureFile();
     setMenusForCaptureFile();
     setForCapturedPackets(false);
     setMenusForSelectedPacket();
@@ -1113,6 +1114,24 @@ void MainWindow::captureStop() {
     }
 }
 
+// Titlebar
+void MainWindow::setTitlebarForCaptureFile()
+{
+    gchar *display_name;
+
+    if (cap_file_ && cap_file_->filename) {
+        display_name = cf_get_display_name(cap_file_);
+        setWindowModified(cap_file_->unsaved_changes);
+        // Clear the window title so that setWindowFilePath does something
+        setWindowTitle(NULL);
+        setWindowFilePath(display_name);
+        g_free(display_name);
+    } else {
+        /* We have no capture file. */
+        setWindowTitle("The Wireshark Network Analyzer");
+    }
+}
+
 // Menu state
 
 /* Enable or disable menu items based on whether you have a capture file
@@ -1259,8 +1278,7 @@ void MainWindow::setMenusForFileSet(bool enable_list_files) {
 }
 
 void MainWindow::updateForUnsavedChanges() {
-//    set_titlebar_for_capture_file(cf);
-//    this->setWindowModified(cf->unsaved_changes);
+    setTitlebarForCaptureFile();
     setMenusForCaptureFile();
 //    set_toolbar_for_capture_file(cf);
 

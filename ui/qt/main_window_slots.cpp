@@ -313,12 +313,11 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
 //        wsApp->setLastOpenDir(dir_path);
 //        g_free(dir_path);
 //    }
-//    set_titlebar_for_capture_file(cf);
 
     /* Update the appropriate parts of the main window. */
     updateForUnsavedChanges();
 
-//    /* Enable menu items that make sense if you have some captured packets. */
+    /* Enable menu items that make sense if you have some captured packets. */
     setForCapturedPackets(true);
 
     main_ui_->statusBar->popFileStatus();

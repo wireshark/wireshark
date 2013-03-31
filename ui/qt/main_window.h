@@ -124,6 +124,7 @@ private:
     bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
     void captureStop();
 
+    void setTitlebarForCaptureFile();
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
