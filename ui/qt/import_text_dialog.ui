@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Wireshark: Import from Text</string>
+   <string>Wireshark: Import from Hex Dump</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>

@@ -136,7 +136,7 @@
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
     <addaction name="actionFileMerge"/>
-    <addaction name="actionFileImport"/>
+    <addaction name="actionFileImportFromHexDump"/>
     <addaction name="actionFileClose"/>
     <addaction name="separator"/>
     <addaction name="actionFileSave"/>
@@ -651,9 +651,9 @@
     <string>Merge one or more files</string>
    </property>
   </action>
-  <action name="actionFileImport">
+  <action name="actionFileImportFromHexDump">
    <property name="text">
-    <string>&amp;Import...</string>
+    <string>&amp;Import from Hex Dump...</string>
    </property>
    <property name="toolTip">
     <string>Import a file</string>

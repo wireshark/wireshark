@@ -950,7 +950,7 @@ static const char *ui_desc_menubar =
 "         <placeholder name='RecentFiles'/>\n"
 "      </menu>\n"
 "      <menuitem name='Merge' action='/File/Merge'/>\n"
-"      <menuitem name='Import' action='/File/Import'/>\n"
+"      <menuitem name='ImportFromHexDump' action='/File/ImportFromHexDump'/>\n"
 "      <menuitem name='Close' action='/File/Close'/>\n"
 "      <separator/>\n"
 "      <menuitem name='Save' action='/File/Save'/>\n"
@@ -1423,7 +1423,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/Open",               GTK_STOCK_OPEN,                    "_Open...",           "<control>O",           "Open a file",  G_CALLBACK(file_open_cmd_cb) },
   { "/File/OpenRecent",         NULL,                              "Open _Recent",       NULL,                   NULL,           NULL },
   { "/File/Merge",              NULL,                              "_Merge...",          NULL,                   NULL,           G_CALLBACK(file_merge_cmd_cb) },
-  { "/File/Import",             NULL,                              "_Import...",         NULL,                   NULL,           G_CALLBACK(file_import_cmd_cb) },
+  { "/File/ImportFromHexDump",  NULL,                              "_Import from Hex Dump...", NULL,                   NULL,           G_CALLBACK(file_import_cmd_cb) },
   { "/File/Close",              GTK_STOCK_CLOSE,                   "_Close",             "<control>W",           NULL,           G_CALLBACK(file_close_cmd_cb) },
 
   { "/File/Save",               WIRESHARK_STOCK_SAVE,              "_Save",              "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },

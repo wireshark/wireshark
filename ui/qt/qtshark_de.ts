@@ -325,7 +325,7 @@
 <context>
     <name>ImportTextDialog</name>
     <message>
-        <source>Wireshark: Import from Text</source>
+        <source>Wireshark: Import from Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

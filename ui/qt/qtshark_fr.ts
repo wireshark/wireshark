@@ -410,7 +410,7 @@
     <name>ImportTextDialog</name>
     <message>
         <location filename="import_text_dialog.ui" line="26"/>
-        <source>Wireshark: Import from Text</source>
+        <source>Wireshark: Import from Hex Dump</source>
         <translation>Wireshark: Import depuis du texte</translation>
     </message>
     <message>

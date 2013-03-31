@@ -105,7 +105,7 @@ file_import_dlg_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 static void
 browse_file_cb(GtkWidget *browse_bt, GtkWidget *filename_te)
 {
-    file_selection_browse(browse_bt, filename_te, "Wireshark: Import from Text",
+    file_selection_browse(browse_bt, filename_te, "Wireshark: Import from Hex Dump",
         FILE_SELECTION_READ_BROWSE);
 }
 
@@ -854,7 +854,7 @@ file_import_dlg_new(void)
 
     /* Setup the dialog */
 
-    main_w = dlg_window_new("Wireshark: Import from Text");
+    main_w = dlg_window_new("Wireshark: Import from Hex Dump");
     gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 300);
 
     main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);

@@ -1020,7 +1020,7 @@ void MainWindow::on_actionFileMerge_triggered()
     mergeCaptureFile();
 }
 
-void MainWindow::on_actionFileImport_triggered()
+void MainWindow::on_actionFileImportFromHexDump_triggered()
 {
     importCaptureFile();
 }

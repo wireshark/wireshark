@@ -184,7 +184,7 @@ private slots:
     // gtk/main_menubar.c
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();
-    void on_actionFileImport_triggered();
+    void on_actionFileImportFromHexDump_triggered();
     void on_actionFileClose_triggered();
     void on_actionFileSave_triggered();
     void on_actionFileSaveAs_triggered();
