@@ -36,6 +36,28 @@ Wireshark Info
 
         <listitem>
           <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-21.html">wnpa-sec-2013-21</ulink>
+          </para>
+          <para>
+	    The RELOAD dissector could go into an infinite loop. Discovered by Even Jensen.
+            <!-- Fixed in trunk: r47805, r47808 -->
+            <!-- Fixed in trunk-1.8: r48107, r48677  -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8364">Bug
+            8364</ulink>,
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8546">Bug
+            8546</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2486">CVE-2013-2486</ulink>
+          </para>
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2487">CVE-2013-2487</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-23.html">wnpa-sec-2013-23</ulink>
           </para>
           <para>
@@ -111,7 +133,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+RELOAD
 
     </para>
     </section>
