@@ -5783,7 +5783,7 @@ static const value_string rsvp_3gpp_object_ie_type_vals[] = {
 };
 
 static void
-dissect_rsvp_3gpp_object(proto_tree *ti, proto_tree *rsvp_object_tree,
+dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                      tvbuff_t *tvb,
                      int offset, int obj_length,
                      int rsvp_class _U_, int c_type)
