@@ -1,6 +1,6 @@
 <? wireshark:protocol proto_name="rss" hierarchy="yes" ?>
 <!--
-$Id:$
+$Id$
 -->
 
 <!--
