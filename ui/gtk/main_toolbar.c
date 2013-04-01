@@ -105,26 +105,15 @@ void set_toolbar_for_capture_file(capture_file *cf) {
         if (cf == NULL || cf->state == FILE_READ_IN_PROGRESS) {
             /* We have no open capture file, or we have one but we're in
                the process of reading it.  Disable everything having to
-               do with the file*/
+               do with the file. */
             gtk_widget_set_sensitive(GTK_WIDGET(save_button), FALSE);
             gtk_widget_set_sensitive(GTK_WIDGET(close_button), FALSE);
             gtk_widget_set_sensitive(GTK_WIDGET(reload_button), FALSE);
         } else {
             /* We have an open capture file and we're finished reading it.
-               Enable "Save" if and only if:
-
-                  the file has unsaved changes, and we can save it in some
-                  format through Wiretap
-
-               or
-
-                  the file is a temporary file and has no unsaved changes (so
-                  that "saving" it just means copying it).
-
-               Enable "Close" and "Reload". */
-            gtk_widget_set_sensitive(GTK_WIDGET(save_button),
-                                     (cf->unsaved_changes && cf_can_write_with_wiretap(cf)) ||
-                                     (cf->is_tempfile && !cf->unsaved_changes));
+               Enable "Save" if and only if we have something to save and
+               can do so.  Enable "Close" and "Reload" unconditionally. */
+            gtk_widget_set_sensitive(GTK_WIDGET(save_button), cf_can_save(cf));
             gtk_widget_set_sensitive(GTK_WIDGET(close_button), TRUE);
             gtk_widget_set_sensitive(GTK_WIDGET(reload_button), TRUE);
         }

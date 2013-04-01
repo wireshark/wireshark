@@ -3973,12 +3973,100 @@ cf_can_write_with_wiretap(capture_file *cf)
 {
   /* We don't care whether we support the comments in this file or not;
      if we can't, we'll offer the user the option of discarding the
-     comments.
-
-     XXX - we shouldn't offer the option of adding or editing comments
-     of a particular type if we don't support that particular type of
-     comment in any file format. */
+     comments. */
   return wtap_dump_can_write(cf->linktypes, 0);
+}
+
+/*
+ * Should we let the user do a save?
+ *
+ * We should if:
+ *
+ *  the file has unsaved changes, and we can save it in some
+ *  format through Wiretap
+ *
+ * or
+ *
+ *  the file is a temporary file and has no unsaved changes (so
+ *  that "saving" it just means copying it).
+ *
+ * XXX - we shouldn't allow files to be edited if they can't be saved,
+ * so cf->unsaved_changes should be true only if the file can be saved.
+ *
+ * We don't care whether we support the comments in this file or not;
+ * if we can't, we'll offer the user the option of discarding the
+ * comments.
+ */
+gboolean
+cf_can_save(capture_file *cf)
+{
+  if (cf->unsaved_changes && wtap_dump_can_write(cf->linktypes, 0)) {
+    /* Saved changes, and we can write it out with Wiretap. */
+    return TRUE;
+  }
+
+  if (cf->is_tempfile && !cf->unsaved_changes) {
+    /*
+     * Temporary file with no unsaved changes, so we can just do a
+     * raw binary copy.
+     */
+    return TRUE;
+  }
+
+  /* Nothing to save. */
+  return FALSE;
+}
+
+/*
+ * Should we let the user do a "save as"?
+ *
+ * That's true if:
+ *
+ *  we can save it in some format through Wiretap
+ *
+ * or
+ *
+ *  the file is a temporary file and has no unsaved changes (so
+ *  that "saving" it just means copying it).
+ *
+ * XXX - we shouldn't allow files to be edited if they can't be saved,
+ * so cf->unsaved_changes should be true only if the file can be saved.
+ *
+ * We don't care whether we support the comments in this file or not;
+ * if we can't, we'll offer the user the option of discarding the
+ * comments.
+ */
+gboolean
+cf_can_save_as(capture_file *cf)
+{
+  if (wtap_dump_can_write(cf->linktypes, 0)) {
+    /* We can write it out with Wiretap. */
+    return TRUE;
+  }
+
+  if (cf->is_tempfile && !cf->unsaved_changes) {
+    /*
+     * Temporary file with no unsaved changes, so we can just do a
+     * raw binary copy.
+     */
+    return TRUE;
+  }
+
+  /* Nothing to save. */
+  return FALSE;
+}
+
+/*
+ * Does this file have unsaved data?
+ */
+gboolean
+cf_not_saved(capture_file *cf)
+{
+  /*
+   * If this is a temporary file, or a file with unsaved changes, it
+   * has unsaved data.
+   */
+  return cf->is_tempfile || cf->unsaved_changes;
 }
 
 /*

@@ -372,14 +372,14 @@ void MainWindow::mergeCaptureFile()
         return;
 
     if (prefs.gui_ask_unsaved) {
-        if (cap_file_->is_tempfile || cap_file_->unsaved_changes) {
+        if (cf_not_saved(cap_file_)) {
             QMessageBox msg_dialog;
             gchar *display_basename;
             int response;
 
             msg_dialog.setIcon(QMessageBox::Question);
-            /* This is a temporary capture file or has unsaved changes; ask the
-               user whether to save the capture. */
+            /* This file has unsaved data; ask the user whether to save
+               the capture. */
             if (cap_file_->is_tempfile) {
                 msg_dialog.setText(tr("Save packets before merging?"));
                 msg_dialog.setInformativeText(tr("A temporary capture file can't be merged."));
@@ -980,7 +980,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 #endif
 
     if (prefs.gui_ask_unsaved) {
-        if (cap_file_->is_tempfile || capture_in_progress || cap_file_->unsaved_changes) {
+        if (cf_not_saved(cap_file_) || capture_in_progress) {
             QMessageBox msg_dialog;
             QString question;
             QPushButton *default_button;
@@ -988,9 +988,8 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 
             msg_dialog.setIcon(QMessageBox::Question);
 
-            /* This is a temporary capture file, or there's a capture in
-               progress, or the file has unsaved changes; ask the user whether
-               to save the data. */
+            /* This file has unsaved data or there's a capture in
+               progress; ask the user whether to save the data. */
             if (cap_file_->is_tempfile) {
 
                 msg_dialog.setText(tr("You have unsaved packets"));
@@ -1121,7 +1120,7 @@ void MainWindow::setTitlebarForCaptureFile()
 
     if (cap_file_ && cap_file_->filename) {
         display_name = cf_get_display_name(cap_file_);
-        setWindowModified(cap_file_->unsaved_changes);
+        setWindowModified(cf_not_saved(cap_file_));
         // Clear the window title so that setWindowFilePath does something
         setWindowTitle(NULL);
         setWindowFilePath(display_name);
@@ -1169,33 +1168,8 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileMerge->setEnabled(cf_can_write_with_wiretap(cap_file_));
 
         main_ui_->actionFileClose->setEnabled(true);
-        /*
-         * "Save" should be available only if:
-         *
-         *  the file has unsaved changes, and we can save it in some
-         *  format through Wiretap
-         *
-         * or
-         *
-         *  the file is a temporary file and has no unsaved changes (so
-         *  that "saving" it just means copying it).
-         */
-        main_ui_->actionFileSave->setEnabled(
-                    (cap_file_->unsaved_changes && cf_can_write_with_wiretap(cap_file_)) ||
-                    (cap_file_->is_tempfile && !cap_file_->unsaved_changes));
-        /*
-         * "Save As..." should be available only if:
-         *
-         *  we can save it in some format through Wiretap
-         *
-         * or
-         *
-         *  the file is a temporary file and has no unsaved changes (so
-         *  that "saving" it just means copying it).
-         */
-        main_ui_->actionFileSaveAs->setEnabled(
-                    cf_can_write_with_wiretap(cap_file_) ||
-                    (cap_file_->is_tempfile && !cap_file_->unsaved_changes));
+        main_ui_->actionFileSave->setEnabled(cf_can_save(cap_file_));
+        main_ui_->actionFileSaveAs->setEnabled(cf_can_save_as(cap_file_));
         /*
          * "Export Specified Packets..." should be available only if
          * we can write the file out in at least one format.

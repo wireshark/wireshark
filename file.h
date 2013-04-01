@@ -201,13 +201,38 @@ void cf_fake_continue_tail(capture_file *cf);
 cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
 
 /**
- * Determine whether this capture file (or a range of it) can be saved
+ * Determine whether this capture file (or a range of it) can be written
  * in any format using Wiretap rather than by copying the raw data.
+ *
+ * @param cf the capture file to check
+ * @return TRUE if it can be written, FALSE if it can't
+ */
+gboolean cf_can_write_with_wiretap(capture_file *cf);
+
+/**
+ * Determine whether this capture file can be saved with a "save" operation;
+ * if there's nothing unsaved, it can't.
  *
  * @param cf the capture file to check
  * @return TRUE if it can be saved, FALSE if it can't
  */
-gboolean cf_can_write_with_wiretap(capture_file *cf);
+gboolean cf_can_save(capture_file *cf);
+
+/**
+ * Determine whether this capture file can be saved with a "save as" operation.
+ *
+ * @param cf the capture file to check
+ * @return TRUE if it can be saved, FALSE if it can't
+ */
+gboolean cf_can_save_as(capture_file *cf);
+
+/**
+ * Determine whether this capture file has unsaved data.
+ *
+ * @param cf the capture file to check
+ * @return TRUE if it has unsaved data, FALSE if it doesn't
+ */
+gboolean cf_not_saved(capture_file *cf);
 
 /**
  * Save all packets in a capture file to a new file, and, if that succeeds,

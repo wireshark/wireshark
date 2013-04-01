@@ -1027,9 +1027,9 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   gint       response;
 
   if (prefs.gui_ask_unsaved) {
-    if (cfile.is_tempfile || cfile.unsaved_changes) {
-      /* This is a temporary capture file or has unsaved changes; ask the
-         user whether to save the capture. */
+    if (cf_not_saved(&cfile)) {
+      /* This file has unsaved data; ask the user whether to save the
+         capture. */
       if (cfile.is_tempfile) {
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                             (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
@@ -1135,10 +1135,9 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
     capture_in_progress = FALSE;
 
   if (prefs.gui_ask_unsaved) {
-    if (cf->is_tempfile || capture_in_progress || cf->unsaved_changes) {
-      /* This is a temporary capture file, or there's a capture in
-         progress, or the file has unsaved changes; ask the user whether
-         to save the data. */
+    if (cf_not_saved(cf) || capture_in_progress) {
+      /* This file has unsaved data or there's a capture in progress;
+         ask the user whether to save the data. */
       if (cf->is_tempfile) {
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                             (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
