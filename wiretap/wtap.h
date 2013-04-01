@@ -1238,8 +1238,6 @@ void wtap_close(wtap *wth);
 /*** dump packets into a capture file ***/
 WS_DLL_PUBLIC
 gboolean wtap_dump_can_open(int filetype);
-WS_DLL_PUBLIC
-gboolean wtap_dump_can_write_encap(int filetype, int encap);
 
 /**
  * Given a GArray of WTAP_ENCAP_ types, return the per-file encapsulation

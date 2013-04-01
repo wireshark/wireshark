@@ -214,16 +214,28 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 
     filename = cross_plat_fname(fname);
 
-    if (!wtap_dump_can_write_encap(filetype, encap))
-        WSLUA_ERROR(Dumper_new,"Not every filetype handles every encap");
-
-    d = wtap_dump_open(filename, filetype, encap,0 , FALSE, &err);
+    d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
 
     if (! d ) {
         /* WSLUA_ERROR("Error while opening file for writing"); */
-        luaL_error(L,"error while opening `%s': %s",
-                   filename,
-                   wtap_strerror(err));
+        switch (err) {
+        case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+            luaL_error(L,"Files of file type %s cannot be written",
+                       wtap_file_type_string(filetype));
+            break;
+
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+            luaL_error(L,"Files of file type %s don't support encapsulation %s",
+                       wtap_file_type_string(filetype),
+                       wtap_encap_short_string(encap));
+            break;
+
+        default:
+            luaL_error(L,"error while opening `%s': %s",
+                       filename,
+                       wtap_strerror(err));
+            break;
+        }
         return 0;
     }
 
@@ -338,19 +350,27 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     encap = lua_pinfo->fd->lnk_t;
 
-    if (!wtap_dump_can_write_encap(filetype, encap)) {
-        luaL_error(L,"Cannot write encap %s in filetype %s",
-                   wtap_encap_short_string(encap),
-                   wtap_file_type_string(filetype));
-        return 0;
-    }
-
-    d = wtap_dump_open(filename, filetype, encap, 0 , FALSE, &err);
+    d = wtap_dump_open(filename, filetype, encap, 0, FALSE, &err);
 
     if (! d ) {
-        luaL_error(L,"error while opening `%s': %s",
-                   filename,
-                   wtap_strerror(err));
+        switch (err) {
+        case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+            luaL_error(L,"Files of file type %s cannot be written",
+                       wtap_file_type_string(filetype));
+            break;
+
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+            luaL_error(L,"Files of file type %s don't support encapsulation %s",
+                       wtap_file_type_string(filetype),
+                       wtap_encap_short_string(encap));
+            break;
+
+        default:
+            luaL_error(L,"error while opening `%s': %s",
+                       filename,
+                       wtap_strerror(err));
+            break;
+        }
         return 0;
     }
 

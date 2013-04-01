@@ -876,6 +876,19 @@ wtap_dump_file_encap_type(const GArray *file_encaps)
 	return encap;
 }
 
+static gboolean
+wtap_dump_can_write_encap(int filetype, int encap)
+{
+	if (filetype < 0 || filetype >= wtap_num_file_types
+	    || dump_open_table[filetype].can_write_encap == NULL)
+		return FALSE;
+
+	if ((*dump_open_table[filetype].can_write_encap)(encap) != 0)
+		return FALSE;
+
+	return TRUE;
+}
+
 /*
  * Return TRUE if a capture with a given GArray of encapsulation types
  * and a given bitset of comment types can be written in a specified
@@ -1182,18 +1195,6 @@ gboolean wtap_dump_can_open(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types
 	    || dump_open_table[filetype].dump_open == NULL)
-		return FALSE;
-
-	return TRUE;
-}
-
-gboolean wtap_dump_can_write_encap(int filetype, int encap)
-{
-	if (filetype < 0 || filetype >= wtap_num_file_types
-	    || dump_open_table[filetype].can_write_encap == NULL)
-		return FALSE;
-
-	if ((*dump_open_table[filetype].can_write_encap)(encap) != 0)
 		return FALSE;
 
 	return TRUE;
