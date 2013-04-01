@@ -29,6 +29,8 @@
 
 #include <epan/prefs.h>
 
+#include "cfile.h"
+
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 

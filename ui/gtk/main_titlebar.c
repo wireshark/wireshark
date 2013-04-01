@@ -28,6 +28,9 @@
 
 #include <gtk/gtk.h>
 
+#include "cfile.h"
+#include "file.h"
+
 #include "gtkglobals.h"
 #include "gui_utils.h"
 #include "main_titlebar.h"
@@ -43,7 +46,7 @@
 
 /* Set the name of the top level main_window_name with the specified string and call
    main_titlebar_update() to construct the full title and display it in the main window. */
-void
+static void
 main_set_window_name(const gchar *window_name)
 {
     gchar *old_window_name;
@@ -81,4 +84,34 @@ main_titlebar_update(void)
         gtk_window_set_title(GTK_WINDOW(top_level), title);
         g_free(title);
     }
+}
+
+/* Set titlebar to reflect the current state of the capture file, if any */
+void
+set_titlebar_for_capture_file(capture_file *cf)
+{
+  gchar *display_name;
+  gchar *window_name;
+
+  if (cf && cf->filename) {
+    display_name = cf_get_display_name(cf);
+    window_name = g_strdup_printf("%s%s", cf->unsaved_changes ? "*" : "",
+                                  display_name);
+    g_free(display_name);
+    main_set_window_name(window_name);
+    g_free(window_name);
+  } else {
+    main_set_window_name("The Wireshark Network Analyzer");
+  }
+}
+
+/* Set titlebar to reflect a capture in progress */
+void
+set_titlebar_for_capture_in_progress(capture_file *cf)
+{
+  gchar *window_name;
+
+  window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cf));
+  main_set_window_name(window_name);
+  g_free(window_name);
 }

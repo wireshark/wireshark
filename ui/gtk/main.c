@@ -1342,25 +1342,6 @@ resolv_update_cb(gpointer data _U_)
 }
 
 
-/* Set main_window_name and its icon title to the capture filename */
-static void
-set_titlebar_for_capture_file(capture_file *cf)
-{
-  gchar *display_name;
-  gchar *window_name;
-
-  if (cf->filename) {
-    display_name = cf_get_display_name(cf);
-    window_name = g_strdup_printf("%s%s", cf->unsaved_changes ? "*" : "",
-                                  display_name);
-    g_free(display_name);
-    main_set_window_name(window_name);
-    g_free(window_name);
-  } else {
-    main_set_window_name("The Wireshark Network Analyzer");
-  }
-}
-
 /* Update various parts of the main window for a capture file "unsaved
    changes" change - update the title to reflect whether there are
    unsaved changes or not, and update the menus and toolbar to
@@ -1437,10 +1418,11 @@ main_cf_cb_file_closing(capture_file *cf)
        capture file we're closing. */
     destroy_packet_wins();
 
-    /* Restore the standard title bar message. */
-    main_set_window_name("The Wireshark Network Analyzer");
+    /* Update the titlebar to reflect the lack of a capture file. */
+    set_titlebar_for_capture_file(NULL);
 
-    /* Disable all menu items that make sense only if you have a capture. */
+    /* Disable all menu and toolbar items that make sense only if
+       you have a capture. */
     set_menus_for_capture_file(NULL);
     set_toolbar_for_capture_file(NULL);
     main_set_for_captured_packets(FALSE);
@@ -1559,12 +1541,7 @@ static GList *icon_list_create(
 static void
 main_capture_set_main_window_title(capture_options *capture_opts)
 {
-    GString *title = g_string_new("");
-
-    g_string_append(title, "Capturing ");
-    g_string_append_printf(title, "from %s ", cf_get_tempfile_source((capture_file *)capture_opts->cf));
-    main_set_window_name(title->str);
-    g_string_free(title, TRUE);
+    set_titlebar_for_capture_in_progress((capture_file *)capture_opts->cf);
 }
 
 static void
@@ -1673,7 +1650,7 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 
     /* Restore the standard title bar message */
     /* (just in case we have trouble opening the capture file). */
-    main_set_window_name("The Wireshark Network Analyzer");
+    set_titlebar_for_capture_file(NULL);
 
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
@@ -1712,8 +1689,7 @@ main_capture_cb_capture_failed(capture_options *capture_opts _U_)
 
     /* the capture failed before the first packet was captured
        reset title, menus and icon */
-
-    main_set_window_name("The Wireshark Network Analyzer");
+    set_titlebar_for_capture_file(NULL);
 
     main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
@@ -3684,7 +3660,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p
 
     /* Main window */
     top_level = window_new(GTK_WINDOW_TOPLEVEL, "");
-    main_set_window_name("The Wireshark Network Analyzer");
+    set_titlebar_for_capture_file(NULL);
 
     gtk_widget_set_name(top_level, "main window");
     g_signal_connect(top_level, "delete_event", G_CALLBACK(main_window_delete_event_cb),

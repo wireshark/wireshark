@@ -31,7 +31,10 @@
  */
 extern void main_titlebar_update(void);
 
-/* Set the name of the top-level window. */
-extern void main_set_window_name(const gchar *);
+/* Set titlebar to reflect the current state of the capture file, if any */
+extern void set_titlebar_for_capture_file(capture_file *cf);
+
+/* Set titlebar to reflect a capture in progress */
+extern void set_titlebar_for_capture_in_progress(capture_file *cf);
 
 #endif /* __MAIN_TITLEBAR_H__ */

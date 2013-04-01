@@ -28,6 +28,8 @@
 
 #include <epan/prefs.h>
 
+#include "cfile.h"
+
 #include "ui/ui_util.h"
 
 #include "ui/gtk/prefs_layout.h"
