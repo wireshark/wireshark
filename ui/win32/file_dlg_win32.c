@@ -110,8 +110,7 @@ static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
 
 static TCHAR *build_file_open_type_list(void);
-static TCHAR *build_file_save_type_list(GArray *savable_file_types,
-                                        gboolean must_support_comments);
+static TCHAR *build_file_save_type_list(GArray *savable_file_types);
 
 static int             g_filetype;
 static gboolean        g_compressed;
@@ -238,29 +237,27 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
 check_savability_t
 win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
 {
+    guint32        comment_types;
+    GArray        *savable_file_types;
     gint           response;
 
-    /* Do we have any comments? */
-    if (!cf_has_comments(cf)) {
-        /* No.  Let the save happen; no comments to delete. */
+    /* What types of comments do we have? */
+    comment_types = cf_comment_types(cf);
+
+    /* Does the file's format support all the comments we have? */
+    if (wtap_dump_supports_comment_types(cf->cd_t, comment_types)) {
+        /* Yes.  Let the save happen; we can save all the comments, so
+           there's no need to delete them. */
         return SAVE;
     }
 
-    /* OK, we have comments.  Can we write them out in the selected
-       format?
+    /* No. Are there formats in which we can write this file that
+       supports all the comments in this file? */
+    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
+                                                     comment_types);
+    if (savable_file_types != NULL) {
+        g_array_free(savable_file_types, TRUE);
 
-       XXX - for now, we "know" that pcap-ng is the only format for which
-       we support comments.  We should really ask Wiretap what the
-       format in question supports (and handle different types of
-       comments, some but not all of which some file formats might
-       not support). */
-    if (file_type == WTAP_FILE_PCAPNG) {
-        /* Yes - they selected pcap-ng.  Let the save happen; we can
-           save the comments, so no need to delete them. */
-        return SAVE;
-    }
-    /* No. Is pcap-ng one of the formats in which we can write this file? */
-    if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
         /* Yes.  Offer the user a choice of "Save in a format that
            supports comments", "Discard comments and save in the
            format you selected", or "Cancel", meaning "don't bother
@@ -335,8 +332,9 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
 
 gboolean
 win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_type,
-                   gboolean *compressed, gboolean must_support_comments)
+                   gboolean *compressed, gboolean must_support_all_comments)
 {
+    guint32 required_comment_types;
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
@@ -354,7 +352,14 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
     }
 
-    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
+    /* What types of comments do we have to support? */
+    if (must_support_all_comments)
+        required_comment_types = cf_comment_types(cf); /* all the ones the file has */
+    else
+        required_comment_types = 0; /* none of them */
+
+    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
+                                                     required_comment_types);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
     g_compressed = FALSE;
@@ -377,8 +382,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf, GString *file_name, int *file_t
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-    ofn->lpstrFilter = build_file_save_type_list(savable_file_types,
-                                                 must_support_comments);
+    ofn->lpstrFilter = build_file_save_type_list(savable_file_types);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
@@ -442,7 +446,8 @@ win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
         StringCchCopy(file_name16, MAX_PATH, utf_8to16(file_name->str));
     }
 
-    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.linktypes);
+    savable_file_types = wtap_get_savable_file_types(cfile.cd_t,
+                                                     cfile.linktypes, 0);
     if (savable_file_types == NULL)
         return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
@@ -467,7 +472,7 @@ win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
-    ofn->lpstrFilter = build_file_save_type_list(savable_file_types, FALSE);
+    ofn->lpstrFilter = build_file_save_type_list(savable_file_types);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
@@ -1522,8 +1527,7 @@ build_file_open_type_list(void) {
 }
 
 static TCHAR *
-build_file_save_type_list(GArray *savable_file_types,
-                          gboolean must_support_comments) {
+build_file_save_type_list(GArray *savable_file_types) {
     guint i;
     int   ft;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
@@ -1532,10 +1536,6 @@ build_file_save_type_list(GArray *savable_file_types,
     /* Get only the file types as which we can save this file. */
     for (i = 0; i < savable_file_types->len; i++) {
         ft = g_array_index(savable_file_types, int, i);
-        if (must_support_comments) {
-            if (ft != WTAP_FILE_PCAPNG)
-                continue;
-        }
         append_file_type(sa, ft);
     }
 

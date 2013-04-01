@@ -135,27 +135,28 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
         return CANCELLED;
     return win32_check_save_as_with_comments(parent->effectiveWinId(), cf, file_type);
 #else // Q_WS_WIN
+    guint32 comment_types;
+    GArray *savable_file_types;
     QMessageBox msg_dialog;
     int response;
 
-    /* Do we have any comments? */
-    if (!cf_has_comments(cf)) {
-        /* No.  Let the save happen; no comments to delete. */
+    /* What types of comments do we have? */
+    comment_types = cf_comment_types(cf);
+
+    /* Does the file's format support all the comments we have? */
+    if (wtap_dump_supports_comment_types(file_type, comment_types)) {
+        /* Yes.  Let the save happen; we can save all the comments, so
+           there's no need to delete them. */
         return SAVE;
     }
 
-    /* XXX - for now, we "know" that pcap-ng is the only format for which
-       we support comments.  We should really ask Wiretap what the
-       format in question supports (and handle different types of
-       comments, some but not all of which some file formats might
-       not support). */
-    if (file_type == WTAP_FILE_PCAPNG) {
-        /* Yes - they selected pcap-ng.  Let the save happen; we can
-         save the comments, so no need to delete them. */
-        return SAVE;
-    }
-    /* No. Is pcap-ng one of the formats in which we can write this file? */
-    if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
+    /* No. Are there formats in which we can write this file that
+       supports all the comments in this file? */
+    savable_file_types = wtap_get_savable_file_types(file_type, cf->linktypes,
+                                                     comment_types);
+    if (savable_file_types != NULL) {
+        g_array_free(savable_file_types, TRUE);
+
         QPushButton *default_button;
         /* Yes.  Offer the user a choice of "Save in a format that
            supports comments", "Discard comments and save in the
@@ -250,11 +251,11 @@ int CaptureFileDialog::open(QString &file_name) {
     return (int) wof_status;
 }
 
-check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_comments) {
+check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wsf_status;
 
-    wsf_status = win32_save_as_file(parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, must_support_comments);
+    wsf_status = win32_save_as_file(parentWidget()->effectiveWinId(), cap_file_, fname, &file_type_, &compressed_, must_support_all_comments);
     file_name = fname->str;
 
     g_string_free(fname, TRUE);
@@ -518,12 +519,12 @@ int CaptureFileDialog::open(QString &file_name) {
     }
 }
 
-check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_comments) {
+check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
     setWindowTitle(tr("Wireshark: Save Capture File As"));
     // XXX There doesn't appear to be a way to use setNameFilters without restricting
     // what the user can select. We might want to use our own combobox instead and
     // let the user select anything.
-    setNameFilters(buildFileSaveAsTypeList(must_support_comments));
+    setNameFilters(buildFileSaveAsTypeList(must_support_all_comments));
     setAcceptMode(QFileDialog::AcceptSave);
     setLabelText(FileType, tr("Save as:"));
 
@@ -605,13 +606,24 @@ int CaptureFileDialog::merge(QString &file_name) {
     }
 }
 
-QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_comments) {
+QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_comments) {
     QStringList filters;
+    guint32 required_comment_types;
     GArray *savable_file_types;
     guint i;
 
     type_hash_.clear();
-    savable_file_types = wtap_get_savable_file_types(cap_file_->cd_t, cap_file_->linktypes);
+
+    /* What types of comments do we have to support? */
+    if (must_support_all_comments)
+        required_comment_types = cf_comment_types(cap_file_); /* all the ones the file has */
+    else
+        required_comment_types = 0; /* none of them */
+
+  /* What types of file can we save this file as? */
+    savable_file_types = wtap_get_savable_file_types(cap_file_->cd_t,
+                                                     cap_file_->linktypes,
+                                                     required_comment_types);
 
     if (savable_file_types != NULL) {
         QString file_type;
@@ -621,10 +633,6 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_comment
            place.)  Add them all to the combo box.  */
         for (i = 0; i < savable_file_types->len; i++) {
             ft = g_array_index(savable_file_types, int, i);
-            if (must_support_comments) {
-                if (ft != WTAP_FILE_PCAPNG)
-                    continue;
-            }
             if (default_ft_ < 1)
                 default_ft_ = ft; /* first file type is the default */
             file_type = fileType(ft);

@@ -80,11 +80,12 @@
 #endif
 
 static void do_file_save(capture_file *cf, gboolean dont_reopen);
-static void file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
+static void file_save_as_cmd(capture_file *cf,
+                            gboolean must_support_all_comments,
                             gboolean dont_reopen);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
 static int set_file_type_list(GtkWidget *combo_box, capture_file *cf,
-                              gboolean must_support_comments);
+                              gboolean must_support_all_comments);
 static gboolean test_file_close(capture_file *cf, gboolean from_quit,
                                 const char *before_what);
 
@@ -1289,31 +1290,29 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 static check_savability_t
 check_save_with_comments(capture_file *cf)
 {
+  guint32    comment_types;
+  GArray    *savable_file_types;
   GtkWidget *msg_dialog;
   gint       response;
 
-  /* Do we have any comments? */
-  if (!cf_has_comments(cf)) {
-    /* No.  Let the save happen; no comments to delete. */
+  /* What types of comments do we have? */
+  comment_types = cf_comment_types(cf);
+
+  /* Does the file's format support all the comments we have? */
+  if (wtap_dump_supports_comment_types(cf->cd_t, comment_types)) {
+    /* Yes.  Let the save happen; we can save all the comments, so
+       there's no need to delete them. */
     return SAVE;
   }
 
-  /* OK, we have comments.  Can we write them out in the file's format?
+  /* No. Are there formats in which we can write this file that
+     supports all the comments in this file? */
+  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
+                                                   comment_types);
+  if (savable_file_types != NULL) {
+    g_array_free(savable_file_types, TRUE);
 
-     XXX - for now, we "know" that pcap-ng is the only format for which
-     we support comments.  We should really ask Wiretap what the
-     format in question supports (and handle different types of
-     comments, some but not all of which some file formats might
-     not support). */
-  if (cf->cd_t == WTAP_FILE_PCAPNG) {
-    /* Yes - the file is a pcap-ng file.  Let the save happen; we can
-       save the comments, so no need to delete them. */
-    return SAVE;
-  }
-
-  /* Is pcap-ng one of the formats in which we can write this file? */
-  if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
-    /* Yes.  Ooffer the user a choice of "Save in a format that
+    /* Yes.  Offer the user a choice of "Save in a format that
        supports comments", "Discard comments and save in the
        file's own format", or "Cancel", meaning "don't bother
        saving the file at all". */
@@ -1511,14 +1510,23 @@ file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
    Returns the default file type. */
 static int
 set_file_type_list(GtkWidget *combo_box, capture_file *cf,
-                   gboolean must_support_comments)
+                   gboolean must_support_all_comments)
 {
+  guint32 required_comment_types;
   GArray *savable_file_types;
   guint   i;
   int     ft;
   int     default_ft = -1;
 
-  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
+  /* What types of comments do we have to support? */
+  if (must_support_all_comments)
+    required_comment_types = cf_comment_types(cf); /* all the ones the file has */
+  else
+    required_comment_types = 0; /* none of them */
+
+  /* What types of file can we save this file as? */
+  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
+                                                   required_comment_types);
 
   if (savable_file_types != NULL) {
     /* OK, we have at least one file type we can save this file as.
@@ -1526,10 +1534,6 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
        place.)  Add them all to the combo box.  */
     for (i = 0; i < savable_file_types->len; i++) {
       ft = g_array_index(savable_file_types, int, i);
-      if (must_support_comments) {
-        if (ft != WTAP_FILE_PCAPNG)
-          continue;
-      }
       if (default_ft == -1)
         default_ft = ft; /* first file type is the default */
       ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
@@ -1572,27 +1576,28 @@ file_select_file_type_cb(GtkWidget *w, gpointer parent_arg)
 static check_savability_t
 gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
 {
+  guint32    comment_types;
+  GArray    *savable_file_types;
   GtkWidget *msg_dialog;
   gint       response;
 
-  /* Do we have any comments? */
-  if (!cf_has_comments(cf)) {
-    /* No.  Let the save happen; no comments to delete. */
+  /* What types of comments do we have? */
+  comment_types = cf_comment_types(cf);
+
+  /* Does the file's format support all the comments we have? */
+  if (wtap_dump_supports_comment_types(file_type, comment_types)) {
+    /* Yes.  Let the save happen; we can save all the comments, so
+       there's no need to delete them. */
     return SAVE;
   }
 
-  /* XXX - for now, we "know" that pcap-ng is the only format for which
-     we support comments.  We should really ask Wiretap what the
-     format in question supports (and handle different types of
-     comments, some but not all of which some file formats might
-     not support). */
-  if (file_type == WTAP_FILE_PCAPNG) {
-    /* Yes - they selected pcap-ng.  Let the save happen; we can
-       save the comments, so no need to delete them. */
-    return SAVE;
-  }
-  /* No. Is pcap-ng one of the formats in which we can write this file? */
-  if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
+  /* No. Are there formats in which we can write this file that
+     supports all the comments in this file? */
+  savable_file_types = wtap_get_savable_file_types(file_type, cf->linktypes,
+                                                   comment_types);
+  if (savable_file_types != NULL) {
+    g_array_free(savable_file_types, TRUE);
+
     /* Yes.  Offer the user a choice of "Save in a format that
        supports comments", "Discard comments and save in the
        format you selected", or "Cancel", meaning "don't bother
@@ -1693,7 +1698,7 @@ gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
 /* "Save as" */
 static gboolean
 gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *file_type,
-                 gboolean *compressed, gboolean must_support_comments)
+                 gboolean *compressed, gboolean must_support_all_comments)
 {
   GtkWidget *file_save_as_w;
   GtkWidget *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
@@ -1731,7 +1736,7 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  default_ft = set_file_type_list(ft_combo_box, cf, must_support_comments);
+  default_ft = set_file_type_list(ft_combo_box, cf, must_support_all_comments);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1841,7 +1846,7 @@ file_add_extension(GString *file_name, int file_type, gboolean compressed) {
  */
 
 static void
-file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
+file_save_as_cmd(capture_file *cf, gboolean must_support_all_comments,
                 gboolean dont_reopen)
 {
   GString  *file_name        = g_string_new("");
@@ -1857,12 +1862,12 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
   for (;;) {
 #ifdef USE_WIN32_FILE_DIALOGS
     if (win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), cf,
-                           file_name, &file_type, &compressed, must_support_comments)) {
+                           file_name, &file_type, &compressed, must_support_all_comments)) {
       /* They discarded comments, so redraw the packet details window
          to reflect any packets that no longer have comments. */
       packet_list_queue_draw();
 #else /* USE_WIN32_FILE_DIALOGS */
-    if (gtk_save_as_file(top_level, cf, file_name, &file_type, &compressed, must_support_comments)) {
+    if (gtk_save_as_file(top_level, cf, file_name, &file_type, &compressed, must_support_all_comments)) {
 #endif /* USE_WIN32_FILE_DIALOGS */
 
       /* If the file has comments, does the format the user selected
@@ -1896,7 +1901,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
            so run the dialog again, to let the user decide
            whether to save in one of those formats or give up. */
         discard_comments = FALSE;
-        must_support_comments = TRUE;
+        must_support_all_comments = TRUE;
         continue;
 
       case CANCELLED:

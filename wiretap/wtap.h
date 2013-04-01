@@ -1094,6 +1094,13 @@ typedef struct wtap_dumper wtap_dumper;
 
 typedef struct wtap_reader *FILE_T;
 
+/*
+ * Types of comments.
+ */
+#define WTAP_COMMENT_PER_SECTION	0x00000001	/* per-file/per-file-section */
+#define WTAP_COMMENT_PER_INTERFACE	0x00000002	/* per-interface */
+#define WTAP_COMMENT_PER_PACKET		0x00000004	/* per-packet */
+
 struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
@@ -1119,6 +1126,9 @@ struct file_type_info {
     /* does this type support name resolution records? */
     /* should be FALSE is this file type doesn't support name resolution records */
     gboolean has_name_resolution;
+
+    /* what types of comment does this file support? */
+    guint32 supported_comment_types;
 
     /* can this type write this encapsulation format? */
     /* should be NULL is this file type doesn't have write support */
@@ -1245,9 +1255,26 @@ int wtap_dump_file_encap_type(const GArray *file_encaps);
 WS_DLL_PUBLIC
 gboolean wtap_dump_can_write_encaps(int ft, const GArray *file_encaps);
 
+/**
+ * Return TRUE if we can write this capture file format out in
+ * compressed form, FALSE if not.
+ */
 WS_DLL_PUBLIC
 gboolean wtap_dump_can_compress(int filetype);
+
+/**
+ * Return TRUE if this capture file format supports storing name
+ * resolution information in it, FALSE if not.
+ */
+WS_DLL_PUBLIC
 gboolean wtap_dump_has_name_resolution(int filetype);
+
+/**
+ * Return TRUE if this capture file format supports all the comment
+ * types specified, FALSE if not.
+ */
+WS_DLL_PUBLIC
+gboolean wtap_dump_supports_comment_types(int filetype, guint32 comment_types);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
@@ -1283,10 +1310,11 @@ gboolean wtap_dump_close(wtap_dumper *, int *);
 /**
  * Get a GArray of WTAP_FILE_ values for file types that can be used
  * to save a file of a given type with a given GArray of WTAP_ENCAP_
- * types.
+ * types and the given bitmask of comment types.
  */
 WS_DLL_PUBLIC
-GArray *wtap_get_savable_file_types(int file_type, const GArray *file_encaps);
+GArray *wtap_get_savable_file_types(int file_type, const GArray *file_encaps,
+    guint32 required_comment_types);
 
 /*** various string converter functions ***/
 WS_DLL_PUBLIC

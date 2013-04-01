@@ -3858,12 +3858,18 @@ cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment)
 }
 
 /*
- * Does this capture file have any comments?
+ * What types of comments does this capture file have?
  */
-gboolean
-cf_has_comments(capture_file *cf)
+guint32
+cf_comment_types(capture_file *cf)
 {
-  return (cf_read_shb_comment(cf) != NULL || cf->packet_comment_count != 0);
+  guint32 comment_types = 0;
+
+  if (cf_read_shb_comment(cf) != NULL)
+    comment_types |= WTAP_COMMENT_PER_SECTION;
+  if (cf->packet_comment_count != 0)
+    comment_types |= WTAP_COMMENT_PER_PACKET;
+  return comment_types;
 }
 
 typedef struct {

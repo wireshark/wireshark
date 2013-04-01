@@ -652,12 +652,12 @@ void cf_update_capture_comment(capture_file *cf, gchar *comment);
 void cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment);
 
 /**
- * Does this capture file have any comments?
+ * What types of comments does this file have?
  *
  * @param cf the capture file
- * @return TRUE if it does, FALSE if it doesn't
+ * @return bitset of WTAP_COMMENT_ values
  */
-gboolean cf_has_comments(capture_file *cf);
+guint32 cf_comment_types(capture_file *cf);
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 WS_DLL_PUBLIC
