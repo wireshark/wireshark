@@ -132,7 +132,7 @@ static gint ett_typeszprivhdr = -1;
 static int hf_typeszch = -1;
 static int hf_typeszph = -1;
 static int hf_typesz_ver = -1;
-static int hf_typesz_endianess = -1;
+static int hf_typesz_endianness = -1;
 static int hf_typesz_commhdrlen = -1;
 static int hf_typesz_filler = -1;
 static int hf_typesz_buflen = -1;
@@ -213,7 +213,7 @@ dissect_TypeSzCommPrivHdr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             hf_typesz_ver, NULL);
 
     offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep,
-            hf_typesz_endianess, &endian);
+            hf_typesz_endianness, &endian);
     if (endian == 0x10)
         *drep = DREP_LITTLE_ENDIAN;
     else
@@ -1307,8 +1307,8 @@ proto_register_ISystemActivator (void)
         { "PrivateHeader", "isystemactivator.actproperties.ts.hdr", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_typesz_ver,
         { "Version", "isystemactivator.actproperties.ts.ver", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_typesz_endianess,
-        { "Endianess", "isystemactivator.actproperties.ts.end", FT_UINT8, BASE_HEX, VALS(ts_endian_vals), 0x0, NULL, HFILL }},
+        { &hf_typesz_endianness,
+        { "Endianness", "isystemactivator.actproperties.ts.end", FT_UINT8, BASE_HEX, VALS(ts_endian_vals), 0x0, NULL, HFILL }},
         { &hf_typesz_commhdrlen,
         { "CommonHeaderLength", "isystemactivator.actproperties.ts.chl", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_typesz_filler,

@@ -326,7 +326,7 @@ static const value_string opcode_vals[] = {
     { OPCODE_VENDOR_DEPENDANT,   "Vendor dependent" },
     { OPCODE_UNIT,               "Unit Info" },
     { OPCODE_SUBUNIT,            "Subunit Info" },
-    { OPCODE_PASSTHROUGH,        "Pass Throught" },
+    { OPCODE_PASSTHROUGH,        "Pass Through" },
     { 0, NULL }
 };
 

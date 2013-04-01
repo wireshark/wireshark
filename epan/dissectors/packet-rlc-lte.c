@@ -2989,13 +2989,13 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_um,
             { "UM",
               "rlc-lte.um", FT_STRING, BASE_NONE, NULL, 0x0,
-              "Unackowledged Mode", HFILL
+              "Unacknowledged Mode", HFILL
             }
         },
         { &hf_rlc_lte_um_header,
             { "UM Header",
               "rlc-lte.um.header", FT_STRING, BASE_NONE, NULL, 0x0,
-              "Unackowledged Mode Header", HFILL
+              "Unacknowledged Mode Header", HFILL
             }
         },
         { &hf_rlc_lte_um_fi,
@@ -3056,13 +3056,13 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am,
             { "AM",
               "rlc-lte.am", FT_STRING, BASE_NONE, NULL, 0x0,
-              "Ackowledged Mode", HFILL
+              "Acknowledged Mode", HFILL
             }
         },
         { &hf_rlc_lte_am_header,
             { "AM Header",
               "rlc-lte.am.header", FT_STRING, BASE_NONE, NULL, 0x0,
-              "Ackowledged Mode Header", HFILL
+              "Acknowledged Mode Header", HFILL
             }
         },
         { &hf_rlc_lte_am_data_control,

@@ -737,7 +737,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                 {0x03, "Type Of Service"},
                 {0x04, "Compressor"},
                 {0x05, "Payload Concatenation (ms)"},
-                {0x06, "Echo Cancelation Enabler"},
+                {0x06, "Echo Cancellation Enabler"},
                 {0x07, "Silence Suppression Enabler"},
                 {0x08, "802.1 Q User Priority"},
                 {0x09, "Reserved"},
@@ -1071,7 +1071,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             int i, parameter_length, parameter_id;
 
             static const value_string str_parameter_id[] = {
-                {0x00, "Remote MainCPU Server IP Adress"},
+                {0x00, "Remote MainCPU Server IP Address"},
                 {0x01, "Remote MainCPU Server Port"},
                 {0, NULL}
             };
@@ -1085,7 +1085,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                 if (parameter_length > 0) {
                     switch (parameter_id) {
-                    case 0x00: /* Remote MainCPU Server IP Adress */
+                    case 0x00: /* Remote MainCPU Server IP Address */
                         {
                             ep_strbuf_append_printf(strbuf, "%d", tvb_get_guint8(tvb, offset + 2));
 
@@ -1261,7 +1261,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
             int i, parameter_length, parameter_id;
 
             static const value_string str_parameter_id[] = {
-                {0x00, "Remote IP Adress     "},
+                {0x00, "Remote IP Address    "},
                 {0x01, "Remote UDP Port In   "},
                 {0x02, "Remote UDP Port Out  "},
                 {0x03, "Remote IP Address Out"},
@@ -1279,8 +1279,8 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                 if (parameter_length > 0) {
                     switch (parameter_id) {
-                    case 0x00: /* Remote IP Adress - Not for start listening rtp */
-                    case 0x03: /* Remote IP Adress Out - Not for start listening rtp */
+                    case 0x00: /* Remote IP Address - Not for start listening rtp */
+                    case 0x03: /* Remote IP Address Out - Not for start listening rtp */
                         {
                             ep_strbuf_append_printf(strbuf, "%d", tvb_get_guint8(tvb, offset + 2));
 

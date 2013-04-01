@@ -1074,7 +1074,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     NULL, mux27010_tree);
 
                 if (!frag_msg) { /* Not last packet of reassembled Message */
-                    g_snprintf(colInfoText, sizeof(colInfoText), "%s [Splitted Msg]", colInfoText);
+                    g_snprintf(colInfoText, sizeof(colInfoText), "%s [Split Msg]", colInfoText);
                 }
 
                 if (new_tvb) { /* take it all */

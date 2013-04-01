@@ -302,11 +302,11 @@ static gint ett_llrp = -1;
 static gint ett_llrp_param = -1;
 
 /* Message Types */
-#define LLRP_TYPE_GET_READER_CAPABILITES            1
+#define LLRP_TYPE_GET_READER_CAPABILITIES           1
 #define LLRP_TYPE_GET_READER_CONFIG                 2
 #define LLRP_TYPE_SET_READER_CONFIG                 3
 #define LLRP_TYPE_CLOSE_CONNECTION_RESPONSE         4
-#define LLRP_TYPE_GET_READER_CAPABILITES_RESPONSE  11
+#define LLRP_TYPE_GET_READER_CAPABILITiES_RESPONSE 11
 #define LLRP_TYPE_GET_READER_CONFIG_RESPONSE       12
 #define LLRP_TYPE_SET_READER_CONFIG_RESPONSE       13
 #define LLRP_TYPE_CLOSE_CONNECTION                 14
@@ -350,11 +350,11 @@ static gint ett_llrp_param = -1;
 #define LLRP_TYPE_CUSTOM_MESSAGE                 1023
 
 static const value_string message_types[] = {
-    { LLRP_TYPE_GET_READER_CAPABILITES,          "Get Reader Capabilites"          },
+    { LLRP_TYPE_GET_READER_CAPABILITIES,         "Get Reader Capabilities"         },
     { LLRP_TYPE_GET_READER_CONFIG,               "Get Reader Config"               },
     { LLRP_TYPE_SET_READER_CONFIG,               "Set Reader Config"               },
     { LLRP_TYPE_CLOSE_CONNECTION_RESPONSE,       "Close Connection Response"       },
-    { LLRP_TYPE_GET_READER_CAPABILITES_RESPONSE, "Get Reader Capabilites Response" },
+    { LLRP_TYPE_GET_READER_CAPABILITIES_RESPONSE,"Get Reader Capabilities Response"},
     { LLRP_TYPE_GET_READER_CONFIG_RESPONSE,      "Get Reader Config Response"      },
     { LLRP_TYPE_SET_READER_CONFIG_RESPONSE,      "Set Reader Config Response"      },
     { LLRP_TYPE_CLOSE_CONNECTION,                "Close Connection"                },
@@ -420,7 +420,7 @@ static const value_string llrp_versions[] = {
 static const value_string capabilities_request[] = {
     { LLRP_CAP_ALL,            "All"                            },
     { LLRP_CAP_GENERAL_DEVICE, "General Device Capabilities"    },
-    { LLRP_CAP_LLRP,           "LLRP Capabilites"               },
+    { LLRP_CAP_LLRP,           "LLRP Capabilities"              },
     { LLRP_CAP_REGULATORY,     "Regulatory Capabilities"        },
     { LLRP_CAP_AIR_PROTOCOL,   "Air Protocol LLRP Capabilities" },
     { 0,                        NULL                            }
@@ -1033,7 +1033,7 @@ static const value_string impinj_param_type[] = {
     { LLRP_IMPINJ_PARAM_TAG_INFORMATION,                         "Tag information"                          },
     { LLRP_IMPINJ_PARAM_FORKLIFT_CONFIGURATION,                  "Forklift configuration"                   },
     { LLRP_IMPINJ_PARAM_FORKLIFT_HEIGHT_THRESHOLD,               "Forklift height threshold"                },
-    { LLRP_IMPINJ_PARAM_FORKLIFT_ZEROMOTION_TIME_THRESHOLD,      "Forklift zero motion time treshold"       },
+    { LLRP_IMPINJ_PARAM_FORKLIFT_ZEROMOTION_TIME_THRESHOLD,      "Forklift zero motion time threshold"      },
     { LLRP_IMPINJ_PARAM_FORKLIFT_COMPANION_BOARD_INFO,           "Forklift companion board info"            },
     { LLRP_IMPINJ_PARAM_GPI_DEBOUNCE_CONFIGURATION,              "Gpi debounce configuration"               },
     { LLRP_IMPINJ_PARAM_READER_TEMPERATURE,                      "Reader temperature"                       },
@@ -2393,7 +2393,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         /* Simple cases just have normal TLV or TV parameters */
         case LLRP_TYPE_CLOSE_CONNECTION_RESPONSE:
-        case LLRP_TYPE_GET_READER_CAPABILITES_RESPONSE:
+        case LLRP_TYPE_GET_READER_CAPABILITIES_RESPONSE:
         case LLRP_TYPE_ADD_ROSPEC:
         case LLRP_TYPE_ADD_ROSPEC_RESPONSE:
         case LLRP_TYPE_DELETE_ROSPEC_RESPONSE:
@@ -2449,7 +2449,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
-        case LLRP_TYPE_GET_READER_CAPABILITES:
+        case LLRP_TYPE_GET_READER_CAPABILITIES:
             proto_tree_add_item(tree, hf_llrp_req_cap, tvb, offset, 1, ENC_NA);
             offset++;
             ends_with_parameters = TRUE;

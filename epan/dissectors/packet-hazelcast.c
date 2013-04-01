@@ -457,7 +457,7 @@ void proto_register_hazelcast(void) {
 			{ "Hazelcast hdr value length", "hazelcast.hdr.valuelength", FT_UINT32, BASE_DEC, NULL, 0x0, "header value length", HFILL }
 		},
 		{ &hf_hazelcast_headerVersion,
-			{ "Hazelcast hdr version", "hazelcast.hdr.version", FT_UINT8, BASE_DEC, NULL, 0x0, "header verson", HFILL }
+			{ "Hazelcast hdr version", "hazelcast.hdr.version", FT_UINT8, BASE_DEC, NULL, 0x0, "header version", HFILL }
 		},
 		{ &hf_hazelcast_operation,
 			{ "Hazelcast operation", "hazelcast.operation", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &operationTypes_ext, 0x0, "operation", HFILL }

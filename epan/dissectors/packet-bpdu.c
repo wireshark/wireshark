@@ -1048,7 +1048,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               "Agreement Digest Format Id: %d",
                               (spt_agree_data & 0xf0) >> 4);
           proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                              "Agreement Digest Format Capabilites: %d",
+                              "Agreement Digest Format Capabilities: %d",
                               (spt_agree_data & 0x0f));
           spt_offset += 1;
 
@@ -1058,7 +1058,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               "Agreement Digest Convention Id: %d",
                               (spt_agree_data & 0xf0) >> 4);
           proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                              "Agreement Digest Convention Capabilites: %d",
+                              "Agreement Digest Convention Capabilities: %d",
                               (spt_agree_data & 0x0f));
           spt_offset += 1;
 

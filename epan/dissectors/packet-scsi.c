@@ -305,7 +305,7 @@ static int hf_scsi_log_ta_aif                   = -1;
 static int hf_scsi_log_ta_fwf                   = -1;
 static int hf_scsi_log_ta_wmicf                 = -1;
 static int hf_scsi_log_ta_wmoa                  = -1;
-static int hf_scsi_sbc_treshold_exponent        = -1;
+static int hf_scsi_sbc_threshold_exponent       = -1;
 static int hf_scsi_sbc_lbpu                     = -1;
 static int hf_scsi_sbc_lbpws                    = -1;
 static int hf_scsi_sbc_lbpws10                  = -1;
@@ -2173,7 +2173,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
             break;
         case SCSI_EVPD_LBP:
-            proto_tree_add_item(evpd_tree, hf_scsi_sbc_treshold_exponent, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(evpd_tree, hf_scsi_sbc_threshold_exponent, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(evpd_tree, hf_scsi_sbc_lbpu, tvb, offset, 1, ENC_NA);
@@ -5799,8 +5799,8 @@ proto_register_scsi(void)
         { &hf_scsi_log_ta_wmoa,
           {"worm medium overwrite attempted", "scsi.log.ta.wmoa", FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}},
-        { &hf_scsi_sbc_treshold_exponent,
-          {"Treshold Exponent", "scsi_sbc.treshold_exponent", FT_UINT8, BASE_DEC, NULL, 0,
+        { &hf_scsi_sbc_threshold_exponent,
+          {"Threshold Exponent", "scsi_sbc.threshold_exponent", FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL}},
         { &hf_scsi_sbc_lbpu,
           {"LBPU", "scsi_sbc.lbpu", FT_BOOLEAN, 8, NULL, 0x80,

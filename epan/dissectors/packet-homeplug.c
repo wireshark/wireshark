@@ -856,7 +856,7 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
       ptvcursor_add(cursor, hf_homeplug_loader_module_size, 4, ENC_BIG_ENDIAN);
       break;
     case HOMEPLUG_MID_GNVMP:
-      col_set_str(pinfo->cinfo, COL_INFO, "Loader Get NVM Parametes");
+      col_set_str(pinfo->cinfo, COL_INFO, "Loader Get NVM Parameters");
       ptvcursor_add(cursor, hf_homeplug_loader_gnvmp, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_loader_length, 2, ENC_BIG_ENDIAN);
       if (length == 17) {
@@ -868,7 +868,7 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
       }
       break;
     case HOMEPLUG_MID_SNVMP:
-      col_set_str(pinfo->cinfo, COL_INFO, "Loader Set NVM Parametes");
+      col_set_str(pinfo->cinfo, COL_INFO, "Loader Set NVM Parameters");
       ptvcursor_add(cursor, hf_homeplug_loader_snvmp, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_loader_length, 2, ENC_BIG_ENDIAN);
       if (length == 17)

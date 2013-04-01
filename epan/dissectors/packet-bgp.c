@@ -4036,7 +4036,7 @@ proto_register_bgp(void)
         { "Parameter Length", "bgp.open.opt.param.len", FT_UINT8, BASE_DEC,
           NULL, 0x0, "Length of the Parameter Value", HFILL }},
       { &hf_bgp_open_opt_param_auth,
-        { "Authentification Data", "bgp.open.opt.param.auth", FT_BYTES, BASE_NONE,
+        { "Authentication Data", "bgp.open.opt.param.auth", FT_BYTES, BASE_NONE,
           NULL, 0x0, "Deprecated", HFILL }},
       { &hf_bgp_open_opt_param_unknown,
         { "Unknown", "bgp.open.opt.param.unknown", FT_BYTES, BASE_NONE,

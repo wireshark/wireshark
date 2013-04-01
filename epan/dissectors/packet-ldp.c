@@ -3460,11 +3460,11 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_fec_vc_intparam_length,
           { "Length", "ldp.msg.tlv.fec.vc.intparam.length", FT_UINT8, BASE_DEC,
-            NULL, 0x0, "VC FEC Interface Paramater Length", HFILL }},
+            NULL, 0x0, "VC FEC Interface Parameter Length", HFILL }},
 
         { &hf_ldp_tlv_fec_vc_intparam_mtu,
           { "MTU", "ldp.msg.tlv.fec.vc.intparam.mtu", FT_UINT16, BASE_DEC,
-            NULL, 0x0, "VC FEC Interface Paramater MTU", HFILL }},
+            NULL, 0x0, "VC FEC Interface Parameter MTU", HFILL }},
 
         { &hf_ldp_tlv_fec_vc_intparam_tdmbps,
           { "BPS", "ldp.msg.tlv.fec.vc.intparam.tdmbps", FT_UINT32, BASE_DEC,
@@ -3472,7 +3472,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_fec_vc_intparam_id,
           { "ID", "ldp.msg.tlv.fec.vc.intparam.id", FT_UINT8, BASE_HEX,
-            VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Paramater ID", HFILL }},
+            VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Parameter ID", HFILL }},
 
         { &hf_ldp_tlv_fec_vc_intparam_maxcatmcells,
           { "Number of Cells", "ldp.msg.tlv.fec.vc.intparam.maxatm", FT_UINT16, BASE_DEC,
@@ -3532,7 +3532,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_fec_vc_intparam_fcslen,
           { "FCS Length", "ldp.msg.tlv.fec.vc.intparam.fcslen", FT_UINT16, BASE_DEC,
-            NULL, 0x0, "VC FEC Interface Paramater FCS Length", HFILL }},
+            NULL, 0x0, "VC FEC Interface Parameter FCS Length", HFILL }},
 
         { &hf_ldp_tlv_fec_vc_intparam_tdmopt_r,
           { "R Bit", "ldp.msg.tlv.fec.vc.intparam.tdmopt_r", FT_BOOLEAN, 16,
@@ -3844,11 +3844,11 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_intparam_length,
           { "Length", "ldp.msg.tlv.intparam.length", FT_UINT8, BASE_DEC,
-            NULL, 0x0, "VC FEC Interface Paramater Length", HFILL }},
+            NULL, 0x0, "VC FEC Interface Parameter Length", HFILL }},
 
         { &hf_ldp_tlv_intparam_mtu,
           { "MTU", "ldp.msg.tlv.intparam.mtu", FT_UINT16, BASE_DEC,
-            NULL, 0x0, "VC FEC Interface Paramater MTU", HFILL }},
+            NULL, 0x0, "VC FEC Interface Parameter MTU", HFILL }},
 
         { &hf_ldp_tlv_intparam_tdmbps,
           { "BPS", "ldp.msg.tlv.intparam.tdmbps", FT_UINT32, BASE_DEC,
@@ -3856,7 +3856,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_intparam_id,
           { "ID", "ldp.msg.tlv.intparam.id", FT_UINT8, BASE_HEX,
-            VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Paramater ID", HFILL }},
+            VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Parameter ID", HFILL }},
 
         { &hf_ldp_tlv_intparam_maxcatmcells,
           { "Number of Cells", "ldp.msg.tlv.intparam.maxatm", FT_UINT16, BASE_DEC,
@@ -3916,7 +3916,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_intparam_fcslen,
           { "FCS Length", "ldp.msg.tlv.intparam.fcslen", FT_UINT16, BASE_DEC,
-            NULL, 0x0, "VC FEC Interface Paramater FCS Length", HFILL }},
+            NULL, 0x0, "VC FEC Interface Parameter FCS Length", HFILL }},
 
         { &hf_ldp_tlv_intparam_tdmopt_r,
           { "R Bit", "ldp.msg.tlv.intparam.tdmopt_r", FT_BOOLEAN, 16,

@@ -4414,7 +4414,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 			    tvb,
 			    offset,
 			    8,
-			    "Endianess: %s",
+			    "Endianness: %s",
 			    encoding == ENC_BIG_ENDIAN ?
 			    "Big Endian" : "Litte Endian");
 	offset += 8;

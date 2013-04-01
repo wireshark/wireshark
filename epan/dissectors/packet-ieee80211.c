@@ -722,7 +722,7 @@ static const value_string tag_num_vals[] = {
   { TAG_BSS_AVB_ADM_CAPACITY,                 "BSS Available Admission Capacity" },
   { TAG_IE_68_CONFLICT,                       "BSS AC Access Delay/WAPI Parameter Set" },
   { TAG_TIME_ADV,                             "Time Advertisement" },
-  { TAG_RM_ENABLED_CAPABILITY,                "RM Enabled Capabilites" },
+  { TAG_RM_ENABLED_CAPABILITY,                "RM Enabled Capabilities" },
   { TAG_MULTIPLE_BSSID,                       "Multiple BSSID" },
   { TAG_20_40_BSS_CO_EX,                      "20/40 BSS Coexistence" },
   { TAG_20_40_BSS_INTOL_CH_REP,               "20/40 BSS Intolerant Channel Report" },   /* IEEE P802.11n/D6.0 */
@@ -9276,7 +9276,7 @@ dissect_rm_enabled_capabilities_ie(packet_info *pinfo, proto_tree *tree,
 
   if (tag_len != 5)
   {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "RM Enabled Capabilites length %u wrong, must = 4", tag_len);
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "RM Enabled Capabilities length %u wrong, must = 4", tag_len);
     return offset;
   }
   proto_item_append_text(ti, " (%d octets)", tag_len);
