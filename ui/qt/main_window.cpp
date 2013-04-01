@@ -1132,6 +1132,20 @@ void MainWindow::setTitlebarForCaptureFile()
     }
 }
 
+void MainWindow::setTitlebarForCaptureInProgress()
+{
+    gchar *window_name;
+
+    if (cap_file_) {
+        window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cap_file_));
+        setWindowTitle(window_name);
+        g_free(window_name);
+    } else {
+        /* We have no capture in progress. */
+        setWindowTitle("The Wireshark Network Analyzer");
+    }
+}
+
 // Menu state
 
 /* Enable or disable menu items based on whether you have a capture file

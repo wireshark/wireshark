@@ -204,7 +204,7 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
 #ifdef HAVE_LIBPCAP
 void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
     qDebug() << "FIX captureCapturePrepared";
-//    main_capture_set_main_window_title(capture_opts);
+    setTitlebarForCaptureInProgress();
 
 //    if(icon_list == NULL) {
 //        icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
@@ -224,7 +224,12 @@ void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
 void MainWindow::captureCaptureUpdateStarted(capture_options *capture_opts) {
     Q_UNUSED(capture_opts);
 
+    /* We've done this in "prepared" above, but it will be cleared while
+       switching to the next multiple file. */
+    setTitlebarForCaptureInProgress();
+
     setForCaptureInProgress(true);
+
     setForCapturedPackets(true);
 }
 void MainWindow::captureCaptureUpdateFinished(capture_options *capture_opts) {

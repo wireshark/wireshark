@@ -125,6 +125,7 @@ private:
     void captureStop();
 
     void setTitlebarForCaptureFile();
+    void setTitlebarForCaptureInProgress();
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
     void setMenusForCaptureStopping();
