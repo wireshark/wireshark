@@ -155,14 +155,14 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         return;
     }
 
-    eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
+    eoc_offset = tvb_pbrk_guint8(tvb, offset, end_offset-offset, " ", &found_needle);
     if (eoc_offset == -1)
     {
-        proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
-        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, linelen-offset));
+        proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
+        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, end_offset-offset));
 
         /* Warn if there is a "numeric" command */
-        if ((linelen-offset == 3) &&
+        if ((end_offset-offset == 3) &&
             (isdigit(tvb_get_guint8(tvb, offset))) &&
             (isdigit(tvb_get_guint8(tvb, offset+1))) &&
             (isdigit(tvb_get_guint8(tvb, offset+2))))
@@ -202,20 +202,20 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     /* Check if message has a trailer */
     if (tvb_get_guint8(tvb, offset) == ':')
     {
-        proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-        dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+        proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+        dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
         return;
     }
 
     while(offset < end_offset)
     {
-        eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
-        tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
+        eocp_offset = tvb_pbrk_guint8(tvb, offset, end_offset-offset, " ", &found_needle);
+        tag_start_offset = tvb_pbrk_guint8(tvb, offset, end_offset-offset, TAG_DELIMITER, &found_tag_needle);
 
         /* Create subtree when the first parameter is found */
         if (first_command_param)
         {
-            command_item = proto_tree_add_text(request_tree, tvb, offset, linelen-offset, "Command parameters");
+            command_item = proto_tree_add_text(request_tree, tvb, offset, end_offset-offset, "Command parameters");
             command_tree = proto_item_add_subtree(command_item, ett_irc_request_command );
             first_command_param = FALSE;
         }
@@ -229,7 +229,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             found_needle = 0;
             if (eocp_offset == -1)
             {
-                proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
                 return;
             }
 
@@ -249,8 +249,8 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             /* Check if message has a trailer */
             if (tvb_get_guint8(tvb, offset) == ':')
             {
-                proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-                dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+                proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+                dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
                 return;
             }
         }
@@ -260,7 +260,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             /* tag data dissected */
 
             found_tag_needle = 0;
-            tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, linelen-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
+            tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
             if (tag_end_offset == -1)
             {
                 expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
@@ -323,20 +323,20 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         return;
     }
 
-    eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
+    eoc_offset = tvb_pbrk_guint8(tvb, offset, end_offset-offset, " ", &found_needle);
     if (eoc_offset == -1)
     {
-        proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
-        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, linelen-offset));
+        proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
+        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, end_offset-offset));
 
         /* if response command is numeric, allow it to be filtered as an integer */
-        if ((linelen-offset == 3) &&
+        if ((end_offset-offset == 3) &&
             (isdigit(tvb_get_guint8(tvb, offset))) &&
             (isdigit(tvb_get_guint8(tvb, offset+1))) &&
             (isdigit(tvb_get_guint8(tvb, offset+2))))
         {
             num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
-            hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, linelen-offset, num_command);
+            hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, end_offset-offset, num_command);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
         }
         return;
@@ -374,34 +374,32 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     /* Check if message has a trailer */
     if (tvb_get_guint8(tvb, offset) == ':')
     {
-        proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-        dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+        proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+        dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
         return;
     }
 
     while(offset < end_offset)
     {
-        eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
-        tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
+        eocp_offset = tvb_pbrk_guint8(tvb, offset, end_offset-offset, " ", &found_needle);
+        tag_start_offset = tvb_pbrk_guint8(tvb, offset, end_offset-offset, TAG_DELIMITER, &found_tag_needle);
 
         /* Create subtree when the first parameter is found */
         if (first_command_param)
         {
-            command_item = proto_tree_add_text(response_tree, tvb, offset, linelen-offset, "Command parameters");
+            command_item = proto_tree_add_text(response_tree, tvb, offset, end_offset-offset, "Command parameters");
             command_tree = proto_item_add_subtree(command_item, ett_irc_response_command );
             first_command_param = FALSE;
         }
 
-        if (((eocp_offset == -1) && (tag_start_offset == -1)) ||
-            ((eocp_offset != -1) && (tag_start_offset == -1)) ||
-            (eocp_offset < tag_start_offset))
+        if ((tag_start_offset == -1) || (eocp_offset < tag_start_offset))
         {
             /* regular message should be dissected */
 
             found_needle = 0;
             if (eocp_offset == -1)
             {
-                proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
                 return;
             }
 
@@ -421,18 +419,17 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             /* Check if message has a trailer */
             if (tvb_get_guint8(tvb, offset) == ':')
             {
-                proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-                dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+                proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+                dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
                 return;
             }
         }
-        else if (((eocp_offset == -1) && (tag_start_offset != -1)) ||
-               (eocp_offset > tag_start_offset))
+        else if ((eocp_offset == -1) || (eocp_offset > tag_start_offset))
         {
             /* tag data dissected */
 
             found_tag_needle = 0;
-            tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, linelen-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
+            tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, end_offset-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
             if (tag_end_offset == -1)
             {
                 expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
