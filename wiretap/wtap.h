@@ -1249,13 +1249,6 @@ WS_DLL_PUBLIC
 int wtap_dump_file_encap_type(const GArray *file_encaps);
 
 /**
- * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
- * can be written in a specified format, and FALSE if it can't.
- */
-WS_DLL_PUBLIC
-gboolean wtap_dump_can_write_encaps(int ft, const GArray *file_encaps);
-
-/**
  * Return TRUE if we can write this capture file format out in
  * compressed form, FALSE if not.
  */
@@ -1306,6 +1299,13 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list);
 WS_DLL_PUBLIC
 gboolean wtap_dump_close(wtap_dumper *, int *);
+
+/**
+ * Return TRUE if we can write a file out with the given GArray of file
+ * encapsulations and the given bitmask of comment types.
+ */
+WS_DLL_PUBLIC
+gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types);
 
 /**
  * Get a GArray of WTAP_FILE_ values for file types that can be used

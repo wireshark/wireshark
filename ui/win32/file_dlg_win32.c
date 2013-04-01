@@ -238,7 +238,6 @@ check_savability_t
 win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
 {
     guint32        comment_types;
-    GArray        *savable_file_types;
     gint           response;
 
     /* What types of comments do we have? */
@@ -253,11 +252,7 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
 
     /* No. Are there formats in which we can write this file that
        supports all the comments in this file? */
-    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes,
-                                                     comment_types);
-    if (savable_file_types != NULL) {
-        g_array_free(savable_file_types, TRUE);
-
+    if (wtap_dump_can_write(cf->linktypes, comment_types)) {
         /* Yes.  Offer the user a choice of "Save in a format that
            supports comments", "Discard comments and save in the
            format you selected", or "Cancel", meaning "don't bother

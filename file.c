@@ -3971,20 +3971,14 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 gboolean
 cf_can_write_with_wiretap(capture_file *cf)
 {
-  int ft;
+  /* We don't care whether we support the comments in this file or not;
+     if we can't, we'll offer the user the option of discarding the
+     comments.
 
-  for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    /* To save a file with Wiretap, Wiretap has to handle that format,
-       and its code to handle that format must be able to write a file
-       with this file's encapsulation types. */
-    if (wtap_dump_can_write_encaps(ft, cf->linktypes)) {
-      /* OK, we can write it out in this type. */
-      return TRUE;
-    }
-  }
-
-  /* No, we couldn't save it in any format. */
-  return FALSE;
+     XXX - we shouldn't offer the option of adding or editing comments
+     of a particular type if we don't support that particular type of
+     comment in any file format. */
+  return wtap_dump_can_write(cf->linktypes, 0);
 }
 
 /*

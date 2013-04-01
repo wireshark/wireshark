@@ -877,11 +877,13 @@ wtap_dump_file_encap_type(const GArray *file_encaps)
 }
 
 /*
- * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
- * can be written in a specified format, and FALSE if it can't.
+ * Return TRUE if a capture with a given GArray of encapsulation types
+ * and a given bitset of comment types can be written in a specified
+ * format, and FALSE if it can't.
  */
-gboolean
-wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
+static gboolean
+wtap_dump_can_write_format(int ft, const GArray *file_encaps,
+    guint32 required_comment_types)
 {
 	guint i;
 
@@ -894,11 +896,22 @@ wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
 	}
 
 	/*
-	 * Is the required per-file encapsulation type supported?
+	 * Yes.  Can we write out all the required comments in this
+	 * format?
+	 */
+	if (!wtap_dump_supports_comment_types(ft, required_comment_types)) {
+		/* No. */
+		return FALSE;
+	}
+
+	/*
+	 * Yes.  Is the required per-file encapsulation type supported?
 	 * This might be WTAP_ENCAP_PER_PACKET.
 	 */
-	if (!wtap_dump_can_write_encap(ft, wtap_dump_file_encap_type(file_encaps)))
+	if (!wtap_dump_can_write_encap(ft, wtap_dump_file_encap_type(file_encaps))) {
+		/* No. */
 		return FALSE;
+	}
 
 	/*
 	 * Yes.  Are all the individual encapsulation types supported?
@@ -916,8 +929,31 @@ wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
 }
 
 /**
+ * Return TRUE if we can write a file with the given GArray of
+ * encapsulation types and the given bitmask of comment types.
+ */
+gboolean
+wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types)
+{
+  int ft;
+
+  for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+    /* To save a file with Wiretap, Wiretap has to handle that format,
+       and its code to handle that format must be able to write a file
+       with this file's encapsulation types. */
+    if (wtap_dump_can_write_format(ft, file_encaps, required_comment_types)) {
+      /* OK, we can write it out in this type. */
+      return TRUE;
+    }
+  }
+
+  /* No, we couldn't save it in any format. */
+  return FALSE;
+}
+
+/**
  * Get a GArray of WTAP_FILE_ values for file types that can be used
- * to save a file of a given type with a given GArray of WTAP_ENCAP_
+ * to save a file of a given type with a given GArray of encapsulation
  * types and the given bitmask of comment types.
  */
 GArray *
@@ -930,16 +966,16 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps,
 	int other_file_type = -1;
 
 	/* Can we save this file in its own file type? */
-	if (wtap_dump_can_write_encaps(file_type, file_encaps) &&
-	    wtap_dump_supports_comment_types(file_type, required_comment_types)) {
+	if (wtap_dump_can_write_format(file_type, file_encaps,
+	                               required_comment_types)) {
 		/* Yes - make that the default file type. */
 		default_file_type = file_type;
 	} else {
 		/* OK, find the first file type we *can* save it as. */
 		default_file_type = -1;
 		for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-			if (wtap_dump_can_write_encaps(ft, file_encaps) &&
-			    wtap_dump_supports_comment_types(ft, required_comment_types)) {
+			if (wtap_dump_can_write_format(ft, file_encaps,
+			                               required_comment_types)) {
 				/* OK, got it. */
 				default_file_type = ft;
 			}
@@ -962,12 +998,12 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps,
 	   pcap-NG, put pcap right after it if we can also write it in
 	   pcap format. */
 	if (default_file_type == WTAP_FILE_PCAP) {
-		if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, file_encaps) &&
-		    wtap_dump_supports_comment_types(WTAP_FILE_PCAPNG, required_comment_types))
+		if (wtap_dump_can_write_format(WTAP_FILE_PCAPNG, file_encaps,
+		                               required_comment_types))
 			other_file_type = WTAP_FILE_PCAPNG;
 	} else if (default_file_type == WTAP_FILE_PCAPNG) {
-		if (wtap_dump_can_write_encaps(WTAP_FILE_PCAP, file_encaps) &&
-		    wtap_dump_supports_comment_types(WTAP_FILE_PCAP, required_comment_types))
+		if (wtap_dump_can_write_format(WTAP_FILE_PCAP, file_encaps,
+		                               required_comment_types))
 			other_file_type = WTAP_FILE_PCAP;
 	}
 	if (other_file_type != -1)
@@ -979,8 +1015,8 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps,
 			continue;	/* not a real file type */
 		if (ft == default_file_type || ft == other_file_type)
 			continue;	/* we've already done this one */
-		if (wtap_dump_can_write_encaps(ft, file_encaps) &&
-		    wtap_dump_supports_comment_types(ft, required_comment_types)) {
+		if (wtap_dump_can_write_format(ft, file_encaps,
+		                               required_comment_types)) {
 			/* OK, we can write it out in this type. */
 			g_array_append_val(savable_file_types, ft);
 		}
