@@ -1539,17 +1539,11 @@ static GList *icon_list_create(
 }
 
 static void
-main_capture_set_main_window_title(capture_options *capture_opts)
-{
-    set_titlebar_for_capture_in_progress((capture_file *)capture_opts->cf);
-}
-
-static void
 main_capture_cb_capture_prepared(capture_options *capture_opts)
 {
     static GList *icon_list = NULL;
 
-    main_capture_set_main_window_title(capture_opts);
+    set_titlebar_for_capture_in_progress((capture_file *)capture_opts->cf);
 
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsiconcap_16_pb_data, wsiconcap_32_pb_data, wsiconcap_48_pb_data, wsiconcap_64_pb_data);
@@ -1570,7 +1564,7 @@ main_capture_cb_capture_update_started(capture_options *capture_opts)
 {
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
-    main_capture_set_main_window_title(capture_opts);
+    set_titlebar_for_capture_in_progress((capture_file *)capture_opts->cf);
 
     main_set_for_capture_in_progress(TRUE);
     set_capture_if_dialog_for_capture_in_progress(TRUE);
