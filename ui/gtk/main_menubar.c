@@ -5014,7 +5014,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
 #endif /* WANT_PACKET_EDITOR */
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
-                         frame_selected);
+                         frame_selected && wtap_dump_can_write(cf->linktypes, WTAP_COMMENT_PER_PACKET));
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnoreAllDisplayedPackets",
