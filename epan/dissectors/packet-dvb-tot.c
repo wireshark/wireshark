@@ -52,7 +52,7 @@ dissect_dvb_tot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     guint       offset = 0;
-    guint       descriptor_len, descriptor_end;
+    guint       descriptor_len;
 
     proto_item *ti;
     proto_tree *dvb_tot_tree;
@@ -80,9 +80,7 @@ dissect_dvb_tot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(dvb_tot_tree, hf_dvb_tot_descriptors_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    descriptor_end = offset + descriptor_len;
-    while (offset < descriptor_end)
-        offset += proto_mpeg_descriptor_dissect(tvb, offset, dvb_tot_tree);
+    offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, descriptor_len, dvb_tot_tree);
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_tot_tree, 0, offset);
     proto_item_set_len(ti, offset);
