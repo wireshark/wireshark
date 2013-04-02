@@ -117,6 +117,9 @@
 /* RSVP over UDP encapsulation */
 #define UDP_PORT_PRSVP 3455
 
+void proto_register_rsvp(void);
+void proto_reg_handoff_rsvp(void);
+
 static int proto_rsvp = -1;
 
 static int hf_rsvp_error_flags = -1;
@@ -207,6 +210,14 @@ static int hf_rsvp_c_type = -1;
 static int hf_rsvp_3gpp_obj_tid = -1;
 static int hf_rsvp_3gpp_obj_ie_len = -1;
 static int hf_rsvp_3gpp_obj_ie_type = -1;
+static int hf_rsvp_3gpp_obj_ue_ipv4_addr = -1;
+static int hf_rsvp_3gpp_obj_ue_ipv6_addr = -1;
+static int hf_rsvp_3gpp_obj_tft_d = -1;
+static int hf_rsvp_3gpp_obj_tft_ns = -1;
+static int hf_rsvp_3gpp_obj_tft_sr_id = -1;
+static int hf_rsvp_3gpp_obj_tft_p = -1;
+static int hf_rsvp_3gpp_obj_tft_opcode = -1;
+static int hf_rsvp_3gpp_obj_tft_n_pkt_flt = -1;
 
 static dissector_table_t rsvp_dissector_table;
 
@@ -5777,8 +5788,25 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
  * 3GPP2_OBJECT X.S0057-0 v1.0
  *------------------------------------------------------------------------------*/
 static const value_string rsvp_3gpp_object_ie_type_vals[] = {
-    { 0, "TFTIPv4"},
-    { 2, "TFTIPv6"},
+    { 0, "TFT IPv4"},
+    { 2, "TFT IPv6"},
+    { 0, NULL}
+};
+
+static const value_string rsvp_3gpp_object_tft_d_vals[] = {
+    { 0, "Forward Direction"},
+    { 1, "Reverse Direction"},
+    { 2, "Reserved"},
+    { 3, "Reserved"},
+    { 0, NULL}
+};
+
+static const value_string rsvp_3gpp_obj_tft_opcode_vals[] = {
+    { 0x06, "QoS Check"},
+    { 0x80, "Initiate Flow Request"},
+    { 0x81, "QoS Check Confirm"},
+    { 0x82, "Initiate Delete Packet Filter from Existing TFT"},
+    { 0x83, "Initiate Replace packet filters in existing TFT"},
     { 0, NULL}
 };
 
@@ -5788,7 +5816,8 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                      int offset, int obj_length,
                      int rsvp_class _U_, int c_type)
 {
-    guint16 length;
+	int ie_start_offset;
+    guint16 length, ie_type;
 
     offset+=3;
     proto_tree_add_item(rsvp_object_tree, hf_rsvp_c_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5802,12 +5831,55 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
         obj_length = obj_length - 4;
         /* IE List */
         while(obj_length>0){
-            length = tvb_get_ntohs(tvb, offset); 
+            length = tvb_get_ntohs(tvb, offset);
+			ie_start_offset = offset;
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
+			ie_type = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ie_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_text(rsvp_object_tree, tvb, offset, length-2, "IE Data");
+			if ((ie_type == 0)||(ie_type==2)){
+				if(ie_type == 0){
+					/*IPv4*/
+					proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+					offset+=4;
+				}else{
+					proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+					offset+=16;
+				}
+				/* D Reserved NS SR_ID Reserved P TFT Operation Code Number of Packet filters */
+				/* D */
+				proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_d, tvb, offset, 4, ENC_BIG_ENDIAN);
+				/* NS */
+				proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_ns, tvb, offset, 4, ENC_BIG_ENDIAN);
+				/* SR_ID */
+				proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_sr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+				/* P */
+				proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_p, tvb, offset, 4, ENC_BIG_ENDIAN);
+				/* TFT Operation Code */
+				proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
+				/* Number of Packet filters */
+				proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_n_pkt_flt, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset+=4;
+				/* Packet filter list
+				 * The packet filter list contains a variable number of packet filters. It shall be
+				 * encoded same as defined in X.S0011-D Chapter 4 [5] except as defined
+				 * below:
+				 * For “QoS Check Confirm” operations, the packet filter list shall be empty.
+				 * For “Initiate Delete Packet Filter from Existing TFT”, the packet filter list
+				 * shall contain a variable number of Flow Identifiers given in the number of
+				 * packet filters field. In this case, the packet filter evaluation precedence,
+				 * length, and contents are not included, only the Flow Identifiers are
+				 * included. See Figure B-6, X.S0011-D [5] .
+				 * For “Initiate Flow request” and “Initiate Replace Packet Filters in Existing
+				 * TFT” Replace Packet Filters in Existing TFT the packet filter list shall
+				 * contain a variable number of Flow Identifiers, along with the packet filter
+				 * contents. See Figure B-7, X.S0011-D
+				 */
+				proto_tree_add_text(rsvp_object_tree, tvb, offset, length-(offset-ie_start_offset), "Not dissected yet");
+			}else{
+                proto_tree_add_text(rsvp_object_tree, tvb, offset, length-2, "IE Data");
+			}
             obj_length = obj_length - length;
         }
     }
@@ -7823,7 +7895,46 @@ proto_register_rsvp(void)
            FT_UINT32, BASE_DEC, VALS(rsvp_3gpp_object_ie_type_vals), 0,
            NULL, HFILL }
         },
-
+        {&hf_rsvp_3gpp_obj_ue_ipv4_addr,
+         { "UE IPv4 address", "rsvp.3gpp_obj.ue_ipv4_addr",
+           FT_IPv4, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_ue_ipv6_addr,
+         { "UE IPv6 address", "rsvp.3gpp_obj.ue_ipv6_addr",
+           FT_IPv6, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tft_d,
+         { "Direction(D)", "rsvp.3gpp_obj.tft_d",
+           FT_UINT32, BASE_DEC, VALS(rsvp_3gpp_object_tft_d_vals), 0xc0000000,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tft_ns,
+         { "Non-Specific bit(NS)", "rsvp.3gpp_obj.tft_ns",
+           FT_UINT32, BASE_DEC, NULL, 0x08000000,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tft_sr_id,
+         { "SR_ID", "rsvp.3gpp_obj.tft_sr_id",
+           FT_UINT32, BASE_DEC, NULL, 0x07000000,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tft_p,
+         { "Persistency(P)", "rsvp.3gpp_obj.tft_p",
+           FT_UINT32, BASE_DEC, NULL, 0x00010000,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tft_opcode,
+         { "TFT Operation Code", "rsvp.3gpp_obj.tft_opcode",
+           FT_UINT32, BASE_DEC, VALS(rsvp_3gpp_obj_tft_opcode_vals), 0x000ff00,
+           NULL, HFILL }
+        },
+        {&hf_rsvp_3gpp_obj_tft_n_pkt_flt,
+         { "Number of Packet filters", "rsvp.3gpp_obj.tft_n_pkt_flt",
+           FT_UINT32, BASE_DEC, NULL, 0x00000ff,
+           NULL, HFILL }
+        },
     };
 
     gint *ett_tree[TT_MAX];
