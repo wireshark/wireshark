@@ -480,7 +480,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     guint32          t_frame_number;
 
     items = tvb_length_remaining(tvb, offset) / 2;
-    while (tvb_length_remaining(tvb, offset)) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         seid = tvb_get_guint8(tvb, offset);
         in_use = seid & 0x02;
         seid = seid >> 2;
@@ -714,7 +714,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
         *codec = -1;
     }
 
-    while (tvb_length_remaining(tvb, offset)) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         service_category = tvb_get_guint8(tvb, offset);
         losc = tvb_get_guint8(tvb, offset + 1);
         service_item = proto_tree_add_text(capabilities_tree, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
@@ -1221,7 +1221,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case SIGNAL_ID_START:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 i_sep = 1;
-                while (tvb_length_remaining(tvb, offset)) {
+                while (tvb_length_remaining(tvb, offset) > 0) {
                     offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, i_sep, NULL);
                     i_sep += 1;
                 }
@@ -1246,7 +1246,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case SIGNAL_ID_SUSPEND:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 i_sep = 1;
-                while (tvb_length_remaining(tvb, offset)) {
+                while (tvb_length_remaining(tvb, offset) > 0) {
                     offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, i_sep, NULL);
                     i_sep += 1;
                 }

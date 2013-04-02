@@ -511,7 +511,7 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
   offset += COMMON_HEADER_LENGTH;
 
   /* extract zero or more parameters and process them individually */
-  while(tvb_reported_length_remaining(message_tvb, offset)) {
+  while(tvb_reported_length_remaining(message_tvb, offset) > 0) {
     length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;

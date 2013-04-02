@@ -139,7 +139,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     number_of_frames = tvb_get_guint8(tvb, offset) & 0x0F;
     offset += 1;
 
-    while (tvb_length_remaining(tvb, offset)) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         byte = tvb_get_guint8(tvb, offset + 1);
         frequency = (byte & 0xC0) >> 6;
         blocks = (byte & 0x30) >> 4;

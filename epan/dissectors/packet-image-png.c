@@ -232,7 +232,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 	proto_tree_add_item(tree, hf_png_signature, tvb, offset, 8, ENC_NA);
 	offset+=8;
 
-	while(tvb_reported_length_remaining(tvb, offset)){
+	while(tvb_reported_length_remaining(tvb, offset) > 0){
 		proto_tree *chunk_tree=NULL;
 		proto_item *it=NULL;
 		guint32 len, type;
