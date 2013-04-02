@@ -679,7 +679,7 @@ void MainWindow::setMenusForSelectedPacket()
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
 //                         frame_selected);
 //#endif /* WANT_PACKET_EDITOR */
-    main_ui_->actionEditPacketComment->setEnabled(frame_selected);
+    main_ui_->actionEditPacketComment->setEnabled(frame_selected && wtap_dump_can_write(cap_file_->linktypes, WTAP_COMMENT_PER_PACKET));
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
