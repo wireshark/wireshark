@@ -290,27 +290,29 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   /* Capture file comment area */
-  comment_frame = gtk_frame_new("Capture file comments");
-  gtk_frame_set_shadow_type(GTK_FRAME(comment_frame), GTK_SHADOW_ETCHED_IN);
-  gtk_box_pack_start(GTK_BOX(main_vb), comment_frame, TRUE, TRUE, 0);
-  gtk_widget_show(comment_frame);
+  if (wtap_dump_can_write(cfile.linktypes, WTAP_COMMENT_PER_SECTION)) {
+    comment_frame = gtk_frame_new("Capture file comments");
+    gtk_frame_set_shadow_type(GTK_FRAME(comment_frame), GTK_SHADOW_ETCHED_IN);
+    gtk_box_pack_start(GTK_BOX(main_vb), comment_frame, TRUE, TRUE, 0);
+    gtk_widget_show(comment_frame);
 
-  comment_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-  gtk_container_add(GTK_CONTAINER(comment_frame), comment_vbox);
-  gtk_widget_show(comment_vbox);
+    comment_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+    gtk_container_add(GTK_CONTAINER(comment_frame), comment_vbox);
+    gtk_widget_show(comment_vbox);
 
-  comment_view = gtk_text_view_new();
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(comment_view), GTK_WRAP_WORD);
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
-  if(summary.opt_comment == NULL) {
-    gtk_text_buffer_set_text (buffer, "", -1);
-  } else {
-    buf_str = g_strdup_printf("%s", summary.opt_comment);
-    gtk_text_buffer_set_text (buffer, buf_str, -1);
-    g_free(buf_str);
+    comment_view = gtk_text_view_new();
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(comment_view), GTK_WRAP_WORD);
+    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
+    if(summary.opt_comment == NULL) {
+      gtk_text_buffer_set_text (buffer, "", -1);
+    } else {
+      buf_str = g_strdup_printf("%s", summary.opt_comment);
+      gtk_text_buffer_set_text (buffer, buf_str, -1);
+      g_free(buf_str);
+    }
+    gtk_box_pack_start(GTK_BOX(comment_vbox), comment_view, TRUE, TRUE, 0);
+    gtk_widget_show (comment_view);
   }
-  gtk_box_pack_start(GTK_BOX(comment_vbox), comment_view, TRUE, TRUE, 0);
-  gtk_widget_show (comment_view);
 
   /*
    * We must have no un-time-stamped packets (i.e., the number of
