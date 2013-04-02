@@ -45,6 +45,7 @@
 #include <epan/crc32-tvb.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
+#include <epan/oui.h>
 #include "packet-usb.h"
 #include "packet-sll.h"
 
@@ -1007,7 +1008,8 @@ static const ip_tcp_opt lcp_opts[] = {
 
 #define N_LCP_OPTS      (sizeof lcp_opts / sizeof lcp_opts[0])
 
-/*
+/* 3GPP2 X.S0057-B v1.0
+ * 9.1.4.1 3GPP2 VSNCP Configuration Options
  * Options.  (VSNCP)
  */
 
@@ -1021,6 +1023,7 @@ static const ip_tcp_opt lcp_opts[] = {
 #define CI_IPv4DEFAULT_ROUTER   8
 #define CI_ADDRESS_ALLOC        9
 #define CI_APN_AMBR             10
+#define CI_IPv6_HSGW_LLA_IID    11
 
 static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
@@ -1039,6 +1042,10 @@ static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static void dissect_vsncp_ipv4address_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
 static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static void dissect_vsncp_apn_ambr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static void dissect_vsncp_ipv6_hsgw_lla_iid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 static const ip_tcp_opt vsncp_opts[] = {
@@ -1060,8 +1067,10 @@ static const ip_tcp_opt vsncp_opts[] = {
         OPT_LEN_FIXED_LENGTH, 6, dissect_vsncp_ipv4address_opt},
     {CI_ADDRESS_ALLOC, "Address Allocation Cause", NULL,
         OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_addressalloc_opt},
-    {CI_APN_AMBR, "APN-AMBR", NULL,
-        OPT_LEN_VARIABLE_LENGTH, 4, NULL}
+    {CI_APN_AMBR, "APN Aggregate Maximum Bit Rate(APN-AMBR)", NULL,
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_vsncp_apn_ambr_opt},
+    {CI_IPv6_HSGW_LLA_IID, "IPv6 HSGW Link Local Address IID", NULL,
+        OPT_LEN_FIXED_LENGTH, 10, dissect_vsncp_ipv6_hsgw_lla_iid_opt}
 };
 
 #define N_VSNCP_OPTS    (sizeof vsncp_opts / sizeof vsncp_opts[0])
@@ -3555,6 +3564,9 @@ dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         {9,  "PDN-ID Already in Use"},
         {10, "Subscription Limitation"},
         {11, "PDN connection already exists for APN"},
+        {12, "Emergency services not supported"},
+        {13, "Reconnect to this APN not allowed"},
+        {14, "APN congested"},
         {0,  NULL}
     };
     guint8 pdntype;
@@ -3686,6 +3698,40 @@ dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_vsncp_apn_ambr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *tf;
+    proto_tree *field_tree;
+
+	if (tree) {
+
+		tf = proto_tree_add_text(tree, tvb, offset, length, "%s: (%d byte%s)",
+			optp->name, length, plurality(length, "", "s"));
+		field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+
+		/*de_esm_apn_aggr_max_br(tvb, field_tree, pinfo, offset, length, NULL, 0);*/
+		proto_tree_add_text(field_tree, tvb, offset, length, "AMBR Data");
+    }
+}
+
+static void
+dissect_vsncp_ipv6_hsgw_lla_iid_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *tf;
+    proto_tree *field_tree;
+
+	if (tree) {
+		tf = proto_tree_add_text(tree, tvb, offset, length, "%s: (%d byte%s)",
+			optp->name, length, plurality(length, "", "s"));
+		field_tree = proto_item_add_subtree(tf, ett_lcp_options);
+
+		proto_tree_add_text(field_tree, tvb, offset, length, "IPv6 interface identifier");
+    }
+}
+
+static void
 dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
@@ -3770,8 +3816,15 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                 offset + 4, 3, oui, "%02x:%02x:%02x", (oui >> 16) & 0xff,
                 (oui >> 8) & 0xff, oui & 0xff);
             manuf = uint_get_manuf_name_if_known(oui);
-            if (manuf)
+            if (manuf){
                 proto_item_append_text(ti, "(%s)", manuf);
+            }else{
+                /* check if we have the name in oui_vals */
+                manuf = try_val_to_str(oui,oui_vals);
+                if (manuf){
+                    proto_item_append_text(ti, "(%s)", manuf);
+                }
+            }
             proto_tree_add_item(fh_tree, hf_ppp_kind, tvb, offset + 7, 1,
                 ENC_NA);
             if (length > 8) {
@@ -3983,17 +4036,10 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 code;
     guint8 id;
     int length, offset;
-    int OUI;
-
-    static const value_string OUI_vals[] = {
-        {0xcf0002, "3GPP2 Unique Organization Number"},
-        {0,        NULL}
-    };
 
     code = tvb_get_guint8(tvb, 0);
     id = tvb_get_guint8(tvb, 1);
     length = tvb_get_ntohs(tvb, 2);
-    OUI = tvb_get_ntoh24(tvb, 4);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNCP");
     col_add_str(pinfo->cinfo, COL_INFO,
@@ -4006,8 +4052,8 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str_const(code, cp_vals, "Unknown"), code);
         proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x", id);
         proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u", length);
-        proto_tree_add_text(fh_tree, tvb, 4, 3, "OUI: %s (0x%02x)",
-            val_to_str_const(OUI, OUI_vals, "Unknown"), OUI);
+		proto_tree_add_item(fh_tree, hf_ppp_oui, tvb, 4, 3, ENC_BIG_ENDIAN);
+
     }
     offset = 7;
     length -= 7;
@@ -5412,7 +5458,7 @@ proto_register_ppp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ppp_oui,
             { "OUI", "ppp.oui", FT_UINT24, BASE_HEX,
-                NULL, 0x0, NULL, HFILL }},
+                VALS(oui_vals), 0x0, NULL, HFILL }},
         { &hf_ppp_kind,
             { "Kind", "ppp.kind", FT_UINT8, BASE_DEC_HEX,
                 NULL, 0x0, NULL, HFILL }},
