@@ -77,7 +77,7 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
     struct rtnl_link *link_obj;
     int flags, up;
     char *ifname;
-    iface_mon_cb cb = arg;
+    iface_mon_cb cb = (iface_mon_cb)arg;
 
     filter = rtnl_link_alloc();
     if (!filter) {
