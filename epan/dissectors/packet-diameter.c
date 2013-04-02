@@ -321,7 +321,7 @@ compare_avps (gconstpointer  a, gconstpointer  b)
 	return 0;
 }
 
-/* Special decoding of some AVP:s */
+/* Special decoding of some AVPs */
 
 static int
 dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -429,8 +429,8 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 	}
 
 	/* Add root of tree for this AVP */
-	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,ENC_NA);
-	avp_tree = proto_item_add_subtree(avp_item,a->ett);
+	avp_item = proto_tree_add_item(c->tree, hf_diameter_avp, tvb, offset, len + pad_len, ENC_NA);
+	avp_tree = proto_item_add_subtree(avp_item, a->ett);
 
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,ENC_BIG_ENDIAN);
 	code_str = val_to_str_ext_const(code, vendor->vs_avps_ext, "Unknown");
@@ -512,7 +512,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 
 	if (avp_str) proto_item_append_text(avp_item," val=%s", avp_str);
 
-	/* Call subdissectors for AVP:s */
+	/* Call subdissectors for AVPs */
 	switch (vendorid) {
 	case 0:
 		dissector_try_uint(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
@@ -1225,28 +1225,27 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 	a->code = code;
 	a->vendor = vendor;
 /*
-It seems like the radius AVP:s 1-255 will use the defs from RADIUS in which case:
-http://www.ietf.org/rfc/rfc2865.txt?number=2865
-Address
-
-      The Address field is four octets.  The value 0xFFFFFFFF indicates
-      that the NAS Should allow the user to select an address (e.g.
-      Negotiated).  The value 0xFFFFFFFE indicates that the NAS should
-      select an address for the user (e.g. Assigned from a pool of
-      addresses kept by the NAS).  Other valid values indicate that the
-      NAS should use that value as the user's IP address.
-Where as in Diameter:
-RFC3588
-   Address
-      The Address format is derived from the OctetString AVP Base
-      Format.  It is a discriminated union, representing, for example a
-      32-bit (IPv4) [IPV4] or 128-bit (IPv6) [IPV6] address, most
-      significant octet first.  The first two octets of the Address
-      AVP represents the AddressType, which contains an Address Family
-      defined in [IANAADFAM].  The AddressType is used to discriminate
-      the content and format of the remaining octets.
-
-*/
+ * It seems like the radius AVPs 1-255 will use the defs from RADIUS in which case:
+ * http://www.ietf.org/rfc/rfc2865.txt?number=2865
+ * Address
+ *    The Address field is four octets.  The value 0xFFFFFFFF indicates
+ *    that the NAS Should allow the user to select an address (e.g.
+ *    Negotiated).  The value 0xFFFFFFFE indicates that the NAS should
+ *    select an address for the user (e.g. Assigned from a pool of
+ *    addresses kept by the NAS).  Other valid values indicate that the
+ *    NAS should use that value as the user's IP address.
+ *
+ * Where as in Diameter:
+ * RFC3588
+ * Address
+ *    The Address format is derived from the OctetString AVP Base
+ *    Format.  It is a discriminated union, representing, for example a
+ *    32-bit (IPv4) [IPV4] or 128-bit (IPv6) [IPV6] address, most
+ *    significant octet first.  The first two octets of the Address
+ *    AVP represents the AddressType, which contains an Address Family
+ *    defined in [IANAADFAM].  The AddressType is used to discriminate
+ *    the content and format of the remaining octets.
+ */
 	a->dissector_v16 = address_v16_avp;
 	if (code<256) {
 		a->dissector_rfc = address_v16_avp;
@@ -1818,7 +1817,7 @@ real_proto_register_diameter(void)
 	/* Allow dissector to find be found by name. */
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
 
-	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */
+	/* Register dissector table(s) to do sub dissection of AVPs (OctetStrings) */
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_ericsson_avp_dissector_table = register_dissector_table("diameter.ericsson", "DIAMETER_ERICSSON_AVPS", FT_UINT32, BASE_DEC);
@@ -1898,7 +1897,7 @@ proto_reg_handoff_diameter(void)
 
 		dissector_add_uint("sctp.ppi", DIAMETER_PROTOCOL_ID, diameter_sctp_handle);
 
-		/* Register special decoding for some AVP:s */
+		/* Register special decoding for some AVPs */
 		/* AVP Code: 97 Framed-IPv6-Address */
 		dissector_add_uint("diameter.base", 97,
 			new_create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
