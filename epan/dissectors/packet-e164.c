@@ -428,8 +428,10 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		cc = cc << 4;
 		cc = cc | (address_digit_pair &0xf0)>>4;
 		cc = cc << 4;
-		address_digit_pair = tvb_get_guint8(tvb, cc_offset+1);
-		cc = cc | (address_digit_pair &0x0f);
+		if (tvb_bytes_exist(tvb, cc_offset+1, 1)){
+			address_digit_pair = tvb_get_guint8(tvb, cc_offset+1);
+			cc = cc | (address_digit_pair &0x0f);
+		}
 
 	}
 
