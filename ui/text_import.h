@@ -68,6 +68,7 @@ typedef struct
     FILE *import_text_file;
     enum offset_type offset_type;
     gboolean date_timestamp;
+    gboolean has_direction;
     char *date_timestamp_format;
 
     /* Import info */

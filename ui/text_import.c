@@ -170,6 +170,8 @@ static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
 static guint32 hdr_data_chunk_ppid = 0;
 
+static gboolean has_direction = FALSE;
+static guint32 direction = 0;
 
 /*--- Local data -----------------------------------------------------------------*/
 
@@ -530,7 +532,8 @@ write_current_packet (void)
             pkthdr.opt_comment = NULL;
             pkthdr.drop_count = 0;
             pkthdr.pack_flags = 0;
-            pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
+            pkthdr.pack_flags |= direction;
+            pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 
             wtap_dump(wdh, &pkthdr, packet_buf, &err);
         }
@@ -585,6 +588,37 @@ parse_preamble (void)
     int  i;
 
     /*
+     * Null-terminate the preamble.
+     */
+    packet_preamble[packet_preamble_len] = '\0';
+
+    if (has_direction) {
+        switch (packet_preamble[0]) {
+        case 'i':
+        case 'I':
+            direction = 0x00000001;
+            packet_preamble[0] = ' ';
+            break;
+        case 'o':
+        case 'O':
+            direction = 0x00000002;
+            packet_preamble[0] = ' ';
+            break;
+        default:
+            direction = 0x00000000;
+            break;
+        }
+        i = 0;
+        while (packet_preamble[i] == ' ' ||
+               packet_preamble[i] == '\r' ||
+               packet_preamble[i] == '\t') {
+            i++;
+        }
+        packet_preamble_len -= i;
+        memmove(packet_preamble, packet_preamble+i, packet_preamble_len);
+    }
+
+    /*
      * If no "-t" flag was specified, don't attempt to parse a packet
      * preamble to extract a time stamp.
      */
@@ -598,11 +632,6 @@ parse_preamble (void)
 
     timecode = timecode_default;
     ts_usec = 0;
-
-    /*
-     * Null-terminate the preamble.
-     */
-    packet_preamble[packet_preamble_len] = '\0';
 
     /* Ensure preamble has more than two chars before atempting to parse.
      * This should cover line breaks etc that get counted.
@@ -895,6 +924,8 @@ text_import_setup(text_import_info_t *info)
                   (info->offset_type == OFFSET_OCT) ? 8 :
                   (info->offset_type == OFFSET_DEC) ? 10 :
                   16;
+
+    has_direction = info->has_direction;
 
     if (info->date_timestamp)
     {
