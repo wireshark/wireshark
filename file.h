@@ -232,7 +232,7 @@ gboolean cf_can_save_as(capture_file *cf);
  * @param cf the capture file to check
  * @return TRUE if it has unsaved data, FALSE if it doesn't
  */
-gboolean cf_not_saved(capture_file *cf);
+gboolean cf_has_unsaved_data(capture_file *cf);
 
 /**
  * Save all packets in a capture file to a new file, and, if that succeeds,

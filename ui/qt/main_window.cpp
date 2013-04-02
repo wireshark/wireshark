@@ -372,7 +372,7 @@ void MainWindow::mergeCaptureFile()
         return;
 
     if (prefs.gui_ask_unsaved) {
-        if (cf_not_saved(cap_file_)) {
+        if (cf_has_unsaved_data(cap_file_)) {
             QMessageBox msg_dialog;
             gchar *display_basename;
             int response;
@@ -980,7 +980,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 #endif
 
     if (prefs.gui_ask_unsaved) {
-        if (cf_not_saved(cap_file_) || capture_in_progress) {
+        if (cf_has_unsaved_data(cap_file_) || capture_in_progress) {
             QMessageBox msg_dialog;
             QString question;
             QPushButton *default_button;
@@ -1120,7 +1120,7 @@ void MainWindow::setTitlebarForCaptureFile()
 
     if (cap_file_ && cap_file_->filename) {
         display_name = cf_get_display_name(cap_file_);
-        setWindowModified(cf_not_saved(cap_file_));
+        setWindowModified(cf_has_unsaved_data(cap_file_));
         // Clear the window title so that setWindowFilePath does something
         setWindowTitle(NULL);
         setWindowFilePath(display_name);

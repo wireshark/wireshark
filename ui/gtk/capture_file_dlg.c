@@ -1027,7 +1027,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   gint       response;
 
   if (prefs.gui_ask_unsaved) {
-    if (cf_not_saved(&cfile)) {
+    if (cf_has_unsaved_data(&cfile)) {
       /* This file has unsaved data; ask the user whether to save the
          capture. */
       if (cfile.is_tempfile) {
@@ -1135,7 +1135,7 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
     capture_in_progress = FALSE;
 
   if (prefs.gui_ask_unsaved) {
-    if (cf_not_saved(cf) || capture_in_progress) {
+    if (cf_has_unsaved_data(cf) || capture_in_progress) {
       /* This file has unsaved data or there's a capture in progress;
          ask the user whether to save the data. */
       if (cf->is_tempfile) {

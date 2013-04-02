@@ -4060,7 +4060,7 @@ cf_can_save_as(capture_file *cf)
  * Does this file have unsaved data?
  */
 gboolean
-cf_not_saved(capture_file *cf)
+cf_has_unsaved_data(capture_file *cf)
 {
   /*
    * If this is a temporary file, or a file with unsaved changes, it

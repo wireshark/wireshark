@@ -95,7 +95,7 @@ set_titlebar_for_capture_file(capture_file *cf)
 
   if (cf && cf->filename) {
     display_name = cf_get_display_name(cf);
-    window_name = g_strdup_printf("%s%s", cf_not_saved(cf) ? "*" : "",
+    window_name = g_strdup_printf("%s%s", cf_has_unsaved_data(cf) ? "*" : "",
                                   display_name);
     g_free(display_name);
     main_set_window_name(window_name);
