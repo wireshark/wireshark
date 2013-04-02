@@ -1116,17 +1116,69 @@ void MainWindow::captureStop() {
 // Titlebar
 void MainWindow::setTitlebarForCaptureFile()
 {
-    gchar *display_name;
-
     if (cap_file_ && cap_file_->filename) {
-        display_name = cf_get_display_name(cap_file_);
         setWindowModified(cf_has_unsaved_data(cap_file_));
-        // Clear the window title so that setWindowFilePath does something
-        setWindowTitle(NULL);
-        setWindowFilePath(display_name);
-        g_free(display_name);
+        //
+        // Qt *REALLY* doesn't like windows that sometimes have a
+        // title set with setWindowTitle() and other times have a
+        // file path set; apparently, once you've set the title
+        // with setWindowTitle(), it sticks, and setWindowFilePath()
+        // has no effect.  It appears to can clear the title with
+        // setWindowTitle(NULL), but that clears the actual title in
+        // the title bar, and setWindowFilePath() then, I guess, sees
+        // that there's already a file path, and does nothing, leaving
+        // the title bar empty.  So you then have to clear the file path
+        // with setWindowFilePath(NULL), and then set it.
+        //
+        // Maybe there's a #include "you're holding it wrong" here.
+        // However, I really don't want to hear from people who think
+        // that a window can never be associated with something other
+        // than a user file at time T1 and with a user file at time T2,
+        // given that, in Wireshark, a window can be associated with a
+        // live capture at time T1 and then, after you've saved the live
+        // capture to a user file, associated with a user file at time T2.
+        //
+        if (cap_file_->is_tempfile) {
+            //
+            // For a temporary file, put the source of the data
+            // in the window title, not whatever random pile
+            // of characters is the last component of the path
+            // name.
+            //
+            // XXX - on non-Mac platforms, put in the application
+            // name?
+            //
+            setWindowFilePath(NULL);
+            setWindowTitle(cf_get_tempfile_source(cap_file_));
+        } else {
+            //
+            // For a user file, set the full path; that way,
+            // for OS X, it'll set the "proxy icon".  Qt
+            // handles extracting the last component.
+            //
+            // Sadly, some UN*Xes don't necessarily use UTF-8
+            // for their file names, so we have to map the
+            // file path to UTF-8.  If that fails, we're somewhat
+            // stuck.
+            //
+            char *utf8_filename = g_filename_to_utf8(cap_file_->filename,
+                                                     -1,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL);
+            if (utf8_filename == NULL) {
+            	// So what the heck else can we do here?
+                setWindowTitle("(File name can't be mapped to UTF-8)");
+            } else {
+                setWindowTitle(NULL);
+                setWindowFilePath(NULL);
+                setWindowFilePath(utf8_filename);
+                g_free(utf8_filename);
+            }
+        }
     } else {
         /* We have no capture file. */
+        setWindowFilePath(NULL);
         setWindowTitle("The Wireshark Network Analyzer");
     }
 }
@@ -1135,6 +1187,7 @@ void MainWindow::setTitlebarForCaptureInProgress()
 {
     gchar *window_name;
 
+    setWindowFilePath(NULL);
     if (cap_file_) {
         window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cap_file_));
         setWindowTitle(window_name);
