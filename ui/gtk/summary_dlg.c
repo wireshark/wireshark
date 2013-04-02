@@ -147,18 +147,20 @@ summary_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   GtkTextIter end_iter;
   gchar *new_comment = NULL;
 
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-  gtk_text_buffer_get_start_iter (buffer, &start_iter);
-  gtk_text_buffer_get_end_iter (buffer, &end_iter);
+  if (view != NULL) {
+    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+    gtk_text_buffer_get_start_iter (buffer, &start_iter);
+    gtk_text_buffer_get_end_iter (buffer, &end_iter);
 
-  new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
+    new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
-  cf_update_capture_comment(&cfile, new_comment);
+    cf_update_capture_comment(&cfile, new_comment);
 
-  /* Update the main window */
-  main_update_for_unsaved_changes(&cfile);
+    /* Update the main window */
+    main_update_for_unsaved_changes(&cfile);
 
-  status_capture_comment_update();
+    status_capture_comment_update();
+  }
 
   window_destroy(summary_dlg);
 }
@@ -177,7 +179,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget         *main_vb, *bbox, *cancel_bt, *ok_bt, *help_bt;
   GtkWidget         *grid, *scrolled_window;
   GtkWidget         *list, *treeview;
-  GtkWidget         *comment_view, *comment_frame, *comment_vbox;
+  GtkWidget         *comment_view = NULL, *comment_frame, *comment_vbox;
   GtkTextBuffer     *buffer = NULL;
   gchar             *buf_str;
   GtkListStore      *store;
