@@ -5865,14 +5865,14 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
 				 * The packet filter list contains a variable number of packet filters. It shall be
 				 * encoded same as defined in X.S0011-D Chapter 4 [5] except as defined
 				 * below:
-				 * For “QoS Check Confirm” operations, the packet filter list shall be empty.
-				 * For “Initiate Delete Packet Filter from Existing TFT”, the packet filter list
+				 * For "QoS Check Confirm" operations, the packet filter list shall be empty.
+				 * For "Initiate Delete Packet Filter from Existing TFT", the packet filter list
 				 * shall contain a variable number of Flow Identifiers given in the number of
 				 * packet filters field. In this case, the packet filter evaluation precedence,
 				 * length, and contents are not included, only the Flow Identifiers are
 				 * included. See Figure B-6, X.S0011-D [5] .
-				 * For “Initiate Flow request” and “Initiate Replace Packet Filters in Existing
-				 * TFT” Replace Packet Filters in Existing TFT the packet filter list shall
+				 * For "Initiate Flow request" and "Initiate Replace Packet Filters in Existing
+				 * TFT" Replace Packet Filters in Existing TFT the packet filter list shall
 				 * contain a variable number of Flow Identifiers, along with the packet filter
 				 * contents. See Figure B-7, X.S0011-D
 				 */
