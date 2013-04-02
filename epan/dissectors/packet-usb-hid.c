@@ -457,7 +457,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 	struct usb_hid_global_state cur_global;
 	memcpy(&cur_global, global, sizeof(struct usb_hid_global_state));
 
-	while (tvb_reported_length_remaining(tvb, offset))
+	while (tvb_reported_length_remaining(tvb, offset) > 0)
 	{
 		old_offset=offset;
 

@@ -203,7 +203,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	version = tvb_get_guint8(tvb, 0);
 	switch (version) {
 	case 5:
-		while (tvb_reported_length_remaining(tvb, offset)) {
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			offset = dissect_bat_batman_v5(tvb, offset, pinfo, tree);
 		}
 		break;
