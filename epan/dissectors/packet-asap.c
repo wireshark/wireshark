@@ -226,7 +226,7 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, proto_tree *parameter_tree)
   tvbuff_t *error_cause_tvb;
 
   offset = 0;
-  while(tvb_reported_length_remaining(error_causes_tvb, offset)) {
+  while(tvb_reported_length_remaining(error_causes_tvb, offset) > 0) {
     length          = tvb_get_ntohs(error_causes_tvb, offset + CAUSE_LENGTH_OFFSET);
     total_length    = ADD_PADDING(length);
     error_cause_tvb = tvb_new_subset(error_causes_tvb, offset , total_length, total_length);
@@ -722,7 +722,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
+  while((remaining_length = tvb_length_remaining(parameters_tvb, offset)) > 0) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
     if (remaining_length >= length)

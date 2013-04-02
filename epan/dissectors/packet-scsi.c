@@ -2664,7 +2664,7 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (!cdata)
         return;
 
-    while (tvb_length_remaining(tvb, offset)) {
+    while (tvb_length_remaining(tvb, offset) > 0) {
         if (longlba) {
             if(tvb_length_remaining(tvb, offset)<8)
                 return;

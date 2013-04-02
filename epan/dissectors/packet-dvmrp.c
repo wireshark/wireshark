@@ -496,8 +496,8 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				tvb, offset, 1, FALSE);
 			offset += 1;
 
-			while ((tvb_reported_length_remaining(tvb, offset)>=4) 
-				&& (neighbor_count>0)) { 
+			while ((tvb_reported_length_remaining(tvb, offset)>=4)
+				&& (neighbor_count>0)) {
 				proto_tree_add_item(parent_tree, hf_neighbor,
 					tvb, offset, 4, FALSE);
 				offset += 4;
@@ -539,7 +539,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 2;
 
 	/* decode all the v1 commands */
-	while (tvb_reported_length_remaining(tvb, offset)) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree *tree;
 		proto_item *item;
 		guint8 cmd,count;
