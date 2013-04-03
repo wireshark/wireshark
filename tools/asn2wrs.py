@@ -51,6 +51,8 @@ import lex
 import yacc
 
 from string import maketrans
+from functools import partial
+
 
 # OID name -> number conversion table
 oid_names = {
@@ -722,7 +724,7 @@ class EthCtx:
       val = self.all_vals[module][nm]
     return val
 
-  def get_obj_repr(self, ident, restr):
+  def get_obj_repr(self, ident, flds=[], not_flds=[]):
     def set_type_fn(cls, field, fnfield):
       obj[fnfield + '_fn'] = 'NULL'
       obj[fnfield + '_pdu'] = 'NULL'
@@ -738,20 +740,12 @@ class EthCtx:
     obj['_class'] = self.oassign[ident].cls
     obj['_module'] = self.oassign[ident].module
     val = self.oassign[ident].val
-    fld = None
-    fld_neg = False
-    if len(restr) > 0:
-      fld = restr[0]
-      if fld[0] == '!':
-        fld_neg = True
-        fld = fld[1:]
-    if fld:
-      if fld_neg:
-        if fld in val:
-          return None
-      else:
-        if fld not in val:
-          return None
+    for f in flds:
+      if f not in val:
+        return None
+    for f in not_flds:
+      if f in val:
+        return None
     for f in list(val.keys()):
       if isinstance(val[f], Node):
         obj[f] = val[f].fld_obj_repr(self)
@@ -1896,37 +1890,78 @@ class EthCtx:
       fempty=False
     self.output.file_close(fx, discard=fempty)
 
-  #--- eth_output_table -----------------------------------------------------
-  def eth_output_table(self):
+  #--- eth_output_tables -----------------------------------------------------
+  def eth_output_tables(self):
     for num in list(self.conform.report.keys()):
       fx = self.output.file_open('table' + num)
       for rep in self.conform.report[num]:
-        if rep['type'] == 'HDR':
-          fx.write('\n')
-        if rep['var']:
-          var = rep['var']
-          var_list = var.split('.', 1)
-          cls = var_list[0]
-          del var_list[0]
-          if (cls in self.oassign_cls):
-            for ident in self.oassign_cls[cls]:
-             obj = self.get_obj_repr(ident, var_list)
-             if not obj:
-               continue
-             obj['_LOOP'] = var
-             obj['_DICT'] = str(obj)
-             try:
-               text = rep['text'] % obj
-             except (KeyError):
-               raise sys.exc_info()[0], "%s:%s invalid key %s for information object %s of %s" % (rep['fn'], rep['lineno'], sys.exc_info()[1], ident, var)
-             fx.write(text)
-          else:
-            fx.write("/* Unknown or empty loop list %s */\n" % (var))
-        else:
-          fx.write(rep['text'])
-        if rep['type'] == 'FTR':
-          fx.write('\n')
+        self.eth_output_table(fx, rep)
       self.output.file_close(fx)
+
+  #--- eth_output_table -----------------------------------------------------
+  def eth_output_table(self, fx, rep):
+    def cmp_fn(a, b, cmp_flds, objs):
+      if not cmp_flds: return 0
+      obja = objs[a]
+      objb = objs[b]
+      res = 0
+      for f in cmp_flds:
+        if f[0] == '#':
+          f = f[1:]
+          res = int(obja[f]) - int(objb[f])
+        else:
+          res = cmp(obja[f], objb[f])
+        if res: break
+      return res
+    if rep['type'] == 'HDR':
+      fx.write('\n')
+    if rep['var']:
+      var = rep['var']
+      var_list = var.split('.', 1)
+      cls = var_list[0]
+      del var_list[0]
+      flds = []
+      not_flds = []
+      sort_flds = []
+      for f in var_list:
+         if f[0] == '!':
+           not_flds.append(f[1:])
+           continue
+         if f[0] == '#':
+           flds.append(f[1:])
+           sort_flds.append(f)
+           continue
+         if f[0] == '@':
+           flds.append(f[1:])
+           sort_flds.append(f[1:])
+           continue
+         flds.append(f)
+      objs = {}
+      objs_ord = []
+      if (cls in self.oassign_cls):
+        for ident in self.oassign_cls[cls]:
+          obj = self.get_obj_repr(ident, flds, not_flds)
+          if not obj:
+            continue
+          obj['_LOOP'] = var
+          obj['_DICT'] = str(obj)
+          objs[ident] = obj
+          objs_ord.append(ident)
+        if (sort_flds):
+          objs_ord.sort(cmp=partial(cmp_fn, cmp_flds=sort_flds, objs=objs))
+        for ident in objs_ord:
+          obj = objs[ident]
+          try:
+            text = rep['text'] % obj
+          except (KeyError):
+            raise sys.exc_info()[0], "%s:%s invalid key %s for information object %s of %s" % (rep['fn'], rep['lineno'], sys.exc_info()[1], ident, var)
+          fx.write(text)
+      else:
+        fx.write("/* Unknown or empty loop list %s */\n" % (var))
+    else:
+      fx.write(rep['text'])
+    if rep['type'] == 'FTR':
+      fx.write('\n')
 
   #--- dupl_report -----------------------------------------------------
   def dupl_report(self):
@@ -2059,7 +2094,7 @@ class EthCtx:
       self.eth_output_dis_reg()
       self.eth_output_dis_tab()
       self.eth_output_syn_reg()
-      self.eth_output_table()
+      self.eth_output_tables()
     if self.expcnf:
       self.eth_output_expcnf()
 
