@@ -285,7 +285,7 @@ static const value_string a11_reply_codes[]= {
     {136, "Reg Deny (HA)- Unknown PDSN Address"},
     {137, "Reg Deny (HA)- Requested Reverse Tunnel Unavailable"},
     {138, "Reg Deny (HA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
-    {139, "Registration Denied – service option not supported"},
+    {139, "Registration Denied - service option not supported"},
     {140, "Registration Denied - no CID available"},
     {141, "Reg Deny (HA)- unsupported Vendor ID / Application Type in CVSE"},
     {142, "Registration Denied - nonexistent A10 or IP flow"},
@@ -297,11 +297,11 @@ static const value_string a11_ack_status[]= {
     {0x00, "Update Accepted"},
     {0x01, "Partial QoS updated"},
     {0x80, "Update Denied - reason unspecified"},
-    {0x83, "Update Denied – sending node failed authentication"},
+    {0x83, "Update Denied - sending node failed authentication"},
     {0x85, "Update Denied - identification mismatch)"},
     {0x86, "Update Denied - poorly formed registration update"},
     {0xc9, "Update Denied - Session Parameter Not Updated"},
-    {0xca, "Update Denied – PMK not requested"},
+    {0xca, "Update Denied - PMK not requested"},
     {0xfd, "Update Denied - QoS profileID not supported"},
     {0xfe, "Update Denied - insufficient resources"},
     {0xff, "Update Denied - handoff in progress"},
@@ -381,9 +381,9 @@ static const value_string a11_ext_dormant[]= {
 };
 
 
-static const true_false_string a11_tfs_ehrpd_mode = { 
-	"eAT is operating in evolved mode", 
-	"eAT is operating in legacy mode" 
+static const true_false_string a11_tfs_ehrpd_mode = {
+	"eAT is operating in evolved mode",
+	"eAT is operating in legacy mode"
 };
 
 static const value_string a11_ext_app[]= {
@@ -476,7 +476,7 @@ static const value_string a11_rohc_profile_vals[] =
 */
 
 
-/* 3GPP2 A.S0008-C v4.0 */ 
+/* 3GPP2 A.S0008-C v4.0 */
 static const value_string a11_ses_msid_type_vals[] =
 {
     { 0x0001,    "MEID" },
