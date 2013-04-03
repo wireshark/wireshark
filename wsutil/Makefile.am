@@ -91,6 +91,7 @@ libwsutil_la_LIBADD =		\
 	$(wsutil_optional_objects)
 
 EXTRA_DIST =		\
+	CMakeLists.txt	\
 	Makefile.common	\
 	Makefile.nmake	\
 	file_util.c	\
