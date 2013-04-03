@@ -38,7 +38,7 @@ NumberScreened
 #.FIELD_RENAME
 #.END                                
 
-#.TABLE10_BODY OPERATION.&operationCode.local
+#.TABLE10_BODY OPERATION.#&operationCode.local
   { %(&operationCode)3s, "%(_name)s" },
 #.END
 
