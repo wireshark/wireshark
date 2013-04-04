@@ -268,6 +268,17 @@ static int hf_dlr_capflags_beacon_base_node = -1;
 static int hf_dlr_capflags_reserved1 = -1;
 static int hf_dlr_capflags_supervisor_capable = -1;
 static int hf_dlr_capflags_reserved2 = -1;
+static int hf_dlr_capflags_redundant_gateway_capable = -1;
+static int hf_dlr_capflags_flush_frame_capable = -1;
+static int hf_dlr_rgc_red_gateway_enable = -1;
+static int hf_dlr_rgc_gateway_precedence = -1;
+static int hf_dlr_rgc_advertise_interval = -1;
+static int hf_dlr_rgc_advertise_timeout = -1;
+static int hf_dlr_rgc_learning_update_enable = -1;
+static int hf_dlr_redundant_gateway_status = -1;
+static int hf_dlr_aga_ip_addr = -1;
+static int hf_dlr_aga_physical_address = -1;
+static int hf_dlr_active_gateway_precedence = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enip = -1;
@@ -283,6 +294,7 @@ static gint ett_tcpip_config_control = -1;
 static gint ett_elink_interface_flags = -1;
 static gint ett_elink_icontrol_bits = -1;
 static gint ett_dlr_capability_flags = -1;
+static gint ett_dlr_lnknbrstatus_flags = -1;
 
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
@@ -316,6 +328,10 @@ static int hf_dlr_nressourceport = -1;
 static int hf_dlr_nresreserved = -1;
 
 static int hf_dlr_lnknbrstatus = -1;
+static int hf_dlr_lnknbrstatus_port1 = -1;
+static int hf_dlr_lnknbrstatus_port2 = -1;
+static int hf_dlr_lnknbrstatus_reserved = -1;
+static int hf_dlr_lnknbrstatus_frame_type = -1;
 static int hf_dlr_lnknbrreserved = -1;
 
 static int hf_dlr_lfreserved = -1;
@@ -326,6 +342,18 @@ static int hf_dlr_sonumnodes = -1;
 static int hf_dlr_somac = -1;
 static int hf_dlr_soip = -1;
 static int hf_dlr_soreserved = -1;
+
+static int hf_dlr_advgatewaystate = -1;
+static int hf_dlr_advgatewayprecedence = -1;
+static int hf_dlr_advadvertiseinterval = -1;
+static int hf_dlr_advadvertisetimeout = -1;
+static int hf_dlr_advlearningupdateenable = -1;
+static int hf_dlr_advreserved = -1;
+
+static int hf_dlr_flushlearningupdateenable = -1;
+static int hf_dlr_flushreserved = -1;
+
+static int hf_dlr_learnreserved  = -1;
 
 static gint ett_dlr = -1;
 
@@ -512,6 +540,17 @@ static const value_string enip_dlr_ring_supervisor_status_vals[] = {
    { 0,  NULL }
 };
 
+static const value_string enip_dlr_redundant_gateway_status_vals[] = {
+   { 0,  "Non-Gateway DLR node" },
+   { 1,  "Backup Gateway" },
+   { 2,  "Active Gateway" },
+   { 3,  "Gateway Fault" },
+   { 4,  "Cannot Support Parameters" },
+   { 5,  "Partitial Network Fault" },
+
+   { 0,  NULL }
+};
+
 /* Translate interface handle to string */
 static const value_string enip_interface_handle_vals[] = {
    { 0,        "CIP" },
@@ -528,6 +567,9 @@ static const value_string dlr_frame_type_vals[] = {
    { DLR_FT_LOCATE_FLT,       "Locate_Fault"                  },
    { DLR_FT_ANNOUNCE,         "Announce"                      },
    { DLR_FT_SIGN_ON,          "Sign_On"                       },
+   { DLR_FT_ADVERTISE,        "Advertise"                     },
+   { DLR_FT_FLUSH_TABLES,     "Flush_Tables"                  },
+   { DLR_FT_LEARNING_UPDATE,  "Learning_Update"               },
 
    { 0,                    NULL }
 };
@@ -549,14 +591,34 @@ static const value_string dlr_ring_state_vals[] = {
    { 0,                    NULL }
 };
 
-
-/* Translate function to DLR Link_Status/Neighbor_Status Status values */
-static const value_string dlr_lnk_nbr_status_vals[] = {
-   { 0x01,     "PORT_1_UP" },
-   { 0x02,     "PORT_2_UP" },
-   { 0x80,     "NEIGHBOR_STATUS_FLAG" },
+/* Translate function to DLR Advertise State values */
+static const value_string dlr_adv_state_vals[] = {
+   { 0x01,     "ACTIVE_LISTEN_STATE" },
+   { 0x02,     "ACTIVE_NORMAL_STATE" },
+   { 0x03,     "FAULT_STATE" },
 
    { 0,                    NULL }
+};
+
+/* Translate function to DLR Learning Update values */
+static const value_string dlr_adv_learning_update_vals[] = {
+   { 0,  "Disabled"        },
+   { 1,  "Enabled"         },
+
+   { 0,  NULL              }
+};
+
+/* Translate function to DLR Flush Learning Update values */
+static const value_string dlr_flush_learning_update_vals[] = {
+   { 0,  "Disabled"        },
+   { 1,  "Enabled"         },
+
+   { 0,  NULL              }
+};
+
+static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
+    "Link_Status Frame",
+    "Neighbor_Status Frame"
 };
 
 static GHashTable *enip_request_hashtable = NULL;
@@ -1416,16 +1478,50 @@ int dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_ite
    flag_item = proto_tree_add_item(tree, hf_dlr_capability_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
    flag_tree = proto_item_add_subtree(flag_item, ett_dlr_capability_flags);
 
-   proto_tree_add_item(flag_tree, hf_dlr_capflags_announce_base_node, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(flag_tree, hf_dlr_capflags_beacon_base_node,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(flag_tree, hf_dlr_capflags_reserved1,          tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(flag_tree, hf_dlr_capflags_supervisor_capable, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(flag_tree, hf_dlr_capflags_reserved2,          tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_announce_base_node,        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_beacon_base_node,          tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_reserved1,                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_supervisor_capable,        tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_redundant_gateway_capable, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_flush_frame_capable,       tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_reserved2,                 tvb, offset, 4, ENC_LITTLE_ENDIAN);
    return 4;
 }
 
-attribute_info_t enip_attribute_vals[41] = {
+int dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   if (total_len < 11)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 13");
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_dlr_rgc_red_gateway_enable,     tvb, offset,    1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rgc_gateway_precedence,     tvb, offset+1,  1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rgc_advertise_interval,     tvb, offset+2,  4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rgc_advertise_timeout,      tvb, offset+6,  4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rgc_learning_update_enable, tvb, offset+10, 1, ENC_LITTLE_ENDIAN);
+   return 11;
+}
+
+int dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   if (total_len < 10)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 15");
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_dlr_aga_ip_addr,          tvb, offset,   4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_aga_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   return 10;
+}
+
+attribute_info_t enip_attribute_vals[45] = {
 
    /* TCP/IP object */
    {0xF5, FALSE,  1, "Status",                    cip_dissector_func,   NULL, dissect_tcpip_status},
@@ -1474,8 +1570,11 @@ attribute_info_t enip_attribute_vals[41] = {
    {0x47, FALSE, 9, "Ring Protocol Participants List",  cip_dissector_func, NULL, dissect_dlr_ring_protocol_participants_list},
    {0x47, FALSE, 10, "Active Supervisor Address",       cip_dissector_func, NULL, dissect_dlr_active_supervisor_address},
    {0x47, FALSE, 11, "Active Supervisor Precedence",    cip_usint, &hf_dlr_active_supervisor_precedence, NULL},
-   {0x47, FALSE, 12, "Capability Flags",                cip_dissector_func, NULL, dissect_dlr_capability_flags}
-
+   {0x47, FALSE, 12, "Capability Flags",                cip_dissector_func, NULL, dissect_dlr_capability_flags},
+   {0x47, FALSE, 13, "Redundant Gateway Config",        cip_dissector_func, NULL, dissect_dlr_redundant_gateway_config},
+   {0x47, FALSE, 14, "Redundant Gateway Status",        cip_usint, &hf_dlr_redundant_gateway_status, NULL},
+   {0x47, FALSE, 15, "Active Gateway Address",          cip_dissector_func, NULL, dissect_dlr_active_gateway_address},
+   {0x47, FALSE, 16, "Actice Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
 };
 
 
@@ -2203,7 +2302,17 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    else if( dlr_frametype == DLR_FT_LINK_STAT )
    {
       /* Link_Status/Neighbor_Status */
-      proto_tree_add_item( dlr_tree, hf_dlr_lnknbrstatus,   tvb, DLR_LNS_SOURCE_PORT,  1, ENC_BIG_ENDIAN );
+      proto_item* flag_item;
+      proto_tree* flag_tree;
+
+      flag_item = proto_tree_add_item( dlr_tree, hf_dlr_lnknbrstatus,   tvb, DLR_LNS_SOURCE_PORT,  1, ENC_BIG_ENDIAN );
+      flag_tree = proto_item_add_subtree(flag_item, ett_dlr_lnknbrstatus_flags);
+
+      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_port1,      tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_port2,      tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_reserved,   tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(flag_tree, hf_dlr_lnknbrstatus_frame_type, tvb, DLR_LNS_SOURCE_PORT, 1, ENC_LITTLE_ENDIAN);
+
       proto_tree_add_item( dlr_tree, hf_dlr_lnknbrreserved, tvb, DLR_LNS_RESERVED,    29, ENC_NA );
    }
    else if( dlr_frametype == DLR_FT_LOCATE_FLT )
@@ -2243,6 +2352,25 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          proto_tree_add_item( dlr_tree, hf_dlr_soreserved, tvb, nOffset, 42 - nOffset, ENC_NA );
          /* nOffset += (42 - nOffset); */
       }
+   }
+   else if( dlr_frametype == DLR_FT_ADVERTISE )
+   {
+      /* Advertise */
+      proto_tree_add_item( dlr_tree, hf_dlr_advgatewaystate,         tvb, DLR_ADV_GATEWAY_STATE,           1, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_advgatewayprecedence,    tvb, DLR_ADV_GATEWAY_PRECEDENCE,      1, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_advadvertiseinterval,    tvb, DLR_ADV_ADVERTISE_INTERVAL,      4, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_advadvertisetimeout,     tvb, DLR_ADV_ADVERTISE_TIMEOUT,       4, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_advlearningupdateenable, tvb, DLR_ADV_LEARNING_UPDATE_ENABLE,  1, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_advreserved,             tvb, DLR_ADV_RESERVED,               19, ENC_NA );   
+   }
+   else if( dlr_frametype == DLR_FT_FLUSH_TABLES )
+   {
+      proto_tree_add_item( dlr_tree, hf_dlr_flushlearningupdateenable, tvb, DLR_FLUSH_LEARNING_UPDATE_ENABLE,  1, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_flushreserved,             tvb, DLR_FLUSH_RESERVED,               29, ENC_NA );
+   }
+   else if( dlr_frametype == DLR_FT_LEARNING_UPDATE )
+   {
+      proto_tree_add_item( dlr_tree, hf_dlr_learnreserved,  tvb, DLR_LEARN_RESERVED, 34, ENC_NA );
    }
    else
    {
@@ -3067,9 +3195,64 @@ proto_register_enip(void)
           FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
           NULL, HFILL }},
 
+      { &hf_dlr_capflags_redundant_gateway_capable,
+        { "Redundant Gatway Capable", "cip.dlr.capflags.redundant_gateway_capable",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040,
+          NULL, HFILL }},
+
+      { &hf_dlr_capflags_flush_frame_capable,
+        { "Flush_Table Frame Capable", "cip.dlr.capflags.flush_frame_capable",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          NULL, HFILL }},
+
       { &hf_dlr_capflags_reserved2,
         { "Reserved", "cip.dlr.capflags.reserved2",
-          FT_BOOLEAN, 32, NULL, 0xFFFFFFC0,
+          FT_BOOLEAN, 32, NULL, 0xFFFFFF00,
+          NULL, HFILL }},
+
+      { &hf_dlr_rgc_red_gateway_enable,
+        { "Redundant Gateway Enable", "cip.dlr.rgc.gateway_enable",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          NULL, HFILL }},          
+
+      { &hf_dlr_rgc_gateway_precedence,
+        { "Gateway Precedence", "cip.dlr.rgc.gateway_precedence",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},    
+
+      { &hf_dlr_rgc_advertise_interval,
+        { "Advertise Interval", "cip.dlr.rgc.advertise_interval",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rgc_advertise_timeout,
+        { "Advertise Timeout", "cip.dlr.rgc.advertise_timeout",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rgc_learning_update_enable,
+        { "Learning Update Enable", "cip.dlr.rgc.learning_update_enable",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_redundant_gateway_status,
+        { "Redundant Gateway Status", "cip.dlr.redundant_gateway_status",
+          FT_UINT8, BASE_DEC, enip_dlr_redundant_gateway_status_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_aga_ip_addr,
+        { "Active Gateway IP Address", "cip.dlr.aga.ip_addr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_aga_physical_address,
+        { "Active Gateway Physical Address", "cip.dlr.aga.physical_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+          
+      { &hf_dlr_active_gateway_precedence,
+        { "Active Gateway Precedence", "cip.dlr.active_gateway_precedence",
+          FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }}
    };
 
@@ -3088,7 +3271,8 @@ proto_register_enip(void)
       &ett_tcpip_config_control,
       &ett_elink_interface_flags,
       &ett_elink_icontrol_bits,
-      &ett_dlr_capability_flags
+      &ett_dlr_capability_flags,
+      &ett_dlr_lnknbrstatus_flags
    };
 
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
@@ -3179,9 +3363,29 @@ proto_register_enip(void)
       },
       /* Link_Status/Neighbor_Status Status */
       { &hf_dlr_lnknbrstatus,
-        { "Status", "enip.dlr.lnknbrstatus",
-          FT_UINT8, BASE_HEX, VALS(dlr_lnk_nbr_status_vals), 0,
+        { "Link/Neighbor Status", "enip.dlr.lnknbrstatus",
+          FT_UINT8, BASE_HEX, NULL, 0,
           "Link_Status/Neighbor_Status Status", HFILL }
+      },
+      { &hf_dlr_lnknbrstatus_port1,
+        { "Port 1 Active", "enip.dlr.lnknbrstatus",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_dlr_lnknbrstatus_port2,
+        { "Port 2 Active", "enip.dlr.lnknbrstatus",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_dlr_lnknbrstatus_reserved,
+        { "Reserved", "enip.dlr.lnknbrstatus.reserved",
+          FT_BOOLEAN, 8, NULL, 0x7C,
+          NULL, HFILL }
+      },
+      { &hf_dlr_lnknbrstatus_frame_type,
+        { "Link/Neighbor Status Flag", "enip.dlr.lnknbrstatus",
+          FT_BOOLEAN, 8, TFS(&dlr_lnknbrstatus_frame_type_vals), 0x80,
+          NULL, HFILL }
       },
       /* Link_Status/Neighbor_Status Reserved */
       { &hf_dlr_lnknbrreserved,
@@ -3224,6 +3428,60 @@ proto_register_enip(void)
         { "Reserved", "enip.dlr.soreserved",
           FT_BYTES, BASE_NONE, NULL, 0,
           "Sign_On Reserved", HFILL }
+      },
+      /* Gateway State */
+      { &hf_dlr_advgatewaystate,
+        { "Gateway Status", "enip.dlr.advgatewaystate",
+          FT_UINT8, BASE_HEX, VALS(dlr_adv_state_vals), 0,
+          "Gateway State", HFILL }
+      },
+      /* Gateway Precedence */
+      { &hf_dlr_advgatewayprecedence,
+        { "Gateway Precedence", "enip.dlr.advgatewayprecedence",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Gateway Precedence", HFILL }
+      },
+      /* Advertise Interval */
+      { &hf_dlr_advadvertiseinterval,
+        { "Advertise Interval", "enip.dlr.advadvertiseinterval",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          "Advertise Interval", HFILL }
+      },
+      /* Advertise Timeout */
+      { &hf_dlr_advadvertisetimeout,
+        { "Advertise Interval", "enip.dlr.advadvertisetimeout",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          "Advertise Interval", HFILL }
+      },
+      /* Learning Update Enable */
+      { &hf_dlr_advlearningupdateenable,
+        { "Learning Update Enable", "enip.dlr.advlearningupdateenable",
+          FT_UINT8, BASE_HEX, VALS(dlr_adv_learning_update_vals), 0,
+          "Advertise Learning Update Enable", HFILL }
+      },
+      /* Advertise Reserved */
+      { &hf_dlr_advreserved,
+        { "Reserved", "enip.dlr.advreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Advertise Reserved", HFILL }
+      },
+      /* Flush_Tables Learning Update Enable */
+      { &hf_dlr_flushlearningupdateenable,
+        { "Learning Update Enable", "enip.dlr.flushlearningupdateenable",
+          FT_UINT8, BASE_HEX, VALS(dlr_flush_learning_update_vals), 0,
+          "Flush_Tables Learning Update Enable", HFILL }
+      },
+      /* Flush Reserved */
+      { &hf_dlr_flushreserved,
+        { "Reserved", "enip.dlr.flushreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Flush_Tables Reserved", HFILL }
+      },
+      /* Learning_Update Reserved */
+      { &hf_dlr_learnreserved,
+        { "Reserved", "enip.dlr.learnreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Learning_Update Reserved", HFILL }
       }
    };
 

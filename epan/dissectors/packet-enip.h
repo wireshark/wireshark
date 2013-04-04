@@ -71,6 +71,21 @@
 #define DLR_SO_NUM_NODES    12
 #define DLR_SO_NODE_1_MAC   14
 
+/* Offset for Advertise frames */
+#define DLR_ADV_GATEWAY_STATE          12
+#define DLR_ADV_GATEWAY_PRECEDENCE     13
+#define DLR_ADV_ADVERTISE_INTERVAL     14
+#define DLR_ADV_ADVERTISE_TIMEOUT      18
+#define DLR_ADV_LEARNING_UPDATE_ENABLE 22 
+#define DLR_ADV_RESERVED               23
+
+/* Offset for Advertise frames */
+#define DLR_FLUSH_LEARNING_UPDATE_ENABLE  12
+#define DLR_FLUSH_RESERVED                13
+
+/* Offset for Advertise frames */
+#define DLR_LEARN_RESERVED             12
+
 /* DLR commmands */
 #define DLR_FT_BEACON            1
 #define DLR_FT_NEIGHBOR_REQ      2
@@ -79,6 +94,9 @@
 #define DLR_FT_LOCATE_FLT        5
 #define DLR_FT_ANNOUNCE          6
 #define DLR_FT_SIGN_ON           7
+#define DLR_FT_ADVERTISE         8
+#define DLR_FT_FLUSH_TABLES      9
+#define DLR_FT_LEARNING_UPDATE  10
 
 
 typedef struct {
@@ -91,6 +109,6 @@ enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
 
 void enip_close_cip_connection( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
 
-extern attribute_info_t enip_attribute_vals[41];
+extern attribute_info_t enip_attribute_vals[45];
 
 #endif /* PACKET_ENIP_H */
