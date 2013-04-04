@@ -1082,7 +1082,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-rtp-midi.c
 	dissectors/packet-rtp.c
 	dissectors/packet-rtps.c
-	dissectors/packet-rtps2.c
 	dissectors/packet-rtsp.c
 	dissectors/packet-rudp.c
 	dissectors/packet-rwall.c
@@ -1589,7 +1588,7 @@ file(COPY ${WMEM_HEADERS} DESTINATION abi-check-headers/wmem)
 add_custom_command(OUTPUT libwireshark.abi.tar.gz
 	COMMAND cp ../config.h abi-check-headers
 	COMMAND rm abi-check-headers/dissectors/x11-extension-implementation.h
-		abi-check-headers/dissectors/packet-rtps2.h
+		abi-check-headers/dissectors/packet-rtps.h
 		abi-check-headers/dissectors/x11-glx-render-enum.h
 		abi-check-headers/dissectors/x11-register-info.h
 		abi-check-headers/dissectors/packet-idmp.h

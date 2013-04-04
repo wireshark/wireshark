@@ -1003,7 +1003,6 @@ DISSECTOR_SRC = \
 	packet-rtp-midi.c	\
 	packet-rtp.c		\
 	packet-rtps.c		\
-	packet-rtps2.c		\
 	packet-rtsp.c		\
 	packet-rudp.c		\
 	packet-rwall.c		\
@@ -1495,7 +1494,6 @@ DISSECTOR_INCLUDES =	\
 	packet-rtcp.h	\
 	packet-rtp.h	\
 	packet-rtps.h   \
-	packet-rtps2.h		\
 	packet-rtp-events.h	\
 	packet-rtse.h	\
 	packet-rtsp.h	\
