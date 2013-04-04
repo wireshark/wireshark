@@ -224,16 +224,10 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (   (packet.transport == SCOP_TRANSPORT_UDP_CCM)
         || (packet.transport == SCOP_TRANSPORT_TCP_CCM)) {
-        next_tvb = NULL; /*dissect_zbee_secure(tvb, pinfo, scop_tree, offset, 0);*/
-        if (next_tvb == NULL) {
-            /* Decryption Failed. */
-            return;
-        }
-        offset = 0;
+        /* Decryption Failed. */
+        return;
     }
-    else {
-        next_tvb = tvb;
-    }
+    next_tvb = tvb;
 
     /* Extract the service type. */
     packet.service = tvb_get_guint8(next_tvb, offset);
