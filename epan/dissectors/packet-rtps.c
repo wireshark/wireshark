@@ -1196,17 +1196,9 @@ static void rtps_util_add_guid_prefix_v1(proto_tree *tree, tvbuff_t *tvb, gint o
 static void rtps_util_add_guid_prefix_v2(proto_tree *tree, tvbuff_t *tvb, gint offset,
                                       int hf_prefix, int hf_host_id, int hf_app_id,
                                       int hf_counter, const guint8 * label) {
-  guint32  host_id;
-  guint32  app_id;
-  guint32  counter;
   const guint8 * safe_label;
 
   safe_label = (label == NULL) ? (const guint8 *)"guidPrefix" : label;
-
-  /* Read values from TVB */
-  host_id   = tvb_get_ntohl(tvb, offset);
-  app_id    = tvb_get_ntohl(tvb, offset + 4);
-  counter   = tvb_get_ntohl(tvb, offset + 8);
 
   if (tree) {
     proto_item * ti, *hidden_item;
@@ -2233,7 +2225,6 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         gint       offset,
                         gboolean   little_endian,
                         const char *label _U_) {
-  guint64 seq_base;
   gint32 num_bits;
   guint32 data;
   emem_strbuf_t *temp_buff = ep_strbuf_new_label(NULL);
@@ -2248,7 +2239,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
 
   /* Bitmap base sequence number */
-  seq_base = rtps_util_add_seq_number(bitmap_tree, tvb, offset, little_endian, "bitmapBase");
+  rtps_util_add_seq_number(bitmap_tree, tvb, offset, little_endian, "bitmapBase");
   offset += 8;
 
   /* Reads the bitmap size */
@@ -2477,7 +2468,7 @@ static void rtps_util_decode_flags_16bit(proto_tree * tree, tvbuff_t *tvb, gint 
 
 static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item* parameter_item, proto_item*  param_len_item, gint offset,
-                        gboolean little_endian, int size, int param_length, const char * label,
+                        gboolean little_endian, int size, int param_length,
                         guint16 parameter, guint16 version) {
   proto_item *ti;
   proto_tree *subtree;
@@ -3150,7 +3141,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             if (prop_size > 0) {
               propName = tvb_get_ephemeral_string(tvb, temp_offset+4, prop_size);
             } else {
-              propName = "";
+              propName = (guint8 *)"";
             }
             /* NDDS align strings at 4-bytes word. */
             temp_offset += (4 + ((prop_size + 3) & 0xfffffffc));
@@ -3159,7 +3150,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             if (prop_size > 0) {
               propValue = tvb_get_ephemeral_string(tvb, temp_offset+4, prop_size);
             } else {
-              propValue = "";
+              propValue = (guint8 *)"";
             }
             /* NDDS align strings at 4-bytes word. */
             temp_offset += (4 + ((prop_size + 3) & 0xfffffffc));
@@ -3432,7 +3423,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
 
 static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item* parameter_item, proto_item*  param_len_item, gint offset,
-                        gboolean little_endian, int size, int param_length,  const char * label,
+                        gboolean little_endian, int param_length,
                         guint16 parameter, guint32 *pStatusInfo, guint16 vendor_id) {
   proto_item *ti;
 
@@ -3880,7 +3871,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
 static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                         gint offset, gboolean little_endian, int size, const char * label,
                         guint16 version, guint32 *pStatusInfo, guint16 vendor_id) {
-  proto_item *ti, *param_item, *param_len_item;
+  proto_item *ti, *param_item, *param_len_item = NULL;
   proto_tree *rtps_parameter_sequence_tree, *rtps_parameter_tree;
   guint16    parameter, param_length;
   gint       original_offset = offset;
@@ -3940,10 +3931,10 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     proto_item_set_len(param_item, param_length+4);
 
     if (!dissect_parameter_sequence_v1(rtps_parameter_tree, pinfo, tvb, param_item, param_len_item,
-                                    offset, little_endian, size, param_length, label, parameter, version)) {
+                                    offset, little_endian, size, param_length, parameter, version)) {
       if ((version < 0x0200) || 
           !dissect_parameter_sequence_v2(rtps_parameter_tree, pinfo, tvb, param_item, param_len_item,
-                                      offset, little_endian, size, param_length, label, parameter,
+                                      offset, little_endian, param_length, parameter,
                                       pStatusInfo, vendor_id)) {
         if (param_length > 0) {
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
@@ -6428,7 +6419,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   /* Extract the domain id and participant index */
   {
-    int domain_id, doffset, participant_idx, nature;
+    int domain_id, doffset, participant_idx = 0, nature;
     proto_tree *mapping_tree;
     /* For a complete description of these rules, see RTPS documentation
 
