@@ -3439,19 +3439,19 @@ proto_register_enip(void)
       { &hf_dlr_advgatewayprecedence,
         { "Gateway Precedence", "enip.dlr.advgatewayprecedence",
           FT_UINT8, BASE_DEC, NULL, 0,
-          "Gateway Precedence", HFILL }
+          NULL, HFILL }
       },
       /* Advertise Interval */
       { &hf_dlr_advadvertiseinterval,
         { "Advertise Interval", "enip.dlr.advadvertiseinterval",
           FT_UINT32, BASE_DEC, NULL, 0,
-          "Advertise Interval", HFILL }
+          NULL, HFILL }
       },
       /* Advertise Timeout */
       { &hf_dlr_advadvertisetimeout,
         { "Advertise Interval", "enip.dlr.advadvertisetimeout",
           FT_UINT32, BASE_DEC, NULL, 0,
-          "Advertise Interval", HFILL }
+          NULL, HFILL }
       },
       /* Learning Update Enable */
       { &hf_dlr_advlearningupdateenable,
