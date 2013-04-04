@@ -3,7 +3,7 @@
 #
 # Find the native netlink includes and library
 #
-# If they exist, differentiate between versions 1,2 and 3.
+# If they exist, differentiate between versions 1, 2 and 3.
 # Version 1 does not have netlink/version.h
 # Version 3 does have the major version number as a suffix
 #   to the libnl name (libnl-3)
@@ -56,12 +56,21 @@ ELSE (NL_LIBRARIES AND NL_INCLUDE_DIRS )
       PATHS
         $(SEARCHPATHS)
     )
-    STRING(REGEX REPLACE ".*nl-([^.,;]*).*" "\\1" NLSUFFIX ${NL_LIBRARY})
-    IF ( NLSUFFIX )
-      SET( HAVE_LIBNL3 1 )
-    ELSE ( NLSUFFIX )
-      SET( HAVE_LIBNL2 1 )
-    ENDIF (NLSUFFIX )
+    #
+    # If we don't have all of those libraries, we can't use libnl.
+    #
+    IF ( NOT NLGENL_LIBRARY AND NOT NLROUTE_LIBRARY )
+      SET( NL_LIBRARY NOTFOUND )
+    ENDIF ( NOT NLGENL_LIBRARY AND NOT NLROUTE_LIBRARY )
+    IF( NL_LIBRARY )
+      STRING(REGEX REPLACE ".*nl-([^.,;]*).*" "\\1" NLSUFFIX ${NL_LIBRARY})
+      IF ( NLSUFFIX )
+        SET( HAVE_LIBNL3 1 )
+      ELSE ( NLSUFFIX )
+        SET( HAVE_LIBNL2 1 )
+      ENDIF (NLSUFFIX )
+      SET( HAVE_LIBNL 1 )
+    ENDIF( NL_LIBRARY )
   ELSE( NL_INCLUDE_DIR )
     # NL version 1 ?
     FIND_PATH( NL_INCLUDE_DIR
