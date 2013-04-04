@@ -184,7 +184,7 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_es_info_length,    tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, es_info_len, mpeg_pmt_tree);
+        offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, es_info_len, mpeg_pmt_stream_tree);
     }
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, mpeg_pmt_tree, 0, offset);
