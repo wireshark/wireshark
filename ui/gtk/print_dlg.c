@@ -737,18 +737,21 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
   collapse_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "All co_llapsed");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(collapse_all_rb), args->print_dissections == print_dissections_collapsed);
+  gtk_widget_set_sensitive(collapse_all_rb, args->print_dissections != print_dissections_none);
   gtk_widget_set_tooltip_text(collapse_all_rb, "Output of the packet details tree \"collapsed\"");
   gtk_box_pack_start(GTK_BOX(details_vb), collapse_all_rb, TRUE, TRUE, 0);
   gtk_widget_show(collapse_all_rb);
 
   as_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "As displa_yed");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(as_displayed_rb), args->print_dissections == print_dissections_as_displayed);
+  gtk_widget_set_sensitive(as_displayed_rb, args->print_dissections != print_dissections_none);
   gtk_widget_set_tooltip_text(as_displayed_rb, "Output of the packet details tree \"as displayed\"");
   gtk_box_pack_start(GTK_BOX(details_vb), as_displayed_rb, TRUE, TRUE, 0);
   gtk_widget_show(as_displayed_rb);
 
   expand_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "All e_xpanded");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(expand_all_rb), args->print_dissections == print_dissections_expanded);
+  gtk_widget_set_sensitive(expand_all_rb, args->print_dissections != print_dissections_none);
   gtk_widget_set_tooltip_text(expand_all_rb, "Output of the packet details tree \"expanded\"");
   gtk_box_pack_start(GTK_BOX(details_vb), expand_all_rb, TRUE, TRUE, 0);
   gtk_widget_show(expand_all_rb);
