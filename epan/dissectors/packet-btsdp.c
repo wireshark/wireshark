@@ -1664,7 +1664,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
             proto_tree_add_item(sub_tree, hf_sdp_service_uuid, tvb, entry_offset, 2, ENC_BIG_ENDIAN);
             uuid = tvb_get_ntohs(tvb, entry_offset);
         } else {
-            proto_tree_add_item(sub_tree, hf_sdp_service_long_uuid, tvb, entry_offset, length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_sdp_service_long_uuid, tvb, entry_offset, length, ENC_NA);
             uuid = 0;
         }
 
@@ -2144,7 +2144,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     g_snprintf(str, MAX_SDP_LEN, "%s", val_to_str_const(value, wap_gateway_vals, "Unknown"));
                     break;
                 case 0x308:
-                    proto_tree_add_item(next_tree, hf_wap_homepage_url, tvb, offset, size, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_wap_homepage_url, tvb, offset, size, ENC_ASCII | ENC_NA);
                     new_str = tvb_get_ephemeral_string(tvb, offset, size);
                     g_snprintf(str, MAX_SDP_LEN, "%s", new_str);
                     break;
@@ -2847,7 +2847,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(entry_tree, hf_sdp_service_uuid, tvb, list_offset, list_length, ENC_BIG_ENDIAN);
                     value = tvb_get_ntohs(tvb, list_offset);
                 } else {
-                    proto_tree_add_item(entry_tree, hf_sdp_service_long_uuid, tvb, list_offset, list_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(entry_tree, hf_sdp_service_long_uuid, tvb, list_offset, list_length, ENC_NA);
                     value = 0;
                 }
 
@@ -2868,7 +2868,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 proto_tree_add_item(next_tree, hf_sdp_service_uuid, tvb, offset, size, ENC_BIG_ENDIAN);
                 value = tvb_get_ntohs(tvb, offset);
             } else {
-                proto_tree_add_item(next_tree, hf_sdp_service_long_uuid, tvb, offset, size, ENC_BIG_ENDIAN);
+                proto_tree_add_item(next_tree, hf_sdp_service_long_uuid, tvb, offset, size, ENC_NA);
                 value = 0;
             }
             g_snprintf(str, MAX_SDP_LEN, "%s", val_to_str_const(value, vs_service_classes, "Unknown"));
@@ -2888,7 +2888,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(entry_tree, hf_sdp_service_uuid, tvb, list_offset, list_length, ENC_BIG_ENDIAN);
                     value = tvb_get_ntohs(tvb, list_offset);
                 } else {
-                    proto_tree_add_item(entry_tree, hf_sdp_service_long_uuid, tvb, list_offset, list_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(entry_tree, hf_sdp_service_long_uuid, tvb, list_offset, list_length, ENC_NA);
                     value = 0;
                 }
 
@@ -2964,7 +2964,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(sub_tree, hf_sdp_service_uuid, tvb, entry_offset, entry_length, ENC_BIG_ENDIAN);
                     value = tvb_get_ntohs(tvb, entry_offset);
                 } else {
-                    proto_tree_add_item(sub_tree, hf_sdp_service_long_uuid, tvb, entry_offset, entry_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(sub_tree, hf_sdp_service_long_uuid, tvb, entry_offset, entry_length, ENC_NA);
                     value = 0;
                 }
 
@@ -4641,7 +4641,7 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_sdp_service_long_uuid,
-            { "Service UUID",                    "btsdp.service_uuid",
+            { "Service UUID",                    "btsdp.service_long_uuid",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
