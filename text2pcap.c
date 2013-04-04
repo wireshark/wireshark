@@ -73,8 +73,8 @@
  * hexdump line is dropped (including mail forwarding '>'). The offset
  * can be any hex number of four digits or greater.
  *
- * This converter cannot read a single packet greater than 64K. Packet
- * snaplength is automatically set to 64K.
+ * This converter cannot read a single packet greater than 64KiB-1. Packet
+ * snaplength is automatically set to 64KiB-1.
  */
 
 #include "config.h"
@@ -191,7 +191,7 @@ static guint32 direction = 0;
 /*--- Local date -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
-#define MAX_PACKET 64000
+#define MAX_PACKET 65535
 static guint8 packet_buf[MAX_PACKET];
 static guint32 header_length;
 static guint32 ip_offset;
@@ -201,7 +201,7 @@ static guint32 packet_start = 0;
 static void start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
-#define PACKET_PREAMBLE_MAX_LEN	2048
+#define PACKET_PREAMBLE_MAX_LEN     2048
 static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
@@ -349,25 +349,26 @@ static char tempbuf[64];
 /*----------------------------------------------------------------------
  * Stuff for writing a PCap file
  */
-#define	PCAP_MAGIC			0xa1b2c3d4
+#define PCAP_MAGIC          0xa1b2c3d4
+#define PCAP_SNAPLEN        0xffff
 
 /* "libpcap" file header (minus magic number). */
 struct pcap_hdr {
-    guint32	magic;		/* magic */
-    guint16	version_major;	/* major version number */
-    guint16	version_minor;	/* minor version number */
-    guint32	thiszone;	/* GMT to local correction */
-    guint32	sigfigs;	/* accuracy of timestamps */
-    guint32	snaplen;	/* max length of captured packets, in octets */
-    guint32	network;	/* data link type */
+    guint32 magic;          /* magic */
+    guint16 version_major;  /* major version number */
+    guint16 version_minor;  /* minor version number */
+    guint32 thiszone;       /* GMT to local correction */
+    guint32 sigfigs;        /* accuracy of timestamps */
+    guint32 snaplen;        /* max length of captured packets, in octets */
+    guint32 network;        /* data link type */
 };
 
 /* "libpcap" record header. */
 struct pcaprec_hdr {
-    guint32	ts_sec;		/* timestamp seconds */
-    guint32	ts_usec;	/* timestamp microseconds */
-    guint32	incl_len;	/* number of octets of packet saved in file */
-    guint32	orig_len;	/* actual length of packet */
+    guint32 ts_sec;         /* timestamp seconds */
+    guint32 ts_usec;        /* timestamp microseconds */
+    guint32 incl_len;       /* number of octets of packet saved in file */
+    guint32 orig_len;       /* actual length of packet */
 };
 
 /* Link-layer type; see net/bpf.h for details */
@@ -811,14 +812,14 @@ write_file_header (void)
                                                                 "",
                                                                 NULL,
                                                                 pcap_link_type,
-                                                                102400,
+                                                                PCAP_SNAPLEN,
                                                                 &bytes_written,
                                                                 0,
                                                                 6,
                                                                 &err);
         }
     } else {
-        success = libpcap_write_file_header(libpcap_write_to_file, output_file, pcap_link_type, 102400,
+        success = libpcap_write_file_header(libpcap_write_to_file, output_file, pcap_link_type, PCAP_SNAPLEN,
                                             FALSE, &bytes_written, &err);
     }
     if (!success) {
@@ -866,14 +867,14 @@ append_to_preamble(char *str)
 
     if (packet_preamble_len != 0) {
         if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
-            return;	/* no room to add more preamble */
+            return; /* no room to add more preamble */
         /* Add a blank separator between the previous token and this token. */
         packet_preamble[packet_preamble_len++] = ' ';
     }
     toklen = strlen(str);
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
-            return;	/* no room to add the token to the preamble */
+            return; /* no room to add the token to the preamble */
         g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
         if (debug >= 2) {
@@ -1605,9 +1606,9 @@ parse_options (int argc, char *argv[])
         output_filename = "Standard output";
     }
 
-    ts_sec = time(0);		/* initialize to current time */
+    ts_sec = time(0);               /* initialize to current time */
     timecode_default = *localtime(&ts_sec);
-    timecode_default.tm_isdst = -1;	/* Unknown for now, depends on time given to the strptime() function */
+    timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
 
     /* Display summary of our state */
     if (!quiet) {
@@ -1679,3 +1680,17 @@ main(int argc, char *argv[])
     }
     return 0;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
+
