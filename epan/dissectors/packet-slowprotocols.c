@@ -2315,7 +2315,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         event_type = tvb_get_guint8(tvb, offset);
 
-        if (event_type == 0) break;
+        if (event_type == OAMPDU_EVENT_TYPE_END) break;
 
         event_item = proto_tree_add_uint(tree, hf_oampdu_event_type,
                             tvb, offset, 1, event_type);
@@ -2324,8 +2324,6 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         switch (event_type)
         {
-            case OAMPDU_EVENT_TYPE_END:
-                break;
             case OAMPDU_EVENT_TYPE_ESPE:
             {
                 event_tree = proto_item_add_subtree(event_item,
