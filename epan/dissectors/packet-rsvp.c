@@ -6139,7 +6139,7 @@ static void
                     gint32 tft_qos_list_len;
                     guint8 blob_len, item_len;
                     proto_tree   *qos_tree;
-                    int i = 0;
+                    int num = 0;
 
                     tft_qos_list_len = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6147,8 +6147,8 @@ static void
                     tft_qos_list_len-=2;
                     if(tft_qos_list_len > 0){
                         while (tft_qos_list_len>0) {
-                            i++;
-                            ti = proto_tree_add_text(rsvp_object_tree, tvb, offset, -1, "QOS Flow Identifier Num %u",i);
+                            num++;
+                            ti = proto_tree_add_text(rsvp_object_tree, tvb, offset, -1, "QOS Flow Identifier Num %u", num);
                             qos_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS]);
 
                             /* Flow Identifier */
