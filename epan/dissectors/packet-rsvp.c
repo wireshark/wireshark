@@ -224,7 +224,25 @@ static int hf_rsvp_3gpp_obj_pf_len = -1;
 static int hf_rsvp_3gpp_obj_pf_type = -1;
 static int hf_rsvp_3gpp_obj_pf_cont_len = -1;
 static int hf_rsvp_3gpp_obj_pf_comp_type_id = -1;
+static int hf_rsvp_3gpp_obj_pf_src_ipv4 = -1;
+static int hf_rsvp_3gpp_obj_pf_dst_ipv4 = -1;
+static int hf_rsvp_3gpp_obj_pf_ipv4_mask = -1;
+static int hf_rsvp_3gpp_obj_pf_src_ipv6 = -1;
+static int hf_rsvp_3gpp_obj_pf_dst_ipv6 = -1;
+static int hf_rsvp_3gpp_obj_pf_ipv6_prefix_length = -1;
+static int hf_rsvp_3gpp_obj_pf_prot_next = -1;
+static int hf_rsvp_3gpp_obj_pf_dst_port = -1;
+static int hf_rsvp_3gpp_obj_pf_src_port = -1;
+static int hf_rsvp_3gpp_obj_pf_ipsec_spi = -1;
+static int hf_rsvp_3gpp_obj_pf_tos_tc = -1;
+static int hf_rsvp_3gpp_obj_pf_flow_lbl = -1;
+static int hf_rsvp_3gpp_obj_pf_ipv6 = -1;
+static int hf_rsvp_3gpp_obj_pf_treatment = -1;
+static int hf_rsvp_3gpp_obj_pf_hint = -1;
 static int hf_rsvp_3gpp_obj_tft_qos_list_len = -1;
+static int hf_rsvp_3gpp_r_qos_blob_len = -1;
+static int hf_rsvp_3gpp_r_qos_blob = -1;
+static int hf_rsvp_3gpp_qos_result = -1;
 
 static dissector_table_t rsvp_dissector_table;
 
@@ -376,7 +394,7 @@ enum {
     TT_GEN_UNI,
     TT_GEN_UNI_SUBOBJ,
     TT_CALL_ID,
-	TT_3GPP2_OBJECT,
+    TT_3GPP2_OBJECT,
     TT_BUNDLE_COMPMSG,
     TT_RESTART_CAP,
     TT_PROTECTION_INFO,
@@ -392,7 +410,10 @@ enum {
     TT_CLASSTYPE,
     TT_PRIVATE_CLASS,
     TT_UNKNOWN_CLASS,
-	TT_3GPP_OBJ_FLOW,
+    TT_3GPP_OBJ_FLOW,
+    TT_3GPP_OBJ_QOS,
+    TT_3GPP_OBJ_T2,
+    TT_3GPP_OBJ_HO,
 
     TT_MAX
 };
@@ -719,22 +740,32 @@ enum rsvp_error_types {
     RSVP_ERROR_UNKNOWN_RESV_STYLE,
     RSVP_ERROR_CONFLICT_DEST_PORTS,
     RSVP_ERROR_CONFLICT_SRC_PORTS,
+    /* 9-11 Reserved */
     RSVP_ERROR_PREEMPTED =12,
     RSVP_ERROR_UNKNOWN_CLASS,
     RSVP_ERROR_UNKNOWN_C_TYPE,
-    RSVP_ERROR_TRAFFIC   = 21,
+    /* 15-19 Reserved */
+    RSVP_ERROR_RES_FOR_API = 20,
+    RSVP_ERROR_TRAFFIC,
     RSVP_ERROR_TRAFFIC_SYSTEM,
     RSVP_ERROR_SYSTEM,
     RSVP_ERROR_ROUTING,
     RSVP_ERROR_NOTIFY,
-    RSVP_ERROR_NEW_AGGR,          /* RFC3175 */
+    RSVP_ERROR_NEW_AGGR,            /* RFC3175 */
     RSVP_ERROR_DIFFSERV,
-    RSVP_ERROR_DSTE,          /* FF: RFC4124 */
-    RSVP_ERROR_UNKNOWN_ATTR_TLV,  /* RFC5420 */
-    RSVP_ERROR_UNKNOWN_ATTR_BIT,  /* RFC5420 */
-    RSVP_ERROR_ALARMS,            /* RFC4783 */
-    RSVP_ERROR_CALL_MGMT,         /* RFC4974 */
-    RSVP_ERROR_USER_ERROR_SPEC    /* RFC5284 */
+    RSVP_ERROR_DSTE,                /* RFC4124 */
+    RSVP_ERROR_UNKNOWN_ATTR_TLV,    /* RFC5420 */
+    RSVP_ERROR_UNKNOWN_ATTR_BIT,    /* RFC5420 */
+    RSVP_ERROR_ALARMS,              /* RFC4783 */
+    RSVP_ERROR_CALL_MGMT,           /* RFC4974 */
+    RSVP_ERROR_USER_ERROR_SPEC,     /* RFC5284 */
+    RSVP_ERROR_REROUTE,            /* RFC5710 */
+    RSVP_ERROR_HO_PROC_FAIL,        /* RFC5852 */
+    RSVP_ERROR_UNREC_REC_PROXY_ERR, /* RFC5946 */
+    RSVP_ERROR_RSVP_OVER_MPLS_PROB, /* RFC6016 */
+    RSVP_ERROR_LSP_HIER_ISSUE,      /* RFC6107 */
+    RSVP_ERROR_VCAT_CALL_MGMT       /* RFC6344 */
+
 };
 
 static const value_string rsvp_error_codes[] = {
@@ -750,6 +781,7 @@ static const value_string rsvp_error_codes[] = {
     { RSVP_ERROR_PREEMPTED,            "Service preempted"},
     { RSVP_ERROR_UNKNOWN_CLASS,        "Unknown object class"},
     { RSVP_ERROR_UNKNOWN_C_TYPE,       "Unknown object C-type"},
+    { RSVP_ERROR_RES_FOR_API,          "Reserved for API"},
     { RSVP_ERROR_TRAFFIC,              "Traffic Control Error"},
     { RSVP_ERROR_TRAFFIC_SYSTEM,       "Traffic Control System Error"},
     { RSVP_ERROR_SYSTEM,               "RSVP System Error"},
@@ -763,6 +795,13 @@ static const value_string rsvp_error_codes[] = {
     { RSVP_ERROR_ALARMS,               "Alarms"},
     { RSVP_ERROR_CALL_MGMT,            "Call management"},
     { RSVP_ERROR_USER_ERROR_SPEC,      "User error spec"},
+    { RSVP_ERROR_REROUTE,              "Reroute"},
+    { RSVP_ERROR_HO_PROC_FAIL,         "Handover Procedure Failure"},
+    { RSVP_ERROR_UNREC_REC_PROXY_ERR,  "Unrecoverable Receiver Proxy Error"},
+    { RSVP_ERROR_RSVP_OVER_MPLS_PROB,  "RSVP over MPLS Problem"},
+    { RSVP_ERROR_LSP_HIER_ISSUE,       "LSP Hierarchy Issue"},
+    { RSVP_ERROR_VCAT_CALL_MGMT,       "VCAT Call Management"},
+
     { 0, NULL}
 };
 static value_string_ext rsvp_error_codes_ext = VALUE_STRING_EXT_INIT(rsvp_error_codes);
@@ -882,6 +921,7 @@ static const value_string rsvp_notify_error_vals[] = {
     {  9, "LSP Failure"},
     { 10, "LSP recovered"},
     { 11, "LSP Local Failure"},
+    { 12, "No OOB mapping received"},
     {  0, NULL}
 };
 static value_string_ext rsvp_notify_error_vals_ext = VALUE_STRING_EXT_INIT(rsvp_notify_error_vals);
@@ -5850,11 +5890,25 @@ static const value_string rsvp_3gpp_obj_pf_comp_type_id_vals[] = {
     { 0, NULL}
 };
 
+static const value_string rsvp_3gpp_obj_pf_treatment_vals[] = {
+    { 0, "Header Compression"},
+    { 1, "Maximum Buffer Timer"},
+    { 0, NULL}
+};
+
+static const value_string rsvp_3gpp_qos_result_vals[] = {
+    { 0, "Successful"},
+    { 1, "UE Initiated QoS is not authorized"},
+    { 2, "NW initiated QoS in progress for this flow"},
+    { 3, "Requested FlowProfileIDs failed mapping"},
+    { 0, NULL}
+};
+
 static void
-dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
-                     tvbuff_t *tvb,
-                     int offset, int obj_length,
-                     int rsvp_class _U_, int c_type)
+    dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+    tvbuff_t *tvb,
+    int offset, int obj_length,
+    int rsvp_class _U_, int c_type)
 {
     guint16 length, ie_type;
 
@@ -5873,118 +5927,266 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ie_len, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-			ie_type = tvb_get_ntohs(tvb, offset);
+            ie_type = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ie_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
 
-	    if ((ie_type == 0)||(ie_type==2)){
-		    guint8 tft_opcode, tft_n_pkt_flt;
-		    int i;
+            if ((ie_type == 0)||(ie_type==2)){
+                guint8 tft_opcode, tft_n_pkt_flt;
+                int i;
 
-		    if(ie_type == 0){
-			    /*IPv4*/
-			    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-			    offset+=4;
-		    }else{
-			    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
-			    offset+=16;
-		    }
-		    /* D Reserved NS SR_ID Reserved P TFT Operation Code Number of Packet filters */
-		    /* D */
-		    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_d, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    /* NS */
-		    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_ns, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    /* SR_ID */
-		    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_sr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    /* P */
-		    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_p, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    /* TFT Operation Code */
-		    tft_opcode = tvb_get_guint8(tvb, offset+2);
-		    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    /* Number of Packet filters */
-		    tft_n_pkt_flt = tvb_get_guint8(tvb, offset+3);
-		    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_n_pkt_flt, tvb, offset, 4, ENC_BIG_ENDIAN);
-		    offset+=4;
-		    /* Packet filter list
-		     * The packet filter list contains a variable number of packet filters. It shall be
-		     * encoded same as defined in X.S0011-D Chapter 4 [5] except as defined
-		     * below:
-		     * For "QoS Check Confirm" operations, the packet filter list shall be empty.
-		     * For "Initiate Delete Packet Filter from Existing TFT", the packet filter list
-		     * shall contain a variable number of Flow Identifiers given in the number of
-		     * packet filters field. In this case, the packet filter evaluation precedence,
-		     * length, and contents are not included, only the Flow Identifiers are
-		     * included. See Figure B-6, X.S0011-D [5] .
-		     * For "Initiate Flow request" and "Initiate Replace Packet Filters in Existing
-		     * TFT" Replace Packet Filters in Existing TFT the packet filter list shall
-		     * contain a variable number of Flow Identifiers, along with the packet filter
-		     * contents. See Figure B-7, X.S0011-D
-		     */
-		    if((tft_opcode!=0x81)&&(tft_n_pkt_flt != 0)){
-			    /* Packet Filter List */
-			    for (i = 0; i < tft_n_pkt_flt; i++) {
-				    proto_tree   *flow_tree;
-				    guint16 pkt_flt_len, item_len;
-				    guint8 pf_cont_len, pf_comp_type_id;
+                if(ie_type == 0){
+                    /*IPv4*/
+                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset+=4;
+                }else{
+                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                    offset+=16;
+                }
+                /* D Reserved NS SR_ID Reserved P TFT Operation Code Number of Packet filters */
+                /* D */
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_d, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* NS */
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_ns, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* SR_ID */
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_sr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* P */
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_p, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* TFT Operation Code */
+                tft_opcode = tvb_get_guint8(tvb, offset+2);
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* Number of Packet filters */
+                tft_n_pkt_flt = tvb_get_guint8(tvb, offset+3);
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_n_pkt_flt, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset+=4;
+                /* Packet filter list
+                * The packet filter list contains a variable number of packet filters. It shall be
+                * encoded same as defined in X.S0011-D Chapter 4 [5] except as defined
+                * below:
+                * For "QoS Check Confirm" operations, the packet filter list shall be empty.
+                * For "Initiate Delete Packet Filter from Existing TFT", the packet filter list
+                * shall contain a variable number of Flow Identifiers given in the number of
+                * packet filters field. In this case, the packet filter evaluation precedence,
+                * length, and contents are not included, only the Flow Identifiers are
+                * included. See Figure B-6, X.S0011-D [5] .
+                * For "Initiate Flow request" and "Initiate Replace Packet Filters in Existing
+                * TFT" Replace Packet Filters in Existing TFT the packet filter list shall
+                * contain a variable number of Flow Identifiers, along with the packet filter
+                * contents. See Figure B-7, X.S0011-D
+                */
+                if((tft_opcode!=0x81)&&(tft_n_pkt_flt != 0)){
+                    /* Packet Filter List */
+                    for (i = 0; i < tft_n_pkt_flt; i++) {
+                        proto_tree   *flow_tree, *t2_tree;
+                        guint16 pkt_flt_len, item_len, pf_cont_len;
+                        guint8 pf_comp_type_id;
 
-				    ti = proto_tree_add_text(rsvp_object_tree, tvb, offset, -1, "Flow Identifier Num %u",i+1);
-				    flow_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_FLOW]);
-				    proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-				    offset++;
-				    item_len = 1;
-				    if((tft_opcode==0x05)||(tft_opcode==0x82)){
-					    /* delete packet filters from existing TFT, Initiate Delete Packet Filter from Existing TFT */
-					    proto_item_set_len(ti, item_len);
-					    continue;
-				    }
-				    /* Packet filter evaluation precedence */
-				    proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ev_prec, tvb, offset, 1, ENC_BIG_ENDIAN);
-				    offset++;
-				    /* Packet filter length */
-				    pkt_flt_len = tvb_get_ntohs(tvb,offset);
-				    proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-				    item_len = item_len + pkt_flt_len +1;
-				    offset+=2;
-				    /* Packet filter contents */
-				    /* PF Type (0-1) */
-				    proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-				    offset++;
-				    /* Length */
-				    pf_cont_len = tvb_get_guint8(tvb, offset);
-				    proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_cont_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-				    offset++;
-				    /* Packet filter component type identifier */
-				    pf_comp_type_id = tvb_get_guint8(tvb, offset);
-				    proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_comp_type_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-				    offset++;
-				    /* Packet filter component */
-				    switch(pf_comp_type_id){
-				    default:
-					    proto_tree_add_text(flow_tree, tvb, offset, pf_cont_len-2, "Not dissected Packet filter component");
-					    break;
-				    }
-				    offset = offset + pkt_flt_len - 5;
-				    /* Packet filter treatment */
-				    /* [RFC 3006] hint */
-				    proto_item_set_len(ti, item_len);
-			    }
-		    }
-		    /* QoS List (QoS Check, QoS-Check Confirm  Initiate Flow Request
-		     * and Initiate Replace Packet Filters in Existing TFT)
-		     */
-		    if((tft_opcode ==  0x06)||(tft_opcode == 0x81)||(tft_opcode == 0x80)||(tft_opcode == 0x83)){
-			    /* QoS List Length */
-			    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-			    offset+=2;
-		    }
+                        ti = proto_tree_add_text(rsvp_object_tree, tvb, offset, -1, "Flow Identifier Num %u",i+1);
+                        flow_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_FLOW]);
+                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        item_len = 1;
+                        if((tft_opcode==0x05)||(tft_opcode==0x82)){
+                            /* delete packet filters from existing TFT, Initiate Delete Packet Filter from Existing TFT */
+                            proto_item_set_len(ti, item_len);
+                            continue;
+                        }
+                        /* Packet filter evaluation precedence */
+                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ev_prec, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        /* Packet filter length */
+                        pkt_flt_len = tvb_get_ntohs(tvb,offset);
+                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        item_len = item_len + pkt_flt_len +1;
+                        offset+=2;
+                        /* Packet filter contents */
+                        /* PF Type (0-1) */
+                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        /* Length */
+                        pf_cont_len = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_cont_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        /* Packet filter component type identifier */
+                        pf_comp_type_id = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_comp_type_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        /* Packet filter component */
+                        switch(pf_comp_type_id){
+                        case 16: /* IPv4 Source Address with Subnet Mask */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_src_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset+=4;
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset+=4;
+                            pf_cont_len-=11;
+                            break;
+                        case 17: /* IPv4 Destination Address with Subnet Mask */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset+=4;
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset+=4;
+                            /* Items length (8 + 3)*/
+                            pf_cont_len-=11;
+                            break;
+                        case 32: /* IPv6 Source Address with Prefix Length */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_src_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            offset+=16;
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* Items length (17 + 3)*/
+                            pf_cont_len-=20;
+                            break;
+                        case 33: /* IPv6 Destination Address with Prefix Length */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            offset+=16;
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* Items length (17 + 3)*/
+                            pf_cont_len-=20;
+                            break;
+                        case 48: /* Protocol /Next header */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_prot_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* Items length (1 + 3)*/
+                            pf_cont_len-=4;
+                            break;
+                        case 64: /* Single Destination Port */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset+=2;
+                            /* Items length (2 + 3)*/
+                            pf_cont_len-=5;
+                            break;
+                        case 65: /* Destination Port range */
+                            proto_tree_add_text(rsvp_object_tree, tvb, offset, 4, "Destination Port range %u-%u",
+                                tvb_get_ntohs(tvb,offset), tvb_get_ntohs(tvb,offset+2));
+                            offset+=4;
+                            break;
+                        case 80: /* Single Source Port */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            offset+=2;
+                            /* Items length (2 + 3)*/
+                            pf_cont_len-=5;
+                            break;
+                        case 81: /* Source Port range */
+                            proto_tree_add_text(rsvp_object_tree, tvb, offset, 4, "Source Port range %u-%u",
+                                tvb_get_ntohs(tvb,offset), tvb_get_ntohs(tvb,offset+2));
+                            offset+=4;
+                            /* Items length (4 + 3)*/
+                            pf_cont_len-=7;
+                            break;
+                        case 96: /* Security Parameter Index */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipsec_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset+=4;
+                            /* Items length (4 + 3)*/
+                            pf_cont_len-=7;
+                            break;
+                        case 112: /* Type of Service/Traffic Class */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_tos_tc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* Items length (1 + 3)*/
+                            pf_cont_len-=4;
+                            break;
+                        case 128: /* Flow label */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_flow_lbl, tvb, offset, 3, ENC_BIG_ENDIAN);
+                            offset+=3;
+                            /* Items length (3 + 3)*/
+                            pf_cont_len-=6;
+                            break;
+                        case 129: /* Type 2 Routing Header with Prefix Length */
+                            ti = proto_tree_add_text(flow_tree, tvb, offset, 17, "Type 2 Routing Header packet filter");
+                            t2_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_T2]);
+                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            offset+=16;
+                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* Items length (17 + 3)*/
+                            pf_cont_len-=20;
+                            break;
+                        case 130: /* Home Address Option with Prefix Length */
+                            ti = proto_tree_add_text(flow_tree, tvb, offset, 17, "Home address Option packet filter");
+                            t2_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_HO]);
+                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            offset+=16;
+                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* Items length (17 + 3)*/
+                            pf_cont_len-=20;
 
-	    }else{
-                proto_tree_add_text(rsvp_object_tree, tvb, offset, length-2, "IE Data");
-	    }
-            obj_length = obj_length - length;
+                        default:
+                            proto_tree_add_text(flow_tree, tvb, offset, pf_cont_len-2, "Not dissected Packet filter component");
+                            offset = offset + pkt_flt_len - 5;
+                            pf_cont_len=0;
+                            break;
+                        }
+                        if(pf_cont_len != 0){
+                            /* Packet filter treatment */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_treatment, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            /* [RFC 3006] hint */
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_hint, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset+=4;;
+                        }
+                        proto_item_set_len(ti, item_len);
+                    }
+                }
+                /* QoS List (QoS Check, QoS-Check Confirm  Initiate Flow Request
+                * and Initiate Replace Packet Filters in Existing TFT)
+                * XXX
+                * Create new TFT?
+                */
+                if((tft_opcode ==  0x01)||(tft_opcode ==  0x06)||(tft_opcode == 0x80)||(tft_opcode == 0x81)||(tft_opcode == 0x83)){
+                    /* QoS List Length */
+                    gint32 tft_qos_list_len;
+                    guint8 blob_len, item_len;
+                    proto_tree   *qos_tree;
+                    int i = 0;
+
+                    tft_qos_list_len = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset+=2;
+                    tft_qos_list_len-=2;
+                    if(tft_qos_list_len > 0){
+                        while (tft_qos_list_len>0) {
+                            i++;
+                            ti = proto_tree_add_text(rsvp_object_tree, tvb, offset, -1, "QOS Flow Identifier Num %u",i);
+                            qos_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS]);
+
+                            /* Flow Identifier */
+                            proto_tree_add_item(qos_tree, hf_rsvp_3gpp_obj_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            tft_qos_list_len--;
+
+                            /* R_QOS_SUB_BLOB_LEN 1 */
+                            blob_len = tvb_get_guint8(tvb, offset);
+                            proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset++;
+                            tft_qos_list_len--;
+
+                            /* R_QoS_SUB_BLOB */
+                            proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob, tvb, offset, blob_len, ENC_BIG_ENDIAN);
+                            offset = offset + blob_len;
+                            tft_qos_list_len = tft_qos_list_len - blob_len;
+
+                            /* Result Code This field is only included in the ResvConf message when 
+                             * the TFT Operation Code field is set to QoS-Check Confirm.
+                             */
+                            item_len = blob_len + 2;
+                            if(tft_opcode ==  0x81){
+                                proto_tree_add_item(qos_tree, hf_rsvp_3gpp_qos_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset++;
+                                tft_qos_list_len--;
+                                item_len++;
+                            }
+                            proto_item_set_len(ti, item_len);
+                        }
+                    }
+                }else{
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset, length-2, "IE Data");
+                }
+                obj_length = obj_length - length;
+            }
         }
     }
-
 }
 /*------------------------------------------------------------------------------
  * RESTART CAPABILITY
@@ -8036,39 +8238,129 @@ proto_register_rsvp(void)
            FT_UINT32, BASE_DEC, NULL, 0x00000ff,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_flow_id,
+        { &hf_rsvp_3gpp_obj_flow_id,
          { "Flow Identifier", "rsvp.3gpp_obj.flow_id",
            FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_pf_ev_prec,
+        { &hf_rsvp_3gpp_obj_pf_ev_prec,
          { "Packet filter evaluation precedence", "rsvp.3gpp_obj.pf_ev_prec",
            FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_pf_len,
+        { &hf_rsvp_3gpp_obj_pf_len,
          { "Packet filter length", "rsvp.3gpp_obj.pf_len",
            FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_pf_type,
+        { &hf_rsvp_3gpp_obj_pf_type,
          { "PF Type", "rsvp.3gpp_obj.pf_type",
            FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_pf_cont_len,
+        { &hf_rsvp_3gpp_obj_pf_cont_len,
          { "Length", "rsvp.3gpp_obj.pf_cont_len",
            FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_pf_comp_type_id,
+        { &hf_rsvp_3gpp_obj_pf_comp_type_id,
          { "PF component identifier", "rsvp.3gpp_obj.pf_comp_type_id",
            FT_UINT8, BASE_DEC, VALS(rsvp_3gpp_obj_pf_comp_type_id_vals), 0,
            NULL, HFILL }
         },
-		{ &hf_rsvp_3gpp_obj_tft_qos_list_len,
+        { &hf_rsvp_3gpp_obj_pf_src_ipv4,
+         { "IPv4 Source Address", "rsvp.3gpp_obj.pf_src_ipv4",
+           FT_IPv4, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_dst_ipv4,
+         { "IPv4 Destination Address", "rsvp.3gpp_obj.pf_dst_ipv4",
+           FT_IPv4, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_ipv4_mask,
+         { "IPv4 Mask", "rsvp.3gpp_obj.pf_ipv4_mask",
+           FT_UINT32, BASE_HEX, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_src_ipv6,
+         { "IPv6 Source Address", "rsvp.3gpp_obj.pf_src_ipv6",
+           FT_IPv6, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_dst_ipv6,
+         { "IPv6 Destination Address", "rsvp.3gpp_obj.pf_dst_ipv6",
+           FT_IPv6, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_ipv6_prefix_length,
+         { "IPv6 Prefix length", "rsvp.3gpp_obj.pf_ipv6_prefix_length",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_prot_next,
+         { "Protocol field(IPv4) or Next Header(IPv6)", "rsvp.3gpp_obj.pf_prot_next",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_dst_port,
+         { "Single Destination Port", "rsvp.3gpp_obj.pf_dst_port",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_src_port,
+         { "Single Source Port", "rsvp.3gpp_obj.pf_src_port",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_ipsec_spi,
+         { "IPsec SPI", "rsvp.3gpp_obj.pf_ipsec_spi",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_tos_tc,
+         { "Type of Service (IPv4)/Traffic Class (IPv6)", "rsvp.3gpp_obj._pf_tos_tc",
+           FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_flow_lbl,
+         { "Flow label", "rsvp.3gpp_obj.pf_flow_lbl",
+           FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_ipv6,
+         { "IPv6 Address", "rsvp.3gpp_obj.pf_ipv6",
+           FT_IPv6, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_treatment,
+         { "PF Treatment", "rsvp.3gpp_obj.pf_treatment",
+           FT_UINT8, BASE_DEC, VALS(rsvp_3gpp_obj_pf_treatment_vals), 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_pf_hint,
+         { "PF Hint", "rsvp.3gpp_obj.pf_hint",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_obj_tft_qos_list_len,
          { "QoS List Length", "rsvp.3gpp_obj.qos_list_len",
            FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_r_qos_blob_len,
+         { "R_QOS_SUB_BLOB_LEN", "rsvp.3gpp_obj.r_qos_blob_len",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_r_qos_blob,
+         { "R_QOS_SUB_BLOB", "rsvp.3gpp_obj.r_qos_blob",
+           FT_BYTES, BASE_NONE, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_result,
+         { "Result Code", "rsvp.3gpp_obj.qos_result_code",
+           FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL }
         },
     };
