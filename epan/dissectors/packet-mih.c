@@ -1,12 +1,12 @@
 /* packet-mih.c
- * Definitions for MIH (Media independent Handover) packet disassembly structures and routines 
+ * Definitions for MIH (Media independent Handover) packet disassembly structures and routines
  * Refer to (IEEE 802.21) IEEE Standard for Local and metropolitan area networks- Part 21: Media Independent Handover Services, 21 Jan 2009
  *
  * Copyright 2011, ANKITH AGARWAL <ankitha@cdac.in>
  *
  * The original patch submitted in 2011 was improved and expanded in 2012 by Fraunhofer Institute for Open Communication Systems (FOKUS)
  * The improvements include filtering of all fields as well as including definitions from the revised IEEE 802.21b document from 10 May 2012
- * 
+ *
  * Copyright 2012, Alton MacDonald <alton.kenneth.macdonald@fokus.fraunhofer.de>
  *
  * $Id$
@@ -945,21 +945,21 @@ static gint16 dissect_ip_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree
         {
                 /*IPv4 Addr*/
                 len = tvb_get_guint8(tvb, offset + 3);
-                proto_tree_add_ipv4(tlv_tree, hf_ipv4_addr, tvb, offset+2, len, FALSE);
+                proto_tree_add_item(tlv_tree, hf_ipv4_addr, tvb, offset+2, len, ENC_BIG_ENDIAN);
                 return (offset+3+len);
         }
         if(addr_type == 2)
         {
                 /*IPv6 Addr*/
                 len = tvb_get_guint8(tvb, offset + 3);
-                proto_tree_add_ipv6(tlv_tree,hf_ipv6_addr, tvb, offset+2, len, FALSE);
+                proto_tree_add_item(tlv_tree,hf_ipv6_addr, tvb, offset+2, len, ENC_BIG_ENDIAN);
                 return (offset+3+len);
         }
         else
         {
                 len = tvb_get_guint8(tvb, offset + 3);
                 return (offset+3+len);
-        }       
+        }
 }
 
 static gint16 dissect_qos_val(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
@@ -975,7 +975,7 @@ static gint16 dissect_link_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
 {
         guint8 link_addr_choice = tvb_get_guint8(tvb, offset);
         guint8 len = 0;
-        
+
         proto_tree_add_item(tlv_tree, hf_link_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         switch (link_addr_choice)
         {
@@ -984,20 +984,20 @@ static gint16 dissect_link_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
                 if(tvb_get_ntohs(tvb, offset+1) == 0x06)
                         proto_tree_add_item(tlv_tree, hf_mac_addr, tvb, offset+4, tvb_get_guint8(tvb, offset+3), ENC_NA);
                 return (offset + 10);
-        
+
         case 1 :/*3GPP_3G_CELL_ID*/
                 proto_tree_add_item(tlv_tree, hf_plmn_id, tvb, offset+1, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cell_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                 return (offset + 8);
-        
+
         case 2 :/*3GPP_2G_CELL_ID*/
                 proto_tree_add_item(tlv_tree, hf_plmn_id, tvb, offset+1, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_location_area_id, tvb, offset+4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_ci, tvb, offset+6, 2, ENC_BIG_ENDIAN);
                 return (offset + 8);
-        
+
         case 3 :/*3GPP_ADDR*/
-        case 4 :/*3GPP2_ADDR*/  
+        case 4 :/*3GPP2_ADDR*/
         case 5 :/*OTHER_L2_ADDR*/
                 len = tvb_get_guint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_link_addr_string, tvb, offset+2, len, ENC_ASCII|ENC_NA);
@@ -1021,7 +1021,7 @@ static gint16 dissect_tsp_container(tvbuff_t *tvb, gint16 offset, proto_tree *tl
                 return (offset + len + 2);
         }
         else
-                return (offset + 1);            
+                return (offset + 1);
 }
 
 static gint16 dissect_iq_rdf_data(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
@@ -1060,7 +1060,7 @@ static gint16 dissect_dev_states(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
 {
         guint8 len = 0;
         proto_tree *sub_tree = NULL;
-        
+
         sub_tree = proto_tree_add_item(tlv_tree, hf_dev_states_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(tvb_get_guint8(tvb, offset))
         {
@@ -1076,8 +1076,8 @@ static gint16 dissect_dev_states(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
                 len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(sub_tree, hf_dev_info, tvb, offset+1, len, ENC_ASCII|ENC_NA);
                 return (offset + len + 1);
-        
-        }               
+
+        }
 }
 
 static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
@@ -1089,7 +1089,7 @@ static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
                 /*LINK_TYPE*/
                 type = tvb_get_guint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_link_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                offset += 1;             
+                offset += 1;
         }
         offset += 1;
         if(!tvb_get_guint8(tvb, offset))
@@ -1157,7 +1157,7 @@ static gint16 dissect_tgt_net_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
         guint8 len = 0;
         if(!tvb_get_guint8(tvb, offset))
         {
-                offset +=1; 
+                offset +=1;
 
                 /*NETWORK_ID*/
                 len = tvb_get_guint8(tvb, offset);
@@ -1185,7 +1185,7 @@ static gint16 dissect_tgt_net_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
 static gint16 dissect_link_id(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
 
-        gint16 next_offset = 0; 
+        gint16 next_offset = 0;
 
         /*LINK_TYPE*/
         proto_tree_add_item(tlv_tree, hf_link_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1250,7 +1250,7 @@ static gint16 dissect_rq_result(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
                 case 2: proto_tree_add_text(tlv_tree, tvb, offset, 1, "Access Router: ");
                         offset = dissect_ip_addr(tvb, offset, tlv_tree);
                         break;
-        }               
+        }
         return (offset+1);
 }
 
@@ -1265,10 +1265,10 @@ static gint16 dissect_link_det_info(tvbuff_t *tvb, gint16 offset, proto_tree *tl
                 offset --;
         }
         offset++;
-        len = tvb_get_guint8(tvb, offset);      
+        len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
         offset += len + 1;
-        len = tvb_get_guint8(tvb, offset);      
+        len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
         offset += len + 1;
         if(tvb_get_guint8(tvb, offset))
@@ -1284,7 +1284,7 @@ static gint16 dissect_link_det_info(tvbuff_t *tvb, gint16 offset, proto_tree *tl
         offset++;
         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_net_caps, ett_net_caps_bitmap, net_caps_fields, ENC_BIG_ENDIAN);
         offset += 4;
-        return (offset);        
+        return (offset);
 }
 
 static gint16 dissect_link_scan_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
@@ -1309,11 +1309,11 @@ static gint16 dissect_link_action_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *
         if(tvb_get_guint8(tvb, offset))
         {
                 offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_link_scan_rsp);
-                return offset; 
+                return offset;
         }
         else
                 return (offset+1);
-        
+
 }
 
 static gint16 dissect_link_action_req(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
@@ -1359,15 +1359,15 @@ static gint16 dissect_link_param_type(tvbuff_t *tvb, gint16 offset, proto_tree *
         switch (type)
         {
                 case 0 :/*LINK_PARAM_GEN*/
-                        proto_tree_add_item(tlv_tree, hf_link_param_gen, tvb, offset, 1, ENC_BIG_ENDIAN);                        
+                        proto_tree_add_item(tlv_tree, hf_link_param_gen, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
 
                 case 1 :/*LINK_PARAM_QOS*/
-                        proto_tree_add_item(tlv_tree, hf_link_param_qos, tvb, offset, 1, ENC_BIG_ENDIAN);                        
+                        proto_tree_add_item(tlv_tree, hf_link_param_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
 
                 case 2 :/*LINK_PARAM_GG*/
-                        proto_tree_add_item(tlv_tree, hf_link_param_gg, tvb, offset, 1, ENC_BIG_ENDIAN);                 
+                        proto_tree_add_item(tlv_tree, hf_link_param_gg, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
 
                 case 3 :/*LINK_PARAM_EDGE*/
@@ -1430,7 +1430,7 @@ static void dissect_link_status_req(tvbuff_t *tvb, gint16 offset, proto_tree *tl
 
         /*LINK_PARAM_TYPE_LIST*/
         offset = dissect_mih_list(tvb, offset, tlv_tree, dissect_link_param_type);
-        
+
         /*LINK_DESC_REQ*/
         temp = tvb_get_ntohs(tvb, offset);
         tree_temp = proto_tree_add_text(tlv_tree, tvb, offset, 3, "LINK_DESC_REQ: ");
@@ -1464,7 +1464,7 @@ static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
                 proto_tree_add_item(tlv_tree, hf_link_param_value, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
         }
-        else 
+        else
         {
                 offset ++;
                 /*QOS_PARAM_VALUE*/
@@ -1494,7 +1494,7 @@ static gint16 dissect_link_param(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
                                 proto_tree_add_text(tlv_tree, tvb, offset+1, 1, "PK_LOSS_RATE- ");
                                 offset = dissect_mih_list(tvb, offset+1, tlv_tree, dissect_qos_val);
                                 break;
-                }       
+                }
         }
         return offset;
 }
@@ -1504,7 +1504,7 @@ static gint16 dissect_link_param_rpt(tvbuff_t *tvb, gint16 offset, proto_tree *t
         /*LINK_PARAM*/
         offset = dissect_link_param(tvb, offset, tlv_tree);
         if(tvb_get_guint8(tvb, offset))
-        {       
+        {
                 /*Threshold*/
                 offset++;
                 proto_tree_add_item(tlv_tree, hf_threshold_val, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1512,15 +1512,15 @@ static gint16 dissect_link_param_rpt(tvbuff_t *tvb, gint16 offset, proto_tree *t
                 proto_tree_add_item(tlv_tree, hf_threshold_x_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
                 return (offset+1);
         }
-        else 
-                return (offset+1);      
+        else
+                return (offset+1);
 }
 
 static gint16 dissect_link_desc_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
         if(!tvb_get_guint8(tvb, offset))
                 proto_tree_add_item(tlv_tree, hf_num_cos, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        else 
+        else
                 proto_tree_add_item(tlv_tree, hf_num_queue, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         return (offset+2);
 }
@@ -1546,7 +1546,7 @@ static gint16 dissect_link_det_cfg(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
         guint8 len = 0;
         if(tvb_get_guint8(tvb, offset))
         {
-                len = tvb_get_guint8(tvb, offset+1);    
+                len = tvb_get_guint8(tvb, offset+1);
                 proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+2, len, ENC_ASCII|ENC_NA);
                 offset += len + 1;
         }
@@ -1583,7 +1583,7 @@ static gint16 dissect_link_cfg_param(tvbuff_t *tvb, gint16 offset, proto_tree *t
         offset += 2;
         proto_tree_add_item(tlv_tree, hf_threshold_x_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
         return (offset+1) ;
-}       
+}
 
 static gint16 dissect_mih_evt_cfg_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree)
 {
@@ -1658,7 +1658,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                                 }
                                         }
                                         else
-                                                tvb_free(tvb_mihf_id);                 
+                                                tvb_free(tvb_mihf_id);
                                 }
                         }
                         break;
@@ -1672,17 +1672,17 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*LINK_TYPE*/
                         proto_tree_add_item(tlv_tree, hf_link_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
-                                
+
                 case MIH_EVT_LIST :
                         /*MIH_EVT_LIST*/
                         proto_tree_add_bitmask(tlv_tree/*evt_list_tree*/, tvb, offset, hf_event_list, ett_event_bitmap, event_fields, ENC_BIG_ENDIAN);
                         break;
 
-                case MIH_CMD_LIST : 
+                case MIH_CMD_LIST :
                         /*MIH_CMD_LSIT*/
                         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_cmd_list, ett_cmd_bitmap, cmd_fields, ENC_BIG_ENDIAN);
                         break;
-                                                
+
                 case MIH_IQ_TYPE_LIST :
                         /*MIH_IQ_TYPE_LIST*/
                         /*last 32 bits are not read since proto_tree_add_bitmask only handles bitmasks of length 32
@@ -1694,12 +1694,12 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*MIH_TRANS_LIST*/
                         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_trans_list, ett_trans_list_bitmap, trans_fields, ENC_BIG_ENDIAN);
                         break;
-                        
+
                 case LINK_ADDR_LIST :
                         /*NET_TYPE_ADDR_LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_net_type_addr);
                         break;
-                
+
                 case MBB_HO_SUPP_LIST :
                         /*MBB_HO_SUPP_LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_mbb_ho_supp);
@@ -1709,19 +1709,19 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*REG_REQUEST_CODE*/
                         proto_tree_add_item(tlv_tree, hf_reg_request_code, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
-        
+
                 case VALID_TIME_INTR :
                         /*Valid Time interval*/
                         proto_tree_add_item(tlv_tree, hf_valid_time_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
                         break;
-                        
+
                 case LINK_ID :
                 case NEW_LINK_ID :
                 case MN_LINK_ID :
                         /*Link identifier*/
                         dissect_link_id(tvb, offset, tlv_tree);
                         break;
-                
+
                 case OLD_ACCESS_ROUTER :
                 case NEW_ACCESS_ROUTER :
                 case POA_LINK_ADDR :
@@ -1733,22 +1733,22 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*IP_RENEWAL_FLAG*/
                         proto_tree_add_item(tlv_tree, hf_ip_renewal, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
-        
+
                 case IP_MOB_MGMT :
                         /*IP_MOB_MGMT*/
                         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_mob_list, ett_mob_mgt_bitmap, mob_fields, ENC_BIG_ENDIAN);
                         break;
-                
+
                 case IP_CFG_MTHDS :
                         /*IP_CFG_MTHDS*/
                         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_cfg_mthds, ett_cfg_mtd_bitmap, cfg_fields, ENC_BIG_ENDIAN);
                         break;
-                        
+
                 case LINK_DN_REASON :
                         /*LINK_DN_REASON*/
                         proto_tree_add_item(tlv_tree, hf_link_dn_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
-                
+
                 case TIMER_INTERVAL :
                         /*Time interval*/
                         proto_tree_add_item(tlv_tree, hf_time_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1758,12 +1758,12 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*LINK_GOING_DN REASON*/
                         proto_tree_add_item(tlv_tree, hf_link_gdn_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
-                        
+
                 case LINK_PARAM_RPT_LIST :
                         /*LINK_PARAM_RPT_LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_param_rpt);
                         break;
-        
+
                 case DEV_STATES_REQ :
                         /*DEV_STATES_REQ*/
                         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_dev_states_req, ett_dev_states_bitmap, dev_states_fields, ENC_BIG_ENDIAN);
@@ -1773,17 +1773,17 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*LINK ID List*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_id);
                         break;
-                
+
                 case DEV_STATES_RSP_LIST :
                         /*DEV_STATES_RSP List*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_dev_states);
                         break;
-                                
-                case STATUS_REQ_SET : 
+
+                case STATUS_REQ_SET :
                         /*LINK_STATUS_REQ*/
                         dissect_link_status_req(tvb, offset, tlv_tree);
-                        break;                  
-                
+                        break;
+
                 case STATUS_RSP_LIST :
                         /*Status Response List*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_status_list);
@@ -1793,7 +1793,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*LINK_CFG_PARAM_LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_cfg_param);
                         break;
-                
+
                 case CFG_RSP_LIST :
                         /*LINK_CFG_STATUS_LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_cfg_status);
@@ -1818,19 +1818,19 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*HO_STATUS*/
                         proto_tree_add_item(tlv_tree, hf_ho_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         break;
-                                        
+
                 case ACCESS_ROUTER_ADDR :
                 case DHCP_SER_ADDR :
-                case FA_ADDR : 
+                case FA_ADDR :
                         /*IP_ADDR*/
                         dissect_ip_addr(tvb, offset, tlv_tree);
                         break;
-                
+
                 case LINK_ACTION_REQ_LIST :
                         /*LINK_ACTION_REQ LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_action_req);
                         break;
-                
+
                 case LINK_ACTION_RSP_LIST :
                         /*LINK_ACTION_RSP LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_action_rsp);
@@ -1870,15 +1870,15 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*IQ_BIN_DATA LIST*/
                         proto_tree_add_item(tlv_tree, hf_iq_bin_data_x, tvb, offset, length, ENC_ASCII|ENC_NA);
                         break;
-                
+
                 case IQ_RDF_DATA_LIST :
                 case IR_RDF_DATA_LIST :
                 case IR_RDF_SCHM_LIST :
                         /*IQ_RDF_DATA LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_iq_rdf_data);
                         break;
-                
-                case IQ_RDF_SCHM_LIST : 
+
+                case IQ_RDF_SCHM_LIST :
                         /*IQ_RDF_SCHM*/
                         for(i=0; i < tvb_get_guint8(tvb, offset); i++)
                         {
@@ -1887,8 +1887,8 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                 offset += len;
                         }
                         break;
-                
-                case MAX_RSP_SIZE : 
+
+                case MAX_RSP_SIZE :
                         /*Max Response Size*/
                         proto_tree_add_item(tlv_tree, hf_max_resp_size, tvb, offset, 2, ENC_BIG_ENDIAN);
                         break;
@@ -1912,7 +1912,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         /*EVT_CFG_INFO LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_mih_evt_cfg_info);
                         break;
-                        
+
                 case TGT_NET_INFO :
                         /*TGT_NET_INFO*/
                         dissect_tgt_net_info(tvb, offset, tlv_tree);
@@ -1928,24 +1928,24 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         offset = dissect_qos_list(tvb, offset, tlv_tree);
                         dissect_tsp_container(tvb, offset, tlv_tree);
                         break;
-                        
+
                 case LINK_DET_INFO_LIST :
                         /*LINK_DET_INFO LIST*/
                         dissect_mih_list(tvb, offset, tlv_tree, dissect_link_det_info);
                         break;
-                
+
                 case NET_TYPE :
                         /*NETWORK TYPE*/
                         dissect_net_type(tvb, offset, tlv_tree);
                         break;
-                
+
                 case REQ_RES_SET :
                         /*REQ_RES_SET*/
                         offset = dissect_qos_list(tvb, offset, tlv_tree);
                         offset = dissect_tsp_container(tvb, offset, tlv_tree);
                         proto_tree_add_item(tlv_tree, hf_ho_reason, tvb, offset, 1, ENC_BIG_ENDIAN );
                         break;
-                        
+
                 case VEND_SPECIFIC_TLV :
                         /*Vendor specific tlv*/
                         proto_tree_add_text(tlv_tree, tvb, offset, length, "Vendor Specific TLV :%s", tvb_get_string(tvb, offset, length));
@@ -1953,14 +1953,14 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 default :/*did not match type*/
                         /*do switch case for range of numbers*/
-        
+
                         /*RESERVED TLVs*/
                         if(type > 63 && type < 100)
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Reserved TLV :%s", tvb_get_string(tvb, offset, length)); 
-                        
+                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Reserved TLV :%s", tvb_get_string(tvb, offset, length));
+
                                                 /*EXPERIMENTAL TLVs*/
                         else if(type > 100 && type < 255)
-                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Experimental TLV :%s", tvb_get_string(tvb, offset, length)); 
+                                proto_tree_add_text(tlv_tree, tvb, offset, length, "Experimental TLV :%s", tvb_get_string(tvb, offset, length));
 
                         /*UNKNOWN TLVs*/
                         else
@@ -1970,7 +1970,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 }
 
 static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{       
+{
         proto_item *ti = NULL;
         int offset = 0;
         proto_item *item = NULL;
@@ -1988,14 +1988,14 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *tlv_tree = NULL;
         guint8 fragment = 0;
 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIH");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIH");
         col_clear(pinfo->cinfo,COL_INFO);
-        if (tree) 
-        {       
+        if (tree)
+        {
                 /* we are being asked for details */
                 ti = proto_tree_add_item(tree, proto_mih, tvb, 0, -1, ENC_NA);
         }
-        
+
         mih_tree = proto_item_add_subtree(ti, ett_mih);
         if(mih_tree)
                 item = proto_tree_add_item(mih_tree, hf_mih_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2011,13 +2011,13 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragment = fragment << 7;
         }
         offset += 1;
-        
+
         if(mih_tree)
         {
                 /*flags and version tree is done.....*/
                 proto_tree_add_item(mih_tree, hf_mih_frag_no, tvb, offset, 1, ENC_BIG_ENDIAN);
                 fragment = fragment + (tvb_get_guint8(tvb, offset)>>1);
-                                
+
                 /*for MIH message ID*/
                 item = proto_tree_add_item(mih_tree, hf_mih_mid, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
         }
@@ -2027,7 +2027,7 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         serviceid = serviceid & 0xF0;
         serviceid >>= 4;
         proto_tree_add_item(mid_tree, hf_mih_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        
+
         /*filling the info column with the service type...*/
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(serviceid, servicevalues, "Unknown"));
         opcode = tvb_get_guint8(tvb, offset);
@@ -2038,12 +2038,12 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /*filling the info column with the opcode type...*/
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, opcodevalues, "Unknown"));
-        
+
         /*check for type of service..*/
         service = tvb_get_guint8(tvb, offset);
         service = service & 0xF0;
         service >>= 4;
-        
+
         /*get the action id.*/
         action = tvb_get_ntohs(tvb, offset);
         action = action & 0x03FF;
@@ -2090,16 +2090,16 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
                 /* Adding a third case here since the 802.21 standard defines 3 cases */
                 /*extract length*/
-                /*case 1: If the number of octets occupied by the Value field is LESS THAN 128, the size of the Length field is always 
-                        one octet and the MSB of the octet is set to the value 0. The values of the other seven bits of this octet 
+                /*case 1: If the number of octets occupied by the Value field is LESS THAN 128, the size of the Length field is always
+                        one octet and the MSB of the octet is set to the value 0. The values of the other seven bits of this octet
                         indicate the actual length of the Value field.
                 */
                 /*case 2: If the number of octets occupied by the Value field is EXACTLY 128, the size of the Length field is one octet.
                         The MSB of the Length octet is set to the value '1' and the other seven bits of this octet are all set to the value '0'.
                 */
-                /*case 3: If the number of octets occupied by the Value field is GREATER THAN 128, then the Length field is always greater 
-                        than one octet. The MSB of the first octet of the Length field is set to the value 1 and the remaining seven 
-                        bits of the first octet indicate the number of octets that are appended further. The number represented by the 
+                /*case 3: If the number of octets occupied by the Value field is GREATER THAN 128, then the Length field is always greater
+                        than one octet. The MSB of the first octet of the Length field is set to the value 1 and the remaining seven
+                        bits of the first octet indicate the number of octets that are appended further. The number represented by the
                         second and subsequent octets of the Length field, when added to 128, indicates the total size of the Value field, in octets.
                 */
                 /*cases 2 and 3 can be logically programmed as the same condition since the whole octet is used to represent the len_of_len parameter. */
@@ -2192,7 +2192,7 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*dissector initialistaion*/
 void proto_register_mih(void)
 {
-        static hf_register_info hf[] = 
+        static hf_register_info hf[] =
         {
                 {
                         &hf_mih_version,
@@ -2283,7 +2283,7 @@ void proto_register_mih(void)
                         {
                                 "Service ID",
                                 "mih.service_id",
-                                FT_UINT16, 
+                                FT_UINT16,
                                 BASE_HEX,
                                 VALS(servicevalues),
                                 SID_MASK,
@@ -2295,7 +2295,7 @@ void proto_register_mih(void)
                         {
                                 "Opcode",
                                 "mih.opcode",
-                                FT_UINT16, 
+                                FT_UINT16,
                                 BASE_HEX,
                                 VALS(opcodevalues),
                                 OPCODE_MASK,
@@ -2307,7 +2307,7 @@ void proto_register_mih(void)
                         {
                                 "Action ID",
                                 "mih.action_id",
-                                FT_UINT16, 
+                                FT_UINT16,
                                 BASE_HEX,
                                 VALS(serv_act_id_values),
                                 AID_MASK,
@@ -2319,7 +2319,7 @@ void proto_register_mih(void)
                         {
                                 "Action ID",
                                 "mih.action_id",
-                                FT_UINT16, 
+                                FT_UINT16,
                                 BASE_HEX,
                                 VALS(event_act_id_values),
                                 AID_MASK,
@@ -2331,7 +2331,7 @@ void proto_register_mih(void)
                         {
                                 "Action ID",
                                 "mih.action_id",
-                                FT_UINT16, 
+                                FT_UINT16,
                                 BASE_HEX,
                                 VALS(command_act_id_values),
                                 AID_MASK,
@@ -2343,7 +2343,7 @@ void proto_register_mih(void)
                         {
                                 "Action ID",
                                 "mih.action_id",
-                                FT_UINT16, 
+                                FT_UINT16,
                                 BASE_HEX,
                                 VALS(info_act_id_values),
                                 AID_MASK,
@@ -2854,29 +2854,29 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                { 
+                {
                         &hf_ipv4_addr,
-                        { 
+                        {
                                 "IP Address",
                                 "mih.ipv4_addr",
                                 FT_IPv4,
                                 BASE_NONE,
-                                NULL, 
+                                NULL,
                                 0x0,
-                                NULL, HFILL 
-                        }       
+                                NULL, HFILL
+                        }
                 },
-                { 
+                {
                         &hf_ipv6_addr,
-                        { 
+                        {
                                 "IP Address",
                                 "mih.ipv6_addr",
                                 FT_IPv6,
                                 BASE_NONE,
-                                NULL, 
+                                NULL,
                                 0x0,
-                                NULL, HFILL 
-                        }       
+                                NULL, HFILL
+                        }
                 },
                 {
                         &hf_link_dn_reason,
@@ -2902,16 +2902,16 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                { 
+                {
                         &hf_mac_addr,
-                        { 
-                                "MAC ADDRESS",        
+                        {
+                                "MAC ADDRESS",
                                 "mih.mac_addr",
                                 FT_ETHER,
                                 BASE_NONE,
-                                NULL, 
+                                NULL,
                                 0x0,
-                                NULL, HFILL 
+                                NULL, HFILL
                         }
                 },
                 {
@@ -4193,7 +4193,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                {       
+                {
                         &hf_iq_poa_ip,
                         {
                                 "IE_POA_IP_ADDR",
@@ -4219,7 +4219,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                {       
+                {
                         &hf_mob_mip4,
                         {
                                 "Mobile IPv4",
@@ -4401,7 +4401,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                
+
                 /*header fields for transport lists*/
                 {
                         &hf_trans_list,
@@ -4439,7 +4439,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                
+
                 /*header fields for device state request*/
                 {
                         &hf_dev_states_req,
@@ -4477,7 +4477,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                
+
                 /*header fields for MIH Capabilities*/
                 {
                         &hf_mihcap,
@@ -4527,7 +4527,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                
+
                 /*header fields for High Level Network Capabilities*/
                 {
                         &hf_net_caps,
@@ -4661,7 +4661,7 @@ void proto_register_mih(void)
                                 NULL, HFILL
                         }
                 },
-                
+
                 /*header fields for Link Action attributes*/
                 {
                         &hf_link_ac_attr,
@@ -4714,7 +4714,7 @@ void proto_register_mih(void)
         };
 
         /* Setup protocol subtree array */
-        static gint *ett[] = 
+        static gint *ett[] =
         {
                 &ett_mih,
                 &ett_ver_flags,
@@ -4737,7 +4737,7 @@ void proto_register_mih(void)
                 &ett_subtype_cdma2000_bitmap,
                 &ett_subtype_ieee80216_bitmap
         };
-        
+
         proto_mih = proto_register_protocol("Media-Independent Handover", "MIH", "mih");
         proto_register_field_array(proto_mih, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
@@ -4746,7 +4746,7 @@ void proto_register_mih(void)
 
 /*dissector handoff*/
 void proto_reg_handoff_mih(void)
-{ 
+{
         dissector_handle_t mih_handle;
 
         mih_handle = create_dissector_handle(dissect_mih, proto_mih);

@@ -1875,12 +1875,12 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		unsigned int hdrext_offset = 0;
 
 		if ( tree ) {
-		  ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, FALSE);
+		  ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
 		  rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
 		}
 		for(i=0; i<hdr_extension_len; i++) {
 			if ( tree ) {
-				ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, FALSE);
+				ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, ENC_NA);
 				rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137 );
 				ext_value=tvb_get_ntohl( tvb, hdrext_offset );
 
@@ -1962,12 +1962,12 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		unsigned int hdrext_offset = 0;
 
 		if ( tree ) {
-			ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, FALSE);
+			ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
 			rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
 		}
 		for(i=0; i<hdr_extension_len; i++) {
 			if ( tree ) {
-				ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 4, FALSE);
+				ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 4, ENC_NA);
 				rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137a );
 				ext_value=tvb_get_ntohl( tvb, hdrext_offset );
 

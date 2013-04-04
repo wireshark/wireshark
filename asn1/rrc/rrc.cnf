@@ -634,13 +634,13 @@ fp_info       *fpinf ;
     proto_tree *subtree;
     gint curr_bit_offset = 0;
     subtree = proto_item_add_subtree(actx->created_item, ett_rrc_eutraFeatureGroupIndicators);
-    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_1, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_1, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
-    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_2, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_2, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
-    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_3, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_3, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
-    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_4, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_4, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
 }
 
@@ -853,7 +853,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   rrc_ciphering_info * c_inf;
 
 
-  
+
   fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
 
 %(DEFAULT_BODY)s

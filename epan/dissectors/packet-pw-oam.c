@@ -3,7 +3,7 @@
 * Routines for Pseudowire Status for static pseudowires : RFC 6478
 *
 * (c) Copyright 2012, Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
-*                     Nikitha Malgi <nikitha01@gmail.com>     
+*                     Nikitha Malgi <nikitha01@gmail.com>
 *
 * $Id$
 *
@@ -61,7 +61,7 @@ dissect_pw_status_tlv (tvbuff_t *tvb, proto_tree *tree, gint offset)
   proto_tree *pw_oam_tlv_tree;
 
 
-  ti = proto_tree_add_protocol_format (tree, proto_pw_oam, tvb, offset, 8, 
+  ti = proto_tree_add_protocol_format (tree, proto_pw_oam, tvb, offset, 8,
                                        "Pseudo-Wire Status TLV");
 
 
@@ -117,10 +117,10 @@ dissect_pw_oam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset = offset + 1;
 
   /* Flags field */
-  ti_flags = proto_tree_add_item (pw_oam_tree, hf_pw_oam_flags, tvb, 
+  ti_flags = proto_tree_add_item (pw_oam_tree, hf_pw_oam_flags, tvb,
                                   offset, 1, ENC_BIG_ENDIAN);
   pw_oam_flags = proto_item_add_subtree(ti_flags, ett_pw_oam_flags);
-  proto_tree_add_item (pw_oam_flags, hf_pw_oam_flags_a, tvb, offset, 1, FALSE);
+  proto_tree_add_item (pw_oam_flags, hf_pw_oam_flags_a, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   offset = offset + 1;
   pw_tlv_type = tvb_get_ntohs (tvb, offset);

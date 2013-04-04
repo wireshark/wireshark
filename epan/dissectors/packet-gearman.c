@@ -211,7 +211,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(command_tree, hf_gearman_pkt_type, tvb, 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(command_tree, hf_gearman_data_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-    content_item = proto_tree_add_item(command_tree, hf_gearman_data_content, tvb, GEARMAN_COMMAND_HEADER_SIZE, size, FALSE);
+    content_item = proto_tree_add_item(command_tree, hf_gearman_data_content, tvb, GEARMAN_COMMAND_HEADER_SIZE, size, ENC_ASCII|ENC_NA);
     content_tree = proto_item_add_subtree(content_item, ett_gearman_content);
 
     }
@@ -424,7 +424,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gearman");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item(tree, proto_gearman, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_gearman, tvb, 0, -1, ENC_NA);
   gearman_tree = proto_item_add_subtree(ti, ett_gearman);
 
   while ((linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE)) > 0)
@@ -437,7 +437,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (cmdlen == linelen && 0 == tvb_strneql(tvb, offset, GEARMAN_MGR_CMDS[i], cmdlen))
       {
-        proto_tree_add_item(gearman_tree, hf_gearman_mgr_cmd, tvb, offset, cmdlen, FALSE);
+        proto_tree_add_item(gearman_tree, hf_gearman_mgr_cmd, tvb, offset, cmdlen, ENC_ASCII|ENC_NA);
         col_add_fstr(pinfo->cinfo, COL_INFO, "[MGR] %s", tvb_get_ephemeral_string(tvb, offset, linelen));
         type = 1;
         break;
