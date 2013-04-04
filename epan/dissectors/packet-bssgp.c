@@ -2088,7 +2088,7 @@ de_bssgp_rim_pdu_indications(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_bssgp_rim_pdu_ind_ack, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             break;
-        case BSSGP_PDU_RAN_INFORMATION_ERROR:
+        case BSSGP_PDU_RAN_INFORMATION_APP_ERROR:
             /* 11.3.65.3 RAN-INFORMATION-APPLICATION-ERROR RIM PDU Indications */
             proto_tree_add_item(tree, hf_bssgp_rim_pdu_ind_ack, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             /* The PDU Type Extension field is not used and shall be considered as spare */
