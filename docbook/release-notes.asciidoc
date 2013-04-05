@@ -52,6 +52,10 @@ have been updated.
 * Tshark's filtering and multi-pass analysis have been reworked for consistency
 and in order to support dependent frame calculations during reassembly. See the
 man page descriptions for -2, -R, and -Y.
+* Tshark's -G fields2 and -G fields3 options have been eliminated.  The
+-G fields option now includes the 2 extra fields that -G fields3 previously
+provided, and the blurb information has been relegated to the last column since
+in many cases it is blank anyway.
 
 === New Protocol Support
 

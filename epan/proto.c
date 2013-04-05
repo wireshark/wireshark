@@ -5346,7 +5346,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_ABSOLUTE_TIME:
 			label_fill(label_str, hfinfo,
-				   abs_time_to_str((const nstime_t *)fvalue_get(&fi->value), 
+				   abs_time_to_str((const nstime_t *)fvalue_get(&fi->value),
 						(absolute_time_display_e)hfinfo->display, TRUE));
 			break;
 
@@ -6608,36 +6608,17 @@ proto_registrar_dump_values(void)
  *
  * Header Fields
  * -------------
- * (format 1)
  * Field 1 = 'F'
  * Field 2 = descriptive field name
  * Field 3 = field abbreviation
  * Field 4 = type ( textual representation of the the ftenum type )
  * Field 5 = parent protocol abbreviation
- * Field 6 = blurb describing field
- *
- * (format 2)
- * Field 1 = 'F'
- * Field 2 = descriptive field name
- * Field 3 = field abbreviation
- * Field 4 = type ( textual representation of the the ftenum type )
- * Field 5 = parent protocol abbreviation
- * Field 6 = blurb describing field
- * Field 7 = base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
- * Field 8 = blurb describing field (yes, apparently we repeated this accidentally)
- *
- * (format 3)
- * Field 1 = 'F'
- * Field 2 = descriptive field name
- * Field 3 = field abbreviation
- * Field 4 = type ( textual representation of the the ftenum type )
- * Field 5 = parent protocol abbreviation
- * Field 6 = blurb describing field
- * Field 7 = base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
- * Field 8 = bitmask: format: hex: 0x....
+ * Field 6 = base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
+ * Field 7 = bitmask: format: hex: 0x....
+ * Field 8 = blurb describing field
  */
 void
-proto_registrar_dump_fields(const int format)
+proto_registrar_dump_fields(void)
 {
 	header_field_info *hfinfo, *parent_hfinfo;
 	int		   i, len;
@@ -6683,50 +6664,47 @@ proto_registrar_dump_fields(const int format)
 			enum_name = ftype_name(hfinfo->type);
 			base_name = "";
 
-			if (format > 1) {
-				if (hfinfo->type == FT_UINT8  ||
-				    hfinfo->type == FT_UINT16 ||
-				    hfinfo->type == FT_UINT24 ||
-				    hfinfo->type == FT_UINT32 ||
-				    hfinfo->type == FT_UINT64 ||
-				    hfinfo->type == FT_INT8   ||
-				    hfinfo->type == FT_INT16  ||
-				    hfinfo->type == FT_INT24  ||
-				    hfinfo->type == FT_INT32  ||
-				    hfinfo->type == FT_INT64) {
+			if (hfinfo->type == FT_UINT8  ||
+			    hfinfo->type == FT_UINT16 ||
+			    hfinfo->type == FT_UINT24 ||
+			    hfinfo->type == FT_UINT32 ||
+			    hfinfo->type == FT_UINT64 ||
+			    hfinfo->type == FT_INT8   ||
+			    hfinfo->type == FT_INT16  ||
+			    hfinfo->type == FT_INT24  ||
+			    hfinfo->type == FT_INT32  ||
+			    hfinfo->type == FT_INT64) {
 
-
-					switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
-						case BASE_NONE:
-							base_name = "BASE_NONE";
-							break;
-						case BASE_DEC:
-							base_name = "BASE_DEC";
-							break;
-						case BASE_HEX:
-							base_name = "BASE_HEX";
-							break;
-						case BASE_OCT:
-							base_name = "BASE_OCT";
-							break;
-						case BASE_DEC_HEX:
-							base_name = "BASE_DEC_HEX";
-							break;
-						case BASE_HEX_DEC:
-							base_name = "BASE_HEX_DEC";
-							break;
-						case BASE_CUSTOM:
-							base_name = "BASE_CUSTOM";
-							break;
-						default:
-							base_name = "????";
-							break;
-					}
-				} else if (hfinfo->type == FT_BOOLEAN) {
-					/* For FT_BOOLEAN: 'display' can be "parent bitfield width" */
-					g_snprintf(width, sizeof(width), "%d", hfinfo->display);
-					base_name = width;
+				switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
+					case BASE_NONE:
+						base_name = "BASE_NONE";
+						break;
+					case BASE_DEC:
+						base_name = "BASE_DEC";
+						break;
+					case BASE_HEX:
+						base_name = "BASE_HEX";
+						break;
+					case BASE_OCT:
+						base_name = "BASE_OCT";
+						break;
+					case BASE_DEC_HEX:
+						base_name = "BASE_DEC_HEX";
+						break;
+					case BASE_HEX_DEC:
+						base_name = "BASE_HEX_DEC";
+						break;
+					case BASE_CUSTOM:
+						base_name = "BASE_CUSTOM";
+						break;
+					default:
+						base_name = "????";
+						break;
 				}
+			} else if (hfinfo->type == FT_BOOLEAN) {
+				/* For FT_BOOLEAN: 'display' can be "parent bitfield width" */
+				g_snprintf(width, sizeof(width), "%d", hfinfo->display);
+				base_name = width;
 			}
 
 			blurb = hfinfo->blurb;
@@ -6734,26 +6712,10 @@ proto_registrar_dump_fields(const int format)
 				blurb = "";
 			else if (strlen(blurb) == 0)
 				blurb = "\"\"";
-			if (format == 1) {
-				printf("F\t%s\t%s\t%s\t%s\t%s\n",
-					hfinfo->name, hfinfo->abbrev, enum_name,
-					parent_hfinfo->abbrev, blurb);
-			}
-			else if (format == 2) {
-				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-					hfinfo->name, hfinfo->abbrev, enum_name,
-					parent_hfinfo->abbrev, blurb,
-					base_name, blurb);
-			}
-			else if (format == 3) {
-				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t0x%x\n",
-					hfinfo->name, hfinfo->abbrev, enum_name,
-					parent_hfinfo->abbrev, blurb,
-					base_name, hfinfo->bitmask);
-			}
-			else {
-				g_assert_not_reached();
-			}
+
+			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%x\t%s\n",
+				hfinfo->name, hfinfo->abbrev, enum_name,
+				parent_hfinfo->abbrev, base_name, hfinfo->bitmask, blurb);
 		}
 	}
 }

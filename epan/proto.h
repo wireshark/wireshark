@@ -1835,10 +1835,8 @@ WS_DLL_PUBLIC void proto_registrar_dump_protocols(void);
 /** Dumps a glossary of the field value strings or true/false strings to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_values(void);
 
-/** Dumps a glossary of the protocol and field registrations to STDOUT.
- * Format 1 is the original format. Format 2 includes the base (for integers)
- * and the blurb. */
-WS_DLL_PUBLIC void proto_registrar_dump_fields(const int format);
+/** Dumps a glossary of the protocol and field registrations to STDOUT. */
+WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 
 /** Dumps a glossary field types and descriptive names to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_ftypes(void);

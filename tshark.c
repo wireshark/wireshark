@@ -354,9 +354,7 @@ glossary_option_help(void)
   fprintf(output, "Usage: tshark -G [report]\n");
   fprintf(output, "\n");
   fprintf(output, "Glossary table reports:\n");
-  fprintf(output, "  -G [fields]              dump glossary in original format and exit\n");
-  fprintf(output, "  -G fields2               dump glossary in format 2 and exit\n");
-  fprintf(output, "  -G fields3               dump glossary in format 3 and exit\n");
+  fprintf(output, "  -G fields                dump fields glossary and exit\n");
   fprintf(output, "  -G protocols             dump protocols in registration database and exit\n");
   fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
   fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
@@ -367,7 +365,6 @@ glossary_option_help(void)
   fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
   fprintf(output, "  -G currentprefs          dump current preferences and exit\n");
   fprintf(output, "\n");
-
 }
 
 /*
@@ -1098,14 +1095,10 @@ main(int argc, char *argv[])
     proto_initialize_all_prefixes();
 
     if (argc == 2)
-      proto_registrar_dump_fields(1);
+      proto_registrar_dump_fields();
     else {
       if (strcmp(argv[2], "fields") == 0)
-        proto_registrar_dump_fields(1);
-      else if (strcmp(argv[2], "fields2") == 0)
-        proto_registrar_dump_fields(2);
-      else if (strcmp(argv[2], "fields3") == 0)
-        proto_registrar_dump_fields(3);
+        proto_registrar_dump_fields();
       else if (strcmp(argv[2], "protocols") == 0)
         proto_registrar_dump_protocols();
       else if (strcmp(argv[2], "values") == 0)
