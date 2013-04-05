@@ -615,7 +615,8 @@ parse_preamble (void)
             i++;
         }
         packet_preamble_len -= i;
-        memmove(packet_preamble, packet_preamble+i, packet_preamble_len);
+        /* Also move the trailing '\0'. */
+        memmove(packet_preamble, packet_preamble + i, packet_preamble_len + 1);
     }
 
     /*
