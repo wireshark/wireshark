@@ -1574,6 +1574,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
 
   title = create_user_window_title("Wireshark: Remote Interface");
   remote_w = dlg_window_new(title);
+  gtk_window_set_transient_for(GTK_WINDOW(remote_w), GTK_WINDOW(interface_management_w));
   g_object_set_data(G_OBJECT(remote_w), E_CAP_REMOTE_CALLER_PTR_KEY, interface_management_w);
   g_object_set_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY, remote_w);
   g_free(title);
