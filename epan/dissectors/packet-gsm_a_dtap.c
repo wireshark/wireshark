@@ -872,7 +872,7 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 	oct = (oct >> 4) + (oct & 0x07) * 10;
 
 	proto_tree_add_text(tree,
-		tvb, offset, 1,
+		tvb, curr_offset, 1,
 		"Timezone: GMT %c %d hours %d minutes",
 		sign, oct / 4, oct % 4 * 15);
 	curr_offset++;
@@ -940,7 +940,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	oct = (oct >> 4) + (oct & 0x07) * 10;
 
 	proto_tree_add_text(tree,
-		tvb, offset, 1,
+		tvb, curr_offset, 1,
 		"Timezone: GMT %c %d hours %d minutes",
 		sign, oct / 4, oct % 4 * 15);
 
