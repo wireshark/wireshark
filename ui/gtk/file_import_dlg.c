@@ -63,6 +63,8 @@
 #define INPUT_TIMEFMT_LBL_KEY           "input_timeformat_label"
 #define INPUT_TIMEFMT_TE_KEY            "input_timeformat_entry"
 
+#define INPUT_DIR_CB_KEY                "input_direction_indication_checkbox"
+
 #define IMPORT_FRM_KEY                  "import_frame"
 #define IMPORT_ENCAP_CO_KEY             "import_encap_combo"
 
@@ -575,6 +577,7 @@ setup_file_import(GtkWidget *main_w)
         GtkWidget *offset_dec_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_OFFSET_DEC_RB_KEY));
         GtkWidget *timefmt_cb    = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_DATETIME_CB_KEY));
         GtkWidget *timefmt_te    = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_TIMEFMT_TE_KEY));
+        GtkWidget *dir_cb        = GTK_WIDGET(g_object_get_data(G_OBJECT(input_frm), INPUT_DIR_CB_KEY));
 
         text_import_info->import_text_filename = g_strdup(gtk_entry_get_text(GTK_ENTRY(filename_te)));
 
@@ -595,6 +598,7 @@ setup_file_import(GtkWidget *main_w)
             OFFSET_NONE;
         text_import_info->date_timestamp = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(timefmt_cb));
         text_import_info->date_timestamp_format = g_strdup(gtk_entry_get_text(GTK_ENTRY(timefmt_te)));
+        text_import_info->has_direction = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dir_cb));
     }
 
     /* Then the import frame controls of interest */
@@ -793,6 +797,7 @@ file_import_dlg_new(void)
                *offset_lbl, *offset_rb_vb,
                *offset_hex_rb, *offset_oct_rb, *offset_dec_rb,
                *timefmt_hb, *timefmt_cb, *timefmt_lbl, *timefmt_te,
+               *dir_hb, *dir_cb,
                *import_frm, *import_vb,
                *encap_hb, *encap_lbl, *encap_co,
                *header_cb, *header_frm, *header_hb,
@@ -906,6 +911,18 @@ file_import_dlg_new(void)
 
     g_signal_connect(timefmt_cb, "toggled", G_CALLBACK(timefmt_cb_toggle), NULL);
     g_signal_emit_by_name(G_OBJECT(timefmt_cb), "toggled", NULL);
+
+    /* Direction indication */
+    dir_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+    gtk_container_set_border_width(GTK_CONTAINER(dir_hb), 3);
+    gtk_box_pack_start(GTK_BOX(input_vb), dir_hb, FALSE, FALSE, 0);
+
+    dir_cb = gtk_check_button_new_with_label("Direction indication");
+    gtk_widget_set_tooltip_text(dir_cb, "Whether or not the file contains information indicating the direction "
+                                " (inbound or outbound) of the packet");
+    gtk_box_pack_start(GTK_BOX(dir_hb), dir_cb, FALSE, FALSE, 0);
+
+    g_object_set_data(G_OBJECT(input_frm), INPUT_DIR_CB_KEY, dir_cb); 
 
     /* Setup the import frame */
 

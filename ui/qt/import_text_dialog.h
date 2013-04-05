@@ -71,6 +71,7 @@ private slots:
     void on_textFileLineEdit_textChanged(const QString &arg1);
     void on_encapComboBox_currentIndexChanged(int index);
     void on_dateTimeLineEdit_textChanged(const QString &arg1);
+    void on_directionIndicationCheckBox_toggled(bool checked);
     void on_noDummyButton_toggled(bool checked);
     void on_ethernetButton_toggled(bool checked);
     void on_ipv4Button_toggled(bool checked);

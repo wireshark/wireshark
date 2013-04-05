@@ -325,6 +325,11 @@ void ImportTextDialog::on_dateTimeLineEdit_textChanged(const QString &time_forma
     }
 }
 
+void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
+{
+    import_info_.has_direction = checked;
+}
+
 void ImportTextDialog::on_noDummyButton_toggled(bool checked)
 {
     if (checked) enableHeaderWidgets();

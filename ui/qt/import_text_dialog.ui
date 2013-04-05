@@ -173,6 +173,23 @@
         </item>
        </layout>
       </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="directionIndicationLabel">
+        <property name="toolTip">
+         <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
+        </property>
+        <property name="text">
+         <string>Direction indication:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="directionIndicationCheckBox">
+        <property name="toolTip">
+         <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
