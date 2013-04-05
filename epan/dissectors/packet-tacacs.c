@@ -36,9 +36,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -66,6 +63,7 @@
 #include <epan/prefs.h>
 #include <epan/crypt/md5.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include "packet-tacacs.h"
 
 static void md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
@@ -84,6 +82,8 @@ static int hf_tacacs_destport = -1;
 static int hf_tacacs_line = -1;
 static int hf_tacacs_result2 = -1;
 static int hf_tacacs_result3 = -1;
+static int hf_tacacs_username = -1;
+static int hf_tacacs_password = -1;
 
 static gint ett_tacacs = -1;
 
@@ -153,7 +153,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree;
 	proto_item      *ti;
-	guint8		txt_buff[255+1],version,type,userlen,passlen;
+	guint8          version,type,userlen,passlen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -164,8 +164,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	type = tvb_get_guint8(tvb,1);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(type, tacacs_type_vals, "Unknown (0x%02x)"));
 
 	if (tree)
@@ -174,68 +173,47 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 tvb, 0, -1, version==0?"TACACS":"XTACACS");
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_uint(tacacs_tree, hf_tacacs_version, tvb, 0, 1,
-		    version);
-		proto_tree_add_uint(tacacs_tree, hf_tacacs_type, tvb, 1, 1,
-		    type);
-		proto_tree_add_item(tacacs_tree, hf_tacacs_nonce, tvb, 2, 2,
-		    ENC_BIG_ENDIAN);
+		proto_tree_add_uint(tacacs_tree, hf_tacacs_version, tvb, 0, 1, version);
+		proto_tree_add_uint(tacacs_tree, hf_tacacs_type, tvb, 1, 1, type);
+		proto_tree_add_item(tacacs_tree, hf_tacacs_nonce, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-	if (version==0)
-	    {
-	    if (type!=TACACS_RESPONSE)
-	    	{
-	    	userlen=tvb_get_guint8(tvb,4);
-		proto_tree_add_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1,
-		    userlen);
-	    	passlen=tvb_get_guint8(tvb,5);
-		proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1,
-		    passlen);
-		tvb_get_nstringz0(tvb,6,userlen+1,txt_buff);
-		proto_tree_add_text(tacacs_tree, tvb, 6, userlen,         "Username: %s",txt_buff);
-		tvb_get_nstringz0(tvb,6+userlen,passlen+1,txt_buff);
-		proto_tree_add_text(tacacs_tree, tvb, 6+userlen, passlen, "Password: %s",txt_buff);
+		if (version==0)
+		{
+			if (type!=TACACS_RESPONSE)
+			{
+				userlen=tvb_get_guint8(tvb,4);
+			proto_tree_add_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, userlen);
+				passlen=tvb_get_guint8(tvb,5);
+			proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, passlen);
+			proto_tree_add_item(tree, hf_tacacs_username, tvb, 6, userlen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_tacacs_password, tvb, 6+userlen, passlen, ENC_ASCII|ENC_NA);
+			}
+			else
+			{
+				proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 4, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 5, 1, ENC_BIG_ENDIAN);
+			}
 		}
-	    else
-	    	{
-	    	proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 4, 1,
-	    	    ENC_BIG_ENDIAN);
-	    	proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 5, 1,
-	    	    ENC_BIG_ENDIAN);
+		else
+		{
+				userlen=tvb_get_guint8(tvb,4);
+			proto_tree_add_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, userlen);
+				passlen=tvb_get_guint8(tvb,5);
+			proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, passlen);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 6, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 7, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_result1, tvb, 8, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_destaddr, tvb, 12, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_destport, tvb, 16, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_line, tvb, 18, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_result2, tvb, 20, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tacacs_tree, hf_tacacs_result3, tvb, 24, 2, ENC_BIG_ENDIAN);
+			if (type!=TACACS_RESPONSE)
+			{
+				proto_tree_add_item(tree, hf_tacacs_username, tvb, 26, userlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_tacacs_password, tvb, 26+userlen, passlen, ENC_ASCII|ENC_NA);
+			}
 		}
-	    }
-	else
-	    {
-	    userlen=tvb_get_guint8(tvb,4);
-	    proto_tree_add_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1,
-		userlen);
-	    passlen=tvb_get_guint8(tvb,5);
-	    proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1,
-		passlen);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 6, 1,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 7, 1,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_result1, tvb, 8, 4,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_destaddr, tvb, 12, 4,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_destport, tvb, 16, 2,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_line, tvb, 18, 2,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_result2, tvb, 20, 4,
-		ENC_BIG_ENDIAN);
-	    proto_tree_add_item(tacacs_tree, hf_tacacs_result3, tvb, 24, 2,
-		ENC_BIG_ENDIAN);
-	    if (type!=TACACS_RESPONSE)
-	    	{
-	    	tvb_get_nstringz0(tvb,26,userlen+1,txt_buff);
-	    	proto_tree_add_text(tacacs_tree, tvb, 26, userlen,  "Username: %s",txt_buff);
-	    	tvb_get_nstringz0(tvb,26+userlen,passlen+1,txt_buff);
-	    	proto_tree_add_text(tacacs_tree, tvb, 26+userlen, passlen, "Password; %s",txt_buff);
-	    	}
-	    }
 	}
 }
 
@@ -295,6 +273,14 @@ proto_register_tacacs(void)
 	    { "Result 3",          "tacacs.result3",
 	      FT_UINT16, BASE_HEX, NULL, 0x0,
 	      NULL, HFILL }},
+	  { &hf_tacacs_username,
+	    { "Username",          "tacacs.username",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacacs_password,
+	    { "Password",          "tacacs.password",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -331,6 +317,50 @@ static int hf_tacplus_acct_flags_stop = -1;
 static int hf_tacplus_acct_flags_watchdog = -1;
 static int hf_tacplus_session_id = -1;
 static int hf_tacplus_packet_len = -1;
+static int hf_tacplus_auth_password = -1;
+static int hf_tacplus_port = -1;
+static int hf_tacplus_remote_address = -1;
+static int hf_tacplus_chap_challenge = -1;
+static int hf_tacplus_chap_response = -1;
+static int hf_tacplus_mschap_challenge = -1;
+static int hf_tacplus_mschap_response = -1;
+static int hf_tacplus_arap_nas_challenge = -1;
+static int hf_tacplus_arap_remote_challenge = -1;
+static int hf_tacplus_arap_remote_response = -1;
+static int hf_tacplus_privilege_level = -1;
+static int hf_tacplus_authentication_type = -1;
+static int hf_tacplus_service = -1;
+static int hf_tacplus_user_len = -1;
+static int hf_tacplus_user = -1;
+static int hf_tacplus_port_len = -1;
+static int hf_tacplus_remote_address_len = -1;
+static int hf_tacplus_arg_length = -1;
+static int hf_tacplus_arg_value = -1;
+static int hf_tacplus_chap_id = -1;
+static int hf_tacplus_mschap_id = -1;
+static int hf_tacplus_authen_action = -1;
+static int hf_tacplus_body_authen_req_cont_flags = -1;
+static int hf_tacplus_body_authen_req_cont_user_length = -1;
+static int hf_tacplus_body_authen_req_cont_user = -1;
+static int hf_tacplus_body_authen_req_cont_data_length = -1;
+static int hf_tacplus_body_authen_rep_status = -1;
+static int hf_tacplus_body_authen_rep_flags = -1;
+static int hf_tacplus_body_authen_rep_server_msg_len = -1;
+static int hf_tacplus_body_authen_rep_server_msg = -1;
+static int hf_tacplus_body_authen_rep_server_data_len = -1;
+static int hf_tacplus_body_author_req_auth_method = -1;
+static int hf_tacplus_body_author_req_arg_count = -1;
+static int hf_tacplus_body_author_rep_auth_status = -1;
+static int hf_tacplus_body_author_rep_server_msg_len = -1;
+static int hf_tacplus_body_author_rep_server_data_len = -1;
+static int hf_tacplus_body_author_rep_arg_count = -1;
+static int hf_tacplus_acct_authen_method = -1;
+static int hf_tacplus_acct_arg_count = -1;
+static int hf_tacplus_body_acct_status = -1;
+static int hf_tacplus_body_acct_server_msg_len = -1;
+static int hf_tacplus_body_acct_server_msg = -1;
+static int hf_tacplus_body_acct_data_len = -1;
+static int hf_tacplus_body_acct_data = -1;
 
 static gint ett_tacplus = -1;
 static gint ett_tacplus_body = -1;
@@ -379,9 +409,11 @@ dissect_tacplus_args_list( tvbuff_t *tvb, proto_tree *tree, int data_off, int le
 	guint8	buff[257];
 	for(i=0;i<arg_cnt;i++){
 		int len=tvb_get_guint8(tvb,len_off+i);
-		proto_tree_add_text( tree, tvb, len_off+i, 1, "Arg[%d] length: %d", i, len );
+		proto_tree_add_int_format(tree, hf_tacplus_arg_length, tvb, len_off+i, 1, len,
+									"Arg[%d] length: %d", i, len);
 		tvb_get_nstringz0(tvb, data_off, len+1, buff);
-		proto_tree_add_text( tree, tvb, data_off, len, "Arg[%d] value: %s", i, buff );
+		proto_tree_add_string_format(tree, hf_tacplus_arg_value, tvb, data_off, len, buff,
+									"Arg[%d] value: %s", i, buff);
 		data_off+=len;
 	}
 }
@@ -391,32 +423,24 @@ static int
 proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offset, int var_off )
 {
 	int val;
-	guint8 buff[257];
 	/* priv_lvl */
-	proto_tree_add_text( tree, tvb, offset, 1,
-			"Privilege Level: %d", tvb_get_guint8(tvb,offset) );
+	proto_tree_add_item(tree, hf_tacplus_privilege_level, tvb, offset, 1, ENC_NA);
 	offset++;
 
 	/* authen_type */
-	val=tvb_get_guint8(tvb,offset);
-	proto_tree_add_text( tree, tvb, offset, 1,
-			"Authentication type: %s",
-			val_to_str_const( val, tacplus_authen_type_vals, "Unknown Packet" ) );
+	proto_tree_add_item(tree, hf_tacplus_authentication_type, tvb, offset, 1, ENC_NA);
 	offset++;
 
 	/* service */
-	val=tvb_get_guint8(tvb,offset);
-	proto_tree_add_text( tree, tvb, offset, 1,
-			"Service: %s",
-			val_to_str_const( val, tacplus_authen_service_vals, "Unknown Packet" ) );
+	proto_tree_add_item(tree, hf_tacplus_service, tvb, offset, 1, ENC_NA);
 	offset++;
 
 	/* user_len && user */
 	val=tvb_get_guint8(tvb,offset);
-	proto_tree_add_text( tree, tvb, offset, 1, "User len: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_user_len, tvb, offset, 1, val);
+
 	if( val ){
-		tvb_get_nstringz0(tvb, var_off, val+1, buff);
-		proto_tree_add_text( tree, tvb, var_off, val, "User: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_user, tvb, var_off, val, ENC_NA);
 		var_off+=val;
 	}
 	offset++;
@@ -424,20 +448,18 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 
 	/* port_len &&  port */
 	val=tvb_get_guint8(tvb,offset);
-	proto_tree_add_text( tree, tvb, offset, 1, "Port len: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_port_len, tvb, offset, 1, val);
 	if( val ){
-		tvb_get_nstringz0(tvb, var_off, val+1, buff);
-		proto_tree_add_text( tree, tvb, var_off, val, "Port: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_port, tvb, var_off, val, ENC_ASCII|ENC_NA);
 		var_off+=val;
 	}
 	offset++;
 
 	/* rem_addr_len && rem_addr */
 	val=tvb_get_guint8(tvb,offset);
-	proto_tree_add_text( tree, tvb, offset, 1, "Remaddr len: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_remote_address_len, tvb, offset, 1, val);
 	if( val ){
-		tvb_get_nstringz0(tvb, var_off, val+1, buff);
-		proto_tree_add_text( tree, tvb, var_off, val, "Remote Address: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_remote_address, tvb, var_off, val, ENC_ASCII|ENC_NA);
 		var_off+=val;
 	}
 	return var_off;
@@ -446,7 +468,6 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 static void
 dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_off )
 {
-	guint8 buff[257];
 	guint8 val;
 	val=tvb_get_guint8( tvb, AUTHEN_S_DATA_LEN_OFF );
 
@@ -461,8 +482,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 		case TAC_PLUS_AUTHEN_TYPE_PAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "Password Length %d", val );
 			if( val ) {
-				tvb_get_nstringz0( tvb, var_off, val+1, buff );
-				proto_tree_add_text( tree, tvb, var_off, val, "Password: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_auth_password, tvb, var_off, val, ENC_ASCII|ENC_NA);
 			}
 			break;
 
@@ -474,14 +494,11 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 				guint8 chal_len=val-(1+16); /* Response field alwayes 16 octets */
 				pi = proto_tree_add_text(tree, tvb, var_off, val, "CHAP Data" );
 				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
-				val= tvb_get_guint8( tvb, var_off );
-				proto_tree_add_text( pt, tvb, var_off, 1, "ID: %d", val );
+				proto_tree_add_item(tree, hf_tacplus_chap_id, tvb, var_off, 1, ENC_NA);
 				var_off++;
-				tvb_get_nstringz0( tvb, var_off, chal_len+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, chal_len, "Challenge: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
 				var_off+=chal_len;
-				tvb_get_nstringz0( tvb, var_off, 16+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, 16 , "Response: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_chap_response, tvb, var_off, 16, ENC_ASCII|ENC_NA);
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_MSCHAP:
@@ -492,14 +509,11 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 				guint8 chal_len=val-(1+49);  /* Response field alwayes 49 octets */
 				pi = proto_tree_add_text(tree, tvb, var_off, val, "MSCHAP Data" );
 				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
-				val= tvb_get_guint8( tvb, var_off );
-				proto_tree_add_text( pt, tvb, var_off, 1, "ID: %d", val );
+				proto_tree_add_item(tree, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_NA);
 				var_off++;
-				tvb_get_nstringz0( tvb, var_off, chal_len+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, chal_len, "Challenge: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
 				var_off+=chal_len;
-				tvb_get_nstringz0( tvb, var_off, 49+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, 49 , "Response: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_mschap_response, tvb, var_off, 49, ENC_ASCII|ENC_NA);
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_ARAP:
@@ -509,15 +523,11 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 				proto_tree  *pt;
 				pi = proto_tree_add_text(tree, tvb, var_off, val, "ARAP Data" );
 				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
-
-				tvb_get_nstringz0( tvb, var_off, 8+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, 8, "Nas Challenge: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_arap_nas_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 				var_off+=8;
-				tvb_get_nstringz0( tvb, var_off, 8+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, 8, "Remote Challenge: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_arap_remote_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 				var_off+=8;
-				tvb_get_nstringz0( tvb, var_off, 8+1, buff );
-				proto_tree_add_text( pt, tvb, var_off, 8, "Remote Response: %s", buff );
+				proto_tree_add_item(tree, hf_tacplus_arap_remote_response, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 			}
 			break;
 
@@ -537,11 +547,7 @@ dissect_tacplus_body_authen_req( tvbuff_t* tvb, proto_tree *tree )
 
 	/* Action */
 	val=tvb_get_guint8( tvb, AUTHEN_S_ACTION_OFF );
-	proto_tree_add_text( tree, tvb,
-			AUTHEN_S_ACTION_OFF, 1,
-			"Action: %s",
-			val_to_str_const( val, tacplus_authen_action_vals, "Unknown Packet" ) );
-
+	proto_tree_add_item(tree, hf_tacplus_authen_action, tvb, AUTHEN_S_ACTION_OFF, 1, ENC_NA);
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree , AUTHEN_S_PRIV_LVL_OFF, AUTHEN_S_VARDATA_OFF );
 
 	switch( val ) {
@@ -558,26 +564,22 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 {
 	int val;
 	int var_off=AUTHEN_C_VARDATA_OFF;
-	guint8 *buff=NULL;
+	proto_item* ti;
 
 	val=tvb_get_guint8( tvb, AUTHEN_C_FLAGS_OFF );
-	proto_tree_add_text( tree, tvb,
-			AUTHEN_R_FLAGS_OFF, 1, "Flags: 0x%02x %s",
-			val,
-			(val&TAC_PLUS_CONTINUE_FLAG_ABORT?"(Abort)":"") );
-
+	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_flags, tvb, AUTHEN_C_FLAGS_OFF, 1, ENC_NA);
+	if (val&TAC_PLUS_CONTINUE_FLAG_ABORT)
+		proto_item_append_text(ti, "(Abort)");
 
 	val=tvb_get_ntohs( tvb, AUTHEN_C_USER_LEN_OFF );
-	proto_tree_add_text( tree, tvb, AUTHEN_C_USER_LEN_OFF, 2 , "User length: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_body_authen_req_cont_user_length, tvb, AUTHEN_C_USER_LEN_OFF, 2, val);
 	if( val ){
-		buff=tvb_get_ephemeral_string( tvb, var_off, val );
-		proto_tree_add_text( tree, tvb, var_off, val, "User: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_user, tvb, var_off, val, ENC_ASCII|ENC_NA);
 		var_off+=val;
 	}
 
 	val=tvb_get_ntohs( tvb, AUTHEN_C_DATA_LEN_OFF );
-	proto_tree_add_text( tree, tvb, AUTHEN_C_DATA_LEN_OFF, 2 ,
-			"Data length: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_body_authen_req_cont_data_length, tvb, AUTHEN_C_DATA_LEN_OFF, 2, val);
 	if( val ){
 		proto_tree_add_text( tree, tvb, var_off, val, "Data" );
 	}
@@ -590,31 +592,25 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 {
 	int val;
 	int var_off=AUTHEN_R_VARDATA_OFF;
-	guint8 *buff=NULL;
+	proto_item* ti;
 
-	val=tvb_get_guint8( tvb, AUTHEN_R_STATUS_OFF );
-	proto_tree_add_text(tree, tvb,
-			AUTHEN_R_STATUS_OFF, 1, "Status: 0x%01x (%s)", val,
-			val_to_str_const( val, tacplus_reply_status_vals, "Unknown Packet" )  );
+	proto_tree_add_item(tree, hf_tacplus_body_authen_rep_status, tvb, AUTHEN_R_STATUS_OFF, 1, ENC_NA);
 
 	val=tvb_get_guint8( tvb, AUTHEN_R_FLAGS_OFF );
-	proto_tree_add_text(tree, tvb,
-			AUTHEN_R_FLAGS_OFF, 1, "Flags: 0x%02x %s",
-			val, (val&TAC_PLUS_REPLY_FLAG_NOECHO?"(NoEcho)":"") );
-
+	ti = proto_tree_add_item(tree, hf_tacplus_body_authen_rep_flags, tvb, AUTHEN_R_FLAGS_OFF, 1, ENC_NA);
+	if (val&TAC_PLUS_REPLY_FLAG_NOECHO)
+		proto_item_append_text(ti, "(NoEcho)");
 
 	val=tvb_get_ntohs(tvb, AUTHEN_R_SRV_MSG_LEN_OFF );
-	proto_tree_add_text( tree, tvb, AUTHEN_R_SRV_MSG_LEN_OFF, 2 ,
-				"Server message length: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_body_authen_rep_server_msg_len, tvb, AUTHEN_R_SRV_MSG_LEN_OFF, 2, val);
+
 	if( val ) {
-		buff=tvb_get_ephemeral_string(tvb, var_off, val );
-		proto_tree_add_text(tree, tvb, var_off, val, "Server message: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_body_authen_rep_server_msg, tvb, var_off, val, ENC_ASCII|ENC_NA);
 		var_off+=val;
 	}
 
 	val=tvb_get_ntohs(tvb, AUTHEN_R_DATA_LEN_OFF );
-	proto_tree_add_text( tree, tvb, AUTHEN_R_DATA_LEN_OFF, 2 ,
-				"Data length: %d", val );
+	proto_tree_add_uint(tree, hf_tacplus_body_authen_rep_server_data_len, tvb, AUTHEN_R_DATA_LEN_OFF, 2, val);
 	if( val ){
 		proto_tree_add_text(tree, tvb, var_off, val, "Data" );
 	}
@@ -626,16 +622,14 @@ dissect_tacplus_body_author_req( tvbuff_t* tvb, proto_tree *tree )
 	int val;
 	int var_off;
 
-	val=tvb_get_guint8( tvb, AUTHOR_Q_AUTH_METH_OFF ) ;
-	proto_tree_add_text( tree, tvb, AUTHOR_Q_AUTH_METH_OFF, 1,
-			"Auth Method: %s", val_to_str_const( val, tacplus_authen_method, "Unknown Authen Method" ) );
+	proto_tree_add_item(tree, hf_tacplus_body_author_req_auth_method, tvb, AUTHOR_Q_AUTH_METH_OFF, 1, ENC_NA);
 
-	val=tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
+	val = tvb_get_guint8( tvb, AUTHOR_Q_ARGC_OFF );
 	var_off=proto_tree_add_tacplus_common_fields( tvb, tree ,
 			AUTHOR_Q_PRIV_LVL_OFF,
-			AUTHOR_Q_VARDATA_OFF + val );
+			AUTHOR_Q_VARDATA_OFF + val);
 
-	proto_tree_add_text( tree, tvb, AUTHOR_Q_ARGC_OFF, 1, "Arg count: %d", val );
+	proto_tree_add_item(tree, hf_tacplus_body_author_req_arg_count, tvb, AUTHOR_Q_ARGC_OFF, 1, ENC_NA);
 
 /* var_off points after rem_addr */
 
@@ -646,24 +640,21 @@ static void
 dissect_tacplus_body_author_rep( tvbuff_t* tvb, proto_tree *tree )
 {
 	int offset=AUTHOR_R_VARDATA_OFF;
-	int val=tvb_get_guint8( tvb, AUTHOR_R_STATUS_OFF	) ;
+	int val;
 
-
-	proto_tree_add_text( tree, tvb, AUTHOR_R_STATUS_OFF	, 1,
-			"Auth Status: 0x%01x (%s)", val,
-			val_to_str_const( val, tacplus_author_status, "Unknown Authorization Status" ));
+	proto_tree_add_item(tree, hf_tacplus_body_author_rep_auth_status, tvb, AUTHOR_R_STATUS_OFF, 1, ENC_NA);
 
 	val=tvb_get_ntohs( tvb, AUTHOR_R_SRV_MSG_LEN_OFF );
 	offset+=val;
-	proto_tree_add_text( tree, tvb, AUTHOR_R_SRV_MSG_LEN_OFF, 2, "Server Msg length: %d", val );
+	proto_tree_add_item(tree, hf_tacplus_body_author_rep_server_msg_len, tvb, AUTHOR_R_SRV_MSG_LEN_OFF, 2, ENC_BIG_ENDIAN);
 
 	val=tvb_get_ntohs( tvb, AUTHOR_R_DATA_LEN_OFF );
 	offset+=val;
-	proto_tree_add_text( tree, tvb, AUTHOR_R_DATA_LEN_OFF, 2, "Data length: %d", val );
+	proto_tree_add_item(tree, hf_tacplus_body_author_rep_server_data_len, tvb, AUTHOR_R_DATA_LEN_OFF, 2, ENC_BIG_ENDIAN);
 
 	val=tvb_get_guint8( tvb, AUTHOR_R_ARGC_OFF);
 	offset+=val;
-	proto_tree_add_text( tree, tvb, AUTHOR_R_ARGC_OFF, 1, "Arg count: %d", val );
+	proto_tree_add_item(tree, hf_tacplus_body_author_rep_arg_count, tvb, AUTHOR_R_ARGC_OFF, 1, ENC_NA);
 
 	dissect_tacplus_args_list( tvb, tree, offset, AUTHOR_R_VARDATA_OFF, val );
 }
@@ -684,11 +675,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_stop, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_tacplus_acct_flags_watchdog, tvb, ACCT_Q_FLAGS_OFF, 1, ENC_BIG_ENDIAN);
 
-	val=tvb_get_guint8( tvb, ACCT_Q_METHOD_OFF );
-	proto_tree_add_text( tree, tvb, ACCT_Q_METHOD_OFF, 1,
-			"Authen Method: 0x%01x (%s)",
-			val, val_to_str_const( val, tacplus_authen_method, "Unknown Authen Method" ) );
-
+	proto_tree_add_item(tree, hf_tacplus_acct_authen_method, tvb, ACCT_Q_METHOD_OFF, 1, ENC_BIG_ENDIAN);
 	val=tvb_get_guint8( tvb, ACCT_Q_ARG_CNT_OFF );
 
 	/* authen_type */
@@ -697,8 +684,7 @@ dissect_tacplus_body_acct_req( tvbuff_t* tvb, proto_tree *tree )
 			ACCT_Q_VARDATA_OFF+val
 			);
 
-	proto_tree_add_text( tree, tvb, ACCT_Q_ARG_CNT_OFF, 1,
-			"Arg Cnt: %d", val  );
+	proto_tree_add_item(tree, hf_tacplus_acct_arg_count, tvb, ACCT_Q_ARG_CNT_OFF, 1, ENC_BIG_ENDIAN);
 
 	dissect_tacplus_args_list( tvb, tree, var_off, ACCT_Q_VARDATA_OFF, val );
 
@@ -710,32 +696,22 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 {
 	int val, var_off=ACCT_Q_VARDATA_OFF;
 
-	guint8 *buff=NULL;
-
 	/* Status */
-	val=tvb_get_guint8( tvb, ACCT_R_STATUS_OFF );
-	proto_tree_add_text( tree, tvb, ACCT_R_STATUS_OFF, 1, "Status: 0x%02x (%s)", val,
-				val_to_str_const( val, tacplus_acct_status, "Bogus status..") );
+	proto_tree_add_item(tree, hf_tacplus_body_acct_status, tvb, ACCT_R_STATUS_OFF, 1, ENC_BIG_ENDIAN);
 
 	/* Server Message */
 	val=tvb_get_ntohs( tvb, ACCT_R_SRV_MSG_LEN_OFF );
-	proto_tree_add_text( tree, tvb, ACCT_R_SRV_MSG_LEN_OFF, 2 ,
-				"Server message length: %d", val );
+	proto_tree_add_item(tree, hf_tacplus_body_acct_server_msg_len, tvb, ACCT_R_SRV_MSG_LEN_OFF, 2, ENC_BIG_ENDIAN);
 	if( val ) {
-		buff=tvb_get_ephemeral_string( tvb, var_off, val );
-		proto_tree_add_text( tree, tvb, var_off,
-				val, "Server message: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_body_acct_server_msg, tvb, var_off, val, ENC_ASCII|ENC_NA);
 		var_off+=val;
 	}
 
 	/*  Data */
 	val=tvb_get_ntohs( tvb, ACCT_R_DATA_LEN_OFF );
-	proto_tree_add_text( tree, tvb, ACCT_R_DATA_LEN_OFF, 2 ,
-				"Data length: %d", val );
+	proto_tree_add_item(tree, hf_tacplus_body_acct_data_len, tvb, ACCT_R_DATA_LEN_OFF, 2, ENC_BIG_ENDIAN);
 	if( val ) {
-		buff= tvb_get_ephemeral_string( tvb, var_off, val );
-		proto_tree_add_text( tree, tvb, var_off,
-				val, "Data: %s", buff );
+		proto_tree_add_item(tree, hf_tacplus_body_acct_data, tvb, var_off, val, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -931,18 +907,13 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS+");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		int type = tvb_get_guint8(tvb,1);
-		col_add_fstr( pinfo->cinfo, COL_INFO, "%s: %s",
+	col_add_fstr( pinfo->cinfo, COL_INFO, "%s: %s",
 				request ? "Q" : "R",
-				val_to_str(type, tacplus_type_vals, "Unknown (0x%02x)"));
-	}
+				val_to_str(tvb_get_guint8(tvb,1), tacplus_type_vals, "Unknown (0x%02x)"));
 
 	if (tree)
 	{
-		ti = proto_tree_add_protocol_format(tree, proto_tacplus,
-		 tvb, 0, -1, "TACACS+");
+		ti = proto_tree_add_item(tree, proto_tacplus, tvb, 0, -1, ENC_NA);
 
 		tacplus_tree = proto_item_add_subtree(ti, ett_tacplus);
 		if (pinfo->match_uint == pinfo->destport)
@@ -971,12 +942,9 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		flags = tvb_get_guint8(tvb,3);
 		tf = proto_tree_add_uint_format(tacplus_tree, hf_tacplus_flags,
 		    tvb, 3, 1, flags,
-		    "Flags: 0x%02x (%s payload, %s)",
-			flags,
-		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted" :
-						"Encrypted",
-		    (flags&FLAGS_SINGLE) ? "Single connection" :
-					   "Multiple Connections" );
+		    "Flags: 0x%02x (%s payload, %s)", flags,
+		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted" : "Encrypted",
+		    (flags&FLAGS_SINGLE) ? "Single connection" : "Multiple Connections" );
 		flags_tree = proto_item_add_subtree(tf, ett_tacplus_flags);
 		proto_tree_add_boolean(flags_tree, hf_tacplus_flags_payload_type,
 		    tvb, 3, 1, flags);
@@ -985,13 +953,10 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tacplus_tree, hf_tacplus_session_id, tvb, 4, 4,
 		    ENC_BIG_ENDIAN);
 
-		if ((gint) len < 1) {
-			proto_tree_add_text(tacplus_tree, tvb, 8, 4,
-				"Invalid length: %u", len);
-			THROW(ReportedBoundsError);
+		tmp_pi = proto_tree_add_uint(tacplus_tree, hf_tacplus_packet_len, tvb, 8, 4, len);
+		if ((gint)len < 1) {
+			expert_add_info_format(pinfo, tmp_pi, PI_PROTOCOL, PI_WARN, "Invalid length: %u", len);
 		}
-		proto_tree_add_uint(tacplus_tree, hf_tacplus_packet_len, tvb, 8, 4,
-		    len);
 
 		tmp_pi = proto_tree_add_text(tacplus_tree, tvb, TAC_PLUS_HDR_SIZE, len, "%s%s",
 					((flags&FLAGS_UNENCRYPTED)?"":"Encrypted "), request?"Request":"Reply" );
@@ -1088,7 +1053,183 @@ proto_register_tacplus(void)
 	  { &hf_tacplus_packet_len,
 	    { "Packet length",      "tacplus.packet_len",
 	      FT_UINT32, BASE_DEC, NULL, 0x0,
-	      NULL, HFILL }}
+	      NULL, HFILL }},
+	  { &hf_tacplus_auth_password,
+	    { "Password",           "tacplus.auth_password",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_port,
+	    { "Port",           "tacplus.port",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_remote_address,
+	    { "Remote Address",           "tacplus.remote_address",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_chap_challenge,
+	    { "Challenge",           "tacplus.chap.challenge",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_chap_response,
+	    { "Response",           "tacplus.chap.response",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_mschap_challenge,
+	    { "Challenge",           "tacplus.mschap.challenge",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_mschap_response,
+	    { "Response",           "tacplus.mschap.response",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_arap_nas_challenge,
+	    { "Nas Challenge",           "tacplus.arap.nas_challenge",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_arap_remote_challenge,
+	    { "Remote Challenge",           "tacplus.arap.remote_challenge",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_arap_remote_response,
+	    { "Remote Response",           "tacplus.arap.remote_response",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_privilege_level,
+	    { "Privilege Level",    "tacplus.privilege_level",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_authentication_type,
+	    { "Authentication type",    "tacplus.authentication_type",
+	      FT_UINT8, BASE_DEC, VALS(tacplus_authen_type_vals), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_service,
+	    { "Service",    "tacplus.service",
+	      FT_UINT8, BASE_DEC, VALS(tacplus_authen_service_vals), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_user_len,
+	    { "User len",    "tacplus.user_len",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_user,
+	    { "User",        "tacplus.user",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_port_len,
+	    { "Port len",    "tacplus.port_len",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_remote_address_len,
+	    { "Remaddr len",    "tacplus.address_len",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_arg_length,
+	    { "Length",    "tacplus.arg_length",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_arg_value,
+	    { "Value",           "tacplus.arg_value",
+	      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_chap_id,
+	    { "ID",    "tacplus.chap.id",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_mschap_id,
+	    { "ID",    "tacplus.mschap.id",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_authen_action,
+	    { "Action",    "tacplus.authen_action",
+	      FT_UINT8, BASE_DEC, VALS(tacplus_authen_action_vals), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_req_cont_flags,
+	    { "Flags",    "tacplus.body_authen_req_cont.flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_req_cont_user_length,
+	    { "User length",    "tacplus.body_authen_req_cont.user_length",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_req_cont_data_length,
+	    { "Data length",    "tacplus.body_authen_req_cont.data_length",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_req_cont_user,
+	    { "User",           "tacplus.body_authen_req_cont.user",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_rep_status,
+	    { "Status",    "tacplus.body_authen_rep.status",
+	      FT_UINT8, BASE_HEX, VALS(tacplus_reply_status_vals), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_rep_flags,
+	    { "Flags",    "tacplus.body_authen_rep.flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_rep_server_msg_len,
+	    { "Server message length",    "tacplus.body_authen_rep.server_msg_len",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_rep_server_msg,
+	    { "Server message", "tacplus.body_authen_rep.server_msg",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_authen_rep_server_data_len,
+	    { "Data length",    "tacplus.body_authen_rep_server.data_len",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_author_req_auth_method,
+	    { "Auth Method",    "tacplus.body_author_req.auth_method",
+	      FT_UINT8, BASE_HEX, VALS(tacplus_authen_method), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_author_req_arg_count,
+	    { "Arg count",    "tacplus.body_author_req.arg_count",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_author_rep_auth_status,
+	    { "Auth Status",    "tacplus.body_author_rep.auth_status",
+	      FT_UINT8, BASE_HEX, VALS(tacplus_author_status), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_author_rep_server_msg_len,
+	    { "Server Msg length",    "tacplus.body_author_rep_server.msg_len",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_author_rep_server_data_len,
+	    { "Data length",    "tacplus.body_author_rep_server.data_len",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_author_rep_arg_count,
+	    { "Arg count",    "tacplus.body_author_rep.arg_count",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_acct_authen_method,
+	    { "Auth Method",    "tacplus.acct.auth_method",
+	      FT_UINT8, BASE_HEX, VALS(tacplus_authen_method), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_acct_arg_count,
+	    { "Arg count",    "tacplus.acct.arg_count",
+	      FT_UINT8, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_acct_status,
+	    { "Status",    "tacplus.body_acct.status",
+	      FT_UINT8, BASE_HEX, VALS(tacplus_acct_status), 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_acct_server_msg_len,
+	    { "Server Msg length",    "tacplus.body_acct.msg_len",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_acct_data_len,
+	    { "Data length",    "tacplus.body_acct.data_len",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_acct_server_msg,
+	    { "Server message", "tacplus.body_acct.server_msg",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
+	  { &hf_tacplus_body_acct_data,
+	    { "Data", "tacplus.body_acct.data",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_tacplus,
@@ -1104,7 +1245,7 @@ proto_register_tacplus(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	tacplus_module = prefs_register_protocol (proto_tacplus, tacplus_pref_cb );
 
-        prefs_register_bool_preference(tacplus_module, "desegment", "Reassemble TACACS+ messages spanning multiple TCP segments.", "Whether the TACACS+ dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &tacplus_preference_desegment);
+	prefs_register_bool_preference(tacplus_module, "desegment", "Reassemble TACACS+ messages spanning multiple TCP segments.", "Whether the TACACS+ dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &tacplus_preference_desegment);
 
 	prefs_register_string_preference ( tacplus_module, "key",
 	"TACACS+ Encryption Key", "TACACS+ Encryption Key", &tacplus_opt_key );
