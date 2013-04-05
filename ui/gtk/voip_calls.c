@@ -1594,8 +1594,8 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			list = g_list_next (list);
 		}
 
-	/* add staff to ACTRACE */
-	} else if (actrace_frame_num == q931_frame_num) {
+	/* add stuff to ACTRACE */
+	} else {
 		address pstn_add;
 
 		comment = NULL;
