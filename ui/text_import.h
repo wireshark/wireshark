@@ -38,7 +38,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define IMPORT_MAX_PACKET 64000
+#define IMPORT_MAX_PACKET 65535
 
 /* The parameter interface */
 

@@ -71,8 +71,8 @@
  * hexdump line is dropped (including mail forwarding '>'). The offset
  * can be any hex number of four digits or greater.
  *
- * This converter cannot read a single packet greater than 64K. Packet
- * snaplength is automatically set to 64K.
+ * This converter cannot read a single packet greater than 64KiB-1. Packet
+ * snaplength is automatically set to 64KiB-1.
  */
 
 #include "config.h"
