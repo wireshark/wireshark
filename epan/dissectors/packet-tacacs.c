@@ -409,7 +409,7 @@ dissect_tacplus_args_list( tvbuff_t *tvb, proto_tree *tree, int data_off, int le
 	guint8	buff[257];
 	for(i=0;i<arg_cnt;i++){
 		int len=tvb_get_guint8(tvb,len_off+i);
-		proto_tree_add_int_format(tree, hf_tacplus_arg_length, tvb, len_off+i, 1, len,
+		proto_tree_add_uint_format(tree, hf_tacplus_arg_length, tvb, len_off+i, 1, len,
 									"Arg[%d] length: %d", i, len);
 		tvb_get_nstringz0(tvb, data_off, len+1, buff);
 		proto_tree_add_string_format(tree, hf_tacplus_arg_value, tvb, data_off, len, buff,
