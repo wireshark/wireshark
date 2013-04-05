@@ -1881,7 +1881,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         break;
     case BC_SERVICE_REQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Service Request: PCF=%s ", 
-            tvb_get_ipv4(tvb, 8));
+            tvb_ip_to_str(tvb, offset + 8));
         
         if (tree) {
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1908,7 +1908,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     case BC_SERVICE_REPLY:
        col_add_fstr(pinfo->cinfo, COL_INFO, "Service Response: BSN=%s ",
-            tvb_get_ipv4(tvb, 8));
+            tvb_ip_to_str(tvb, offset + 8));
     
        if (tree) {
            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1938,7 +1938,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        break;
        case BC_REGISTRATION_REQUEST:
            col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Request: BSN=%s ",
-            tvb_get_ipv4(tvb, 8));
+            tvb_ip_to_str(tvb, offset + 8));
        
            if (tree) {
                ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1989,7 +1989,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     case BC_REGISTRATION_REPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Reply:   BSN=%s, Code=%u",
-            tvb_get_ipv4(tvb, 8));
+            tvb_ip_to_str(tvb, offset + 8),
+            tvb_get_guint8(tvb, offset + 1));
 
         if (tree) {
             /* Add Subtree */
@@ -2025,7 +2026,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         break;
     case BC_REGISTRATION_UPDATE:
         col_add_fstr(pinfo->cinfo, COL_INFO,"BC Reg Update:  BSN=%s",
-            tvb_get_ipv4(tvb, 8));
+            tvb_ip_to_str(tvb, offset + 8));
         if (tree) {
             /* Add Subtree */
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -2054,8 +2055,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         break;
     case BC_REGISTRATION_ACK:
         col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Acknowledge:     PCF=%s Status=%u",
-            tvb_get_ipv4(tvb, 8),
-            tvb_get_guint8(tvb,3));
+            tvb_ip_to_str(tvb, offset + 8),
+            tvb_get_guint8(tvb, offset + 3));
         if (tree) {
             /* Add Subtree */
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
