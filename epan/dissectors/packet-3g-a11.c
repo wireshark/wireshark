@@ -132,6 +132,8 @@ static int hf_a11_sub_type = -1;
 static int hf_a11_sub_type_length = -1;
 static int hf_a11_serv_opt = -1;
 static int hf_a11_max_num_serv_opt = -1;
+static int hf_a11_bcmcs_stype = -1;
+static int hf_a11_bcmcs_entry_len = -1;
 
 /* Forward QoS Information */
 static int hf_a11_fqi_srid = -1;
@@ -212,31 +214,46 @@ static gint ett_a11_reverse_rohc = -1;
 static gint ett_a11_forward_profile = -1;
 static gint ett_a11_reverse_profile = -1;
 static gint ett_a11_aut_flow_profile_ids = -1;
+static gint ett_a11_bcmcs_entry = -1;
 
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
 
 typedef enum {
-    REGISTRATION_REQUEST  = 1,
-    REGISTRATION_REPLY    = 3,
-    REGISTRATION_UPDATE   = 20,
-    REGISTRATION_ACK      = 21,
-    SESSION_UPDATE        = 22,
-    SESSION_ACK           = 23,
-    CAPABILITIES_INFO     = 24,
-    CAPABILITIES_INFO_ACK = 25
+    REGISTRATION_REQUEST     = 1,
+    REGISTRATION_REPLY       = 3,
+    REGISTRATION_UPDATE      = 20,
+    REGISTRATION_ACK         = 21,
+    SESSION_UPDATE           = 22,
+    SESSION_ACK              = 23,
+    CAPABILITIES_INFO        = 24,
+    CAPABILITIES_INFO_ACK    = 25,
+    BC_SERVICE_REQUEST       = 0xb0,  /* 3GPP2 A.S0019-A v2.0 */
+    BC_SERVICE_REPLY         = 0xb1,
+    BC_REGISTRATION_REQUEST  = 0xb2,
+    BC_REGISTRATION_REPLY    = 0xb3,
+    BC_REGISTRATION_UPDATE   = 0xb4,
+    BC_REGISTRATION_ACK      = 0xb5
+
 } a11MessageTypes;
 
 static const value_string a11_types[] = {
-    {REGISTRATION_REQUEST,  "Registration Request"},
-    {REGISTRATION_REPLY,    "Registration Reply"},
-    {REGISTRATION_UPDATE,   "Registration Update"},
-    {REGISTRATION_ACK,      "Registration Ack"},
-    {SESSION_UPDATE,        "Session Update"},
-    {SESSION_ACK,           "Session Update Ack"},
-    {CAPABILITIES_INFO,     "Capabilities Info"},
-    {CAPABILITIES_INFO_ACK, "Capabilities Info Ack"},
+    {REGISTRATION_REQUEST,    "Registration Request"},
+    {REGISTRATION_REPLY,      "Registration Reply"},
+    {REGISTRATION_UPDATE,     "Registration Update"},
+    {REGISTRATION_ACK,        "Registration Ack"},
+    {SESSION_UPDATE,          "Session Update"},
+    {SESSION_ACK,             "Session Update Ack"},
+    {CAPABILITIES_INFO,       "Capabilities Info"},
+    {CAPABILITIES_INFO_ACK,   "Capabilities Info Ack"},
+    {BC_SERVICE_REQUEST,  	  "BC Service Request"},
+    {BC_SERVICE_REPLY,        "BC Service Response"},
+    {BC_REGISTRATION_REQUEST, "BC Registration RequestT"},
+    {BC_REGISTRATION_REPLY,   "BC Registration Reply"},
+    {BC_REGISTRATION_UPDATE,  "BC Registration Update"},
+    {BC_REGISTRATION_ACK,     "BC Registration Acknowledge"},
+
     {0, NULL},
 };
 
@@ -274,20 +291,20 @@ static const value_string a11_reply_codes[]= {
     {98, "Reg Deny (FA)(NAI) - Missing Home Agent"},
     {99, "Reg Deny (FA)(NAI) - Missing Home Address"},
 #endif
-    {128, "Reg Deny (HA)- Unspecified"},
-    {129, "Reg Deny (HA)- Administratively Prohibited"},
-    {130, "Reg Deny (HA)- Insufficient Resources"},
-    {131, "Reg Deny (HA)- PCF Failed Authentication"},
+    {128, "Registration Denied - Unspecified"},                                        /* 3GPP2 A.S0017-D v4.0 */
+    {129, "Registration Denied - Administratively Prohibited"},
+    {130, "Registration Denied - Insufficient Resources"},
+    {131, "Registration Denied - PCF Failed Authentication"},
     /* {132, "Reg Deny (HA)- FA Failed Authentication"}, */
-    {133, "Reg Deny (HA)- Identification Mismatch"},
-    {134, "Reg Deny (HA)- Poorly Formed Request"},
+    {133, "Registration Denied - Identification Mismatch"},
+    {134, "Registration Denied - Poorly Formed Request"},
     /* {135, "Reg Deny (HA)- Too Many Simultaneous Bindings"}, */
-    {136, "Reg Deny (HA)- Unknown PDSN Address"},
-    {137, "Reg Deny (HA)- Requested Reverse Tunnel Unavailable"},
-    {138, "Reg Deny (HA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
+    {136, "Registration Denied - Unknown PDSN Address"},
+    {137, "Registration Denied - Requested Reverse Tunnel Unavailable"},
+    {138, "Registration Denied - Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
     {139, "Registration Denied - service option not supported"},
     {140, "Registration Denied - no CID available"},
-    {141, "Reg Deny (HA)- unsupported Vendor ID / Application Type in CVSE"},
+    {141, "Registration Denied - unsupported Vendor ID / Application Type in CVSE"},
     {142, "Registration Denied - nonexistent A10 or IP flow"},
     {0, NULL},
 };
@@ -320,7 +337,8 @@ typedef enum {
     MN_NAI_EXT       = 131,
     MF_CHALLENGE_EXT = 132, /* RFC 3012 */
     OLD_NVSE_EXT     = 133, /* RFC 3115 */
-    NVSE_EXT         = 134  /* RFC 3115 */
+    NVSE_EXT         = 134, /* RFC 3115 */
+	BCMCS_EXT        = 0xb0 /* 3GPP2 A.S0019-A v2.0 */
 } MIP_EXTS;
 
 
@@ -328,15 +346,16 @@ static const value_string a11_ext_types[]= {
     {MH_AUTH_EXT,      "Mobile-Home Authentication Extension"},
     {MF_AUTH_EXT,      "Mobile-Foreign Authentication Extension"},
     {FH_AUTH_EXT,      "Foreign-Home Authentication Extension"},
-    {MN_NAI_EXT,       "Mobile Node NAI Extension"},
     {GEN_AUTH_EXT,     "Generalized Mobile-IP Authentication Extension"},
-    {MF_CHALLENGE_EXT, "MN-FA Challenge Extension"},
+    {OLD_CVSE_EXT,     "Critical Vendor/Organization Specific Extension (OLD)"},
     {CVSE_EXT,         "Critical Vendor/Organization Specific Extension"},
     {SS_EXT,           "Session Specific Extension"},
     {RU_AUTH_EXT,      "Registration Update Authentication Extension"},
-    {OLD_CVSE_EXT,     "Critical Vendor/Organization Specific Extension (OLD)"},
+    {MN_NAI_EXT,       "Mobile Node NAI Extension"},
+    {MF_CHALLENGE_EXT, "MN-FA Challenge Extension"},
     {NVSE_EXT,         "Normal Vendor/Organization Specific Extension"},
     {OLD_NVSE_EXT,     "Normal Vendor/Organization Specific Extension (OLD)"},
+    {BCMCS_EXT,        "BCMCS Session Extension"},
     {0, NULL},
 };
 
@@ -418,6 +437,7 @@ static const value_string a11_ext_app[]= {
     {0x0F01, "Information (Cause Code)"},
     {0x0F04, "Information (Additional HSGW Information)"},
     {0x1001, "HRPD Indicators (Emergency Services)"},
+    {0xB001, "System Identifiers (BSID / HRPD Subnet)"},
     {0, NULL},
 };
 
@@ -430,6 +450,14 @@ static const value_string a11_airlink_types[]= {
 };
 
 static const true_false_string tfs_included_not_included = { "Included", "Not Included" };
+
+static const value_string a11_bcmcs_stype_vals[] = {
+    {1, "BCMCS Flow and Registration Information"},
+    {2, "Session Information"},
+    {3, "BCMCS Registration Result"},
+    {4, "Enhanced Session Information"},
+    {0, NULL},
+};
 
 #define A11_MSG_MSID_ELEM_LEN_MAX 8
 #define A11_MSG_MSID_LEN_MAX 15
@@ -476,12 +504,14 @@ static const value_string a11_rohc_profile_vals[] =
 */
 
 
-/* 3GPP2 A.S0008-C v4.0 */
+/* 3GPP2 A.S0008-C v4.0, 3GPP2 A.S0019-A v2.0 */
 static const value_string a11_ses_msid_type_vals[] =
 {
+    { 0x0000,    "No Identity Code" },
     { 0x0001,    "MEID" },
     { 0x0005,    "ESN" },
     { 0x0006,    "IMSI" },
+    { 0x0008,    "BCMCS Flow ID" },
     { 0, NULL },
 };
 
@@ -617,6 +647,57 @@ decode_sse(proto_tree *ext_tree, tvbuff_t *tvb, int offset, guint ext_len)
     return;
 }
 
+static void
+decode_bcmcs(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
+{
+
+    guint8	bc_stype, entry_len;
+
+	/* Decode Protocol Type */
+    if (ext_len < 2)
+    {
+        proto_tree_add_text(ext_tree, tvb, offset, 0,
+            "Cannot decode Protocol Type - BCMCS too short");
+        return;
+    }
+
+    bc_stype=tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(ext_tree, hf_a11_bcmcs_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    ext_len -= 1;
+
+    switch(bc_stype) {
+	case 1:
+		{
+			int i = 0;
+			proto_item   *ti;
+			proto_tree   *entry_tree;
+			while (ext_len > 0){
+				i++;
+				entry_len = tvb_get_guint8(tvb, offset);
+				if(entry_len == 0){
+					ext_len -= 1;
+					entry_len = 1;
+				}else{
+					ext_len = ext_len - entry_len;
+				}
+				ti = proto_tree_add_text(ext_tree, tvb, offset, entry_len, "BCMCS Information Entry %u", i);
+				entry_tree = proto_item_add_subtree(ti, ett_a11_bcmcs_entry);
+				proto_tree_add_item(entry_tree, hf_a11_bcmcs_entry_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+				proto_tree_add_text(ext_tree, tvb, offset, entry_len -1, "Entry Data, Not dissected yet");
+				offset = offset+entry_len;
+			}
+		}
+		break;
+	default:
+		proto_tree_add_text(ext_tree, tvb, offset, -1, "Session Data Type %u Not dissected yet",bc_stype);
+		return;
+		break;
+	}
+
+
+}
 
 /* RADIUS attributed */
 static void
@@ -1474,6 +1555,11 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
             }
 
             break;
+        case BCMCS_EXT:
+            decode_bcmcs(ext_tree, tvb, offset, ext_len);
+            offset += ext_len;
+            ext_len = 0;
+            break;
         case MF_CHALLENGE_EXT:  /* RFC 3012 */
             /* The default dissector is good here.  The challenge is all hex anyway. */
         default:
@@ -1793,6 +1879,215 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         } /* if tree */
         break;
+    case BC_SERVICE_REQUEST:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Service Request: PCF=%s ", 
+            tvb_get_ipv4(tvb, 8));
+        
+        if (tree) {
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        
+            /* type */
+            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+            offset+=4;
+        
+            /* home address */
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            offset += 4;
+        
+            /* Care-of-Address */
+            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+            offset += 4;
+        
+            /* Identifier - assumed to be an NTP time here */
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+            offset += 8;
+        
+        } /* if tree */
+        break;
+
+    case BC_SERVICE_REPLY:
+       col_add_fstr(pinfo->cinfo, COL_INFO, "Service Response: BSN=%s ",
+            tvb_get_ipv4(tvb, 8));
+    
+       if (tree) {
+           ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+           a11_tree = proto_item_add_subtree(ti, ett_a11);
+    
+           /* type */
+           proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+           offset+=3;
+    
+           /* Reply Code */
+           proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, FALSE);
+           offset++;
+           
+           /* home address */
+           proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+           offset += 4;
+    
+           /* Home Agent */
+           proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+           offset += 4;
+    
+           /* Identifier - assumed to be an NTP time here */
+           proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+           offset += 8;
+    
+       } /* if tree */
+       break;
+       case BC_REGISTRATION_REQUEST:
+           col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Request: BSN=%s ",
+            tvb_get_ipv4(tvb, 8));
+       
+           if (tree) {
+               ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+               a11_tree = proto_item_add_subtree(ti, ett_a11);
+       
+               /* type */
+               proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+               offset+=1;
+       
+               /* flags */
+               flags = tvb_get_guint8(tvb, offset);
+               tf = proto_tree_add_uint(a11_tree, hf_a11_flags, tvb,
+                                        offset, 1, flags);
+               flags_tree = proto_item_add_subtree(tf, ett_a11_flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_s, tvb, offset, 1, flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_b, tvb, offset, 1, flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_d, tvb, offset, 1, flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_m, tvb, offset, 1, flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_g, tvb, offset, 1, flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_v, tvb, offset, 1, flags);
+               proto_tree_add_boolean(flags_tree, hf_a11_t, tvb, offset, 1, flags);
+               offset++;
+       
+               /* lifetime */
+               proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, FALSE);
+               offset +=2;
+               
+               /* home address */
+               proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+               offset += 4;
+       
+               /* Home Agent */
+               proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+               offset += 4;
+                           
+               /* Care-of-Address */
+               proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+               offset += 4;
+               
+               /* Identifier - assumed to be an NTP time here */
+               proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+
+               offset += 8;
+       
+           } /* if tree */
+           break;
+
+
+    case BC_REGISTRATION_REPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Reply:   BSN=%s, Code=%u",
+            tvb_get_ipv4(tvb, 8));
+
+        if (tree) {
+            /* Add Subtree */
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            a11_tree = proto_item_add_subtree(ti, ett_a11);
+
+            /* Type */
+            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+            offset++;
+
+            /* Reply Code */
+            proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* Registration Lifetime */
+            proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Home address */
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Home Agent */
+            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Identifier - assumed to be an NTP time here */
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+
+            offset += 8;
+        } /* if tree */
+
+        break;
+    case BC_REGISTRATION_UPDATE:
+        col_add_fstr(pinfo->cinfo, COL_INFO,"BC Reg Update:  BSN=%s",
+            tvb_get_ipv4(tvb, 8));
+        if (tree) {
+            /* Add Subtree */
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            a11_tree = proto_item_add_subtree(ti, ett_a11);
+
+            /* Type */
+            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+            offset++;
+
+            /* Reserved */
+            offset+=3;
+
+            /* Home address */
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Home Agent */
+            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Identifier - assumed to be an NTP time here */
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+            offset += 8;
+
+        } /* if tree */
+        break;
+    case BC_REGISTRATION_ACK:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Acknowledge:     PCF=%s Status=%u",
+            tvb_get_ipv4(tvb, 8),
+            tvb_get_guint8(tvb,3));
+        if (tree) {
+            /* Add Subtree */
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            a11_tree = proto_item_add_subtree(ti, ett_a11);
+
+            /* Type */
+            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+            offset++;
+
+            /* Reserved */
+            offset+=2;
+
+            /* Ack Status */
+            proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, FALSE);
+            offset++;
+
+            /* Home address */
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Care-of-Address */
+            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Identifier - assumed to be an NTP time here */
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+
+            offset += 8;
+
+        } /* if tree */
+        break;
+
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
         break;
@@ -2408,6 +2703,17 @@ proto_register_a11(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_a11_bcmcs_stype,
+          { "Protocol Type",                      "a11.ext.bcmcs.ptype",
+            FT_UINT8, BASE_HEX, VALS(a11_bcmcs_stype_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_a11_bcmcs_entry_len,
+          { "Entry length",                      "a11.ext.bcmcs.entry_len",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+
     };
 
     /* Setup protocol subtree array */
@@ -2438,6 +2744,7 @@ proto_register_a11(void)
         &ett_a11_forward_profile,
         &ett_a11_reverse_profile,
         &ett_a11_aut_flow_profile_ids,
+		&ett_a11_bcmcs_entry,
     };
 
     /* Register the protocol name and description */
