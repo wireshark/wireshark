@@ -489,45 +489,45 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 		case TAC_PLUS_AUTHEN_TYPE_CHAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "CHAP Data Length %d", val );
 			if( val ) {
-				proto_item	*pi;
-				proto_tree  *pt;
+				proto_item *pi;
+				proto_tree *pt;
 				guint8 chal_len=val-(1+16); /* Response field alwayes 16 octets */
 				pi = proto_tree_add_text(tree, tvb, var_off, val, "CHAP Data" );
 				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
-				proto_tree_add_item(tree, hf_tacplus_chap_id, tvb, var_off, 1, ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_NA);
 				var_off++;
-				proto_tree_add_item(tree, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
 				var_off+=chal_len;
-				proto_tree_add_item(tree, hf_tacplus_chap_response, tvb, var_off, 16, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_chap_response, tvb, var_off, 16, ENC_ASCII|ENC_NA);
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_MSCHAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "MSCHAP Data Length %d", val );
 			if( val ) {
-				proto_item	*pi;
-				proto_tree  *pt;
+				proto_item *pi;
+				proto_tree *pt;
 				guint8 chal_len=val-(1+49);  /* Response field alwayes 49 octets */
 				pi = proto_tree_add_text(tree, tvb, var_off, val, "MSCHAP Data" );
 				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
-				proto_tree_add_item(tree, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_NA);
 				var_off++;
-				proto_tree_add_item(tree, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
 				var_off+=chal_len;
-				proto_tree_add_item(tree, hf_tacplus_mschap_response, tvb, var_off, 49, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_mschap_response, tvb, var_off, 49, ENC_ASCII|ENC_NA);
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_ARAP:
 			proto_tree_add_text( tree, tvb, AUTHEN_S_DATA_LEN_OFF, 1, "ARAP Data Length %d", val );
 			if( val ) {
-				proto_item	*pi;
-				proto_tree  *pt;
+				proto_item *pi;
+				proto_tree *pt;
 				pi = proto_tree_add_text(tree, tvb, var_off, val, "ARAP Data" );
 				pt = proto_item_add_subtree( pi, ett_tacplus_body_chap );
-				proto_tree_add_item(tree, hf_tacplus_arap_nas_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_arap_nas_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 				var_off+=8;
-				proto_tree_add_item(tree, hf_tacplus_arap_remote_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_arap_remote_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 				var_off+=8;
-				proto_tree_add_item(tree, hf_tacplus_arap_remote_response, tvb, var_off, 8, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_arap_remote_response, tvb, var_off, 8, ENC_ASCII|ENC_NA);
 			}
 			break;
 
