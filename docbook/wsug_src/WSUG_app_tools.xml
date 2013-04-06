@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.9.0 (SVN Rev 47047 from /trunk)
+TShark 1.9.3 (SVN Rev 48755 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -64,7 +64,8 @@ Input file:
 
 Processing:
   -2                       perform a two-pass analysis
-  -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
+  -R &lt;read filter&gt;         packet Read filter in Wireshark display filter syntax
+  -Y &lt;display filter&gt;      packet displaY filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
   -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
   -d &lt;layer_type&gt;==&lt;selector&gt;,&lt;decode_as_protocol&gt; ...
@@ -81,7 +82,7 @@ Output:
   -V                       add output of packet tree        (Packet Details)
   -O &lt;protocols&gt;           Only show packet details of these protocols, comma
                            separated
-  -P                       print packets even when writing to a file
+  -P                       print packet summary even when writing to a file
   -S &lt;separator&gt;           the line separator to print between packets
   -x                       add output of hex and ASCII dump (Packet Bytes)
   -T pdml|ps|psml|text|fields
@@ -177,7 +178,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.9.0 (SVN Rev 47047 from /trunk)
+Dumpcap 1.9.3 (SVN Rev 48755 from /trunk)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -223,6 +224,8 @@ Output (files):
   -P                       use libpcap format instead of pcapng
 
 Miscellaneous:
+  -N &lt;packet_limit&gt;        maximum number of packets buffered within dumpcap
+  -C &lt;byte_limit&gt;          maximum number of bytes used for buffering packets within dumpcap
   -t                       use a separate thread per interface
   -q                       don't report packet capture counts
   -v                       print version information and exit
@@ -249,7 +252,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.9.0 (SVN Rev 47047 from /trunk)
+Capinfos 1.9.3 (SVN Rev 48755 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -282,6 +285,7 @@ Statistic infos:
 Output format:
   -L generate long report (default)
   -T generate table report
+  -M display machine-readable values in long reports
 
 Table report options:
   -R generate header record (default)
@@ -321,7 +325,7 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.9.0 (SVN Rev 47047 from /trunk)
+Rawshark 1.9.3 (SVN Rev 48755 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -375,7 +379,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.9.0 (SVN Rev 47047 from /trunk)
+Editcap 1.9.3 (SVN Rev 48755 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -717,7 +721,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.9.0 (SVN Rev 47047 from /trunk)
+Mergecap 1.9.3 (SVN Rev 48755 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -728,7 +732,7 @@ Output:
                     default is to merge based on frame timestamps.
   -s &lt;snaplen&gt;      truncate packets to &lt;snaplen&gt; bytes of data.
   -w &lt;outfile&gt;|-    set the output filename to &lt;outfile&gt; or '-' for stdout.
-  -F &lt;capture type&gt; set the output file type; default is libpcap.
+  -F &lt;capture type&gt; set the output file type; default is pcapng.
                     an empty "-F" option will list the file types.
   -T &lt;encap type&gt;   set the output file encapsulation type;
                     default is the same as the first input file.
@@ -821,7 +825,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.9.0 (SVN Rev 47047 from /trunk)
+Text2pcap 1.9.3 (SVN Rev 48755 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -847,20 +851,20 @@ Input:
                          indicating that the packet is inbound or outbound.
                          This is only stored if the output format is PCAP-NG.
   -a                     enable ASCII text dump identification.
-                         It allows to identify the start of the ASCII text
-                         dump and not include it in the packet even if it
-                         looks like HEX dump.
+                         The start of the ASCII text dump can be identified
+                         and excluded from the packet data, even if it looks
+                         like a HEX dump.
                          NOTE: Do not enable it if the input file does not
                          contain the ASCII text dump.
 
 Output:
-  -l &lt;typenum&gt;           link-layer type number; default is 1 (Ethernet).
-                         See the file net/bpf.h for list of numbers.
-                         Use this option if your dump is a complete hex dump
-                         of an encapsulated packet and you wish to specify
-                         the exact type of encapsulation.
+  -l &lt;typenum&gt;           link-layer type number; default is 1 (Ethernet).  See
+                         http://www.tcpdump.org/linktypes.html for a list of
+                         numbers.  Use this option if your dump is a complete
+                         hex dump of an encapsulated packet and you wish to
+                         specify the exact type of encapsulation.
                          Example: -l 7 for ARCNet packets.
-  -m &lt;max-packet&gt;        max packet length in output; default is 64000
+  -m &lt;max-packet&gt;        max packet length in output; default is 65535
 
 Prepend dummy header:
   -e &lt;l3pid&gt;             prepend dummy Ethernet II header with specified L3PID
@@ -871,16 +875,16 @@ Prepend dummy header:
                          Automatically prepends Ethernet header as well.
                          Example: -i 46
   -u &lt;srcp&gt;,&lt;destp&gt;      prepend dummy UDP header with specified
-                         dest and source ports (in DECIMAL).
+                         source and destination ports (in DECIMAL).
                          Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -u 1000,69 to make the packets look like
                          TFTP/UDP packets.
   -T &lt;srcp&gt;,&lt;destp&gt;      prepend dummy TCP header with specified
-                         dest and source ports (in DECIMAL).
+                         source and destination ports (in DECIMAL).
                          Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -T 50,60
   -s &lt;srcp&gt;,&lt;dstp&gt;,&lt;tag&gt; prepend dummy SCTP header with specified
-                         dest/source ports and verification tag (in DECIMAL).
+                         source/dest ports and verification tag (in DECIMAL).
                          Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -s 30,40,34
   -S &lt;srcp&gt;,&lt;dstp&gt;,&lt;ppi&gt; prepend dummy SCTP header with specified
@@ -892,7 +896,7 @@ Prepend dummy header:
 Miscellaneous:
   -h                     display this help and exit.
   -d                     show detailed debug of parser states.
-  -q                     generate no output at all (automatically turns off -d).
+  -q                     generate no output at all (automatically disables -d).
   -n                     use PCAP-NG instead of PCAP as output format.
       </programlisting>
     </example>
