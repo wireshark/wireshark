@@ -192,7 +192,7 @@ AC_SYS_LARGEFILE
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
-# LGPLv2.1+ in versions 3.0.29 and 3.1.10
+# LGPLv2.1+ in version 3.1.10
 tls_message="no"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
@@ -203,12 +203,6 @@ if test "x$with_gnutls" = "xyes"; then
   PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 3.1.10 ],
     [ have_license_compatible_gnutls="yes" ], [ echo "GnuTLS >= 3.1.10 not found " ]
   )
-
-  if test "x$have_license_compatible_gnutls" != "xyes"; then
-    PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 3.0.29 gnutls < 3.1 ],
-      [ have_license_compatible_gnutls="yes" ], [ echo "GnuTLS >= 3.0.29 not found " ]
-    )
-  fi
 
   if test "x$have_license_compatible_gnutls" != "xyes"; then
     PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0 gnutls < 3],
