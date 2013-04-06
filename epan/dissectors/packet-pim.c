@@ -862,7 +862,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree *flag_tree = NULL;
         proto_item *tiflag;
 
-        tiflag = proto_tree_add_item(flag_tree, hf_pim_register_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
+        tiflag = proto_tree_add_item(pimopt_tree, hf_pim_register_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
         flag_tree = proto_item_add_subtree(tiflag, ett_pim);
         proto_tree_add_item(flag_tree, hf_pim_register_flag_border, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(flag_tree, hf_pim_register_flag_null_register, tvb, offset, 4, ENC_BIG_ENDIAN);
