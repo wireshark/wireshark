@@ -958,7 +958,7 @@ l2_done:
 				if (len < 6)
 					return;
 				offset += 1;
-				len -= 1;
+				/*len -= 1;*/
 				organization_code = tvb_get_ntoh24(tvb, offset);
 				proto_tree_add_text(tree, tvb, offset, 3,
 				    "Organization Code: 0x%06X (%s)",
@@ -966,7 +966,7 @@ l2_done:
 				    val_to_str_const(organization_code, oui_vals,
 				        "Unknown"));
 				offset += 3;
-				len -= 3;
+				/*len -= 3;*/
 
 				pid = tvb_get_ntohs(tvb, offset);
 				switch (organization_code) {
