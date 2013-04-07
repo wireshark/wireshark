@@ -935,6 +935,7 @@ DISSECTOR_SRC = \
 	packet-pptp.c		\
 	packet-prp.c		\
 	packet-ptp.c		\
+	packet-pulse.c		\
 	packet-pvfs2.c		\
 	packet-pw-atm.c		\
 	packet-pw-cesopsn.c	\
