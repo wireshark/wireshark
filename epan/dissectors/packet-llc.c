@@ -605,7 +605,6 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	case OUI_HP_2:
 		oui_info = get_snap_oui_info(oui);
 		hf = *oui_info->field_info->p_id;
-		subdissector_table = oui_info->table;
 		proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2, etype);
 		next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 
