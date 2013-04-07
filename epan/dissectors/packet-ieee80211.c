@@ -801,13 +801,6 @@ static const value_string tag_num_vals[] = {
 };
 static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 
-#define WPA_OUI     (const guint8 *) "\x00\x50\xF2"
-#define RSN_OUI     (const guint8 *) "\x00\x0F\xAC"
-#define WME_OUI     (const guint8 *) "\x00\x50\xF2"
-#define PRE_11N_OUI (const guint8 *) "\x00\x90\x4c" /* 802.11n pre 1 oui */
-#define WFA_OUI     (const guint8 *) "\x50\x6f\x9a"
-#define WAPI_OUI    (const guint8 *) "\x00\x14\x72"
-
 /* WFA vendor specific subtypes */
 #define WFA_SUBTYPE_P2P 9
 
@@ -7345,7 +7338,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
       proto_tree_add_item(wpa_mcs_tree, hf_ieee80211_wfa_ie_wpa_mcs_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
       /* Check if OUI is 00:50:F2 (WFA) */
-      if (tvb_get_ntoh24(tvb, offset) == 0x0050F2)
+      if (tvb_get_ntoh24(tvb, offset) == OUI_WPAWME)
       {
         proto_tree_add_item(wpa_mcs_tree, hf_ieee80211_wfa_ie_wpa_mcs_wfa_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
       } else {
@@ -7367,7 +7360,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
         proto_tree_add_item(wpa_sub_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
         /* Check if OUI is 00:50:F2 (WFA) */
-        if (tvb_get_ntoh24(tvb, offset) == 0x0050F2)
+        if (tvb_get_ntoh24(tvb, offset) == OUI_WPAWME)
         {
           proto_tree_add_item(wpa_sub_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs_wfa_type, tvb, offset+3, 1, ENC_BIG_ENDIAN);
           proto_item_append_text(wpa_ucs_item, " %s", wpa_ucs_return(tvb_get_ntohl(tvb, offset)));
@@ -7391,7 +7384,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
         proto_tree_add_item(wpa_sub_akms_tree, hf_ieee80211_wfa_ie_wpa_akms_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
         /* Check if OUI is 00:50:F2 (WFA) */
-        if (tvb_get_ntoh24(tvb, offset) == 0x0050F2)
+        if (tvb_get_ntoh24(tvb, offset) == OUI_WPAWME)
         {
           proto_tree_add_item(wpa_sub_akms_tree, hf_ieee80211_wfa_ie_wpa_akms_wfa_type, tvb, offset+3, 1, ENC_BIG_ENDIAN);
           proto_item_append_text(wpa_akms_item, " %s", wpa_akms_return(tvb_get_ntohl(tvb, offset)));
@@ -7912,7 +7905,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     /* Check if OUI is 00:0F:AC (ieee80211) */
-  if (tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+  if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
   {
     proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_80211_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
   } else {
@@ -7941,7 +7934,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     /* Check if OUI is 00:0F:AC (ieee80211) */
-    if (tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+    if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
     {
       proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, ENC_BIG_ENDIAN);
       proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));
@@ -7977,7 +7970,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     /* Check if OUI is 00:0F:AC (ieee80211) */
-    if (tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+    if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
     {
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, ENC_BIG_ENDIAN);
       proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
@@ -8032,7 +8025,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   rsn_gmcs_tree = proto_item_add_subtree(rsn_gmcs_item, ett_rsn_gmcs_tree);
   proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
   /* Check if OUI is 00:0F:AC (ieee80211) */
-  if (tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+  if (tvb_get_ntoh24(tvb, offset) == OUI_RSN)
   {
     proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_80211_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
   } else {
@@ -11323,16 +11316,13 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
       switch (oui) {
         /* 802.11 specific vendor ids */
-#       define WPAWME_OUI  0x0050F2
-#       define RSNOUI_VAL  0x000FAC
-#       define PRE11N_OUI  0x00904c
-        case WPAWME_OUI:
+        case OUI_WPAWME:
           offset = dissect_vendor_ie_wpawme(tree, tvb, offset, tag_vs_len, ftype);
           break;
-        case RSNOUI_VAL:
+        case OUI_RSN:
           dissect_vendor_ie_rsn(ti, tree, tvb, offset, tag_vs_len);
           break;
-        case PRE11N_OUI:
+        case OUI_PRE11N:
           dissect_vendor_ie_ht(tvb, pinfo, tree, offset, ti, ti_len, tag_vs_len);
           break;
         case OUI_WFA:

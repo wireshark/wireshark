@@ -80,9 +80,26 @@
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
 
+#define OUI_WPAWME          0x0050F2    /* Wi-Fi : WPA / WME */
+#define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
+#define OUI_PRE11N          0x00904C    /* Wi-Fi : 802.11 Pre-N */
+
 /*
  * Defined in packet-llc.c
  */
 extern const value_string oui_vals[];
 
 #endif
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
