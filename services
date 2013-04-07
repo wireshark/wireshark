@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-03-15
+# 2013-04-05
 # 
 # Expert(s)
 # 
@@ -6899,7 +6899,9 @@ hbci	3000/tcp	# HBCI                         [Kurt_Haubner]                     
 hbci	3000/udp	# HBCI                         [Kurt_Haubner]                                     [Kurt_Haubner]
 remoteware-cl	3000/tcp	# RemoteWare Client            [Tim_Farley]                                       [Tim_Farley]                                                                                                                             This entry records an unassigned but widespread use
 remoteware-cl	3000/udp	# RemoteWare Client            [Tim_Farley]                                       [Tim_Farley]                                                                                                                             This entry records an unassigned but widespread use
-# 3001               Unassigned                                                                                                                                             2006-05-25
+origo-native	3001/tcp	# OrigoDB Server Native        [Devrex_Labs]                                      [Robert_Friberg]                                                       2013-03-29                                                        port 3001 previously "Removed on 2006-05-25"
+# Interface
+# 3001        udp    Reserved                                                                                                                                               2013-03-29                                                        port 3001 previously "Removed on 2006-05-25"
 exlm-agent	3002/tcp	# EXLM Agent                   [Randy_Martin]                                     [Randy_Martin]
 exlm-agent	3002/udp	# EXLM Agent                   [Randy_Martin]                                     [Randy_Martin]
 remoteware-srv	3002/tcp	# RemoteWare Server            [Tim_Farley]                                       [Tim_Farley]                                                                                                                             This entry records an unassigned but widespread use
@@ -7322,11 +7324,11 @@ d2000webserver	3120/tcp	# D2000 Webserver Port         [Tomas_Rajcan]           
 d2000webserver	3120/udp	# D2000 Webserver Port         [Tomas_Rajcan]                                     [Tomas_Rajcan]
 # The pacemaker remote
 # (pcmk-remote) service
-pcmk-remote	3121/tcp	# extends high availability    [David_Vossel]                                     [Andrew_Beekhof]                                          2013-03-15                                                                     port 3121 previously noted "Removed on 2003-09-17"
+pcmk-remote	3121/tcp	# extends high availability    [David_Vossel]                                     [Andrew_Beekhof]                                                       2013-03-15                                                        port 3121 previously noted "Removed on 2003-09-17"
 # functionality outside of the
 # Linux cluster into remote
 # nodes.
-# 3121        udp    Reserved                                                                                                                                                                                                                 port 3121 previously noted "Removed on 2003-09-17"
+# 3121        udp    Reserved                                                                                                                                               2013-03-15                                                        port 3121 previously noted "Removed on 2003-09-17"
 vtr-emulator	3122/tcp	# MTI VTR Emulator port        [John_Mertus]                                      [John_Mertus]
 vtr-emulator	3122/udp	# MTI VTR Emulator port        [John_Mertus]                                      [John_Mertus]
 edix	3123/tcp	# EDI Translation Protocol     [William_Randolph_Roy]                             [William_Randolph_Roy]
@@ -9932,7 +9934,14 @@ pscl-mgt	4312/tcp	# Parascale Membership Manager [John_Muth]                    
 # 4312        udp    Reserved
 perrla	4313/tcp	# PERRLA User Services         [Cliff_Batson]                                     [Cliff_Batson]                                            2010-01-21
 # 4313        udp    Reserved
-# 4314-4319            Unassigned
+choiceview-agt	4314/tcp	# ChoiceView Agent             [Radish_Systems]                                   [Richard_A_Davis]                                         2013-03-28
+# 4314        udp    Reserved
+# Unauthorized
+# 4315               Unassigned                                                                                                                                                                                                 Use Known on
+# port 4315
+choiceview-clt	4316/tcp	# ChoiceView Client            [Radish_Systems]                                   [Richard_A_Davis]                                         2013-03-28
+# 4316        udp    Reserved
+# 4317-4319            Unassigned
 fdt-rcatp	4320/tcp	# FDT Remote Categorization    [Russell_P_Holsclaw]                               [Russell_P_Holsclaw]                                      2006-03
 # Protocol
 fdt-rcatp	4320/udp	# FDT Remote Categorization    [Russell_P_Holsclaw]                               [Russell_P_Holsclaw]                                      2006-03
@@ -10937,7 +10946,10 @@ emb-proj-cmd	5116/udp	# EPSON Projecter Image        [SEIKO_EPSON_4]            
 # Transfer
 gradecam	5117/tcp	# GradeCam Image Processing    [Robert_Porter]                                    [Robert_Porter]                                           2009-09-24
 # 5117        udp    Reserved
-# 5118-5132            Unassigned
+# 5118-5119            Unassigned
+barracuda-bbs	5120/tcp	# Barracuda Backup Protocol    [Barracuda_Networks]                               [Andrew_Blyler]                                           2013-04-05
+barracuda-bbs	5120/udp	# Barracuda Backup Protocol    [Barracuda_Networks]                               [Andrew_Blyler]                                           2013-04-05
+# 5121-5132            Unassigned
 nbt-pc	5133/tcp	# Policy Commander             [Emily_Harris]                                     [Emily_Harris]                                            2004-11
 nbt-pc	5133/udp	# Policy Commander             [Emily_Harris]                                     [Emily_Harris]                                            2004-11
 ppactivation	5134/tcp	# PP ActivationServer          [Ian_Bradley]                                      [Ian_Bradley]                                             2009-10-14
@@ -11843,8 +11855,7 @@ p25cai	6082/udp	# Interface - UDP              [APCO_Project]                   
 # 6083        tcp    Reserved
 miami-bcast	6083/udp	# telecomsoftware miami        [Peter_Steiner]                                    [Peter_Steiner]                                           2011-02-22
 # broadcast
-p2p-sip	6084/tcp	# Peer to Peer Infrastructure  [Cullen_Jennings]                                  [Cullen_Jennings]                                         2009-01-29
-# Protocol
+reload-config	6084/tcp	# Peer to Peer Infrastructure  [IESG]                                             [IETF_Chair]                                              2009-01-29   2013-03-26   [RFC-ietf-p2psip-base-26]
 # 6084        udp    Reserved
 konspire2b	6085/tcp	# konspire2b p2p network       [Jason_Rohrer]                                     [Jason_Rohrer]                                            2002-10
 konspire2b	6085/udp	# konspire2b p2p network       [Jason_Rohrer]                                     [Jason_Rohrer]                                            2002-10
@@ -13545,9 +13556,15 @@ canon-bjnp4	8614/udp	# Canon BJNP Port 4            [Atsushi_Nakamura]          
 imink	8615/tcp	# Imink Service Control        [Canon_Inc]                                        [KEN_ICHI_FUJII]                                          2011-10-10
 # 8615        udp    Reserved
 # Unauthorized
-# 8616-8674            Unassigned                                                                                                                                                                                                 Use Known on
+# 8616-8664            Unassigned                                                                                                                                                                                                 Use Known on
 # ports 8616
 # and 8617
+monetra	8665/tcp	# Monetra                      [Main_Street_Softworks]                            [Brad_House]                                              2013-04-02
+# 8665        udp    Reserved
+monetra-admin	8666/tcp	# Monetra Administrative       [Main_Street_Softworks]                            [Brad_House]                                              2013-04-02
+# Access
+# 8666        udp    Reserved
+# 8667-8674            Unassigned
 # Motorola Solutions Customer
 msi-cps-rm	8675/tcp	# Programming Software for     [Motorola_Solutions_Inc]                           [Jenish_Amin]                                             2012-03-14
 # Radio Management
@@ -14366,7 +14383,10 @@ irisa	11000/tcp	# IRISA                        [V_A_Brauner]                    
 irisa	11000/udp	# IRISA                        [V_A_Brauner]                                      [V_A_Brauner]
 metasys	11001/tcp	# Metasys                      [Tobin_Schuster]                                   [Tobin_Schuster]
 metasys	11001/udp	# Metasys                      [Tobin_Schuster]                                   [Tobin_Schuster]
-# 11002-11103           Unassigned
+# 11002              Unassigned
+origo-sync	11103/tcp	# OrigoDB Server Sync          [Devrex_Labs]                                      [Robert_Friberg]                                          2013-03-29
+# Interface
+# 11103       udp    Reserved
 netapp-icmgmt	11104/tcp	# NetApp Intercluster          [Craig_Everhart]                                   [Craig_Everhart]                                          2010-07-06
 # Management
 # 11104       udp    Reserved
@@ -14566,7 +14586,11 @@ italk	12345/udp	# Italk Chat System            [Takayuki_Ito]                   
 # 12346-12752           Unassigned
 tsaf	12753/tcp	# tsaf port                    [Andreas_Fehr]                                     [Andreas_Fehr]
 tsaf	12753/udp	# tsaf port                    [Andreas_Fehr]                                     [Andreas_Fehr]
-# 12754-13159           Unassigned
+# 12754-12864           Unassigned
+netperf	12865/tcp	# control port for the netperf [netperf.org]                                      [rick_jones]                                              2013-04-05
+# benchmark
+# 12865       udp    Reserved
+# 12866-13159           Unassigned
 i-zipqd	13160/tcp	# I-ZIPQD                      [Chuck_Runquist]                                   [Chuck_Runquist]
 i-zipqd	13160/udp	# I-ZIPQD                      [Chuck_Runquist]                                   [Chuck_Runquist]
 # 13161-13215           Unassigned
@@ -15552,7 +15576,10 @@ profinet-cm	34964/udp	# PROFInet Context Manager     [Peter_Wenzel]             
 # 34965-34979           Unassigned
 ethercat	34980/tcp	# EtherCAT Port                [Martin_Rostan]                                    [Martin_Rostan]                                           2003-11
 ethercat	34980/udp	# EhterCAT Port                [Martin_Rostan]                                    [Martin_Rostan]                                           2003-11
-# 34981-35353           Unassigned
+# 34981-34999           Unassigned
+heathview	35000/tcp	# HeathView                    [Heathwest_Systems_Limited]                        [Andrew_Porrer]                                           2013-03-21
+# 35000       udp    Reserved
+# 35001-35353           Unassigned
 kitim	35354/tcp	# KIT Messenger                [Rudi_Visser]                                      [Rudi_Visser]                                             2011-07-07
 # 35354       udp    Reserved
 altova-lm	35355/tcp	# Altova License Management    [Alexander_Falk_2]                                 [Alexander_Falk_2]                                        2011-07-07
@@ -16416,6 +16443,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # ii-konane                             Instant Interactive Konane   [Ricky_Sharp]                                      [Ricky_Sharp]                                                                                                                            Defined TXT keys: None
 # ilynx                                 iLynX                        [iOS_Software]                                     [iOS_Software]                                                                                                                           Defined TXT keys: None
 # imidi                                 iMidi                        [Robert_Grant]                                     [Robert_Grant]                                                                                                                           Defined TXT keys: None
+# imgsync                        tcp    Protocol synchronizing Image [Canon_Inc_2]                                      [Kazuo_Moritomo]                                          2013-03-28                                                                     Defined TXT keys: srvver, mf, md, mn, tid, srv, sid, myhwa,
+# data                                                                                                                                                                                                                     imglist, devAid, serAid, vever
 # ims-ni                         tcp    Noise Inspector              [IMS_merilni_sistemi]                              [Metod_Celestina]                                         2012-08-24                                                                     Defined TXT keys: SN (serial number), SVER (software
 # version), HVER (hardware version), PVER (protocol version))
 # indigo-dvr                            Indigo Security Digital      [Haram_Lee]                                        [Haram_Lee]                                                                                                                              Defined TXT keys: Proprietary
@@ -17383,6 +17412,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andrew_Aksyonoff]                                        Andrew Aksyonoff                                mailto:shodan&sphinxsearch.com                                2009-10-20
 # [Andrew_Andrews]                                          Andrew Andrews                                  mailto:Andrew.Andrews&nsius.com                               2011-09-01
 # [Andrew_Beekhof ]                                         Andrew Beekhof                                  mailto:andrew&beekhof.net                                     2013-03-15
+# [Andrew_Blyler]                                           Andrew Blyler             Barracuda Networks    mailto:ablyler&barracuda.com                                  2013-04-05
 # [Andrew_Borisov]                                          Andrew Borisov                                  mailto:hdr&chat.ru
 # [Andrew_Chernow]                                          Andrew Chernow                                  mailto:andrew&esilo.com                                       2007-01
 # [Andrew_Crockford]                                        Andrew Crockford                                mailto:andrew.crockford&modus-interactive.co.uk
@@ -17396,6 +17426,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andrew_Mather]                                           Andrew Mather                                   mailto:info&balaena.com                                       2008-02-14
 # [Andrew_Morgan]                                           Andrew Morgan                                   mailto:andrew.morgan&sun.com                                  2009-12-08
 # [Andrew_Mossberg]                                         Andrew Mossberg                                 mailto:amossberg&asoki.net
+# [Andrew_Porrer]                                           Andrew Porrer             Heathwest Systems     mailto:Andrew.Porrer&heathwest.com                            2013-03-21
+# Limited
 # [Andrew_Schultz]                                          Andrew Schultz                                  mailto:aschultz&strykercom.com                                2003-08
 # [Andrew_Sharpe]                                           Andrew Sharpe                                   mailto:help&smartsims.com
 # [Andrew_Shire]                                            Andrew Shire                                    mailto:sndrewsh&sco.com
@@ -17535,6 +17567,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Barend_Jacobus_van_d]                                    Barend Jacobus van der                          mailto:berneau.v&gmail.com                                    2010-04-27
 # Merwe
 # [Barney_Wolff]                                            Barney Wolff                                    mailto:barney&databus.com
+# [Barracuda_Networks]                                                                Barracuda Networks    mailto:BackupEngineering_Team&barracuda.com                   2013-04-05
 # [Barrie_Cooper]                                           Barrie Cooper                                   mailto:barrie&sco.com
 # [Barry_Greenberg]                                         Barry Greenberg                                 mailto:barry.greenberg&sun.com                                2004-04
 # [Barry_H_Feild]                                           Barry H. Feild                                  mailto:barry&intersan.net
@@ -17659,6 +17692,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Brad_Hamilton]                                           Brad Hamilton                                   mailto:bh&picksys.com
 # [Brad_Hamilton_2]                                         Brad Hamilton                                   mailto:brad_hamilton&kofax.com                                2002-08
 # [Brad_Head]                                               Brad Head                                       mailto:brad.head&latitudetech.com                             2013-02-07
+# [Brad_House]                                              Brad House                Main Street Softworks mailto:brad&mainstreetsoftworks.com                           2013-04-02
+# Inc
 # [Brad_Johanson]                                           Brad Johanson                                   mailto:bradj&tidebreak.com                                    2005-08
 # [Brad_Parker]                                             Brad Parker                                     mailto:brad&american.com
 # [Brad_Pedersen]                                           Brad Pedersen                                   mailto:bradp&citrix.com
@@ -17774,6 +17809,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Cameron_Young]                                           Cameron Young                                   mailto:Cameron_Young&inetco.com
 # [Candace_Niccolson]                                       Candace Niccolson                               mailto:cniccolson&genisar.com                                 2002-04
 # [Canon_Inc]                                                                         Canon Inc.            mailto:fujii.ken-ichi149&canon.co.jp                          2011-10-10
+# [Canon_Inc_2]                                                                       Canon Inc             mailto:fujii.ken-ichi149&canon.co.jp                          2013-03-28
 # [Caprice_Productions]                                                               Caprice Productions   mailto:ldrake&caprice.com                                     2012-07-05
 # [Carl_Banzhof]                                            Carl Banzhof                                    mailto:cbanzhof&citadel.com                                   2003-06
 # [Carl_Blundell]                                           Carl Blundell                                   mailto:cblundell&celador.co.uk                                2002-05
@@ -18332,6 +18368,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Devon_Taylor]                                            Devon Taylor                                    mailto:dtaylor&novell.com
 # [DEVONtechnologies_LLC]                                                             DEVONtechnologies,    mailto:info&devontechnologies.com                             2011-10-18
 # LLC
+# [Devrex_Labs]                                                                       Devrex Labs           mailto:robert.friberg&devrex.se                               2013-03-29
 # [DEY_Storage_Systems_Inc]                                                           DEY Storage Systems,  mailto:garrett&dey-sys.com                                    2013-03-01
 # Inc.
 # [Dialectro_Software]                                                                Dialectro Software    mailto:g&dialectro.com                                        2011-10-20
@@ -18886,6 +18923,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Harvey_S_Schultz]                                        Harvey S. Schultz                               mailto:harvey&acm.org
 # [Heath_Barber]                                            Heath Barber              Datacolor             mailto:hbarber&datacolor.com                                  2011-10-14
 # [Heath_Raftery]                                           Heath Raftery                                   mailto:heath&hrsoftworks.net
+# [Heathwest_Systems_Limited]                                                         Heathwest Systems     mailto:info&heathwest.com                                     2013-03-21
+# Limited
 # [Heikki_E]                                                Heikki Ellil SQRTS                              mailto:heikki.ellila&western.fi                               2009-06-18
 # [Heiko_Kretschmer]                                        Heiko Kretschmer                                mailto:info&wurst-wasser.net
 # [Heiko_Rupp]                                              Heiko Rupp                                      mailto:hwr&pilhuhn.de
@@ -19569,6 +19608,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Kaz_Ozawa]                                               Kaz Ozawa                                       mailto:k.ozawa&cablelabs.com
 # [Kazuhiro_Koide]                                          Kazuhiro Koide                                  mailto:kaz&pfu.co.jp
 # [Kazuhito_Gassho]                                         Kazuhito Gassho                                 mailto:Gassho.Kasuhito&exc.epson.co.jp
+# [Kazuo_Moritomo]                                          Kazuo Moritomo            Canon Inc             mailto:moritomo.kazuo&canon.co.jp                             2013-03-28
 # [Kazuya_Ogata]                                            Kazuya Ogata                                    mailto:info&sepv.jp
 # [Kedar_Mhaswade]                                          Kedar Mhaswade                                  mailto:kedar.Mhaswade&sun.com                                 2004-11
 # [Keiji_Michine]                                           Keiji Michine                                   mailto:michine&net.paso.fujitsu.co.jp
@@ -19826,6 +19866,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mads_Peter_Back]                                         Mads Peter Back                                 mailto:iana-contact&webhouse.dk                               2002-06
 # [Maggie_Brinsford]                                        Maggie Brinsford                                mailto:mjb&concurrent.co.uk
 # [Magnus_Nystrom]                                          Magnus Nystrom                                  mailto:magnus&dynas.se
+# [Main_Street_Softworks]                                                             Main Street Softworks mailto:info&mainstreetsoftworks.com                           2013-04-02
+# Inc
 # [Makoto_Ikeyama]                                          Makoto Ikeyama                                  mailto:ikeyama&ael.fujitsu.co.jp
 # [Makoto_Mita]                                             Makoto Mita                                     mailto:mita&ssdev.ksp.fujixerox.co.jp
 # [Makoto_Watanabe]                                         Makoto Watanabe                                 mailto:makoto&saint.nm.fujitsu.co.jp
@@ -20353,6 +20395,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Neo_Technology_Inc]                                                                Neo Technology, Inc   mailto:admins&neotechnology.com                               2013-02-08
 # [Nestor_A_Diaz]                                           Nestor A. Diaz                                  mailto:nestor&tiendalinux.com                                 2009-05-12
 # [NetOp_Technical_Supp]                                    NetOp Technical Support                         mailto:support&danware.dk
+# [netperf.org]                                                                       netperf.org           mailto:netperf-feedback&netperf.org                           2013-04-05
 # [Nevil_Brownlee]                                          Nevil Brownlee                                  mailto:n.brownlee&auckland.ac.nz                              2006-10
 # [Nexenta]                                                 John S. Howard            Nexenta               mailto:jsh&nexenta.com                                        2012-12-07
 # [NexStor_India_Limite]                                    NexStor India Limited                           mailto:next&nda.vsnl.net.in
@@ -20739,6 +20782,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [R_L_Meyering]                                            R. L. Meyering                                  mailto:RLMEYERING&biivax.dp.beckman.com
 # [R_Thirumurthy]                                           R. Thirumurthy                                  mailto:rtm&banyannetworks.com
 # [Rackspace_Hosting]                                                                 Rackspace Hosting     mailto:ziad.sawalha&rackspace.com                             2011-08-15
+# [Radish_Systems]                                                                    Radish Systems        mailto:rad&radishsystems.com                                  2013-03-28
 # [Radware_LTD]                                                                       Radware LTD.          mailto:samuelb&radware.com                                    2011-08-05
 # [Rafael_Zimberoff]                                        Rafael Zimberoff                                mailto:rafael&zfirmllc.com                                    2003-11
 # [Raghurama_Bhat]                                          Raghurama Bhat                                  mailto:raghu&quintus.com
@@ -20835,6 +20879,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Rich_Kilmer]                                             Rich Kilmer                                     mailto:rich&infoether.com
 # [Rich_Neswold]                                            Rich Neswold                                    mailto:neswold&fnal.gov                                       2007-02
 # [Rich_Thompson]                                           Rich Thompson                                   mailto:richt&watson.ibm.com
+# [Richard_A_Davis]                                         Richard A. Davis          Radish Systems        mailto:rad&radishsystems.com                                  2013-03-28
 # [Richard_Alan_Johnson]                                    Richard Alan Johnson                            mailto:raj&cisco.com
 # [Richard_Bassous]                                         Richard Bassous                                 mailto:rbassous&yahoo.com
 # [Richard_Corn]                                            Richard Corn                                    mailto:rac&racc.com
@@ -20868,6 +20913,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Richard_de_Mornay]                                       Richard de Mornay                               mailto:rdemornay&norton-lambert.com
 # [Rick_Adams]                                              Rick Adams                                      mailto:rick&uunet.uu.net
 # [Rick_Carlos]                                             Rick Carlos                                     mailto:rick&ticipa.csc.ti.com
+# [rick_jones]                                              Rick Jones                                      mailto:perfgeek&mac.com                                       2013-04-05
 # [Rick_LaBanca]                                            Rick LaBanca                                    mailto:rel&mesasys.com
 # [Rick_Macchio]                                            Rick Macchio                                    mailto:rmacchio&juniper.net                                   2006-11
 # [Rick_Pugh]                                               Rick Pugh                                       mailto:rick&bilmillennium.com
@@ -20933,6 +20979,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Robert_Erl]                                              Robert Erl                                      mailto:roerl&web.de                                           2003-04
 # [Robert_Ford]                                             Robert Ford                                     mailto:robert&intrinsa.com
 # [Robert_Frazier]                                          Robert Frazier                                  mailto:BobF&mrp3.com
+# [Robert_Friberg]                                          Robert Friberg            Devrex Labs           mailto:robert.friberg&devrex.se                               2013-03-29
 # [Robert_Goodyear]                                         Robert Goodyear                                 mailto:robg&brand-up.com
 # [Robert_Gordon]                                           Robert Gordon                                   mailto:rbg&austin.ibm.com
 # [Robert_Grant]                                            Robert Grant                                    mailto:rob&grantedsw.com
