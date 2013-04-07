@@ -41,33 +41,33 @@ typedef void (*uat_rep_fld_free_cb_t)(uat_fld_rep_t*);
 typedef void (*uat_rep_free_cb_t)(uat_rep_t*);
 
 typedef struct _fld_data_t {
-	guint colnum;
-	uat_fld_rep_t* rep;
-	uat_rep_fld_free_cb_t free_rep;
+    guint colnum;
+    uat_fld_rep_t* rep;
+    uat_rep_fld_free_cb_t free_rep;
 } fld_data_t;
 
 struct _uat_t {
-	const char* name;	
-	size_t record_size;
-	const char* filename;
-	gboolean from_profile;
-	const char* help;
-	guint flags;
-	void** user_ptr;
-	guint* nrows_p;
-	uat_copy_cb_t copy_cb;
-	uat_update_cb_t update_cb;
-	uat_free_cb_t free_cb;
-	uat_post_update_cb_t post_update_cb;
-	
-	uat_field_t* fields;
-	guint ncols;
-	GArray* user_data;
-	gboolean changed;
-	uat_rep_t* rep;
-	uat_rep_free_cb_t free_rep;
-	gboolean loaded;
-	gboolean from_global;
+    const char* name;
+    size_t record_size;
+    const char* filename;
+    gboolean from_profile;
+    const char* help;
+    guint flags;
+    void** user_ptr;
+    guint* nrows_p;
+    uat_copy_cb_t copy_cb;
+    uat_update_cb_t update_cb;
+    uat_free_cb_t free_cb;
+    uat_post_update_cb_t post_update_cb;
+
+    uat_field_t* fields;
+    guint ncols;
+    GArray* user_data;
+    gboolean changed;
+    uat_rep_t* rep;
+    uat_rep_free_cb_t free_rep;
+    gboolean loaded;
+    gboolean from_global;
 };
 
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);
@@ -98,3 +98,16 @@ void uat_load_all(void);
 #define UAT_UPDATE(uat) do { *((uat)->user_ptr) = (void*)((uat)->user_data->data); *((uat)->nrows_p) = (uat)->user_data->len; } while(0)
 #define UAT_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
