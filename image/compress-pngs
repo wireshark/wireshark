@@ -11,5 +11,5 @@ bash -c "$FILE_LIST_CMD" | while read PNG_FILE ; do
     hash optipng 2>/dev/null  && optipng -o3 -quiet "$PNG_FILE"
     hash advpng 2>/dev/null   && advpng -z -4 "$PNG_FILE"
     hash advdef 2>/dev/null   && advdef -z -4 "$PNG_FILE"
-    hash pngcrush 2>/dev/null && pngcrush -brute "$PNG_FILE"
+    hash pngcrush 2>/dev/null && pngcrush -q -ow -brute "$PNG_FILE"
 done

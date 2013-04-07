@@ -177,6 +177,10 @@ wssplash.h:
 	echo >> $@
 	gdk-pixbuf-csource --raw --name=wssplash_pb_data $(top_srcdir)/image/wssplash_dev.png >> $@
 
+clean-pixbufs:
+	rm expert_indicators.h capture_comment_icons.h network_icons.h remote_icons.h pipe_icon.h \
+		toolbar_icons.h layouts.h wsicon.h wsiconcap.h wssplash.h
+
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\
