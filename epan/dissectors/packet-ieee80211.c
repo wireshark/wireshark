@@ -2552,6 +2552,12 @@ static const value_string wep_type_vals[] = {
   { 0x00, NULL }
 };
 
+static const value_string ieee80211_ht_pren_type_vals[] = {
+  { 51,  "HT Capabilities (802.11n D1.10)" },
+  { 52,  "HT Additional Capabilities (802.11n D1.00)" },
+  { 0, NULL }
+};
+
 static int proto_wlan = -1;
 static int proto_aggregate = -1;
 static packet_info * g_pinfo;
@@ -3141,6 +3147,9 @@ static int hf_ieee80211_tag_measure_request_frame_request_type = -1;
 static int hf_ieee80211_tag_measure_request_mac_address  = -1;
 static int hf_ieee80211_tag_measure_request_peer_mac_address = -1;
 static int hf_ieee80211_tag_measure_request_group_id = -1;
+
+static int hf_ieee80211_ht_pren_type = -1;
+static int hf_ieee80211_ht_pren_unknown = -1;
 
 static int hf_ieee80211_ht_cap = -1;
 static int hf_ieee80211_ht_vs_cap = -1;
@@ -9709,33 +9718,36 @@ dissect_durid(proto_tree *hdr_tree, tvbuff_t *tvb, guint16 fts, gint offset)
   }
 }
 
+
 static void
 dissect_vendor_ie_ht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     guint offset, proto_item *item, proto_item *ti_len, gint tag_len)
 {
 
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset, 3, "802.11n (Pre) OUI");
-  /* 802.11n OUI  Information Element */
-  if ((4 <= tag_len) && !tvb_memeql(tvb, offset, PRE_11N_OUI"\x33", 4)) {
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 3, 1,"802.11n (Pre) HT information");
+  guint8 type;
 
-    dissect_ht_capability_ie(tvb, pinfo, tree, offset+4, tag_len - 4, ti_len, TRUE);
-    proto_item_append_text(item, ": HT Capabilities (802.11n D1.10)");
-  }
-  else {
-    if ((4 <= tag_len) && !tvb_memeql(tvb, offset, PRE_11N_OUI"\x34", 4)) {
-      proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 3, 1, "HT additional information (802.11n D1.00)");
+  proto_tree_add_item(tree, hf_ieee80211_ht_pren_type, tvb, offset, 1, ENC_NA);
+  type = tvb_get_guint8(tvb, offset);
+  offset += 1;
+  tag_len -= 1;
 
-      dissect_ht_info_ie_1_0(tvb, pinfo, tree, offset+4, tag_len - 4, ti_len);
+
+  switch(type){
+    case 51:
+      dissect_ht_capability_ie(tvb, pinfo, tree, offset, tag_len, ti_len, TRUE);
+      proto_item_append_text(item, ": HT Capabilities (802.11n D1.10)");
+    break;
+
+    case 52:
+      dissect_ht_info_ie_1_0(tvb, pinfo, tree, offset, tag_len, ti_len);
       proto_item_append_text(item, ": HT Additional Capabilities (802.11n D1.00)");
-    }
-    else {
-        proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 3, 1, "Unknown type");
-        proto_item_append_text(item, ": 802.11n (pre) Unknown type");
-        proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 4,
-                  tag_len - 4, "Not interpreted");
-    }
+    break;
+
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_ht_pren_unknown, tvb, offset, tag_len, ENC_NA);
+    break;
   }
+
 }
 
 static guint
@@ -11317,7 +11329,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           dissect_vendor_ie_rsn(ti, tree, tvb, offset + 3, tag_len - 3);
           break;
         case PRE11N_OUI:
-          dissect_vendor_ie_ht(tvb, pinfo, tree, offset, ti, ti_len, tag_len);
+          dissect_vendor_ie_ht(tvb, pinfo, tree, offset + 3 , ti, ti_len, tag_len - 3);
           break;
         case OUI_WFA:
           dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
@@ -16048,6 +16060,15 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_rsn_gmcs_80211_type,
      {"Group Management Cipher Suite type", "wlan_mgt.rsn.gmcs.type",
       FT_UINT8, BASE_DEC, VALS(ieee80211_rsn_cipher_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ht_pren_type,
+     {"802.11n (Pre) Type", "wlan_mgt.vs.pren.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_ht_pren_type_vals), 0,
+      "Vendor Specific HT Type", HFILL }},
+    {&hf_ieee80211_ht_pren_unknown,
+     {"802.11n (Pre) Unknown Data", "wlan_mgt.vs.pren.unknown_data",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ht_cap,
