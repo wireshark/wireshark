@@ -1754,7 +1754,7 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packe
             /* convert to bit offset */
             bit_offset = curr_offset<<3;
             bit_offset = dissect_s1ap_Global_ENB_ID(tvb, bit_offset, &asn1_ctx, tree, hf_bssgp_Global_ENB_ID_PDU);
-            bit_offset = dissect_s1ap_SONtransferRequestContainer(tvb, bit_offset, &asn1_ctx, tree, hf_bssgp_SONtransferRequestContainer_PDU);
+            /*bit_offset = */dissect_s1ap_SONtransferRequestContainer(tvb, bit_offset, &asn1_ctx, tree, hf_bssgp_SONtransferRequestContainer_PDU);
             curr_offset += 7; curr_offset >>= 3;
             }
             break;
