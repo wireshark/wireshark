@@ -202,7 +202,7 @@ gui_prefs_show(void)
 
 #ifdef _WIN32
 	enable_update_cb = create_preference_check_button(main_grid, pos++,
-	    "Check for updates automatically:",
+	    "Check for updates:",
 	    "Periodically check for new versions of Wireshark.",
 	    prefs.gui_update_enabled);
 	g_object_set_data(G_OBJECT(main_vb), ENABLE_UPDATE_KEY, enable_update_cb);
