@@ -165,12 +165,12 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 proto_tree_add_item(lisp_data_tree,
                         hf_lisp_data_lsb8, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
-            offset +=1;
+            /*offset +=1;*/
         } else {
             if (flags&LISP_DATA_FLAG_L) {
                 proto_tree_add_item(lisp_data_tree,
                         hf_lisp_data_lsb, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                /*offset += 4;*/
             }
         }
     }
