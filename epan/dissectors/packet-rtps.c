@@ -3374,7 +3374,6 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
         offset +=4;
         param_length -= 4; /* decrement count */
       }
-      offset += param_length;
       break;
       }
 
@@ -4210,7 +4209,7 @@ static void dissect_DATA_v1(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   /* SerializedData */
   if ((flags & FLAG_DATA_D) != 0) {
     if (is_builtin_entity) {
-      offset = dissect_parameter_sequence(tree, pinfo, tvb, offset,
+      dissect_parameter_sequence(tree, pinfo, tvb, offset,
                         little_endian, octets_to_next_header, "serializedData",
                         0x0102, NULL, 0);
     } else {
@@ -4331,7 +4330,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
   offset += 4;
 
   if ((flags & FLAG_DATA_I) != 0) {
-    octet_item = proto_tree_add_item(tree, hf_rtps_data_status_info, tvb,
+    proto_tree_add_item(tree, hf_rtps_data_status_info, tvb,
                         offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     offset += 4;
   }
