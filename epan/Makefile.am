@@ -310,7 +310,6 @@ dumpabi-libwireshark: all abi-descriptor.xml
 	cp dissectors/*.h abi-check-headers/dissectors
 	rm \
 		abi-check-headers/dissectors/x11-extension-implementation.h \
-		abi-check-headers/dissectors/packet-rtps2.h \
 		abi-check-headers/dissectors/x11-glx-render-enum.h \
 		abi-check-headers/dissectors/x11-register-info.h \
 		abi-check-headers/dissectors/packet-idmp.h
