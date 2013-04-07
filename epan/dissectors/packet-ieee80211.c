@@ -3927,6 +3927,7 @@ static int hf_ieee80211_aruba_hb_seq = -1;
 static int hf_ieee80211_aruba_mtu = -1;
 
 static int hf_ieee80211_tag_vendor_oui_type = -1;
+static int hf_ieee80211_tag_vendor_data = -1;
 
 /* IEEE Std 802.11z-2010 7.3.2.62 */
 static int hf_ieee80211_tag_link_id_bssid = -1;
@@ -7535,7 +7536,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
     }
     case 4: /* WPS: Wifi Protected Setup */
     {
-      dissect_wps_tlvs(tree, tvb, offset, tag_len-4, NULL);
+      dissect_wps_tlvs(tree, tvb, offset, tag_len-1, NULL);
     }
     break;
     default:
@@ -11306,15 +11307,18 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         break;
       }
       {
+        guint32 tag_vs_len = tag_len;
 
         offset += 2;
         oui = tvb_get_ntoh24(tvb, offset);
         tag_tvb = tvb_new_subset(tvb, offset, tag_len, tag_len);
         proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
         proto_item_append_text(ti, ": %s", uint_get_manuf_name(oui));
+        offset += 3;
+        tag_vs_len -= 3;
 
-        if (tag_len > 3) {
-          proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+        if (tag_len > 0) {
+          proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
 
       switch (oui) {
@@ -11323,13 +11327,13 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 #       define RSNOUI_VAL  0x000FAC
 #       define PRE11N_OUI  0x00904c
         case WPAWME_OUI:
-          offset = dissect_vendor_ie_wpawme(tree, tvb, offset + 3, tag_len, ftype);
+          offset = dissect_vendor_ie_wpawme(tree, tvb, offset, tag_vs_len, ftype);
           break;
         case RSNOUI_VAL:
-          dissect_vendor_ie_rsn(ti, tree, tvb, offset + 3, tag_len - 3);
+          dissect_vendor_ie_rsn(ti, tree, tvb, offset, tag_vs_len);
           break;
         case PRE11N_OUI:
-          dissect_vendor_ie_ht(tvb, pinfo, tree, offset + 3 , ti, ti_len, tag_len - 3);
+          dissect_vendor_ie_ht(tvb, pinfo, tree, offset, ti, ti_len, tag_vs_len);
           break;
         case OUI_WFA:
           dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
@@ -11337,17 +11341,16 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
         /* Normal IEEE vendor ids (from oui.h) */
         case OUI_CISCOWL:  /* Cisco Wireless (Aironet) */
-          dissect_vendor_ie_aironet(ti, tree, tvb, offset + 3, tag_len - 3);
+          dissect_vendor_ie_aironet(ti, tree, tvb, offset, tag_vs_len);
           break;
         case OUI_MARVELL:
-          dissect_vendor_ie_marvell(ti, tree, tvb, offset + 3, tag_len - 3);
+          dissect_vendor_ie_marvell(ti, tree, tvb, offset, tag_vs_len);
           break;
         case OUI_ATHEROS:
-          dissect_vendor_ie_atheros(ti, tree, tvb, offset + 3, tag_len - 3, pinfo, ti_len);
+          dissect_vendor_ie_atheros(ti, tree, tvb, offset, tag_vs_len, pinfo, ti_len);
           break;
         default:
-          proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 3,
-            tag_len - 3, "Not interpreted");
+          proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
           break;
         }
 
@@ -15678,9 +15681,14 @@ proto_register_ieee80211 (void)
       "Indicates the maximum time (in TU) remaining in the present CFP", HFILL }},
 
     {&hf_ieee80211_tag_vendor_oui_type,
-     {"Vendor Specific OUI Type", "wlan_mgt.tag.oui.type",
+     {"Vendor Specific OUI Type", "wlan_mgt.tag.vendor.oui.type",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_vendor_data,
+     {"Vendor Specific Data", "wlan_mgt.tag.vendor.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "Unknown/undecoded Vendor Specific Data", HFILL }},
 
     {&hf_ieee80211_tim_dtim_count,
      {"DTIM count", "wlan_mgt.tim.dtim_count",
