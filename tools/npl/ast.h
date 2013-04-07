@@ -164,6 +164,7 @@ typedef struct {
 	char *tmpid;
 	struct ettinfo *ett;
 	struct symbol *sym;
+	int struct_size;
 } npl_struct_t;
 
 typedef struct {
@@ -289,6 +290,7 @@ typedef struct _npl_statement {
 			struct hfinfo *hfi;
 			npl_expression_t *byte_order_attr;
 			int generate_var;
+			int field_size;
 		} f;
 
 	};
@@ -309,7 +311,6 @@ typedef struct {
 
 	/* code generator */
 	struct symbol *sym;
-	npl_expression_t *byte_order_attr;
 } npl_protocol_t;
 
 typedef enum {
