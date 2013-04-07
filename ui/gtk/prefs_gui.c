@@ -65,9 +65,15 @@ static gint scroll_percent_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
 
+#if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 #define MACOSX_STYLE_KEY		"macosx_style"
+#endif
 
+#ifdef _WIN32
 #define GUI_CONSOLE_OPEN_KEY		"console_open"
+#define ENABLE_UPDATE_KEY		"enable_update"
+#endif
+
 #define GUI_FILEOPEN_KEY		"fileopen_behavior"
 #define GUI_FILEOPEN_PREVIEW_KEY	"fileopen_preview_timeout"
 #define GUI_RECENT_FILES_COUNT_KEY	"recent_files_count"
@@ -142,7 +148,7 @@ gui_prefs_show(void)
 {
 	GtkWidget *main_grid, *main_vb;
 #ifdef _WIN32
-	GtkWidget *console_open_om;
+	GtkWidget *console_open_om, *enable_update_cb;
 #endif
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *fileopen_preview_te;
 	GtkWidget *recent_files_count_max_te, *recent_df_entries_max_te, *ask_unsaved_cb, *find_wrap_cb;
@@ -178,26 +184,34 @@ gui_prefs_show(void)
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_grid, pos++,
 	    "Save window position:",
-	    "Whether to save the position of the main window.",
+	    "Save the position of the main window.",
 	    prefs.gui_geometry_save_position);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_POSITION_KEY, save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_grid, pos++,
 	    "Save window size:",
-	    "Whether to save the size of the main window.",
+	    "Save the size of the main window.",
 	    prefs.gui_geometry_save_size);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_SIZE_KEY, save_size_cb);
 
 	save_maximized_cb = create_preference_check_button(main_grid, pos++,
 	    "Save maximized state:",
-	    "Whether to save the maximized state of the main window.",
+	    "Save the maximized state of the main window.",
 	    prefs.gui_geometry_save_maximized);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
+
+#ifdef _WIN32
+	enable_update_cb = create_preference_check_button(main_grid, pos++,
+	    "Check for updates automatically:",
+	    "Periodically check for new versions of Wireshark.",
+	    prefs.gui_update_enabled);
+	g_object_set_data(G_OBJECT(main_vb), ENABLE_UPDATE_KEY, enable_update_cb);
+#endif
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	macosx_style_cb = create_preference_check_button(main_grid, pos++,
 	    "Mac OS X style",
-	    "Whether to create a Mac OS X look and feel. Checking this box will move the "
+	    "Create a Mac OS X look and feel. Checking this box will move the "
 	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
 	    "Requires a restart of Wireshark to take effect.",
 	    prefs.gui_macosx_style);
@@ -349,6 +363,11 @@ gui_prefs_fetch(GtkWidget *w)
 		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
 		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
+
+#ifdef _WIN32
+	prefs.gui_update_enabled =
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), ENABLE_UPDATE_KEY));
+#endif
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	prefs.gui_macosx_style =
