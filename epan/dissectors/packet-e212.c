@@ -748,6 +748,7 @@ static const value_string E212_codes[] = {
     {  899, "Unassigned" },
     {  900, "Unassigned" },
     {  901, "International Mobile, shared code" },
+    { 1665, "Unset" },
     { 0, NULL }
 };
 
@@ -2429,6 +2430,7 @@ static const value_string mcc_mnc_codes[] = {
     {  901290, "Telenor Connexion AB" },
     {  901300, "Terrestar Netwoks" },
     {  901880, "UN Office for the Coordination of Humanitarian Affairs (OCHA)" },
+    { 1666665, "Unset" },
     {  0, NULL }
 };
 
@@ -2498,14 +2500,17 @@ gchar *
 dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
 {
 
-    int         start_offset;
+    int         start_offset, mcc_mnc;
     guint8      octet;
     guint16     mcc, mnc;
     guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
     proto_item *item;
     gchar      *mcc_mnc_str;
+    gboolean    long_mnc = FALSE;
 
     start_offset = offset;
+    /* MCC + MNC */
+    mcc_mnc = tvb_get_ntoh24(tvb,offset);
     /* Mobile country code MCC */
     octet = tvb_get_guint8(tvb,offset);
     mcc1 = octet & 0x0f;
@@ -2522,22 +2527,23 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
     mnc = 10 * mnc1 + mnc2;
-    if (mnc3 != 0xf) {
+    if ((mnc3 != 0xf) || (mcc_mnc == 0xffffff)) {
+        long_mnc = TRUE;
         if(little_endian)
             mnc = 10 * mnc + mnc3;
         else
             mnc = 100 * mnc3 + mnc;
     }
     item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
-    if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
+    if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) && (mcc_mnc != 0xffffff))
         expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
 
-    if (mnc3 != 0x0f) {
+    if (long_mnc) {
         item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
                    "Mobile Network Code (MNC): %s (%03u)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
-        /* Preapre a string with the MCC and MNC including the country and Operator if
+        /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
         mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %03u %s",
@@ -2550,7 +2556,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    "Mobile Network Code (MNC): %s (%02u)",
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
-        /* Preapre a string with the MCC and MNC including the country and Operator if
+        /* Prepare a string with the MCC and MNC including the country and Operator if
          * known, do NOT print unknown.
          */
         mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %02u %s",
@@ -2560,7 +2566,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
     }
 
-    if ((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f)))
+    if (((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f))) && (mcc_mnc != 0xffffff))
         expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
 
     return mcc_mnc_str;
@@ -2612,7 +2618,7 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 int
 dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint32     start_offset;
+    guint32     start_offset, mcc_mnc;
     guint8      octet;
     guint16     mcc, mnc;
     guint8      mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
@@ -2621,6 +2627,9 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     long_mnc = FALSE;
     start_offset = offset;
+
+    /* MCC + MNC */
+    mcc_mnc = tvb_get_ntoh24(tvb,offset);
 
     /* MCC digits 1 and 2 */
     octet = tvb_get_guint8(tvb,offset);
@@ -2649,7 +2658,7 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
-    if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
+    if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) & (mcc_mnc != 0xffffff))
         expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
 
     if (long_mnc)
@@ -2663,7 +2672,7 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                    val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
 
-    if ((mnc1 > 9) || (mnc2 > 9) || (long_mnc && (mnc3 > 9)))
+    if (((mnc1 > 9) || (mnc2 > 9) || (long_mnc && (mnc3 > 9))) && (mcc_mnc != 0xffffff))
         expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
 
     if (long_mnc)
