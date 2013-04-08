@@ -20,7 +20,7 @@
    xml:space="preserve"
    inkscape:version="0.48.2 r9819"
    sodipodi:docname="capture_stop_24.svg"
-   inkscape:export-filename="/Users/gerald/Development/wireshark/image/toolbar/capture_stop_24.png"
+   inkscape:export-filename="/Users/gcombs/Development/wireshark/image/toolbar/capture_stop_24.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"><metadata
    id="metadata3029"><rdf:RDF><cc:Work
@@ -46,10 +46,10 @@
    id="namedview3025"
    showgrid="true"
    inkscape:zoom="19.666667"
-   inkscape:cx="12.935427"
+   inkscape:cx="11.974577"
    inkscape:cy="12"
-   inkscape:window-x="132"
-   inkscape:window-y="255"
+   inkscape:window-x="0"
+   inkscape:window-y="865"
    inkscape:window-maximized="0"
    inkscape:current-layer="Layer_1"><inkscape:grid
      type="xygrid"
@@ -68,15 +68,15 @@
    x="0"
    y="0" />
 <rect
-   style="color:#000000;fill:#4d4d4d;fill-opacity:1;stroke:#ffffff;stroke-width:1.99999988;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+   style="color:#000000;fill:#4d4d4d;fill-opacity:1;stroke:#ffffff;stroke-width:1.99999988000000006;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
    id="rect3835"
    width="20"
    height="20"
    x="2"
    y="2" /><rect
-   style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.1402985;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+   style="color:#000000;fill:#3a6af2;fill-opacity:1;stroke:none;stroke-width:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
    id="rect3866"
-   width="17"
-   height="17"
-   x="3.5"
-   y="3.5" /></svg>
+   width="14"
+   height="14"
+   x="5"
+   y="5" /></svg>
