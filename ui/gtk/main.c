@@ -2919,7 +2919,7 @@ main(int argc, char *argv[])
     interface_t device;
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-      if (!device.hidden && strcmp(device.display_name, prefs.capture_device) == 0) {
+      if (!device.hidden && strstr(prefs.capture_device, device.name) != NULL) {
         device.selected = TRUE;
         global_capture_opts.num_selected++;
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);

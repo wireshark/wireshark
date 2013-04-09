@@ -935,11 +935,6 @@ update_capture_box(void)
         if (!device.hidden) {
             gtk_list_store_append (store, &iter);
             gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
-            if (global_capture_opts.num_selected == 0 && strcmp(device.name, prefs.capture_device) == 0) {
-                device.selected = TRUE;
-                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-            }
             if (device.selected) {
                 gtk_tree_selection_select_iter(entry, &iter);
             }
