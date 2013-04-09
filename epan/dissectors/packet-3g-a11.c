@@ -824,19 +824,10 @@ dissect_ase(tvbuff_t *tvb, int offset, guint ase_len, proto_tree *ext_tree)
         entry_start_offset = offset;
         entry_lenght = tvb_get_guint8(tvb, offset);
 
-        if (registration_request_msg && (service_option==64 || service_option==67)){
-            if (service_option == 67){
-                ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "GRE Key Entry (SRID: %d)", srid);
-            } else if (service_option== 64){
-                ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "GRE Key Entry (SRID: %d)", srid);
-            } else {
-                proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "Unknown service option %u (SRID: %d)", service_option, srid);
-                clen+=entry_lenght+1;
-                continue;
-            }
-        }else{
+        if (registration_request_msg && (service_option==64 || service_option==67))
+            ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "GRE Key Entry (SRID: %d)", srid);
+        else
             ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght, "GRE Key Entry (SRID: %d)", srid);
-        }
 
         exts_tree = proto_item_add_subtree(ti, ett_a11_ase);
 
