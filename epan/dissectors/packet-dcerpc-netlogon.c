@@ -1329,6 +1329,7 @@ netlogon_dissect_LEVEL(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                                      netlogon_dissect_SERVICE_INFO, NDR_POINTER_UNIQUE,
                                      "SERVICE_INFO:", -1);
+        break;
     case 4:
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                                      netlogon_dissect_GENERIC_INFO, NDR_POINTER_UNIQUE,
