@@ -3,12 +3,11 @@
  * Routines for the RTCWeb Data Channel Protocol dissection
  * as specified in 
  * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
- * and the new version specified in 
- * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-04
- * which got accepted as a WG item.
+ * and the upcoming version specified in 
+ * http://tools.ietf.org/html/draft-ietf-rtcweb-data-protocol-00
  * We might want to remove the support of 
  * http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol-03
- * in the future, but leave it in for now.
+ * in the future, but I'll leave it in for now.
  * Copyright 2012 - 2013, Michael Tuexen <tuexen@wireshark.org>
  *
  * $Id$
@@ -179,22 +178,22 @@ static const value_string new_channel_type_values[] = {
 
 #define NEW_MESSAGE_TYPE_LENGTH    1
 #define NEW_CHANNEL_TYPE_LENGTH    1
-#define NEW_RELIABILITY_LENGTH     2
 #define NEW_PRIORITY_LENGTH        2
+#define NEW_RELIABILITY_LENGTH     4
 #define NEW_LABEL_LENGTH_LENGTH    2
 #define NEW_PROTOCOL_LENGTH_LENGTH 2
 #define NEW_OPEN_REQUEST_HEADER_LENGTH (guint)(NEW_MESSAGE_TYPE_LENGTH + \
                                                NEW_CHANNEL_TYPE_LENGTH + \
-                                               NEW_RELIABILITY_LENGTH + \
                                                NEW_PRIORITY_LENGTH + \
+                                               NEW_RELIABILITY_LENGTH + \
                                                NEW_LABEL_LENGTH_LENGTH + \
                                                NEW_PROTOCOL_LENGTH_LENGTH)
 
 #define NEW_MESSAGE_TYPE_OFFSET    0
 #define NEW_CHANNEL_TYPE_OFFSET    (NEW_MESSAGE_TYPE_OFFSET + NEW_MESSAGE_TYPE_LENGTH)
-#define NEW_RELIABILITY_OFFSET     (NEW_CHANNEL_TYPE_OFFSET + NEW_CHANNEL_TYPE_LENGTH)
-#define NEW_PRIORITY_OFFSET        (NEW_RELIABILITY_OFFSET + NEW_RELIABILITY_LENGTH)
-#define NEW_LABEL_LENGTH_OFFSET    (NEW_PRIORITY_OFFSET + NEW_PRIORITY_LENGTH)
+#define NEW_PRIORITY_OFFSET        (NEW_CHANNEL_TYPE_OFFSET + NEW_CHANNEL_TYPE_LENGTH)
+#define NEW_RELIABILITY_OFFSET     (NEW_PRIORITY_OFFSET + NEW_PRIORITY_LENGTH)
+#define NEW_LABEL_LENGTH_OFFSET    (NEW_RELIABILITY_OFFSET + NEW_RELIABILITY_LENGTH)
 #define NEW_PROTOCOL_LENGTH_OFFSET (NEW_LABEL_LENGTH_OFFSET + NEW_LABEL_LENGTH_LENGTH)
 #define NEW_LABEL_OFFSET           (NEW_PROTOCOL_LENGTH_OFFSET + NEW_PROTOCOL_LENGTH_LENGTH)
 
@@ -203,21 +202,21 @@ dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	if (rtcdc_tree) {
 		guint8 channel_type;
-		guint16 reliability;
+		guint32 reliability;
 		guint16 label_length;
 		guint16 protocol_length;
 
 		proto_tree_add_item(rtcdc_tree, hf_new_channel_type, tvb, NEW_CHANNEL_TYPE_OFFSET, NEW_CHANNEL_TYPE_LENGTH, ENC_BIG_ENDIAN);
-		channel_type = 	tvb_get_guint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
+		channel_type = tvb_get_guint8(tvb, NEW_CHANNEL_TYPE_OFFSET);
 		if ((channel_type & 0x7f) > 0x02) {
 			expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Unknown channel type");
 		}
+		proto_tree_add_item(rtcdc_tree, hf_new_priority, tvb, NEW_PRIORITY_OFFSET, NEW_PRIORITY_LENGTH, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rtcdc_tree, hf_new_reliability, tvb, NEW_RELIABILITY_OFFSET, NEW_RELIABILITY_LENGTH, ENC_BIG_ENDIAN);
-		reliability = tvb_get_ntohs(tvb, NEW_RELIABILITY_OFFSET);
+		reliability = tvb_get_ntohl(tvb, NEW_RELIABILITY_OFFSET);
 		if ((reliability > 0) && ((channel_type & 0x80) == 0)) {
 			expert_add_info_format(pinfo, rtcdc_item, PI_MALFORMED, PI_ERROR, "Reliability parameter non zero for reliable channel");
 		}
-		proto_tree_add_item(rtcdc_tree, hf_new_priority, tvb, NEW_PRIORITY_OFFSET, NEW_PRIORITY_LENGTH, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rtcdc_tree, hf_new_label_length, tvb, NEW_LABEL_LENGTH_OFFSET, NEW_LABEL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rtcdc_tree, hf_new_protocol_length, tvb, NEW_PROTOCOL_LENGTH_OFFSET, NEW_PROTOCOL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 		label_length = tvb_get_ntohs(tvb, NEW_LABEL_LENGTH_OFFSET);
@@ -286,7 +285,7 @@ proto_register_rtcdc(void)
 		{ &hf_error,               { "Error",                     "rtcdc.error",                   FT_UINT8,   BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
 		{ &hf_sid,                 { "Reverse stream identifier", "rtcdc.reverse_stream_id",       FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
 		{ &hf_new_channel_type,    { "Channel type",              "rtcdc.channel_type",            FT_UINT8,   BASE_DEC,  VALS(new_channel_type_values), 0x0,                                         NULL, HFILL } },
-		{ &hf_new_reliability,     { "Reliability parameter",     "rtcdc.reliability_parameter",   FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
+		{ &hf_new_reliability,     { "Reliability parameter",     "rtcdc.reliability_parameter",   FT_UINT32,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
 		{ &hf_new_priority,        { "Priority",                  "rtcdc.priority",                FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
 		{ &hf_new_label_length,    { "Label length",              "rtcdc.label_length",            FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
 		{ &hf_new_protocol_length, { "Protocol length",           "rtcdc.protocol_length",         FT_UINT16,  BASE_DEC,  NULL,                          0x0,                                         NULL, HFILL } },
