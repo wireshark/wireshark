@@ -1996,7 +1996,7 @@ static void register_radius_fields(const char* unused _U_) {
 	 g_array_append_vals(ri.hf, base_hf, array_length(base_hf));
 	 g_array_append_vals(ri.ett, base_ett, array_length(base_ett));
 
-	 dir = get_persconffile_path("radius", FALSE, FALSE);
+	 dir = get_persconffile_path("radius", FALSE);
 
 	 if (test_for_directory(dir) != EISDIR) {
 		 /* Although dir isn't a directory it may still use memory */

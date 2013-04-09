@@ -686,7 +686,7 @@ decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
      return;
   }
 
-  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE, TRUE);
+  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
   if ((daf = ws_fopen(daf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open decode_as_entries file\n\"%s\": %s.", daf_path,
@@ -2221,7 +2221,7 @@ void load_decode_as_entries(void)
     decode_clear_all(FALSE);
   }
 
-  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE, FALSE);
+  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
   if ((daf = ws_fopen(daf_path, "r")) != NULL) {
     read_prefs_file(daf_path, daf, read_set_decode_as_entries, NULL);
     fclose(daf);

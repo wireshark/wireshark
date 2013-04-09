@@ -191,17 +191,10 @@ WS_DLL_PUBLIC int create_persconffile_dir(char **pf_dir_path_return);
  * file name.  If using configuration profiles this directory will be
  * used if "from_profile" is TRUE.
  *
- * On Win32, if "for_writing" is FALSE, we check whether the file exists
- * and, if not, construct a path name relative to the ".wireshark"
- * subdirectory of the user's home directory, and check whether that
- * exists; if it does, we return that, so that configuration files
- * from earlier versions can be read.
- *
  * The returned file name was g_malloc()'d so it must be g_free()d when the
  * caller is done with it.
  */
-WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, gboolean from_profile,
-				   gboolean for_writing);
+WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, gboolean from_profile);
 
 /*
  * Get the (default) directory in which personal data is stored.

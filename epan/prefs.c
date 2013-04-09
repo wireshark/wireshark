@@ -2936,7 +2936,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   }
 
   /* Construct the pathname of the user's preferences file. */
-  pf_path = get_persconffile_path(PF_NAME, TRUE, FALSE);
+  pf_path = get_persconffile_path(PF_NAME, TRUE);
 
   /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
@@ -4439,7 +4439,7 @@ write_prefs(char **pf_path_return)
    */
 
   if (pf_path_return != NULL) {
-    pf_path = get_persconffile_path(PF_NAME, TRUE, TRUE);
+    pf_path = get_persconffile_path(PF_NAME, TRUE);
     if ((pf = ws_fopen(pf_path, "w")) == NULL) {
       *pf_path_return = pf_path;
       return errno;

@@ -1283,7 +1283,7 @@ static void init_xml_names(void)
     xmlpi_xml_ns->elements = NULL;
 
 
-    dirname = get_persconffile_path("dtds", FALSE, FALSE);
+    dirname = get_persconffile_path("dtds", FALSE);
 
     if (test_for_directory(dirname) != EISDIR) {
         /* Although dir isn't a directory it may still use memory */

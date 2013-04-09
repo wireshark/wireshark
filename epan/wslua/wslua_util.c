@@ -189,7 +189,7 @@ static char* wslua_get_actual_filename(const char* fname) {
 		return g_strdup(fname_clean);
 	}
 
-	filename = get_persconffile_path(fname_clean,FALSE,FALSE);
+	filename = get_persconffile_path(fname_clean,FALSE);
 
 	if ( file_exists(filename) ) {
 		return filename;
@@ -252,7 +252,7 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
 #define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* A filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
-	char* filename = get_persconffile_path(fname,FALSE,FALSE);
+	char* filename = get_persconffile_path(fname,FALSE);
 
 	lua_pushstring(L,filename);
 	g_free(filename);

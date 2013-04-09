@@ -802,15 +802,15 @@ void oid_pref_init(module_t *nameres)
 
 #else
     prefs_register_static_text_preference(nameres, "load_smi_modules_static",
-                            "Enable OID resolution: N/A", 
+                            "Enable OID resolution: N/A",
                             "Support for OID resolution was not compiled into this version of Wireshark");
 
     prefs_register_static_text_preference(nameres, "suppress_smi_errors_static",
-                            "Suppress SMI errors: N/A", 
+                            "Suppress SMI errors: N/A",
                             "Support for OID resolution was not compiled into this version of Wireshark");
 
     prefs_register_static_text_preference(nameres, "smi_module_path",
-                            "SMI (MIB and PIB) modules and paths: N/A", 
+                            "SMI (MIB and PIB) modules and paths: N/A",
                             "Support for OID resolution was not compiled into this version of Wireshark");
 #endif
 }
@@ -1173,7 +1173,7 @@ oid_get_default_mib_path(void) {
 	guint i;
 
 	path_str = g_string_new("");
-	
+
 	if (!load_smi_modules) {
 		D(1,("OID resolution not enabled"));
 		return path_str->str;
@@ -1184,7 +1184,7 @@ oid_get_default_mib_path(void) {
 	g_string_append_printf(path_str, "%s;", path);
 	g_free (path);
 
-	path = get_persconffile_path("snmp\\mibs", FALSE, FALSE);
+	path = get_persconffile_path("snmp\\mibs", FALSE);
 	g_string_append_printf(path_str, "%s", path);
 	g_free (path);
 #else

@@ -582,7 +582,7 @@ initialize_services(void)
 
   /* set personal services path */
   if (g_pservices_path == NULL)
-    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE, FALSE);
+    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
 
   parse_services_file(g_pservices_path);
 
@@ -1483,7 +1483,7 @@ initialize_ethers(void)
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
    */
   if (g_pethers_path == NULL)
-    g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE, FALSE);
+    g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
 
   /* manuf hash table initialization */
 
@@ -1893,7 +1893,7 @@ initialize_ipxnets(void)
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
    */
   if (g_pipxnets_path == NULL)
-    g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE, FALSE);
+    g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
 
   ipxnet_resolution_initialized = TRUE;
 } /* initialize_ipxnets */
@@ -2369,7 +2369,7 @@ subnet_name_lookup_init(void)
     subnet_length_entries[i].mask = get_subnet_mask(length);
   }
 
-  subnetspath = get_persconffile_path(ENAME_SUBNETS, FALSE, FALSE);
+  subnetspath = get_persconffile_path(ENAME_SUBNETS, FALSE);
   if (!read_subnets_file(subnetspath) && errno != ENOENT) {
     report_open_failure(subnetspath, errno, FALSE);
   }
@@ -2473,7 +2473,7 @@ host_name_lookup_init(void) {
    * Load the user's hosts file, if they have one.
    */
   if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
-    hostspath = get_persconffile_path(ENAME_HOSTS, TRUE, FALSE);
+    hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
     if (!read_hosts_file(hostspath) && errno != ENOENT) {
       report_open_failure(hostspath, errno, FALSE);
     }

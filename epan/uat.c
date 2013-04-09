@@ -168,7 +168,7 @@ gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
     gchar *pers_fname = NULL;
 
     if (! uat->from_global) {
-        pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, for_writing);
+        pers_fname =  get_persconffile_path(uat->filename, uat->from_profile);
     }
 
     if ((! for_writing ) && (! file_exists(pers_fname) )) {

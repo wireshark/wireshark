@@ -1006,7 +1006,7 @@ int main(int argc, char *argv[])
 //  #else
 //    gtk_rc_parse(rc_file);
 //    g_free(rc_file);
-//    rc_file = get_persconffile_path(RC_FILE, FALSE, FALSE);
+//    rc_file = get_persconffile_path(RC_FILE, FALSE);
 //    gtk_rc_parse(rc_file);
 //  #endif
 //    g_free(rc_file);

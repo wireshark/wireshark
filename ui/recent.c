@@ -310,7 +310,7 @@ write_recent(void)
      return FALSE;
   }
 
-  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, TRUE);
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE);
   if ((rf = ws_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
@@ -433,7 +433,7 @@ write_profile_recent(void)
      return FALSE;
   }
 
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE, TRUE);
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
   if ((rf = ws_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
@@ -952,7 +952,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.gui_fileopen_remembered_dir = NULL;
 
   /* Construct the pathname of the user's recent common file. */
-  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE);
 
   /* Read the user's recent common file, if it exists. */
   *rf_path_return = NULL;
@@ -1017,7 +1017,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   }
 
   /* Construct the pathname of the user's profile recent file. */
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE, FALSE);
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
@@ -1034,7 +1034,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
      *  know what's supposed to happen at this point.
      *  ToDo: Determine if the "recent common file" should be read at this point
      */
-    rf_common_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
+    rf_common_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE);
     if (!file_exists(rf_common_path)) {
       /* Read older common settings from recent file */
       rf = ws_fopen(rf_path, "r");
@@ -1064,11 +1064,11 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
 
   /* Construct the pathname of the user's recent common file. */
-  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE);
   if (!file_exists (rf_path)) {
     /* Recent common file does not exist, read from default recent */
     g_free (rf_path);
-    rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
+    rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
   }
 
   /* Read the user's recent file, if it exists. */

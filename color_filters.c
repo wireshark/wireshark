@@ -628,7 +628,7 @@ read_users_filters(GSList **cfl)
     gboolean  ret;
 
     /* decide what file to open (from dfilter code) */
-    path = get_persconffile_path("colorfilters", TRUE, FALSE);
+    path = get_persconffile_path("colorfilters", TRUE);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -753,7 +753,7 @@ color_filters_write(GSList *cfl)
         return FALSE;
     }
 
-    path = get_persconffile_path("colorfilters", TRUE, TRUE);
+    path = get_persconffile_path("colorfilters", TRUE);
     if ((f = ws_fopen(path, "w+")) == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Could not open\n%s\nfor writing: %s.",

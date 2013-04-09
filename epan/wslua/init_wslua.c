@@ -337,7 +337,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
                       G_LOG_LEVEL_MESSAGE|
                       G_LOG_LEVEL_INFO|
                       G_LOG_LEVEL_DEBUG),
-                      ops ? ops->logger : basic_logger, 
+                      ops ? ops->logger : basic_logger,
                       NULL);
 
     if (!L) {
@@ -396,7 +396,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
 
     /* if we are indeed superuser run user scripts only if told to do so */
     if ( (!started_with_special_privs()) || run_anyway ) {
-        filename = get_persconffile_path("init.lua", FALSE, FALSE);
+        filename = get_persconffile_path("init.lua", FALSE);
 
         if ((file_exists(filename))) {
             lua_load_script(filename);

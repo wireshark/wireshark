@@ -1462,17 +1462,9 @@ get_home_dir(void)
  * caller is done with it.
  */
 char *
-get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_writing
-#ifndef _WIN32
-    _U_
-#endif
-)
+get_persconffile_path(const char *filename, gboolean from_profile)
 {
     char *path;
-#ifdef _WIN32
-    ws_statb64 s_buf;
-    char *old_path;
-#endif
     if (do_store_persconffiles && from_profile && !g_hash_table_lookup (profile_files, filename)) {
         /* Store filenames so we know which filenames belongs to a configuration profile */
         g_hash_table_insert (profile_files, g_strdup(filename), g_strdup(filename));
@@ -1485,27 +1477,6 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
       path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
                  get_persconffile_dir(NULL), filename);
     }
-#ifdef _WIN32
-    if (!for_writing) {
-        if (ws_stat64(path, &s_buf) != 0 && errno == ENOENT) {
-            /*
-             * OK, it's not in the personal configuration file
-             * directory; is it in the ".wireshark" subdirectory
-             * of their home directory?
-             */
-            old_path = g_strdup_printf(
-                "%s" G_DIR_SEPARATOR_S ".wireshark" G_DIR_SEPARATOR_S "%s",
-                get_home_dir(), filename);
-            if (ws_stat64(old_path, &s_buf) == 0) {
-                /*
-                 * OK, it exists; return it instead.
-                 */
-                g_free(path);
-                path = old_path;
-            }
-        }
-    }
-#endif
 
     return path;
 }
@@ -1587,7 +1558,7 @@ get_datafile_path(const char *filename)
 char *
 get_plugins_pers_dir(void)
 {
-    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE, FALSE);
+    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 }
 
 /* Delete a file */
