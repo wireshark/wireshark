@@ -822,12 +822,17 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * */
 static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset, guint32 icrc32 )
 {
-	guint8 *zero;
-	guint32 ocrc32;
+	guint8  *zero;
+	gint     len;
+	guint32  ocrc32;
+
 	zero = (guint8 *)ep_alloc0(4);
 	ocrc32 = crc32_ccitt_tvb(tvb, offset);
 	ocrc32 = crc32_ccitt_seed(zero, 4, 0xffffffff-ocrc32);
-	ocrc32 = crc32_ccitt_tvb_offset_seed(tvb, offset+4, tvb_reported_length_remaining(tvb, offset+4), 0xffffffff-ocrc32);
+	len = tvb_reported_length_remaining(tvb, offset+4);
+	if (len<0)
+		return FALSE;
+	ocrc32 = crc32_ccitt_tvb_offset_seed(tvb, offset+4, (guint)len, 0xffffffff-ocrc32);
 	if(icrc32==ocrc32)
 	{
 		proto_tree_add_uint_format(tree, hf_item, tvb, offset, 4, tvb_get_letohl(tvb, 16), "crc32: 0x%04x [correct]", tvb_get_letohl(tvb, offset));
