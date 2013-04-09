@@ -4475,7 +4475,7 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     int       endoffset = offset + u16BodyLength;
 
     /* added blockversion 1 */
-    if (u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) {
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow > 2) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
