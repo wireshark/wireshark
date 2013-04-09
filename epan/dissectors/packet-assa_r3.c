@@ -5176,7 +5176,7 @@ dissect_r3_cmd_querydatetime (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   guint     cmdLen;
   tvbuff_t *payload_tvb;
@@ -5197,6 +5197,7 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
     proto_tree  *sc_tree;
     const gchar *ci;
     guint8       configItem;
+    guint8       item_length;
 
     configItem = tvb_get_guint8 (payload_tvb, offset + 1);
 
@@ -5205,21 +5206,24 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
       &r3_configitemnames_ext,
       "[Unknown Configuration Item]");
 
-    sc_item = proto_tree_add_text (tree, payload_tvb, offset + 0, tvb_get_guint8 (payload_tvb, offset + 0),
+    item_length = tvb_get_guint8 (payload_tvb, offset + 0);
+    sc_item = proto_tree_add_text (tree, payload_tvb, offset + 0, item_length,
                                    "Config Field: %s (%u)", ci, configItem);
     sc_tree = proto_item_add_subtree (sc_item, ett_r3upstreamfield);
 
-    proto_tree_add_item (sc_tree, hf_r3_configitemlength, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    sc_item = proto_tree_add_item (sc_tree, hf_r3_configitemlength, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (sc_tree, hf_r3_configitem,       payload_tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+    if (item_length == 0) {
+      expert_add_info_format(pinfo, sc_item, PI_MALFORMED, PI_WARN, "Invalid item length");
+      return;
+    }
 
     if (configItem < array_length (configMap))
     {
       switch (configMap [configItem])
       {
         case CONFIGTYPE_NONE :
-          proto_tree_add_item (sc_tree, hf_r3_configitemdata, payload_tvb, offset + 2,
-                               tvb_get_guint8 (payload_tvb, offset + 0) - 3,
-                               ENC_NA);
+          proto_tree_add_item (sc_tree, hf_r3_configitemdata, payload_tvb, offset + 2, item_length - 3, ENC_NA);
           break;
 
         case CONFIGTYPE_BOOL :
@@ -5240,24 +5244,20 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
 
         case CONFIGTYPE_STRING :
           proto_tree_add_item (sc_tree, hf_r3_configitemdata_string, payload_tvb, offset + 2,
-                               tvb_get_guint8 (payload_tvb, offset + 0) - 2,
-                               ENC_ASCII|ENC_NA);
+                               item_length - 2, ENC_ASCII|ENC_NA);
           break;
 
         default :
           proto_tree_add_none_format (sc_tree, hf_r3_upstreamfielderror, payload_tvb, offset + 2,
-                                      tvb_get_guint8 (payload_tvb, offset + 0) - 2,
-                                      "Unknown Field Type");
+                                      item_length - 2, "Unknown Field Type");
           break;
       }
     }
     else {
-      proto_tree_add_text (sc_tree, payload_tvb, offset + 2,
-                           tvb_get_guint8 (payload_tvb, offset + 0) - 2,
-                           "[Unknown Field Type]");
+      proto_tree_add_text (sc_tree, payload_tvb, offset + 2, item_length - 2, "[Unknown Field Type]");
     }
 
-    offset += tvb_get_guint8 (payload_tvb, offset + 0);
+    offset += item_length;
   }
 }
 
