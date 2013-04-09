@@ -4483,43 +4483,43 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
 
     if (u8BlockVersionLow < 2) /* dissect low versions 0 and 1 */
     {
-    /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* MRP_DomainUUID */
-    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_mrp_domain_uuid, &uuid);
-    /* MRP_Role */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_mrp_role, &u16Role);
-
-    if (u8BlockVersionLow == 1) {
-        /* MRP_Version */
+        /* MRP_DomainUUID */
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                hf_pn_io_mrp_domain_uuid, &uuid);
+        /* MRP_Role */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_mrp_version, &u16Version);
-    }
-    /* MRP_LengthDomainName */
-    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
-    /* MRP_DomainName */
-    pDomainName = (char *)ep_alloc(u8LengthDomainName+1);
-    tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
-    pDomainName[u8LengthDomainName] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
-    offset += u8LengthDomainName;
+                hf_pn_io_mrp_role, &u16Role);
 
-    if (u8BlockVersionLow == 0) {
-        /* MRP_Version */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_mrp_version, &u16Version);
-    }
-    /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        if (u8BlockVersionLow == 1) {
+            /* MRP_Version */
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_mrp_version, &u16Version);
+        }
+        /* MRP_LengthDomainName */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
+        /* MRP_DomainName */
+        pDomainName = (char *)ep_alloc(u8LengthDomainName+1);
+        tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
+        pDomainName[u8LengthDomainName] = '\0';
+        proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+        offset += u8LengthDomainName;
+
+        if (u8BlockVersionLow == 0) {
+            /* MRP_Version */
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_mrp_version, &u16Version);
+        }
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
         while(endoffset > offset)
-    {
-        offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
-    }
+        {
+            offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+        }
     }
     else if (u8BlockVersionLow == 2)
     {
@@ -4527,12 +4527,12 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
         /* Number of Mrp Instances */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-            hf_pn_io_mrp_instances, &u8NumberOfMrpInstances);
+                hf_pn_io_mrp_instances, &u8NumberOfMrpInstances);
         if (u8NumberOfMrpInstances > 0xf) {
             expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
-                "Number of MrpInstances greater 0x0f is (0x%x)", u8NumberOfMrpInstances);
-    return offset;
-}
+                    "Number of MrpInstances greater 0x0f is (0x%x)", u8NumberOfMrpInstances);
+            return offset;
+        }
         while(u8NumberOfMrpInstances > 0)
         {
             offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
