@@ -2896,8 +2896,8 @@ class EthOut:
   #--- fhdr -------------------------------------------------------
   def fhdr(self, fn, comment=None):
     out = ''
-    out += self.outcomment('Do not modify this file.', comment)
-    out += self.outcomment('It is created automatically by the ASN.1 to Wireshark dissector compiler', comment)
+    out += self.outcomment('Do not modify this file. Changes will be overwritten.', comment)
+    out += self.outcomment('Generated automatically by the ASN.1 to Wireshark dissector compiler', comment)
     out += self.outcomment(os.path.basename(fn), comment)
     out += self.outcomment(' '.join(sys.argv), comment)
     out += '\n'

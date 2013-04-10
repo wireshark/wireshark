@@ -131,8 +131,8 @@ regs['tap_reg'].sort()
 
 reg_code = open(tmp_filename, "w")
 
-reg_code.write("/* Do not modify this file.  */\n")
-reg_code.write("/* It is created automatically by the Makefile.  */\n")
+reg_code.write("/* Do not modify this file. Changes will be overwritten.  */\n")
+reg_code.write("/* Generated automatically from %s  */\n" % (sys.argv[0]))
 
 # Make the routine to register all taps
 reg_code.write("""
@@ -159,5 +159,3 @@ except OSError:
 
 # Move from tmp file to final file
 os.rename(tmp_filename, final_filename)
-
-
