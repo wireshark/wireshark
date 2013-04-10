@@ -34,6 +34,7 @@
 
 #define MAX_SIMULTANEOUS_ALLOCS 1024
 #define MAX_ALLOC_SIZE (1024*64)
+#define LIST_ITERS 10000
 
 typedef void (*wmem_verify_func)(wmem_allocator_t *allocator);
 
@@ -214,7 +215,7 @@ wmem_time_allocators(void)
     wmem_time_allocator(WMEM_ALLOCATOR_BLOCK);
     block_time = g_test_timer_elapsed();
 
-    printf("(simple: %lf; block: %lf)", simple_time, block_time);
+    printf("(simple: %lf; block: %lf) ", simple_time, block_time);
     g_assert(simple_time > block_time);
 }
 
@@ -236,6 +237,52 @@ wmem_test_allocator_strict(void)
     wmem_test_allocator(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries);
 }
 
+static void
+wmem_test_slist(void)
+{
+    wmem_allocator_t   *allocator;
+    wmem_slist_t       *slist;
+    wmem_slist_frame_t *frame;
+    unsigned int        i;
+
+    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    slist = wmem_slist_new(allocator);
+    g_assert(slist);
+    g_assert(wmem_slist_count(slist) == 0);
+
+    frame = wmem_slist_front(slist);
+    g_assert(frame == NULL);
+
+    for (i=0; i<LIST_ITERS; i++) {
+        wmem_slist_prepend(slist, GINT_TO_POINTER(i));
+        g_assert(wmem_slist_count(slist) == i+1);
+
+        frame = wmem_slist_front(slist);
+        g_assert(frame);
+        g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
+    }
+
+    i = LIST_ITERS - 1;
+    frame = wmem_slist_front(slist);
+    while (frame) {
+        g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
+        i--;
+        frame = wmem_slist_frame_next(frame);
+    }
+
+    i = LIST_ITERS - 2;
+    while (wmem_slist_count(slist) > 1) {
+        wmem_slist_remove(slist, GINT_TO_POINTER(i));
+        i--;
+    }
+    wmem_slist_remove(slist, GINT_TO_POINTER(LIST_ITERS - 1));
+    g_assert(wmem_slist_count(slist) == 0);
+    g_assert(wmem_slist_front(slist) == NULL);
+
+    wmem_destroy_allocator(allocator);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -245,6 +292,8 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/allocator/simple", wmem_test_allocator_simple);
     g_test_add_func("/wmem/allocator/strict", wmem_test_allocator_strict);
     g_test_add_func("/wmem/allocator/times",  wmem_time_allocators);
+
+    g_test_add_func("/wmem/datastruct/slist", wmem_test_slist);
 
     return g_test_run();
 }
