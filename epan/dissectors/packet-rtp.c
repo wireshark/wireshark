@@ -133,7 +133,9 @@ static const fragment_items rtp_fragment_items = {
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t classicstun_handle;
+static dissector_handle_t stun_handle;
 static dissector_handle_t classicstun_heur_handle;
+static dissector_handle_t stun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
 
@@ -246,12 +248,14 @@ static int hf_rtp_ext_rfc5285_appbits = -1;
 static int hf_rtp_ext_rfc5285_data = -1;
 
 #define RTP0_INVALID 0
-#define RTP0_CLASSICSTUN    1
-#define RTP0_T38     2
-#define RTP0_SPRT    3
+#define RTP0_STUN    1
+#define RTP0_CLASSICSTUN    2
+#define RTP0_T38     3
+#define RTP0_SPRT    4
 
 static const enum_val_t rtp_version0_types[] = {
 	{ "invalid", "Invalid or ZRTP packets", RTP0_INVALID },
+	{ "stun", "STUN packets", RTP0_STUN },
 	{ "classicstun", "CLASSIC-STUN packets", RTP0_CLASSICSTUN },
 	{ "t38", "T.38 packets", RTP0_T38 },
 	{ "sprt", "SPRT packets", RTP0_SPRT },
@@ -920,6 +924,8 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
 			return TRUE;
 		} else {
 			switch (global_rtp_version0_type) {
+			case RTP0_STUN:
+				return call_dissector_only(stun_heur_handle, tvb, pinfo, tree, NULL);
 			case RTP0_CLASSICSTUN:
 				return call_dissector_only(classicstun_heur_handle, tvb, pinfo, tree, NULL);
 
@@ -1498,6 +1504,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if (version == 0) {
 		switch (global_rtp_version0_type) {
+		case RTP0_STUN:
+			call_dissector(stun_handle, tvb, pinfo, tree);
+			return;
 		case RTP0_CLASSICSTUN:
 			call_dissector(classicstun_handle, tvb, pinfo, tree);
 			return;
@@ -3099,8 +3108,10 @@ proto_reg_handoff_rtp(void)
 		dissector_add_uint("rtp.hdr_ext", RTP_ED137A_SIG, rtp_hdr_ext_ed137a_handle);
 
 		data_handle = find_dissector("data");
+		stun_handle = find_dissector("stun-udp");
 		classicstun_handle = find_dissector("classicstun");
 		classicstun_heur_handle = find_dissector("classicstun-heur");
+		stun_heur_handle = find_dissector("stun-heur");
 		t38_handle = find_dissector("t38");
 		zrtp_handle = find_dissector("zrtp");
 
