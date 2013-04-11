@@ -794,9 +794,17 @@ void change_interface_selection(gchar* name, gboolean activate)
 void change_selection_for_all(gboolean enable)
 {
     guint i;
+    gboolean all = FALSE;
+    interface_t device;
 
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        change_interface_selection(g_array_index(global_capture_opts.all_ifaces, interface_t, i).name, enable);
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        all = strcmp(device.name, "any");
+        if (all) {
+            change_interface_selection(device.name, enable);
+        } else {
+            change_interface_selection(device.name, FALSE);
+        }
     }
 }
 #endif

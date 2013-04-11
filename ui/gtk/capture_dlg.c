@@ -3135,28 +3135,39 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkWidget    *pcap_ng_cb;
-  gboolean      enabled = FALSE, capture_set = FALSE;
+  gchar        *interface = NULL;
+  gboolean      enabled = FALSE, capture_set = FALSE, pseudo = FALSE;
+  guint16       num_temp;
 
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
+  num_temp = global_capture_opts.num_selected++;
   if (gtk_tree_model_get_iter_first(model, &iter)) {
     do {
-      gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, -1);
-      if (!capture_set && enabled) {
-        global_capture_opts.num_selected++;
-      } else if (capture_set && !enabled) {
-        global_capture_opts.num_selected--;
+      gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, IFACE_HIDDEN_NAME, &interface, -1);
+      if (strcmp(interface, "any") == 0) {
+        pseudo = TRUE;
       }
-      gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
+      if (!capture_set && enabled && !pseudo) {
+        num_temp++;
+      } else if (capture_set && (!enabled || (enabled && pseudo))) {
+        num_temp--;
+      }
+      if (!pseudo) {
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
+      } else {
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, -1);
+      }
+      pseudo = FALSE;
     } while (gtk_tree_model_iter_next(model, &iter));
   }
-  if (global_capture_opts.num_selected >= 2) {
+  if (num_temp >= 2) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), TRUE);
     gtk_widget_set_sensitive(pcap_ng_cb, FALSE);
-  } else if (global_capture_opts.num_selected <= 1) {
+  } else if (num_temp <= 1) {
     gtk_widget_set_sensitive(pcap_ng_cb, TRUE);
   }
   if (interfaces_dialog_window_present()) {
@@ -3164,6 +3175,9 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   }
   if (get_welcome_window() != NULL) {
     change_selection_for_all(enabled);
+  }
+  if (global_capture_opts.num_selected != num_temp) {
+    global_capture_opts.num_selected = num_temp;
   }
   if (global_capture_opts.num_selected > 0) {
     gtk_widget_set_sensitive(ok_bt, TRUE);
