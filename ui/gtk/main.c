@@ -2928,6 +2928,13 @@ main(int argc, char *argv[])
       }
     }
   }
+  if (global_capture_opts.num_selected == 0 && global_capture_opts.all_ifaces->len == 1) {
+    interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, 0);
+    device.selected = TRUE;
+    global_capture_opts.num_selected++;
+    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, 0);
+    g_array_insert_val(global_capture_opts.all_ifaces, 0, device);
+  }
 #endif
 
   /* disabled protocols as per configuration file */
