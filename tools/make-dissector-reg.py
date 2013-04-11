@@ -37,26 +37,27 @@ if registertype == "plugin" or registertype == "plugin_wtap":
 	cache_filename = None
 	preamble = """\
 /*
- * Do not modify this file.
+ * Do not modify this file. Changes will be overwritten.
  *
- * It is created automatically by Makefile or Makefile.nmake.
+ * Generated automatically from %s.
  */
-"""
+""" % (sys.argv[0])
 elif registertype == "dissectors":
 	final_filename = "register.c"
 	cache_filename = "register-cache.pkl"
 	preamble = """\
 /*
- * Do not modify this file.
+ * Do not modify this file. Changes will be overwritten.
  *
- * It is created automatically by the "register.c" target in
- * epan/dissectors/Makefile or Makefile.nmake using information in
- * epan/dissectors/register-cache.pkl.
+ * Generated automatically by the "register.c" target in
+ * epan/dissectors/Makefile or Makefile.nmake using
+ * %s
+ * and information in epan/dissectors/register-cache.pkl.
  *
  * You can force this file to be regenerated completely by deleting
  * it along with epan/dissectors/register-cache.pkl.
  */
-"""
+""" % (sys.argv[0])
 else:
 	print(("Unknown output type '%s'" % registertype))
 	sys.exit(1)
