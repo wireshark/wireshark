@@ -154,6 +154,12 @@ void InterfaceTree::getInterfaceList()
             addTopLevelItem(ti);
             // XXX Add other device information
             resizeColumnToContents(1);
+            if (strstr(prefs.capture_device, device.name) != NULL) {
+                device.selected = TRUE;
+                global_capture_opts.num_selected++;
+                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+            }
             if (device.selected) {
                 ti->setSelected(true);
             }
