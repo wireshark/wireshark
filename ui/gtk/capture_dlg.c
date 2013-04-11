@@ -4696,7 +4696,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_set_sensitive(GTK_WIDGET(all_cb), if_present);
   /* Promiscuous mode row */
-  promisc_cb = gtk_check_button_new_with_mnemonic("Capture all in _promiscuous mode");
+  promisc_cb = gtk_check_button_new_with_mnemonic("Use _promiscuous mode on all interfaces");
   if (!global_capture_opts.session_started) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), prefs.capture_prom_mode);
   } else {
@@ -4706,9 +4706,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
-    "If you want to capture all traffic that all network adapters can \"see\", mark this option. "
-    "If you want to set this option on a per interface basis, unmark this button and set the "
-    "option individually."
+    "If you want to capture all traffic that all network adapters can \"see\", select this option. "
+    "If you want to set this option on a per-interface basis, do not select this option. "
+    "Instead, select the individual checkboxes in the interface list's \"Prom. Mode\" column. "
     "See the FAQ for some more details of capturing packets from a switched network.");
   gtk_box_pack_start(GTK_BOX(left_vb), promisc_cb, TRUE, TRUE, DLG_LABEL_SPACING);
 
@@ -4965,7 +4965,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Capture limits frame */
-  limit_fr = frame_new("Stop Capture...");
+  limit_fr = frame_new("Stop Capture Automatically After...");
   gtk_box_pack_start(GTK_BOX (left_vb), limit_fr, TRUE, TRUE, 0);
 
   limit_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
@@ -4982,11 +4982,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row = 0;
 
   /* Packet count row */
-  stop_packets_cb = gtk_check_button_new_with_label("after");
+  stop_packets_cb = gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_packets_cb),
                                global_capture_opts.has_autostop_packets);
   g_signal_connect(stop_packets_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-  gtk_widget_set_tooltip_text(stop_packets_cb, "Stop capturing after the given number of packets have been captured.");
+  gtk_widget_set_tooltip_text(stop_packets_cb, "Stop capturing after the specified number of packets have been captured.");
   ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_packets_cb, 0, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
@@ -5006,11 +5006,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Filesize row */
-  stop_filesize_cb = gtk_check_button_new_with_label("after");
+  stop_filesize_cb = gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_filesize_cb),
                                global_capture_opts.has_autostop_filesize);
   g_signal_connect(stop_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-  gtk_widget_set_tooltip_text(stop_filesize_cb, "Stop capturing after the given amount of capture data has been captured.");
+  gtk_widget_set_tooltip_text(stop_filesize_cb, "Stop capturing after the specified amount of data has been captured.");
   ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cb, 0, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
@@ -5032,11 +5032,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row++;
 
   /* Duration row */
-  stop_duration_cb = gtk_check_button_new_with_label("after");
+  stop_duration_cb = gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_duration_cb),
                                global_capture_opts.has_autostop_duration);
   g_signal_connect(stop_duration_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-  gtk_widget_set_tooltip_text(stop_duration_cb, "Stop capturing after the given time is exceeded.");
+  gtk_widget_set_tooltip_text(stop_duration_cb, "Stop capturing after the specified amount of time has passed.");
   ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cb, 0, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
@@ -5076,7 +5076,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX (display_vb), sync_cb, TRUE, TRUE, 0);
 
   /* "Auto-scroll live update" row */
-  auto_scroll_cb = gtk_check_button_new_with_mnemonic("_Automatic scrolling in live capture");
+  auto_scroll_cb = gtk_check_button_new_with_mnemonic("_Automatically scroll during live capture");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
   gtk_widget_set_tooltip_text(auto_scroll_cb,
     "This will scroll the \"Packet List\" automatically to the latest captured packet, "
@@ -5098,26 +5098,26 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
 
   m_resolv_cb = gtk_check_button_new_with_mnemonic(
-                "Enable _MAC name resolution");
+                "Resolve _MAC addresses");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
                 gbl_resolv_flags.mac_name);
   gtk_widget_set_tooltip_text(m_resolv_cb, "Perform MAC layer name resolution while capturing.");
   gtk_box_pack_start(GTK_BOX (resolv_vb), m_resolv_cb, TRUE, TRUE, 0);
 
+  n_resolv_cb = gtk_check_button_new_with_mnemonic(
+                "Resolve _network-layer names");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
+                gbl_resolv_flags.network_name);
+  gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
+  gtk_box_pack_start(GTK_BOX (resolv_vb), n_resolv_cb, TRUE, TRUE, 0);
+
   t_resolv_cb = gtk_check_button_new_with_mnemonic(
-                "Enable _transport name resolution");
+                "Resolve _transport-layer name");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
                 gbl_resolv_flags.transport_name);
   gtk_widget_set_tooltip_text(t_resolv_cb,
     "Perform transport layer name resolution while capturing.");
   gtk_box_pack_start(GTK_BOX (resolv_vb), t_resolv_cb, TRUE, TRUE, 0);
-
-  n_resolv_cb = gtk_check_button_new_with_mnemonic(
-                "Enable _network name resolution");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-                gbl_resolv_flags.network_name);
-  gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), n_resolv_cb, TRUE, TRUE, 0);
 
   e_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Use _external network name resolver");
