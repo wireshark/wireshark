@@ -1939,15 +1939,24 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset += 2;
 
             /* Signal Level */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_int_format_value(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Noise Level */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_int_format_value(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* RERL */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_uint_format_value(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* GMin */
@@ -1955,21 +1964,33 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset++;
 
             /* R factor */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_uint_format_value(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* external R Factor */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_uint_format_value(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* MOS LQ */
-            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1,
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_float_format_value(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1,
                                  (float) (tvb_get_guint8(tvb, offset) / 10.0));
             offset++;
 
             /* MOS CQ */
-            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1,
-                                 (float) (tvb_get_guint8(tvb, offset) / 10.0));
+            if (tvb_get_guint8(tvb, offset) == 0x7f)
+                proto_tree_add_float_format_value(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1, 0x7f, "Unavailable");
+            else
+                proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1,
+                                     (float) (tvb_get_guint8(tvb, offset) / 10.0));
             offset++;
 
             /* PLC, JB Adaptive, JB Rate */
@@ -4188,7 +4209,7 @@ proto_register_rtcp(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Signal level of 127 indicates this parameter is unavailable", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -4200,7 +4221,7 @@ proto_register_rtcp(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "Noise level of 127 indicates this parameter is unavailable", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -4236,7 +4257,7 @@ proto_register_rtcp(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "R Factor is in the range of 0 to 100; 127 indicates this parameter is unavailable", HFILL
+                "R Factor is in the range of 0 to 100", HFILL
             }
         },
         {
@@ -4248,7 +4269,7 @@ proto_register_rtcp(void)
                 BASE_DEC,
                 NULL,
                 0x0,
-                "R Factor is in the range of 0 to 100; 127 indicates this parameter is unavailable", HFILL
+                "R Factor is in the range of 0 to 100", HFILL
             }
         },
         {
@@ -4260,7 +4281,7 @@ proto_register_rtcp(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
+                "MOS is in the range of 1 to 5", HFILL
             }
         },
         {
@@ -4272,7 +4293,7 @@ proto_register_rtcp(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
+                "MOS is in the range of 1 to 5", HFILL
             }
         },
         {
