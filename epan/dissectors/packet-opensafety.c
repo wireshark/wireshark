@@ -46,6 +46,7 @@
 #include <epan/etypes.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-udp.h>
 #include <epan/dissectors/packet-frame.h>
@@ -186,6 +187,7 @@ static const value_string sn_fail_error_group[] = {
     { 2, "Parameter" },
     { 3, "Vendor specific" },
     { 4, "openSAFETY Stack" },
+    { 5, "Additional parameter needed" },
     { 0, NULL }
 };
 
@@ -252,23 +254,105 @@ static const true_false_string opensafety_sacmd_blk  = { "Block Transfer", "Norm
 
 #define OPENSAFETY_SPDO_CONNECTION_VALID  0x04
 
+#define OPENSAFETY_SOD_DVI 0x1018
+#define OPENSAFETY_SOD_RXMAP 0x1800
+#define OPENSAFETY_SOD_TXMAP 0xC000
+
 static const value_string sod_idx_names[] = {
-        /* SSDO dictionary names, only names that are in common use are presented */
+    /* SSDO dictionary names, only names that are in common use are presented */
+    { 0x100C0000, "Life Guarding" },
+    { 0x100C0001, "Guard Time" },
+    { 0x100C0002, "LifeTimeFactor" },
 
-        { 0x10180000,  "Device Vendor Information" },
-        { 0x10180001,  "VendorID" },
-        { 0x10180002,  "ProductCode" },
-        { 0x10180003,  "RevisionNumber" },
-        { 0x10180004,  "SerialNumber" },
-        { 0x10180005,  "FirmWareChecksum" },
-        { 0x10180006,  "Parameter Checksum" },
-        { 0x10180007,  "Parameter Timestamp" },
+    { 0x100D0000, "Number of Retries for Reset Guarding" },
 
-        { 0x10190000,  "Unique Device ID" },
-        { 0x101A0000,  "Parameter Download" },
-        { 0x101B0000,  "SCM Parameters" },
+    { 0x10180000 ,  "Device Vendor Information" },
+    { 0x10180001,  "VendorID" },
+    { 0x10180002,  "ProductCode" },
+    { 0x10180003,  "RevisionNumber" },
+    { 0x10180004,  "SerialNumber" },
+    { 0x10180005,  "FirmWareChecksum" },
+    { 0x10180006,  "Parameter Checksum" },
+    { 0x10180007,  "Parameter Timestamp" },
 
-        { 0, NULL }
+    { 0x10190000,  "Unique Device ID" },
+    { 0x101A0000,  "Parameter Download" },
+    { 0x101B0000,  "SCM Parameters" },
+
+    { 0x12000000, "Common Communication Parameters" },
+    { 0x12000001, "Safety Domain Number" },
+    { 0x12000002, "SADR" },
+    { 0x12000003, "Consecutive Timebase" },
+    { 0x12000004, "UDID of SCM" },
+
+    { 0x14000000, "RxSPDO Communication Parameters" },
+    { 0x14000001, "SADR" },
+    { 0x14000002, "SCT" },
+    { 0x14000003, "Number of consecutive TReq" },
+    { 0x14000004, "Time delay TReq" },
+    { 0x14000005, "Time delay Sync" },
+    { 0x14000006, "Min TSync Propagation Delay" },
+    { 0x14000007, "Max TSync Propagation Delay" },
+    { 0x14000008, "Min SPDO Propagation Delay" },
+    { 0x14000009, "Max SPDO Propagation Delay" },
+    { 0x1400000A, "Best case TRes Delay" },
+    { 0x1400000B, "Time Request Cycle" },
+    { 0x1400000C, "TxSPDO No" },
+
+    { 0x18000000, "RxSPDO Mapping Parameters" },
+
+    { 0x1C000000, "TxSPDO Communication Parameters" },
+    { 0x1C000001, "SADR for broadcast" },
+    { 0x1C000002, "Refresh Prescale" },
+    { 0x1C000003, "Number of TRes" },
+
+    { 0x20000000, "Manufacturer Parameters" },
+    { 0x20010000, "Used Channels" },
+
+    { 0x21000000, "Safe Machine Options" },
+
+    { 0x21010000, "SDG CRC Configuration" },
+    { 0x21010001, "SDG CRC #1" },
+    { 0x21010002, "SDG CRC #2" },
+    { 0x21010003, "SDG CRC #3" },
+    { 0x21010004, "SDG CRC #4" },
+    { 0x21010005, "SDG CRC #5" },
+    { 0x21010006, "SDG CRC #6" },
+    { 0x21010007, "SDG CRC #7" },
+    { 0x21010008, "SDG CRC #8" },
+    { 0x21010009, "SDG CRC #9" },
+    { 0x2101000A, "SDG CRC #10" },
+
+    { 0x21120000, "Manufacturer - Module specific" },
+    { 0x21120002, "PDOmapRx" },
+    { 0x21120003, "PDOmapTx" },
+    { 0x21120004, "CycleTime min [us]" },
+    { 0x21120005, "CycleTime max [us]" },
+    { 0x21120006, "Used Channels (same as 0x2001)" },
+    { 0x21120007, "External Machine Options" },
+    { 0x21120008, "Parameter for SafeMC" },
+
+    { 0xC0000000, "TxSPDO Mapping Parameters" },
+
+    { 0xD0000000, "SCM Module Flags" },
+    { 0xD0000001, "BCM" },
+    { 0xD0000002, "Optional" },
+    { 0xD0000003, "Startup" },
+    { 0xD0000004, "EMOs" },
+    { 0xD0000005, "ext. Startup-Flags allowed" },
+    { 0xD0000006, "Remote-Ctrl allowed" },
+    { 0xD0000007, "Scans at startup" },
+    { 0xD0000008, "Not Present" },
+    { 0xD0000009, "Use Remanent Data" },
+    { 0xD000000A, "SCM-AR specific" },
+
+    { 0xD0100000, "Remanent Data" },
+    { 0xD0100001, "DINT" },
+
+    { 0xD0110000, "Remanent Data" },
+    { 0xD0110001, "DUINT" },
+
+    { 0, NULL }
 };
 
 static const value_string abort_codes[] = {
@@ -332,10 +416,14 @@ static const true_false_string opensafety_message_direction = { "Request", "Resp
 #define OSS_MINIMUM_LENGTH                  0x0b   /* 11 */
 
 #define OSS_FRAME_ADDR(f, offset)        (f[OSS_FRAME_POS_ADDR + offset] + ((guint8)((f[OSS_FRAME_POS_ADDR + offset + 1]) << 6) << 2))
-#define OSS_FRAME_ID(f, offset)          ((f[OSS_FRAME_POS_ID + offset] >> 2 ) << 2)
+#define OSS_FRAME_ID(f, offset)          (f[OSS_FRAME_POS_ID + offset] & 0xFC )
 #define OSS_FRAME_LENGTH(f, offset)      (f[OSS_FRAME_POS_LEN + offset])
 #define OSS_FRAME_FIELD(f, position)       (f[position])
 
+#define OSS_FRAME_ADDR_T(f, offset)        (tvb_get_guint8(f, OSS_FRAME_POS_ADDR + offset) + ((guint8)((tvb_get_guint8( f, OSS_FRAME_POS_ADDR + offset + 1)) << 6) << 2))
+#define OSS_FRAME_ADDR_T2(f, offset, su1, su2)        (( tvb_get_guint8(f, OSS_FRAME_POS_ADDR + offset) ^ su1) + ((guint8)(((tvb_get_guint8( f, OSS_FRAME_POS_ADDR + offset + 1) ^ su2)) << 6) << 2))
+#define OSS_FRAME_ID_T(f, offset)          (tvb_get_guint8(f, OSS_FRAME_POS_ID + offset) & 0xFC)
+#define OSS_FRAME_LENGTH_T(f, offset)      (tvb_get_guint8(f, OSS_FRAME_POS_LEN + offset))
 
 static int proto_opensafety = -1;
 
@@ -345,6 +433,10 @@ static gint ett_opensafety_snmt = -1;
 static gint ett_opensafety_ssdo = -1;
 static gint ett_opensafety_spdo = -1;
 static gint ett_opensafety_ssdo_sacmd = -1;
+static gint ett_opensafety_ssdo_payload = -1;
+static gint ett_opensafety_ssdo_sodentry = -1;
+static gint ett_opensafety_ssdo_extpar = -1;
+static gint ett_opensafety_sod_mapping = -1;
 static gint ett_opensafety_sender = -1;
 static gint ett_opensafety_receiver = -1;
 
@@ -356,7 +448,6 @@ static int hf_oss_msg_network = -1;
 static int hf_oss_msg_sender = -1;
 static int hf_oss_msg_receiver = -1;
 static int hf_oss_length= -1;
-/* static int hf_oss_data = -1; */
 static int hf_oss_crc = -1;
 
 static int hf_oss_crc_valid = -1;
@@ -367,22 +458,27 @@ static int hf_oss_snmt_master        = -1;
 static int hf_oss_snmt_udid          = -1;
 static int hf_oss_snmt_scm           = -1;
 static int hf_oss_snmt_tool          = -1;
-static int hf_oss_snmt_timestamp     = -1;
 static int hf_oss_snmt_service_id    = -1;
 static int hf_oss_snmt_error_group   = -1;
 static int hf_oss_snmt_error_code    = -1;
 
 static int hf_oss_ssdo_server        = -1;
 static int hf_oss_ssdo_client        = -1;
-/* static int hf_oss_ssdo_sano          = -1; */
+static int hf_oss_ssdo_sano          = -1;
 static int hf_oss_ssdo_sacmd         = -1;
 static int hf_oss_ssdo_sod_index     = -1;
 static int hf_oss_ssdo_sod_subindex  = -1;
 static int hf_oss_ssdo_payload       = -1;
 static int hf_oss_ssdo_payload_size  = -1;
-/* static int hf_oss_ssdo_segment_size  = -1; */
+static int hf_oss_ssdo_sodentry_size = -1;
+static int hf_oss_ssdo_sodentry_data = -1;
 /* static int hf_oss_ssdo_inhibit_time  = -1; */
 static int hf_oss_ssdo_abort_code    = -1;
+
+static int hf_oss_sod_par_timestamp = -1;
+static int hf_oss_sod_par_checksum  = -1;
+static int hf_oss_ssdo_sodmapping = -1;
+static int hf_oss_ssdo_sodmapping_bits = -1;
 
 static int hf_oss_ssdo_sacmd_access_type     = -1;
 /* static int hf_oss_ssdo_sacmd_reserved        = -1; */
@@ -392,6 +488,15 @@ static int hf_oss_ssdo_sacmd_toggle          = -1;
 static int hf_oss_ssdo_sacmd_initiate        = -1;
 static int hf_oss_ssdo_sacmd_end_segment     = -1;
 static int hf_oss_ssdo_sacmd_block_transfer  = -1;
+
+static int hf_oss_ssdo_extpar_parset = -1;
+static int hf_oss_ssdo_extpar_version = -1;
+static int hf_oss_ssdo_extpar_saddr = -1;
+static int hf_oss_ssdo_extpar_length = -1;
+static int hf_oss_ssdo_extpar_crc = -1;
+static int hf_oss_ssdo_extpar_tstamp = -1;
+static int hf_oss_ssdo_extpar_data = -1;
+static int hf_oss_ssdo_extpar = -1;
 
 static int hf_oss_scm_udid           = -1;
 static int hf_oss_scm_udid_auto      = -1;
@@ -406,9 +511,48 @@ static int hf_oss_spdo_time_request       = -1;
 static int hf_oss_spdo_time_request_to    = -1;
 static int hf_oss_spdo_time_request_from  = -1;
 
+static int hf_oss_fragments = -1;
+static int hf_oss_fragment = -1;
+static int hf_oss_fragment_overlap = -1;
+static int hf_oss_fragment_overlap_conflicts = -1;
+static int hf_oss_fragment_multiple_tails = -1;
+static int hf_oss_fragment_too_long_fragment = -1;
+static int hf_oss_fragment_error = -1;
+static int hf_oss_fragment_count = -1;
+static int hf_oss_reassembled_in = -1;
+static int hf_oss_reassembled_length = -1;
+static int hf_oss_reassembled_data = -1;
+
+static gint ett_opensafety_ssdo_fragment = -1;
+static gint ett_opensafety_ssdo_fragments = -1;
+
+static const fragment_items oss_frag_items = {
+    /* Fragment subtrees */
+    &ett_opensafety_ssdo_fragment,
+    &ett_opensafety_ssdo_fragments,
+    /* Fragment fields */
+    &hf_oss_fragments,
+    &hf_oss_fragment,
+    &hf_oss_fragment_overlap,
+    &hf_oss_fragment_overlap_conflicts,
+    &hf_oss_fragment_multiple_tails,
+    &hf_oss_fragment_too_long_fragment,
+    &hf_oss_fragment_error,
+    &hf_oss_fragment_count,
+    /* Reassembled in field */
+    &hf_oss_reassembled_in,
+    /* Reassembled length field */
+    &hf_oss_reassembled_length,
+    /* Reassembled data */
+    &hf_oss_reassembled_data,
+    /* Tag */
+    "Message fragments"
+};
+
 static const char *global_scm_udid = "00:00:00:00:00:00";
 static gboolean global_scm_udid_autoset = TRUE;
 static gboolean global_udp_frame2_first = FALSE;
+static gboolean global_siii_udp_frame2_first = FALSE;
 static gboolean global_mbtcp_big_endian = FALSE;
 static guint global_network_udp_port = UDP_PORT_OPENSAFETY;
 static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
@@ -425,6 +569,8 @@ static gboolean bDissector_Called_Once_Before = FALSE;
  * enable automatic detection of scm udid */
 static char *local_scm_udid = NULL;
 
+static reassembly_table os_reassembly_table;
+
 /* Resets the dissector in case the dissection is malformed and the dissector crashes */
 static void
 reset_dissector(void)
@@ -437,6 +583,8 @@ setup_dissector(void)
 {
     if ( local_scm_udid != NULL )
         local_scm_udid = NULL;
+
+    reassembly_table_init(&os_reassembly_table, &addresses_reassembly_table_functions);
 }
 
 void proto_register_opensafety(void);
@@ -444,16 +592,17 @@ void proto_reg_handoff_opensafety(void);
 
 void opensafety_add_expert_note(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
 {
-	va_list ap;
+    va_list ap;
 
-	va_start(ap, format);
-	expert_add_info_format(pinfo, pi, group, severity, format, ap);
-	va_end(ap);
+    va_start(ap, format);
+    expert_add_info_format(pinfo, pi, group, severity, format, ap);
+    va_end(ap);
 }
 
 #define opensafety_add_warning(pinf, pi, fmt) opensafety_add_expert_note (pinf, pi, PI_PROTOCOL, PI_WARN, fmt)
 #define opensafety_add_warning1(pinf, pi, fmt, arg1) opensafety_add_expert_note (pinf, pi, PI_PROTOCOL, PI_WARN, fmt, arg1)
 #define opensafety_add_error(pinf, pi, fmt) opensafety_add_expert_note (pinf, pi, PI_MALFORMED, PI_ERROR, fmt)
+#define opensafety_add_error1(pinf, pi, fmt, arg1, arg2, arg3) opensafety_add_expert_note (pinf, pi, PI_MALFORMED, PI_ERROR, fmt, arg1)
 #define opensafety_add_note(pinf, pi, fmt) opensafety_add_expert_note (pinf, pi, PI_UNDECODED, PI_NOTE, fmt)
 
 /* Conversation functions */
@@ -509,12 +658,13 @@ void opensafety_add_expert_note(packet_info *pinfo, proto_item *pi, int group, i
         }
 
 static guint16
-findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSlimMistake )
+findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLength, gboolean checkIfSlimMistake )
 {
     guint16 i_wFrame1Position                   = 0;
     guint16 i_payloadLength, i_calculatedLength = 0;
     guint16 i_offset                            = 0, calcCRC = 0, frameCRC = 0;
     guint8  b_tempByte                          = 0;
+    guint8 *bytes = NULL;
 
     /*
      * First, a normal package get's assumed. Calculation of frame 1 position is
@@ -522,7 +672,7 @@ findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSli
      * results in frame 1 start at (6 + n + o), which is length / 2 + 1
      */
     i_wFrame1Position = dataLength / 2 + 1;
-    i_payloadLength = byteStream [ i_wFrame1Position + 2 ];
+    i_payloadLength = tvb_get_guint8(message_tvb, byte_offset + i_wFrame1Position + 2 );
     /* Calculating the assumed frame length, taking CRC8/CRC16 into account */
     i_calculatedLength = i_payloadLength * 2 + 11 + 2 * (i_payloadLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? 1 : 0);
 
@@ -531,14 +681,16 @@ findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSli
      * is somewhat time consuming, so it will only run if the normal check led to a mistake detected along the line */
     if ( checkIfSlimMistake && i_calculatedLength == dataLength )
     {
+    	bytes = (guint8*)ep_tvb_memdup(message_tvb, byte_offset + i_wFrame1Position, dataLength + 4);
         if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
-            calcCRC = crc16_0x5935(&byteStream[i_wFrame1Position], dataLength + 4, 0);
+            calcCRC = crc16_0x5935(bytes, dataLength + 4, 0);
         else
-            calcCRC = crc8_0x2F(&byteStream[i_wFrame1Position], dataLength + 4, 0);
+            calcCRC = crc8_0x2F(bytes, dataLength + 4, 0);
 
-        frameCRC = byteStream[i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA];
         if (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
-            frameCRC += (byteStream[i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA + 1] << 8);
+            frameCRC = tvb_get_letohs(message_tvb,  byte_offset + i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA);
+        else
+            frameCRC = tvb_get_guint8(message_tvb,  byte_offset + i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA);
 
         /* if the calculated crc does not match the detected, the package is not a normal openSAFETY package */
         if ( frameCRC != calcCRC )
@@ -556,7 +708,7 @@ findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSli
          */
         i_offset = OSS_SLIM_FRAME2_WITH_CRC8 + ( dataLength < (OSS_SLIM_FRAME_WITH_CRC8_MAXSIZE + 1) ? 0 : 1 );
         /* Last 2 digits belong to addr, therefore have to be cleared */
-        b_tempByte = ( ( byteStream [ i_offset + 1 ] ) >> 2 ) << 2;
+        b_tempByte = ( tvb_get_guint8 ( message_tvb, byte_offset + i_offset + 1 ) ) & 0xFC;
 
         /* If the id byte xor 0xE8 is 0, we have a slim package */
         if ( ( ( b_tempByte ^ OPENSAFETY_MSG_SSDO_SLIM_SERVICE_REQUEST ) == 0 ) ||
@@ -570,108 +722,107 @@ findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSli
     return i_wFrame1Position;
 }
 
-/*
- * This function applies the given UDID to the bytestream, considering the start of frame 2
- */
-static guint8 *unxorFrame(guint dataLength, guint8 byteStream[], guint16 frameStart1, guint16 frameStart2, guint8 scmUDID[])
+static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
 {
-    guint8 * pb_sendMemBlock;
-    guint    k;
-    guint8   frame1Size;
-
-    frame1Size = ( frameStart2 > frameStart1 ? frameStart2 : dataLength - frameStart1 );
-    frame1Size = MIN(frame1Size, dataLength);
-
-    pb_sendMemBlock = (guint8*) ep_alloc0( sizeof(guint8) * dataLength);
-
-    memcpy ( &pb_sendMemBlock[frameStart1], &byteStream[frameStart1], frame1Size );
-
-    for ( k = 0; k < (guint)(dataLength - frame1Size); k++)
-        pb_sendMemBlock [ k + frameStart2 ] = byteStream [ k + frameStart2 ] ^ scmUDID[ ( k % 6 ) ];
-
-    return pb_sendMemBlock;
-}
-
-static guint8 findSafetyFrame ( guint8 *pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
-{
-    guint    n;
+    guint    ctr, rem_length;
     guint16  crc, calcCrc;
-    guint8   b_ID, b_Length, crcOffset, leftShifted;
+    guint8   b_Length, crcOffset;
+    guint8   *bytes;
+    guint    b_ID;
     gboolean found;
 
     found = 0;
-    for ( n = u_Offset; n < ( u_Offset + length ); n++)
+    ctr = u_Offset;
+    rem_length = tvb_reported_length_remaining (message_tvb, ctr);
+
+    while ( rem_length >= OSS_MINIMUM_LENGTH)
     {
         /* The ID byte must ALWAYS be the second byte, therefore 0 is invalid */
-        if ( n == 0 )
-            continue;
-
-        *u_frameLength = 0;
-        *u_frameOffset = 0;
-
-        crcOffset = 0;
-        b_ID = pBuffer [ n ];
-        b_Length = pBuffer [ n + 1 ];
-
-        /* 0xFF is often used, but always false, otherwise start detection, if the highest
-         *  bit is set */
-        if ( ( b_ID != 0xFF ) && ( b_ID & 0x80 ) )
+        if ( ctr != 0 )
         {
-            /* If the determined size could be bigger then the data to be dissected,
-             * we have an error, return */
-            if ( ( b_Length + n ) > ( u_Offset + length ) )
-                continue;
+            *u_frameLength = 0;
+            *u_frameOffset = 0;
 
-            leftShifted = b_ID >> 4;
-            /* An openSAFETY command has to have a high-byte range between 0x0A and 0x0E
-             *  b_ID 0x80 took care of everything underneath, we check for 0x09 and 0x0F,
-             *  as they remain the only values left, which are not valid */
-            if ( ( leftShifted == 0x09 ) || ( leftShifted == 0x0F ) )
-                continue;
+            crcOffset = 0;
+            b_ID = tvb_get_guint8(message_tvb, ctr );
 
-            /* Find CRC position and calculate checksum */
-            calcCrc = 0;
-            crc = pBuffer [ n + 3 + b_Length ];
-            if ( b_Length > 8 ) {
-                crc += ( ( pBuffer [ n + 4 + b_Length ] ) << 8 );
-                crcOffset = 1;
-                if ( crc != 0x00 )
-                    calcCrc = crc16_0x5935( &pBuffer [ n - 1 ], b_Length + 4, 0 );
-            } else {
-                if ( crc != 0x00 )
-                    calcCrc = crc8_0x2F ( &pBuffer [ n - 1 ], b_Length + 4, 0 );
-            }
-
-            if ( ( crc != 0x00 ) && ( crc ^ calcCrc ) == 0 )
+            if ( b_ID != 0x0 )
             {
-                /* We have found a Slim frame. Those are not correctly identified yet */
-                if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
-                {
-                    *u_frameOffset = ( n - 1 );
-                    *u_frameLength = b_Length + 2 * crcOffset + 11;
-                    found = 1;
-                    break;
-                }
-                else
-                {
-                    *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
-                    *u_frameOffset = ( n - 1 );
-                    /* EPL SoC messages can be falsely detected as openSAFETY frames,
-                     *  so we check if both checksums have no lower byte of 0x00. This
-                     *  check remains, although SoC and SoA messages get sorted out in
-                     *  the dissector */
-                    if ( pBuffer [ *u_frameOffset + *u_frameLength - 2 ] == 0x00 &&
-                        pBuffer [ *u_frameOffset + *u_frameLength - 1 ] == 0x00 )
-                        continue;
+                b_Length = tvb_get_guint8(message_tvb, ctr + 1 );
 
-                    found = 1;
-                    break;
+                /* 0xFF is often used, but always false, otherwise start detection, if the highest
+                 *  bit is set */
+                if ( ( b_ID != 0xFF ) && ( b_ID & 0x80 ) )
+                {
+                    /* The calculated length must fit, but for the CRC16 check, also the calculated length
+                    * plus the CRC16 end position must fit in the remaining length */
+                    if ( ( b_Length <= (guint) 8 && ( b_Length <= rem_length ) ) ||
+                        ( b_Length > (guint) 8 && ( ( b_Length + (guint) 5 ) <= rem_length ) ) )
+                    {
+                        /* Ensure, that the correct length for CRC calculation
+                         * still exists in byte stream, so that we can calculate the crc */
+                        if ( tvb_bytes_exist(message_tvb, ctr - 1, b_Length + 5) )
+                        {
+                            /* An openSAFETY command has to have a high-byte range between 0x0A and 0x0E
+                             *  b_ID 0x80 took care of everything underneath, we check for 0x09 and 0x0F,
+                             *  as they remain the only values left, which are not valid */
+                            if ( ( ( b_ID >> 4 ) != 0x09 ) && ( ( b_ID >> 4 ) != 0x0F ) )
+                            {
+                                /* Find CRC position and calculate checksum */
+                                calcCrc = 0;
+                                crc = tvb_get_guint8(message_tvb, ctr + 3 + b_Length );
+
+                                bytes = (guint8 *)ep_tvb_memdup(message_tvb, ctr - 1, b_Length + 5 );
+                                if ( b_Length > 8 ) {
+                                    crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
+                                    crcOffset = 1;
+
+                                    if ( crc != 0x00 )
+                                        calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
+                                } else {
+                                    if ( crc != 0x00 )
+                                        calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
+                                }
+
+                                if ( ( crc != 0x00 ) && ( crc ^ calcCrc ) == 0 )
+                                {
+                                    /* We have found a Slim frame. Those are not correctly identified yet */
+                                    if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
+                                    {
+                                        *u_frameOffset = ( ctr - 1 );
+                                        *u_frameLength = b_Length + 2 * crcOffset + 11;
+                                        found = 1;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        *u_frameLength = 2 * b_Length + 2 * crcOffset + 11;
+                                        *u_frameOffset = ( ctr - 1 );
+                                        /* EPL SoC messages can be falsely detected as openSAFETY frames,
+                                        *  so we check if both checksums have no lower byte of 0x00. This
+                                        *  check remains, although SoC and SoA messages get sorted out in
+                                        *  the dissector */
+                                        if ( tvb_get_guint8(message_tvb,  *u_frameOffset + *u_frameLength - 2 ) != 0x00 ||
+                                            tvb_get_guint8(message_tvb,  *u_frameOffset + *u_frameLength - 1 ) != 0x00 )
+                                        {
+                                            found = 1;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        ctr++;
+        rem_length = tvb_reported_length_remaining(message_tvb, ctr);
+
     }
 
-    /** Seem redundant if b_frame2First is false. But in this case, the function is needed for the
+    /* Seem redundant if b_frame2First is false. But in this case, the function is needed for the
      * simple detection of a possible openSAFETY frame.  */
     if ( b_frame2first && found )
         *u_frameOffset = u_Offset;
@@ -681,7 +832,7 @@ static guint8 findSafetyFrame ( guint8 *pBuffer, guint32 length, guint u_Offset,
 
 static void
 dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-        guint8 *bytes, guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID)
+        guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID, guint8 scm_udid[6])
 {
     proto_item *item;
     proto_tree *spdo_tree;
@@ -691,20 +842,21 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     guint8      tr, b_ID, conn_Valid;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
-    b_ID = ( bytes[frameStart1 + 1] >> 3 ) << 3;
-    conn_Valid = ( (bytes[frameStart1 + 1] & 0x04) == 0x04);
+    b_ID = tvb_get_guint8(message_tvb, frameStart1 + 1) & 0xF8;
+    conn_Valid = ( (tvb_get_guint8(message_tvb, frameStart1 + 1) & 0x04) == 0x04);
 
-    ct = bytes[frameStart1 + 2];
+    ct = tvb_get_guint8(message_tvb, frameStart1 + 3);
     if ( validSCMUDID )
-        ct = (guint16)(bytes[frameStart2 + 2] << 8) + (bytes[frameStart1 + 2]);
+        ct = (guint16)((tvb_get_guint8(message_tvb, frameStart2 + 2) ^ scm_udid[2]) << 8) +
+        	(tvb_get_guint8(message_tvb, frameStart1 + 3));
 
     /* Network address is xor'ed into the start of the second frame, but only legible, if the scm given is valid */
-    taddr = ( ( OSS_FRAME_ADDR(bytes, frameStart1) ) ^ ( OSS_FRAME_ADDR(bytes, frameStart2) ) );
+    taddr = ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^ ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) );
     if ( ! validSCMUDID )
         taddr = ( -1 * taddr );
 
     /* An SPDO get's always send by the producer, to everybody else */
-    PACKET_SENDER( pinfo, OSS_FRAME_ADDR(bytes, frameStart1), OSS_FRAME_POS_ADDR + frameStart1, frameStart2, taddr );
+    PACKET_SENDER( pinfo, OSS_FRAME_ADDR_T(message_tvb, frameStart1), OSS_FRAME_POS_ADDR + frameStart1, frameStart2, taddr );
 
     item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb,
                                             OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_SPDO_MESSAGE_TYPE,
@@ -724,13 +876,13 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                                      b_ID, "%s", val_to_str_const(b_ID, message_type_values, "Unknown") );
 
     proto_tree_add_uint(spdo_tree, hf_oss_spdo_producer, message_tvb,
-                        OSS_FRAME_POS_ADDR + frameStart1, 2, OSS_FRAME_ADDR(bytes, frameStart1));
+                        OSS_FRAME_POS_ADDR + frameStart1, 2, OSS_FRAME_ADDR_T(message_tvb, frameStart1));
     proto_tree_add_boolean(spdo_tree, hf_oss_spdo_connection_valid, message_tvb,
                            OSS_FRAME_POS_ID + frameStart1, 1, conn_Valid);
 
     /* taddr is the 4th octet in the second frame */
-    taddr = OSS_FRAME_ADDR(bytes, frameStart2 + 3);
-    tr = ( bytes[frameStart2 + 4] << 2 ) >> 2;
+    taddr = OSS_FRAME_ADDR_T2(message_tvb, frameStart2 + 3, scm_udid[3], scm_udid[4]);
+    tr = ( tvb_get_guint8(message_tvb, frameStart2 + 4)  ^ scm_udid[4] ) & 0xFC;
 
     if ( b_ID == OPENSAFETY_MSG_SPDO_DATA_WITH_TIME_REQUEST )
     {
@@ -758,62 +910,188 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     }
 
     if ( dataLength > 0 )
-    {
-        proto_tree_add_bytes(spdo_tree, hf_oss_spdo_payload, message_tvb, OSS_FRAME_POS_ID + 3,
-                            dataLength, &bytes[frameStart1 + 4]);
-
-    }
+    	proto_tree_add_item(spdo_tree, hf_oss_spdo_payload, message_tvb, OSS_FRAME_POS_ID + 3, dataLength, ENC_NA);
 }
 
+static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_tree *ssdo_payload )
+{
+    guint  dataLength = 0, ctr = 0, n = 0;
+    guint8 ssdoSubIndex = 0;
+    guint16 ssdoIndex = 0, dispSSDOIndex = 0;
+    guint32 sodLength = 0, entry = 0;
+    proto_item *item;
+    proto_tree *sod_tree, *ext_tree;
+
+    dataLength = tvb_length(new_tvb);
+
+    ssdoIndex = tvb_get_letohs(new_tvb, 0);
+
+    sodLength = tvb_get_letohl(new_tvb, 4);
+
+    /* first check for extended parameter */
+    if ( dataLength == 16 || sodLength == ( dataLength - 16 ) || ssdoIndex == 0x0101 )
+    {
+        /* extended parameter header & data */
+        item = proto_tree_add_string_format(ssdo_payload, hf_oss_ssdo_extpar,
+                                            new_tvb, 0, dataLength, "", "Extended Parameter Set: %s",
+                                            (dataLength == 16 ? "Header only" : "Header & Data") );
+        ext_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_extpar);
+
+        proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_parset, new_tvb, 0, 1, ENC_BIG_ENDIAN );
+        proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_version, new_tvb, 1, 1, ENC_BIG_ENDIAN );
+        proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_saddr, new_tvb, 2, 2, ENC_LITTLE_ENDIAN );
+
+        proto_tree_add_uint_format_value(ext_tree, hf_oss_ssdo_extpar_length,
+                                         new_tvb, 4, 4, sodLength, "0x%04X (%d octets)",
+                                         sodLength, sodLength );
+
+        proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_crc, new_tvb, 8, 4, ENC_LITTLE_ENDIAN );
+        proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_tstamp, new_tvb, 12, 4, ENC_LITTLE_ENDIAN );
+
+        if ( dataLength != 16 )
+        {
+            item = proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_data, new_tvb, 16, dataLength - 16, ENC_NA );
+
+            if ( ( dataLength - sodLength ) != 16 )
+                opensafety_add_error ( pinfo, item, "Reassembled message size differs from size in header!");
+        }
+    }
+    else
+    {
+        /* normal parameter set */
+        for ( ctr = 0; ctr < dataLength; ctr++ )
+        {
+            ssdoIndex = tvb_get_letohs(new_tvb, ctr);
+            ssdoSubIndex = tvb_get_guint8(new_tvb, ctr + 2);
+            dispSSDOIndex = ssdoIndex;
+
+            if ( ssdoIndex >= 0x1400 && ssdoIndex <= 0x17FE )
+                dispSSDOIndex = 0x1400;
+            else if ( ssdoIndex >= 0x1800 && ssdoIndex <= 0x1BFE )
+                dispSSDOIndex = 0x1800;
+            else if ( ssdoIndex >= 0x1C00 && ssdoIndex <= 0x1FFE )
+                dispSSDOIndex = 0x1C00;
+            else if ( ssdoIndex >= 0xC000 && ssdoIndex <= 0xC3FE )
+                dispSSDOIndex = 0xC000;
+
+            item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_sod_index, new_tvb,
+                                                    ctr, 2,  ssdoIndex, "0x%04X (%s)", ssdoIndex,
+                                                    val_to_str_const( ((guint32) (dispSSDOIndex << 16) ),
+                                                                      sod_idx_names, "Unknown") );
+
+            if ( ssdoIndex < 0x1000 || ssdoIndex > 0xE7FF )
+                opensafety_add_error ( pinfo, item, "Unknown payload format detected!" );
+
+            sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
+
+            if ( ssdoSubIndex != 0 )
+            	proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
+                                             ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
+                                             val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex),
+                                                                            sod_idx_names, "Unknown") );
+            else
+            	proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
+                                             ssdoSubIndex, "0x%02X",ssdoSubIndex );
+            ctr += 2;
+
+            /* reading real size */
+            sodLength = tvb_get_letohl ( new_tvb, ctr + 1 );
+            if ( sodLength > (dataLength - ctr) )
+                sodLength = 0;
+
+            if ( ( sodLength + 4 + ctr ) > dataLength )
+                break;
+
+            if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
+            {
+                entry = tvb_get_letohl ( new_tvb, ctr + 5 );
+                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
+                            4, entry, "0x%08X", entry );
+                for ( n = 4; n < sodLength; n+=4 )
+                {
+                    entry = tvb_get_letohl ( new_tvb, ctr + 5 + n );
+                    proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, (ctr + 5 + n ),
+                            4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
+                }
+            } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
+                entry = tvb_get_letohl ( new_tvb, ctr + 5 );
+                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
+                            4, entry, "0x%08X", entry );
+            } else if ( ( dispSSDOIndex == OPENSAFETY_SOD_RXMAP || dispSSDOIndex == OPENSAFETY_SOD_TXMAP ) && ssdoSubIndex != 0x0 ) {
+                proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
+                item = proto_tree_add_item(sod_tree, hf_oss_ssdo_sodmapping, new_tvb, ctr + 5, sodLength, ENC_NA );
+                ext_tree = proto_item_add_subtree(item, ett_opensafety_sod_mapping);
+
+                proto_tree_add_item(ext_tree, hf_oss_ssdo_sodmapping_bits, new_tvb, ctr + 5, 1, ENC_NA);
+
+                entry = tvb_get_letohl ( new_tvb, ctr + 7 );
+                proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_index, new_tvb, ctr + 7, 2, entry);
+                proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 6, 1, ENC_NA);
+
+            } else {
+                proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
+                if ( sodLength > 0 )
+                    proto_tree_add_item(sod_tree, hf_oss_ssdo_sodentry_data, new_tvb, ctr + 5, sodLength, ENC_LITTLE_ENDIAN );
+            }
+            ctr += sodLength + 4;
+        }
+    }
+
+
+}
 
 static void
 dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, proto_tree *opensafety_tree ,
-        guint8 *bytes, guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID)
+        guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID, guint8 scm_udid[6])
 {
     proto_item *item;
-    proto_tree *ssdo_tree, *ssdo_sacmd_tree;
-    guint16     taddr = 0, sdn = 0;
-    guint32     abortcode, ssdoIndex, ssdoSubIndex;
-    guint8      db0Offset, db0, sacmd, payloadOffset, payloadSize, n;
+    proto_tree *ssdo_tree, *ssdo_payload, *ssdo_sacmd_tree;
+    guint16     taddr = 0, sdn = 0, server = 0, client = 0, n = 0, ct = 0;
+    guint32     abortcode, ssdoIndex = 0, ssdoSubIndex = 0, payloadSize, fragmentId = 0, entry = 0;
+    guint8      db0Offset, db0, sacmd, payloadOffset;
     guint       dataLength;
     gint        calcDataLength;
-    gboolean    isResponse, decodePayload;
-    guint8     *payload;
+    gboolean    isResponse, decodePayload, isEndSegment, isSegmented, saveFragmented;
+    tvbuff_t* new_tvb = NULL;
+	fragment_data *frag_msg = NULL;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
     decodePayload = FALSE;
 
     db0Offset = frameStart1 + OSS_FRAME_POS_DATA;
-    db0 = bytes[db0Offset];
+    db0 = tvb_get_guint8(message_tvb, db0Offset);
     sacmd = db0;
+    ssdoIndex = 0;
+    ssdoSubIndex = 0;
 
     if ( ( sacmd & OPENSAFETY_SSDO_SACMD_TGL ) == OPENSAFETY_SSDO_SACMD_TGL )
         sacmd = sacmd & ( ~OPENSAFETY_SSDO_SACMD_TGL );
 
-    isResponse = ( ( OSS_FRAME_ID(bytes, frameStart1) & 0x04 ) == 0x04 );
+    isResponse = ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) & 0x04 ) == 0x04 );
 
     if ( validSCMUDID )
     {
         /* taddr is the 4th octet in the second frame */
-        taddr = OSS_FRAME_ADDR(bytes, frameStart2 + 3);
-        sdn =  ( OSS_FRAME_ADDR(bytes, frameStart1) ^ OSS_FRAME_ADDR(bytes, frameStart2) );
+        taddr = OSS_FRAME_ADDR_T2(message_tvb, frameStart2 + 3, scm_udid[3], scm_udid[4]);
+        sdn =  ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ^
+        		( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) );
 
-        PACKET_SENDER_RECEIVER ( pinfo, OSS_FRAME_ADDR(bytes, frameStart1), frameStart1, taddr,
-        		frameStart2 + 3, frameStart2, sdn );
+        PACKET_SENDER_RECEIVER ( pinfo, taddr, frameStart2 + 3, OSS_FRAME_ADDR_T(message_tvb, frameStart1),
+                                 frameStart1, frameStart2, sdn );
     }
     else if ( ! isResponse )
     {
-        PACKET_RECEIVER(pinfo, OSS_FRAME_ADDR(bytes, frameStart1), frameStart1, frameStart2,
-        		        -1 * ( ( OSS_FRAME_ADDR(bytes, frameStart1) ) ^ ( OSS_FRAME_ADDR(bytes, frameStart2) ) ) );
+        PACKET_SENDER(pinfo, OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2,
+                      -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^ ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) ) );
     }
     else if ( isResponse )
     {
-        PACKET_SENDER(pinfo, OSS_FRAME_ADDR(bytes, frameStart1), frameStart1, frameStart2,
-                        -1 * ( ( OSS_FRAME_ADDR(bytes, frameStart1) ) ^ ( OSS_FRAME_ADDR(bytes, frameStart2) ) ) );
+        PACKET_RECEIVER(pinfo, OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2,
+                        -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^ ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) ) );
     }
 
-    if ( ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_REQUEST ) ||
-         ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_RESPONSE ) )
+    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_REQUEST ) ||
+         ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_RESPONSE ) )
         item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb,
                                                 OSS_FRAME_POS_ID + frameStart1, 1,
                                                 OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE,
@@ -826,39 +1104,45 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
 
     ssdo_tree = proto_item_add_subtree(item, ett_opensafety_ssdo);
 
-    if ( ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SSDO_SERVICE_RESPONSE ) ||
-         ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_RESPONSE ) )
+    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SSDO_SERVICE_RESPONSE ) ||
+         ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_RESPONSE ) )
         proto_tree_add_boolean(ssdo_tree, hf_oss_msg_direction, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_RESPONSE);
     else
         proto_tree_add_boolean(ssdo_tree, hf_oss_msg_direction, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_REQUEST);
 
     proto_tree_add_uint_format_value(ssdo_tree, hf_oss_msg, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
-                                     OSS_FRAME_ID(bytes, frameStart1),
-                                     "%s", val_to_str_const(OSS_FRAME_ID(bytes, frameStart1), message_type_values, "Unknown") );
+                                     OSS_FRAME_ID_T(message_tvb, frameStart1),
+                                     "%s", val_to_str_const(OSS_FRAME_ID_T(message_tvb, frameStart1), message_type_values, "Unknown") );
 
 
     if ( isResponse )
     {
         if ( validSCMUDID )
         {
-            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart1, 2, OSS_FRAME_ADDR(bytes, frameStart1));
-            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_client, message_tvb, frameStart2 + 3, 2, taddr);
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_client, message_tvb, frameStart1, 2, OSS_FRAME_ADDR_T(message_tvb, frameStart1));
+            client = OSS_FRAME_ADDR_T(message_tvb, frameStart1);
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart2 + 3, 2, taddr);
+            server = taddr;
         }
         else
         {
-            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart1, 2, OSS_FRAME_ADDR(bytes, frameStart1));
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_client, message_tvb, frameStart1, 2, OSS_FRAME_ADDR_T(message_tvb, frameStart1));
+            client = OSS_FRAME_ADDR_T(message_tvb, frameStart1);
         }
     }
     else if ( ! isResponse )
     {
         if ( validSCMUDID )
         {
-            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_client, message_tvb, frameStart1, 2, OSS_FRAME_ADDR(bytes, frameStart1));
-            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart2 + 3, 2, taddr);
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart1, 2, OSS_FRAME_ADDR_T(message_tvb, frameStart1));
+            server = OSS_FRAME_ADDR_T(message_tvb, frameStart1);
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_client, message_tvb, frameStart2 + 3, 2, taddr);
+            client = taddr;
         }
         else
         {
-            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_client, message_tvb, frameStart1, 2, OSS_FRAME_ADDR(bytes, frameStart1));
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart1, 2, OSS_FRAME_ADDR_T(message_tvb, frameStart1));
+            server = OSS_FRAME_ADDR_T(message_tvb, frameStart1);
         }
     }
 
@@ -875,6 +1159,13 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
     proto_tree_add_boolean(ssdo_sacmd_tree, hf_oss_ssdo_sacmd_access_type, message_tvb, db0Offset, 1, db0);
 
     payloadOffset = db0Offset + 1;
+
+    ct = tvb_get_guint8(message_tvb, frameStart1 + 3);
+    if ( validSCMUDID )
+        ct = (guint16)((tvb_get_guint8(message_tvb, frameStart2 + 2) ^ scm_udid[2]) << 8) + (tvb_get_guint8(message_tvb, frameStart1 + 3));
+
+    proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_sano, message_tvb, frameStart1 + 3, 1, ct );
+
     /* When the following clause is met, DB1,2 contain the SOD index, and DB3 the SOD subindex */
     if ( ( ( sacmd & OPENSAFETY_SSDO_SACMD_INI ) == OPENSAFETY_SSDO_SACMD_INI ) ||
             ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE ) ||
@@ -882,8 +1173,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
             ( sacmd == OPENSAFETY_MSG_SSDO_ABORT )
     )
     {
-        ssdoIndex = ((guint16)(bytes[db0Offset + 2] << 8) + bytes[db0Offset + 1]);
-        ssdoSubIndex = bytes[db0Offset + 3];
+        ssdoIndex = tvb_get_letohs(message_tvb, db0Offset + 1);
+        ssdoSubIndex = tvb_get_guint8(message_tvb, db0Offset + 3);
 
         proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_sod_index, message_tvb, db0Offset + 1, 2,
                 ssdoIndex, "0x%04X (%s)", ssdoIndex,
@@ -905,9 +1196,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
 
     if ( sacmd == OPENSAFETY_MSG_SSDO_ABORT )
     {
-        abortcode = 0;
-        for ( n = 0; n < 4; n++ )
-            abortcode += ( bytes[frameStart1 + OSS_FRAME_POS_DATA + 4 + n] ) << (8 * n);
+        abortcode = tvb_get_ntohl(message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 4);
 
         proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_abort_code, message_tvb, payloadOffset, 4, abortcode,
                 "0x%04X %04X - %s", (guint16)(abortcode >> 16), (guint16)(abortcode),
@@ -933,86 +1222,153 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
 
         if ( decodePayload )
         {
+            saveFragmented = pinfo->fragmented;
+            if ( server != 0 && client != 0 )
+                fragmentId = (guint32)((((guint32)client) << 16 ) + server );
 
-        /* If payload data has to be calculated, either a total size is given, or not */
+            isSegmented = ( ( db0 & OPENSAFETY_SSDO_SACMD_SEG ) == OPENSAFETY_SSDO_SACMD_SEG );
+
+            /* If payload data has to be calculated, either a total size is given, or not */
             if ( ( sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ) ||
                     ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED )
                 )
             {
+
                 payloadOffset += 4;
-                /* using payloadSize as helper var for for-loop */
-                payloadSize = dataLength - (payloadOffset - db0Offset);
-                payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
-                for ( n = 0; n < payloadSize; n++)
-                    payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
 
                 /* reading real size */
-                payloadSize = 0;
-                for ( n = 0; n < 4; n++ )
-                {
-                    payloadSize += ( bytes[frameStart1 + OSS_FRAME_POS_DATA + 4 + n] ) << (8 * n);
-                }
+                payloadSize = tvb_get_letohl(message_tvb, payloadOffset - 4);
 
                 calcDataLength = dataLength - (payloadOffset - db0Offset);
 
                 item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, payloadOffset - 4, 4,
                         payloadSize, "%d octets total (%d octets in this frame)", payloadSize, calcDataLength);
+
+                if ( fragmentId != 0 && isSegmented )
+                {
+                    pinfo->fragmented = TRUE;
+                    frag_msg = fragment_add_seq_check(&os_reassembly_table, message_tvb, payloadOffset, pinfo,
+                                                      fragmentId, NULL, 0, calcDataLength, TRUE );
+                    fragment_add_seq_offset ( &os_reassembly_table, pinfo, fragmentId, NULL, ct );
+
+                    if ( frag_msg != NULL )
+                    {
+                        item = proto_tree_add_bytes_format_value(ssdo_tree, hf_oss_ssdo_payload, message_tvb, 0, 0, NULL, "Reassembled" );
+                        PROTO_ITEM_SET_GENERATED(item);
+
+                        ssdo_payload = proto_item_add_subtree(item, ett_opensafety_ssdo_payload);
+                        process_reassembled_data(message_tvb, 0, pinfo, "Reassembled Message", frag_msg, &oss_frag_items, NULL, ssdo_payload );
+                    }
+                }
+
                 if ( (gint) calcDataLength > (gint) 0 )
                 {
-                    proto_tree_add_bytes(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, payload );
+                    proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
                     opensafety_add_warning1(pinfo, item, "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
                 }
             }
             else
             {
-                payloadSize = dataLength - (payloadOffset - db0Offset);
-                payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
-                for ( n = 0; n < payloadSize; n++)
-                    payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
+                isEndSegment = FALSE;
+                if ( ( sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END ) || ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END ) )
+                    isEndSegment = TRUE;
 
-                item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, 0, 0, payloadSize,
-                        "%d octets", payloadSize);
-                PROTO_ITEM_SET_GENERATED(item);
-                proto_tree_add_bytes(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, payloadSize, payload );
+                payloadSize = dataLength - (payloadOffset - db0Offset);
+
+                if ( fragmentId != 0 && isSegmented )
+                {
+                    pinfo->fragmented = TRUE;
+
+                    frag_msg = fragment_add_seq_check(&os_reassembly_table, message_tvb, payloadOffset, pinfo,
+                                                      fragmentId, NULL,ct,
+                                                      payloadSize, isEndSegment ? FALSE : TRUE );
+                }
+
+                if ( frag_msg )
+                {
+                    item = proto_tree_add_bytes_format_value(ssdo_tree, hf_oss_ssdo_payload, message_tvb,
+                                                             0, 0, NULL, "Reassembled" );
+                    PROTO_ITEM_SET_GENERATED(item);
+                    ssdo_payload = proto_item_add_subtree(item, ett_opensafety_ssdo_payload);
+
+                    new_tvb = process_reassembled_data(message_tvb, 0, pinfo, "Reassembled Message", frag_msg,
+                                                       &oss_frag_items, NULL, ssdo_payload );
+                    if ( isEndSegment && new_tvb )
+                    {
+                        item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_payload_size, message_tvb, 0, 0,
+                                                                payloadSize, "%d octets (over all fragments)", frag_msg->len);
+                        PROTO_ITEM_SET_GENERATED(item);
+
+                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)" );
+                        dissect_ssdo_payload ( pinfo, new_tvb, ssdo_payload );
+                    }
+                }
+                else
+                {
+                    item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, 0, 0, payloadSize,
+                            "%d octets", payloadSize);
+                    PROTO_ITEM_SET_GENERATED(item);
+
+                    if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
+                    {
+                        entry = tvb_get_letohl ( message_tvb, payloadOffset );
+                        proto_tree_add_uint_format_value ( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset,
+                                    4, entry, "0x%08X", entry );
+                        for ( n = 4; n < payloadSize; n+=4 )
+                        {
+                            entry = tvb_get_letohl ( message_tvb, payloadOffset + n );
+                            proto_tree_add_uint_format_value ( ssdo_tree, hf_oss_sod_par_checksum, message_tvb, (payloadOffset + n ),
+                                    4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
+                        }
+                    } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
+                        entry = tvb_get_letohl ( message_tvb, payloadOffset );
+                        proto_tree_add_uint_format_value ( ssdo_tree, hf_oss_sod_par_timestamp, message_tvb, payloadOffset,
+                                    4, entry, "0x%08X", entry );
+                    } else
+                        proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, payloadSize, ENC_NA );
+                }
             }
+
+            pinfo->fragmented = saveFragmented;
         }
     }
 }
 
 static void
 dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , proto_tree *opensafety_tree,
-        guint8 *bytes, guint16 frameStart1, guint16 frameStart2 )
+        guint16 frameStart1, guint16 frameStart2 )
 {
     proto_item *item;
     proto_tree *snmt_tree;
+    guint32     entry = 0;
     guint16     addr, taddr, sdn;
     guint8      db0, byte;
     guint       dataLength;
     char       *tempString;
 
-    dataLength = OSS_FRAME_LENGTH(bytes, frameStart1);
+    dataLength = OSS_FRAME_LENGTH_T(message_tvb, frameStart1);
 
     /* addr is the first field, as well as the recipient of the message */
-    addr = OSS_FRAME_ADDR(bytes, frameStart1);
+    addr = OSS_FRAME_ADDR_T(message_tvb, frameStart1);
     /* taddr is the 4th octet in the second frame */
-    taddr = OSS_FRAME_ADDR(bytes, frameStart2 + 3);
+    taddr = OSS_FRAME_ADDR_T(message_tvb, frameStart2 + 3);
     /* domain is xor'ed on the first field in the second frame. As this is also addr, it is easy to obtain */
-    sdn = OSS_FRAME_ADDR(bytes, frameStart2) ^ addr;
+    sdn = OSS_FRAME_ADDR_T(message_tvb, frameStart2) ^ addr;
 
     db0 = -1;
     if (dataLength > 0)
-        db0 = bytes[OSS_FRAME_POS_DATA];
+        db0 = tvb_get_guint8(message_tvb, frameStart1 + OSS_FRAME_POS_DATA);
 
-    if ( ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 ) &&
+    if ( ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 ) &&
          ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_STOP) == 0 || (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_OP) == 0 ) )
     {
         PACKET_RECEIVER( pinfo, addr, OSS_FRAME_POS_ADDR + frameStart1, frameStart2, sdn );
     }
     else
     {
-    	PACKET_SENDER_RECEIVER ( pinfo, taddr, OSS_FRAME_POS_ADDR + frameStart1, frameStart2 + 3, addr,
-    			frameStart2, sdn );
+        PACKET_SENDER_RECEIVER ( pinfo, taddr, OSS_FRAME_POS_ADDR + frameStart1, addr, frameStart2 + 3,
+                                 frameStart2, sdn );
     }
 
     item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
@@ -1022,23 +1378,23 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
 
     snmt_tree = proto_item_add_subtree(item, ett_opensafety_snmt);
 
-    if ( ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SNMT_RESPONSE_UDID ) ||
-         ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SNMT_SADR_ASSIGNED ) ||
-         ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE ) )
+    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SNMT_RESPONSE_UDID ) ||
+         ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SNMT_SADR_ASSIGNED ) ||
+         ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE ) )
         proto_tree_add_boolean(snmt_tree, hf_oss_msg_direction, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_RESPONSE);
     else
         proto_tree_add_boolean(snmt_tree, hf_oss_msg_direction, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_REQUEST);
 
     proto_tree_add_uint_format_value(snmt_tree, hf_oss_msg, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
-                                     OSS_FRAME_ID(bytes, frameStart1),
-                                     "%s", val_to_str_const(OSS_FRAME_ID(bytes, frameStart1), message_type_values, "Unknown") );
+                                     OSS_FRAME_ID_T(message_tvb, frameStart1),
+                                     "%s", val_to_str_const(OSS_FRAME_ID_T(message_tvb, frameStart1), message_type_values, "Unknown") );
 
-    if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SN_RESET_GUARDING_SCM) == 0 )
+    if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SN_RESET_GUARDING_SCM) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
     }
-    else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
+    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1, db0);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, "Unknown"));
@@ -1047,15 +1403,13 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
         if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
         {
-        	byte = bytes[OSS_FRAME_POS_DATA + frameStart1 + 1];
-        	proto_tree_add_uint_format(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 1,
-        		byte, "%s",
-        		( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ) );
+            byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1);
+            proto_tree_add_uint_format(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 1,
+                                       byte, "%s", ( byte == 0 ? "Device" : val_to_str(byte, sn_fail_error_group, "Reserved [%d]" ) ) );
 
-        	byte = bytes[OSS_FRAME_POS_DATA + frameStart1 + 2];
-        	proto_tree_add_uint_format(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2, 1,
-            	byte, "%s [%d]",
-            	( byte == 0 ? "Default" : "Vendor Specific" ), byte );
+            byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2);
+            proto_tree_add_uint_format(snmt_tree, hf_oss_snmt_error_code, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 2, 1,
+                                       byte, "%s [%d]", ( byte == 0 ? "Default" : "Vendor Specific" ), byte );
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
         {
@@ -1067,16 +1421,16 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 g_snprintf ( tempString, 18, "%s", tvb_bytes_to_str_punct(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6, ':' ) );
                 if ( memcmp ( global_scm_udid, tempString, 17 ) != 0 )
                 {
-					local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
-					g_snprintf(local_scm_udid, 18, "%s", tempString );
-					expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_NOTE, "Auto detected payload as SCM UDID [%s].", tempString);
+                    local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
+                    g_snprintf(local_scm_udid, 18, "%s", tempString );
+                    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_NOTE, "Auto detected payload as SCM UDID [%s].", tempString);
                 }
             }
 
         }
 
     }
-    else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_REQUEST) == 0 )
+    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_REQUEST) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1, db0);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, "Unknown"));
@@ -1107,16 +1461,18 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         }
         else
         {
-            proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
-            proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
+            proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, frameStart2 + 3, 2, taddr);
+            proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
+
             if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_SET_TO_OP) == 0 )
             {
-                proto_tree_add_bytes(snmt_tree, hf_oss_snmt_timestamp, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 4,
-                                (bytes + frameStart1 + OSS_FRAME_POS_DATA + 1));
+                entry = tvb_get_letohl ( message_tvb, frameStart1 + OSS_FRAME_POS_DATA + 1 );
+                proto_tree_add_uint_format_value ( snmt_tree, hf_oss_sod_par_timestamp, message_tvb,
+                        OSS_FRAME_POS_DATA + frameStart1 + 1, 4, entry, "0x%08X", entry );
             }
         }
     }
-    else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SADR_ASSIGNED) == 0 )
+    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SADR_ASSIGNED) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
@@ -1124,16 +1480,16 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         if (dataLength > 0)
             proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6, ENC_NA);
     }
-    else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_ASSIGN_SADR) == 0 )
+    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_ASSIGN_SADR) == 0 )
     {
-        proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, frameStart2 + 3, 2, taddr);
+        proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
 
         if (dataLength > 0)
             proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6, ENC_NA);
 
     }
-    else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_RESPONSE_UDID) == 0 )
+    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_RESPONSE_UDID) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
@@ -1142,48 +1498,68 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
             proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6, ENC_NA);
 
     }
-    else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_REQUEST_UDID) == 0 )
+    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_REQUEST_UDID) == 0 )
     {
-        proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, frameStart2 + 3, 2, taddr);
+        proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
     }
 }
 
 static gboolean
-dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree, guint8 *bytes, guint16 frameStart1 )
+dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree,
+                            guint16 frameStart1, guint16 frameStart2 )
 {
-    guint16     frameCrc;
-    guint16     calcCrc;
+    guint16     frame1_crc, frame2_crc;
+    guint16     calc1_crc;
     guint       dataLength;
+    guint8     *bytes;
     proto_item *item;
     proto_tree *checksum_tree;
     gint        start;
     gint        length;
+    gboolean    isSlim = FALSE;
 
-    dataLength = OSS_FRAME_LENGTH(bytes, frameStart1);
-    start = OSS_FRAME_POS_DATA + dataLength  + frameStart1;
-    frameCrc = bytes[start];
+    dataLength = OSS_FRAME_LENGTH_T(message_tvb, frameStart1);
+    start = OSS_FRAME_POS_DATA + dataLength + frameStart1;
 
-    if (OSS_FRAME_LENGTH(bytes, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
-        frameCrc += (bytes[start + 1] << 8);
+    if (OSS_FRAME_LENGTH_T(message_tvb, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
+        frame1_crc = tvb_get_letohs(message_tvb, start);
+    else
+        frame1_crc = tvb_get_guint8(message_tvb, start);
 
     length = (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8);
-    item = proto_tree_add_uint(opensafety_tree, hf_oss_crc, message_tvb, start, length, frameCrc);
+    item = proto_tree_add_uint_format(opensafety_tree, hf_oss_crc, message_tvb, start, length, frame1_crc,
+                                      "CRC for subframe #1: 0x%04X", frame1_crc);
 
     checksum_tree = proto_item_add_subtree(item, ett_opensafety_checksum);
 
+    bytes = (guint8*)ep_tvb_memdup(message_tvb, frameStart1, dataLength + 4);
     if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
-        calcCrc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
+        calc1_crc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
     else
-        calcCrc = crc8_0x2F(&bytes[frameStart1], dataLength + 4, 0);
+        calc1_crc = crc8_0x2F(&bytes[frameStart1], dataLength + 4, 0);
 
-    item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb, start, length, (frameCrc == calcCrc));
+    item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb, start, length, (frame1_crc == calc1_crc));
     PROTO_ITEM_SET_GENERATED(item);
     /* using the defines, as the values can change */
     proto_tree_add_uint(checksum_tree, hf_oss_crc_type, message_tvb, start, length,
             ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8 ) );
 
-    return (gboolean) (frameCrc == calcCrc);
+    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
+        isSlim = TRUE;
+
+    start = frameStart2 + (isSlim ? 5 : dataLength + OSS_FRAME_POS_DATA + 1 );
+    if (OSS_FRAME_LENGTH_T(message_tvb, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
+        frame2_crc = tvb_get_letohs(message_tvb, start);
+    else
+        frame2_crc = tvb_get_guint8(message_tvb, start);
+
+    proto_tree_add_uint_format(opensafety_tree, hf_oss_crc, message_tvb, start, length, frame2_crc,
+                               "CRC for subframe #2: 0x%04X", frame2_crc);
+    /* For a correct calculation of the second crc we need to know the scm udid as well
+     * as the sdn. We might have the scm udid, but never the sdn, therefore a calculation
+     * must allways fail. */
+    return (gboolean) (frame1_crc == calc1_crc);
 }
 
 static gboolean
@@ -1191,32 +1567,30 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
                            tvbuff_t *message_tvb, packet_info *pinfo,
                            proto_item *opensafety_item, proto_tree *opensafety_tree, guint8 u_nrInPackage)
 {
-    guint8      b_ID;
-    guint       length;
-    guint8     *bytes;
+    guint8      b_ID, ctr;
+    guint8      scm_udid[6];
     GByteArray *scmUDID = NULL;
     gboolean    validSCMUDID;
     proto_item *item;
     gboolean    messageTypeUnknown, crcValid;
 
     messageTypeUnknown = FALSE;
-    length = tvb_length(message_tvb);
 
-    bytes = (guint8 *)ep_tvb_memdup(message_tvb, 0, length);
+    for ( ctr = 0; ctr < 6; ctr++ )
+    	scm_udid[ctr] = 0;
 
-    b_ID = OSS_FRAME_ID(bytes, frameStart1);
+    b_ID = OSS_FRAME_ID_T(message_tvb, frameStart1);
     /* Clearing connection valid bit */
     if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
-        b_ID = ( b_ID >> 3 ) << 3;
+        b_ID = b_ID & 0xF8;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, (u_nrInPackage > 1 ? " | %s" : "%s" ),
             val_to_str(b_ID, message_type_values, "Unknown Message (0x%02X) "));
 
-    if (opensafety_tree)
     {
         if ( type == OPENSAFETY_SNMT_MESSAGE_TYPE )
         {
-            dissect_opensafety_snmt_message ( message_tvb, pinfo, opensafety_tree, bytes, frameStart1, frameStart2 );
+            dissect_opensafety_snmt_message ( message_tvb, pinfo, opensafety_tree, frameStart1, frameStart2 );
         }
         else
         {
@@ -1226,25 +1600,24 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
             if ( hex_str_to_bytes((local_scm_udid != NULL ? local_scm_udid : global_scm_udid), scmUDID, TRUE) && scmUDID->len == 6 )
             {
                 validSCMUDID = TRUE;
-                bytes = unxorFrame(length, bytes, frameStart1, frameStart2, scmUDID->data);
-                /* Now confirm, that the xor operation was successful
-                 *  The ID fields of both frames have to be the same, otherwise
-                 *  perform the xor again to revert the change
-                 */
-                if ( ( OSS_FRAME_ID(bytes, frameStart1) ^ OSS_FRAME_ID(bytes, frameStart2 ) ) != 0 )
-                {
+
+                /* Now confirm, that the xor operation was successful. The ID fields of both frames have to be the same */
+                b_ID = OSS_FRAME_ID_T(message_tvb, frameStart2) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);
+
+                if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) ^ b_ID ) != 0 )
                     validSCMUDID = FALSE;
-                    bytes = unxorFrame(length, bytes, frameStart1, frameStart2, scmUDID->data);
-                }
+                else
+                    for ( ctr = 0; ctr < 6; ctr++ )
+                        scm_udid[ctr] = scmUDID->data[ctr];
             }
 
             if ( strlen ( (local_scm_udid != NULL ? local_scm_udid : global_scm_udid) ) > 0  && scmUDID->len == 6 )
             {
-            	if ( local_scm_udid != NULL )
-            		item = proto_tree_add_string(opensafety_tree, hf_oss_scm_udid_auto, message_tvb, 0, 0, local_scm_udid);
-            	else
-            		item = proto_tree_add_string(opensafety_tree, hf_oss_scm_udid, message_tvb, 0, 0, global_scm_udid);
-            	PROTO_ITEM_SET_GENERATED(item);
+                if ( local_scm_udid != NULL )
+                    item = proto_tree_add_string(opensafety_tree, hf_oss_scm_udid_auto, message_tvb, 0, 0, local_scm_udid);
+                else
+                    item = proto_tree_add_string(opensafety_tree, hf_oss_scm_udid, message_tvb, 0, 0, global_scm_udid);
+                PROTO_ITEM_SET_GENERATED(item);
             }
 
             item = proto_tree_add_boolean(opensafety_tree, hf_oss_scm_udid_valid, message_tvb, 0, 0, validSCMUDID);
@@ -1256,11 +1629,11 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 
             if ( type == OPENSAFETY_SSDO_MESSAGE_TYPE || type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
             {
-                dissect_opensafety_ssdo_message ( message_tvb, pinfo, opensafety_tree, bytes, frameStart1, frameStart2, validSCMUDID );
+                dissect_opensafety_ssdo_message ( message_tvb, pinfo, opensafety_tree, frameStart1, frameStart2, validSCMUDID, scm_udid );
             }
             else if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
             {
-                dissect_opensafety_spdo_message ( message_tvb, pinfo, opensafety_tree, bytes, frameStart1, frameStart2, validSCMUDID );
+                dissect_opensafety_spdo_message ( message_tvb, pinfo, opensafety_tree, frameStart1, frameStart2, validSCMUDID, scm_udid );
             }
             else
             {
@@ -1270,14 +1643,14 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 
         crcValid = FALSE;
         item = proto_tree_add_uint(opensafety_tree, hf_oss_length,
-                                   message_tvb, OSS_FRAME_POS_LEN + frameStart1, 1, OSS_FRAME_LENGTH(bytes, frameStart1));
+                                   message_tvb, OSS_FRAME_POS_LEN + frameStart1, 1, OSS_FRAME_LENGTH_T(message_tvb, frameStart1));
         if ( messageTypeUnknown )
         {
             opensafety_add_error(pinfo, item, "Unknown openSAFETY message type" );
         }
         else
         {
-            crcValid = dissect_opensafety_checksum ( message_tvb, opensafety_tree, bytes, frameStart1 );
+            crcValid = dissect_opensafety_checksum ( message_tvb, opensafety_tree, frameStart1, frameStart2 );
         }
 
         if ( ! crcValid )
@@ -1290,10 +1663,8 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
          * the addresses, but addresses won't be checked yet, as there are issues with SDN xored on it */
         if ( crcValid && type == OPENSAFETY_SNMT_MESSAGE_TYPE )
         {
-        	if ( OSS_FRAME_ID(bytes, frameStart1) != OSS_FRAME_ID(bytes, frameStart2) )
-        	{
+            if ( OSS_FRAME_ID_T(message_tvb, frameStart1) != OSS_FRAME_ID_T(message_tvb, frameStart2) )
                 opensafety_add_error(pinfo, opensafety_item, "Frame 1 is valid, frame 2 id is invalid => error in openSAFETY frame" );
-        	}
         }
     }
 
@@ -1303,14 +1674,14 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 static gboolean
 opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_handle,
                              gboolean b_frame2First, gboolean do_byte_swap, guint8 force_nr_in_package,
-                             tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+                             tvbuff_t *given_tvb , packet_info *pinfo , proto_tree *tree )
 {
-    tvbuff_t           *next_tvb;
+    tvbuff_t           *next_tvb, *message_tvb = NULL;
     guint               length, len, frameOffset, frameLength, nodeAddress;
-    guint8             *bytes, *bytesOffset;
+    guint8             *bytes;
     gboolean            handled, dissectorCalled, call_sub_dissector, markAsMalformed;
     guint8              type, found, packageCounter, i, tempByte;
-    guint16             frameStart1, frameStart2;
+    guint16             frameStart1, frameStart2, byte_offset;
     gint                reported_len;
     dissector_handle_t  protocol_dissector = NULL;
     proto_item         *opensafety_item;
@@ -1325,9 +1696,9 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
      * further dissector calls (see bug #6950) */
     register_frame_end_routine(pinfo, reset_dissector);
 
-    length = tvb_length(message_tvb);
+    length = tvb_reported_length(given_tvb);
     /* Minimum package length is 11 */
-    if ( length < 11 )
+    if ( length < OSS_MINIMUM_LENGTH )
         return FALSE;
 
     if ( strlen( sub_diss_handle ) > 0 )
@@ -1338,8 +1709,8 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             protocol_dissector = find_dissector ( "data" );
     }
 
-    reported_len = tvb_reported_length_remaining(message_tvb, 0);
-    bytes = (guint8 *) ep_tvb_memdup(message_tvb, 0, length);
+    reported_len = tvb_reported_length_remaining(given_tvb, 0);
+    bytes = (guint8 *) ep_tvb_memdup(given_tvb, 0, length);
 
     if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
     {
@@ -1350,6 +1721,10 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         {
             tempByte = bytes [ 2 * i ]; bytes [ 2 * i ] = bytes [ 2 * i + 1 ]; bytes [ 2 * i + 1 ] = tempByte;
         }
+
+        message_tvb = tvb_new_real_data(bytes, length, reported_len);
+    } else {
+    	message_tvb = given_tvb;
     }
 
     frameOffset = 0;
@@ -1359,44 +1734,32 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 
     while ( frameOffset < length )
     {
-        if ( ( length - frameOffset ) <= 0 )
+    	/* Smallest possible frame size is 11 */
+        if ( tvb_length_remaining(message_tvb, frameOffset ) < OSS_MINIMUM_LENGTH )
             break;
 
-        /** Finding the start of the first possible safety frame */
-        if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, b_frame2First, &frameOffset, &frameLength) )
+        /* Finding the start of the first possible safety frame */
+        if ( findSafetyFrame(message_tvb, frameOffset, b_frame2First, &frameOffset, &frameLength) )
         {
-            /** frameLength is calculated/read directly from the dissected data. If frameLenght and frameOffset together
+            /* frameLength is calculated/read directly from the dissected data. If frameLenght and frameOffset together
              * are bigger than the reported length, the package is not really an openSAFETY package */
             if ( ( frameOffset + frameLength ) > (guint)reported_len )
                 break;
+
             found++;
 
-            /* Freeing memory before dissector, as otherwise we would waste it */
-            if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
-            {
-                next_tvb = tvb_new_child_real_data(message_tvb, &bytes[frameOffset], (frameLength), reported_len);
-                /* Adding a visual aid to the dissector tree */
-                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame (Swapped)");
-            }
-            else
-            {
-                next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
-                /* Adding a visual aid to the dissector tree */
-                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
-            }
-
-            bytesOffset = &bytes[( b_frame2First ? 0 : frameOffset )];
+            byte_offset = ( b_frame2First ? 0 : frameOffset );
             /* We determine a possible position for frame 1 and frame 2 */
             if ( b_frame2First )
             {
-                frameStart1 = findFrame1Position (bytesOffset, frameLength, FALSE );
+                frameStart1 = findFrame1Position (message_tvb, byte_offset, frameLength, FALSE );
                 frameStart2 = 0;
             }
             else
             {
                 frameStart1 = 0;
-                frameStart2 = ((OSS_FRAME_LENGTH(bytesOffset, frameStart1) - 1) +
-                        (OSS_FRAME_LENGTH(bytesOffset, frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OSS_SLIM_FRAME2_WITH_CRC16 : OSS_SLIM_FRAME2_WITH_CRC8));
+                frameStart2 = ((OSS_FRAME_LENGTH_T(message_tvb, byte_offset + frameStart1) - 1) +
+                        (OSS_FRAME_LENGTH_T(message_tvb, byte_offset + frameStart1) > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OSS_SLIM_FRAME2_WITH_CRC16 : OSS_SLIM_FRAME2_WITH_CRC8));
             }
 
             /* If both frame starts are equal, something went wrong. In which case, we retract the found entry, and
@@ -1409,13 +1772,13 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             }
 
             /* We determine the possible type, and return false, if there could not be one */
-            if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
+            if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
                 type = OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE;
-            else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SSDO_MESSAGE_TYPE )
+            else if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SSDO_MESSAGE_TYPE )
                 type = OPENSAFETY_SSDO_MESSAGE_TYPE;
-            else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SPDO_MESSAGE_TYPE ) == OPENSAFETY_SPDO_MESSAGE_TYPE )
+            else if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SPDO_MESSAGE_TYPE ) == OPENSAFETY_SPDO_MESSAGE_TYPE )
                 type = OPENSAFETY_SPDO_MESSAGE_TYPE;
-            else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
+            else if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
                 type = OPENSAFETY_SNMT_MESSAGE_TYPE;
             else
             {
@@ -1425,37 +1788,67 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                 if ( b_frame2First )
                 {
                     /* Now let's check again, but this time calculate the CRC */
-                    frameStart1 = findFrame1Position(bytesOffset, frameLength, TRUE );
+                    frameStart1 = findFrame1Position(message_tvb, ( b_frame2First ? 0 : frameOffset ), frameLength, TRUE );
                     frameStart2 = 0;
 
-                    if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
+                    if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
                         type = OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE;
-                    else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SSDO_MESSAGE_TYPE )
+                    else if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SSDO_MESSAGE_TYPE )
                         type = OPENSAFETY_SSDO_MESSAGE_TYPE;
-                    else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SPDO_MESSAGE_TYPE ) == OPENSAFETY_SPDO_MESSAGE_TYPE )
+                    else if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SPDO_MESSAGE_TYPE ) == OPENSAFETY_SPDO_MESSAGE_TYPE )
                         type = OPENSAFETY_SPDO_MESSAGE_TYPE;
-                    else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
+                    else if ( ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
                         type = OPENSAFETY_SNMT_MESSAGE_TYPE;
                     else {
                         /* Skip this frame.  We cannot continue without
                            advancing frameOffset - just doing a continue
-                           will result in an infinite loop. */
-                        frameOffset += frameLength;
+                           will result in an infinite loop. Advancing with 1 will
+                       	   lead to infinite loop, advancing with frameLength might miss
+                       	   some packages*/
+                        frameOffset += 2;
+                        found--;
                         continue;
                     }
                 } else {
                     /* As stated above, you cannot just continue
-                       without advancing frameOffset. */
-                    frameOffset += frameLength;
+                       without advancing frameOffset. Advancing with 1 will
+                       lead to infinite loop, advancing with frameLength might miss
+                       some packages*/
+                    frameOffset += 2;
+                    found--;
                     continue;
                 }
             }
 
-            /** Checking if the producer for a SPDO message is valid, otherwise the opensafety package
+            /* Some faulty packages do indeed have a valid first frame, but the second is
+             * invalid. These checks should prevent most faulty detections */
+            if ( type != OPENSAFETY_SPDO_MESSAGE_TYPE )
+            {
+                /* Is the given type at least known? */
+                gint idx = -1;
+                try_val_to_str_idx(OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1), message_type_values, &idx );
+                /* Unknown Frame Type */
+                if ( idx < 0 )
+                {
+                    frameOffset += 2;
+                    found--;
+                    continue;
+                }
+                /* Frame IDs do not match */
+                else if ( type == OPENSAFETY_SNMT_MESSAGE_TYPE &&
+                        (OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) != OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart2)) )
+                {
+                    frameOffset += 2;
+                    found--;
+                    continue;
+                }
+            }
+
+            /* Checking if the producer for a SPDO message is valid, otherwise the opensafety package
              * is malformed. Instead of declining dissection, the package get's marked as malformed */
             if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
             {
-                nodeAddress = OSS_FRAME_ADDR(bytesOffset, frameStart1);
+                nodeAddress = OSS_FRAME_ADDR_T(message_tvb, byte_offset + frameStart1);
                 if ( nodeAddress > 1024 ) {
                     markAsMalformed = TRUE;
                 }
@@ -1467,6 +1860,20 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
              */
             if ( ( (gint)frameLength - (gint)( frameStart2 > frameStart1 ? frameStart2 : frameLength - frameStart1 ) ) < 0 )
                 return FALSE;
+
+            /* From here on, the package should be correct, therefore adding second frame */
+            if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
+            {
+                next_tvb = tvb_new_child_real_data(message_tvb, &bytes[frameOffset], (frameLength), reported_len);
+                /* Adding a visual aid to the dissector tree */
+                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame (Swapped)");
+            }
+            else
+            {
+                next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
+                /* Adding a visual aid to the dissector tree */
+                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
+            }
 
             /* A new subtype for package dissection will need to set the actual nr. for the whole dissected package */
             if ( force_nr_in_package > 0 )
@@ -1505,7 +1912,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 
             if ( tree && markAsMalformed )
             {
-                if ( OSS_FRAME_ADDR(bytesOffset, frameStart1) > 1024 )
+                if ( OSS_FRAME_ADDR_T(message_tvb, byte_offset + frameStart1) > 1024 )
                     opensafety_add_error(pinfo, opensafety_item, "SPDO address is invalid" );
             }
             handled = TRUE;
@@ -1525,6 +1932,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             call_dissector(protocol_dissector, message_tvb, pinfo, tree);
         handled = TRUE;
     }
+
     return ( handled ? TRUE : FALSE );
 }
 
@@ -1535,7 +1943,7 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
     guint8          firstByte;
 
     if ( ! global_enable_plk )
-    	return result;
+        return result;
 
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
@@ -1567,7 +1975,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
     guint8          firstByte;
 
     if ( ! global_enable_siii )
-    	return result;
+        return result;
 
     if ( pinfo->ipproto == IPPROTO_UDP )
     {
@@ -1602,7 +2010,7 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
     gboolean        result     = FALSE;
 
     if ( ! global_enable_pnio )
-    	return result;
+        return result;
 
     /* We will call the pn_io dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
@@ -1621,8 +2029,8 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 static gboolean
 dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree, void *data _U_ )
 {
-	if ( ! global_enable_mbtcp )
-		return FALSE;
+    if ( ! global_enable_mbtcp )
+        return FALSE;
 
     /* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
      * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
@@ -1634,32 +2042,33 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 static gboolean
 dissect_opensafety_udpdata(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree , void *data _U_ )
 {
-	gboolean       result   = FALSE;
-	static guint32 frameNum = 0;
-	static guint32 frameIdx = 0;
+    gboolean       result   = FALSE;
+    static guint32 frameNum = 0;
+    static guint32 frameIdx = 0;
 
-	if ( ! global_enable_udp )
-		return result;
+    if ( ! global_enable_udp )
+        return result;
 
-	/* An openSAFETY frame has at least OSS_MINIMUM_LENGTH bytes */
-	if ( tvb_length ( message_tvb ) < OSS_MINIMUM_LENGTH )
-		return result;
+    /* An openSAFETY frame has at least OSS_MINIMUM_LENGTH bytes */
+    if ( tvb_length ( message_tvb ) < OSS_MINIMUM_LENGTH )
+        return result;
 
-	/* More than one openSAFETY package could be transported in the same frame,
-	 * in such a case, we need to establish the number of packages inside the frame */
-	if ( pinfo->fd->num != frameNum )
-	{
-		frameIdx = 0;
-		frameNum = pinfo->fd->num;
-	}
+    /* More than one openSAFETY package could be transported in the same frame,
+        * in such a case, we need to establish the number of packages inside the frame */
+    if ( pinfo->fd->num != frameNum )
+    {
+        frameIdx = 0;
+        frameNum = pinfo->fd->num;
+    }
 
-	result = opensafety_package_dissector((pinfo->destport == UDP_PORT_SIII ? "openSAFETY/SercosIII" : "openSAFETY/UDP" ),
-                                        "", global_udp_frame2_first, FALSE, frameIdx, message_tvb, pinfo, tree);
+    result = opensafety_package_dissector((pinfo->destport == UDP_PORT_SIII ? "openSAFETY/SercosIII" : "openSAFETY/UDP" ),
+                                          "", pinfo->destport == UDP_PORT_SIII ? global_siii_udp_frame2_first : global_udp_frame2_first,
+                                          FALSE, frameIdx, message_tvb, pinfo, tree);
 
-	if ( result )
-		frameIdx++;
+    if ( result )
+        frameIdx++;
 
-	return result;
+    return result;
 }
 
 static void
@@ -1698,126 +2107,190 @@ proto_register_opensafety(void)
 {
     /* Setup list of header fields */
     static hf_register_info hf[] = {
-        /* General fields for subframe 1 */
-
         { &hf_oss_scm_udid,
-          { "SCM UDID Configured",    "opensafety.scm_udid",
+            { "SCM UDID Configured",    "opensafety.scm_udid",
             FT_STRING,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_scm_udid_auto,
-          { "SCM UDID Auto Detect",    "opensafety.scm_udid_auto",
+            { "SCM UDID Auto Detect",    "opensafety.scm_udid_auto",
             FT_STRING,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_scm_udid_valid,
-          { "SCM UDID Valid",    "opensafety.scm_udid_valid",
+            { "SCM UDID Valid",    "opensafety.scm_udid_valid",
             FT_BOOLEAN,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
 
         { &hf_oss_msg,
-          { "Message",    "opensafety.msg.id",
+            { "Message",    "opensafety.msg.id",
             FT_UINT8,   BASE_HEX, VALS(message_type_values),   0x0, NULL, HFILL } },
         { &hf_oss_msg_category,
-          { "Type",  "opensafety.msg.type",
+            { "Type",  "opensafety.msg.type",
             FT_UINT16,   BASE_HEX, VALS(message_id_values),   0x0, NULL, HFILL } },
         { &hf_oss_msg_direction,
-          { "Direction",  "opensafety.msg.direction",
+            { "Direction",  "opensafety.msg.direction",
             FT_BOOLEAN,   BASE_NONE, TFS(&opensafety_message_direction),   0x0, NULL, HFILL } },
         { &hf_oss_msg_node,
-          { "Safety Node",  "opensafety.msg.node",
+            { "Safety Node",  "opensafety.msg.node",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_msg_network,
-          { "Safety Domain",  "opensafety.msg.network",
+            { "Safety Domain",  "opensafety.msg.network",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_msg_sender,
-          { "Sender",  "opensafety.msg.sender",
+            { "Sender",  "opensafety.msg.sender",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_msg_receiver,
-          { "Receiver",  "opensafety.msg.receiver",
+            { "Receiver",  "opensafety.msg.receiver",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_length,
-          { "Length",    "opensafety.length",
+            { "Length",    "opensafety.length",
             FT_UINT8,   BASE_DEC, NULL,     0x0, NULL, HFILL } },
-#if 0
-        { &hf_oss_data,
-          { "Data",      "opensafety.data",
-            FT_BYTES,   BASE_NONE, NULL,    0x0, NULL, HFILL } },
-#endif
         { &hf_oss_crc,
-          { "CRC",       "opensafety.crc.data",
+            { "CRC",       "opensafety.crc.data",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
 
         { &hf_oss_crc_valid,
-          { "Is Valid", "opensafety.crc.valid",
+            { "Is Valid", "opensafety.crc.valid",
             FT_BOOLEAN, BASE_NONE, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_crc_type,
-          { "CRC Type",  "opensafety.crc.type",
+            { "CRC Type",  "opensafety.crc.type",
             FT_UINT8,   BASE_DEC, VALS(message_crc_type),    0x0, NULL, HFILL } },
 
         /* SNMT Specific fields */
         { &hf_oss_snmt_slave,
-          { "SNMT Slave",    "opensafety.snmt.slave",
+            { "SNMT Slave",    "opensafety.snmt.slave",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_snmt_master,
-          { "SNMT Master",   "opensafety.snmt.master",
+            { "SNMT Master",   "opensafety.snmt.master",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_snmt_scm,
-          { "SCM",    "opensafety.snmt.scm",
+            { "SCM",    "opensafety.snmt.scm",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_snmt_tool,
-          { "Tool ID",   "opensafety.snmt.tool_id",
+            { "Tool ID",   "opensafety.snmt.tool_id",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_snmt_udid,
-          { "UDID for SN",   "opensafety.snmt.udid",
+            { "UDID for SN",   "opensafety.snmt.udid",
             FT_ETHER,  BASE_NONE, NULL,    0x0, NULL, HFILL } },
-        { &hf_oss_snmt_timestamp,
-          { "Parameter Timestamp",   "opensafety.snmt.timestamp",
-            FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_snmt_service_id,
-          { "Extended Service ID",   "opensafety.snmt.service_id",
+            { "Extended Service ID",   "opensafety.snmt.service_id",
             FT_UINT8,  BASE_HEX, VALS(message_service_type),    0x0, NULL, HFILL } },
         { &hf_oss_snmt_error_group,
-          { "Error Group",   "opensafety.snmt.error_group",
+            { "Error Group",   "opensafety.snmt.error_group",
             FT_UINT8,  BASE_DEC, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_snmt_error_code,
-          { "Error Code",   "opensafety.snmt.error_code",
+            { "Error Code",   "opensafety.snmt.error_code",
             FT_UINT8,  BASE_DEC, NULL,   0x0, NULL, HFILL } },
 
         /* SSDO Specific fields */
         { &hf_oss_ssdo_server,
-          { "SSDO Server", "opensafety.ssdo.master",
+            { "SSDO Server", "opensafety.ssdo.master",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_client,
-          { "SSDO Client", "opensafety.ssdo.client",
+            { "SSDO Client", "opensafety.ssdo.client",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-#if 0
         { &hf_oss_ssdo_sano,
-          { "SOD Access Request Number", "opensafety.ssdo.sano",
-            FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
-#endif
+            { "SOD Access Request Number", "opensafety.ssdo.sano",
+            FT_UINT16,  BASE_DEC, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_ssdo_sacmd,
-          { "SOD Access Command", "opensafety.ssdo.sacmd",
+            { "SOD Access Command", "opensafety.ssdo.sacmd",
             FT_UINT8,  BASE_HEX, VALS(ssdo_sacmd_values),    0x0, NULL, HFILL } },
         { &hf_oss_ssdo_sod_index,
-          { "SOD Index", "opensafety.ssdo.sod_index",
+            { "SOD Index", "opensafety.ssdo.sodentry.index",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_ssdo_sod_subindex,
-          { "SOD Sub Index", "opensafety.ssdo.sod_subindex",
+            { "SOD Sub Index", "opensafety.ssdo.sodentry.subindex",
             FT_UINT8,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_ssdo_payload,
-          { "SOD Payload", "opensafety.ssdo.payload",
+            { "SOD Payload", "opensafety.ssdo.payload",
             FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_ssdo_payload_size,
-          { "SOD Payload Size", "opensafety.ssdo.payloadsize",
+            { "SOD Payload Size", "opensafety.ssdo.payloadsize",
             FT_UINT32,  BASE_DEC, NULL,    0x0, NULL, HFILL } },
-#if 0
-        { &hf_oss_ssdo_segment_size,
-          { "SOD Segment Size", "opensafety.ssdo.segmentsize",
-            FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
-#endif
+        { &hf_oss_ssdo_sodentry_size,
+            { "SOD Entry Size", "opensafety.ssdo.sodentry.size",
+            FT_UINT32,  BASE_DEC, NULL,    0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_sodentry_data,
+            { "SOD Data", "opensafety.ssdo.sodentry.data",
+            FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL } },
+        { &hf_oss_sod_par_timestamp,
+            { "Parameter Timestamp", "opensafety.sod.parameter.timestamp",
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_sod_par_checksum,
+            { "Parameter Checksum", "opensafety.sod.parameter.checksum",
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_oss_ssdo_sodmapping,
+            { "Mapping entry", "opensafety.sod.mapping",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_sodmapping_bits,
+            { "Mapping size", "opensafety.sod.mapping.bits",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_oss_ssdo_extpar_parset,
+            { "Set Nr", "opensafety.ssdo.extpar.setnr",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar_version,
+            { "Version", "opensafety.ssdo.extpar.version",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar_saddr,
+            { "SADDR", "opensafety.ssdo.extpar.saddr",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar_length,
+            { "Set Length", "opensafety.ssdo.extpar.length",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar_crc,
+            { "Set CRC", "opensafety.ssdo.extpar.crc",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar_tstamp,
+            { "Timestamp", "opensafety.ssdo.extpar.timestamp",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar_data,
+            { "Ext. Parameter Data", "opensafety.ssdo.extpar.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_oss_ssdo_extpar,
+            { "Ext. Parameter", "opensafety.ssdo.extpar",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        {&hf_oss_fragments,
+            {"Message fragments", "opensafety.ssdo.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment,
+            {"Message fragment", "opensafety.ssdo.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment_overlap,
+            {"Message fragment overlap", "opensafety.ssdo.fragment.overlap",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment_overlap_conflicts,
+            {"Message fragment overlapping with conflicting data",
+            "opensafety.ssdo.fragment.overlap.conflicts",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment_multiple_tails,
+            {"Message has multiple tail fragments", "opensafety.ssdo.fragment.multiple_tails",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment_too_long_fragment,
+            {"Message fragment too long", "opensafety.ssdo.fragment.too_long_fragment",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment_error,
+            {"Message defragmentation error", "opensafety.ssdo.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_fragment_count,
+            {"Message fragment count", "opensafety.ssdo.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_reassembled_in,
+            {"Reassembled in", "opensafety.ssdo.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_reassembled_length,
+            {"Reassembled length", "opensafety.ssdo.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        {&hf_oss_reassembled_data,
+            {"Reassembled Data", "opensafety.ssdo.reassembled.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+
 #if 0
         { &hf_oss_ssdo_inhibit_time,
           { "Inhibit Time", "opensafety.ssdo.inhibittime",
             FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
 #endif
         { &hf_oss_ssdo_abort_code,
-          { "Abort Code", "opensafety.ssdo.abortcode", FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
+            { "Abort Code", "opensafety.ssdo.abortcode",
+            FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
 
         /* SSDO SACmd specific fields */
         { &hf_oss_ssdo_sacmd_access_type,
@@ -1877,14 +2350,20 @@ proto_register_opensafety(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-            &ett_opensafety,
-            &ett_opensafety_sender,
-            &ett_opensafety_receiver,
-            &ett_opensafety_checksum,
-            &ett_opensafety_snmt,
-            &ett_opensafety_ssdo,
-            &ett_opensafety_spdo,
-            &ett_opensafety_ssdo_sacmd,
+        &ett_opensafety,
+        &ett_opensafety_sender,
+        &ett_opensafety_receiver,
+        &ett_opensafety_checksum,
+        &ett_opensafety_snmt,
+        &ett_opensafety_ssdo,
+        &ett_opensafety_ssdo_sacmd,
+        &ett_opensafety_ssdo_fragment,
+        &ett_opensafety_ssdo_fragments,
+        &ett_opensafety_ssdo_payload,
+        &ett_opensafety_ssdo_sodentry,
+        &ett_opensafety_sod_mapping,
+        &ett_opensafety_ssdo_extpar,
+        &ett_opensafety_spdo,
     };
 
     module_t *opensafety_module;
@@ -1914,33 +2393,37 @@ proto_register_opensafety(void)
                 "Port used for SercosIII/UDP",
                 "UDP port used by SercosIII to transport data", 10,
                 &global_network_udp_port_sercosiii);
+    prefs_register_bool_preference(opensafety_module, "network_udp_frame_first_sercosiii",
+                "openSAFETY frame 2 before frame 1 (SercosIII/UDP only)",
+                "In an SercosIII/UDP transport stream, openSAFETY frame 2 will be expected before frame 1",
+                &global_siii_udp_frame2_first );
     prefs_register_bool_preference(opensafety_module, "network_udp_frame_first",
-    			"openSAFETY frame 2 before frame 1 (UDP only)",
-    			"In the transport stream, openSAFETY frame 2 will be expected before frame 1",
-    			&global_udp_frame2_first );
+                "openSAFETY frame 2 before frame 1 (UDP only)",
+                "In the transport stream, openSAFETY frame 2 will be expected before frame 1",
+                &global_udp_frame2_first );
     prefs_register_bool_preference(opensafety_module, "mbtcp_big_endian",
                 "Big Endian Word Coding (Modbus/TCP only)",
                 "Modbus/TCP words can be transcoded either big- or little endian. Default will be little endian",
                 &global_mbtcp_big_endian);
 
     prefs_register_bool_preference(opensafety_module, "enable_plk",
-    		"Enable heuristic dissection for Ethernet POWERLINK", "Enable heuristic dissection for Ethernet POWERLINK",
-    		&global_enable_plk);
+                "Enable heuristic dissection for Ethernet POWERLINK", "Enable heuristic dissection for Ethernet POWERLINK",
+                &global_enable_plk);
     prefs_register_bool_preference(opensafety_module, "enable_udp",
-    		"Enable heuristic dissection for openSAFETY over UDP encoded traffic", "Enable heuristic dissection for openSAFETY over UDP encoded traffic",
-    		&global_enable_udp);
+                "Enable heuristic dissection for openSAFETY over UDP encoded traffic", "Enable heuristic dissection for openSAFETY over UDP encoded traffic",
+                &global_enable_udp);
     prefs_register_bool_preference(opensafety_module, "enable_genudp",
-    		"Enable heuristic dissection for generic UDP encoded traffic", "Enable heuristic dissection for generic UDP encoded traffic",
-    		&global_enable_genudp);
+                "Enable heuristic dissection for generic UDP encoded traffic", "Enable heuristic dissection for generic UDP encoded traffic",
+                &global_enable_genudp);
     prefs_register_bool_preference(opensafety_module, "enable_siii",
-    		"Enable heuristic dissection for SercosIII", "Enable heuristic dissection for SercosIII",
-    		&global_enable_siii);
+                "Enable heuristic dissection for SercosIII", "Enable heuristic dissection for SercosIII",
+                &global_enable_siii);
     prefs_register_bool_preference(opensafety_module, "enable_pnio",
-    		"Enable heuristic dissection for Profinet IO", "Enable heuristic dissection for Profinet IO",
-    		&global_enable_pnio);
+                "Enable heuristic dissection for Profinet IO", "Enable heuristic dissection for Profinet IO",
+                &global_enable_pnio);
     prefs_register_bool_preference(opensafety_module, "enable_mbtcp",
-    		"Enable heuristic dissection for Modbus/TCP", "Enable heuristic dissection for Modbus/TCP",
-    		&global_enable_mbtcp);
+                "Enable heuristic dissection for Modbus/TCP", "Enable heuristic dissection for Modbus/TCP",
+                &global_enable_mbtcp);
 
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
@@ -1993,3 +2476,16 @@ proto_reg_handoff_opensafety(void)
     }
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
