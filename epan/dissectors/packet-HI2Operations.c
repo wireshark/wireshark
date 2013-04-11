@@ -1,5 +1,5 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-HI2Operations.c                                                     */
 /* ../../tools/asn2wrs.py -b -p HI2Operations -c ./HI2Operations.cnf -s ./packet-HI2Operations-template -D . -O ../../epan/dissectors HI2Operations_ver11.asn UmtsHI2Operations.asn TS101909201.asn PCESP.asn EN301040.asn */
 

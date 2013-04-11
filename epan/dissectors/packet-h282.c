@@ -1,5 +1,5 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h282.c                                                              */
 /* ../../tools/asn2wrs.py -p h282 -c ./h282.cnf -s ./packet-h282-template -D . -O ../../epan/dissectors RDC-PROTOCOL.asn */
 

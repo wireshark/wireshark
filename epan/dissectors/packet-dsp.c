@@ -1,5 +1,5 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-dsp.c                                                               */
 /* ../../tools/asn2wrs.py -b -p dsp -c ./dsp.cnf -s ./packet-dsp-template -D . -O ../../epan/dissectors dsp.asn */
 

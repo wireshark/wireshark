@@ -1,5 +1,5 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h235.h                                                              */
 /* ../../tools/asn2wrs.py -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../../epan/dissectors H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 

@@ -1,5 +1,5 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ulp.c                                                               */
 /* ../../tools/asn2wrs.py -p ulp -c ./ulp.cnf -s ./packet-ulp-template -D . -O ../../epan/dissectors ULP.asn SUPL.asn ULP-Components.asn */
 

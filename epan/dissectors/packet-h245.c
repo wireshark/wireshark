@@ -1,5 +1,5 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h245.c                                                              */
 /* ../../tools/asn2wrs.py -p h245 -c ./h245.cnf -s ./packet-h245-template -D . -O ../../epan/dissectors MULTIMEDIA-SYSTEM-CONTROL.asn */
 
