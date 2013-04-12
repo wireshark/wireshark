@@ -311,7 +311,7 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
 
     /* get message length in order to decide if we need to reassemble packet */
-    msglen = tvb_get_guint8(tvb, offset);
+    msglen = tvb_get_ntohl(tvb, offset);
     
     /* Retrieve header data */    
     if (tree) {
@@ -320,7 +320,7 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(hpfeeds_tree, hf_hpfeeds_msg_length, tvb, offset, 
             4, ENC_BIG_ENDIAN);
     } 
-   
+
     if (tvb_reported_length(tvb) < msglen) {
         /* we need to reassemble */
         tcp_dissect_pdus(tvb, pinfo, hpfeeds_tree, hpfeeds_desegment, 5,
