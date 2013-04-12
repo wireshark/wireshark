@@ -98,11 +98,11 @@ toolbar_redraw_all(void)
                           (GtkToolbarStyle)prefs.gui_toolbar_filter_style);
 }
 
-void set_start_button_sensitive(gboolean enable) {
 #ifdef HAVE_LIBPCAP
+void set_start_button_sensitive(gboolean enable) {
     gtk_widget_set_sensitive(GTK_WIDGET(new_button), enable);
-#endif
 }
+#endif
 
 /* Enable or disable toolbar items based on whether you have a capture file
    and, if so, whether you've finished reading it and whether there's stuff

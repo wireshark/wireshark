@@ -759,10 +759,12 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
 void
 set_sensitivity_for_start_icon(void)
 {
+#ifdef HAVE_LIBPCAP
     gboolean enable = (global_capture_opts.num_selected > 0);
 
     set_start_button_sensitive(enable);
     set_menus_capture_start_sensitivity(enable);
+#endif
 }
 
 static gboolean activate_ifaces(GtkTreeModel  *model,
