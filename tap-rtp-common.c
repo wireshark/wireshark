@@ -539,11 +539,15 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	 */
 	if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (statinfo->flags & STAT_FLAG_FIRST) )
 		statinfo->seq_num = rtpinfo->info_seq_num;
-	/* If the first one is 65535. XXX same problem as above: if seq 65535 or 0 is lost... */
+	/* If the first one is 65535 we wrap */
 	else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
 		statinfo->seq_num = rtpinfo->info_seq_num;
-	/* Lost packets */
-	else if (statinfo->seq_num+1 < rtpinfo->info_seq_num) {
+	/* Lost packets. If the prev seq is enourmously larger than the cur seq
+	 * we assume that instead of being massively late we lost the packet(s)
+	 * that would have indicated the sequence number wrapping. An imprecise
+	 * heuristic at best, but it seems to work well enough.
+	 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5958 */
+	else if (statinfo->seq_num+1 < rtpinfo->info_seq_num || statinfo->seq_num - rtpinfo->info_seq_num > 0xFF00) {
 		statinfo->seq_num = rtpinfo->info_seq_num;
 		statinfo->sequence++;
 		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
@@ -715,4 +719,15 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	return 0;
 }
 
-
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
