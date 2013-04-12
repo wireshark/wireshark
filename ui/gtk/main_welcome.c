@@ -54,6 +54,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_welcome.h"
+#include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/stock_icons.h"
@@ -751,7 +752,17 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
             break;
         }
     }
+    set_sensitivity_for_start_icon();
     return TRUE;
+}
+
+void
+set_sensitivity_for_start_icon()
+{
+    gboolean enable = (global_capture_opts.num_selected > 0);
+
+    set_start_button_sensitive(enable);
+    set_menus_capture_start_sensitivity(enable);
 }
 
 static gboolean activate_ifaces(GtkTreeModel  *model,

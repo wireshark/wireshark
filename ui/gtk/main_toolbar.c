@@ -58,6 +58,7 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/packet_history.h"
 #include "ui/gtk/packet_list.h"
+#include "ui/capture_globals.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -95,6 +96,10 @@ toolbar_redraw_all(void)
 	if(filter_tb)
 		gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
                           (GtkToolbarStyle)prefs.gui_toolbar_filter_style);
+}
+
+void set_start_button_sensitive(gboolean enable) {
+    gtk_widget_set_sensitive(GTK_WIDGET(new_button), enable);
 }
 
 /* Enable or disable toolbar items based on whether you have a capture file
@@ -136,10 +141,13 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
 
     if (toolbar_init) {
 #ifdef HAVE_LIBPCAP
-	gtk_widget_set_sensitive(GTK_WIDGET(capture_options_button), !capture_in_progress);
+	    gtk_widget_set_sensitive(GTK_WIDGET(capture_options_button), !capture_in_progress);
         gtk_widget_set_sensitive(GTK_WIDGET(new_button), !capture_in_progress);
         gtk_widget_set_sensitive(GTK_WIDGET(stop_button), capture_in_progress);
-	gtk_widget_set_sensitive(GTK_WIDGET(clear_button), capture_in_progress);
+	    gtk_widget_set_sensitive(GTK_WIDGET(clear_button), capture_in_progress);
+	    if (!capture_in_progress) {
+	        gtk_widget_set_sensitive(GTK_WIDGET(new_button), (global_capture_opts.num_selected > 0));
+	    }
         /*if (capture_in_progress) {
             gtk_widget_hide(GTK_WIDGET(new_button));
             gtk_widget_show(GTK_WIDGET(stop_button));

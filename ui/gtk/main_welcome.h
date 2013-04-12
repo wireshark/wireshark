@@ -76,6 +76,8 @@ void change_selection_for_all(gboolean enable);
 
 void update_welcome_list(void);
 
+void set_sensitivity_for_start_icon(void);
+
 #ifdef HAVE_PCAP_REMOTE
 void add_interface_to_list(guint index);
 #endif

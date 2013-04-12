@@ -4825,6 +4825,8 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
                          !capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
+                         global_capture_opts.num_selected > 0);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Stop",
                          capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
@@ -4832,6 +4834,12 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 #endif /* HAVE_LIBPCAP */
 }
 
+void
+set_menus_capture_start_sensitivity(gboolean enable)
+{
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
+                         enable);
+}
 
 /* Disable menu items while we're waiting for the capture child to
    finish.  We disallow quitting until it finishes, and also disallow

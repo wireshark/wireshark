@@ -2449,6 +2449,7 @@ update_options_table(gint indx)
       change_interface_selection(g_strdup(device.name), device.selected);
     }
   }
+  set_sensitivity_for_start_icon();
 }
 
 
@@ -3190,6 +3191,7 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
     gtk_widget_set_sensitive(all_compile_bt, FALSE);
 #endif
   }
+  set_sensitivity_for_start_icon();
 }
 
 
