@@ -1,0 +1,964 @@
+03f04002 HP PhotoSmart ...
+03f04202 HP PhotoSmart 812
+03f04302 HP PhotoSmart 850
+03f04402 HP PhotoSmart 935
+03f04502 HP PhotoSmart 945
+03f06002 HP PhotoSmart C500
+03f06302 HP PhotoSmart 612
+03f06402 HP PhotoSmart 715
+03f06502 HP PhotoSmart 120
+03f06602 HP PhotoSmart 320
+03f06702 HP PhotoSmart 720
+03f06802 HP PhotoSmart 620
+03f06a02 HP PhotoSmart 735
+03f06b02 HP PhotoSmart 707
+03f06c02 HP PhotoSmart 733
+03f06d02 HP PhotoSmart 607
+03f06e02 HP PhotoSmart 507
+03f07102 HP PhotoSmart 635
+03f07202 HP PhotoSmart 43x
+03f07302 HP PhotoSmart M307
+03f07402 HP PhotoSmart 407
+03f07502 HP PhotoSmart M22
+03f07602 HP PhotoSmart 717
+03f07702 HP PhotoSmart 817
+03f07802 HP PhotoSmart 417
+03f07902 HP PhotoSmart 517
+03f07a02 HP PhotoSmart M415
+03f07b02 HP PhotoSmart M23
+03f07c02 HP PhotoSmart 217
+03f07d02 HP PhotoSmart 317
+03f07e02 HP PhotoSmart 818
+03f08002 HP PhotoSmart M425
+03f08102 HP PhotoSmart M525
+03f08202 HP PhotoSmart M527
+03f08402 HP PhotoSmart M725
+03f08502 HP PhotoSmart M727
+03f08702 HP PhotoSmart R927
+03f08802 HP PhotoSmart R967
+03f08b02 HP PhotoSmart E327
+03f08c02 HP PhotoSmart E427
+03f09602 HP PhotoSmart M737
+03f09702 HP PhotoSmart R742
+03f09b02 HP PhotoSmart M547
+04020611 TrekStor i.Beat Sweez FM
+04025668 Nextar MA715A-8R
+0408b009 Medion MD99000 (P9514)/Olivetti Olipad 110
+0408b00a Medion Lifetab P9514
+04090242 NEC FOMA N01A
+040a0121 Kodak DC240
+040a0160 Kodak DC4800
+040a0170 Kodak DX3900
+040a0400 Kodak MC3
+040a0403 Kodak Z7590
+040a0500 Kodak DX3500
+040a0510 Kodak DX3600
+040a0525 Kodak DX3215
+040a0530 Kodak DX3700
+040a0535 Kodak CX4230
+040a0540 Kodak LS420
+040a0550 Kodak DX4900
+040a0555 Kodak DX4330
+040a0560 Kodak CX4210
+040a0565 Kodak LS743
+040a0566 Kodak CX4310
+040a0567 Kodak LS753
+040a0568 Kodak LS443
+040a0569 Kodak LS663
+040a0570 Kodak DX6340
+040a0571 Kodak CX6330
+040a0572 Kodak DX6440
+040a0573 Kodak CX6230
+040a0574 Kodak CX6200
+040a0575 Kodak DX6490
+040a0576 Kodak DX4530
+040a0577 Kodak DX7630
+040a0578 Kodak CX7310
+040a0579 Kodak CX7220
+040a057a Kodak CX7330
+040a057b Kodak CX7430
+040a057c Kodak CX7530
+040a057d Kodak DX7440
+040a057e Kodak C300
+040a057f Kodak DX7590
+040a0580 Kodak Z730
+040a0584 Kodak CX6445
+040a0585 Kodak M893 IS
+040a0586 Kodak CX7525
+040a0587 Kodak Z700
+040a0588 Kodak Z740
+040a0589 Kodak C360
+040a058a Kodak C310
+040a058c Kodak C330
+040a058d Kodak C340
+040a058e Kodak V530
+040a058f Kodak V550
+040a0591 Kodak V570
+040a0592 Kodak P850
+040a0593 Kodak P880
+040a059a Kodak C530
+040a059c Kodak CD33
+040a059d Kodak Z612
+040a059e Kodak Z650
+040a059f Kodak M753
+040a05a0 Kodak V603
+040a05a2 Kodak C533
+040a05a7 Kodak C643
+040a05a9 Kodak C875
+040a05aa Kodak C433
+040a05ab Kodak V705
+040a05ac Kodak V610
+040a05ad Kodak M883
+040a05ae Kodak C743
+040a05af Kodak C653
+040a05b3 Kodak Z710
+040a05b4 Kodak Z712 IS
+040a05b5 Kodak Z812 IS
+040a05b7 Kodak C613
+040a05b8 Kodak V803
+040a05ba Kodak C633
+040a05c0 Kodak ZD710
+040a05c1 Kodak M863
+040a05c3 Kodak C813
+040a05c6 Kodak C913
+040a05cd Kodak Z950
+040a05ce Kodak M1063
+040a05cf Kodak Z915
+040a060b Kodak C183
+040a0617 Kodak C1530
+041e411f Creative ZEN Vision
+041e4123 Creative Portable Media Center
+041e4128 Creative ZEN Xtra (MTP mode)
+041e412f Dell DJ (2nd generation)
+041e4130 Creative ZEN Micro (MTP mode)
+041e4131 Creative ZEN Touch (MTP mode)
+041e4132 Dell Dell Pocket DJ (MTP mode)
+041e4133 Creative ZEN MicroPhoto (alternate version)
+041e4137 Creative ZEN Sleek (MTP mode)
+041e413c Creative ZEN MicroPhoto
+041e413d Creative ZEN Sleek Photo
+041e413e Creative ZEN Vision:M
+041e4150 Creative ZEN V
+041e4151 Creative ZEN Vision:M (DVP-HD0004)
+041e4152 Creative ZEN V Plus
+041e4153 Creative ZEN Vision W
+041e4157 Creative ZEN
+041e4158 Creative ZEN V 2GB
+041e4161 Creative ZEN Mozaic
+041e4162 Creative ZEN X-Fi
+041e4169 Creative ZEN X-Fi 3
+041e6000 ZiiLABS Zii EGG
+0421000a Nokia N81 Mobile Phone
+0421002e Nokia 6120c Classic Mobile Phone
+04210039 Nokia N96 Mobile Phone
+0421003c Nokia 6500c Classic Mobile Phone
+0421005f Nokia 3110c Mobile Phone
+04210065 Nokia 3109c Mobile Phone
+0421006c Nokia 5310 XpressMusic
+0421006e Nokia N95 Mobile Phone 8GB
+04210074 Nokia N82 Mobile Phone
+04210079 Nokia N78 Mobile Phone
+0421008d Nokia 6220 Classic
+04210092 Nokia N85 Mobile Phone
+04210098 Nokia 6210 Navigator
+042100e4 Nokia E71
+042100e5 Nokia E66
+042100ea Nokia 5320 XpressMusic
+04210154 Nokia 5800 XpressMusic
+04210155 Nokia 5800 XpressMusic v2
+04210159 Nokia 5800 XpressMusic v3
+04210179 Nokia E63
+04210186 Nokia N79
+042101a1 Nokia E71x
+042101cf Nokia E52
+042101ee Nokia 3710
+042101f4 Nokia N97-1
+042101f5 Nokia N97
+04210209 Nokia 5130 XpressMusic
+04210221 Nokia E72
+04210229 Nokia 5530
+0421026b Nokia N97 mini
+04210274 Nokia X6
+04210297 Nokia 6600i
+042102c1 Nokia 2710
+042102e2 Nokia 5230
+042102fe Nokia N8
+04210302 Nokia N8 (Ovi mode)
+04210334 Nokia E7
+04210335 Nokia E7 (Ovi mode)
+042103c1 Nokia C7
+042103cd Nokia C7 (ID2)
+042103d2 Nokia N950
+04210462 Nokia 3250 Mobile Phone
+04210478 Nokia N93 Mobile Phone
+0421047e Nokia 5500 Sport Mobile Phone
+04210485 Nokia N91 Mobile Phone
+04210488 Nokia N73
+042104b4 Nokia 5700 XpressMusic Mobile Phone
+042104ba Nokia 5300 Mobile Phone
+042104be Nokia 5200 Mobile Phone
+042104d1 Nokia N73 Mobile Phone
+042104e1 Nokia N75 Mobile Phone
+042104e5 Nokia N93i Mobile Phone
+042104ef Nokia N95 Mobile Phone
+042104f1 Nokia N80 Internet Edition (Media Player)
+0421051a Nokia N9
+043e7040 LG Electronics Inc. T54
+043e70b1 LG Electronics Inc. UP3
+045e00c9 Microsoft/Intel Bandon Portable Media Center
+045e04ec Microsoft Windows Phone
+045e0622 Microsoft Windows MTP Simulator
+045e063e Microsoft Zune HD
+045e0640 Microsoft Kin 1
+045e0641 Microsoft/Sharp/nVidia Kin TwoM
+045e0710 Microsoft Zune
+0471014b Philips HDD6320/00 or HDD6330/17
+0471014c Philips HDD14XX,HDD1620 or HDD1630/17
+0471014d Philips HDD085/00 or HDD082/17
+0471014f Philips GoGear SA9200
+04710164 Philips SA1115/55
+04710165 Philips GoGear Audio
+04710172 Philips Shoqbox
+04710181 Philips PSA610
+047101eb Philips HDD6320
+0471084e Philips GoGear SA6014/SA6015/SA6024/SA6025/SA6044/SA6045
+04710857 Philips GoGear SA5145
+04712002 Philips GoGear SA6125/SA6145/SA6185
+04712004 Philips GoGear SA3345
+04712022 Philips SA5285
+04712075 Philips GoGear ViBE SA1VBE04
+04712077 Philips GoGear Muse
+0471207b Philips GoGear ViBE SA1VBE04/08
+0471207c Philips GoGear Aria
+0471208e Philips GoGear SA1VBE08KX/78
+047120b7 Philips GoGear VIBE SA2VBE[08|16]K/02
+047120b9 Philips GoGear Ariaz
+047120e5 Philips GoGear Vibe/02
+04717e01 Philips PSA235
+04740230 Sanyo VPC-C5
+0489e040 Vizio VTAB1008
+04a9306d Canon PowerShot S45
+04a9306f Canon PowerShot G3
+04a93071 Canon Digital IXUS v3
+04a93072 Canon PowerShot SD100
+04a93073 Canon PowerShot A70
+04a93074 Canon PowerShot A60
+04a93075 Canon PowerShot S400
+04a93076 Canon PowerShot A300
+04a93077 Canon PowerShot S50
+04a93085 Canon PowerShot G5
+04a93087 Canon Elura 50
+04a9308d Canon MVX3i
+04a93099 Canon EOS Kiss Digital
+04a9309a Canon PowerShot A80
+04a9309b Canon Digital IXUS i
+04a9309c Canon PowerShot S1 IS
+04a930a0 Canon MV750i
+04a930a5 Canon Elura 65
+04a930b1 Canon Powershot S70
+04a930b2 Canon Powershot S60
+04a930b3 Canon Powershot G6
+04a930b4 Canon PowerShot S500
+04a930b5 Canon PowerShot A75
+04a930b6 Canon Digital IXUS IIs
+04a930b7 Canon PowerShot A400
+04a930b8 Canon PowerShot A310
+04a930b9 Canon PowerShot A85
+04a930ba Canon PowerShot S410
+04a930bb Canon PowerShot A95
+04a930bc Canon EOS 10D
+04a930bf Canon Digital IXUS 40
+04a930c0 Canon Digital IXUS 30
+04a930c1 Canon PowerShot A520
+04a930c2 Canon PowerShot A510
+04a930ea Canon EOS 1D Mark II
+04a930ec Canon EOS 20D
+04a930ee Canon EOS 350D
+04a930ef Canon EOS 350D
+04a930f0 Canon PowerShot S2 IS
+04a930f1 Canon Digital IXUS Wireless
+04a930f2 Canon PowerShot SD500
+04a930f4 Canon Digital IXUS iZ
+04a930f8 Canon PowerShot A430
+04a930f9 Canon PowerShot A410
+04a930fa Canon PowerShot S80
+04a930fc Canon PowerShot A620
+04a930fd Canon PowerShot A610
+04a930fe Canon Digital IXUS 65
+04a930ff Canon PowerShot SD450
+04a93102 Canon EOS 5D
+04a93105 Canon Optura 600
+04a9310e Canon Digital IXUS 50
+04a9310f Canon PowerShot A420
+04a93110 Canon EOS Kiss Digital X
+04a93113 Canon EOS 30D
+04a93115 Canon PowerShot SD900
+04a93116 Canon Digital IXUS 750
+04a93117 Canon PowerShot A700
+04a93119 Canon Digital IXUS 800
+04a9311a Canon PowerShot S3 IS
+04a9311b Canon PowerShot A540
+04a9311c Canon PowerShot SD600
+04a93125 Canon PowerShot G7
+04a93126 Canon PowerShot A530
+04a93136 Canon Digital IXUS 850 IS
+04a93137 Canon PowerShot SD40
+04a93138 Canon PowerShot A710 IS
+04a93139 Canon PowerShot A640
+04a9313a Canon PowerShot A630
+04a93145 Canon EOS Kiss X2
+04a93146 Canon EOS 40D
+04a93147 Canon EOS 1D Mark III
+04a93148 Canon PowerShot S5 IS
+04a93149 Canon PowerShot A460
+04a9314b Canon PowerShot SD850
+04a9314c Canon PowerShot A570 IS
+04a9314d Canon PowerShot A560
+04a9314e Canon PowerShot SD750
+04a9314f Canon PowerShot SD1000
+04a93150 Canon PowerShot A550
+04a93155 Canon PowerShot A450
+04a9315a Canon PowerShot G9
+04a9315b Canon PowerShot A650IS
+04a9315d Canon PowerShot A720 IS
+04a9315e Canon Powershot SX100 IS
+04a9315f Canon Digital IXUS 960 IS
+04a93160 Canon Digital IXUS 860 IS
+04a93173 Canon Digital IXUS 970 IS
+04a93174 Canon Digital IXUS 85 IS
+04a93175 Canon PowerShot SD770 IS
+04a93176 Canon PowerShot A590 IS
+04a93177 Canon PowerShot A580
+04a9317a Canon PowerShot A740
+04a9317b Canon EOS 1000D
+04a93184 Canon Powershot SD1100 IS
+04a9318d Canon PowerShot SX10 IS
+04a9318f Canon PowerShot G10
+04a93191 Canon PowerShot A2000 IS
+04a93192 Canon PowerShot SX110 IS
+04a93193 Canon IXY 3000 IS
+04a93196 Canon PowerShot SD880 IS
+04a93199 Canon EOS 5D Mark II
+04a9319a Canon EOS 7D
+04a9319b Canon EOS 50D
+04a931bc Canon PowerShot D10
+04a931bd Canon Digital IXUS 110 IS
+04a931be Canon PowerShot A2100 IS
+04a931bf Canon PowerShot A480
+04a931c0 Canon PowerShot SX200 IS
+04a931c1 Canon PowerShot SD970 IS
+04a931c2 Canon PowerShot SD780 IS
+04a931c3 Canon PowerShot A1100 IS
+04a931c4 Canon Digital IXUS 95 IS
+04a931cf Canon EOS Kiss X3
+04a931d0 Canon EOS 1D Mark IV
+04a931df Canon PowerShot G11
+04a931e0 Canon PowerShot SX120 IS
+04a931e4 Canon PowerShot SX20 IS
+04a931e6 Canon PowerShot SD940 IS
+04a931ea Canon Rebel T2i
+04a931f1 Canon PowerShot A3100 IS
+04a931f2 Canon PowerShot A3000 IS
+04a931f3 Canon Digital IXUS 130
+04a931f4 Canon PowerShot SD1300 IS
+04a931f6 Canon PowerShot SX210 IS
+04a93211 Canon PowerShot SX130 IS
+04a93215 Canon EOS 60D
+04a93217 Canon EOS 1100D
+04a93218 Canon EOS 600D
+04a93225 Canon IXUS 310IS
+04a93226 Canon PowerShot A800
+04a93228 Canon PowerShot SX230HS
+04a9322c Canon PowerShot SX220HS
+04a93233 Canon PowerShot G1 X
+04a93238 Canon PowerShot SX40HS
+04a9323a Canon EOS 5D Mark III
+04a9323b Canon Rebel T4i
+04a9323d Canon EOS M
+04a93243 Canon PowerShot A4000IS
+04a93245 Canon PowerShot SX240HS
+04a93249 Canon PowerShot A2400IS
+04a93250 Canon EOS 6D
+04a9325b Canon PowerShot S110
+04a9325c Canon PowerShot SX500IS
+04b00109 Nikon Coolpix 2500
+04b0010b Nikon Coolpix 4500
+04b0010d Nikon Coolpix 5700
+04b0010f Nikon Coolpix 4300
+04b00111 Nikon Coolpix 3500
+04b00112 Nikon Coolpix 885
+04b00113 Nikon Coolpix 5000
+04b00115 Nikon Coolpix 3100
+04b00117 Nikon Coolpix 2100
+04b00119 Nikon Coolpix 5400
+04b0011d Nikon Coolpix 3700
+04b0011f Nikon Coolpix 8700
+04b00121 Nikon Coolpix 3200
+04b00122 Nikon Coolpix 2200
+04b00127 Nikon Coolpix 8800
+04b00129 Nikon Coolpix 4800
+04b0012d Nikon Coolpix 4100
+04b0012e Nikon Coolpix 5600
+04b00130 Nikon Coolpix 4600
+04b00131 Nikon Coolpix 4600a
+04b00135 Nikon Coolpix 5900
+04b00137 Nikon Coolpix 7900
+04b00139 Nikon Coolpix 7600
+04b00140 Nikon Coolpix P1
+04b00142 Nikon Coolpix P2
+04b00144 Nikon Coolpix S4
+04b0014e Nikon Coolpix S6
+04b00157 Nikon Coolpix S7c
+04b0015b Nikon Coolpix P5000
+04b0015d Nikon Coolpix S500
+04b0015f Nikon Coolpix L12
+04b00161 Nikon Coolpix S200
+04b00163 Nikon Coolpix P5100
+04b00169 Nikon Coolpix P50
+04b0016b Nikon Coolpix P80
+04b0016f Nikon Coolpix P6000
+04b00171 Nikon Coolpix S60
+04b00173 Nikon Coolpix P90
+04b00177 Nikon Coolpix S220
+04b00178 Nikon Coolpix S225
+04b0017d Nikon Coolpix P100
+04b0017e Nikon Coolpix L110
+04b0017f Nikon Coolpix P7000
+04b00184 Nikon Coolpix P500
+04b00185 Nikon Coolpix L120
+04b00186 Nikon Coolpix S9100
+04b00188 Nikon Coolpix AW100
+04b0018b Nikon Coolpix P7100
+04b00202 Nikon Coolpix SQ
+04b00204 Nikon Coolpix 4200
+04b00206 Nikon Coolpix 5200
+04b00208 Nikon Coolpix L1
+04b0020c Nikon Coolpix P4
+04b0021e Nikon Coolpix S6000
+04b0021f Nikon Coolpix S8000
+04b00220 Nikon Coolpix S5100
+04b00221 Nikon Coolpix P300
+04b00222 Nikon Coolpix S8200
+04b00223 Nikon Coolpix P510
+04b00225 Nikon Coolpix P7700
+04b00302 Nikon Coolpix 2000
+04b00305 Nikon Coolpix L4
+04b00309 Nikon Coolpix L11
+04b0030b Nikon Coolpix L10
+04b00311 Nikon Coolpix P60
+04b00315 Nikon Coolpix L16
+04b00317 Nikon Coolpix L20
+04b00318 Nikon Coolpix L19
+04b0031b Nikon Coolpix S3000
+04b00320 Nikon Coolpix S3100
+04b00324 Nikon Coolpix L23
+04b0032a Nikon Coolpix S3300
+04b0032d Nikon Coolpix S2600
+04b00337 Nikon Coolpix S01
+04b00402 Nikon DSC D100
+04b00404 Nikon D2H SLR
+04b00406 Nikon DSC D70
+04b00408 Nikon D2X SLR
+04b0040a Nikon D50
+04b0040c Nikon D2Hs
+04b0040e Nikon DSC D70s
+04b00410 Nikon DSC D200
+04b00412 Nikon DSC D80
+04b00414 Nikon DSC D40
+04b00416 Nikon DSC D2Xs
+04b00418 Nikon DSC D40x
+04b0041a Nikon DSC D300
+04b0041c Nikon D3
+04b0041e Nikon DSC D60
+04b00421 Nikon DSC D90
+04b00422 Nikon DSC D700
+04b00423 Nikon DSC D5000
+04b00424 Nikon DSC D3000
+04b00425 Nikon DSC D300s
+04b00426 Nikon DSC D3s
+04b00427 Nikon DSC D3100
+04b00428 Nikon DSC D7000
+04b00429 Nikon DSC D5100
+04b0042a Nikon DSC D800
+04b0042b Nikon DSC D4
+04b0042d Nikon DSC D600
+04b0042e Nikon DSC D800E
+04b0042f Nikon DSC D5200
+04b00601 Nikon V1
+04b00602 Nikon J1
+04c51140 FOMA F903iX HIGH-SPEED
+04cb0142 Fuji FinePix S7000
+04cb014a Fuji FinePix A330
+04cb018f Fuji FinePix S9500
+04cb0193 Fuji FinePix E900
+04cb019b Fuji FinePix F30
+04cb01bf Fuji FinePix S6500fd
+04cb01c0 Fuji FinePix F20
+04cb01c1 Fuji FinePix F31fd
+04cb01c3 Fuji S5 Pro
+04cb01c4 Fuji FinePix S5700
+04cb01c5 Fuji FinePix F40fd
+04cb01c6 Fuji FinePix A820
+04cb01d2 Fuji FinePix A800
+04cb01d3 Fuji FinePix A920
+04cb01d4 Fuji FinePix F50fd
+04cb01d7 Fuji FinePix S5800
+04cb01d8 Fuji FinePix Z100fd
+04cb01db Fuji FinePix S100fs
+04cb01dd Fuji FinePix S1000fd
+04cb01e0 Fuji FinePix F100fd
+04cb01e4 Fuji FinePix F200 EXR
+04cb01e6 Fuji FinePix F60fd
+04cb01e8 Fuji FinePix S2000HD
+04cb01ef Fuji FinePix S1500
+04cb01fa Fuji FinePix F70 EXR
+04cb01fe Fuji Fujifilm A220
+04cb0200 Fuji FinePix S1800
+04cb0201 Fuji FinePix Z35
+04cb0209 Fuji FinePix S2500HD
+04cb020d Fuji FinePix Z700EXR
+04cb020e Fuji FinePix F80EXR
+04cb0240 Fuji FinePix S2950
+04cb0263 Fuji FinePix X10
+04cb0265 Fuji FinePix S4300
+04cb026e Fuji FinePix X-S1
+04cb0271 Fuji FinePix HS30EXR
+04cb0288 Fuji FinePix XF1
+04da2145 Panasonic P905i
+04da2158 Panasonic P906i
+04da2372 Panasonic Lumix FZ5
+04da2374 Panasonic DMC-GF1
+04da2375 Leica D-LUX 2
+04e80409 Samsung YP-900
+04e804a4 Samsung I550W Phone
+04e84f1f Samsung Jet S8000
+04e8501d Samsung YH-920 (501d)
+04e85022 Samsung YH-920 (5022)
+04e85024 Samsung YH-925GS
+04e8502e Samsung YH-820
+04e8502f Samsung YH-925(-GS)
+04e85033 Samsung YH-J70J
+04e8503c Samsung YP-Z5
+04e85047 Samsung YP-T7J
+04e85054 Samsung YP-U2J (YP-U2JXB/XAA)
+04e85057 Samsung YP-F2J
+04e8505a Samsung YP-K5
+04e8507d Samsung YP-U3
+04e8507f Samsung YP-T9
+04e85081 Samsung YP-K3
+04e85083 Samsung YP-P2
+04e8508a Samsung YP-T10
+04e8508b Samsung YP-S5
+04e85091 Samsung YP-S3
+04e85093 Samsung YP-U4
+04e8510f Samsung YP-R1
+04e85115 Samsung YP-Q1
+04e85118 Samsung YP-M1
+04e8511a Samsung YP-P3
+04e8511d Samsung YP-Q2
+04e85121 Samsung YP-U5
+04e85125 Samsung YP-R0
+04e85130 Samsung YP-Q3
+04e85137 Samsung YP-Z3
+04e86642 Samsung M7600 Beat/GT-S8300T/SGH-F490/S8300
+04e86702 Samsung X830 Mobile Phone
+04e86709 Samsung U600 Mobile Phone
+04e86727 Samsung F250 Mobile Phone
+04e86734 Samsung Juke (SCH-U470)
+04e86752 Samsung GT-B2700
+04e86763 Samsung SAMSUNG Trance
+04e86819 Samsung GT-S8500
+04e8684a Samsung S5620
+04e8685e Samsung Galaxy Y
+04e86877 Samsung Galaxy models Kies mode
+04e868a9 Samsung Vibrant SGH-T959/Captivate/Media player mode
+04e868af Samsung GT-B2710/Xcover 271
+04e8e20c Samsung GT-S5230
+04f16105 JVC Alneo XA-HD500
+05023325 Acer Iconia TAB A500 (ID1)
+05023341 Acer Iconia TAB A500 (ID2)
+05023344 Acer Iconia TAB A501
+05023348 Acer Iconia TAB A100 (ID1)
+05023349 Acer Iconia TAB A100 (ID2)
+05023378 Acer Iconia TAB A700
+0502337c Acer Iconia TAB A200 (ID1)
+0502337d Acer Iconia TAB A200 (ID2)
+0502338a Acer Iconia TAB A510
+050233c3 Acer E350 Liquid Gallant Duo
+05462035 Polaroid Freescape/MPU-433158
+054c004e Sony DSC-U10
+054c0296 Sony DSC-S730
+054c02c0 Sony DSC-A100
+054c02f8 Sony DSC-W200
+054c0325 Sony Walkman NWZ-A815/NWZ-A818
+054c0326 Sony Walkman NWZ-S516
+054c0327 Sony Walkman NWZ-S615F/NWZ-S616F/NWZ-S618F
+054c0343 Sony DSC-W130
+054c035a Sony Walkman NWZ-S716F
+054c035b Sony Walkman NWZ-A826/NWZ-A828/NWZ-A829
+054c035c Sony Walkman NWZ-A726/NWZ-A728/NWZ-A768
+054c036e Sony Walkman NWZ-B135
+054c0385 Sony Walkman NWZ-E436F
+054c0388 Sony Walkman NWZ-W202
+054c038c Sony Walkman NWZ-S739F
+054c038e Sony Walkman NWZ-S638F
+054c0398 Sony Walkman NWZ-X1051/NWZ-X1061
+054c03d8 Sony Walkman NWZ-B142F
+054c03fc Sony Walkman NWZ-E344
+054c03fd Sony Walkman NWZ-E445
+054c03fe Sony Walkman NWZ-S545
+054c0404 Sony Walkman NWZ-A845
+054c04a3 Sony SLT-A55
+054c04a7 Sony SLT-A35
+054c04bb Sony Walkman NWZ-W252B
+054c04be Sony Walkman NWZ-B153F
+054c04cb Sony Walkman NWZ-E354
+054c04cc Sony Walkman NWZ-S754
+054c04d1 Sony Sony Tablet P1
+054c052a Sony DSC-RX100
+054c052b Sony DSC-RX1
+054c0543 Sony DSC-HX100V
+054c0574 Sony SLT-A65V
+054c059a Sony NWZ-B163F
+054c05a6 Sony Walkman NWZ-E464
+054c05a8 Sony NWZ-S765
+054c05b3 Sony Sony Tablet S
+054c05b4 Sony Sony Tablet S1
+054c061f Sony DSC-HX200V
+054c1294 Sony DCR-SR75
+05ac1290 Apple iPhone
+05ac1291 Apple iPod Touch
+05ac1292 Apple iPhone 3G
+05ac1293 Apple iPod Touch 2G
+05ac1294 Apple iPhone 3GS
+05ac1297 Apple iPhone 4
+05ac1299 Apple iPod Touch 3rd Gen
+05ac129a Apple iPad
+05ac12a0 Apple iPhone 4S
+05c60229 Nokia 5530 Xpressmusic
+05c63196 Nokia/Verizon 6205 Balboa/Verizon Music Phone
+05ca0110 Ricoh Caplio R5
+05ca0325 Ricoh Caplio GX
+05ca0327 Sea & Sea 5000G
+05ca032b Ricoh Caplio R1v
+05ca032d Ricoh Caplio GX 8
+05ca032f Ricoh Caplio R3
+05ca033d Ricoh Caplio RR750
+05ca0353 Sea & Sea 2G
+05ca220f Rollei dr5
+066f842a TrekStor Vibez 8/12GB
+066f846c Maxfield G-Flash NG 1GB
+066f8550 Medion MD8333
+066f8588 Medion MD8333
+066fa010 SigmaTel Inc. MTPMSCN Audio Player
+069b0774 Thomson EM28 Series
+069b0777 Thomson / RCA Opal / Lyra MC4002
+069b077c Thomson Lyra MC5104B (M51 Series)
+069b301a Thomson RCA H106
+069b3028 Thomson scenium E308
+069b3035 Thomson / RCA Lyra HC308A
+06d321ba FOMA D905i
+07817400 SanDisk Sansa m230/m240
+07817401 SanDisk Sansa m200-tcc (MTP mode)
+07817410 SanDisk Sansa c150
+07817420 SanDisk Sansa e200/e250/e260/e270/e280
+07817422 SanDisk Sansa e260/e280 v2
+07817430 SanDisk Sansa m240/m250
+07817432 SanDisk Sansa Clip
+07817434 SanDisk Sansa Clip v2
+07817450 SanDisk Sansa c240/c250
+07817452 SanDisk Sansa c250 v2
+07817460 SanDisk Sansa Express
+07817480 SanDisk Sansa Connect
+078174b0 SanDisk Sansa View
+078174c0 SanDisk Sansa Fuze
+078174c2 SanDisk Sansa Fuze v2
+078174d0 SanDisk Sansa Clip+
+078174e0 SanDisk Sansa Fuze+
+078174e4 SanDisk Sansa Clip Zip
+07b40102 Olympus E-1
+07b40109 Olympus X-925
+07b40110 Olympus E-410
+07b40113 Olympus mju 500
+07b40114 Olympus IR-300
+07b40116 Olympus X925
+07b40118 Olympus E-410
+07b4012f Olympus E-PL5
+07cf1042 Casio EX-Z120
+07cf1049 Casio EX-S770
+07cf104c Casio EX-Z700
+07cf104d Casio EX-Z65
+08e40142 Pioneer DVR-LX60D
+08e40148 Pioneer XMP3
+09300009 Toshiba Gigabeat MEGF-40
+0930000c Toshiba Gigabeat
+0930000f Toshiba Gigabeat P20
+09300010 Toshiba Gigabeat S
+09300011 Toshiba Gigabeat P10
+09300014 Toshiba Gigabeat V30
+09300016 Toshiba Gigabeat U
+09300018 Toshiba Gigabeat MEU202
+09300019 Toshiba Gigabeat T
+0930001a Toshiba Gigabeat MEU201
+0930001d Toshiba Gigabeat MET401
+09300963 Toshiba Excite AT300
+09307100 Toshiba Thrive AT100/AT105
+095570a9 nVidia CM9-Adam
+0a17000d Pentax Optio 43WR
+0a1700f7 Pentax Optio W90
+0aa63011 Tevion MD 81488
+0aa66021 Disney MixMax
+0aa69601 MyMusix PD-6070
+0aa69702 Perception Digital, Ltd Gigaware GX400
+0b054c80 Asus TF300 Transformer
+0b054c81 Asus TF300 Transformer (USB debug mode)
+0b054c90 Asus TF700 Transformer
+0b054d00 Asus TF201 Transformer Prime (keyboard dock)
+0b054d01 Asus TF201 Transformer Prime (tablet only)
+0b054d04 Asus TFXXX Transformer Prime (unknown version)
+0b054e01 Asus TF101 Eeepad Slider
+0b054e0f Asus TF101 Eeepad Transformer
+0b054e1f Asus TF101 Eeepad Transformer (debug mode)
+0b20ddee Isabella Her Prototype
+0b28100c Kenwood Media Keg HD10GB7 Sport Player
+0bb40c02 HTC Zopo ZP100 (ID1)
+0bb40c93 HTC EVO 4G LTE
+0bb40ca8 HTC EVO 4G LTE (second ID)
+0bb42008 HTC Zopo ZP100 (ID2)
+0bb4685c Hewlett-Packard HP Touchpad
+0db05572 Micro-Star International P610/Model MS-5557
+0e210701 Cowon iAudio U3 (MTP mode)
+0e210711 Cowon iAudio 6 (MTP mode)
+0e210751 Cowon iAudio 7 (MTP mode)
+0e210761 Cowon iAudio U5 (MTP mode)
+0e210801 Cowon iAudio D2 (MTP mode)
+0e210861 Cowon iAudio D2+ FW 2.x (MTP mode)
+0e210871 Cowon iAudio D2+ DAB FW 4.x (MTP mode)
+0e210881 Cowon iAudio D2+ FW 3.x (MTP mode)
+0e210891 Cowon iAudio D2+ DMB FW 1.x (MTP mode)
+0e210901 Cowon iAudio S9 (MTP mode)
+0e210911 Cowon iAudio 9 (MTP mode)
+0e210921 Cowon iAudio J3 (MTP mode)
+0e210931 Cowon iAudio X7 (MTP mode)
+0e210941 Cowon iAudio C2 (MTP mode)
+0e210952 Cowon iAudio 10 (MTP mode)
+0e791207 Archos Gmini XS100
+0e791208 Archos XS202 (MTP mode)
+0e79120a Archos 104 (MTP mode)
+0e79120c Archos 204 (MTP mode)
+0e791301 Archos 404 (MTP mode)
+0e791303 Archos 404CAM (MTP mode)
+0e791307 Archos 504 (MTP mode)
+0e791309 Archos 604 (MTP mode)
+0e79130b Archos 604WIFI (MTP mode)
+0e79130d Archos 704 mobile dvr
+0e79130f Archos 704TV (MTP mode)
+0e791311 Archos 405 (MTP mode)
+0e791313 Archos 605 (MTP mode)
+0e791315 Archos 605F (MTP mode)
+0e791319 Archos 705 (MTP mode)
+0e79131b Archos TV+ (MTP mode)
+0e79131d Archos 105 (MTP mode)
+0e791321 Archos 405HDD (MTP mode)
+0e791331 Archos 5 (MTP mode)
+0e791333 Archos 5 (MTP mode)
+0e791335 Archos 7 (MTP mode)
+0e791341 Archos SPOD (MTP mode)
+0e791351 Archos 5S IT (MTP mode)
+0e791357 Archos 5H IT (MTP mode)
+0e791458 Archos Arnova Childpad
+0e791508 Archos 8o G9 (MTP mode)
+0e791509 Archos 8o G9 Turbo (MTP mode)
+0e791518 Archos 80G9
+0e791528 Archos 101 G9
+0e791529 Archos 101 G9 (v2)
+0e791538 Archos 101 G9 Turbo 250 HD
+0e791539 Archos 101 G9 Turbo
+0e791568 Archos 70it2 (mode 1)
+0e791569 Archos 70it2 (mode 2)
+0fca8007 RIM BlackBerry Storm/9650
+0fce0075 SonyEricsson K850i
+0fce0076 SonyEricsson W910
+0fce00b3 SonyEricsson W890i
+0fce00c6 SonyEricsson W760i
+0fce00d4 SonyEricsson C902
+0fce00d9 SonyEricsson C702
+0fce00da SonyEricsson W980
+0fce00ef SonyEricsson C905
+0fce00f3 SonyEricsson W595
+0fce00f5 SonyEricsson W902
+0fce00fb SonyEricsson T700
+0fce0105 SonyEricsson W705/W715
+0fce0112 SonyEricsson W995
+0fce0133 SonyEricsson U5
+0fce013a SonyEricsson U8i
+0fce0144 SonyEricsson j10i2 (Elm)
+0fce014e SonyEricsson j108i (Cedar)
+0fce014f SonyEricsson LT15i Xperia arc S MTP
+0fce0156 SonyEricsson MT11i Xperia Neo MTP
+0fce015a SonyEricsson MK16i Xperia MTP
+0fce0161 SonyEricsson ST18a Xperia Ray MTP
+0fce0166 SonyEricsson SK17i Xperia Mini Pro MTP
+0fce0167 SonyEricsson ST15i Xperia Mini MTP
+0fce0168 SonyEricsson ST17i Xperia Active MTP
+0fce0169 SONY LT26i Xperia S MTP
+0fce016d SONY WT19i Live Walkman MTP
+0fce0170 SONY ST21i Xperia Tipo MTP
+0fce0171 SONY ST15i Xperia U MTP
+0fce0172 SONY LT22i Xperia P MTP
+0fce0173 SONY MT27i Xperia Sola MTP
+0fce0175 SONY LT26w Xperia Acro HD IS12S MTP
+0fce0176 SONY LT26w Xperia Acro HD SO-03D MTP
+0fce0177 SONY LT28at Xperia Ion MTP
+0fce0178 SONY LT29i Xperia GX MTP
+0fce017e SONY ST27i/ST27a Xperia go MTP
+0fce0181 SONY SO-05D Xperia SX MTP
+0fce0182 SONY LT30p Xperia T MTP
+0fce0186 SONY LT25i Xperia V MTP
+0fce10c8 SonyEricsson W302
+0fce4168 SonyEricsson ST17i Xperia Active MTP+CDROM
+0fce4169 SONY LT26i Xperia S MTP+CDROM
+0fce4170 SONY ST21i Xperia Tipo MTP+CDROM
+0fce4171 SONY ST25i Xperia U MTP+CDROM
+0fce4172 SONY LT22i Xperia P MTP+CDROM
+0fce4173 SONY MT27i Xperia Sola MTP+CDROM
+0fce4175 SONY LT26w Xperia Acro HD IS12S MTP+CDROM
+0fce4176 SONY LT26w Xperia Acro HD SO-03D MTP+CDROM
+0fce4177 SONY LT28at Xperia Ion MTP+CDROM
+0fce4178 SONY LT29i Xperia GX MTP+CDROM
+0fce417e SONY ST27i/ST27a Xperia go MTP+CDROM
+0fce4181 SONY SO-05D Xperia SX MTP+CDROM
+0fce4182 SONY LT30p Xperia T MTP+CDROM
+0fce4186 SONY LT25i Xperia V MTP+CDROM
+0fce514f SonyEricsson LT15i Xperia Arc MTP+ADB
+0fce5156 SonyEricsson MT11i Xperia Neo MTP+ADB
+0fce515a SonyEricsson MK16i Xperia MTP+ADB
+0fce5161 SonyEricsson ST18i Xperia Ray MTP+ADB
+0fce5166 SonyEricsson SK17i Xperia Mini Pro MTP+ADB
+0fce5167 SonyEricsson ST15i Xperia Mini MTP+ADB
+0fce5168 SonyEricsson ST17i Xperia Active MTP+ADB
+0fce5169 SonyEricsson LT26i Xperia S MTP+ADB
+0fce516d SonyEricsson SK17i Xperia Mini Pro MTP+ADB
+0fce5170 SONY ST21i Xperia Tipo MTP+ADB
+0fce5171 SONY ST25i Xperia U MTP+ADB
+0fce5172 SONY LT22i Xperia P MTP+ADB
+0fce5173 SONY MT27i Xperia Sola MTP+ADB
+0fce5175 SONY IS12S Xperia Acro HD MTP+ADB
+0fce5176 SONY SO-03D Xperia Acro HD MTP+ADB
+0fce5177 SONY LT28at Xperia Ion MTP+ADB
+0fce5178 SONY LT29i Xperia GX MTP+ADB
+0fce517e SONY ST27i/ST27a Xperia go MTP+ADB
+0fce5181 SONY SO-05D Xperia SX MTP+ADB
+0fce5182 SONY LT30p Xperia T MTP+ADB
+0fce5186 SONY LT25i Xperia V MTP+ADB
+0fcea173 SONY MT27i Xperia Sola MTP+UMS
+0fcea175 SONY IS12S Xperia Acro HD MTP+UMS
+0fcea176 SONY SO-03D Xperia Acro HD MTP+UMS
+0fcea177 SONY LT28at Xperia Ion MTP+UMS
+0fcea17e SONY ST27i/ST27a Xperia go MTP+UMS
+0fceb173 SONY MT27i Xperia Sola MTP+UMS+ADB
+0fceb175 SONY IS12S Xperia Acro MTP+UMS+ADB
+0fceb176 SONY SO-03D Xperia Acro MTP+UMS+ADB
+0fceb177 SONY LT28at Xperia Ion MTP+UMS+ADB
+0fceb17e SONY ST27i/ST27a Xperia go MTP+UMS+ADB
+0fced144 SonyEricsson j10i (Elm)
+0fcee000 SonyEricsson K550i
+10046010 LG Electronics Inc. VX8550 V CAST Mobile Phone
+1004608f LG Electronics Inc. KC910 Renoir Mobile Phone
+1004611b LG Electronics Inc. GR-500 Music Player
+10046132 LG Electronics Inc. KM900
+1004619a LG Electronics Inc. LG8575
+100461f9 LG Electronics Inc. V909 G-Slate
+1004631c LG Electronics Inc. LG-E617G/P700
+10063004 iRiver H300 Series MTP
+10064002 iRiver Portable Media Center
+10064003 iRiver Portable Media Center
+10421143 iRiver T7 Volcano
+106cf003 Pantech Crux
+10d62200 Dunlop MP3 player 1GB / EGOMAN MD223AFD
+10d62300 Memorex or iRiver MMP 8585/8586 or iRiver E200
+12d11051 Huawei Honor U8860
+12d1360f Huawei Mediapad (mode 0)
+12d1361f Huawei Mediapad (mode 1)
+13021016 Haier Ibiza Rhapsody
+13021017 Haier Ibiza Rhapsody
+132b0001 Konica-Minolta DiMAGE A2
+132b0007 Konica-Minolta DiMAGE Z2
+132b0009 Konica-Minolta DiMAGE X21
+132b0018 Konica-Minolta DiMAGE Z3
+132b0019 Konica-Minolta DiMAGE A200
+132b0022 Konica-Minolta DiMAGE Z5
+13d17002 Logik LOG DAX MP3 and DAB Player
+13d17017 Technika MP-709
+17030001 NormSoft, Inc. Pocket Tunes
+17030002 NormSoft, Inc. Pocket Tunes 4
+17ef740a Lenovo K1
+17ef741c Lenovo ThinkPad Tablet
+17ef7497 Lenovo P700
+17ef74cc Lenovo Lifetab S9512
+18d105b3 Google Inc (for Sony) S1
+18d12d02 Google Inc (for Barnes & Noble) Nook Color
+18d14e0f Google Inc (for Asus) TF101 Transformer
+18d14e21 Google Inc (for Samsung) Nexus S
+18d14e41 Google Inc (for Asus) Nexus 7 (MTP)
+18d14e42 Google Inc (for Asus) Nexus 7 (MTP+ADB)
+18d170a8 Google Inc (for Motorola) Xoom (MZ604)
+18d17102 Google Inc (for Toshiba) Thrive 7/AT105
+18d1740a Google Inc (for Lenovo) Ideapad K1
+18d1b00a Google Inc (for Medion) MD99000 (P9514)
+18d1d10a Google Inc (for LG Electronics) P990/Optimus
+18f60102 Sirius Stiletto
+18f60110 Sirius Stiletto 2
+19d20244 ZTE V55 ID 1
+19d20245 ZTE V55 ID 2
+19ff0303 Insignia NS-DV45
+19ff0307 Insignia Sport Player
+19ff0309 Insignia Pilot 4GB
+1bdcfabf Slacker Inc. Slacker Portable Media Player
+1e530005 Conceptronic CMTD2
+1e530006 O2 Sistemas ZoltarTV
+1e530007 Wyplay Wyplayer
+1e680002 TrekStor i.Beat Organix 2.0
+1e746512 Coby COBY MP705
+22070001 Various Viewpia DR/bq Kepler
+22b82a65 Motorola V3m/V750 verizon
+22b841cf Motorola Xoom 2 Media Edition (ID2)
+22b841d6 Motorola Droid X/MB525 (Defy)
+22b841dc Motorola Milestone / Verizon Droid
+22b842a7 Motorola DROID2
+22b84311 Motorola Xoom 2 Media Edition
+22b84362 Motorola XT912/XT928
+22b8437f Motorola DROID4
+22b84811 Motorola IdeaPad K1
+22b860ca Motorola A1200
+22b86413 Motorola MTP Test Command Interface
+22b86415 Motorola RAZR2 V8/U9/Z6
+22b870a3 Motorola Xoom (Factory test)
+22b870a8 Motorola Xoom (MTP)
+22b870a9 Motorola Xoom (MTP+ADB)
+22b870ca Motorola Milestone X2
+41021008 iRiver iFP-880
+41021113 iRiver T10
+41021114 iRiver T20 FM
+41021115 iRiver T20
+41021116 iRiver U10
+41021117 iRiver T10a
+41021118 iRiver T20
+41021119 iRiver T30
+41021120 iRiver T10 2GB
+41021122 iRiver N12
+41021126 iRiver Clix2
+4102112a iRiver Clix
+41021132 iRiver X20
+41021134 iRiver T60
+41021141 iRiver E100
+41021142 iRiver E100 v2/Lplayer
+41021147 iRiver Spinn
+41021151 iRiver E50
+41021153 iRiver T5
+41021167 iRiver E30
+41022101 iRiver H10 20GB
+41022102 iRiver H10 5GB
+41022105 iRiver H10 5.6GB
+413c4500 Dell, Inc DJ Itty
+413cb10b Dell, Inc Dell Streak 7

@@ -7,6 +7,7 @@
 # http://www.linux-usb.org/usb.ids
 # to create our file epan/dissectors/usb.c
 #
+# It also uses the values culled out of libgphoto2 using usb-ptp-extract-models.pl
 
 import re
 import urllib
@@ -17,11 +18,14 @@ MODE_VENDOR_PRODUCT = 1
 
 mode = MODE_IDLE
 
+# Grab from linux-usb.org
 response = urllib.urlopen('http://www.linux-usb.org/usb.ids')
 lines = response.read().splitlines()
 
-vendors="static const value_string usb_vendors_vals[] = {\n"
-products="static const value_string usb_products_vals[] = {\n"
+vendors  = dict()
+products = dict()
+vendors_str="static const value_string usb_vendors_vals[] = {\n"
+products_str="static const value_string usb_products_vals[] = {\n"
 
 
 for line in lines:
@@ -36,18 +40,32 @@ for line in lines:
 
     if mode == MODE_VENDOR_PRODUCT:
         if re.match("^[0-9a-f]{4}", line):
-            vendors += "    { 0x%s, \"%s\" },\n"%(line[:4], re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\"))))
-            last_vendor = line[:4]
+            last_vendor=line[:4]
+            vendors[last_vendor] = re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\")))
         elif re.match("^\t[0-9a-f]{4}", line):
             line = line.strip()
-            products += "    { 0x%s%s, \"%s\" },\n"%(last_vendor, line[:4], re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\"))))
+            product = "%s%s"%(last_vendor, line[:4])
+            products[product] = re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\")))
 
 
-vendors += """    { 0, NULL }\n};
+# Grab from libgphoto (indirectly through tools/usb-ptp-extract-models.pl)
+u = open('tools/usb-ptp-extract-models.txt','r')
+for line in u.readlines():
+    fields=line.split()
+    products[fields[0]]= ' '.join(fields[1:])
+
+
+for v in sorted(vendors):
+    vendors_str += "    { 0x%s, \"%s\" },\n"%(v,vendors[v])
+
+vendors_str += """    { 0, NULL }\n};
 value_string_ext ext_usb_vendors_vals = VALUE_STRING_EXT_INIT(usb_vendors_vals);
 """
 
-products += """    { 0, NULL }\n};
+for p in sorted(products):
+    products_str += "    { 0x%s, \"%s\" },\n"%(p,products[p])
+
+products_str += """    { 0, NULL }\n};
 value_string_ext ext_usb_products_vals = VALUE_STRING_EXT_INIT(usb_products_vals);
 """
 
@@ -57,6 +75,17 @@ header="""/* usb.c
  * Don't change it directly.
  *
  * Copyright 2012, Michal Labedzki for Tieto Corporation
+ *
+ * Other values imported from libghoto2/camlibs/ptp2/library.c, music-players.h
+ *
+ * Copyright (C) 2001-2005 Mariusz Woloszyn <emsi@ipartners.pl>
+ * Copyright (C) 2003-2013 Marcus Meissner <marcus@jet.franken.de>
+ * Copyright (C) 2005 Hubert Figuiere <hfiguiere@teaser.fr>
+ * Copyright (C) 2009 Axel Waggershauser <awagger@web.de>
+ * Copyright (C) 2005-2007 Richard A. Low <richard@wentnet.com>
+ * Copyright (C) 2005-2012 Linus Walleij <triad@df.lth.se>
+ * Copyright (C) 2007 Ted Bullock
+ * Copyright (C) 2012 Sony Mobile Communications AB
  *
  * $Id$
  *
@@ -86,9 +115,9 @@ header="""/* usb.c
 f = open('epan/dissectors/usb.c', 'w')
 f.write(header)
 f.write("\n")
-f.write(vendors)
+f.write(vendors_str)
 f.write("\n\n")
-f.write(products)
+f.write(products_str)
 f.write("\n")
 f.close()
 
