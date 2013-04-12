@@ -757,7 +757,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
 }
 
 void
-set_sensitivity_for_start_icon()
+set_sensitivity_for_start_icon(void)
 {
     gboolean enable = (global_capture_opts.num_selected > 0);
 
