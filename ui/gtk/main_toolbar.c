@@ -99,7 +99,9 @@ toolbar_redraw_all(void)
 }
 
 void set_start_button_sensitive(gboolean enable) {
+#ifdef HAVE_LIBPCAP
     gtk_widget_set_sensitive(GTK_WIDGET(new_button), enable);
+#endif
 }
 
 /* Enable or disable toolbar items based on whether you have a capture file

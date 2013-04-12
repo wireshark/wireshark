@@ -4837,8 +4837,10 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 void
 set_menus_capture_start_sensitivity(gboolean enable)
 {
+#ifdef HAVE_LIBPCAP
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
                          enable);
+#endif
 }
 
 /* Disable menu items while we're waiting for the capture child to
