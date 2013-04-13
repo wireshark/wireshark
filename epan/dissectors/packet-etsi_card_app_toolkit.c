@@ -119,6 +119,8 @@ static int hf_ctlv_utran_eutran_meas_qual = -1;
 static int hf_ctlv_loci_lac = -1;
 static int hf_ctlv_loci_cell_id = -1;
 static int hf_ctlv_loci_ext_cell_id = -1;
+static int hf_ctlv_impu = -1;
+static int hf_ctlv_ims_status_code = -1;
 
 static int ett_cat = -1;
 static int ett_elem = -1;
@@ -243,9 +245,9 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x73, "3GPP Routing Area Information" },
 	{ 0x74, "3GPP Update/Attach Type" },
 	{ 0x75, "3GPP Rejection Cause Code" },
-	{ 0x76, "3GPP Geographical Location Parameters" },
-	{ 0x77, "3GPP GAD Shapes" },
-	{ 0x78, "3GPP NMEA sentence" },
+	{ 0x76, "3GPP Geographical Location Parameters / IARI" },
+	{ 0x77, "3GPP GAD Shapes / IMPU list" },
+	{ 0x78, "3GPP NMEA sentence / IMS Status-Code" },
 	{ 0x79, "3GPP PLMN list" },
 	{ 0x7a, "Broadcast Network Information" },
 	{ 0x7b, "ACTIVATE descriptor" },
@@ -559,12 +561,16 @@ static const value_string event_list_vals[] = {
 	{ 0x0e, "Network Search Mode Change" },
 	{ 0x0f, "Browsing status" },
 	{ 0x10, "Frames Informations Change" },
-	{ 0x11, "3GPP I-WLAN Access Status" },
-	{ 0x12, "3GPP Network Rejection" },
+	{ 0x11, "I-WLAN Access Status" },
+	{ 0x12, "Network Rejection" },
 	{ 0x13, "HCI connectivity event" },
 	{ 0x14, "Access Technology Change (multiple access technologies)" },
-	{ 0x15, "3GPP CSG cell selection" },
+	{ 0x15, "CSG cell selection" },
 	{ 0x16, "Contactless state request" },
+	{ 0x17, "IMS Registration" },
+	{ 0x18, "Incoming IMS data" },
+	{ 0x19, "Profile Container" },
+	{ 0x1a, "Void" },
 	{ 0, NULL }
 };
 
@@ -748,6 +754,61 @@ static const value_string utran_eutran_meas_qual_vals[] = {
 	{ 0, NULL }
 };
 
+/* 3GPP 31.111 - Chapter 8.112 */
+static const string_string ims_status_code[] = {
+	{ "100", "Trying" },
+	{ "180", "Ringing" },
+	{ "181", "Call Is Being Forwarded" },
+	{ "182", "Queued" },
+	{ "183", "Session Progress" },
+	{ "200", "OK" },
+	{ "300", "Multiple Choices" },
+	{ "301", "Moved Permanently" },
+	{ "302", "Moved Temporarily" },
+	{ "305", "Use Proxy" },
+	{ "380", "Alternative Service" },
+	{ "400", "Bad Request" },
+	{ "401", "Unauthorized" },
+	{ "402", "Payment Required" },
+	{ "403", "Forbidden" },
+	{ "404", "Not Found" },
+	{ "405", "Method Not Allowed" },
+	{ "406", "Not Acceptable" },
+	{ "407", "Proxy Authentication Required" },
+	{ "408", "Request Timeout" },
+	{ "410", "Gone" },
+	{ "413", "Request Entity Too Large" },
+	{ "414", "Request-URI Too Long" },
+	{ "415", "Unsupported Media Type" },
+	{ "416", "Unsupported URI Scheme" },
+	{ "420", "Bad Extension" },
+	{ "421", "Extension Required" },
+	{ "423", "Interval Too Brief" },
+	{ "480", "Temporarily Unavailable" },
+	{ "481", "Call/Transaction Does Not Exist" },
+	{ "482", "Loop Detected" },
+	{ "483", "Too Many Hops" },
+	{ "484", "Address Incomplete" },
+	{ "485", "Ambiguous" },
+	{ "486", "Busy Here" },
+	{ "487", "Request Terminated" },
+	{ "488", "Not Acceptable Here" },
+	{ "491", "Request Pending" },
+	{ "493", "Undecipherable" },
+	{ "500", "Server Internal Error" },
+	{ "501", "Not Implemented" },
+	{ "502", "Bad Gateway" },
+	{ "503", "Service Unavailable" },
+	{ "504", "Server Time-out" },
+	{ "505", "Version Not Supported" },
+	{ "513", "Message Too Large" },
+	{ "600", "Busy Everywhere" },
+	{ "603", "Decline" },
+	{ "604", "Does Not Exist Anywhere" },
+	{ "606", "Not Acceptable" },
+	{ 0, NULL }
+};
+
 static void
 dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -755,6 +816,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *cat_tree, *elem_tree;
 	unsigned int pos = 0;
 	tvbuff_t *new_tvb;
+	gboolean ims_event = FALSE;
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);
 	cat_tree = proto_item_add_subtree(cat_ti, ett_cat);
@@ -762,9 +824,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *ti;
 		guint8 g8;
 		guint16 tag;
-		guint32 len;
+		guint32 len, i;
 		guint8 *ptr = NULL;
-		unsigned int i;
 
 		tag = tvb_get_guint8(tvb, pos++) & 0x7f;
 		if (tag == 0x7f) {
@@ -950,8 +1011,13 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			de_mid(tvb, elem_tree, pinfo, pos, len, NULL, 0);
 			break;
 		case 0x19:	/* event list */
-			for (i = 0; i < len; i++)
-				proto_tree_add_item(elem_tree, hf_ctlv_event, tvb, pos+i, 1, ENC_NA);
+			for (i = 0; i < len; i++) {
+				guint8 event = tvb_get_guint8(tvb, pos+i);
+				if ((event == 0x17) || (event == 0x18)) {
+					ims_event = TRUE;
+				}
+				proto_tree_add_uint(elem_tree, hf_ctlv_event, tvb, pos+i, 1, event);
+			}
 			break;
 		case 0x1b:	/* location status */
 			for (i = 0; i < len; i++)
@@ -1077,6 +1143,30 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 0x69:	/* UTRAN EUTRAN measurement qualifier */
 			proto_tree_add_item(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_NA);
+			break;
+		case 0x77:	/* GAD Shapes / IMPU list */
+			if (ims_event) {
+				i = 0;
+				while (i < len) {
+					if (tvb_get_guint8(tvb, pos+i) == 0x80) {
+						g8 = tvb_get_guint8(tvb, pos+i+1);
+						proto_tree_add_unicode_string(elem_tree, hf_ctlv_impu, tvb, pos+i+2, g8,
+							tvb_get_ephemeral_string_enc(tvb, pos+i+2, g8, ENC_UTF_8 | ENC_NA));
+						i += 2+g8;
+					} else {
+						break;
+					}
+				}
+			}
+			break;
+		case 0x78:	/* 3GPP NMEA sentence / IMS Status-Code */
+			if (ims_event) {
+				guint8 *status_code = tvb_get_ephemeral_string(tvb, pos, len);
+				proto_tree_add_string_format_value(elem_tree, hf_ctlv_ims_status_code, tvb, pos, len,
+					status_code, "%s (%s)", status_code, str_to_str(status_code, ims_status_code, "Unknown"));
+			}
+			break;
+		default:
 			break;
 		}
 
@@ -1448,6 +1538,16 @@ proto_register_card_app_toolkit(void)
 			  FT_UINT16, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
+		{ &hf_ctlv_impu,
+			{ "IMPU", "etsi_cat.comp_tlv.impu",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_ims_status_code,
+			{ "IMS Status-Code", "etsi_cat.comp_tlv.ims_status_code",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		}
 	};
 	static gint *ett[] = {
 		&ett_cat,
