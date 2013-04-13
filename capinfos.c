@@ -1189,7 +1189,11 @@ main(int argc, char *argv[])
      ran.
    */
   argv[0] = (char *)"capinfos";
-  ;
+
+  /* if we have at least one cmdline option, we disable printing all infos */
+  if (argc>=2 && report_all_infos)
+    disable_all_infos();
+
   if( !g_option_context_parse(ctx, &argc, &argv, &parse_err) ) {
     if(parse_err) g_print ("option parsing failed: %s\n", parse_err->message);
     g_print("%s", g_option_context_get_help (ctx, TRUE, NULL));
