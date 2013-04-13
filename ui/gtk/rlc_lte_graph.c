@@ -94,6 +94,10 @@ struct irect {
     int x, y, width, height;
 };
 
+struct zoomfactor {
+    double x, y;
+};
+
 typedef enum {
     ELMT_NONE    = 0,
     ELMT_LINE    = 1,
@@ -232,6 +236,7 @@ struct graph {
      * pixels, we have to scale the graph down by factor of 0.002109. This
      * number would be zoom.y. Obviously, both directions have separate zooms.*/
     struct zooms zoom;
+    gboolean     zoomrect_erase_needed;
     struct cross cross;
     struct axis *x_axis, *y_axis;
 
@@ -317,6 +322,8 @@ static int get_label_dim(struct axis * , int , double );
 static void toggle_crosshairs(struct graph *);
 static void cross_draw(struct graph * , int x, int y);
 static void cross_erase(struct graph * );
+static void zoomrect_draw(struct graph * , int , int );
+static void zoomrect_erase(struct graph * );
 static gboolean motion_notify_event(GtkWidget * , GdkEventMotion * , gpointer );
 
 static void toggle_time_origin(struct graph * );
@@ -339,16 +346,17 @@ static void rlc_lte_make_elmtlist(struct graph *);
 static int rint(double );     /* compiler template for Windows */
 #endif
 
-/*
- * Uncomment the following define to revert WIN32 to
- * use original mouse button controls
- */
+/* This should arguably be part of the graph, but in practice you can
+   only click on one graph at a time, so this is probably OK */
+static struct irect zoomrect;
+
 
 /* XXX - what about OS X? */
 static char helptext[] =
     "Here's what you can do:\n"
     "\n"
     "   Left Mouse Button             selects segment under cursor in Wireshark's packet list\n"
+    "                                 can also drag to zoom in on a rectangular region\n"
     "   Middle Mouse Button           zooms in (towards area under cursor)\n"
     "   Right Mouse Button            moves the graph (if zoomed in)\n"
     "\n"
@@ -496,6 +504,7 @@ static void create_drawing_area(struct graph *g)
 #else
     g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), g);
 #endif
+
     g_signal_connect(g->drawing_area, "button_press_event",
                      G_CALLBACK(button_press_event), g);
     g_signal_connect(g->drawing_area, "button_release_event",
@@ -642,7 +651,8 @@ static void graph_initialize_values(struct graph *g)
     g->zoom.step_x = g->zoom.step_y = 1.15;
     g->zoom.flags = 0;
 
-    g->cross.draw = g->cross.erase_needed = 0;
+    g->cross.draw = g->cross.erase_needed = FALSE;
+    g->zoomrect_erase_needed = FALSE;
     g->grab.grabbed = 0;
 }
 
@@ -1949,6 +1959,148 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 }
 #endif
 
+
+static void
+perform_zoom(struct graph *g, struct zoomfactor *zf,
+             int origin_x, int origin_y)
+{
+    int cur_width = g->geom.width, cur_height = g->geom.height;
+
+    /* Multiply by x and y factors */
+    g->geom.width  = (int )rint(g->geom.width  * zf->x);
+    g->geom.height = (int )rint(g->geom.height * zf->y);
+
+    /* If already fully-zoomed out, don't waste time re-drawing */
+    if ((g->geom.width <= g->wp.width) &&
+        (g->geom.height <= g->wp.height)) {
+        return;
+    }
+
+    /* Don't go out of bounds */
+    if (g->geom.width < g->wp.width) {
+        g->geom.width = g->wp.width;
+    }
+    if (g->geom.height < g->wp.height) {
+        g->geom.height = g->wp.height;
+    }
+
+    /* Divide to work out new zoom */
+    g->zoom.x = (g->geom.width - 1) / g->bounds.width;
+    g->zoom.y = (g->geom.height- 1) / g->bounds.height;
+
+    /* Move origin to keep mouse position at centre of view */
+    g->geom.x -= (int)rint((g->geom.width - cur_width) *
+                           ((origin_x - g->geom.x)/(double )cur_width));
+    g->geom.y -= (int)rint((g->geom.height - cur_height) *
+                           ((origin_y - g->geom.y)/(double )cur_height));
+
+    /* Again, don't go out of bounds */
+    if (g->geom.x > g->wp.x)
+        g->geom.x = g->wp.x;
+    if (g->geom.y > g->wp.y)
+        g->geom.y = g->wp.y;
+    if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
+        g->geom.x = g->wp.width + g->wp.x - g->geom.width;
+    if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
+        g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+}
+
+static void
+do_zoom_rectangle(struct graph *g, struct irect lcl_zoomrect)
+{
+    int cur_width = g->wp.width, cur_height = g->wp.height;
+    /* Make copy of geom1 before working out zoom */
+    struct irect geom1 = g->geom;
+    struct zoomfactor factor;
+
+    /* Left hand too much to the right */
+    if (lcl_zoomrect.x > g->wp.x + g->wp.width)
+        return;
+    /* Right hand not far enough */
+    if (lcl_zoomrect.x + lcl_zoomrect.width < g->wp.x)
+        return;
+    /* Left hand too much to the left */
+    if (lcl_zoomrect.x < g->wp.x) {
+        int dx = g->wp.x - lcl_zoomrect.x;
+        lcl_zoomrect.x += dx;
+        lcl_zoomrect.width -= dx;
+    }
+    /* Right hand too much to the right */
+    if (lcl_zoomrect.x + lcl_zoomrect.width > g->wp.x + g->wp.width) {
+        int dx = lcl_zoomrect.width + lcl_zoomrect.x - g->wp.x - g->wp.width;
+        lcl_zoomrect.width -= dx;
+    }
+
+    /* Top too low */
+    if (lcl_zoomrect.y > g->wp.y + g->wp.height)
+        return;
+    /* Bottom too high */
+    if (lcl_zoomrect.y + lcl_zoomrect.height < g->wp.y)
+        return;
+    /* Top too high */
+    if (lcl_zoomrect.y < g->wp.y) {
+        int dy = g->wp.y - lcl_zoomrect.y;
+        lcl_zoomrect.y += dy;
+        lcl_zoomrect.height -= dy;
+    }
+    /* Bottom too low */
+    if (lcl_zoomrect.y + lcl_zoomrect.height > g->wp.y + g->wp.height) {
+        int dy = lcl_zoomrect.height + lcl_zoomrect.y - g->wp.y - g->wp.height;
+        lcl_zoomrect.height -= dy;
+    }
+
+/*
+    printf("before:\n"
+           "\tgeom: (%d, %d)+(%d x %d)\n"
+*/
+
+    factor.x = (double)cur_width / lcl_zoomrect.width;
+    factor.y = (double)cur_height / lcl_zoomrect.height;
+
+/*
+    printf("Zoomfactor: %f x %f\n", factor.x, factor.y);
+*/
+    /* Work out new geom settings and zoom factor */
+    perform_zoom(g, &factor,
+                 lcl_zoomrect.x, lcl_zoomrect.y);
+
+/*
+    printf("middle:\n"
+           "\tgeom: (%d, %d)+(%d x %d)\n"
+           "\twp: (%d, %d)+(%d x %d)\n"
+           "\tzoomrect: (%d, %d)+(%d x %d)\n",
+           g->geom.x, g->geom.y,
+           g->geom.width, g->geom.height,
+           g->wp.x, g->wp.y, g->wp.width, g->wp.height,
+           lcl_zoomrect.x, lcl_zoomrect.y, lcl_zoomrect.width, lcl_zoomrect.height);
+*/
+
+    /* Final geom settings are in terms of old geom, zoomreect and zoom factor */
+    g->geom.x = (int)(geom1.x * (1 + factor.x) -
+                      lcl_zoomrect.x * factor.x - (geom1.x - g->wp.x));
+    g->geom.y = (int)(geom1.y * (1 + factor.y) -
+                      lcl_zoomrect.y * factor.y - (geom1.y - g->wp.y));
+
+/*
+    printf("after:\n"
+           "\tgeom: (%d, %d)+(%d x %d)\n"
+           "\twp: (%d, %d)+(%d x %d)\n"
+           "\tzoomrect: (%d, %d)+(%d x %d)\n",
+           g->geom.x, g->geom.y,
+           g->geom.width, g->geom.height,
+           g->wp.x, g->wp.y, g->wp.width, g->wp.height,
+           lcl_zoomrect.x, lcl_zoomrect.y, lcl_zoomrect.width, lcl_zoomrect.height);
+*/
+
+    /* Redraw */
+    graph_element_lists_make(g);
+    g->cross.erase_needed = FALSE;
+    graph_display(g);
+    axis_display(g->y_axis);
+    axis_display(g->x_axis);
+}
+
+
 /* Zoom because of keyboard or mouse press */
 static void do_zoom_common(struct graph *g, GdkEventButton *event,
                            gboolean lock_vertical, gboolean lock_horizontal)
@@ -2153,7 +2305,12 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
     } else if (event->button == MOUSE_BUTTON_MIDDLE) {
         do_zoom_mouse(g, event);
     } else if (event->button == MOUSE_BUTTON_LEFT) {
+        /* See if we're on an element that links to a frame */
         graph_select_segment(g, (int)event->x, (int)event->y);
+
+        /* Set origin of rect, even if outside graph area */
+        zoomrect.x = (int)event->x;
+        zoomrect.y = (int)event->y;
     }
 
     unset_busy_cursor(gtk_widget_get_window(g->drawing_area));
@@ -2167,6 +2324,30 @@ static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *even
     /* Turn off grab if right button released */
     if (event->button == MOUSE_BUTTON_RIGHT) {
         g->grab.grabbed = FALSE;
+    }
+    else if (event->button == MOUSE_BUTTON_LEFT) {
+        int xx1 = zoomrect.x;
+        int xx2 = (int)event->x;
+        int yy1 = zoomrect.y;
+        int yy2 = (int)event->y;
+        zoomrect.x      = MIN(xx1, xx2);
+        zoomrect.width  = abs(xx1 - xx2);
+        zoomrect.y      = MIN(yy1, yy2);
+        zoomrect.height = abs(yy1 - yy2);
+
+        /* Finish selecting a region to zoom in on.
+           Take care not to choose a too-small area (by accident?) */
+        if ((zoomrect.width > 3) && (zoomrect.height > 3)) {
+            int oldflags = g->zoom.flags;
+
+            debug(DBS_GRAPH_DRAWING) printf("Zoom in from (%d, %d) - (%d, %d)\n",
+                                            zoomrect.x, zoomrect.y,
+                                            zoomrect.width, zoomrect.height);
+
+            g->zoom.flags &= ~ZOOM_OUT;
+            do_zoom_rectangle(g, zoomrect);
+            g->zoom.flags = oldflags;
+        }
     }
 
     return TRUE;
@@ -2215,8 +2396,18 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
             }
         }
     }
+    else if (state & GDK_BUTTON1_MASK) {
+
+        /* Draw bounded box for zoomrect being chosen! */
+        if (g->zoomrect_erase_needed) {
+            zoomrect_erase(g);
+        }
+        zoomrect_draw(g, x, y);
+    }
+
+    /* No button currently pressed */
     else {
-        /* Update the cross if it's being shown */
+       /* Update the cross if it's being shown */
         if (g->cross.erase_needed)
             cross_erase(g);
         if (g->cross.draw) {
@@ -2380,6 +2571,33 @@ static void cross_erase(struct graph *g)
     }
 
     g->cross.erase_needed = FALSE;
+}
+
+static void zoomrect_draw(struct graph *g, int x, int y)
+{
+    if ((zoomrect.x > g->wp.x) && (zoomrect.x < g->wp.x + g->wp.width) &&
+        (zoomrect.y > g->wp.y) && (zoomrect.y < g->wp.y + g->wp.height) &&
+        (x >  g->wp.x + 0.5) && (x < g->wp.x+g->wp.width) &&
+        (y >  g->wp.y)       && (y < g->wp.y+g->wp.height)) {
+
+        cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
+        gdk_cairo_set_source_rgba(cr, &g->style.seq_color);
+        cairo_set_line_width(cr, 1.0);
+
+        /* Do outline of rect */
+        cairo_rectangle(cr, zoomrect.x, zoomrect.y, x-zoomrect.x, y-zoomrect.y);
+        cairo_stroke(cr);
+        cairo_destroy(cr);
+    }
+
+    g->zoomrect_erase_needed = TRUE;
+}
+
+static void zoomrect_erase(struct graph *g)
+{
+    /* Just redraw what is in the pixmap buffer */
+    graph_pixmap_display(g);
+    g->zoomrect_erase_needed = FALSE;
 }
 
 
