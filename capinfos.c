@@ -151,6 +151,7 @@ static gboolean cap_file_encap = TRUE;      /* Report encapsulation       */
 static gboolean cap_snaplen = TRUE;         /* Packet size limit (snaplen)*/
 static gboolean cap_packet_count = TRUE;    /* Report packet count        */
 static gboolean cap_file_size = TRUE;       /* Report file size           */
+static gboolean cap_comment = TRUE;         /* Display the capture comment */
 
 static gboolean cap_data_size = TRUE;       /* Report packet byte size    */
 static gboolean cap_duration = TRUE;        /* Report capture duration    */
@@ -183,6 +184,8 @@ static GOptionEntry general_entries[] =
   { "Hash", 'H', 0, G_OPTION_ARG_NONE, &cap_file_hashes,
     "display the SHA1, RMD160, and MD5 hashes of the file", NULL },
 #endif /* HAVE_LIBGCRYPT */
+  { "capture-comment", 'k', 0, G_OPTION_ARG_NONE, &cap_comment,
+    "display the capture comment ", NULL },
  { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 };
 static GOptionEntry size_entries[] =
@@ -303,6 +306,7 @@ typedef struct _capture_info {
   gboolean      iscompressed;
   int           file_encap;
   gint64        filesize;
+  gchar         *comment;
 
   guint64       packet_bytes;
   gboolean      times_known;
@@ -337,6 +341,7 @@ enable_all_infos(void)
   cap_snaplen = TRUE;
   cap_packet_count = TRUE;
   cap_file_size = TRUE;
+  cap_comment = TRUE;
 
   cap_data_size = TRUE;
   cap_duration = TRUE;
@@ -364,6 +369,7 @@ disable_all_infos(void)
   cap_snaplen        = FALSE;
   cap_packet_count   = FALSE;
   cap_file_size      = FALSE;
+  cap_comment        = FALSE;
 
   cap_data_size      = FALSE;
   cap_duration       = FALSE;
@@ -571,6 +577,8 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
 #endif /* HAVE_LIBGCRYPT */
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
+  if (cap_comment && cf_info->comment)
+    printf     ("Capture comment:     %s\n", cf_info->comment);
 }
 
 static void
@@ -624,6 +632,7 @@ print_stats_table_header(void)
   }
 #endif /* HAVE_LIBGCRYPT */
   if (cap_order)          print_stats_table_header_label("Strict time order");
+  if (cap_comment)        print_stats_table_header_label("Capture comment");
 
   printf("\n");
 }
@@ -804,6 +813,14 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
+  if (cap_comment) {
+    putsep();
+    putquote();
+    printf("%s", cf_info->comment);
+    putquote();
+  }
+
+
   printf("\n");
 }
 
@@ -828,6 +845,9 @@ process_cap_file(wtap *wth, const char *filename)
   double		prev_time = 0;
   gboolean		know_order = FALSE;
   order_t		order = IN_ORDER;
+  wtapng_section_t     *shb_inf;
+  gchar                *p;
+
 
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
@@ -955,6 +975,24 @@ process_cap_file(wtap *wth, const char *filename)
     cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
   }
 
+  cf_info.comment = NULL;
+  shb_inf = wtap_file_get_shb_info(wth);
+  if (shb_inf) {
+    /* opt_comment is always 0-terminated by pcapng_read_section_header_block */
+    cf_info.comment = g_strdup(shb_inf->opt_comment);
+  }
+  g_free(shb_inf);
+  if (cf_info.comment) {
+    /* multi-line comments would conflict with the formatting that capinfos uses
+       we replace linefeeds with spaces */
+    p = cf_info.comment;
+    while (*p != '\0') {
+      if (*p=='\n')
+        *p=' ';
+      p++;
+    }
+  }
+
   if(long_report) {
     print_stats(filename, &cf_info);
   } else {
@@ -962,6 +1000,7 @@ process_cap_file(wtap *wth, const char *filename)
   }
 
   g_free(cf_info.encap_counts);
+  g_free(cf_info.comment);
 
   return 0;
 }
@@ -995,6 +1034,7 @@ usage(gboolean is_error)
 #ifdef HAVE_LIBGCRYPT
   fprintf(output, "  -H display the SHA1, RMD160, and MD5 hashes of the file\n");
 #endif
+  fprintf(output, "  -k display the capture comment\n");
   fprintf(output, "\n");
   fprintf(output, "Size infos:\n");
   fprintf(output, "  -c display the number of packets\n");
@@ -1162,7 +1202,7 @@ main(int argc, char *argv[])
   g_option_context_free(ctx);
 
 #endif /* USE_GOPTION */
-  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxoCALTMRrSNqQBmb")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxokCALTMRrSNqQBmb")) !=-1) {
 
     switch (opt) {
 
@@ -1246,6 +1286,11 @@ main(int argc, char *argv[])
       if (report_all_infos) disable_all_infos();
       cap_order = TRUE;
       break;
+
+      case 'k':
+        if (report_all_infos) disable_all_infos();
+        cap_comment = TRUE;
+        break;
 
     case 'C':
       continue_after_wtap_open_offline_failure = FALSE;
