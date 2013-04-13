@@ -1188,7 +1188,7 @@ main(int argc, char *argv[])
      displayed is not exactly the same as the command the user used
      ran.
    */
-  argv[0] = "capinfos";
+  argv[0] = (char *)"capinfos";
   ;
   if( !g_option_context_parse(ctx, &argc, &argv, &parse_err) ) {
     if(parse_err) g_print ("option parsing failed: %s\n", parse_err->message);
