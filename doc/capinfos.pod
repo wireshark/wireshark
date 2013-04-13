@@ -158,6 +158,11 @@ Displays the SHA1, RIPEMD160, and MD5 hashes for the file.
 
 Displays the average data rate, in bits/sec
 
+=item -k
+
+Displays the capture comment. For pcapng files, this is the comment from the
+section header block.
+
 =item -l
 
 Display the snaplen (if any) for a file.
