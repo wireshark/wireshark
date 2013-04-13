@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.9.3 (SVN Rev 48755 from /trunk)
+TShark 1.9.3 (SVN Rev 48842 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -178,7 +178,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.9.3 (SVN Rev 48755 from /trunk)
+Dumpcap 1.9.3 (SVN Rev 48842 from /trunk)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -193,7 +193,7 @@ Capture interface:
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
   -I                       capture in monitor mode, if available
-  -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
+  -B &lt;buffer size&gt;         size of kernel buffer in MB (def: 2MB)
   -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
@@ -252,7 +252,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.9.3 (SVN Rev 48755 from /trunk)
+Capinfos 1.9.3 (SVN Rev 48842 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -262,6 +262,7 @@ General infos:
   -t display the capture file type
   -E display the capture file encapsulation
   -H display the SHA1, RMD160, and MD5 hashes of the file
+  -k display the capture comment
 
 Size infos:
   -c display the number of packets
@@ -325,7 +326,7 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.9.3 (SVN Rev 48755 from /trunk)
+Rawshark 1.9.3 (SVN Rev 48842 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -379,7 +380,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.9.3 (SVN Rev 48755 from /trunk)
+Editcap 1.9.3 (SVN Rev 48842 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -721,7 +722,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.9.3 (SVN Rev 48755 from /trunk)
+Mergecap 1.9.3 (SVN Rev 48842 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -825,7 +826,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.9.3 (SVN Rev 48755 from /trunk)
+Text2pcap 1.9.3 (SVN Rev 48842 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -847,7 +848,7 @@ Input:
                          number is assumed to be fractions of a second.
                          NOTE: Date/time fields from the current date/time are
                          used as the default for unspecified fields.
-  -D                     the text before the packet starts either with an I or O
+  -D                     the text before the packet starts with an I or an O,
                          indicating that the packet is inbound or outbound.
                          This is only stored if the output format is PCAP-NG.
   -a                     enable ASCII text dump identification.
@@ -888,7 +889,7 @@ Prepend dummy header:
                          Automatically prepends Ethernet &amp; IP headers as well.
                          Example: -s 30,40,34
   -S &lt;srcp&gt;,&lt;dstp&gt;,&lt;ppi&gt; prepend dummy SCTP header with specified
-                         dest/source ports and verification tag 0.
+                         source/dest ports and verification tag 0.
                          Automatically prepends a dummy SCTP DATA
                          chunk header with payload protocol identifier ppi.
                          Example: -S 30,40,34
