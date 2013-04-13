@@ -75,6 +75,31 @@
 #include "ui/progress_dlg.h"
 #include "ui/ui_util.h"
 
+/* Needed for addrinfo */
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+# include <netdb.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
+#endif
+
+#if defined(_WIN32) && defined(INET6)
+# include <ws2tcpip.h>
+#endif
+
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
 #endif
@@ -4307,30 +4332,35 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
                 gboolean compressed, gboolean discard_comments,
                 gboolean dont_reopen)
 {
-  gchar        *fname_new = NULL;
-  int           err;
-  gchar        *err_info;
+  gchar           *err_info;
+  gchar           *fname_new = NULL;
+  wtap_dumper     *pdh;
+  frame_data      *fdata;
+  struct addrinfo *addrs;
+  guint            framenum;
+  int              err;
+#ifdef _WIN32
+  gchar           *display_basename;
+#endif
   enum {
      SAVE_WITH_MOVE,
      SAVE_WITH_COPY,
      SAVE_WITH_WTAP
-  }             how_to_save;
-  wtap_dumper  *pdh;
+  }                    how_to_save;
   save_callback_args_t callback_args;
-#ifdef _WIN32
-  gchar        *display_basename;
-#endif
-  guint         framenum;
-  frame_data   *fdata;
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
+  addrs = get_addrinfo_list();
+
   if (save_format == cf->cd_t && compressed == cf->iscompressed
-      && !discard_comments && !cf->unsaved_changes) {
+      && !discard_comments && !cf->unsaved_changes
+      && !(addrs && addrs->ai_next &&
+           wtap_dump_has_name_resolution(save_format))) {
     /* We're saving in the format it's already in, and we're
        not discarding comments, and there are no changes we have
-       in memory that aren't saved to the file, so we can just move
-       or copy the raw data. */
+       in memory that aren't saved to the file, and we have no name
+       resolution blocks to write, so we can just move or copy the raw data. */
 
     if (cf->is_tempfile) {
       /* The file being saved is a temporary file from a live
@@ -4440,7 +4470,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     }
 
     /* Add address resolution */
-    wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
+    wtap_dump_set_addrinfo_list(pdh, addrs);
 
     /* Iterate through the list of packets, processing all the packets. */
     callback_args.pdh = pdh;
