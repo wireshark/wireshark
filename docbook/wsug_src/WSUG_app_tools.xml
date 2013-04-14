@@ -550,6 +550,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
     ieee-802-11-radiotap - IEEE 802.11 plus radiotap radio header
     ieee-802-16-mac-cps - IEEE 802.16 MAC Common Part Sublayer
+    infiniband - InfiniBand
     ios - Cisco IOS internal
     ip-over-fc - RFC 2625 IP-over-Fibre Channel
     ip-over-ib - IP over Infiniband
@@ -570,6 +571,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     juniper-mlppp - Juniper MLPPP
     juniper-ppp - Juniper PPP
     juniper-pppoe - Juniper PPPoE
+    juniper-svcs - Juniper Services
     juniper-vp - Juniper Voice PIC
     k12 - K12 protocol analyzer
     lapb - LAPB
@@ -627,6 +629,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     usb - Raw USB packets
     usb-linux - USB packets with Linux header
     usb-linux-mmap - USB packets with Linux header and padding
+    usb-usbpcap - USB packets with USBPcap header
     user0 - USER 0
     user1 - USER 1
     user10 - USER 10

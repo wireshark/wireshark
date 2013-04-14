@@ -599,6 +599,15 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_SCTP */
 	{ "SCTP", "sctp" },
+
+	/* WTAP_ENCAP_INFINIBAND */
+	{ "InfiniBand", "infiniband" },
+
+	/* WTAP_ENCAP_JUNIPER_SVCS */
+	{ "Juniper Services", "juniper-svcs" },
+
+	/* WTAP_ENCAP_USBPCAP */
+	{ "USB packets with USBPcap header", "usb-usbpcap" },
 };
 
 WS_DLL_LOCAL

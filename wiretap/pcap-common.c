@@ -395,6 +395,8 @@ static const struct {
 	{ 245,		WTAP_ENCAP_NFC_LLCP },
 	/* SCTP */
 	{ 248,		WTAP_ENCAP_SCTP},
+	/* USBPcap */
+	{ 249,          WTAP_ENCAP_USBPCAP},
 
 	/*
 	 * To repeat:
