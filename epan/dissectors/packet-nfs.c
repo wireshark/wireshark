@@ -522,6 +522,8 @@ static int hf_nfs_sequence_status_flags_backchannel_fault = -1;
 static int hf_nfs_sequence_status_flags_devid_changed = -1;
 static int hf_nfs_sequence_status_flags_devid_deleted = -1;
 static int hf_nfs_secinfo_style4 = -1;
+static int hf_nfs_test_stateid_arg4 = -1;
+static int hf_nfs_test_stateid_res4 = -1;
 
 /* Hidden field for v2, v3, and v4 status */
 int hf_nfs_nfsstat = -1;
@@ -700,6 +702,7 @@ static gint ett_nfs_layoutseg = -1;
 static gint ett_nfs_fh_obj = -1;
 static gint ett_nfs_fh_ex = -1;
 static gint ett_nfs_layoutseg_fh = -1;
+static gint ett_nfs_test_stateid4 = -1;
 static gint ett_nfs_destroy_clientid4 = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 static gint ett_nfs_chan_attrs = -1;
@@ -8148,7 +8151,7 @@ static gint *nfsv4_operation_ett[] =
 	 &ett_nfs_secinfo_no_name4,
 	 &ett_nfs_sequence4,
 	 NULL, /* set ssv */
-	 NULL, /* test stateid */
+	 &ett_nfs_test_stateid4,
 	 NULL, /* want delegation */
 	 &ett_nfs_destroy_clientid4,
 	 &ett_nfs_reclaim_complete4
@@ -8756,6 +8759,17 @@ dissect_nfs_devices4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static int
+dissect_nfs_test_stateid4_arg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	return dissect_nfs_stateid4(tvb, offset, tree, NULL);
+}
+
+static int
+dissect_nfs_test_stateid4_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	return dissect_nfs_nfsstat4(tvb, offset, tree, NULL);
+}
 
 static int
 dissect_nfs_deviceaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -9332,6 +9346,10 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_READLINK:
+			break;
+
+		case NFS4_OP_TEST_STATEID:
+			offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs_test_stateid4_arg, hf_nfs_test_stateid_arg4);
 			break;
 
 		case NFS4_OP_DESTROY_CLIENTID:
@@ -9946,6 +9964,10 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		case NFS4_OP_FREE_STATEID:
 			break;
+		case NFS4_OP_TEST_STATEID:
+			offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs_test_stateid4_res, hf_nfs_test_stateid_res4);
+			break;
+
 		case NFS4_OP_LAYOUTGET:
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_return_on_close4,
 									  offset);
@@ -12481,6 +12503,14 @@ proto_register_nfs(void)
 			"SEQ4_STATUS_DEVID_DELETED", "nfs.sequence.flags.devid_deleted", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), 0x00001000, NULL, HFILL}},
 
+		{ &hf_nfs_test_stateid_arg4, {
+			"Stateid List", "nfs.test_stateid.stateids",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
+
+		{ &hf_nfs_test_stateid_res4, {
+			"Stateid Result List", "nfs.test_stateid.results",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC,
@@ -12569,6 +12599,7 @@ proto_register_nfs(void)
 		&ett_nfs_read4,
 		&ett_nfs_readdir4,
 		&ett_nfs_readlink4,
+		&ett_nfs_test_stateid4,
 		&ett_nfs_destroy_clientid4,
 		&ett_nfs_reclaim_complete4,
 		&ett_nfs_remove4,
