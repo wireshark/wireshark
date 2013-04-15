@@ -7133,6 +7133,154 @@
 00:1B:C3	Mobisolu               # Mobisolution Co.,Ltd
 00:1B:C4	Ultratec               # Ultratec, Inc.
 00:1B:C5	IeeeRegi               # IEEE Registration Authority
+00:1B:C5:00:00:00/36	Convergi               # Converging Systems Inc.
+00:1B:C5:00:10:00/36	OpenrbCo               # OpenRB.com, Direct SIA
+00:1B:C5:00:20:00/36	Goramo-J               # GORAMO - Janusz Gorecki
+00:1B:C5:00:30:00/36	Microsig               # MicroSigns Technologies Inc
+00:1B:C5:00:40:00/36	Intellvi               # Intellvisions Software Ltd
+00:1B:C5:00:60:00/36	Triax-Hi               # TRIAX-HIRSCHMANN Multi-Media GmbH
+00:1B:C5:00:70:00/36	EnergyAw               # Energy Aware Technology
+00:1B:C5:00:80:00/36	DalajEle               # Dalaj Electro-Telecom
+00:1B:C5:00:90:00/36	SolomonS               # Solomon Systech Pte Ltd
+00:1B:C5:00:A0:00/36	MercuryH               # Mercury HMI Ltd
+00:1B:C5:00:C0:00/36	QuantumT               # Quantum Technology Sciences, Inc.
+00:1B:C5:00:D0:00/36	Advanced               # Advanced Scientific Concepts, Inc.
+00:1B:C5:00:E0:00/36	VigorEle               # Vigor Electric Corp
+00:1B:C5:00:F0:00/36	Simavita               # Simavita Pty Ltd
+00:1B:C5:01:00:00/36	SoftelSa               # Softel SA de CV
+00:1B:C5:01:10:00/36	OooNppMe               # OOO NPP Mera
+00:1B:C5:01:20:00/36	TokyoCos               # Tokyo Cosmos Electric, Inc.
+00:1B:C5:01:30:00/36	ZamirRec               # Zamir Recognition Systems Ltd.
+00:1B:C5:01:60:00/36	Energote               # Energotechnica OOO NPP Ltd
+00:1B:C5:01:70:00/36	CpacketN               # cPacket Networks
+00:1B:C5:01:90:00/36	DunlopCo               # Dunlop Systems & Components
+00:1B:C5:01:A0:00/36	AbaElect               # ABA ELECTRONICS TECHNOLOGY CO.,LTD
+00:1B:C5:01:B0:00/36	Commonwe               # Commonwealth Scientific and Industrial  Research Organisation
+00:1B:C5:01:C0:00/36	Coolit                 # Coolit Systems, Inc.
+00:1B:C5:01:D0:00/36	Rose+Her               # Rose + Herleth GbR
+00:1B:C5:01:F0:00/36	SaturnSo               # Saturn Solutions Ltd
+00:1B:C5:02:00:00/36	Momentum               # Momentum Data Systems
+00:1B:C5:02:10:00/36	Openpeak               # Openpeak, Inc
+00:1B:C5:02:20:00/36	CjscStcS               # CJSC STC  SIMOS
+00:1B:C5:02:30:00/36	MagoDiDe               # MAGO di Della Mora Walter
+00:1B:C5:02:40:00/36	AnnecyEl               # ANNECY ELECTRONIQUE SAS
+00:1B:C5:02:50:00/36	Andersen               # andersen lighting GmbH
+00:1B:C5:02:60:00/36	DimepSis               # DIMEP Sistemas
+00:1B:C5:02:70:00/36	CameaSpo               # CAMEA, spol. s r.o.
+00:1B:C5:02:80:00/36	Stechwin               # STECHWIN.CO.LTD.
+00:1B:C5:02:90:00/36	2FranceM               # 2 FRANCE MARINE
+00:1B:C5:02:A0:00/36	Analytic               # Analytical Instrument Systems, Inc.
+00:1B:C5:02:B0:00/36	SaturnSo               # Saturn South Pty Ltd
+00:1B:C5:02:C0:00/36	CareEver               # Care Everywhere LLC
+00:1B:C5:02:D0:00/36	Ddtronik               # DDTRONIK Dariusz Dowgiert
+00:1B:C5:02:E0:00/36	BettiniS               # BETTINI SRL
+00:1B:C5:02:F0:00/36	Fibrain                # Fibrain Co. Ltd.
+00:1B:C5:03:00:00/36	Octogate               # OctoGate it Security Systems GmbH
+00:1B:C5:03:10:00/36	Adixein                # ADIXEIN LIMITED
+00:1B:C5:03:20:00/36	OsborneC               # Osborne Coinage Co
+00:1B:C5:03:30:00/36	JeSuunni               # JE Suunnittelu Oy
+00:1B:C5:03:40:00/36	Intercel               # InterCEL Pty Ltd
+00:1B:C5:03:50:00/36	Rtls                   # RTLS Ltd.
+00:1B:C5:03:60:00/36	LomarSrl               # LOMAR SRL
+00:1B:C5:03:70:00/36	ItwReyfl               # ITW Reyflex North America
+00:1B:C5:03:80:00/36	SeedInte               # SEED International Ltd.
+00:1B:C5:03:90:00/36	EuresysS               # EURESYS S.A.
+00:1B:C5:03:A0:00/36	Mindmade               # MindMade Sp. z o.o.
+00:1B:C5:03:B0:00/36	Promixis               # Promixis, LLC
+00:1B:C5:03:C0:00/36	Xiphos                 # Xiphos Systems Corp.
+00:1B:C5:03:D0:00/36	Rioxo                  # rioxo GmbH
+00:1B:C5:03:E0:00/36	Daylight               # Daylight  Solutions, Inc
+00:1B:C5:03:F0:00/36	Eltrade                # ELTRADE Ltd
+00:1B:C5:04:00:00/36	OooActid               # OOO Actidata
+00:1B:C5:04:10:00/36	DesignaE               # DesignA Electronics Limited
+00:1B:C5:04:20:00/36	Chamsys                # ChamSys Limited
+00:1B:C5:04:30:00/36	Coincide               # Coincident, Inc.
+00:1B:C5:04:40:00/36	Zao&Quot               # ZAO &quot;RADIUS Avtomatika&quot;
+00:1B:C5:04:50:00/36	MarvelDi               # Marvel Digital International Limited
+00:1B:C5:04:60:00/36	Trans-Eu               # Trans-European Research and Education Networking Association (TERENA)
+00:1B:C5:04:70:00/36	PtAmanin               # PT. Amanindo Nusapadu
+00:1B:C5:04:80:00/36	Xpossibl               # XPossible Technologies Pte Ltd
+00:1B:C5:04:90:00/36	Eurocont               # EUROCONTROL S.p.A.
+00:1B:C5:04:A0:00/36	CertisTe               # Certis Technology International Pte Ltd
+00:1B:C5:04:B0:00/36	SiliconC               # Silicon Controls
+00:1B:C5:04:C0:00/36	RhinoCon               # Rhino Controls Ltd.
+00:1B:C5:04:D0:00/36	EirakuEl               # eiraku electric corp.
+00:1B:C5:04:E0:00/36	Messung                # Messung Systems
+00:1B:C5:04:F0:00/36	Orbital                # Orbital Systems, Ltd.
+00:1B:C5:05:00:00/36	Teliswit               # TeliSwitch Solutions
+00:1B:C5:05:10:00/36	QqNaviga               # QQ Navigation AB
+00:1B:C5:05:20:00/36	Engineer               # Engineering Center ENERGOSERVICE
+00:1B:C5:05:30:00/36	Metrycom               # Metrycom Communications Ltd
+00:1B:C5:05:50:00/36	Lumiplan               # LUMIPLAN TRANSPORT
+00:1B:C5:05:60:00/36	ThinkomS               # ThinKom Solutions, Inc
+00:1B:C5:05:70:00/36	EreeElec               # EREE Electronique
+00:1B:C5:05:80:00/36	Optimeas               # optiMEAS GmbH
+00:1B:C5:05:90:00/36	Inpixal
+00:1B:C5:05:A0:00/36	PostecDa               # POSTEC DATA SYSTEMS
+00:1B:C5:05:B0:00/36	Konzeptp               # konzeptpark GmbH
+00:1B:C5:05:C0:00/36	Suretrak               # Suretrak Global Pty Ltd
+00:1B:C5:05:D0:00/36	JscPromi               # JSC Prominform
+00:1B:C5:05:E0:00/36	Ecomed-C               # Ecomed-Complex
+00:1B:C5:05:F0:00/36	Klingent               # Klingenthaler Musikelektronik GmbH
+00:1B:C5:06:00:00/36	Enstech
+00:1B:C5:06:10:00/36	Scientif               # Scientific-Technical Center "Epsilon" Limited company
+00:1B:C5:06:20:00/36	SulaonOy               # Sulaon Oy
+00:1B:C5:06:30:00/36	Check-It               # Check-It Solutions Inc
+00:1B:C5:06:40:00/36	EnkoraOy               # Enkora Oy Ltd
+00:1B:C5:06:50:00/36	PlairMed               # Plair Media Inc.
+00:1B:C5:06:60:00/36	Manufact               # Manufacturas y transformados AB
+00:1B:C5:06:70:00/36	EmbitSrl               # Embit srl
+00:1B:C5:06:80:00/36	HcsKablo               # HCS KABLOLAMA SISTEMLERI SAN. ve TIC.A.S.
+00:1B:C5:06:90:00/36	DatasatD               # Datasat Digital Entertainment
+00:1B:C5:06:A0:00/36	Ist                    # IST GmbH
+00:1B:C5:06:B0:00/36	Verified               # Verified Energy, LLC.
+00:1B:C5:06:C0:00/36	LuxconSy               # Luxcon System Limited
+00:1B:C5:06:D0:00/36	TesElect               # TES Electronic Solutions (I) Pvt. Ltd.
+00:1B:C5:06:E0:00/36	TwoDimen               # Two Dimensional Instruments, LLC
+00:1B:C5:06:F0:00/36	LlcEmzio               # LLC Emzior
+00:1B:C5:07:00:00/36	SiemensI               # Siemens Industries, Inc, Retail & Commercial Systems
+00:1B:C5:07:10:00/36	CenterFo               # Center for E-Commerce Infrastructure Development, The University of Hong Kong
+00:1B:C5:07:20:00/36	OhioSemi               # Ohio Semitronics, Inc.
+00:1B:C5:07:30:00/36	Tado                   # tado GmbH
+00:1B:C5:07:40:00/36	Dynasthe               # Dynasthetics
+00:1B:C5:07:50:00/36	Kitron                 # Kitron GmbH
+00:1B:C5:07:60:00/36	PlairMed               # PLAiR Media, Inc
+00:1B:C5:07:70:00/36	Momentum               # Momentum Data Systems
+00:1B:C5:07:80:00/36	DonbassS               # Donbass Soft Ltd and Co.KG
+00:1B:C5:07:90:00/36	HpiHighP               # HPI High Pressure Instrumentation GmbH
+00:1B:C5:07:A0:00/36	Servicio               # Servicios Electronicos Industriales Berbel s.l.
+00:1B:C5:07:B0:00/36	QcoreMed               # QCORE Medical
+00:1B:C5:07:C0:00/36	Head
+00:1B:C5:07:D0:00/36	Greatcom               # Greatcom AG
+00:1B:C5:07:E0:00/36	BioMolec               # Bio Molecular System Pty Ltd
+00:1B:C5:07:F0:00/36	Hitechla               # Hitechlab Inc
+00:1B:C5:08:00:00/36	Lumino                 # LUMINO GmbH
+00:1B:C5:08:10:00/36	Wonatech               # WonATech Co., Ltd.
+00:1B:C5:08:20:00/36	TgsGeoph               # TGS Geophysical Company (UK) Limited
+00:1B:C5:08:30:00/36	Diwel
+00:1B:C5:08:40:00/36	AppliedI               # Applied Innovations Research LLC
+00:1B:C5:08:50:00/36	OberonMi               # Oberon microsystems, Inc.
+00:1B:C5:08:60:00/36	CastGrou               # CAST Group of Companies Inc.
+00:1B:C5:08:70:00/36	OnnetTec               # Onnet Technologies And Innovations
+00:1B:C5:08:80:00/36	UabKitro               # UAB Kitron
+00:1B:C5:08:90:00/36	Signatur               # SIGNATURE CONTROL SYSTEMS, INC.
+00:1B:C5:08:A0:00/36	Topicon
+00:1B:C5:08:B0:00/36	Nistica
+00:1B:C5:08:C0:00/36	Triax                  # Triax A/S
+00:1B:C5:08:D0:00/36	EurekSrl               # EUREK  SRL
+00:1B:C5:08:E0:00/36	Trendpoi               # TrendPoint Systems
+00:1B:C5:08:F0:00/36	Unilever               # Unilever R&amp;D
+00:1B:C5:09:00:00/36	SevenSol               # Seven Solutions S.L
+00:1B:C5:09:10:00/36	3greenAp               # 3green ApS
+00:1B:C5:09:20:00/36	ArnouseD               # Arnouse Digital Devices, Corp.
+00:1B:C5:09:30:00/36	AmbientD               # Ambient Devices, Inc.
+00:1B:C5:09:40:00/36	Reelyact               # reelyActive
+00:1B:C5:09:50:00/36	PrevacSp               # PREVAC sp. z o.o.
+00:1B:C5:09:60:00/36	Sanstrea               # Sanstreak Corp.
+00:1B:C5:09:70:00/36	Plexstar               # Plexstar Inc.
+00:1B:C5:09:80:00/36	Cubic                  # Cubic Systems, Inc.
+00:1B:C5:09:90:00/36	UabKitro               # UAB Kitron
+00:1B:C5:09:A0:00/36	Shenzhen               # Shenzhen Guang Lian Zhi Tong Limited
 00:1B:C6	StratoRe               # Strato Rechenzentrum AG
 00:1B:C7	Starvedi               # StarVedia Technology Inc.
 00:1B:C8	Miura                  # MIURA CO.,LTD
