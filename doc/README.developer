@@ -734,6 +734,10 @@ one, or a commonly-used abbreviation for the protocol, if any.
 The skeleton code lives in the file "packet-PROTOABBREV.c" in the same source
 directory as this README.
 
+If instead of using the skeleton you base your dissector on an existing real
+dissector, please put a little note in the copyright header indicating which
+dissector you started with.
+
 Usually, you will put your newly created dissector file into the directory
 epan/dissectors/, just like all the other packet-*.c files already in there.
 
@@ -761,9 +765,7 @@ your information.
 
 YOUR_NAME       Your name, of course.  You do want credit, don't you?
                 It's the only payment you will receive....
-YOUR_EMAIL_ADDRESS      Keep those cards and letters coming.
-WHATEVER_FILE_YOU_USED  Add this line if you are using another file as a
-                starting point.
+YOUR_EMAIL_ADDRESS  Keep those cards and letters coming.
 PROTONAME       The name of the protocol; this is displayed in the
                 top-level protocol tree item for that protocol.
 PROTOSHORTNAME  An abbreviated name for the protocol; this is displayed
@@ -1722,11 +1724,6 @@ for internally used fields.
 
 A protocol item is added to an existing protocol tree with one of a
 handful of proto_XXX_DO_YYY() functions.
-
-Remember that it only makes sense to add items to a protocol tree if its
-proto_tree pointer is not null. Should you add an item to a NULL tree, then
-the proto_XXX_DO_YYY() function will immediately return. The cost of this
-function call can be avoided by checking for the tree pointer.
 
 Subtrees can be made with the proto_item_add_subtree() function:
 
@@ -3792,6 +3789,43 @@ proto_tree*
 ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
     Creates a subtree and adds it to the cursor as the working tree but does
 not save the old working tree.
+
+2.9 Optimizations
+
+A protocol dissector may be called in 2 different ways - with, or
+without a non-null "tree" argument.
+
+If the proto_tree argument is null, Wireshark does not need to use
+the protocol tree information from your dissector, and therefore is
+passing the dissector a null "tree" argument so that it doesn't
+need to do work necessary to build the protocol tree.
+
+In the interest of speed, if "tree" is NULL, avoid building a
+protocol tree and adding stuff to it, or even looking at any packet
+data needed only if you're building the protocol tree, if possible.
+
+Note, however, that you must fill in column information, create
+conversations, reassemble packets, do calls to "expert" functions,
+build any other persistent state needed for dissection, and call
+subdissectors regardless of whether "tree" is NULL or not.
+
+This might be inconvenient to do without doing most of the
+dissection work; the routines for adding items to the protocol tree
+can be passed a null protocol tree pointer, in which case they'll
+return a null item pointer, and "proto_item_add_subtree()" returns
+a null tree pointer if passed a null item pointer, so, if you're
+careful not to dereference any null tree or item pointers, you can
+accomplish this by doing all the dissection work.  This might not
+be as efficient as skipping that work if you're not building a
+protocol tree, but if the code would have a lot of tests whether
+"tree" is null if you skipped that work, you might still be better
+off just doing all that work regardless of whether "tree" is null
+or not.
+
+Note also that there is no guarantee, the first time the dissector is
+called, whether "tree" will be null or not; your dissector must work
+correctly, building or updating whatever state information is
+necessary, in either case.
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
