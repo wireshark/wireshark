@@ -10509,7 +10509,7 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_high_slotid4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cachethis4, offset);
 			offset = dissect_nfs_cb_referring_calls(tvb, offset, newftree);
 			break;
@@ -10607,8 +10607,8 @@ dissect_nfs_cb_resop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_high_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_target_high_slotid4, offset);
 			break;
 		case NFS4_OP_CB_WANTS_CANCELLED:
 		case NFS4_OP_CB_NOTIFY_LOCK:
@@ -12041,14 +12041,14 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_slotid4, {
-			"slot ID", "nfs.slotid4", FT_UINT32, BASE_DEC,
+			"slot id", "nfs.slotid", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_high_slotid4, {
-			"high slot id", "nfs.high.slotid4", FT_UINT32, BASE_DEC,
+			"high slot id", "nfs.high_slotid", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_target_high_slotid4, {
-			"target high slot id", "nfs.target.high.slotid4", FT_UINT32, BASE_DEC,
+			"target high slot id", "nfs.target_high_slotid", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_serverscope4, {
