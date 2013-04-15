@@ -121,7 +121,7 @@ $ieee_list = fetch($iab_url);
 
 foreach $line (split(/\n/, $ieee_list)) {
   # determine the OUI used for IAB (currently only 00-50-C2)
-  if (($iab_tmp, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+  if (($iab_tmp, $manuf) = ($line =~ /^\s*($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
       $iab_base = $iab_tmp;
   }
   # determine next two bytes
@@ -146,7 +146,7 @@ $ieee_list = fetch($oui36_url);
 
 foreach $line (split(/\n/, $ieee_list)) {
   # determine the OUI used for OUI-36 (currently only 00-1B-C5)
-  if (($oui36_tmp, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+  if (($oui36_tmp, $manuf) = ($line =~ /^\s*($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
       $oui36_base = $oui36_tmp;
   }
   # determine next two bytes
@@ -170,7 +170,7 @@ foreach $line (split(/\n/, $ieee_list)) {
 $ieee_list = fetch($oui_url);
 
 foreach $line (split(/\n/, $ieee_list)) {
-  if (($oui, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+  if (($oui, $manuf) = ($line =~ /^\s*($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
     $oui =~ tr /-/:/;  # The IEEE bytes are separated by dashes.
     # Ensure OUI is all upper-case
     $oui =~ tr/a-f/A-F/;
