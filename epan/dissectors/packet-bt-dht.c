@@ -620,4 +620,3 @@ proto_reg_handoff_bt_dht(void)
  * ex: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
