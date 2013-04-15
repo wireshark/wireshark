@@ -4024,7 +4024,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0001:
 			case 0x0003:
 			case 0x0007:
-				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+				if (e_len > 0) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addrx);
 					proto_tree_add_text(pco_tree, tvb, curr_offset, 16, "IPv6: %s", ip6_to_str(&ipv6_addrx));
 				}
@@ -4050,7 +4050,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				}
 				break;
 			case 0x0008:
-				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+				if (e_len > 0) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addrx);
 					proto_tree_add_text(pco_tree, tvb, curr_offset, 16,	"IPv6: %s", ip6_to_str(&ipv6_addrx));
 					oct = tvb_get_guint8(tvb, curr_offset+16);
@@ -4060,14 +4060,14 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0009:
 			case 0x000C:
 			case 0x000D:
-				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+				if (e_len > 0) {
 					ipv4_addrx = tvb_get_ipv4(tvb, curr_offset);
 					proto_tree_add_text(pco_tree, tvb, curr_offset, 4,	"IPv4: %s",
 										ip_to_str((guint8 *)&ipv4_addrx));
 				}
 				break;
 			case 0x0010:
-				if ((link_dir == P2P_DIR_DL) && (e_len == 2)) {
+				if (e_len == 2) {
 					guint16 word = tvb_get_ntohs(tvb, curr_offset);
 					proto_tree_add_text(pco_tree, tvb, curr_offset, 2, "IPv4 link MTU size: %u octets", word);
 				}
