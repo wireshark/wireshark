@@ -125,7 +125,7 @@ foreach $line (split(/\n/, $ieee_list)) {
       $iab_base = $iab_tmp;
   }
   # determine next two bytes
-  if (($iab4, $iab5, $manuf) = ($line =~ /^($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
+  if (($iab4, $iab5, $manuf) = ($line =~ /^\s*($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
     $iab = "$iab_base:$iab4:$iab5:00/36";
     $iab =~ tr /-/:/; # The IEEE bytes are separated by dashes.
     # Ensure IAB is all upper-case
@@ -150,7 +150,7 @@ foreach $line (split(/\n/, $ieee_list)) {
       $oui36_base = $oui36_tmp;
   }
   # determine next two bytes
-  if (($oui36_4, $oui36_5, $manuf) = ($line =~ /^($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
+  if (($oui36_4, $oui36_5, $manuf) = ($line =~ /\s*^($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
     $oui36 = "$oui36_base:$oui36_4:$oui36_5:00/36";
     $oui36 =~ tr /-/:/; # The IEEE bytes are separated by dashes.
     # Ensure OUI-36 is all upper-case
