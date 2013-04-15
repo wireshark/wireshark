@@ -2366,7 +2366,16 @@
 		433 Redirect-Address-Type [RFC4006]
 		434 Redirect-Server [RFC4006]
 		435 Redirect-Server-Address [RFC4006]
-		436 Requested-Action [RFC4006]
+    -->
+    <avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+      <type type-name="Enumerated"/>
+      <enum name="DIRECT_DEBITING" code="0"/>
+      <enum name="REFUND_ACCOUNT" code="1"/>
+      <enum name="CHECK_BALANCE" code="2"/>
+      <enum name="PRICE_ENQUIRY" code="3"/>
+    </avp>
+
+    <!--
 		437 Requested-Service-Unit [RFC4006]
 		438 Restriction-Filter-Rule [RFC4006]
 		439 Service-Identifier [RFC4006]
