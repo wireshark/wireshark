@@ -7533,20 +7533,20 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			/* IPv4: h1.h2.h3.h4.p1.p2 */
 			port = (b5<<8) | b6;
 			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset,
-				"[callback IPv4 address %u.%u.%u.%u, protocol=%s, port=%u]",
+				"[IPv4 address %u.%u.%u.%u, protocol=%s, port=%u]",
 				b1, b2, b3, b4, protocol, port);
 		} else if (universal_ip_address && sscanf(universal_ip_address, "%u.%u",
 						   &b1, &b2) == 2) {
 			/* Some clients (linux) sometimes send only the port. */
 			port = (b1<<8) | b2;
 			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset,
-				"[callback ip address NOT SPECIFIED, protocol=%s, port=%u]", protocol, port);
+				"[ip address NOT SPECIFIED, protocol=%s, port=%u]", protocol, port);
 		} else if (universal_ip_address && sscanf(universal_ip_address,
 						"%2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x.%u.%u",
 						&b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8, &b9, &b10) == 10) {
 			port = (b9<<8) | b10;
 			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset,
-				"[callback IPv6 address %2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x, protocol=%s, port=%u]",
+				"[IPv6 address %2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x, protocol=%s, port=%u]",
 				b1, b2, b3, b4, b5, b6, b7, b8, protocol, port);
 		} else {
 			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset, "[Invalid address]");
@@ -9497,14 +9497,15 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		}
 
 		/*
-		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT, and
-		 * NFS4_OP_SETATTR, all other ops do *not* return data with the
-		 * failed status code.
+		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT,
+		 * NFS4_OP_SETATTR, and NFS4_OP_SETCLIENTID, all other
+		 * ops do *not* return data with the failed status code.
 		 */
 		if (status != NFS4_OK
 		&& opcode != NFS4_OP_LOCK
 		&& opcode != NFS4_OP_LOCKT
-		&& opcode != NFS4_OP_SETATTR) {
+		&& opcode != NFS4_OP_SETATTR
+		&& opcode != NFS4_OP_SETCLIENTID) {
 			op_summary[ops_counter].iserror = TRUE;
 			continue;
 		}
@@ -9615,10 +9616,17 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			break;
 
 		case NFS4_OP_SETCLIENTID:
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid,
-				offset);
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_verifier,
-				offset);
+			if (status == NFS4_OK) {
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid,
+					offset);
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_verifier,
+					offset);
+			} else if (status == NFS4ERR_CLID_INUSE)
+				/*
+				 * XXX: below function actually assumes
+				 * this is for a callback.  Fix:
+				 */
+				offset = dissect_nfs4_clientaddr(tvb, offset, newftree);
 			break;
 
 		case NFS4_OP_WRITE:
