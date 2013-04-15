@@ -119,6 +119,7 @@ static int hf_ctlv_utran_eutran_meas_qual = -1;
 static int hf_ctlv_loci_lac = -1;
 static int hf_ctlv_loci_cell_id = -1;
 static int hf_ctlv_loci_ext_cell_id = -1;
+static int hf_ctlv_iari = -1;
 static int hf_ctlv_impu = -1;
 static int hf_ctlv_ims_status_code = -1;
 
@@ -351,7 +352,7 @@ static const value_string cmd_type_vals[] = {
 	{ 0x22, "GET INKEY" },
 	{ 0X23, "GET INPUT" },
 	{ 0x24, "SELECT ITEM" },
-	{ 0X25, "SET UP MENU" },
+	{ 0x25, "SET UP MENU" },
 	{ 0x26, "PROVIDE LOCAL INFORMATION" },
 	{ 0x27, "TIMER MANAGEMENT" },
 	{ 0x28, "SET UP IDLE MODE TEXT" },
@@ -884,6 +885,9 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case 0x27:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_NA);
 				break;
+			case 0x40:
+				ims_event = TRUE;
+				break;
 			case 0x43:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_NA);
 				break;
@@ -1144,6 +1148,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x69:	/* UTRAN EUTRAN measurement qualifier */
 			proto_tree_add_item(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_NA);
 			break;
+		case 0x76:	/* Geographical Location Parameters / IARI */
+			if (ims_event) {
+				proto_tree_add_unicode_string(elem_tree, hf_ctlv_iari, tvb, pos, len,
+					tvb_get_ephemeral_string_enc(tvb, pos, len, ENC_UTF_8 | ENC_NA));
+			}
+			break;
 		case 0x77:	/* GAD Shapes / IMPU list */
 			if (ims_event) {
 				i = 0;
@@ -1159,12 +1169,23 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			}
 			break;
-		case 0x78:	/* 3GPP NMEA sentence / IMS Status-Code */
+		case 0x78:	/* NMEA sentence / IMS Status-Code */
 			if (ims_event) {
 				guint8 *status_code = tvb_get_ephemeral_string(tvb, pos, len);
 				proto_tree_add_string_format_value(elem_tree, hf_ctlv_ims_status_code, tvb, pos, len,
 					status_code, "%s (%s)", status_code, str_to_str(status_code, ims_status_code, "Unknown"));
 			}
+			break;
+		case 0x79:	/* PLMN list */
+			for (i = 0; i < len; i+=3) {
+				dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos+3*i, TRUE);
+			}
+			break;
+		case 0x7c:	/* EPS PDN connection activation parameters */
+			nas_esm_pdn_con_req(tvb, elem_tree, pinfo, pos, len);
+			break;
+		case 0x7d:	/* Tracking Area Identification */
+			de_emm_trac_area_id(tvb, elem_tree, pinfo, pos, 5, NULL, 0);
 			break;
 		default:
 			break;
@@ -1536,6 +1557,11 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_loci_ext_cell_id,
 			{ "Extended Cell ID", "etsi_cat.comp_tlv.loci.ext_cell_id",
 			  FT_UINT16, BASE_HEX, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_iari,
+			{ "IARI", "etsi_cat.comp_tlv.iari",
+			  FT_STRING, BASE_NONE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_impu,
