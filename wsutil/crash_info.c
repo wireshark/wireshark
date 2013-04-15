@@ -161,6 +161,12 @@ ws_add_crash_info(const char *fmt, ...)
 }
 
 #else
+/*
+ * Perhaps Google Breakpad (http://code.google.com/p/google-breakpad/) or
+ * other options listed at
+ * http://stackoverflow.com/questions/7631908/library-for-logging-call-stack-at-runtime-windows-linux
+ * ?
+ */
 void
 ws_add_crash_info(const char *fmt _U_, ...)
 {
