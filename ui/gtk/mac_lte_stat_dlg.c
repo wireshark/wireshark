@@ -995,8 +995,7 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 /* Create a new MAC LTE stats dialog */
-static void
-gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
+void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     mac_lte_stat_t *hs;
     const char *filter = NULL;
