@@ -63,6 +63,8 @@ static int hf_mac_lte_context_bch_transport_channel = -1;
 static int hf_mac_lte_context_retx_count = -1;
 static int hf_mac_lte_context_retx_reason = -1;
 static int hf_mac_lte_context_crc_status = -1;
+static int hf_mac_lte_context_carrier_id = -1;
+
 static int hf_mac_lte_context_rapid = -1;
 static int hf_mac_lte_context_rach_attempt_number = -1;
 
@@ -305,6 +307,15 @@ static const value_string crc_status_vals[] =
     { 0, NULL }
 };
 
+static const value_string carrier_id_vals[] =
+{
+    { carrier_id_primary,       "Primary"},
+    { carrier_id_secondary_1,   "Secondary-1"},
+    { carrier_id_secondary_2,   "Secondary-2"},
+    { carrier_id_secondary_3,   "Secondary-3"},
+    { carrier_id_secondary_4,   "Secondary-4"},
+    { 0, NULL }
+};
 
 static const value_string dci_format_vals[] =
 {
@@ -4511,6 +4522,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
+    /* Carrier Id */
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_carrier_id,
+                             tvb, 0, 0, p_mac_lte_info->carrierId);
+    PROTO_ITEM_SET_GENERATED(ti);
+    
     /* May also have extra Physical layer attributes set for this frame */
     show_extra_phy_parameters(pinfo, tvb, mac_lte_tree, p_mac_lte_info);
 
@@ -4877,6 +4893,12 @@ void proto_register_mac_lte(void)
             { "CRC Status",
               "mac-lte.crc-status", FT_UINT8, BASE_DEC, VALS(crc_status_vals), 0x0,
               "CRC Status as reported by PHY", HFILL
+            }
+        },
+        { &hf_mac_lte_context_carrier_id,
+            { "Carrier Id",
+              "mac-lte.carrier-id", FT_UINT8, BASE_DEC, VALS(carrier_id_vals), 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_context_rapid,

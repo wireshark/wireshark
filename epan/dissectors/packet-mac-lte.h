@@ -89,6 +89,14 @@ typedef enum mac_lte_crc_status {
     crc_false_dci = 5
 } mac_lte_crc_status;
 
+typedef enum mac_lte_carrier_id {
+    carrier_id_primary,
+    carrier_id_secondary_1,
+    carrier_id_secondary_2,
+    carrier_id_secondary_3,
+    carrier_id_secondary_4,
+} mac_lte_carrier_id;
+
 /* Context info attached to each LTE MAC frame */
 typedef struct mac_lte_info
 {
@@ -126,6 +134,9 @@ typedef struct mac_lte_info
     /* DL only.  Status of CRC check */
     mac_lte_crc_status   crcStatusValid;
 
+    /* Carrier ID */
+    mac_lte_carrier_id   carrierId;
+    
     /* DL only.  Is this known to be a retransmission? */
     mac_lte_dl_retx dl_retx;
 
