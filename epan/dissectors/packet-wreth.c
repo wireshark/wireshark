@@ -1057,7 +1057,7 @@ gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tr
     guint16 ErrorCode;
 
     Size      = tvb_get_letohs(tvb,2);
-    ErrorCode = tvb_get_letohs(tvb,2);  /* XXX:  what offset should be used  ??  */
+    ErrorCode = tvb_get_letohs(tvb,8);
 
     if((Size != 0)&&(Size != 6))
     {
