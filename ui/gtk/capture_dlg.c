@@ -3768,7 +3768,8 @@ capture_dlg_refresh_if (void)
 {
   GtkTreeView *view;
 
-  fill_local_list();
+  if (interface_management_w)
+    fill_local_list();
 
   view = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   create_and_fill_model(GTK_TREE_VIEW(view));
@@ -6014,8 +6015,7 @@ void
 refresh_local_interface_lists(void)
 {
   /* Reload the local interface list. */
-  if (global_capture_opts.session_started == FALSE)
-    scan_local_interfaces();
+  scan_local_interfaces();
 
   /* If there's an interfaces dialog up, refresh it. */
   if (interfaces_dialog_window_present())

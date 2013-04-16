@@ -88,7 +88,7 @@ scan_local_interfaces(void)
     if (global_capture_opts.all_ifaces->len > 0) {
         for (i = (int)global_capture_opts.all_ifaces->len-1; i >= 0; i--) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device.local) {
+            if (device.local && device.type != IF_PIPE && device.type != IF_STDIN) {
                 global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
             }
         }
@@ -306,7 +306,7 @@ scan_local_interfaces(void)
         }
         if (!found) {  /* new interface, maybe a pipe */
             device.name         = g_strdup(interface_opts.name);
-            device.display_name = g_strdup_printf("%s", device.name);
+            device.display_name = g_strdup_printf("%s: %s", interface_opts.descr);
             device.hidden       = FALSE;
             device.selected     = TRUE;
             device.type         = IF_PIPE;
