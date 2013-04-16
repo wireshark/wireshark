@@ -112,6 +112,12 @@ static int hf_cip_cm_ot_api = -1;
 static int hf_cip_cm_to_api = -1;
 static int hf_cip_cm_app_reply_size = -1;
 static int hf_cip_cm_app_reply_data = -1;
+static int hf_cip_cm_consumer_number = -1;
+static int hf_cip_cm_targ_vendor_id = -1;
+static int hf_cip_cm_targ_dev_serial_num = -1;
+static int hf_cip_cm_targ_conn_serial_num = -1;
+static int hf_cip_cm_initial_timestamp = -1;
+static int hf_cip_cm_initial_rollover = -1;
 static int hf_cip_cm_remain_path_size = -1;
 static int hf_cip_cm_msg_req_size = -1;
 static int hf_cip_cm_route_path_size = -1;
@@ -486,6 +492,8 @@ static gint ett_cm_mes_req = -1;
 static gint ett_cm_cmd_data = -1;
 static gint ett_cm_ttt = -1;
 static gint ett_cm_add_status_item = -1;
+static gint ett_cip_cm_pid = -1;
+static gint ett_cip_cm_safety = -1;
 
 static gint ett_mb_rrsc = -1;
 static gint ett_mb_cmd_data = -1;
@@ -4909,6 +4917,8 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    unsigned char app_rep_size;
    guint32 O2TConnID, T2OConnID, DeviceSerialNumber;
    guint16 ConnSerialNumber, VendorID;
+   proto_item *ti;
+   proto_tree *pid_tree, *safety_tree;
 
    /* Display originator to target connection ID */
    O2TConnID = tvb_get_letohl( tvb, offset );
@@ -4945,7 +4955,43 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    /* Display the Reserved byte */
    proto_tree_add_item(tree, hf_cip_reserved8, tvb, offset+25, 1, ENC_LITTLE_ENDIAN );
    if (app_rep_size > 0)
-      proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+26, app_rep_size, ENC_NA );
+   {
+      if ((preq_info == NULL) || (preq_info->connInfo == NULL) || 
+          (preq_info->connInfo->safety.safety_seg == FALSE))
+      {
+         proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+26, app_rep_size, ENC_NA );
+      }
+      else if (preq_info->connInfo->safety.format == CIP_SAFETY_BASE_FORMAT)
+      {
+         ti = proto_tree_add_text( tree, tvb, offset+28, 10, "Safety Application Reply Data");
+         safety_tree = proto_item_add_subtree( ti, ett_cip_cm_safety ); 
+         proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
+         ti = proto_tree_add_text( safety_tree, tvb, offset+28, 8, "PID/CID");
+         pid_tree = proto_item_add_subtree( ti, ett_cip_cm_pid );
+         proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);         
+         proto_tree_add_item( pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset+30, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item( pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset+34, 2, ENC_LITTLE_ENDIAN);
+
+         if (app_rep_size > 10)
+            proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+36, app_rep_size-10, ENC_NA );
+      }
+      else if (preq_info->connInfo->safety.format == CIP_SAFETY_EXTENDED_FORMAT)
+      {
+         ti = proto_tree_add_text( tree, tvb, offset+28, 14, "Safety Application Reply Data");
+         safety_tree = proto_item_add_subtree( ti, ett_cip_cm_safety ); 
+         proto_tree_add_item( safety_tree, hf_cip_cm_consumer_number, tvb, offset+26, 2, ENC_LITTLE_ENDIAN);
+         ti = proto_tree_add_text( safety_tree, tvb, offset+28, 12, "PID/CID");
+         pid_tree = proto_item_add_subtree( ti, ett_cip_cm_pid );
+         proto_tree_add_item( pid_tree, hf_cip_cm_targ_vendor_id, tvb, offset+28, 2, ENC_LITTLE_ENDIAN);         
+         proto_tree_add_item( pid_tree, hf_cip_cm_targ_dev_serial_num, tvb, offset+30, 4, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item( pid_tree, hf_cip_cm_targ_conn_serial_num, tvb, offset+34, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item( pid_tree, hf_cip_cm_initial_timestamp, tvb, offset+36, 2, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item( pid_tree, hf_cip_cm_initial_rollover, tvb, offset+38, 2, ENC_LITTLE_ENDIAN);
+
+         if (app_rep_size > 14)
+            proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+40, app_rep_size-14, ENC_NA );
+      }
+   }
 
    /* See if we've captured the ForwardOpen request.  If so some of the conversation data has already been
       populated and we just need to update it. */
@@ -6550,6 +6596,12 @@ proto_register_cip(void)
       { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_app_reply_size, { "Application Reply Size", "cip.cm.app_reply_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_app_reply_data , { "Application Reply", "cip.cm.app_reply_data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_consumer_number, { "Consumer Number", "cip.cm.consumer_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_targ_vendor_id, { "Target Vendor ID", "cip.cm.targ_vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
+      { &hf_cip_cm_targ_dev_serial_num, { "Target Device Serial Number", "cip.cm.targ_dev_serial_num", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_targ_conn_serial_num, { "Target Connection Serial Number", "cip.cm.targ_conn_serial_num", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_initial_timestamp, { "Initial Timestamp", "cip.cm.initial_timestamp", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_initial_rollover, { "Initial Rollover Value", "cip.cm.initial_rollover", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_remain_path_size, { "Remaining Path Size", "cip.cm.remain_path_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_msg_req_size, { "Message Request Size", "cip.cm.msg_req_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_route_path_size, { "Route Path Size", "cip.cm.route_path_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -6710,7 +6762,9 @@ proto_register_cip(void)
       &ett_cm_ncp,
       &ett_cm_cmd_data,
       &ett_cm_ttt,
-      &ett_cm_add_status_item
+      &ett_cm_add_status_item,
+      &ett_cip_cm_pid,
+      &ett_cip_cm_safety
    };
 
    static gint *ett_mb[] = {
