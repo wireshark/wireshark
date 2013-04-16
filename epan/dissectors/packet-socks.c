@@ -630,7 +630,7 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	case serverGssApiReply:
 		auth_status = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if (auth_status != 0xFF) {
 			guint16 len;
 
