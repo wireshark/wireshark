@@ -654,33 +654,10 @@ static const value_string brush_types_vs[] = {
     { 0, NULL }
 };
 
-typedef struct {
-    guint64   image;
-    point32_t position;
-} Pattern;
-
-#define sizeof_Pattern 16
-
-typedef struct {
-    guint8 type;
-    union {
-        guint32 color;
-        Pattern patten;
-    };
-} Brush;
-
-#define sizeof_Brush 17 /* for pattern */
-
 static const value_string Mask_flags_vs[] = {
     { 0, "MASK_FLAG_INVERS" },
     { 0, NULL }
 };
-
-typedef struct {
-    guint8    flags;
-    point32_t position;
-    guint32   bitmap;
-} Mask;
 
 #define sizeof_Mask 13
 
@@ -689,14 +666,6 @@ static const value_string scale_mode_vs[] = {
     { 1, "IMAGE_SCALE_NEAREST" },
     { 0, NULL }
 };
-
-typedef struct {
-    guint64 id;
-    guint8  type;
-    guint8  flag;
-    guint32 width;
-    guint32 height;
-} ImageDescriptor;
 
 #define sizeof_ImageDescriptor 18
 
