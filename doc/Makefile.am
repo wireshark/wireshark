@@ -261,27 +261,28 @@ EXTRA_DIST =				\
 	README.tapping			\
 	README.wmem			\
 	README.xml-output		\
-	doc.vcproj			\
-	make-authors-format.pl		\
-	make-authors-short.pl		\
-	dfilter2pod.pl			\
-	perlnoutf.pl			\
 	asn2deb.pod			\
 	capinfos.pod			\
+	dfilter2pod.pl			\
 	dftest.pod			\
+	doc.vcproj			\
 	dumpcap.pod			\
 	editcap.pod			\
 	eproto2sgml			\
 	idl2deb.pod			\
 	idl2wrs.pod			\
+	make-authors-format.pl		\
+	make-authors-short.pl		\
 	mergecap.pod			\
+	packet-PROTOABBREV.c		\
+	perlnoutf.pl			\
 	randpkt.pod			\
 	randpkt.txt			\
 	rawshark.pod			\
 	reordercap.pod			\
+	sgml.doc.template		\
 	text2pcap.pod			\
 	tshark.pod			\
 	wireshark-filter.pod    	\
-	sgml.doc.template		\
 	wireshark.pod.template
 
