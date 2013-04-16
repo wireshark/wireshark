@@ -318,6 +318,10 @@ static int hf_nfs_ftype4 = -1;
 static int hf_nfs_change_info4_atomic = -1;
 static int hf_nfs_open4_share_access = -1;
 static int hf_nfs_open4_share_deny = -1;
+static int hf_nfs_want_flags = -1;
+static int hf_nfs_want_notify_flags = -1;
+static int hf_nfs_want_signal_deleg_when_resrc_avail = -1;
+static int hf_nfs_want_push_deleg_when_uncontended = -1;
 static int hf_nfs_seqid4 = -1;
 static int hf_nfs_lock_seqid4 = -1;
 static int hf_nfs_mand_attr = -1;
@@ -706,6 +710,7 @@ static gint ett_nfs_test_stateid4 = -1;
 static gint ett_nfs_destroy_clientid4 = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 static gint ett_nfs_chan_attrs = -1;
+static gint ett_nfs_want_notify_flags = -1;
 
 /* what type of fhandles should we dissect as */
 static dissector_table_t nfs_fhandle_table;
@@ -7746,11 +7751,26 @@ static int
 dissect_nfs_open4_share_access(tvbuff_t *tvb, int offset,
 			       proto_tree *tree)
 {
+	proto_item *notify_item;
+	proto_tree *notify_tree;
 	guint share_access;
+	guint want_flags;
+	guint want_notify_flags;
 
-	share_access = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_nfs_open4_share_access, tvb, offset, 4,
-			    share_access);
+	want_notify_flags = tvb_get_ntohl(tvb, offset);
+	share_access = want_notify_flags & 0x3;
+	want_flags = want_notify_flags & 0xff00;
+	want_notify_flags &= ~share_access & ~want_flags;
+	proto_tree_add_uint(tree, hf_nfs_open4_share_access, tvb, offset, 4, share_access);
+	if (want_flags)
+		proto_tree_add_uint(tree, hf_nfs_want_flags, tvb, offset, 4, want_flags);
+	if (want_notify_flags) {
+		notify_item = proto_tree_add_uint(tree, hf_nfs_want_notify_flags, tvb, offset, 4, want_notify_flags);
+
+		notify_tree = proto_item_add_subtree(notify_item, ett_nfs_want_notify_flags);
+		proto_tree_add_item(notify_tree, hf_nfs_want_signal_deleg_when_resrc_avail, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(notify_tree, hf_nfs_want_push_deleg_when_uncontended, tvb, offset, 4, ENC_BIG_ENDIAN);
+	}
 	offset += 4;
 
 	return offset;
@@ -11317,6 +11337,21 @@ proto_register_nfs(void)
 			"share_deny", "nfs.open4.share_deny", FT_UINT32, BASE_DEC,
 			VALS(names_open4_share_deny), 0, NULL, HFILL }},
 
+		{ &hf_nfs_want_flags, {
+			"wants", "nfs.want", FT_UINT32, BASE_HEX,
+			VALS(names_open4_share_access), 0, NULL, HFILL }},
+		{ &hf_nfs_want_notify_flags, {
+			"want notification", "nfs.want_notification", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs_want_signal_deleg_when_resrc_avail, {
+			"want_signal_deleg_when_resrc_avail",
+			"nfs.want_notification.when_resrc_avail", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL, NULL, HFILL }},
+		{ &hf_nfs_want_push_deleg_when_uncontended, {
+			"want_push_deleg_when_uncontended",
+			"nfs.want_push_deleg_when_uncontended", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED, NULL, HFILL }},
+
 		{ &hf_nfs_seqid4, {
 			"seqid", "nfs.seqid", FT_UINT32, BASE_HEX,
 			NULL, 0, "Sequence ID", HFILL }},
@@ -12711,7 +12746,8 @@ proto_register_nfs(void)
 		&ett_nfs_cb_illegal,
 		&ett_nfs_chan_attrs,
 		&ett_create_session_flags,
-		&ett_sequence_status_flags
+		&ett_sequence_status_flags,
+		&ett_nfs_want_notify_flags
 	};
 	module_t *nfs_module;
 
