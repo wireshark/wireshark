@@ -207,7 +207,7 @@ static void
 register_dissector_param_value(char *name, char *value)
 {
 	dissector_param_value_t *dpv;
-	dpv=malloc(sizeof(dissector_param_value_t));
+	dpv=(dissector_param_value_t*)malloc(sizeof(dissector_param_value_t));
 	dpv->next=dissector_param_list;
 	dissector_param_list=dpv;
 	dpv->name=strdup(name);
@@ -238,7 +238,7 @@ prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 	}
 	if(!pi)pi=ptrs;
 	while(num_pointers--){
-		pi=malloc(sizeof(pointer_item_t));
+		pi=(pointer_item_t*)malloc(sizeof(pointer_item_t));
 		pi->next=ptrs;
 		pi->type=pointer_default;
 		ptrs=pi;
@@ -283,7 +283,7 @@ static void
 register_hf_rename(char *old_name, char *new_name)
 {
 	hf_rename_item_t *new_item;
-	new_item=malloc(sizeof(hf_rename_item_t));
+	new_item=(hf_rename_item_t*)malloc(sizeof(hf_rename_item_t));
 	new_item->next=hf_rename_list;
 	hf_rename_list=new_item;
 	new_item->refcount=0;
@@ -351,7 +351,7 @@ register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, 
 		}
 	}
 
-	hfi=malloc(sizeof(hf_field_item_t));
+	hfi=(hf_field_item_t*)malloc(sizeof(hf_field_item_t));
 	hfi->next=hf_field_list;
 	hf_field_list=hfi;
 	hfi->name=strdup(hf_name);
@@ -456,7 +456,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 	}
 	ti=ti->next;
 
-	br=malloc(sizeof(bracket_item_t));
+	br=(bracket_item_t*)malloc(sizeof(bracket_item_t));
 	*bracket=br;
 	br->flags=0;
 	br->case_name=NULL;
@@ -723,7 +723,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 			pointer_item_t *newpi;
 
 			br->flags|=BI_POINTER;
-			newpi=malloc(sizeof(pointer_item_t));
+			newpi=(pointer_item_t*)malloc(sizeof(pointer_item_t));
 			newpi->next=NULL;
 			newpi->type=ti->str;
 			newpi->next=br->pointer_list;
@@ -747,7 +747,7 @@ register_new_type(char *name, char *dissectorname, char *ft_type, char *base_typ
 
 FPRINTF(NULL,"XXX new type:%s dissector:%s Type:%s Base:%s Mask:%s Vals:%s alignment:%d\n", name, dissectorname, ft_type, base_type, mask, valsstring, alignment);
 
-	new_type=malloc(sizeof(type_item_t));
+	new_type=(type_item_t*)malloc(sizeof(type_item_t));
 	new_type->next=type_list;
 	new_type->name=strdup(name);
 	new_type->dissector=strdup(dissectorname);
@@ -906,7 +906,7 @@ static void parseheader(void)
 static void pushtoken(char *token)
 {
 	token_item_t *new_token_item;
-	new_token_item=malloc(sizeof(token_item_t));
+	new_token_item=(token_item_t*)malloc(sizeof(token_item_t));
 	new_token_item->next=NULL;
 	new_token_item->str=token;
 	if(!token_list){
@@ -2832,7 +2832,7 @@ static void parsetypedefenum(void)
 		 * 3, CONST = value}
 		 * 4, CONST}
 		 */
-		el=malloc(sizeof(enum_list_t));
+		el=(enum_list_t*)malloc(sizeof(enum_list_t));
 		el->next=NULL;
 		if(!enum_list){
 			enum_list=el;
@@ -2955,7 +2955,7 @@ static trimmed_prefixes_t *prefixes_to_trim=NULL;
 static void preparetrimprefix(char *prefix_name)
 {
 	trimmed_prefixes_t *new_prefix;
-	new_prefix=malloc(sizeof(trimmed_prefixes_t));
+	new_prefix=(trimmed_prefixes_t*)malloc(sizeof(trimmed_prefixes_t));
 	new_prefix->next=prefixes_to_trim;
 	prefixes_to_trim=new_prefix;
 	new_prefix->name=strdup(prefix_name);
@@ -3077,7 +3077,7 @@ readcnffile(FILE *fh)
 
 			str=cnfline+6;
 			str=str_read_string(str, &name);
-			nei=malloc(sizeof(no_emit_item_t));
+			nei=(no_emit_item_t*)malloc(sizeof(no_emit_item_t));
 			nei->next=no_emit_list;
 			no_emit_list=nei;
 			nei->name=name;
@@ -3146,7 +3146,7 @@ readcnffile(FILE *fh)
 			str=str_read_string(str, &union_tag);
 			union_tag_size=atoi(union_tag);
 			FPRINTF(NULL, "UNION_TAG_SIZE: %s == %d\n", union_name, union_tag_size);
-			utsi=malloc(sizeof(union_tag_size_item_t));
+			utsi=(union_tag_size_item_t*)malloc(sizeof(union_tag_size_item_t));
 			utsi->next=union_tag_size_list;
 			union_tag_size_list=utsi;
 			utsi->name=strdup(union_name);
