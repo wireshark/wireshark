@@ -913,7 +913,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     	proto_tree_add_item(spdo_tree, hf_oss_spdo_payload, message_tvb, OSS_FRAME_POS_ID + 3, dataLength, ENC_NA);
 }
 
-static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_tree *ssdo_payload )
+static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_tree *ssdo_payload, guint8 sacmd )
 {
     guint  dataLength = 0, ctr = 0, n = 0;
     guint8 ssdoSubIndex = 0;
@@ -958,82 +958,114 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
     }
     else
     {
-        /* normal parameter set */
-        for ( ctr = 0; ctr < dataLength; ctr++ )
+        /* If == upload, it is most likely a par upload */
+        if ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END && ( dataLength % 4 == 0 ) )
         {
-            ssdoIndex = tvb_get_letohs(new_tvb, ctr);
-            ssdoSubIndex = tvb_get_guint8(new_tvb, ctr + 2);
-            dispSSDOIndex = ssdoIndex;
-
-            if ( ssdoIndex >= 0x1400 && ssdoIndex <= 0x17FE )
-                dispSSDOIndex = 0x1400;
-            else if ( ssdoIndex >= 0x1800 && ssdoIndex <= 0x1BFE )
-                dispSSDOIndex = 0x1800;
-            else if ( ssdoIndex >= 0x1C00 && ssdoIndex <= 0x1FFE )
-                dispSSDOIndex = 0x1C00;
-            else if ( ssdoIndex >= 0xC000 && ssdoIndex <= 0xC3FE )
-                dispSSDOIndex = 0xC000;
 
             item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_sod_index, new_tvb,
-                                                    ctr, 2,  ssdoIndex, "0x%04X (%s)", ssdoIndex,
-                                                    val_to_str_const( ((guint32) (dispSSDOIndex << 16) ),
+                                                    0, 0,  0x1018, "0x%04X (%s)", 0x1018,
+                                                    val_to_str_const( ((guint32) (0x1018 << 16) ),
                                                                       sod_idx_names, "Unknown") );
-
-            if ( ssdoIndex < 0x1000 || ssdoIndex > 0xE7FF )
-                opensafety_add_error ( pinfo, item, "Unknown payload format detected!" );
-
             sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
+            PROTO_ITEM_SET_GENERATED(item);
 
-            if ( ssdoSubIndex != 0 )
-            	proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
-                                             ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
-                                             val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex),
-                                                                            sod_idx_names, "Unknown") );
-            else
-            	proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
-                                             ssdoSubIndex, "0x%02X",ssdoSubIndex );
-            ctr += 2;
+            item = proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, 0, 0,
+                                                             0x06, "0x%02X (%s)", 0x06,
+                                                             val_to_str_const(((guint32) (0x1018 << 16) +  0x06),
+                                                                                            sod_idx_names, "Unknown") );
+            PROTO_ITEM_SET_GENERATED(item);
 
-            /* reading real size */
-            sodLength = tvb_get_letohl ( new_tvb, ctr + 1 );
-            if ( sodLength > (dataLength - ctr) )
-                sodLength = 0;
-
-            if ( ( sodLength + 4 + ctr ) > dataLength )
-                break;
-
-            if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
+            entry = tvb_get_letohl ( new_tvb, 0 );
+            proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, 0,
+                        4, entry, "0x%08X", entry );
+            for ( n = 4; n < dataLength; n+=4 )
             {
-                entry = tvb_get_letohl ( new_tvb, ctr + 5 );
-                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
-                            4, entry, "0x%08X", entry );
-                for ( n = 4; n < sodLength; n+=4 )
-                {
-                    entry = tvb_get_letohl ( new_tvb, ctr + 5 + n );
-                    proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, (ctr + 5 + n ),
-                            4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
-                }
-            } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
-                entry = tvb_get_letohl ( new_tvb, ctr + 5 );
-                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
-                            4, entry, "0x%08X", entry );
-            } else if ( ( dispSSDOIndex == OPENSAFETY_SOD_RXMAP || dispSSDOIndex == OPENSAFETY_SOD_TXMAP ) && ssdoSubIndex != 0x0 ) {
-                proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
-                item = proto_tree_add_item(sod_tree, hf_oss_ssdo_sodmapping, new_tvb, ctr + 5, sodLength, ENC_NA );
-                ext_tree = proto_item_add_subtree(item, ett_opensafety_sod_mapping);
-
-                proto_tree_add_item(ext_tree, hf_oss_ssdo_sodmapping_bits, new_tvb, ctr + 5, 1, ENC_NA);
-
-                entry = tvb_get_letohl ( new_tvb, ctr + 7 );
-                proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_index, new_tvb, ctr + 7, 2, entry);
-                proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 6, 1, ENC_NA);
-
-            } else {
-                proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
-                if ( sodLength > 0 )
-                    proto_tree_add_item(sod_tree, hf_oss_ssdo_sodentry_data, new_tvb, ctr + 5, sodLength, ENC_LITTLE_ENDIAN );
+                entry = tvb_get_letohl ( new_tvb, n );
+                proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, (n ),
+                        4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
             }
-            ctr += sodLength + 4;
+        }
+        /* If != upload, it is most likely a 101A download */
+        else
+        {
+
+            /* normal parameter set */
+            for ( ctr = 0; ctr < dataLength; ctr++ )
+            {
+                ssdoIndex = tvb_get_letohs(new_tvb, ctr);
+                ssdoSubIndex = tvb_get_guint8(new_tvb, ctr + 2);
+                dispSSDOIndex = ssdoIndex;
+
+                if ( ssdoIndex >= 0x1400 && ssdoIndex <= 0x17FE )
+                    dispSSDOIndex = 0x1400;
+                else if ( ssdoIndex >= 0x1800 && ssdoIndex <= 0x1BFE )
+                    dispSSDOIndex = 0x1800;
+                else if ( ssdoIndex >= 0x1C00 && ssdoIndex <= 0x1FFE )
+                    dispSSDOIndex = 0x1C00;
+                else if ( ssdoIndex >= 0xC000 && ssdoIndex <= 0xC3FE )
+                    dispSSDOIndex = 0xC000;
+
+                item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_sod_index, new_tvb,
+                                                        ctr, 2,  ssdoIndex, "0x%04X (%s)", ssdoIndex,
+                                                        val_to_str_const( ((guint32) (dispSSDOIndex << 16) ),
+                                                                          sod_idx_names, "Unknown") );
+
+                if ( ssdoIndex < 0x1000 || ssdoIndex > 0xE7FF )
+                    opensafety_add_error ( pinfo, item, "Unknown payload format detected!" );
+
+                sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
+
+                if ( ssdoSubIndex != 0 )
+                    proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
+                                                 ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
+                                                 val_to_str_const(((guint32) (ssdoIndex << 16) + ssdoSubIndex),
+                                                                                sod_idx_names, "Unknown") );
+                else
+                    proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
+                                                 ssdoSubIndex, "0x%02X",ssdoSubIndex );
+                ctr += 2;
+
+                /* reading real size */
+                sodLength = tvb_get_letohl ( new_tvb, ctr + 1 );
+                if ( sodLength > (dataLength - ctr) )
+                    sodLength = 0;
+
+                if ( ( sodLength + 4 + ctr ) > dataLength )
+                    break;
+
+                if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
+                {
+                    entry = tvb_get_letohl ( new_tvb, ctr + 5 );
+                    proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
+                                4, entry, "0x%08X", entry );
+                    for ( n = 4; n < sodLength; n+=4 )
+                    {
+                        entry = tvb_get_letohl ( new_tvb, ctr + 5 + n );
+                        proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_checksum, new_tvb, (ctr + 5 + n ),
+                                4, entry, "[#%d] 0x%08X", ( n / 4 ), entry );
+                    }
+                } else if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x07 ) {
+                    entry = tvb_get_letohl ( new_tvb, ctr + 5 );
+                    proto_tree_add_uint_format_value ( sod_tree, hf_oss_sod_par_timestamp, new_tvb, ctr + 5,
+                                4, entry, "0x%08X", entry );
+                } else if ( ( dispSSDOIndex == OPENSAFETY_SOD_RXMAP || dispSSDOIndex == OPENSAFETY_SOD_TXMAP ) && ssdoSubIndex != 0x0 ) {
+                    proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
+                    item = proto_tree_add_item(sod_tree, hf_oss_ssdo_sodmapping, new_tvb, ctr + 5, sodLength, ENC_NA );
+                    ext_tree = proto_item_add_subtree(item, ett_opensafety_sod_mapping);
+
+                    proto_tree_add_item(ext_tree, hf_oss_ssdo_sodmapping_bits, new_tvb, ctr + 5, 1, ENC_NA);
+
+                    entry = tvb_get_letohl ( new_tvb, ctr + 7 );
+                    proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_index, new_tvb, ctr + 7, 2, entry);
+                    proto_tree_add_item(ext_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 6, 1, ENC_NA);
+
+                } else {
+                    proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
+                    if ( sodLength > 0 )
+                        proto_tree_add_item(sod_tree, hf_oss_ssdo_sodentry_data, new_tvb, ctr + 5, sodLength, ENC_LITTLE_ENDIAN );
+                }
+                ctr += sodLength + 4;
+        }
         }
     }
 
@@ -1168,8 +1200,6 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
 
     /* When the following clause is met, DB1,2 contain the SOD index, and DB3 the SOD subindex */
     if ( ( ( sacmd & OPENSAFETY_SSDO_SACMD_INI ) == OPENSAFETY_SSDO_SACMD_INI ) ||
-            ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE ) ||
-            ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END ) ||
             ( sacmd == OPENSAFETY_MSG_SSDO_ABORT )
     )
     {
@@ -1261,7 +1291,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                     }
                 }
 
-                if ( (gint) calcDataLength > (gint) 0 )
+                if ( (gint) calcDataLength >= (gint) 0 )
                 {
                     proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
@@ -1301,7 +1331,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                         PROTO_ITEM_SET_GENERATED(item);
 
                         col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)" );
-                        dissect_ssdo_payload ( pinfo, new_tvb, ssdo_payload );
+                        dissect_ssdo_payload ( pinfo, new_tvb, ssdo_payload, sacmd );
                     }
                 }
                 else
