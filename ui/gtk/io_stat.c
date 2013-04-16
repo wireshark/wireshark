@@ -506,6 +506,9 @@ get_it_value(io_stat_t *io, int graph, int idx)
     io_item_t *it;
     guint32    interval;
 
+    g_assert(graph < MAX_GRAPHS);
+    g_assert(idx < NUM_IO_ITEMS);
+
     it = (io_item_t *)io->graphs[graph].items[idx];
 
     switch (io->count_type) {
@@ -740,6 +743,17 @@ static void
         ((cfile.elapsed_time.nsecs+500000)/1000000) +
         io->interval);
     io->max_interval = (io->max_interval / io->interval) * io->interval;
+    if (io->max_interval >= NUM_IO_ITEMS * io->interval) {
+        /* XXX: Truncate the graph if it covers too much real time, as
+         * otherwise we crash later trying to make the graph too wide. There's
+         * no good way of warning the user, since this gets recalculated a
+         * lot and any dialogue we pop up would spawn 100+ times when scrolling.
+         *
+         * Should at least stop us from crashing in:
+         * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8583
+         */
+        io->max_interval = (NUM_IO_ITEMS - 1) * io->interval;
+    }
     /*
     * Find the length of the intervals we have data for
     * so we know how large arrays we need to malloc()
