@@ -20,6 +20,10 @@ ATTRIBUTE	Char-Noecho				250	integer
 #	USR specific Integer Translations
 #
 
+#Taken from the website:
+#https://bitbucket.org/02strich/openvpn-auth-radius/src/b52f7f5e1acd/RadiusClass/utilities/dictionary
+#
+
 VALUE	Termination-Action		Manage-Resources	2
 
 VALUE	Acct-Status-Type		Modem-Start		4
@@ -263,7 +267,7 @@ ATTRIBUTE	USR-Chassis-Call-Channel		0x901B	integer
 ATTRIBUTE	USR-Keypress-Timeout			0x901C	integer
 ATTRIBUTE	USR-Unauthenticated-Time		0x901D	integer
 ATTRIBUTE	USR-Connect-Speed			0x9023	integer
-ATTRIBUTE	USR-Framed_IP_Address_Pool_Name		0x9024	string
+ATTRIBUTE	USR-Framed_IP_Address_Pool_Name		0x9024	string #it is RAD-IP-Address-Pool in our code
 ATTRIBUTE	USR-MP-EDO				0x9025	string
 
 #
@@ -310,6 +314,8 @@ ATTRIBUTE	USR-Routing-Protocol			0x9826	integer
 ATTRIBUTE	USR-Modem-Group				0x9827	integer
 ATTRIBUTE	USR-Modem-Training-Time			0x9842	integer
 ATTRIBUTE	USR-Interface-Index			0x9843	integer
+ATTRIBUTE	USR-Multicast-Proxy        0x984d integer
+ATTRIBUTE	USR-Multicast-Forwarding        0x9850 integer
 ATTRIBUTE	USR-MP-MRRU				0x982f	integer
 
 ATTRIBUTE	USR-SAP-Filter-In			0x9002	string
@@ -379,7 +385,15 @@ ATTRIBUTE	USR-IGMP-Query-Interval			0x9851	integer
 ATTRIBUTE	USR-IGMP-Maximum-Response-Time		0x9852	integer
 ATTRIBUTE	USR-IGMP-Robustness			0x9853	integer
 ATTRIBUTE	USR-IGMP-Version			0x9854	integer
+ATTRIBUTE	USR-Call-Arrival-Time			0x9858	integer
+ATTRIBUTE	USR-Call-End-Time			0x9859	integer
 ATTRIBUTE	USR-Callback-Type			0x986a	integer
+ATTRIBUTE	USR-Pre-shared-MN-Key			0x9873	integer
+ATTRIBUTE	USR-MIP-NAI								0x9874	string
+ATTRIBUTE	USR-Agent									0x9876  integer
+ATTRIBUTE	USR-Mobile-Session-ID			0x9885	integer
+ATTRIBUTE	USR-Mobile-Accounting-Type 0x9886 integer
+
 ATTRIBUTE	USR-Request-Type			0xf001	integer
 ATTRIBUTE	USR-RMMIE-Num-Of-Updates		0x01ce	integer
 ATTRIBUTE	USR-RMMIE-Manufacturer-ID		0x01df	integer
@@ -459,6 +473,7 @@ ATTRIBUTE	USR-Mobile-Accounting-Type		0x9886	integer
 ATTRIBUTE	USR-Mobile-Service-Option		0x9887	integer
 ATTRIBUTE	USR-Wallclock-Timestamp			0x9888	integer
 ATTRIBUTE	USR-Dvmrp-Initial-Flooding		0x988a	integer
+ATTRIBUTE	USR-HARC-Disconnect-Code			0x988b integer
 ATTRIBUTE	USR-Telnet-Options			0x988c	integer
 ATTRIBUTE	USR-CDMA-PktData-Network-ID		0x988d	integer
 ATTRIBUTE	USR-Auth-Next-Server-Address		0x988e	ipaddr
@@ -488,6 +503,9 @@ ATTRIBUTE	USR-VLAN-Tag				0x98a5	integer
 ATTRIBUTE	USR-Rad-IP-Pool-Definition		0x98a6	string
 ATTRIBUTE	USR-Rad-NMC-Call-Progress-Status	0x98a7	integer
 ATTRIBUTE	USR-Rad-NMC-Blocks_RX			0x98a8	integer
+ATTRIBUTE	USR-Total-Bytes-Remain 		0x98b8 integer
+ATTRIBUTE	USR-Forward-Rate-Limit 		0x98b9 integer
+ATTRIBUTE	USR-Reverse-Rate-Limit 		0x98bc integer
 
 ATTRIBUTE	USR-NAS-Type				0xf002	integer
 ATTRIBUTE	USR-Auth-Mode				0xf003	integer
@@ -1651,4 +1669,7 @@ VALUE	CW-Trans-Cld-Party-E164-Type	Subscriber-Number	5
 VALUE	CW-Trans-Cld-Party-E164-Type	Abbreviated-Number	6
 VALUE	CW-Trans-Cld-Party-E164-Type	Reserved		7
 
+VALUE USR-Pre-Paid-Enabled Phase2-active-Time-counted 1
+VALUE USR-Pre-Paid-Enabled Phase2-Transfer/Reciev-Packet-counted 2
+VALUE USR-Pre-Paid-Enabled Phase2-Total-Packet-counted 3
 END-VENDOR USR
