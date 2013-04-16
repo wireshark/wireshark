@@ -64,6 +64,8 @@
 
 #define UDP_PORT_PMIP6_CNTL 5436
 
+static dissector_table_t mip6_vsm_dissector_table;
+
 /* Mobility Header types */
 typedef enum {
     MIP6_BRR    =  0,
@@ -1691,11 +1693,13 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
-static void
-dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen, packet_info *pinfo, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+
+static int
+dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int    len = optlen;
+	proto_item *hdr_item = tree;
+    int    len = tvb_reported_length(tvb);
+	int offset = 0;
     guint8 sub_type, m_flag;
     tvbuff_t *next_tvb;
     const gchar *mei_str;
@@ -1705,20 +1709,20 @@ dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     /* offset points to the sub type */
     sub_type = tvb_get_guint8(tvb,offset);
-    proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype_3gpp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mip6_vsm_subtype_3gpp, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(hdr_item, " %s", val_to_str_ext_const(sub_type, &mip6_vsm_subtype_3gpp_value_ext, "<unknown>"));
     offset++;
     m_flag = tvb_get_guint8(tvb,offset) & 0x01;
-    proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mip6_opt_3gpp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mip6_opt_3gpp_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* set len to the length of the data section */
-    len = optlen - 8;
+    len = len - 2;
 
     if(m_flag){
-        proto_tree_add_text(opt_tree, tvb, offset, len, "Data fragment, handling not implemented yet");
-        return;
+        proto_tree_add_text(tree, tvb, offset, len, "Data fragment, handling not implemented yet");
+        return len;
     }
 
     /* see 3GPP TS 29.275 version 10.5.0 Release 10 */
@@ -1730,11 +1734,11 @@ dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
      */
 	case 1:
 		/* pinfo->link_dir == P2P_DIR_UNKNOWN */
-		de_sm_pco(tvb, opt_tree, pinfo, offset, len, NULL, 0);
+		de_sm_pco(tvb, tree, pinfo, offset, len, NULL, 0);
 		break;
     /*  2, 3GPP Specific PMIPv6 Error Code */
     case 2:
-        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_spec_pmipv6_err_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_spec_pmipv6_err_code, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     /*  3, PMIPv6 PDN GW IP Address
      *     PDN GW IP address, as specified in subclause 12.1.1.4
@@ -1742,92 +1746,92 @@ dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     case 3:
         if(len == 4){
             /* Ipv4 address */
-            proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_gw_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_mip6_opt_3gpp_pdn_gw_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
         }else if(len == 16){
             /* IPv6 address */
-            proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_gw_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_mip6_opt_3gpp_pdn_gw_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
         }
         break;
     /*  4, PMIPv6 DHCPv4 Address Allocation Procedure Indication 
      *     DHCPv4 Address Allocation Procedure Indication, as specified in subclause 12.1.1.5
      */
     case 4:
-        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_dhcpv4_addr_all_proc_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_dhcpv4_addr_all_proc_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     /*  5, PMIPv6 Fully Qualified PDN Connection Set Identifier 
      * FQ-CSID as specified in subclause 12.1.1.2
      */
     case 5:
         next_tvb = tvb_new_subset(tvb, offset, len, len);
-        dissect_gtpv2_fq_csid(next_tvb, pinfo, opt_tree, hdr_item, len, 0, 0);
+        dissect_gtpv2_fq_csid(next_tvb, pinfo, tree, hdr_item, len, 0, 0);
         break;
     /*  6, PMIPv6 PDN type indication */
     case 6:
-        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_pdn_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_ind_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_pdn_ind_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     /*  7, Charging ID
      *     Charging ID as specified in subclause 12.1.1.6
      */
     case 7:
-        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_chg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_chg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(hdr_item, " %u", tvb_get_ntohl(tvb, offset));
         break;
     /*  8, Selection Mode */
     case 8:
         next_tvb = tvb_new_subset(tvb, offset, len, len);
-        dissect_gtpv2_selec_mode(next_tvb, pinfo, opt_tree, hdr_item, len, 0, 0);
+        dissect_gtpv2_selec_mode(next_tvb, pinfo, tree, hdr_item, len, 0, 0);
         break;
     /*  9, I-WLAN Mobility Access Point Name (APN) */
     /* 10, Charging Characteristics */
     case 10:
-        proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_charging_characteristic, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_mip6_opt_3gpp_charging_characteristic, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
     /* 11, Mobile Equipment Identity (MEI) */
     case 11:
         mei_str = tvb_bcd_dig_to_ep_str( tvb, offset, len, NULL, FALSE);
-        proto_tree_add_string(opt_tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, mei_str);
+        proto_tree_add_string(tree, hf_mip6_opt_3gpp_mei, tvb, offset, len, mei_str);
         proto_item_append_text(hdr_item, " %s", mei_str);
         break;
     /* 12, MSISDN */
     case 12:
-        dissect_e164_cc(tvb, opt_tree, offset, TRUE);
+        dissect_e164_cc(tvb, tree, offset, TRUE);
         digit_str = tvb_bcd_dig_to_ep_str( tvb, offset, len, NULL, FALSE);
-        proto_tree_add_string(opt_tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, digit_str);
+        proto_tree_add_string(tree, hf_mip6_opt_3gpp_msisdn, tvb, offset, len, digit_str);
         proto_item_append_text(hdr_item, " %s", digit_str);
         break;
     /* 13, Serving Network */
     case 13:
-        mcc_mnc_str = dissect_e212_mcc_mnc_ep_str(tvb, pinfo, opt_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_ep_str(tvb, pinfo, tree, offset, TRUE);
         proto_item_append_text(hdr_item," %s", mcc_mnc_str);
         break;
     /* 14, APN Restriction */
     case 14:
-         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(tree, hf_mip6_opt_3gpp_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
          break;
     /* 15, Maximum APN Restriction */
     case 15:
-         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_max_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(tree, hf_mip6_opt_3gpp_max_apn_rest, tvb, offset, 1, ENC_BIG_ENDIAN);
          break;
     /* 16, Unauthenticated IMSI */
     case 16:
         imsi_str = tvb_bcd_dig_to_ep_str( tvb, offset, len, NULL, FALSE);
-        proto_tree_add_string(opt_tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, imsi_str);
+        proto_tree_add_string(tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, imsi_str);
         proto_item_append_text(hdr_item," %s", imsi_str);
         break;
     /* 17, PDN Connection ID */
     case 17:
-         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_pdn_conn_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(tree, hf_mip6_opt_3gpp_pdn_conn_id, tvb, offset, 1, ENC_BIG_ENDIAN);
          break;
     /* 18, PGW Back-Off Time */
     case 18:
         next_tvb = tvb_new_subset(tvb, offset, len, len);
-        dissect_gtpv2_epc_timer(next_tvb, pinfo, opt_tree, hdr_item, len, 0, 0);
+        dissect_gtpv2_epc_timer(next_tvb, pinfo, tree, hdr_item, len, 0, 0);
         break;
     /* 19, Signalling Priority Indication */
     case 19:
-         proto_tree_add_item(opt_tree, hf_hf_mip6_opt_3gpp_lapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(tree, hf_hf_mip6_opt_3gpp_lapi, tvb, offset, 1, ENC_BIG_ENDIAN);
          break;
     /* 20, Additional Protocol Configuration Options 
      *     12.1.1.19 Additional Protocol Configuration Options
@@ -1836,11 +1840,11 @@ dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
      *     with octet 3.
      */
     default:
-        proto_tree_add_text(opt_tree, tvb, offset, len, "Data(Not dissected yet)");
+        proto_tree_add_text(tree, tvb, offset, len, "Data(Not dissected yet)");
         break;
     }
 
-
+	return len;
 }
 /* 1 PadN [RFC3775] */
 static void
@@ -2174,6 +2178,7 @@ static void
 dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
+	tvbuff_t *next_tvb;
     int     len;
     guint32 vendorid;
 
@@ -2187,22 +2192,18 @@ dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     vendorid = tvb_get_ntohl(tvb, offset);
     proto_item_append_text(hdr_item, ": %s", val_to_str_ext_const(vendorid, &sminmpec_values_ext, "<unknown>"));
     offset += 4;
-    switch (vendorid) {
-    case VENDOR_THE3GPP:
-        dissect_mip6_opt_vsm_3gpp(optp, tvb, offset, optlen, pinfo, opt_tree, hdr_item);
-        return;
-    default:
-        break;
+
+    next_tvb = tvb_new_subset(tvb, offset, optlen-MIP6_VSM_SUBTYPE_OFF, optlen-MIP6_VSM_SUBTYPE_OFF);
+    if (!dissector_try_uint(mip6_vsm_dissector_table, vendorid, next_tvb, pinfo, opt_tree)){
+        proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype, tvb,
+                offset, MIP6_VSM_SUBTYPE_LEN, ENC_BIG_ENDIAN);
+        offset++;
+
+        len = optlen - MIP6_VSM_DATA_OFF;
+        if (len > 0){
+            proto_tree_add_text(opt_tree, tvb, offset, len, "Data");
+        }
     }
-
-    proto_tree_add_item(opt_tree, hf_mip6_vsm_subtype, tvb,
-            offset, MIP6_VSM_SUBTYPE_LEN, ENC_BIG_ENDIAN);
-    offset++;
-
-    len = optlen - MIP6_VSM_DATA_OFF;
-    if (len > 0)
-        proto_tree_add_text(opt_tree, tvb, offset, len, "Data");
-
 }
 
 /* 20 Service Selection Mobility Option [RFC5149]  */
@@ -4463,6 +4464,8 @@ proto_register_mip6(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mip6, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    mip6_vsm_dissector_table = register_dissector_table("mip6.vsm", "Mobile IPv6 vendor specific option", FT_UINT32, BASE_DEC);
 }
 
 void
@@ -4477,4 +4480,6 @@ proto_reg_handoff_mip6(void)
     /* Add support for PMIPv6 control messages over IPV4 */
     dissector_add_uint("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
     ip_dissector_table = find_dissector_table("ip.proto");
+
+    dissector_add_uint("mip6.vsm", VENDOR_THE3GPP, new_create_dissector_handle(dissect_mip6_opt_vsm_3gpp, proto_mip6));
 }
