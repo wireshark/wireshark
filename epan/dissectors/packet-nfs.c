@@ -987,6 +987,7 @@ nfs_name_snoop_unmatched_free_all(gpointer key_arg _U_, gpointer value, gpointer
 		nns->fh=NULL;
 		nns->fh_length=0;
 	}
+	g_free(nns);
 	return TRUE;
 }
 
@@ -1034,7 +1035,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 		}
 	}
 
-	nns=(nfs_name_snoop_t *)se_alloc(sizeof(nfs_name_snoop_t));
+	nns=(nfs_name_snoop_t *)g_malloc(sizeof(nfs_name_snoop_t));
 
 	nns->fh_length=0;
 	nns->fh=NULL;
@@ -1074,6 +1075,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 			old_nns->parent=NULL;
 			old_nns->parent_len=0;
 		}
+		g_free(old_nns);
 		g_hash_table_remove(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	}
 
