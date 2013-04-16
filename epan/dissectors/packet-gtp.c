@@ -4850,7 +4850,6 @@ decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tre
      * Protocol Configuration Options in3GPP TS 24.008 [5].
      */
     next_tvb = tvb_new_subset(tvb, offset + 3, length, length);
-    pinfo->link_dir = P2P_DIR_UL;
     de_sm_pco(next_tvb, ext_tree_proto, pinfo, 0, length, NULL, 0);
 
     return 3 + length;
@@ -7937,6 +7936,25 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     offset++;
 
     gtp_hdr->message = tvb_get_guint8(tvb, offset);
+    /* Link direction is needed to properly dissect PCO */
+    switch(gtp_hdr->message){
+	case GTP_MSG_DELETE_PDP_REQ:
+	case GTP_MSG_UPDATE_PDP_REQ:
+	case GTP_MSG_CREATE_PDP_REQ:
+	case GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ:
+	case GTP_MSG_PDU_NOTIFY_REQ:
+	case GTP_MSG_PDU_NOTIFY_REJ_REQ:
+        pinfo->link_dir = P2P_DIR_UL;
+        break;
+	case GTP_MSG_DELETE_PDP_RESP:
+	case GTP_MSG_UPDATE_PDP_RESP:
+	case GTP_MSG_CREATE_PDP_RESP:
+	case GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP:
+        pinfo->link_dir = P2P_DIR_DL;
+        break;
+    default:
+        break;
+    }
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr->message, &gtp_message_type_ext, "Unknown"));
     if (tree) {
         proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, offset, 1, gtp_hdr->message);
