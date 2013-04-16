@@ -588,8 +588,8 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, socks_hash_entry_t *hash_info, sock_state_t* state_info) {
+server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+	proto_tree *tree, socks_hash_entry_t *hash_info _U_, sock_state_t* state_info) {
 
 /* Display the protocol tree for the version. This routine uses the	*/
 /* stored conversation information to decide what to do with the row.	*/
@@ -597,7 +597,6 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* didn't have that when I wrote this. And I didn't expect this to get	*/
 /* so messy.								*/
 
-	unsigned int command;
 	const char *AuthMethodStr;
 	guint8 auth, auth_status;
 	proto_item* ti;
@@ -643,8 +642,6 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 
 	case serverCommandReply:
-		command = tvb_get_guint8(tvb, offset);
-
 		proto_tree_add_item( tree, hf_socks_results_5, tvb, offset, 1, ENC_BIG_ENDIAN);
 		++offset;
 
@@ -665,6 +662,8 @@ server_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = display_address(tvb, offset, tree);
 		proto_tree_add_item( tree, hf_server_remote_host_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 		break;
+    default:
+        break;
 	}
 }
 
@@ -1074,12 +1073,13 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 			}
 		} else {
 			if ((hash_info->serverState != serverError) &&
-				(hash_info->serverState != serverDone))
+				(hash_info->serverState != serverDone)) {
 				if ( hash_info->version == 4) {
 					state_machine_v4( hash_info, tvb, offset, pinfo);
 				} else if ( hash_info->version == 5) {
 					server_state_machine_v5( hash_info, tvb, offset, pinfo, TRUE);
 				}
+            }
 		}
 
 		if ((hash_info->clientState == clientDone) &&
@@ -1119,7 +1119,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				PROTO_ITEM_SET_GENERATED(ti);
 			} else if (hash_info->dst_addr.type == AT_IPv6) {
 				ti = proto_tree_add_ipv6( socks_tree, hf_socks_ip6_dst, tvb,
-					offset, 0, hash_info->dst_addr.data);
+					offset, 0, (const guint8*)hash_info->dst_addr.data);
 				PROTO_ITEM_SET_GENERATED(ti);
 			}
 
