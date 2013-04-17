@@ -737,16 +737,6 @@ Similar problems may exist with older versions of GTK+ for earlier
 versions of Solaris.
 """)
 
-question("""When I run Wireshark on Windows NT, why does it die with a Dr.
-Watson error, reporting an "Integer division by zero" exception, when I
-start it?""")
-
-answer("""
-In at least some case, this appears to be due to using the
-default VGA driver; if that's not the correct driver for your video
-card, try running the correct driver for your video card.
-""")
-
 question("""When I try to run Wireshark, why does it complain about
 <tt>sprint_realloc_objid</tt> being undefined?""")
 
@@ -1351,12 +1341,11 @@ Also, if at all possible, please send a copy of the capture file that caused
 the problem.  When capturing packets, Wireshark normally writes captured
 packets to a temporary file, which will probably be in <tt>/tmp</tt> or
 <tt>/var/tmp</tt> on UNIX-flavored OSes, <tt>\\TEMP</tt> on the main system disk
-(normally <tt>C:</tt>) on Windows 9x/Me/NT 4.0,
-<tt>\\Documents and Settings\\</tt><var>your login name</var>
+(normally <tt>\\Documents and Settings\\</tt><var>your login name</var>
 <tt>\\Local Settings\\Temp</tt> on the main system disk on Windows
-2000/Windows XP/Windows Server 2003, and
+Windows XP and Server 2003, and
 <tt>\\Users\\<var>your login name</var>\\AppData\\Local\\Temp</tt> on the main
-system disk on Windows 7, so the capture file will probably be there.  If you
+system disk on Windows Vista and later, so the capture file will probably be there.  If you
 are capturing on a single interface, it will have a name of the form,
 <tt>wireshark_&lt;fmt&gt_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</tt>, where
 &lt;fmt&gt; is the capture file format (pcap or pcapng), and &lt;iface&gt; is
@@ -1383,7 +1372,7 @@ Wireshark give me an error if I try to capture on that interface?
 """, "capprobwin")
 
 answer("""
-If you are running Wireshark on Windows NT 4.0, Windows 2000, Windows XP,
+If you are running Wireshark on Windows XP,
 or Windows Server 2003, and this is the first time you have run a
 WinPcap-based program (such as Wireshark, or TShark, or WinDump, or
 Analyzer, or...) since the machine was rebooted, you need to run that
@@ -1393,7 +1382,7 @@ such programs until you reboot.
 
 <br />
 
-If you are running on Windows Windows 2000/Windows XP/Windows Server
+If you are running on Windows Windows XP or Windows Server
 2003 and have administrator privileges or a WinPcap-based program has
 been run with those privileges since the machine rebooted, this problem
 <em>might</em> clear up if you completely un-install WinPcap and then
@@ -1410,23 +1399,6 @@ with the OS on which it's running in order to do captures.
 Therefore, if the OS, the WinPcap library, or the WinPcap driver don't
 support capturing on a particular network interface device, Wireshark
 won't be able to capture on that device.
-
-<br />
-
-Note that:
-
-<ol>
-<li>2.02 and earlier versions of the WinPcap driver and library that
-Wireshark uses for packet capture didn't support Token Ring interfaces;
-versions 2.1 and later support Token Ring, and the current version of
-Wireshark works with (and, in fact, requires) WinPcap 2.1 or later.
-
-<br />
-
-If you are having problems capturing on Token Ring interfaces, and you
-have WinPcap 2.02 or an earlier version of WinPcap installed, you should
-uninstall WinPcap, download and install the current version of WinPcap,
-and then install the latest version of Wireshark.
 
 <br >
 
