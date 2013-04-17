@@ -1257,16 +1257,16 @@ static void
 
     /* update the scrollbar */
     if (io->max_interval == 0) {
-        gtk_adjustment_set_upper(io->scrollbar_adjustment, (gfloat) io->interval);
-        gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gfloat) (io->interval/10));
-        gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gfloat) io->interval);
+        gtk_adjustment_set_upper(io->scrollbar_adjustment, (gdouble) io->interval);
+        gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gdouble) (io->interval/10));
+        gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gdouble) io->interval);
     } else {
-        gtk_adjustment_set_upper(io->scrollbar_adjustment, (gfloat) io->max_interval);
-        gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gfloat) ((last_interval-first_interval)/10));
-        gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gfloat) (last_interval-first_interval));
+        gtk_adjustment_set_upper(io->scrollbar_adjustment, (gdouble) io->max_interval);
+        gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gdouble) ((last_interval-first_interval)/10));
+        gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gdouble) (last_interval-first_interval));
     }
     gtk_adjustment_set_page_size(io->scrollbar_adjustment, gtk_adjustment_get_page_increment(io->scrollbar_adjustment));
-    gtk_adjustment_set_value(io->scrollbar_adjustment, (gfloat)first_interval);
+    gtk_adjustment_set_value(io->scrollbar_adjustment, (gdouble)first_interval);
     gtk_adjustment_changed(io->scrollbar_adjustment);
     gtk_adjustment_value_changed(io->scrollbar_adjustment);
 
