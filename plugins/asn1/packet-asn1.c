@@ -1122,7 +1122,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	    case BER_CLASS_UNI:	/* fprintf(stderr, "Universal\n"); */
 	      switch(tag) {
 	        case BER_UNI_TAG_INTEGER:
-		      ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
+		      asn1_int32_value_decode(&asn1, len, &value); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
@@ -1164,7 +1164,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      break;
 
 	        case BER_UNI_TAG_ENUMERATED:
-		      ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
+		      asn1_int32_value_decode(&asn1, len, &value); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      ename = getPDUenum(&props, boffset, cls, tag, value);
 		      if (asn1_debug) {
@@ -1207,7 +1207,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      break;
 
 	        case BER_UNI_TAG_BOOLEAN:
-		      ret = asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
+		      asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
 		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
@@ -1259,7 +1259,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		case BER_UNI_TAG_UTCTime:
 		case BER_UNI_TAG_GeneralizedTime:
 			/* read value, \0 terminated */
-		      ret = asn1_string_value_decode(&asn1, len, &octets);
+		      asn1_string_value_decode(&asn1, len, &octets);
 		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      ename = showoctets(octets, len, (tag == BER_UNI_TAG_OCTETSTRING) ? 4 : 0 );
 		      if (asn1_debug) {
@@ -1304,7 +1304,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      break;
 
 		case BER_UNI_TAG_BITSTRING:
-		      ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused); /* read value */
+		      asn1_bits_decode(&asn1, len, &bits, &con, &unused); /* read value */
 		      asn1_close(&asn1, &offset); /* mark where we are now */
 		      ename = showbitnames(bits, (con*8)-unused, &props, offset);
 		      if (asn1_debug) {
@@ -1522,7 +1522,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      return offset;
 
 		case BER_UNI_TAG_OID:
-		      ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
+		      asn1_oid_value_decode(&asn1, len, &oid, &con);
 		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      ename = showoid(oid, con);
 		      if (asn1_debug) {
@@ -1609,7 +1609,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_INTEGER:
 				if (len > 4)
 					goto dostring;
-				ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+				asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
 				asn1_close(&asn1, &offset); /* mark where we are now */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
@@ -1653,7 +1653,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_ENUMERATED:
 				if (len > 4)
 					goto dostring;
-				ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
+				asn1_int32_value_decode(&asn1, len, &value); /* read value */
 		 		asn1_close(&asn1, &offset); /* mark where we are now */
 				ename = getPDUenum(&props, boffset, cls, tag, value);
 				if (asn1_debug) {
@@ -1698,7 +1698,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				if (len > (1+4)) /* max 32 bits ...?.. */
 					goto dostring;
 								/* read value */
-				ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused);
+				asn1_bits_decode(&asn1, len, &bits, &con, &unused);
 				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				ename = showbitnames(bits, (con*8)-unused, &props, offset);
 				if (asn1_debug) {
@@ -1748,7 +1748,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_BOOLEAN:
 				if (len > 1)
 					goto dostring;
-				ret = asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
+				asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
 				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
@@ -1811,7 +1811,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				/* fallthrough */
 			case TBL_OCTETSTRING:
 				/* defined length, not constructed, must be a string.... */
-				ret = asn1_string_value_decode(&asn1, len, &octets); /* read value */
+				asn1_string_value_decode(&asn1, len, &octets); /* read value */
 				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				ename = showoctets(octets, len, 2); /* convert octets to printable */
 				if (asn1_debug) {
@@ -3671,7 +3671,7 @@ PDUtext(char *txt, gulong txt_size, PDUinfo *info) /* say everything we know abo
 		tn = info->asn1typename;
 		fn = info->fullname;
 		if (info->flags & PDU_NAMEDNUM)
-			idx += g_snprintf(&txt[idx], txt_size - idx, "name: %2d %s", info->tag, nn);
+			g_snprintf(&txt[idx], txt_size - idx, "name: %2d %s", info->tag, nn);
 		else {
 			if (info->flags & PDU_TYPEDEF)
 				idx += g_snprintf(&txt[idx], txt_size - idx, "def %d: ", info->typenum);
@@ -4686,8 +4686,6 @@ getPDUprops(PDUprops *out, guint offset, guint cls, guint tag, guint cons)
 
 	showstack(&pos, posstr, 3);
 
-	ret = noname;
-
 	if (cls == ASN1_EOI) { /* end of this input sequence */
 
 		if (pos.type & TBL_REFERENCE_pop) { /* reference finished, return to caller */
@@ -4854,8 +4852,6 @@ getPDUprops(PDUprops *out, guint offset, guint cls, guint tag, guint cons)
 		}
 
 		pos.offset = offset;
-
-		ret = pos.name;	/* for the debug messages */
 
 		if (donext) {
 			if (asn1_verbose) g_message("    donext");
@@ -5061,7 +5057,6 @@ getPDUprops(PDUprops *out, guint offset, guint cls, guint tag, guint cons)
 			out->asn1typename = info->asn1typename;
 			out->type_id = info->typenum;
 			out->flags |= OUT_FLAG_typename;
-			pos2 = pos;
 			PUSHNODE(pos);	/* remember where we were */
 			if (asn1_verbose) g_message("   typeref [push]");
 			typeflags |= TBL_REFERENCE;
