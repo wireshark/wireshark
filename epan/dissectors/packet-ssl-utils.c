@@ -4001,11 +4001,7 @@ ssl_set_debug(const gchar* name)
     if (!use_stderr && ssl_debug_file)
         debug_file_must_be_closed = 1;
 
-    ssl_debug_printf("Wireshark SSL debug log " VERSION
-#ifdef SVNVERSION
-                     " (" SVNVERSION " from " SVNPATH ")"
-#endif
-                     "\n\n");
+    ssl_debug_printf("Wireshark SSL debug log " VERSION "\n\n");
 }
 
 void
