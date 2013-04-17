@@ -39,8 +39,6 @@
 #include <epan/ipv6-utils.h>
 #include <wsutil/file_util.h>
 
-#include <svnversion.h>
-
 /*
  * Lookup tables
  */
@@ -4001,7 +3999,7 @@ ssl_set_debug(const gchar* name)
     if (!use_stderr && ssl_debug_file)
         debug_file_must_be_closed = 1;
 
-    ssl_debug_printf("Wireshark SSL debug log " VERSION "\n\n");
+    ssl_debug_printf("Wireshark SSL debug log \n\n");
 }
 
 void
