@@ -242,7 +242,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     }
 }
 
-gboolean uat_save(uat_t* uat, char** error) {
+gboolean uat_save(uat_t* uat, const char** error) {
     guint i;
     gchar* fname = uat_get_actual_filename(uat,TRUE);
     FILE* fp;

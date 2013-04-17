@@ -765,7 +765,7 @@ static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 
 static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 	uat_t *uat = (uat_t *)u;
-	gchar *err = NULL;
+	const gchar *err = NULL;
 
 	if (uat->changed) {
 		uat_save(uat, &err);
@@ -831,7 +831,7 @@ static void remember_selected_row(GtkWidget *w _U_, gpointer u) {
 
 static void uat_yessave_cb(GtkWindow *w _U_, void *u) {
 	uat_t *uat = (uat_t *)u;
-	gchar *err = NULL;
+	const gchar *err = NULL;
 
 	window_delete_event_cb(uat->rep->unsaved_window, NULL, NULL);
 

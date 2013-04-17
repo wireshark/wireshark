@@ -250,7 +250,6 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
     uat_t *uat;
     gint i;
     const char* err = NULL;
-    char* err2 = NULL;
     uat_wep_key_record_t uat_key;
 
     decryption_key_t* new_key;
@@ -283,8 +282,8 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
             uat_add_record(uat, &uat_key);
         }
 
-        uat_save(uat, &err2);
-        if (err2 != NULL)
+        uat_save(uat, &err);
+        if (err != NULL)
             return 1;
     }
 

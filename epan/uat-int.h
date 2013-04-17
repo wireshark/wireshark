@@ -91,7 +91,7 @@ WS_DLL_PUBLIC
 void uat_clear(uat_t*);
 
 WS_DLL_PUBLIC
-gboolean uat_save(uat_t* , char** );
+gboolean uat_save(uat_t* , const char** );
 
 void uat_load_all(void);
 
