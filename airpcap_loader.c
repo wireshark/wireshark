@@ -249,7 +249,8 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
     keys_cb_data_t*  user_data;
     uat_t *uat;
     gint i;
-    char* err = NULL;
+    const char* err = NULL;
+    char* err2 = NULL;
     uat_wep_key_record_t uat_key;
 
     decryption_key_t* new_key;
@@ -260,10 +261,16 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
     if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
     {
         uat = (uat_t *)pref->varp.uat;
-        /* UAT must be loaded */
         if (!uat->loaded)
-            return 1;
+        {
+            /* UAT will only be loaded if previous keys exist, so it may need
+               to be loaded now */
+            uat_load(uat, &err);
+            if (err != NULL)
+                return 1;
 
+            uat->loaded = 1;
+        }
         /* Free the old records */
         uat_clear(uat);
 
@@ -276,8 +283,8 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
             uat_add_record(uat, &uat_key);
         }
 
-        uat_save(uat, &err);
-        if (err != NULL)
+        uat_save(uat, &err2);
+        if (err2 != NULL)
             return 1;
     }
 
