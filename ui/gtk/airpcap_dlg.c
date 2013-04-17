@@ -2279,8 +2279,10 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
         gtk_widget_show (key_management_w);
     }
 
-    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(key_list_store), &iter);
-    gtk_tree_selection_select_iter(selection, &iter);
+    if(gtk_tree_model_get_iter_first(GTK_TREE_MODEL(key_list_store), &iter))
+    {
+        gtk_tree_selection_select_iter(selection, &iter);
+    }
 }
 
 
