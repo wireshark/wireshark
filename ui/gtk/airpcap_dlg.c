@@ -59,14 +59,6 @@
 #include "airpcap_dlg.h"
 
 /*
- * This structure is used because we need to store infos about the currently selected
- * row in the key list.
- */
-typedef struct{
-    gint row;
-}airpcap_key_ls_selected_info_t;
-
-/*
  * Callback for the select row event in the key list widget
  */
 static void
@@ -1991,11 +1983,6 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkCellRenderer   *renderer;
     GtkTreeSelection  *selection;
     GtkTreeIter        iter;
-
-    /* Selected row/column structure */
-    airpcap_key_ls_selected_info_t *key_ls_selected_item;
-    key_ls_selected_item = (airpcap_key_ls_selected_info_t*)g_malloc(sizeof(airpcap_key_ls_selected_info_t));
-    key_ls_selected_item->row = NO_ROW_SELECTED;
 
     /* user data - RETRIEVE pointers of toolbar widgets */
     toolbar               = GTK_WIDGET(data);

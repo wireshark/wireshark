@@ -46,8 +46,6 @@
 #define AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP   "Driver"
 #define AIRPCAP_DECRYPTION_TYPE_STRING_NONE      "None"
 
-#define NO_ROW_SELECTED -1
-
 /* Key list columns */
 enum {
   KL_COL_TYPE,
