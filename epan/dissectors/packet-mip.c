@@ -877,7 +877,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 4;
     }
     /* encapsulated payload */
-    next_tvb = tvb_new_subset_remaining(tvb, 4);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
     offset = tvb_reported_length(tvb);
     break;
