@@ -36,7 +36,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
@@ -812,15 +811,11 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
 static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 guint offset)
 {
-    proto_item *ti;
     guint32 server_version_length;
     guint32 tool_version_length;
     guint32 download_update_player_length;
     guint32 password_encryption_type_length;
     char    *server_version;
-    char    *tool_version;
-    char    *download_update_player;
-    char    *password_encryption_type;
 
     /* ErrorCode */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_error, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -841,87 +836,83 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     /* Length of server version */
     server_version_length = tvb_get_letohl(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_msmms_command_server_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_msmms_command_server_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    if (server_version_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
-        server_version_length = 0;
-    }
 
     /* Length of tool version */
     tool_version_length = tvb_get_letohl(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_msmms_command_tool_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_msmms_command_tool_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    if (tool_version_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
-        tool_version_length = 0;
-    }
 
     /* Length of download update player URL */
     download_update_player_length = tvb_get_letohl(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_msmms_command_update_url_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_msmms_command_update_url_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    if (download_update_player_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
-        download_update_player_length = 0;
-    }
 
     /* Length of password encryption type */
     password_encryption_type_length = tvb_get_letohl(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_msmms_command_password_type_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_msmms_command_password_type_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    if (password_encryption_type_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
-        password_encryption_type_length = 0;
-    }
 
-    /* Server version string */
+    /* Server version string.
+       The string length is in units of 2-octet values; make sure it won't
+       overflow if we double it to count octets, by making sure the top
+       bit isn't set (as that could make it be treated as negative) and
+       the bit below that isn't set (as that would mean that, when we
+       double it, it could be treated as negative).
+
+       Throw a ReportedBoundsError if it's too big, as that probably
+       means it's bogus and runs past the end of the packet. */
+    if (server_version_length & 0xC0000000)
+        THROW(ReportedBoundsError);
     if (server_version_length > 1)
     {
         server_version = tvb_get_ephemeral_unicode_string(tvb, offset, server_version_length*2, ENC_LITTLE_ENDIAN);
 
         /* Server version string */
-        proto_tree_add_string(tree, hf_msmms_command_server_version, tvb,
-                              offset, server_version_length*2,
-                              server_version);
+        proto_tree_add_item(tree, hf_msmms_command_server_version, tvb,
+                            offset, server_version_length*2,
+                            ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
-                    format_text((guchar*)server_version, server_version_length));
+                    format_text((guchar*)server_version, strlen(server_version)));
     }
     offset += (server_version_length*2);
 
 
-    /* Tool version string */
+    /* Tool version string.  Do the same check as we did for the
+       server version string. */
+    if (tool_version_length & 0xC0000000)
+        THROW(ReportedBoundsError);
     if (tool_version_length > 1)
     {
-        tool_version = tvb_get_ephemeral_unicode_string(tvb, offset, tool_version_length*2, ENC_LITTLE_ENDIAN);
-
-        /* Server version string */
-        proto_tree_add_string(tree, hf_msmms_command_tool_version, tvb,
-                              offset, tool_version_length*2,
-                              format_text((guchar*)tool_version, tool_version_length));
+        proto_tree_add_item(tree, hf_msmms_command_tool_version, tvb,
+                            offset, tool_version_length*2,
+                            ENC_UTF_16|ENC_LITTLE_ENDIAN);
     }
     offset += (tool_version_length*2);
 
-    /* Download update player url string */
+    /* Download update player url string.  Do the same check as we
+       did for the server version string. */
+    if (download_update_player_length & 0xC0000000)
+        THROW(ReportedBoundsError);
     if (download_update_player_length > 1)
     {
-        download_update_player = tvb_get_ephemeral_unicode_string(tvb, offset, download_update_player_length*2, ENC_LITTLE_ENDIAN);
-
-        proto_tree_add_string(tree, hf_msmms_command_update_url, tvb,
-                              offset, download_update_player_length*2,
-                              download_update_player);
+        proto_tree_add_item(tree, hf_msmms_command_update_url, tvb,
+                            offset, download_update_player_length*2,
+                            ENC_UTF_16|ENC_LITTLE_ENDIAN);
     }
     offset += (download_update_player_length*2);
 
-    /* Password encryption type string */
+    /* Password encryption type string.  Do the same check as we
+       did for the server version string. */
+    if (password_encryption_type_length & 0xC0000000)
+        THROW(ReportedBoundsError);
     if (password_encryption_type_length > 1)
     {
-        password_encryption_type = tvb_get_ephemeral_unicode_string(tvb, offset, password_encryption_type_length*2, ENC_LITTLE_ENDIAN);
-
-        proto_tree_add_string(tree, hf_msmms_command_password_type, tvb,
-                              offset, password_encryption_type_length*2,
-                              password_encryption_type);
+        proto_tree_add_item(tree, hf_msmms_command_password_type, tvb,
+                            offset, password_encryption_type_length*2,
+                            ENC_UTF_16|ENC_LITTLE_ENDIAN);
     }
 /*    offset += (password_encryption_type_length*2); */
 }
@@ -944,12 +935,12 @@ static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     /* Extract and show the string in tree and info column */
     player_info = tvb_get_ephemeral_unicode_string(tvb, offset, length_remaining - 12, ENC_LITTLE_ENDIAN);
 
-    proto_tree_add_string(tree, hf_msmms_command_client_player_info, tvb,
-                          offset, length_remaining-12,
-                          player_info);
+    proto_tree_add_item(tree, hf_msmms_command_client_player_info, tvb,
+                        offset, length_remaining-12,
+                        ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text((guchar*)player_info, (length_remaining - 12)/2));
+                    format_text((guchar*)player_info, strlen(player_info)));
 }
 
 /* Dissect info about where client wants to start playing from */
@@ -1021,12 +1012,12 @@ static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto
     /* File path on server */
     server_file = tvb_get_ephemeral_unicode_string(tvb, offset, length_remaining - 16, ENC_LITTLE_ENDIAN);
 
-    proto_tree_add_string(tree, hf_msmms_command_server_file, tvb,
-                          offset, length_remaining-16,
-                          server_file);
+    proto_tree_add_item(tree, hf_msmms_command_server_file, tvb,
+                        offset, length_remaining-16,
+                        ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text((guchar*)server_file, (length_remaining - 16)/2));
+                    format_text((guchar*)server_file, strlen(server_file)));
 }
 
 /* Dissect media details from server */
@@ -1092,8 +1083,6 @@ static void dissect_network_timer_test_response(tvbuff_t *tvb, proto_tree *tree,
 static void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
                                             guint offset, guint length_remaining)
 {
-    char *strange_string;
-
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1105,11 +1094,9 @@ static void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
     offset += 4;
 
     /* Read this strange string */
-    strange_string = tvb_get_ephemeral_unicode_string(tvb, offset, length_remaining - 12, ENC_LITTLE_ENDIAN);
-
-    proto_tree_add_string(tree, hf_msmms_command_strange_string, tvb,
-                          offset, length_remaining-12,
-                          strange_string);
+    proto_tree_add_item(tree, hf_msmms_command_strange_string, tvb,
+                        offset, length_remaining-12,
+                        ENC_UTF_16|ENC_LITTLE_ENDIAN);
 }
 
 /* Media stream MBR selector */
