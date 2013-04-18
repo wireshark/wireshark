@@ -147,25 +147,26 @@ struct tcp_multisegment_pdu {
 };
 
 typedef struct _tcp_flow_t {
-	guint32 base_seq;		/* base seq number (used by relative sequence numbers)
-							 * or 0 if not yet known.
-							 */
+	guint32 base_seq;	/* base seq number (used by relative sequence numbers)
+				 * or 0 if not yet known.
+				 */
 	tcp_unacked_t *segments;
-	guint32 lastack;		/* last seen ack */
+	guint32 fin;		/* frame number of the final FIN */
+	guint32 lastack;	/* last seen ack */
 	nstime_t lastacktime;	/* Time of the last ack packet */
 	guint32 lastnondupack;	/* frame number of last seen non dupack */
-	guint32 dupacknum;		/* dupack number */
-	guint32 nextseq;		/* highest seen nextseq */
-	guint32 maxseqtobeacked;		/* highest seen continuous seq number (without hole in the stream) from the fwd party,
-									this is the maximum seq number that can be acked by the rev party in normal case.
-									If the rev party sends an ACK beyond this seq number it indicates TCP_A_ACK_LOST_PACKET contition */
+	guint32 dupacknum;	/* dupack number */
+	guint32 nextseq;	/* highest seen nextseq */
+	guint32 maxseqtobeacked;/* highest seen continuous seq number (without hole in the stream) from the fwd party,
+				 * this is the maximum seq number that can be acked by the rev party in normal case.
+				 * If the rev party sends an ACK beyond this seq number it indicates TCP_A_ACK_LOST_PACKET contition */
 	guint32 nextseqframe;	/* frame number for segment with highest
-							 * sequence number
-							 */
+				 * sequence number
+				 */
 	nstime_t nextseqtime;	/* Time of the nextseq packet so we can
-							 * distinguish between retransmission,
-							 * fast retransmissions and outoforder
-							 */
+				 * distinguish between retransmission,
+				 * fast retransmissions and outoforder
+				 */
 	guint32 window;		/* last seen window */
 	gint16	win_scale;	/* -1 is we dont know, -2 is window scaling is not used */
 	gint16  scps_capable;   /* flow advertised scps capabilities */
@@ -177,6 +178,8 @@ typedef struct _tcp_flow_t {
  */
 #define TCP_FLOW_REASSEMBLE_UNTIL_FIN	0x0001
 	guint16 flags;
+
+	/* see TCP_A_* in packet-tcp.c */
 	guint32 lastsegmentflags;
 
 	/* This tree is indexed by sequence number and keeps track of all
@@ -187,7 +190,7 @@ typedef struct _tcp_flow_t {
 	/* Process info, currently discovered via IPFIX */
 	guint32 process_uid;    /* UID of local process */
 	guint32 process_pid;    /* PID of local process */
-	gchar *username;		/* Username of the local process */
+	gchar *username;	/* Username of the local process */
 	gchar *command;         /* Local process name + path + args */
 } tcp_flow_t;
 
