@@ -53,6 +53,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
@@ -532,6 +533,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static gboolean
 dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+
 {
   /* Stronger confirmation of DTLS packet is provided by verifying the
    * captured payload length against the remainder of the UDP packet size. */
@@ -1130,7 +1132,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
    *     } Handshake;
    */
 
-  proto_tree  *ti;
+  proto_tree  *ti, *length_item = NULL, *fragment_length_item = NULL;
   proto_tree  *ssl_hand_tree;
   const gchar *msg_type_str;
   guint8       msg_type;
@@ -1139,6 +1141,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   guint32      fragment_offset;
   guint32      fragment_length;
   gboolean     first_iteration;
+  gboolean     frag_hand;
+  guint32      reassembled_length;
 
   ti              = NULL;
   ssl_hand_tree   = NULL;
@@ -1202,8 +1206,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
       length = tvb_get_ntoh24(tvb, offset);
       if (ssl_hand_tree)
-        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
-                            tvb, offset, 3, length);
+        length_item = proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
+                                          tvb, offset, 3, length);
       offset += 3;
 
       message_seq = tvb_get_ntohs(tvb,offset);
@@ -1220,18 +1224,35 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
       fragment_length = tvb_get_ntoh24(tvb, offset);
       if (ssl_hand_tree)
-        proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_length,
-                            tvb, offset, 3, fragment_length);
+        fragment_length_item = proto_tree_add_uint(ssl_hand_tree,
+                                                   hf_dtls_handshake_fragment_length,
+                                                   tvb, offset, 3,
+                                                   fragment_length);
       offset += 3;
       proto_item_set_len(ti, fragment_length + 12);
 
-      fragmented = fragment_length != length;
-
-      /* Handle fragments of known message type */
-      if (fragmented)
+      fragmented = FALSE;
+      if (fragment_length + fragment_offset > length)
         {
-          gboolean frag_hand;
+          if (fragment_offset == 0)
+            {
+              expert_add_info_format(pinfo, fragment_length_item, PI_PROTOCOL,
+                                     PI_ERROR,
+                                     "Fragment length is larger than message length");
+            }
+          else
+            {
+              fragmented = TRUE;
+              expert_add_info_format(pinfo, fragment_length_item, PI_PROTOCOL,
+                                     PI_ERROR,
+                                     "Fragment runs past the end of the message");
+            }
+        }
+      else if (fragment_length < length)
+        {
+          fragmented = TRUE;
 
+          /* Handle fragments of known message type */
           switch (msg_type) {
           case SSL_HND_HELLO_REQUEST:
           case SSL_HND_CLIENT_HELLO:
@@ -1253,40 +1274,62 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
           }
 
-          if (frag_hand) {
-            /* Fragmented handshake message */
-            pinfo->fragmented = TRUE;
+          if (frag_hand)
+            {
+              /* Fragmented handshake message */
+              pinfo->fragmented = TRUE;
 
-            /* Don't pass the reassembly code data that doesn't exist */
-            tvb_ensure_bytes_exist(tvb, offset, fragment_length);
+              /* Don't pass the reassembly code data that doesn't exist */
+              tvb_ensure_bytes_exist(tvb, offset, fragment_length);
 
-            frag_msg = fragment_add(&dtls_reassembly_table,
-                                    tvb, offset, pinfo, message_seq, NULL,
-                                    fragment_offset, fragment_length, TRUE);
-            fragment_set_tot_len(&dtls_reassembly_table,
-                                 pinfo, message_seq, NULL, length);
+              frag_msg = fragment_add(&dtls_reassembly_table,
+                                      tvb, offset, pinfo, message_seq, NULL,
+                                      fragment_offset, fragment_length, TRUE);
+              /*
+               * Do we already have a length for this reassembly?
+               */
+              reassembled_length = fragment_get_tot_len(&dtls_reassembly_table,
+                                                        pinfo, message_seq, NULL);
+              if (reassembled_length == 0)
+                {
+                  /* No - set it to the length specified by this packet. */
+                  fragment_set_tot_len(&dtls_reassembly_table,
+                                       pinfo, message_seq, NULL, length);
+                }
+              else
+                {
+                  /* Yes - if this packet specifies a different length,
+                     report an error. */
+                  if (reassembled_length != length)
+                    {
+                      expert_add_info_format(pinfo, length_item, PI_PROTOCOL,
+                                             PI_ERROR,
+                                             "Message length differs from value in earlier fragment");
+		    }
+                }
 
-            if (frag_msg && (fragment_length + fragment_offset) == length)
-              {
-                /* Reassembled */
-                new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                                                   "Reassembled DTLS",
-                                                   frag_msg,
-                                                   &dtls_frag_items,
-                                                   NULL, tree);
-                frag_str = " (Reassembled)";
-              }
-            else
-              {
-                frag_str = " (Fragment)";
-              }
+              if (frag_msg && (fragment_length + fragment_offset) == reassembled_length)
+                {
+                  /* Reassembled */
+                  new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                                     "Reassembled DTLS",
+                                                     frag_msg,
+                                                     &dtls_frag_items,
+                                                     NULL, tree);
+                  frag_str = " (Reassembled)";
+                }
+              else
+                {
+                  frag_str = " (Fragment)";
+                }
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-              col_append_str(pinfo->cinfo, COL_INFO, frag_str);
-          }
+              if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_str(pinfo->cinfo, COL_INFO, frag_str);
+            }
         }
 
-        if (tree) {
+      if (tree)
+        {
           /* set the label text on the record layer expanding node */
           if (first_iteration)
             {
@@ -1337,7 +1380,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           else
             {
               sub_tvb = tvb_new_subset(tvb, offset, fragment_length,
-                                        fragment_length);
+                                       fragment_length);
             }
 
           /* now dissect the handshake message, if necessary */
@@ -1963,9 +2006,9 @@ dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
     ti = proto_tree_add_text(tree, tvb, offset, 6+nst_len, "TLS Session Ticket");
     subtree = proto_item_add_subtree(ti, ett_dtls_new_ses_ticket);
 
-	proto_tree_add_item(subtree, hf_dtls_handshake_session_ticket_lifetime_hint,
-						tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
+    proto_tree_add_item(subtree, hf_dtls_handshake_session_ticket_lifetime_hint,
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     proto_tree_add_uint(subtree, hf_dtls_handshake_session_ticket_len,
         tvb, offset, 2, nst_len);
