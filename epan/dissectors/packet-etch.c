@@ -444,6 +444,12 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   proto_tree_add_item(etch_tree, hf_etch_length, tvb, *offset,
                       length_of_array_length_type, ENC_BIG_ENDIAN);
   (*offset) += length_of_array_length_type;
+
+  if (*offset + length < *offset) {
+    /* overflow case
+     * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8464 */
+    length = tvb_reported_length_remaining(tvb, *offset);
+  }
   return length;
 }
 
@@ -995,3 +1001,16 @@ void proto_reg_handoff_etch(void)
     read_hashed_symbols_from_dir(gbl_keytab_folder);
   }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
