@@ -122,6 +122,12 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/pidl': [
         'UNKNOWN',
     ],
+    'wiretap/ascend.c': [
+        'GPL (v3 or later)',
+    ],
+    'wiretap/ascend.h': [
+        'GPL (v3 or later)',
+    ]
 }
 
 
