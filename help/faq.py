@@ -580,12 +580,12 @@ interface that uses wget;
 
 <li>WS_FTP from <a href="http://www.ipswitch.com/">Ipswitch</a>,
 
-<li>the <tt>ftp</tt> command that comes with Windows.
+<li>the <code>ftp</code> command that comes with Windows.
 
 </ul>
 
-If you use the <tt>ftp</tt> command, make sure you do the transfer in
-binary mode rather than ASCII mode, by using the <tt>binary</tt> command
+If you use the <code>ftp</code> command, make sure you do the transfer in
+binary mode rather than ASCII mode, by using the <code>binary</code> command
 before transferring the file.
 """)
 
@@ -603,7 +603,7 @@ answer("""
 Many distributions have separate Wireshark packages, one for non-GUI
 components such as TShark, editcap, dumpcap, etc. and one for the GUI.
 If this is the case on your system, there's probably a separate package
-named <tt>wireshark-gnome</tt> or <tt>wireshark-gtk+</tt>.  Find it and
+named <code>wireshark-gnome</code> or <code>wireshark-gtk+</code>.  Find it and
 install it.
 """)
 
@@ -652,25 +652,25 @@ followed by linker errors when I try to build Wireshark?
 """)
 
 answer("""
-The version of the <tt>sed</tt> command on your system is incapable of
+The version of the <code>sed</code> command on your system is incapable of
 handling very long lines.  On Solaris, for example,
-<tt>/usr/bin/sed</tt> has a line length limit too low to allow
-<tt>libtool</tt> to work; <tt>/usr/xpg4/bin/sed</tt> can handle it, as
-can GNU <tt>sed</tt> if you have it installed.
+<code>/usr/bin/sed</code> has a line length limit too low to allow
+<code>libtool</code> to work; <code>/usr/xpg4/bin/sed</code> can handle it, as
+can GNU <code>sed</code> if you have it installed.
 
 <br />
 
 On Solaris, changing your command search path to search
-<tt>/usr/xpg4/bin</tt> before <tt>/usr/bin</tt> should make the problem
+<code>/usr/xpg4/bin</code> before <code>/usr/bin</code> should make the problem
 go away; on any platform on which you have this problem, installing GNU
-<tt>sed</tt> and changing your command path to search the directory in
+<code>sed</code> and changing your command path to search the directory in
 which it is installed before searching the directory with the version of
-<tt>sed</tt> that came with the OS should make the problem go away.
+<code>sed</code> that came with the OS should make the problem go away.
 """)
 
 question("""
 When I try to build Wireshark on Solaris, why does the link fail
-complaining that <tt>plugin_list</tt> is undefined?
+complaining that <code>plugin_list</code> is undefined?
 """)
 
 answer("""
@@ -689,7 +689,7 @@ other versions mentioned.)
 
 question("""
 When I try to build Wireshark on Windows, why does the build fail because
-of conflicts between <tt>winsock.h</tt> and <tt>winsock2.h</tt>?
+of conflicts between <code>winsock.h</code> and <code>winsock2.h</code>?
 """)
 
 answer("""
@@ -697,10 +697,10 @@ As of Wireshark 0.9.5, you must install WinPcap 2.3 or later, and the
 corresponding version of the developer's pack, in order to be able to
 compile Wireshark; it will not compile with older versions of the
 developer's pack.  The symptoms of this failure are conflicts between
-definitions in <tt>winsock.h</tt> and in <tt>winsock2.h</tt>; Wireshark
-uses <tt>winsock2.h</tt>, but pre-2.3 versions of the WinPcap
-developer's packet use <tt>winsock.h</tt>.  (2.3 uses
-<tt>winsock2.h</tt>, so if Wireshark were to use <tt>winsock.h</tt>, it
+definitions in <code>winsock.h</code> and in <code>winsock2.h</code>; Wireshark
+uses <code>winsock2.h</code>, but pre-2.3 versions of the WinPcap
+developer's packet use <code>winsock.h</code>.  (2.3 uses
+<code>winsock2.h</code>, so if Wireshark were to use <code>winsock.h</code>, it
 would not be able to build with current versions of the WinPcap
 developer's pack.)
 
@@ -738,7 +738,7 @@ versions of Solaris.
 """)
 
 question("""When I try to run Wireshark, why does it complain about
-<tt>sprint_realloc_objid</tt> being undefined?""")
+<code>sprint_realloc_objid</code> being undefined?""")
 
 answer("""
 Wireshark can only be linked with version 4.2.2 or later of UCD SNMP.
@@ -900,7 +900,7 @@ to put the interface on which it's capturing into promiscuous mode
 unless the "Capture packets in promiscuous mode" option is turned off in
 the "Capture Options" dialog box, and TShark will try to put the
 interface on which it's capturing into promiscuous mode unless the
-<tt>-p</tt> option was specified.  However, some network interfaces
+<code>-p</code> option was specified.  However, some network interfaces
 don't support promiscuous mode, and some OSes might not allow interfaces
 to be put into promiscuous mode.
 
@@ -1050,7 +1050,7 @@ Note, however, that:
 <li>the form of promiscuous mode that libpcap (the library that
 programs such as tcpdump, Wireshark, etc.  use to do packet capture)
 turns on will <strong>not</strong> necessarily be shown if you run
-<tt>ifconfig</tt> on the interface on a UNIX system;
+<code>ifconfig</code> on the interface on a UNIX system;
 <li>some network interfaces might not support promiscuous mode, and some
 drivers might not allow promiscuous mode to be turned on - see <a
 href="#promiscsniff">this earlier question</a> for more information on
@@ -1312,17 +1312,17 @@ upgrade to that release, as, if there's a bug of that sort, it might've
 been fixed in a release after the one you're running.  If the hang
 occurs in the most recent release of Wireshark, the bug should be
 reported to <a href="mailto:wireshark-dev@wireshark.org">the Wireshark
-developers' mailing list</a> at <tt>wireshark-dev@wireshark.org</tt>.
+developers' mailing list</a> at <code>wireshark-dev@wireshark.org</code>.
 
 <br />
 
 On UNIX-flavored OSes, please try to force Wireshark to dump core, by
-sending it a <tt>SIGABRT</tt> signal (usually signal 6) with the
-<tt>kill</tt> command, and then get a stack trace if you have a debugger
+sending it a <code>SIGABRT</code> signal (usually signal 6) with the
+<code>kill</code> command, and then get a stack trace if you have a debugger
 installed.  A stack trace can be obtained by using your debugger
-(<tt>gdb</tt> in this example), the Wireshark binary, and the resulting
+(<code>gdb</code> in this example), the Wireshark binary, and the resulting
 core file.  Here's an example of how to use the gdb command
-<tt>backtrace</tt> to do so.
+<code>backtrace</code> to do so.
 
 <pre>
         $ gdb wireshark core
@@ -1339,19 +1339,19 @@ some platforms (e.g., BSD systems).
 
 Also, if at all possible, please send a copy of the capture file that caused
 the problem.  When capturing packets, Wireshark normally writes captured
-packets to a temporary file, which will probably be in <tt>/tmp</tt> or
-<tt>/var/tmp</tt> on UNIX-flavored OSes, <tt>\\TEMP</tt> on the main system disk
-(normally <tt>\\Documents and Settings\\</tt><var>your login name</var>
-<tt>\\Local Settings\\Temp</tt> on the main system disk on Windows
+packets to a temporary file, which will probably be in <code>/tmp</code> or
+<code>/var/tmp</code> on UNIX-flavored OSes, <code>\\TEMP</code> on the main system disk
+(normally <code>\\Documents and Settings\\</code><var>your login name</var>
+<code>\\Local Settings\\Temp</code> on the main system disk on Windows
 Windows XP and Server 2003, and
-<tt>\\Users\\<var>your login name</var>\\AppData\\Local\\Temp</tt> on the main
+<code>\\Users\\<var>your login name</var>\\AppData\\Local\\Temp</code> on the main
 system disk on Windows Vista and later, so the capture file will probably be there.  If you
 are capturing on a single interface, it will have a name of the form,
-<tt>wireshark_&lt;fmt&gt_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</tt>, where
+<code>wireshark_&lt;fmt&gt_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</code>, where
 &lt;fmt&gt; is the capture file format (pcap or pcapng), and &lt;iface&gt; is
 the actual name of the interface you are capturing on; otherwise, if you are
 capturing on multiple interfaces, it will have a name of the form,
-<tt>wireshark_&lt;N&gt;_interfaces_YYYYmmddHHMMSS_XXXXXX</tt>, where &lt;N&gt;
+<code>wireshark_&lt;N&gt;_interfaces_YYYYmmddHHMMSS_XXXXXX</code>, where &lt;N&gt;
 is the number of simultaneous interfaces you are capturing on.  Please don't
 send a trace file greater than 1 MB when compressed; instead, make it available
 via FTP or HTTP, or say it's available but leave it up to a developer to ask
@@ -1450,7 +1450,7 @@ for information on using WinDump.
 
 <br />
 
-You would run WinDump with the <tt>-D</tt> flag; if it lists the
+You would run WinDump with the <code>-D</code> flag; if it lists the
 interface, please report this to <a
 href="mailto:wireshark-dev@wireshark.org">wireshark-dev@wireshark.org</a>
 giving full details of the problem, including
@@ -1579,7 +1579,7 @@ Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003; one
 symptom that may be seen is that attempts to capture in promiscuous mode
 on the interface cause the interface to be incapable of sending or
 receiving packets.  You can disable promiscuous mode using the
-<tt>-p</tt> command-line flag or the item in the "Capture Preferences"
+<code>-p</code> command-line flag or the item in the "Capture Preferences"
 dialog box, but this may mean that outgoing packets, or incoming
 packets, won't be seen in the capture.
 
@@ -1748,11 +1748,11 @@ name and version number of the distribution you're using);
 If you are having trouble capturing on a particular network interface,
 and you've made sure that (on platforms that require it) you've arranged
 that packet capture support is present, as per the above, first try
-capturing on that device with <tt>tcpdump</tt>.
+capturing on that device with <code>tcpdump</code>.
 
 <br />
 
-If you can capture on the interface with <tt>tcpdump</tt>, send mail to
+If you can capture on the interface with <code>tcpdump</code>, send mail to
 <a
 href="mailto:wireshark-users@wireshark.org">wireshark-users@wireshark.org</a>
 giving full details of the problem, including
@@ -1765,7 +1765,7 @@ name and version number of the distribution you're using);
 <li>the error message you get from Wireshark.
 </ul>
 
-If you <em>cannot</em> capture on the interface with <tt>tcpdump</tt>,
+If you <em>cannot</em> capture on the interface with <code>tcpdump</code>,
 this is almost certainly a problem with one or more of:
 
 <ul>
@@ -1787,7 +1787,7 @@ href="mailto:tcpdump-workers@lists.tcpdump.org">tcpdump-workers@lists.tcpdump.or
 mailing lists to see if anybody happens to know about the problem and
 know a workaround or fix for the problem.  In your mail, please give
 full details of the problem, as described above, and also indicate that
-the problem occurs with <tt>tcpdump</tt> not just with Wireshark.
+the problem occurs with <code>tcpdump</code> not just with Wireshark.
 """)
 
 question("""
@@ -1941,8 +1941,8 @@ you want to save that setting in your preference file, and clicking
 <br />
 
 It can also be set on the Wireshark or TShark command line with a
-<tt>-o tcp.check_checksum:false</tt> command-line flag, or manually set
-in your preferences file by adding a <tt>tcp.check_checksum:false</tt>
+<code>-o tcp.check_checksum:false</code> command-line flag, or manually set
+in your preferences file by adding a <code>tcp.check_checksum:false</code>
 line.
 """)
 
