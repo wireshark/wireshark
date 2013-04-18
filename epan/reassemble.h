@@ -43,7 +43,8 @@
 /* more than one fragment which indicates end-of data */
 #define FD_MULTIPLETAILS	0x0008
 
-/* fragment contains data past the end of the datagram */
+/* fragment starts before the end of the datagram but extends
+   past the end of the datagram */
 #define FD_TOOLONGFRAGMENT	0x0010
 
 /* fragment data not alloc'ed, fd->data pointing to fd_head->data+fd->offset */
@@ -71,12 +72,13 @@
 
 typedef struct _fragment_data {
 	struct _fragment_data *next;
-	guint32 frame;
-	guint32	offset;
-	guint32	len;
+	guint32 frame;	/* XXX - does this apply to reassembly heads? */
+	guint32	offset;	/* XXX - does this apply to reassembly heads? */
+	guint32	len;	/* XXX - does this apply to reassembly heads? */
 	guint32 fragment_nr_offset; /* offset for frame numbering, for sequences, where the
 	                             * provided fragment number of the first fragment does
-	                             * not start with 0 */
+	                             * not start with 0
+	                             * XXX - does this apply only to reassembly heads? */
 	guint32 datalen; /* Only valid in first item of list and when
                           * flags&FD_DATALEN_SET is set;
                           * number of bytes or (if flags&FD_BLOCKSEQUENCE set)
@@ -84,8 +86,20 @@ typedef struct _fragment_data {
 	guint32 reassembled_in;	/* frame where this PDU was reassembled,
 				   only valid in the first item of the list
 				   and when FD_DEFRAGMENTED is set*/
-	guint32 flags;
-	unsigned char *data;
+	guint32 flags;	/* XXX - do some of these apply only to reassembly
+			   heads and others only to fragments within
+			   a reassembly? */
+	guint8  *data;
+
+	/*
+	 * Null if the reassembly had no error; non-null if it had
+	 * an error, in which case it's the string for the error.
+	 *
+	 * XXX - this is wasted in all but the reassembly head; we
+	 * should probably have separate data structures for a
+	 * reassembly and for the fragments in a reassembly.
+	 */
+	const char *error;
 } fragment_data;
 
 

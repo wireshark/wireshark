@@ -687,31 +687,29 @@ fragment_set_tot_len(reassembly_table *table, const packet_info *pinfo,
 	if (!fd_head)
 		return;
 
-	/* Verify that the length (or block sequence number) we're setting
+	/* If we're setting a block sequence number, verify that it
 	 * doesn't conflict with values set by existing fragments.
+	 * XXX - eliminate this check?
 	 */
 	fd = fd_head;
 	if (fd_head->flags & FD_BLOCKSEQUENCE) {
 		while (fd) {
 			if (fd->offset > max_offset) {
 				max_offset = fd->offset;
-				THROW_MESSAGE_ON(max_offset > tot_len, ReassemblyError, "Bad total reassembly block count");
-			}
-			fd = fd->next;
-		}
-	}
-	else {
-		while (fd) {
-			if (fd->offset + fd->len > max_offset) {
-				max_offset = fd->offset + fd->len;
-				THROW_MESSAGE_ON(max_offset > tot_len, ReassemblyError, "Bad total reassembly length");
+				if (max_offset > tot_len) {
+					fd_head->error = "Bad total reassembly block count";
+					THROW_MESSAGE(ReassemblyError, fd_head->error);
+				}
 			}
 			fd = fd->next;
 		}
 	}
 
 	if (fd_head->flags & FD_DEFRAGMENTED) {
-		THROW_MESSAGE_ON(max_offset != tot_len, ReassemblyError, "Defragmented complete but total length not satisfied");
+		if (max_offset != tot_len) {
+			fd_head->error = "Defragmented complete but total length not satisfied";
+			THROW_MESSAGE(ReassemblyError, fd_head->error);
+		}
 	}
 
 	/* We got this far so the value is sane. */
@@ -863,9 +861,8 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 {
 	fragment_data *fd;
 	fragment_data *fd_i;
-	guint32 max, dfpos;
+	guint32 max, dfpos, fraglen;
 	unsigned char *old_data;
-	const char *error = NULL;
 
 	/* create new fd describing this fragment */
 	fd = g_slice_new(fragment_data);
@@ -876,29 +873,76 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fd->fragment_nr_offset = 0; /* will only be used with sequence */
 	fd->len  = frag_data_len;
 	fd->data = NULL;
+	fd->error = NULL;
 
-	/* If it was already defragmented and this new fragment goes beyond the
-	 * old data limits... */
-	if(fd_head->flags & FD_DEFRAGMENTED && (frag_offset+frag_data_len) >= fd_head->datalen) {
-		/* If we've been requested to continue reassembly, set flag in
-		 * already empty fds & point old fds to malloc'ed data. */
-		if (fd_head->flags & FD_PARTIAL_REASSEMBLY) {
-			for(fd_i=fd_head->next; fd_i; fd_i=fd_i->next){
-				if( !fd_i->data ) {
-					fd_i->data = fd_head->data + fd_i->offset;
-					fd_i->flags |= FD_NOT_MALLOCED;
+	/*
+	 * Are we adding to an already-completed reassembly?
+	 */
+	if (fd_head->flags & FD_DEFRAGMENTED) {
+		/*
+		 * Yes.  Does this fragment go past the end of the results
+		 * of that reassembly?
+		 * XXX - shouldn't this be ">"?  If frag_offset + frag_data_len
+		 * == fd_head->datalen, this overlaps the end of the
+		 * reassembly, but doesn't go past it, right?
+		 */
+		if (frag_offset + frag_data_len >= fd_head->datalen) {
+			/*
+			 * Yes.  Have we been requested to continue reassembly?
+			 */
+			if (fd_head->flags & FD_PARTIAL_REASSEMBLY) {
+				/*
+				 * Yes.  Set flag in already empty fds &
+				 * point old fds to malloc'ed data.
+				 */
+				for(fd_i=fd_head->next; fd_i; fd_i=fd_i->next){
+					if( !fd_i->data ) {
+						fd_i->data = fd_head->data + fd_i->offset;
+						fd_i->flags |= FD_NOT_MALLOCED;
+					}
+					fd_i->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
 				}
-				fd_i->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
+				fd_head->flags &= ~(FD_DEFRAGMENTED|FD_PARTIAL_REASSEMBLY|FD_DATALEN_SET);
+				fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
+				fd_head->datalen=0;
+				fd_head->reassembled_in=0;
+			} else {
+				/*
+				 * No.  Bail out since we have no idea what to
+				 * do with this fragment (and if we keep going
+				 * we'll run past the end of a buffer sooner
+				 * or later).
+				 */
+				g_slice_free(fragment_data, fd);
+				 
+				/*
+				 * This is an attempt to add a fragment to a
+				 * reassembly that had already completed.
+				 * If it had no error, we don't want to
+				 * mark it with an error, and if it had an
+				 * error, we don't want to overwrite it, so
+				 * we don't set fd_head->error.
+				 */
+				if (frag_offset >= fd_head->datalen) {
+					/*
+					 * The fragment starts past the end
+					 * of the reassembled data.
+					 */
+					THROW_MESSAGE(ReassemblyError, "New fragment past old data limits");
+				} else {
+					/*
+					 * The fragment starts before the end
+					 * of the reassembled data, but
+					 * runs past the end.  That could
+					 * just be a retransmission.
+					 */
+					THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
+				}
 			}
-			fd_head->flags &= ~(FD_DEFRAGMENTED|FD_PARTIAL_REASSEMBLY|FD_DATALEN_SET);
-			fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
-			fd_head->datalen=0;
-			fd_head->reassembled_in=0;
-		}
-		else {
-			/* Otherwise, bail out since we have no idea what to do
-			 * with this fragment (and if we keep going we'll run
-			 * past the end of a buffer sooner or later).
+		} else {
+			/*
+			 * No.  That means it still overlaps that, so report
+			 * this as a problem, possibly a retransmission.
 			 */
 			g_slice_free(fragment_data, fd);
 			THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
@@ -926,14 +970,13 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 				fd_head->flags |= FD_MULTIPLETAILS;
 			}
 		} else {
-			/* this was the first tail fragment, now we know the
-			 * length of the packet
+			/* This was the first tail fragment; now we know
+			 * what the length of the packet should be.
 			 */
 			fd_head->datalen = fd->offset + fd->len;
 			fd_head->flags |= FD_DATALEN_SET;
 		}
 	}
-
 
 
 
@@ -1009,47 +1052,90 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 		return FALSE;
 	}
 
-
-	if (max > (fd_head->datalen)) {
-		/*XXX not sure if current fd was the TOOLONG*/
-		/*XXX is it fair to flag current fd*/
-		/* oops, too long fragment detected */
-		fd->flags	   |= FD_TOOLONGFRAGMENT;
-		fd_head->flags |= FD_TOOLONGFRAGMENT;
-	}
-
 	/* we have received an entire packet, defragment it and
 	 * free all fragments
 	 */
 	/* store old data just in case */
 	old_data=fd_head->data;
-	fd_head->data = (unsigned char *)g_malloc(max);
+	fd_head->data = (unsigned char *)g_malloc(fd_head->datalen);
 
 	/* add all data fragments */
 	for (dfpos=0,fd_i=fd_head;fd_i;fd_i=fd_i->next) {
 		if (fd_i->len) {
-			/* dfpos is always >= than fd_i->offset */
-			/* No gaps can exist here, max_loop(above) does this */
-			/* XXX - true? Can we get fd_i->offset+fd-i->len */
-			/* overflowing, for example? */
-			/*	Actually: there is at least one pathological case wherein there can be fragments
-			 *	on the list which are for offsets greater than max (i.e.: following a gap after max).
-			 *	(Apparently a "DESEGMENT_UNTIL_FIN" was involved wherein the FIN packet had an offset
-			 *	less than the highest fragment offset seen. [Seen from a fuzz-test: bug #2470]).
-			 *	Note that the "overlap" compare must only be done for fragments with (offset+len) <= max
-			 *	and thus within the newly g_malloc'd buffer.
+			/*
+			 * The loop above that calculates max also
+			 * ensures that the only gaps that exist here
+			 * are ones where a fragment starts past the
+			 * end of the reassembled datagram, and there's
+			 * a gap between the previous fragment and
+			 * that fragment.
+			 *
+			 * A "DESEGMENT_UNTIL_FIN" was involved wherein the
+			 * FIN packet had an offset less than the highest
+			 * fragment offset seen. [Seen from a fuzz-test:
+			 * bug #2470]).
+			 *
+			 * Note that the "overlap" compare must only be
+			 * done for fragments with (offset+len) <= fd_head->datalen
+			 * and thus within the newly g_malloc'd buffer.
 			 */
-
-			if ( fd_i->offset+fd_i->len > dfpos ) {
-				if (fd_i->offset+fd_i->len > max)
-					error = "offset + len > max";
-				else if (dfpos < fd_i->offset)
-					error = "dfpos < offset";
-				else if (dfpos-fd_i->offset > fd_i->len)
-					error = "dfpos - offset > len";
+			if (fd_i->offset + fd_i->len > dfpos) {
+				if (fd_i->offset >= fd_head->datalen) {
+					/*
+					 * Fragment starts after the end
+					 * of the reassembled packet.
+					 *
+					 * This can happen if the length was
+					 * set after the offending fragment
+					 * was added to the reassembly.
+					 *
+					 * Flag this fragment, but don't
+					 * try to extract any data from
+					 * it, as there's no place to put
+					 * it.
+					 *
+					 * XXX - add different flag value
+					 * for this.
+					 */
+					fd_i->flags    |= FD_TOOLONGFRAGMENT;
+					fd_head->flags |= FD_TOOLONGFRAGMENT;
+				} else if (dfpos < fd_i->offset) {
+					/*
+					 * XXX - can this happen?  We've
+					 * already rejected fragments that
+					 * start past the end of the
+					 * reassembled datagram, and
+					 * the loop that calculated max
+					 * should have ruled out gaps,
+					 * but could fd_i->offset +
+					 * fd_i->len overflow?
+					 */
+					fd_head->error = "dfpos < offset";
+				} else if (dfpos - fd_i->offset > fd_i->len)
+					fd_head->error = "dfpos - offset > len";
 				else if (!fd_head->data)
-					error = "no data";
+					fd_head->error = "no data";
 				else {
+					fraglen = fd_i->len;
+					if (fd_i->offset + fraglen > fd_head->datalen) {
+						/*
+						 * Fragment goes past the end
+						 * of the packet, as indicated
+						 * by the last fragment.
+						 *
+						 * This can happen if the
+						 * length was set after the
+						 * offending fragment was
+						 * added to the reassembly.
+						 *
+						 * Mark it as such, and only
+						 * copy from it what fits in
+						 * the packet.
+						 */
+						fd_i->flags    |= FD_TOOLONGFRAGMENT;
+						fd_head->flags |= FD_TOOLONGFRAGMENT;
+						fraglen = fd_head->datalen - fd_i->offset;
+					}
 					if (fd_i->offset < dfpos) {
 						fd_i->flags    |= FD_OVERLAP;
 						fd_head->flags |= FD_OVERLAP;
@@ -1061,34 +1147,41 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 							fd_head->flags |= FD_OVERLAPCONFLICT;
 						}
 					}
-					memcpy(fd_head->data+dfpos,
-						fd_i->data+(dfpos-fd_i->offset),
-						fd_i->len-(dfpos-fd_i->offset));
+					if (fraglen < dfpos - fd_i->offset) {
+						/*
+						 * XXX - can this happen?
+						 */
+						fd_head->error = "fraglen < dfpos - offset";
+					} else {
+						memcpy(fd_head->data+dfpos,
+							fd_i->data+(dfpos-fd_i->offset),
+							fraglen-(dfpos-fd_i->offset));
+						dfpos=MAX(dfpos, (fd_i->offset + fraglen));
+					}
 				}
 			} else {
-				if (fd_i->offset + fd_i->len < fd_i->offset) { /* Integer overflow? */
-					error = "offset + len < offset";
+				if (fd_i->offset + fd_i->len < fd_i->offset) {
+					/* Integer overflow? */
+					fd_head->error = "offset + len < offset";
 				}
 			}
-			if( fd_i->flags & FD_NOT_MALLOCED )
+			if (fd_i->flags & FD_NOT_MALLOCED)
 				fd_i->flags &= ~FD_NOT_MALLOCED;
 			else
 				g_free(fd_i->data);
 			fd_i->data=NULL;
-
-			dfpos=MAX(dfpos,(fd_i->offset+fd_i->len));
 		}
 	}
 
 	g_free(old_data);
 	/* mark this packet as defragmented.
-		   allows us to skip any trailing fragments */
+	   allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
 
 	/* we don't throw until here to avoid leaking old_data and others */
-        if (error) {
-		THROW_MESSAGE(ReassemblyError, error);
+        if (fd_head->error) {
+		THROW_MESSAGE(ReassemblyError, fd_head->error);
 	}
 
 	return TRUE;
@@ -1127,41 +1220,127 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 #endif
 
 	/*
-	 * "already_added" is true if "pinfo->fd->flags.visited" is true;
-	 * if "pinfo->fd->flags.visited", this isn't the first pass, so
-	 * we've already done all the reassembly and added all the
-	 * fragments.
-	 *
-	 * If it's not true, but "check_already_added" is true, just check
-	 * if we have seen this fragment before, i.e., if we have already
-	 * added it to reassembly.
-	 * That can be true even if "pinfo->fd->flags.visited" is false
-	 * since we sometimes might call a subdissector multiple times.
-	 * As an additional check, just make sure we have not already added
-	 * this frame to the reassembly list, if there is a reassembly list;
-	 * note that the first item in the reassembly list is not a
-	 * fragment, it's a data structure for the reassembled packet.
-	 * We don't check it because its "frame" member isn't initialized
-	 * to anything, and because it doesn't count in any case.
-	 *
-	 * And as another additional check, make sure the fragment offsets are
-	 * the same, as otherwise we get into trouble if multiple fragments
-	 * are in one PDU.
+	 * Is this the first pass through the capture?
 	 */
-	if (!already_added && check_already_added && fd_head != NULL) {
-		if (pinfo->fd->num <= fd_head->frame) {
-			for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
-				if(pinfo->fd->num==fd_item->frame && frag_offset==fd_item->offset){
-					already_added=TRUE;
+	if (!pinfo->fd->flags.visited) {
+		/*
+		 * Yes, so we could be doing reassembly.  If
+		 * "check_already_added" is true, and fd_head is non-null,
+		 * meaning that this fragment would be added to an
+		 * in-progress reassembly, check if we have seen this
+		 * fragment before, i.e., if we have already added it to
+		 * that reassembly. That can be true even on the first pass
+		 * since we sometimes might call a subdissector multiple
+		 * times.
+		 *
+		 * We check both the frame number and the fragment offset,
+		 * so that we support multiple fragments from the same
+		 * frame being added to the same reassembled PDU.
+		 */
+		if (check_already_added && fd_head != NULL) {
+		    	/*
+		    	 * fd_head->frame is the maximum of the frame
+			 * numbers of all the fragments added to this
+			 * reassembly; if this frame is later than that
+			 * frame, we know it hasn't been added yet.
+		    	 */
+			if (pinfo->fd->num <= fd_head->frame) {
+				already_added = FALSE;
+				/*
+				 * The first item in the reassembly list
+				 * is not a fragment, it's a data structure
+				 * for the reassembled packet, so we
+				 * start checking with the next item.
+				 */
+				for (fd_item = fd_head->next; fd_item;
+				    fd_item = fd_item->next) {
+					if (pinfo->fd->num == fd_item->frame &&
+					    frag_offset == fd_item->offset) {
+						already_added = TRUE;
+						break;
+					}
+				}
+				if (already_added) {
+					/*
+					 * Have we already finished
+					 * reassembling?
+					 */
+					if (fd_head->flags & FD_DEFRAGMENTED) {
+						/*
+						 * Yes.
+						 * XXX - can this ever happen?
+						 */
+						THROW_MESSAGE(ReassemblyError,
+						    "Frame already added in first pass");
+					} else {
+						/*
+						 * No.
+						 */
+						return NULL;
+					}
 				}
 			}
 		}
-	}
-	/* have we already added this frame ?*/
-	if (already_added) {
+	} else {
+		/*
+		 * No, so we've already done all the reassembly and added
+		 * all the fragments.  Do we have a reassembly and, if so,
+		 * have we finished reassembling?
+		 */
 		if (fd_head != NULL && fd_head->flags & FD_DEFRAGMENTED) {
+			/*
+			 * Yes.  This is probably being done after the
+			 * first pass, and we've already done the work
+			 * on the first pass.
+			 *
+			 * If the reassembly got a fatal error, throw that
+			 * error again.
+			 */
+			if (fd_head->error)
+				THROW_MESSAGE(ReassemblyError, fd_head->error);
+
+			/*
+			 * Is it later in the capture than all of the
+			 * fragments in the reassembly?
+			 */
+			if (pinfo->fd->num > fd_head->frame) {
+				/*
+				 * Yes, so report this as a problem,
+				 * possibly a retransmission.
+				 */
+				THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
+			}
+
+			/*
+			 * Does this fragment go past the end of the
+			 * results of that reassembly?
+			 */
+		    	if (frag_offset + frag_data_len > fd_head->datalen) {
+				/*
+				 * Yes.
+				 */
+		    		if (frag_offset >= fd_head->datalen) {
+		    			/*
+		    			 * The fragment starts past the
+		    			 * end of the reassembled data.
+		    			 */
+					THROW_MESSAGE(ReassemblyError, "New fragment past old data limits");
+				} else {
+					/*
+					 * The fragment starts before the end
+					 * of the reassembled data, but
+					 * runs past the end.  That could
+					 * just be a retransmission.
+					 */
+					THROW_MESSAGE(ReassemblyError, "New fragment overlaps old data (retransmission?)");
+				}
+			}
+
 			return fd_head;
 		} else {
+			/*
+			 * No.
+			 */
 			return NULL;
 		}
 	}
@@ -1414,6 +1593,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fd->offset = frag_number_work;
 	fd->len  = frag_data_len;
 	fd->data = NULL;
+	fd->error = NULL;
 
 	if (!more_frags) {
 		/*
@@ -1885,6 +2065,7 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 		fd_head->flags = FD_BLOCKSEQUENCE|FD_DATALEN_SET;
 		fd_head->data = NULL;
 		fd_head->reassembled_in = 0;
+		fd_head->error = NULL;
 
 		insert_fd_head(table, fd_head, pinfo, id, data);
 	}
