@@ -493,7 +493,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if (total_length < segment_length) {
       /* Reassembled length is less than the length of this segment. */
-      expert_add_info_format(pinfo, ti_pdu_len, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format(pinfo, ti_tot_len, PI_MALFORMED, PI_ERROR,
                              "Total length < segment length %u", segment_length);
       return;
     }
