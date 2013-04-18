@@ -311,9 +311,9 @@ More information on the name change can be found here:
 
 <ul class="item_list">
 
-  <li><href url="http://www.prweb.com/releases/2006/6/prweb396098.htm" name="Original press release">
-  <li><href url="http://trends.newsforge.com/article.pl?sid=06/06/09/1349255&from=rss" name="NewsForge article">
-  <li>Many other articles in <href url="bibliography.html" name="our bibliography">
+  <li><a href="http://www.prweb.com/releases/2006/6/prweb396098.htm">Original press release</a>
+  <li><a href="http://trends.newsforge.com/article.pl?sid=06/06/09/1349255&from=rss">NewsForge article</a>
+  <li>Many other articles in <a href="http://www.wireshark.org/bibliography.html">our bibliography</a>
 </ul>
 """)
 
