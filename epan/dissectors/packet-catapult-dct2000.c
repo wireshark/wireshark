@@ -2230,28 +2230,32 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* LTE MAC needs info attached */
     else if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
-             (strcmp(protocol_name, "mac_r9_lte") == 0)) {
+             (strcmp(protocol_name, "mac_r9_lte") == 0) ||
+             (strcmp(protocol_name, "mac_r10_lte") == 0)) {
         parse_outhdr_string(outhdr_string, outhdr_length);
         attach_mac_lte_info(pinfo);
     }
 
     /* LTE RLC needs info attached */
     else if ((strcmp(protocol_name, "rlc_r8_lte") == 0) ||
-             (strcmp(protocol_name, "rlc_r9_lte") == 0)) {
+             (strcmp(protocol_name, "rlc_r9_lte") == 0) ||
+             (strcmp(protocol_name, "rlc_r10_lte") == 0)) {
         parse_outhdr_string(outhdr_string, outhdr_length);
         attach_rlc_lte_info(pinfo);
     }
 
     /* LTE PDCP needs info attached */
     else if ((strcmp(protocol_name, "pdcp_r8_lte") == 0) ||
-             (strcmp(protocol_name, "pdcp_r9_lte") == 0)) {
+             (strcmp(protocol_name, "pdcp_r9_lte") == 0) ||
+             (strcmp(protocol_name, "pdcp_r10_lte") == 0)) {
         parse_outhdr_string(outhdr_string, outhdr_length);
         attach_pdcp_lte_info(pinfo);
     }
 
 
     else if ((strcmp(protocol_name, "nas_rrc_r8_lte") == 0) ||
-             (strcmp(protocol_name, "nas_rrc_r9_lte") == 0)) {
+             (strcmp(protocol_name, "nas_rrc_r9_lte") == 0) ||
+             (strcmp(protocol_name, "nas_rrc_r10_lte") == 0)) {
         gboolean nas_body_found = TRUE;
         guint8 opcode = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_opcode,
@@ -2414,19 +2418,22 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             else
             if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
-                (strcmp(protocol_name, "mac_r9_lte") == 0)) {
+                (strcmp(protocol_name, "mac_r9_lte") == 0) ||
+                (strcmp(protocol_name, "mac_r10_lte") == 0)) {
                 protocol_handle = mac_lte_handle;
             }
 
             else
             if ((strcmp(protocol_name, "rlc_r8_lte") == 0) ||
-                (strcmp(protocol_name, "rlc_r9_lte") == 0)) {
+                (strcmp(protocol_name, "rlc_r9_lte") == 0) ||
+                (strcmp(protocol_name, "rlc_r10_lte") == 0)) {
                 protocol_handle = rlc_lte_handle;
             }
 
             else
             if ((strcmp(protocol_name, "pdcp_r8_lte") == 0) ||
-                (strcmp(protocol_name, "pdcp_r9_lte") == 0)) {
+                (strcmp(protocol_name, "pdcp_r9_lte") == 0) ||
+                (strcmp(protocol_name, "pdcp_r10_lte") == 0)) {
                 /* Dissect proprietary header, then pass remainder to PDCP */
                 dissect_pdcp_lte(tvb, offset, pinfo, tree);
                 return;
@@ -2499,7 +2506,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
                  (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0) ||
                  (strcmp(protocol_name, "rrc_r9_lte") == 0) ||
-                 (strcmp(protocol_name, "rrcpdcpprim_r9_lte") == 0))) {
+                 (strcmp(protocol_name, "rrcpdcpprim_r9_lte") == 0) ||
+                 (strcmp(protocol_name, "rrc_r10_lte") == 0))) {
 
                 /* Dissect proprietary header, then pass remainder
                    to RRC (depending upon direction and channel type) */
