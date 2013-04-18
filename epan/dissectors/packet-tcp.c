@@ -4750,45 +4750,65 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(tcp_tap, pinfo, tcph);
 
 
-    /* A FIN packet might complete reassembly so we need to explicitly
-     * check for this here.
+    /* If we're reassembling something whose length isn't known
+     * beforehand, and that runs all the way to the end of
+     * the data stream, a FIN indicates the end of the data
+     * stream and thus the completion of reassembly, so we
+     * need to explicitly check for that here.
      */
     if(tcph->th_have_seglen && tcpd && (tcph->th_flags & TH_FIN)
        && (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ) {
         struct tcp_multisegment_pdu *msp;
 
-        /* find the most previous PDU starting before this sequence number */
-        msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
-        if(msp) {
-            fragment_data *ipfd_head;
+        /* Is this the FIN that ended the data stream or is it a
+         * retransmission of that FIN?
+         */
+        if (tcpd->fwd->fin == 0 || tcpd->fwd->fin == pinfo->fd->num) {
+            /* Either we haven't seen a FIN for this flow or we
+             * have and it's this frame. Note that this is the FIN
+             * for this flow, terminate reassembly and dissect the
+             * results. */
+            tcpd->fwd->fin = pinfo->fd->num;
+            msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
+            if(msp) {
+                fragment_data *ipfd_head;
 
-            ipfd_head = fragment_add(&tcp_reassembly_table, tvb, offset,
-                                     pinfo, msp->first_frame, NULL,
-                                     tcph->th_seq - msp->seq,
-                                     tcph->th_seglen,
-                                     FALSE );
-            if(ipfd_head) {
-                tvbuff_t *next_tvb;
+                ipfd_head = fragment_add(&tcp_reassembly_table, tvb, offset,
+                                         pinfo, msp->first_frame, NULL,
+                                         tcph->th_seq - msp->seq,
+                                         tcph->th_seglen,
+                                         FALSE );
+                if(ipfd_head) {
+                    tvbuff_t *next_tvb;
 
-                /* create a new TVB structure for desegmented data
-                 * datalen-1 to strip the dummy FIN byte off
-                 */
-                next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
+                    /* create a new TVB structure for desegmented data
+                     * datalen-1 to strip the dummy FIN byte off
+                     */
+                    next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 
-                /* add desegmented data to the data source list */
-                add_new_data_source(pinfo, next_tvb, "Reassembled TCP");
+                    /* add desegmented data to the data source list */
+                    add_new_data_source(pinfo, next_tvb, "Reassembled TCP");
 
-                /* call the payload dissector
-                 * but make sure we don't offer desegmentation any more
-                 */
-                pinfo->can_desegment = 0;
+                    /* Show details of the reassembly */
+                    print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
 
-                process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq, nxtseq, FALSE, tcpd);
+                    /* call the payload dissector
+                     * but make sure we don't offer desegmentation any more
+                     */
+                    pinfo->can_desegment = 0;
 
-                print_tcp_fragment_tree(ipfd_head, tree, tcp_tree, pinfo, next_tvb);
+                    process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq, nxtseq, FALSE, tcpd);
 
-                return;
+                    return;
+                }
             }
+        } else {
+            /* Yes.  This is a retransmission of the final FIN (or it's
+             * the final FIN transmitted via a different path).
+             * XXX - we need to flag retransmissions a bit better.
+             */
+            proto_tree_add_text(tcp_tree, tvb, 0, 0, "Retransmission of FIN from frame %u",
+                                tcpd->fwd->fin);
         }
     }
 
