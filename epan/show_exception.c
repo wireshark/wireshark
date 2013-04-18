@@ -84,6 +84,17 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Packet size limited");*/
 		break;
 
+	case FragmentBoundsError:
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[Unreassembled Packet%s]", pinfo->noreassembly_reason);
+		/*item =*/ proto_tree_add_protocol_format(tree, proto_unreassembled,
+		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",
+		    pinfo->noreassembly_reason, pinfo->current_proto);
+		/* Don't record FragmentBoundsError exceptions as expert events - they merely
+		 * reflect dissection done with reassembly turned off
+		 * (any case where it's caused by something else is a bug). */
+		/* expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "Unreassembled Packet (Exception occured)");*/
+		break;
+
 	case ReportedBoundsError:
 		show_reported_bounds_error(tvb, pinfo, tree);
 		break;

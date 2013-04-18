@@ -74,6 +74,7 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 	tvb->initialized     = FALSE;
 	tvb->length	     = 0;
 	tvb->reported_length = 0;
+	tvb->fragment_length = 0;
 	tvb->free_cb	     = NULL;
 	tvb->real_data	     = NULL;
 	tvb->raw_offset	     = -1;
@@ -226,6 +227,7 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 	tvb->real_data       = data;
 	tvb->length          = length;
 	tvb->reported_length = reported_length;
+	tvb->fragment_length = reported_length;
 	tvb->initialized     = TRUE;
 
 	/*
@@ -277,6 +279,12 @@ compute_offset_length(const tvbuff_t *tvb,
 			}
 			return FALSE;
 		}
+		else if ((guint) offset > tvb->fragment_length) {
+			if (exception) {
+				*exception = FragmentBoundsError;
+			}
+			return FALSE;
+		}
 		else if ((guint) offset > tvb->length) {
 			if (exception) {
 				*exception = BoundsError;
@@ -292,6 +300,12 @@ compute_offset_length(const tvbuff_t *tvb,
 		if ((guint) -offset > tvb->reported_length) {
 			if (exception) {
 				*exception = ReportedBoundsError;
+			}
+			return FALSE;
+		}
+		else if ((guint) -offset > tvb->fragment_length) {
+			if (exception) {
+				*exception = FragmentBoundsError;
 			}
 			return FALSE;
 		}
@@ -359,10 +373,16 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 	if (end_offset <= tvb->length) {
 		return TRUE;
 	}
-	else if (end_offset <= tvb->reported_length) {
+	else if (end_offset <= tvb->fragment_length) {
 		if (exception) {
 			*exception = BoundsError;
 		}
+	}
+	else if (end_offset <= tvb->reported_length) {
+		if (exception) {
+			*exception = FragmentBoundsError;
+		}
+		return FALSE;
 	}
 	else {
 		if (exception) {
@@ -391,8 +411,9 @@ check_offset_length(const tvbuff_t *tvb,
 }
 
 static tvbuff_t *
-tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
-    const guint subset_tvb_offset, const guint subset_tvb_length)
+tvb_new_with_subset(tvbuff_t *backing, const gint fragment_length,
+    const gint reported_length, const guint subset_tvb_offset,
+    const guint subset_tvb_length)
 {
 	tvbuff_t *tvb = tvb_new(TVBUFF_SUBSET);
 
@@ -403,11 +424,14 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
 	tvb->length		     = tvb->tvbuffs.subset.length;
 
 	if (reported_length == -1) {
+		tvb->fragment_length = backing->fragment_length - tvb->tvbuffs.subset.offset;
 		tvb->reported_length = backing->reported_length - tvb->tvbuffs.subset.offset;
 	}
 	else {
+		tvb->fragment_length = fragment_length;
 		tvb->reported_length = reported_length;
 	}
+
 	tvb->initialized	     = TRUE;
 	add_to_chain(backing, tvb);
 
@@ -435,7 +459,7 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 			    &subset_tvb_offset,
 			    &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(backing, reported_length,
+	tvb = tvb_new_with_subset(backing, reported_length, reported_length,
 	    subset_tvb_offset, subset_tvb_length);
 
 	/*
@@ -471,7 +495,46 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint b
 			    &subset_tvb_offset,
 			    &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(backing, backing_length,
+	tvb = tvb_new_with_subset(backing, backing_length, backing_length,
+	    subset_tvb_offset, subset_tvb_length);
+
+	/*
+	 * The top-level data source of this tvbuff is the top-level
+	 * data source of its parent.
+	 */
+	tvb->ds_tvb = backing->ds_tvb;
+
+	return tvb;
+}
+
+tvbuff_t *
+tvb_new_subset_length_fragment(tvbuff_t *backing, const gint backing_offset,
+    const gint fragment_length, const gint reported_length)
+{
+	gint	  captured_length;
+	tvbuff_t *tvb;
+	guint	  subset_tvb_offset;
+	guint	  subset_tvb_length;
+
+	DISSECTOR_ASSERT(backing && backing->initialized);
+
+	THROW_ON(fragment_length < 0, ReportedBoundsError);
+	THROW_ON(reported_length < 0, ReportedBoundsError);
+	THROW_ON(reported_length < fragment_length, ReportedBoundsError);
+
+	/*
+	 * Give the next dissector only captured_length bytes.
+	 */
+	captured_length = tvb_length_remaining(backing, backing_offset);
+	THROW_ON(captured_length < 0, BoundsError);
+	if (captured_length > fragment_length)
+		captured_length = fragment_length;
+
+	check_offset_length(backing, backing_offset, captured_length,
+			    &subset_tvb_offset,
+			    &subset_tvb_length);
+
+	tvb = tvb_new_with_subset(backing, fragment_length, reported_length,
 	    subset_tvb_offset, subset_tvb_length);
 
 	/*
@@ -494,8 +557,8 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 			    &subset_tvb_offset,
 			    &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(backing, -1 /* reported_length */,
-	    subset_tvb_offset, subset_tvb_length);
+	tvb = tvb_new_with_subset(backing, -1 /* fragment_length */,
+	    -1 /* reported_length */, subset_tvb_offset, subset_tvb_length);
 
 	/*
 	 * The top-level data source of this tvbuff is the top-level
@@ -634,6 +697,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
 	DISSECTOR_ASSERT(tvb->length == 0);
+	DISSECTOR_ASSERT(tvb->fragment_length == 0);
 	DISSECTOR_ASSERT(tvb->reported_length == 0);
 
 	composite   = &tvb->tvbuffs.composite;
@@ -653,6 +717,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		member_tvb = (tvbuff_t *)slist->data;
 		composite->start_offsets[i] = tvb->length;
 		tvb->length += member_tvb->length;
+		tvb->fragment_length += member_tvb->fragment_length;
 		tvb->reported_length += member_tvb->reported_length;
 		composite->end_offsets[i] = tvb->length - 1;
 		i++;
@@ -705,6 +770,8 @@ tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
 		 */
 		if (abs_offset >= tvb->reported_length)
 			THROW(ReportedBoundsError);
+		else if (abs_offset >= tvb->fragment_length)
+			THROW(FragmentBoundsError);
 		else
 			THROW(BoundsError);
 	}
@@ -805,8 +872,10 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 /* Set the reported length of a tvbuff to a given value; used for protocols
  * whose headers contain an explicit length and where the calling
  * dissector's payload may include padding as well as the packet for
- * this protocol.
- * Also adjusts the data length. */
+ * this protocol, or where a packet may be a fragment of a larger packet
+ * and the length of the larger packet is known.
+ *
+ * Also adjusts the data length and fragment length. */
 void
 tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 {
@@ -818,6 +887,8 @@ tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 	tvb->reported_length = reported_length;
 	if (reported_length < tvb->length)
 		tvb->length = reported_length;
+	if (reported_length < tvb->fragment_length)
+		tvb->fragment_length = reported_length;
 }
 
 
@@ -983,6 +1054,9 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 
 	if (end_offset > tvb->reported_length) {
 		THROW(ReportedBoundsError);
+	}
+	if (end_offset > tvb->fragment_length) {
+		THROW(FragmentBoundsError);
 	}
 	THROW(BoundsError);
 	/* not reached */
@@ -2017,15 +2091,24 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 		 * OK, we hit the end of the tvbuff, so we should throw
 		 * an exception.
 		 *
-		 * Did we hit the end of the captured data, or the end
-		 * of the actual data?	If there's less captured data
-		 * than actual data, we presumably hit the end of the
-		 * captured data, otherwise we hit the end of the actual
-		 * data.
+		 * Did we hit the end of the captured data, the end of
+		 * the fragment data, or the end of the actual data?
+		 *
+		 * If there's less captured data than fragment data,
+		 * we presumably hit the end of the captured data.
+		 *
+		 * Otherwise, if there's less fragment data than actual
+		 * data, we presumably hit the end of the fragment data.
+		 *
+		 * Otherwise we hit the end of the actual data.
 		 */
-		if (tvb_length(tvb) < tvb_reported_length(tvb)) {
+		if (tvb->length < tvb->fragment_length) {
 			THROW(BoundsError);
-		} else {
+		}
+		else if (tvb->fragment_length < tvb->reported_length) {
+			THROW(FragmentBoundsError);
+		}
+		else {
 			THROW(ReportedBoundsError);
 		}
 	}

@@ -73,8 +73,14 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(FragmentBoundsError) {
+		printf("02: Caught wrong exception: FragmentBoundsError\n");
+	}
 	CATCH(ReportedBoundsError) {
 		printf("02: Caught wrong exception: ReportedBoundsError\n");
+	}
+	CATCH_ALL {
+		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
 	}
 	ENDTRY;
 
@@ -94,8 +100,14 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		printf("03: Caught wrong exception: BoundsError\n");
 	}
+	CATCH(FragmentBoundsError) {
+		printf("03: Caught wrong exception: FragmentBoundsError\n");
+	}
 	CATCH(ReportedBoundsError) {
 		ex_thrown = TRUE;
+	}
+	CATCH_ALL {
+		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
 	}
 	ENDTRY;
 
@@ -114,8 +126,14 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(FragmentBoundsError) {
+		printf("04: Caught wrong exception: FragmentBoundsError\n");
+	}
 	CATCH(ReportedBoundsError) {
 		printf("04: Caught wrong exception: ReportedBoundsError\n");
+	}
+	CATCH_ALL {
+		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
 	}
 	ENDTRY;
 
@@ -134,8 +152,14 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(FragmentBoundsError) {
+		printf("05: Caught wrong exception: FragmentBoundsError\n");
+	}
 	CATCH(ReportedBoundsError) {
 		printf("05: Caught wrong exception: ReportedBoundsError\n");
+	}
+	CATCH_ALL {
+		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
 	}
 	ENDTRY;
 
@@ -154,8 +178,14 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(FragmentBoundsError) {
+		printf("06: Caught wrong exception: FragmentBoundsError\n");
+	}
 	CATCH(ReportedBoundsError) {
 		printf("06: Caught wrong exception: ReportedBoundsError\n");
+	}
+	CATCH_ALL {
+		printf("02: Caught wrong exception: %lu, exc->except_id.except_code\n");
 	}
 	ENDTRY;
 

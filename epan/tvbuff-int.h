@@ -79,6 +79,12 @@ struct tvbuff {
 	/** Reported length. */
 	guint			reported_length;
 
+	/* If this tvbuff represents the first fragment of a larger packet
+	 * that was not reassembled, this is the length of the fragment
+	 * ("reported_length" will be the length of the full packet).
+	 */
+	guint			fragment_length;
+
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;
 

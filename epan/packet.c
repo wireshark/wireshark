@@ -395,7 +395,7 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	CATCH(BoundsError) {
 		g_assert_not_reached();
 	}
-	CATCH(ReportedBoundsError) {
+	CATCH2(FragmentBoundsError, ReportedBoundsError) {
 		if(proto_malformed != -1){
 			proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
 						       "[Malformed Frame: Packet Length]" );
@@ -644,7 +644,7 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		*/
 		RETHROW;
 	}
-	CATCH(ReportedBoundsError) {
+	CATCH2(FragmentBoundsError, ReportedBoundsError) {
 		/*
 		* "ret" wasn't set because an exception was thrown
 		* before "call_dissector_through_handle()" returned.

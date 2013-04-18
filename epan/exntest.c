@@ -40,6 +40,10 @@ run_tests(void)
     CATCH(BoundsError) {
         ex_thrown++;
     }
+    CATCH(FragmentBoundsError) {
+        printf("01: Caught wrong exception: FragmentBoundsError\n");
+        failed = TRUE;
+    }
     CATCH(ReportedBoundsError) {
         printf("01: Caught wrong exception: ReportedBoundsError\n");
         failed = TRUE;
@@ -70,6 +74,10 @@ run_tests(void)
     }
     CATCH(BoundsError) {
         printf("02: Caught wrong exception: BoundsError\n");
+        failed = TRUE;
+    }
+    CATCH(FragmentBoundsError) {
+        printf("02: Caught wrong exception: FragmentBoundsError\n");
         failed = TRUE;
     }
     CATCH(ReportedBoundsError) {

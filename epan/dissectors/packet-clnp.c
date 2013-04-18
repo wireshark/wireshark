@@ -27,15 +27,18 @@
 #include "config.h"
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/expert.h>
+#include <epan/nlpid.h>
+#include <epan/ipproto.h>
+
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
-#include <epan/nlpid.h>
-#include <epan/ipproto.h>
 
 void proto_register_clnp(void);
 void proto_reg_handoff_clnp(void);
@@ -120,6 +123,9 @@ static dissector_handle_t data_handle;
 
 /* Fixed part */
 
+/* Length of fixed part */
+#define FIXED_PART_LEN          9
+
 #define CNF_TYPE                0x1f
 #define CNF_ERR_OK              0x20
 #define CNF_MORE_SEGS           0x40
@@ -162,6 +168,8 @@ static const value_string npdu_type_vals[] = {
 
 /* Segmentation part */
 
+#define SEGMENTATION_PART_LEN   6
+
 struct clnp_segment {
   gushort       cng_id;         /* data unit identifier */
   gushort       cng_off;        /* segment offset */
@@ -200,7 +208,7 @@ static void
 dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree     *clnp_tree = NULL;
-  proto_item     *ti;
+  proto_item     *ti, *ti_len = NULL, *ti_pdu_len = NULL, *ti_tot_len = NULL;
   guint8          cnf_proto_id;
   guint8          cnf_hdr_len;
   guint8          cnf_vers;
@@ -212,6 +220,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16         segment_length;
   guint16         du_id = 0;
   guint16         segment_offset = 0;
+  guint16         total_length;
   guint16         cnf_cksum;
   cksum_status_t  cksum_status;
   int             offset;
@@ -253,15 +262,24 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* fixed part decoding */
   cnf_hdr_len = tvb_get_guint8(tvb, P_CLNP_HDR_LEN);
-  opt_len = cnf_hdr_len;
 	
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_NA);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
     proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
                         cnf_proto_id);
-    proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1,
-                        cnf_hdr_len);
+    ti_len = proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1,
+                                 cnf_hdr_len);
+  }
+  if (cnf_hdr_len < FIXED_PART_LEN) {
+    /* Header length is less than the length of the fixed part of
+       the header. */
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Header length value < minimum length %u",
+                           FIXED_PART_LEN);
+    return;
+  }
+  if (tree) {                   
     proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1,
                         cnf_vers);
     cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
@@ -305,11 +323,20 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   segment_length = tvb_get_ntohs(tvb, P_CLNP_SEGLEN);
+  if (tree) {
+    ti_pdu_len = proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
+                                     segment_length);
+  }
+  if (segment_length < cnf_hdr_len) {
+    /* Segment length is less than the header length. */
+    expert_add_info_format(pinfo, ti_pdu_len, PI_MALFORMED, PI_ERROR,
+                           "PDU length < header length %u", cnf_hdr_len);
+    return;
+  }
+  total_length = segment_length;
   cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
   cksum_status = calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum);
   if (tree) {
-    proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
-                        segment_length);
     switch (cksum_status) {
 
     default:
@@ -346,80 +373,136 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  cnf_cksum);
       break;
     }
-    opt_len -= 9; /* Fixed part of Header */
   } /* tree */
+
+  opt_len = cnf_hdr_len;
+  opt_len -= FIXED_PART_LEN; /* Fixed part of Header */
 
   /* address part */
 
   offset = P_CLNP_ADDRESS_PART;
+  if (opt_len < 1) {
+    /* Header length is less than the minimum value in CLNP,
+       including the destination address length. */
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Header length value < %u",
+                           FIXED_PART_LEN + 1);
+    return;
+  }
   dst_len  = tvb_get_guint8(tvb, offset);
-  dst_addr = tvb_get_ptr(tvb, offset + 1, dst_len);
-  nsel     = tvb_get_guint8(tvb, offset + dst_len);
-  src_len  = tvb_get_guint8(tvb, offset + dst_len + 1);
-  src_addr = tvb_get_ptr(tvb, offset + dst_len + 2, src_len);
-
   if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
                         dst_len);
-    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset + 1 , dst_len,
+  }
+  offset += 1;
+  opt_len -= 1;
+
+  if (opt_len < dst_len) {
+    /* Header length is less than the minimum value,
+       including the destination address length and the
+       destination address. */
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Header length value < %u",
+                           FIXED_PART_LEN + 1 + dst_len);
+    return;
+  }
+  dst_addr = tvb_get_ptr(tvb, offset, dst_len);
+  nsel     = tvb_get_guint8(tvb, offset + dst_len - 1);
+  SET_ADDRESS(&pinfo->net_dst, AT_OSI, dst_len, dst_addr);
+  SET_ADDRESS(&pinfo->dst, AT_OSI, dst_len, dst_addr);
+  if (tree) {
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
                                 dst_addr,
                                 " DA : %s",
                                 print_nsap_net(dst_addr, dst_len));
+  }
+  offset += dst_len;
+  opt_len -= dst_len;
+
+  if (opt_len < 1) {
+    /* Header length is less than the minimum value,
+       including the destination address length, the
+       destination address, and the source address length. */
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Header length value < %u",
+                           FIXED_PART_LEN + 1 + dst_len + 1);
+    return;
+  }
+  src_len  = tvb_get_guint8(tvb, offset);
+  if (tree) {
     proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb,
-                        offset + 1 + dst_len, 1, src_len);
+                        offset, 1, src_len);
+  }
+  offset += 1;
+  opt_len -= 1;
+
+  if (opt_len < src_len) {
+    /* Header length is less than the minimum value,
+       including the destination address length, the
+       destination address, the source address length,
+       and the source address. */
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Header length value < %u",
+                           FIXED_PART_LEN + 1 + dst_len + 1 + src_len);
+    return;
+  }
+  src_addr = tvb_get_ptr(tvb, offset, src_len);
+  SET_ADDRESS(&pinfo->net_src, AT_OSI, src_len, src_addr);
+  SET_ADDRESS(&pinfo->src, AT_OSI, src_len, src_addr);
+  if (tree) {
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
-                                offset + dst_len + 2, src_len,
+                                offset, src_len,
                                 src_addr,
                                 " SA : %s",
                                 print_nsap_net(src_addr, src_len));
 
-    opt_len -= dst_len + src_len +2;
   }
-
-  SET_ADDRESS(&pinfo->net_src, AT_OSI, src_len, src_addr);
-  SET_ADDRESS(&pinfo->src, AT_OSI, src_len, src_addr);
-  SET_ADDRESS(&pinfo->net_dst, AT_OSI, dst_len, dst_addr);
-  SET_ADDRESS(&pinfo->dst, AT_OSI, dst_len, dst_addr);
+  offset += src_len;
+  opt_len -= src_len;
 
   /* Segmentation Part */
 
-  offset += dst_len + src_len + 2;
-
   if (cnf_type & CNF_SEG_OK) {
-#if 0
-    struct clnp_segment seg;                                /* XXX - not used */
-    tvb_memcpy(tvb, (guint8 *)&seg, offset, sizeof(seg));   /* XXX - not used */
-#endif
-
-    segment_offset = tvb_get_ntohs(tvb, offset + 2);
+    if (opt_len < SEGMENTATION_PART_LEN) {
+      /* Header length is less than the minimum value,
+         including the destination address length, the
+         destination address, the source address length,
+         the source address, and the segmentation part. */
+      expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                             "Header length value < %u",
+                             FIXED_PART_LEN + 1 + dst_len + 1 + SEGMENTATION_PART_LEN);
+      return;
+    }
     du_id = tvb_get_ntohs(tvb, offset);
     if (tree) {
       proto_tree_add_text(clnp_tree, tvb, offset, 2,
                           "Data unit identifier: %06u",
                           du_id);
+    }
+    segment_offset = tvb_get_ntohs(tvb, offset + 2);
+    if (tree) {
       proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
                           "Segment offset      : %6u",
                           segment_offset);
-      proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
-                          "Total length        : %6u",
-                          tvb_get_ntohs(tvb, offset + 4));
     }
-
-    offset  += 6;
-    opt_len -= 6;
+    total_length = tvb_get_ntohs(tvb, offset + 4);
+    if (tree) {
+      ti_tot_len = proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
+                                       "Total length        : %6u",
+                                       total_length);
+    }
+    if (total_length < segment_length) {
+      /* Reassembled length is less than the length of this segment. */
+      expert_add_info_format(pinfo, ti_pdu_len, PI_MALFORMED, PI_ERROR,
+                             "Total length < segment length %u", segment_length);
+      return;
+    }
+    offset  += SEGMENTATION_PART_LEN;
+    opt_len -= SEGMENTATION_PART_LEN;
   }
 
   if (tree) {
-    /* To do : decode options  */
-#if 0
-    proto_tree_add_text(clnp_tree, tvb, offset,
-                        cnf_hdr_len - offset,
-                        "Options/Data: <not shown>");
-#endif
-/* QUICK HACK Option Len:= PDU_Hd_length-( FixedPart+AddresPart+SegmentPart )*/
-
-    dissect_osi_options( opt_len,
-                         tvb, offset, clnp_tree );
+    dissect_osi_options(opt_len, tvb, offset, clnp_tree);
   }
 
   offset += opt_len;
@@ -454,7 +537,9 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* First segment, or not segmented.  Dissect what we have here. */
 
       /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset_remaining(tvb, offset);
+      next_tvb = tvb_new_subset_length_fragment(tvb, offset,
+                                                segment_length - cnf_hdr_len,
+                                                total_length - cnf_hdr_len);
 
       /*
        * If this is the first segment, but not the only segment,
