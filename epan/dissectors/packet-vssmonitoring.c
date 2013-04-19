@@ -123,6 +123,12 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       /* The timestamp will be based on the uptime until the TAP is completely booted,
        * this takes about 60s, but use 1 hour to be sure
        */
+
+      /* Probably just null data to fill up a short frame.
+       * FIXME: Should be made even stricter.
+       */
+      if (vssmonitoring_time.secs == 0)
+        return 0;
       if (vssmonitoring_time.secs > 3600) {
 
         /* Check whether the timestamp in the PCAP header and the VSS-Monitoring
