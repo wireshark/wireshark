@@ -651,15 +651,15 @@ enum fixed_field {
 #define TAG_MESH_PREQ                130  /* IEEE Std 802.11s-2011 */
 #define TAG_MESH_PREP                131  /* IEEE Std 802.11s-2011 */
 #define TAG_MESH_PERR                132  /* IEEE Std 802.11s-2011 */
-#define TAG_CISCO_CCX1_CKIP          133  /* Cisco Compatible eXtensions */
-#define TAG_CISCO_UNKNOWN_88         136  /* Cisco Compatible eXtensions? */
+#define TAG_CISCO_CCX1_CKIP          133  /* Cisco Compatible eXtensions v1 */
+#define TAG_CISCO_CCX2               136  /* Cisco Compatible eXtensions v2 */
 #define TAG_PXU                      137
 #define TAG_PXUC                     138
 #define TAG_AUTH_MESH_PEERING_EXCH   139
 #define TAG_MIC                      140
 #define TAG_DESTINATION_URI          141
 #define TAG_U_APSD_COEX              142
-#define TAG_CISCO_UNKNOWN_95         149  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
 #define TAG_MCCAOP_ADVERTISSEMENT_OV 174
@@ -783,14 +783,14 @@ static const value_string tag_num_vals[] = {
   { TAG_MESH_PREP,                            "Path Reply" },
   { TAG_MESH_PERR,                            "Path Error" },
   { TAG_CISCO_CCX1_CKIP,                      "Cisco CCX1 CKIP + Device Name" },
-  { TAG_CISCO_UNKNOWN_88,                     "Cisco Unknown 88" },
+  { TAG_CISCO_CCX2,                           "Cisco CCX2" },
   { TAG_PXU,                                  "Proxy Update" },
   { TAG_PXUC,                                 "Proxy Update Confirmation"},
   { TAG_AUTH_MESH_PEERING_EXCH,               "Auhenticated Mesh Perring Exchange" },
   { TAG_MIC,                                  "MIC (Message Integrity Code)" },
   { TAG_DESTINATION_URI,                      "Destination URI" },
   { TAG_U_APSD_COEX,                          "U-APSD Coexistence" },
-  { TAG_CISCO_UNKNOWN_95,                     "Cisco Unknown 95" },
+  { TAG_CISCO_CCX3,                           "Cisco Unknown 95" },
   { TAG_CISCO_UNKNOWN_96,                     "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY,                   "Symbol Proprietary" },
   { TAG_MCCAOP_ADVERTISSEMENT_OV,             "MCCAOP Advertissement Overviw" },
@@ -3475,6 +3475,7 @@ static int hf_ieee80211_tag_extended_capabilities_o8 = -1;
 static int hf_ieee80211_tag_cisco_ccx1_unknown = -1;
 static int hf_ieee80211_tag_cisco_ccx1_name = -1;
 static int hf_ieee80211_tag_cisco_ccx1_clients = -1;
+static int hf_ieee80211_tag_cisco_ccx1_unknown2 = -1;
 
 static int hf_ieee80211_vht_cap = -1;
 static int hf_ieee80211_vht_max_mpdu_length = -1;
@@ -3787,7 +3788,7 @@ static int hf_ieee80211_wfa_ie_wme_tspec_medium = -1;
 static int hf_ieee80211_aironet_ie_type = -1;
 static int hf_ieee80211_aironet_ie_version = -1;
 static int hf_ieee80211_aironet_ie_data = -1;
-static int hf_ieee80211_aironet_ie_qos_unk1 = -1;
+static int hf_ieee80211_aironet_ie_qos_reserved = -1;
 static int hf_ieee80211_aironet_ie_qos_paramset = -1;
 static int hf_ieee80211_aironet_ie_qos_val = -1;
 
@@ -7796,7 +7797,7 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     dont_change = TRUE;
     break;
   case AIRONET_IE_QOS:
-    proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_qos_unk1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_qos_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_qos_paramset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -7811,7 +7812,7 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
       byte2 = tvb_get_guint8(tvb, offset + 1);
       txop = tvb_get_letohs(tvb, offset + 2);
       proto_tree_add_bytes_format(ietree, hf_ieee80211_aironet_ie_qos_val, tvb, offset, 4, NULL,
-          "CCX QoS Parameters??: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
+          "CCX QoS Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
         (byte1 & 0x60) >> 5, val_to_str((byte1 & 0x60) >> 5, wme_acs, "(Unknown: %d)"),
         (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
         byte2 & 0x0f, (byte2 & 0xf0) >> 4,
@@ -11283,6 +11284,8 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       /* Total number off associated clients and repeater access points */
       proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_clients, tvb, offset, 1, ENC_NA);
       offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_unknown2, tvb, offset, 3, ENC_NA);
+      offset += 3;
       break;
 
     case TAG_VHT_CAPABILITY:
@@ -17988,6 +17991,11 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_cisco_ccx1_unknown2,
+     {"Unknown2", "wlan_mgt.cisco.ccx1.unknown2",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_neighbor_report_bssid,
      {"BSSID", "wlan_mgt.nreport.bssid",
       FT_ETHER, BASE_NONE, NULL, 0,
@@ -18593,8 +18601,8 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_aironet_ie_qos_unk1,
-     {"Aironet IE QoS unknown 1", "wlan_mgt.aironet.qos.unk1",
+    {&hf_ieee80211_aironet_ie_qos_reserved,
+     {"Aironet IE QoS reserved", "wlan_mgt.aironet.qos.reserved",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
