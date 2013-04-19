@@ -3037,9 +3037,8 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
     flag_tree = proto_item_add_subtree(flag, ett_gtpv2_mm_context_flag);
 
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     /* Octet 5 */
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
     drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3143,9 +3142,8 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
     flag_tree = proto_item_add_subtree(flag, ett_gtpv2_mm_context_flag);
 
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     /* Octet 5 */
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
     drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3245,11 +3243,9 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
     flag_tree = proto_item_add_subtree(flag, ett_gtpv2_mm_context_flag);
 
-
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     /* Octet 5 */
     /* Security Mode Spare DRXI KSI */
+    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
     drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3493,18 +3489,11 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
     flag_tree = proto_item_add_subtree(flag, ett_gtpv2_mm_context_flag);
 
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     /* Octet 5
      * Security Mode Spare DRXI KSIASME
      */
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nhi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* If NHI (Next Hop Indicator), bit 5 of octet 5, is set to "1",
-     * then the optional parameters NH (Next Hop) and NCC (Next
-     * Hop Chaining Count) are both present, otherwise their octets are not present.
-     */
+    proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3) + 3), 1, ENC_BIG_ENDIAN);
     drxi = (tvb_get_guint8(tvb, offset) & 0x08) >> 3;
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_ksi_a, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3563,7 +3552,9 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
     }
 
-    proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+	if (offset < (guint32)length) {
+		proto_tree_add_text(tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+	}
 
 }
 
