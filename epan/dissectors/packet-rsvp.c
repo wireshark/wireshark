@@ -241,6 +241,20 @@ static int hf_rsvp_3gpp_obj_pf_treatment = -1;
 static int hf_rsvp_3gpp_obj_pf_hint = -1;
 static int hf_rsvp_3gpp_obj_tft_qos_list_len = -1;
 static int hf_rsvp_3gpp_r_qos_blob_len = -1;
+static int hf_rsvp_3gpp_r_qos_blob_flow_pri = -1;
+static int hf_rsvp_3gpp_r_qos_blob_num_qos_att_set = -1;
+static int hf_rsvp_3gpp_qos_att_set_len = -1;
+static int hf_rsvp_3gpp_qos_attribute_set_id = -1;
+static int hf_rsvp_3gpp_qos_attribute_verbose = -1;
+static int hf_rsvp_3gpp_qos_attribute_prof_id = -1;
+static int hf_rsvp_3gpp_qos_attribute_traff_cls = -1;
+static int hf_rsvp_3gpp_qos_attribute_peak_rate = -1;
+static int hf_rsvp_3gpp_qos_attribute_bucket_size = -1;
+static int hf_rsvp_3gpp_qos_attribute_token_rate = -1;
+static int hf_rsvp_3gpp_qos_attribute_max_latency = -1;
+static int hf_rsvp_3gpp_qos_attribute_max_loss_rte = -1;
+static int hf_rsvp_3gpp_qos_attribute_delay_var_sensitive = -1;
+static int hf_rsvp_3gpp_qos_attribute_reserved = -1;
 static int hf_rsvp_3gpp_r_qos_blob = -1;
 static int hf_rsvp_3gpp_qos_result = -1;
 
@@ -412,6 +426,7 @@ enum {
     TT_UNKNOWN_CLASS,
     TT_3GPP_OBJ_FLOW,
     TT_3GPP_OBJ_QOS,
+    TT_3GPP_OBJ_QOS_SUB_BLOB,
     TT_3GPP_OBJ_T2,
     TT_3GPP_OBJ_HO,
 
@@ -5904,8 +5919,17 @@ static const value_string rsvp_3gpp_qos_result_vals[] = {
     { 0, NULL}
 };
 
+static const value_string rsvp_3gpp_obj_traffic_class_vals[] = {
+    { 0, "Unknown"},
+    { 1, "Conversational"},
+    { 2, "Streaming"},
+    { 3, "Interactive"},
+    { 4, "Backgroud"},
+    { 0, NULL}
+};
+
 static void
-    dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
+dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
     tvbuff_t *tvb,
     int offset, int obj_length,
     int rsvp_class _U_, int c_type)
@@ -6137,9 +6161,10 @@ static void
                 if((tft_opcode ==  0x01)||(tft_opcode ==  0x06)||(tft_opcode == 0x80)||(tft_opcode == 0x81)||(tft_opcode == 0x83)){
                     /* QoS List Length */
                     gint32 tft_qos_list_len;
-                    guint8 blob_len, item_len;
-                    proto_tree   *qos_tree;
-                    int num = 0;
+                    guint8 blob_len, item_len, padding_len; 
+                    gboolean verbose;
+                    proto_tree   *qos_tree, *qos_sub_blob_tree, *qos_att_tree;
+                    int num = 0, j, num_qos_att_set;
 
                     tft_qos_list_len = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6147,7 +6172,11 @@ static void
                     tft_qos_list_len-=2;
                     if(tft_qos_list_len > 0){
                         while (tft_qos_list_len>0) {
+                            int bit_offset; /* offset in bits */
+                            guint8 qos_attribute_set_len;
+
                             num++;
+
                             ti = proto_tree_add_text(rsvp_object_tree, tvb, offset, -1, "QOS Flow Identifier Num %u", num);
                             qos_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS]);
 
@@ -6162,8 +6191,72 @@ static void
                             offset++;
                             tft_qos_list_len--;
 
-                            /* R_QoS_SUB_BLOB */
-                            proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob, tvb, offset, blob_len, ENC_BIG_ENDIAN);
+                            /* R_QoS_SUB_BLOB X.S0011-004-D */
+                            ti = proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob, tvb, offset, blob_len, ENC_BIG_ENDIAN);
+                            qos_sub_blob_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS_SUB_BLOB]);
+
+                            proto_tree_add_item(qos_sub_blob_tree, hf_rsvp_3gpp_r_qos_blob_flow_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(qos_sub_blob_tree, hf_rsvp_3gpp_r_qos_blob_num_qos_att_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            num_qos_att_set = (tvb_get_guint8(tvb, offset) & 0x0e)>>1;
+                            /* point to the first bit in the QoS_ATTRIBUTE_SET */
+                            bit_offset = (offset<<3)+7;
+                            for (j = 0; j < num_qos_att_set; j++) {
+                                qos_attribute_set_len = tvb_get_bits8(tvb,bit_offset,4);
+                                ti = proto_tree_add_text(qos_sub_blob_tree, tvb, bit_offset>>3, qos_attribute_set_len, "QoS_ATTRIBUTE_SET %u(%u bytes)",
+                                    i+1,
+                                    qos_attribute_set_len);
+                                qos_att_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS_SUB_BLOB]);
+                                proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_att_set_len, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+                                bit_offset+=4;
+
+                                if(qos_attribute_set_len==0){
+                                    break;
+                                }
+                                
+                                proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_set_id, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
+                                bit_offset+=7;
+
+                                verbose = tvb_get_bits8(tvb, bit_offset, 1);
+                                proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_verbose, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+                                bit_offset++;
+
+                                
+                                if(verbose == FALSE){
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_prof_id, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=16;
+                                }else{
+                                    /* Traffic_Class 0 or 3 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_traff_cls, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+                                    bit_offset+=3;
+                                    /* Peak_Rate 0 or 16 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_peak_rate, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=16;
+                                    /* Bucket_Size 0 or 16 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_bucket_size, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=16;
+                                    /* Token_Rate 0 or 16 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_token_rate, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=16;
+                                    /* Max_Latency 0 or 8 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_max_latency, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=8;
+                                    /* Max_Loss_Rate 0 or 8 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_max_loss_rte, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=8;
+                                    /* Delay_Var_Sensitive 0 or 1 */
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_delay_var_sensitive, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    bit_offset+=1;
+                                }
+                                /* Padd to fill up to octet boundary, Reserved 0-7 as needed */
+                                padding_len = 0;
+                                if((bit_offset & 0x07) != 0){
+                                    padding_len = 8 - (bit_offset & 0x07);
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_reserved, tvb, bit_offset, padding_len, ENC_BIG_ENDIAN);
+                                }
+                                bit_offset = bit_offset + padding_len;
+                            }
+
+
                             offset = offset + blob_len;
                             tft_qos_list_len = tft_qos_list_len - blob_len;
 
@@ -8351,6 +8444,76 @@ proto_register_rsvp(void)
         { &hf_rsvp_3gpp_r_qos_blob_len,
          { "R_QOS_SUB_BLOB_LEN", "rsvp.3gpp_obj.r_qos_blob_len",
            FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_r_qos_blob_flow_pri,
+         { "FLOW_PRIORITY", "rsvp.3gpp_obj.r_qos_blob.flow_pri",
+           FT_UINT8, BASE_DEC, NULL, 0xf0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_r_qos_blob_num_qos_att_set,
+         { "NUM_QoS_ATTRIBUTE_SETS", "rsvp.3gpp_obj.r_qos_blob.num_qos_att_set",
+           FT_UINT8, BASE_DEC, NULL, 0x0e,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_att_set_len,
+         { "QoS_ATTRIBUTE_SET_LEN", "rsvp.3gpp_obj.r_qos_blob.qos_att_set_len",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_set_id,
+         { "QoS_ATTRIBUTE_SET_ID", "rsvp.3gpp_obj.r_qos_blob.qos_attribute_set_id",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_verbose,
+         { "VERBOSE", "rsvp.3gpp_obj.r_qos_blob.verbose",
+           FT_BOOLEAN, 8, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_prof_id,
+         { "ProfileID", "rsvp.3gpp_obj.r_qos_blob.prof_id",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_traff_cls,
+         { "Traffic_Class", "rsvp.3gpp_obj.r_qos_blob.traff_cls",
+           FT_UINT8, BASE_DEC, VALS(rsvp_3gpp_obj_traffic_class_vals), 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_traff_cls,
+         { "Traffic_Class", "rsvp.3gpp_obj.r_qos_blob.traff_cls",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_peak_rate,
+         { "Peak_Rate", "rsvp.3gpp_obj.r_qos_blob.peak_rate",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_bucket_size,
+         { "Bucket_Size", "rsvp.3gpp_obj.r_qos_blob.bucket_size",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_token_rate,
+         { "Token_Rate", "rsvp.3gpp_obj.r_qos_blob.token_rate",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_max_latency,
+         { "Max_Latency", "rsvp.3gpp_obj.r_qos_blob.max_latency",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_max_loss_rte,
+         { "Max_Loss_Rate", "rsvp.3gpp_obj.r_qos_blob.max_loss_rte",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_rsvp_3gpp_qos_attribute_delay_var_sensitive,
+         { "Delay_Var_Sensitive", "rsvp.3gpp_obj.r_qos_blob.delay_var_sensitive",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
         },
         { &hf_rsvp_3gpp_r_qos_blob,
