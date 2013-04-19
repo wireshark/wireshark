@@ -17394,7 +17394,7 @@ static const value_string smb_cmd_vals[] = {
    * servers receiving requests with this command code SHOULD return
    * STATUS_NOT_IMPLEMENTED (ERRDOS/ERRbadfunc)."
    */
-  { 0x21, "Query Server" },
+  { 0x21, "Query Server (reserved)" },
 
   { 0x22, "Set Information2" },
   { 0x23, "Query Information2" },
