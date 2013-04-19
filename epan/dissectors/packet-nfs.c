@@ -279,7 +279,7 @@ static int hf_nfs3_gxfh_volcnt = -1;
 static int hf_nfs3_gxfh_epoch = -1;
 static int hf_nfs3_gxfh_ldsid = -1;
 static int hf_nfs3_gxfh_cid = -1;
-static int hf_mfs3_gxfh_resv = -1;
+static int hf_nfs3_gxfh_resv = -1;
 static int hf_nfs3_gxfh_sfhflags = -1;
 static int hf_nfs3_gxfh_sfhflags_resv1 = -1;
 static int hf_nfs3_gxfh_sfhflags_resv2 = -1;
@@ -1872,7 +1872,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_cid, tvb,
 					   offset+8, 2, cluster_id,
 					   " cluster id: 0x%04x (%u)", cluster_id, cluster_id);
-		proto_tree_add_uint_format(field_tree, hf_mfs3_gxfh_resv, tvb,
+		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_resv, tvb,
 					   offset+10, 1, reserved,
 					   " reserved: 0x%02x (%u)", reserved, reserved);
 
@@ -1929,7 +1929,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_cid, tvb,
 					   offset+24, 2, cluster_id,
 					   " cluster id: 0x%04x (%u)", cluster_id, cluster_id);
-		proto_tree_add_uint_format(field_tree, hf_mfs3_gxfh_resv, tvb,
+		proto_tree_add_uint_format(field_tree, hf_nfs3_gxfh_resv, tvb,
 					   offset+26, 1, reserved,
 					   " reserved: 0x%02x (%u)", reserved, reserved);
 
@@ -12035,7 +12035,7 @@ proto_register_nfs(void)
 			"cluster id", "nfs.gxfh3.cid", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_mfs3_gxfh_resv, {
+		{ &hf_nfs3_gxfh_resv, {
 			"reserved", "nfs.gxfh3.reserved", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
