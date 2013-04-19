@@ -99,7 +99,7 @@ dissect_lock(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 	offset = dissect_rpc_string(tvb, lock_tree,
 			hf_klm_servername, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree,"fh", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree,"fh", NULL);
 
 	offset = dissect_rpc_uint32(tvb, lock_tree,
 			hf_klm_pid, offset);

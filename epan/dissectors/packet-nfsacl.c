@@ -237,13 +237,13 @@ dissect_nfsacl2_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
 	if (status == ACL2_OK)
 	{
-		offset = dissect_fattr(tvb, offset, tree, "attr");
+		offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
 		offset = dissect_nfsacl_secattr(tvb, offset, pinfo, tree);
 	}
 
@@ -268,12 +268,12 @@ dissect_nfsacl2_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
 	if (status == ACL2_OK)
-		offset = dissect_fattr(tvb, offset, tree, "attr");
+		offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
 
 	return offset;
 }
@@ -291,7 +291,7 @@ static int
 dissect_nfsacl2_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			      proto_tree *tree)
 {
-	offset = dissect_fattr(tvb, offset, tree, "attr");
+	offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
 
 	return offset;
 }
@@ -325,13 +325,13 @@ dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
 	if (status == ACL2_OK)
 	{
-		offset = dissect_fattr(tvb, offset, tree, "attr");
+		offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
 		offset = dissect_access_reply(tvb, offset, pinfo, tree, 3, NULL);
 	}
 
@@ -356,14 +356,14 @@ dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, int offset,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
 	if (status == ACL2_OK)
 	{
 		offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
-		offset = dissect_fattr(tvb, offset, tree, "attr");
+		offset = dissect_nfs2_fattr(tvb, offset, tree, "attr");
 	}
 
 	return offset;
@@ -398,7 +398,7 @@ static int
 dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree)
 {
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_nfsacl_mask(tvb, offset, tree);
 
 	return offset;
@@ -415,7 +415,7 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	status = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4,
+		proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4,
 				status);
 
 	offset += 4;
@@ -429,7 +429,7 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (entry_tree)
-		offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, entry_tree, "attr");
+		offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, entry_tree, "attr");
 
 	if (status != ACL3_OK)
 		return offset;
@@ -448,7 +448,7 @@ dissect_nfsacl3_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_item *acl_item = NULL;
 	proto_tree *acl_tree = NULL;
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
 
 	if (tree)
 	{
@@ -472,12 +472,12 @@ dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 status = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4,
+		proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4,
 				status);
 
 	offset += 4;
 
-	offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree, "attr");
+	offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, tree, "attr");
 
 	return offset;
 }
@@ -487,7 +487,7 @@ dissect_nfsacl3_getxattrdir_call(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo _U_, proto_tree *tree)
 
 {
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
 
 	return offset;
@@ -502,15 +502,15 @@ dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset,
 	status = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4,
+		proto_tree_add_uint(tree, hf_nfs_status, tvb, offset + 0, 4,
 				    status);
 
 	offset += 4;
 
 	if (status == ACL3_OK)
 	{
-		offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
-		offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree, "attr");
+		offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "fhandle", NULL);
+		offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, tree, "attr");
 	}
 
 	return offset;

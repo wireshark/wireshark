@@ -380,7 +380,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
 	}
@@ -643,7 +643,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
 	}

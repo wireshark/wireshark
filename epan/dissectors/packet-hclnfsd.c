@@ -117,7 +117,7 @@ dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_status, offset);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "spool filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "spool filehandle", NULL);
 
 	return offset;
 }
@@ -402,7 +402,7 @@ dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_unknown_data, offset);
 
@@ -460,7 +460,7 @@ dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_lockowner, offset);
 
@@ -512,7 +512,7 @@ dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle", NULL);
+	offset = dissect_nfs3_fh(tvb, offset, pinfo, tree, "Filehandle", NULL);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_unknown_data, offset);
 

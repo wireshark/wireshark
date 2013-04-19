@@ -556,7 +556,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_fh3(tvb,offset,pinfo,tree,"fhandle",NULL);
+			offset = dissect_nfs3_fh(tvb,offset,pinfo,tree,"fhandle",NULL);
 
 			auth_flavors = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_uint(tree,hf_mount_flavors, tvb,
