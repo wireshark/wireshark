@@ -9655,7 +9655,7 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
 
   proto_tree_add_uint(tree, hf_ieee80211_fc_frame_type_subtype, tvb, offset, 1, frame_type_subtype);
 
-  fc_item = proto_tree_add_item(tree, hf_ieee80211_fc_field, tvb, offset, 2, ENC_NA);
+  fc_item = proto_tree_add_item(tree, hf_ieee80211_fc_field, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   fc_tree = proto_item_add_subtree(fc_item, ett_fc_tree);
 
@@ -12954,14 +12954,14 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             proto_item *qos_ps_buf_state_fields;
             proto_tree *qos_ps_buf_state_tree;
 
-            qos_ps_buf_state_fields = proto_tree_add_item(qos_tree, hf_ieee80211_qos_ps_buf_state, tvb, qosoff, 2, ENC_NA);
+            qos_ps_buf_state_fields = proto_tree_add_item(qos_tree, hf_ieee80211_qos_ps_buf_state, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
             qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
-            proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_buf_state_indicated, tvb, qosoff + 1, 1, ENC_NA);
+            proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_buf_state_indicated, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
 
             if (QOS_PS_BUF_STATE_INDICATED(qos_field_content)) {
-              proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_highest_pri_buf_ac, tvb, qosoff + 1, 1, ENC_NA);
-              qos_ti = proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_qap_buf_load, tvb, qosoff + 1, 1, ENC_NA);
+              proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_highest_pri_buf_ac, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+              qos_ti = proto_tree_add_item(qos_ps_buf_state_tree, hf_ieee80211_qos_qap_buf_load, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
               switch (QOS_PS_QAP_BUF_LOAD(qos_field_content)) {
 
               case 0:
@@ -13499,7 +13499,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_da, next_tvb, msdu_offset, 6, ENC_NA);
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_sa, next_tvb, msdu_offset+6, 6, ENC_NA);
-          proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_NA);
+          proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
 
           msdu_offset += 14;
           msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
@@ -14117,22 +14117,22 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_qos_ps_buf_state,
      {"QAP PS Buffer State", "wlan.qos.ps_buf_state",
-       FT_UINT16, BASE_HEX, NULL, 0xFF000,
+      FT_UINT16, BASE_HEX, NULL, 0xFF00,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_buf_state_indicated,
      {"Buffer State Indicated", "wlan.qos.buf_state_indicated",
-       FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+      FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_highest_pri_buf_ac,
      {"Highest-Priority Buffered AC", "wlan.qos.highest_pri_buf_ac",
-       FT_UINT8, BASE_DEC, VALS(wme_acs), 0x0C,
+       FT_UINT16, BASE_DEC, VALS(wme_acs), 0x0C00,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_qap_buf_load,
      {"QAP Buffered Load", "wlan.qos.qap_buf_load",
-       FT_UINT8, BASE_DEC, NULL, 0xF0,
+      FT_UINT16, BASE_DEC, NULL, 0xF000,
       NULL, HFILL }},
 
     {&hf_ieee80211_qos_txop_dur_req,
@@ -17669,7 +17669,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_dfs_channel_map,
      {"Channel Map", "wlan_mgt.dfs.channel_map",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL  }},
 
     {&hf_ieee80211_tag_dfs_channel_number,
