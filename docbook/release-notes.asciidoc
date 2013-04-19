@@ -15,6 +15,7 @@ The following bugs have been fixed:
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2013-2486[]
+//* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
 
 === New and Updated Features
 
