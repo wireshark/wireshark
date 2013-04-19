@@ -8481,11 +8481,6 @@ proto_register_rsvp(void)
            FT_UINT8, BASE_DEC, VALS(rsvp_3gpp_obj_traffic_class_vals), 0x0,
            NULL, HFILL }
         },
-        { &hf_rsvp_3gpp_qos_attribute_traff_cls,
-         { "Traffic_Class", "rsvp.3gpp_obj.r_qos_blob.traff_cls",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL }
-        },
         { &hf_rsvp_3gpp_qos_attribute_peak_rate,
          { "Peak_Rate", "rsvp.3gpp_obj.r_qos_blob.peak_rate",
            FT_UINT16, BASE_DEC, NULL, 0x0,
