@@ -6203,7 +6203,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             for (j = 0; j < num_qos_att_set; j++) {
                                 qos_attribute_set_len = tvb_get_bits8(tvb,bit_offset,4);
                                 ti = proto_tree_add_text(qos_sub_blob_tree, tvb, bit_offset>>3, qos_attribute_set_len, "QoS_ATTRIBUTE_SET %u(%u bytes)",
-                                    i+1,
+                                    j+1,
                                     qos_attribute_set_len);
                                 qos_att_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS_SUB_BLOB]);
                                 proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_att_set_len, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
