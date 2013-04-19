@@ -196,6 +196,9 @@ typedef struct _sctp_assoc_info {
 	guint32   n_length_errors;
 	guint32   n_value_errors;
 	guint32   n_data_chunks;
+	guint32   n_forward_chunks;
+	guint32   n_forward_chunks_ep1;
+	guint32   n_forward_chunks_ep2;
 	guint32   n_data_bytes;
 	guint32   n_packets;
 	guint32   n_data_chunks_ep1;
