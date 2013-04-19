@@ -527,7 +527,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	sctp_tmp_info_t tmp_info;
 	sctp_assoc_info_t *info = NULL;
 	sctp_error_info_t *error = NULL;
-	guint16	type, length;
+	guint16	type, length = 0;
 	address *store = NULL;
 	tsn_t	*tsn = NULL;
 	tsn_t	*sack = NULL;
