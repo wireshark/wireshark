@@ -4883,7 +4883,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = size_unit_combo_box_set_value(global_capture_opts.autostop_filesize);
-  gtk_adjustment_set_value(ring_filesize_adj, (gfloat) value);
+  gtk_adjustment_set_value(ring_filesize_adj, (gdouble) value);
 
   row++;
 
@@ -4912,7 +4912,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = time_unit_combo_box_convert_value(global_capture_opts.file_duration);
-  gtk_adjustment_set_value(file_duration_adj, (gfloat) value);
+  gtk_adjustment_set_value(file_duration_adj, (gdouble) value);
   row++;
 
   /* Ring buffer files row */
@@ -5030,7 +5030,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = size_unit_combo_box_set_value(global_capture_opts.autostop_filesize);
-  gtk_adjustment_set_value(stop_filesize_adj, (gfloat) value);
+  gtk_adjustment_set_value(stop_filesize_adj, (gdouble) value);
 
   row++;
 
@@ -5056,7 +5056,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = time_unit_combo_box_convert_value(global_capture_opts.autostop_duration);
-  gtk_adjustment_set_value(stop_duration_adj, (gfloat) value);
+  gtk_adjustment_set_value(stop_duration_adj, (gdouble) value);
   row++;
 
   /* Display-related options frame */
