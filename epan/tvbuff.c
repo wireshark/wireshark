@@ -62,11 +62,14 @@ ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
-static void
-tvb_init(tvbuff_t *tvb, const tvbuff_type type)
+static tvbuff_t *
+tvb_new(const tvbuff_type type)
 {
+	tvbuff_t *tvb;
 	tvb_backing_t	*backing;
 	tvb_comp_t	*composite;
+
+	tvb = g_slice_new(tvbuff_t);
 
 	tvb->previous	     = NULL;
 	tvb->next	     = NULL;
@@ -103,16 +106,6 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 	}
-}
-
-static tvbuff_t *
-tvb_new(const tvbuff_type type)
-{
-	tvbuff_t *tvb;
-
-	tvb = g_slice_new(tvbuff_t);
-
-	tvb_init(tvb, type);
 
 	return tvb;
 }
