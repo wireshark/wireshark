@@ -373,24 +373,21 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 	if (end_offset <= tvb->length) {
 		return TRUE;
 	}
-	else if (end_offset <= tvb->fragment_length) {
-		if (exception) {
-			*exception = BoundsError;
-		}
-	}
-	else if (end_offset <= tvb->reported_length) {
-		if (exception) {
-			*exception = FragmentBoundsError;
-		}
-		return FALSE;
-	}
 	else {
 		if (exception) {
-			*exception = ReportedBoundsError;
+			if (end_offset <= tvb->fragment_length) {
+				*exception = BoundsError;
+			}
+			else if (end_offset <= tvb->reported_length) {
+				*exception = FragmentBoundsError;
+			}
+			else {
+				*exception = ReportedBoundsError;
+			}
 		}
-	}
 
-	return FALSE;
+		return FALSE;
+	}
 }
 
 /* Checks (+/-) offset and length and throws an exception if
