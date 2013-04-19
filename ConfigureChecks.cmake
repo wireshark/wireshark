@@ -76,9 +76,13 @@ check_function_exists("mkdtemp"          HAVE_MKDTEMP)
 check_function_exists("mkstemp"          HAVE_MKSTEMP)
 check_function_exists("sysconf"          HAVE_SYSCONF)
 
+#Struct members
+include(CheckStructHasMember)
+check_struct_has_member("struct tm"  tm_zone  time.h  HAVE_TM_ZONE)
+
 #Symbols but NOT enums or types
-#include(CheckSymbolExists)
-#check_symbol_exists(NL80211_CMD_SET_CHANNEL "linux/nl80211.h" HAVE_NL80211_CMD_SET_CHANNEL)
+include(CheckSymbolExists)
+check_symbol_exists(tzname "time.h" HAVE_TZNAME)
 
 # Check for stuff that isn't testable via the tests above
 #include(CheckCSourceCompiles)

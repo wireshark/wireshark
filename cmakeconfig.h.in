@@ -309,6 +309,12 @@
 /* Define to 1 if you have the <winsock2.h> header file. */
 #cmakedefine HAVE_WINSOCK2_H 1
 
+/* Define to 1 if tm_zone field exists in struct tm. */
+#cmakedefine HAVE_TM_ZONE 1
+
+/* Define to 1 if tzname array exists. */
+#cmakedefine HAVE_TZNAME 1
+
 /* HTML viewer, e.g. mozilla */
 #cmakedefine HTML_VIEWER
 
