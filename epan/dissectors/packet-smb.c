@@ -17381,7 +17381,21 @@ static const value_string smb_cmd_vals[] = {
   { 0x1E, "Write MPX" },
   { 0x1F, "Write MPX Secondary" },
   { 0x20, "Write Complete" },
-  { 0x21, "unknown-0x21" },
+
+  /*
+   * To quote
+   *
+   *    http://msdn.microsoft.com/en-us/library/ee442098.aspx
+   *
+   * "This command was introduced in the NT LAN Manager dialect, and
+   * was reserved but not implemented.
+   *
+   * Clients SHOULD NOT send requests using this command code, and
+   * servers receiving requests with this command code SHOULD return
+   * STATUS_NOT_IMPLEMENTED (ERRDOS/ERRbadfunc)."
+   */
+  { 0x21, "Query Server" },
+
   { 0x22, "Set Information2" },
   { 0x23, "Query Information2" },
   { 0x24, "Locking AndX" },
@@ -17396,7 +17410,22 @@ static const value_string smb_cmd_vals[] = {
   { 0x2D, "Open AndX" },
   { 0x2E, "Read AndX" },
   { 0x2F, "Write AndX" },
-  { 0x30, "unknown-0x30" },
+
+  /*
+   * To quote
+   *
+   *    http://msdn.microsoft.com/en-us/library/ee442127.aspx
+   *
+   * "This command was reserved but not implemented. It was also never
+   * defined. It is listed in [SNIA], but it is not defined in that
+   * document and does not appear in any other references.
+   *
+   * Clients SHOULD NOT send requests using this command code, and
+   * servers receiving requests with this command code SHOULD return
+   * STATUS_NOT_IMPLEMENTED (ERRDOC/ERRbadfunc)."
+   */
+  { 0x30, "New File Size (reserved)" },
+
   { 0x31, "Close And Tree Disconnect" },
   { 0x32, "Trans2" },
   { 0x33, "Trans2 Secondary" },
