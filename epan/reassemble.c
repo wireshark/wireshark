@@ -1823,7 +1823,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 * fragment_add_seq_check will then add it to the table
 			 * of reassembled packets.
 			 */
-			if (*orig_keyp != NULL)
+			if (orig_keyp != NULL)
 				*orig_keyp = NULL;
 			fd_head->reassembled_in=pinfo->fd->num;
 			return fd_head;
