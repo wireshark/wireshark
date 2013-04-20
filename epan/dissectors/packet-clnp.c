@@ -536,10 +536,14 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
       /* First segment, or not segmented.  Dissect what we have here. */
 
-      /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset_length_fragment(tvb, offset,
-                                                segment_length - cnf_hdr_len,
-                                                total_length - cnf_hdr_len);
+      /* Get a tvbuff for the payload.  Set its length to the segment
+         length, and flag it as a fragment, so going past the end
+         reports FragmentBoundsError, i.e. "there's data missing
+         because this isn't reassembled", not ReportedBoundsError,
+         i.e. "the dissector ran past the end of the packet, so the
+         packet must not have been constructed properly". */
+      next_tvb = tvb_new_subset_length(tvb, offset, segment_length - cnf_hdr_len);
+      tvb_set_fragment(next_tvb);
 
       /*
        * If this is the first segment, but not the only segment,

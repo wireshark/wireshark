@@ -48,6 +48,11 @@ typedef struct {
 
 } tvb_comp_t;
 
+/*
+ * Tvbuff flags.
+ */
+#define TVBUFF_FRAGMENT		0x00000001	/* this is a fragment */
+
 struct tvbuff {
 	/* Doubly linked list pointers */
 	tvbuff_t                *next;
@@ -56,6 +61,7 @@ struct tvbuff {
 	/* Record-keeping */
 	tvbuff_type		type;
 	gboolean		initialized;
+	guint			flags;
 	struct tvbuff		*ds_tvb;  /**< data source top-level tvbuff */
 
 	/** TVBUFF_SUBSET and TVBUFF_COMPOSITE keep track
@@ -78,12 +84,6 @@ struct tvbuff {
 
 	/** Reported length. */
 	guint			reported_length;
-
-	/* If this tvbuff represents the first fragment of a larger packet
-	 * that was not reassembled, this is the length of the fragment
-	 * ("reported_length" will be the length of the full packet).
-	 */
-	guint			fragment_length;
 
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;

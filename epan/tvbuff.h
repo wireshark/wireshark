@@ -81,10 +81,10 @@ typedef struct tvbuff tvbuff_t;
  * A dissector:
  *  - Can chain new tvbs (subset, real, composite) to the
  *    tvb handed to the dissector using tvb_new_subset(),
- *    tvb_new_subset_remaining(), tvb_new_child_real_data(),
- *    tvb_set_child_real_data_tvbuff(), tvb_composite_finalize(), and
- *    tvb_child_uncompress(). (Composite tvbs should reference
- *    only tvbs which are already part of the chain).
+ *    tvb_new_subset_length(), tvb_new_subset_remaining(),
+ *    tvb_new_child_real_data(), tvb_set_child_real_data_tvbuff(),
+ *    tvb_composite_finalize(), and tvb_child_uncompress(). (Composite
+ *    tvbs should reference only tvbs which are already part of the chain).
  *  - Must not save for later use (e.g., when dissecting another frame) a
  *    pointer to a tvb handed to the dissector; (A higher level function
  *    may very well free the chain thus leaving a dangling pointer).
@@ -181,23 +181,13 @@ WS_DLL_PUBLIC tvbuff_t* tvb_new_real_data(const guint8* data, const guint length
 WS_DLL_PUBLIC tvbuff_t* tvb_new_subset(tvbuff_t* backing,
 		const gint backing_offset, const gint backing_length, const gint reported_length);
 
-/*
-* Similar to tvb_new_subset() but with captured length calculated
+/**
+ * Similar to tvb_new_subset() but with captured length calculated
  * to fit within the existing captured length and the specified
- * backing length (which is used as both the fragment and reported
- * length).
+ * backing length (which is used as the reported length).
  * Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t* tvb_new_subset_length(tvbuff_t *backing,
 		const gint backing_offset, const gint backing_length);
-
-/** Similar to tvb_new_subset() but with fragment and reported length
- * set as specified and captured length calculated to fit within
- * the existing captured length and the specified fragment and
- * reported lengths.
- * Can throw ReportedBoundsError. */
-extern tvbuff_t* tvb_new_subset_length_fragment(tvbuff_t *backing,
-		const gint backing_offset, const gint fragment_length,
-		const gint reported_length);
 
 /** Similar to tvb_new_subset() but with backing_length and reported_length set to -1.
  * Can throw ReportedBoundsError. */
@@ -266,6 +256,12 @@ WS_DLL_PUBLIC guint tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 
 /* Returns the offset from the first byte of real data. */
 WS_DLL_PUBLIC gint tvb_raw_offset(tvbuff_t *tvb);
+
+/** Set the "this is a fragment" flag. */
+WS_DLL_PUBLIC void tvb_set_fragment(tvbuff_t *tvb);
+
+WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
+
 
 /************** START OF ACCESSORS ****************/
 /* All accessors will throw an exception if appropriate */
@@ -678,8 +674,6 @@ typedef struct dgt_set_t
 dgt_set_t;
 
 WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
-WS_DLL_PUBLIC
-struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within
