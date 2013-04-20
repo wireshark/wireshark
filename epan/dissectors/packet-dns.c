@@ -3629,10 +3629,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
                 tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     } else if (flags & F_AUTHENTIC) {
-      proto_item *pi = proto_tree_add_item(field_tree, hf_dns_flags_ad,
+      proto_tree_add_item(field_tree, hf_dns_flags_ad,
                                  tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
-      expert_add_info_format(pinfo, pi, PI_SECURITY, PI_WARN,
-        "AD bit set in DNS Query");
     }
     proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
                 tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
