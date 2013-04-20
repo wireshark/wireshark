@@ -70,26 +70,26 @@ static gint ett_bt_dht_nodes = -1;
 
 /* some keys use short name in packet */
 static const value_string short_key_name_value_string[] = {
-  { 'y', "message_type" },
-  { 'q', "request_type" },
-  { 'e', "error" },
-  { 't', "transaction ID" },
-  { 'v', "version" },
-  { 'a', "request arguments" },
-  { 'r', "response values" },
+  { 'y', "Message type" },
+  { 'q', "Request type" },
+  { 'e', "Error" },
+  { 't', "Transaction ID" },
+  { 'v', "Version" },
+  { 'a', "Request arguments" },
+  { 'r', "Response values" },
   { 0, NULL }
 };
 
 /* some values use short name in packet */
 static const value_string short_val_name_value_string[] = {
-  { 'q', "request" },
-  { 'r', "response" },
-  { 'e', "error" },
+  { 'q', "Request" },
+  { 'r', "Response" },
+  { 'e', "Error" },
   { 0, NULL }
 };
 
-static const char dict_str[] = "dictionary...";
-static const char list_str[] = "list...";
+static const char dict_str[] = "Dictionary...";
+static const char list_str[] = "List...";
 
 
 static inline int
@@ -224,7 +224,7 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &error_msg, FALSE, "Error Message" );
 
   proto_item_set_text( ti, "%s: error %s, %s", label, error_no, error_msg );
-  col_append_fstr( pinfo->cinfo, COL_INFO, "error_no=%s  error_msg=%s  ", error_no, error_msg );
+  col_append_fstr( pinfo->cinfo, COL_INFO, "error_no=%s error_msg=%s ", error_no, error_msg );
   *result = ep_strdup_printf("error %s, %s", error_no, error_msg );
 
   return offset;
@@ -238,11 +238,9 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   proto_tree *sub_tree;
   proto_item *value_ti;
   proto_tree *value_tree;
-  address     addr;
 
   guint       peer_index;
   guint       string_len;
-  guint16     port;
 
   ti = proto_tree_add_item( tree, hf_bt_dht_peers, tvb, offset, 0, ENC_NA );
   sub_tree = proto_item_add_subtree( ti, ett_bt_dht_peers);
@@ -260,15 +258,16 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     for( ; string_len>=6; string_len-=6, offset+=6 )
     {
       peer_index += 1;
-      TVB_SET_ADDRESS( &addr, AT_IPv4, tvb, offset, 4);
-      port = tvb_get_ntohs( tvb, offset+4 );
 
-      value_ti = proto_tree_add_none_format( sub_tree, hf_bt_dht_peer, tvb, offset, 6,
-          "%d\t%s:%u", peer_index, ep_address_to_str( &addr ), port );
+      value_ti = proto_tree_add_item( sub_tree, hf_bt_dht_peer, tvb, offset, 6, ENC_NA );
+      proto_item_append_text(value_ti, " %d", peer_index);
       value_tree = proto_item_add_subtree( value_ti, ett_bt_dht_peers);
 
       proto_tree_add_item( value_tree, hf_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(value_ti, " (IP/Port: %s", tvb_ip_to_str(tvb, offset));
       proto_tree_add_item( value_tree, hf_port, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_item_append_text(value_ti, ":%u)", tvb_get_ntohs( tvb, offset+4 ));
+
     }
     /* truncated data */
     if( string_len>0 )
@@ -278,7 +277,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     }
   }
   proto_item_set_text( ti, "%s: %d peers", label, peer_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d peers  ", peer_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d peers ", peer_index );
   *result = ep_strdup_printf("%d peers", peer_index);
 
   return offset;
@@ -294,9 +293,6 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
   guint       node_index;
   guint       string_len;
-  address     addr;
-  guint16     port;
-  guint8     *id;
 
   string_len = bencoded_string_length(tvb, &offset);
 
@@ -309,17 +305,17 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   {
     node_index += 1;
 
-    id = tvb_bytes_to_str(tvb, offset, 20 );
-    TVB_SET_ADDRESS( &addr, AT_IPv4, tvb, offset+20, 4);
-    port = tvb_get_ntohs( tvb, offset+24 );
 
-    node_ti = proto_tree_add_none_format( sub_tree, hf_bt_dht_node, tvb, offset, 26,
-        "%d\t%s %s:%u", node_index, id, ep_address_to_str( &addr ), port );
+    node_ti = proto_tree_add_item( sub_tree, hf_bt_dht_node, tvb, offset, 26, ENC_NA);
+    proto_item_append_text(node_ti, " %d", node_index);
     node_tree = proto_item_add_subtree( node_ti, ett_bt_dht_peers);
 
     proto_tree_add_item( node_tree, hf_bt_dht_id, tvb, offset, 20, ENC_NA);
+    proto_item_append_text(node_ti, " (id: %s", tvb_bytes_to_str(tvb, offset, 20));
     proto_tree_add_item( node_tree, hf_ip, tvb, offset+20, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(node_ti, ", IP/Port: %s", tvb_ip_to_str(tvb, offset+20));
     proto_tree_add_item( node_tree, hf_port, tvb, offset+24, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(node_ti, ":%u)", tvb_get_ntohs( tvb, offset+24 ));
   }
   if( string_len>0 )
   {
@@ -327,7 +323,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     offset += string_len;
   }
   proto_item_set_text( ti, "%s: %d nodes", label, node_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d nodes  ", node_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d nodes ", node_index );
   *result = ep_strdup_printf("%d", node_index);
 
   return offset;
@@ -392,10 +388,8 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       len = bencoded_string_length(tvb, &offset);
 
       if(len == 4) {
-        address addr;
-        TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
-        val = ep_address_to_str(&addr);
-        proto_tree_add_ipv4_format(sub_tree, hf_ip, tvb, offset, len, tvb_get_ipv4(tvb, offset), "Value: %s", val);
+        proto_tree_add_item(sub_tree, hf_ip, tvb, offset, len, ENC_BIG_ENDIAN);
+        val = (char*)tvb_ip_to_str(tvb, offset);
         offset += len;
       }
       else {
@@ -421,7 +415,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item_set_len( ti, offset-orig_offset );
 
   if( strcmp(key,"message_type")==0 || strcmp(key,"request_type")==0 )
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s=%s  ", key, val);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s=%s ", key, val);
 
   return offset;
 }
@@ -441,7 +435,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   }
   else
   {
-    ti = proto_tree_add_none_format( tree, hf_bencoded_dict, tvb, offset, -1, "%s: dictionary...", label );
+    ti = proto_tree_add_none_format( tree, hf_bencoded_dict, tvb, offset, -1, "%s: Dictionary...", label );
     sub_tree = proto_item_add_subtree( ti, ett_bencoded_dict);
   }
 
@@ -502,23 +496,23 @@ proto_register_bt_dht(void)
 {
   static hf_register_info hf[] = {
     { &hf_bencoded_string,
-      { "string", "bt-dht.bencoded.string",
+      { "String", "bt-dht.bencoded.string",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bencoded_list,
-      { "list", "bt-dht.bencoded.list",
+      { "List", "bt-dht.bencoded.list",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bencoded_int,
-      { "int", "bt-dht.bencoded.int",
+      { "Int", "bt-dht.bencoded.int",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bencoded_dict,
-      { "dictionary", "bt-dht.bencoded.dict",
+      { "Dictionary", "bt-dht.bencoded.dict",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bencoded_dict_entry,
-      { "dictionary entry", "bt-dht.bencoded.dict_entry",
+      { "Dictionary Entry", "bt-dht.bencoded.dict_entry",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bt_dht_error,
@@ -526,7 +520,7 @@ proto_register_bt_dht(void)
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bt_dht_peer,
-      { "peer", "bt-dht.peer",
+      { "Peer", "bt-dht.peer",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bt_dht_peers,
@@ -542,19 +536,19 @@ proto_register_bt_dht(void)
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bt_dht_id,
-      { "id", "bt-dht.id",
+      { "ID", "bt-dht.id",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_ip,
-      { "ip", "bt-dht.ip",
+      { "IP", "bt-dht.ip",
         FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_port,
-      { "port", "bt-dht.port",
+      { "Port", "bt-dht.port",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
     { &hf_truncated_data,
-      { "truncated data", "bt-dht.truncated_data",
+      { "Truncated data", "bt-dht.truncated_data",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     }
   };
