@@ -133,6 +133,7 @@ set(WIRESHARK_C_ONLY_FLAGS
 	-Wdeclaration-after-statement
 	-Wno-pointer-sign
 	-Wold-style-definition
+	-Wshadow
 )
 
 set(WIRESHARK_EXTRA_C_FLAGS
