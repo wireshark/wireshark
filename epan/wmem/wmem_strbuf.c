@@ -34,8 +34,9 @@
 #define DEFAULT_MINIMUM_LEN 16
 
 /* Holds a wmem-allocated string-buffer.
- *  len is the length of the string (not counting null-terminators) and should
- *      always be the same as strlen(str).
+ *  len is the length of the string (not counting the null-terminator) and
+ *      should be the same as strlen(str) unless the string contains embedded
+ *      nulls.
  *  alloc_len is the length of the raw buffer pointed to by str, regardless of
  *      what string is actually being stored (i.e. the buffer contents)
  *  max_len is the maximum permitted alloc_len (NOT the maximum permitted len,
@@ -127,34 +128,42 @@ wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 {
+    gsize append_len;
+
     if (!strbuf || !str || str[0] == '\0') {
         return;
     }
 
-    wmem_strbuf_grow(strbuf, strlen(str));
+    append_len = strlen(str);
+
+    wmem_strbuf_grow(strbuf, append_len);
 
     g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->alloc_len);
+
+    strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
 }
 
 static void
 wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
 {
     va_list ap2;
-    gsize len;
+    gsize append_len;
 
     G_VA_COPY(ap2, ap);
 
-    len = g_printf_string_upper_bound(fmt, ap);
+    append_len = g_printf_string_upper_bound(fmt, ap);
 
     /* -1 because g_printf_string_upper_bound counts the null-terminator, but
      * wmem_strbuf_grow does not */
-    wmem_strbuf_grow(strbuf, len - 1);
+    wmem_strbuf_grow(strbuf, append_len - 1);
 
-    g_vsnprintf((strbuf->str + strbuf->len),
-                (gulong) (strbuf->alloc_len - strbuf->len),
-                fmt, ap2);
+    append_len = g_vsnprintf(&strbuf->str[strbuf->len],
+            (gulong) (strbuf->alloc_len - strbuf->len),
+            fmt, ap2);
 
     va_end(ap2);
+
+    strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
 }
 
 void
