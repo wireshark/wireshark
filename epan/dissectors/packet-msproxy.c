@@ -230,7 +230,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	}
 
-/* set pinfo->{src/dst port} and call the UDP sub-dissector lookup */
+/* set pinfo->{src/dst port} and call the TCP or UDP sub-dissector lookup */
 
 	if ( pinfo->srcport == redirect_info->clnt_port)
        		ptr = &pinfo->destport;
