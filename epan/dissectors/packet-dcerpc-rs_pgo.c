@@ -621,14 +621,14 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
 			guint8 * drep)
 {
 
-  typedef enum
+  enum
   {
     rs_pgo_query_name,
     rs_pgo_query_id,
     rs_pgo_query_unix_num,
     rs_pgo_query_next,
     rs_pgo_query_none
-  } rs_pgo_query_t;
+  };
 
 
   proto_item *item = NULL;
@@ -835,14 +835,14 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
 			    guint8 * drep)
 {
 
-  typedef enum
+  enum
   {
     rs_pgo_query_name,
     rs_pgo_query_id,
     rs_pgo_query_unix_num,
     rs_pgo_query_next,
     rs_pgo_query_none
-  } rs_pgo_query_t;
+  };
 /*
     typedef union switch (rs_pgo_query_t query) tagged_union {
         case rs_pgo_query_name:
