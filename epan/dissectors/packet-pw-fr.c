@@ -71,14 +71,14 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 	gint payload_size;
 	gint payload_padding;
 	const int encaps_size = 4; /*encapsulation consists of mandatory CW only*/
-	typedef enum {
+	enum {
 		PQ_CW_BAD		       = 0x001
-		,PQ_CW_BAD_BITS03 	       = 0x002
+		,PQ_CW_BAD_BITS03	       = 0x002
 		,PQ_CW_BAD_LEN_GT_PACKET       = 0x004
 		,PQ_CW_BAD_LEN_MUST_BE_ZERO    = 0x008
 		,PQ_CW_BAD_LEN_MUST_BE_NONZERO = 0x010
 		,PQ_PAYLOAD_SIZE_ZERO	       = 0x020
-	} packet_quality_e;
+	};
 	int packet_quality;
 
 	packet_size = tvb_reported_length_remaining(tvb, 0);
