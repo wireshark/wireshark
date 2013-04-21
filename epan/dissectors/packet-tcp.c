@@ -2232,35 +2232,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         }
 
-        /*
-         * Do not display the the PDU length if it crosses the boundary of the
-         * packet and no more packets are available.
-         *
-         * XXX - we don't necessarily know whether more packets are
-         * available; we might be doing a one-pass read through the
-         * capture in TShark, or we might be doing a live capture in
-         * Wireshark.
-         */
-#if 0
-        if (length_remaining >= plen || there are more packets)
-        {
-#endif
-                /*
-                 * Display the PDU length as a field
-                 */
-                item=proto_tree_add_uint((proto_tree *)pinfo->tcp_tree, 
-                                         hf_tcp_pdu_size,
-                                         tvb, offset, plen, plen);
-                PROTO_ITEM_SET_GENERATED(item);
-#if 0
-        } else {
-                item = proto_tree_add_text(pinfo->tcp_tree, tvb, offset, -1,
-                    "PDU Size: %u cut short at %u",plen,length_remaining);
-                PROTO_ITEM_SET_GENERATED(item);
-        }
-#endif
-
-
         /* give a hint to TCP where the next PDU starts
          * so that it can attempt to find it in case it starts
          * somewhere in the middle of a segment.
@@ -2292,6 +2263,34 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return;
             }
         }
+
+        /*
+         * Do not display the the PDU length if it crosses the boundary of the
+         * packet and no more packets are available.
+         *
+         * XXX - we don't necessarily know whether more packets are
+         * available; we might be doing a one-pass read through the
+         * capture in TShark, or we might be doing a live capture in
+         * Wireshark.
+         */
+#if 0
+        if (length_remaining >= plen || there are more packets)
+        {
+#endif
+                /*
+                 * Display the PDU length as a field
+                 */
+                item=proto_tree_add_uint((proto_tree *)pinfo->tcp_tree, 
+                                         hf_tcp_pdu_size,
+                                         tvb, offset, plen, plen);
+                PROTO_ITEM_SET_GENERATED(item);
+#if 0
+        } else {
+                item = proto_tree_add_text(pinfo->tcp_tree, tvb, offset, -1,
+                    "PDU Size: %u cut short at %u",plen,length_remaining);
+                PROTO_ITEM_SET_GENERATED(item);
+        }
+#endif
 
         /*
          * Construct a tvbuff containing the amount of the payload we have
