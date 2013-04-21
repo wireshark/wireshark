@@ -82,7 +82,11 @@ static int hf_ctlv_date_time_hr = -1;
 static int hf_ctlv_date_time_min = -1;
 static int hf_ctlv_date_time_sec = -1;
 static int hf_ctlv_date_time_tz = -1;
+static int hf_ctlv_at_cmd = -1;
+static int hf_ctlv_at_rsp = -1;
 static int hf_ctlv_language = -1;
+static int hf_ctlv_me_status = -1;
+static int hf_ctlv_timing_adv = -1;
 static int hf_ctlv_bearer = -1;
 static int hf_ctlv_bearer_descr = -1;
 static int hf_ctlv_bearer_csd_data_rate = -1;
@@ -116,6 +120,7 @@ static int hf_ctlv_other_address_ipv4 = -1;
 static int hf_ctlv_other_address_ipv6 = -1;
 static int hf_ctlv_access_tech = -1;
 static int hf_ctlv_utran_eutran_meas_qual = -1;
+static int hf_ctlv_upd_attach_type = -1;
 static int hf_ctlv_loci_lac = -1;
 static int hf_ctlv_loci_cell_id = -1;
 static int hf_ctlv_loci_ext_cell_id = -1;
@@ -189,7 +194,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x2b, "Immediate response" },
 	{ 0x2c, "DTMF string" },
 	{ 0x2d, "Language" },
-	{ 0x2e, "GSM/3G Timing Advance" },
+	{ 0x2e, "GSM Timing Advance" },
 	{ 0x2f, "AID" },
 	{ 0x30, "Browser Identity" },
 	{ 0x31, "URL" },
@@ -255,6 +260,8 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x7c, "3GPP EPS PDN connection activation parameters" },
 	{ 0x7d, "3GPP Tracking Area Identification" },
 	{ 0x7e, "3GPP CSG ID list" },
+	{ 0xaa, "IP address list" },
+	{ 0xbb, "Surrounding macrocells" },
 	{ 0, NULL }
 };
 
@@ -294,11 +301,13 @@ static const value_string cmd_qual_loci_vals[] = {
 	{ 0x0f, "Location Information for multiple access technologies" },
 	{ 0x10, "Network Measurement results for multiple access technologies" },
 	{ 0x11, "CSG ID list and corresponding HNB name" },
+	{ 0x12, "H(e)NB IP address" },
+	{ 0x13, "H(e)NB surrounding macrocells" },
 	{ 0, NULL }
 };
 static const value_string cmd_qual_timer_mgmt_vals[] = {
-	{ 0x00,	"Start" },
-	{ 0x01,	"Deactivate" },
+	{ 0x00, "Start" },
+	{ 0x01, "Deactivate" },
 	{ 0x02, "Get current value" },
 	{ 0, NULL }
 };
@@ -583,12 +592,19 @@ static const value_string loc_status_vals[] = {
 	{ 0, NULL }
 };
 
+/* 31.111 - Chapter 8.46 */
+static const value_string me_status_vals[] = {
+	{ 0x00, "ME is in the idle state" },
+	{ 0x01, "ME is not in idle state" },
+	{ 0, NULL }
+};
+
 /* TS 102 223 - Chapter 8.49 + TS 11.14 Chapter 12.49 */
 static const value_string bearer_vals[] = {
 	{ 0x00, "SMS" },
 	{ 0x01, "CSD" },
 	{ 0x02, "USSD" },
-	{ 0x03, "GPRS / packet switched" },
+	{ 0x03, "GPRS/UTRAN packet service/E-UTRAN" },
 	{ 0, NULL }
 };
 
@@ -752,6 +768,26 @@ static const value_string utran_eutran_meas_qual_vals[] = {
 	{ 0x06, "E-UTRAN Inter-frequency measurements" },
 	{ 0x07, "E-UTRAN Inter-RAT (GERAN) measurements" },
 	{ 0x08, "E-UTRAN Inter-RAT (UTRAN) measurements" },
+	{ 0, NULL }
+};
+
+/* 3GPP 31.111 - Chapter 8.92 */
+static const value_string upd_attach_type_vals[] = {
+	{ 0x00, "\"Normal Location Updating\" in the case of a Location Updating Request message" },
+	{ 0x01, "\"Periodic Updating\" in the case of a Location Updating Request message" },
+	{ 0x02, "\"IMSI Attach\" in the case of a Location Updating Request message" },
+	{ 0x03, "\"GPRS Attach\" in the case of a GPRS Attach Request message" },
+	{ 0x04, "\"Combined GPRS/IMSI Attach\" in the case of a GPRS Attach Request message" },
+	{ 0x05, "\"RA Updating\" in the case of a Routing Area Update Request message" },
+	{ 0x06, "\"Combined RA/LA Updating\" in the case of a Routing Area Update Request message" },
+	{ 0x07, "\"Combined RA/LA Updating with IMSI Attach\" in the case of a Routing Area Update Request message" },
+	{ 0x08, "\"Periodic Updating\" in the case of a Routing Area Update Request message" },
+	{ 0x09, "\"EPS Attach\" in the case of an EMM ATTACH REQUEST message" },
+	{ 0x0A, "\"Combined EPS/IMSI Attach\" in the case of an EMM ATTACH REQUEST message" },
+	{ 0x0B, "\"TA updating\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
+	{ 0x0C, "\"Combined TA/LA updating\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
+	{ 0x0D, "\"Combined TA/LA updating with IMSI attach\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
+	{ 0x0E, "\"Periodic updating\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
 	{ 0, NULL }
 };
 
@@ -1063,8 +1099,18 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			}
 			break;
+		case 0x28:	/* AT Command */
+			proto_tree_add_item(elem_tree, hf_ctlv_at_cmd, tvb, pos, len, ENC_ASCII|ENC_NA);
+			break;
+		case 0x29:	/* AT Response */
+			proto_tree_add_item(elem_tree, hf_ctlv_at_rsp, tvb, pos, len, ENC_ASCII|ENC_NA);
+			break;
 		case 0x2d:	/* language */
-				proto_tree_add_item(elem_tree, hf_ctlv_language, tvb, pos, len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_language, tvb, pos, len, ENC_ASCII|ENC_NA);
+			break;
+		case 0x2e:	/* Timing Advance */
+			proto_tree_add_item(elem_tree, hf_ctlv_me_status, tvb, pos, 1, ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_timing_adv, tvb, pos+1, 1, ENC_NA);
 			break;
 		case 0x32:	/* bearer */
 			for (i = 0; i < len; i++)
@@ -1147,6 +1193,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case 0x69:	/* UTRAN EUTRAN measurement qualifier */
 			proto_tree_add_item(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_NA);
+			break;
+		case 0x73:	/* Routing Area Information */
+			de_gmm_rai(tvb, elem_tree, pinfo, pos, len, NULL, 0);
+			break;
+		case 0x74:	/* Update/Attach Type */
+			proto_tree_add_item(elem_tree, hf_ctlv_upd_attach_type, tvb, pos, 1, ENC_NA);
 			break;
 		case 0x76:	/* Geographical Location Parameters / IARI */
 			if (ims_event) {
@@ -1374,9 +1426,29 @@ proto_register_card_app_toolkit(void)
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
+		{ &hf_ctlv_at_cmd,
+			{ "AT Command", "etsi_cat.comp_tlv.at_cmd",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_at_rsp,
+			{ "AT Response", "etsi_cat.comp_tlv.at_rsp",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
 		{ &hf_ctlv_language,
 			{ "Language", "etsi_cat.comp_tlv.language",
 			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_me_status,
+			{ "ME Status", "etsi_cat.comp_tlv.me_status",
+			  FT_UINT8, BASE_DEC, VALS(me_status_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_timing_adv,
+			{ "Timing Advance", "etsi_cat.comp_tlv.timing_adv",
+			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer,
@@ -1542,6 +1614,11 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_utran_eutran_meas_qual,
 			{ "UTRAN/E-UTRAN Measurement Qualifier", "etsi_cat.comp_tlv.utran_eutran_meas_qual",
 			  FT_UINT8, BASE_HEX, VALS(utran_eutran_meas_qual_vals), 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_upd_attach_type,
+			{ "UTRAN/E-UTRAN Measurement Qualifier", "etsi_cat.comp_tlv.upd_attach_type",
+			  FT_UINT8, BASE_HEX, VALS(upd_attach_type_vals), 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_loci_lac,
