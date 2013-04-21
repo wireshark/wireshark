@@ -407,6 +407,7 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
 
 	tvb->tvbuffs.subset.tvb	     = backing;
 	tvb->length		     = tvb->tvbuffs.subset.length;
+	tvb->flags		     = backing->flags;
 
 	if (reported_length == -1) {
 		tvb->reported_length = backing->reported_length - tvb->tvbuffs.subset.offset;
