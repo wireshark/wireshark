@@ -60,6 +60,8 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		"Dissector writer didn't bother saying what the error was";
 	proto_item *item;
 
+	if (exception == ReportedBoundsError && pinfo->fragmented)
+		exception = FragmentBoundsError;
 
 	switch (exception) {
 
