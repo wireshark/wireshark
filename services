@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-04-10
+# 2013-04-19
 # 
 # Expert(s)
 # 
@@ -10540,7 +10540,10 @@ sia-ctrl-plane	4787/tcp	# Architecture (SIA)           [Shree_Murthy]           
 xmcp	4788/tcp	# Protocol                     [Cisco]                                            [Glenn_Matthews]                                          2011-05-23   2011-10-25                                                                protovers=<comma-separated list of major/minor versions
 # supported> (examples: "protovers=1.0" "protovers=1.1,2.0"
 # 4788        udp    Reserved
-# 4789-4799            Unassigned
+vxlan	4789/udp	# Virtual eXtensible Local     [Lawrence_Kreeger]                                 [Lawrence_Kreeger]                                        2013-04-19
+# Area Network (VXLAN)
+# 4789        tcp    Reserved
+# 4790-4799            Unassigned
 iims	4800/tcp	# Icona Instant Messenging
 # System
 iims	4800/udp	# Icona Instant Messenging
@@ -13303,7 +13306,10 @@ senomix08	8059/udp	# Senomix Timesheets Client [1 [Charles_O_Dale]              
 # 8060        tcp    Reserved
 aero	8060/udp	# Asymmetric Extended Route    [IESG]                                             [IETF_Chair]                                                                        [RFC6706]
 # Optimization (AERO)
-# 8061-8073            Unassigned
+# 8061-8065            Unassigned
+toad-bi-appsrvr	8066/tcp	# Toad BI Application Server   [Quest_Software_2]                                 [Greg_Cottman_3]                                          2013-04-19
+# 8066        udp    Reserved
+# 8067-8073            Unassigned
 gadugadu	8074/tcp	# Gadu-Gadu                    [Marcin_Gozdalik]                                  [Marcin_Gozdalik]                                         2006-05
 gadugadu	8074/udp	# Gadu-Gadu                    [Marcin_Gozdalik]                                  [Marcin_Gozdalik]                                         2006-05
 # 8075-8079            Unassigned
@@ -18849,6 +18855,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Greg_Broiles]                                            Greg Broiles                                    mailto:greg&sac.net
 # [Greg_Cottman]                                            Greg Cottman                                    mailto:greg.cottman&quest.com                                 2008-10-23
 # [Greg_Cottman_2]                                          Greg Cottman                                    mailto:Greg.Cottman&quest.com                                 2010-10-18
+# [Greg_Cottman_3]                                          Greg Cottman              Quest Software        mailto:Greg.Cottman&quest.com                                 2013-04-19
 # [Greg_Ercolano]                                           Greg Ercolano                                   mailto:erco&netcom.com
 # [Greg_Ercolano_2]                                         Greg Ercolano                                   mailto:erco&cinegrfx.com
 # [Greg_Foutz]                                              Greg Foutz                                      mailto:gregf&adminovation.com                                 2006-03
@@ -19779,6 +19786,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Laurie_Charlwood]                                        Laurie Charlwood                                mailto:laurie.charlwood&printsoft.com                         2007-08-22
 # [Laurie_Lindsey]                                          Laurie Lindsey                                  mailto:llindsey&novell.com
 # [Lawrence_J_Dickson]                                      Lawrence J. Dickson       Land-5 Corporation    mailto:ldickson&land-5.com                                    2002-03
+# [Lawrence_Kreeger]                                        Lawrence Kreeger                                mailto:kreeger&cisco.com                                      2013-04-19
 # [Lawrence_Lebahn]                                         Lawrence Lebahn                                 mailto:DIA3&paxrv-nes.navy.mil
 # [Lawrence_Tarbox]                                         Lawrence Tarbox                                 mailto:ltarbox&scr.siemens.com
 # [Lawrence_W_Dunn]                                         Lawrence W. Dunn                                mailto:larrydunn&aptcomp.com                                  2003-04
@@ -20776,6 +20784,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Quang_Thoi]                                              Quang Thoi                                      mailto:quang_thoi&symantec.com                                2006-11
 # [Quentin_Brown]                                           Quentin Brown                                   mailto:ndldev&ndl.co.uk                                       2002-03
 # [Quest_Software]                                                                    Quest Software        mailto:iana.quest-disc&quest.com                              2012-04-09
+# [Quest_Software_2]                                                                  Quest Software        mailto:Greg.Cottman&quest.com                                 2013-04-19
 # [Quinton_Tormanen]                                        Quinton Tormanen                                mailto:quinton&deltacompsys.com
 # [R_L_Meyering]                                            R. L. Meyering                                  mailto:RLMEYERING&biivax.dp.beckman.com
 # [R_Thirumurthy]                                           R. Thirumurthy                                  mailto:rtm&banyannetworks.com
