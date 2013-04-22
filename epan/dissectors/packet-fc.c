@@ -654,7 +654,6 @@ dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, 
         if (flags & (~( FC_FCTL_REL_OFFSET )))
             proto_item_append_text(item, ",");
     }
-    flags&=(~( FC_FCTL_REL_OFFSET ));
 
 }
 
