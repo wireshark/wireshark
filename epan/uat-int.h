@@ -63,6 +63,8 @@ struct _uat_t {
     uat_field_t* fields;
     guint ncols;
     GArray* user_data;
+    GArray* raw_data;
+    GArray* valid_data;
     gboolean changed;
     uat_rep_t* rep;
     uat_rep_free_cb_t free_rep;
@@ -77,7 +79,7 @@ void uat_init(void);
 void uat_reset(void);
 
 WS_DLL_PUBLIC
-void* uat_add_record(uat_t*, const void* orig_rec_ptr);
+void* uat_add_record(uat_t*, const void* orig_rec_ptr, gboolean valid_rec);
 
 WS_DLL_PUBLIC
 void uat_swap(uat_t*, guint idx_a, guint idx_b);
@@ -96,7 +98,8 @@ gboolean uat_save(uat_t* , const char** );
 void uat_load_all(void);
 
 #define UAT_UPDATE(uat) do { *((uat)->user_ptr) = (void*)((uat)->user_data->data); *((uat)->nrows_p) = (uat)->user_data->len; } while(0)
-#define UAT_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
+#define UAT_INDEX_PTR(uat,idx) (uat->raw_data->data + (uat->record_size * (idx)))
+#define UAT_USER_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
 #endif
 
 /*

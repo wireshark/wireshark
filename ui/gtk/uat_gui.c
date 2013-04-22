@@ -127,7 +127,7 @@ static void set_buttons(uat_t *uat, gint row) {
 		gtk_widget_set_sensitive (uat->rep->bt_up, FALSE);
 	}
 
-	if (row < (gint)(*uat->nrows_p - 1) && row >= 0) {
+	if (row < (gint)(uat->raw_data->len - 1) && row >= 0) {
 		gtk_widget_set_sensitive (uat->rep->bt_down, TRUE);
 	} else {
 		gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
@@ -358,7 +358,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 	if (dd->is_new) {
 		void *rec_tmp = dd->rec;
-		dd->rec = uat_add_record(dd->uat, dd->rec);
+		dd->rec = uat_add_record(dd->uat, dd->rec, TRUE);
 
 		if (dd->uat->free_cb) {
 			dd->uat->free_cb(rec_tmp);
@@ -372,7 +372,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	set_buttons(dd->uat, dd->uat->rep ? dd->uat->rep->selected : -1);
 
 	if (dd->is_new) {
-		append_row(dd->uat, (*dd->uat->nrows_p) - 1 );
+		append_row(dd->uat, dd->uat->raw_data->len - 1 );
 	} else {
 		reset_row(dd->uat, dd->row);
 	}
@@ -705,7 +705,7 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 	uat_t *uat = (uat_t *)u;
 	gint   row = uat->rep->selected;
 
-	g_assert(row >= 0 && (guint) row < *uat->nrows_p - 1);
+	g_assert(row >= 0 && (guint) row < uat->raw_data->len - 1);
 
 	uat_swap(uat, row, row+1);
 	tree_view_list_store_move_selection(uat->rep->list, FALSE);
@@ -809,7 +809,7 @@ static void uat_refresh_cb(GtkButton *button _U_, gpointer u) {
 		report_failure("Error while loading %s: %s", uat->name, err);
 	}
 
-	for (i = 0 ; i < *(uat->nrows_p); i++) {
+	for (i = 0 ; i < uat->raw_data->len; i++) {
 		append_row(uat, i);
 	}
 }
@@ -987,7 +987,7 @@ static GtkWidget *uat_window(void *u) {
 			gtk_widget_set_tooltip_text(gtk_tree_view_column_get_button(column), f[colnum].desc);
 	}
 
-	for ( i = 0 ; i < *(uat->nrows_p); i++ ) {
+	for ( i = 0 ; i < uat->raw_data->len; i++ ) {
 		append_row(uat, i);
 	}
 

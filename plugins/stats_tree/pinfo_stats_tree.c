@@ -103,7 +103,7 @@ static void uat_plen_record_post_update_cb(void) {
 		for (i = 0; i < num_default; i++)
 		{
 			rec.packet_range = &default_range[i];
-			uat_add_record(plen_uat, &rec);
+			uat_add_record(plen_uat, &rec, TRUE);
 		}
 	}
 }

@@ -279,7 +279,7 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
 
             uat_key.string = get_key_string(new_key);
             uat_key.key = new_key->type;
-            uat_add_record(uat, &uat_key);
+            uat_add_record(uat, &uat_key, TRUE);
         }
 
         uat_save(uat, &err);
