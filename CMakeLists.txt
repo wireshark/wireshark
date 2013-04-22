@@ -130,6 +130,7 @@ set(WIRESHARK_C_FLAGS
 
 set(WIRESHARK_C_ONLY_FLAGS
 	# The following are C only, not C++
+	-Wc++-compat
 	-Wdeclaration-after-statement
 	-Wno-pointer-sign
 	-Wold-style-definition
@@ -169,7 +170,6 @@ set(WIRESHARK_EXTRA_C_FLAGS
 set(WIRESHARK_EXTRA_C_ONLY_FLAGS
 	# The following are C only, not C++
 	-Wbad-function-cast
-	-Wc++-compat
 	-Wjump-misses-init
 	# GLib blocks this for now.
 	-Wstrict-prototypes
