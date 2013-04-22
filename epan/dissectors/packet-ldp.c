@@ -1251,7 +1251,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                     }
                 }
                 rem -= 2 + gen_fec_id_len;
-                vc_len -= 2 + gen_fec_id_len;
+                /*vc_len -= 2 + gen_fec_id_len;*/
                 offset += 2 + gen_fec_id_len;
 
 
