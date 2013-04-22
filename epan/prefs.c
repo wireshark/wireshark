@@ -2079,7 +2079,7 @@ prefs_register_modules(void)
 
     prefs_register_enum_preference(gui_module, "update.channel",
                        "Update channel",
-                       "The type of update to fetch",
+                       "The type of update to fetch. You should probably leave this set to UPDATE_CHANNEL_STABLE.",
                        (gint*)(void*)(&prefs.gui_update_channel), gui_update_channel, FALSE);
 
     prefs_register_uint_preference(gui_module, "update.interval",
