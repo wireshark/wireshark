@@ -333,7 +333,6 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            "PDU length < header length %u", cnf_hdr_len);
     return;
   }
-  total_length = segment_length;
   cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
   cksum_status = calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum);
   if (tree) {
