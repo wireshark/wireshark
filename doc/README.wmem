@@ -317,6 +317,20 @@ Note that regardless of the value of this variable, it will always be safe to
 call allocator-specific helpers functions. They are required to be safe no-ops
 if the allocator argument is of the wrong type.
 
+4.4 Testing
+
+There is a simple test suite for wmem that lives in the file wmem_test.c and
+should get automatically built into the binary 'wmem_test' when building
+Wireshark. It contains at least basic tests for all existing functionality.
+The suite is run automatically by the build-bots via the shell script
+test/test.sh which calls out to test/suite-unittests.sh.
+
+New features added to wmem (allocators, data structures, utility
+functions, etc.) must also have tests added to this suite.
+
+The test suite could potentially use a clean-up by someone more
+intimately familiar with Glib's testing framework, but it does the job.
+
 5. TODO List
 
 The following is a list of things that wmem provides but are incomplete
