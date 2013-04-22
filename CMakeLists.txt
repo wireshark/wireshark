@@ -768,7 +768,6 @@ if(BUILD_wireshark AND GTK_FOUND)
 	set(wireshark_LIBS
 		gtkui
 		ui
-		ui_dirty
 		${GTK2_LIBRARIES}
 		${GTK3_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
@@ -793,7 +792,6 @@ if(BUILD_qtshark AND QT_FOUND)
 	set(qtshark_LIBS
 		qtui
 		ui
-		ui_dirty
 		${QT_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		codecs

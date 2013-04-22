@@ -48,12 +48,11 @@ add_lex_files(DIRTY_UI_SRC
 
 set(CLEAN_FILES
 	${COMMON_UI_SRC}
-	${DIRTY_UI_SRC}
 )
 
 if (WERROR)
 	set_source_files_properties(
-		${COMMON_UI_SRC}
+		${CLEAN_FILES}
 		PROPERTIES
 		COMPILE_FLAGS -Werror
 	)
@@ -62,12 +61,7 @@ endif()
 
 add_library(ui STATIC
 	${COMMON_UI_SRC}
-)
-
-set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-
-add_library(ui_dirty STATIC
 	${DIRTY_UI_SRC}
 )
 
-set_target_properties(ui_dirty PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
