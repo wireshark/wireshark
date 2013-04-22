@@ -1021,7 +1021,6 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     /* XXX - the Cisco document seems to be saying that, for 802.2-format
        protocol types, 0xAAAA03 0x000000 0x0800 is IPv6, but 0x0800 is
        the Ethernet protocol type for IPv4. */
-    length = 2 + protocol_length + 2 + address_length;
     address_type_str = NULL;
     address_str = NULL;
     if ((protocol_type == PROTO_TYPE_NLPID) && (protocol_length == 1)) {
