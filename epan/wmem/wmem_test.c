@@ -79,7 +79,7 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     allocator = wmem_allocator_force_new(type);
 
     if (verify) (*verify)(allocator);
-    
+
     /* start with some fairly simple deterministic tests */
 
     /* we use wmem_alloc0 in part because it tests slightly more code, but
@@ -138,7 +138,7 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     for (i=0; i<1024*64; i++) {
         gint ptrs_index;
         gint new_size;
-        
+
         /* returns value 0 <= x < MAX_SIMULTANEOUS_ALLOCS which is a valid
          * index into ptrs */
         ptrs_index = g_test_rand_int_range(0, MAX_SIMULTANEOUS_ALLOCS);
@@ -330,7 +330,7 @@ wmem_test_strbuf(void)
 
     wmem_strbuf_append(strbuf, "FUZZ");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ");
-    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 8);
+    g_assert(wmem_strbuf_get_len(strbuf) == 8);
 
     wmem_strbuf_append_printf(strbuf, "%d%s", 3, "a");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3a");
