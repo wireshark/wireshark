@@ -23,7 +23,7 @@
 
 include Custom.make
 
-SUBDIRS = 		\
+SUBDIRS =		\
 	$(CUSTOM_SUBDIRS)	\
 	acp133		\
 	acse		\
@@ -72,7 +72,7 @@ SUBDIRS = 		\
 	lppa		\
 	lppe		\
 	lte-rrc		\
-	m3ap	\
+	m3ap		\
 	mms		\
 	mpeg-audio	\
 	mpeg-pes	\
