@@ -249,14 +249,14 @@ wmem_test_slist(void)
 
     slist = wmem_slist_new(allocator);
     g_assert(slist);
-    g_assert_cmpuint(wmem_slist_count(slist), ==, 0);
+    g_assert(wmem_slist_count(slist) == 0);
 
     frame = wmem_slist_front(slist);
     g_assert(frame == NULL);
 
     for (i=0; i<LIST_ITERS; i++) {
         wmem_slist_prepend(slist, GINT_TO_POINTER(i));
-        g_assert_cmpuint(wmem_slist_count(slist), ==, i+1);
+        g_assert(wmem_slist_count(slist) == i+1);
 
         frame = wmem_slist_front(slist);
         g_assert(frame);
@@ -277,7 +277,7 @@ wmem_test_slist(void)
         i--;
     }
     wmem_slist_remove(slist, GINT_TO_POINTER(LIST_ITERS - 1));
-    g_assert_cmpuint(wmem_slist_count(slist), ==, 0);
+    g_assert(wmem_slist_count(slist) == 0);
     g_assert(wmem_slist_front(slist) == NULL);
 
     wmem_destroy_allocator(allocator);
@@ -294,7 +294,7 @@ wmem_test_strbuf(void)
     strbuf = wmem_strbuf_new(allocator, "TEST");
     g_assert(strbuf);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TEST");
-    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 4);
+    g_assert(wmem_strbuf_get_len(strbuf) == 4);
 
     wmem_strbuf_append(strbuf, "FUZZ");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ");
@@ -302,20 +302,20 @@ wmem_test_strbuf(void)
 
     wmem_strbuf_append_printf(strbuf, "%d%s", 3, "a");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3a");
-    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 10);
+    g_assert(wmem_strbuf_get_len(strbuf) == 10);
 
     strbuf = wmem_strbuf_sized_new(allocator, 10, 10);
     g_assert(strbuf);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "");
-    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 0);
+    g_assert(wmem_strbuf_get_len(strbuf) == 0);
 
     wmem_strbuf_append(strbuf, "FUZZ");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ");
-    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 4);
+    g_assert(wmem_strbuf_get_len(strbuf) == 4);
 
     wmem_strbuf_append_printf(strbuf, "%d%s", 3, "abcdefghijklmnop");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
-    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 9);
+    g_assert(wmem_strbuf_get_len(strbuf) == 9);
 
     wmem_destroy_allocator(allocator);
 }
