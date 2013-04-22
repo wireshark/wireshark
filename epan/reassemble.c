@@ -1180,7 +1180,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fd_head->reassembled_in=pinfo->fd->num;
 
 	/* we don't throw until here to avoid leaking old_data and others */
-        if (fd_head->error) {
+	if (fd_head->error) {
 		THROW_MESSAGE(ReassemblyError, fd_head->error);
 	}
 
@@ -1196,7 +1196,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 {
 	fragment_data *fd_head;
 	fragment_data *fd_item;
-	gboolean already_added=pinfo->fd->flags.visited;
+	gboolean already_added;
 
 
 	/* dissector shouldn't give us garbage tvb info */
@@ -1238,12 +1238,12 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		 * frame being added to the same reassembled PDU.
 		 */
 		if (check_already_added && fd_head != NULL) {
-		    	/*
-		    	 * fd_head->frame is the maximum of the frame
+			/*
+			 * fd_head->frame is the maximum of the frame
 			 * numbers of all the fragments added to this
 			 * reassembly; if this frame is later than that
 			 * frame, we know it hasn't been added yet.
-		    	 */
+			 */
 			if (pinfo->fd->num <= fd_head->frame) {
 				already_added = FALSE;
 				/*
@@ -1319,11 +1319,11 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 				/*
 				 * Yes.
 				 */
-		    		if (frag_offset >= fd_head->datalen) {
-		    			/*
-		    			 * The fragment starts past the
-		    			 * end of the reassembled data.
-		    			 */
+				if (frag_offset >= fd_head->datalen) {
+					/*
+					 * The fragment starts past the
+					 * end of the reassembled data.
+					 */
 					THROW_MESSAGE(ReassemblyError, "New fragment past old data limits");
 				} else {
 					/*
