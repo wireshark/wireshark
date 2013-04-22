@@ -238,6 +238,37 @@ wmem_test_allocator_strict(void)
 }
 
 static void
+wmem_test_strutls(void)
+{
+    wmem_allocator_t   *allocator;
+    const char         *orig_str;
+    char               *new_str;
+
+    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    orig_str = "TEST1";
+    new_str  = wmem_strdup(allocator, orig_str);
+    g_assert_cmpstr(new_str, ==, orig_str);
+    new_str[0] = 'X';
+    g_assert_cmpstr(new_str, >, orig_str);
+    wmem_strict_check_canaries(allocator);
+
+    orig_str = "TEST123456789";
+    new_str  = wmem_strndup(allocator, orig_str, 6);
+    g_assert_cmpstr(new_str, ==, "TEST12");
+    g_assert_cmpstr(new_str, <, orig_str);
+    new_str[0] = 'X';
+    g_assert_cmpstr(new_str, >, orig_str);
+    wmem_strict_check_canaries(allocator);
+
+    new_str = wmem_strdup_printf(allocator, "abc %s %% %d", "boo", 23);
+    g_assert_cmpstr(new_str, ==, "abc boo % 23");
+    wmem_strict_check_canaries(allocator);
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
 wmem_test_slist(void)
 {
     wmem_allocator_t   *allocator;
@@ -288,6 +319,7 @@ wmem_test_strbuf(void)
 {
     wmem_allocator_t   *allocator;
     wmem_strbuf_t      *strbuf;
+    int                 i;
 
     allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
 
@@ -317,6 +349,21 @@ wmem_test_strbuf(void)
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
     g_assert(wmem_strbuf_get_len(strbuf) == 9);
 
+    wmem_free_all(allocator);
+
+    strbuf = wmem_strbuf_new(allocator, "TEST");
+    for (i=0; i<1024; i++) {
+        if (g_test_rand_bit()) {
+            wmem_strbuf_append(strbuf, "ABC");
+        }
+        else {
+            wmem_strbuf_append_printf(strbuf, "%d%d", 3, 777);
+        }
+        wmem_strict_check_canaries(allocator);
+    }
+    g_assert(strlen(wmem_strbuf_get_str(strbuf)) ==
+             wmem_strbuf_get_len(strbuf));
+
     wmem_destroy_allocator(allocator);
 }
 
@@ -329,6 +376,8 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/allocator/simple", wmem_test_allocator_simple);
     g_test_add_func("/wmem/allocator/strict", wmem_test_allocator_strict);
     g_test_add_func("/wmem/allocator/times",  wmem_time_allocators);
+
+    g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
     g_test_add_func("/wmem/datastruct/slist",  wmem_test_slist);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
