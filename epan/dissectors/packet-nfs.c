@@ -6946,7 +6946,7 @@ static const value_string names_fattr4[] = {
 static int
 dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int type)
 {
-	int attr_mask_offset;
+	int attr_mask_offset = 0;
 	guint8 i, j, num_bitmaps, count=0;
 	guint32 attr_num;
 	guint32 *bitmaps=NULL, bitmap, sl;
