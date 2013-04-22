@@ -2,8 +2,8 @@
 #
 
 m4_define([version_major], [1])
-m4_define([version_minor], [9])
-m4_define([version_micro], [3])
+m4_define([version_minor], [10])
+m4_define([version_micro], [0])
 m4_define([version_micro_extra], version_micro)
 m4_append([version_micro_extra], [])
 
@@ -672,11 +672,11 @@ AC_WIRESHARK_GCC_FORTIFY_SOURCE_CHECK
 # This barrier is set for a very large part of the code. However, it is
 # typically not set for "generated" code  (flex, ans2wrs, idl2wrs, ...)
 #
-warnings_as_errors_default="yes"
+warnings_as_errors_default="no"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
-		  [treat warnings as errors (only for GCC or clang) @<:@default=yes, unless extra warnings are enabled@:>@]),
+		  [treat warnings as errors (only for GCC or clang) @<:@default=no@:>@]),
 [
   if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes"; then
     with_warnings_as_errors="yes"
