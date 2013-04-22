@@ -308,6 +308,7 @@ static int hf_gtpv2_mm_context_mei_len = -1;
 static int hf_gtpv2_mm_context_vdp_len = -1;
 static int hf_gtpv2_mm_context_higher_br_16mb_flg_len = -1;
 static int hf_gtpv2_mm_context_higher_br_16mb_flg = -1;
+static int hf_gtpv2_vdp_length = -1;
 
 static int hf_gtpv2_una = -1;
 static int hf_gtpv2_gena = -1;
@@ -3483,7 +3484,7 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_item *flag;
     proto_tree *flag_tree;
     guint32     offset;
-    guint8      tmp, drxi, nr_qua, nr_qui, uamb_ri, samb_ri;
+    guint8      tmp, drxi, nr_qua, nr_qui, uamb_ri, samb_ri, vdp_length;
 
     offset = 0;
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
@@ -3545,12 +3546,27 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* Dissect octet j to r */
     offset = dissect_gtpv2_mm_context_common_data(tvb, pinfo, tree, offset, samb_ri, uamb_ri);
 
+	if (offset >= (guint32)length) {
+		return;
+	}
     /* r+1 Spare HNNA ENA INA GANA GENA UNA */
-    if (offset < (guint32)length) {
-        offset = dissect_gtpv2_access_restriction_data(tvb, tree, offset);
-    } else {
-        return;
-    }
+    offset = dissect_gtpv2_access_restriction_data(tvb, tree, offset);
+
+	if (offset >= (guint32)length) {
+		return;
+	}
+
+	/* The Voice Domain Preference and UE's Usage Setting coding is specified in clause 10.5.5.28 of 3GPP TS 24.008 [5]. If
+     * Length of Voice Domain Preference and UE's Usage Setting is zero, then the Voice Domain Preference and UE's Usage
+     * Setting parameter shall not be present.
+     */
+	vdp_length = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_gtpv2_vdp_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	if(vdp_length !=0){
+		offset += de_gmm_voice_domain_pref(tvb, tree, pinfo, offset, vdp_length, NULL, 0);
+	}
 
 	if (offset < (guint32)length) {
 		proto_tree_add_text(tree, tvb, offset, -1, "The rest of the IE not dissected yet");
@@ -6448,7 +6464,13 @@ void proto_register_gtpv2(void)
            FT_UINT16, BASE_HEX, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtpv2_mm_context_ue_net_cap_len,
+        { &hf_gtpv2_vdp_length,
+          {"VDP and UE's Usage Setting length", "gtpv2.vdp_length",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+
+		{ &hf_gtpv2_mm_context_ue_net_cap_len,
           {"Length of UE Network Capability", "gtpv2.mm_context_ue_net_cap_len",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
