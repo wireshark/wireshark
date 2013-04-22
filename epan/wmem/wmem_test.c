@@ -32,9 +32,9 @@
 #include "wmem_allocator_strict.h"
 #include "config.h"
 
-#define MAX_SIMULTANEOUS_ALLOCS 1024
-#define MAX_ALLOC_SIZE (1024*64)
-#define LIST_ITERS 10000
+#define MAX_ALLOC_SIZE          (1024*64)
+#define MAX_SIMULTANEOUS_ALLOCS  1024
+#define CONTAINER_ITERS          10000
 
 typedef void (*wmem_verify_func)(wmem_allocator_t *allocator);
 
@@ -285,7 +285,7 @@ wmem_test_slist(void)
     frame = wmem_slist_front(slist);
     g_assert(frame == NULL);
 
-    for (i=0; i<LIST_ITERS; i++) {
+    for (i=0; i<CONTAINER_ITERS; i++) {
         wmem_slist_prepend(slist, GINT_TO_POINTER(i));
         g_assert(wmem_slist_count(slist) == i+1);
 
@@ -293,8 +293,9 @@ wmem_test_slist(void)
         g_assert(frame);
         g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
     }
+    wmem_strict_check_canaries(allocator);
 
-    i = LIST_ITERS - 1;
+    i = CONTAINER_ITERS - 1;
     frame = wmem_slist_front(slist);
     while (frame) {
         g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
@@ -302,14 +303,45 @@ wmem_test_slist(void)
         frame = wmem_slist_frame_next(frame);
     }
 
-    i = LIST_ITERS - 2;
+    i = CONTAINER_ITERS - 2;
     while (wmem_slist_count(slist) > 1) {
         wmem_slist_remove(slist, GINT_TO_POINTER(i));
         i--;
     }
-    wmem_slist_remove(slist, GINT_TO_POINTER(LIST_ITERS - 1));
+    wmem_slist_remove(slist, GINT_TO_POINTER(CONTAINER_ITERS - 1));
     g_assert(wmem_slist_count(slist) == 0);
     g_assert(wmem_slist_front(slist) == NULL);
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
+wmem_test_stack(void)
+{
+    wmem_allocator_t   *allocator;
+    wmem_stack_t       *stack;
+    unsigned int        i;
+
+    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    stack = wmem_stack_new(allocator);
+    g_assert(stack);
+    g_assert(wmem_stack_count(stack) == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_stack_push(stack, GINT_TO_POINTER(i));
+
+        g_assert(wmem_stack_count(stack) == i+1);
+        g_assert(wmem_stack_peek(stack) == GINT_TO_POINTER(i));
+    }
+    wmem_strict_check_canaries(allocator);
+
+    for (i=CONTAINER_ITERS; i>0; i--) {
+        g_assert(wmem_stack_peek(stack) == GINT_TO_POINTER(i-1));
+        g_assert(wmem_stack_pop(stack) == GINT_TO_POINTER(i-1));
+        g_assert(wmem_stack_count(stack) == i-1);
+    }
+    g_assert(wmem_stack_count(stack) == 0);
 
     wmem_destroy_allocator(allocator);
 }
@@ -380,6 +412,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
     g_test_add_func("/wmem/datastruct/slist",  wmem_test_slist);
+    g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
 
     return g_test_run();
