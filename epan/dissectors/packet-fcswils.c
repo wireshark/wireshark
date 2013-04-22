@@ -773,7 +773,7 @@ dissect_swils_elp(tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
                 stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (elp.cls1_svcparm[0] & 0x10) {
-                returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
+                /*returned_length =*/ g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
             }
             flags=flagsbuf;
         }
