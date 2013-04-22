@@ -3792,6 +3792,10 @@ static int hf_ieee80211_aironet_ie_qos_reserved = -1;
 static int hf_ieee80211_aironet_ie_qos_paramset = -1;
 static int hf_ieee80211_aironet_ie_qos_val = -1;
 
+static int hf_ieee80211_vs_aruba_subtype = -1;
+static int hf_ieee80211_vs_aruba_apname = -1;
+static int hf_ieee80211_vs_aruba_data = -1;
+
 static int hf_ieee80211_rsn_ie_pmkid = -1;
 static int hf_ieee80211_rsn_ie_unknown = -1;
 
@@ -7838,6 +7842,44 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
   }
 }
 
+#define ARUBA_APNAME  3
+static const value_string ieee80211_vs_aruba_subtype_vals[] = {
+  { ARUBA_APNAME, "AP Name"},
+  { 0,                 NULL }
+};
+static void
+dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  guint8 type;
+
+  offset += 1; /* VS OUI Type */
+  tag_len -= 1;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item (ietree, hf_ieee80211_vs_aruba_subtype, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_aruba_subtype_vals, "Unknown"));
+  offset += 1;
+  tag_len -= 1;
+
+  switch (type) {
+  case ARUBA_APNAME:
+    offset += 1;
+    tag_len -= 1;
+
+    proto_tree_add_item (ietree, hf_ieee80211_vs_aruba_apname, tvb,
+                         offset, tag_len, ENC_ASCII|ENC_NA);
+    proto_item_append_text(item, " (%s)", tvb_get_ephemeral_string(tvb, offset, tag_len));
+    break;
+
+  default:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_aruba_data, tvb, offset,
+      tag_len, ENC_NA);
+    proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(tvb, offset, tag_len));
+    break;
+  }
+}
+
 /* 802.11e 7.3.2.33 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, int offset, int ftype)
@@ -11341,6 +11383,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           break;
         case OUI_ATHEROS:
           dissect_vendor_ie_atheros(ti, tree, tvb, offset, tag_vs_len, pinfo, ti_len);
+          break;
+        case OUI_ARUBA:
+          dissect_vendor_ie_aruba(ti, tree, tvb, offset, tag_vs_len);
           break;
         default:
           proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -18613,6 +18658,22 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_aironet_ie_qos_val,
      {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    /* Vendor Specific : Aruba Networks */
+    {&hf_ieee80211_vs_aruba_subtype,
+     {"Subtype", "wlan_mgt.vs.aruba.subtype",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_aruba_subtype_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aruba_apname,
+     {"AP Name", "wlan_mgt.vs.aruba.ap_name",
+      FT_STRINGZ, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aruba_data,
+     {"Data", "wlan_mgt.vs.aruba.data",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
