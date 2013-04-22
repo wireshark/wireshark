@@ -1557,7 +1557,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         && ar_op != ARPOP_REQUEST)
     {
       add_ether_byip(ip, mac);
-      if (global_arp_detect_duplicate_ip_addresses)
+      /* If Gratuitous, don't report duplicate for same IP address twice */
+      if (global_arp_detect_duplicate_ip_addresses && (duplicate_ip!=ip))
       {
         duplicate_detected =
           check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
