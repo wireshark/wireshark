@@ -484,6 +484,7 @@ foreach(PLUGIN_DIR ${PLUGIN_SRC_DIRS})
 	add_subdirectory( ${PLUGIN_DIR} )
 endforeach()
 
+add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( codecs )
 add_subdirectory( epan )
 add_subdirectory( tools/lemon )
