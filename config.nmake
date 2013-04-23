@@ -979,6 +979,8 @@ INSTALL_DIR=wireshark-gtk2
 # You can either place the redistributable in its own platform-
 # and compiler-specific directory or in the top-level library
 # directory.
+# Microsoft maintains a list of the latest redistributables in
+# KB 20197667: http://support.microsoft.com/kb/2019667
 !IF EXIST("$(WIRESHARK_LIB_DIR)\vcredist_$(MSVC_VARIANT)")
 VCREDIST_DIR=$(WIRESHARK_LIB_DIR)\vcredist_$(MSVC_VARIANT)
 !ELSE
