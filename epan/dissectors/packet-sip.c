@@ -2118,6 +2118,17 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint32 response_time = 0;
 	int     strlen_to_copy;
 
+	/*
+	 * If this should be a request of response, do this quick check to see if
+	 * it begins with a string...
+	 * Otherwise, SIP heuristics are expensive...
+	 *
+	 */
+	if (!dissect_other_as_continuation && 
+	    ((tvb_reported_length_remaining(tvb, offset) < 1) || !isprint(tvb_get_guint8(tvb, offset))))
+	{
+		return -2;
+	}
 
 	/*
 	 * Note that "tvb_find_line_end()" will return a value that
