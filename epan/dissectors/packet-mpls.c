@@ -608,9 +608,15 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* 2) use the 1st nibble logic (see BCP 4928, RFC 4385 and 5586) */
     if (first_nibble == 4) {
         call_dissector(dissector_ip, next_tvb, pinfo, tree);
+        /* IP dissector may reduce the length of the tvb.
+           We need to do the same, so that ethernet trailer is detected. */
+        set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
         return;
     } else if (first_nibble == 6) {
         call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
+        /* IPv6 dissector may reduce the length of the tvb.
+           We need to do the same, so that ethernet trailer is detected. */
+        set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
         return;
     } else if (first_nibble == 1) {
         dissect_pw_ach(next_tvb, pinfo, tree);
