@@ -26,6 +26,8 @@
 #ifndef __NLPID_H__
 #define __NLPID_H__
 
+#include <epan/value_string.h>
+
 /* X.263 / ISO/IEC TR 9577 NLPID values. */
 
 #define NLPID_NULL		0x00
