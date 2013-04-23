@@ -101,6 +101,7 @@ static const fragment_items clnp_frag_items = {
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
 static dissector_handle_t ositp_inactive_handle;
+static dissector_handle_t idrp_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -577,6 +578,12 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    XXX - if this isn't the first Derived PDU of a segmented Initial
                    PDU, skip that? */
 
+                if (nsel==NSEL_NET && tvb_get_guint8(next_tvb, 0)==NLPID_ISO10747_IDRP) {
+                    if(call_dissector(idrp_handle, next_tvb, pinfo, tree) != 0) {
+                        pinfo->fragmented = save_fragmented;
+                        return;
+                    }
+                }
                 if (nsel == (guchar)tp_nsap_selector || always_decode_transport) {
                     if (call_dissector(ositp_handle, next_tvb, pinfo, tree) != 0) {
                         pinfo->fragmented = save_fragmented;
@@ -774,6 +781,7 @@ proto_reg_handoff_clnp(void)
 {
     ositp_handle = find_dissector("ositp");
     ositp_inactive_handle = find_dissector("ositp_inactive");
+    idrp_handle = find_dissector("idrp");
     data_handle = find_dissector("data");
 
     clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
