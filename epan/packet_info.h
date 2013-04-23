@@ -182,6 +182,8 @@ typedef struct _packet_info {
                                        */
   void    *private_data;		/**< pointer to data passed from one dissector to another */
   GHashTable *private_table;	/**< a hash table passed from one dissector to another */
+
+  guint16 curr_layer_num;       /**< The current "depth" or layer number in the current frame */
   /* TODO: Use emem_strbuf_t instead */
   GString *layer_names; 		/**< layers of each protocol */
   guint16 link_number;

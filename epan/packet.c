@@ -532,11 +532,14 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		 * Add the protocol name to the layers
 		 * if not told not to. Asn2wrs generated dissectors may be added multiple times otherwise.
 		 */
-		if ((pinfo->layer_names)&&(add_proto_name)) {
-			if (pinfo->layer_names->len > 0)
-				g_string_append(pinfo->layer_names, ":");
-				g_string_append(pinfo->layer_names,
-				proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
+		if (add_proto_name) {
+			pinfo->curr_layer_num++;
+			if (pinfo->layer_names) {
+				if (pinfo->layer_names->len > 0)
+					g_string_append(pinfo->layer_names, ":");
+					g_string_append(pinfo->layer_names,
+					proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
+			}
 		}
 	}
 
