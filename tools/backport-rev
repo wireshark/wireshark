@@ -1,0 +1,100 @@
+#!/bin/bash
+#
+# Copyrev - copies a revision from the Wireshark trunk to the current
+# directory.
+#
+# Usage: backport-rev <svn revision>
+#
+# $Id$
+#
+# Copyright 2013 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+if [ -z "$VISUAL" ] ; then
+    VISUAL=$EDITOR
+fi
+
+function exit_err
+{
+    if [ -n "$*" ] ; then
+        echo "$*"
+    fi
+    echo -n $patchfile | pbcopy
+    echo "Patch saved to $patchfile and copied to pasteboard"
+    if [ -n "$VISUAL" ] ; then
+        "$VISUAL" $patchfile $logfile
+    else
+	echo "Can't find an editor. You'll have to open $patchfile and $logfile yourself."
+    fi
+    exit 1
+}
+
+subdir=""
+trunk="trunk"
+
+while getopts "at:" opt ; do
+    case $opt in
+        a)
+            subdir="/asn1"
+            ;;
+        t)
+            trunk="trunk-$OPTARG"
+            ;;
+        \?)
+            echo "Unknown option -$OPTARG"
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+svnurl="http://anonsvn.wireshark.org/wireshark/$trunk"
+#svnurl="$HOME/Development/wireshark"
+
+rev="$1"
+
+patchfile="/tmp/copyrev-$rev.patch"
+logfile="/tmp/copyrev-$rev.log"
+oldrev=$(( $rev - 1 ))
+echo "Working on r$rev ($oldrev)"
+
+echo -n "Attempting dry run: "
+if [ -n "$subdir" ] ; then
+    cd .$subdir
+fi
+
+svn diff --diff-cmd /usr/bin/diff -x "-w -b -U 5" -c $rev $svnurl$subdir \
+    > $patchfile || exit_err "Error"
+
+svn log -v -r $rev $svnurl | sed -e 's/^..*/  &/' > $logfile || exit 1
+
+svn merge --dry-run -c$rev $svnurl | grep '^Summary' \
+    > /dev/null 2>&1 && exit_err "Conflict"
+
+echo "OK"
+echo "Attempting patch:"
+svn merge -c$rev $svnurl
+
+if [ -n "$subdir" ] ; then
+    cd ..
+fi
+echo Done with r$rev
+
+echo "Copy over revisions from the trunk:"
+echo ""
+uniq < $logfile
+
+rm -v $patchfile $logfile
