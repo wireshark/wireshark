@@ -219,9 +219,9 @@ static dissector_handle_t data_handle;
 #define SEQUENCE_ANALYSIS_PDCP_ONLY 2
 
 /* Preference variables */
-static gboolean global_pdcp_dissect_user_plane_as_ip = FALSE;
-static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;
-static gint     global_pdcp_check_sequence_numbers = FALSE;
+static gboolean global_pdcp_dissect_user_plane_as_ip = TRUE;
+static gboolean global_pdcp_dissect_signalling_plane_as_rrc = TRUE;
+static gint     global_pdcp_check_sequence_numbers = TRUE;
 static gboolean global_pdcp_dissect_rohc = FALSE;
 
 /* Which layer info to show in the info column */
