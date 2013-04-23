@@ -1,4 +1,5 @@
-/* packet-idrp.c * ISO 10747 Inter Domain Routing Protocol
+/* packet-idrp.c
+ * ISO 10747 Inter Domain Routing Protocol
  * Routines for IDRP packet dissection.
  * Copyright 2013, Mathias Guettler <guettler@web.de>
  *
