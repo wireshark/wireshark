@@ -838,7 +838,7 @@ File "..\..\doc\tshark.html"
 SectionEnd
 
 !ifdef QT_DIR
-Section /o "QtShark (Experimental)" SecQtshark
+Section "QtShark (Experimental)" SecQtshark
 ;-------------------------------------------
 ; by default, QtShark is not installed  
 SetOutPath $INSTDIR
