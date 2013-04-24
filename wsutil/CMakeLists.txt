@@ -78,7 +78,7 @@ configure_file(../abi-descriptor.template abi-descriptor.xml)
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12
 file(GLOB HEADERS *.h)
-file(MAKE_DIRECTORY abi-check-headers)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers)
 
 file(COPY ${HEADERS} ../ws_symbol_export.h DESTINATION abi-check-headers)
 

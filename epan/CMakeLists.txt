@@ -1573,11 +1573,13 @@ file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
 file(GLOB FTYPES_HEADERS ftypes/*.h)
 file(GLOB WMEM_HEADERS wmem/*.h)
-file(MAKE_DIRECTORY abi-check-headers abi-check-headers/epan
-		abi-check-headers/crypt abi-check-headers/dfilter
-		abi-check-headers/dissectors abi-check-headers/ftypes
-		abi-check-headers/wmem)
-file(MAKE_DIRECTORY abi-check-headers/epan)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers
+	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/epan
+	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/crypt
+	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/dfilter
+	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/dissectors
+	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/ftypes
+	${CMAKE_CURRENT_BINARY_DIR}/abi-check-headers/wmem)
 
 file(COPY ../color.h ../register.h ../ws_symbol_export.h DESTINATION abi-check-headers)
 file(COPY ${EPAN_HEADERS} DESTINATION abi-check-headers/epan)
