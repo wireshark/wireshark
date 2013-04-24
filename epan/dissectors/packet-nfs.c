@@ -7033,7 +7033,7 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 					/*
 					* Append this attribute name to this 'Attr mask' header line */
 					proto_item_append_text (bitmap_tree, (first_attr ? " (%s" : ", %s"), 
-						val_to_str(attr_num, names_fattr4, "Unknown: %s"));
+						val_to_str(attr_num, names_fattr4, "Unknown: %u"));
 					first_attr = FALSE;
 
 					/* Display label: reqd_attr: or reco_attr: */
