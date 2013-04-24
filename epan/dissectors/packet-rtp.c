@@ -1801,19 +1801,24 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
 		rtp_info->info_padding_count = padding_count;
 
-		if (!pinfo->flags.in_error_pkt)
-			tap_queue_packet(rtp_tap, pinfo, rtp_info);
-
 		if (data_len > 0) {
 			/*
 			 * There's data left over when you take out
 			 * the padding; dissect it.
 			 */
-			dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
-			    offset,
-			    data_len,
-			    data_len,
-			    payload_type );
+			/* Ensure that tap is called after packet dissection, even in case of exception */
+			TRY {
+				dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
+				    offset,
+				    data_len,
+				    data_len,
+				    payload_type );
+			} CATCH_ALL {
+				if (!pinfo->flags.in_error_pkt)
+					tap_queue_packet(rtp_tap, pinfo, rtp_info);
+				RETHROW;
+			}
+			ENDTRY;
 			offset += data_len;
 		} else if (data_len < 0) {
 			/*
@@ -1848,19 +1853,25 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/*
 		 * No padding.
 		 */
+		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			/* Ensure that tap is called after packet dissection, even in case of exception */
+			TRY {
+				dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
+						  tvb_length_remaining( tvb, offset ),
+						  tvb_reported_length_remaining( tvb, offset ),
+						  payload_type );
+			} CATCH_ALL {
+				if (!pinfo->flags.in_error_pkt)
+					tap_queue_packet(rtp_tap, pinfo, rtp_info);
+				RETHROW;
+			}
+			ENDTRY;
+		}
 		rtp_info->info_payload_offset = offset;
 		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
-
-		if (!pinfo->flags.in_error_pkt)
-			tap_queue_packet(rtp_tap, pinfo, rtp_info);
-
-		if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-					  tvb_length_remaining( tvb, offset ),
-					  tvb_reported_length_remaining( tvb, offset ),
-					  payload_type );
-		}
 	}
+	if (!pinfo->flags.in_error_pkt)
+		tap_queue_packet(rtp_tap, pinfo, rtp_info);
 }
 
 static void
