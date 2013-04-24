@@ -130,7 +130,7 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 {
     gsize append_len;
 
-    if (!strbuf || !str || str[0] == '\0') {
+    if (!str || str[0] == '\0') {
         return;
     }
 
@@ -174,6 +174,17 @@ wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...)
     va_start(ap, format);
     wmem_strbuf_append_vprintf(strbuf, format, ap);
     va_end(ap);
+}
+
+void
+wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const gsize len)
+{
+    if (len >= strbuf->len) {
+        return;
+    }
+
+    strbuf->str[len] = '\0';
+    strbuf->len = len;
 }
 
 const gchar *

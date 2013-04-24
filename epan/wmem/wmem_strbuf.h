@@ -57,6 +57,10 @@ void
 wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...);
 
 WS_DLL_PUBLIC
+void
+wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const gsize len);
+
+WS_DLL_PUBLIC
 const gchar *
 wmem_strbuf_get_str(wmem_strbuf_t *strbuf);
 
