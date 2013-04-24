@@ -28,7 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 
 /* Forward declarations */
@@ -109,7 +109,7 @@ tvb_atalkid_to_str(tvbuff_t *tvb, gint offset)
   gint node;
   gchar *cur;
 
-  cur=(gchar *)ep_alloc(16);
+  cur=(gchar *)wmem_alloc(wmem_packet_scope(), 16);
   node=tvb_get_guint8(tvb, offset)<<8|tvb_get_guint8(tvb, offset+1);
   g_snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+2));
   return cur;

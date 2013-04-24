@@ -30,7 +30,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <wsutil/wsgcrypt.h>

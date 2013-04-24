@@ -56,7 +56,6 @@ Specs:
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 /* Forward declarations */
 void proto_register_njack(void);
