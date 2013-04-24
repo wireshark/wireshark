@@ -26,11 +26,11 @@
 #include "packet_range_group_box.h"
 #include "capture_file_dialog.h"
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include <windows.h>
 #include "packet-range.h"
 #include "ui/win32/file_dlg_win32.h"
-#else // Q_WS_WIN
+#else // Q_OS_WIN
 
 #include <errno.h>
 #include "file.h"
@@ -50,11 +50,11 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSpacerItem>
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
 #include <QPushButton>
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 // All of these routines are required by file_dlg_win32.c.
 // We don't yet have a good place for them so we'll add them as stubs here.
 
@@ -89,13 +89,13 @@ extern void menu_name_resolution_changed(void) {
 
 } // extern "C"
 // End stub routines
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString &display_filter) :
     QFileDialog(parent),
     cap_file_(cf),
     display_filter_(display_filter),
-#if !defined(Q_WS_WIN)
+#if !defined(Q_OS_WIN)
     default_ft_(-1),
     save_bt_(NULL),
     help_topic_(TOPIC_ACTION_NONE)
@@ -103,7 +103,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     file_type_(-1)
 #endif
 {
-#if !defined(Q_WS_WIN)
+#if !defined(Q_OS_WIN)
     // Add extra widgets
     // http://qt-project.org/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
     setOption(QFileDialog::DontUseNativeDialog, true);
@@ -120,21 +120,21 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     h_box->addLayout(&left_v_box_);
     h_box->addLayout(&right_v_box_);
 
-#else // Q_WS_WIN
+#else // Q_OS_WIN
     merge_type_ = 0;
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 }
 
 check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
         parent
 #endif
         , capture_file *cf, int file_type) {
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
     if (!parent || !cf)
         return CANCELLED;
     return win32_check_save_as_with_comments(parent->effectiveWinId(), cf, file_type);
-#else // Q_WS_WIN
+#else // Q_OS_WIN
     guint32 comment_types;
     QMessageBox msg_dialog;
     int response;
@@ -209,7 +209,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
       break;
     }
     return CANCELLED;
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 }
 
 
@@ -222,7 +222,7 @@ int CaptureFileDialog::exec() {
 
 
 // Windows
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 int CaptureFileDialog::selectedFileType() {
     return file_type_;
 }
@@ -297,7 +297,7 @@ int CaptureFileDialog::mergeType() {
     return merge_type_;
 }
 
-#else // not Q_WS_WINDOWS
+#else // not Q_OS_WINDOWS
 QString CaptureFileDialog::fileType(int ft, bool extension_globs)
 {
     QString filter;
@@ -789,7 +789,7 @@ void CaptureFileDialog::on_buttonBox_helpRequested()
     if (help_topic_ != TOPIC_ACTION_NONE) wsApp->helpTopicAction(help_topic_);
 }
 
-#endif // Q_WS_WINDOWS
+#endif // Q_OS_WINDOWS
 
 /*
  * Editor modelines

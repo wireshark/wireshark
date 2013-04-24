@@ -77,7 +77,7 @@ ExportObjectDialog::ExportObjectDialog(QWidget *parent, capture_file *cf, Object
     eo_ui_->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-#if defined(Q_WS_MAC)
+#if defined(Q_OS_MAC)
     eo_ui_->progressLabel->setAttribute(Qt::WA_MacSmallSize, true);
     eo_ui_->progressBar->setAttribute(Qt::WA_MacSmallSize, true);
 #endif

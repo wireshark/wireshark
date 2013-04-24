@@ -38,7 +38,7 @@
 
 #include <QWidget>
 #include <QResizeEvent>
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
 #include <QGraphicsBlurEffect>
 #endif
 
@@ -97,7 +97,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Hover foreground
                 );
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
     welcome_ui_->taskList->setAttribute(Qt::WA_MacShowFocusRect, false);
     welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -142,7 +142,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     task_list_->setCurrentRow(0);
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     // This crashes with Qt 4.8.3 on OS X.
     QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(welcome_ui_->childContainer);
     blur->setBlurRadius(1.3);
@@ -154,7 +154,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
 void MainWelcome::destroySplashOverlay()
 {
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     welcome_ui_->childContainer->setGraphicsEffect(NULL);
 #endif
     delete splash_overlay_;

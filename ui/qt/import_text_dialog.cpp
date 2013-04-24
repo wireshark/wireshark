@@ -62,7 +62,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     ok_button_ = ti_ui_->buttonBox->button(QDialogButtonBox::Ok);
     ok_button_->setEnabled(false);
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     // The grid layout squishes each line edit otherwise.
     int le_height = ti_ui_->textFileLineEdit->sizeHint().height();
     ti_ui_->ethertypeLineEdit->setMinimumHeight(le_height);

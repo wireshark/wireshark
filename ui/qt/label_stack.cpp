@@ -36,7 +36,7 @@ const int num_flashes_ = 3;
 LabelStack::LabelStack(QWidget *parent) :
     QLabel(parent)
 {
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     setAttribute(Qt::WA_MacSmallSize, true);
 #endif
     temporary_ctx_ = -1;

@@ -103,7 +103,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
     QAction *action;
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
     splitter->setHandleWidth(3);
     splitter->setStyleSheet(QString(
@@ -112,7 +112,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 "  border-right: 1px solid palette(mid);"
                                 "}"
                                 ));
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC)
     expert_status_.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 

@@ -33,10 +33,10 @@
 
 #include "ui/file_dialog.h"
 
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
 #include "packet_range_group_box.h"
 #include "packet_format_group_box.h"
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
 #include <QFileDialog>
 #include <QMap>
@@ -53,16 +53,16 @@ public slots:
     int exec();
 
 private slots:
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     void exportTypeChanged(QString name_filter);
     void checkValidity();
     void on_buttonBox_helpRequested();
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
 private:
     export_type_e export_type_;
     capture_file *cap_file_;
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     print_args_t print_args_;
 
     QMap<QString, export_type_e> export_type_map_;
@@ -71,7 +71,7 @@ private:
     PacketFormatGroupBox packet_format_group_box_;
 
     QPushButton *save_bt_;
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 };
 
 #endif // EXPORT_DISSECTION_DIALOG_H

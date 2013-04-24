@@ -40,7 +40,7 @@
 //   win
 //   default
 
-#if defined(Q_WS_MAC) && 0
+#if defined(Q_OS_MAC) && 0
 // http://developer.apple.com/library/mac/#documentation/Cocoa/Reference/ApplicationKit/Classes/NSImage_Class/Reference/Reference.html
 // http://www.virtualbox.org/svn/vbox/trunk/src/VBox/Frontends/VirtualBox/src/platform/darwin/UICocoaSpecialControls.mm
 
@@ -114,7 +114,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     bookmark_button_->setStyleSheet(QString(
             "QToolButton { /* all types of tool button */"
             "  border 0 0 0 0;"
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
             "  border-right: %1px solid gray;"
 #else
             "  border-right: %1px solid palette(shadow);"

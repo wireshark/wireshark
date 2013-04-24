@@ -129,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
-#if defined(Q_WS_MAC)
+#if defined(Q_OS_MAC)
     foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
         foreach (QAction *act, menu->actions()) {
             act->setIconVisibleInMenu(false);

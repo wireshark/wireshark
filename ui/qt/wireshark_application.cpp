@@ -53,7 +53,7 @@
 #include <QTimer>
 #include <QUrl>
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 #include <QDebug>
 #include <QLibrary>
 #endif
@@ -331,11 +331,11 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     int font_size_adjust = 0;
 
     // Try to pick the latest, shiniest fixed-width font for our OS.
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
     const char *default_font = win_default_font;
     substitutes << win_alt_font << osx_default_font << osx_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
     font_size_adjust = 2;
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC)
     const char *default_font = osx_default_font;
     substitutes << osx_alt_font << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
 #else
@@ -573,7 +573,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(toolbar);
     Q_INIT_RESOURCE(welcome);
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */
     if (QLibrary::isLibrary("riched20.dll")) {
         QLibrary riched20("riched20.dll");
@@ -582,7 +582,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
             qDebug() << riched20.errorString();
         }
     }
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
     setAttribute(Qt::AA_DontShowIconsInMenus, true);
 

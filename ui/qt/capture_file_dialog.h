@@ -28,7 +28,7 @@
 #include "display_filter_edit.h"
 #include "packet_range_group_box.h"
 #include "ui/help_url.h"
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
 #include "packet_list_record.h"
 #include "cfile.h"
@@ -72,9 +72,9 @@ class CaptureFileDialog : public QFileDialog
 public:
     explicit CaptureFileDialog(QWidget *parent = NULL, capture_file *cf = NULL, QString &display_filter = *new QString());
     static check_savability_t checkSaveAsWithComments(QWidget *
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
             parent
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
             , capture_file *cf, int file_type);
 
     int mergeType();
@@ -85,7 +85,7 @@ private:
     capture_file *cap_file_;
     QString &display_filter_;
 
-#if !defined(Q_WS_WIN)
+#if !defined(Q_OS_WIN)
     void addMergeControls(QVBoxLayout &v_box);
     void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
@@ -131,11 +131,11 @@ private:
     QPushButton *save_bt_;
     topic_action_e help_topic_;
 
-#else // Q_WS_WIN
+#else // Q_OS_WIN
     int file_type_;
     int merge_type_;
     gboolean compressed_;
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 
 signals:
 
@@ -148,10 +148,10 @@ public slots:
     int merge(QString &file_name);
 
 private slots:
-#if !defined(Q_WS_WIN)
+#if !defined(Q_OS_WIN)
     void preview(const QString & path);
     void on_buttonBox_helpRequested();
-#endif // Q_WS_WIN
+#endif // Q_OS_WIN
 };
 
 #endif // CAPTURE_FILE_DIALOG_H

@@ -50,7 +50,7 @@ SearchFrame::SearchFrame(QWidget *parent) :
 {
     sf_ui_->setupUi(this);
 
-#ifdef Q_WS_MAC
+#ifdef Q_OS_MAC
     foreach (QWidget *w, findChildren<QWidget *>()) {
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }
