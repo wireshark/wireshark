@@ -53,6 +53,7 @@
 #include <epan/in_cksum.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 #include <show_exception.h>
 
 #include "packet-ip.h"
@@ -374,6 +375,9 @@ enum hf_lmp_filter_keys {
   LMPF_VAL_REMOTE_INTERFACE_ID_IPV4,
   LMPF_VAL_REMOTE_INTERFACE_ID_IPV6,
   LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM,
+  LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_IPV4,
+  LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_IPV6,
+  LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_UNNUM,
   LMPF_VAL_MESSAGE_ID,
   LMPF_VAL_MESSAGE_ID_ACK,
   LMPF_VAL_CONFIG_HELLO,
@@ -395,16 +399,20 @@ enum hf_lmp_filter_keys {
   LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT,
   LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY,
   LMPF_VAL_TE_LINK_LOCAL_IPV4,
+  LMPF_VAL_TE_LINK_LOCAL_IPV6,
   LMPF_VAL_TE_LINK_LOCAL_UNNUM,
   LMPF_VAL_TE_LINK_REMOTE_IPV4,
+  LMPF_VAL_TE_LINK_REMOTE_IPV6,
   LMPF_VAL_TE_LINK_REMOTE_UNNUM,
 
   LMPF_VAL_DATA_LINK_FLAGS,
   LMPF_VAL_DATA_LINK_FLAGS_PORT,
   LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED,
   LMPF_VAL_DATA_LINK_LOCAL_IPV4,
+  LMPF_VAL_DATA_LINK_LOCAL_IPV6,
   LMPF_VAL_DATA_LINK_LOCAL_UNNUM,
   LMPF_VAL_DATA_LINK_REMOTE_IPV4,
+  LMPF_VAL_DATA_LINK_REMOTE_IPV6,
   LMPF_VAL_DATA_LINK_REMOTE_UNNUM,
   LMPF_VAL_DATA_LINK_SUBOBJ,
   LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE,
@@ -487,6 +495,8 @@ enum hf_lmp_filter_keys {
   LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR,
   LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE,
   LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING,
+
+  LMPF_CHECKSUM,
 
   LMPF_MAX
 };
@@ -729,27 +739,21 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 	if (lmp_checksum_config) {
 		cksum = tvb_get_ntohs(tvb, offset+6);
+		ti = proto_tree_add_item(lmp_header_tree, hf_lmp_filter[LMPF_CHECKSUM], tvb, 
+							offset+6, 2, ENC_BIG_ENDIAN);
 		if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
-		    /* The packet isn't part of a fragmented datagram and isn't
-		       truncated, so we can checksum it. */
-		    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
-		    cksum_vec[0].len = msg_length;
-		    computed_cksum = in_cksum(&cksum_vec[0], 1);
+			/* The packet isn't part of a fragmented datagram and isn't truncated, so we can checksum it. */
+			cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
+			cksum_vec[0].len = msg_length;
+			computed_cksum = in_cksum(&cksum_vec[0], 1);
 
-		    if (computed_cksum == 0) {
-			proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-					    "Message Checksum: 0x%04x [correct]",
-					    cksum);
-		    } else {
-			proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-					    "Message Checksum: 0x%04x [incorrect, should be 0x%04x]",
-					    cksum,
-					    in_cksum_shouldbe(cksum, computed_cksum));
-		    }
-		} else {
-		    proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-					"Message Checksum: 0x%04x",
-					cksum);
+			if (computed_cksum == 0) {
+				proto_item_append_text( ti, " [correct]");
+			}
+			else {
+				expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "[incorrect, should be 0x%04x]",
+					in_cksum_shouldbe(cksum, computed_cksum));
+			}
 		}
 	} else {
 		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2, "No checksum");
@@ -874,8 +878,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  l = (type == 3)? LMPF_VAL_LOCAL_LINK_ID_IPV6:
 		      LMPF_VAL_REMOTE_LINK_ID_IPV6;
 		  proto_item_append_text(ti, ": IPv6 %s", tvb_ip6_to_str(tvb, offset2));
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, 16, "IPv6: %s",
-				      tvb_ip6_to_str(tvb, offset2));
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+				      offset2, 16, ENC_NA);
 		  break;
 	      case 5:
 	      case 6:
@@ -912,8 +916,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		  l = (type == 3)? LMPF_VAL_LOCAL_INTERFACE_ID_IPV6:
 		      LMPF_VAL_REMOTE_INTERFACE_ID_IPV6;
 		  proto_item_append_text(ti, ": IPv6 %s", tvb_ip6_to_str(tvb, offset2));
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2, 16, "IPv6: %s",
-				      tvb_ip6_to_str(tvb, offset2));
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+				      offset2, 16, ENC_NA);
 		  break;
 
 	      case 5:
@@ -1130,13 +1134,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	      case 2:
 		  proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
 					 tvb_ip6_to_str(tvb, offset2+4),
-					 tvb_ip6_to_str(tvb, offset2+8));
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 16,
-				      "TE-Link Local ID - IPv6: %s",
-				      tvb_ip6_to_str(tvb, offset2));
-		  proto_tree_add_text(lmp_object_tree, tvb, offset2+20,16,
-				      "TE-Link Remote ID - IPv6: %s",
-				      tvb_ip6_to_str(tvb, offset2+4));
+					 tvb_ip6_to_str(tvb, offset2+20));
+		  proto_tree_add_item(lmp_object_tree,
+				      hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV6],
+				      tvb, offset2+4, 16, ENC_NA);
+		  proto_tree_add_item(lmp_object_tree,
+				      hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV6],
+				      tvb, offset2+20, 16, ENC_NA);
 		  break;
 
 	      case 3:
@@ -1380,22 +1384,20 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	      for (l=0; l<obj_length - 4; ) {
 		  switch(type) {
 		  case 1:
-		      proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 4,
-					  "Interface ID: IPv4: %s",
-					  tvb_ip_to_str(tvb, offset2+l));
+		      proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_IPV4],
+								  tvb, offset2+l, 4, ENC_BIG_ENDIAN);
 		      l += 4;
 		      break;
 
 		  case 2:
-		      proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 16, "Interface ID: IPv6: %s",
-					  tvb_ip6_to_str(tvb, offset2+l));
+		      proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_IPV6],
+								  tvb, offset2+l, 16, ENC_NA);
 		      l += 16;
 		      break;
 
 		  case 3:
-		      proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 4,
-					  "Interface ID: Unnumbered: %d",
-					  tvb_get_ntohl(tvb, offset2+l));
+		      proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_UNNUM],
+								  tvb, offset2+l, 4, ENC_BIG_ENDIAN);
 		      l += 4;
 		      break;
 
@@ -1732,15 +1734,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 					 tvb_get_ntohs(tvb, offset2+8),
 					 tvb_get_ntohs(tvb, offset2+10));
 
-		  proto_tree_add_uint(lmp_object_tree,
+		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NVC],
-				      tvb, offset2+8, 2,
-				      tvb_get_ntohs(tvb, offset2+8));
+				      tvb, offset2+8, 2, ENC_BIG_ENDIAN);
 
-		  proto_tree_add_uint(lmp_object_tree,
+		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NVC],
-				      tvb, offset2+10, 2,
-				      tvb_get_ntohs(tvb, offset2+10));
+				      tvb, offset2+10, 2, ENC_BIG_ENDIAN);
 
 		  /* Local interface ID */
 		  proto_item_append_text(ti, ": Local Interface ID %s",
@@ -1836,16 +1836,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	      switch(type) {
 
 	      case 1:
-		  l = LMPF_VAL_LOCAL_DA_DCN_ADDR;
 		  proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
-		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_LOCAL_DA_DCN_ADDR], tvb,
 				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      case 2:
-		  l = LMPF_VAL_REMOTE_DA_DCN_ADDR;
 		  proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
-		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_REMOTE_DA_DCN_ADDR], tvb,
 				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
@@ -2302,11 +2300,17 @@ proto_register_lmp(void)
 	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LINK_ID_IPV4],
 		{ "Local Link ID - IPv4", "lmp.local_linkid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LINK_ID_IPV6],
+		{ "Local Link ID - IPv6", "lmp.local_linkid_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LINK_ID_UNNUM],
 		{ "Local Link ID - Unnumbered", "lmp.local_linkid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_REMOTE_LINK_ID_IPV4],
-		{ "Remote Link ID - IPv4", "lmp.remote_linkid_ipv4", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Remote Link ID - IPv4", "lmp.remote_linkid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_LINK_ID_IPV6],
+		{ "Remote Link ID - IPv6", "lmp.remote_linkid_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_REMOTE_LINK_ID_UNNUM],
 		{ "Remote Link ID - Unnumbered", "lmp.remote_linkid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2315,16 +2319,30 @@ proto_register_lmp(void)
 	   {&hf_lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_IPV4],
 		{ "Local Interface ID - IPv4", "lmp.local_interfaceid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_IPV6],
+		{ "Local Interface ID - IPv6", "lmp.local_interfaceid_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_UNNUM],
 		{ "Local Interface ID - Unnumbered", "lmp.local_interfaceid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_IPV4],
 		{ "Remote Interface ID - IPv4", "lmp.remote_interfaceid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_IPV6],
+		{ "Remote Interface ID - IPv6", "lmp.remote_interfaceid_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM],
 		{ "Remote Interface ID - Unnumbered", "lmp.remote_interfaceid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-
+	   {&hf_lmp_filter[LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_IPV4],
+		{ "Interface ID: IPv4", "lmp.channel_status_interfaceid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_IPV6],
+		{ "Interface ID: IPv6", "lmp.channel_status_interfaceid_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_CHANNEL_STATUS_INTERFACE_ID_UNNUM],
+		{ "Interface ID: Unnumbered", "lmp.channel_status_interfaceid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_MESSAGE_ID],
 		{ "Message-ID Value", "lmp.messageid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
@@ -2375,11 +2393,17 @@ proto_register_lmp(void)
 	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
 		{ "TE-Link Local ID - IPv4", "lmp.te_link.local_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV6],
+		{ "TE-Link Local ID - IPv6", "lmp.te_link.local_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
 		{ "TE-Link Local ID - Unnumbered", "lmp.te_link.local_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
 		{ "TE-Link Remote ID - IPv4", "lmp.te_link.remote_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV6],
+		{ "TE-Link Remote ID - IPv6", "lmp.te_link.remote_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
 		{ "TE-Link Remote ID - Unnumbered", "lmp.te_link.remote_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2677,6 +2701,9 @@ proto_register_lmp(void)
 	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
 		{ "LSP Encoding Type", "lmp.lad_encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
 		  RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_CHECKSUM],
+		{ "Message Checksum", "lmp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }},
 	};
 
     for (i=0; i<NUM_LMP_SUBTREES; i++) {
