@@ -2841,6 +2841,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
+        /* Also flag if we have final padding but also padding subheaders
+           at the start! */
+        if (!extension && (lcids[number_of_headers] == PADDING_LCID) &&
+            (number_of_padding_subheaders > 0)) {
+                expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
+                                       "Padding subheaders at start and end!");
+        }
+
         /* Remember that we've seen non-padding control */
         if ((lcids[number_of_headers] > 10) &&
             (lcids[number_of_headers] != PADDING_LCID)) {
