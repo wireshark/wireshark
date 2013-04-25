@@ -63,7 +63,6 @@ set(QTSHARK_H_SRC
 	recent_file_status.h
 	simple_dialog_qt.h
 	search_frame.h
-	sparkline_delegate.h
 	splash_overlay.h
 	syntax_line_edit.h
 	time_shift_dialog.h
@@ -72,6 +71,7 @@ set(QTSHARK_H_SRC
 	# No Q_OBJECT:
 	# packet_list_record.h
 	# qt_ui_utils.h
+	# sparkline_delegate.h
 )
 
 set(QTSHARK_CPP_SRC
