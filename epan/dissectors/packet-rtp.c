@@ -1458,7 +1458,7 @@ static void
 dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti            = NULL;
-	proto_tree *rtp_tree      = NULL;
+	proto_tree *volatile rtp_tree = NULL;
 	proto_tree *rtp_csrc_tree = NULL;
 	proto_tree *rtp_hext_tree = NULL;
 	guint8      octet1, octet2;
@@ -1473,10 +1473,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int i            = 0;
 	unsigned int hdr_extension_len= 0;
 	unsigned int hdr_extension_id = 0;
-	unsigned int padding_count;
+	volatile unsigned int padding_count;
 	gint        length, reported_length;
 	int         data_len;
-	unsigned int offset = 0;
+	volatile unsigned int offset = 0;
 	guint16     seq_num;
 	guint32     timestamp;
 	guint32     sync_src;
