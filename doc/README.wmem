@@ -73,48 +73,34 @@ next packet is dissected. This is effectively the scope of Wireshark's pinfo
 structure, so the pinfo struct has a 'pool' member which is a wmem pool scoped
 to the lifetime of the pinfo struct.
 
-2.2 Core API
+2.2 API
 
- - wmem_alloc
- - wmem_alloc0
- - wmem_new
- - wmem_new0
- - wmem_realloc
- - wmem_free
+Full documentation for each function (parameters, return values, behaviours)
+lives (or will live) in Doxygen-format in the header files for those functions.
+This is just an overview of which header files you should be looking at.
 
-2.3 String Utilities
+2.2.1 Core API
 
- - wmem_strdup
- - wmem_strndup
- - wmem_strdup_printf
- - wmem_strdup_vprintf
+wmem_core.h
+ - Basic memory management functions like malloc, realloc and free.
 
-2.4 Stack
+2.2.2 Strings
 
- - wmem_stack_new
- - wmem_stack_push
- - wmem_stack_pop
- - wmem_stack_peek
- - wmem_stack_count
+wmem_strutl.h
+ - Utility functions for manipulating null-terminated C-style strings.
+   Functions like strdup and strdup_printf.
 
-2.5 Singly-Linked List
+wmem_strbuf.h
+ - A managed string object implementation, similar to std::string in C++ or
+   GString from Glib.
 
- - wmem_slist_new
- - wmem_slist_prepend
- - wmem_slist_remove
- - wmem_slist_front
- - wmem_slist_frame_next
- - wmem_slist_frame_data
- - wmem_slist_count
+2.2.3 Container Data Structures
 
-2.6 String-Buffers
+wmem_slist.h
+ - A singly-linked list implementation.
 
- - wmem_strbuf_new
- - wmem_strbuf_sized_new
- - wmem_strbuf_append
- - wmem_strbuf_append_printf
- - wmem_strbuf_get_str
- - wmem_strbuf_get_len
+wmem_stack.h
+ - A stack implementation (push, pop, etc).
 
 3. Usage for Producers
 
