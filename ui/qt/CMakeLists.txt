@@ -172,18 +172,27 @@ include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-QT4_ADD_TRANSLATION(QTSHARK_TS_QM ${QTSHARK_TS})
-
-QT4_ADD_RESOURCES(QTSHARK_QRC_SRC ${QTSHARK_QRC})
-
-QT4_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
-
-# For now, do the moc stuff manually
-QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
-# Starting with cmake 2.8.6, we may also use
-# set(CMAKE_AUTOMOC TRUE)
-# or
-# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
+if (QT_VERSION EQUAL 5)
+	QT5_ADD_TRANSLATION(QTSHARK_TS_QM ${QTSHARK_TS})
+	QT5_ADD_RESOURCES(QTSHARK_QRC_SRC ${QTSHARK_QRC})
+	QT5_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
+	# For now, do the moc stuff manually
+	QT5_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
+	# Starting with cmake 2.8.6, we may also use
+	# set(CMAKE_AUTOMOC TRUE)
+	# or
+	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
+else()
+	QT4_ADD_TRANSLATION(QTSHARK_TS_QM ${QTSHARK_TS})
+	QT4_ADD_RESOURCES(QTSHARK_QRC_SRC ${QTSHARK_QRC})
+	QT4_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
+	# For now, do the moc stuff manually
+	QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
+	# Starting with cmake 2.8.6, we may also use
+	# set(CMAKE_AUTOMOC TRUE)
+	# or
+	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
+endif()
 
 set(CLEAN_FILES
 	${QTSHARK_SRC}
