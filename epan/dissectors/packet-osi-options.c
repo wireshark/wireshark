@@ -62,7 +62,7 @@
 #define ATN_TT_AOC_G_V_S               0x28
 #define ATN_TT_AOC_G_V_H_S             0x29
 #define ATN_TT_ADM_NO_PREFERENCE       0x30
-#define ATN_TT_SYS_MGMT_NO_PREFERENCE  0x50
+#define ATN_TT_SYS_MGMT_NO_PREFERENCE  0x60
 
 /* ATN security classification (ICAO doc 9705 Edition3 SV5 5.6.2.2.6.8.3) */
 #define ATN_SC_UNCLASSIFIED       0x01
