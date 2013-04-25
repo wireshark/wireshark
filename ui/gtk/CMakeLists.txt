@@ -218,7 +218,9 @@ if (WERROR)
 	)
 endif()
 
-if (NOT ENABLE_GTK3)
+if (ENABLE_GTK3)
+	add_definitions(${GTK3_DEFINITIONS})
+else()
 	add_definitions(
 		# We are only allowed to include gtk/gtk.h, no other files. When
 		# violating this with gtk3 the compiler will complain anyway.
