@@ -1454,7 +1454,13 @@ mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field)
 	else
 	{
 		proto_tree_add_item(tree, field, tvb, offset, (int)lelen, ENC_NA);
-		offset += (int)lelen;
+		/* Prevent infinite loop due to overflow */
+		if (offset + (int)lelen < offset) {
+			offset = tvb_reported_length(tvb);
+		}
+		else {
+			offset += (int)lelen;
+		}
 	}
 	return offset;
 }
@@ -2219,3 +2225,15 @@ void proto_reg_handoff_mysql(void)
 	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
