@@ -10,6 +10,12 @@
 #		"Version: 2.0"
 #		"Version Date: November 2008"
 #
+#   http://www.3gpp2.org/public_html/X/VSA-VSE.cfm
+#
+#	http://www.3gpp2.org/public_html/specs/X.S0054-910-A_v1.0_080909.pdf
+# 	"CAN Data Dictionary "
+#		"Revision A"
+#
 #	$Id$
 #
 # [wireshark] 2009-07-08 - FreeRadius 2.6.1 dictionary.3gpp2 updated from the 3GPP2 X.S0011-005-D v2.0 spec
@@ -326,8 +332,8 @@ ATTRIBUTE	3GPP2-MIPv4-Mesg-Id						173	string
 
 ATTRIBUTE	3GPP2-MIP6-HA-Local-Assignment-Capblty	179	integer
 
+ATTRIBUTE	3GPP2-Network-PMIP-NAI					192 string
 ATTRIBUTE	3GPP2-PMIP-Based-Mobility-Capability    193 integer
-
 ATTRIBUTE	3GPP2-Accounting-Mode					198	integer	 ## ??
 
 ATTRIBUTE	3GPP2-HAAA-MIP6-HA-Protocol-Capblty-Ind	203	integer
