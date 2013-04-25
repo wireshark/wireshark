@@ -8383,6 +8383,17 @@ dissect_nfs4_notification_bitmap(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	bitmap_num = tvb_get_ntohl(tvb, offset);
 	offset += 4;
+
+	/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8611 */
+	if (!tree) {
+		if ((guint)offset > offset + (bitmap_num * 4)) {
+			return tvb_reported_length(tvb);
+		}
+		else {
+			return offset + (bitmap_num * 4);
+		}
+	}
+
 	for (i = 0; i < bitmap_num; i++) {
 		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_notification_bitmap, offset);
 	}
