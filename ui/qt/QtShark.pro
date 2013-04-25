@@ -25,7 +25,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-QT += core gui
+isEqual(QT_MAJOR_VERSION, 4) {
+  QT += core gui
+} else {
+  QT += core widgets printsupport
+}
 
 macx {
     TARGET = Wireshark
@@ -72,7 +76,10 @@ unix {
         }
     }
 
-
+    isEqual(QT_MAJOR_VERSION, 5) {
+        # Hack around what appears to be a bug in the 5.0.2 SDK
+        QT_CONFIG -= no-pkg-config
+    }
     CONFIG += link_pkgconfig
     PKGCONFIG += \
         glib-2.0
@@ -289,7 +296,7 @@ unix {
 }
 unix:LIBS += -lwireshark -lwiretap -lwsutil -lui \
     -lpcap -lui_dirty
-macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv -lz
+macx:LIBS += -Wl,-macosx_version_min,10.6 -liconv -lz
 
 # XXX Copy this only if we're linking with Lua.
 EXTRA_BINFILES = \
