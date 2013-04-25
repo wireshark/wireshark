@@ -45,13 +45,17 @@ typedef struct _wmem_allocator_t wmem_allocator_t;
 
 WS_DLL_PUBLIC
 void *
-wmem_alloc(wmem_allocator_t *allocator, const size_t size);
+wmem_alloc(wmem_allocator_t *allocator, const size_t size)
+G_GNUC_MALLOC;
+
 #define wmem_new(allocator, type) \
     ((type*)wmem_alloc((allocator), sizeof(type)))
 
 WS_DLL_PUBLIC
 void *
-wmem_alloc0(wmem_allocator_t *allocator, const size_t size);
+wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
+G_GNUC_MALLOC;
+
 #define wmem_new0(allocator, type) \
     ((type*)wmem_alloc0((allocator), sizeof(type)))
 
@@ -61,7 +65,8 @@ wmem_free(wmem_allocator_t *allocator, void *ptr);
 
 WS_DLL_PUBLIC
 void *
-wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size);
+wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
+G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
