@@ -72,6 +72,7 @@ static int hf_rohc_opt_type = -1;
 static int hf_rohc_opt_len = -1;
 static int hf_rohc_crc = -1;
 static int hf_rohc_opt_sn = -1;
+static int hf_rohc_ext_sn = -1;
 static int hf_rohc_opt_clock = -1;
 static int hf_rohc_opt_jitter = -1;
 static int hf_rohc_opt_loss = -1;
@@ -837,7 +838,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     guint8              opt, opt_len, oct;
     rohc_cid_context_t *rohc_cid_context = NULL;
     gint                key = cid;
-
+    guint32             sn;
 
     if (!pinfo->fd->flags.visited){
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
@@ -917,6 +918,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             rohc_cid_context->mode = (enum rohc_mode)((tvb_get_guint8(tvb,offset) & 0x30)>>4);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_acktype, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+            sn = tvb_get_ntohs(tvb, offset) & 0x0fff;
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
             feedback_data_len-=2;
@@ -947,8 +949,9 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                     case 4:
                         /* SN */
                         proto_tree_add_item(rohc_feedback_tree, hf_rohc_opt_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        oct = tvb_get_guint8(tvb, offset);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ", oct);
+                        sn = (sn << 8) | tvb_get_guint8(tvb, offset);
+                        ti = proto_tree_add_uint(rohc_feedback_tree, hf_rohc_ext_sn, tvb, 0, 0, sn);
+                        PROTO_ITEM_SET_GENERATED(ti);
                         break;
                     case 5:
                         /* Clock */
@@ -986,6 +989,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                 offset = offset + opt_len;
 
             }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
             break;
         default:
             ti = proto_tree_add_text(tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
@@ -2433,7 +2437,7 @@ proto_register_rohc(void)
               }
             },
             { &hf_rohc_sn,
-              { "SN","rohc.sn",
+              { "SN LSB","rohc.sn",
                 FT_UINT16, BASE_HEX_DEC, NULL, 0x0fff,
                 NULL , HFILL
               }
@@ -2445,7 +2449,7 @@ proto_register_rohc(void)
               }
             },
             { &hf_rohc_fb1_sn,
-              { "SN","rohc.fb1_sn",
+              { "SN LSB","rohc.sn",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
                 NULL , HFILL
               }
@@ -2469,9 +2473,15 @@ proto_register_rohc(void)
               }
             },
             { &hf_rohc_opt_sn,
-              { "SN","rohc.opt.sn",
+              { "SN additional bits","rohc.opt.sn_add_bits",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
                 "Feedback Option SN", HFILL
+              }
+            },
+            { &hf_rohc_ext_sn,
+              { "SN LSB","rohc.sn",
+                FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
+                NULL, HFILL
               }
             },
             { &hf_rohc_opt_clock,
