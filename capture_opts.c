@@ -45,7 +45,6 @@
 #include "capture_opts.h"
 #include "ringbuffer.h"
 #include "clopts_common.h"
-#include "console_io.h"
 #include "cmdarg_err.h"
 
 #include "capture_ifinfo.h"
@@ -845,19 +844,19 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name,
     data_link_info_t *data_link_info;
 
     if (caps->can_set_rfmon)
-        fprintf_stderr("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
-                       name, monitor_mode ? "" : "not ");
+        printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
+               name, monitor_mode ? "" : "not ");
     else
-        fprintf_stderr("Data link types of interface %s (use option -y to set):\n", name);
+        printf("Data link types of interface %s (use option -y to set):\n", name);
     for (lt_entry = caps->data_link_types; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;
-        fprintf_stderr("  %s", data_link_info->name);
+        printf("  %s", data_link_info->name);
         if (data_link_info->description != NULL)
-            fprintf_stderr(" (%s)", data_link_info->description);
+            printf(" (%s)", data_link_info->description);
         else
-            fprintf_stderr(" (not supported)");
-        fprintf_stderr("\n");
+            printf(" (not supported)");
+        printf("\n");
     }
 }
 
@@ -873,17 +872,17 @@ capture_opts_print_interfaces(GList *if_list)
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;
-        fprintf_stderr("%d. %s", i++, if_info->name);
+        printf("%d. %s", i++, if_info->name);
 
         /* Print the interface friendly name, if it exists;
           if not fall back to vendor description, if it exists. */
         if (if_info->friendly_name != NULL){
-            fprintf_stderr(" (%s)", if_info->friendly_name);
+            printf(" (%s)", if_info->friendly_name);
         } else {
             if (if_info->vendor_description != NULL)
-                fprintf_stderr(" (%s)", if_info->vendor_description);
+                printf(" (%s)", if_info->vendor_description);
         }
-        fprintf_stderr("\n");
+        printf("\n");
     }
 }
 
