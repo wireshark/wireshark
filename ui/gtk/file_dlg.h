@@ -79,7 +79,7 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
 
 /** Set the current file for a file selection dialog.
  *
- * @param fs the file selection dialog from file_selection_new()
+ * @param chooser the file selection dialog from file_selection_new()
  * @param filename the folder to set
  * @return TRUE if the folder could be changed successfully
  */

@@ -37,8 +37,6 @@
 extern void fileset_file_opened(const capture_file *cf);
 
 /** Disable file set menu items
- *
- * @param cf Capture file struct
  */
 extern void fileset_file_closed(void);
 

@@ -72,49 +72,49 @@ extern void packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
 /** Toggle Mark on all displayed packets.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Mark all displayed packets.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** UnMark all packets in the capture.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Ignore the currently selected packet.
  *
- * @param widget parent widget (unused)
+ * @param widget parent widget
  * @param data unused
  */
 extern void packet_list_ignore_frame_cb(GtkWidget *widget, gpointer data);
 
 /** Ignore/Unignore all displayed packets.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_ignore_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Un-ignore all packets in the list.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Un-Time Reference all packets in the capture.
  *
- * @param widget parent widget (unused)
+ * @param w parent widget (unused)
  * @param data unused
  */
 extern void packet_list_untime_reference_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
@@ -127,7 +127,6 @@ typedef enum {
 
 /** Called when user clicks on menu item to copy summary data.
  *
- *  @param w Not used.
  *  @param data Not used.
  *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
  */

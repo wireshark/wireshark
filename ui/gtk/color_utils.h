@@ -43,12 +43,12 @@ extern GdkColor BLACK;
 /** Initialize the colors. */
 void colors_init(void);
 
+#if 0
 /** Allocate a color from the color map.
  *
  * @param new_color the new color
  * @return TRUE if the allocation succeeded
  */
-#if 0
 gboolean get_color(GdkColor *new_color);
 #endif
 

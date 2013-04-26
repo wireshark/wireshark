@@ -263,7 +263,7 @@ void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 /** Copy a string, escaping the 'chr' characters in it
  *
  * @param str The string to be copied
- * @param char The character to be escaped
+ * @param chr The character to be escaped
  * @return A copy of the string with every original 'chr' being
  * transformed into double 'chr'.
  */
@@ -273,7 +273,7 @@ gchar* ws_strdup_escape_char (const gchar *str, const gchar chr);
 /** Copy a string, unescaping the 'chr' characters in it
  *
  * @param str The string to be copied
- * @param char The character to be escaped
+ * @param chr The character to be escaped
  * @return A copy of the string with every occurrence of double 'chr' in
  * the original string being copied as a single 'chr'.
  */

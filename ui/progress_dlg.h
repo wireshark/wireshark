@@ -46,7 +46,7 @@ typedef struct progdlg progdlg_t;
  * needs in order to manipulate the dialog, and return a pointer to
  * it.
  *
- * @param widget UI widget to associate with the progress dialog, e.g.
+ * @param top_level_window UI widget to associate with the progress dialog, e.g.
  *   the main window.
  * @param task_title The task to do, e.g. "Loading"
  * @param item_title The item to do, e.g. "capture.cap"
@@ -64,7 +64,7 @@ progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *tas
  * Create a progress dialog, but only if it's not likely to disappear
  * immediately. This can be disconcerting for the user.
  *
- * @param top_level The top-level window associated with the progress update.
+ * @param top_level_window The top-level window associated with the progress update.
  *   May be NULL.
  * @param task_title The task to do, e.g. "Loading"
  * @param item_title The item to do, e.g. "capture.cap"

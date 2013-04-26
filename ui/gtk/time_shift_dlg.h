@@ -27,9 +27,8 @@
 
 /** User requested to shift the time of the trace
  *
- * @param widget parent widget (unused)
+ * @param widget parent widget
  * @param data unused
- * @param action the function to use
  */
 extern void time_shift_cb(GtkWidget *widget, gpointer data);
 

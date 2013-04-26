@@ -40,9 +40,9 @@ gboolean win32_open_file (HWND h_wnd, GString *file_name, GString *display_filte
 /** Verify that our proposed capture file format supports comments. If it can't
  *  ask the user what to do and return his or her response.
  *
- * @param h_wnd HWND of the parent window.
+ * @param parent HWND of the parent window.
  * @param cf Capture file.
- * @param file_format Proposed file format.
+ * @param file_type Proposed file format.
  *
  * @return
  */
@@ -68,7 +68,6 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
 /** Open the "Export Specified Packets" dialog box.
  *
  * @param h_wnd HWND of the parent window.
- * @param cf capture_file Structure for the capture to be saved
  * @param file_name File name. May be empty.
  * @param file_type Wiretap file type.
  * @param compressed Compress the file with gzip.

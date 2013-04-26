@@ -519,7 +519,7 @@ GdkPixbuf *gdk_pixbuf_get_from_surface (cairo_surface_t *surface,
 
 /**
  * ws_gtk_box_new:
- * @param GtkOrientation the box's orientation
+ * @param orientation the box's orientation
  * @param spacing the number of pixels to put between children
  * @param homogeneous a boolean value, TRUE to create equal allotments, FALSE for variable allotments
  */

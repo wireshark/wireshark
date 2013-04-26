@@ -101,7 +101,7 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
 
 /** Add an expert info about not dissected "item"
  Add an expert info tree to a not dissected protocol item.
- @patam tvb The tvb associated with the item.
+ @param tvb The tvb associated with the item.
  @param pinfo Packet info of the currently processed packet. May be NULL.
  @param tree Tree to add the item to
  @param offset Offset in tvb

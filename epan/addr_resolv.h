@@ -221,7 +221,7 @@ WS_DLL_PUBLIC void add_ipv6_name(const struct e_in6_addr *addr, const gchar *nam
  * The file can be added before host_name_lookup_init() is called and
  * will be re-read each time host_name_lookup_init() is called.
  *
- * @param hostspath Absolute path to the hosts file.
+ * @param hosts_file Absolute path to the hosts file.
  *
  * @return TRUE if the hosts file can be read.
  */

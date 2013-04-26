@@ -509,8 +509,7 @@ char *prefs_pref_type_description(pref_t *pref);
 /** Fetch a string representation of the preference.
  *
  * @param pref A preference.
- * @param default_val Return the default value if TRUE or the current value
- * if FALSE.
+ * @param source Which value of the preference to return, see pref_source_t.
  *
  * @return A string representation of the preference. Must be g_free()d.
  */

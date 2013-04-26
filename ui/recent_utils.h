@@ -41,7 +41,7 @@ extern void menu_recent_file_write_all(FILE *rf);
 
 /** Add a capture filter coming from the user's recent file to the cfilter combo box.
  *
- * @param dftext the filter string
+ * @param s the filter string
  */
 extern gboolean cfilter_combo_add_recent(const gchar *s);
 

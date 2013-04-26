@@ -38,6 +38,7 @@ extern "C" {
  * Copy a preference to its stashed value. Can be called from prefs_pref_foreach().
  *
  * @param pref: A preference.
+ * @param unused: unused
  */
 extern guint pref_stash(pref_t *pref, gpointer unused _U_);
 
@@ -56,6 +57,7 @@ extern guint pref_unstash(pref_t *pref, gpointer changed_p);
  * Can be called from prefs_pref_foreach().
  *
  * @param pref A preference.
+ * @param unused: unused
  *
  * @return Always returns 0.
  */
@@ -63,7 +65,7 @@ extern guint pref_clean_stash(pref_t *pref, gpointer unused _U_);
 
 /** Set a stashed preference to its default value.
  *
- *@pram pref A preference.
+ *@param pref A preference.
  */
 extern void reset_stashed_pref(pref_t *pref);
 

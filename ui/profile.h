@@ -61,7 +61,7 @@ void init_profile_list(void);
 /** User requested the "Configuration Profiles" popup menu.
  *
  * @param name Profile name
- * @param expression Parent profile name
+ * @param parent Parent profile name
  * @param status Current status
  * @param is_global Profile is in the global configuration directory
  * @param from_global Profile is copied from the global configuration directory

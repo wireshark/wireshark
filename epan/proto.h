@@ -1982,7 +1982,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, co
  @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
  @param bit_offset of the first crumb in tvb expressed in bits
- @param pointer to crumb_spec array
+ @param crumb_spec pointer to crumb_spec array
  @param return_value if a pointer is passed here the value is returned.
  @return the newly created item */
 extern proto_item *
@@ -2002,7 +2002,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
  @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
  @param bit_offset of the first crumb in tvb expressed in bits
- @param pointer to crumb_spec array
+ @param crumb_spec pointer to crumb_spec array
  @param index into the crumb_spec array for this crumb */
 void
 proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset,
