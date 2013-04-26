@@ -134,7 +134,7 @@ pipe_icon.h:
 
 TOOLBAR_COMMON_ICONS = \
 	capture_interfaces \
-	capture_options \
+	capture_options_alt1 \
 	capture_restart \
 	capture_start \
 	capture_stop \
