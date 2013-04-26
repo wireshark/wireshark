@@ -160,7 +160,25 @@ create_console(void)
      */
     if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
       /* Probably not, as we couldn't attach to the parent process's console.
-         Try to create a console. */
+         Try to create a console.
+
+         According to a comment on
+
+             http://msdn.microsoft.com/en-us/library/windows/desktop/ms681952(v=vs.85).aspx
+
+         and according to
+
+             http://connect.microsoft.com/VisualStudio/feedback/details/689696/installing-security-update-kb2507938-prevents-console-allocation
+
+         and
+
+             http://answers.microsoft.com/en-us/windows/forum/windows_xp-windows_update/kb2567680-andor-kb2507938-breaks-attachconsole-api/e8191280-2d49-4be4-9918-18486fba0afa
+
+         even a failed attempt to attach to another process's console
+         will cause subsequent AllocConsole() calls to fail, possibly due
+         to bugs introduced by a security patch.  To work around this, we
+         do a FreeConsole() first. */
+      FreeConsole();
       if (AllocConsole()) {
         /* That succeeded. */
         console_wait = TRUE;
