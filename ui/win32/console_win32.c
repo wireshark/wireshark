@@ -48,6 +48,71 @@ static gboolean has_console;  /* TRUE if app has console */
 static gboolean console_wait; /* "Press any key..." */
 static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 
+/*
+ * Check whether a given standard handle needs to be redirected.
+ *
+ * If you run a Windows-subsystem program from cmd.exe on Windows XP,
+ * and you haven't redirected the handle in question, GetStdHandle()
+ * succeeds (so it doesn't return INVALID_HANDLE_VALUE or NULL), but
+ * GetFile_type fails on the results with ERROR_INVALID_HANDLE.
+ * In that case, redirection to a console is necessary.
+ *
+ * If you run it from the shell prompt in "mintty" in at least some
+ * versions of Cygwin on Windows XP, and you haven't redirected the
+ * handle in question, GetStdHandle() succeeds and returns a handle
+ * that's a pipe or socket; it appears mintty reads from it and outputs
+ * what it reads to the console.
+ */
+static gboolean
+needs_redirection(int std_handle)
+{
+	HANDLE fd;
+	DWORD handle_type;
+	DWORD error;
+
+	fd = GetStdHandle(std_handle);
+	if (fd == NULL) {
+		/*
+		 * No standard handle.  According to Microsoft's
+		 * documentation for GetStdHandle(), one reason for
+		 * this would be that the process is "a service on
+		 * an interactive desktop"; I'm not sure whether
+		 * such a process should be popping up a console.
+		 *
+		 * However, it also appears to be the case for
+		 * the standard input and standard error, but
+		 * *not* the standard output, for something run
+		 * with a double-click in Windows Explorer,
+		 * sow we'll say it needs redirection.
+		 */
+		return TRUE;
+	}
+	if (fd == INVALID_HANDLE_VALUE) {
+		/*
+		 * OK, I'm not when this would happen; return
+		 * "no redirection" for now.
+		 */
+		return FALSE;
+	}
+	handle_type = GetFileType(fd);
+	if (handle_type == FILE_TYPE_UNKNOWN) {
+		error = GetLastError();
+		if (error == ERROR_INVALID_HANDLE) {
+			/*
+			 * OK, this appears to be the case where we're
+			 * running something in a mode that needs a
+			 * console.
+			 */
+			return TRUE;
+		}
+	}
+
+	/*
+	 * Assume no redirection is needed for all other cases.
+	 */
+	return FALSE;
+}
+
 /* The code to create and desstroy console windows should not be necessary,
    at least as I read the GLib source code, as it looks as if GLib is, on
    Win32, *supposed* to create a console window into which to display its
@@ -67,33 +132,58 @@ static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 void
 create_console(void)
 {
+  gboolean must_redirect_stdin;
+  gboolean must_redirect_stdout;
+  gboolean must_redirect_stderr;
+FILE *crapball;
+
   if (stdin_capture) {
     /* We've been handed "-i -". Don't mess with stdio. */
     return;
   }
 
   if (!has_console) {
-    /* We have no console to which to print the version string, so
-       create one and make it the standard input, output, and error. */
+    /* Are the standard input, output, and error invalid handles? */
+    must_redirect_stdin = needs_redirection(STD_INPUT_HANDLE);
+    must_redirect_stdout = needs_redirection(STD_OUTPUT_HANDLE);
+    must_redirect_stderr = needs_redirection(STD_ERROR_HANDLE);
 
+    /* If none of them are invalid, we don't need to do anything. */
+    if (!must_redirect_stdin && !must_redirect_stdout && !must_redirect_stderr)
+      return;
+
+    /* OK, at least one of them needs to be redirected to a console;
+       try to attach to the parent process's console and, if that fails,
+       try to create one. */
     /*
      * See if we have an existing console (i.e. we were run from a
-     * command prompt)
+     * command prompt).
      */
     if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+      /* Probably not, as we couldn't attach to the parent process's console.
+         Try to create a console. */
       if (AllocConsole()) {
+        /* That succeeded. */
         console_wait = TRUE;
         SetConsoleTitle(_T("Wireshark Debug Console"));
       } else {
+        /* XXX - this appears to happen when Wireshark is run from the GUI
+           rather than from a command-line prompt of some sort.  The
+           error is ERROR_ACCESS_DENIED. */
         return;   /* couldn't create console */
       }
     }
 
-    ws_freopen("CONIN$", "r", stdin);
-    ws_freopen("CONOUT$", "w", stdout);
-    ws_freopen("CONOUT$", "w", stderr);
-    fprintf(stdout, "\n");
-    fprintf(stderr, "\n");
+    if (must_redirect_stdin)
+      ws_freopen("CONIN$", "r", stdin);
+    if (must_redirect_stdout) {
+      ws_freopen("CONOUT$", "w", stdout);
+      fprintf(stdout, "\n");
+    }
+    if (must_redirect_stderr) {
+      ws_freopen("CONOUT$", "w", stderr);
+      fprintf(stderr, "\n");
+    }
 
     /* Now register "destroy_console()" as a routine to be called just
        before the application exits, so that we can destroy the console
