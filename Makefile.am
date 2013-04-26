@@ -1152,10 +1152,14 @@ checkapi: checkapi_local
 	cd wsutil && $(MAKE) checkapi
 
 wsar_html: doxygen.cfg doxygen_global.cfg
+if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 	cd epan && $(MAKE) $@
 	cd ui && $(MAKE) $@
+endif
 
 wsar-zip: wsar_html
+if HAVE_DOXYGEN
 	rm -f wsar_html.zip
 	zip -rq wsar_html.zip wsar_html
+endif
