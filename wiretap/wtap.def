@@ -37,6 +37,7 @@ wtap_dump_fdopen
 wtap_dump_fdopen_ng
 wtap_dump_file_encap_type
 wtap_dump_flush
+wtap_dump_has_name_resolution
 wtap_dump_open
 wtap_dump_open_ng
 wtap_dump_set_addrinfo_list
@@ -80,5 +81,3 @@ wtap_snapshot_length
 wtap_strerror
 wtap_write_shb_comment
 wtap_wtap_encap_to_pcap_encap
-
-
