@@ -1710,9 +1710,10 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
 
     val=0;
     if (len > 0) {
-        /* extend sign bit */
-        guint8 first = tvb_get_guint8(tvb, offset);
-        if (first & 0x80) {
+        /* extend sign bit for signed fields */
+        guint8      first = tvb_get_guint8(tvb, offset);
+        enum ftenum type  = proto_registrar_get_ftype(hf_id);
+        if (first & 0x80 && IS_FT_INT(type)) {
             val = -1;
         }
         if ((len > 1) && decode_warning_leading_zero_bits) {

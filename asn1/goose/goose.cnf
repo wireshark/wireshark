@@ -68,4 +68,9 @@ GSEMngtResponses/getGsReference gseMngtResponses_GetGSReference
 GSEMngtResponses/getGoReference gseMngtResponses_GetGOReference
 GSEMngtResponses/getGSSEDataOffset gseMngtResponses_GetGSSEDataOffset
 GSEMngtResponses/getGOOSEElementNumber gseMngtResponses_GetGOOSEElementNumber
+
+#.FIELD_ATTR
+IECGoosePdu/stNum  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+IECGoosePdu/sqNum  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+
 #.END
