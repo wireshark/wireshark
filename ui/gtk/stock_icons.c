@@ -167,7 +167,7 @@ void stock_icons_init(void) {
     static const stock_pixbuf_t pixbufs[] = {
         { WIRESHARK_STOCK_ABOUT,              wsicon_16_pb_data, wsicon_24_pb_data },
         { WIRESHARK_STOCK_CAPTURE_INTERFACES, capture_interfaces_16_pb_data, capture_interfaces_24_pb_data },
-        { WIRESHARK_STOCK_CAPTURE_OPTIONS,    capture_options_16_pb_data, capture_options_24_pb_data },
+        { WIRESHARK_STOCK_CAPTURE_OPTIONS,    capture_options_alt1_16_pb_data, capture_options_alt1_24_pb_data },
         { WIRESHARK_STOCK_CAPTURE_RESTART,    capture_restart_16_pb_data, capture_restart_24_pb_data },
         { WIRESHARK_STOCK_CAPTURE_START,      capture_start_16_pb_data, capture_start_24_pb_data },
         { WIRESHARK_STOCK_CAPTURE_STOP,       capture_stop_16_pb_data, capture_stop_24_pb_data },
