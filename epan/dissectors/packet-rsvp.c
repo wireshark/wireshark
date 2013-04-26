@@ -8511,6 +8511,11 @@ proto_register_rsvp(void)
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
         },
+        { &hf_rsvp_3gpp_qos_attribute_reserved,
+         { "Reserved", "rsvp.3gpp_obj.r_qos_blob.reserved",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
         { &hf_rsvp_3gpp_r_qos_blob,
          { "R_QOS_SUB_BLOB", "rsvp.3gpp_obj.r_qos_blob",
            FT_BYTES, BASE_NONE, NULL, 0,
