@@ -61,7 +61,13 @@ while getopts "at:" opt ; do
 done
 shift $((OPTIND-1))
 
-svnurl="http://anonsvn.wireshark.org/wireshark/$trunk"
+svninfo="`svn info | grep ^URL: | cut -f2 -d' '`"
+if [ -z "$svninfo" ] ; then
+    exit_err "Can't find repository information. Are you running this from a Wireshark SVN directory?"
+fi
+
+svnurl=`dirname $svninfo`
+svnurl="$svnurl/$trunk"
 #svnurl="$HOME/Development/wireshark"
 
 rev="$1"
