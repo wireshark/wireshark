@@ -135,7 +135,6 @@ create_console(void)
   gboolean must_redirect_stdin;
   gboolean must_redirect_stdout;
   gboolean must_redirect_stderr;
-FILE *crapball;
 
   if (stdin_capture) {
     /* We've been handed "-i -". Don't mess with stdio. */
