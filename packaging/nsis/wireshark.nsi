@@ -424,6 +424,7 @@ File "..\..\smi_modules"
 SetOutPath $INSTDIR\diameter
 File "..\..\diameter\AlcatelLucent.xml"
 File "..\..\diameter\chargecontrol.xml"
+File "..\..\diameter\ChinaTelecom.xml"
 File "..\..\diameter\Cisco.xml"
 File "..\..\diameter\dictionary.dtd"
 File "..\..\diameter\dictionary.xml"

@@ -63,6 +63,7 @@ pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
 diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = \
 	diameter/chargecontrol.xml \
+	diameter/ChinaTelecom.xml \
 	diameter/Cisco.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \
