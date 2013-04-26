@@ -71,7 +71,7 @@ endif		# HAVE_DOXYGEN
 
 wsar_html: doxygen.cfg ../doxygen_global.cfg
 if HAVE_DOXYGEN
-	$(DOXYGEN) doxygen.cfg
+	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 endif
 
 checkapi: checkapi-base checkapi-todo

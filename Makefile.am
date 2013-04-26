@@ -1153,7 +1153,7 @@ checkapi: checkapi_local
 
 wsar_html: doxygen.cfg doxygen_global.cfg
 if HAVE_DOXYGEN
-	$(DOXYGEN) doxygen.cfg
+	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 	cd epan && $(MAKE) $@
 	cd ui && $(MAKE) $@
 endif
