@@ -29,8 +29,8 @@
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			SYSTEM "Nokia.xml">
 	<!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
-  <!ENTITY SKT			SYSTEM "SKT.xml">
-  <!ENTITY ChinaTelecom			SYSTEM "ChinaTelecom.xml">
+	<!ENTITY SKT			SYSTEM "SKT.xml">
+	<!ENTITY ChinaTelecom		SYSTEM "ChinaTelecom.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -176,9 +176,9 @@
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
-    <vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
-    <vendor vendor-id="ChinaTelecom" code="81000" name="China Telecom"/>
-    <vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
+		<vendor vendor-id="Tango" code="13421" name="Tango Telecom Limited"/>
+		<vendor vendor-id="ChinaTelecom" code="81000" name="China Telecom"/>
+		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<!-- *********************** End Vendors ************************** -->
 
 
@@ -6338,5 +6338,5 @@
 	&Nokia;
 	&NokiaSiemensNetworks;
 	&SKT;
-  &ChinaTelecom;
+	&ChinaTelecom;
 </dictionary>
