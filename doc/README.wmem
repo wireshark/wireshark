@@ -322,7 +322,6 @@ intimately familiar with Glib's testing framework, but it does the job.
 The following is a list of things that wmem provides but are incomplete
 (i.e. missing common operations):
 
- - string buffers
  - singly-linked list
 
 The following is an incomplete list of things that emem provides but wmem has

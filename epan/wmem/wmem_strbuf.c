@@ -53,6 +53,11 @@ struct _wmem_strbuf_t {
     gsize max_len;
 };
 
+/* _ROOM accounts for the null-terminator, _RAW_ROOM does not.
+ * Some functions need one, some functions need the other. */
+#define WMEM_STRBUF_ROOM(S) ((S)->alloc_len - (S)->len - 1)
+#define WMEM_STRBUF_RAW_ROOM(S) ((S)->alloc_len - (S)->len)
+
 wmem_strbuf_t *
 wmem_strbuf_sized_new(wmem_allocator_t *allocator,
                       gsize alloc_len, gsize max_len)
@@ -138,7 +143,7 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 
     wmem_strbuf_grow(strbuf, append_len);
 
-    g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->alloc_len);
+    g_strlcpy(&strbuf->str[strbuf->len], str, WMEM_STRBUF_RAW_ROOM(strbuf));
 
     strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
 }
@@ -158,7 +163,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
     wmem_strbuf_grow(strbuf, append_len - 1);
 
     append_len = g_vsnprintf(&strbuf->str[strbuf->len],
-            (gulong) (strbuf->alloc_len - strbuf->len),
+            (gulong) WMEM_STRBUF_RAW_ROOM(strbuf),
             fmt, ap2);
 
     va_end(ap2);
@@ -174,6 +179,36 @@ wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...)
     va_start(ap, format);
     wmem_strbuf_append_vprintf(strbuf, format, ap);
     va_end(ap);
+}
+
+void
+wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c)
+{
+    wmem_strbuf_grow(strbuf, 1);
+
+    /* one for the char, one for the null-terminator */
+    if (WMEM_STRBUF_ROOM(strbuf) >= 1) {
+        strbuf->str[strbuf->len] = c;
+        strbuf->len++;
+        strbuf->str[strbuf->len] = '\0';
+    }
+}
+
+void
+wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
+{
+    gchar buf[6];
+    gsize charlen;
+
+    charlen = g_unichar_to_utf8(c, buf);
+
+    wmem_strbuf_grow(strbuf, charlen);
+
+    if (WMEM_STRBUF_ROOM(strbuf) >= charlen) {
+        memcpy(&strbuf->str[strbuf->len], buf, charlen);
+        strbuf->len += charlen;
+        strbuf->str[strbuf->len] = '\0';
+    }
 }
 
 void
