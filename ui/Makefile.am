@@ -69,6 +69,9 @@ if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
+wsar_html: doxygen.cfg ../doxygen_global.cfg
+	$(DOXYGEN) doxygen.cfg
+
 checkapi: checkapi-base checkapi-todo
 
 checkapi-base:

@@ -293,6 +293,9 @@ if HAVE_DOXYGEN
 	$(AM_V_GEN)$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
+wsar_html: doxygen.cfg ../doxygen_global.cfg
+	$(DOXYGEN) doxygen.cfg
+
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12

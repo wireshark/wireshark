@@ -1,10 +1,12 @@
 # $Id$
 # @configure_input@
 
+@INCLUDE = ../doxygen_global.cfg
+
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = Wireshark-Epan
+PROJECT_NAME           = "Wireshark EPAN"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -17,7 +19,13 @@ PROJECT_NUMBER         = @VERSION@
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = 
+OUTPUT_DIRECTORY       = ../wsar_html
+
+# The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
+# If a relative path is entered the value of OUTPUT_DIRECTORY will be
+# put in front of it. If left blank `html' will be used as the default path.
+
+HTML_OUTPUT            = epan
 
 # The INPUT tag can be used to specify the files and/or directories that contain 
 # documented source files. You may enter file names like "myfile.cpp" or 
@@ -57,5 +65,3 @@ EXCLUDE_SYMLINKS       = NO
 # certain files from those directories.
 
 EXCLUDE_PATTERNS       = 
-
-@INCLUDE = ../doxygen_global.cfg

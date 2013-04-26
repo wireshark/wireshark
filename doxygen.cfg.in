@@ -1,10 +1,12 @@
 # $Id$
 # @configure_input@
 
+@INCLUDE = doxygen_global.cfg
+
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = Wireshark
+PROJECT_NAME           = "Wireshark Core"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -17,7 +19,13 @@ PROJECT_NUMBER         = @VERSION@
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = 
+OUTPUT_DIRECTORY       = wsar_html
+
+# The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
+# If a relative path is entered the value of OUTPUT_DIRECTORY will be
+# put in front of it. If left blank `html' will be used as the default path.
+
+HTML_OUTPUT            = core
 
 # The INPUT tag can be used to specify the files and/or directories that contain 
 # documented source files. You may enter file names like "myfile.cpp" or 
@@ -39,13 +47,13 @@ FILE_PATTERNS          =
 # should be searched for input files as well. Possible values are YES and NO. 
 # If left blank NO is used.
 
-RECURSIVE              = YES
+RECURSIVE              = NO
 
 # The EXCLUDE tag can be used to specify files and/or directories that should 
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = gtk2.tmp
+EXCLUDE                = 
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
 # that are symbolic links (a Unix filesystem feature) are excluded from the input.
@@ -64,5 +72,3 @@ EXCLUDE_PATTERNS       =
 # written to the html output directory.
 
 CHM_FILE               = wireshark-gtk.chm
-
-@INCLUDE = doxygen_global.cfg

@@ -1150,3 +1150,12 @@ checkapi: checkapi_local
 	cd epan/dissectors && $(MAKE) checkapi
 	cd plugins && $(MAKE) checkapi
 	cd wsutil && $(MAKE) checkapi
+
+wsar_html: doxygen.cfg doxygen_global.cfg
+	$(DOXYGEN) doxygen.cfg
+	cd epan && $(MAKE) $@
+	cd ui && $(MAKE) $@
+
+wsar-zip: wsar_html
+	rm -f wsar_html.zip
+	zip -rq wsar_html.zip wsar_html
