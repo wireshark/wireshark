@@ -2032,11 +2032,11 @@ else
 fi
 AC_SUBST(GEOIP_LIBS)
 
-dnl Python devel Check
-AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
-
 # Python support is broken, it should not be enabled (except in the development
 # branch if someone wants to work on fixing it).
+#dnl Python devel Check
+#AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
+#
 #AC_ARG_WITH(python,
 #    AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
 #                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (BROKEN/UNSTABLE)]),
@@ -2065,6 +2065,8 @@ AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
 #        AC_MSG_RESULT(yes)
 #	AC_WIRESHARK_PYTHON_CHECK
 #fi
+AC_SUBST(PY_LIBS)
+AC_SUBST(PY_CFLAGS)
 want_python=no
 AM_CONDITIONAL(HAVE_LIBPY, test x$want_python != xno)
 AC_SUBST(pythondir)
