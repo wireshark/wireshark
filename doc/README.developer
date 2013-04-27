@@ -2775,6 +2775,11 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
     problems:
     perl <wireshark_root>/tools/checkfiltername.pl <source-filename(s)>
 
+  - CHECK your dissector with CppCheck (http://cppcheck.sourceforge.net/) using
+    Wireshark's customized configuration. This is particularly important on
+    Windows, since Microsoft's compiler warnings are quite thin:
+    ./tools/cppcheck/cppcheck.sh <source-filename(s)>
+
   - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
     Use fuzz-test.sh and/or randpkt against your dissector.  These are
     described at <http://wiki.wireshark.org/FuzzTesting>.
