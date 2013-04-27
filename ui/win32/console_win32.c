@@ -180,12 +180,12 @@ create_console(void)
          do a FreeConsole() first. */
       FreeConsole();
       if (AllocConsole()) {
-        /* That succeeded.
-           XXX - on Windows XP, it "succeeds" but doesn't actually
-           pop up a console window! */
+        /* That succeeded. */
         console_wait = TRUE;
         SetConsoleTitle(_T("Wireshark Debug Console"));
       } else {
+        /* On Windows XP, this still fails; FreeConsole() apparently
+           doesn't clear the state, as it does on Windows 7. */
         return;   /* couldn't create console */
       }
     }
