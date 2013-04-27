@@ -2403,6 +2403,8 @@ update_options_table(gint indx)
         break;
       }
     }
+    if (!linkname)
+      linkname = g_strdup("unknown");
     if (device.has_snaplen) {
       snaplen_string = g_strdup_printf("%d", device.snaplen);
     } else {
@@ -2422,11 +2424,11 @@ update_options_table(gint indx)
         g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
       }
   #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
   #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
   #else
-      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
   #endif
       if (global_capture_opts.num_selected > 0) {
         gtk_widget_set_sensitive(ok_bt, TRUE);
@@ -2448,6 +2450,7 @@ update_options_table(gint indx)
     if (get_welcome_window() != NULL) {
       change_interface_selection(g_strdup(device.name), device.selected);
     }
+    g_free(linkname);
   }
   set_sensitivity_for_start_icon();
 }
