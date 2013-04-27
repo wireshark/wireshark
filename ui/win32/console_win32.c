@@ -180,13 +180,12 @@ create_console(void)
          do a FreeConsole() first. */
       FreeConsole();
       if (AllocConsole()) {
-        /* That succeeded. */
+        /* That succeeded.
+           XXX - on Windows XP, it "succeeds" but doesn't actually
+           pop up a console window! */
         console_wait = TRUE;
         SetConsoleTitle(_T("Wireshark Debug Console"));
       } else {
-        /* XXX - this appears to happen when Wireshark is run from the GUI
-           rather than from a command-line prompt of some sort.  The
-           error is ERROR_ACCESS_DENIED. */
         return;   /* couldn't create console */
       }
     }
