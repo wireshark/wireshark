@@ -6600,7 +6600,7 @@ static int
 dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *tree, int ace_number,
 				 guint32 obj_type)
 {
-	guint32 acetype4;
+	guint32 acetype4 = 0;
 	const char* acetype4_str;
 	proto_item* ace_item = NULL;
 	proto_tree* ace_tree = NULL;
