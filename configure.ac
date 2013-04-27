@@ -2035,34 +2035,37 @@ AC_SUBST(GEOIP_LIBS)
 dnl Python devel Check
 AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
 
-AC_ARG_WITH(python,
-    AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (BROKEN/UNSTABLE)]),
-[
-	pythondir='${libdir}/wireshark/python/${VERSION}'
-	if test "x$withval" = "xno"
-	then
-		want_python=no
-	elif test "x$withval" = "xyes"
-	then
-		want_python=yes
-	else
-		want_python=yes
-		pythondir="$withval"
-	fi
-],[
-	# By default (user didn't explicitly enable Python), don't enable
-	# Python support.
-	#
-	want_python=no
-	#pythondir='${libdir}/wireshark/python/${VERSION}'
-])
-if test "x$want_python" = "xno" ; then
-        AC_MSG_RESULT(no)
-else
-        AC_MSG_RESULT(yes)
-	AC_WIRESHARK_PYTHON_CHECK
-fi
+# Python support is broken, it should not be enabled (except in the development
+# branch if someone wants to work on fixing it).
+#AC_ARG_WITH(python,
+#    AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
+#                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (BROKEN/UNSTABLE)]),
+#[
+#	pythondir='${libdir}/wireshark/python/${VERSION}'
+#	if test "x$withval" = "xno"
+#	then
+#		want_python=no
+#	elif test "x$withval" = "xyes"
+#	then
+#		want_python=yes
+#	else
+#		want_python=yes
+#		pythondir="$withval"
+#	fi
+#],[
+#	# By default (user didn't explicitly enable Python), don't enable
+#	# Python support.
+#	#
+#	want_python=no
+#	#pythondir='${libdir}/wireshark/python/${VERSION}'
+#])
+#if test "x$want_python" = "xno" ; then
+#        AC_MSG_RESULT(no)
+#else
+#        AC_MSG_RESULT(yes)
+#	AC_WIRESHARK_PYTHON_CHECK
+#fi
+want_python=no
 AM_CONDITIONAL(HAVE_LIBPY, test x$want_python != xno)
 AC_SUBST(pythondir)
 
