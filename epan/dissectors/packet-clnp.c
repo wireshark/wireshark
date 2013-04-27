@@ -208,7 +208,7 @@ gboolean clnp_decode_atn_options = FALSE;
 static void
 dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree     *clnp_tree = NULL;
+    proto_tree     *clnp_tree;
     proto_item     *ti, *ti_len = NULL, *ti_pdu_len = NULL, *ti_tot_len = NULL;
     guint8          cnf_proto_id;
     guint8          cnf_hdr_len;
@@ -241,13 +241,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
     if (cnf_proto_id == NLPID_NULL) {
         col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
-        if (tree) {
-            ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, ENC_NA);
-            clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-            proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
-                    cnf_proto_id,
-                    "Inactive subset");
-        }
+        ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, ENC_NA);
+        clnp_tree = proto_item_add_subtree(ti, ett_clnp);
+        proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
+                cnf_proto_id, "Inactive subset");
         next_tvb = tvb_new_subset_remaining(tvb, 1);
         if (call_dissector(ositp_inactive_handle, next_tvb, pinfo, tree) == 0)
             call_dissector(data_handle,tvb, pinfo, tree);
@@ -264,14 +261,12 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* fixed part decoding */
     cnf_hdr_len = tvb_get_guint8(tvb, P_CLNP_HDR_LEN);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_NA);
-        clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-        proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
-                cnf_proto_id);
-        ti_len = proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1,
-                cnf_hdr_len);
-    }
+    ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_NA);
+    clnp_tree = proto_item_add_subtree(ti, ett_clnp);
+    proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
+            cnf_proto_id);
+    ti_len = proto_tree_add_uint(clnp_tree, hf_clnp_length, tvb, P_CLNP_HDR_LEN, 1,
+            cnf_hdr_len);
     if (cnf_hdr_len < FIXED_PART_LEN) {
         /* Header length is less than the length of the fixed part of
            the header. */
@@ -280,16 +275,13 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 FIXED_PART_LEN);
         return;
     }
-    if (tree) {                   
-        proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1,
+    proto_tree_add_uint(clnp_tree, hf_clnp_version, tvb, P_CLNP_VERS, 1,
                 cnf_vers);
-        cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
-        proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1,
-                cnf_ttl,
-                "Holding Time : %u (%u.%u secs)",
-                cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
-    }
-
+    cnf_ttl = tvb_get_guint8(tvb, P_CLNP_TTL);
+    proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, tvb, P_CLNP_TTL, 1,
+            cnf_ttl,
+            "Holding Time : %u (%u.%u secs)",
+            cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
     cnf_type = tvb_get_guint8(tvb, P_CLNP_TYPE);
     pdu_type_string = val_to_str(cnf_type & CNF_TYPE, npdu_type_abbrev_vals,
             "Unknown (0x%02x)");
@@ -300,19 +292,17 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_strlcat(flag_string, "M ", 7);
     if (cnf_type & CNF_ERR_OK)
         g_strlcat(flag_string, "E ", 7);
-    if (tree) {
-        ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
-                cnf_type,
-                "PDU Type     : 0x%02x (%s%s)",
-                cnf_type,
-                flag_string,
-                pdu_type_string);
-        type_tree = proto_item_add_subtree(ti, ett_clnp_type);
-        proto_tree_add_item(type_tree, hf_clnp_cnf_segmentation, tvb, P_CLNP_TYPE, 1, ENC_NA);
-        proto_tree_add_item(type_tree, hf_clnp_cnf_more_segments, tvb, P_CLNP_TYPE, 1, ENC_NA);
-        proto_tree_add_item(type_tree, hf_clnp_cnf_report_error, tvb, P_CLNP_TYPE, 1, ENC_NA);
-        proto_tree_add_item(type_tree, hf_clnp_cnf_type, tvb, P_CLNP_TYPE, 1, ENC_NA);
-    }
+    ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
+            cnf_type,
+            "PDU Type     : 0x%02x (%s%s)",
+            cnf_type,
+            flag_string,
+            pdu_type_string);
+    type_tree = proto_item_add_subtree(ti, ett_clnp_type);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_segmentation, tvb, P_CLNP_TYPE, 1, ENC_NA);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_more_segments, tvb, P_CLNP_TYPE, 1, ENC_NA);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_report_error, tvb, P_CLNP_TYPE, 1, ENC_NA);
+    proto_tree_add_item(type_tree, hf_clnp_cnf_type, tvb, P_CLNP_TYPE, 1, ENC_NA);
 
     /* If we don't have the full header - i.e., not enough to see the
        segmentation part and determine whether this datagram is segmented
@@ -324,10 +314,8 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     segment_length = tvb_get_ntohs(tvb, P_CLNP_SEGLEN);
-    if (tree) {
-        ti_pdu_len = proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
-                segment_length);
-    }
+    ti_pdu_len = proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
+            segment_length);
     if (segment_length < cnf_hdr_len) {
         /* Segment length is less than the header length. */
         expert_add_info_format(pinfo, ti_pdu_len, PI_MALFORMED, PI_ERROR,
@@ -336,44 +324,41 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
     cksum_status = calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum);
-    if (tree) {
-        switch (cksum_status) {
+    switch (cksum_status) {
+        default:
+            /*
+             * No checksum present, or not enough of the header present to
+             * checksum it.
+             */
+            proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+                    P_CLNP_CKSUM, 2,
+                    cnf_cksum,
+                    "Checksum     : 0x%04x",
+                    cnf_cksum);
+            break;
 
-            default:
-                /*
-                 * No checksum present, or not enough of the header present to
-                 * checksum it.
-                 */
-                proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
-                        P_CLNP_CKSUM, 2,
-                        cnf_cksum,
-                        "Checksum     : 0x%04x",
-                        cnf_cksum);
-                break;
+        case CKSUM_OK:
+            /*
+             * Checksum is correct.
+             */
+            proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+                    P_CLNP_CKSUM, 2,
+                    cnf_cksum,
+                    "Checksum     : 0x%04x (correct)",
+                    cnf_cksum);
+            break;
 
-            case CKSUM_OK:
-                /*
-                 * Checksum is correct.
-                 */
-                proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
-                        P_CLNP_CKSUM, 2,
-                        cnf_cksum,
-                        "Checksum     : 0x%04x (correct)",
-                        cnf_cksum);
-                break;
-
-            case CKSUM_NOT_OK:
-                /*
-                 * Checksum is not correct.
-                 */
-                proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
-                        P_CLNP_CKSUM, 2,
-                        cnf_cksum,
-                        "Checksum     : 0x%04x (incorrect)",
-                        cnf_cksum);
-                break;
-        }
-    } /* tree */
+        case CKSUM_NOT_OK:
+            /*
+             * Checksum is not correct.
+             */
+            proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+                    P_CLNP_CKSUM, 2,
+                    cnf_cksum,
+                    "Checksum     : 0x%04x (incorrect)",
+                    cnf_cksum);
+            break;
+    }
 
     opt_len = cnf_hdr_len;
     opt_len -= FIXED_PART_LEN; /* Fixed part of Header */
@@ -410,12 +395,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     nsel     = tvb_get_guint8(tvb, offset + dst_len - 1);
     SET_ADDRESS(&pinfo->net_dst, AT_OSI, dst_len, dst_addr);
     SET_ADDRESS(&pinfo->dst, AT_OSI, dst_len, dst_addr);
-    if (tree) {
-        proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
-                dst_addr,
-                " DA : %s",
-                print_nsap_net(dst_addr, dst_len));
-    }
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
+            dst_addr,
+            " DA : %s",
+            print_nsap_net(dst_addr, dst_len));
     offset += dst_len;
     opt_len -= dst_len;
 
@@ -449,14 +432,12 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     src_addr = tvb_get_ptr(tvb, offset, src_len);
     SET_ADDRESS(&pinfo->net_src, AT_OSI, src_len, src_addr);
     SET_ADDRESS(&pinfo->src, AT_OSI, src_len, src_addr);
-    if (tree) {
-        proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
-                offset, src_len,
-                src_addr,
-                " SA : %s",
-                print_nsap_net(src_addr, src_len));
+    proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
+            offset, src_len,
+            src_addr,
+            " SA : %s",
+            print_nsap_net(src_addr, src_len));
 
-    }
     offset += src_len;
     opt_len -= src_len;
 
@@ -474,23 +455,17 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             return;
         }
         du_id = tvb_get_ntohs(tvb, offset);
-        if (tree) {
-            proto_tree_add_text(clnp_tree, tvb, offset, 2,
-                    "Data unit identifier: %06u",
-                    du_id);
-        }
+        proto_tree_add_text(clnp_tree, tvb, offset, 2,
+                "Data unit identifier: %06u",
+                du_id);
         segment_offset = tvb_get_ntohs(tvb, offset + 2);
-        if (tree) {
-            proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
-                    "Segment offset      : %6u",
-                    segment_offset);
-        }
+        proto_tree_add_text(clnp_tree, tvb, offset + 2 , 2,
+                "Segment offset      : %6u",
+                segment_offset);
         total_length = tvb_get_ntohs(tvb, offset + 4);
-        if (tree) {
-            ti_tot_len = proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
-                    "Total length        : %6u",
-                    total_length);
-        }
+        ti_tot_len = proto_tree_add_text(clnp_tree, tvb, offset + 4 , 2,
+                "Total length        : %6u",
+                total_length);
         if (total_length < segment_length) {
             /* Reassembled length is less than the length of this segment. */
             expert_add_info_format(pinfo, ti_tot_len, PI_MALFORMED, PI_ERROR,
@@ -501,9 +476,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         opt_len -= SEGMENTATION_PART_LEN;
     }
 
-    if (tree) {
-        dissect_osi_options(opt_len, tvb, offset, clnp_tree);
-    }
+    dissect_osi_options(opt_len, tvb, offset, clnp_tree);
 
     offset += opt_len;
 
