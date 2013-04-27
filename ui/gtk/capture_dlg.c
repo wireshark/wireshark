@@ -5583,6 +5583,8 @@ create_and_fill_model(GtkTreeView *view)
           break;
         }
       }
+      if (!linkname)
+          linkname = g_strdup("unknown");
       pmode = capture_dev_user_pmode_find(device.name);
       if (global_capture_opts.session_started == FALSE && pmode != -1) {
         device.pmode = pmode;
@@ -5617,7 +5619,6 @@ create_and_fill_model(GtkTreeView *view)
       global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
       g_array_insert_val(global_capture_opts.all_ifaces, i, device);
       gtk_list_store_append (store, &iter);
-      g_assert(linkname);
 #if defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
