@@ -67,7 +67,7 @@ trap : INT
 
 $CPPCHECK --force --enable=style $QUIET  \
           $SUPPRESSIONS $INCLUDES        \
-          --template=$TEMPLATE           \
+          --std=c89 --template=$TEMPLATE \
           -j $THREADS $TARGET 2>&1
 
 if [ "$MODE" = "html" ]; then
