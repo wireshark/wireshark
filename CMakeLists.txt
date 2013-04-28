@@ -305,7 +305,7 @@ if(BUILD_qtshark)
 	else()
 		set(PACKAGELIST ${PACKAGELIST} QT)
 		# set(QT_OPTIONS 4.7.1 REQUIRED QtCore QtGui)
-		set(QT_VERSION 5)
+		set(QT_VERSION 4)
 	endif()
 endif()
 
