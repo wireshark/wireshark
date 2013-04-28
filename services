@@ -14,11 +14,11 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-04-19
+# 2013-04-25
 # 
 # Expert(s)
 # 
-# Joe Touch; Markku Kojo, Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling and Lars Eggert
+# Joe Touch; Markku Kojo, Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling, Lars Eggert and Alexey Melnikov
 # 
 # Note
 # 
@@ -14160,7 +14160,10 @@ domaintime	9909/udp	# domaintime                   [Jeffry_Dwight]              
 # 9910               Unassigned
 sype-transport	9911/tcp	# SYPECom Transport Protocol   [Sylvain_Pedneault]                                [Sylvain_Pedneault]                                       2003-03
 sype-transport	9911/udp	# SYPECom Transport Protocol   [Sylvain_Pedneault]                                [Sylvain_Pedneault]                                       2003-03
-# 9912-9949            Unassigned
+# 9912-9924            Unassigned
+xybrid-cloud	9925/tcp	# XYBRID Cloud                 [Rx_Networks_Inc_2]                                [Drew_Davies_2]                                           2013-04-25
+# 9925        udp    Reserved
+# 9926-9949            Unassigned
 apc-9950	9950/tcp	# APC 9950                     [American_Power_Conve]                             [American_Power_Conve]
 apc-9950	9950/udp	# APC 9950                     [American_Power_Conve]                             [American_Power_Conve]
 apc-9951	9951/tcp	# APC 9951                     [American_Power_Conve]                             [American_Power_Conve]
@@ -14400,7 +14403,11 @@ netapp-icdata	11105/tcp	# NetApp Intercluster Data     [Craig_Everhart]         
 # 11105       udp    Reserved
 sgi-lk	11106/tcp	# SGI LK Licensing service     [Michel_Bourget]                                   [Michel_Bourget]                                          2009-01-06
 sgi-lk	11106/udp	# SGI LK Licensing service     [Michel_Bourget]                                   [Michel_Bourget]                                          2009-01-06
-# 11107-11108           Unassigned
+# 11107              Unassigned
+# Hardware Terminals Discovery
+myq-termlink	11108/udp	# and Low-Level Communication  [JANUS_spol]                                       [Jakub_Ahmadyar]                                          2013-04-23
+# Protocol
+# 11108       tcp    Reserved
 # Data migration facility
 sgi-dmfmgr	11109/tcp	# Manager (DMF) is a browser   [SGI]                                              [John_Sygulla]                                            2013-01-07
 # based interface to DMF
@@ -15403,7 +15410,13 @@ pago-services1	30001/tcp	# Pago Services 1              [Balduin_Mueller_Plat]  
 pago-services1	30001/udp	# Pago Services 1              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
 pago-services2	30002/tcp	# Pago Services 2              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
 pago-services2	30002/udp	# Pago Services 2              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
-# 30003-30259           Unassigned
+amicon-fpsu-ra	30003/tcp	# Amicon FPSU-IP Remote        [Amicon_OOO]                                       [Alexey_Novotorzhin]                                      2013-04-25
+# Administration
+amicon-fpsu-ra	30003/udp	# Amicon FPSU-IP Remote        [Amicon_OOO]                                       [Alexey_Novotorzhin]                                      2013-04-25
+# Administration
+amicon-fpsu-s	30004/udp	# Amicon FPSU-IP VPN           [Amicon_OOO]                                       [Alexey_Novotorzhin]                                      2013-04-25
+# 30004       tcp    Reserved
+# 30005-30259           Unassigned
 kingdomsonline	30260/tcp	# Kingdoms Online              [Drake_Bankston]                                   [Drake_Bankston]                                          2009-08-18
 # (CraigAvenue)
 kingdomsonline	30260/udp	# Kingdoms Online              [Drake_Bankston]                                   [Drake_Bankston]                                          2009-08-18
@@ -17325,6 +17338,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Alexandre_Lechenne]                                      Alexandre Lechenne                              mailto:alexandre.lechenne&selectron.ch                        2008-12-10
 # [Alexei_V_Soloviev]                                       Alexei V. Soloviev                              mailto:avsolov&lab127.karelia.ru                              2002-05
 # [Alexei_Vladishev]                                        Alexei Vladishev                                mailto:alexei.vladishev&zabbix.com                            2006-02
+# [Alexey_Novotorzhin]                                      Alexey Novotorzhin        Amicon OOO            mailto:nav&amicon.ru                                          2013-04-25
 # [Alexey_Vlaskin]                                          Alexey Vlaskin                                  mailto:avlaskin&visicron.com                                  2007-10-22
 # [Alexis_Bose]                                             Alexis Bose                                     mailto:abose&d-ta.com                                         2008-12-08
 # [Alfred_Schmidt]                                          Alfred Schmidt                                  mailto:a.schmidt&aft-werdohl.de                               2003-11
@@ -17358,6 +17372,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Amatzia_Ben_Artzi]                                       Amatzia Ben-Artzi
 # [American_Power_Conve]                                                              American Power        mailto:ports&apcc.com                                         2002-02
 # Conversion
+# [Amicon_OOO]                                                                        Amicon OOO            mailto:info&amicon.ru                                         2013-04-25
 # [Amir_Blich]                                              Amir Blich                                      mailto:amir&netmanage.co.il
 # [Amir_Herzberg]                                           Amir Herzberg                                   mailto:amirh&vnet.ibm.com
 # [Amir_Peless]                                             Amir Peless                                     mailto:amirp&radware.co.il
@@ -18475,6 +18490,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Dragos_Pop]                                              Dragos Pop                                      mailto:dragos&cs.ubbcluj.ro
 # [Drake_Bankston]                                          Drake Bankston                                  mailto:IANA.KingdomsOnline&gmail.com                          2009-08-18
 # [Drew_Davies]                                             Drew Davies               Rx Networks Inc.      mailto:ddavies&rxnetworks.com                                 2013-01-24
+# [Drew_Davies_2]                                           Drew Davies               Rx Networks Inc.      mailto:ddavies&rxnetworks.com                                 2013-04-25
 # [Drew_Wolff]                                              Drew Wolff                                      mailto:dwolff&centra.net
 # [Dror_Gill]                                               Dror Gill                                       mailto:drorgi&vnet.ibm.com
 # [Dror_Harari]                                             Dror Harari                                     mailto:Dror.Harari&isgsoft.com
@@ -19113,6 +19129,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jakob_Oestergaard]                                       Jakob Oestergaard                               mailto:joe&sysorb.com                                         2002-02
 # [Jakob_Spies]                                             Jakob Spies                                     mailto:Jakob.Spies&genius.de
 # [Jakob_Steen_Hansen]                                      Jakob Steen Hansen                              mailto:jsh&dk.damgaard.com
+# [Jakub_Ahmadyar]                                          Jakub Ahmadyar            JANUS, spol. s r.o.   mailto:ahmadyar&myq.cz                                        2013-04-23
 # [James_A_Brewster]                                        James A. Brewster                               mailto:jimbrew&answersoft.com
 # [James_Anson]                                             James Anson                                     mailto:janson&bigpond.com                                     2009-02-12
 # [James_Bottomley]                                         James Bottomley                                 mailto:James.Bottomley&steeleye.com                           2006-02
@@ -19167,6 +19184,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jane_Porter]                                             Jane Porter                                     mailto:janeporter&uk.ibm.com
 # [Janna_Chang]                                             Janna Chang                                     mailto:janna&pmc.philips.com
 # [Janos_Lerch]                                             Janos Lerch                                     mailto:lerch&softic.hu                                        2006-02
+# [JANUS_spol]                                                                        JANUS, spol. s r.o.   mailto:ahmadyar&myq.cz                                        2013-04-23
 # [Jarkko_Oikarinen]                                        Jarkko Oikarinen                                mailto:jto&tolsun.oulu.fi
 # [Jarrod_Sayers]                                           Jarrod Sayers                                   mailto:jarrod&downtools.com.au                                2009-04-07
 # [Jason_Aiken]                                             Jason Aiken                                     mailto:jasona&corelcomputer.com
@@ -21137,6 +21155,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ruth_Slater]                                             Ruth Slater                                     mailto:ruth.slater&ideagen.co.uk
 # [Ruwan_Linton]                                            Ruwan Linton                                    mailto:ruwan&wso2.com                                         2008-08-20
 # [Rx_Networks_Inc]                                                                   Rx Networks Inc.      mailto:ddavies&rxnetworks.com                                 2013-01-24
+# [Rx_Networks_Inc_2]                                                                 Rx Networks Inc.      mailto:ddavies&rxnetworks.com                                 2013-04-25
 # [Ryan_Bolz]                                               Ryan Bolz                                       mailto:ryanbo&microsoft.com
 # [Ryan_Columbus]                                           Ryan Columbus                                   mailto:IANA_Contact&agilent.com                               2002-10
 # [Ryan_Finnie]                                             Ryan Finnie                                     mailto:ryan&finnie.org                                        2010-10-06
