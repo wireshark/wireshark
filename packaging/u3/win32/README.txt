@@ -9,7 +9,9 @@ SanDisk and M-Systems. According to
 http://kb.sandisk.com/app/answers/detail/a_id/5358/kw/u3
 
 U3 technology reached end of life in 2009. The developer information
-which was hosted at www.u3.com is no longer available.
+which was hosted at www.u3.com is no longer available. Starting with
+Wireshark 1.11 U3 packages are no longer officially supported and this
+directory will eventually be removed.
 
 See also:
 http://en.wikipedia.org/wiki/U3 and http://www.u3.com
