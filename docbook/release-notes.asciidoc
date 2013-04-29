@@ -16,6 +16,9 @@ The following bugs have been fixed:
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2013-2486[]
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
+* ws-buglink:8609[] Redirecting the standard output didn't redirect the output the of -D or -L
+flags. This fix means that the output of those flags now goes to the
+standard output, not the standard error, as it did in previous releases.
 
 === New and Updated Features
 
