@@ -34,7 +34,6 @@
 #include <wsutil/file_util.h>
 
 #include "console_win32.h"
-#include "../../console_io.h"
 
 #if _MSC_VER < 1500
 /* AttachConsole() needs this #define! */

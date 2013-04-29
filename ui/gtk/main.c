@@ -50,8 +50,10 @@
 #ifdef _WIN32 /* Needed for console I/O */
 #if _MSC_VER < 1500
 /* AttachConsole() needs this #define! */
+/* But we're not calling it from here any more; do we need this? */
 #define _WIN32_WINNT 0x0501
 #endif
+
 #include <fcntl.h>
 #include <conio.h>
 #include <ui/win32/console_win32.h>
@@ -1225,10 +1227,6 @@ print_usage(gboolean print_ver) {
 static void
 show_version(void)
 {
-#ifdef _WIN32
-  create_console();
-#endif
-
   printf(PACKAGE " " VERSION "%s\n"
          "\n"
          "%s"
@@ -1238,35 +1236,6 @@ show_version(void)
          "%s",
       wireshark_svnversion, get_copyright_info(), comp_info_str->str,
       runtime_info_str->str);
-
-#ifdef _WIN32
-  destroy_console();
-#endif
-}
-
-/*
- * Print to the standard error.  On Windows, create a console for the
- * standard error to show up on, if necessary.
- * XXX - pop this up in a window of some sort on UNIX+X11 if the controlling
- * terminal isn't the standard error?
- */
-void
-vfprintf_stderr(const char *fmt, va_list ap)
-{
-#ifdef _WIN32
-  create_console();
-#endif
-  vfprintf(stderr, fmt, ap);
-}
-
-void
-fprintf_stderr(const char *fmt, ...)
-{
-  va_list ap;
-
-  va_start(ap, fmt);
-  vfprintf_stderr(fmt, ap);
-  va_end(ap);
 }
 
 /*
@@ -1278,11 +1247,14 @@ cmdarg_err(const char *fmt, ...)
 {
   va_list ap;
 
-  fprintf_stderr("wireshark: ");
+#ifdef _WIN32
+  create_console();
+#endif
+  fprintf(stderr, "wireshark: ");
   va_start(ap, fmt);
-  vfprintf_stderr(fmt, ap);
+  vfprintf(stderr, fmt, ap);
   va_end(ap);
-  fprintf_stderr("\n");
+  fprintf(stderr, "\n");
 }
 
 /*
@@ -1296,9 +1268,12 @@ cmdarg_err_cont(const char *fmt, ...)
 {
   va_list ap;
 
+#ifdef _WIN32
+  create_console();
+#endif
   va_start(ap, fmt);
-  vfprintf_stderr(fmt, ap);
-  fprintf_stderr("\n");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
   va_end(ap);
 }
 
@@ -2333,13 +2308,19 @@ main(int argc, char *argv[])
           }
           exit(2);
         }
+#ifdef _WIN32
+        create_console();
+#endif /* _WIN32 */
         capture_opts_print_interfaces(if_list);
         free_interface_list(if_list);
+#ifdef _WIN32
+        destroy_console();
+#endif /* _WIN32 */
         exit(0);
-#else
+#else /* HAVE_LIBPCAP */
         capture_option_specified = TRUE;
         arg_error = TRUE;
-#endif
+#endif /* HAVE_LIBPCAP */
         break;
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
@@ -2359,7 +2340,13 @@ main(int argc, char *argv[])
         }
         break;
       case 'v':        /* Show version and exit */
+#ifdef _WIN32
+        create_console();
+#endif
         show_version();
+#ifdef _WIN32
+        destroy_console();
+#endif
         exit(0);
         break;
       case 'X':
@@ -2892,11 +2879,17 @@ main(int argc, char *argv[])
           cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
           exit(2);
         }
+#ifdef _WIN32
+        create_console();
+#endif /* _WIN32 */
 #if defined(HAVE_PCAP_CREATE)
         capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
 #else
         capture_opts_print_if_capabilities(caps, device.name, FALSE);
 #endif
+#ifdef _WIN32
+        destroy_console();
+#endif /* _WIN32 */
         free_if_capabilities(caps);
       }
     }
