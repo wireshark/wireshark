@@ -77,12 +77,14 @@ static const true_false_string softKeyMapValues = {
 #define CM7_MSG_TYPE_A 0x12
 #define CM7_MSG_TYPE_B 0x11
 #define CM7_MSG_TYPE_C 0x14
+#define CM7_MSG_TYPE_D 0x16
 
 static const value_string header_version[] = {
   { BASIC_MSG_TYPE, "Basic" },
   { CM7_MSG_TYPE_A, "CM7 type A" },
   { CM7_MSG_TYPE_B, "CM7 type B" },
   { CM7_MSG_TYPE_C, "CM7 type C" },
+  { CM7_MSG_TYPE_D, "CM7 type SPCP" },
   { 0             , NULL }
 };
 
@@ -147,7 +149,11 @@ static const value_string  message_id[] = {
   {0x0040, "AuditParticipantResMessage"},
   {0x0041, "DeviceToUserDataVersion1Message"},
   {0x0042, "DeviceToUserDataResponseVersion1Message"},
+  {0x0044, "Unknown_Message_0x0044"},
   {0x0048, "DialedPhoneBookMessage"},
+  {0x0049, "AccessoryStatusMessage"},
+  {0x004A, "Unknown_Message_0x004A"},
+  {0x004C, "MwiNotificationMessage"},
 
   /* Callmanager -> Station */
   /* 0x0000, 0x0003? */
@@ -236,9 +242,36 @@ static const value_string  message_id[] = {
   {0x013C, "AuditConferenceReqMessage"},
   {0x013D, "AuditParticipantReqMessage"},
   {0x013F, "UserToDeviceDataVersion1Message"},
-  {0x014A, "CM5CallInfoMessage"},
+  {0x0140, "VideoDisplayCommandMessage"},
+  {0x0141, "Unknown_Message_0x0141"},
+
+  /* Dynamic Length Messages */
+  {0x0143, "DynDisplayNotifyMessage"},
+  {0x0144, "DynDisplayPriNotifyMessage"},
+  {0x0145, "DynDisplayPromptStatusMessage"},
+  {0x0146, "DynFeatureStatMessage"},
+  {0x0147, "DynLineStatMessage"},
+  {0x0148, "DynServiceURLStatMessage"},
+  {0x0149, "DynSpeedDialStatMessage"},
+  {0x014A, "DynCallInfoMessage"},
+  /* End Dynamic Length Messages */
+
   {0x0152, "DialedPhoneBookAckMessage"},
+  {0x0153, "CallListStateUpdate"},
+  {0x0154, "StartMediaTransmissionAck"},
+  {0x0155, "StartMultiMediaTransmissionAck"},
+  {0x0156, "CallHistoryInfoMessage"},
+  {0x0159, "ExtensionDeviceCaps"},
   {0x015A, "XMLAlarmMessage"},
+  {0x015E, "Unknown_Message_0x015E"},
+
+  /* SPCP Messages (SubClass of SCCP Messages ) */
+  /* Station -> Callmanager */
+  {0x8000, "SPCPRegisterTokenRequest"},
+
+  /* Callmanager -> Station */
+  {0x8100, "SPCPRegisterTokenAck"},
+  {0x8101, "SPCPRegisterTokenReject"},
 
   {0     , NULL}  /* terminator */
 };
@@ -248,59 +281,105 @@ static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_id);
  * Device type to text conversion table
  */
 static const value_string  deviceTypes[] = {
-  {1  , "30SPplus"},
-  {2  , "12SPplus"},
-  {3  , "12SP"},
-  {4  , "12"},
-  {5  , "30VIP"},
-  {6  , "Telecaster"},
-  {7  , "TelecasterMgr"},
-  {8  , "TelecasterBus"},
-  {9  , "Polycom"},
-  {10 , "VGC"},
-  {12 , "ATA"},
-  {20 , "Virtual30SPplus"},
-  {21 , "PhoneApplication"},
-  {30 , "AnalogAccess"},
-  {40 , "DigitalAccessPRI"},
-  {41 , "DigitalAccessT1"},
-  {42 , "DigitalAccessTitan2"},
-  {43 , "DigitalAccessLennon"},
-  {47 , "AnalogAccessElvis"},
-  {50 , "ConferenceBridge"},
-  {51 , "ConferenceBridgeYoko"},
-  {52 , "ConferenceBridgeDixieLand"},
-  {53 , "ConferenceBridgeSummit"},
-  {60 , "H225"},
-  {61 , "H323Phone"},
-  {62 , "H323Trunk"},
-  {70 , "MusicOnHold"},
-  {71 , "Pilot"},
-  {72 , "TapiPort"},
-  {73 , "TapiRoutePoint"},
-  {80 , "VoiceInBox"},
-  {81 , "VoiceInboxAdmin"},
-  {82 , "LineAnnunciator"},
-  {83 , "SoftwareMtpDixieLand"},
-  {84 , "CiscoMediaServer"},
-  {85 , "ConferenceBridgeFlint"},
-  {90 , "RouteList"},
-  {100, "LoadSimulator"},
-  {110, "MediaTerminationPoint"},
-  {111, "MediaTerminationPointYoko"},
-  {112, "MediaTerminationPointDixieLand"},
-  {113, "MediaTerminationPointSummit"},
-  {120, "MGCPStation"},
-  {121, "MGCPTrunk"},
-  {122, "RASProxy"},
-  {125, "Trunk"},
-  {126, "Annunciator"},
-  {127, "MonitorBridge"},
-  {128, "Recorder"},
-  {129, "MonitorBridgeYoko"},
-  {131, "SipTrunk"},
-  {254, "UnknownMGCPGateway"},
-  {255, "NotDefined"},
+  {1,     "30SPplus"},
+  {2,     "12SPplus"},
+  {3,     "12SP"},
+  {4,     "12"},
+  {5,     "30VIP"},
+  {6,     "Cisco 7910"}, /* {6  , "Telecaster"}, */
+  {7,     "Cisco 7960"}, /* {7  , "TelecasterMgr"}, */
+  {8,     "Cisco 7940"}, /* {8  , "TelecasterBus"}, */
+  {9,     "Cisco 7935"}, /* {9  , "Polycom"}, */
+  {10,    "VGC"},
+  {12,    "ATA"},
+  {20,    "Virtual30SPplus"},
+  {21,    "PhoneApplication"},
+  {30,    "AnalogAccess"},
+  {40,    "DigitalAccessPRI"},
+  {41,    "DigitalAccessT1"},
+  {42,    "DigitalAccessTitan2"},
+  {43,    "DigitalAccessLennon"},
+  {47,    "AnalogAccessElvis"},
+  {50,    "ConferenceBridge"},
+  {51,    "ConferenceBridgeYoko"},
+  {52,    "ConferenceBridgeDixieLand"},
+  {53,    "ConferenceBridgeSummit"},
+  {60,    "H225"},
+  {61,    "H323Phone"},
+  {62,    "H323Trunk"},
+  {70,    "MusicOnHold"},
+  {71,    "Pilot"},
+  {72,    "TapiPort"},
+  {73,    "TapiRoutePoint"},
+  {80,    "VoiceInBox"},
+  {81,    "VoiceInboxAdmin"},
+  {82,    "LineAnnunciator"},
+  {83,    "SoftwareMtpDixieLand"},
+  {84,    "CiscoMediaServer"},
+  {85,    "ConferenceBridgeFlint"},
+  {90,    "RouteList"},
+  {100,   "LoadSimulator"},
+  {110,   "MediaTerminationPoint"},
+  {111,   "MediaTerminationPointYoko"},
+  {112,   "MediaTerminationPointDixieLand"},
+  {113,   "MediaTerminationPointSummit"},
+  {115,   "Cisco 7941"},
+  {119,   "Cisco 7971"},
+  {120,   "MGCPStation"},
+  {121,   "MGCPTrunk"},
+  {122,   "RASProxy"},
+  {124,   "Cisco 7914"},
+  {125,   "Trunk"},
+  {126,   "Annunciator"},
+  {127,   "MonitorBridge"},
+  {128,   "Recorder"},
+  {129,   "MonitorBridgeYoko"},
+  {131,   "SipTrunk"},
+  {227,   "Cisco 7915 (12BUTTONS)"},
+  {228,   "Cisco 7915"},
+  {229,   "Cisco 7916 (12BUTTONS)"},
+  {230,   "Cisco 7916"},
+  {254,   "UnknownMGCPGateway"},
+  {255,   "NotDefined"},
+  {275,   "Nokia E-Series"},
+  {302,   "Cisco 7985"},
+  {307,   "Cisco 7911"},
+  {308,   "Cisco 7961GE"},
+  {309,   "Cisco 7941GE"},
+  {348,   "Cisco 7931"},
+  {365,   "Cisco 7921"},
+  {369,   "Cisco 7906"},
+  {376,   "Nokia Mobile"},
+  {404,   "Cisco 7962"},
+  {431,   "Cisco 7937"},
+  {434,   "Cisco 7942"},
+  {435,   "Cisco 7945"},
+  {436,   "Cisco 7965"},
+  {437,   "Cisco 7975"},
+  {484,   "Cisco 7925"},
+  {495,   "Cisco 6921"},
+  {496,   "Cisco 6941"},
+  {497,   "Cisco 6961"},
+  {540,   "Cisco 8961"},
+  {547,   "Cisco 6901"},
+  {548,   "Cisco 6911"},
+  {564,   "Cisco 6945"},
+  {585,   "Cisco 8945"},
+  {586,   "Cisco 8941"},
+  {20000, "Cisco 7905"},
+  {30002, "Cisco 7920"},
+  {30006, "Cisco 7970"},
+  {30007, "Cisco 7912"},
+  {30008, "Cisco 7902"},
+  {30016, "Cisco IP Communicator"},
+  {30018, "Cisco 7961"},
+  {30019, "Cisco 7936"},
+  {30027, "Cisco Gateway AN"},
+  {30028, "Cisco Gateway BRI"},
+  {80000, "Linksys SPA521S"},
+  {80005, "Linksys SPA525G"},
+  {80009, "Linksys SPA525G2"},
+
   { 0    , NULL}
 };
 static value_string_ext deviceTypes_ext = VALUE_STRING_EXT_INIT(deviceTypes);
@@ -929,6 +1008,22 @@ static const value_string cast_callSecurityStatusTypes[] = {
   {0   , NULL}
 };
 
+static const value_string skinny_accessories[] = {
+  {1   , "Headset"},
+  {2   , "Handset"},
+  {3   , "Speaker"},
+  {0   , NULL}
+};
+static value_string_ext skinny_accessories_ext = VALUE_STRING_EXT_INIT(skinny_accessories);
+
+static const value_string skinny_accessoryStates[] = {
+  {0   , "None"},
+  {1   , "Offhook"},
+  {2   , "Onhook"},
+  {0   , NULL}
+};
+static value_string_ext skinny_accessoryStates_ext = VALUE_STRING_EXT_INIT(skinny_accessoryStates);
+
 #define StationMaxDirnumSize 24         /* max size of calling or called party dirnum  */
 #define StationMaxNameSize 40           /* max size of calling party's name  */
 #define StationMaxDisplayNameSize 44    /* max size of display name  */
@@ -985,6 +1080,9 @@ static int hf_skinny_stimulus = -1;
 static int hf_skinny_stimulusInstance = -1;
 static int hf_skinny_lineNumber = -1;
 static int hf_skinny_speedDialNumber = -1;
+static int hf_skinny_speedDialInstance = -1;
+static int hf_skinny_speedDialType = -1;
+static int hf_skinny_speedDialStatus = -1;
 static int hf_skinny_capCount = -1;
 static int hf_skinny_payloadCapability = -1;
 static int hf_skinny_maxFramesPerPacket = -1;
@@ -1219,6 +1317,10 @@ static int hf_cast_partyPIRestrictionBits_LastRedirectPartyName = -1;
 static int hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber = -1;
 static int hf_skinny_directoryIndex = -1;
 static int hf_skinny_directoryPhoneNumber = -1;
+static int hf_skinny_startMediaTransmissionStatus = -1;
+static int hf_skinny_accessory = -1;
+static int hf_skinny_accessoryState = -1;
+static int hf_skinny_unknown_string = -1;
 
 /* Skinny content type and internet media type used by other dissectors
  *  * are the same.  List of media types from IANA at:
@@ -1496,7 +1598,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
         }
         si->passThruId = tvb_get_letohl(tvb, offset+24);
-      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C) {
+      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
         proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         /*Assume the field of next 4 bytes is IP Version*/
         ipversion = tvb_get_ntohl(tvb, offset+16);
@@ -1866,6 +1968,12 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
+    case 0x0044: /* Unknown_Message_0x0044 */
+      if (hdr_data_length > 8) {
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown_string, tvb, offset+12, hdr_data_length-4, ENC_ASCII|ENC_NA);  /* MAX Observed 2132 */
+      }
+      break;
+
     case 0x0048: /* DialedPhoneBookMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_directoryIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
@@ -1873,6 +1981,25 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_directoryPhoneNumber, tvb, offset+24, 256, ENC_ASCII|ENC_NA);
       break;
 
+    case 0x0049: /* AccessoryStatusMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_accessory, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);		/* 0x0001 = HEADSET, 0x0002 = HANDSET, 0x0003 = SPEAKERMODE */
+      proto_tree_add_item(skinny_tree, hf_skinny_accessoryState, tvb, offset+16, 4, ENC_LITTLE_ENDIAN); 	/* 0x0001 = OFFHOOK, 0x0002 = ONHOOK */
+      if (hdr_data_length > 16) {
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, ENC_LITTLE_ENDIAN); 		/* ALWAYS 0x0000 UNKNOWN */
+      }
+      break;
+
+    case 0x004A: /* Unknown_Message_0x004A */
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      if (hdr_data_length > 16) {
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      }
+      break;
+
+    case 0x004C: /* MwiNotificationMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      break;
 
       /*
        *
@@ -1960,7 +2087,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         si->passThruId = tvb_get_letohl(tvb, offset+16);
       }
-      else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C)
+      else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D)
       {
         proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
@@ -2823,7 +2950,65 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
-    case 0x014A: /* CM5CallInfoMessage */
+    case 0x0140: /* VideoDisplayCommandMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      break;
+
+    case 0x0141: /* Unknown_Message_0x0141 */
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_maxBitRate, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
+      break;
+	
+    case 0x0143: /* DynDisplayNotifyMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, hdr_data_length-8, ENC_ASCII|ENC_NA);
+      break;
+
+    case 0x0144: /* DynDisplayPriNotifyMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_priority, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+20, hdr_data_length-12, ENC_ASCII|ENC_NA);
+      break;
+
+    case 0x0145: /* DynDisplayPromptStatusMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+24, hdr_data_length-16, ENC_ASCII|ENC_NA);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
+      break;
+
+    case 0x0146: /* DynFeatureStatMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_featureIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_featureID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_featureStatus, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_featureTextLabel, tvb, offset+24, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      break;
+
+    case 0x0147: /* DynLineStatMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, ENC_ASCII|ENC_NA);
+      break;	
+
+    case 0x0148: /* DynServiceURLStatMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURLIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURL, tvb, offset+16, StationMaxServiceURLSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURLDisplayName, tvb, offset+16+StationMaxServiceURLSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      break;
+
+    case 0x0149: /* DynSpeedDialStatMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialInstance, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialType, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialStatus, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialDisplayName, tvb, offset+24, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      break;
+
+    case 0x014A: /* DynCallInfoMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_callType, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
@@ -2922,8 +3107,109 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
       break;
 
+    case 0x0153: /* CallListStateUpdate */
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
+      break;
+
+    case 0x0154: /* StartMediaTransmissionAck */
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      if(hdr_version == BASIC_MSG_TYPE)
+      {
+        proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+24, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
+      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
+        ipversion = tvb_get_ntohl(tvb, offset+24);
+        proto_tree_add_item(skinny_tree, hf_skinny_IPVersion, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
+        if (ipversion == 0) {
+          proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+28, 4, ENC_BIG_ENDIAN);
+        } else {
+          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+26, 16, ENC_NA);
+        }
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+42, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+46, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+50, 4, ENC_LITTLE_ENDIAN);
+      }
+      break;
+
+    case 0x0155: /* StartMultiMediaTransmissionAck */
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      if(hdr_version == BASIC_MSG_TYPE)
+      {
+        proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+24, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
+      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
+        ipversion = tvb_get_ntohl(tvb, offset+24);
+        proto_tree_add_item(skinny_tree, hf_skinny_IPVersion, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
+        if (ipversion == 0) {
+          proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+28, 4, ENC_BIG_ENDIAN);
+        } else {
+          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+26, 16, ENC_NA);
+        }
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+42, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+46, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+50, 4, ENC_LITTLE_ENDIAN);
+      }
+      break;
+
+    case 0x0156: /* CallHistoryInfoMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      break;
+
+    case 0x0159: /* ExtensionDeviceCaps */
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+12, 672, ENC_ASCII|ENC_NA);
+      break;
+
+
     case 0x015A: /* XMLAlarmMessage */
       dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+12, hdr_data_length-4);
+      break;
+
+    case 0x015E: /* Unknown_Message_0x015E */
+      if (hdr_data_length > 8) {
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      }
+      break;
+
+      /*
+       *
+       *  SPCP Messages Call manager -> client messages start here
+       *
+       */
+    case 0x8000: /* SPCPRegisterTokenRequest */
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, 4, ENC_ASCII|ENC_NA);
+      i = offset+12+StationMaxDeviceNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, i+4, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, i+8, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceType, tvb, i+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_maxStreams, tvb, i+16, 4, ENC_LITTLE_ENDIAN);
+      break;
+
+      /*
+       *
+       *  SPCP Messages Client -> Call manager start here
+       *
+       */
+    case 0x8100: /* SPCPRegisterTokenAck */
+      proto_tree_add_item(skinny_tree, hf_skinny_featureID, tvb, offset+12, 4, ENC_ASCII|ENC_NA);
+
+    case 0x8101: /* SPCPRegisterTokenReject */
+      proto_tree_add_item(skinny_tree, hf_skinny_tokenRejWaitTime, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       break;
 
     default:
@@ -2958,15 +3244,17 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
   /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
 
-  if ((hdr_data_length < 4) ||
+  if (
+      (hdr_data_length < 4) ||
       ((hdr_version != BASIC_MSG_TYPE) &&
        (hdr_version != CM7_MSG_TYPE_A) &&
        (hdr_version != CM7_MSG_TYPE_B) &&
-       (hdr_version != CM7_MSG_TYPE_C))
+       (hdr_version != CM7_MSG_TYPE_C) &&
+       (hdr_version != CM7_MSG_TYPE_D))
      )
   {
       /* Not an SKINNY packet, just happened to use the same port */
-    return FALSE;
+      return FALSE;
   }
 
   /* Make entries in Protocol column and Info column on summary display */
@@ -4658,6 +4946,20 @@ proto_register_skinny(void)
         HFILL }
     },
 
+    { &hf_skinny_accessory,
+      { "Phone accessories", "skinny.accessories",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_accessories_ext, 0x0,
+        NULL,
+        HFILL }
+    },
+
+    { &hf_skinny_accessoryState,
+      { "Phone accessory state", "skinny.accessoryState",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_accessoryStates_ext, 0x0,
+        NULL,
+        HFILL }
+    },
+
     { &hf_cast_partyPIRestrictionBits_CallingPartyName,
       { "RestrictCallingPartyName", "cast.partyPIRestrictionBits.CallingPartyName",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x01,
@@ -4715,6 +5017,13 @@ proto_register_skinny(void)
 
     { &hf_skinny_directoryPhoneNumber,
       { "Directory phone number", "skinny.directoryPhoneNumber",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+
+    { &hf_skinny_unknown_string,
+      { "Unknown String", "skinny.unknownString",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
