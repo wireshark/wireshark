@@ -1712,7 +1712,10 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
     if (len > 0) {
         /* extend sign bit for signed fields */
         guint8      first = tvb_get_guint8(tvb, offset);
-        enum ftenum type  = proto_registrar_get_ftype(hf_id);
+        enum ftenum type  = FT_INT32; /* Default to signed, is this correct? */
+        if (hf_id >= 0) {
+            type = proto_registrar_get_ftype(hf_id);
+        }
         if (first & 0x80 && IS_FT_INT(type)) {
             val = -1;
         }
