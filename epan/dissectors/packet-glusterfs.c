@@ -2075,11 +2075,11 @@ proto_register_glusterfs(void)
 				"GFID of the parent directory", HFILL }
 		},
 		{ &hf_glusterfs_oldgfid,
-			{ "Old GFID", "glusterfs.oldgfid", FT_BYTES,
+			{ "Old GFID", "glusterfs.oldgfid", FT_GUID,
 				BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_newgfid,
-			{ "New GFID", "glusterfs.newgfid", FT_BYTES,
+			{ "New GFID", "glusterfs.newgfid", FT_GUID,
 				BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_path,
