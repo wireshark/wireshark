@@ -312,6 +312,23 @@ wmem_test_slist(void)
     g_assert(wmem_slist_count(slist) == 0);
     g_assert(wmem_slist_front(slist) == NULL);
 
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_slist_append(slist, GINT_TO_POINTER(i));
+        g_assert(wmem_slist_count(slist) == i+1);
+
+        frame = wmem_slist_front(slist);
+        g_assert(frame);
+    }
+    wmem_strict_check_canaries(allocator);
+
+    i = 0;
+    frame = wmem_slist_front(slist);
+    while (frame) {
+        g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
+        i++;
+        frame = wmem_slist_frame_next(frame);
+    }
+
     wmem_destroy_allocator(allocator);
 }
 

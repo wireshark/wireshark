@@ -66,6 +66,10 @@ void
 wmem_slist_prepend(wmem_slist_t *slist, void *data);
 
 WS_DLL_PUBLIC
+void
+wmem_slist_append(wmem_slist_t *slist, void *data);
+
+WS_DLL_PUBLIC
 wmem_slist_t *
 wmem_slist_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;

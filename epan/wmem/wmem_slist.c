@@ -65,6 +65,20 @@ wmem_slist_frame_data(const wmem_slist_frame_t *frame)
 }
 
 static wmem_slist_frame_t **
+wmem_slist_tail(wmem_slist_t *slist)
+{
+    wmem_slist_frame_t **cur;
+
+    cur = &(slist->front);
+
+    while (*cur) {
+        cur = &((*cur)->next);
+    }
+
+    return cur;
+}
+
+static wmem_slist_frame_t **
 wmem_slist_find(wmem_slist_t *slist, void *data)
 {
     wmem_slist_frame_t **cur;
@@ -107,6 +121,21 @@ wmem_slist_prepend(wmem_slist_t *slist, void *data)
     new_frame->next = slist->front;
 
     slist->front = new_frame;
+    slist->count++;
+}
+
+void
+wmem_slist_append(wmem_slist_t *slist, void *data)
+{
+    wmem_slist_frame_t *new_frame, **tail;
+
+    tail = wmem_slist_tail(slist);
+
+    new_frame = wmem_new(slist->allocator, wmem_slist_frame_t);
+    new_frame->data = data;
+    new_frame->next = NULL;
+
+    *tail = new_frame;
     slist->count++;
 }
 
