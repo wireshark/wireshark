@@ -113,6 +113,7 @@ EXTRA_DIST = \
 	CMakeLists.txt
 
 CLEANFILES = \
+	doxygen-epan.tag		\
 	libwireshark.a			\
 	libwireshark.la			\
 	libwireshark_generated.a 	\

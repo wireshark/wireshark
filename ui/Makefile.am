@@ -32,6 +32,7 @@ endif
 noinst_LIBRARIES = libui.a libui_dirty.a
 
 CLEANFILES = \
+	doxygen-ui.tag	\
 	libui.a		\
 	libui_dirty.a	\
 	*~

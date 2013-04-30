@@ -570,6 +570,7 @@ services:
 
 CLEANFILES =		\
 	*~		\
+	doxygen-core.tag	\
 	vgcore.*
 
 #
@@ -1151,11 +1152,12 @@ checkapi: checkapi_local
 	cd plugins && $(MAKE) checkapi
 	cd wsutil && $(MAKE) checkapi
 
-wsar_html: doxygen.cfg doxygen_global.cfg
+wsar_html: doxygen.cfg doxygen_global.cfg FORCE
 if HAVE_DOXYGEN
-	(umask 022 ; $(DOXYGEN) doxygen.cfg)
+	rm -rf wsar_html
 	cd epan && $(MAKE) $@
 	cd ui && $(MAKE) $@
+	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 endif
 
 wsar-zip: wsar_html

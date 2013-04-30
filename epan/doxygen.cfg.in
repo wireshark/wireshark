@@ -32,16 +32,31 @@ HTML_OUTPUT            = epan
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = 
+INPUT                  = .
 
-# If the value of the INPUT tag contains directories, you can use the 
-# FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
-# and *.h) to filter out the source-files in the directories. If left 
-# blank the following patterns are tested: 
-# *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp 
-# *.h++ *.idl *.odl *.cs *.php *.php3 *.inc
+# The TAGFILES option can be used to specify one or more tagfiles.
+# Optionally an initial location of the external documentation
+# can be added for each tagfile. The format of a tag file without
+# this location is as follows:
+#
+# TAGFILES = file1 file2 ...
+# Adding location for the tag files is done as follows:
+#
+# TAGFILES = file1=loc1 "file2 = loc2" ...
+# where "loc1" and "loc2" can be relative or absolute paths or
+# URLs. If a location is present for each tag, the installdox tool
+# does not have to be run to correct the links.
+# Note that each tag file must have a unique name
+# (where the name does NOT include the path)
+# If a tag file is not located in the directory in which doxygen
+# is run, you must also specify the path to the tagfile here.
 
-FILE_PATTERNS          = *.h
+TAGFILES               = ../doxygen-core.tag=..
+
+# When a file name is specified after GENERATE_TAGFILE, doxygen will create
+# a tag file that is based on the input files it reads.
+
+GENERATE_TAGFILE       = doxygen-epan.tag
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 
