@@ -119,6 +119,12 @@ WHITELISTED_LICENSES = [
 
 
 PATH_SPECIFIC_WHITELISTED_LICENSES = {
+    'dtds': [
+        'UNKNOWN',
+    ],
+    'fix': [
+        'UNKNOWN',
+    ],
     'tools/pidl': [
         'UNKNOWN',
     ],
