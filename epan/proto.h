@@ -2003,7 +2003,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
  @param tvb the tv buffer of the current data
  @param bit_offset of the first crumb in tvb expressed in bits
  @param crumb_spec pointer to crumb_spec array
- @param index into the crumb_spec array for this crumb */
+ @param crumb_index into the crumb_spec array for this crumb */
 void
 proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset,
                                 const crumb_spec_t *crumb_spec, guint16 crumb_index);

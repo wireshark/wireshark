@@ -46,7 +46,6 @@ typedef struct _epan_dissect_t epan_dissect_t;
 	XXX
 
 	@b Sections:
-	- \ref proto_pub
 */
 /*
 Ref 1

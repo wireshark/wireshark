@@ -244,11 +244,13 @@ extern void xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet
  * that contains XMPP_ATTR_INFO struct and string with namespace. It is used when packet
  * contains several namespaces and each attribute belongs to particular namespace.
  * E.g.
+ * @code
  * <auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl'
  *  mechanism='PLAIN'
  *  xmlns:ga='http://www.google.com/talk/protocol/auth'
  *  ga:client-uses-full-bind-result='true'>
  * </auth>
+ * @endcode
  */
 extern void xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info_ext *attrs, guint n);
 
