@@ -575,25 +575,57 @@ static value_string_ext softKeyIndexes_ext = VALUE_STRING_EXT_INIT(softKeyIndexe
 
 
 static const value_string buttonDefinitions[] = {
-  {0x1  , "LastNumberRedial"},
-  {0x2  , "SpeedDial"},
-  {0x3  , "Hold"},
-  {0x4  , "Transfer"},
-  {0x5  , "ForwardAll"},
-  {0x6  , "ForwardBusy"},
-  {0x7  , "ForwardNoAnswer"},
-  {0x8  , "Display"},
-  {0x9  , "Line"},
-  {0xa  , "T120Chat"},
-  {0xb  , "T120Whiteboard"},
-  {0xc  , "T120ApplicationSharing"},
-  {0xd  , "T120FileTransfer"},
-  {0xe  , "Video"},
-  {0x10 , "AnswerRelease"},
-  {0xf0 , "Keypad"},
-  {0xfd , "AEC"},
-  {0xff , "Undefined"},
-  {0   , NULL}
+  {0x01  , "LastNumberRedial"},
+  {0x02  , "SpeedDial"},
+  {0x03  , "Hold"},
+  {0x04  , "Transfer"},
+  {0x05  , "ForwardAll"},
+  {0x06  , "ForwardBusy"},
+  {0x07  , "ForwardNoAnswer"},
+  {0x08  , "Display"},
+  {0x09  , "Line"},
+  {0x0A  , "T120Chat"},
+  {0x0B  , "T120Whiteboard"},
+  {0x0C  , "T120ApplicationSharing"},
+  {0x0D  , "T120FileTransfer"},
+  {0x0E  , "Video"},
+  {0x0F  , "Voicemail"},
+  {0x10  , "AnswerRelease"},
+  {0x11  , "Auto Answer"},
+  {0x13  , "Feature"},
+  {0x14  , "ServiceUrl"},
+  {0x15  , "BLF Speeddial"},
+  {0x21  , "Generic App B1"},
+  {0x22  , "Generic App B2"},
+  {0x23  , "Generic App B3"},
+  {0x24  , "Generic App B4"},
+  {0x25  , "Generic App B5"},
+  {0x26  , "Monitor/Multiblink"},
+  {0x7B  , "Meet Me Conference"},
+  {0x7D  , "Conference"},
+  {0x7E  , "Call Park"},
+  {0x7F  , "Call Pickup"},
+  {0x80  , "Group Call Pickup"},
+  {0x81  , "Mobility"},
+  {0x82  , "Test 6"},
+  {0x85  , "Test 8"},
+  {0x86  , "Test 9"},
+  {0x87  , "Test A"},
+  {0x88  , "Test B"},
+  {0x89  , "Test C"},
+  {0x8A  , "Test D"},
+  {0x8B  , "Test 7"},
+  {0xC0  , "Test E"},
+  {0xC1  , "Test F"},
+  {0xC2  , "Messages"},
+  {0xC3  , "Directory"},
+  {0xC4  , "Test I"},
+  {0xC5  , "Application"},
+  {0xC6  , "Headset"},
+  {0xF0  , "Keypad"},
+  {0xFD  , "AEC"},
+  {0xFF  , "Undefined"},
+  {0     , NULL}
 };
 static value_string_ext buttonDefinitions_ext = VALUE_STRING_EXT_INIT(buttonDefinitions);
 
@@ -1001,7 +1033,7 @@ static const value_string skinny_formatTypes[] = {
 };
 static value_string_ext skinny_formatTypes_ext = VALUE_STRING_EXT_INIT(skinny_formatTypes);
 
-static const value_string cast_callSecurityStatusTypes[] = {
+static const value_string skinny_callSecurityStatusTypes[] = {
   {0   , "CallSecurityStatusUnknown"},
   {1   , "CallSecurityStatusNotAuthenticated"},
   {2   , "CallSecurityStatusAuthenticated"},
@@ -1080,7 +1112,6 @@ static int hf_skinny_stimulus = -1;
 static int hf_skinny_stimulusInstance = -1;
 static int hf_skinny_lineNumber = -1;
 static int hf_skinny_speedDialNumber = -1;
-static int hf_skinny_speedDialInstance = -1;
 static int hf_skinny_speedDialType = -1;
 static int hf_skinny_speedDialStatus = -1;
 static int hf_skinny_capCount = -1;
@@ -1297,27 +1328,29 @@ static int hf_skinny_pictureNumber = -1;
 static int hf_skinny_longTermPictureIndex = -1;
 static int hf_skinny_recoveryReferencePictureCount = -1;
 static int hf_skinny_transactionID = -1;
-static int hf_cast_lastRedirectingPartyName = -1;
-static int hf_cast_lastRedirectingParty = -1;
-static int hf_cast_cgpnVoiceMailbox = -1;
-static int hf_cast_cdpnVoiceMailbox = -1;
-static int hf_cast_originalCdpnVoiceMailbox = -1;
-static int hf_cast_lastRedirectingVoiceMailbox = -1;
-static int hf_cast_originalCdpnRedirectReason = -1;
-static int hf_cast_lastRedirectingReason = -1;
-static int hf_cast_callInstance = -1;
-static int hf_cast_callSecurityStatus = -1;
-static int hf_cast_partyPIRestrictionBits_CallingPartyName = -1;
-static int hf_cast_partyPIRestrictionBits_CallingPartyNumber = -1;
-static int hf_cast_partyPIRestrictionBits_CalledPartyName = -1;
-static int hf_cast_partyPIRestrictionBits_CalledPartyNumber = -1;
-static int hf_cast_partyPIRestrictionBits_OriginalCalledPartyName = -1;
-static int hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber = -1;
-static int hf_cast_partyPIRestrictionBits_LastRedirectPartyName = -1;
-static int hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber = -1;
+static int hf_skinny_lastRedirectingPartyName = -1;
+static int hf_skinny_lastRedirectingParty = -1;
+static int hf_skinny_cgpnVoiceMailbox = -1;
+static int hf_skinny_cdpnVoiceMailbox = -1;
+static int hf_skinny_originalCdpnVoiceMailbox = -1;
+static int hf_skinny_lastRedirectingVoiceMailbox = -1;
+static int hf_skinny_originalCdpnRedirectReason = -1;
+static int hf_skinny_lastRedirectingReason = -1;
+static int hf_skinny_callInstance = -1;
+static int hf_skinny_callSecurityStatus = -1;
+static int hf_skinny_partyPIRestrictionBits_CallingPartyName = -1;
+static int hf_skinny_partyPIRestrictionBits_CallingPartyNumber = -1;
+static int hf_skinny_partyPIRestrictionBits_CalledPartyName = -1;
+static int hf_skinny_partyPIRestrictionBits_CalledPartyNumber = -1;
+static int hf_skinny_partyPIRestrictionBits_OriginalCalledPartyName = -1;
+static int hf_skinny_partyPIRestrictionBits_OriginalCalledPartyNumber = -1;
+static int hf_skinny_partyPIRestrictionBits_LastRedirectPartyName = -1;
+static int hf_skinny_partyPIRestrictionBits_LastRedirectPartyNumber = -1;
 static int hf_skinny_directoryIndex = -1;
 static int hf_skinny_directoryPhoneNumber = -1;
 static int hf_skinny_startMediaTransmissionStatus = -1;
+static int hf_skinny_startMultiMediaTransmissionStatus = -1;
+static int hf_skinny_qualityStats = -1;
 static int hf_skinny_accessory = -1;
 static int hf_skinny_accessoryState = -1;
 static int hf_skinny_unknown_string = -1;
@@ -1628,14 +1661,33 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x0023: /* ConnectionStatisticsRes */
       proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, offset+12, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_statsProcessingType, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_packetsSent, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_octetsSent, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_packetsRecv, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_octetsRecv, tvb, offset+56, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_packetsLost, tvb, offset+60, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_jitter, tvb, offset+64, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_latency, tvb, offset+68, 4, ENC_LITTLE_ENDIAN);
+      if (hdr_version == BASIC_MSG_TYPE || hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B) {
+        proto_tree_add_item(skinny_tree, hf_skinny_statsProcessingType, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_packetsSent, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_octetsSent, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_packetsRecv, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_octetsRecv, tvb, offset+56, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_packetsLost, tvb, offset+60, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_jitter, tvb, offset+64, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_latency, tvb, offset+68, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+72, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+76, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+80, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+84, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_qualityStats, tvb, offset+88, hdr_data_length-80, ENC_ASCII|ENC_NA);
+      } else if (hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
+        proto_tree_add_item(skinny_tree, hf_skinny_packetsSent, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_octetsSent, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_packetsRecv, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_octetsRecv, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_packetsLost, tvb, offset+56, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_jitter, tvb, offset+60, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_latency, tvb, offset+64, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+68, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+72, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+76, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_qualityStats, tvb, offset+77, hdr_data_length-69, ENC_ASCII|ENC_NA);
+      }
       si->callId = tvb_get_letohl(tvb, offset+36);
       break;
 
@@ -1978,7 +2030,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_directoryIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_directoryPhoneNumber, tvb, offset+24, 256, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryPhoneNumber, tvb, offset+24, hdr_data_length-16, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0049: /* AccessoryStatusMessage */
@@ -2104,10 +2156,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
         /* There is some more... */
-        /* proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue,       tvb, offset+52, 4, ENC_LITTLE_ENDIAN); */
-        /* proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+56, 4, ENC_LITTLE_ENDIAN); */
-        /* proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+60, 2, ENC_LITTLE_ENDIAN); */
-        /* proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+62, 4, ENC_LITTLE_ENDIAN); */
+        proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue,       tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+56, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+60, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+62, 4, ENC_LITTLE_ENDIAN);
+        /* proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,       tvb, offset+66, 4, ENC_LITTLE_ENDIAN); */
+        /* proto_tree_add_item(skinny_tree, hf_skinny_rtpDTMFPayload,     tvb, offset+126, 4, ENC_LITTLE_ENDIAN); */
+        /* proto_tree_add_item(skinny_tree, hf_skinny_rtptimeout,         tvb, offset+130, 4, ENC_LITTLE_ENDIAN); */
         if (rtp_handle) {
           address src_addr;
           guint32 ipv4_address;
@@ -2125,6 +2180,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x008b: /* StopMediaTransmission */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
       si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
@@ -2158,36 +2215,36 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       i += StationMaxNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_originalCdpnRedirectReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_originalCdpnRedirectReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_cgpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_cdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_originalCdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_callInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_cast_callSecurityStatus, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callSecurityStatus, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
       ti_sub = proto_tree_add_text(skinny_tree, tvb, i, 8, "partyPIRestrictionBits");
       skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CallingPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CallingPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_CalledPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_OriginalCalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_LastRedirectPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_sub_tree, hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CallingPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CallingPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_CalledPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_OriginalCalledPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_OriginalCalledPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_LastRedirectPartyName, tvb, i, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_sub_tree, hf_skinny_partyPIRestrictionBits_LastRedirectPartyNumber, tvb, i, 4, ENC_LITTLE_ENDIAN);
       break;
 
     case 0x0090: /* ForwardStatMessage */
@@ -2371,11 +2428,11 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x0106: /* CloseReceiveChannel */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
       si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x0107: /* ConnectionStatisticsReq */
-
       i = 12;
       proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i = 12 + StationMaxDirnumSize;
@@ -2448,9 +2505,9 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_callState, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+      si->callState = tvb_get_letohl(tvb, offset+12);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
-      si->callState = tvb_get_letohl(tvb, offset+12);
       break;
 
     case 0x0112: /* DisplayPromptStatusMessage */
@@ -2960,7 +3017,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_maxBitRate, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
       break;
-	
+
     case 0x0143: /* DynDisplayNotifyMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, hdr_data_length-8, ENC_ASCII|ENC_NA);
@@ -2993,7 +3050,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, ENC_ASCII|ENC_NA);
-      break;	
+      break;
 
     case 0x0148: /* DynServiceURLStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_serviceURLIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
@@ -3002,7 +3059,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0149: /* DynSpeedDialStatMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_speedDialInstance, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialNumber, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_speedDialType, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_speedDialStatus, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_speedDialDisplayName, tvb, offset+24, StationMaxNameSize, ENC_ASCII|ENC_NA);
@@ -3030,19 +3087,19 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_cgpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_cdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           /* 4x party names */
           count = tvb_strnlen(tvb, i, -1)+1;
@@ -3055,7 +3112,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
         }
         else if(hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_A)
         {/* I'm not sure. Not enough examples. */
@@ -3064,7 +3121,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_cgpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
           proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, ENC_ASCII|ENC_NA);
@@ -3073,16 +3130,16 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_cdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           /* 4x party names */
           count = tvb_strnlen(tvb, i, -1)+1;
@@ -3095,7 +3152,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_lastRedirectingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
         }
       }
       break;
@@ -3127,16 +3184,15 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
       } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
-        ipversion = tvb_get_ntohl(tvb, offset+24);
         proto_tree_add_item(skinny_tree, hf_skinny_IPVersion, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
+        ipversion = tvb_get_ntohl(tvb, offset+24);
         if (ipversion == 0) {
           proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+28, 4, ENC_BIG_ENDIAN);
         } else {
-          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+26, 16, ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+28, 16, ENC_NA);
         }
-        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+42, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+46, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+50, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
+        /* proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+48, 4, ENC_LITTLE_ENDIAN); */
       }
       break;
 
@@ -3150,7 +3206,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       {
         proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+24, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_startMultiMediaTransmissionStatus, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
       } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C || hdr_version == CM7_MSG_TYPE_D) {
         ipversion = tvb_get_ntohl(tvb, offset+24);
@@ -3158,11 +3214,10 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (ipversion == 0) {
           proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+28, 4, ENC_BIG_ENDIAN);
         } else {
-          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+26, 16, ENC_NA);
+          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+28, 16, ENC_NA);
         }
-        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+42, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(skinny_tree, hf_skinny_startMediaTransmissionStatus, tvb, offset+46, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+50, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
+        /* proto_tree_add_item(skinny_tree, hf_skinny_startMultiMediaTransmissionStatus, tvb, offset+48, 4, ENC_LITTLE_ENDIAN); */
       }
       break;
 
@@ -4876,72 +4931,72 @@ proto_register_skinny(void)
         HFILL }
     },
 
-    { &hf_cast_lastRedirectingPartyName,
-      { "Last redirecting party name", "cast.lastRedirectingPartyName",
+    { &hf_skinny_lastRedirectingPartyName,
+      { "Last redirecting party name", "skinny.lastRedirectingPartyName",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_lastRedirectingParty,
-      { "Last redirecting party", "cast.lastRedirectingParty",
+    { &hf_skinny_lastRedirectingParty,
+      { "Last redirecting party", "skinny.lastRedirectingParty",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_cgpnVoiceMailbox,
-      { "Calling party voice mailbox", "cast.cgpnVoiceMailbox",
+    { &hf_skinny_cgpnVoiceMailbox,
+      { "Calling party voice mailbox", "skinny.cgpnVoiceMailbox",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_cdpnVoiceMailbox,
-      { "Called party voice mailbox", "cast.cdpnVoiceMailbox",
+    { &hf_skinny_cdpnVoiceMailbox,
+      { "Called party voice mailbox", "skinny.cdpnVoiceMailbox",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_originalCdpnVoiceMailbox,
-      { "Original called party voice mailbox", "cast.originalCdpnVoiceMailbox",
+    { &hf_skinny_originalCdpnVoiceMailbox,
+      { "Original called party voice mailbox", "skinny.originalCdpnVoiceMailbox",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_lastRedirectingVoiceMailbox,
-      { "Last redirecting voice mailbox", "cast.lastRedirectingVoiceMailbox",
+    { &hf_skinny_lastRedirectingVoiceMailbox,
+      { "Last redirecting voice mailbox", "skinny.lastRedirectingVoiceMailbox",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_originalCdpnRedirectReason,
-      { "Original called party redirect reason", "cast.originalCdpnRedirectReason",
+    { &hf_skinny_originalCdpnRedirectReason,
+      { "Original called party redirect reason", "skinny.originalCdpnRedirectReason",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_lastRedirectingReason,
-      { "Last redirecting reason", "cast.lastRedirectingReason",
+    { &hf_skinny_lastRedirectingReason,
+      { "Last redirecting reason", "skinny.lastRedirectingReason",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_callInstance,
-      { "Call instance", "cast.callInstance",
+    { &hf_skinny_callInstance,
+      { "Call instance", "skinny.callInstance",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL,
         HFILL }
     },
 
-    { &hf_cast_callSecurityStatus,
-      { "Call security status", "cast.callSecurityStatus",
-        FT_UINT32, BASE_DEC, VALS(cast_callSecurityStatusTypes), 0x0,
+    { &hf_skinny_callSecurityStatus,
+      { "Call security status", "skinny.callSecurityStatus",
+        FT_UINT32, BASE_DEC, VALS(skinny_callSecurityStatusTypes), 0x0,
         NULL,
         HFILL }
     },
@@ -4960,50 +5015,50 @@ proto_register_skinny(void)
         HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_CallingPartyName,
-      { "RestrictCallingPartyName", "cast.partyPIRestrictionBits.CallingPartyName",
+    { &hf_skinny_partyPIRestrictionBits_CallingPartyName,
+      { "RestrictCallingPartyName", "skinny.partyPIRestrictionBits.CallingPartyName",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x01,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_CallingPartyNumber,
-      { "RestrictCallingPartyNumber", "cast.partyPIRestrictionBits.CallingPartyNumber",
+    { &hf_skinny_partyPIRestrictionBits_CallingPartyNumber,
+      { "RestrictCallingPartyNumber", "skinny.partyPIRestrictionBits.CallingPartyNumber",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x02,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_CalledPartyName,
-      { "RestrictCalledPartyName", "cast.partyPIRestrictionBits.CalledPartyName",
+    { &hf_skinny_partyPIRestrictionBits_CalledPartyName,
+      { "RestrictCalledPartyName", "skinny.partyPIRestrictionBits.CalledPartyName",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x04,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_CalledPartyNumber,
-      { "RestrictCalledPartyNumber", "cast.partyPIRestrictionBits.CalledPartyNumber",
+    { &hf_skinny_partyPIRestrictionBits_CalledPartyNumber,
+      { "RestrictCalledPartyNumber", "skinny.partyPIRestrictionBits.CalledPartyNumber",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x08,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_OriginalCalledPartyName,
-      { "RestrictOriginalCalledPartyName", "cast.partyPIRestrictionBits.OriginalCalledPartyName",
+    { &hf_skinny_partyPIRestrictionBits_OriginalCalledPartyName,
+      { "RestrictOriginalCalledPartyName", "skinny.partyPIRestrictionBits.OriginalCalledPartyName",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x10,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_OriginalCalledPartyNumber,
-      { "RestrictOriginalCalledPartyNumber", "cast.partyPIRestrictionBits.OriginalCalledPartyNumber",
+    { &hf_skinny_partyPIRestrictionBits_OriginalCalledPartyNumber,
+      { "RestrictOriginalCalledPartyNumber", "skinny.partyPIRestrictionBits.OriginalCalledPartyNumber",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x20,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_LastRedirectPartyName,
-      { "RestrictLastRedirectPartyName", "cast.partyPIRestrictionBits.LastRedirectPartyName",
+    { &hf_skinny_partyPIRestrictionBits_LastRedirectPartyName,
+      { "RestrictLastRedirectPartyName", "skinny.partyPIRestrictionBits.LastRedirectPartyName",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x40,
         NULL, HFILL }
     },
 
-    { &hf_cast_partyPIRestrictionBits_LastRedirectPartyNumber,
-      { "RestrictLastRedirectPartyNumber", "cast.partyPIRestrictionBits.LastRedirectPartyNumber",
+    { &hf_skinny_partyPIRestrictionBits_LastRedirectPartyNumber,
+      { "RestrictLastRedirectPartyNumber", "skinny.partyPIRestrictionBits.LastRedirectPartyNumber",
         FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x80,
         NULL, HFILL }
     },
@@ -5011,24 +5066,52 @@ proto_register_skinny(void)
     { &hf_skinny_directoryIndex,
       { "Directory index", "skinny.directoryIndex",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL,
-        HFILL }
+        NULL, HFILL }
     },
 
     { &hf_skinny_directoryPhoneNumber,
       { "Directory phone number", "skinny.directoryPhoneNumber",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL,
-        HFILL }
+        NULL, HFILL }
     },
 
     { &hf_skinny_unknown_string,
       { "Unknown String", "skinny.unknownString",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_skinny_qualityStats,
+      { "Quality Statistics", "skinny.qualityStats",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_skinny_speedDialStatus,
+      { "Speeddial Status", "skinny.speedDialStatus",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+
+    { &hf_skinny_speedDialType,
+      { "Speeddial Type", "skinny.speedDialType",
+        FT_UINT32, BASE_DEC, VALS(buttonDefinitions), 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_skinny_startMediaTransmissionStatus,
+      { "Start MediaTransmission Status Type", "skinny.startMediaTransmissionStatus",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_skinny_startMultiMediaTransmissionStatus,
+      { "Start MultiMediaTransmission Status Type", "skinny.startMultiMediaTransmissionStatus",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL,
         HFILL }
     },
-
   };
 
   /* Setup protocol subtree array */
