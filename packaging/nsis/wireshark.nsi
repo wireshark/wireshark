@@ -887,7 +887,7 @@ SetOutPath '$INSTDIR\plugins\${VERSION}'
 File "${STAGING_DIR}\plugins\${VERSION}\mate.dll"
 SectionEnd
 
-Section "Global Profiles" SecProfiles
+Section "Configuration Profiles" SecProfiles
 ;-------------------------------------------
 ; This should be a function or macro
 SetOutPath '$INSTDIR\profiles\Bluetooth'
