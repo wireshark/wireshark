@@ -240,7 +240,7 @@ SectionIn 1 2
 RMDir /r "$INSTDIR\plugins"
 SectionEnd
 
-Section "Un.Profiles" un.SecProfiles
+Section "Un.Configuration Profiles" un.SecProfiles
 ;-------------------------------------------
 SectionIn 1 2
 RMDir /r "$INSTDIR\profiles"
