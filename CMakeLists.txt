@@ -378,6 +378,9 @@ set(PACKAGELIST ${PACKAGELIST} POD)
 
 set(PROGLIST text2pcap mergecap capinfos editcap reordercap dumpcap)
 
+#Sort the package list
+list(SORT PACKAGELIST)
+message(STATUS "Packagelist: ${PACKAGELIST}")
 #Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
 	if(${PACKAGE} STREQUAL "Qt4")
