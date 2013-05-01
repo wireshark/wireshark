@@ -240,6 +240,12 @@ SectionIn 1 2
 RMDir /r "$INSTDIR\plugins"
 SectionEnd
 
+Section "Un.Profiles" un.SecProfiles
+;-------------------------------------------
+SectionIn 1 2
+RMDir /r "$INSTDIR\profiles"
+SectionEnd
+
 Section "Un.Global Settings" un.SecGlobalSettings
 ;-------------------------------------------
 SectionIn 1 2
@@ -288,6 +294,7 @@ SectionEnd
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
     !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."

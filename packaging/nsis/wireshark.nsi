@@ -887,6 +887,14 @@ SetOutPath '$INSTDIR\plugins\${VERSION}'
 File "${STAGING_DIR}\plugins\${VERSION}\mate.dll"
 SectionEnd
 
+Section "Configuration Profiles" SecProfiles
+;-------------------------------------------
+; This should be a function or macro
+SetOutPath '$INSTDIR\profiles\Bluetooth'
+File "${STAGING_DIR}\profiles\Bluetooth\colorfilters"
+SetOutPath '$INSTDIR\profiles\Classic'
+File "${STAGING_DIR}\profiles\Classic\colorfilters"
+SectionEnd
 
 !ifdef SMI_DIR
 Section "SNMP MIBs" SecMIBs
@@ -979,13 +987,18 @@ SectionEnd
 !ifdef QT_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecQtshark} "Qtshark is a new GUI network protocol analyzer. (Experimental)"
 !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both ${PROGRAM_NAME} and TShark."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
+
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Plugins and extensions for both ${PROGRAM_NAME} and TShark."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Additional protocol dissectors."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
+
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecProfiles} "Configuration profiles"
+
 !ifdef SMI_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
 !endif
+
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
@@ -993,6 +1006,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Reordercap is a program that copies frames from an input capture to an output capture after sorting by time."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Rawshark is a raw packet filter."
+
 !ifdef HHC_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install the user's guide, so an internet connection is not required to read the help pages."
 !endif
