@@ -79,6 +79,7 @@
 #define C1222_CMD_TIMING_SETUP 0x71
 
 static dissector_handle_t c1222_handle=NULL;
+static dissector_handle_t c1222_udp_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_c1222 = -1;
@@ -993,7 +994,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
  * \param tree
  */
 static void
-dissect_c1222_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item      *c1222_item = NULL;
     proto_tree	    *c1222_tree = NULL;
@@ -1041,7 +1042,7 @@ static void
 dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
-	    get_c1222_message_len, dissect_c1222_full);
+	    get_c1222_message_len, dissect_c1222_common);
 }
 
 /*--- proto_register_c1222 -------------------------------------------*/
@@ -1328,7 +1329,9 @@ proto_reg_handoff_c1222(void)
 
     if( !initialized ) {
         c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
+		c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
         dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
+        dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;
     }
 }

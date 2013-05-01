@@ -87,6 +87,7 @@
 #define C1222_CMD_TIMING_SETUP 0x71
 
 static dissector_handle_t c1222_handle=NULL;
+static dissector_handle_t c1222_udp_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_c1222 = -1;
@@ -120,7 +121,7 @@ static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
 static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
 
 /*--- End of included file: packet-c1222-hf.c ---*/
-#line 90 "../../asn1/c1222/packet-c1222-template.c"
+#line 91 "../../asn1/c1222/packet-c1222-template.c"
 /* These are the EPSEM pieces */
 /* first, the flag components */
 static int hf_c1222_epsem_flags = -1;
@@ -223,7 +224,7 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 182 "../../asn1/c1222/packet-c1222-template.c"
+#line 183 "../../asn1/c1222/packet-c1222-template.c"
 
 
 /*------------------------------
@@ -1456,7 +1457,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 987 "../../asn1/c1222/packet-c1222-template.c"
+#line 988 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1466,7 +1467,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  * \param tree
  */
 static void
-dissect_c1222_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item      *c1222_item = NULL;
     proto_tree	    *c1222_tree = NULL;
@@ -1514,7 +1515,7 @@ static void
 dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
-	    get_c1222_message_len, dissect_c1222_full);
+	    get_c1222_message_len, dissect_c1222_common);
 }
 
 /*--- proto_register_c1222 -------------------------------------------*/
@@ -1821,7 +1822,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1263 "../../asn1/c1222/packet-c1222-template.c"
+#line 1264 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1842,7 +1843,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1273 "../../asn1/c1222/packet-c1222-template.c"
+#line 1274 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   module_t *c1222_module;
@@ -1901,7 +1902,9 @@ proto_reg_handoff_c1222(void)
 
     if( !initialized ) {
         c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
+		c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
         dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
+        dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;
     }
 }
