@@ -946,7 +946,6 @@ EXTRA_DIST = \
 	cmake/modules/FindPCAP.cmake		\
 	cmake/modules/FindPOD.cmake		\
 	cmake/modules/FindPORTAUDIO.cmake	\
-	cmake/modules/FindPYTHON.cmake		\
 	cmake/modules/FindSED.cmake		\
 	cmake/modules/FindSH.cmake		\
 	cmake/modules/FindSMI.cmake		\
