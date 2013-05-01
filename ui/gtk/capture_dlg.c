@@ -1694,7 +1694,7 @@ update_options_table(gint index)
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkTreeIter  iter;
-  gchar *temp, *path_str, *snaplen_string, *linkname="";
+  gchar *temp, *path_str, *snaplen_string, *linkname;
   GList *list;
   link_row *link = NULL;
   gboolean enabled;
@@ -1707,6 +1707,7 @@ update_options_table(gint index)
     } else {
       temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
     }
+    linkname = NULL;
     for (list=device.links; list!=NULL; list=g_list_next(list))
     {
       link = (link_row*)(list->data);
@@ -1715,6 +1716,8 @@ update_options_table(gint index)
         break;
       }
     }
+    if (!linkname)
+      linkname = g_strdup("unknown");
     if (device.has_snaplen) {
       snaplen_string = g_strdup_printf("%d", device.snaplen);
     } else {
@@ -1754,6 +1757,7 @@ update_options_table(gint index)
     if (get_welcome_window() != NULL) {
       change_interface_selection(g_strdup(device.name), device.selected);
     }
+    g_free(linkname);
   }
 }
 
