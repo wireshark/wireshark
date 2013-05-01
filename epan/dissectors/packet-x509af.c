@@ -177,10 +177,7 @@ static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
 #line 56 "../../asn1/x509af/packet-x509af-template.c"
-
 static const char *algorithm_id;
-static const char *extension_id;
-
 
 /*--- Included file: packet-x509af-fn.c ---*/
 #line 1 "../../asn1/x509af/packet-x509af-fn.c"
@@ -376,13 +373,13 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 #line 88 "../../asn1/x509af/x509af.cnf"
   const char *name;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, (const char**)&actx->private_data);
 
 
-  if(extension_id) {
-    name = oid_resolved_from_string(extension_id);
+  if(actx->private_data) {
+    name = oid_resolved_from_string((const char*)actx->private_data);
 
-    proto_item_append_text(tree, " (%s)", name ? name : extension_id);
+    proto_item_append_text(tree, " (%s)", name ? name : actx->private_data);
   }
 
 
@@ -411,7 +408,7 @@ dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback(extension_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback((const char*)actx->private_data, tvb, offset, actx->pinfo, tree);
 
 
 
@@ -890,7 +887,7 @@ static void dissect_DSS_Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 61 "../../asn1/x509af/packet-x509af-template.c"
+#line 58 "../../asn1/x509af/packet-x509af-template.c"
 
 const char *x509af_get_last_algorithm_id(void) {
   return algorithm_id;
@@ -1232,7 +1229,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 102 "../../asn1/x509af/packet-x509af-template.c"
+#line 99 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1275,7 +1272,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 108 "../../asn1/x509af/packet-x509af-template.c"
+#line 105 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1318,7 +1315,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 136 "../../asn1/x509af/packet-x509af-template.c"
+#line 133 "../../asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

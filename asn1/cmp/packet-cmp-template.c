@@ -71,10 +71,6 @@ static int hf_cmp_tcptrans10_flags = -1;
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
 #include "packet-cmp-ett.c"
-
-static const char *object_identifier_id;
-
-
 #include "packet-cmp-fn.c"
 
 static int
