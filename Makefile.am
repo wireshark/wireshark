@@ -57,6 +57,14 @@ pkgdata_DATA = COPYING manuf services cfilters colorfilters dfilters \
 	smi_modules ipmap.html pdml2html.xsl
 
 #
+# Install global profiles in the "profiles" subdirectory
+#
+profilesdir = $(pkgdatadir)
+nobase_profiles_DATA = \
+	profiles/Bluetooth/colorfilters \
+	profiles/Classic/colorfilters
+
+#
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
 # of that directory.
 #
@@ -901,6 +909,7 @@ EXTRA_DIST = \
 	print.ps		\
 	$(diameter_DATA)	\
 	$(dtds_DATA)		\
+	$(nobase_profiles_DATA)	\
 	$(radius_DATA)		\
 	$(tpncp_DATA)		\
 	$(ui_DATA)		\
