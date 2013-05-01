@@ -1717,7 +1717,7 @@ update_options_table(gint index)
       }
     }
     if (!linkname)
-      linkname = g_strdup("unknown");
+      linkname = g_strdup("");
     if (device.has_snaplen) {
       snaplen_string = g_strdup_printf("%d", device.snaplen);
     } else {
@@ -4471,7 +4471,7 @@ GtkTreeModel *create_and_fill_model(GtkTreeView *view)
   GtkListStore *store;
   GtkTreeIter iter;
   GList *list;
-  char *temp="", *snaplen_string, *linkname="";
+  char *temp="", *snaplen_string, *linkname;
   guint i;
   link_row *link = NULL;
   interface_t device;
@@ -4492,6 +4492,7 @@ GtkTreeModel *create_and_fill_model(GtkTreeView *view)
       } else {
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
+      linkname = NULL;
       for (list = device.links; list != NULL; list = g_list_next(list)) {
         link = (link_row*)(list->data);
         linkname = g_strdup(link->name);
@@ -4499,6 +4500,8 @@ GtkTreeModel *create_and_fill_model(GtkTreeView *view)
         break;
         }
       }
+      if (!linkname)
+         linkname = g_strdup("");
       if (device.has_snaplen) {
         snaplen_string = g_strdup_printf("%d", device.snaplen);
       } else {
@@ -4512,6 +4515,7 @@ GtkTreeModel *create_and_fill_model(GtkTreeView *view)
 #else
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
 #endif
+      g_free(linkname);
     }
   }
   gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(store));
