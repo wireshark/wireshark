@@ -404,7 +404,7 @@ AC_PATH_PROG(LYNX, lynx)
 AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
 AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
 
-AC_PATH_PROG(PYTHON, python)
+AC_PATH_PROG(PYTHON, python2)
 
 # Check for w3m (html -> text)
 AC_PATH_PROG(W3M, w3m)
