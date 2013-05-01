@@ -278,6 +278,7 @@ set(GLIB2_MIN_VERSION 2.14.0)
 set(GTHREAD2_REQUIRED)
 set(PCAP_REQUIRED)
 set(M_REQUIRED)
+set(PythonInterp_FIND_VERSION 2)
 
 set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
 
@@ -400,12 +401,16 @@ foreach(PACKAGE ${PACKAGELIST})
 		if (${PACKAGE}_DEFINITIONS)
 			message(STATUS "${PACKAGE} definitions: ${${PACKAGE}_DEFINITIONS}")
 		endif()
+		if (${PACKAGE}_EXECUTABLE)
+			message(STATUS "${PACKAGE} executable: ${${PACKAGE}_EXECUTABLE}")
+		endif()
 	endif()
 endforeach()
 
 #packaging
 include(CPackConfig.txt)
 
+message(STATUS "Python executable: ${PYTHON_EXECUTABLE}")
 if(HAVE_LIBPYTHON)
 	set(HAVE_PYTHON 1)
 	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${CPACK_PACKAGE_VERSION}")
@@ -457,7 +462,6 @@ elseif(QT_FOUND)
 	message(STATUS "QT includes: ${QT_INCLUDE_DIR}")
 	message(STATUS "QT libs: ${QT_LIBRARIES}")
 endif()
-
 include(ConfigureChecks.cmake)
 
 #Big or little endian ?
