@@ -379,7 +379,7 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if(actx->private_data) {
     name = oid_resolved_from_string((const char*)actx->private_data);
 
-    proto_item_append_text(tree, " (%s)", name ? name : actx->private_data);
+    proto_item_append_text(tree, " (%s)", name ? name : (const char *)actx->private_data);
   }
 
 

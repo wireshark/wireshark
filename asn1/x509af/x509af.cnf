@@ -92,7 +92,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   if(actx->private_data) {
     name = oid_resolved_from_string((const char*)actx->private_data);
 
-    proto_item_append_text(tree, " (%%s)", name ? name : actx->private_data);
+    proto_item_append_text(tree, " (%%s)", name ? name : (const char *)actx->private_data);
   }
 
 #.FN_BODY Extension/extnValue
