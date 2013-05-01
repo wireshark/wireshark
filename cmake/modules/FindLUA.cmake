@@ -30,6 +30,16 @@ FIND_PATH(LUA_INCLUDE_DIR lua.h
   /opt
 )
 
+if(LUA_INCLUDE_DIR AND EXISTS "${LUA_INCLUDE_DIR}/lua.h")
+  file(STRINGS "${LUA_INCLUDE_DIR}/lua.h" LUA_VERSION REGEX "LUA_VERSION_NUM")
+  if (LUA_VERSION)
+    string(REGEX REPLACE "^#define[ \t]+LUA_VERSION_NUM[ \t]+(.+)" "\\1" LUA_VERSION "${LUA_VERSION}")
+  else()
+    set( LUA_VERSION "500")
+  endif()
+endif()
+
+
 FIND_LIBRARY(LUA_LIBRARY
   NAMES lua52 lua5.2 lua51 lua5.1 lua
   HINTS
@@ -50,6 +60,7 @@ INCLUDE(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LUA_FOUND to TRUE if 
 # all listed variables are TRUE
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LUA  DEFAULT_MSG  LUA_LIBRARY LUA_INCLUDE_DIR)
+message("LUA INCLUDEs version: ${LUA_VERSION}")
 
 IF(LUA_LIBRARY)
   SET( LUA_LIBRARIES "${LUA_LIBRARY}" CACHE STRING "Lua Libraries")
