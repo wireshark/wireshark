@@ -4195,6 +4195,8 @@ static gint ett_anqp_vendor_capab = -1;
 
 static gint ett_hs20_cc_proto_port_tuple = -1;
 
+static gint ett_ssid_list = -1;
+
 static const fragment_items frag_items = {
   &ett_fragment,
   &ett_fragments,
@@ -8979,6 +8981,37 @@ dissect_mmie(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
 }
 
 static void
+dissect_ssid_list(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  int end = offset + tag_len;
+  proto_item *ssid;
+  proto_tree *entry;
+  gboolean first = TRUE;
+
+  while (offset + 1 <= end) {
+    guint8 len = tvb_get_guint8(tvb, offset + 1);
+    guint8 *str;
+
+    if (offset + 2 + len > end)
+      break;
+
+    str = tvb_get_ephemeral_string(tvb, offset + 2, len);
+    proto_item_append_text(tree, "%c %s", (first ? ':' : ','), str);
+    first = FALSE;
+    ssid = proto_tree_add_text(tree, tvb, offset, 2 + len, "SSID: %s", str);
+    entry = proto_item_add_subtree(ssid, ett_ssid_list);
+    proto_tree_add_item(entry, hf_ieee80211_tag_number, tvb, offset, 1,
+                        ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_uint(entry, hf_ieee80211_tag_length, tvb, offset, 1, len);
+    offset++;
+    proto_tree_add_item(entry, hf_ieee80211_tag_ssid, tvb, offset, len,
+                        ENC_ASCII|ENC_NA);
+    offset += len;
+  }
+}
+
+static void
 dissect_link_identifier(proto_tree *tree, tvbuff_t *tvb, int offset,
                         guint32 tag_len)
 {
@@ -12112,6 +12145,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_MMIE:
       dissect_mmie(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_SSID_LIST:
+      dissect_ssid_list(tree, tvb, offset + 2, tag_len);
       break;
 
     case TAG_TIME_ZONE:
@@ -20603,7 +20640,8 @@ proto_register_ieee80211 (void)
     &ett_nai_realm_eap,
     &ett_tag_ric_data_desc_ie,
     &ett_anqp_vendor_capab,
-    &ett_hs20_cc_proto_port_tuple
+    &ett_hs20_cc_proto_port_tuple,
+    &ett_ssid_list
   };
   module_t *wlan_module;
 
