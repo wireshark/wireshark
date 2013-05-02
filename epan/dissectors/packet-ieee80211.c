@@ -527,6 +527,7 @@ enum fixed_field {
   FIELD_SELFPROT_ACTION,
   FIELD_WNM_ACTION_CODE,
   FIELD_KEY_DATA_LENGTH,
+  FIELD_WNM_NOTIFICATION_TYPE,
                                               /* add any new fixed field value above this line */
   MAX_FIELD_NUM
 };
@@ -804,6 +805,15 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 
 /* WFA vendor specific subtypes */
 #define WFA_SUBTYPE_P2P 9
+#define WFA_SUBTYPE_HS20_INDICATION 16
+#define WFA_SUBTYPE_HS20_ANQP 17
+
+static const value_string wfa_subtype_vals[] = {
+  { WFA_SUBTYPE_P2P, "P2P" },
+  { WFA_SUBTYPE_HS20_INDICATION, "Hotspot 2.0 Indication" },
+  { WFA_SUBTYPE_HS20_ANQP, "Hotspot 2.0 ANQP" },
+  { 0, NULL }
+};
 
 /* ************************************************************************* */
 /*              Supported Rates (7.3.2.2)                                    */
@@ -1367,6 +1377,17 @@ static const value_string wnm_action_codes[] = {
   { 0, NULL }
 };
 static value_string_ext wnm_action_codes_ext = VALUE_STRING_EXT_INIT(wnm_action_codes);
+
+
+static const value_string wnm_notification_types[] = {
+  { 0, "Firmware Update Notification" },
+  { 1, "Reserved for use by WFA" },
+  { 221, "Vendor Specific" },
+  { 0, NULL }
+};
+
+static value_string_ext wnm_notification_types_ext =
+  VALUE_STRING_EXT_INIT(wnm_notification_types);
 
 /*** End: Action Fixed Parameter ***/
 
@@ -2760,6 +2781,7 @@ static int hf_ieee80211_ff_regulatory_class = -1;
 static int hf_ieee80211_ff_wnm_action_code = -1;
 static int hf_ieee80211_ff_key_data_length = -1;
 static int hf_ieee80211_ff_key_data = -1;
+static int hf_ieee80211_ff_wnm_notification_type = -1;
 static int hf_ieee80211_ff_request_mode_pref_cand = -1;
 static int hf_ieee80211_ff_request_mode_abridged = -1;
 static int hf_ieee80211_ff_request_mode_disassoc_imminent = -1;
@@ -3644,6 +3666,21 @@ static int hf_ieee80211_tag_time_adv_time_update_counter = -1;
 static int hf_ieee80211_tag_bss_max_idle_period = -1;
 static int hf_ieee80211_tag_bss_max_idle_options_protected = -1;
 
+/* IEEE Std 802.11-2012 8.4.2.82 */
+static int hf_ieee80211_tag_tfs_request_id = -1;
+static int hf_ieee80211_tag_tfs_request_ac_delete_after_match = -1;
+static int hf_ieee80211_tag_tfs_request_ac_notify = -1;
+static int hf_ieee80211_tag_tfs_request_subelem_id = -1;
+static int hf_ieee80211_tag_tfs_request_subelem_len = -1;
+static int hf_ieee80211_tag_tfs_request_subelem = -1;
+
+/* IEEE Std 802.11-2012 8.4.2.83 */
+static int hf_ieee80211_tag_tfs_response_subelem_id = -1;
+static int hf_ieee80211_tag_tfs_response_subelem_len = -1;
+static int hf_ieee80211_tag_tfs_response_subelem = -1;
+static int hf_ieee80211_tag_tfs_response_status = -1;
+static int hf_ieee80211_tag_tfs_response_id = -1;
+
 /* IEEE Std 802.11-2012 8.4.2.84 */
 static int hf_ieee80211_tag_wnm_sleep_mode_action_type = -1;
 static int hf_ieee80211_tag_wnm_sleep_mode_response_status = -1;
@@ -3984,6 +4021,37 @@ static int hf_ieee80211_tag_timeout_int_value = -1;
 /* Ethertype 89-0d */
 static int hf_ieee80211_data_encap_payload_type = -1;
 
+static int hf_ieee80211_anqp_wfa_subtype = -1;
+
+/* Hotspot 2.0 */
+static int hf_hs20_indication_dgaf_disabled = -1;
+
+static int hf_hs20_anqp_subtype = -1;
+static int hf_hs20_anqp_reserved = -1;
+static int hf_hs20_anqp_payload = -1;
+static int hf_hs20_anqp_hs_query_list = -1;
+static int hf_hs20_anqp_hs_capability_list = -1;
+static int hf_hs20_anqp_ofn_length = -1;
+static int hf_hs20_anqp_ofn_language = -1;
+static int hf_hs20_anqp_ofn_name = -1;
+static int hf_hs20_anqp_wan_metrics_link_status = -1;
+static int hf_hs20_anqp_wan_metrics_symmetric_link = -1;
+static int hf_hs20_anqp_wan_metrics_at_capacity = -1;
+static int hf_hs20_anqp_wan_metrics_reserved = -1;
+static int hf_hs20_anqp_wan_metrics_downlink_speed = -1;
+static int hf_hs20_anqp_wan_metrics_uplink_speed = -1;
+static int hf_hs20_anqp_wan_metrics_downlink_load = -1;
+static int hf_hs20_anqp_wan_metrics_uplink_load = -1;
+static int hf_hs20_anqp_wan_metrics_lmd = -1;
+static int hf_hs20_anqp_cc_proto_ip_proto = -1;
+static int hf_hs20_anqp_cc_proto_port_num = -1;
+static int hf_hs20_anqp_cc_proto_status = -1;
+static int hf_hs20_anqp_nai_hrq_count = -1;
+static int hf_hs20_anqp_nai_hrq_encoding_type = -1;
+static int hf_hs20_anqp_nai_hrq_length = -1;
+static int hf_hs20_anqp_nai_hrq_realm_name = -1;
+static int hf_hs20_anqp_oper_class_indic = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -4125,6 +4193,8 @@ static gint ett_nai_realm = -1;
 static gint ett_nai_realm_eap = -1;
 static gint ett_tag_ric_data_desc_ie = -1;
 static gint ett_anqp_vendor_capab = -1;
+
+static gint ett_hs20_cc_proto_port_tuple = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -4930,6 +5000,17 @@ dissect_anqp_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
+static void dissect_hs20_anqp_hs_capability_list(proto_tree *tree,
+                                                 tvbuff_t *tvb,
+                                                 int offset, int end)
+{
+  while (offset < end) {
+    proto_tree_add_item(tree, hf_hs20_anqp_hs_capability_list,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+  }
+}
+
 static void
 dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
 {
@@ -4937,6 +5018,7 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   proto_item *item;
   proto_tree *vtree;
   guint32     oui;
+  guint8      subtype;
 
   while (offset + 2 <= end) {
     id = tvb_get_letohs(tvb, offset);
@@ -4960,6 +5042,27 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
       len    -= 3;
 
       switch (oui) {
+      case OUI_WFA:
+        if (len == 0)
+          break;
+        subtype = tvb_get_guint8(tvb, offset);
+        proto_item_append_text(vtree, " - WFA - %s",
+                               val_to_str(subtype, wfa_subtype_vals,
+                                          "Unknown (%u)"));
+        proto_tree_add_item(vtree, hf_ieee80211_anqp_wfa_subtype,
+                            tvb, offset, 1, ENC_NA);
+        offset++;
+        len--;
+        switch (subtype) {
+        case WFA_SUBTYPE_HS20_ANQP:
+          dissect_hs20_anqp_hs_capability_list(vtree, tvb, offset, end);
+          break;
+        default:
+          proto_tree_add_item(vtree, hf_ieee80211_ff_anqp_capability_vendor,
+                              tvb, offset, len, ENC_BIG_ENDIAN);
+          break;
+        }
+        break;
       default:
         proto_tree_add_item(vtree, hf_ieee80211_ff_anqp_capability_vendor,
                             tvb, offset, len, ENC_NA);
@@ -5021,7 +5124,7 @@ dissect_venue_name_info(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_language,
                         tvb, offset, 3, ENC_ASCII|ENC_NA);
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_name,
-                        tvb, offset + 3, vlen - 3, ENC_ASCII|ENC_NA);
+                        tvb, offset + 3, vlen - 3, ENC_UTF_8|ENC_NA);
     offset += vlen;
   }
 }
@@ -5312,13 +5415,241 @@ dissect_domain_name_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
+#define HS20_ANQP_HS_QUERY_LIST 1
+#define HS20_ANQP_HS_CAPABILITY_LIST 2
+#define HS20_ANQP_OPERATOR_FRIENDLY_NAME 3
+#define HS20_ANQP_WAN_METRICS 4
+#define HS20_ANQP_CONNECTION_CAPABILITY 5
+#define HS20_ANQP_NAI_HOME_REALM_QUERY 6
+#define HS20_ANQP_OPERATING_CLASS_INDICATION 7
+
+static const value_string hs20_anqp_subtype_vals[] = {
+  { HS20_ANQP_HS_QUERY_LIST, "HS Query list" },
+  { HS20_ANQP_HS_CAPABILITY_LIST, "HS Capability List" },
+  { HS20_ANQP_OPERATOR_FRIENDLY_NAME, "Operator Friendly Name" },
+  { HS20_ANQP_WAN_METRICS, "WAN Metrics" },
+  { HS20_ANQP_CONNECTION_CAPABILITY, "Connection Capability" },
+  { HS20_ANQP_NAI_HOME_REALM_QUERY, "NAI Home Realm Query" },
+  { HS20_ANQP_OPERATING_CLASS_INDICATION, "Operating Class Indication" },
+  { 0, NULL }
+};
+
+static void dissect_hs20_anqp_hs_query_list(proto_tree *tree, tvbuff_t *tvb,
+                                            int offset, int end)
+{
+  while (offset < end) {
+    proto_tree_add_item(tree, hf_hs20_anqp_hs_query_list,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+  }
+}
+
+static void dissect_hs20_anqp_operator_friendly_name(proto_tree *tree,
+                                                     tvbuff_t *tvb,
+                                                     int offset, int end)
+{
+  while (offset + 4 <= end) {
+    guint8 vlen = tvb_get_guint8(tvb, offset);
+    proto_item *item = proto_tree_add_item(tree, hf_hs20_anqp_ofn_length,
+                                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    if (vlen > end - offset || vlen < 3) {
+      expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Invalid Operator Friendly Name Duple length");
+      break;
+    }
+    proto_tree_add_item(tree, hf_hs20_anqp_ofn_language,
+                        tvb, offset, 3, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_hs20_anqp_ofn_name,
+                        tvb, offset + 3, vlen - 3, ENC_UTF_8|ENC_NA);
+    offset += vlen;
+  }
+}
+
+static const value_string hs20_wm_link_status_vals[] = {
+  { 0, "Reserved" },
+  { 1, "Link up" },
+  { 2, "Link down" },
+  { 3, "Link in test state" },
+  { 0, NULL }
+};
+
+static void dissect_hs20_anqp_wan_metrics(proto_tree *tree, tvbuff_t *tvb,
+                                          int offset, gboolean request)
+{
+  if (request)
+    return;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_link_status,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_symmetric_link,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_at_capacity,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_reserved,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_downlink_speed,
+                      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_uplink_speed,
+                      tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_downlink_load,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_uplink_load,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_wan_metrics_lmd,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+}
+
+static const value_string hs20_cc_status_vals[] = {
+  { 0, "Closed" },
+  { 1, "Open" },
+  { 2, "Unknown" },
+  { 0, NULL }
+};
+
+static void
+dissect_hs20_anqp_connection_capability(proto_tree *tree, tvbuff_t *tvb,
+                                        int offset, int end)
+{
+  proto_item *item;
+  proto_tree *tuple;
+  while (offset + 4 <= end) {
+    guint8 ip_proto, status;
+    guint16 port_num;
+
+    ip_proto = tvb_get_guint8(tvb, offset);
+    port_num = tvb_get_letohs(tvb, offset + 1);
+    status = tvb_get_guint8(tvb, offset + 3);
+
+    item = proto_tree_add_text(tree, tvb, offset, 4, "ProtoPort Tuple - "
+                               "ip_proto=%u port_num=%u status=%s",
+                               ip_proto, port_num,
+                               val_to_str(status, hs20_cc_status_vals,
+                                          "Unknown (%u)"));
+    tuple = proto_item_add_subtree(item, ett_hs20_cc_proto_port_tuple);
+    proto_tree_add_item(tuple, hf_hs20_anqp_cc_proto_ip_proto,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tuple, hf_hs20_anqp_cc_proto_port_num,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tuple, hf_hs20_anqp_cc_proto_status,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+  }
+}
+
+static void
+dissect_hs20_anqp_nai_home_realm_query(proto_tree *tree, tvbuff_t *tvb,
+                                       int offset, int end)
+{
+  guint8 len;
+  proto_item *item;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_nai_hrq_count,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  while (offset + 2 <= end) {
+    proto_tree_add_item(tree, hf_hs20_anqp_nai_hrq_encoding_type,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    len = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(tree, hf_hs20_anqp_nai_hrq_length,
+                               tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    if (offset + len > end) {
+      expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Invalid NAI Home Realm Query length");
+      break;
+    }
+    proto_tree_add_item(tree, hf_hs20_anqp_nai_hrq_realm_name,
+                        tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+  }
+}
+
+static void dissect_hs20_anqp_oper_class_indic(proto_tree *tree, tvbuff_t *tvb,
+                                               int offset, int end)
+{
+  while (offset < end) {
+    proto_tree_add_item(tree, hf_hs20_anqp_oper_class_indic,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+  }
+}
+
+static void dissect_hs20_anqp(proto_tree *tree, tvbuff_t *tvb, int offset,
+                              int end, gboolean request, int idx)
+{
+  guint8 subtype;
+
+  subtype = tvb_get_guint8(tvb, offset);
+  proto_item_append_text(tree, " - HS 2.0 %s",
+                         val_to_str(subtype, hs20_anqp_subtype_vals,
+                                    "Unknown (%u)"));
+  if (idx == 0) {
+    col_append_fstr(g_pinfo->cinfo, COL_INFO, " HS 2.0 %s",
+                    val_to_str(subtype, hs20_anqp_subtype_vals,
+                               "Unknown (%u)"));
+  } else if (idx == 1) {
+    col_append_fstr(g_pinfo->cinfo, COL_INFO, ", ..");
+  }
+  proto_tree_add_item(tree, hf_hs20_anqp_subtype, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_hs20_anqp_reserved, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  offset++;
+
+  switch (subtype) {
+  case HS20_ANQP_HS_QUERY_LIST:
+    dissect_hs20_anqp_hs_query_list(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_HS_CAPABILITY_LIST:
+    dissect_hs20_anqp_hs_capability_list(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_OPERATOR_FRIENDLY_NAME:
+    dissect_hs20_anqp_operator_friendly_name(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_WAN_METRICS:
+    dissect_hs20_anqp_wan_metrics(tree, tvb, offset, request);
+    break;
+  case HS20_ANQP_CONNECTION_CAPABILITY:
+    dissect_hs20_anqp_connection_capability(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_NAI_HOME_REALM_QUERY:
+    dissect_hs20_anqp_nai_home_realm_query(tree, tvb, offset, end);
+    break;
+  case HS20_ANQP_OPERATING_CLASS_INDICATION:
+    dissect_hs20_anqp_oper_class_indic(tree, tvb, offset, end);
+    break;
+  default:
+    if (offset == end)
+      break;
+    proto_tree_add_item(tree, hf_hs20_anqp_payload, tvb, offset,
+                        end - offset, ENC_LITTLE_ENDIAN);
+    break;
+  }
+}
+
 static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                   gboolean request, int idx)
 {
   guint16     id, len;
   guint32     oui;
-  guint8      subtype;
   proto_item *item;
 
   item = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
@@ -5382,13 +5713,16 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
 
     switch (oui) {
     case OUI_WFA:
-      subtype = tvb_get_guint8(tvb, offset);
-      if (subtype == WFA_SUBTYPE_P2P) {
-        proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u: P2P ANQP",
-                            subtype);
+      proto_tree_add_item(tree, hf_ieee80211_anqp_wfa_subtype, tvb, offset, 1,
+                          ENC_NA);
+      switch (tvb_get_guint8(tvb, offset)) {
+      case WFA_SUBTYPE_P2P:
         dissect_wifi_p2p_anqp(g_pinfo, tree, tvb, offset + 1, request);
-      } else {
-        proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u", subtype);
+        break;
+      case WFA_SUBTYPE_HS20_ANQP:
+        dissect_hs20_anqp(tree, tvb, offset + 1, offset + len - 3, request,
+                          idx);
+        break;
       }
       break;
     default:
@@ -6607,6 +6941,31 @@ wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static guint
+wnm_tfs_req(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+  return offset - start;
+}
+
+static guint
+wnm_tfs_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+  return offset - start;
+}
+
+static guint
+wnm_notification_req(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+  offset += add_fixed_field(tree, tvb, offset, FIELD_WNM_NOTIFICATION_TYPE);
+  return offset - start;
+}
+
+static guint
 add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   guint8 code;
@@ -6619,11 +6978,20 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, int offset)
   case WNM_BSS_TRANS_MGMT_REQ:
     offset += wnm_bss_trans_mgmt_req(tree, tvb, offset);
     break;
+  case WNM_TFS_REQ:
+    offset += wnm_tfs_req(tree, tvb, offset);
+    break;
+  case WNM_TFS_RESP:
+    offset += wnm_tfs_resp(tree, tvb, offset);
+    break;
   case WNM_SLEEP_MODE_REQ:
     offset += wnm_sleep_mode_req(tree, tvb, offset);
     break;
   case WNM_SLEEP_MODE_RESP:
     offset += wnm_sleep_mode_resp(tree, tvb, offset);
+    break;
+  case WNM_NOTIFICATION_REQ:
+    offset += wnm_notification_req(tree, tvb, offset);
     break;
   }
 
@@ -6955,6 +7323,14 @@ struct ieee80211_fixed_field_dissector {
   guint (*dissector)(proto_tree *tree, tvbuff_t *tvb, int offset);
 };
 
+static guint
+add_ff_wnm_notification_type(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_wnm_notification_type,
+                      tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
 #define FF_FIELD(f, func) { FIELD_ ## f, add_ff_ ## func }
 
 static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
@@ -7021,6 +7397,7 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(REGULATORY_CLASS                      , regulatory_class),
   FF_FIELD(WNM_ACTION_CODE                       , wnm_action_code),
   FF_FIELD(KEY_DATA_LENGTH                       , key_data_length),
+  FF_FIELD(WNM_NOTIFICATION_TYPE                 , wnm_notification_type),
   { (enum fixed_field)-1                         , NULL }
 };
 
@@ -7615,6 +7992,13 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
   return offset;
 }
 
+static void dissect_hs20_indication(proto_tree *tree, tvbuff_t *tvb,
+                                    int offset)
+{
+  proto_tree_add_item(tree, hf_hs20_indication_dgaf_disabled, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+}
+
 static void
 dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
 {
@@ -7627,6 +8011,10 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
   case WFA_SUBTYPE_P2P:
     dissect_wifi_p2p_ie(pinfo, item, tag_tvb, 4, tag_len - 4);
     proto_item_append_text(item, ": P2P");
+    break;
+  case WFA_SUBTYPE_HS20_INDICATION:
+    dissect_hs20_indication(item, tag_tvb, 4);
+    proto_item_append_text(item, ": Hotspot 2.0 Indication");
     break;
   }
 }
@@ -9068,6 +9456,154 @@ static int dissect_bss_max_idle_period(proto_tree *tree, tvbuff_t *tvb,
   return offset;
 }
 
+static int add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                            int offset, int ftype);
+
+enum tfs_request_subelem_id {
+  TFS_REQ_SUBELEM_TFS = 1,
+  TFS_REQ_SUBELEM_VENDOR_SPECIFIC = 221
+};
+
+static const value_string tfs_request_subelem_ids[] = {
+  { TFS_REQ_SUBELEM_TFS, "TFS subelement" },
+  { TFS_REQ_SUBELEM_VENDOR_SPECIFIC, "Vendor Specific subelement" },
+  { 0, NULL }
+};
+
+static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
+                               tvbuff_t *tvb, int offset, guint32 tag_len,
+                               int ftype)
+{
+  int end = offset + tag_len;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_id,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+  proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_ac_delete_after_match,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_ac_notify,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+  if (offset + 1 >= end) {
+    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN,
+                           "No TFS Request subelements in TFS Request");
+    return end;
+  }
+
+  while (offset + 1 < end) {
+    guint8 id, len;
+    int s_offset, s_end;
+
+    id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_subelem_id,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_subelem_len,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    if (offset + len > end) {
+      expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+                             "Not enough data for TFS Request subelement");
+      return end;
+    }
+    switch (id) {
+    case TFS_REQ_SUBELEM_TFS:
+      s_offset = offset;
+      s_end = offset + len;
+      while (s_offset < s_end) {
+        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype);
+        s_offset += tlen;
+      }
+      break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_subelem,
+                          tvb, offset, len, ENC_NA);
+      break;
+    }
+    offset += len;
+  }
+
+  if (offset < end) {
+    proto_tree_add_text(tree, tvb, offset, end - offset,
+                        "Unexpected extra data");
+    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN,
+                           "Extra data after TFS Subelements");
+  }
+
+  return end;
+}
+
+enum tfs_response_subelem_id {
+  TFS_RESP_SUBELEM_TFS_STATUS = 1,
+  TFS_RESP_SUBELEM_TFS = 2,
+  TFS_RESP_SUBELEM_VENDOR_SPECIFIC = 221
+};
+
+static const value_string tfs_response_subelem_ids[] = {
+  { TFS_RESP_SUBELEM_TFS_STATUS, "TFS Status subelement" },
+  { TFS_RESP_SUBELEM_TFS, "TFS subelement" },
+  { TFS_RESP_SUBELEM_VENDOR_SPECIFIC, "Vendor Specific subelement" },
+  { 0, NULL }
+};
+
+static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
+                                tvbuff_t *tvb, int offset, guint32 tag_len,
+                                int ftype)
+{
+  int end = offset + tag_len;
+
+  while (offset + 3 <= end) {
+    guint8 id, len;
+    int s_offset, s_end;
+
+    id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_tfs_response_subelem_id,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_tfs_response_subelem_len,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    if (offset + len > end) {
+      expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+                             "Not enough data for TFS Request subelement");
+      return end;
+    }
+    switch (id) {
+    case TFS_RESP_SUBELEM_TFS_STATUS:
+      proto_tree_add_item(tree, hf_ieee80211_tag_tfs_response_status,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_tfs_response_id,
+                          tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+      break;
+    case TFS_RESP_SUBELEM_TFS:
+      s_offset = offset;
+      s_end = offset + len;
+      while (s_offset < s_end) {
+        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype);
+        s_offset += tlen;
+      }
+      break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_tag_tfs_response_subelem,
+                          tvb, offset, len, ENC_NA);
+      break;
+    }
+
+    offset += len;
+  }
+
+  if (offset < end) {
+    proto_tree_add_text(tree, tvb, offset, end - offset,
+                        "Unexpected extra data");
+    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN,
+                           "Extra data after TFS Status subelements");
+  }
+
+  return end;
+}
+
 static const value_string wnm_sleep_mode_action_types[] = {
   { 0, "Enter WNM-Sleep Mode" },
   { 1, "Exit WNM-Sleep Mode" },
@@ -10015,7 +10551,6 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
-
 
 static int beacon_padding = 0; /* beacon padding bug */
 
@@ -11654,6 +12189,14 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_BSS_MAX_IDLE_PERIOD:
       dissect_bss_max_idle_period(tree, tvb, offset + 2);
+      break;
+
+    case TAG_TFS_REQUEST:
+      dissect_tfs_request(pinfo, tree, tvb, offset + 2, tag_len, ftype);
+      break;
+
+    case TAG_TFS_RESPONSE:
+      dissect_tfs_response(pinfo, tree, tvb, offset + 2, tag_len, ftype);
       break;
 
     case TAG_WNM_SLEEP_MODE:
@@ -14580,6 +15123,11 @@ proto_register_ieee80211 (void)
      {"Key Data Length", "wlan_mgt.fixed.key_data_length",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_ff_wnm_notification_type,
+     {"WNM-Notification type", "wlan_mgt.fixed.wnm_notification_type",
+      FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wnm_notification_types_ext, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_request_mode_pref_cand,
      {"Preferred Candidate List Included","wlan_mgt.fixed.request_mode.pref_cand",
       FT_UINT8, BASE_DEC, NULL, 0x01,
@@ -15852,6 +16400,126 @@ proto_register_ieee80211 (void)
      {"Transaction Id", "wlan_mgt.fixed.transaction_id",
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_anqp_wfa_subtype,
+     {"ANQP WFA Subtype", "wlan_mgt.anqp.wfa.subtype",
+      FT_UINT8, BASE_DEC, VALS(wfa_subtype_vals), 0, NULL, HFILL }},
+
+    {&hf_hs20_indication_dgaf_disabled,
+     {"DGAF Disabled", "wlan_mgt.hs20.indication.dgaf_disabled",
+      FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_hs20_anqp_subtype,
+     {"Subtype", "wlan_mgt.hs20.anqp.subtype",
+      FT_UINT8, BASE_DEC, VALS(hs20_anqp_subtype_vals), 0,
+      "Hotspot 2.0 ANQP Subtype", HFILL }},
+
+    {&hf_hs20_anqp_reserved,
+     {"Reserved", "wlan_mgt.hs20.anqp.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_payload,
+     {"Payload", "wlan_mgt.hs20.anqp.payload",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "Hotspot 2.0 ANQP Payload", HFILL }},
+
+    {&hf_hs20_anqp_hs_query_list,
+     {"Queried Subtype", "wlan_mgt.hs20.anqp.hs_query_list",
+      FT_UINT8, BASE_DEC, VALS(hs20_anqp_subtype_vals), 0,
+      "Queried HS 2.0 Element Subtype", HFILL }},
+
+    {&hf_hs20_anqp_hs_capability_list,
+     {"Capability", "wlan_mgt.hs20.anqp.hs_capability_list",
+      FT_UINT8, BASE_DEC, VALS(hs20_anqp_subtype_vals), 0,
+      "Hotspot 2.0 ANQP Subtype Capability", HFILL }},
+
+    {&hf_hs20_anqp_ofn_length,
+     {"Length", "wlan_mgt.hs20.anqp.ofn.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Operator Friendly Name Length", HFILL }},
+
+    {&hf_hs20_anqp_ofn_language,
+     {"Language Code", "wlan_mgt.hs20.anqp.ofn.language",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Operator Friendly Name Language Code", HFILL }},
+
+    {&hf_hs20_anqp_ofn_name,
+     {"Operator Friendly Name", "wlan_mgt.hs20.anqp.ofn.name",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_link_status,
+     {"Link Status", "wlan_mgt.hs20.anqp.wan_metrics.link_status",
+      FT_UINT8, BASE_DEC, VALS(hs20_wm_link_status_vals), 0x03, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_symmetric_link,
+     {"Symmetric Link", "wlan_mgt.hs20.anqp.wan_metrics.symmetric_link",
+      FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_at_capacity,
+     {"At Capacity", "wlan_mgt.hs20.anqp.wan_metrics.at_capacity",
+      FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_reserved,
+     {"Reserved", "wlan_mgt.hs20.anqp.wan_metrics.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_downlink_speed,
+     {"Downlink Speed", "wlan_mgt.hs20.anqp.wan_metrics.downlink_speed",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_uplink_speed,
+     {"Uplink Speed", "wlan_mgt.hs20.anqp.wan_metrics.uplink_speed",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_downlink_load,
+     {"Downlink Load", "wlan_mgt.hs20.anqp.wan_metrics.downlink_load",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_uplink_load,
+     {"Uplink Load", "wlan_mgt.hs20.anqp.wan_metrics.uplink_load",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_wan_metrics_lmd,
+     {"LMD", "wlan_mgt.hs20.anqp.wan_metrics.lmd",
+      FT_UINT16, BASE_DEC, NULL, 0, "Load Measurement Duration", HFILL }},
+
+    {&hf_hs20_anqp_cc_proto_ip_proto,
+     {"IP Protocol", "wlan_mgt.hs20.anqp.cc.ip_proto",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "ProtoPort Tuple - IP Protocol", HFILL }},
+
+    {&hf_hs20_anqp_cc_proto_port_num,
+     {"Port Number", "wlan_mgt.hs20.anqp.cc.port_num",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "ProtoPort Tuple - Port Number", HFILL }},
+
+    {&hf_hs20_anqp_cc_proto_status,
+     {"Status", "wlan_mgt.hs20.anqp.cc.status",
+      FT_UINT8, BASE_DEC, VALS(hs20_cc_status_vals), 0,
+      "ProtoPort Tuple - Status", HFILL }},
+
+    {&hf_hs20_anqp_nai_hrq_count,
+     {"NAI Home Realm Count", "wlan_mgt.hs20.anqp.nai_hrq.count",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_nai_hrq_encoding_type,
+     {"NAI Home Realm Encoding Type",
+      "wlan_mgt.hs20.anqp.nai_hrq.encoding_type",
+      FT_UINT8, BASE_DEC, VALS(nai_realm_encoding_vals),
+      0x01, NULL, HFILL }},
+
+    {&hf_hs20_anqp_nai_hrq_length,
+     {"NAI Home Realm Name Length", "wlan_mgt.hs20.anqp.nai_hrq.length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_nai_hrq_realm_name,
+     {"NAI Home Realm Name", "wlan_mgt.hs20.anqp.nai_hrq.name",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_hs20_anqp_oper_class_indic,
+     {"Operating Class", "wlan_mgt.hs20.anqp.oper_class_indic.oper_class",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag,
      {"Tag", "wlan_mgt.tag",
@@ -19493,6 +20161,51 @@ proto_register_ieee80211 (void)
       "wlan_mgt.bss_max_idle.options.protected",
       FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
 
+    /* TFS Request */
+    {&hf_ieee80211_tag_tfs_request_id,
+     {"TFS ID", "wlan_mgt.tfs_request.id",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_tfs_request_ac_delete_after_match,
+     {"TFS Action Code - Delete after match",
+      "wlan_mgt.tfs_request.action_code.delete_after_match",
+      FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_tag_tfs_request_ac_notify,
+     {"TFS Action Code - Notify",
+      "wlan_mgt.tfs_request.action_code.notify",
+      FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
+    {&hf_ieee80211_tag_tfs_request_subelem_id,
+     {"Subelement ID", "wlan_mgt.tfs_request.subelem.id",
+      FT_UINT8, BASE_DEC, VALS(tfs_request_subelem_ids), 0,
+      "TFS Request Subelement ID", HFILL }},
+    {&hf_ieee80211_tag_tfs_request_subelem_len,
+     {"Length", "wlan_mgt.tfs_request.subelem.len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "TFS Request Subelement Length", HFILL }},
+    {&hf_ieee80211_tag_tfs_request_subelem,
+     {"Subelement Data", "wlan_mgt.tfs_request.subelem",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "TFS Request Subelement Data", HFILL }},
+
+    /* TFS Response */
+    {&hf_ieee80211_tag_tfs_response_subelem_id,
+     {"Subelement ID", "wlan_mgt.tfs_response.subelem.id",
+      FT_UINT8, BASE_DEC, VALS(tfs_response_subelem_ids), 0,
+      "TFS Response Subelement ID", HFILL }},
+    {&hf_ieee80211_tag_tfs_response_subelem_len,
+     {"Length", "wlan_mgt.tfs_response.subelem.len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "TFS Response Subelement Length", HFILL }},
+    {&hf_ieee80211_tag_tfs_response_subelem,
+     {"Subelement Data", "wlan_mgt.tfs_response.subelem",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "TFS Response Subelement Data", HFILL }},
+    {&hf_ieee80211_tag_tfs_response_status,
+     {"TFS Response Status", "wlan_mgt.tfs_response.status",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_tfs_response_id,
+     {"TFS ID", "wlan_mgt.tfs_response.tfs_id",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
     /* WNM-Sleep Mode */
     {&hf_ieee80211_tag_wnm_sleep_mode_action_type,
      {"Action Type", "wlan_mgt.wnm_sleep_mode.action_type",
@@ -19893,7 +20606,8 @@ proto_register_ieee80211 (void)
     &ett_nai_realm,
     &ett_nai_realm_eap,
     &ett_tag_ric_data_desc_ie,
-    &ett_anqp_vendor_capab
+    &ett_anqp_vendor_capab,
+    &ett_hs20_cc_proto_port_tuple
   };
   module_t *wlan_module;
 
