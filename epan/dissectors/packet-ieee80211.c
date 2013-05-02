@@ -526,6 +526,7 @@ enum fixed_field {
   FIELD_MESH_CONTROL,
   FIELD_SELFPROT_ACTION,
   FIELD_WNM_ACTION_CODE,
+  FIELD_KEY_DATA_LENGTH,
                                               /* add any new fixed field value above this line */
   MAX_FIELD_NUM
 };
@@ -613,7 +614,7 @@ enum fixed_field {
 #define TAG_BSS_MAX_IDLE_PERIOD       90
 #define TAG_TFS_REQUEST               91
 #define TAG_TFS_RESPONSE              92
-#define TAG_WMM_SLEEP_MODE            93
+#define TAG_WNM_SLEEP_MODE            93
 #define TAG_TIM_BROADCAST_REQUEST     94
 #define TAG_TIM_BROADCAST_RESPONSE    95
 #define TAG_COLLOCATED_INTER_REPORT   96
@@ -744,7 +745,7 @@ static const value_string tag_num_vals[] = {
   { TAG_BSS_MAX_IDLE_PERIOD,                  "BSS Max Idle Period" },
   { TAG_TFS_REQUEST,                          "TFS Request" },
   { TAG_TFS_RESPONSE,                         "TFS Response" },
-  { TAG_WMM_SLEEP_MODE,                       "WMM Sleep Mode" },
+  { TAG_WNM_SLEEP_MODE,                       "WNM-Sleep Mode" },
   { TAG_TIM_BROADCAST_REQUEST,                "TIM Broadcast Request" },
   { TAG_TIM_BROADCAST_RESPONSE,               "TIM Broadcast Response" },
   { TAG_COLLOCATED_INTER_REPORT,              "Collocated Interference Report" },
@@ -2757,6 +2758,8 @@ static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_regulatory_class = -1;
 static int hf_ieee80211_ff_wnm_action_code = -1;
+static int hf_ieee80211_ff_key_data_length = -1;
+static int hf_ieee80211_ff_key_data = -1;
 static int hf_ieee80211_ff_request_mode_pref_cand = -1;
 static int hf_ieee80211_ff_request_mode_abridged = -1;
 static int hf_ieee80211_ff_request_mode_disassoc_imminent = -1;
@@ -3637,6 +3640,15 @@ static int hf_ieee80211_tag_time_adv_time_value_reserved = -1;
 static int hf_ieee80211_tag_time_adv_time_error = -1;
 static int hf_ieee80211_tag_time_adv_time_update_counter = -1;
 
+/* IEEE Std 802.11-2012 8.4.2.81 */
+static int hf_ieee80211_tag_bss_max_idle_period = -1;
+static int hf_ieee80211_tag_bss_max_idle_options_protected = -1;
+
+/* IEEE Std 802.11-2012 8.4.2.84 */
+static int hf_ieee80211_tag_wnm_sleep_mode_action_type = -1;
+static int hf_ieee80211_tag_wnm_sleep_mode_response_status = -1;
+static int hf_ieee80211_tag_wnm_sleep_mode_interval = -1;
+
 /* IEEE Std 802.11v-2011 7.3.2.87 */
 static int hf_ieee80211_tag_time_zone = -1;
 
@@ -3905,6 +3917,18 @@ static int hf_ieee80211_sched_spec_int = -1;
 static int hf_ieee80211_tclas_up = -1;
 static int hf_ieee80211_tclas_class_type = -1;
 static int hf_ieee80211_tclas_class_mask = -1;
+static int hf_ieee80211_tclas_class_mask0_src_addr = -1;
+static int hf_ieee80211_tclas_class_mask0_dst_addr = -1;
+static int hf_ieee80211_tclas_class_mask0_type = -1;
+static int hf_ieee80211_tclas_class_mask1_ver = -1;
+static int hf_ieee80211_tclas_class_mask1_src_ip = -1;
+static int hf_ieee80211_tclas_class_mask1_dst_ip = -1;
+static int hf_ieee80211_tclas_class_mask1_src_port = -1;
+static int hf_ieee80211_tclas_class_mask1_dst_port = -1;
+static int hf_ieee80211_tclas_class_mask1_ipv4_dscp = -1;
+static int hf_ieee80211_tclas_class_mask1_ipv4_proto = -1;
+static int hf_ieee80211_tclas_class_mask1_ipv6_flow = -1;
+static int hf_ieee80211_tclas_class_mask2_tci = -1;
 static int hf_ieee80211_tclas_src_mac_addr = -1;
 static int hf_ieee80211_tclas_dst_mac_addr = -1;
 static int hf_ieee80211_tclas_ether_type = -1;
@@ -4056,7 +4080,7 @@ static gint ett_tag_rm_cap2 = -1;
 static gint ett_tag_rm_cap3 = -1;
 static gint ett_tag_rm_cap4 = -1;
 static gint ett_tag_rm_cap5 = -1;
-
+static gint ett_tag_tclas_mask_tree = -1;
 
 static gint ett_tag_supported_channels = -1;
 
@@ -6552,6 +6576,37 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static guint
+wnm_sleep_mode_req(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  int start = offset;
+  offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+  return offset - start;
+}
+
+static guint
+wnm_sleep_mode_resp(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  int start = offset;
+  guint16 key_data_len;
+  gint left;
+
+  offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+  key_data_len = tvb_get_letohs(tvb, offset);
+  offset += add_fixed_field(tree, tvb, offset, FIELD_KEY_DATA_LENGTH);
+  left = tvb_reported_length_remaining(tvb, offset);
+  if (left < key_data_len) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "WNM-Sleep Mode Response is not long enough to "
+                           "include Key Data");
+    return offset - start;
+  }
+  proto_tree_add_item(tree, hf_ieee80211_ff_key_data, tvb, offset,
+                      key_data_len, ENC_NA);
+  offset += key_data_len;
+  return offset - start;
+}
+
+static guint
 add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   guint8 code;
@@ -6563,6 +6618,12 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, int offset)
   switch (code) {
   case WNM_BSS_TRANS_MGMT_REQ:
     offset += wnm_bss_trans_mgmt_req(tree, tvb, offset);
+    break;
+  case WNM_SLEEP_MODE_REQ:
+    offset += wnm_sleep_mode_req(tree, tvb, offset);
+    break;
+  case WNM_SLEEP_MODE_RESP:
+    offset += wnm_sleep_mode_resp(tree, tvb, offset);
     break;
   }
 
@@ -6881,6 +6942,14 @@ add_ff_wnm_action_code(proto_tree *tree, tvbuff_t *tvb, int offset)
   return 1;
 }
 
+static guint
+add_ff_key_data_length(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_key_data_length, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  return 2;
+}
+
 struct ieee80211_fixed_field_dissector {
   enum fixed_field lfcode;
   guint (*dissector)(proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -6951,6 +7020,7 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(TARGET_CHANNEL                        , target_channel),
   FF_FIELD(REGULATORY_CLASS                      , regulatory_class),
   FF_FIELD(WNM_ACTION_CODE                       , wnm_action_code),
+  FF_FIELD(KEY_DATA_LENGTH                       , key_data_length),
   { (enum fixed_field)-1                         , NULL }
 };
 
@@ -8986,6 +9056,51 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
+static int dissect_bss_max_idle_period(proto_tree *tree, tvbuff_t *tvb,
+                                       int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_max_idle_period,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_max_idle_options_protected,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+  return offset;
+}
+
+static const value_string wnm_sleep_mode_action_types[] = {
+  { 0, "Enter WNM-Sleep Mode" },
+  { 1, "Exit WNM-Sleep Mode" },
+  { 0, NULL }
+};
+
+static const value_string wnm_sleep_mode_response_status_vals[] = {
+  { 0, "Enter/Exit WNM-Sleep Mode Accept" },
+  { 1, "Exit WNM-Sleep Mode Accept, GTK/IGTK update required" },
+  { 2, "Denied. The AP is unable to perform the requested action." },
+  { 3, "Denied temporarily. The AP is unable to perform the requested action "
+    "at the current time. The request can be submitted again at a later time."
+  },
+  { 4, "Denied. Due to the pending key expiration." },
+  { 5, "Denied. The requested action was not granted due to other WNM services "
+    "in use by the requesting STA." },
+  { 0, NULL }
+};
+
+static int dissect_wnm_sleep_mode(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_tag_wnm_sleep_mode_action_type,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+  proto_tree_add_item(tree, hf_ieee80211_tag_wnm_sleep_mode_response_status,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+  proto_tree_add_item(tree, hf_ieee80211_tag_wnm_sleep_mode_interval,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+  return offset;
+}
+
 static const value_string time_adv_timing_capab_vals[] = {
   { 0, "No standardized external time source" },
   { 1, "Timestamp offset based on UTC" },
@@ -10501,21 +10616,38 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       {
       guint8 type;
       guint8 version;
+      proto_item *class_mask;
+      proto_tree *mask_tree;
 
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tclas_up, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      type = tvb_get_guint8(tvb, offset);
       offset += 1;
 
+      type = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_ieee80211_tclas_class_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
 
-      proto_tree_add_item(tree, hf_ieee80211_tclas_class_mask, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      class_mask = proto_tree_add_item(tree, hf_ieee80211_tclas_class_mask,
+                                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
 
       switch (type)
         {
           case 0:
+            offset--;
+            mask_tree = proto_item_add_subtree(class_mask,
+                                               ett_tag_tclas_mask_tree);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask0_src_addr,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask0_dst_addr,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask0_type,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
             proto_tree_add_item(tree, hf_ieee80211_tclas_src_mac_addr, tvb, offset, 6, ENC_NA);
             offset += 6;
 
@@ -10527,8 +10659,41 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             break;
 
           case 1:
-            version = tvb_get_guint8(tvb, offset + 5);
-            proto_tree_add_item(tree, hf_ieee80211_tclas_version, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
+            version = tvb_get_guint8(tvb, offset);
+            offset--;
+
+            mask_tree = proto_item_add_subtree(class_mask,
+                                               ett_tag_tclas_mask_tree);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask1_ver,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask1_src_ip,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask1_dst_ip,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask1_src_port,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask1_dst_port,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            if (version == 4) {
+              proto_tree_add_item(mask_tree,
+                                  hf_ieee80211_tclas_class_mask1_ipv4_dscp,
+                                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(mask_tree,
+                                  hf_ieee80211_tclas_class_mask1_ipv4_proto,
+                                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            } else {
+              proto_tree_add_item(mask_tree,
+                                  hf_ieee80211_tclas_class_mask1_ipv6_flow,
+                                  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            }
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_ieee80211_tclas_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             if (version == 4)
             {
@@ -10561,6 +10726,14 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             break;
 
           case 2:
+            offset--;
+            mask_tree = proto_item_add_subtree(class_mask,
+                                               ett_tag_tclas_mask_tree);
+            proto_tree_add_item(mask_tree,
+                                hf_ieee80211_tclas_class_mask2_tci,
+                                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+
             proto_tree_add_item(tree, hf_ieee80211_tclas_tag_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             break;
@@ -11477,6 +11650,14 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       else { /* BSS AC Access Delay (68) */
         dissect_bss_ac_access_delay_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       }
+      break;
+
+    case TAG_BSS_MAX_IDLE_PERIOD:
+      dissect_bss_max_idle_period(tree, tvb, offset + 2);
+      break;
+
+    case TAG_WNM_SLEEP_MODE:
+      dissect_wnm_sleep_mode(tree, tvb, offset + 2);
       break;
 
     case TAG_TIME_ADV:
@@ -14391,6 +14572,14 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wnm_action_codes_ext, 0,
       "Management action code", HFILL }},
 
+    {&hf_ieee80211_ff_key_data,
+     {"Key Data", "wlan_mgt.fixed.key_data",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_key_data_length,
+     {"Key Data Length", "wlan_mgt.fixed.key_data_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_ff_request_mode_pref_cand,
      {"Preferred Candidate List Included","wlan_mgt.fixed.request_mode.pref_cand",
       FT_UINT8, BASE_DEC, NULL, 0x01,
@@ -15872,6 +16061,42 @@ proto_register_ieee80211 (void)
      {"Classifier Mask", "wlan_mgt.tclas.class_mask",
       FT_UINT8, BASE_HEX,  NULL, 0,
       "Specifies a bitmap where bits that are set to 1 identify a subset of the classifier parameters", HFILL }},
+    {&hf_ieee80211_tclas_class_mask0_src_addr,
+     {"Source Address", "wlan_mgt.tclas.class_mask.src_addr",
+      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask0_dst_addr,
+     {"Destination Address", "wlan_mgt.tclas.class_mask.dst_addr",
+      FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask0_type,
+     {"Type", "wlan_mgt.tclas.class_mask.type",
+      FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_ver,
+     {"Version", "wlan_mgt.tclas.class_mask.version",
+      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_src_ip,
+     {"Source IP Address", "wlan_mgt.tclas.class_mask.src_ip",
+      FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_dst_ip,
+     {"Destination IP Address", "wlan_mgt.tclas.class_mask.dst_ip",
+      FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_src_port,
+     {"Source Port", "wlan_mgt.tclas.class_mask.src_port",
+      FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_dst_port,
+     {"Destination Port", "wlan_mgt.tclas.class_mask.dst_port",
+      FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_ipv4_dscp,
+     {"DSCP", "wlan_mgt.tclas.class_mask.dscp",
+      FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_ipv4_proto,
+     {"Protocol", "wlan_mgt.tclas.class_mask.proto",
+      FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask1_ipv6_flow,
+     {"Flow Label", "wlan_mgt.tclas.class_mask.flow_label",
+      FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL }},
+    {&hf_ieee80211_tclas_class_mask2_tci,
+     {"802.1Q CLAN TCI", "wlan_mgt.tclas.class_mask.tci",
+      FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_src_mac_addr,
      {"Source address", "wlan_mgt.tclas.type",
@@ -19259,6 +19484,29 @@ proto_register_ieee80211 (void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    /* BSS Max Idle Period */
+    {&hf_ieee80211_tag_bss_max_idle_period,
+     {"BSS Max Idle Period (1000 TUs)", "wlan_mgt.bss_max_idle.period",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_max_idle_options_protected,
+     {"BSS Max Idle Period Options: Protected Keep-Alive Required",
+      "wlan_mgt.bss_max_idle.options.protected",
+      FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+
+    /* WNM-Sleep Mode */
+    {&hf_ieee80211_tag_wnm_sleep_mode_action_type,
+     {"Action Type", "wlan_mgt.wnm_sleep_mode.action_type",
+      FT_UINT8, BASE_DEC, VALS(wnm_sleep_mode_action_types), 0,
+      "WNM-Sleep Mode Action Type", HFILL }},
+    {&hf_ieee80211_tag_wnm_sleep_mode_response_status,
+     {"WNM-Sleep Mode Response Status",
+      "wlan_mgt.wnm_sleep_mode.response_status",
+      FT_UINT8, BASE_DEC, VALS(wnm_sleep_mode_response_status_vals), 0, NULL,
+      HFILL }},
+    {&hf_ieee80211_tag_wnm_sleep_mode_interval,
+     {"WNM-Sleep Interval", "wlan_mgt.wnm_sleep_mode.interval",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
     /* Time Advertisement */
     {&hf_ieee80211_tag_time_adv_timing_capab,
      {"Timing capabilities", "wlan_mgt.time_adv.timing_capab",
@@ -19611,6 +19859,7 @@ proto_register_ieee80211 (void)
     &ett_tag_rm_cap3,
     &ett_tag_rm_cap4,
     &ett_tag_rm_cap5,
+    &ett_tag_tclas_mask_tree,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
