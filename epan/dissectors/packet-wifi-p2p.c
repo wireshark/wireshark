@@ -821,7 +821,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
                              "Invalid Device Name attribute length");
       break;
     }
-    nlen = offset + 3 + slen - s_offset;
+    nlen = next_offset - s_offset;
     if (nlen > 0)
       item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_name,
                                  tvb, s_offset,
