@@ -163,9 +163,6 @@ static int hf_evrc_legacy_toc_frame_type = -1;
 static gint ett_evrc = -1;
 static gint ett_toc = -1;
 
-static packet_info *g_pinfo;
-static proto_tree *g_tree;
-
 /*
  * Variables to allow for proper deletion of dissector registration when
  * the user changes values
@@ -227,8 +224,6 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     if (!tree) return;
 
     offset = 0;
-    g_pinfo = pinfo;
-    g_tree = tree;
     memset(speech_data_len, 0, sizeof(speech_data_len));
 
     len = tvb_reported_length(tvb);
