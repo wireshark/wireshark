@@ -2032,12 +2032,18 @@ else
 fi
 AC_SUBST(GEOIP_LIBS)
 
+# Warning: this Python scripting appears to be broken (does not work at all).
+# Running it also causes Valgrind to complain about all sorts of memory errors.
+# Suggestion: do not enable it unless you are working on fixing it.
+#
+# An alternative might be https://code.google.com/p/pyreshark/
+#
 dnl Python devel Check
 AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
 
-AC_ARG_WITH(python,
-    AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (BROKEN/UNSTABLE)]),
+AC_ARG_WITH(broken-python,
+    AC_HELP_STRING( [--with-broken-python@<:@=DIR@:>@],
+                    [use the (BROKEN) Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@]),
 [
 	pythondir='${libdir}/wireshark/python/${VERSION}'
 	if test "x$withval" = "xno"
