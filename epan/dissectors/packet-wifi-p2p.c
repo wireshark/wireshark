@@ -227,6 +227,7 @@ static int proto_p2p = -1;
 
 static gint ett_p2p_tlv = -1;
 static gint ett_p2p_service_tlv = -1;
+static gint ett_p2p_client_descr = -1;
 
 static int hf_p2p_attr_type = -1;
 static int hf_p2p_attr_len = -1;
@@ -726,6 +727,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
   int next_offset, ci_len, num_sec, left, nlen;
   guint16 attr_type, attr_len;
   proto_item *item;
+  proto_tree *tree;
 
   while (offset + 3 + slen > s_offset) {
     if (offset + 3 + slen - s_offset < 25) {
@@ -734,9 +736,13 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
       break;
     }
 
-    item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_length, tvb, s_offset,
-                               1, ENC_BIG_ENDIAN);
     ci_len = tvb_get_guint8(tvb, s_offset);
+    item = proto_tree_add_text(tlv_root, tvb, s_offset, 1 + ci_len,
+                               "P2P Client Info Descriptor");
+    tree = proto_item_add_subtree(item, ett_p2p_client_descr);
+
+    item = proto_tree_add_item(tree, hf_p2p_attr_gi_length, tvb, s_offset,
+                               1, ENC_BIG_ENDIAN);
     if (ci_len < 24 || s_offset + ci_len > offset + 3 + slen) {
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                              "Invalid P2P Client Info Descriptor Length");
@@ -745,49 +751,50 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     s_offset++;
     next_offset = s_offset + ci_len;
 
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_p2p_dev_addr, tvb, s_offset,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_p2p_dev_addr, tvb, s_offset,
+                        6, ENC_NA);
+    proto_item_append_text(tree, ": %s", tvb_ether_to_str(tvb, s_offset));
+    s_offset += 6;
+
+    proto_tree_add_item(tree, hf_p2p_attr_gi_p2p_iface_addr, tvb, s_offset,
                         6, ENC_NA);
     s_offset += 6;
 
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_p2p_iface_addr, tvb, s_offset,
-                        6, ENC_NA);
-    s_offset += 6;
-
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_capab, tvb, s_offset, 1,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_dev_capab, tvb, s_offset, 1,
                         ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root,
+    proto_tree_add_item(tree,
                         hf_p2p_attr_gi_dev_capab_service_discovery, tvb,
                         s_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root,
+    proto_tree_add_item(tree,
                         hf_p2p_attr_gi_dev_capab_client_discoverability,
                         tvb, s_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root,
+    proto_tree_add_item(tree,
                         hf_p2p_attr_gi_dev_capab_concurrent_operation,
                         tvb, s_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root,
+    proto_tree_add_item(tree,
                         hf_p2p_attr_gi_dev_capab_infrastructure_managed,
                         tvb, s_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_capab_limit, tvb,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_dev_capab_limit, tvb,
                         s_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root, hf_p2p_attr_capab_invitation_procedure, tvb,
+    proto_tree_add_item(tree, hf_p2p_attr_capab_invitation_procedure, tvb,
                         s_offset, 1, ENC_BIG_ENDIAN);
     s_offset++;
 
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_config_methods, tvb, s_offset,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_config_methods, tvb, s_offset,
                         2, ENC_BIG_ENDIAN);
     s_offset += 2;
 
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type, tvb,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_pri_dev_type, tvb,
                         s_offset, 8, ENC_NA);
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type_category,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_pri_dev_type_category,
                         tvb, s_offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type_oui,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_pri_dev_type_oui,
                         tvb, s_offset + 2, 4, ENC_NA);
-    proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type_subcategory,
+    proto_tree_add_item(tree, hf_p2p_attr_gi_pri_dev_type_subcategory,
                         tvb, s_offset + 6, 2, ENC_BIG_ENDIAN);
     s_offset += 8;
 
-    item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_num_sec_dev_types, tvb,
+    item = proto_tree_add_item(tree, hf_p2p_attr_gi_num_sec_dev_types, tvb,
                                s_offset, 1, ENC_BIG_ENDIAN);
     num_sec = tvb_get_guint8(tvb, s_offset);
     s_offset++;
@@ -798,13 +805,13 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
       break;
     }
     while (num_sec > 0) {
-      proto_tree_add_item(tlv_root, hf_p2p_attr_gi_sec_dev_type,
+      proto_tree_add_item(tree, hf_p2p_attr_gi_sec_dev_type,
                           tvb, s_offset, 8, ENC_NA);
       s_offset += 8;
       num_sec--;
     }
 
-    item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_name_type,
+    item = proto_tree_add_item(tree, hf_p2p_attr_gi_dev_name_type,
                                tvb, s_offset, 2, ENC_BIG_ENDIAN);
     attr_type = tvb_get_ntohs(tvb, s_offset);
     if (attr_type != 0x1011) {
@@ -812,7 +819,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
                              "Incorrect Device Name attribute type");
     }
     s_offset += 2;
-    item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_name_len,
+    item = proto_tree_add_item(tree, hf_p2p_attr_gi_dev_name_len,
                                tvb, s_offset, 2, ENC_BIG_ENDIAN);
     attr_len = tvb_get_ntohs(tvb, s_offset);
     s_offset += 2;
@@ -823,7 +830,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     }
     nlen = next_offset - s_offset;
     if (nlen > 0)
-      item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_name,
+      item = proto_tree_add_item(tree, hf_p2p_attr_gi_dev_name,
                                  tvb, s_offset,
                                  nlen > attr_len ? attr_len : nlen,
                                  ENC_ASCII|ENC_NA);
@@ -1522,7 +1529,8 @@ proto_register_p2p(void)
   };
   static gint *ett[] = {
     &ett_p2p_tlv,
-    &ett_p2p_service_tlv
+    &ett_p2p_service_tlv,
+    &ett_p2p_client_descr
   };
 
   proto_p2p = proto_register_protocol("Wi-Fi Peer-to-Peer", "Wi-Fi P2P",
