@@ -152,7 +152,6 @@ static gint hf_gsm_sms_tp_ud = -1;
 
 static gboolean reassemble_sms = TRUE;
 static char bigbuf[1024];
-static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7
@@ -2578,7 +2577,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 #define SMS_MAX_MESSAGE_SIZE 160
 static char    messagebuf[SMS_MAX_MESSAGE_SIZE+1];
 static void
-dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
+dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)
 {
     static guint8     fill_bits_mask[7] =
@@ -2669,9 +2668,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     if ( is_fragmented && reassemble_sms)
     {
         try_gsm_sms_ud_reassemble = TRUE;
-        save_fragmented = g_pinfo->fragmented;
-        g_pinfo->fragmented = TRUE;
-        fd_sm = fragment_add_seq_check (tvb, offset, g_pinfo,
+        save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+        fd_sm = fragment_add_seq_check (tvb, offset, pinfo,
                                         g_sm_id, /* guint32 ID for fragments belonging together */
                                         g_sm_fragment_table, /* list of message fragments */
                                         g_sm_reassembled_table, /* list of reassembled messages */
@@ -2684,20 +2683,20 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
             reassembled_in = fd_sm->reassembled_in;
         }
 
-        sm_tvb = process_reassembled_data(tvb, offset, g_pinfo,
+        sm_tvb = process_reassembled_data(tvb, offset, pinfo,
                                           "Reassembled Short Message", fd_sm, &sm_frag_items,
                                           NULL, tree);
 
-        if(reassembled && g_pinfo->fd->num == reassembled_in)
+        if(reassembled && pinfo->fd->num == reassembled_in)
         {
             /* Reassembled */
-            col_append_str (g_pinfo->cinfo, COL_INFO,
+            col_append_str (pinfo->cinfo, COL_INFO,
                             " (Short Message Reassembled)");
         }
         else
         {
             /* Not last packet of reassembled Short Message */
-            col_append_fstr (g_pinfo->cinfo, COL_INFO,
+            col_append_fstr (pinfo->cinfo, COL_INFO,
                              " (Short Message fragment %u of %u)", g_frag, g_frags);
         }
 
@@ -2720,7 +2719,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     {
         if (seven_bit)
         {
-            if(!(reassembled && g_pinfo->fd->num == reassembled_in))
+            if(!(reassembled && pinfo->fd->num == reassembled_in))
             {
                 /* Show unassembled SMS */
                 out_len =
@@ -2765,9 +2764,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         {
             /*proto_tree_add_text(subtree, tvb , offset , length, "%s",
               tvb_format_text(tvb, offset, length));                                */
-            if (! dissector_try_uint(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree))
+            if (! dissector_try_uint(gsm_sms_dissector_tbl, g_port_src, sm_tvb, pinfo, subtree))
             {
-                if (! dissector_try_uint(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree))
+                if (! dissector_try_uint(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, pinfo, subtree))
                 {
                     if (subtree)
                     { /* Only display if needed */
@@ -2783,7 +2782,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
             {
                 guint8 rep_len = tvb_reported_length(sm_tvb);
 
-                if(!(reassembled && g_pinfo->fd->num == reassembled_in))
+                if(!(reassembled && pinfo->fd->num == reassembled_in))
                 {
                     /* Show unreassembled SMS */
                     utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
@@ -2850,7 +2849,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     }
 
     if (try_gsm_sms_ud_reassemble) /* Clean up defragmentation */
-        g_pinfo->fragmented = save_fragmented;
+        pinfo->fragmented = save_fragmented;
 }
 
 /* 9.2.3.27 */
@@ -2908,7 +2907,7 @@ dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
  * Section 9.2.2
  */
 static void
-dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
     guint32        saved_offset;
     guint32        length;
@@ -2957,7 +2956,7 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     {
         offset++;
 
-        dis_field_ud(tvb, tree, offset, length - (offset - saved_offset), udhi, udl,
+        dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed);
     }
 }
@@ -2967,7 +2966,7 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * Section 9.2.2
  */
 static void
-dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
     guint32        saved_offset;
     guint32        length;
@@ -3077,7 +3076,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     {
         offset++;
 
-        dis_field_ud(tvb, tree, offset, length - (offset - saved_offset), udhi, udl,
+        dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed);
     }
 }
@@ -3087,7 +3086,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * Section 9.2.2
  */
 static void
-dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dis_msg_submit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
     guint32        saved_offset;
     guint32        length;
@@ -3144,7 +3143,7 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     {
         offset++;
 
-        dis_field_ud(tvb, tree, offset, length - (offset - saved_offset), udhi, udl,
+        dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed);
     }
 }
@@ -3154,7 +3153,7 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * Section 9.2.2
  */
 static void
-dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dis_msg_submit_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
     guint32        saved_offset;
     guint32        length;
@@ -3254,7 +3253,7 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     if (udl > 0)
     {
-        dis_field_ud(tvb, tree, offset, length - (offset - saved_offset), udhi, udl,
+        dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed);
     }
 }
@@ -3264,7 +3263,7 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * Section 9.2.2
  */
 static void
-dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
     guint32        saved_offset;
     guint32        length;
@@ -3373,7 +3372,7 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     {
         offset++;
 
-        dis_field_ud(tvb, tree, offset, length - (offset - saved_offset), udhi, udl,
+        dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed);
     }
 }
@@ -3383,7 +3382,7 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
  * Section 9.2.2
  */
 static void
-dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+dis_msg_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
     guint8        oct;
     guint8        cdl;
@@ -3436,7 +3435,7 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static gint ett_msgs[NUM_MSGS];
 #endif
 
-static void (*gsm_sms_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset) = {
+static void (*gsm_sms_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset) = {
     dis_msg_deliver,        /* SMS-DELIVER */
     dis_msg_deliver_report, /* SMS-DELIVER REPORT */
     dis_msg_submit,         /* SMS-SUBMIT */
@@ -3453,7 +3452,7 @@ static void (*gsm_sms_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 static void
 dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset) = NULL;
+    void (*msg_fcn)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset) = NULL;
     proto_item *gsm_sms_item;
     proto_tree *gsm_sms_tree = NULL;
     guint32    offset;
@@ -3463,8 +3462,6 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const gchar *str = NULL;
     /*gint      ett_msg_idx;*/
 
-
-    g_pinfo = pinfo;
     g_is_wsp = 0;
     g_sm_id = 0;
     g_frags = 0;
@@ -3527,7 +3524,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else
         {
-            (*msg_fcn)(tvb, gsm_sms_tree, offset);
+            (*msg_fcn)(tvb, pinfo, gsm_sms_tree, offset);
         }
     }
 }
