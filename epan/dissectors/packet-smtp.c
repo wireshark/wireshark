@@ -319,19 +319,19 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   decrypt = tvb_get_ephemeral_string(tvb, a_offset, a_linelen);
   if (stmp_decryption_enabled) {
     returncode = 0;
-    returncode = epan_base64_decode(decrypt);
+    returncode = (gint)epan_base64_decode(decrypt);
     if (returncode) {
-      length_user1 = strlen(decrypt);
+      length_user1 = (gint)strlen(decrypt);
       if (returncode >= (length_user1 + 1)) {
-        length_user2 = strlen(decrypt + length_user1 + 1);
+        length_user2 = (gint)strlen(decrypt + length_user1 + 1);
         proto_tree_add_string(tree, hf_smtp_username, tvb,
                               a_offset, a_linelen, decrypt + length_user1 + 1);
         col_append_fstr(pinfo->cinfo, COL_INFO, "User: %s", decrypt + length_user1 + 1);
 
         if (returncode >= (length_user1 + 1 + length_user2 + 1)) {
-          length_pass = strlen(decrypt + length_user1 + length_user2 + 2);
+          length_pass = (gint)strlen(decrypt + length_user1 + length_user2 + 2);
           proto_tree_add_string(tree, hf_smtp_password, tvb,
-                                a_offset, a_linelen, decrypt + length_user1 + length_user2 + 2);
+                                a_offset, length_pass, decrypt + length_user1 + length_user2 + 2);
           col_append_str(pinfo->cinfo, COL_INFO, " ");
           col_append_fstr(pinfo->cinfo, COL_INFO, " Pass: %s", decrypt + length_user1 + length_user2 + 2);
         }
