@@ -56,6 +56,7 @@ const guchar *find_line_end(const guchar *data, const guchar *dataend,
  * @param next_token Receives the location of the next token
  * @return 0 if there is no next token.
  */
+WS_DLL_PUBLIC
 int        get_token_len(const guchar *linep, const guchar *lineend,
     const guchar **next_token);
 
@@ -82,6 +83,7 @@ gchar*     format_text(const guchar *line, size_t len);
  * @return A pointer to the formatted string
  *
  */
+WS_DLL_PUBLIC
 gchar*     format_text_wsp(const guchar *line, size_t len);
 
 /** Turn an array of bytes into a string showing the bytes in hex.
@@ -156,6 +158,7 @@ const gchar* format_uri(const GByteArray *bytes, const gchar *reserved_chars);
  *        must be initialized by the caller.
  * @return True if the string was converted successfully
  */
+WS_DLL_PUBLIC
 gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
 
 /**
@@ -205,6 +208,7 @@ gchar*     xml_escape(const gchar *unescaped);
  *         "haystack".  If "needle" isn't found or is NULL, or if
  *         "needle_len" is 0, NULL is returned.
  */
+WS_DLL_PUBLIC
 const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
 		const guint8 *needle, guint needle_len);
 
@@ -258,6 +262,7 @@ WS_DLL_PUBLIC
 char * escape_string(char *dst, const char *string);
 
 
+WS_DLL_PUBLIC
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
 /** Copy a string, escaping the 'chr' characters in it
@@ -297,6 +302,7 @@ gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_v
  */
 
 #if !GLIB_CHECK_VERSION(2,16,0)
+WS_DLL_PUBLIC
 int     g_strcmp0                       (const char     *str1,
                                          const char     *str2);
 #endif /* GLIB_CHECK_VERSION(2,16,0) */
