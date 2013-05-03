@@ -191,9 +191,6 @@ proto_register_ixiatrailer(void)
 void
 proto_reg_handoff_ixiatrailer(void)
 {
-  dissector_handle_t ixiatrailer_handle;
-  ixiatrailer_handle = new_create_dissector_handle(dissect_ixiatrailer, proto_ixiatrailer);
-
   /* Check for Ixia format in the ethernet trailer */
   heur_dissector_add("eth.trailer", dissect_ixiatrailer, proto_ixiatrailer);
 }
