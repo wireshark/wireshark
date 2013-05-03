@@ -99,8 +99,6 @@ static int hf_ansi_801_offset_req = -1;
 
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
-static packet_info *g_pinfo;
-static proto_tree *g_tree;
 
 
 /* PARAM FUNCTIONS */
@@ -2122,8 +2120,6 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ansi_801_item;
 	proto_tree *ansi_801_tree = NULL;
 
-	g_pinfo = pinfo;
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -2131,8 +2127,6 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (tree)
 	{
-		g_tree = tree;
-
 		/*
 		 * create the ansi_801 protocol tree
 		 */

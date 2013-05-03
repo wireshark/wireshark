@@ -79,8 +79,6 @@ static int hf_ansi_683_length = -1;
 
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
-static packet_info *g_pinfo;
-static proto_tree *g_tree;
 
 static const char dtmf_digits[16] = {'?','1','2','3','4','5','6','7','8','9','0','?','?','?','?','?'};
 static const char bcd_digits[16]  = {'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'};
@@ -4732,8 +4730,6 @@ dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item  *ansi_683_item;
     proto_tree  *ansi_683_tree = NULL;
 
-    g_pinfo = pinfo;
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -4741,8 +4737,6 @@ dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (tree)
     {
-        g_tree = tree;
-
         /*
          * create the ansi_683 protocol tree
          */
