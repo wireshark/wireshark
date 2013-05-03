@@ -1301,8 +1301,10 @@ This option can only be used once on the command line.
 
 =item B<-z> rpc,srt,I<program>,I<version>[,I<filter>]
 
-Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.  Data collected
-is number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
+Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.
+Data collected is the number of calls for each procedure, MinSRT, MaxSRT,
+AvgSRT, and the total time taken for each procedure.
+
 
 Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
 

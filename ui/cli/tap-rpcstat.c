@@ -197,10 +197,10 @@ rpcstat_draw(void *prs)
 	guint32 i;
 	guint64 td;
 	printf("\n");
-	printf("=======================================================\n");
+	printf("==================================================================\n");
 	printf("%s Version %d SRT Statistics:\n", rs->prog, rs->version);
 	printf("Filter: %s\n",rs->filter?rs->filter:"");
-	printf("Procedure        Calls    Min SRT    Max SRT    Avg SRT\n");
+	printf("Procedure        Calls    Min SRT    Max SRT    Avg SRT    Total\n");
 	for(i=0;i<rs->num_procedures;i++){
 		if(rs->procedures[i].num==0){
 			continue;
@@ -209,15 +209,16 @@ rpcstat_draw(void *prs)
 		td = ((guint64)(rs->procedures[i].tot.secs)) * NANOSECS_PER_SEC + rs->procedures[i].tot.nsecs;
 		td = ((td / rs->procedures[i].num) + 500) / 1000;
 
-		printf("%-15s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
+		printf("%-15s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u %3d.%06d\n",
 			rs->procedures[i].proc,
 			rs->procedures[i].num,
 			(int)(rs->procedures[i].min.secs),(rs->procedures[i].min.nsecs+500)/1000,
 			(int)(rs->procedures[i].max.secs),(rs->procedures[i].max.nsecs+500)/1000,
-			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
+			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC,
+			(int)(rs->procedures[i].tot.secs),(rs->procedures[i].tot.nsecs+500)/1000
 		);
 	}
-	printf("=======================================================\n");
+	printf("==================================================================\n");
 }
 
 static guint32 rpc_program=0;
