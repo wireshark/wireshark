@@ -117,6 +117,7 @@ static int hf_mip_nvse_vendor_nvse_type = -1;
 static int hf_mip_nvse_vendor_nvse_value = -1;
 static int hf_mip_nvse_3gpp2_type = -1;
 static int hf_mip_nvse_3gpp2_type17_entity = -1;
+static int hf_mip_nvse_3gpp2_type16_value = -1;
 static int hf_mip_nvse_3gpp2_type17_subtype1 = -1;
 static int hf_mip_nvse_3gpp2_type17_subtype2 = -1;
 static int hf_mip_nvse_3gpp2_type17_length = -1;
@@ -409,6 +410,7 @@ static const value_string mip_cvse_verizon_cvse_types[]= {
 
 
 static const value_string mip_nvse_3gpp2_type_vals[]= {
+  {16, "PPP Link Indicator"},             /* X.S0011-003-C v1.0 */
   {17, "DNS server IP address"},
   {0, NULL}
 };
@@ -418,6 +420,13 @@ static const value_string mip_nvse_3gpp2_type17_entity_vals[]= {
   {1, "HAAA"},
   {2, "VAAA"},
   {3, "HA"},
+  {0, NULL}
+};
+
+static const value_string mip_nvse_3gpp2_type17_vals[]= {
+  {0, "main service instance"},
+  {1, "negotiate PPP"},
+  {2, "do not negotiate PPP"},
   {0, NULL}
 };
 
@@ -437,6 +446,9 @@ dissect_mip_priv_ext_3gpp2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset+=2;
 
 	switch(type){
+	case 16: /* PPP Link Indicato  X.S0011-003-C v1.0 */
+		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type16_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+		break;
 	case 17: /* DNS server IP address X.S0011-002-C v3.0*/
 		/* Entity-Type */
 		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_entity, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1359,6 +1371,11 @@ void proto_register_mip(void)
     { &hf_mip_nvse_3gpp2_type ,
       { "Type",                "mip.ext.nvse.3gpp2.type",
         FT_UINT16, BASE_DEC, VALS(mip_nvse_3gpp2_type_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_nvse_3gpp2_type16_value ,
+      { "value",                "mip.ext.nvse.3gpp2.type16.value",
+        FT_UINT16, BASE_DEC, VALS(mip_nvse_3gpp2_type17_vals), 0,
         NULL, HFILL }
     },
     { &hf_mip_nvse_3gpp2_type17_entity,
