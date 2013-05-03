@@ -729,6 +729,7 @@ DISSECTOR_SRC = \
 	packet-iuup.c		\
 	packet-iwarp-ddp-rdmap.c\
 	packet-iwarp-mpa.c	\
+	packet-ixiatrailer.c	\
 	packet-ixveriwave.c	\
 	packet-jmirror.c	\
 	packet-jpeg.c		\
