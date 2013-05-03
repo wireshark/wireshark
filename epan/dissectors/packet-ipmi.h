@@ -72,7 +72,7 @@ struct ipmi_header {
 extern struct ipmi_header *ipmi_current_hdr;
 
 /* Sub-parser */
-typedef void (*ipmi_cmd_handler_t)(tvbuff_t *, proto_tree *);
+typedef void (*ipmi_cmd_handler_t)(tvbuff_t *, packet_info *, proto_tree *);
 
 /* IPMI command structure.  */
 typedef struct {
@@ -108,7 +108,7 @@ char *ipmi_dcd8(guint32 val, guint32 mask);
 
 /* Stub parser. Use this to substitute for not-yet-written subparsers;
    NULL in command table means 'no custom data in this request/response' */
-void ipmi_notimpl(tvbuff_t *tvb, proto_tree *tree);
+void ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #define IPMI_TBD  ipmi_notimpl, ipmi_notimpl
 
 /* Add a Type/Length field to tree */
@@ -177,7 +177,7 @@ typedef struct {
 } ipmi_dissect_format_t;
 
 int ipmi_guess_dissect_flags(tvbuff_t *tvb);
-void ipmi_do_dissect(tvbuff_t *tvb, proto_tree *tree, ipmi_dissect_format_t *dfmt);
+void ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ipmi_dissect_format_t *dfmt);
 
 struct ipmi_header *ipmi_sendmsg_getheaders(struct ipmi_header *base, void *arg, guint i);
 int ipmi_sendmsg_whichresponse(struct ipmi_header *hdr, struct ipmi_reqresp *rr);

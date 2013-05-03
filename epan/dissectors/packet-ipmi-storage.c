@@ -242,13 +242,13 @@ static const value_string log_type_vals[] = {
 /* Get FRU Inventory Area Info
  */
 static void
-rq10(tvbuff_t *tvb, proto_tree *tree)
+rq10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_10_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs10(tvbuff_t *tvb, proto_tree *tree)
+rs10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *flags[] = { &hf_ipmi_stor_10_access, NULL };
 
@@ -259,7 +259,7 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 /* Read FRU Data
  */
 static void
-rq11(tvbuff_t *tvb, proto_tree *tree)
+rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_11_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_11_offset, tvb, 1, 2, ENC_LITTLE_ENDIAN);
@@ -267,7 +267,7 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs11(tvbuff_t *tvb, proto_tree *tree)
+rs11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_11_ret_count, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_11_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
@@ -281,7 +281,7 @@ static const value_string cc11[] = {
 /* Write FRU Data
  */
 static void
-rq12(tvbuff_t *tvb, proto_tree *tree)
+rq12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_12_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_12_offset, tvb, 1, 2, ENC_LITTLE_ENDIAN);
@@ -289,7 +289,7 @@ rq12(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs12(tvbuff_t *tvb, proto_tree *tree)
+rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_12_ret_count, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
@@ -303,7 +303,7 @@ static const value_string cc12[] = {
 /* Get SDR Repository Info
  */
 static void
-rs20(tvbuff_t *tvb, proto_tree *tree)
+rs20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *ops[] = { &hf_ipmi_stor_20_op_overflow, &hf_ipmi_stor_20_op_update,
 		&hf_ipmi_stor_20_op_delete, &hf_ipmi_stor_20_op_partial_add, &hf_ipmi_stor_20_op_reserve,
@@ -321,7 +321,7 @@ rs20(tvbuff_t *tvb, proto_tree *tree)
 /* Get SDR Repository Allocation Info
  */
 static void
-rs21(tvbuff_t *tvb, proto_tree *tree)
+rs21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_21_units, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_21_size, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -333,7 +333,7 @@ rs21(tvbuff_t *tvb, proto_tree *tree)
 /* Reserve SDR Repository
  */
 static void
-rs22(tvbuff_t *tvb, proto_tree *tree)
+rs22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_22_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -341,7 +341,7 @@ rs22(tvbuff_t *tvb, proto_tree *tree)
 /* Get SDR
  */
 static void
-rq23(tvbuff_t *tvb, proto_tree *tree)
+rq23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 v = tvb_get_guint8(tvb, 5);
 
@@ -353,7 +353,7 @@ rq23(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs23(tvbuff_t *tvb, proto_tree *tree)
+rs23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_23_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_23_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
@@ -362,13 +362,13 @@ rs23(tvbuff_t *tvb, proto_tree *tree)
 /* Add SDR
  */
 static void
-rq24(tvbuff_t *tvb, proto_tree *tree)
+rq24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_24_data, tvb, 0, tvb_length(tvb), ENC_NA);
 }
 
 static void
-rs24(tvbuff_t *tvb, proto_tree *tree)
+rs24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_24_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -376,7 +376,7 @@ rs24(tvbuff_t *tvb, proto_tree *tree)
 /* Partial Add SDR
  */
 static void
-rq25(tvbuff_t *tvb, proto_tree *tree)
+rq25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte6[] = { &hf_ipmi_stor_25_inprogress, NULL };
 
@@ -389,7 +389,7 @@ rq25(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs25(tvbuff_t *tvb, proto_tree *tree)
+rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_25_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -402,14 +402,14 @@ static const value_string cc25[] = {
 /* Delete SDR
  */
 static void
-rq26(tvbuff_t *tvb, proto_tree *tree)
+rq26(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_25_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs26(tvbuff_t *tvb, proto_tree *tree)
+rs26(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_26_del_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -417,7 +417,7 @@ rs26(tvbuff_t *tvb, proto_tree *tree)
 /* Clear SDR Repository
  */
 static void
-rq27(tvbuff_t *tvb, proto_tree *tree)
+rq27(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_27_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_27_clr, tvb, 2, 3, ENC_ASCII|ENC_NA);
@@ -425,7 +425,7 @@ rq27(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs27(tvbuff_t *tvb, proto_tree *tree)
+rs27(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *status[] = { &hf_ipmi_stor_27_status, NULL };
 
@@ -436,7 +436,7 @@ rs27(tvbuff_t *tvb, proto_tree *tree)
 /* Get SDR Repository Time
  */
 static void
-rs28(tvbuff_t *tvb, proto_tree *tree)
+rs28(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_timestamp(tree, hf_ipmi_stor_28_time, tvb, 0);
 }
@@ -444,7 +444,7 @@ rs28(tvbuff_t *tvb, proto_tree *tree)
 /* Set SDR Repository Time
  */
 static void
-rq29(tvbuff_t *tvb, proto_tree *tree)
+rq29(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_timestamp(tree, hf_ipmi_stor_29_time, tvb, 0);
 }
@@ -452,7 +452,7 @@ rq29(tvbuff_t *tvb, proto_tree *tree)
 /* Run Initialization Agent
  */
 static void
-rq2c(tvbuff_t *tvb, proto_tree *tree)
+rq2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_stor_2c_init_agent, NULL };
 
@@ -461,7 +461,7 @@ rq2c(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs2c(tvbuff_t *tvb, proto_tree *tree)
+rs2c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_stor_2c_init_state, NULL };
 
@@ -472,7 +472,7 @@ rs2c(tvbuff_t *tvb, proto_tree *tree)
 /* Get SEL Info
  */
 static void
-rs40(tvbuff_t *tvb, proto_tree *tree)
+rs40(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *ops[] = { &hf_ipmi_stor_40_op_overflow, &hf_ipmi_stor_40_op_delete,
 		&hf_ipmi_stor_40_op_partial_add, &hf_ipmi_stor_40_op_reserve, &hf_ipmi_stor_40_op_allocinfo, NULL };
@@ -494,7 +494,7 @@ static const value_string cc40[] = {
 /* Get SEL Allocation Info
  */
 static void
-rs41(tvbuff_t *tvb, proto_tree *tree)
+rs41(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_41_units, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_41_size, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -506,7 +506,7 @@ rs41(tvbuff_t *tvb, proto_tree *tree)
 /* Reserve SEL
  */
 static void
-rs42(tvbuff_t *tvb, proto_tree *tree)
+rs42(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_42_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -519,7 +519,7 @@ static const value_string cc42[] = {
 /* Get SEL Entry
  */
 static void
-rq43(tvbuff_t *tvb, proto_tree *tree)
+rq43(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 v = tvb_get_guint8(tvb, 5);
 
@@ -531,7 +531,7 @@ rq43(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs43(tvbuff_t *tvb, proto_tree *tree)
+rs43(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_43_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_43_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
@@ -546,13 +546,13 @@ static const value_string cc43[] = {
  */
 
 static void
-rq44(tvbuff_t *tvb, proto_tree *tree)
+rq44(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_44_data, tvb, 0, tvb_length(tvb), ENC_NA);
 }
 
 static void
-rs44(tvbuff_t *tvb, proto_tree *tree)
+rs44(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_44_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -566,7 +566,7 @@ static const value_string cc44[] = {
 /* Partial Add SEL Entry
  */
 static void
-rq45(tvbuff_t *tvb, proto_tree *tree)
+rq45(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte6[] = { &hf_ipmi_stor_45_inprogress, NULL };
 
@@ -579,7 +579,7 @@ rq45(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs45(tvbuff_t *tvb, proto_tree *tree)
+rs45(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_45_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -593,14 +593,14 @@ static const value_string cc45[] = {
 /* Delete SEL Entry
  */
 static void
-rq46(tvbuff_t *tvb, proto_tree *tree)
+rq46(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_45_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs46(tvbuff_t *tvb, proto_tree *tree)
+rs46(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_46_del_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -614,7 +614,7 @@ static const value_string cc46[] = {
 /* Clear SEL
  */
 static void
-rq47(tvbuff_t *tvb, proto_tree *tree)
+rq47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_47_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_47_clr, tvb, 2, 3, ENC_ASCII|ENC_NA);
@@ -622,7 +622,7 @@ rq47(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs47(tvbuff_t *tvb, proto_tree *tree)
+rs47(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *status[] = { &hf_ipmi_stor_47_status, NULL };
 
@@ -633,7 +633,7 @@ rs47(tvbuff_t *tvb, proto_tree *tree)
 /* Get SEL Time
  */
 static void
-rs48(tvbuff_t *tvb, proto_tree *tree)
+rs48(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_timestamp(tree, hf_ipmi_stor_48_time, tvb, 0);
 }
@@ -641,7 +641,7 @@ rs48(tvbuff_t *tvb, proto_tree *tree)
 /* Set SEL Time
  */
 static void
-rq49(tvbuff_t *tvb, proto_tree *tree)
+rq49(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_timestamp(tree, hf_ipmi_stor_49_time, tvb, 0);
 }
@@ -649,7 +649,7 @@ rq49(tvbuff_t *tvb, proto_tree *tree)
 /* Get Auxiliary Log Status
  */
 static void
-rq5a(tvbuff_t *tvb, proto_tree *tree)
+rq5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_stor_5a_log_type, NULL };
 
@@ -663,7 +663,7 @@ rq5a(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs5a(tvbuff_t *tvb, proto_tree *tree)
+rs5a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint32 v;
 
@@ -684,7 +684,7 @@ rs5a(tvbuff_t *tvb, proto_tree *tree)
 /* Set Auxiliary Log Status
  */
 static void
-rq5b(tvbuff_t *tvb, proto_tree *tree)
+rq5b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_stor_5b_log_type, NULL };
 	guint8 v = tvb_get_guint8(tvb, 0);

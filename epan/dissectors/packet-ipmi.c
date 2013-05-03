@@ -142,7 +142,6 @@ static gint ett_data = -1;
 static gint ett_typelen = -1;
 
 static guint nest_level;
-static packet_info *current_pinfo;
 static struct ipmi_saved_data *current_saved_data;
 static struct ipmi_netfn_root ipmi_cmd_tab[IPMI_NETFN_MAX];
 
@@ -338,7 +337,7 @@ ipmi_sendmsg_getheaders(struct ipmi_header *base, void *arg, guint i)
 }
 
 static void
-maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
+maybe_insert_reqresp(packet_info *pinfo, ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 {
 	conversation_t *cnv;
 	struct ipmi_keytree *kt;
@@ -346,7 +345,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 	struct ipmi_reqresp *rr;
 	guint32 key, i;
 
-	cnv = find_or_create_conversation(current_pinfo);
+	cnv = find_or_create_conversation(pinfo);
 
 	kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi);
 	if (!kt) {
@@ -356,7 +355,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 		conversation_add_proto_data(cnv, proto_ipmi, kt);
 	}
 
-	debug_printf("--> maybe_insert_reqresp( %d )\n", current_pinfo->fd->num);
+	debug_printf("--> maybe_insert_reqresp( %d )\n", pinfo->fd->num);
 	i = 0;
 	do {
 		debug_printf("Checking [ (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
@@ -368,7 +367,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 			kh = se_new0(struct ipmi_keyhead);
 			se_tree_insert32(kt->heads, key, kh);
 		}
-		if ((rr = key_lookup_reqresp(kh, hdr, current_pinfo->fd)) != NULL) {
+		if ((rr = key_lookup_reqresp(kh, hdr, pinfo->fd)) != NULL) {
 			/* Already recorded - set frame number and be done. Look no
 			   further - even if there are several responses, we have
 			   found the right one. */
@@ -379,7 +378,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 			if (!rr->whichresponse) {
 				rr->whichresponse = dfmt->whichresponse;
 			}
-			if (set_framenums(hdr, rr, current_pinfo->fd)) {
+			if (set_framenums(hdr, rr, pinfo->fd)) {
 				debug_printf("Set frames     [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
 						rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
 						hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
@@ -401,7 +400,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 		rr->netfn = hdr->netfn & 0x3e;
 		rr->cmd = hdr->cmd;
 		rr->data = current_saved_data;
-		set_framenums(hdr, rr, current_pinfo->fd);
+		set_framenums(hdr, rr, pinfo->fd);
 		key_insert_reqresp(kh, rr);
 		debug_printf("Inserted [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
 				rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
@@ -414,7 +413,7 @@ maybe_insert_reqresp(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr)
 }
 
 static void
-add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tree *tree, tvbuff_t *tvb)
+add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
 	conversation_t *cnv;
 	struct ipmi_keytree *kt;
@@ -424,7 +423,7 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 	proto_item *ti;
 	nstime_t ns;
 
-	debug_printf("--> add_reqresp_info( %d )\n", current_pinfo->fd->num);
+	debug_printf("--> add_reqresp_info( %d )\n", pinfo->fd->num);
 
 	/* [0] is request; [1..MAX_RS_LEVEL] are responses */
 	other_idx = (hdr->netfn & 0x01) ? RQ : dfmt->otheridx ? dfmt->otheridx(hdr) : RS;
@@ -438,9 +437,9 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 
 	/* Here, we don't try to create any object - everything is assumed
 	   to be created in maybe_insert_reqresp() */
-	if ((cnv = find_conversation(current_pinfo->fd->num, &current_pinfo->src,
-			&current_pinfo->dst, current_pinfo->ptype,
-			current_pinfo->srcport, current_pinfo->destport, 0)) == NULL) {
+	if ((cnv = find_conversation(pinfo->fd->num, &pinfo->src,
+			&pinfo->dst, pinfo->ptype,
+			pinfo->srcport, pinfo->destport, 0)) == NULL) {
 		goto fallback;
 	}
 	if ((kt = (struct ipmi_keytree *)conversation_get_proto_data(cnv, proto_ipmi)) == NULL) {
@@ -454,7 +453,7 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 				hdr->netfn, hdr->cmd);
 		key = makekey(hdr);
 		if ((kh = (struct ipmi_keyhead *)se_tree_lookup32(kt->heads, key)) != NULL &&
-				(rr = key_lookup_reqresp(kh, hdr, current_pinfo->fd)) != NULL) {
+				(rr = key_lookup_reqresp(kh, hdr, pinfo->fd)) != NULL) {
 			debug_printf("Found [ <%d,%d,%d> (%02x,%1x <-> %02x,%1x : %02x) %02x %02x ]\n",
 					rr->frames[0].num, rr->frames[1].num, rr->frames[2].num,
 					hdr->trg_sa, hdr->trg_lun, hdr->src_sa, hdr->src_lun, hdr->seq,
@@ -476,7 +475,7 @@ add_reqresp_info(ipmi_dissect_format_t *dfmt, struct ipmi_header *hdr, proto_tre
 		ti = proto_tree_add_uint(tree, hf_ipmi_response_to,
 				tvb, 0, 0, rr->frames[RQ].num);
 		PROTO_ITEM_SET_GENERATED(ti);
-		nstime_delta(&ns, &current_pinfo->fd->abs_ts, &rr->frames[RQ].time);
+		nstime_delta(&ns, &pinfo->fd->abs_ts, &rr->frames[RQ].time);
 		ti = proto_tree_add_time(tree, hf_ipmi_response_time,
 				tvb, 0, 0, &ns);
 		PROTO_ITEM_SET_GENERATED(ti);
@@ -910,7 +909,7 @@ ipmi_getcmd(ipmi_netfn_t *nf, guint32 cmd)
 ---------------------------------------------------------------- */
 
 void
-ipmi_notimpl(tvbuff_t *tvb, proto_tree *tree)
+ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if (tree) {
 		proto_tree_add_text(tree, tvb, 0, -1, "[PARSER NOT IMPLEMENTED]");
@@ -1096,7 +1095,7 @@ ipmi_guess_dissect_flags(tvbuff_t *tvb)
 /* Print out IPMB packet.
  */
 void
-ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfmt)
+ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfmt)
 {
 	proto_tree *hdr_tree, *data_tree, *s_tree;
 	proto_item *ti;
@@ -1122,7 +1121,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 	offs = 0;
 	memset(&hdr, 0, sizeof(hdr));
 	debug_printf("--> do_dissect(%d, nl %u, tree %s null)\n",
-			current_pinfo->fd->num, nest_level, ipmi_tree ? "IS NOT" : "IS");
+			pinfo->fd->num, nest_level, ipmi_tree ? "IS NOT" : "IS");
 
 	/* Optional byte: in Send Message targeted to session-based channels */
 	if (dfmt->flags & IPMI_D_SESSION_HANDLE) {
@@ -1196,13 +1195,13 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 
 	/* Start new conversation if needed */
 	if (!is_resp && (ic->flags & CMD_NEWCONV)) {
-		conversation_new(current_pinfo->fd->num, &current_pinfo->src,
-				&current_pinfo->dst, current_pinfo->ptype,
-				current_pinfo->srcport, current_pinfo->destport, 0);
+		conversation_new(pinfo->fd->num, &pinfo->src,
+				&pinfo->dst, pinfo->ptype,
+				pinfo->srcport, pinfo->destport, 0);
 	}
 
 	/* Check if we need to insert request-response pair */
-	maybe_insert_reqresp(dfmt, &hdr);
+	maybe_insert_reqresp(pinfo, dfmt, &hdr);
 
 	/* Create data subset: all but header and last byte (checksum) */
 	data_tvb = tvb_new_subset(tvb, hdrlen, hdr.data_len, hdr.data_len);
@@ -1213,11 +1212,11 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 			hdr.ccode ? ", " : "", hdr.ccode ? ccdesc : "");
 
 	if (!is_resp && (ic->flags & CMD_CALLRQ)) {
-		hnd(data_tvb, NULL);
+		hnd(data_tvb, pinfo, NULL);
 	}
 
 	if (ipmi_tree) {
-		add_reqresp_info(dfmt, &hdr, ipmi_tree, tvb);
+		add_reqresp_info(dfmt, &hdr, ipmi_tree, tvb, pinfo);
 
 		ti = proto_tree_add_text(ipmi_tree, tvb, 0, hdrlen,
 				"Header: %s (%s) from 0x%02x to 0x%02x%s", cdesc,
@@ -1305,7 +1304,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 		if (tvb_length(data_tvb) && hnd) {
 			ti = proto_tree_add_text(ipmi_tree, data_tvb, 0, -1, "Data");
 			data_tree = proto_item_add_subtree(ti, ett_data);
-			hnd(data_tvb, data_tree);
+			hnd(data_tvb, pinfo, data_tree);
 		}
 
 		/* Checksum all but the last byte */
@@ -1345,8 +1344,6 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI/ATCA");
 
-	current_pinfo = pinfo;
-
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipmi, tvb, 0, -1, ENC_NA);
 		ipmi_tree = proto_item_add_subtree(ti, ett_ipmi);
@@ -1354,7 +1351,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	memset(&dfmt, 0, sizeof(dfmt));
 	dfmt.flags = IPMI_D_BROADCAST | IPMI_D_TRG_SA;
-	ipmi_do_dissect(tvb, ipmi_tree, &dfmt);
+	ipmi_do_dissect(tvb, pinfo, ipmi_tree, &dfmt);
 
 	col_add_str(pinfo->cinfo, COL_INFO, dfmt.info);
 

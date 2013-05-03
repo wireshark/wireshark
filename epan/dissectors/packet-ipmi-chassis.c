@@ -428,7 +428,7 @@ static struct {
 /* Get Chassis Capabilities (response)
  */
 static void
-rs00(tvbuff_t *tvb, proto_tree *tree)
+rs00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_00_capflags_ppi, &hf_ipmi_chs_00_capflags_di,
 		&hf_ipmi_chs_00_capflags_fpl, &hf_ipmi_chs_00_capflags_is, NULL };
@@ -448,7 +448,7 @@ rs00(tvbuff_t *tvb, proto_tree *tree)
 /* Get Chassis Status.
  */
 static void
-rs01(tvbuff_t *tvb, proto_tree *tree)
+rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_01_pwr_state_policy,
 		&hf_ipmi_chs_01_pwr_state_ctl_fault, &hf_ipmi_chs_01_pwr_state_fault,
@@ -481,7 +481,7 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 /* Chassis Control.
  */
 static void
-rq02(tvbuff_t *tvb, proto_tree *tree)
+rq02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_02_cctrl, NULL };
 
@@ -492,7 +492,7 @@ rq02(tvbuff_t *tvb, proto_tree *tree)
 /* Chassis Identify
  */
 static void
-rq04(tvbuff_t *tvb, proto_tree *tree)
+rq04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte2[] = { &hf_ipmi_chs_04_perm_on, NULL };
 
@@ -509,7 +509,7 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 /* Set Chassis Capabilities.
  */
 static void
-rq05(tvbuff_t *tvb, proto_tree *tree)
+rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_05_flags_fpl, &hf_ipmi_chs_05_flags_intrusion, NULL };
 
@@ -528,7 +528,7 @@ rq05(tvbuff_t *tvb, proto_tree *tree)
 /* Set Power Restore Policy
  */
 static void
-rq06(tvbuff_t *tvb, proto_tree *tree)
+rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_06_rq_policy, NULL };
 
@@ -539,7 +539,7 @@ rq06(tvbuff_t *tvb, proto_tree *tree)
 /* Get Power Restore Policy
  */
 static void
-rs06(tvbuff_t *tvb, proto_tree *tree)
+rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_06_rs_policy_support_powerup,
 		&hf_ipmi_chs_06_rs_policy_support_restore, &hf_ipmi_chs_06_rs_policy_support_poweroff, NULL };
@@ -551,7 +551,7 @@ rs06(tvbuff_t *tvb, proto_tree *tree)
 /* Get System Restart Cause
  */
 static void
-rs07(tvbuff_t *tvb, proto_tree *tree)
+rs07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_07_cause, NULL };
 
@@ -563,7 +563,7 @@ rs07(tvbuff_t *tvb, proto_tree *tree)
 /* Set System Boot Options
  */
 static void
-rq08(tvbuff_t *tvb, proto_tree *tree)
+rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *s_tree;
@@ -611,7 +611,7 @@ static const value_string cc08[] = {
 /* Get System Boot Options
  */
 static void
-rq09(tvbuff_t *tvb, proto_tree *tree)
+rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *s_tree;
@@ -641,7 +641,7 @@ rq09(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs09(tvbuff_t *tvb, proto_tree *tree)
+rs09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_chs_09_rs_param_version, NULL };
 	proto_item *ti;
@@ -688,7 +688,7 @@ static const value_string cc09[] = {
 /* Get POH Counter
  */
 static void
-rs0f(tvbuff_t *tvb, proto_tree *tree)
+rs0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_chs_0f_minpercnt, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_0f_counter, tvb, 1, 4, ENC_LITTLE_ENDIAN);

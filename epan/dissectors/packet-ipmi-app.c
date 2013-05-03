@@ -414,7 +414,7 @@ static const value_string vals_XX_auth[] = {
 /* Get Device ID.
  */
 static void
-rs01(tvbuff_t *tvb, proto_tree *tree)
+rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte2[] = { &hf_ipmi_app_01_dev_prov_sdr, &hf_ipmi_app_01_dev_rev, NULL };
 	static const gint *byte3[] = { &hf_ipmi_app_01_dev_avail, &hf_ipmi_app_01_fw_rev_maj, NULL };
@@ -446,7 +446,7 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 /* Get Self Test Results.
  */
 static void
-rs04(tvbuff_t *tvb, proto_tree *tree)
+rs04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte2[] = { &hf_ipmi_app_04_fail_sel, &hf_ipmi_app_04_fail_sdr,
 		&hf_ipmi_app_04_fail_bmc_fru, &hf_ipmi_app_04_fail_ipmb_sig, &hf_ipmi_app_04_fail_sdr_empty,
@@ -481,7 +481,7 @@ rs04(tvbuff_t *tvb, proto_tree *tree)
 /* Manufacturing Test On.
  */
 static void
-rq05(tvbuff_t *tvb, proto_tree *tree)
+rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_app_05_devspec, tvb, 0, tvb_length(tvb), ENC_NA);
 }
@@ -489,7 +489,7 @@ rq05(tvbuff_t *tvb, proto_tree *tree)
 /* Set ACPI Power State.
  */
 static void
-rq06(tvbuff_t *tvb, proto_tree *tree)
+rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_06_syspwr_set, &hf_ipmi_app_06_syspwr_enum, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_06_devpwr_set, &hf_ipmi_app_06_devpwr_enum, NULL };
@@ -503,7 +503,7 @@ rq06(tvbuff_t *tvb, proto_tree *tree)
 /* Get ACPI Power State.
  */
 static void
-rs07(tvbuff_t *tvb, proto_tree *tree)
+rs07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_07_syspwr_enum, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_07_devpwr_enum, NULL };
@@ -517,7 +517,7 @@ rs07(tvbuff_t *tvb, proto_tree *tree)
 /* Get Device GUID.
  */
 static void
-rs08(tvbuff_t *tvb, proto_tree *tree)
+rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_guid(tree, hf_ipmi_app_08_guid, tvb, 0);
 }
@@ -532,7 +532,7 @@ static const value_string cc22[] = {
 /* Set Watchdog Timer.
  */
 static void
-rq24(tvbuff_t *tvb, proto_tree *tree)
+rq24(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_24_timer_use_dont_log,
 		&hf_ipmi_app_24_timer_use_dont_stop, &hf_ipmi_app_24_timer_use_timer_use, NULL };
@@ -555,7 +555,7 @@ rq24(tvbuff_t *tvb, proto_tree *tree)
 /* Get Watchdog Timer.
  */
 static void
-rs25(tvbuff_t *tvb, proto_tree *tree)
+rs25(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_25_timer_use_dont_log,
 		&hf_ipmi_app_25_timer_use_started, &hf_ipmi_app_25_timer_use_timer_use, NULL };
@@ -579,7 +579,7 @@ rs25(tvbuff_t *tvb, proto_tree *tree)
 /* Set BMC Global Enables.
  */
 static void
-rq2e(tvbuff_t *tvb, proto_tree *tree)
+rq2e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_2e_byte1_oem2, &hf_ipmi_app_2e_byte1_oem1,
 		&hf_ipmi_app_2e_byte1_oem0, &hf_ipmi_app_2e_byte1_sel, &hf_ipmi_app_2e_byte1_emb,
@@ -592,7 +592,7 @@ rq2e(tvbuff_t *tvb, proto_tree *tree)
 /* Get BMC Global Enables.
  */
 static void
-rs2f(tvbuff_t *tvb, proto_tree *tree)
+rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_2f_byte1_oem2, &hf_ipmi_app_2f_byte1_oem1,
 		&hf_ipmi_app_2f_byte1_oem0, &hf_ipmi_app_2f_byte1_sel, &hf_ipmi_app_2f_byte1_emb,
@@ -605,7 +605,7 @@ rs2f(tvbuff_t *tvb, proto_tree *tree)
 /* Clear Message Flags.
  */
 static void
-rq30(tvbuff_t *tvb, proto_tree *tree)
+rq30(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_30_byte1_oem2, &hf_ipmi_app_30_byte1_oem1,
 		&hf_ipmi_app_30_byte1_oem0, &hf_ipmi_app_30_byte1_wd_pretimeout,
@@ -618,7 +618,7 @@ rq30(tvbuff_t *tvb, proto_tree *tree)
 /* Get Message Flags.
  */
 static void
-rs31(tvbuff_t *tvb, proto_tree *tree)
+rs31(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_31_byte1_oem2, &hf_ipmi_app_31_byte1_oem1,
 		&hf_ipmi_app_31_byte1_oem0, &hf_ipmi_app_31_byte1_wd_pretimeout,
@@ -631,7 +631,7 @@ rs31(tvbuff_t *tvb, proto_tree *tree)
 /* Enable Message Channel Receive.
  */
 static void
-rq32(tvbuff_t *tvb, proto_tree *tree)
+rq32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_32_rq_chno, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_32_rq_state, NULL };
@@ -643,7 +643,7 @@ rq32(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs32(tvbuff_t *tvb, proto_tree *tree)
+rs32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_32_rs_chno, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_32_rs_state, NULL };
@@ -664,7 +664,7 @@ static const value_string cc33[] = {
 /* Send Message
  */
 static void
-rq34(tvbuff_t *tvb, proto_tree *tree)
+rq34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_34_track, &hf_ipmi_app_34_encrypt,
 		&hf_ipmi_app_34_auth, &hf_ipmi_app_34_chan, NULL };
@@ -686,12 +686,12 @@ rq34(tvbuff_t *tvb, proto_tree *tree)
 	dfmt.getmoreheaders = ipmi_sendmsg_getheaders;
 	dfmt.whichresponse = ipmi_sendmsg_whichresponse;
 	dfmt.otheridx = ipmi_sendmsg_otheridx;
-	ipmi_do_dissect(next, s_tree, &dfmt);
+	ipmi_do_dissect(next, pinfo, s_tree, &dfmt);
 	proto_item_set_text(ti, "%s", dfmt.info);
 }
 
 static void
-rs34(tvbuff_t *tvb, proto_tree *tree)
+rs34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	ipmi_dissect_format_t dfmt;
 	proto_tree *s_tree;
@@ -703,7 +703,7 @@ rs34(tvbuff_t *tvb, proto_tree *tree)
 	if (tvb_length(tvb)) {
 		memset(&dfmt, 0, sizeof(dfmt));
 		dfmt.flags = ipmi_guess_dissect_flags(tvb);
-		ipmi_do_dissect(tvb, s_tree, &dfmt);
+		ipmi_do_dissect(tvb, pinfo, s_tree, &dfmt);
 		proto_item_set_text(ti, "%s", dfmt.info);
 	}
 }
@@ -726,7 +726,7 @@ static const value_string cc35[] = {
 /* Get Channel Authentication Capabilities
  */
 static void
-rq38(tvbuff_t *tvb, proto_tree *tree)
+rq38(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_38_rq_ipmi20, &hf_ipmi_app_38_rq_chan, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_38_rq_priv, NULL };
@@ -736,7 +736,7 @@ rq38(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs38(tvbuff_t *tvb, proto_tree *tree)
+rs38(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_38_rs_chan, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_38_rs_ipmi20, &hf_ipmi_app_38_rs_auth_oem,
@@ -758,7 +758,7 @@ rs38(tvbuff_t *tvb, proto_tree *tree)
 /* Get Session Challenge
  */
 static void
-rq39(tvbuff_t *tvb, proto_tree *tree)
+rq39(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_39_authtype, NULL };
 
@@ -768,7 +768,7 @@ rq39(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs39(tvbuff_t *tvb, proto_tree *tree)
+rs39(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_app_39_temp_session, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_app_39_challenge, tvb, 4, 16, ENC_NA);
@@ -783,7 +783,7 @@ static const value_string cc39[] = {
 /* Activate Session
  */
 static void
-rq3a(tvbuff_t *tvb, proto_tree *tree)
+rq3a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_3a_authtype, NULL };
 	static const gint *byte2[] = { &hf_ipmi_app_3a_privlevel, NULL };
@@ -797,7 +797,7 @@ rq3a(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs3a(tvbuff_t *tvb, proto_tree *tree)
+rs3a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_3a_authtype_session, NULL };
 	static const gint *byte10[] = { &hf_ipmi_app_3a_maxpriv_session, NULL };
@@ -823,7 +823,7 @@ static const value_string cc3a[] = {
 /* Set Session Privilege Level
  */
 static void
-rq3b(tvbuff_t *tvb, proto_tree *tree)
+rq3b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_3b_req_priv, NULL };
 
@@ -832,7 +832,7 @@ rq3b(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs3b(tvbuff_t *tvb, proto_tree *tree)
+rs3b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_app_3b_new_priv, NULL };
 
@@ -850,7 +850,7 @@ static const value_string cc3b[] = {
 /* Close Session
  */
 static void
-rq3c(tvbuff_t *tvb, proto_tree *tree)
+rq3c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_app_3c_session_id, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 4) {

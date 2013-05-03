@@ -524,7 +524,7 @@ static const struct true_false_string tfs_36_fail_unknown = {
 /* Get PICMG Properties.
  */
 static void
-rs00(tvbuff_t *tvb, proto_tree *tree)
+rs00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_00_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_00_max_fruid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -534,7 +534,7 @@ rs00(tvbuff_t *tvb, proto_tree *tree)
 /* Get Address Info Command.
  */
 static void
-rq01(tvbuff_t *tvb, proto_tree *tree)
+rq01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -551,7 +551,7 @@ rq01(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs01(tvbuff_t *tvb, proto_tree *tree)
+rs01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_hwaddr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_ipmbaddr, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -565,7 +565,7 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 /* Get Shelf Address Info
  */
 static void
-rs02(tvbuff_t *tvb, proto_tree *tree)
+rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_typelen(tree, "Shelf Address", tvb, 0, TRUE);
 }
@@ -573,7 +573,7 @@ rs02(tvbuff_t *tvb, proto_tree *tree)
 /* Set Shelf Address Info
  */
 static void
-rq03(tvbuff_t *tvb, proto_tree *tree)
+rq03(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	ipmi_add_typelen(tree, "Shelf Address", tvb, 0, TRUE);
 }
@@ -581,7 +581,7 @@ rq03(tvbuff_t *tvb, proto_tree *tree)
 /* FRU Control.
  */
 static void
-rq04(tvbuff_t *tvb, proto_tree *tree)
+rq04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_04_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_04_cmd, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -590,13 +590,13 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 /* Get FRU LED Properties
  */
 static void
-rq05(tvbuff_t *tvb, proto_tree *tree)
+rq05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_05_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs05(tvbuff_t *tvb, proto_tree *tree)
+rs05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_picmg_05_led3, &hf_ipmi_picmg_05_led2,
 		&hf_ipmi_picmg_05_led1, &hf_ipmi_picmg_05_blue_led, NULL };
@@ -609,14 +609,14 @@ rs05(tvbuff_t *tvb, proto_tree *tree)
 /* Get LED Color Capabilities
  */
 static void
-rq06(tvbuff_t *tvb, proto_tree *tree)
+rq06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_06_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_06_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs06(tvbuff_t *tvb, proto_tree *tree)
+rs06(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_picmg_06_cap_white, &hf_ipmi_picmg_06_cap_orange,
 		&hf_ipmi_picmg_06_cap_amber, &hf_ipmi_picmg_06_cap_green, &hf_ipmi_picmg_06_cap_red,
@@ -665,7 +665,7 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 /* Set FRU LED State
  */
 static void
-rq07(tvbuff_t *tvb, proto_tree *tree)
+rq07(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_07_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_07_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -675,14 +675,14 @@ rq07(tvbuff_t *tvb, proto_tree *tree)
 /* Get FRU LED State
  */
 static void
-rq08(tvbuff_t *tvb, proto_tree *tree)
+rq08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_08_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_08_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs08(tvbuff_t *tvb, proto_tree *tree)
+rs08(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_picmg_08_state_lamptest, &hf_ipmi_picmg_08_state_override,
 		&hf_ipmi_picmg_08_state_local, NULL };
@@ -734,7 +734,7 @@ parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, guint offs, int hf, int ett)
 }
 
 static void
-rq09(tvbuff_t *tvb, proto_tree *tree)
+rq09(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	parse_ipmb_state(tree, tvb, 0, hf_ipmi_picmg_09_ipmba, ett_ipmi_picmg_09_ipmba);
 	parse_ipmb_state(tree, tvb, 1, hf_ipmi_picmg_09_ipmbb, ett_ipmi_picmg_09_ipmbb);
@@ -743,7 +743,7 @@ rq09(tvbuff_t *tvb, proto_tree *tree)
 /* Set FRU Activation Policy
  */
 static void
-rq0a(tvbuff_t *tvb, proto_tree *tree)
+rq0a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte2[] = { &hf_ipmi_picmg_0a_msk_d_locked, &hf_ipmi_picmg_0a_msk_locked, NULL };
 	static const int *byte3[] = { &hf_ipmi_picmg_0a_d_locked, &hf_ipmi_picmg_0a_locked, NULL };
@@ -758,13 +758,13 @@ rq0a(tvbuff_t *tvb, proto_tree *tree)
 /* Get FRU Activation Policy
  */
 static void
-rq0b(tvbuff_t *tvb, proto_tree *tree)
+rq0b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_0b_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs0b(tvbuff_t *tvb, proto_tree *tree)
+rs0b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_picmg_0b_d_locked, &hf_ipmi_picmg_0b_locked, NULL };
 
@@ -776,7 +776,7 @@ rs0b(tvbuff_t *tvb, proto_tree *tree)
 /* Set FRU Activation
  */
 static void
-rq0c(tvbuff_t *tvb, proto_tree *tree)
+rq0c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_0c_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_0c_cmd, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -785,7 +785,7 @@ rq0c(tvbuff_t *tvb, proto_tree *tree)
 /* Get Device Locator Record ID
  */
 static void
-rq0d(tvbuff_t *tvb, proto_tree *tree)
+rq0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_0d_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 1) {
@@ -794,7 +794,7 @@ rq0d(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs0d(tvbuff_t *tvb, proto_tree *tree)
+rs0d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_0d_recordid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
@@ -818,7 +818,7 @@ parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *n
 /* Set Port State
  */
 static void
-rq0e(tvbuff_t *tvb, proto_tree *tree)
+rq0e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const value_string state_vals[] = {
 		{ 0x00, "Disable" },
@@ -832,7 +832,7 @@ rq0e(tvbuff_t *tvb, proto_tree *tree)
 /* Get Port State
  */
 static void
-rq0f(tvbuff_t *tvb, proto_tree *tree)
+rq0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *chan[] = { &hf_ipmi_picmg_0f_iface, &hf_ipmi_picmg_0f_chan, NULL };
 
@@ -840,7 +840,7 @@ rq0f(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs0f(tvbuff_t *tvb, proto_tree *tree)
+rs0f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const value_string state_vals[] = {
 		{ 0x00, "Disabled" },
@@ -865,13 +865,13 @@ rs0f(tvbuff_t *tvb, proto_tree *tree)
 /* Compute Power Properties
  */
 static void
-rq10(tvbuff_t *tvb, proto_tree *tree)
+rq10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_10_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs10(tvbuff_t *tvb, proto_tree *tree)
+rs10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_10_nslots, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_10_ipmc_loc, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -880,7 +880,7 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 /* Set Power Level
  */
 static void
-rq11(tvbuff_t *tvb, proto_tree *tree)
+rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const value_string plvl_vals[] = {
 		{ 0x00, "Power Off" },
@@ -898,14 +898,14 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 /* Get Power Level
  */
 static void
-rq12(tvbuff_t *tvb, proto_tree *tree)
+rq12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_12_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_12_pwr_type, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs12(tvbuff_t *tvb, proto_tree *tree)
+rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_picmg_12_dynamic, &hf_ipmi_picmg_12_pwr_lvl, NULL };
 	guint8 v, v2, i, max;
@@ -935,7 +935,7 @@ rs12(tvbuff_t *tvb, proto_tree *tree)
 /* Renegotiate Power
  */
 static void
-rq13(tvbuff_t *tvb, proto_tree *tree)
+rq13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_13_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -945,13 +945,13 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 /* Get Fan Speed Properties
  */
 static void
-rq14(tvbuff_t *tvb, proto_tree *tree)
+rq14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_14_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs14(tvbuff_t *tvb, proto_tree *tree)
+rs14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *prop[] = { &hf_ipmi_picmg_14_local_control, NULL };
 
@@ -965,7 +965,7 @@ rs14(tvbuff_t *tvb, proto_tree *tree)
 /* Set Fan Level
  */
 static void
-rq15(tvbuff_t *tvb, proto_tree *tree)
+rq15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 v = tvb_get_guint8(tvb, 1);
 
@@ -980,13 +980,13 @@ rq15(tvbuff_t *tvb, proto_tree *tree)
 /* Get Fan Level
  */
 static void
-rq16(tvbuff_t *tvb, proto_tree *tree)
+rq16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_16_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs16(tvbuff_t *tvb, proto_tree *tree)
+rs16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 v;
 
@@ -1004,7 +1004,7 @@ rs16(tvbuff_t *tvb, proto_tree *tree)
 /* Bused Resource Control
  */
 static void
-rq17(tvbuff_t *tvb, proto_tree *tree)
+rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const value_string vals_17_cmd_fromshmm[] = {
 		{ 0x00, "Query" },
@@ -1037,7 +1037,7 @@ rq17(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs17(tvbuff_t *tvb, proto_tree *tree)
+rs17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* Key is 3 bytes: direction, command, status */
 	static const value_string response_vals[] = {
@@ -1079,14 +1079,14 @@ rs17(tvbuff_t *tvb, proto_tree *tree)
 /* Get IPMB Link Info
  */
 static void
-rq18(tvbuff_t *tvb, proto_tree *tree)
+rq18(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_18_li_key_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_18_li_key, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs18(tvbuff_t *tvb, proto_tree *tree)
+rs18(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_18_link_num, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_18_sensor_num, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -1095,7 +1095,7 @@ rs18(tvbuff_t *tvb, proto_tree *tree)
 /* Get Shelf Manager IPMB Address
  */
 static void
-rs1b(tvbuff_t *tvb, proto_tree *tree)
+rs1b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_active, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_backup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -1104,7 +1104,7 @@ rs1b(tvbuff_t *tvb, proto_tree *tree)
 /* Set Fan Policy
  */
 static void
-rq1c(tvbuff_t *tvb, proto_tree *tree)
+rq1c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_site_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_enable_state, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -1118,7 +1118,7 @@ rq1c(tvbuff_t *tvb, proto_tree *tree)
 /* Get Fan Policy
  */
 static void
-rq1d(tvbuff_t *tvb, proto_tree *tree)
+rq1d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1d_fan_site_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 1) {
@@ -1128,7 +1128,7 @@ rq1d(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs1d(tvbuff_t *tvb, proto_tree *tree)
+rs1d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1d_policy, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 1) {
@@ -1139,13 +1139,13 @@ rs1d(tvbuff_t *tvb, proto_tree *tree)
 /* FRU Control Capabilities
  */
 static void
-rq1e(tvbuff_t *tvb, proto_tree *tree)
+rq1e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1e_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs1e(tvbuff_t *tvb, proto_tree *tree)
+rs1e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_picmg_1e_cap_diagintr,
 		&hf_ipmi_picmg_1e_cap_graceful_reboot, &hf_ipmi_picmg_1e_cap_warm_reset, NULL };
@@ -1157,7 +1157,7 @@ rs1e(tvbuff_t *tvb, proto_tree *tree)
 /* FRU Inventory Device Lock Control
  */
 static void
-rq1f(tvbuff_t *tvb, proto_tree *tree)
+rq1f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_op, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -1165,7 +1165,7 @@ rq1f(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs1f(tvbuff_t *tvb, proto_tree *tree)
+rs1f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rs_lockid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_picmg_1f_rs_tstamp, tvb, 2);
@@ -1180,7 +1180,7 @@ static const value_string cc1f[] = {
 /* FRU Inventory Device Write
  */
 static void
-rq20(tvbuff_t *tvb, proto_tree *tree)
+rq20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_lockid, tvb, 1, 2, ENC_LITTLE_ENDIAN);
@@ -1189,7 +1189,7 @@ rq20(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs20(tvbuff_t *tvb, proto_tree *tree)
+rs20(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_count, tvb, 0, 1, ENC_NA);
 }
@@ -1202,13 +1202,13 @@ static const value_string cc20[] = {
 /* Get Shelf Manager IP Address
  */
 static void
-rq21(tvbuff_t *tvb, proto_tree *tree)
+rq21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_num, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
-rs21(tvbuff_t *tvb, proto_tree *tree)
+rs21(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte9[] = { &hf_ipmi_picmg_21_is_shm, &hf_ipmi_picmg_21_addr_type, NULL };
 	guint8 addrtype;
@@ -1231,7 +1231,7 @@ rs21(tvbuff_t *tvb, proto_tree *tree)
 /* Get Shelf Power Allocation
  */
 static void
-rq22(tvbuff_t *tvb, proto_tree *tree)
+rq22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if (!tree) {
 		ipmi_setsaveddata(0, tvb_get_guint8(tvb, 0));
@@ -1241,7 +1241,7 @@ rq22(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs22(tvbuff_t *tvb, proto_tree *tree)
+rs22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint32 offs = 0;
 	guint16 v;
@@ -1275,7 +1275,7 @@ add_component_bits(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc
 /* Get Target Upgrade Capabilities
  */
 static void
-rs2e(tvbuff_t *tvb, proto_tree *tree)
+rs2e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte2[] = { &hf_ipmi_picmg_2e_upgrade_undesirable, &hf_ipmi_picmg_2e_auto_rollback_override,
 		&hf_ipmi_picmg_2e_ipmc_degraded, &hf_ipmi_picmg_2e_deferred_activate, &hf_ipmi_picmg_2e_services_affected,
@@ -1342,7 +1342,7 @@ static const struct {
 };
 
 static void
-rq2f(tvbuff_t *tvb, proto_tree *tree)
+rq2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 pno = tvb_get_guint8(tvb, 1);
 	const char *desc;
@@ -1366,7 +1366,7 @@ rq2f(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs2f(tvbuff_t *tvb, proto_tree *tree)
+rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint32 pno;
 	const char *desc;
@@ -1413,7 +1413,7 @@ static const value_string cc30[] = {
 /* Initiate upgrade action
  */
 static void
-rq31(tvbuff_t *tvb, proto_tree *tree)
+rq31(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	add_component_bits(tree, tvb, 0, "Components: ");
 	proto_tree_add_item(tree, hf_ipmi_picmg_31_action, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -1428,14 +1428,14 @@ static const value_string cc31[] = {
 /* Upload Firmware Block
  */
 static void
-rq32(tvbuff_t *tvb, proto_tree *tree)
+rq32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_32_block, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_32_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
 static void
-rs32(tvbuff_t *tvb, proto_tree *tree)
+rs32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_offs, tvb, 0, 4, ENC_LITTLE_ENDIAN);
@@ -1453,7 +1453,7 @@ static const value_string cc32[] = {
 /* Finish Firmware Upgrade
  */
 static void
-rq33(tvbuff_t *tvb, proto_tree *tree)
+rq33(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_33_comp_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_33_img_len, tvb, 1, 4, ENC_LITTLE_ENDIAN);
@@ -1470,7 +1470,7 @@ static const value_string cc33[] = {
 /* Get Upgrade Status
  */
 static void
-rs34(tvbuff_t *tvb, proto_tree *tree)
+rs34(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const guint8 sig = 0;
 	static const gint *byte3[] = { &hf_ipmi_picmg_34_percentage, NULL };
@@ -1498,7 +1498,7 @@ static const value_string cc34[] = {
 /* Activate Firmware
  */
 static void
-rq35(tvbuff_t *tvb, proto_tree *tree)
+rq35(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
 		proto_tree_add_item(tree, hf_ipmi_picmg_35_rollback_override, tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -1513,7 +1513,7 @@ static const value_string cc35[] = {
 /* Query Self-test Results
  */
 static void
-rs36(tvbuff_t *tvb, proto_tree *tree)
+rs36(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte2[] = { &hf_ipmi_picmg_36_fail_sel, &hf_ipmi_picmg_36_fail_sdr,
 		&hf_ipmi_picmg_36_fail_bmc_fru, &hf_ipmi_picmg_36_fail_ipmb_sig, &hf_ipmi_picmg_36_fail_sdr_empty,
@@ -1551,7 +1551,7 @@ static const value_string cc36[] = {
 /* Query Rollback Results
  */
 static void
-rs37(tvbuff_t *tvb, proto_tree *tree)
+rs37(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte2[] = { &hf_ipmi_picmg_37_percent, NULL };
 	const char *desc;

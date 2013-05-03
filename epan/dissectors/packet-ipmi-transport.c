@@ -998,7 +998,7 @@ static struct {
 /* Set LAN Configuration Parameters
  */
 static void
-rq01(tvbuff_t *tvb, proto_tree *tree)
+rq01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_01_chan, NULL };
 	tvbuff_t *next;
@@ -1038,7 +1038,7 @@ static const value_string cc01[] = {
 /* Get LAN Configuration Parameters
  */
 static void
-rq02(tvbuff_t *tvb, proto_tree *tree)
+rq02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_02_getrev, &hf_ipmi_trn_02_chan, NULL };
 	const char *desc;
@@ -1069,7 +1069,7 @@ rq02(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs02(tvbuff_t *tvb, proto_tree *tree)
+rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_02_rev_present, &hf_ipmi_trn_02_rev_compat, NULL };
 	proto_item *ti;
@@ -1124,7 +1124,7 @@ static const value_string cc02[] = {
 };
 
 static void
-rq03(tvbuff_t *tvb, proto_tree *tree)
+rq03(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_03_chan, NULL };
 	static const int *byte2[] = { &hf_ipmi_trn_03_arp_resp, &hf_ipmi_trn_03_gratuitous_arp, NULL };
@@ -1136,7 +1136,7 @@ rq03(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs03(tvbuff_t *tvb, proto_tree *tree)
+rs03(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_03_status_arp_resp,
 		&hf_ipmi_trn_03_status_gratuitous_arp, NULL };
@@ -1146,7 +1146,7 @@ rs03(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rq04(tvbuff_t *tvb, proto_tree *tree)
+rq04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_04_chan, NULL };
 	static const int *byte2[] = { &hf_ipmi_trn_04_clear, NULL };
@@ -1158,7 +1158,7 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs04(tvbuff_t *tvb, proto_tree *tree)
+rs04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_04_rx_ippkts, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_04_rx_iphdr_err, tvb, 2, 2, ENC_LITTLE_ENDIAN);
@@ -1765,7 +1765,7 @@ static struct {
 /* Set Serial/Modem Configuration Parameters
  */
 static void
-rq10(tvbuff_t *tvb, proto_tree *tree)
+rq10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_10_chan, NULL };
 	tvbuff_t *next;
@@ -1805,7 +1805,7 @@ static const value_string cc10[] = {
 /* Get LAN Configuration Parameters
  */
 static void
-rq11(tvbuff_t *tvb, proto_tree *tree)
+rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_11_getrev, &hf_ipmi_trn_11_chan, NULL };
 	const char *desc;
@@ -1836,7 +1836,7 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs11(tvbuff_t *tvb, proto_tree *tree)
+rs11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_11_rev_present, &hf_ipmi_trn_11_rev_compat, NULL };
 	proto_item *ti;
@@ -1893,7 +1893,7 @@ static const value_string cc11[] = {
 /* Set Serial/Modem Mux
  */
 static void
-rq12(tvbuff_t *tvb, proto_tree *tree)
+rq12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_12_chan, NULL };
 	static const gint *byte2[] = { &hf_ipmi_trn_12_mux_setting, NULL };
@@ -1905,7 +1905,7 @@ rq12(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs12(tvbuff_t *tvb, proto_tree *tree)
+rs12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_12_sw_to_sys, &hf_ipmi_trn_12_sw_to_bmc,
 		&hf_ipmi_trn_12_alert, &hf_ipmi_trn_12_msg, &hf_ipmi_trn_12_req, &hf_ipmi_trn_12_mux_state, NULL };
@@ -1917,7 +1917,7 @@ rs12(tvbuff_t *tvb, proto_tree *tree)
 /* Get TAP Response Codes
  */
 static void
-rq13(tvbuff_t *tvb, proto_tree *tree)
+rq13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_13_chan, NULL };
 
@@ -1926,7 +1926,7 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs13(tvbuff_t *tvb, proto_tree *tree)
+rs13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_13_code1, tvb, 0, 3, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_ipmi_trn_13_code2, tvb, 3, 3, ENC_ASCII|ENC_NA);
@@ -1938,7 +1938,7 @@ rs13(tvbuff_t *tvb, proto_tree *tree)
 /* Set PPP UDP Proxy Transmit Data
  */
 static void
-rq14(tvbuff_t *tvb, proto_tree *tree)
+rq14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_14_chan, NULL };
 
@@ -1951,7 +1951,7 @@ rq14(tvbuff_t *tvb, proto_tree *tree)
 /* Get PPP UDP Proxy Transmit Data
  */
 static void
-rq15(tvbuff_t *tvb, proto_tree *tree)
+rq15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_15_chan, NULL };
 
@@ -1961,7 +1961,7 @@ rq15(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs15(tvbuff_t *tvb, proto_tree *tree)
+rs15(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_15_data, tvb, 0, 16, ENC_NA);
 }
@@ -1969,7 +1969,7 @@ rs15(tvbuff_t *tvb, proto_tree *tree)
 /* Send PPP UDP Proxy Packet
  */
 static void
-rq16(tvbuff_t *tvb, proto_tree *tree)
+rq16(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_16_chan, NULL };
 
@@ -1998,7 +1998,7 @@ tr17_fmt_blockno(gchar *s, guint32 v)
 }
 
 static void
-rq17(tvbuff_t *tvb, proto_tree *tree)
+rq17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_17_chan, NULL };
 	static const gint *byte2[] = { &hf_ipmi_trn_17_clear, &hf_ipmi_trn_17_block_num, NULL };
@@ -2016,7 +2016,7 @@ rq17(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs17(tvbuff_t *tvb, proto_tree *tree)
+rs17(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint32 bno;
 
@@ -2037,7 +2037,7 @@ static const value_string cc17[] = {
 /* Serial/Modem Connection Active
  */
 static void
-rq18(tvbuff_t *tvb, proto_tree *tree)
+rq18(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_18_state, NULL };
 
@@ -2049,7 +2049,7 @@ rq18(tvbuff_t *tvb, proto_tree *tree)
 /* Callback
  */
 static void
-rq19(tvbuff_t *tvb, proto_tree *tree)
+rq19(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_19_chan, NULL };
 	static const gint *byte2[] = { &hf_ipmi_trn_19_dest_sel, NULL };
@@ -2089,7 +2089,7 @@ parse_callback_options(tvbuff_t *tvb, guint offs, proto_tree *tree)
 /* Set User Callback Options
  */
 static void
-rq1a(tvbuff_t *tvb, proto_tree *tree)
+rq1a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_1a_user, NULL };
 	static const gint *byte2[] = { &hf_ipmi_trn_1a_chan, NULL };
@@ -2104,7 +2104,7 @@ rq1a(tvbuff_t *tvb, proto_tree *tree)
 /* Get User Callback Options
  */
 static void
-rq1b(tvbuff_t *tvb, proto_tree *tree)
+rq1b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	static const gint *byte1[] = { &hf_ipmi_trn_1b_user, NULL };
 	static const gint *byte2[] = { &hf_ipmi_trn_1b_chan, NULL };
@@ -2116,7 +2116,7 @@ rq1b(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-rs1b(tvbuff_t *tvb, proto_tree *tree)
+rs1b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	parse_callback_options(tvb, 0, tree);
 }
