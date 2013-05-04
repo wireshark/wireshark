@@ -124,6 +124,7 @@ static int hf_tcp_analysis_rto = -1;
 static int hf_tcp_analysis_rto_frame = -1;
 static int hf_tcp_analysis_retransmission = -1;
 static int hf_tcp_analysis_fast_retransmission = -1;
+static int hf_tcp_analysis_spurious_retransmission = -1;
 static int hf_tcp_analysis_out_of_order = -1;
 static int hf_tcp_analysis_reused_ports = -1;
 static int hf_tcp_analysis_lost_packet = -1;
@@ -440,21 +441,21 @@ static gboolean tcp_relative_seq          = TRUE;
 static gboolean tcp_track_bytes_in_flight = TRUE;
 static gboolean tcp_calculate_ts          = FALSE;
 
-#define TCP_A_RETRANSMISSION        0x0001
-#define TCP_A_LOST_PACKET           0x0002
-#define TCP_A_ACK_LOST_PACKET       0x0004
-#define TCP_A_KEEP_ALIVE            0x0008
-#define TCP_A_DUPLICATE_ACK         0x0010
-#define TCP_A_ZERO_WINDOW           0x0020
-#define TCP_A_ZERO_WINDOW_PROBE     0x0040
-#define TCP_A_ZERO_WINDOW_PROBE_ACK 0x0080
-#define TCP_A_KEEP_ALIVE_ACK        0x0100
-#define TCP_A_OUT_OF_ORDER          0x0200
-#define TCP_A_FAST_RETRANSMISSION   0x0400
-#define TCP_A_WINDOW_UPDATE         0x0800
-#define TCP_A_WINDOW_FULL           0x1000
-#define TCP_A_REUSED_PORTS          0x2000
-
+#define TCP_A_RETRANSMISSION          0x0001
+#define TCP_A_LOST_PACKET             0x0002
+#define TCP_A_ACK_LOST_PACKET         0x0004
+#define TCP_A_KEEP_ALIVE              0x0008
+#define TCP_A_DUPLICATE_ACK           0x0010
+#define TCP_A_ZERO_WINDOW             0x0020
+#define TCP_A_ZERO_WINDOW_PROBE       0x0040
+#define TCP_A_ZERO_WINDOW_PROBE_ACK   0x0080
+#define TCP_A_KEEP_ALIVE_ACK          0x0100
+#define TCP_A_OUT_OF_ORDER            0x0200
+#define TCP_A_FAST_RETRANSMISSION     0x0400
+#define TCP_A_WINDOW_UPDATE           0x0800
+#define TCP_A_WINDOW_FULL             0x1000
+#define TCP_A_REUSED_PORTS            0x2000
+#define TCP_A_SPURIOUS_RETRANSMISSION 0x4000
 
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
@@ -1110,6 +1111,18 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
+        /* Check for spurious retransmission. If the current seq + segment length
+         * is less then the receivers lastask, the packet contains duplicated
+         * data and may be considered spurious.
+         */
+        if ( seq + seglen < tcpd->rev->lastack ) {
+            if(!tcpd->ta){
+                tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
+            }
+            tcpd->ta->flags|=TCP_A_SPURIOUS_RETRANSMISSION;
+            goto finished_checking_retransmission_type;
+        }
+
         /* Then it has to be a generic retransmission */
         if(!tcpd->ta) {
             tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
@@ -1313,6 +1326,28 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
         col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
                                "[TCP Fast Retransmission] ");
     }
+    /* TCP Spurious Retransmission */
+    if (ta->flags & TCP_A_SPURIOUS_RETRANSMISSION) {
+        flags_item=proto_tree_add_none_format(flags_tree,
+                                              hf_tcp_analysis_spurious_retransmission,
+                                              tvb, 0, 0,
+                                              "This frame is a (suspected) spurious"
+                                              " retransmission"
+            );
+        PROTO_ITEM_SET_GENERATED(flags_item);
+        expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
+                               "Spurious retransmission (suspected)");
+        flags_item=proto_tree_add_none_format(flags_tree,
+                                              hf_tcp_analysis_retransmission,
+                                              tvb, 0, 0,
+                                              "This frame is a (suspected) "
+                                              "retransmission"
+            );
+        PROTO_ITEM_SET_GENERATED(flags_item);
+        col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
+                               "[TCP Spurious Retransmission] ");
+    }
+
     /* TCP Out-Of-Order */
     if (ta->flags & TCP_A_OUT_OF_ORDER) {
         flags_item=proto_tree_add_none_format(flags_tree,
@@ -5000,6 +5035,10 @@ proto_register_tcp(void)
         { &hf_tcp_analysis_fast_retransmission,
         { "Fast Retransmission",        "tcp.analysis.fast_retransmission", FT_NONE, BASE_NONE, NULL, 0x0,
             "This frame is a suspected TCP fast retransmission", HFILL }},
+
+        { &hf_tcp_analysis_spurious_retransmission,
+        { "Spurious Retransmission",        "tcp.analysis.spurious_retransmission", FT_NONE, BASE_NONE, NULL, 0x0,
+            "This frame is a suspected TCP spurious retransmission", HFILL }},
 
         { &hf_tcp_analysis_out_of_order,
         { "Out Of Order",       "tcp.analysis.out_of_order", FT_NONE, BASE_NONE, NULL, 0x0,
