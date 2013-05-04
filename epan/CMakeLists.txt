@@ -808,6 +808,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-iuup.c
 	dissectors/packet-iwarp-ddp-rdmap.c
 	dissectors/packet-iwarp-mpa.c
+	dissectors/packet-ixiatrailer.c
 	dissectors/packet-ixveriwave.c
 	dissectors/packet-jmirror.c
 	dissectors/packet-jpeg.c
