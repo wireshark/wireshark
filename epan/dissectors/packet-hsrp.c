@@ -244,7 +244,7 @@ static const value_string hsrp_opcode_vals[] = {
         {HSRP_OPCODE_COUP,      "Coup"},
         {HSRP_OPCODE_RESIGN,    "Resign"},
         {HSRP_OPCODE_ADVERTISE, "Advertise"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP_STATE_INITIAL  0
@@ -260,7 +260,7 @@ static const value_string hsrp_state_vals[] = {
         {HSRP_STATE_SPEAK,   "Speak"},
         {HSRP_STATE_STANDBY, "Standby"},
         {HSRP_STATE_ACTIVE,  "Active"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP_ADV_TYPE_INTSTATE 1
@@ -268,7 +268,7 @@ static const value_string hsrp_state_vals[] = {
 static const value_string hsrp_adv_type_vals[] = {
         {HSRP_ADV_TYPE_INTSTATE, "HSRP interface state"},
         {HSRP_ADV_TYPE_IPREDUN,  "IP redundancy"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP_ADV_STATE_DORMANT 1
@@ -278,7 +278,7 @@ static const value_string hsrp_adv_state_vals[] = {
         {HSRP_ADV_STATE_DORMANT, "Dormant"},
         {HSRP_ADV_STATE_PASSIVE, "Passive"},
         {HSRP_ADV_STATE_ACTIVE,  "Active"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP2_OPCODE_HELLO     0
@@ -288,7 +288,7 @@ static const value_string hsrp2_opcode_vals[] = {
         {HSRP2_OPCODE_HELLO,     "Hello"},
         {HSRP2_OPCODE_COUP,      "Coup"},
         {HSRP2_OPCODE_RESIGN,    "Resign"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP2_STATE_DISABLED 0
@@ -305,7 +305,7 @@ static const value_string hsrp2_state_vals[] = {
         {HSRP2_STATE_SPEAK,   "Speak"},
         {HSRP2_STATE_STANDBY, "Standby"},
         {HSRP2_STATE_ACTIVE,  "Active"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP2_IPVERSION_IPV4 4
@@ -313,32 +313,32 @@ static const value_string hsrp2_state_vals[] = {
 static const value_string hsrp2_ipversion_vals[] = {
         {HSRP2_IPVERSION_IPV4, "IPv4"},
         {HSRP2_IPVERSION_IPV6, "IPv6"},
-	{0, NULL}
+        {0, NULL}
 };
 
 #define HSRP2_MD5_ALGORITHM 1
 static const value_string hsrp2_md5_algorithm_vals[] = {
         {HSRP2_MD5_ALGORITHM, "MD5"},
-	{0, NULL}
+        {0, NULL}
 };
 
 static int
 dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	tvbuff_t   *next_tvb;
+        tvbuff_t   *next_tvb;
         gchar dst[16];
 
-	/* Return if this isn't really HSRP traffic
-	 * (source and destination port must be UDP_PORT_HSRP on HSRPv1 or HSRPv2(IPv4))
+        /* Return if this isn't really HSRP traffic
+         * (source and destination port must be UDP_PORT_HSRP on HSRPv1 or HSRPv2(IPv4))
          * (source and destination port must be UDP_PORT_HSRP2_V6 on HSRPv2(IPv6))
          */
-	if(pinfo->destport != UDP_PORT_HSRP && pinfo->destport != UDP_PORT_HSRP2_V6)
-		return 0;
+        if(pinfo->destport != UDP_PORT_HSRP && pinfo->destport != UDP_PORT_HSRP2_V6)
+                return 0;
 
         /*
          * To check whether this is an HSRPv1 packet or HSRPv2 on dest IPv4 addr.
          */
-	address_to_str_buf(&(pinfo->dst), dst, sizeof dst);
+        address_to_str_buf(&(pinfo->dst), dst, sizeof dst);
 
         if (pinfo->dst.type == AT_IPv4 && strcmp(dst,HSRP_DST_IP_ADDR) == 0) {
                 /* HSRPv1 */
@@ -350,88 +350,88 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                         col_add_str(pinfo->cinfo, COL_INFO,
                                      val_to_str_const(opcode, hsrp_opcode_vals, "Unknown"));
-		}
-		if (opcode < 3) {
-			state = tvb_get_guint8(tvb, 2);
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
-				     val_to_str_const(state, hsrp_state_vals, "Unknown"));
-			}
+                }
+                if (opcode < 3) {
+                        state = tvb_get_guint8(tvb, 2);
+                        if (check_col(pinfo->cinfo, COL_INFO)) {
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                                     val_to_str_const(state, hsrp_state_vals, "Unknown"));
+                        }
                 } else if (opcode == 3) {
-			state = tvb_get_guint8(tvb, 6);
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
-					val_to_str_const(state, hsrp_adv_state_vals, "Unknown"));
-			}
-		}
+                        state = tvb_get_guint8(tvb, 6);
+                        if (check_col(pinfo->cinfo, COL_INFO)) {
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                                        val_to_str_const(state, hsrp_adv_state_vals, "Unknown"));
+                        }
+                }
 
-	        if (tree) {
-	                proto_item *ti;
-	                proto_tree *hsrp_tree;
-	                gint offset;
-	                guint8 hellotime, holdtime;
-	                gchar auth_buf[8 + 1];
+                if (tree) {
+                        proto_item *ti;
+                        proto_tree *hsrp_tree;
+                        gint offset;
+                        guint8 hellotime, holdtime;
+                        gchar auth_buf[8 + 1];
 
-	                offset = 0;
-	                ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
-	                hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
+                        offset = 0;
+                        ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
+                        hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
-	                proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-	                offset++;
-	                proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
-	                offset++;
-			if (opcode < 3) {
-				proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
-				offset++;
-				hellotime = tvb_get_guint8(tvb, offset);
-				proto_tree_add_uint_format(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
-	                                           "Hellotime: %sDefault (%u)",
-	                                           (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
-	                                           hellotime);
-				offset++;
-				holdtime = tvb_get_guint8(tvb, offset);
-				proto_tree_add_uint_format(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
-	                                           "Holdtime: %sDefault (%u)",
-	                                           (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
-	                                           holdtime);
-				offset++;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset++;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset++;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset++;
-				tvb_memcpy(tvb, auth_buf, offset, 8);
-				auth_buf[sizeof auth_buf - 1] = '\0';
-				proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
-	                                             "Authentication Data: %sDefault (%s)",
-	                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
-	                                             auth_buf);
-				offset += 8;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-				/* offset += 4; */
-			} else if (opcode == 3) {
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
-				offset += 1;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
-				offset += 2;
-				proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
-				/* offset += 4; */
-			} else {
-				next_tvb = tvb_new_subset_remaining(tvb, offset);
-				call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
-			}
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
+                        offset++;
+                        if (opcode < 3) {
+                                proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
+                                offset++;
+                                hellotime = tvb_get_guint8(tvb, offset);
+                                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
+                                                   "Hellotime: %sDefault (%u)",
+                                                   (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
+                                                   hellotime);
+                                offset++;
+                                holdtime = tvb_get_guint8(tvb, offset);
+                                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
+                                                   "Holdtime: %sDefault (%u)",
+                                                   (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
+                                                   holdtime);
+                                offset++;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset++;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset++;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset++;
+                                tvb_memcpy(tvb, auth_buf, offset, 8);
+                                auth_buf[sizeof auth_buf - 1] = '\0';
+                                proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
+                                                     "Authentication Data: %sDefault (%s)",
+                                                     (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
+                                                     auth_buf);
+                                offset += 8;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                /* offset += 4; */
+                        } else if (opcode == 3) {
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                offset += 1;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                /* offset += 4; */
+                        } else {
+                                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                                call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                        }
                 }
         } else if ((pinfo->dst.type == AT_IPv4 && strcmp(dst,HSRP2_DST_IP_ADDR) == 0) ||
-		   (pinfo->dst.type == AT_IPv6 && pinfo->destport == UDP_PORT_HSRP2_V6)) {
+                   (pinfo->dst.type == AT_IPv6 && pinfo->destport == UDP_PORT_HSRP2_V6)) {
                 /* HSRPv2 */
                 guint offset = 0, offset2;
                 proto_item *ti = NULL;
@@ -443,7 +443,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 if (tree) {
                         ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
                         hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
-		}
+                }
 
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
                         type = tvb_get_guint8(tvb, offset);
@@ -460,18 +460,18 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_group_state_tlv, tvb, offset, 2, type,
                                         "Group State TLV: Type=%d Len=%d", type, len);
                                 }
-				offset+=2;
+                                offset+=2;
 
                                 opcode = tvb_get_guint8(tvb, offset+1);
                                 if (check_col(pinfo->cinfo, COL_INFO)) {
                                         col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                                                      val_to_str_const(opcode, hsrp2_opcode_vals, "Unknown"));
-				}
+                                }
 
                                 state = tvb_get_guint8(tvb, offset+2);
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
-						val_to_str_const(state, hsrp2_state_vals, "Unknown"));
+                                if (check_col(pinfo->cinfo, COL_INFO)) {
+                                        col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                                                val_to_str_const(state, hsrp2_state_vals, "Unknown"));
                                 }
 
                                 if (tree) {
@@ -482,86 +482,86 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         proto_tree_add_uint(group_state_tlv, hf_hsrp2_opcode, tvb, offset, 1, opcode);
                                         offset++;
                                         proto_tree_add_uint(group_state_tlv, hf_hsrp2_state, tvb, offset, 1, state);
-					offset++;
-					ipver = tvb_get_guint8(tvb, offset);
-		                        proto_tree_add_uint(group_state_tlv, hf_hsrp2_ipversion, tvb, offset, 1, ipver);
-					offset++;
-					proto_tree_add_item(group_state_tlv, hf_hsrp2_group, tvb, offset, 2, ENC_BIG_ENDIAN);
-					offset+=2;
-					proto_tree_add_item(group_state_tlv, hf_hsrp2_identifier, tvb, offset, 6, ENC_NA);
-					offset+=6;
-					proto_tree_add_item(group_state_tlv, hf_hsrp2_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
-					offset+=4;
+                                        offset++;
+                                        ipver = tvb_get_guint8(tvb, offset);
+                                        proto_tree_add_uint(group_state_tlv, hf_hsrp2_ipversion, tvb, offset, 1, ipver);
+                                        offset++;
+                                        proto_tree_add_item(group_state_tlv, hf_hsrp2_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                        offset+=2;
+                                        proto_tree_add_item(group_state_tlv, hf_hsrp2_identifier, tvb, offset, 6, ENC_NA);
+                                        offset+=6;
+                                        proto_tree_add_item(group_state_tlv, hf_hsrp2_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                        offset+=4;
 
-					hellotime = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format(group_state_tlv, hf_hsrp2_hellotime, tvb, offset, 4, hellotime,
-		                                           "Hellotime: %sDefault (%u)",
-		                                           (hellotime == HSRP2_DEFAULT_HELLOTIME) ? "" : "Non-",
-		                                           hellotime);
-					offset+=4;
-					holdtime = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format(group_state_tlv, hf_hsrp2_holdtime, tvb, offset, 4, holdtime,
-		                                           "Holdtime: %sDefault (%u)",
-		                                           (holdtime == HSRP2_DEFAULT_HOLDTIME) ? "" : "Non-",
-		                                           holdtime);
-					offset+=4;
-		                        if (ipver == 4) {
-		                                /* Fetch Virtual IP as IPv4 */
-		                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-		                        } else if (ipver == 6) {
-		                                /* Fetch Virtual IP as IPv6 */
-		                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr_v6, tvb, offset, 16, ENC_NA);
-		                        } else {
-		                                /* Unknown protocol */
-						next_tvb = tvb_new_subset_remaining(tvb, offset);
-						call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
-		                                break;
-					}
-					/* offset+=16; */
-				}
-		        } else if (type == 2 && len == 4) {
-		                /* Interface State TLV */
-		                guint16 active,passive;
-		                active = tvb_get_ntohs(tvb, offset+2);
-		                passive = tvb_get_ntohs(tvb, offset+4);
+                                        hellotime = tvb_get_ntohl(tvb, offset);
+                                        proto_tree_add_uint_format(group_state_tlv, hf_hsrp2_hellotime, tvb, offset, 4, hellotime,
+                                                           "Hellotime: %sDefault (%u)",
+                                                           (hellotime == HSRP2_DEFAULT_HELLOTIME) ? "" : "Non-",
+                                                           hellotime);
+                                        offset+=4;
+                                        holdtime = tvb_get_ntohl(tvb, offset);
+                                        proto_tree_add_uint_format(group_state_tlv, hf_hsrp2_holdtime, tvb, offset, 4, holdtime,
+                                                           "Holdtime: %sDefault (%u)",
+                                                           (holdtime == HSRP2_DEFAULT_HOLDTIME) ? "" : "Non-",
+                                                           holdtime);
+                                        offset+=4;
+                                        if (ipver == 4) {
+                                                /* Fetch Virtual IP as IPv4 */
+                                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                                        } else if (ipver == 6) {
+                                                /* Fetch Virtual IP as IPv6 */
+                                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr_v6, tvb, offset, 16, ENC_NA);
+                                        } else {
+                                                /* Unknown protocol */
+                                                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                                                call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                                                break;
+                                        }
+                                        /* offset+=16; */
+                                }
+                        } else if (type == 2 && len == 4) {
+                                /* Interface State TLV */
+                                guint16 active,passive;
+                                active = tvb_get_ntohs(tvb, offset+2);
+                                passive = tvb_get_ntohs(tvb, offset+4);
 
-		                if (check_col(pinfo->cinfo, COL_INFO)) {
-		                        col_add_fstr(pinfo->cinfo, COL_INFO, "Interface State TLV (Act=%d Pass=%d)",active,passive);
-		                }
+                                if (check_col(pinfo->cinfo, COL_INFO)) {
+                                        col_add_fstr(pinfo->cinfo, COL_INFO, "Interface State TLV (Act=%d Pass=%d)",active,passive);
+                                }
 
-		                if (tree) {
-		                        proto_tree *interface_state_tlv;
-		                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
-		                        "Interface State TLV: Type=%d Len=%d", type, len);
-		                        offset+=2;
+                                if (tree) {
+                                        proto_tree *interface_state_tlv;
+                                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_interface_state_tlv, tvb, offset, 1, type,
+                                        "Interface State TLV: Type=%d Len=%d", type, len);
+                                        offset+=2;
 
-		                        /* Making Interface State TLV subtree */
-		                        interface_state_tlv = proto_item_add_subtree(ti, ett_hsrp2_interface_state_tlv);
-					proto_tree_add_item(interface_state_tlv, hf_hsrp2_active_group, tvb, offset, 2, ENC_BIG_ENDIAN);
-		                        offset+=2;
-					proto_tree_add_item(interface_state_tlv, hf_hsrp2_passive_group, tvb, offset, 2, ENC_BIG_ENDIAN);
-					/* offset+=2; */
-		                }
-		        } else if (type == 3 && len == 8) {
-		                /* Text Authentication TLV */
-		                if (tree) {
-		                        proto_tree *text_auth_tlv;
-		                        gchar auth_buf[8 + 1];
+                                        /* Making Interface State TLV subtree */
+                                        interface_state_tlv = proto_item_add_subtree(ti, ett_hsrp2_interface_state_tlv);
+                                        proto_tree_add_item(interface_state_tlv, hf_hsrp2_active_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                        offset+=2;
+                                        proto_tree_add_item(interface_state_tlv, hf_hsrp2_passive_group, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                        /* offset+=2; */
+                                }
+                        } else if (type == 3 && len == 8) {
+                                /* Text Authentication TLV */
+                                if (tree) {
+                                        proto_tree *text_auth_tlv;
+                                        gchar auth_buf[8 + 1];
 
-		                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
-		                        "Text Authentication TLV: Type=%d Len=%d", type, len);
-		                        offset+=2;
+                                        ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
+                                        "Text Authentication TLV: Type=%d Len=%d", type, len);
+                                        offset+=2;
 
-		                        /* Making Text Authentication TLV subtree */
-		                        text_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_text_auth_tlv);
+                                        /* Making Text Authentication TLV subtree */
+                                        text_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_text_auth_tlv);
 
-					tvb_memcpy(tvb, auth_buf, offset, 8);
-					auth_buf[sizeof auth_buf - 1] = '\0';
-					proto_tree_add_string_format(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
-		                                             "Authentication Data: %sDefault (%s)",
-		                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
-		                                             auth_buf);
-					/* offset += 8; */
+                                        tvb_memcpy(tvb, auth_buf, offset, 8);
+                                        auth_buf[sizeof auth_buf - 1] = '\0';
+                                        proto_tree_add_string_format(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
+                                                             "Authentication Data: %sDefault (%s)",
+                                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
+                                                             auth_buf);
+                                        /* offset += 8; */
                                 }
                         } else if (type == 4 && len == 28) {
                                 /* Text Authentication TLV */
@@ -589,14 +589,14 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 }
                         } else {
                                 /* Undefined TLV */
-				if (tree) {
-					next_tvb = tvb_new_subset_remaining(tvb, offset);
-					call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
-				}
+                                if (tree) {
+                                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                                        call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                                }
                                 break;
-			}
-		        offset = offset2+len+2;
-		}
+                        }
+                        offset = offset2+len+2;
+                }
         }
 
         return tvb_length(tvb);
@@ -655,40 +655,40 @@ void proto_register_hsrp(void)
                     FT_IPv4, BASE_NONE, NULL, 0x0,
                     "The virtual IP address used by this group", HFILL }},
 
-		{ &hf_hsrp_adv_type,
-		  { "Adv type", "hsrp.adv.tlvtype",
-		    FT_UINT16, BASE_DEC, VALS(hsrp_adv_type_vals), 0x0,
-		    "Advertisement tlv type", HFILL }},
+                { &hf_hsrp_adv_type,
+                  { "Adv type", "hsrp.adv.tlvtype",
+                    FT_UINT16, BASE_DEC, VALS(hsrp_adv_type_vals), 0x0,
+                    "Advertisement tlv type", HFILL }},
 
-		{ &hf_hsrp_adv_length,
-		  { "Adv length", "hsrp.adv.tlvlength",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Advertisement tlv length", HFILL }},
+                { &hf_hsrp_adv_length,
+                  { "Adv length", "hsrp.adv.tlvlength",
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    "Advertisement tlv length", HFILL }},
 
-		{ &hf_hsrp_adv_state,
-		  { "Adv state", "hsrp.adv.state",
-		    FT_UINT8, BASE_DEC, VALS(hsrp_adv_state_vals), 0x0,
-		    "Advertisement tlv length", HFILL }},
+                { &hf_hsrp_adv_state,
+                  { "Adv state", "hsrp.adv.state",
+                    FT_UINT8, BASE_DEC, VALS(hsrp_adv_state_vals), 0x0,
+                    "Advertisement tlv length", HFILL }},
 
-		{ &hf_hsrp_adv_reserved1,
-		  { "Adv reserved1", "hsrp.adv.reserved1",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Advertisement tlv length", HFILL }},
+                { &hf_hsrp_adv_reserved1,
+                  { "Adv reserved1", "hsrp.adv.reserved1",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "Advertisement tlv length", HFILL }},
 
-		{ &hf_hsrp_adv_activegrp,
-		  { "Adv active groups", "hsrp.adv.activegrp",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Advertisement active group count", HFILL }},
+                { &hf_hsrp_adv_activegrp,
+                  { "Adv active groups", "hsrp.adv.activegrp",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "Advertisement active group count", HFILL }},
 
-		{ &hf_hsrp_adv_passivegrp,
-		  { "Adv passive groups", "hsrp.adv.passivegrp",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Advertisement passive group count", HFILL }},
+                { &hf_hsrp_adv_passivegrp,
+                  { "Adv passive groups", "hsrp.adv.passivegrp",
+                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    "Advertisement passive group count", HFILL }},
 
-		{ &hf_hsrp_adv_reserved2,
-		  { "Adv reserved2", "hsrp.adv.reserved2",
-		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    "Advertisement tlv length", HFILL }},
+                { &hf_hsrp_adv_reserved2,
+                  { "Adv reserved2", "hsrp.adv.reserved2",
+                    FT_UINT32, BASE_DEC, NULL, 0x0,
+                    "Advertisement tlv length", HFILL }},
 
                 { &hf_hsrp2_version,
                   { "Version", "hsrp2.version",
@@ -817,7 +817,7 @@ void proto_register_hsrp(void)
         };
 
         proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol",
-	    "HSRP", "hsrp");
+            "HSRP", "hsrp");
         proto_register_field_array(proto_hsrp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
@@ -827,10 +827,23 @@ void proto_register_hsrp(void)
 void
 proto_reg_handoff_hsrp(void)
 {
-	dissector_handle_t hsrp_handle;
+        dissector_handle_t hsrp_handle;
 
-	data_handle = find_dissector("data");
-	hsrp_handle = new_create_dissector_handle(dissect_hsrp, proto_hsrp);
-	dissector_add_uint("udp.port", UDP_PORT_HSRP, hsrp_handle);
-	dissector_add_uint("udp.port", UDP_PORT_HSRP2_V6, hsrp_handle);
+        data_handle = find_dissector("data");
+        hsrp_handle = new_create_dissector_handle(dissect_hsrp, proto_hsrp);
+        dissector_add_uint("udp.port", UDP_PORT_HSRP, hsrp_handle);
+        dissector_add_uint("udp.port", UDP_PORT_HSRP2_V6, hsrp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 expandtab:
+ * :indentSize=8:tabSize=8:noTabs=true:
+ */

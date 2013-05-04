@@ -12676,7 +12676,7 @@ proto_reg_handoff_nfs(void)
  * Local variables:
  * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
