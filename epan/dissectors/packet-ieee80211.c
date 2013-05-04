@@ -5060,7 +5060,7 @@ dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
           break;
         default:
           proto_tree_add_item(vtree, hf_ieee80211_ff_anqp_capability_vendor,
-                              tvb, offset, len, ENC_BIG_ENDIAN);
+                              tvb, offset, len, ENC_NA);
           break;
         }
         break;
@@ -5640,7 +5640,7 @@ static void dissect_hs20_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
     if (offset == end)
       break;
     proto_tree_add_item(tree, hf_hs20_anqp_payload, tvb, offset,
-                        end - offset, ENC_LITTLE_ENDIAN);
+                        end - offset, ENC_NA);
     break;
   }
 }
