@@ -444,10 +444,12 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 /* Register the protocol with Wireshark */
 static void range_delete_fix_tcp_callback(guint32 port) {
     dissector_delete_uint("tcp.port", port, fix_handle);
+    ssl_dissector_delete(port, "fix", TRUE);
 }
 
 static void range_add_fix_tcp_callback(guint32 port) {
     dissector_add_uint("tcp.port", port, fix_handle);
+    ssl_dissector_add(port, "fix", TRUE);
 }
 
 static void fix_prefs(void)
