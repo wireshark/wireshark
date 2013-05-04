@@ -29,8 +29,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
-/* See draft-ietf-lisp-07 "Locator/ID Separation Protocol (LISP)" */
+/* See RFC 6830 "Locator/ID Separation Protocol (LISP)" */
 
 /*  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *  |N|L|E|V|I|flags|            Nonce/Map-Version                  |
@@ -39,6 +40,7 @@
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 
+#define LISP_CONTROL_PORT       4342
 #define LISP_DATA_PORT          4341
 #define LISP_DATA_HEADER_LEN    8       /* Number of bytes in LISP data header */
 
@@ -74,7 +76,7 @@ static gint ett_lisp_data_mapver = -1;
 
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
+static dissector_handle_t lisp_handle;
 
 /* Code to actually dissect the packets */
 static int
@@ -89,8 +91,12 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree *lisp_data_tree;
     proto_tree *lisp_data_flags_tree;
 
+    /* Check if we have a LISP control packet */
+    if (pinfo->destport == LISP_CONTROL_PORT)
+        return call_dissector(lisp_handle, tvb, pinfo, tree);
+
     /* Check that there's enough data */
-    if (tvb_length(tvb) < LISP_DATA_HEADER_LEN)
+    if (tvb_reported_length(tvb) < LISP_DATA_HEADER_LEN)
         return 0;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -128,13 +134,13 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset += 1;
 
         if (flags&LISP_DATA_FLAG_E && !(flags&LISP_DATA_FLAG_N)) {
-            proto_tree_add_text(lisp_data_tree, tvb, offset, 0,
-                    "Invalid flag combination: if E is set, N MUST be set");
+            expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
+                "Invalid flag combination: if E is set, N MUST be set");
         }
 
         if (flags&LISP_DATA_FLAG_N) {
             if (flags&LISP_DATA_FLAG_V) {
-                proto_tree_add_text(lisp_data_tree, tvb, offset, 0,
+                expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
                         "Invalid flag combination: N and V can't be set both");
             }
             proto_tree_add_item(lisp_data_tree,
@@ -183,17 +189,14 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     switch (ip_ver) {
         case 4:
             call_dissector(ipv4_handle, next_tvb, pinfo, tree);
-            break;
+            return tvb_reported_length(tvb);
         case 6:
             call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-            break;
-        default:
-            call_dissector(data_handle, next_tvb, pinfo, tree);
-            break;
+            return tvb_reported_length(tvb);
     }
 
     /* Return the amount of data this dissector was able to dissect */
-    return tvb_length(tvb);
+    return LISP_DATA_HEADER_LEN;
 }
 
 
@@ -283,7 +286,7 @@ proto_reg_handoff_lisp_data(void)
     dissector_add_uint("udp.port", LISP_DATA_PORT, lisp_data_handle);
     ipv4_handle = find_dissector("ip");
     ipv6_handle = find_dissector("ipv6");
-    data_handle = find_dissector("data");
+    lisp_handle = find_dissector("lisp");
 }
 
 /*
