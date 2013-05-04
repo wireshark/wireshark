@@ -40,6 +40,7 @@
 #include <epan/conversation.h>
 
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 
 typedef struct _fix_parameter {
     int field_len;
