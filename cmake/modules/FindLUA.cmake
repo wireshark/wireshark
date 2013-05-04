@@ -38,10 +38,15 @@ if(LUA_INCLUDE_DIR AND EXISTS "${LUA_INCLUDE_DIR}/lua.h")
     set( LUA_VERSION "500")
   endif()
 endif()
+string( REGEX REPLACE ".*[/\\]lua(.+)$" "\\1" LUA_INC_SUFFIX "${LUA_INCLUDE_DIR}" )
+if ( LUA_INCLUDE_DIR STREQUAL LUA_INC_SUFFIX )
+  set( LUA_INC_SUFFIX "")
+endif()
+message("LUA INCLUDE SUFFIX: ${LUA_INC_SUFFIX}")
 
 
 FIND_LIBRARY(LUA_LIBRARY
-  NAMES lua52 lua5.2 lua51 lua5.1 lua
+  NAMES lua${LUA_INC_SUFFIX} lua52 lua5.2 lua51 lua5.1 lua
   HINTS
   $ENV{LUA_DIR}
   PATH_SUFFIXES lib64 lib
