@@ -318,7 +318,6 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   decrypt = tvb_get_ephemeral_string(tvb, a_offset, a_linelen);
   if (stmp_decryption_enabled) {
-    returncode = 0;
     returncode = (gint)epan_base64_decode(decrypt);
     if (returncode) {
       length_user1 = (gint)strlen(decrypt);
