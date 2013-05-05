@@ -5233,12 +5233,12 @@ proto_register_ssl(void)
             "Version selected by server", HFILL }
         },
         { &hf_ssl_handshake_random_time,
-          { "gmt_unix_time", "ssl.handshake.random_time",
+          { "GMT Unix Time", "ssl.handshake.random_time",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
             "Unix time field of random structure", HFILL }
         },
         { &hf_ssl_handshake_random_bytes,
-          { "random_bytes", "ssl.handshake.random_bytes",
+          { "Random Bytes", "ssl.handshake.random_bytes",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Random challenge used to authenticate server", HFILL }
         },

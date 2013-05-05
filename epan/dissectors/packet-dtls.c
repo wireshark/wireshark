@@ -129,6 +129,32 @@ static gint hf_dtls_handshake_certificate_len   = -1;
 static gint hf_dtls_handshake_cert_types_count  = -1;
 static gint hf_dtls_handshake_cert_types        = -1;
 static gint hf_dtls_handshake_cert_type         = -1;
+static gint hf_dtls_handshake_server_keyex_p_len     = -1;
+static gint hf_dtls_handshake_server_keyex_g_len     = -1;
+static gint hf_dtls_handshake_server_keyex_ys_len    = -1;
+static gint hf_dtls_handshake_server_keyex_point_len = -1;
+static gint hf_dtls_handshake_client_keyex_yc_len    = -1;
+static gint hf_dtls_handshake_client_keyex_point_len = -1;
+static gint hf_dtls_handshake_client_keyex_epms_len  = -1;
+static gint hf_dtls_handshake_server_keyex_modulus_len = -1;
+static gint hf_dtls_handshake_server_keyex_exponent_len = -1;
+static gint hf_dtls_handshake_server_keyex_sig_len   = -1;
+static gint hf_dtls_handshake_server_keyex_p         = -1;
+static gint hf_dtls_handshake_server_keyex_g         = -1;
+static gint hf_dtls_handshake_server_keyex_ys        = -1;
+static gint hf_dtls_handshake_client_keyex_yc        = -1;
+static gint hf_dtls_handshake_server_keyex_curve_type = -1;
+static gint hf_dtls_handshake_server_keyex_named_curve = -1;
+static gint hf_dtls_handshake_server_keyex_point     = -1;
+static gint hf_dtls_handshake_client_keyex_epms      = -1;
+static gint hf_dtls_handshake_client_keyex_point     = -1;
+static gint hf_dtls_handshake_server_keyex_modulus   = -1;
+static gint hf_dtls_handshake_server_keyex_exponent  = -1;
+static gint hf_dtls_handshake_server_keyex_sig       = -1;
+static gint hf_dtls_handshake_server_keyex_hint_len  = -1;
+static gint hf_dtls_handshake_server_keyex_hint      = -1;
+static gint hf_dtls_handshake_client_keyex_identity_len = -1;
+static gint hf_dtls_handshake_client_keyex_identity  = -1;
 static gint hf_dtls_handshake_finished          = -1;
 /* static gint hf_dtls_handshake_md5_hash          = -1; */
 /* static gint hf_dtls_handshake_sha_hash          = -1; */
@@ -167,6 +193,7 @@ static gint ett_dtls_comp_methods      = -1;
 static gint ett_dtls_extension         = -1;
 static gint ett_dtls_random            = -1;
 static gint ett_dtls_new_ses_ticket    = -1;
+static gint ett_dtls_keyex_params      = -1;
 static gint ett_dtls_certs             = -1;
 static gint ett_dtls_cert_types        = -1;
 static gint ett_dtls_dnames            = -1;
@@ -304,7 +331,7 @@ dtls_parse_old_keys(void)
 /* record layer dissector */
 static gint dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint32 offset,
-                                guint *conv_version,
+                                guint *conv_version, guint conv_cipher,
                                 SslDecryptSession *conv_data);
 
 /* change cipher spec dissector */
@@ -322,7 +349,7 @@ static void dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
-                                   guint *conv_version,
+                                   guint *conv_version, guint conv_cipher,
                                    SslDecryptSession *conv_data, guint8 content_type);
 
 /* heartbeat message dissector */
@@ -356,6 +383,42 @@ static void dissect_dtls_hnd_cert(tvbuff_t *tvb,
 static void dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
                                       guint32 offset);
+
+static void dissect_dtls_hnd_srv_keyex_ecdh(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_srv_keyex_dh(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_srv_keyex_rsa(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_srv_keyex_psk(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_cli_keyex_ecdh(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_cli_keyex_dh(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_cli_keyex_rsa(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_cli_keyex_psk(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_dtls_hnd_cli_keyex_rsa_psk(tvbuff_t *tvb,
+                                               proto_tree *tree,
+                                               guint32 offset, guint32 length);
 
 static void dissect_dtls_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -393,6 +456,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean           first_record_in_frame;
   SslDecryptSession *ssl_session;
   guint*             conv_version;
+  guint              conv_cipher;
   Ssl_private_key_t *private_key;
 
   ti                    = NULL;
@@ -452,6 +516,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   conv_version= & ssl_session->version;
+  conv_cipher  =  ssl_session->cipher;
 
   /* try decryption only the first time we see this packet
    * (to keep cipher synchronized) */
@@ -490,12 +555,12 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       switch(*conv_version) {
       case SSL_VER_DTLS:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                     offset, conv_version,
+                                     offset, conv_version, conv_cipher,
                                      ssl_session);
         break;
       case SSL_VER_DTLS1DOT2:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                     offset, conv_version,
+                                     offset, conv_version, conv_cipher,
                                      ssl_session);
         break;
 
@@ -507,7 +572,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           {
             /* looks like dtls */
             offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                         offset, conv_version,
+                                         offset, conv_version, conv_cipher,
                                          ssl_session);
           }
         else
@@ -674,7 +739,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 static gint
 dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
-                    guint *conv_version,
+                    guint *conv_version, guint conv_cipher,
                     SslDecryptSession* ssl)
 {
 
@@ -905,11 +970,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
-                               tvb_length(decrypted), conv_version, ssl, content_type);
+                               tvb_length(decrypted), conv_version, conv_cipher, ssl, content_type);
         add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
       } else {
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
-                               record_length, conv_version, ssl, content_type);
+                               record_length, conv_version, conv_cipher, ssl, content_type);
       }
       break;
     }
@@ -1108,7 +1173,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint32 record_length, guint *conv_version,
+                       guint32 record_length, guint *conv_version, guint conv_cipher,
                        SslDecryptSession* ssl, guint8 content_type)
 {
   /*     struct {
@@ -1411,7 +1476,23 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_SERVER_KEY_EXCHG:
-            /* unimplemented */
+            switch (ssl_get_keyex_alg(conv_cipher)) {
+            case KEX_DH:
+                dissect_dtls_hnd_srv_keyex_dh(tvb, ssl_hand_tree, offset, length);
+                break;
+            case KEX_RSA:
+                dissect_dtls_hnd_srv_keyex_rsa(tvb, ssl_hand_tree, offset, length);
+                break;
+            case KEX_ECDH:
+                dissect_dtls_hnd_srv_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
+                break;
+            case KEX_RSA_PSK:
+            case KEX_PSK:
+                dissect_dtls_hnd_srv_keyex_psk(tvb, ssl_hand_tree, offset, length);
+                break;
+            default:
+                break;
+            }
             break;
 
           case SSL_HND_CERT_REQUEST:
@@ -1427,6 +1508,25 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CLIENT_KEY_EXCHG:
+            switch (ssl_get_keyex_alg(conv_cipher)) {
+            case KEX_DH:
+                    dissect_dtls_hnd_cli_keyex_dh(tvb, ssl_hand_tree, offset, length);
+                    break;
+            case KEX_RSA:
+                    dissect_dtls_hnd_cli_keyex_rsa(tvb, ssl_hand_tree, offset, length);
+                    break;
+            case KEX_ECDH:
+                    dissect_dtls_hnd_cli_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
+                    break;
+            case KEX_PSK:
+                    dissect_dtls_hnd_cli_keyex_psk(tvb, ssl_hand_tree, offset, length);
+                    break;
+            case KEX_RSA_PSK:
+                    dissect_dtls_hnd_cli_keyex_rsa_psk(tvb, ssl_hand_tree, offset, length);
+                    break;
+            default:
+                    break;
+            }
             {
               /* here we can have all the data to build session key */
               StringInfo encrypted_pre_master;
@@ -2183,6 +2283,396 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
 
 }
 
+
+static void
+dissect_dtls_hnd_srv_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint        curve_type, curve_type_offset;
+    gint        named_curve, named_curve_offset;
+    gint        point_len, point_len_offset;
+    gint        sig_len, sig_len_offset;
+    proto_item *ti_ecdh;
+    proto_tree *ssl_ecdh_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    curve_type_offset = offset;
+    curve_type = tvb_get_guint8(tvb, offset);
+    if (curve_type != 3)
+        return; /* only named_curves are supported */
+    offset += 1;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    named_curve_offset = offset;
+    named_curve = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    point_len_offset = offset;
+    point_len = tvb_get_guint8(tvb, offset);
+    if ((offset + point_len - orig_offset) > length) {
+        return;
+    }
+    offset += 1 + point_len;
+
+    sig_len_offset = offset;
+    sig_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + sig_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_ecdh = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "EC Diffie-Hellman Server Params");
+    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, ett_dtls_keyex_params);
+
+    /* curve_type */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_dtls_handshake_server_keyex_curve_type,
+        tvb, curve_type_offset, 1, curve_type);
+
+    /* named_curve */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_dtls_handshake_server_keyex_named_curve,
+        tvb, named_curve_offset, 2, named_curve);
+
+    /* point */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_dtls_handshake_server_keyex_point_len,
+        tvb, point_len_offset, 1, point_len);
+    proto_tree_add_item(ssl_ecdh_tree, hf_dtls_handshake_server_keyex_point,
+            tvb, point_len_offset+1, point_len, ENC_NA);
+
+    /* Sig */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_dtls_handshake_server_keyex_sig_len,
+        tvb, sig_len_offset, 2, sig_len);
+    proto_tree_add_item(ssl_ecdh_tree, hf_dtls_handshake_server_keyex_sig,
+            tvb, sig_len_offset + 2, sig_len, ENC_NA);
+
+}
+
+static void
+dissect_dtls_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint        p_len, p_len_offset;
+    gint        g_len, g_len_offset;
+    gint        ys_len, ys_len_offset;
+    gint        sig_len, sig_len_offset;
+    proto_item *ti_dh;
+    proto_tree *ssl_dh_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    p_len_offset = offset;
+    p_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + p_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    g_len_offset = offset;
+    g_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + g_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    ys_len_offset = offset;
+    ys_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + ys_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    sig_len_offset = offset;
+    sig_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + sig_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_dh = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "Diffie-Hellman Server Params");
+    ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_dtls_keyex_params);
+
+    /* p */
+    proto_tree_add_uint(ssl_dh_tree, hf_dtls_handshake_server_keyex_p_len,
+        tvb, p_len_offset, 2, p_len);
+    proto_tree_add_item(ssl_dh_tree, hf_dtls_handshake_server_keyex_p,
+            tvb, p_len_offset + 2, p_len, ENC_NA);
+
+    /* g */
+    proto_tree_add_uint(ssl_dh_tree, hf_dtls_handshake_server_keyex_g_len,
+        tvb, g_len_offset, 2, g_len);
+    proto_tree_add_item(ssl_dh_tree, hf_dtls_handshake_server_keyex_g,
+            tvb, g_len_offset + 2, g_len, ENC_NA);
+
+    /* Ys */
+    proto_tree_add_uint(ssl_dh_tree, hf_dtls_handshake_server_keyex_ys_len,
+        tvb, ys_len_offset, 2, ys_len);
+    proto_tree_add_item(ssl_dh_tree, hf_dtls_handshake_server_keyex_ys,
+            tvb, ys_len_offset + 2, ys_len, ENC_NA);
+
+    /* Sig */
+    proto_tree_add_uint(ssl_dh_tree, hf_dtls_handshake_server_keyex_sig_len,
+        tvb, sig_len_offset, 2, sig_len);
+    proto_tree_add_item(ssl_dh_tree, hf_dtls_handshake_server_keyex_sig,
+            tvb, sig_len_offset + 2, sig_len, ENC_NA);
+
+}
+
+/* Used in RSA PSK cipher suites */
+static void
+dissect_dtls_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint        modulus_len, modulus_len_offset;
+    gint        exponent_len, exponent_len_offset;
+    gint        sig_len, sig_len_offset;
+    proto_item *ti_rsa;
+    proto_tree *ssl_rsa_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    modulus_len_offset = offset;
+    modulus_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + modulus_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    exponent_len_offset = offset;
+    exponent_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + exponent_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    sig_len_offset = offset;
+    sig_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + sig_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_rsa = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "RSA-EXPORT Server Params");
+    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, ett_dtls_keyex_params);
+
+    /* modulus */
+    proto_tree_add_uint(ssl_rsa_tree, hf_dtls_handshake_server_keyex_modulus_len,
+        tvb, modulus_len_offset, 2, modulus_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_dtls_handshake_server_keyex_modulus,
+            tvb, modulus_len_offset + 2, modulus_len, ENC_NA);
+
+    /* exponent */
+    proto_tree_add_uint(ssl_rsa_tree, hf_dtls_handshake_server_keyex_exponent_len,
+        tvb, exponent_len_offset, 2, exponent_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_dtls_handshake_server_keyex_exponent,
+            tvb, exponent_len_offset + 2, exponent_len, ENC_NA);
+
+    /* Sig */
+    proto_tree_add_uint(ssl_rsa_tree, hf_dtls_handshake_server_keyex_sig_len,
+        tvb, sig_len_offset, 2, sig_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_dtls_handshake_server_keyex_sig,
+            tvb, sig_len_offset + 2, sig_len, ENC_NA);
+
+}
+
+/* Used in RSA PSK and PSK cipher suites */
+static void
+dissect_dtls_hnd_srv_keyex_psk(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    guint        hint_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    hint_len = tvb_get_ntohs(tvb, offset);
+    if ((2 + hint_len) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset,
+                                 length, "PSK Server Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, ett_dtls_keyex_params);
+
+    /* hint */
+    proto_tree_add_uint(ssl_psk_tree, hf_dtls_handshake_server_keyex_hint_len,
+                        tvb, offset, 2, hint_len);
+    proto_tree_add_item(ssl_psk_tree, hf_dtls_handshake_server_keyex_hint,
+                        tvb, offset + 2, hint_len, ENC_NA);
+}
+
+static void
+dissect_dtls_hnd_cli_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint        point_len, point_len_offset;
+    proto_item *ti_ecdh;
+    proto_tree *ssl_ecdh_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    point_len_offset = offset;
+    point_len = tvb_get_guint8(tvb, offset);
+    if ((offset + point_len - orig_offset) > length) {
+        return;
+    }
+    offset += 1 + point_len;
+
+    ti_ecdh = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "EC Diffie-Hellman Client Params");
+    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, ett_dtls_keyex_params);
+
+    /* point */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_dtls_handshake_client_keyex_point_len,
+        tvb, point_len_offset, 1, point_len);
+    proto_tree_add_item(ssl_ecdh_tree, hf_dtls_handshake_client_keyex_point,
+            tvb, point_len_offset+1, point_len, ENC_NA);
+
+}
+
+static void
+dissect_dtls_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint        yc_len, yc_len_offset;
+    proto_item *ti_dh;
+    proto_tree *ssl_dh_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    yc_len_offset = offset;
+    yc_len  = tvb_get_ntohs(tvb, offset);
+    offset += 2 + yc_len;
+    if ((offset - orig_offset) != length) {
+        return;
+    }
+
+    ti_dh = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "Diffie-Hellman Client Params");
+    ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_dtls_keyex_params);
+
+    /* encrypted PreMaster secret */
+    proto_tree_add_uint(ssl_dh_tree, hf_dtls_handshake_client_keyex_yc_len,
+        tvb, yc_len_offset, 2, yc_len);
+    proto_tree_add_item(ssl_dh_tree, hf_dtls_handshake_client_keyex_yc,
+            tvb, yc_len_offset + 2, yc_len, ENC_NA);
+}
+
+static void
+dissect_dtls_hnd_cli_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint        epms_len, epms_len_offset;
+    proto_item *ti_rsa;
+    proto_tree *ssl_rsa_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    epms_len_offset = offset;
+    epms_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + epms_len;
+    if ((offset - orig_offset) != length) {
+        return;
+    }
+
+    ti_rsa = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "RSA Encrypted PreMaster Secret");
+    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, ett_dtls_keyex_params);
+
+    /* Yc */
+    proto_tree_add_uint(ssl_rsa_tree, hf_dtls_handshake_client_keyex_epms_len,
+        tvb, epms_len_offset, 2, epms_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_dtls_handshake_client_keyex_epms,
+            tvb, epms_len_offset + 2, epms_len, ENC_NA);
+}
+
+/* Used in PSK cipher suites */
+static void
+dissect_dtls_hnd_cli_keyex_psk(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    guint        identity_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    identity_len = tvb_get_ntohs(tvb, offset);
+    if ((2 + identity_len) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset,
+                length, "PSK Client Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, ett_dtls_keyex_params);
+
+    /* identity */
+    proto_tree_add_uint(ssl_psk_tree, hf_dtls_handshake_client_keyex_identity_len,
+        tvb, offset, 2, identity_len);
+    proto_tree_add_item(ssl_psk_tree, hf_dtls_handshake_client_keyex_identity,
+            tvb, offset + 2, identity_len, ENC_NA);
+}
+
+/* Used in RSA PSK cipher suites */
+static void
+dissect_dtls_hnd_cli_keyex_rsa_psk(tvbuff_t *tvb, proto_tree *tree,
+                                   guint32 offset, guint32 length)
+{
+    gint        identity_len, identity_len_offset;
+    gint        epms_len, epms_len_offset;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    identity_len_offset = offset;
+    identity_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + identity_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    epms_len_offset = offset;
+    epms_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + epms_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, orig_offset,
+                                 (offset - orig_offset), "RSA PSK Client Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, ett_dtls_keyex_params);
+
+    /* identity */
+    proto_tree_add_uint(ssl_psk_tree, hf_dtls_handshake_client_keyex_identity_len,
+                        tvb, identity_len_offset, 2, identity_len);
+    proto_tree_add_item(ssl_psk_tree, hf_dtls_handshake_client_keyex_identity,
+                        tvb, identity_len_offset + 2, identity_len, ENC_NA);
+
+    /* Yc */
+    proto_tree_add_uint(ssl_psk_tree, hf_dtls_handshake_client_keyex_epms_len,
+        tvb, epms_len_offset, 2, epms_len);
+    proto_tree_add_item(ssl_psk_tree, hf_dtls_handshake_client_keyex_epms,
+            tvb, epms_len_offset + 2, epms_len, ENC_NA);
+}
+
 static void
 dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
                           guint* conv_version)
@@ -2590,6 +3080,136 @@ proto_register_dtls(void)
         FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
         NULL, HFILL }
     },
+    { &hf_dtls_handshake_server_keyex_p_len,
+      { "p Length", "dtls.handshake.p_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of p", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_g_len,
+      { "g Length", "dtls.handshake.g_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of g", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_ys_len,
+      { "Pubkey Length", "dtls.handshake.ys_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of server's Diffie-Hellman public key", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_yc_len,
+      { "Pubkey Length", "dtls.handshake.yc_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of client's Diffie-Hellman public key", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_point_len,
+      { "Pubkey Length", "dtls.handshake.client_point_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length of client's EC Diffie-Hellman public key", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_point_len,
+      { "Pubkey Length", "dtls.handshake.server_point_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length of server's EC Diffie-Hellman public key", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_epms_len,
+      { "Encrypted PreMaster length", "dtls.handshake.epms_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of encrypted PreMaster secret", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_epms,
+      { "Encrypted PreMaster", "dtls.handshake.epms",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Encrypted PreMaster secret", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_modulus_len,
+      { "Modulus Length", "dtls.handshake.modulus_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of RSA-EXPORT modulus", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_exponent_len,
+      { "Exponent Length", "dtls.handshake.exponent_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of RSA-EXPORT exponent", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_sig_len,
+      { "Signature Length", "dtls.handshake.sig_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of Signature", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_p,
+      { "p", "dtls.handshake.p",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Diffie-Hellman p", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_g,
+      { "g", "dtls.handshake.g",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Diffie-Hellman g", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_curve_type,
+        { "Curve Type", "dtls.handshake.server_curve_type",
+        FT_UINT8, BASE_HEX, VALS(ssl_curve_types), 0x0,
+        "Server curve_type", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_named_curve,
+        { "Named Curve", "dtls.handshake.server_named_curve",
+        FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,
+        "Server named_curve", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_ys,
+      { "Pubkey", "dtls.handshake.ys",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Diffie-Hellman server pubkey", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_yc,
+      { "Pubkey", "dtls.handshake.yc",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Diffie-Hellman client pubkey", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_point,
+      { "Pubkey", "dtls.handshake.server_point",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "EC Diffie-Hellman server pubkey", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_point,
+      { "Pubkey", "dtls.handshake.client_point",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "EC Diffie-Hellman client pubkey", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_modulus,
+      { "Modulus", "dtls.handshake.modulus",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "RSA-EXPORT modulus", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_exponent,
+      { "Exponent", "dtls.handshake.exponent",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "RSA-EXPORT exponent", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_sig,
+      { "Signature", "dtls.handshake.sig",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Diffie-Hellman server signature", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_hint_len,
+      { "Hint Length", "dtls.handshake.hint_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of PSK Hint", HFILL }
+    },
+    { &hf_dtls_handshake_server_keyex_hint,
+      { "Hint", "dtls.handshake.hint",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "PSK Hint", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_identity_len,
+      { "Identity Length", "dtls.handshake.identity_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of PSK Identity", HFILL }
+    },
+    { &hf_dtls_handshake_client_keyex_identity,
+      { "Identity", "dtls.handshake.identity",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "PSK Identity", HFILL }
+    },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2715,6 +3335,7 @@ proto_register_dtls(void)
     &ett_dtls_extension,
     &ett_dtls_random,
     &ett_dtls_new_ses_ticket,
+    &ett_dtls_keyex_params,
     &ett_dtls_certs,
     &ett_dtls_cert_types,
     &ett_dtls_dnames,
