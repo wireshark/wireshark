@@ -91,14 +91,14 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 static void
-export_pdu_reset(void *data)
+export_pdu_reset(void *data _U_)
 {
 
 }
 
 /* Redraw the whole stats window */
 static void
-export_pdu_draw(void *data)
+export_pdu_draw(void *data _U_)
 {
 
 }

@@ -47,6 +47,7 @@ set(WIRESHARK_GTK_SRC
 	edit_packet_comment_dlg.c
 	expert_comp_table.c
 	export_object_dlg.c
+	export_pdu_dlg.c
 	export_sslkeys.c
 	filter_autocomplete.c
 	file_dlg.c
