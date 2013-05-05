@@ -24,7 +24,8 @@ PROTOCOL_NAME=pkix1explicit
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = PKIX1EXPLICIT93.asn \
+ASN_FILE_LIST = \
+	PKIX1EXPLICIT93.asn \
 	IPAddrAndASCertExtn.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
@@ -40,7 +41,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b 
+A2W_FLAGS= -b
 
 EXTRA_CNF=
 

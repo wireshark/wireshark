@@ -24,7 +24,7 @@ PROTOCOL_NAME = rrlp
 
 EXT_ASN_FILE_LIST = \
 	../gsm_map/MAP-ExtensionDataTypes.asn	\
-	../gsm_map/MAP-LCS-DataTypes.asn 
+	../gsm_map/MAP-LCS-DataTypes.asn
 
 ASN_FILE_LIST = \
 	RRLP-Messages.asn	\
@@ -40,7 +40,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS = 
+A2W_FLAGS =
 
-EXTRA_CNF = 
+EXTRA_CNF =
 

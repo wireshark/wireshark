@@ -26,8 +26,9 @@ EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = CertificateExtensions.asn \
-                CertificateExtensionsCiplus.asn
+ASN_FILE_LIST = \
+	CertificateExtensions.asn \
+	CertificateExtensionsCiplus.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.

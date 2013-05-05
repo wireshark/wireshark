@@ -22,10 +22,10 @@
 
 PROTOCOL_NAME = h501
 
-EXT_ASN_FILE_LIST = 
+EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
-	H501-MESSAGES.asn 
+	H501-MESSAGES.asn
 
 EXTRA_DIST = \
 	Makefile.nmake \
@@ -37,7 +37,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS = 
+A2W_FLAGS =
 
 EXTRA_CNF = \
 	$(builddir)/../h225/h225-exp.cnf	\

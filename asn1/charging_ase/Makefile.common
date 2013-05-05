@@ -22,7 +22,6 @@
 
 PROTOCOL_NAME=charging_ase
 
-
 ASN_FILE_LIST = \
 	Tariffing-Data-Types.asn
 
@@ -42,6 +41,4 @@ SRC_FILES = \
 A2W_FLAGS= -b
 
 EXTRA_CNF =
-
-
 

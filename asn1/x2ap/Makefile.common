@@ -22,7 +22,7 @@
 
 PROTOCOL_NAME = x2ap
 
-EXT_ASN_FILE_LIST = 
+EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
 	X2AP-CommonDataTypes.asn	\
@@ -30,7 +30,7 @@ ASN_FILE_LIST = \
 	X2AP-Containers.asn	\
 	X2AP-IEs.asn	\
 	X2AP-PDU-Contents.asn	\
-	X2AP-PDU-Descriptions.asn 
+	X2AP-PDU-Descriptions.asn
 
 EXTRA_DIST = \
 	Makefile.nmake \
@@ -42,7 +42,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS = 
+A2W_FLAGS =
 
-EXTRA_CNF = 
+EXTRA_CNF =
 

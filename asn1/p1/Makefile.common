@@ -26,8 +26,12 @@ EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = MTAAbstractService.asn \
-	MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn
+ASN_FILE_LIST = \
+	MTAAbstractService.asn \
+	MTSAbstractService.asn \
+	MTSAccessProtocol.asn \
+	MHSProtocolObjectIdentifiers.asn \
+	MTSUpperBounds.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -69,3 +73,4 @@ $(builddir)/../ros/ros-exp.cnf:
 
 $(builddir)/../rtse/rtse-exp.cnf:
 	(cd $(builddir)/../rtse && $(MAKE_CNF_EXPORT))
+

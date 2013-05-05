@@ -27,7 +27,8 @@ EXPORT_FILES = \
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = ISO8571-FTAM.asn
+ASN_FILE_LIST = \
+	ISO8571-FTAM.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -42,7 +43,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b 
+A2W_FLAGS= -b
 
 EXTRA_CNF= \
 	$(builddir)/../acse/acse-exp.cnf

@@ -24,10 +24,15 @@ PROTOCOL_NAME=p772
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = MMSAbstractService.asn MMSInformationObjects.asn \
-	MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn \
-	MMSHeadingExtensions.asn MMSUpperBounds.asn \
-	MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn
+ASN_FILE_LIST = \
+	MMSAbstractService.asn \
+	MMSInformationObjects.asn \
+	MMSOtherNotificationTypeExtensions.asn \
+	MMSObjectIdentifiers.asn \
+	MMSHeadingExtensions.asn \
+	MMSUpperBounds.asn \
+	MMSExtendedBodyPartTypes.asn \
+	MMSPerRecipientSpecifierExtensions.asn
 
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn

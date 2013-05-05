@@ -25,8 +25,7 @@ PROTOCOL_NAME=h450
 # need empty -p <proto> option, default is -p $(PROTOCOL_NAME)
 PROTO_OPT =
 
-
-EXT_ASN_FILE_LIST = 
+EXT_ASN_FILE_LIST =
 
 H450_ASN = \
 	H4501-Supplementary-ServiceAPDU-Structure.asn \
@@ -48,7 +47,9 @@ H450_OP_ASN = \
 	Call-Intrusion-Operations.asn \
 	Common-Information-Operations.asn
 
-ASN_FILE_LIST = $(H450_ASN) $(H450_OP_ASN)
+ASN_FILE_LIST = \
+	$(H450_ASN) \
+	$(H450_OP_ASN)
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -62,7 +63,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= 
+A2W_FLAGS=
 
 EXTRA_CNF = \
 	$(builddir)/../h225/h225-exp.cnf	\

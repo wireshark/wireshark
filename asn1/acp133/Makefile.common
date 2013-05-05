@@ -24,7 +24,9 @@ PROTOCOL_NAME=acp133
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = $(PROTOCOL_NAME).asn MHSDirectoryObjectsAndAttributes.asn
+ASN_FILE_LIST = \
+	$(PROTOCOL_NAME).asn \
+	MHSDirectoryObjectsAndAttributes.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -39,7 +41,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b 
+A2W_FLAGS= -b
 
 EXTRA_CNF= \
 	$(builddir)/../p1/p1-exp.cnf \

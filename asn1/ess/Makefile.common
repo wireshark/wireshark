@@ -24,7 +24,8 @@ PROTOCOL_NAME=ess
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = ExtendedSecurityServices.asn
+ASN_FILE_LIST = \
+	ExtendedSecurityServices.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.

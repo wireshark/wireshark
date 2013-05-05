@@ -24,7 +24,8 @@ PROTOCOL_NAME=tetra
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = tetra.asn
+ASN_FILE_LIST = \
+	tetra.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -43,3 +44,4 @@ SRC_FILES = \
 A2W_FLAGS= -u
 
 EXTRA_CNF=
+

@@ -35,8 +35,6 @@ ASN_FILE_LIST = \
     LCS-AP-IEs.asn\
     LCS-AP-PDU-Contents.asn\
     LCS-AP-PDU-Descriptions.asn
-    
-    
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -51,7 +49,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= 
+A2W_FLAGS=
 
 EXTRA_CNF= \
 	$(builddir)/../x509if/x509if-exp.cnf

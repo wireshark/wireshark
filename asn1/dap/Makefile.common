@@ -31,7 +31,6 @@ ASN_FILE_LIST = \
 	$(PROTOCOL_NAME).asn \
 	DirectoryAccessProtocol.asn
 
-
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
 EXTRA_DIST = \

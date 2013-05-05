@@ -22,7 +22,7 @@
 
 PROTOCOL_NAME = rua
 
-EXT_ASN_FILE_LIST = 
+EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
 	RUA-CommonDataTypes.asn	\
@@ -30,7 +30,7 @@ ASN_FILE_LIST = \
 	RUA-Containers.asn	\
 	RUA-IEs.asn	\
 	RUA-PDU-Contents.asn	\
-	RUA-PDU-Descriptions.asn 
+	RUA-PDU-Descriptions.asn
 
 EXTRA_DIST = \
 	Makefile.nmake \
@@ -42,7 +42,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS = 
+A2W_FLAGS =
 
-EXTRA_CNF = 
+EXTRA_CNF =
 
