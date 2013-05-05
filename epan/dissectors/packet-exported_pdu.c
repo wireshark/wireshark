@@ -28,7 +28,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-//#include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 
@@ -134,7 +133,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_exported_pdu(void)
 {
-    //module_t *exported_pdu_module;
+    /*module_t *exported_pdu_module;*/
 
     static hf_register_info hf[] = {
         { &proto_exported_pdu_tag,
@@ -201,13 +200,7 @@ proto_reg_handoff_exported_pdu(void)
         exported_pdu_handle = find_dissector("exported_pdu");
         initialized = TRUE;
 
-    } else {
-        //dissector_delete_uint("tcp.port", currentPort, exported_pdu_handle);
     }
-
-    //currentPort = gPORT_PREF;
-
-    //dissector_add_uint("tcp.port", currentPort, exported_pdu_handle);
 }
 
 
