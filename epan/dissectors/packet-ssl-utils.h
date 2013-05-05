@@ -262,6 +262,7 @@ typedef struct _SslDecoder {
 #define KEX_DH          0x11
 #define KEX_PSK         0x12
 #define KEX_ECDH        0x13
+#define KEX_RSA_PSK     0x14
 
 #define SIG_RSA         0x20
 #define SIG_DSS         0x21

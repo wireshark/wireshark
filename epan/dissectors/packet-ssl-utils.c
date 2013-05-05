@@ -1103,7 +1103,6 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0x0008:
     case 0x0009:
     case 0x000a:
-    case 0x002e:
     case 0x002f:
     case 0x0035:
     case 0x003b:
@@ -1115,19 +1114,9 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0x0062:
     case 0x0064:
     case 0x0084:
-    case 0x0092:
-    case 0x0093:
-    case 0x0094:
-    case 0x0095:
     case 0x0096:
     case 0x009c:
     case 0x009d:
-    case 0x00ac:
-    case 0x00ad:
-    case 0x00b6:
-    case 0x00b7:
-    case 0x00b8:
-    case 0x00b9:
     case 0x00ba:
     case 0x00c0:
     case 0xfefe:
@@ -1273,6 +1262,52 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc03a:
     case 0xc03b:
         return KEX_ECDH;
+    case 0x002C:
+    case 0x008A:
+    case 0x008B:
+    case 0x008C:
+    case 0x008D:
+    case 0x00A8:
+    case 0x00A9:
+    case 0x00AE:
+    case 0x00AF:
+    case 0x00B0:
+    case 0x00B1:
+    case 0xC064:
+    case 0xC065:
+    case 0xC06A:
+    case 0xC06B:
+    case 0xC08E:
+    case 0xC08F:
+    case 0xC094:
+    case 0xC095:
+    case 0xC0A4:
+    case 0xC0A5:
+    case 0xC0A8:
+    case 0xC0A9:
+    case 0xC0AA:
+    case 0xC0AB:
+        return KEX_PSK;
+    case 0x002E:
+    case 0x0092:
+    case 0x0093:
+    case 0x0094:
+    case 0x0095:
+    case 0x00AC:
+    case 0x00AD:
+    case 0x00B6:
+    case 0x00B7:
+    case 0x00B8:
+    case 0x00B9:
+    case 0xC068:
+    case 0xC069:
+    case 0xC06E:
+    case 0xC06F:
+    case 0xC092:
+    case 0xC093:
+    case 0xC098:
+    case 0xC099:
+        return KEX_RSA_PSK;
     default:
         break;
     }

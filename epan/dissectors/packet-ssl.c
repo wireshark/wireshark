@@ -205,6 +205,8 @@ static gint hf_ssl_handshake_client_keyex_point     = -1;
 static gint hf_ssl_handshake_server_keyex_modulus   = -1;
 static gint hf_ssl_handshake_server_keyex_exponent  = -1;
 static gint hf_ssl_handshake_server_keyex_sig       = -1;
+static gint hf_ssl_handshake_server_keyex_hint_len  = -1;
+static gint hf_ssl_handshake_server_keyex_hint      = -1;
 static gint hf_ssl_handshake_sig_hash_alg_len = -1;
 static gint hf_ssl_handshake_sig_hash_algs    = -1;
 static gint hf_ssl_handshake_sig_hash_alg     = -1;
@@ -583,6 +585,10 @@ static void dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb,
                                           guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_srv_keyex_psk(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
 
@@ -2051,6 +2057,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 case KEX_ECDH:
                     dissect_ssl3_hnd_srv_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
                     break;
+                case KEX_RSA_PSK:
+                case KEX_PSK:
+                    dissect_ssl3_hnd_srv_keyex_psk(tvb, ssl_hand_tree, offset, length);
+                    break;
                 default:
                     break;
                 }
@@ -3368,6 +3378,32 @@ dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_server_keyex_sig,
             tvb, sig_len_offset + 2, sig_len, ENC_NA);
 
+}
+
+/* Used in RSA PSK and PSK cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_psk(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    guint        hint_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    hint_len = tvb_get_ntohs(tvb, offset);
+    if ((2 + hint_len) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset,
+                                 length, "PSK Server Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, ett_ssl_keyex_params);
+
+    /* hint */
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_server_keyex_hint_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_server_keyex_hint,
+                        tvb, offset + 2, hint_len, ENC_NA);
 }
 
 
@@ -5398,6 +5434,16 @@ proto_register_ssl(void)
           { "signature", "ssl.handshake.sig",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Diffie-Hellman server signature", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_hint_len,
+          { "Hint Length", "ssl.handshake.hint_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of PSK Hint", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_hint,
+          { "Hint", "ssl.handshake.hint",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "PSK Hint", HFILL }
         },
         { &hf_ssl_handshake_sig_hash_alg_len,
           { "Signature Hash Algorithms Length", "ssl.handshake.sig_hash_alg_len",
