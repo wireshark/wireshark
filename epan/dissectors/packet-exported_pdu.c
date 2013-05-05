@@ -81,7 +81,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 tag;
     int tag_len;
 	int next_proto_type = -1;
-	char *proto_name;
+	char *proto_name = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
