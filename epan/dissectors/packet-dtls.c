@@ -165,6 +165,7 @@ static gint ett_dtls_heartbeat         = -1;
 static gint ett_dtls_cipher_suites     = -1;
 static gint ett_dtls_comp_methods      = -1;
 static gint ett_dtls_extension         = -1;
+static gint ett_dtls_random            = -1;
 static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_certs             = -1;
 static gint ett_dtls_cert_types        = -1;
@@ -1581,6 +1582,8 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   /* show the client's random challenge */
   nstime_t gmt_unix_time;
   guint8   session_id_length;
+  proto_item *ti_rnd;
+  proto_tree *dtls_rnd_tree = NULL;
 
   if (tree || ssl)
   {
@@ -1604,19 +1607,25 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                        ssl->state);
     }
 
-    /* show the time */
     if (tree)
+    {
+        ti_rnd = proto_tree_add_text(tree, tvb, offset, 32, "Random");
+        dtls_rnd_tree = proto_item_add_subtree(ti_rnd, ett_dtls_random);
+    }
+
+    /* show the time */
+    if (dtls_rnd_tree)
     {
       gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
       gmt_unix_time.nsecs = 0;
-      proto_tree_add_time(tree, hf_dtls_handshake_random_time,
+      proto_tree_add_time(dtls_rnd_tree, hf_dtls_handshake_random_time,
                           tvb, offset, 4, &gmt_unix_time);
     }
     offset += 4;
 
     /* show the random bytes */
-    if (tree)
-      proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
+    if (dtls_rnd_tree)
+      proto_tree_add_item(dtls_rnd_tree, hf_dtls_handshake_random_bytes,
                           tvb, offset, 28, ENC_NA);
     offset += 28;
 
@@ -1762,11 +1771,8 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 
       if (cookie_length > 0)
         {
-          proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
-                                      tvb, offset, cookie_length,
-                                      NULL, "Cookie (%u byte%s)",
-                                      cookie_length,
-                                      plurality(cookie_length, "", "s"));
+          proto_tree_add_item(tree, hf_dtls_handshake_cookie, tvb, offset,
+                              cookie_length, ENC_NA);
           offset += cookie_length;
         }
 
@@ -2460,13 +2466,13 @@ proto_register_dtls(void)
         "Version selected by server", HFILL }
     },
     { &hf_dtls_handshake_random_time,
-      { "Random.gmt_unix_time", "dtls.handshake.random_time",
+      { "GMT Unix Time", "dtls.handshake.random_time",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         "Unix time field of random structure", HFILL }
     },
     { &hf_dtls_handshake_random_bytes,
-      { "Random.bytes", "dtls.handshake.random",
-        FT_NONE, BASE_NONE, NULL, 0x0,
+      { "Random Bytes", "dtls.handshake.random",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         "Random challenge used to authenticate server", HFILL }
     },
     { &hf_dtls_handshake_cipher_suites_len,
@@ -2707,6 +2713,7 @@ proto_register_dtls(void)
     &ett_dtls_cipher_suites,
     &ett_dtls_comp_methods,
     &ett_dtls_extension,
+    &ett_dtls_random,
     &ett_dtls_new_ses_ticket,
     &ett_dtls_certs,
     &ett_dtls_cert_types,
