@@ -75,12 +75,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *exported_pdu_tree;
-	tvbuff_t * payload_tvb = NULL;
+    tvbuff_t * payload_tvb = NULL;
     int offset = 0;
     guint16 tag;
     int tag_len;
-	int next_proto_type = -1;
-	char *proto_name = NULL;
+    int next_proto_type = -1;
+    char *proto_name = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
@@ -96,16 +96,16 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tag_len = tvb_get_ntohs(tvb, offset);
     offset+=2;
     while(tag != 0){
-		switch(tag){
-		case EXP_PDU_TAG_PROTO_NAME:
-			next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
-			proto_name = tvb_get_ephemeral_string(tvb, offset, tag_len);
-			proto_tree_add_item(exported_pdu_tree, proto_exported_pdu_prot_name, tvb, offset, tag_len, ENC_BIG_ENDIAN);
-			break;
-		default:
-			break;
-		};
-		offset = offset + tag_len;
+        switch(tag){
+            case EXP_PDU_TAG_PROTO_NAME:
+                next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
+                proto_name = tvb_get_ephemeral_string(tvb, offset, tag_len);
+                proto_tree_add_item(exported_pdu_tree, proto_exported_pdu_prot_name, tvb, offset, tag_len, ENC_BIG_ENDIAN);
+                break;
+            default:
+                break;
+        };
+        offset = offset + tag_len;
         proto_tree_add_item(exported_pdu_tree, proto_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
         tag = tvb_get_ntohs(tvb, offset);
         offset+=2;
@@ -114,17 +114,17 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset+=2;
     }
 
-	payload_tvb = tvb_new_subset_remaining(tvb, offset);
+    payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	switch(next_proto_type){
-	case EXPORTED_PDU_NEXT_PROTO_STR:
-		call_dissector(find_dissector(proto_name), payload_tvb, pinfo, tree);
-		break;
-	default:
-		break;
-	}
+    switch(next_proto_type){
+        case EXPORTED_PDU_NEXT_PROTO_STR:
+            call_dissector(find_dissector(proto_name), payload_tvb, pinfo, tree);
+            break;
+        default:
+            break;
+    }
 
-	proto_tree_add_text(exported_pdu_tree, payload_tvb, 0, -1,"Exported PDU");
+    proto_tree_add_text(exported_pdu_tree, payload_tvb, 0, -1,"Exported PDU");
 }
 
 /* Register the protocol with Wireshark.
@@ -193,6 +193,7 @@ proto_register_exported_pdu(void)
 void
 proto_reg_handoff_exported_pdu(void)
 {
+#if 0
     static gboolean initialized = FALSE;
     static dissector_handle_t exported_pdu_handle;
 
@@ -201,6 +202,7 @@ proto_reg_handoff_exported_pdu(void)
         initialized = TRUE;
 
     }
+#endif
 }
 
 
