@@ -104,80 +104,77 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_INFO, "LISP Encapsulation Header");
 
-    if (tree) {
+    /* create display subtree for the protocol */
+    ti = proto_tree_add_item(tree, proto_lisp_data, tvb, 0,
+            LISP_DATA_HEADER_LEN, ENC_NA);
 
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_lisp_data, tvb, 0,
-                LISP_DATA_HEADER_LEN, ENC_NA);
+    lisp_data_tree = proto_item_add_subtree(ti, ett_lisp_data);
 
-        lisp_data_tree = proto_item_add_subtree(ti, ett_lisp_data);
+    tif = proto_tree_add_item(lisp_data_tree,
+            hf_lisp_data_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        tif = proto_tree_add_item(lisp_data_tree,
-                hf_lisp_data_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    lisp_data_flags_tree = proto_item_add_subtree(tif, ett_lisp_data_flags);
 
-        lisp_data_flags_tree = proto_item_add_subtree(tif, ett_lisp_data_flags);
+    proto_tree_add_item(lisp_data_flags_tree,
+            hf_lisp_data_flags_nonce, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_data_flags_tree,
+            hf_lisp_data_flags_lsb, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_data_flags_tree,
+            hf_lisp_data_flags_enr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_data_flags_tree,
+            hf_lisp_data_flags_mv, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_data_flags_tree,
+            hf_lisp_data_flags_iid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lisp_data_flags_tree,
+            hf_lisp_data_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_nonce, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_lsb, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_enr, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_mv, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_iid, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+    flags = tvb_get_guint8(tvb, offset);
+    offset += 1;
 
-        flags = tvb_get_guint8(tvb, offset);
-        offset += 1;
+    if (flags&LISP_DATA_FLAG_E && !(flags&LISP_DATA_FLAG_N)) {
+        expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
+            "Invalid flag combination: if E is set, N MUST be set");
+    }
 
-        if (flags&LISP_DATA_FLAG_E && !(flags&LISP_DATA_FLAG_N)) {
+    if (flags&LISP_DATA_FLAG_N) {
+        if (flags&LISP_DATA_FLAG_V) {
             expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
-                "Invalid flag combination: if E is set, N MUST be set");
+                    "Invalid flag combination: N and V can't be set both");
         }
+        proto_tree_add_item(lisp_data_tree,
+                hf_lisp_data_nonce, tvb, offset, 3, ENC_BIG_ENDIAN);
+    } else {
+        if (flags&LISP_DATA_FLAG_V) {
+            proto_item *tiv;
+            proto_tree *lisp_data_mapver_tree;
 
-        if (flags&LISP_DATA_FLAG_N) {
-            if (flags&LISP_DATA_FLAG_V) {
-                expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
-                        "Invalid flag combination: N and V can't be set both");
-            }
-            proto_tree_add_item(lisp_data_tree,
-                    hf_lisp_data_nonce, tvb, offset, 3, ENC_BIG_ENDIAN);
-        } else {
-            if (flags&LISP_DATA_FLAG_V) {
-                proto_item *tiv;
-                proto_tree *lisp_data_mapver_tree;
+            tiv = proto_tree_add_item(lisp_data_tree,
+                    hf_lisp_data_mapver, tvb, offset, 3, ENC_BIG_ENDIAN);
 
-                tiv = proto_tree_add_item(lisp_data_tree,
-                        hf_lisp_data_mapver, tvb, offset, 3, ENC_BIG_ENDIAN);
+            lisp_data_mapver_tree = proto_item_add_subtree(tiv, ett_lisp_data_mapver);
 
-                lisp_data_mapver_tree = proto_item_add_subtree(tiv, ett_lisp_data_mapver);
-
-                proto_tree_add_item(lisp_data_mapver_tree,
-                        hf_lisp_data_srcmapver, tvb, offset, 3, ENC_BIG_ENDIAN);
-                proto_tree_add_item(lisp_data_mapver_tree,
-                        hf_lisp_data_dstmapver, tvb, offset, 3, ENC_BIG_ENDIAN);
-            }
+            proto_tree_add_item(lisp_data_mapver_tree,
+                    hf_lisp_data_srcmapver, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(lisp_data_mapver_tree,
+                    hf_lisp_data_dstmapver, tvb, offset, 3, ENC_BIG_ENDIAN);
         }
+    }
+    offset += 3;
+
+    if (flags&LISP_DATA_FLAG_I) {
+        proto_tree_add_item(lisp_data_tree,
+                hf_lisp_data_iid, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
-
-        if (flags&LISP_DATA_FLAG_I) {
+        if (flags&LISP_DATA_FLAG_L) {
             proto_tree_add_item(lisp_data_tree,
-                    hf_lisp_data_iid, tvb, offset, 3, ENC_BIG_ENDIAN);
-            offset += 3;
-            if (flags&LISP_DATA_FLAG_L) {
-                proto_tree_add_item(lisp_data_tree,
-                        hf_lisp_data_lsb8, tvb, offset, 1, ENC_BIG_ENDIAN);
-            }
-            /*offset +=1;*/
-        } else {
-            if (flags&LISP_DATA_FLAG_L) {
-                proto_tree_add_item(lisp_data_tree,
-                        hf_lisp_data_lsb, tvb, offset, 4, ENC_BIG_ENDIAN);
-                /*offset += 4;*/
-            }
+                    hf_lisp_data_lsb8, tvb, offset, 1, ENC_BIG_ENDIAN);
+        }
+        /*offset +=1;*/
+    } else {
+        if (flags&LISP_DATA_FLAG_L) {
+            proto_tree_add_item(lisp_data_tree,
+                    hf_lisp_data_lsb, tvb, offset, 4, ENC_BIG_ENDIAN);
+            /*offset += 4;*/
         }
     }
 
