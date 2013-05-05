@@ -207,6 +207,8 @@ static gint hf_ssl_handshake_server_keyex_exponent  = -1;
 static gint hf_ssl_handshake_server_keyex_sig       = -1;
 static gint hf_ssl_handshake_server_keyex_hint_len  = -1;
 static gint hf_ssl_handshake_server_keyex_hint      = -1;
+static gint hf_ssl_handshake_client_keyex_identity_len = -1;
+static gint hf_ssl_handshake_client_keyex_identity  = -1;
 static gint hf_ssl_handshake_sig_hash_alg_len = -1;
 static gint hf_ssl_handshake_sig_hash_algs    = -1;
 static gint hf_ssl_handshake_sig_hash_alg     = -1;
@@ -603,6 +605,14 @@ static void dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb,
 static void dissect_ssl3_hnd_cli_keyex_rsa(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_cli_keyex_psk(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_cli_keyex_rsa_psk(tvbuff_t *tvb,
+                                               proto_tree *tree,
+                                               guint32 offset, guint32 length);
 
 
 static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
@@ -2090,6 +2100,12 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 case KEX_ECDH:
                         dissect_ssl3_hnd_cli_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
                         break;
+                case KEX_PSK:
+                        dissect_ssl3_hnd_cli_keyex_psk(tvb, ssl_hand_tree, offset, length);
+                        break;
+                case KEX_RSA_PSK:
+                        dissect_ssl3_hnd_cli_keyex_rsa_psk(tvb, ssl_hand_tree, offset, length);
+                        break;
                 default:
                         break;
                 }
@@ -3462,6 +3478,77 @@ dissect_ssl3_hnd_cli_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_client_keyex_epms_len,
         tvb, epms_len_offset, 2, epms_len);
     proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_client_keyex_epms,
+            tvb, epms_len_offset + 2, epms_len, ENC_NA);
+}
+
+/* Used in PSK cipher suites */
+static void
+dissect_ssl3_hnd_cli_keyex_psk(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    guint        identity_len;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+
+    identity_len = tvb_get_ntohs(tvb, offset);
+    if ((2 + identity_len) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, offset,
+                length, "PSK Client Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, ett_ssl_keyex_params);
+
+    /* identity */
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_client_keyex_identity_len,
+        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_client_keyex_identity,
+            tvb, offset + 2, identity_len, ENC_NA);
+}
+
+/* Used in RSA PSK cipher suites */
+static void
+dissect_ssl3_hnd_cli_keyex_rsa_psk(tvbuff_t *tvb, proto_tree *tree,
+                                   guint32 offset, guint32 length)
+{
+    gint        identity_len, identity_len_offset;
+    gint        epms_len, epms_len_offset;
+    proto_item *ti_psk;
+    proto_tree *ssl_psk_tree;
+    guint32     orig_offset;
+
+    orig_offset = offset;
+
+    identity_len_offset = offset;
+    identity_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + identity_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    epms_len_offset = offset;
+    epms_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + epms_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+
+    ti_psk = proto_tree_add_text(tree, tvb, orig_offset,
+                                 (offset - orig_offset), "RSA PSK Client Params");
+    ssl_psk_tree = proto_item_add_subtree(ti_psk, ett_ssl_keyex_params);
+
+    /* identity */
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_client_keyex_identity_len,
+                        tvb, identity_len_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_client_keyex_identity,
+                        tvb, identity_len_offset + 2, identity_len, ENC_NA);
+
+    /* Yc */
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_client_keyex_epms_len,
+        tvb, epms_len_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ssl_psk_tree, hf_ssl_handshake_client_keyex_epms,
             tvb, epms_len_offset + 2, epms_len, ENC_NA);
 }
 
@@ -5444,6 +5531,16 @@ proto_register_ssl(void)
           { "Hint", "ssl.handshake.hint",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "PSK Hint", HFILL }
+        },
+        { &hf_ssl_handshake_client_keyex_identity_len,
+          { "Identity Length", "ssl.handshake.identity_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of PSK Identity", HFILL }
+        },
+        { &hf_ssl_handshake_client_keyex_identity,
+          { "Identity", "ssl.handshake.identity",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "PSK Identity", HFILL }
         },
         { &hf_ssl_handshake_sig_hash_alg_len,
           { "Signature Hash Algorithms Length", "ssl.handshake.sig_hash_alg_len",
