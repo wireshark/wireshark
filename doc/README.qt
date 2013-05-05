@@ -31,6 +31,8 @@ There are several ways of building qtshark:
    set BUILD_qtshark to ON (default: OFF) in CmakeOptions.txt (may be set
    in parallel with BUILD_wireshark) or add -D BUILD_qtshark:BOOL=ON flag
    Do the normal out-of-tree or in-tree build.
+   To build with Qt5 instead of Qt4, add the following option set ENABLE_QT5
+   to ON. Note: Qt5 requires cmake 2.8.3 or newer.
    This has only been tested on a current openSUSE Linux system with fairly
    current QT and cmake. It may be necessary to copy the FindQt4.cmake and
    supporting files from cmake to Wireshark's cmake/modules/
