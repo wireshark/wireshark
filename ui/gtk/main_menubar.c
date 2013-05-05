@@ -112,6 +112,7 @@
 #include "ui/gtk/time_shift_dlg.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/addr_resolution_dlg.h"
+#include "ui/gtk/export_pdu_dlg.h"
 
 #include "ui/gtk/packet_list.h"
 
@@ -974,6 +975,7 @@ static const char *ui_desc_menubar =
 "        <separator/>\n"
 "      </menu>\n"
 "      <menuitem name='ExportSelectedPacketBytes' action='/File/ExportSelectedPacketBytes'/>\n"
+"      <menuitem name='ExportPDUs' action='/File/ExportPDUs'/>\n"
 "      <menuitem name='ExportSSLSessionKeys' action='/File/ExportSSLSessionKeys'/>\n"
 "      <menu name= 'ExportObjects' action='/File/ExportObjects'>\n"
 "        <menuitem name='HTTP' action='/File/ExportObjects/HTTP'/>\n"
@@ -1433,6 +1435,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/ExportSpecifiedPackets", NULL,         "Export Specified Packets...", NULL,           NULL,           G_CALLBACK(file_export_specified_packets_cmd_cb) },
   { "/File/ExportPacketDissections",  NULL,                        "Export Packet Dissections", NULL,                   NULL,           NULL },
   { "/File/ExportSelectedPacketBytes", NULL,         "Export Selected Packet _Bytes...", "<control>H",           NULL,           G_CALLBACK(savehex_cb) },
+  { "/File/ExportPDUs",            NULL,                            "Export PDUs to file",  NULL,                NULL,           G_CALLBACK(export_pdu_show_cb) },
   { "/File/ExportSSLSessionKeys",  NULL,                   "Export SSL Session Keys...", NULL,                   NULL,           G_CALLBACK(savesslkeys_cb) },
   { "/File/ExportObjects",      NULL,                              "Export Objects",     NULL,                   NULL,           NULL },
   { "/File/Print",              GTK_STOCK_PRINT,                   "_Print...",          "<control>P",           NULL,           G_CALLBACK(file_print_cmd_cb) },
@@ -4767,6 +4770,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPDUs", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
     } else {
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_write_with_wiretap(cf));
@@ -4785,6 +4789,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPDUs", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
     }
 }

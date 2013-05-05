@@ -534,6 +534,7 @@ DISSECTOR_SRC = \
 	packet-evrc.c		\
 	packet-exec.c		\
 	packet-extreme.c	\
+	packet-exported_pdu.c	\
 	packet-fc.c		\
 	packet-fcct.c		\
 	packet-fcdns.c		\

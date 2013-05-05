@@ -177,6 +177,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	except.h		\
 	exceptions.h		\
 	expert.h		\
+	exported_pdu.h	\
 	filter_expressions.h	\
 	filesystem.h		\
 	follow.h		\
