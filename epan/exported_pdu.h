@@ -51,7 +51,7 @@
  */
 
 /* Tag values */
-#define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. 
+#define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
 #define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options exluding this TLV */
 #define EXP_PDU_TAG_LINKTYPE          11 /**< The value part is the linktype value defined by tcpdump 
