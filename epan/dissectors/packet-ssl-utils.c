@@ -2067,8 +2067,7 @@ static gint prf(SslDecryptSession* ssl,StringInfo* secret,const gchar* usage,Str
     if (ssl->version_netorder==SSLV3_VERSION){
         ret = ssl3_prf(secret,usage,rnd1,rnd2,out);
     }else if (ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION ||
-            ssl->version_netorder==DTLSV1DOT0_VERSION || ssl->version_netorder==DTLSV1DOT2_VERSION ||
-            ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
+            ssl->version_netorder==DTLSV1DOT0_VERSION || ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         ret = tls_prf(secret,usage,rnd1,rnd2,out);
     }else{
         if (ssl->cipher_suite.dig == DIG_SHA384){
