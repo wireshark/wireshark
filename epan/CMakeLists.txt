@@ -1420,6 +1420,7 @@ set(LIBWIRESHARK_FILES
 	ex-opt.c
 	except.c
 	expert.c
+	exported_pdu.c
 	filesystem.c
 	filter_expressions.c
 	follow.c

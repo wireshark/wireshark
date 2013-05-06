@@ -83,3 +83,34 @@ typedef struct _exp_pdu_data_t {
     int          tvb_length;
     tvbuff_t    *pdu_tvb;
 } exp_pdu_data_t;
+
+#define EXP_PDU_TAG_IP_SRC_BIT          0x00000001
+#define EXP_PDU_TAG_IP_DST_BIT          0x00000002
+
+#define EXP_PDU_TAG_SRC_PORT_BIT        0x00000004
+#define EXP_PDU_TAG_DST_PORT_BIT        0x00000008
+
+#define EXP_PDU_TAG_SCTP_PPID_BIT       0x00000010
+
+#define EXP_PDU_TAG_SS7_OPC_BIT         0x00000020
+#define EXP_PDU_TAG_SS7_DPC_BIT         0x00000040
+
+#define EXP_PDU_TAG_IPV4_SRC_LEN        4
+#define EXP_PDU_TAG_IPV4_DST_LEN        4
+#define EXP_PDU_TAG_IPV6_SRC_LEN        16
+#define EXP_PDU_TAG_IPV6_DST_LEN        16
+
+#define EXP_PDU_TAG_SRC_PORT_LEN        4
+#define EXP_PDU_TAG_DST_PORT_LEN        4
+
+#define EXP_PDU_TAG_SCTP_PPID_LEN       2
+
+#define EXP_PDU_TAG_SS7_OPC_LEN         2
+#define EXP_PDU_TAG_SS7_DPC_LEN         2
+
+/**
+ * Allcotates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
+ * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or viceversa
+ */
+WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, 
+	                            const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);
