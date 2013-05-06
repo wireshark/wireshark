@@ -968,6 +968,7 @@ sip_init_protocol(void)
 static void
 export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
 {
+#if 0
   exp_pdu_data_t *exp_pdu_data;
 
   exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
@@ -993,6 +994,17 @@ export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
   exp_pdu_data->tlv_buffer[9] = 0;
   exp_pdu_data->tlv_buffer[10] = 0;
   exp_pdu_data->tlv_buffer[11] = 0;
+#endif
+  exp_pdu_data_t *exp_pdu_data;
+  guint32 tags_bit_field;
+
+  tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
+	  EXP_PDU_TAG_DST_PORT_BIT;
+
+  exp_pdu_data = load_export_pdu_tags(pinfo, "sip", -1, tags_bit_field);
+
+  exp_pdu_data->tvb_length = tvb_length(tvb); 
+  exp_pdu_data->pdu_tvb = tvb;
 
   tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
 
