@@ -1976,6 +1976,9 @@ proto_register_lisp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_lisp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    
+    /* Register dissector so that other dissectors can call it */
+    new_register_dissector("lisp", dissect_lisp, proto_lisp);
 }
 
 

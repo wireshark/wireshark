@@ -16,6 +16,8 @@ my %u3locs = qw(
 	$INSTDIR\etc\pango host
 	$INSTDIR\help device
 	$INSTDIR\plugins\${VERSION} device
+	$INSTDIR\profiles\Bluetooth device
+	$INSTDIR\profiles\Classic device
 	$INSTDIR\radius device
 	$INSTDIR\snmp\mibs device
 	$INSTDIR\tpncp device

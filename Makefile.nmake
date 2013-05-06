@@ -1127,6 +1127,11 @@ install-generated-files:
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
 	cd ..
+	if not exist $(INSTALL_DIR)\profiles mkdir $(INSTALL_DIR)\profiles
+	if not exist $(INSTALL_DIR)\profiles\Bluetooth mkdir $(INSTALL_DIR)\profiles\Bluetooth
+	xcopy ".\profiles\Bluetooth\colorfilters" $(INSTALL_DIR)\profiles\Bluetooth /d
+	if not exist $(INSTALL_DIR)\profiles\Classic mkdir $(INSTALL_DIR)\profiles\Classic
+	xcopy ".\profiles\Classic\colorfilters" $(INSTALL_DIR)\profiles\Classic /d
 
 # "install-all" will copy all files needed to run Wireshark/Tshark
 # to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.
