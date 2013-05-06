@@ -35,17 +35,16 @@
  * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or viceversa
  */
 exp_pdu_data_t *
-load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap, guint32 tags_bit_field)
+load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap _U_, guint32 tags_bit_field)
 {
 	exp_pdu_data_t *exp_pdu_data;
 	int tag_buf_size = 0;
 	int str_len = 0;
 	int tag_str_len = 0;
 	int i = 0;
-	guint32 padding = 0;
 
 	exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
-	
+
 	/* If we have a protocol name, calculate the buffersize needed including padding and tag + length */
 	if(proto_name){
 		str_len = (int)strlen(proto_name);
