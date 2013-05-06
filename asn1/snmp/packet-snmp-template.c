@@ -1950,12 +1950,16 @@ snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
 	/**********************************************/
 	while (count < 1048576) {
 		cp = password_buf;
-		for (i = 0; i < 64; i++) {
-			/*************************************************/
-			/* Take the next octet of the password, wrapping */
-			/* to the beginning of the password as necessary.*/
-			/*************************************************/
-			*cp++ = password[password_index++ % passwordlen];
+		if (passwordlen != 0) {
+			for (i = 0; i < 64; i++) {
+				/*************************************************/
+				/* Take the next octet of the password, wrapping */
+				/* to the beginning of the password as necessary.*/
+				/*************************************************/
+				*cp++ = password[password_index++ % passwordlen];
+			}
+		} else {
+			*cp = 0;
 		}
 		md5_append(&MD, password_buf, 64);
 		count += 64;
@@ -2002,12 +2006,16 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 	/**********************************************/
 	while (count < 1048576) {
 		cp = password_buf;
-		for (i = 0; i < 64; i++) {
-			/*************************************************/
-			/* Take the next octet of the password, wrapping */
-			/* to the beginning of the password as necessary.*/
-			/*************************************************/
-			*cp++ = password[password_index++ % passwordlen];
+		if (passwordlen != 0) {
+			for (i = 0; i < 64; i++) {
+				/*************************************************/
+				/* Take the next octet of the password, wrapping */
+				/* to the beginning of the password as necessary.*/
+				/*************************************************/
+				*cp++ = password[password_index++ % passwordlen];
+			}
+		} else {
+			*cp = 0;
 		}
 		sha1_update (&SH, password_buf, 64);
 		count += 64;

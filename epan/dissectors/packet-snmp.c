@@ -3174,12 +3174,16 @@ snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
 	/**********************************************/
 	while (count < 1048576) {
 		cp = password_buf;
-		for (i = 0; i < 64; i++) {
-			/*************************************************/
-			/* Take the next octet of the password, wrapping */
-			/* to the beginning of the password as necessary.*/
-			/*************************************************/
-			*cp++ = password[password_index++ % passwordlen];
+		if (passwordlen != 0) {
+			for (i = 0; i < 64; i++) {
+				/*************************************************/
+				/* Take the next octet of the password, wrapping */
+				/* to the beginning of the password as necessary.*/
+				/*************************************************/
+				*cp++ = password[password_index++ % passwordlen];
+			}
+		} else {
+			*cp = 0;
 		}
 		md5_append(&MD, password_buf, 64);
 		count += 64;
@@ -3226,12 +3230,16 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 	/**********************************************/
 	while (count < 1048576) {
 		cp = password_buf;
-		for (i = 0; i < 64; i++) {
-			/*************************************************/
-			/* Take the next octet of the password, wrapping */
-			/* to the beginning of the password as necessary.*/
-			/*************************************************/
-			*cp++ = password[password_index++ % passwordlen];
+		if (passwordlen != 0) {
+			for (i = 0; i < 64; i++) {
+				/*************************************************/
+				/* Take the next octet of the password, wrapping */
+				/* to the beginning of the password as necessary.*/
+				/*************************************************/
+				*cp++ = password[password_index++ % passwordlen];
+			}
+		} else {
+			*cp = 0;
 		}
 		sha1_update (&SH, password_buf, 64);
 		count += 64;
@@ -3771,7 +3779,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2286 "../../asn1/snmp/packet-snmp-template.c"
+#line 2294 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3811,7 +3819,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2302 "../../asn1/snmp/packet-snmp-template.c"
+#line 2310 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 

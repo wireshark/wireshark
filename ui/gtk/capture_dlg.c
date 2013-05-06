@@ -1357,6 +1357,8 @@ insert_new_rows(GList *list)
     device.remote_opts.sampling_method = global_remote_opts.sampling_method;
     device.remote_opts.sampling_param = global_remote_opts.sampling_param;
 #endif
+    device.selected = TRUE;
+    global_capture_opts.num_selected++;
     g_array_append_val(global_capture_opts.all_ifaces, device);
     if (device.has_snaplen) {
       snaplen_string = g_strdup_printf("%d", device.snaplen);
