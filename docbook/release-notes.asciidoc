@@ -64,6 +64,9 @@ in many cases it is blank anyway.
 still configurable via the GTK settings (add
 "gtk-scrolled-window-placement = top-right" in the config file, which might be
 called ~/.gtkrc-2.0 or ~/.config/gtk-3.0/settings.ini).
+* Wireshark now ships with two global configuration files: Bluetooth, which
+contains coloring rules for Bluetooth and Classic, which contains the old-style
+coloring rules.
 
 === New Protocol Support
 
