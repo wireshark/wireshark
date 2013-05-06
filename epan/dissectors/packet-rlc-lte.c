@@ -1404,17 +1404,20 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
             /* For wrong sequence number... */
             if (!p_report_in_frame->sequenceExpectedCorrect) {
 
-                reassembly_destroy(p_channel_status);
-
                 /* Don't get confused by MAC (HARQ) retx */
                 if (is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
                     p_report_in_frame->state = SN_MAC_Retx;
                     p_report_in_frame->firstSN = sequenceNumber;
+
+                    /* No channel state to update */
+                    break;
                 }
 
                 /* Frames are not missing if we get an earlier sequence number again */
                 /* TODO: taking time into account would give better idea of whether missing or repeated... */
                 else if (((snLimit + sequenceNumber - expectedSequenceNumber) % snLimit) < 10) {
+                    reassembly_destroy(p_channel_status);
+
                     p_report_in_frame->state = SN_Missing;
                     tap_info->missingSNs = (snLimit + sequenceNumber - expectedSequenceNumber) % snLimit;
                     p_report_in_frame->firstSN = expectedSequenceNumber;
