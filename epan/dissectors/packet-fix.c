@@ -508,6 +508,9 @@ proto_register_fix(void)
     proto_fix = proto_register_protocol("Financial Information eXchange Protocol",
                                         "FIX", "fix");
 
+    /* Allow dissector to find be found by name. */
+    register_dissector("fix", dissect_fix, proto_fix);
+
     proto_register_field_array(proto_fix, hf, array_length(hf));
     proto_register_field_array(proto_fix, hf_FIX, array_length(hf_FIX));
     proto_register_subtree_array(ett, array_length(ett));
