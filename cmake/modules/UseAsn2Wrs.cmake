@@ -28,17 +28,19 @@ MACRO(ASN2WRS)
 		  ${EXTRA_CNF}
 	)
 
-	ADD_CUSTOM_TARGET(generate_export-${PROTOCOL_NAME} ALL
-		COMMAND ${PYTHON_EXECUTABLE}
-		  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
-		  -E
-		  ${A2W_FLAGS}
-		  ${PROTO_OPT}
-		  -c ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}.cnf
-		  -D ${CMAKE_CURRENT_SOURCE_DIR}
-		  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
-		DEPENDS
-		  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
-		  ${SRC_FILES}
-	)
+	foreach( _asn2wrs_export_file IN LISTS EXPORT_FILES )
+		ADD_CUSTOM_TARGET( ${_asn2wrs_export_file} ALL
+			COMMAND ${PYTHON_EXECUTABLE}
+			  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+			  -E
+			  ${A2W_FLAGS}
+			  ${PROTO_OPT}
+			  -c ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}.cnf
+			  -D ${CMAKE_CURRENT_SOURCE_DIR}
+			  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
+			DEPENDS
+			  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
+			  ${SRC_FILES}
+		)
+	endforeach()
 ENDMACRO()

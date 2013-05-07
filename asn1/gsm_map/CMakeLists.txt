@@ -25,8 +25,9 @@ set( PROTOCOL_NAME gsm_map )
 
 set( PROTO_OPT _EMPTY_ )
 
-#EXPORT_FILES = \
-#	$(PROTOCOL_NAME)-exp.cnf
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
 
 set( EXT_ASN_FILE_LIST
 	../ros/Remote-Operations-Information-Objects.asn
