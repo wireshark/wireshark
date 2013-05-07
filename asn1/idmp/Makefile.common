@@ -22,8 +22,6 @@
 
 PROTOCOL_NAME=idmp
 
-NEED_PACKET_PROTO_H = 1
-
 EXPORT_FILES = \
 	$(PROTOCOL_NAME)-exp.cnf
 

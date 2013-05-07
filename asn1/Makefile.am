@@ -64,7 +64,6 @@ SUBDIRS =		\
 	idmp		\
 	inap		\
 	isdn-sup	\
-	kerberos	\
 	lcsap		\
 	ldap		\
 	logotypecertextn \
@@ -122,7 +121,12 @@ SUBDIRS =		\
 	x509af		\
 	x509ce		\
 	x509if		\
-	x509sat		\
+	x509sat
+
+# kerberos is a handwritten dissector, don't replace
+# x721 doesn't build
+DONT_BUILD_SUBDIRS = \
+	kerberos \
 	x721
 
 EXTRA_DIST = \
