@@ -62,7 +62,6 @@ set(ASN1_SRC_DIRS
 	idmp
 	inap
 	isdn-sup
-	kerberos
 	lcsap
 	ldap
 	logotypecertextn
@@ -121,8 +120,15 @@ set(ASN1_SRC_DIRS
 	x509ce
 	x509if
 	x509sat
+)
+
+set( BROKEN_ASN1_SRC_DIRS
+	# Kerberos is a handwritten dissecotr, don't replace
+	kerberos
+	# x721 does not build
 	x721
 )
+
 foreach(ASN1_DIR ${ASN1_SRC_DIRS})
 	add_subdirectory( ${ASN1_DIR} )
 endforeach()

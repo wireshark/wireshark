@@ -21,3 +21,33 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+set( PROTOCOL_NAME lppe )
+
+set( PROTO_OPT )
+
+set( EXT_ASN_FILE_LIST
+)
+
+set( ASN_FILE_LIST
+	LPPe.asn
+)
+
+set( EXTRA_DIST
+	${ASN_FILE_LIST}
+	packet-${PROTOCOL_NAME}-template.c
+	${PROTOCOL_NAME}.cnf
+)
+
+set( SRC_FILES
+	${EXTRA_DIST}
+	${EXT_ASN_FILE_LIST}
+)
+
+set( A2W_FLAGS  )
+
+set( EXTRA_CNF
+	lpp-exp.cnf
+)
+
+ASN2WRS()
+
