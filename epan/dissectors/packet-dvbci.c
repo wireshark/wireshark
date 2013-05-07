@@ -311,6 +311,8 @@
 #define CC_ID_CICAM_LICENSE      0x21
 #define CC_ID_LICENSE_STATUS     0x22
 #define CC_ID_LICENSE_RCV_STATUS 0x23
+#define CC_ID_HOST_LICENSE       0x24
+#define CC_ID_PLAY_COUNT         0x25
 #define CC_ID_OPERATING_MODE     0x26
 #define CC_ID_PINCODE_DATA       0x27
 #define CC_ID_REC_START_STATUS   0x28
@@ -1373,6 +1375,9 @@ static const value_string dvbci_cc_dat_id[] = {
     { CC_ID_CICAM_LICENSE,      "License received from the cicam" },
     { CC_ID_LICENSE_STATUS,     "Current status of the license" },
     { CC_ID_LICENSE_RCV_STATUS, "Status of the license exchange" },
+    { CC_ID_HOST_LICENSE,
+        "License for which the host requests the current status" },
+    { CC_ID_PLAY_COUNT,         "Play count" },
     { CC_ID_OPERATING_MODE,     "Operating mode" },
     { CC_ID_PINCODE_DATA,       "Pincode data" },
     { CC_ID_REC_START_STATUS,   "Record start status" },
