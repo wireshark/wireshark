@@ -36,7 +36,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-21.html">wnpa-sec-2013-21</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-23.html">wnpa-sec-2013-23</ulink>
           </para>
           <para>
 	    The RELOAD dissector could go into an infinite loop. Discovered by Even Jensen.
@@ -58,17 +58,16 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-23.html">wnpa-sec-2013-23</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-24.html">wnpa-sec-2013-24</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r -->
+	    The GTPv2 dissector could crash.
+            <!-- Fixed in trunk: r48393 -->
             <!-- Fixed in trunk-1.8: r -->
-            <!-- Fixed in trunk-1.6: r -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=x">Bug
-            x</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8493">Bug
+            8493</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.6, 1.6.0 to 1.6.14.</para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -102,9 +101,21 @@ Wireshark Info
 	</para></listitem>
 
         <listitem><para>
+          GSM_MAP show malformed Packets when two IMSI.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7882">Bug
+          7882</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Silent installer and uninstaller not silent.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8451">Bug
           8451</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Replace use of INCLUDES with AM_CPPFLAGS in all Makefiles to placate recent autotools.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8452">Bug
+          8452</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -133,6 +144,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+HDFSDATA,
 RELOAD
 
     </para>
@@ -141,7 +153,7 @@ RELOAD
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-No new or updated file support.
+NetScreen snoop.
 
     </para>
     </section>

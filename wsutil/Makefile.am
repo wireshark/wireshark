@@ -80,7 +80,7 @@ lib_LTLIBRARIES = libwsutil.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwsutil_la_LDFLAGS = -version-info 2:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
 
-INCLUDES = -I$(srcdir)/..
+AM_CPPFLAGS = -I$(srcdir)/..
 
 libwsutil_la_SOURCES =		\
 	$(LIBWSUTIL_SRC)	\

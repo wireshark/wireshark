@@ -36,7 +36,7 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_NON_GENERATED_CFLAGS = -Werror
 endif
 
-INCLUDES = -I$(srcdir)/..
+AM_CPPFLAGS = -I$(srcdir)/..
 
 CLEANFILES = \
 	libwiretap.a		\

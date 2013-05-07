@@ -25,7 +25,7 @@
 # lex rules
 include $(top_srcdir)/Makefile.am.inc
 
-INCLUDES = -I$(top_srcdir) -I$(includedir)
+AM_CPPFLAGS = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
 

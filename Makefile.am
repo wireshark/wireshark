@@ -23,8 +23,6 @@
 
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
-INCLUDES= @LUA_INCLUDES@
-
 if HAVE_LIBPY
 py_dissectors_dir = -DPYTHON_DIR=\"@pythondir@\"
 else
@@ -491,7 +489,8 @@ dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(PY_CFLAGS)
+	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(PY_CFLAGS) \
+	@LUA_INCLUDES@
 
 #
 # Build the version string
