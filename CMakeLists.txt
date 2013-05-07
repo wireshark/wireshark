@@ -87,6 +87,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 INCLUDE(UseLemon)
 INCLUDE(UseMakeDissectorReg)
 INCLUDE(UseMakeTapReg)
+INCLUDE(UseAsn2Wrs)
 
 # Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 
