@@ -88,7 +88,7 @@ static int hf_pcp_opcode = -1;
 static int hf_pcp_result_code = -1;
 static int hf_reserved1 = -1;
 static int hf_reserved2 = -1;
-static int hf_reserved8 = -1;
+static int hf_reserved12 = -1;
 static int hf_req_lifetime = -1;
 static int hf_rsp_lifetime = -1;
 static int hf_client_ip = -1;
@@ -330,8 +330,8 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     proto_tree_add_item (pcp_tree, hf_epoch_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item (pcp_tree, hf_reserved8, tvb, offset, 8, ENC_NA);
-    offset+=8;
+    proto_tree_add_item (pcp_tree, hf_reserved12, tvb, offset, 12, ENC_NA);
+    offset+=12;
   }
 
   start_opcode_offset = offset;
@@ -554,7 +554,7 @@ void proto_register_nat_pmp (void)
     { &hf_reserved2,
       { "Reserved", "portcontrol.reserved", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
-    { &hf_reserved8,
+    { &hf_reserved12,
       { "Reserved", "portcontrol.rsp_reserved", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_req_lifetime,
