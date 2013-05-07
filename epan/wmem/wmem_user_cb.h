@@ -1,5 +1,5 @@
-/* wmem_allocator.h
- * Definitions for the Wireshark Memory Manager Allocator
+/* wmem_user_cb.h
+ * Definitions for the Wireshark Memory Manager User Callbacks
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,44 +23,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_ALLOCATOR_H__
-#define __WMEM_ALLOCATOR_H__
+#ifndef __WMEM_USER_CB_H__
+#define __WMEM_USER_CB_H__
 
-#include <glib.h>
-#include <string.h>
+#include "wmem_core.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-enum _wmem_allocator_type_t;
-
-/* See section "4. Internal Design" of doc/README.wmem for details
- * on this structure */
-struct _wmem_allocator_t {
-    /* Consumer functions */
-    void *(*alloc)(void *private_data, const size_t size);
-    void  (*free)(void *private_data, void *ptr);
-    void *(*realloc)(void *private_data, void *ptr, const size_t size);
-
-    /* Producer/Manager functions */
-    void  (*free_all)(void *private_data);
-    void  (*gc)(void *private_data);
-    void  (*destroy)(struct _wmem_allocator_t *allocator);
-
-    /* Callback List */
-    GSList                      *callbacks;
-
-    /* Implementation details */
-    void                        *private_data;
-    enum _wmem_allocator_type_t  type;
-};
+typedef struct _wmem_user_cb_container_t {
+    wmem_user_cb_t  cb;
+    void           *user_data;
+} wmem_user_cb_container_t;
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __WMEM_ALLOCATOR_H__ */
+#endif /* __WMEM_USER_CB_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

@@ -77,9 +77,27 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
     };
 
     allocator->type = type;
+    allocator->callbacks = NULL;
 
     return allocator;
 }
+
+/* Some helpers for properly testing the user callback functionality */
+wmem_allocator_t *cur_global_allocator;
+void             *cur_global_user_data;
+gboolean          cb_called;
+
+static void
+wmem_test_callback(wmem_allocator_t *allocator, void *user_data)
+{
+    g_assert(allocator == cur_global_allocator);
+    g_assert(user_data == cur_global_user_data);
+    g_assert(!cb_called);
+
+    cb_called = TRUE;
+}
+
+/* ALLOCATOR TESTING FUNCTIONS (/wmem/allocator/) */
 
 static void
 wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
@@ -105,8 +123,15 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
         wmem_free(allocator, ptrs[i]);
     }
 
+    wmem_register_cleanup_callback(allocator, &wmem_test_callback,
+            GINT_TO_POINTER(42));
+    cur_global_allocator = allocator;
+    cur_global_user_data = GINT_TO_POINTER(42);
+
     if (verify) (*verify)(allocator);
+    cb_called = FALSE;
     wmem_free_all(allocator);
+    g_assert(cb_called);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
@@ -118,7 +143,9 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     }
 
     if (verify) (*verify)(allocator);
+    cb_called = FALSE;
     wmem_free_all(allocator);
+    g_assert(cb_called);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
@@ -135,7 +162,9 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     }
 
     if (verify) (*verify)(allocator);
+    cb_called = FALSE;
     wmem_free_all(allocator);
+    g_assert(cb_called);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
@@ -184,7 +213,9 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
         if (verify) (*verify)(allocator);
     }
 
+    cb_called = FALSE;
     wmem_destroy_allocator(allocator);
+    g_assert(cb_called);
 }
 
 static void
@@ -249,6 +280,8 @@ wmem_test_allocator_strict(void)
     wmem_test_allocator(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries);
 }
 
+/* UTILITY TESTING FUNCTIONS (/wmem/utils/) */
+
 static void
 wmem_test_strutls(void)
 {
@@ -279,6 +312,8 @@ wmem_test_strutls(void)
 
     wmem_destroy_allocator(allocator);
 }
+
+/* DATA STRUCTURE TESTING FUNCTIONS (/wmem/datastruct/) */
 
 static void
 wmem_test_slist(void)

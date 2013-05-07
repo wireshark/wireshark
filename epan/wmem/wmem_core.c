@@ -29,6 +29,7 @@
 
 #include "wmem_core.h"
 #include "wmem_scopes.h"
+#include "wmem_user_cb.h"
 #include "wmem_allocator.h"
 #include "wmem_allocator_simple.h"
 #include "wmem_allocator_block.h"
@@ -101,6 +102,18 @@ wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
 void
 wmem_free_all(wmem_allocator_t *allocator)
 {
+    GSList *tmp;
+    wmem_user_cb_container_t *cb;
+
+    /* Call all the user-registered callbacks */
+    tmp = allocator->callbacks;
+    while (tmp) {
+        cb = (wmem_user_cb_container_t*) tmp->data;
+        cb->cb(allocator, cb->user_data);
+        tmp = tmp->next;
+    }
+
+    /* Actually free-all */
     allocator->free_all(allocator->private_data);
 }
 
@@ -111,9 +124,38 @@ wmem_gc(wmem_allocator_t *allocator)
 }
 
 void
+wmem_register_cleanup_callback(wmem_allocator_t *allocator,
+        wmem_user_cb_t callback, void *user_data)
+{
+    wmem_user_cb_container_t *container;
+
+    container = g_slice_new(wmem_user_cb_container_t);
+
+    container->cb        = callback;
+    container->user_data = user_data;
+
+    allocator->callbacks = g_slist_prepend(allocator->callbacks,
+                                           container);
+}
+
+void
 wmem_destroy_allocator(wmem_allocator_t *allocator)
 {
+    GSList *tmp;
+
+    /* Free-all first (this calls all the user-registered callbacks) */
     wmem_free_all(allocator);
+
+    /* Destroy all user-registered callbacks
+     * (they were called in wmem_free_all) */
+    tmp = allocator->callbacks;
+    while (tmp) {
+        g_slice_free(wmem_user_cb_container_t, tmp->data);
+        tmp = tmp->next;
+    }
+    g_slist_free(allocator->callbacks);
+
+    /* Tell the allocator to destroy itself */
     allocator->destroy(allocator);
 }
 
@@ -166,6 +208,7 @@ wmem_allocator_new(const wmem_allocator_type_t type)
     };
 
     allocator->type = real_type;
+    allocator->callbacks = NULL;
 
     return allocator;
 }

@@ -45,7 +45,8 @@ LIBWMEM_INCLUDES =			\
 	wmem_slist.h			\
 	wmem_stack.h			\
 	wmem_strbuf.h			\
-	wmem_strutl.h
+	wmem_strutl.h			\
+	wmem_user_cb.h
 
 
 #

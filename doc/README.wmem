@@ -102,6 +102,37 @@ wmem_slist.h
 wmem_stack.h
  - A stack implementation (push, pop, etc).
 
+2.3 Callbacks
+
+WARNING: You probably don't actually need these; use them only when you're
+         sure you understand the implications and the consequences.
+
+Sometimes (though hopefully rarely) it may be necessary to store data in a wmem
+pool that requires additional cleanup before it is freed. For example, perhaps
+you have a pointer to a file-handle that needs to be closed. In this case, you
+can register a callback with the wmem_register_cleanup_callback function
+declared in wmem_core.h.
+
+This function takes the usual allocator, a function pointer (see wmem_user_cb_t
+also in wmem_core.h) and a void user_data pointer. Every time the memory in a
+pool is freed, all registered cleanup functions are called first, being passed
+a pointer to the allocator as well as whatever user_data was registered with
+that callback.
+
+WARNING: Callback calling order is not defined, you cannot rely on a certain
+         callback being called before or after another (in practice at the
+         moment it's first-in-last-out, but that may change).
+
+WARNING: Callbacks are not cleared when they are called - they are only cleared
+         when the pool is fully destroyed. (Do we need an unregister function?).
+
+WARNING: The user_data pointer is not freed when a callback is cleared, you
+         have to do that yourself (or just allocate it in the appropriate wmem
+         pool).
+
+WARNING: Calling wmem_free on allocated memory that a callback depends on will
+         not unregister that callback. Do not do this, it will crash!
+
 3. Usage for Producers
 
 NB: If you're just writing a dissector, you probably don't need to read
