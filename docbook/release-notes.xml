@@ -63,7 +63,7 @@ Wireshark Info
           <para>
 	    The GTPv2 dissector could crash.
             <!-- Fixed in trunk: r48393 -->
-            <!-- Fixed in trunk-1.8: r -->
+            <!-- Fixed in trunk-1.8: r49208 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8493">Bug
             8493</ulink>)
           </para>
