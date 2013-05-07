@@ -51,7 +51,7 @@ ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offse
 	dcerpc_info *di;
 	int old_offset;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect 
 		  but we need to remember how long this array was.
