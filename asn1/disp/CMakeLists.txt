@@ -21,3 +21,42 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+set( PROTOCOL_NAME disp )
+
+set( PROTO_OPT )
+
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
+
+set( EXT_ASN_FILE_LIST
+)
+
+set( ASN_FILE_LIST
+	${PROTOCOL_NAME}.asn
+)
+
+set( EXTRA_DIST
+	${ASN_FILE_LIST}
+	packet-${PROTOCOL_NAME}-template.c
+	packet-${PROTOCOL_NAME}-template.h
+	${PROTOCOL_NAME}.cnf
+)
+
+set( SRC_FILES
+	${EXTRA_DIST}
+	${EXT_ASN_FILE_LIST}
+)
+
+set( A2W_FLAGS -b )
+
+set( EXTRA_CNF
+	dap-exp.cnf
+	dop-exp.cnf
+	dsp-exp.cnf
+	x509af-exp.cnf
+	x509if-exp.cnf
+)
+
+ASN2WRS()
+
