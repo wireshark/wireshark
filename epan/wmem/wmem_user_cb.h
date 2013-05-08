@@ -26,16 +26,19 @@
 #ifndef __WMEM_USER_CB_H__
 #define __WMEM_USER_CB_H__
 
-#include "wmem_core.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct _wmem_user_cb_container_t {
-    wmem_user_cb_t  cb;
-    void           *user_data;
-} wmem_user_cb_container_t;
+#include <glib.h>
+
+/* User callback type for registering cleanup routines */
+typedef void (*wmem_user_cb_t) (wmem_allocator_t *, gboolean, void *);
+
+WS_DLL_PUBLIC
+void
+wmem_register_cleanup_callback(wmem_allocator_t *allocator, gboolean recurring,
+        wmem_user_cb_t callback, void *user_data);
 
 #ifdef __cplusplus
 }

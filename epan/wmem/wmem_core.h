@@ -27,6 +27,7 @@
 #define __WMEM_CORE_H__
 
 #include <string.h>
+#include <glib.h>
 #include <ws_symbol_export.h>
 
 #ifdef __cplusplus
@@ -43,9 +44,6 @@ typedef enum _wmem_allocator_type_t {
     WMEM_ALLOCATOR_BLOCK,
     WMEM_ALLOCATOR_STRICT
 } wmem_allocator_type_t;
-
-/* User callback type for registering cleanup routines */
-typedef void (*wmem_user_cb_t) (wmem_allocator_t *, void *);
 
 WS_DLL_PUBLIC
 void *
@@ -79,11 +77,6 @@ wmem_free_all(wmem_allocator_t *allocator);
 WS_DLL_PUBLIC
 void
 wmem_gc(wmem_allocator_t *allocator);
-
-WS_DLL_PUBLIC
-void
-wmem_register_cleanup_callback(wmem_allocator_t *allocator,
-        wmem_user_cb_t callback, void *user_data);
 
 WS_DLL_PUBLIC
 void

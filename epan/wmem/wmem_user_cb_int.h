@@ -1,5 +1,5 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
+/* wmem_user_cb_int.h
+ * Definitions for the Wireshark Memory Manager User Callback Internals
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,18 +23,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#ifndef __WMEM_USER_CB_INT_H__
+#define __WMEM_USER_CB_INT_H__
 
-#include "wmem_core.h"
-#include "wmem_scopes.h"
-#include "wmem_slist.h"
-#include "wmem_stack.h"
-#include "wmem_strbuf.h"
-#include "wmem_strutl.h"
-#include "wmem_user_cb.h"
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-#endif /* __WMEM_H__ */
+#include <glib.h>
+
+void
+wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, gboolean final);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WMEM_USER_CB_INT_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

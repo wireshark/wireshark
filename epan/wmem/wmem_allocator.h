@@ -34,6 +34,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 enum _wmem_allocator_type_t;
+struct _wmem_user_cb_container_t;
 
 /* See section "4. Internal Design" of doc/README.wmem for details
  * on this structure */
@@ -49,7 +50,7 @@ struct _wmem_allocator_t {
     void  (*destroy)(struct _wmem_allocator_t *allocator);
 
     /* Callback List */
-    GSList                      *callbacks;
+    struct _wmem_user_cb_container_t *callbacks;
 
     /* Implementation details */
     void                        *private_data;

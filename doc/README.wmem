@@ -105,33 +105,37 @@ wmem_stack.h
 2.3 Callbacks
 
 WARNING: You probably don't actually need these; use them only when you're
-         sure you understand the implications and the consequences.
+         sure you understand the dangers.
 
 Sometimes (though hopefully rarely) it may be necessary to store data in a wmem
 pool that requires additional cleanup before it is freed. For example, perhaps
 you have a pointer to a file-handle that needs to be closed. In this case, you
 can register a callback with the wmem_register_cleanup_callback function
-declared in wmem_core.h.
+declared in wmem_user_cb.h. This function takes as parameters:
+ - the allocator
+ - boolean indicating whether or not the callback should be recurring (ie
+   happens once if FALSE, or every time if TRUE)
+ - the callback function (signature defined in wmem_user_cb.h)
+ - a void user_data pointer
 
-This function takes the usual allocator, a function pointer (see wmem_user_cb_t
-also in wmem_core.h) and a void user_data pointer. Every time the memory in a
-pool is freed, all registered cleanup functions are called first, being passed
-a pointer to the allocator as well as whatever user_data was registered with
-that callback.
+Every time the memory in a pool is freed, all registered cleanup functions are
+called first, being passed:
+ - a pointer to the allocator
+ - a boolean indicating if this is just a free_all (FALSE) or if this was
+   triggered by destruction of the entire pool (TRUE) - mostly useful for
+   recurring callbacks
+ - whatever user_data was registered with that callback.
 
-WARNING: Callback calling order is not defined, you cannot rely on a certain
-         callback being called before or after another (in practice at the
-         moment it's first-in-last-out, but that may change).
+Note that the user_data pointer is not freed when a callback is finished, you
+have to do that yourself in the callback, or just allocate it in the
+appropriate wmem pool.
 
-WARNING: Callbacks are not cleared when they are called - they are only cleared
-         when the pool is fully destroyed. (Do we need an unregister function?).
+Also note that callback calling order is not defined, you cannot rely on a
+certain callback being called before or after another.
 
-WARNING: The user_data pointer is not freed when a callback is cleared, you
-         have to do that yourself (or just allocate it in the appropriate wmem
-         pool).
-
-WARNING: Calling wmem_free on allocated memory that a callback depends on will
-         not unregister that callback. Do not do this, it will crash!
+WARNING: Manually freeing memory with wmem_free will NOT trigger any callbacks.
+         It is an error to call wmem_free on memory if you have a callback
+         registered to deal with the contents of a that memory.
 
 3. Usage for Producers
 

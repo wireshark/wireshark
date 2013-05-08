@@ -83,21 +83,76 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
 }
 
 /* Some helpers for properly testing the user callback functionality */
-wmem_allocator_t *cur_global_allocator;
-void             *cur_global_user_data;
-gboolean          cb_called;
+wmem_allocator_t *expected_allocator;
+void             *expected_user_data;
+gboolean          expected_final;
+int               cb_called_count;
 
 static void
-wmem_test_callback(wmem_allocator_t *allocator, void *user_data)
+wmem_test_cb(wmem_allocator_t *allocator, gboolean final, void *user_data)
 {
-    g_assert(allocator == cur_global_allocator);
-    g_assert(user_data == cur_global_user_data);
-    g_assert(!cb_called);
+    g_assert(allocator == expected_allocator);
+    g_assert(final     == expected_final);
+    g_assert(user_data == expected_user_data);
 
-    cb_called = TRUE;
+    cb_called_count++;
 }
 
 /* ALLOCATOR TESTING FUNCTIONS (/wmem/allocator/) */
+
+static void
+wmem_test_allocator_callbacks(void)
+{
+    wmem_allocator_t *allocator;
+
+    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    expected_allocator = allocator;
+    expected_user_data = GINT_TO_POINTER(42);
+
+#define REG_TEST_CB(RECUR)  do { \
+    wmem_register_cleanup_callback(expected_allocator, (RECUR), \
+            &wmem_test_cb, GINT_TO_POINTER(42)); \
+    } while (0);
+
+    REG_TEST_CB(FALSE);
+    REG_TEST_CB(TRUE);
+    REG_TEST_CB(FALSE);
+    REG_TEST_CB(FALSE);
+    REG_TEST_CB(TRUE);
+
+    expected_final     = FALSE;
+
+    cb_called_count = 0;
+    wmem_free_all(allocator);
+    g_assert(cb_called_count == 5);
+
+    cb_called_count = 0;
+    wmem_free_all(allocator);
+    g_assert(cb_called_count == 2);
+
+    cb_called_count = 0;
+    wmem_free_all(allocator);
+    g_assert(cb_called_count == 2);
+
+    REG_TEST_CB(TRUE);
+    REG_TEST_CB(FALSE);
+
+    cb_called_count = 0;
+    wmem_free_all(allocator);
+    g_assert(cb_called_count == 4);
+
+    cb_called_count = 0;
+    wmem_free_all(allocator);
+    g_assert(cb_called_count == 3);
+
+    REG_TEST_CB(FALSE);
+
+    expected_final = TRUE;
+    cb_called_count = 0;
+    wmem_destroy_allocator(allocator);
+    g_assert(cb_called_count == 4);
+}
 
 static void
 wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
@@ -123,15 +178,8 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
         wmem_free(allocator, ptrs[i]);
     }
 
-    wmem_register_cleanup_callback(allocator, &wmem_test_callback,
-            GINT_TO_POINTER(42));
-    cur_global_allocator = allocator;
-    cur_global_user_data = GINT_TO_POINTER(42);
-
     if (verify) (*verify)(allocator);
-    cb_called = FALSE;
     wmem_free_all(allocator);
-    g_assert(cb_called);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
@@ -143,9 +191,7 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     }
 
     if (verify) (*verify)(allocator);
-    cb_called = FALSE;
     wmem_free_all(allocator);
-    g_assert(cb_called);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
@@ -162,9 +208,7 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     }
 
     if (verify) (*verify)(allocator);
-    cb_called = FALSE;
     wmem_free_all(allocator);
-    g_assert(cb_called);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
@@ -213,9 +257,7 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
         if (verify) (*verify)(allocator);
     }
 
-    cb_called = FALSE;
     wmem_destroy_allocator(allocator);
-    g_assert(cb_called);
 }
 
 static void
@@ -503,6 +545,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/allocator/simple", wmem_test_allocator_simple);
     g_test_add_func("/wmem/allocator/strict", wmem_test_allocator_strict);
     g_test_add_func("/wmem/allocator/times",  wmem_time_allocators);
+    g_test_add_func("/wmem/allocator/cbs",    wmem_test_allocator_callbacks);
 
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
