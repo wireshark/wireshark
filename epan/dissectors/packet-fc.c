@@ -287,12 +287,14 @@ static const value_string fc_iu_val[] = {
 #define    EOFDT_POS   0xBCB59595
 #define    EOFA_NEG    0xBC95F5F5
 #define    EOFA_POS    0xBCB5F5F5
+#define    EOFN_NEG    0xBC95D5D5
+#define    EOFN_POS    0xBCB5D5D5
 #define    EOFNI_NEG   0xBC8AD5D5
 #define    EOFNI_POS   0xBCAAD5D5
 #define    EOFDTI_NEG  0xBC8A9595
 #define    EOFDTI_POS  0xBCAA9595
-#define    EOFRI_NEG   0xBC959999
-#define    EOFRI_POS   0xBCB59999
+#define    EOFRT_NEG   0xBC959999
+#define    EOFRT_POS   0xBCB59999
 #define    EOFRTI_NEG  0xBC8A9999
 #define    EOFRTI_POS  0xBCAA9999
 
@@ -312,20 +314,22 @@ static const value_string fc_sof_vals[] = {
 };
 
 static const value_string fc_eof_vals[] = {
-    {EOFT_NEG,  "EOFt- - EOF Terminate" },
-    {EOFT_POS,  "EOFT+ - EOF Terminate" },
+    {EOFT_NEG,   "EOFt- - EOF Terminate" },
+    {EOFT_POS,   "EOFt+ - EOF Terminate" },
     {EOFDT_NEG,  "EOFdt- - EOF Disconnect-Terminate-Class 1 (Obsolete)" },
     {EOFDT_POS,  "EOFdt+ - EOF Disconnect-Terminate-Class 1 (Obsolete)" },
-    {EOFA_NEG,  "EOFa- - EOF Abort" },
-    {EOFA_POS,  "EOFa+ - EOF Abort" },
-    {EOFNI_NEG,  "EOFn- - EOF Normal" },
-    {EOFNI_POS,  "EOFn+ - EOF Normal" },
-    {EOFDTI_NEG,  "EOFni- - EOF Normal Invalid" },
-    {EOFDTI_POS,  "EOFni+ - EOF Normal Invalid" },
-    {EOFRI_NEG,  "EOFdti- - EOF Disconnect-Terminate-Invalid Class 1 (Obsolete)" },
-    {EOFRI_POS,  "EOFdti+ - EOF Disconnect-Terminate-Invalid Class 1 (Obsolete)" },
-    {EOFRTI_NEG,  "EOFrti- - EOF Remove-Terminate Invalid Class 4 (Obsolete)" },
-    {EOFRTI_POS,  "EOFrti+ - EOF Remove-Terminate Invalid Class 4 (Obsolete)" },
+    {EOFA_NEG,   "EOFa- - EOF Abort" },
+    {EOFA_POS,   "EOFa+ - EOF Abort" },
+    {EOFN_NEG,   "EOFn- - EOF Normal" },
+    {EOFN_POS,   "EOFn+ - EOF Normal" },
+    {EOFNI_NEG,  "EOFni- - EOF Normal Invalid" },
+    {EOFNI_POS,  "EOFni+ - EOF Normal Invalid" },
+    {EOFDTI_NEG, "EOFdti- - EOF Disconnect-Terminate-Invalid Class 1 (Obsolete)" },
+    {EOFDTI_POS, "EOFdti+ - EOF Disconnect-Terminate-Invalid Class 1 (Obsolete)" },
+    {EOFRT_NEG,  "EOFrt- - EOF Remove-Terminate Class 4 (Obsolete)" },
+    {EOFRT_POS,  "EOFrt+ - EOF Remove-Terminate Class 4 (Obsolete)" },
+    {EOFRTI_NEG, "EOFrti- - EOF Remove-Terminate Invalid Class 4 (Obsolete)" },
+    {EOFRTI_POS, "EOFrti+ - EOF Remove-Terminate Invalid Class 4 (Obsolete)" },
     {0, NULL}
 };
 
