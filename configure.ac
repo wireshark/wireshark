@@ -186,6 +186,16 @@ AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, "yes", "no")
 AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 
 #
+# Check for pkg-config and set PKG_CONFIG accordingly.
+#
+# This is referenced via AC_REQUIRE([PKG_PROG_PKG_CONFIG] in some macros
+# like PKG_CHECK_MODULES. If the first call to such a macro is under an
+# "if" statement, it's safer to call PKG_PROG_PKG_CONFIG directly, see
+# the comments in acolocal.m4
+#
+PKG_PROG_PKG_CONFIG
+
+#
 # Try to arrange for large file support.
 #
 AC_SYS_LARGEFILE
