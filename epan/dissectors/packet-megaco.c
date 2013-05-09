@@ -692,7 +692,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         default :
             ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, ENC_NA);
-            megaco_tree = proto_item_add_subtree(ti, ett_megaco);
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                     "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
                         tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
