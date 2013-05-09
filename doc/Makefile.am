@@ -117,7 +117,7 @@ AM_V_POD2HTML = $(am__v_POD2HTML_@AM_V@)
 am__v_POD2HTML_ = $(am__v_POD2HTML_@AM_DEFAULT_V@)
 am__v_POD2HTML_0 = @echo "  POD2HTML" $@;
 
-POD_CSS_PATH ?= $(top_srcdir)/docbook/ws.css
+POD_CSS_URL ?= $(top_srcdir)/docbook/ws.css
 
 .pod.1: ../config.h
 	$(AM_V_POD2MAN)$(POD2MAN)                       \
@@ -128,7 +128,7 @@ POD_CSS_PATH ?= $(top_srcdir)/docbook/ws.css
 .pod.html: ../config.h $(top_srcdir)/docbook/ws.css
 	$(AM_V_POD2HTML)$(POD2HTML)                             \
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(POD_CSS_PATH)					\
+	--css=$(POD_CSS_URL)					\
 	--noindex						\
 	$< > $@
 
