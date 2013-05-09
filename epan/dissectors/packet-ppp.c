@@ -3153,7 +3153,8 @@ dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     proto_tree *field_tree;
     static const int *vd_fields[] = {
         &hf_ccp_opt_vd_vers,
-        &hf_ccp_opt_vd_dict
+        &hf_ccp_opt_vd_dict,
+        NULL
     };
 
     tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
