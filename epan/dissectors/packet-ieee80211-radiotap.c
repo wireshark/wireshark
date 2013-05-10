@@ -1075,8 +1075,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			if ((bmap & (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
 				     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
 				== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
-				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
+				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
+				expert_add_info_format(pinfo, pt, PI_MALFORMED,
+						       PI_ERROR,
+						       "Both radiotap and vendor namespace specified in bitmask word %u",
+						       i);
 				goto malformed;
+			}
 
 			if (!rtap_ns)
 				goto always_bits;
@@ -1155,7 +1160,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			/* Check if Reserved/Not Defined is not "zero" */
 			if(bmap & IEEE80211_RADIOTAP_NOTDEFINED)
 			{
-				expert_add_info_format(pinfo,ti, PI_UNDECODED, PI_NOTE,
+				expert_add_info_format(pinfo, pt, PI_UNDECODED, PI_NOTE,
 				"Unknown Radiotap fields, code not implemented, "
 				"Please check radiotap documentation, "
 				"Contact Wireshark developers if you want this supported" );
@@ -1906,6 +1911,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	if (err != -ENOENT && tree) {
+		expert_add_info_format(pinfo, pt, PI_MALFORMED,
+				       PI_ERROR,
+				       "Radiotap data goes past the end of the radiotap header");
  malformed:
 		proto_item_append_text(ti, " (malformed)");
 	}
