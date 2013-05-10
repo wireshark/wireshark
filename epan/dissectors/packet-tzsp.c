@@ -47,14 +47,22 @@ static int hf_tzsp_version = -1;
 static int hf_tzsp_type = -1;
 static int hf_tzsp_encap = -1;
 
+/*
+ * Packet types.
+ */
+#define TZSP_RX_PACKET	0	/* Packet received from the sensor */
+#define TZSP_TX_PACKET	1	/* Packet for the sensor to transmit */
+#define TZSP_CONFIG	3	/* Configuration information for the sensor */
+#define TZSP_NULL	4	/* Null frame, used as a keepalive */
+#define TZSP_PORT	5	/* Port opener - opens a NAT tunnel */
+
 static const value_string tzsp_type[] = {
-	{0,     "Received tag list"},
-	{1,	"Packet for transmit"},
-	{2,     "Reserved"},
-	{3,     "Configuration"},
-	{4,     "Keepalive"},
-	{5,     "Port opener"},
-	{0,     NULL}
+	{TZSP_RX_PACKET,  "Received packet"},
+	{TZSP_TX_PACKET,  "Packet for transmit"},
+	{TZSP_CONFIG,     "Configuration"},
+	{TZSP_NULL,       "Keepalive"},
+	{TZSP_PORT,       "Port opener"},
+	{0,               NULL}
 };
 
 static gint ett_tzsp = -1;
@@ -88,6 +96,11 @@ static int hf_sensormac = -1;
 /* ************************************************************************* */
 
 #define TZSP_ENCAP_ETHERNET			1
+#define TZSP_ENCAP_TOKEN_RING			2
+#define TZSP_ENCAP_SLIP				3
+#define TZSP_ENCAP_PPP				4
+#define TZSP_ENCAP_FDDI				5
+#define TZSP_ENCAP_RAW				7	/* "Raw UO", presumably meaning "Raw IP" */
 #define TZSP_ENCAP_IEEE_802_11			18
 #define TZSP_ENCAP_IEEE_802_11_PRISM		119
 #define TZSP_ENCAP_IEEE_802_11_AVS		127
@@ -332,7 +345,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					encap_name, encapsulation);
 	}
 
-	if (type != 4 && type != 5) {
+	if (type != TZSP_NULL && type != TZSP_PORT) {
 		pos = add_option_info(tvb, 4, tzsp_tree, ti);
 
 		if (tree)
