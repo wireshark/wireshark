@@ -109,24 +109,27 @@ static int hf_sensormac = -1;
 /*                          Generic header options                           */
 /* ************************************************************************* */
 
-#define TZSP_HDR_PAD 0 /* Pad. */
-#define TZSP_HDR_END 1 /* End of the list. */
-#define TZSP_HDR_ORIGINAL_LENGTH 41 /* Length of the packet before slicing. 2 bytes. */
-#define TZSP_HDR_SENSOR 60 /* Sensor MAC address packet was received on, 6 byte ethernet address.*/
+#define TZSP_HDR_PAD			0	/* Pad. */
+#define TZSP_HDR_END			1	/* End of the list. */
+#define TZSP_WLAN_STA			30	/* Station statistics */
+#define TZSP_WLAN_PKT			31	/* Packet statistics */
+#define TZSP_PACKET_ID			40	/* Unique ID of the packet */
+#define TZSP_HDR_ORIGINAL_LENGTH	41	/* Length of the packet before slicing. 2 bytes. */
+#define TZSP_HDR_SENSOR			60	/* Sensor MAC address packet was received on, 6 byte ethernet address.*/
 
 /* ************************************************************************* */
 /*                          Options for 802.11 radios                        */
 /* ************************************************************************* */
 
-#define WLAN_RADIO_HDR_SIGNAL 10 /* Signal strength in dBm, signed byte. */
-#define WLAN_RADIO_HDR_NOISE 11 /* Noise level in dBm, signed byte. */
-#define WLAN_RADIO_HDR_RATE 12 /* Data rate, unsigned byte. */
-#define WLAN_RADIO_HDR_TIMESTAMP 13 /* Timestamp in us, unsigned 32-bits network byte order. */
-#define WLAN_RADIO_HDR_MSG_TYPE 14 /* Packet type, unsigned byte. */
-#define WLAN_RADIO_HDR_CF 15 /* Whether packet arrived during CF period, unsigned byte. */
-#define WLAN_RADIO_HDR_UN_DECR 16 /* Whether packet could not be decrypted by MAC, unsigned byte. */
-#define WLAN_RADIO_HDR_FCS_ERR 17 /* Whether packet contains an FCS error, unsigned byte. */
-#define WLAN_RADIO_HDR_CHANNEL 18 /* Channel number packet was received on, unsigned byte.*/
+#define WLAN_RADIO_HDR_SIGNAL		10	/* Signal strength in dBm, signed byte. */
+#define WLAN_RADIO_HDR_NOISE		11	/* Noise level in dBm, signed byte. */
+#define WLAN_RADIO_HDR_RATE		12	/* Data rate, unsigned byte. */
+#define WLAN_RADIO_HDR_TIMESTAMP	13	/* Timestamp in us, unsigned 32-bits network byte order. */
+#define WLAN_RADIO_HDR_MSG_TYPE		14	/* Packet type, unsigned byte. */
+#define WLAN_RADIO_HDR_CF		15	/* Whether packet arrived during CF period, unsigned byte. */
+#define WLAN_RADIO_HDR_UN_DECR		16	/* Whether packet could not be decrypted by MAC, unsigned byte. */
+#define WLAN_RADIO_HDR_FCS_ERR		17	/* Whether packet contains an FCS error, unsigned byte. */
+#define WLAN_RADIO_HDR_CHANNEL		18	/* Channel number packet was received on, unsigned byte.*/
 
 /* ************************************************************************* */
 /*                Add option information to the display                      */
