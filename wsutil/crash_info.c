@@ -138,7 +138,7 @@ struct crashreporter_annotations_t gCRAnnotations
 };
 
 #define CRSetCrashLogMessage(m) _crc_make_setter(message, m)
-#endif
+#endif /* 0 */
 
 void
 ws_add_crash_info(const char *fmt, ...)
@@ -160,7 +160,7 @@ ws_add_crash_info(const char *fmt, ...)
 	}
 }
 
-#else
+#else /* __APPLE__ */
 /*
  * Perhaps Google Breakpad (http://code.google.com/p/google-breakpad/) or
  * other options listed at
@@ -171,4 +171,4 @@ void
 ws_add_crash_info(const char *fmt _U_, ...)
 {
 }
-#endif
+#endif /* __APPLE__ */
