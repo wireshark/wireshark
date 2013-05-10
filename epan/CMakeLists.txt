@@ -1016,6 +1016,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pptp.c
 	dissectors/packet-prp.c
 	dissectors/packet-ptp.c
+	dissectors/packet-ptpip.c
 	dissectors/packet-pulse.c
 	dissectors/packet-pvfs2.c
 	dissectors/packet-pw-atm.c
