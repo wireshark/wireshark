@@ -1200,14 +1200,17 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 				 cksum,
 				 "Checksum: 0x%04x [correct]", cksum);
-    } else {
       item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad,
-				    tvb, 2, 2, TRUE);
+				    tvb, 2, 2, FALSE);
       PROTO_ITEM_SET_HIDDEN(item);
+    } else {
       proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 				 cksum,
 				 "Checksum: 0x%04x [incorrect, should be 0x%04x]",
 				 cksum, in_cksum_shouldbe(cksum, computed_cksum));
+      item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad,
+				    tvb, 2, 2, TRUE);
+      PROTO_ITEM_SET_HIDDEN(item);
     }
   } else {
     proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2, cksum);

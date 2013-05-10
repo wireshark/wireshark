@@ -1159,7 +1159,7 @@ proto_register_abis_om2000(void)
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_cbi,
-		  { "CBCH Indicator", "om2000.ny1",
+		  { "CBCH Indicator", "gsm_abis_om2000.cbi",
 		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
@@ -1414,4 +1414,3 @@ proto_register_abis_om2000(void)
 	register_dissector("gsm_abis_om2000", dissect_abis_om2000,
 			   proto_abis_om2000);
 }
-

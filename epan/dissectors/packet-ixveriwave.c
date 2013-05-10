@@ -1081,7 +1081,7 @@ void proto_register_ixveriwave(void)
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
         { &hf_ixveriwave_vw_info_retryCount,
-        { "Info field retry count", "ixveriwave.info",
+          { "Info field retry count", "ixveriwave.info.retrycount",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
 /* tx info decodes for VW510024 and 510012 */

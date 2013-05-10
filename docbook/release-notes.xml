@@ -118,6 +118,12 @@ Wireshark Info
           8452</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          geographical_description: hf_gsm_a_geo_loc_deg_of_long 24 bit field truncated to 23 bits.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8532">Bug
+          8532</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -144,8 +150,20 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+BAT,
+Ericsson A-bis OML,
+GSM A,
+GSM MAP,
 HDFSDATA,
-RELOAD
+ICMP,
+ICMPv6,
+ixveriwave,
+KDSP,
+RELOAD,
+SASP,
+SIP,
+TCP,
+UA3G
 
     </para>
     </section>

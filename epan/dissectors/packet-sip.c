@@ -2019,7 +2019,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		len = dissect_sip_common(tvb, offset, pinfo, tree, TRUE, TRUE);
 		if (len <= 0)
 			break;
@@ -2034,7 +2034,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int len;
 	gboolean first = TRUE;
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		len = dissect_sip_common(tvb, offset, pinfo, tree, !first, TRUE);
 		if (len == -2) {
 			if (first) {
@@ -2264,7 +2264,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		}
 
 		line_end_offset = offset + linelen;
-		if(tvb_reported_length_remaining(tvb, next_offset) == 0){
+		if(tvb_reported_length_remaining(tvb, next_offset) <= 0){
 			is_no_header_termination = TRUE;
 		}else{
 			while ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t')

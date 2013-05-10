@@ -3200,11 +3200,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             computed_cksum = in_cksum(cksum_vec, 4);
 
             if (computed_cksum == 0) {
+                hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, FALSE);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_item_append_text(checksum_item, " [correct]");
             } else {
                 hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, TRUE);
-
-                PROTO_ITEM_SET_GENERATED(hidden_item);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
                 expert_add_info_format(pinfo, checksum_item, PI_CHECKSUM, PI_WARN,
                                        "ICMPv6 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));

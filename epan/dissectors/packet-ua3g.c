@@ -810,8 +810,9 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
                             if (parameter_length <= 8) {
                                 guint64 param_value = 0;
+
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append(strbuf, val_to_str_const((guint8)(param_value), str_compressor, "Default Codec"));
                             } else {
@@ -832,7 +833,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append(strbuf, STR_ON_OFF((guint8)(param_value)));
                             } else {
@@ -850,7 +851,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 /* XXX:  Only 0x01 ==> "Yes" ??  */
                                 ep_strbuf_append(strbuf, ((guint8)param_value == 0x01) ? "Yes": "No");
@@ -874,7 +875,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append(strbuf, ((guint8)param_value) ? "Send DTMF" : "Don't Send DTMF");
                             } else {
@@ -892,7 +893,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append(strbuf, (((guint8)param_value) == 0x00) ? "Enable" : "Disable"); /* XXX: OK ? */
                             } else {
@@ -910,7 +911,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append(strbuf, (((guint8)param_value) == 0x10) ? "Enable" : "Disable");
                             } else {
@@ -948,7 +949,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                             } else {
@@ -1023,9 +1024,8 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                             if (parameter_length <= 8) {
                                 guint64 param_value = 0;
 
-                                for (i = parameter_length; i > 0; i--)
-                                {
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                for (i = parameter_length; i > 0; i--) {
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                             } else {
@@ -1104,7 +1104,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                             } else {
@@ -1301,7 +1301,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                             } else {
@@ -1508,7 +1508,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                         {
                             if ((parameter_length > 0) && (parameter_length <= 8)) {
                                 for (i = parameter_length; i > 0; i--) {
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                             } else if (parameter_length > 8) {
@@ -1580,7 +1580,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                         guint64 param_value = 0;
 
                         for (i = parameter_length; i > 0; i--) {
-                            param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                            param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                         }
                         ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                     } else {
@@ -1679,7 +1679,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {
-                                    param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                             } else {
@@ -3729,7 +3729,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                     guint64 param_value = 0;
 
                                     for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                        param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                        param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append(strbuf,
                                         val_to_str_const((guint8)(param_value), str_compressor, "Default Codec"));
@@ -3783,7 +3783,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                     guint64 param_value = 0;
 
                                     for (i = parameter_length; i > 0; i--) {
-                                        param_value += (tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
+                                        param_value += ((guint64)tvb_get_guint8(tvb, offset + 1 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                                 } else {
@@ -3965,7 +3965,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                     guint64 param_value = 0;
 
                                     for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                        param_value += (tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
+                                        param_value += ((guint64)tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append(strbuf,
                                         val_to_str_const((guint8)(param_value), str_compressor, "Default Codec"));
@@ -3998,7 +3998,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                     guint64 param_value = 0;
 
                                     for (i = parameter_length; i > 0; i--) {  /* XXX: Not needed since only LO byte used ? */
-                                        param_value += (tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
+                                        param_value += ((guint64)tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
                                     }
                                     ep_strbuf_append(strbuf,
                                         val_to_str_const((guint8)(param_value), str_voice_mode, "Unknown"));
@@ -4145,7 +4145,9 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                             }
                         case 0x14: /* Received Framing (ms) */
                             {
+                                /* XXX: What is the point of this assignment? */
                                 framing_rtp = tvb_get_guint8(tvb, offset + 3);
+                                /* FALLTHROUGH */
                             }
                         case 0x01: /* Date Of End Of Communication */
                         case 0x02: /* Node Number */
@@ -4171,7 +4173,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
                                 guint64 param_value = 0;
 
                                 for (i = parameter_length; i > 0; i--) {
-                                    param_value += (tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
+                                    param_value += ((guint64)tvb_get_guint8(tvb, offset + 2 + i) << (8 * (parameter_length - i)));
                                 }
                                 ep_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", param_value);
                                 break;
