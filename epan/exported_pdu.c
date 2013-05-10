@@ -31,8 +31,8 @@
 #include <epan/exported_pdu.h>
 
 /**
- * Allcotates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
- * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or viceversa
+ * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
+ * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or vice-versa
  */
 exp_pdu_data_t *
 load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap _U_, guint32 tags_bit_field)
@@ -45,18 +45,15 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 
 	exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
 
-	/* If we have a protocol name, calculate the buffersize needed including padding and tag + length */
+	/* If we have a protocol name, calculate the buffer size needed including padding and tag + length */
 	if(proto_name){
 		str_len = (int)strlen(proto_name);
 
-		/* Add padding if needed */
-		if(str_len % 4){
-			tag_str_len = str_len + (4 - str_len % 4);
-		}
+		/* Ensure that tag length is a multiple of 4 bytes */
+		tag_str_len = (str_len + 3) & 0xfffffffc;
 		/* Add Tag + length */
 		tag_buf_size = tag_str_len + 4;
 	}
-
 
 	if((tags_bit_field & EXP_PDU_TAG_IP_SRC_BIT) == EXP_PDU_TAG_IP_SRC_BIT){
 		/* tag+length */
@@ -71,7 +68,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	if((tags_bit_field & EXP_PDU_TAG_IP_DST_BIT) == EXP_PDU_TAG_IP_DST_BIT){
 		/* tag+length */
 		tag_buf_size+=4;
-		if(pinfo->net_src.type == AT_IPv4){
+		if(pinfo->net_dst.type == AT_IPv4){
 			tag_buf_size = tag_buf_size + EXP_PDU_TAG_IPV4_DST_LEN;
 		}else{
 			tag_buf_size = tag_buf_size + EXP_PDU_TAG_IPV6_DST_LEN;
@@ -128,7 +125,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 		}
 
 		memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_src.data, pinfo->net_src.len);
-		i = i + pinfo->net_src.len;
+		i += (pinfo->net_src.type == AT_IPv4) ? EXP_PDU_TAG_IPV4_SRC_LEN : EXP_PDU_TAG_IPV6_SRC_LEN;
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_IP_DST_BIT) == EXP_PDU_TAG_IP_DST_BIT){
@@ -153,7 +150,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 		}
 
 		memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_dst.data, pinfo->net_dst.len);
-		i = i + pinfo->net_src.len;
+		i += (pinfo->net_dst.type == AT_IPv4) ? EXP_PDU_TAG_IPV4_DST_LEN : EXP_PDU_TAG_IPV6_DST_LEN;
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_SRC_PORT_BIT) == EXP_PDU_TAG_SRC_PORT_BIT){
@@ -165,7 +162,10 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SRC_PORT_LEN; /* tag length */
 			i++;
-			memcpy(exp_pdu_data->tlv_buffer+i, &pinfo->srcport, EXP_PDU_TAG_SRC_PORT_LEN);
+			exp_pdu_data->tlv_buffer[i]   = (pinfo->srcport & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (pinfo->srcport & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (pinfo->srcport & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (pinfo->srcport & 0x000000ff);
 			i = i +EXP_PDU_TAG_SRC_PORT_LEN;
 	}
 
@@ -178,7 +178,10 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DST_PORT_LEN; /* tag length */
 			i++;
-			memcpy(exp_pdu_data->tlv_buffer+i, &pinfo->destport, EXP_PDU_TAG_DST_PORT_LEN);
+			exp_pdu_data->tlv_buffer[i]   = (pinfo->destport & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (pinfo->destport & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (pinfo->destport & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (pinfo->destport & 0x000000ff);
 			i = i +EXP_PDU_TAG_DST_PORT_LEN;
 	}
 

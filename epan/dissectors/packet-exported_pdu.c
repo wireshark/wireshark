@@ -41,18 +41,21 @@ static int hf_exported_pdu_tag_len = -1;
 static int hf_exported_pdu_prot_name = -1;
 static int hf_exported_pdu_ipv4_src = -1;
 static int hf_exported_pdu_ipv4_dst = -1;
+static int hf_exported_pdu_ipv6_src = -1;
+static int hf_exported_pdu_ipv6_dst = -1;
 static int hf_exported_pdu_src_port = -1;
 static int hf_exported_pdu_dst_port = -1;
 
 
 /* Initialize the subtree pointers */
 static gint ett_exported_pdu = -1;
+static gint ett_exported_pdu_tag = -1;
 
 #define EXPORTED_PDU_NEXT_PROTO_STR  0
 static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_END_OF_OPT,       "End-of-options" },
 /* 1 - 9 reserved */
-   { EXP_PDU_TAG_OPTIONS_LENGTH,   "Total length of the options exluding this TLV" },
+   { EXP_PDU_TAG_OPTIONS_LENGTH,   "Total length of the options excluding this TLV" },
    { EXP_PDU_TAG_LINKTYPE,         "Linktype value" },
    { EXP_PDU_TAG_PROTO_NAME,       "PDU content protocol name" },
    /* Add protocol type related tags here */
@@ -60,7 +63,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_IPV4_SRC,         "IPv4 Source Address" },
    { EXP_PDU_TAG_IPV4_DST,         "IPv4 Destination Address" },
    { EXP_PDU_TAG_IPV6_SRC,         "IPv6 Source Address" },
-   { EXP_PDU_TAG_IPV6_DST,         "IPv4 Destination Address" },
+   { EXP_PDU_TAG_IPV6_DST,         "IPv6 Destination Address" },
 
    { EXP_PDU_TAG_SRC_PORT,         "Source Port" },
    { EXP_PDU_TAG_DST_PORT,         "Destination Port" },
@@ -78,14 +81,15 @@ static void
 dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
-    proto_tree *exported_pdu_tree;
+    proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
     guint16 tag;
     int tag_len;
     int next_proto_type = -1;
     char *proto_name = NULL;
-	const guchar *src_addr, *dst_addr;
+    const guchar *src_addr, *dst_addr;
+    dissector_handle_t proto_handle;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
@@ -95,9 +99,10 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     exported_pdu_tree = proto_item_add_subtree(ti, ett_exported_pdu);
 
     tag = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
+    proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     tag_len = tvb_get_ntohs(tvb, offset);
     offset+=2;
     while(tag != 0){
@@ -105,36 +110,49 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case EXP_PDU_TAG_PROTO_NAME:
                 next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
                 proto_name = tvb_get_ephemeral_string(tvb, offset, tag_len);
-                proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_ASCII|ENC_NA);
                 break;
             case EXP_PDU_TAG_IPV4_SRC:
-                proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
-				src_addr = tvb_get_ptr(tvb, offset, 4);
-				SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, src_addr);
-				SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+                src_addr = tvb_get_ptr(tvb, offset, 4);
+                SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, src_addr);
+                SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
                 break;
             case EXP_PDU_TAG_IPV4_DST:
-                proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
-				dst_addr = tvb_get_ptr(tvb, offset, 4);
-				SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
-				SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+                dst_addr = tvb_get_ptr(tvb, offset, 4);
+                SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
+                SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
+                break;
+            case EXP_PDU_TAG_IPV6_SRC:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_src, tvb, offset, 16, ENC_NA);
+                src_addr = tvb_get_ptr(tvb, offset, 4);
+                SET_ADDRESS(&pinfo->net_src, AT_IPv6, 16, src_addr);
+                SET_ADDRESS(&pinfo->src, AT_IPv6, 16, src_addr);
+                break;
+            case EXP_PDU_TAG_IPV6_DST:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_dst, tvb, offset, 16, ENC_NA);
+                dst_addr = tvb_get_ptr(tvb, offset, 4);
+                SET_ADDRESS(&pinfo->net_dst, AT_IPv6, 16, dst_addr);
+                SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, dst_addr);
                 break;
             case EXP_PDU_TAG_SRC_PORT:
-                proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-				pinfo->srcport = tvb_get_ntohl(tvb,offset);
-				break;
+                proto_tree_add_item(tag_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                pinfo->srcport = tvb_get_ntohl(tvb,offset);
+                break;
             case EXP_PDU_TAG_DST_PORT:
-                proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-				pinfo->destport = tvb_get_ntohl(tvb,offset);
-				break;
+                proto_tree_add_item(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                pinfo->destport = tvb_get_ntohl(tvb,offset);
+                break;
             default:
-				break;
+                break;
         };
         offset = offset + tag_len;
-        proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
         tag = tvb_get_ntohs(tvb, offset);
         offset+=2;
-        proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        tag_tree = proto_item_add_subtree(ti, ett_exported_pdu_tag);
+        proto_tree_add_item(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         tag_len = tvb_get_ntohs(tvb, offset);
         offset+=2;
     }
@@ -143,7 +161,10 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch(next_proto_type){
         case EXPORTED_PDU_NEXT_PROTO_STR:
-            call_dissector(find_dissector(proto_name), payload_tvb, pinfo, tree);
+            proto_handle = find_dissector(proto_name);
+            if (proto_handle) {
+                call_dissector(find_dissector(proto_name), payload_tvb, pinfo, tree);
+            }
             break;
         default:
             break;
@@ -177,13 +198,23 @@ proto_register_exported_pdu(void)
               NULL, HFILL }
         },
         { &hf_exported_pdu_ipv4_src,
-            { "IPv4 SRC", "exported_pdu.ipv4_src",
+            { "IPv4 Src", "exported_pdu.ipv4_src",
                FT_IPv4, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_ipv4_dst,
-            { "IPv4 DST", "exported_pdu.ipv4_dst",
+            { "IPv4 Dst", "exported_pdu.ipv4_dst",
                FT_IPv4, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_ipv6_src,
+            { "IPv6 Src", "exported_pdu.ipv6_src",
+               FT_IPv6, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_ipv6_dst,
+            { "IPv6 Dst", "exported_pdu.ipv6_dst",
+               FT_IPv6, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_src_port,
@@ -200,7 +231,8 @@ proto_register_exported_pdu(void)
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_exported_pdu
+        &ett_exported_pdu,
+        &ett_exported_pdu_tag
     };
 
     /* Register the protocol name and description */

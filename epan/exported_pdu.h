@@ -31,7 +31,7 @@
 /**
  * This struct is used as the data part of tap_queue_packet() and contains a
  * buffer with metadata of the protocol PDU included in the tvb in the struct.
- * the meta data is in TLV form, at least one tag MUST indicat what protocol is
+ * the meta data is in TLV form, at least one tag MUST indicate what protocol is
  * in the PDU.
  * Buffer layout:
  *   0                   1                   2                   3
@@ -53,7 +53,7 @@
 /* Tag values */
 #define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
-#define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options exluding this TLV */
+#define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV */
 #define EXP_PDU_TAG_LINKTYPE          11 /**< The value part is the linktype value defined by tcpdump 
                                           * http://www.tcpdump.org/linktypes.html
                                           */ 
@@ -65,16 +65,16 @@
 /* 13 - 19 reserved */
 #define EXP_PDU_TAG_IPV4_SRC        20
 #define EXP_PDU_TAG_IPV4_DST        21
-#define EXP_PDU_TAG_IPV6_SRC        21
-#define EXP_PDU_TAG_IPV6_DST        22
+#define EXP_PDU_TAG_IPV6_SRC        22
+#define EXP_PDU_TAG_IPV6_DST        23
 
-#define EXP_PDU_TAG_SRC_PORT        23
-#define EXP_PDU_TAG_DST_PORT        24
+#define EXP_PDU_TAG_SRC_PORT        24
+#define EXP_PDU_TAG_DST_PORT        25
 
-#define EXP_PDU_TAG_SCTP_PPID       25
+#define EXP_PDU_TAG_SCTP_PPID       26
 
-#define EXP_PDU_TAG_SS7_OPC         26
-#define EXP_PDU_TAG_SS7_DPC         27
+#define EXP_PDU_TAG_SS7_OPC         27
+#define EXP_PDU_TAG_SS7_DPC         28
 
 
 typedef struct _exp_pdu_data_t {
@@ -109,8 +109,8 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_SS7_DPC_LEN         2
 
 /**
- * Allcotates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
- * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or viceversa
+ * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
+ * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or vice-versa
  */
 WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, 
-	                            const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);
+                                const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);

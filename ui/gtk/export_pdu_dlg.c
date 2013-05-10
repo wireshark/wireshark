@@ -78,11 +78,11 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
     pkthdr.interface_id = 0;
     pkthdr.presence_flags = 0;
-	if(pinfo->fd->opt_comment == NULL){
-		pkthdr.opt_comment = NULL;
-	}else{
-		pkthdr.opt_comment = g_strdup(pinfo->fd->opt_comment);
-	}
+    if(pinfo->fd->opt_comment == NULL){
+        pkthdr.opt_comment = NULL;
+    }else{
+        pkthdr.opt_comment = g_strdup(pinfo->fd->opt_comment);
+    }
     pkthdr.drop_count = 0;
     pkthdr.pack_flags = 0;
     pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
@@ -90,7 +90,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     wtap_dump(exp_pdu_tap_data->wdh, &pkthdr, packet_buf, &err);
 
     g_free(packet_buf);
-	g_free(pkthdr.opt_comment);
+    g_free(pkthdr.opt_comment);
 
     return FALSE; /* Do not redraw */
 }
@@ -270,7 +270,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
   row = 0;
 
-  label = gtk_label_new("Add a droptown list to select USER_DLT, currently hardcoded to USER10");
+  label = gtk_label_new("Add a drop-down list to select USER_DLT, currently hardcoded to USER10");
   ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 1, 1);
 
   /* Setup the button row */
