@@ -4829,9 +4829,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Options",
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
-                         !capture_in_progress);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
-                         global_capture_opts.num_selected > 0);
+                         !capture_in_progress && global_capture_opts.num_selected > 0);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Stop",
                          capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
