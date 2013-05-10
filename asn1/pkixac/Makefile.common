@@ -47,12 +47,6 @@ EXTRA_CNF= \
 	$(builddir)/../pkix1implicit/pkix1implicit_exp.cnf \
 	$(builddir)/../x509ce/x509ce-exp.cnf
 
-$(builddir)/../pkix1explicit/pkix1explicit_exp.cnf:
-	(cd $(builddir)/../pkix1explicit && $(MAKE_CNF_EXPORT))
-
-$(builddir)/../pkix1implicit/pkix1implicit_exp.cnf:
-	(cd $(builddir)/../pkix1implicit && $(MAKE_CNF_EXPORT))
-
 $(builddir)/../x509ce/x509ce-exp.cnf:
 	(cd $(builddir)/../x509ce && $(MAKE_CNF_EXPORT))
 
