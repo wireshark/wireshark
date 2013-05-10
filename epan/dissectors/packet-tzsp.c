@@ -348,6 +348,16 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					encap_name, encapsulation);
 	}
 
+	/*
+	 * XXX - what about TZSP_CONFIG frames?
+	 *
+	 * The MIB at
+	 *
+	 *	http://web.archive.org/web/20021221195733/http://www.networkchemistry.com/support/appnotes/SENSOR-MIB
+	 *
+	 * seems to indicate that you can configure the probe using SNMP;
+	 * does TZSP_CONFIG also support that?
+	 */
 	if (type != TZSP_NULL && type != TZSP_PORT) {
 		pos = add_option_info(tvb, 4, tzsp_tree, ti);
 
