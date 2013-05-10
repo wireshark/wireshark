@@ -32,6 +32,14 @@
 
 #include <epan/packet.h>
 
+/*
+ * See
+ *
+ *	http://web.archive.org/web/20050404125022/http://www.networkchemistry.com/support/appnotes/an001_tzsp.html
+ *
+ * for a description of the protocol.
+ */
+
 #define UDP_PORT_TZSP	0x9090
 
 static int proto_tzsp = -1;
