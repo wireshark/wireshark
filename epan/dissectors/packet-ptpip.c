@@ -432,7 +432,7 @@ void dissect_ptpIP_start_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     dataLen = tvb_get_letoh64(tvb, *offset);
     proto_tree_add_item(tree, hf_ptp_totalDataLength, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset+= 8;
-    if(dataLen == 0xFFFFFFFFFFFFFFFF) /*[1] specifies in 2.3.9 if total data len this value then len unknown*/
+    if(dataLen == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) /*[1] specifies in 2.3.9 if total data len this value then len unknown*/
     {
         col_append_str(
             pinfo->cinfo,
