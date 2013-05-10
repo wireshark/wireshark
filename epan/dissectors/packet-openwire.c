@@ -1921,7 +1921,7 @@ proto_register_openwire(void)
         { "FileName", "openwire.throwable.filename", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Throwable FileName", HFILL }},
   
      { &hf_openwire_throwable_linenumber,
-        { "LineNumber", "openwire.throwable.filename", FT_UINT32, BASE_DEC, NULL, 0x0, "Openwire Throwable LineNumber", HFILL }},
+        { "LineNumber", "openwire.throwable.linenumber", FT_UINT32, BASE_DEC, NULL, 0x0, "Openwire Throwable LineNumber", HFILL }},
   
      { &hf_openwire_type_integer,
         { "Integer", "openwire.type.integer", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire Integer type", HFILL }},

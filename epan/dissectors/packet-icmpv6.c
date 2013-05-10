@@ -1398,7 +1398,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, -1, ENC_NA);
 
-                offset = dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
+                opt_offset = dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
                 break;
             case ND_OPT_MTU: /* MTU (5) */
 

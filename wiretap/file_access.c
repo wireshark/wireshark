@@ -128,15 +128,14 @@ static wtap_open_routine_t open_routines_base[] = {
 	dbs_etherwatch_open,
 	k12_open,
 	catapult_dct2000_open,
-	ber_open,
+	ber_open,          /* XXX - this is really a heuristic */
 	aethra_open,
 	btsnoop_open,
 	eyesdn_open,
-	vwr_open,
+	vwr_open,          /* XXX - this is really a heuristic */
 	packetlogger_open, /* This type does not have a magic number, but its
 			    * files are sometimes grabbed by mpeg_open. */
 	mpeg_open,
-	mp2t_open,
 	tnef_open,
 	dct3trace_open,
 	daintree_sna_open,
@@ -166,7 +165,8 @@ static wtap_open_routine_t open_routines_base[] = {
 	cosine_open,
 	hcidump_open,
 	commview_open,
-	nstrace_open
+	nstrace_open,
+	mp2t_open
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines_base / sizeof open_routines_base[0])

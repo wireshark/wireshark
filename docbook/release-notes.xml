@@ -107,6 +107,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Decoding of GSM MAP E164 Digits.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8450">Bug
+          8450</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Silent installer and uninstaller not silent.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8451">Bug
           8451</ulink>)
@@ -122,6 +128,30 @@ Wireshark Info
           geographical_description: hf_gsm_a_geo_loc_deg_of_long 24 bit field truncated to 23 bits.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8532">Bug
           8532</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IRC message with multiple params causes malformed packet exception.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8548">Bug
+          8548</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Part of Ping Reply Message in ICMPv6 Reply Message is marked as &quot;Malformed Packet&quot;.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8554">Bug
+          8554</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          MP2T wiretap heuristic overriding ERF.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8556">Bug
+          8556</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Cannot read content of Ran Information Application Error Rim Container.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8559">Bug
+          8559</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -151,6 +181,9 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 BAT,
+BSSGP,
+DTLS,
+E.164,
 Ericsson A-bis OML,
 GSM A,
 GSM MAP,
@@ -158,11 +191,14 @@ HDFSDATA,
 ICMP,
 ICMPv6,
 ixveriwave,
+IRC,
+OpenWire,
 KDSP,
 RELOAD,
 SASP,
 SIP,
 TCP,
+TLS,
 UA3G
 
     </para>
@@ -171,7 +207,7 @@ UA3G
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-NetScreen snoop.
+Endace ERF, NetScreen snoop.
 
     </para>
     </section>
