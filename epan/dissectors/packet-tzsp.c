@@ -356,7 +356,12 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 *	http://web.archive.org/web/20021221195733/http://www.networkchemistry.com/support/appnotes/SENSOR-MIB
 	 *
 	 * seems to indicate that you can configure the probe using SNMP;
-	 * does TZSP_CONFIG also support that?
+	 * does TZSP_CONFIG also support that?  An old version of Kismet
+	 * included code to control a Network Chemistry WSP100 sensor:
+	 *
+	 *	https://www.kismetwireless.net/code-old/svn/tags/kismet-2004-02-R1/wsp100source.cc
+	 *
+	 * and it used SNMP to configure the probe.
 	 */
 	if (type != TZSP_NULL && type != TZSP_PORT) {
 		pos = add_option_info(tvb, 4, tzsp_tree, ti);
