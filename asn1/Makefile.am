@@ -129,6 +129,8 @@ DONT_BUILD_SUBDIRS = \
 	kerberos \
 	x721
 
+DIST_SUBDIRS = $(SUBDIRS) $(DONT_BUILD_SUBDIRS)
+
 EXTRA_DIST = \
 	Makefile.nmake	\
 	Makefile.inc.nmake	\
