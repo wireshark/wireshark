@@ -364,7 +364,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	GtkWidget	*colopts_edit_dlg, *main_hb, *main_grid,
 						*ed_opts_fr, *main_vb,
 						*bbox, *ok_bt, *cancel_bt, *help_bt, *column_lb,
-						*col_interface_lb, *col_link_lb,
+						*col_link_lb,
 #ifdef HAVE_PCAP_CREATE
 						*col_monitor_lb,
 #endif
