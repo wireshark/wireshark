@@ -44,7 +44,9 @@ AC_DEFINE(VERSION_MICRO, version_micro, [Wireshark's micro version])
 
 AM_DISABLE_STATIC
 
-dnl Checks for programs.
+#
+# Checks for programs used in the build process.
+#
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
@@ -54,6 +56,34 @@ AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_PATH_PROG(PERL, perl)
+
+# Check for Python.
+AC_PATH_PROG(PYTHON, python)
+if test ! -z "$PYTHON"; then
+	#
+	# OK, we found Python; is it Python 2.x?
+	# Note: we don't use named components for sys.version_info to get
+	# the major version number, as named components for version_info
+	# were apparently introduced in Python 2.7.
+	#
+	AC_MSG_CHECKING([whether $PYTHON is Python 2])
+	python_major_version=`$PYTHON -c 'import sys; print sys.version_info[[0]]'`
+	if test "$python_major_version" = 2; then
+		AC_MSG_RESULT([yes])
+	else
+		#
+		# It's not 2.x.
+		#
+		AC_MSG_RESULT([no])
+
+		#
+		# Try looking for python2; if we find it, we assume it's
+		# Python 2
+		#
+		AC_PATH_PROG(PYTHON, python2)
+	fi
+fi
+
 #
 # XXX - should autogen.sh check for YACC/Bison and Flex?  A user building
 # from a distribution tarball shouldn't have to have YACC/Bison or Flex,
@@ -132,12 +162,6 @@ else
 		AC_DEFINE_UNQUOTED(HTML_VIEWER, "htmlview", [HTML viewer, e.g. mozilla])
 	fi
 fi
-
-AC_SUBST(PERL)
-AC_SUBST(LEX)
-AC_SUBST(POD2MAN)
-AC_SUBST(POD2HTML)
-AC_SUBST(XMLLINT)
 
 #
 # Set "ac_supports_gcc_flags" if the compiler is known to support GCC-style
@@ -413,8 +437,6 @@ AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
 AC_PATH_PROG(LYNX, lynx)
 AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
 AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
-
-AC_PATH_PROG(PYTHON, python2)
 
 # Check for w3m (html -> text)
 AC_PATH_PROG(W3M, w3m)
