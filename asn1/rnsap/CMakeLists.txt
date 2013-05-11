@@ -25,10 +25,6 @@ set( PROTOCOL_NAME rnsap )
 
 set( PROTO_OPT )
 
-set( EXPORT_FILES
-	${PROTOCOL_NAME}-exp.cnf
-)
-
 set( EXT_ASN_FILE_LIST
 )
 

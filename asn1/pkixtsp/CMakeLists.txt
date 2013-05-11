@@ -25,10 +25,6 @@ set( PROTOCOL_NAME pkixtsp )
 
 set( PROTO_OPT )
 
-set( EXPORT_FILES
-	${PROTOCOL_NAME}-exp.cnf
-)
-
 set( EXT_ASN_FILE_LIST
 )
 

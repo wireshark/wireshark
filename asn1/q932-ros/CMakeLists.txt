@@ -25,10 +25,6 @@ set( PROTOCOL_NAME q932-ros )
 
 set( PROTO_OPT -p q932.ros )
 
-set( EXPORT_FILES
-	${PROTOCOL_NAME}-exp.cnf
-)
-
 set( EXT_ASN_FILE_LIST
 	../ros/Remote-Operations-Information-Objects.asn
 )

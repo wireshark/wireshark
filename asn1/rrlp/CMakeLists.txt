@@ -25,10 +25,6 @@ set( PROTOCOL_NAME rrlp )
 
 set( PROTO_OPT )
 
-set( EXPORT_FILES
-	${PROTOCOL_NAME}-exp.cnf
-)
-
 set( EXT_ASN_FILE_LIST
 	../gsm_map/MAP-ExtensionDataTypes.asn
 	../gsm_map/MAP-LCS-DataTypes.asn
