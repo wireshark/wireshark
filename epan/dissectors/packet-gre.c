@@ -84,6 +84,7 @@ static int hf_gre_3ggp2_seg = -1;
 static int hf_gre_wccp_redirect_header = -1;
 static int hf_gre_wccp_dynamic_service = -1;
 static int hf_gre_wccp_alternative_bucket_used = -1;
+static int hf_gre_wccp_redirect_header_valid = -1;
 static int hf_gre_wccp_service_id = -1;
 static int hf_gre_wccp_alternative_bucket = -1;
 static int hf_gre_wccp_primary_bucket = -1;
@@ -117,6 +118,7 @@ const value_string gre_version[] = {
     { 0, NULL}
 };
 const value_string gre_typevals[] = {
+    { GRE_KEEPALIVE,       "Possible GRE keepalive packet" },
     { ETHERTYPE_PPP,       "PPP" },
     { ETHERTYPE_IP,        "IP" },
     { SAP_OSINL5,          "OSI"},
@@ -207,6 +209,12 @@ static const true_false_string gre_wccp_alternative_bucket_used_val = {
     "Primary bucket used",
 };
 
+static const true_false_string gre_wccp_redirect_header_valid_val = {
+  "Header is present, but ignore contents",
+  "Header contents are valid",
+};
+
+
 static int
 dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -292,6 +300,8 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_item(rh_tree, hf_gre_wccp_dynamic_service, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket_used, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(rh_tree, hf_gre_wccp_redirect_header_valid, tvb, offset, 1, FALSE);
 
     proto_tree_add_item(rh_tree, hf_gre_wccp_service_id, tvb, offset +1, 1, ENC_BIG_ENDIAN);
 
@@ -673,12 +683,17 @@ proto_register_gre(void)
         },
         { &hf_gre_wccp_dynamic_service,
           { "Dynamic Service", "gre.wccp.dynamic_service",
-            FT_BOOLEAN, 8, TFS(&gre_wccp_dynamic_service_val), 0x80,
+            FT_BOOLEAN, 8, TFS(&gre_wccp_dynamic_service_val), 0x01,
             NULL, HFILL }
         },
         { &hf_gre_wccp_alternative_bucket_used,
           { "Alternative bucket used", "gre.wccp.alternative_bucket_used",
-            FT_BOOLEAN, 8, TFS(&gre_wccp_alternative_bucket_used_val), 0x40,
+            FT_BOOLEAN, 8, TFS(&gre_wccp_alternative_bucket_used_val), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_gre_wccp_redirect_header_valid,
+          { "WCCP Redirect header is valid", "gre.wccp.redirect_header_valid",
+            FT_BOOLEAN, 8, TFS(&gre_wccp_redirect_header_valid_val), 0x04,
             NULL, HFILL }
         },
         { &hf_gre_wccp_service_id,

@@ -31,6 +31,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define GRE_KEEPALIVE	0x0000
 #define GRE_NHRP	0x2001
 #define GRE_WCCP	0x883E
 #define GRE_ERSPAN_88BE	0x88BE
