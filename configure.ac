@@ -45,7 +45,7 @@ AC_DEFINE(VERSION_MICRO, version_micro, [Wireshark's micro version])
 AM_DISABLE_STATIC
 
 #
-# Checks for programs used in the build process.
+# Checks for programs used in the main build process.
 #
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -412,15 +412,13 @@ AC_ARG_WITH([gtk3],
 AX_LIBSMI
 
 #
-# Program paths
+# Check for programs used when building DocBook documentation.
 #
 
 # Check for a2x (convert asciidoc to another format)
 AC_PATH_PROG(A2X, a2x)
 AC_CHECK_PROG(HAVE_A2X, a2x, "yes", "no")
 AM_CONDITIONAL(HAVE_A2X, test x$HAVE_A2X = xyes)
-
-AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
 
 # Want to control a tape drive? Use mt. Want to convert HTML to text?
 # Uhhhhh... elinks? lynx? w3m? pandoc? html2text?
@@ -457,6 +455,12 @@ AM_CONDITIONAL(HAVE_XSLTPROC, test x$HAVE_XSLTPROC = xyes)
 # Check for packaging utilities
 # For now, we check to see if the various packaging utilites are in our
 # path.  I'm too lazy to write code to go hunt for them.  -  Gerald
+
+#
+# Source packages.
+# (Lets you install the desktop files.)
+#
+AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
 
 # SVR4/Solaris
 AC_CHECK_PROG(HAVE_PKGPROTO, pkgproto, "yes", "no")
