@@ -86,12 +86,17 @@ static const value_string vrrp_prio_vals[] = {
 static void
 dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 0;
-    gint vrrp_len;
-    guint8  ver_type;
-    vec_t cksum_vec[4];
-    guint32 phdr[2];
-    gboolean is_ipv6;
+    int         offset = 0;
+    gint        vrrp_len;
+    guint8      ver_type;
+    vec_t       cksum_vec[4];
+    guint32     phdr[2];
+    gboolean    is_ipv6;
+    proto_item *ti, *tv;
+    proto_tree *vrrp_tree, *ver_type_tree;
+    guint8      priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
+    guint16     cksum, computed_cksum;
+    guint8      auth_buf[VRRP_AUTH_DATA_LEN + 1];
 
     is_ipv6 = (pinfo->src.type == AT_IPv6);
 
@@ -102,125 +107,116 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
             "Announcement", hi_nibble(ver_type));
 
-    if (tree) {
-        proto_item *ti, *tv;
-        proto_tree *vrrp_tree, *ver_type_tree;
-        guint8 priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
-        guint16 cksum, computed_cksum;
-        guint8 auth_buf[VRRP_AUTH_DATA_LEN + 1];
+    ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, ENC_NA);
+    vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
-        ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, ENC_NA);
-        vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
+    tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type,
+            tvb, offset, 1, ver_type,
+            "Version %u, Packet type %u (%s)",
+            hi_nibble(ver_type), lo_nibble(ver_type),
+            val_to_str_const(lo_nibble(ver_type), vrrp_type_vals, "Unknown"));
+    ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
+    proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
+            offset, 1, ver_type);
+    proto_tree_add_uint(ver_type_tree, hf_vrrp_type, tvb, offset, 1, ver_type);
+    offset++;
 
-        tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type,
-                tvb, offset, 1, ver_type,
-                "Version %u, Packet type %u (%s)",
-                hi_nibble(ver_type), lo_nibble(ver_type),
-                val_to_str_const(lo_nibble(ver_type), vrrp_type_vals, "Unknown"));
-        ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
-        proto_tree_add_uint(ver_type_tree, hf_vrrp_version, tvb,
-                offset, 1, ver_type);
-        proto_tree_add_uint(ver_type_tree, hf_vrrp_type, tvb, offset, 1,
-                ver_type);
-        offset++;
+    proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-        proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+    priority = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
+            priority,
+            val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
+    offset++;
 
-        priority = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
-                priority,
-                val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
-        offset++;
+    addr_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
+            offset, 1, addr_count);
+    offset++;
 
-        addr_count = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(vrrp_tree, hf_vrrp_addr_count, tvb,
-                offset, 1, addr_count);
-        offset++;
+    switch(hi_nibble(ver_type)) {
+        case 3:
+            /* 4 bits reserved (mbz) + 12 bits interval */
+            proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            break;
+        case 2:
+        default:
+            /* 1 byte auth type + 1 byte interval */
+            auth_type = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
 
+            proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            break;
+    }
+
+    cksum = tvb_get_ntohs(tvb, offset);
+    vrrp_len = (gint)tvb_reported_length(tvb);
+    if (!pinfo->fragmented && (gint)tvb_length(tvb) >= vrrp_len) {
+        /* The packet isn't part of a fragmented datagram
+           and isn't truncated, so we can checksum it. */
         switch(hi_nibble(ver_type)) {
             case 3:
-                /* 4 bits reserved (mbz) + 12 bits interval */
-                proto_tree_add_item(vrrp_tree, hf_vrrp_reserved_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(vrrp_tree, hf_vrrp_short_adver_int, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset+=2;
+                /* Set up the fields of the pseudo-header. */
+                cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
+                cksum_vec[0].len = pinfo->src.len;
+                cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
+                cksum_vec[1].len = pinfo->dst.len;
+                cksum_vec[2].ptr = (const guint8 *)&phdr;
+                phdr[0] = g_htonl(vrrp_len);
+                phdr[1] = g_htonl(IP_PROTO_VRRP);
+                cksum_vec[2].len = 8;
+                cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
+                cksum_vec[3].len = vrrp_len;
+                computed_cksum = in_cksum(cksum_vec, 4);
                 break;
             case 2:
             default:
-                /* 1 byte auth type + 1 byte interval */
-                auth_type = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
-
-                proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
+                cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
+                cksum_vec[0].len = vrrp_len;
+                computed_cksum = in_cksum(&cksum_vec[0], 1);
                 break;
         }
-
-        cksum = tvb_get_ntohs(tvb, offset);
-        vrrp_len = (gint)tvb_reported_length(tvb);
-        if (!pinfo->fragmented && (gint)tvb_length(tvb) >= vrrp_len) {
-            /* The packet isn't part of a fragmented datagram
-               and isn't truncated, so we can checksum it. */
-            switch(hi_nibble(ver_type)) {
-                case 3:
-                    /* Set up the fields of the pseudo-header. */
-                    cksum_vec[0].ptr = (guint8 *)pinfo->src.data;
-                    cksum_vec[0].len = pinfo->src.len;
-                    cksum_vec[1].ptr = (guint8 *)pinfo->dst.data;
-                    cksum_vec[1].len = pinfo->dst.len;
-                    cksum_vec[2].ptr = (const guint8 *)&phdr;
-                    phdr[0] = g_htonl(vrrp_len);
-                    phdr[1] = g_htonl(IP_PROTO_VRRP);
-                    cksum_vec[2].len = 8;
-                    cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
-                    cksum_vec[3].len = vrrp_len;
-                    computed_cksum = in_cksum(cksum_vec, 4);
-                    break;
-                case 2:
-                default:
-                    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
-                    cksum_vec[0].len = vrrp_len;
-                    computed_cksum = in_cksum(&cksum_vec[0], 1);
-                    break;
-            }
-            if (computed_cksum == 0) {
-                proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                        "Checksum: 0x%04x [correct]",
-                        cksum);
-            } else {
-                proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                        "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-                        cksum,
-                        in_cksum_shouldbe(cksum, computed_cksum));
-            }
+        if (computed_cksum == 0) {
+            proto_tree_add_text(vrrp_tree, tvb, offset, 2,
+                    "Checksum: 0x%04x [correct]",
+                    cksum);
         } else {
             proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                    "Checksum: 0x%04x", cksum);
+                    "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+                    cksum,
+                    in_cksum_shouldbe(cksum, computed_cksum));
         }
-        offset+=2;
-
-        while (addr_count > 0) {
-            if (is_ipv6) {
-                proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, ENC_NA);
-                offset+=16;
-            } else {
-                proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset+=4;
-            }
-            addr_count--;
-        }
-        if (auth_type != VRRP_AUTH_TYPE_SIMPLE_TEXT)
-            return; /* Contents of the authentication data is undefined */
-
-        tvb_get_nstringz0(tvb, offset, sizeof auth_buf, auth_buf);
-        if (auth_buf[0] != '\0')
-            proto_tree_add_text(vrrp_tree, tvb, offset,
-                    VRRP_AUTH_DATA_LEN,
-                    "Authentication string: `%s'",
-                    auth_buf);
-        /*offset+=8;*/
+    } else {
+        proto_tree_add_text(vrrp_tree, tvb, offset, 2,
+                "Checksum: 0x%04x", cksum);
     }
+    offset+=2;
+
+    while (addr_count > 0) {
+        if (is_ipv6) {
+            proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, ENC_NA);
+            offset+=16;
+        } else {
+            proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset+=4;
+        }
+        addr_count--;
+    }
+    if (auth_type != VRRP_AUTH_TYPE_SIMPLE_TEXT)
+        return; /* Contents of the authentication data is undefined */
+
+    tvb_get_nstringz0(tvb, offset, sizeof auth_buf, auth_buf);
+    if (auth_buf[0] != '\0')
+        proto_tree_add_text(vrrp_tree, tvb, offset,
+                VRRP_AUTH_DATA_LEN,
+                "Authentication string: `%s'",
+                auth_buf);
+    /*offset+=8;*/
 }
 
 void proto_register_vrrp(void)
