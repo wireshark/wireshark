@@ -368,6 +368,7 @@ struct nstr_phdr {
     guint8 clflags_offset;
     guint8 src_vmname_len_offset;
     guint8 dst_vmname_len_offset;
+    guint8 ns_activity_offset;
     guint8 data_offset;
 };
 

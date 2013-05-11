@@ -51,8 +51,17 @@ static int hf_ns_clflags_dfd = -1;
 static int hf_ns_clflags_fr = -1;
 static int hf_ns_clflags_fp = -1;
 
+static int hf_ns_activity = -1;
+static int hf_ns_activity_perf_collection = -1;
+static int hf_ns_activity_pcb_zombie  = -1;
+static int hf_ns_activity_natpcb_zombie  = -1;
+static int hf_ns_activity_lbstats_sync  = -1;
+static int hf_ns_activity_stats_req  = -1;
+ 
+
 static gint ett_ns = -1;
 static gint ett_ns_flags = -1;
+static gint ett_ns_activity_flags = -1;
 
 static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLTX_V10, "TX" },
@@ -77,30 +86,38 @@ static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLTX_V23, "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V24, "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V25, "TX" },
+	{ NSPR_PDPKTRACEFULLTX_V26, "TX" },
 	{ NSPR_PDPKTRACEFULLTXB_V22, "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V23, "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V24, "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V25, "TXB" },
+	{ NSPR_PDPKTRACEFULLTXB_V26, "TXB" },
 	{ NSPR_PDPKTRACEFULLRX_V22, "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V23, "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V24, "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V25, "RX" },
+	{ NSPR_PDPKTRACEFULLRX_V26, "RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V24, "NEW_RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V25, "NEW_RX" },
+	{ NSPR_PDPKTRACEFULLNEWRX_V26, "NEW_RX" },
 	{ NSPR_PDPKTRACEPARTTX_V22, "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V23, "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V24, "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V25, "TX" },
+	{ NSPR_PDPKTRACEPARTTX_V26, "TX" },
 	{ NSPR_PDPKTRACEPARTTXB_V22, "TXB" },
 	{ NSPR_PDPKTRACEPARTTXB_V23, "TXB" },
 	{ NSPR_PDPKTRACEPARTTXB_V24, "TXB" },
 	{ NSPR_PDPKTRACEPARTTXB_V25, "TXB" },
+	{ NSPR_PDPKTRACEPARTTXB_V26, "TXB" },
 	{ NSPR_PDPKTRACEPARTRX_V22, "RX" },
 	{ NSPR_PDPKTRACEPARTRX_V23, "RX" },
 	{ NSPR_PDPKTRACEPARTRX_V24, "RX" },
 	{ NSPR_PDPKTRACEPARTRX_V25, "RX" },
+	{ NSPR_PDPKTRACEPARTRX_V26, "RX" },
 	{ NSPR_PDPKTRACEPARTNEWRX_V24, "NEW_RX" },
 	{ NSPR_PDPKTRACEPARTNEWRX_V25, "NEW_RX" },
+	{ NSPR_PDPKTRACEPARTNEWRX_V26, "NEW_RX" },
 	{ 0,              NULL }
 };
 
@@ -112,6 +129,12 @@ static dissector_handle_t eth_withoutfcs_handle;
 #define CL_RSS	0x08
 #define CL_RSSH	0x10
 #define CL_RES	0xE0
+
+#define NS_PE_STATE_PERF_COLLECTION_IN_PROG     0x00000001
+#define NS_PE_STATE_PCB_ZOMBIE_IN_PROG          0x00000002
+#define NS_PE_STATE_NATPCB_ZOMBIE_IN_PROG       0x00000004
+#define NS_PE_STATE_LBSTATS_SYNC_IN_PROG        0x00000008
+#define NS_PE_STATE_STATS_REQ_IN_PROG           0x00000010
 
 static void
 dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -128,6 +151,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		flagoffset, flagval;
 	guint8      src_vmname_len = 0, dst_vmname_len = 0;
 	guint8      variable_ns_len = 0;
+	guint 		flagval32;
 
 	if (pnstr->rec_type == NSPR_HEADER_VERSION205)
 		{
@@ -145,6 +169,18 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (pnstr->rec_type)
 	{
+	case NSPR_HEADER_VERSION206:
+		flagoffset = pnstr->ns_activity_offset;
+		flagval32 = tvb_get_letohl(tvb, flagoffset);	
+		flagitem = proto_tree_add_uint_format(ns_tree, hf_ns_activity, tvb, flagoffset, 4, flagval32,
+						"Activity Flags: 0x%04x", flagval32);
+		flagtree = proto_item_add_subtree(flagitem, ett_ns_activity_flags);
+		proto_tree_add_item(flagtree, hf_ns_activity_perf_collection, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(flagtree, hf_ns_activity_pcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(flagtree, hf_ns_activity_natpcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(flagtree, hf_ns_activity_lbstats_sync, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(flagtree, hf_ns_activity_stats_req, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+
 	case NSPR_HEADER_VERSION205:
 
 		if(src_vmname_len){
@@ -293,11 +329,36 @@ proto_register_ns(void)
 		  { "Flow processor (FP)",	"nstrace.flags.fp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_FP,
 			  NULL, HFILL}},
 
+		{ &hf_ns_activity,
+		  { "NetScaler Activity",	"nstrace.activity", FT_UINT32, BASE_HEX, NULL, 0x0,
+			  NULL, HFILL}},
+
+		{ &hf_ns_activity_perf_collection,
+		  { "Perf Collection",	"nstrace.activity.perfcollection", FT_BOOLEAN, 32, NULL, NS_PE_STATE_PERF_COLLECTION_IN_PROG,
+			  NULL, HFILL}},
+
+		{ &hf_ns_activity_pcb_zombie,
+		  { "PCB Zombie",	"nstrace.activity.pcbzombie", FT_BOOLEAN, 32, NULL, NS_PE_STATE_PCB_ZOMBIE_IN_PROG,
+			  NULL, HFILL}},
+
+		{ &hf_ns_activity_natpcb_zombie,
+		  { "NATPCB Zombie",	"nstrace.activity.natpcbzombie", FT_BOOLEAN, 32, NULL, NS_PE_STATE_NATPCB_ZOMBIE_IN_PROG,
+			  NULL, HFILL}},
+
+		{ &hf_ns_activity_lbstats_sync,
+		  { "LB Stats Sync",	"nstrace.activity.lbstatssync", FT_BOOLEAN, 32, NULL, NS_PE_STATE_LBSTATS_SYNC_IN_PROG,
+			  NULL, HFILL}},
+
+		{ &hf_ns_activity_stats_req,
+		  { "Stats Req",	"nstrace.activity.statsreq", FT_BOOLEAN, 32, NULL, NS_PE_STATE_STATS_REQ_IN_PROG,
+			  NULL, HFILL}},
+
 	};
 
 	static gint *ett[] = {
 		&ett_ns,
 		&ett_ns_flags,
+		&ett_ns_activity_flags,
 	};
 
 	proto_nstrace = proto_register_protocol("NetScaler Trace", "NS Trace", "ns");
