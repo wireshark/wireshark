@@ -29,7 +29,8 @@ MACRO(ASN2WRS)
 	)
 
 	foreach( _asn2wrs_export_file IN LISTS EXPORT_FILES )
-		ADD_CUSTOM_TARGET( ${_asn2wrs_export_file} ALL
+		ADD_CUSTOM_TARGET( ${_asn2wrs_export_file}
+			WORKING_DIRECTORY .
 			COMMAND ${PYTHON_EXECUTABLE}
 			  ${CMAKE_SOURCE_DIR}/tools/asn2wrs.py
 			  -E
