@@ -961,7 +961,7 @@ static void
 dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 	proto_tree *radiotap_tree     = NULL;
-	proto_tree *pt, *present_tree = NULL;
+	proto_tree *pt = NULL, *present_tree = NULL;
 	proto_tree *ft;
 	proto_item *ti                = NULL;
 	proto_item *hidden_item;
