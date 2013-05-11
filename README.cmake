@@ -2,7 +2,7 @@
 
    $Id$
 
-                           Notice 
+                           Notice
 
    To find out the current state of the cmake implementaion for
    Wireshark, please take a look at "What needs to be done?" below.
@@ -87,7 +87,6 @@ All the executables now build from clean source on:
 What needs to be done?
 ======================
 
-- Add asn1 autogen target (assigned: krj)
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
 - Guides are not installed.
