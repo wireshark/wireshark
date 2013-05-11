@@ -99,10 +99,8 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     ver_type = tvb_get_guint8(tvb, 0);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
-                "Announcement", hi_nibble(ver_type));
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
+            "Announcement", hi_nibble(ver_type));
 
     if (tree) {
         proto_item *ti, *tv;
