@@ -83,8 +83,8 @@ static const value_string vrrp_prio_vals[] = {
 };
 
 
-static void
-dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         offset = 0;
     gint        vrrp_len;
@@ -207,17 +207,20 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         addr_count--;
     }
-    if (auth_type != VRRP_AUTH_TYPE_SIMPLE_TEXT)
-        return; /* Contents of the authentication data is undefined */
 
-    tvb_get_nstringz0(tvb, offset, sizeof auth_buf, auth_buf);
-    if (auth_buf[0] != '\0')
-        proto_tree_add_text(vrrp_tree, tvb, offset,
-                VRRP_AUTH_DATA_LEN,
-                "Authentication string: `%s'",
-                auth_buf);
-    /*offset+=8;*/
+    if (auth_type == VRRP_AUTH_TYPE_SIMPLE_TEXT) {
+        tvb_get_nstringz0(tvb, offset, sizeof auth_buf, auth_buf);
+        if (auth_buf[0] != '\0')
+            proto_tree_add_text(vrrp_tree, tvb, offset,
+                    VRRP_AUTH_DATA_LEN,
+                    "Authentication string: `%s'",
+                    auth_buf);
+        offset += VRRP_AUTH_DATA_LEN;
+    }
+
+    return offset;
 }
+
 
 void proto_register_vrrp(void)
 {
@@ -299,7 +302,7 @@ proto_reg_handoff_vrrp(void)
 {
     dissector_handle_t vrrp_handle;
 
-    vrrp_handle = create_dissector_handle(dissect_vrrp, proto_vrrp);
+    vrrp_handle = new_create_dissector_handle(dissect_vrrp, proto_vrrp);
     dissector_add_uint("ip.proto", IP_PROTO_VRRP, vrrp_handle);
 }
 
