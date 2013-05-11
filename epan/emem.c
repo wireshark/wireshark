@@ -382,7 +382,7 @@ static guint allocations[NUM_ALLOC_DIST] = { 0 };
 static guint total_no_chunks = 0;
 
 static void
-print_alloc_stats()
+print_alloc_stats(void)
 {
 	guint num_chunks = 0;
 	guint num_allocs = 0;
@@ -469,7 +469,7 @@ print_alloc_stats()
 			int len;
 
 			while (ptr != NULL) {
-				ptr = emem_canary_next(se_packet_mem.canary, ptr, &len);
+				ptr = emem_canary_next(se_packet_mem.canary, (guint8*)ptr, &len);
 
 				if (ptr == (void *) -1)
 					g_error("Memory corrupted");
