@@ -34,13 +34,15 @@ COMMAND_ARGS="-nr"
 COMMAND_ARGS2=
 VALID=0
 PCAP=""
+TOOL=""
 
-while getopts ":2b:C:lnrtTwcevW" OPTCHAR ; do
+while getopts ":2b:C:lmnrtTwcevW" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
         C) COMMAND_ARGS="-C $OPTARG $COMMAND_ARGS" ;;
         l) LEAK_CHECK="--leak-check=full" ;;
+        m) TOOL="--tool=massif" ;;
         n) COMMAND_ARGS="-v"
            VALID=1 ;;
         r) REACHABLE="--show-reachable=yes" ;;
@@ -85,4 +87,4 @@ export WIRESHARK_DEBUG_SE_NO_CHUNKS=
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
 export G_SLICE=always-malloc # or debug-blocks
 
-libtool --mode=execute valgrind $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+libtool --mode=execute valgrind $TOOL $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
