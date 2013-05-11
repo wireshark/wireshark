@@ -292,8 +292,6 @@ void proto_register_vrrp(void)
             "VRRP", "vrrp");
     proto_register_field_array(proto_vrrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    return;
 }
 
 void
