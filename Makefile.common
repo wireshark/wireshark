@@ -108,14 +108,14 @@ wireshark_SOURCES =	\
 	airpcap_loader.c \
 	capture.c	\
 	capture_info.c	\
-	capture_opts.c \
+	capture_opts.c	\
 	color_filters.c	\
-	file.c	\
+	file.c		\
 	fileset.c	\
 	filters.c	\
-	g711.c \
+	g711.c		\
 	iface_monitor.c \
-	merge.c	\
+	merge.c		\
 	proto_hier_stats.c	\
 	summary.c	\
 	tempfile.c	\
@@ -131,11 +131,11 @@ wireshark_INCLUDES =	\
 	capture_opts.h	\
 	color_filters.h	\
 	filters.h	\
-	g711.h	\
+	g711.h		\
 	globals.h	\
 	iface_monitor.h \
-	log.h	\
-	merge.h	\
+	log.h		\
+	merge.h		\
 	proto_hier_stats.h	\
 	stat_menu.h	\
 	summary.h	\
@@ -200,7 +200,7 @@ randpkt_SOURCES = \
 # dumpcap specifics
 dumpcap_SOURCES =	\
 	$(PLATFORM_SRC) \
-	capture_opts.c \
+	capture_opts.c	\
 	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
 	cfutils.c	\
