@@ -2509,7 +2509,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct _rtcp_conversation_info *p_conv_data;
 
     /* Use existing packet data if available */
-    p_conv_data = (struct _rtcp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtcp);
+    p_conv_data = (struct _rtcp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtcp, 0);
 
     if (!p_conv_data)
     {
@@ -2531,7 +2531,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 p_conv_packet_data = (struct _rtcp_conversation_info *)se_memdup(p_conv_data,
                        sizeof(struct _rtcp_conversation_info));
 
-                p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);
+                p_add_proto_data(pinfo->fd, proto_rtcp, 0, p_conv_packet_data);
             }
         }
     }
@@ -2578,7 +2578,7 @@ static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr)
     /* First of all, see if we've already stored this information for this sr */
 
     /* Look first in packet info */
-    p_packet_data = (struct _rtcp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtcp);
+    p_packet_data = (struct _rtcp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtcp, 0);
     if (p_packet_data && p_packet_data->last_received_set &&
         (p_packet_data->last_received_frame_number >= pinfo->fd->num))
     {
@@ -2639,7 +2639,7 @@ static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr)
     {
         p_packet_data = se_new0(struct _rtcp_conversation_info);
 
-        p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
+        p_add_proto_data(pinfo->fd, proto_rtcp, 0, p_packet_data);
     }
 
     /* Copy current conversation data into packet info */
@@ -2670,7 +2670,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 
     /*************************************************/
     /* Look for previous result                      */
-    p_packet_data = (struct _rtcp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtcp);
+    p_packet_data = (struct _rtcp_conversation_info *)p_get_proto_data(pinfo->fd, proto_rtcp, 0);
     if (p_packet_data && p_packet_data->lsr_matched)
     {
         /* Show info. */
@@ -2709,7 +2709,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
             p_packet_data = se_new0(struct _rtcp_conversation_info);
 
             /* Set as packet info */
-            p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
+            p_add_proto_data(pinfo->fd, proto_rtcp, 0, p_packet_data);
         }
 
         /* Don't allow match seemingly calculated from same (or later!) frame */

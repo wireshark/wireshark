@@ -991,12 +991,12 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         else
           fragment = TRUE;
         is_extended = FALSE;
-        prev_dst_ref = (guint32 *)p_get_proto_data (pinfo->fd, proto_clnp);
+        prev_dst_ref = (guint32 *)p_get_proto_data (pinfo->fd, proto_clnp, 0);
         if (!prev_dst_ref) {
           /* First COTP in frame - save previous dst_ref as offset */
           prev_dst_ref = se_new(guint32);
           *prev_dst_ref = cotp_dst_ref;
-          p_add_proto_data (pinfo->fd, proto_clnp, prev_dst_ref);
+          p_add_proto_data (pinfo->fd, proto_clnp, 0, prev_dst_ref);
         } else if (cotp_frame_reset) {
           cotp_dst_ref = *prev_dst_ref;
         }

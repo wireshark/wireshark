@@ -395,7 +395,7 @@ new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 static void
 save_client_state(packet_info *pinfo, enum ClientState state)
 {
-	sock_state_t* state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks);
+	sock_state_t* state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks, 0);
 	if ((state_info != NULL) && (state_info->client == clientNoInit)) {
 		state_info->client = state;
 	}
@@ -405,7 +405,7 @@ save_client_state(packet_info *pinfo, enum ClientState state)
 static void
 save_server_state(packet_info *pinfo, enum ServerState state)
 {
-	sock_state_t* state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks);
+	sock_state_t* state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks, 0);
 	if ((state_info != NULL) && (state_info->server == serverNoInit)) {
 		state_info->server = state;
 	}
@@ -992,14 +992,14 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	sock_state_t* state_info;
 	guint8 version;
 
-	state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks);
+	state_info = (sock_state_t *)p_get_proto_data(pinfo->fd, proto_socks, 0);
 	if (state_info == NULL) {
 		state_info = se_new(sock_state_t);
 		state_info->in_socks_dissector_flag = 0;
 		state_info->client = clientNoInit;
 		state_info->server = serverNoInit;
 
-		p_add_proto_data(pinfo->fd, proto_socks, state_info);
+		p_add_proto_data(pinfo->fd, proto_socks, 0, state_info);
 	}
 
 	/* avoid recursive overflow */

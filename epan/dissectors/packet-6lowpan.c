@@ -699,7 +699,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
     hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
-                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
     if (hints) {
         lowpan_addr16_to_ifcid(hints->src16, ifcid);
         return TRUE;
@@ -738,7 +738,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
     hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
-                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
     if (hints) {
         lowpan_addr16_to_ifcid(hints->dst16, ifcid);
         return TRUE;
@@ -1371,7 +1371,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
     hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
-                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
     hint_panid = (hints) ? (hints->src_pan) : (IEEE802154_BCAST_PAN);
 
     /* Create a tree for the IPHC header. */

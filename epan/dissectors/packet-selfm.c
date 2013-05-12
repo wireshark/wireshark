@@ -1005,7 +1005,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
     /* Search for previously-encountered Configuration information to dissect the frame */
     {
-        conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm);
+        conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
 
         if (conv) {
             wmem_slist_frame_t *frame = wmem_slist_front(conv->fm_config_frames);
@@ -1816,7 +1816,7 @@ dissect_selfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             conversation_add_proto_data(conversation, proto_selfm, (void *)conv_data);
         }
 
-        p_add_proto_data(pinfo->fd, proto_selfm, conv_data);
+        p_add_proto_data(pinfo->fd, proto_selfm, 0, conv_data);
 
         if ((CMD_FM_CONFIG == msg_type) || (CMD_DFM_CONFIG == msg_type) || (CMD_PDFM_CONFIG == msg_type)) {
             /* Fill the fm_config_frame */

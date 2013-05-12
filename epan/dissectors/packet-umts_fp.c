@@ -2696,7 +2696,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             umts_mac_info *macinf;
             bit_offset = 0;
 
-            macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+            macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
             /* Add subframe subtree */
             subframe_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe, tvb, offset, 0,
                                                        "", "Subframe %u data", subframes[n].subframe_number);
@@ -3027,7 +3027,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
             /* Call MAC for this PDU if configured to */
             if (preferences_call_mac_dissectors) {
-                p_add_proto_data(pinfo->fd, proto_umts_mac, mac_is_info);
+                p_add_proto_data(pinfo->fd, proto_umts_mac, 0, mac_is_info);
                 call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, top_level_tree);
             }
             else {
@@ -3093,8 +3093,8 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         umts_mac_info *macinf;
         rlc_info *rlcinf;
 
-        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
-        macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
+        macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
 
         /**************************************/
         /* HS-DCH data here (type 1 in R7)    */
@@ -3295,8 +3295,8 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         umts_mac_info *macinf;
         rlc_info *rlcinf;
 
-        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
-        macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
+        macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
         /********************************/
         /* HS-DCH type 2 data here      */
 
@@ -3534,8 +3534,8 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         umts_mac_info *macinf;
         rlc_info *rlcinf;
 
-        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
-        macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
+        macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
         /********************************/
         /* HS-DCH type 2 data here      */
 
@@ -3743,7 +3743,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         return FALSE;
     }
 
-    p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 
     /* if no FP info is present, this might be FP in a pcap(ng) file */
     if (!p_fp_info) {
@@ -3832,7 +3832,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
     gint *cur_val=NULL;
 
     fpi = se_new0(fp_info);
-    p_add_proto_data(pinfo->fd, proto_fp, fpi);
+    p_add_proto_data(pinfo->fd, proto_fp, 0, fpi);
 
     fpi->iface_type = p_conv_data->iface_type;
     fpi->division = p_conv_data->division;
@@ -3874,7 +3874,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
            macinf->content[0] = hsdsch_macdflow_id_mac_content_map[p_conv_data->hsdsch_macdflow_id]; /*MAC_CONTENT_PS_DTCH;*/
             macinf->lchid[0] = p_conv_data->hsdsch_macdflow_id;
             /*macinf->content[0] = lchId_type_table[p_conv_data->edch_lchId[0]];*/
-            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+            p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
 
             rlcinf = se_new0(rlc_info);
 
@@ -3917,7 +3917,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
-            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
 
 
             return fpi;
@@ -3939,7 +3939,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
            /* macinf = se_new0(umts_mac_info);
             macinf->content[0] = MAC_CONTENT_PS_DTCH;*/
-            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+            p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
 
 
             /* For RLC re-assembly to work we need a urnti signaled from NBAP */
@@ -3949,7 +3949,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
 
-            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
 
             return fpi;
 
@@ -4072,8 +4072,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
                     offset++;
             }
-            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
-            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
+            p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             /* Set offset to point to first TFI
              * the Number of TFI's = number of DCH's in the flow
              */
@@ -4093,7 +4093,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             macinf = se_new0(umts_mac_info);
             macinf->ctmux[0]   = 1;
             macinf->content[0] = MAC_CONTENT_DCCH;
-            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+            p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
             /* Set RLC data */
             rlcinf = se_new0(rlc_info);
             /* Make configurable ?(avaliable in NBAP?) */
@@ -4104,7 +4104,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
-            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             break;
 
         case CHANNEL_RACH_FDD:
@@ -4128,14 +4128,14 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
 
 
-            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
-            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            p_add_proto_data(pinfo->fd, proto_umts_mac,0,  macinf);
+            p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             break;
         case CHANNEL_HSDSCH_COMMON:
                 rlcinf = se_new0(rlc_info);
                 macinf = se_new0(umts_mac_info);
-                p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
-                p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+                p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
+                p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
             break;
         default:
             expert_add_info_format(pinfo,NULL,PI_UNDECODED,PI_WARN,"Unknown transport channel type");
@@ -4185,7 +4185,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     top_level_tree = tree;
 
     /* Look for packet info! */
-    p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 
     /* Check if we have conversation info */
     p_conv = (conversation_t *)find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
@@ -4246,7 +4246,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     /* Show release information */
     if (preferences_show_release_info) {

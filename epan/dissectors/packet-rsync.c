@@ -116,12 +116,12 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     rsync_tree = proto_item_add_subtree(ti, ett_rsync);
 
-    rsync_frame_data_p = (struct rsync_frame_data *)p_get_proto_data(pinfo->fd, proto_rsync);
+    rsync_frame_data_p = (struct rsync_frame_data *)p_get_proto_data(pinfo->fd, proto_rsync, 0);
     if (!rsync_frame_data_p) {
 	/* then we haven't seen this frame before */
 	rsync_frame_data_p = se_new(struct rsync_frame_data);
 	rsync_frame_data_p->state = conversation_data->state;
-	p_add_proto_data(pinfo->fd, proto_rsync, rsync_frame_data_p);
+	p_add_proto_data(pinfo->fd, proto_rsync, 0, rsync_frame_data_p);
     }
 
     switch (rsync_frame_data_p->state) {

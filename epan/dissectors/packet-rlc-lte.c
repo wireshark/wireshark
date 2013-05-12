@@ -763,11 +763,11 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
 
             /* Reuse or allocate struct */
-            p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+            p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte, 0);
             if (p_pdcp_lte_info == NULL) {
                 p_pdcp_lte_info = se_new0(pdcp_lte_info);
                 /* Store info in packet */
-                p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
+                p_add_proto_data(pinfo->fd, proto_pdcp_lte, 0, p_pdcp_lte_info);
             }
 
             p_pdcp_lte_info->ueid = rlc_info->ueid;
@@ -2117,9 +2117,9 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Call sequence analysis function now */
     if (((global_rlc_lte_um_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
-         (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
+         (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) != NULL)) ||
         ((global_rlc_lte_um_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
-         (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
+         (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) == NULL))) {
 
         guint16 lastSegmentOffset = offset;
         if (s_number_of_extensions >= 1) {
@@ -2338,9 +2338,9 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     /* Repeated NACK analysis & check ACK-SN is in range */
     if (((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
-         (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
+         (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) != NULL)) ||
         ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
-         (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
+         (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) == NULL))) {
 
         if (!is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
             checkChannelRepeatedNACKInfo(pinfo, p_rlc_lte_info, tap_info, tree, tvb);
@@ -2506,9 +2506,9 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Call sequence analysis function now */
     if (((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
-         (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
+         (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) != NULL)) ||
         ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
-         (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
+         (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) == NULL))) {
 
         guint16 firstSegmentLength;
         guint16 lastSegmentOffset = offset;
@@ -2622,7 +2622,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 
     /* If redissecting, use previous info struct (if available) */
-    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte, 0);
     if (p_rlc_lte_info == NULL) {
         /* Allocate new info struct for this frame */
         p_rlc_lte_info = se_new0(struct rlc_lte_info);
@@ -2685,7 +2685,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!infoAlreadySet) {
         /* Store info in packet */
-        p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
+        p_add_proto_data(pinfo->fd, proto_rlc_lte, 0, p_rlc_lte_info);
     }
 
     /**************************************/
@@ -2726,7 +2726,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Look for packet info! */
-    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte, 0);
 
     /* Can't dissect anything without it... */
     if (p_rlc_lte_info == NULL) {
@@ -2828,7 +2828,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_info->channelId = p_rlc_lte_info->channelId;
     tap_info->pduLength = p_rlc_lte_info->pduLength;
     tap_info->UMSequenceNumberLength = p_rlc_lte_info->UMSequenceNumberLength;
-    tap_info->loggedInMACFrame = (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL);
+    tap_info->loggedInMACFrame = (p_get_proto_data(pinfo->fd, proto_mac_lte, 0) != NULL);
 
     tap_info->time = pinfo->fd->abs_ts;
 

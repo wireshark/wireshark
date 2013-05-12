@@ -632,9 +632,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /* Allocate frame data with hints for upper layers */
     if(!pinfo->fd->flags.visited){
         ieee_hints = se_new0(ieee802154_hints_t);
-        p_add_proto_data(pinfo->fd, proto_ieee802154, ieee_hints);
+        p_add_proto_data(pinfo->fd, proto_ieee802154, 0, ieee_hints);
     } else {
-        ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, proto_ieee802154);
+        ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, proto_ieee802154, 0);
     }
 
     /* Create the protocol tree. */
@@ -1812,7 +1812,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
         return NULL;
     }
 
-    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, proto_ieee802154);
+    ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd, proto_ieee802154, 0);
 
     /* Get the captured and on-the-wire length of the payload. */
     M = IEEE802154_MIC_LENGTH(packet->security_level);

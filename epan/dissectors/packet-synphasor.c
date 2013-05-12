@@ -555,7 +555,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (conversation) {
 				config_frame *conf = (config_frame *)conversation_get_proto_data(conversation, proto_synphasor);
 				/* no problem if 'conf' is NULL, the DATA frame dissector checks this again */
-				p_add_proto_data(pinfo->fd, proto_synphasor, conf);
+			p_add_proto_data(pinfo->fd, proto_synphasor, 0, conf);
 			}
 		}
 	} /* if (!visited) */
@@ -794,7 +794,7 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 	/* search for configuration information to dissect the frame */
 	{
 		gboolean config_found = FALSE;
-		conf = (config_frame *)p_get_proto_data(pinfo->fd, proto_synphasor);
+		conf = (config_frame *)p_get_proto_data(pinfo->fd, proto_synphasor, 0);
 
 		if (conf) {
 			/* check if the size of the current frame is the

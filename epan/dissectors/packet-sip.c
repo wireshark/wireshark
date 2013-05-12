@@ -3652,7 +3652,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/* Return any answer stored from previous dissection */
 	if (pinfo->fd->flags.visited)
 	{
-		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
+		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip, 0);
 		if (sip_frame_result != NULL)
 		{
 			return sip_frame_result->original_frame_num;
@@ -3798,7 +3798,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 			break;
 	}
 
-	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, 0);
 	if (sip_frame_result == NULL)
 	{
 		sip_frame_result = se_new0(sip_frame_result_value);
@@ -3806,7 +3806,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 
 	/* Store return value with this packet */
 	sip_frame_result->original_frame_num = result;
-	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
+	p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 
 	return result;
 }
@@ -3850,7 +3850,7 @@ guint sip_find_request(packet_info *pinfo,
 	/* Return any answer stored from previous dissection */
 	if (pinfo->fd->flags.visited)
 	{
-		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
+		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip, 0);
 		if (sip_frame_result != NULL)
 		{
 			*response_time = sip_frame_result->response_time;
@@ -3901,7 +3901,7 @@ guint sip_find_request(packet_info *pinfo,
 
 
 	/* Store return value with this packet */
-	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, 0);
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
@@ -3919,7 +3919,7 @@ guint sip_find_request(packet_info *pinfo,
 	                                  (nseconds_between_packets / 1000000);
 	*response_time = sip_frame_result->response_time;
 
-	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
+	p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 
 	return result;
 }
@@ -3965,7 +3965,7 @@ guint sip_find_invite(packet_info *pinfo,
 	/* Return any answer stored from previous dissection */
 	if (pinfo->fd->flags.visited)
 	{
-		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
+		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip, 0);
 		if (sip_frame_result != NULL)
 		{
 			*response_time = sip_frame_result->response_time;
@@ -4021,7 +4021,7 @@ guint sip_find_invite(packet_info *pinfo,
 	result = p_val->frame_number;
 
 	/* Store return value with this packet */
-	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, 0);
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
@@ -4039,7 +4039,7 @@ guint sip_find_invite(packet_info *pinfo,
 	                                  (nseconds_between_packets / 1000000);
 	*response_time = sip_frame_result->response_time;
 
-	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
+	p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 
 	return result;
 }
