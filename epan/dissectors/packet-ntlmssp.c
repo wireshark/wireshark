@@ -96,7 +96,7 @@ static GHashTable* hash_packet = NULL;
  * "Request Non-NT Session Key", rather than those values shifted
  * right one having those interpretations.
  *
- * UPDATE: Further information obtained from [MS-NLMP]:
+ * UPDATE: Further information obtained from [MS-NLMP] 2.2.2.5:
  * NT LAN Manager (NTLM) Authentication Protocol Specification
  * http://msdn2.microsoft.com/en-us/library/cc236621.aspx
  *
@@ -112,7 +112,7 @@ static GHashTable* hash_packet = NULL;
 #define NTLMSSP_NEGOTIATE_00000100                 0x00000100
 #define NTLMSSP_NEGOTIATE_NTLM                     0x00000200
 #define NTLMSSP_NEGOTIATE_NT_ONLY                  0x00000400
-#define NTLMSSP_NEGOTIATE_00000800                 0x00000800
+#define NTLMSSP_NEGOTIATE_ANONYMOUS                0x00000800
 #define NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED      0x00001000
 #define NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED 0x00002000
 #define NTLMSSP_NEGOTIATE_00004000                 0x00004000
@@ -246,12 +246,13 @@ static int hf_ntlmssp_verf_sequence = -1;
 /* static int hf_ntlmssp_decrypted_payload = -1; */
 
 static int hf_ntlmssp_ntlmv2_response = -1;
-static int hf_ntlmssp_ntlmv2_response_hmac = -1;
-static int hf_ntlmssp_ntlmv2_response_header = -1;
-static int hf_ntlmssp_ntlmv2_response_reserved = -1;
+static int hf_ntlmssp_ntlmv2_response_ntproofstr = -1;
+static int hf_ntlmssp_ntlmv2_response_rversion = -1;
+static int hf_ntlmssp_ntlmv2_response_hirversion = -1;
+static int hf_ntlmssp_ntlmv2_response_z = -1;
+static int hf_ntlmssp_ntlmv2_response_pad = -1;
 static int hf_ntlmssp_ntlmv2_response_time = -1;
 static int hf_ntlmssp_ntlmv2_response_chal = -1;
-static int hf_ntlmssp_ntlmv2_response_unknown = -1;
 
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
@@ -1231,20 +1232,20 @@ static tif_t ntlmssp_ntlmv2_response_tif = {
   ntlmssp_hf_ntlmv2_response_hf_ptr_array
 };
 
-static void
+/** See [MS-NLMP] 2.2.2.1 */
+static int
 dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
                                  guint32 target_info_offset, guint16 target_info_length,
                                  tif_t *tif_p)
 {
   guint32 item_offset;
-  guint16 item_type;
+  guint16 item_type = ~0;
   guint16 item_length;
-
 
   /* Now enumerate through the individual items in the list */
   item_offset = target_info_offset;
 
-  while (item_offset < (target_info_offset + target_info_length)) {
+  while (item_offset < (target_info_offset + target_info_length) && (item_type != NTLM_TARGET_INFO_END)) {
     proto_item *target_info_tf;
     proto_tree *target_info_tree;
     guint32     content_offset;
@@ -1311,17 +1312,17 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
 
     item_offset += item_length;
   }
+
+  return item_offset;
 }
 
+/** See [MS-NLMP] 3.3.2 */
 int
 dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 {
   proto_item *ntlmv2_item = NULL;
   proto_tree *ntlmv2_tree = NULL;
-  int         orig_offset;
-
-  /* Dissect NTLMv2 bits&pieces */
-  orig_offset = offset;
+  const int   orig_offset = offset;
 
   if (tree) {
     ntlmv2_item = proto_tree_add_item(
@@ -1332,51 +1333,39 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
   }
 
   proto_tree_add_item(
-    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hmac, tvb,
+    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_ntproofstr, tvb,
     offset, 16, ENC_NA);
-
   offset += 16;
 
-  proto_tree_add_item(
-    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_header, tvb,
-    offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_rversion, tvb, offset, 1, ENC_NA);
+  offset += 1;
 
-  offset += 4;
+  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hirversion, tvb, offset, 1, ENC_NA);
+  offset += 1;
 
-  proto_tree_add_item(
-    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_reserved, tvb,
-    offset, 4, ENC_LITTLE_ENDIAN);
-
-  offset += 4;
+  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 6, ENC_NA);
+  offset += 6;
 
   offset = dissect_nt_64bit_time(
     tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time);
-
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_chal, tvb,
     offset, 8, ENC_NA);
-
   offset += 8;
 
-  proto_tree_add_item(
-    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
-    offset, 4, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 4, ENC_NA);
   offset += 4;
 
-  /* Variable length list of attributes */
-  /*
-   * XXX - Windows puts one or more sets of 4 bytes of additional stuff (all zeros ?)
-   *        at the end of the attributes.
-   * Samba's smbclient doesn't.
-   * Both of them appear to be able to connect to W2K SMB
-   * servers.
-   * The additional stuff will be dissected as extra "end" attributes.
-   *
-   */
-  dissect_ntlmssp_target_info_list(tvb, ntlmv2_tree,
-                                   offset, len - (offset - orig_offset),
-                                   &ntlmssp_ntlmv2_response_tif);
+  offset = dissect_ntlmssp_target_info_list(tvb, ntlmv2_tree, offset, len - (offset - orig_offset), &ntlmssp_ntlmv2_response_tif);
+
+  if ((offset - orig_offset) < len) {
+    proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 4, ENC_NA);
+    offset += 4;
+  }
+
+  if ((offset - orig_offset) < len) {
+    proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_pad, tvb, offset, len - (offset - orig_offset), ENC_NA);
+  }
 
   return offset+len;
 }
@@ -2721,7 +2710,7 @@ proto_register_ntlmssp(void)
         NULL, HFILL }
     },
     { &hf_ntlmssp_negotiate_flags,
-      { "Flags", "ntlmssp.negotiateflags",
+      { "Negotiate Flags", "ntlmssp.negotiateflags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
@@ -2781,8 +2770,8 @@ proto_register_ntlmssp(void)
         NULL, HFILL }
     },
     { &hf_ntlmssp_negotiate_flags_800,
-      { "Negotiate 0x00000800", "ntlmssp.negotiate00000800",
-        FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_00000800,
+      { "Negotiate Anonymous", "ntlmssp.negotiateanonymous",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_ANONYMOUS,
         NULL, HFILL }
     },
     { &hf_ntlmssp_negotiate_flags_1000,
@@ -3255,36 +3244,41 @@ proto_register_ntlmssp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_ntlmssp_ntlmv2_response_hmac,
-      { "HMAC", "ntlmssp.ntlmv2_response.hmac",
+    { &hf_ntlmssp_ntlmv2_response_ntproofstr,
+      { "NTProofStr", "ntlmssp.ntlmv2_response.ntproofstr",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }
+        "The HMAC-MD5 of the challenge", HFILL }
     },
-    { &hf_ntlmssp_ntlmv2_response_header,
-      { "Header", "ntlmssp.ntlmv2_response.header",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
+    { &hf_ntlmssp_ntlmv2_response_rversion,
+      { "Response Version", "ntlmssp.ntlmv2_response.rversion",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "The 1-byte response version, currently set to 1", HFILL }
     },
-    { &hf_ntlmssp_ntlmv2_response_reserved,
-      { "Reserved", "ntlmssp.ntlmv2_response.reserved",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ntlmssp_ntlmv2_response_hirversion,
+      { "Hi Response Version", "ntlmssp.ntlmv2_response.hirversion",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "The 1-byte highest response version understood by the client, currently set to 1", HFILL }
+    },
+    { &hf_ntlmssp_ntlmv2_response_z,
+      { "Z", "ntlmssp.ntlmv2_response.z",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "byte array of zero bytes", HFILL }
+    },
+    { &hf_ntlmssp_ntlmv2_response_pad,
+      { "padding", "ntlmssp.ntlmv2_response.pad",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_ntlmssp_ntlmv2_response_time,
       { "Time", "ntlmssp.ntlmv2_response.time",
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
-        NULL, HFILL }
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
+        "The 8-byte little-endian time in UTC", HFILL }
     },
     { &hf_ntlmssp_ntlmv2_response_chal,
-      { "Client challenge", "ntlmssp.ntlmv2_response.chal",
+      { "Client Challenge", "ntlmssp.ntlmv2_response.chal",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }
+        "The 8-byte challenge message generated by the client", HFILL }
     },
-    { &hf_ntlmssp_ntlmv2_response_unknown,
-      { "Unknown", "ntlmssp.ntlmv2_response.unknown",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
-    }
   };
 
 
