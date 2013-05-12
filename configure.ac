@@ -133,6 +133,10 @@ then
 fi
 
 #
+# Checks for programs used by Wireshark/TShark/etc.
+#
+
+#
 # XXX - this looks for various HTML viewers on the host, not the target;
 # we really want to know what's available on the target, for cross-builds.
 # That would probably require us to, at run time, look for xdg-open and,
