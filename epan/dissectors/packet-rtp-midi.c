@@ -7560,7 +7560,7 @@ proto_register_rtp_midi( void )
 			&hf_rtp_midi_controller,
 			{
 				"Controller",
-				"rtpevent.controller",
+				"rtpmidi.controller",
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtp_midi_controller_values),
