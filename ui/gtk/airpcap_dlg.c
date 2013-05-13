@@ -37,7 +37,6 @@
 #include <epan/filesystem.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/frequency-utils.h>
 #include <epan/crypt/wep-wpadefs.h>
 
@@ -67,36 +66,6 @@
 typedef struct{
     gint row;
 }airpcap_key_ls_selected_info_t;
-
-/*
- * This function is used to write the preferences to the preferences file.
- * It has the same behaviour as prefs_main_write() in prefs_dlg.c
- */
-static void
-write_prefs_to_file(void)
-{
-    int err;
-    char *pf_dir_path;
-    char *pf_path;
-
-    /* Create the directory that holds personal configuration files, if
-       necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
-                      g_strerror(errno));
-        g_free(pf_dir_path);
-    } else {
-        /* Write the preferencs out. */
-        err = write_prefs(&pf_path);
-        if (err != 0) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Can't open preferences file\n\"%s\": %s.", pf_path,
-                          g_strerror(err));
-            g_free(pf_path);
-        }
-    }
-}
 
 /*
  * Callback for the select row event in the key list widget
@@ -1996,9 +1965,6 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
     /* Apply the current decryption preferences */
     on_key_management_apply_bt_clicked(button, data);
 
-    /* Save the preferences to preferences file!!! */
-    write_prefs_to_file();
-
     gtk_widget_destroy(key_management_w);
 }
 
@@ -2364,8 +2330,10 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
         gtk_widget_show (key_management_w);
     }
 
-    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(key_list_store), &iter);
-    gtk_tree_selection_select_iter(selection, &iter);
+    if(gtk_tree_model_get_iter_first(GTK_TREE_MODEL(key_list_store), &iter))
+    {
+        gtk_tree_selection_select_iter(selection, &iter);
+    }
 }
 
 
@@ -2448,9 +2416,6 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     /* Set up this new list as default for Wireshark and Adapters... */
     airpcap_save_decryption_keys(merged_list,airpcap_if_list);
 
-    /* Write the preferences to the preferences file */
-    write_prefs_to_file();
-
     free_key_list(wireshark_keys);
     free_key_list(driver_keys);
 
@@ -2489,9 +2454,6 @@ on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 
     /* Set up this new list as default for Wireshark and Adapters... */
     airpcap_save_decryption_keys(merged_keys,airpcap_if_list);
-
-    /* Write the preferences to the preferences file (here is not needed, by the way)*/
-    write_prefs_to_file();
 
     /* Free the memory */
     free_key_list(wireshark_keys);
@@ -2561,9 +2523,6 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 
     /* Set up this new list as default for Wireshark and Adapters... */
     airpcap_save_decryption_keys(merged_list,airpcap_if_list);
-
-    /* Write the preferences to the preferences file */
-    write_prefs_to_file();
 
     free_key_list(wireshark_keys);
     free_key_list(driver_keys);

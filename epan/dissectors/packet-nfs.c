@@ -6487,7 +6487,7 @@ dissect_nfs_acemask4(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 		if (acemask & ACE4_APPEND_DATA)
 			proto_tree_add_text(acemask_tree, tvb, offset, 4,
-				"ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY (0x%08x)",
+				"ACE4_APPEND_DATA/ACE4_ADD_SUBDIRECTORY (0x%08x)",
 				ACE4_APPEND_DATA);
 
 		if (acemask & ACE4_READ_NAMED_ATTRS)

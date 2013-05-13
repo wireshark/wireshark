@@ -1973,18 +1973,17 @@ get_key_string(decryption_key_t* dk)
 
     switch(dk->type) {
         case AIRPDCAP_KEY_TYPE_WEP:
-            output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WEP,dk->key->str);
+            output_string = g_strdup(dk->key->str);
             break;
         case AIRPDCAP_KEY_TYPE_WPA_PWD:
             if(dk->ssid == NULL)
-                output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PWD,dk->key->str);
+                output_string = g_strdup(dk->key->str);
             else
-                output_string = g_strdup_printf("%s:%s:%s",
-                    STRING_KEY_TYPE_WPA_PWD, dk->key->str,
-                    format_uri(dk->ssid, ":"));
+                output_string = g_strdup_printf("%s:%s",
+                    dk->key->str, format_uri(dk->ssid, ":"));
             break;
         case AIRPDCAP_KEY_TYPE_WPA_PMK:
-            output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PSK,dk->key->str);
+            output_string = g_strdup(dk->key->str);
             break;
         default:
             return NULL;

@@ -488,6 +488,9 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	io_item_t *it;
 	guint32 interval;
 
+	g_assert(graph < MAX_GRAPHS);
+	g_assert(idx < NUM_IO_ITEMS);
+
 	it = io->graphs[graph].items[idx];
 
 	switch(io->count_type){
@@ -721,6 +724,17 @@ io_stat_draw(io_stat_t *io)
 				     ((cfile.elapsed_time.nsecs+500000)/1000000) +
 				     io->interval);
 	io->max_interval = (io->max_interval / io->interval) * io->interval;
+	if (io->max_interval >= NUM_IO_ITEMS * io->interval) {
+	    /* XXX: Truncate the graph if it covers too much real time, as
+	     * otherwise we crash later trying to make the graph too wide. There's
+	     * no good way of warning the user, since this gets recalculated a
+	     * lot and any dialogue we pop up would spawn 100+ times when scrolling.
+	     *
+	     * Should at least stop us from crashing in:
+	     * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8583
+	     */
+	    io->max_interval = (NUM_IO_ITEMS - 1) * io->interval;
+	}
 	/*
 	 * Find the length of the intervals we have data for
 	 * so we know how large arrays we need to malloc()
@@ -1275,16 +1289,16 @@ io_stat_draw(io_stat_t *io)
 
 	/* update the scrollbar */
 	if (io->max_interval == 0) {
-		gtk_adjustment_set_upper(io->scrollbar_adjustment, (gfloat) io->interval);
-		gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gfloat) (io->interval/10));
-		gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gfloat) io->interval);
+        gtk_adjustment_set_upper(io->scrollbar_adjustment, (gdouble) io->interval);
+        gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gdouble) (io->interval/10));
+        gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gdouble) io->interval);
 	} else {
-		gtk_adjustment_set_upper(io->scrollbar_adjustment, (gfloat) io->max_interval);
-		gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gfloat) ((last_interval-first_interval)/10));
-		gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gfloat) (last_interval-first_interval));
+        gtk_adjustment_set_upper(io->scrollbar_adjustment, (gdouble) io->max_interval);
+        gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gdouble) ((last_interval-first_interval)/10));
+        gtk_adjustment_set_page_increment(io->scrollbar_adjustment, (gdouble) (last_interval-first_interval));
 	}
 	gtk_adjustment_set_page_size(io->scrollbar_adjustment, gtk_adjustment_get_page_increment(io->scrollbar_adjustment));
-	gtk_adjustment_set_value(io->scrollbar_adjustment, (gfloat)first_interval);
+    gtk_adjustment_set_value(io->scrollbar_adjustment, (gdouble)first_interval);
 	gtk_adjustment_changed(io->scrollbar_adjustment);
 	gtk_adjustment_value_changed(io->scrollbar_adjustment);
 

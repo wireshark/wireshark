@@ -125,6 +125,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wifi details are not stored in the Decryption Key Management dialog (post 1.8.x).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8446">Bug
+          8446</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IO Graph should not be limited to 100k points (NUM_IO_ITEMS).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8460">Bug
+          8460</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           geographical_description: hf_gsm_a_geo_loc_deg_of_long 24 bit field truncated to 23 bits.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8532">Bug
           8532</ulink>)
@@ -154,6 +166,24 @@ Wireshark Info
           8559</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Endian error and IP:Port error when decoding BT-DHT response message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8572">Bug
+          8572</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          &quot;ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY&quot; should be &quot;ACE4_APPEND_DATA / ACE4_ADD_SUBDIRECTORY&quot;.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8575">Bug
+          8575</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          wireshark crashes while displaying I/O Graph.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8583">Bug
+          8583</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -181,6 +211,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 BAT,
+Bluetooth DHT,
 BSSGP,
 DTLS,
 E.164,
@@ -192,8 +223,9 @@ ICMP,
 ICMPv6,
 ixveriwave,
 IRC,
-OpenWire,
 KDSP,
+NFS,
+OpenWire,
 RELOAD,
 SASP,
 SIP,
