@@ -31,7 +31,7 @@
 
 #include <epan/prefs-int.h>
 
-static const char *font_pangrams_[] = {
+static const char *font_pangrams_[] = { //TODO : Fix translate
   "Example GIF query packets have jumbo window sizes",
   "Lazy badgers move unique waxy jellyfish packets"
 };
@@ -167,7 +167,7 @@ void FontColorPreferencesFrame::changeColor(pref_t *pref)
 void FontColorPreferencesFrame::on_fontPushButton_clicked()
 {
     bool ok;
-    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, "Wireshark: Font");
+    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, tr("Wireshark: Font"));
     if (ok) {
         g_free(pref_qt_gui_font_name_->stashed_val.string);
         pref_qt_gui_font_name_->stashed_val.string = g_strdup(new_font.toString().toUtf8().constData());
