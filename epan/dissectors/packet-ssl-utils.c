@@ -4068,7 +4068,7 @@ ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, unsigned len _U_, con
 
     if (strcmp(p, "start_tls") != 0){
         const gint i = atoi(p);
-        if (i <= 0 || i > 65535) {
+        if (i < 0 || i > 65535) {
             *err = ep_strdup_printf("Invalid port given.");
             return FALSE;
         }

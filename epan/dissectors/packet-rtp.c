@@ -1125,7 +1125,7 @@ static void
 dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti            = NULL;
-	proto_tree *rtp_tree      = NULL;
+	proto_tree *volatile rtp_tree = NULL;
 	proto_tree *rtp_csrc_tree = NULL;
 	proto_tree *rtp_hext_tree = NULL;
 	guint8      octet1, octet2;
@@ -1140,10 +1140,10 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
 	unsigned int hdr_extension_id = 0;
-	unsigned int padding_count;
+	volatile unsigned int padding_count;
 	gint        length, reported_length;
 	int         data_len;
-	unsigned int offset = 0;
+	volatile unsigned int offset = 0;
 	guint16     seq_num;
 	guint32     timestamp;
 	guint32     sync_src;
@@ -1450,19 +1450,24 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
 		rtp_info->info_padding_count = padding_count;
 
-		if (!pinfo->flags.in_error_pkt)
-			tap_queue_packet(rtp_tap, pinfo, rtp_info);
-
 		if (data_len > 0) {
 			/*
 			 * There's data left over when you take out
 			 * the padding; dissect it.
 			 */
+			/* Ensure that tap is called after packet dissection, even in case of exception */
+			TRY {
 			dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
 			    offset,
 			    data_len,
 			    data_len,
 			    payload_type );
+			} CATCH_ALL {
+				if (!pinfo->flags.in_error_pkt)
+					tap_queue_packet(rtp_tap, pinfo, rtp_info);
+				RETHROW;
+			}
+			ENDTRY;
 			offset += data_len;
 		} else if (data_len < 0) {
 			/*
@@ -1497,17 +1502,25 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * No padding.
 		 */
+ 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			/* Ensure that tap is called after packet dissection, even in case of exception */
+			TRY {
+			dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
+					  tvb_length_remaining( tvb, offset ),
+					  tvb_reported_length_remaining( tvb, offset ),
+					  payload_type );
+			} CATCH_ALL {
+				if (!pinfo->flags.in_error_pkt)
+					tap_queue_packet(rtp_tap, pinfo, rtp_info);
+				RETHROW;
+ 		}
+			ENDTRY;
+	}
 		rtp_info->info_payload_offset = offset;
 		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
-
-		if (!pinfo->flags.in_error_pkt)
-			tap_queue_packet(rtp_tap, pinfo, rtp_info);
-
-		dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-				  tvb_length_remaining( tvb, offset ),
-				  tvb_reported_length_remaining( tvb, offset ),
-				  payload_type );
 	}
+	if (!pinfo->flags.in_error_pkt)
+		tap_queue_packet(rtp_tap, pinfo, rtp_info);
 }
 
 

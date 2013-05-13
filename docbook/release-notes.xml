@@ -121,9 +121,27 @@ Wireshark Info
 	</para></listitem>
 
         <listitem><para>
+          SNMP dissector bug: STATUS_INTEGER_DIVIDE_BY_ZERO.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7359">Bug
+          7359</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          A console window is never opened.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7755">Bug
+          7755</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GSM_MAP show malformed Packets when two IMSI.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7882">Bug
           7882</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect RTP statistics (Lost Packets indication not ok).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8321">Bug
+          8321</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -210,6 +228,24 @@ Wireshark Info
           8596</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          RTP DTMF digits are no longer displayed in VoIP graph analysis.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8610">Bug
+          8610</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Universal port not accepted in RSA Keys List window.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8618">Bug
+          8618</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark Dissector bug with HSRP Version 2.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8622">Bug
+          8622</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -255,10 +291,11 @@ MMS,
 NFS,
 OpenWire,
 RELOAD,
+RTP,
 SASP,
 SIP,
+SSL/TLS,
 TCP,
-TLS,
 UA3G
 
     </para>
