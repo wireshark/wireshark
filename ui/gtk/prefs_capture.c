@@ -166,7 +166,7 @@ capture_prefs_show(void)
 	if (combo_list != NULL) {
 		GList *combo_entry;
 		for (combo_entry = combo_list; combo_entry != NULL; combo_entry = g_list_next(combo_entry)) {
-				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_cbxe), (const gchar *)combo_entry->data);
+			gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_cbxe), (const gchar *)combo_entry->data);
 		}
 	}
 	if (prefs.capture_device) {
