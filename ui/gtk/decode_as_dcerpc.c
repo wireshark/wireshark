@@ -30,8 +30,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
-#include "ui/simple_dialog.h"
-
 #include "ui/gtk/decode_as_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"

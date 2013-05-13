@@ -32,7 +32,6 @@
 
 #include <epan/stat_cmd_args.h>
 
-#include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"

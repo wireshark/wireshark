@@ -46,7 +46,6 @@
 #include "ui/progress_dlg.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
-#include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
 #include "gui_utils.h"

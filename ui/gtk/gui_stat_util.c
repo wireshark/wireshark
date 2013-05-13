@@ -27,7 +27,6 @@
 
 #include <gtk/gtk.h>
 
-#include "ui/simple_dialog.h"
 #include "../file.h"
 
 #include "ui/gtk/gui_stat_util.h"

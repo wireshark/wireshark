@@ -36,7 +36,6 @@
 
 #include "../globals.h"
 #include "ui/alert_box.h"
-#include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/gui_utils.h"

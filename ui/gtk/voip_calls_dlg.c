@@ -54,8 +54,6 @@
 #include "../globals.h"
 #include "../stat_menu.h"
 
-#include "ui/simple_dialog.h"
-
 #include "ui/gtk/graph_analysis.h"
 #include "ui/gtk/voip_calls_dlg.h"
 #include "ui/gtk/voip_calls.h"

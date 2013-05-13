@@ -31,8 +31,6 @@
 
 #include <epan/prefs.h>
 
-#include "ui/simple_dialog.h"
-
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/text_page_utils.h"
 #include "ui/gtk/gtkglobals.h"

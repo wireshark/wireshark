@@ -68,7 +68,6 @@
 #include <epan/prefs.h>
 
 #include "../globals.h"
-#include "ui/simple_dialog.h"
 #include "../codecs/G711a/G711adecode.h"
 #include "../codecs/G711u/G711udecode.h"
 

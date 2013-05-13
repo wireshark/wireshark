@@ -38,7 +38,6 @@
 #include "../file.h"
 
 #include "ui/main_statusbar.h"
-#include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/expert_comp_dlg.h"
