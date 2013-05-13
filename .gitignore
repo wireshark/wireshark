@@ -23,6 +23,7 @@ epan/dissectors/register.c
 epan/dtd_parse.c
 epan/dtd_preparse.c
 epan/init.lua
+epan/packet-ncp2222.c
 epan/register-cache.pkl
 epan/register.c
 epan/register_wslua.c
