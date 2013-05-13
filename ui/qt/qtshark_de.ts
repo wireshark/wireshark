@@ -164,6 +164,84 @@
     </message>
 </context>
 <context>
+    <name>CapturePreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture packets in promiscuous mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture packets in the next-generation capture file format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture packets in pcap-ng format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update list of packets in real time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic scrolling in live capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the capture summary dialog while capturing</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColumnPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field occurence</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DisplayFilterCombo</name>
     <message>
         <source>Display filter selector</source>
@@ -319,6 +397,64 @@
     </message>
     <message>
         <source>Wireshark: %1 File%2 in Set</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FilterExpressionsPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontColorPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main window font:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colors:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample ignored packet text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample marked packet text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample stream client text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample stream server text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Font</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -520,6 +656,14 @@
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction indication:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceTree</name>
@@ -533,6 +677,41 @@
     </message>
     <message>
         <source>%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LayoutPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pane 1:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pane 2:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pane 3:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -665,10 +844,6 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Capture</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>toolBar</source>
         <translation></translation>
     </message>
     <message>
@@ -957,10 +1132,6 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Merge one or more files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1432,10 +1603,6 @@ more about Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Meta+X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Ignore All Displayed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1444,19 +1611,11 @@ more about Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Meta+Alt+Shift+X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unignore All Displayed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+Shift+X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1563,6 +1722,30 @@ more about Wireshark</source>
         <source>&amp;Preferences...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Import from Hex Dump...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Check for Updates...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>(File name can&apos;t be mapped to UTF-8)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -1584,10 +1767,6 @@ more about Wireshark</source>
     </message>
     <message>
         <source>This folder:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1628,6 +1807,41 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Open Files In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main toolbar style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icons only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Icons &amp; Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter toolbar style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ModulePreferencesScrollArea</name>
+    <message>
+        <source>ScrollArea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1789,10 +2003,6 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Appearance</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1810,22 +2020,6 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Expressions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1862,6 +2056,18 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1986,6 +2192,14 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Default value is empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
