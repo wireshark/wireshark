@@ -82,6 +82,7 @@ stamp-h1
 text2pcap
 tshark
 wireshark
+wmem_test
 ylwrap
 
 
