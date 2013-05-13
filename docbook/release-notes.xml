@@ -75,6 +75,26 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-25.html">wnpa-sec-2013-25</ulink>
+          </para>
+          <para>
+	    The ASN.1 BER dissector could crash.
+            <!-- Fixed in trunk: r48944 -->
+            <!-- Fixed in trunk-1.8: r49265 -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8599">Bug
+            8599</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6, 1.6.0 to 1.6.14.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -184,6 +204,12 @@ Wireshark Info
           8583</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          GTPv2 MM Context (UMTS Key, Quad, and Quint Decoded) incorrectly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8596">Bug
+          8596</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -210,6 +236,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ASN.1 BER,
 BAT,
 Bluetooth DHT,
 BSSGP,
@@ -224,6 +251,7 @@ ICMPv6,
 ixveriwave,
 IRC,
 KDSP,
+MMS,
 NFS,
 OpenWire,
 RELOAD,
