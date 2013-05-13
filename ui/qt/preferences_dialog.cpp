@@ -603,11 +603,11 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
 
             if (pref->type == PREF_FILENAME) {
                 filename = QFileDialog::getSaveFileName(this,
-                                                        QString("Wireshark: ") + pref->description,
+                                                        QString(tr("Wireshark: ")) + pref->description,
                                                         pref->stashed_val.string);
             } else {
                 filename = QFileDialog::getExistingDirectory(this,
-                                                             QString("Wireshark: ") + pref->description,
+                                                             QString(tr("Wireshark: ")) + pref->description,
                                                              pref->stashed_val.string);
             }
             if (!filename.isEmpty()) {

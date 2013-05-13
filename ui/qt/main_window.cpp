@@ -1168,7 +1168,7 @@ void MainWindow::setTitlebarForCaptureFile()
                                                      NULL);
             if (utf8_filename == NULL) {
             	// So what the heck else can we do here?
-                setWindowTitle("(File name can't be mapped to UTF-8)");
+                setWindowTitle(tr("(File name can't be mapped to UTF-8)"));
             } else {
                 setWindowTitle(NULL);
                 setWindowFilePath(NULL);
@@ -1179,7 +1179,7 @@ void MainWindow::setTitlebarForCaptureFile()
     } else {
         /* We have no capture file. */
         setWindowFilePath(NULL);
-        setWindowTitle("The Wireshark Network Analyzer");
+        setWindowTitle(tr("The Wireshark Network Analyzer"));
     }
 }
 
@@ -1189,12 +1189,12 @@ void MainWindow::setTitlebarForCaptureInProgress()
 
     setWindowFilePath(NULL);
     if (cap_file_) {
-        window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cap_file_));
+        window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
         setWindowTitle(window_name);
         g_free(window_name);
     } else {
         /* We have no capture in progress. */
-        setWindowTitle("The Wireshark Network Analyzer");
+        setWindowTitle(tr("The Wireshark Network Analyzer"));
     }
 }
 

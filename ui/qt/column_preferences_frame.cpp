@@ -408,7 +408,7 @@ void ColumnPreferencesFrame::customOccurrenceEditingFinished()
 
 void ColumnPreferencesFrame::on_newToolButton_clicked()
 {
-    addColumn(true, "New Column", COL_NUMBER, NULL, 0);
+    addColumn(true, "New Column", COL_NUMBER, NULL, 0); //TODO : Fix Translate
 }
 
 void ColumnPreferencesFrame::on_deleteToolButton_clicked()

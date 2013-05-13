@@ -146,7 +146,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     {
         QHBoxLayout *hb = new QHBoxLayout();
         hb->addWidget(new QLabel(pref->title));
-        QPushButton *uat_pb = new QPushButton("Edit...");
+        QPushButton *uat_pb = new QPushButton(QObject::tr("Edit..."));
         uat_pb->setProperty(pref_prop_, qVariantFromValue(pref));
         hb->addWidget(uat_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -169,7 +169,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
                               )
                           .arg(path_le->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left()));
         hb->addWidget(path_le);
-        QPushButton *path_pb = new QPushButton("Browse...");
+        QPushButton *path_pb = new QPushButton(QObject::tr("Browse..."));
         path_pb->setProperty(pref_prop_, qVariantFromValue(pref));
         hb->addWidget(path_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
@@ -445,7 +445,7 @@ void ModulePreferencesScrollArea::filenamePushButtonPressed()
     if (!pref) return;
 
     QString filename = QFileDialog::getSaveFileName(this,
-                                            QString("Wireshark: ") + pref->description,
+                                            QString(tr("Wireshark: ")) + pref->description,
                                             pref->stashed_val.string);
 
     if (!filename.isEmpty()) {
@@ -464,7 +464,7 @@ void ModulePreferencesScrollArea::dirnamePushButtonPressed()
     if (!pref) return;
 
     QString dirname = QFileDialog::getExistingDirectory(this,
-                                                 QString("Wireshark: ") + pref->description,
+                                                 QString(tr("Wireshark: ")) + pref->description,
                                                  pref->stashed_val.string);
 
     if (!dirname.isEmpty()) {

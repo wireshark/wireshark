@@ -85,7 +85,7 @@
 // Public slots
 //
 
-const char *dfe_property_ = "display filter expression";
+const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
 
 void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
 {

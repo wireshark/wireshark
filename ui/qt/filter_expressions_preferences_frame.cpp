@@ -288,7 +288,7 @@ void FilterExpressionsPreferencesFrame::expressionEditingFinished()
 
 void FilterExpressionsPreferencesFrame::on_newToolButton_clicked()
 {
-    addExpression(true, "My Filter", NULL);
+    addExpression(true, "My Filter", NULL); //TODO : Fix Translate
 }
 
 void FilterExpressionsPreferencesFrame::on_deleteToolButton_clicked()
