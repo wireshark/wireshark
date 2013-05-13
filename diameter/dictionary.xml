@@ -166,8 +166,9 @@
 		<vendor vendor-id="NokiaSiemensNetworks" code="28458" name="Nokia Siemens Networks"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
-		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
-		<vendor vendor-id="Huawei" code="2011" name="Huawei"/>
+    <vendor vendor-id="ALU" code="637" name="ALU Network"/>
+    <vendor vendor-id="Lucent" code="1751" name="Lucent Technologies"/>
+    <vendor vendor-id="Huawei" code="2011" name="Huawei"/>
 		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
 		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
@@ -6294,7 +6295,10 @@
 		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
-	</base>
+    <avp name="3GPP2-BSID" code="9010" vendor-bit="must" vendor-id="TGPP2">
+      <type type-name="UTF8String"/>
+    </avp>
+  </base>
 
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
