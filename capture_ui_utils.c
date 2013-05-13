@@ -36,7 +36,6 @@
 #include "epan/ex-opt.h"
 #include "capture_ifinfo.h"
 #include "capture_ui_utils.h"
-#include "ui/simple_dialog.h"
 #include "wiretap/wtap.h"
 #include "epan/to_str.h"
 
