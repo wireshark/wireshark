@@ -129,6 +129,15 @@ qtshark
 /ui/qt/console.lua
 /wireshark-qt*
 
+# abi #
+#######
+epan/abi-check-headers/
+epan/abi-descriptor.xml
+wiretap/abi-check-headers/
+wiretap/abi-descriptor.xml
+wsutil/abi-check-headers/
+wsutil/abi-descriptor.xml
+
 # Misc #
 ########
 *.swp
