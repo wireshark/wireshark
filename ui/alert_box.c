@@ -66,7 +66,7 @@ open_failure_alert_box(const char *filename, int err, gboolean for_writing)
     simple_message_box(ESD_TYPE_ERROR, NULL, NULL,
                         file_open_error_message(err, for_writing),
                         display_basename);
-     g_free(display_basename);
+    g_free(display_basename);
 }
 
 /*
