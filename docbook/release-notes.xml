@@ -95,6 +95,25 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-26.html">wnpa-sec-2013-26</ulink>
+          </para>
+          <para>
+	    The PPP CCP dissector could crash.
+            <!-- Fixed in trunk: r49214 -->
+            <!-- Fixed in trunk-1.8: r49268 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8638">Bug
+            8638</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -229,6 +248,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          DTLS 1.2 uses wrong PRF.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8608">Bug
+          8608</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           RTP DTMF digits are no longer displayed in VoIP graph analysis.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8610">Bug
           8610</ulink>)
@@ -244,6 +269,12 @@ Wireshark Info
           Wireshark Dissector bug with HSRP Version 2.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8622">Bug
           8622</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LISP control packet incorrectly identified as LISP data based when UDP source port is 4341.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8627">Bug
+          8627</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -287,9 +318,11 @@ ICMPv6,
 ixveriwave,
 IRC,
 KDSP,
+LISP Data,
 MMS,
 NFS,
 OpenWire,
+PPP,
 RELOAD,
 RTP,
 SASP,
