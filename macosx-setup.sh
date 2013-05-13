@@ -95,6 +95,12 @@ fi
 # To build cmake
 # CMAKE=1
 #
+# To build all libraries as 32-bit libraries uncomment the following three lines.
+# export CFLAGS="$CFLAGS -arch i386"
+# export CXXFLAGS="$CXXFLAGS -arch i386"
+# export LDFLAGS="$LDFLAGS -arch i386"
+#
+# 
 # Versions to download and install.
 #
 # The following libraries and tools are required.
@@ -206,7 +212,7 @@ echo "Downloading, building, and installing xz:"
 curl -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
 tar xf xz-$XZ_VERSION.tar.bz2 || exit 1
 cd xz-$XZ_VERSION
-CFLAGS="-D_FORTIFY_SOURCE=0" ./configure || exit 1
+CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
 make -j 3 || exit 1
 $DO_MAKE_INSTALL || exit 1
 cd ..
@@ -238,7 +244,7 @@ echo "Downloading, building, and installing GNU gettext:"
 curl -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
 tar xf gettext-$GETTEXT_VERSION.tar.gz || exit 1
 cd gettext-$GETTEXT_VERSION
-CFLAGS="-D_FORTIFY_SOURCE=0" ./configure || exit 1
+CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
 make -j 3 || exit 1
 $DO_MAKE_INSTALL || exit 1
 cd ..
@@ -263,9 +269,9 @@ cd glib-$GLIB_VERSION
 if grep -qs '#define.*MACOSX' /usr/include/ffi/fficonfig.h
 then
 	# It's defined, nothing to do
-	LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-lffi" ./configure || exit 1
+	LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
 else
-	CFLAGS="-DMACOSX" LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -DMACOSX" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
 fi
 make -j 3 || exit 1
 # Apply patch: we depend on libffi, but pkg-config doesn't get told.
@@ -278,7 +284,7 @@ curl -O http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION
 tar xf pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
 cd pkg-config-$PKG_CONFIG_VERSION
 # Avoid another pkgconfig call
-GLIB_CFLAGS="-I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include" GLIB_LIBS="-L/usr/local/lib -lglib-2.0 -lintl" ./configure || exit 1
+GLIB_CFLAGS="$CFLAGS -I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include" GLIB_LIBS="$LDFLAGS -L/usr/local/lib -lglib-2.0 -lintl" ./configure || exit 1
 # ./configure || exit 1
 make -j 3 || exit 1
 $DO_MAKE_INSTALL || exit 1
@@ -576,7 +582,7 @@ then
 	# Set the minimum OS X version to 10.4, to suppress some
 	# deprecation warnings.
 	#
-	CFLAGS="-mmacosx-version-min=10.4" ./configure --disable-mac-universal || exit 1
+	CFLAGS="$CFLAGS -mmacosx-version-min=10.4" ./configure --disable-mac-universal || exit 1
 	make -j 3 || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
