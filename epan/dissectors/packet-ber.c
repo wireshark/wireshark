@@ -3231,6 +3231,10 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
 #endif
     start_offset=offset;
 
+    if (branch_taken) {
+        *branch_taken = -1;
+    }
+
     if(tvb_length_remaining(tvb,offset) == 0) {
         item = proto_tree_add_string_format(parent_tree, hf_ber_error, tvb, offset, 0, "empty_choice", "BER Error: Empty choice was found");
         expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found");
@@ -3265,9 +3269,6 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
     /* loop over all entries until we find the right choice or
        run out of entries */
     ch = choice;
-    if(branch_taken){
-        *branch_taken=-1;
-    }
     first_pass = TRUE;
     while(ch->func || first_pass){
         if(branch_taken){
