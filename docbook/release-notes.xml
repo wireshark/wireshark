@@ -83,7 +83,7 @@ Wireshark Info
 	    The ASN.1 BER dissector could crash.
             <!-- Fixed in trunk: r48944 -->
             <!-- Fixed in trunk-1.8: r49265 -->
-            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.6: r49288 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8599">Bug
             8599</ulink>)
           </para>
