@@ -152,65 +152,16 @@ dnd_uri2filename(gchar *cf_name)
     return cf_name;
 }
 
-static void
-dnd_merge_files(int in_file_count, char **in_filenames)
-{
-    char *tmpname;
-    cf_status_t merge_status;
-    int err;
-
-    /* merge the files in chonological order */
-    tmpname = NULL;
-    merge_status = cf_merge_files(&tmpname, in_file_count, in_filenames,
-                              WTAP_FILE_PCAP, FALSE);
-
-    if (merge_status != CF_OK) {
-        /* merge failed */
-        g_free(tmpname);
-        return;
-    }
-
-    cf_close(&cfile);
-
-    /* Try to open the merged capture file. */
-    if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
-        /* We couldn't open it; don't dismiss the open dialog box,
-           just leave it around so that the user can, after they
-           dismiss the alert box popped up for the open error,
-           try again. */
-        g_free(tmpname);
-        return;
-    }
-    g_free(tmpname);
-
-    switch (cf_read(&cfile, FALSE)) {
-
-    case CF_READ_OK:
-    case CF_READ_ERROR:
-        /* Just because we got an error, that doesn't mean we were unable
-           to read any of the file; we handle what we could get from the
-           file. */
-        break;
-
-    case CF_READ_ABORTED:
-        /* The user bailed out of re-reading the capture file; the
-           capture file has been closed - just free the capture file name
-           string and return (without changing the last containing
-           directory). */
-        return;
-    }
-}
-
 /* open/merge the dnd file */
 void
 dnd_open_file_cmd(gchar *cf_names_freeme)
 {
     int       err;
     gchar     *cf_name;
-    int       in_files;
-    GString   *dialog_text;
+    int       in_file_count;
     int       files_work;
     char      **in_filenames;
+    char      *tmpname;
 
     if (cf_names_freeme == NULL) return;
 
@@ -222,21 +173,21 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
 
     /* count the number of input files */
     cf_name = cf_names_freeme;
-    for(in_files = 0; (cf_name = strstr(cf_name, "\r\n")) != NULL; ) {
+    for(in_file_count = 0; (cf_name = strstr(cf_name, "\r\n")) != NULL; ) {
         cf_name += 2;
-        in_files++;
+        in_file_count++;
     }
-    if (in_files == 0) {
+    if (in_file_count == 0) {
       g_free(cf_names_freeme);
       return;
     }
 
-    in_filenames = (char **)g_malloc(sizeof(char*) * in_files);
+    in_filenames = (char **)g_malloc(sizeof(char*) * in_file_count);
 
     /* store the starts of the file entries in a gchar array */
     cf_name = cf_names_freeme;
     in_filenames[0] = cf_name;
-    for(files_work = 1; (cf_name = strstr(cf_name, "\r\n")) != NULL && files_work < in_files; ) {
+    for(files_work = 1; (cf_name = strstr(cf_name, "\r\n")) != NULL && files_work < in_file_count; ) {
         cf_name += 2;
         in_filenames[files_work] = cf_name;
         files_work++;
@@ -247,11 +198,11 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     g_strdelimit(cf_name, "\r\n", '\0');
 
     /* convert all filenames from URI to local filename (in place) */
-    for(files_work = 0; files_work < in_files; files_work++) {
+    for(files_work = 0; files_work < in_file_count; files_work++) {
         in_filenames[files_work] = dnd_uri2filename(in_filenames[files_work]);
     }
 
-    if (in_files == 1) {
+    if (in_file_count == 1) {
         /* open and read the capture file (this will close an existing file) */
         if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
             /* XXX - add this to the menu if the read fails? */
@@ -261,21 +212,24 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
             /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
         }
     } else {
-        /* build and show the info dialog */
-        dialog_text = g_string_sized_new(200);
-        g_string_printf(dialog_text, "%sMerging the following files:%s\n\n",
-            simple_dialog_primary_start(), simple_dialog_primary_end());
-        for(files_work = 0; files_work < in_files; files_work++) {
-            g_string_append(dialog_text, in_filenames[files_work]);
-            g_string_append(dialog_text, "\n");
+        /* merge the files in chronological order */
+        tmpname = NULL;
+        if (cf_merge_files(&tmpname, in_file_count, in_filenames,
+                           WTAP_FILE_PCAP, FALSE) == CF_OK) {
+            /* Merge succeeded; close the currently-open file and try
+               to open the merged capture file. */
+            cf_close(&cfile);
+            if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) == CF_OK) {
+                g_free(tmpname);
+                cf_read(&cfile, FALSE);
+            } else {
+                /* The merged file couldn't be read. */
+                g_free(tmpname);
+            }
+        } else {
+            /* merge failed */
+            g_free(tmpname);
         }
-        g_string_append(dialog_text, "\nThe packets in these files will be merged chronologically into a new temporary file.");
-        simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK, "%s",
-                      dialog_text->str);
-        g_string_free(dialog_text, TRUE);
-
-        /* actually merge the files now */
-        dnd_merge_files(in_files, in_filenames);
     }
 
     g_free(in_filenames);
