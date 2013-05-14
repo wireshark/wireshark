@@ -868,7 +868,7 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   g_object_set_data(G_OBJECT(file_merge_w), E_DFILTER_TE_KEY,
                     g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
 
-    cf_name = file_selection_run(file_merge_w);
+  cf_name = file_selection_run(file_merge_w);
   if (cf_name == NULL) {
     /* User cancelled or closed the dialog. */
     return FALSE;
