@@ -126,8 +126,10 @@ set(WIRESHARK_C_FLAGS
 	-Warray-bounds
 	-Wcast-align
 	-Wformat-security
-	-fexcess-precision=fast
 )
+if (NOT APPLE)
+	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} -fexcess-precision=fast)
+endif()
 
 set(WIRESHARK_C_ONLY_FLAGS
 	# The following are C only, not C++
@@ -230,7 +232,7 @@ else()
 	unset(WERROR)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_CXX_COMPILER MATCHES ".*clang")
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_CXX_COMPILER MATCHES ".*clang" OR APPLE)
 	set (C_UNUSED "__attribute__((unused))" )
 else()
 	set (C_UNUSED "" )
