@@ -189,7 +189,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i = i +EXP_PDU_TAG_DST_PORT_LEN;
 	}
 
-	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_LEN) == EXP_PDU_TAG_ORIG_FNO_LEN){
+	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_BIT) == EXP_PDU_TAG_ORIG_FNO_BIT){
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO;
@@ -202,7 +202,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			exp_pdu_data->tlv_buffer[i+1] = (pinfo->fd->num & 0x00ff0000) >> 16;
 			exp_pdu_data->tlv_buffer[i+2] = (pinfo->fd->num & 0x0000ff00) >> 8;
 			exp_pdu_data->tlv_buffer[i+3] = (pinfo->fd->num & 0x000000ff);
-			/*i = i +EXP_PDU_TAG_DST_PORT_LEN;*/
+			/*i = i +EXP_PDU_TAG_ORIG_FNO_LEN;*/
 	}
 
 	return exp_pdu_data;
