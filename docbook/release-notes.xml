@@ -74,6 +74,11 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          dissect_rpc_array causes assertion fault when array is empty.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8145">Bug
+          8145</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
@@ -102,6 +107,10 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ASN.1 BER,
+GSM MAP,
+RPC,
+SIP,
+TCP,
 
     </para>
     </section>
@@ -109,7 +118,7 @@ ASN.1 BER,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-No new or updated capture file support.
+Netscreen.
 
     </para>
     </section>

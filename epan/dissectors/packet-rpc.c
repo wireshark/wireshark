@@ -769,17 +769,18 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	num = tvb_get_ntohl(tvb, offset);
 
+	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1, ENC_NA);
+
+	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array);
+
 	if( num == 0 ){
-		proto_tree_add_none_format(tree, hfindex, tvb, offset, 4,
-			"no values");
+		proto_tree_add_text(lock_tree, tvb, offset, 4, "no values");
 		offset += 4;
+
+		proto_item_set_end(lock_item, tvb, offset);
 
 		return offset;
 	}
-
-	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1, FALSE);
-
-	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array);
 
 	offset = dissect_rpc_uint32(tvb, lock_tree,
 			hf_rpc_array_len, offset);
@@ -3869,4 +3870,3 @@ proto_reg_handoff_rpc(void)
  * ex: set shiftwidth=8 tabstop=8 noexpandtab
  * :indentSize=8:tabSize=8:noTabs=false:
  */
-

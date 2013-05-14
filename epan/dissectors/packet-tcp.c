@@ -740,9 +740,15 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
      * There's no guarantee that the ACK field of a SYN
      * contains zeros; get the ISN from the first segment
      * with the ACK bit set instead (usually the SYN/ACK).
+	 *
+	 * If the SYN and SYN/ACK were received out-of-order,
+	 * the ISN is ack-1. If we missed the SYN/ACK, but got
+	 * the last ACK of the 3WHS, the ISN is ack-1. For all
+	 * all other packets the ISN is unknown, so ack-1 is 
+	 * as good a guess as ack.
      */
     if( (tcpd->rev->base_seq==0) && (flags & TH_ACK) ){
-        tcpd->rev->base_seq = (flags & TH_SYN) ? ack : ack-1;
+        tcpd->rev->base_seq = ack-1;
     }
 
     if( flags & TH_ACK ){
