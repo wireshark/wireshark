@@ -180,8 +180,9 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
     /*
      * Build the dialog box we need.
      */
-    savesslkeys_dlg = file_selection_new("Wireshark: Export SSL Session Keys", FILE_SELECTION_SAVE);
-    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(savesslkeys_dlg), TRUE);
+    savesslkeys_dlg = file_selection_new("Wireshark: Export SSL Session Keys",
+                                         GTK_WINDOW(top_level), 
+                                         FILE_SELECTION_SAVE);
 
     /* label */
     label = g_strdup_printf("Will save %u SSL Session %s to specified file.",

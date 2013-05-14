@@ -679,20 +679,14 @@ firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
 static void
 firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
-    GtkWidget		*new_win;
+    GtkWidget   *caller = gtk_widget_get_toplevel(w);
+    GtkWidget   *new_win;
     rule_info_t	*rule_info = (rule_info_t *)data;
 
-#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
-    if (rule_info->firewall_save_as_w != NULL) {
-	/* There's already a dialog box; reactivate it. */
-	reactivate_window(rule_info->firewall_save_as_w);
-	return;
-    }
-#endif
     new_win = file_selection_new("Wireshark: Save Firewall ACL Rule",
+                                 GTK_WINDOW(caller),
                                  FILE_SELECTION_SAVE);
     rule_info->firewall_save_as_w = new_win;
-    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(new_win), TRUE);
 
     /* Tuck away the rule_info object into the window */
     g_object_set_data(G_OBJECT(new_win), WS_RULE_INFO_KEY, rule_info);
