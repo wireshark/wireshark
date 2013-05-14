@@ -131,7 +131,6 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
-/* AVP Code: 15 3GPP-SGSN-IPv6-Address */
 /* AVP Code: 917 MBMS-GGSN-IPv6-Address */
 static int
 dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -145,6 +144,22 @@ dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     return offset;
 }
 
+/* AVP Code: 15 3GPP-SGSN-IPv6-Address */
+static int
+dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    /* 3GPP AVP code 15 has a conflict between imscxdx.xml (where the AVP
+     * contains an Unsigned32 enum) and TGPPGmb.xml (where the AVP contains
+     * an OctetString IPv6 address).  This function decodes the latter; we
+     * (silently) abort dissection if the length is 4 on the assumption that
+     * the old IMS AVP is what we're decoding.
+     */
+    if (tvb_reported_length(tvb) == 4)
+        return 4;
+
+    return dissect_diameter_3gpp_ipv6addr(tvb, pinfo, tree, data);
+
+}
 
 /* AVP Code: 600 Visited-Network-Identifier
  * imscxdx.xml
@@ -667,7 +682,7 @@ proto_reg_handoff_diameter_3gpp(void)
     /* Registered by packet-gtp.c */
 
     /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
-    dissector_add_uint("diameter.3gpp", 15, new_create_dissector_handle(dissect_diameter_3gpp_ipv6addr, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 15, new_create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_address, proto_diameter_3gpp));
 
     /* AVP Code: 22 3GPP-User-Location-Info
      * Registered by packet-gtpv2.c
