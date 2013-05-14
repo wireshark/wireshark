@@ -5222,25 +5222,48 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   global_capture_opts.session_started = TRUE;
 }
 
-/* everythings prepared, now it's really time to start the capture */
-static void
-capture_start_confirmed(void)
+/* user pressed the "Start" button (in dialog or toolbar) */
+void
+capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   interface_options interface_opts;
   guint             i;
 
-  /* did the user ever select a capture interface before? */
-  if (global_capture_opts.num_selected == 0 &&
-      ((prefs.capture_device == NULL) || (*prefs.capture_device != '\0'))) {
-    simple_dialog(ESD_TYPE_CONFIRMATION,
-                  ESD_BTN_OK,
-                  "%sNo capture interface selected!%s\n\n"
-                  "To select an interface use:\n\n"
-                  "Capture->Options (until Wireshark is stopped)\n"
-                  "Edit->Preferences/Capture (permanent, if saved)",
-                  simple_dialog_primary_start(), simple_dialog_primary_end());
+#ifdef HAVE_AIRPCAP
+  airpcap_if_active = airpcap_if_selected;
+  if (airpcap_if_active)
+    airpcap_set_toolbar_start_capture(airpcap_if_active);
+#endif
+
+  /* XXX - will closing this remove a temporary file? */
+  if(!do_file_close(&cfile, FALSE, " before starting a new capture")){
     return;
   }
+  if (cap_open_w) {
+    /*
+     * There's an options dialog; get the values from it and close it.
+     */
+    gboolean success;
+
+    /* Determine if "capture start" while building of the "capture options" window */
+    /*  is in progress. If so, ignore the "capture start.                          */
+    /* XXX: Would it be better/cleaner for the "capture options" window code to    */
+    /*      disable the capture start button temporarily ?                         */
+    if (cap_open_complete == FALSE) {
+      return;  /* Building options window: ignore "capture start" */
+    }
+    success = capture_dlg_prep(cap_open_w);
+    window_destroy(GTK_WIDGET(cap_open_w));
+    if (!success)
+      return;   /* error in options dialog */
+  }
+  if (global_capture_opts.num_selected == 0) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        "You didn't specify an interface on which to capture packets.");
+    return;
+  }
+
+  /* everything's prepared, now it's really time to start the capture */
 
   /* XXX - we might need to init other pref data as well... */
   main_auto_scroll_live_changed(auto_scroll_live);
@@ -5266,47 +5289,6 @@ capture_start_confirmed(void)
       }
     }
   }
-}
-
-/* user pressed the "Start" button (in dialog or toolbar) */
-void
-capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-#ifdef HAVE_AIRPCAP
-  airpcap_if_active = airpcap_if_selected;
-  if (airpcap_if_active)
-    airpcap_set_toolbar_start_capture(airpcap_if_active);
-#endif
-
-  /* XXX - will closing this remove a temporary file? */
-  if(!do_file_close(&cfile, FALSE, " before starting a new capture")){
-	  return;
-  }
-  if (cap_open_w) {
-    /*
-     * There's an options dialog; get the values from it and close it.
-     */
-    gboolean success;
-
-    /* Determine if "capture start" while building of the "capture options" window */
-    /*  is in progress. If so, ignore the "capture start.                          */
-    /* XXX: Would it be better/cleaner for the "capture options" window code to    */
-    /*      disable the capture start button temporarily ?                         */
-    if (cap_open_complete == FALSE) {
-      return;  /* Building options window: ignore "capture start" */
-    }
-    success = capture_dlg_prep(cap_open_w);
-    window_destroy(GTK_WIDGET(cap_open_w));
-    if (!success)
-      return;   /* error in options dialog */
-  }
-  if (global_capture_opts.num_selected == 0) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "You didn't specify an interface on which to capture packets.");
-    return;
-  }
-  
-  capture_start_confirmed();
 }
 
 
