@@ -581,13 +581,13 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         offset++;
                                         /* Skip padding field */
                                         offset++;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset+=2;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         offset+=4;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         offset+=4;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, ENC_NA);
                                         offset += 16;
                                 }
                         } else {
@@ -805,7 +805,7 @@ void proto_register_hsrp(void)
 
                 { &hf_hsrp2_md5_auth_data,
                   { "MD5 Authentication Data", "hsrp2.md5_auth_data",
-                    FT_UINT32, BASE_DEC, NULL, 0x0,
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
                     "MD5 digest string is contained.", HFILL }}
         };
 

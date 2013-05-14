@@ -75,6 +75,18 @@ Wireshark Info
 -->
 
         <listitem><para>
+          SNMP dissector bug: STATUS_INTEGER_DIVIDE_BY_ZERO.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7359">Bug
+          7359</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          A console window is never opened.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7755">Bug
+          7755</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           dissect_rpc_array causes assertion fault when array is empty.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8145">Bug
           8145</ulink>)
@@ -96,6 +108,18 @@ Wireshark Info
           &quot;ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY&quot; should be &quot;ACE4_APPEND_DATA / ACE4_ADD_SUBDIRECTORY&quot;.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8575">Bug
           8575</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark Dissector bug with HSRP Version 2.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8622">Bug
+          8622</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LISP control packet incorrectly identified as LISP data based when UDP source port is 4341.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8627">Bug
+          8627</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -130,10 +154,13 @@ BSSGP,
 DTLS,
 E.164,
 GSM MAP,
+HSRP,
+LISP,
 NFS,
 RPC,
 SASP,
 SIP,
+SNMP,
 SSL/TLS,
 TCP,
 
