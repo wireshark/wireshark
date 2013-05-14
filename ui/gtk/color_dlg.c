@@ -991,17 +991,14 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
   gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
                                            "This will revert the color settings to global defaults.\n\n"
                                            "Are you really sure?");
-#ifndef _WIN32
   gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
   gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                         GTK_STOCK_CLEAR, GTK_RESPONSE_ACCEPT);
-#else
-  gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                        GTK_STOCK_CLEAR, GTK_RESPONSE_ACCEPT);
-  gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-#endif
+  gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                          GTK_RESPONSE_ACCEPT,
+                                          GTK_RESPONSE_CANCEL,
+                                          -1);
   gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_CANCEL);
 
   response = gtk_dialog_run(GTK_DIALOG(msg_dialog));

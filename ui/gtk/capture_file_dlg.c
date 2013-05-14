@@ -1055,18 +1055,16 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
              "The changes must be saved before the files are merged.");
       }
 
-#ifndef _WIN32
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             WIRESHARK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
-#else
-      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            WIRESHARK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
-      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-#endif
-      gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_ACCEPT);
+      gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                              GTK_RESPONSE_ACCEPT,
+                                              GTK_RESPONSE_CANCEL,
+                                              -1);
+      gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
+                                      GTK_RESPONSE_ACCEPT);
 
       response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
       gtk_widget_destroy(msg_dialog);
@@ -1177,7 +1175,6 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
              "Your changes will be lost if you don't save them.");
       }
 
-#ifndef _WIN32
       /* If this is from a Quit operation, use "quit and don't save"
          rather than just "don't save". */
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
@@ -1196,25 +1193,13 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
                                 WIRESHARK_STOCK_STOP_SAVE :
                                 WIRESHARK_STOCK_SAVE),
                             GTK_RESPONSE_ACCEPT);
-#else
-      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            (capture_in_progress ?
-                                WIRESHARK_STOCK_STOP_SAVE :
-                                WIRESHARK_STOCK_SAVE),
-                            GTK_RESPONSE_ACCEPT);
-      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            (from_quit ?
-                                (capture_in_progress ?
-                                    WIRESHARK_STOCK_STOP_QUIT_DONT_SAVE :
-                                    WIRESHARK_STOCK_QUIT_DONT_SAVE) :
-                                (capture_in_progress ?
-                                    WIRESHARK_STOCK_STOP_DONT_SAVE :
-                                    WIRESHARK_STOCK_DONT_SAVE)),
-                            GTK_RESPONSE_REJECT);
-#endif
-      gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_ACCEPT);
+      gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                              GTK_RESPONSE_ACCEPT,
+                                              GTK_RESPONSE_CANCEL,
+                                              GTK_RESPONSE_REJECT,
+                                              -1);
+      gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
+                                      GTK_RESPONSE_ACCEPT);
 
       response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
       gtk_widget_destroy(msg_dialog);
@@ -1317,7 +1302,6 @@ check_save_with_comments(capture_file *cf)
   "doesn't support comments.  Do you want to save the capture "
   "in a format that supports comments, or discard the comments "
   "and save in the file's format?");
-#ifndef _WIN32
     gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
                            "Discard comments and save",
                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
@@ -1326,16 +1310,11 @@ check_save_with_comments(capture_file *cf)
                            "Save in another format",
                            RESPONSE_SAVE_IN_ANOTHER_FORMAT,
                            NULL);
-#else
-    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
-                           "Save in another format",
-                           RESPONSE_SAVE_IN_ANOTHER_FORMAT,
-                           GTK_STOCK_CANCEL,
-                           GTK_RESPONSE_CANCEL,
-                           "Discard comments and save",
-                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
-                           NULL);
-#endif
+    gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                            RESPONSE_SAVE_IN_ANOTHER_FORMAT,
+                                            GTK_RESPONSE_CANCEL,
+                                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                                            -1);
     gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
                                     RESPONSE_SAVE_IN_ANOTHER_FORMAT);
   } else {
@@ -1348,21 +1327,16 @@ check_save_with_comments(capture_file *cf)
   "The capture has comments, but no file format in which it "
   "can be saved supports comments.  Do you want to discard "
   "the comments and save in the file's format?");
-#ifndef _WIN32
-    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
-                           "Discard comments and save",
-                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
-                           GTK_STOCK_CANCEL,
-                           GTK_RESPONSE_CANCEL,
-                           NULL);
-#else
     gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
                            GTK_STOCK_CANCEL,
                            GTK_RESPONSE_CANCEL,
                            "Discard comments and save",
                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
                            NULL);
-#endif
+    gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                                            GTK_RESPONSE_CANCEL,
+                                            -1);
     gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
                                     GTK_RESPONSE_CANCEL);
   }
@@ -1598,7 +1572,6 @@ gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
   "doesn't support comments.  Do you want to save the capture "
   "in a format that supports comments, or discard the comments "
   "and save in the format you chose?");
-#ifndef _WIN32
     gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
                            "Discard comments and save",
                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
@@ -1607,16 +1580,11 @@ gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
                            "Save in another format",
                            RESPONSE_SAVE_IN_ANOTHER_FORMAT,
                            NULL);
-#else
-    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
-                           "Save in another format",
-                           RESPONSE_SAVE_IN_ANOTHER_FORMAT,
-                           GTK_STOCK_CANCEL,
-                           GTK_RESPONSE_CANCEL,
-                           "Discard comments and save",
-                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
-                           NULL);
-#endif
+    gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                            RESPONSE_SAVE_IN_ANOTHER_FORMAT,
+                                            GTK_RESPONSE_CANCEL,
+                                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                                            -1);
     gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
                                     RESPONSE_SAVE_IN_ANOTHER_FORMAT);
   } else {
@@ -1629,21 +1597,16 @@ gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
   "The capture has comments, but no file format in which it "
   "can be saved supports comments.  Do you want to discard "
   "the comments and save in the format you chose?");
-#ifndef _WIN32
-    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
-                           "Discard comments and save",
-                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
-                           GTK_STOCK_CANCEL,
-                           GTK_RESPONSE_CANCEL,
-                           NULL);
-#else
     gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
                            GTK_STOCK_CANCEL,
                            GTK_RESPONSE_CANCEL,
                            "Discard comments and save",
                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
                            NULL);
-#endif
+    gtk_dialog_set_alternative_button_order(GTK_DIALOG(msg_dialog),
+                                            RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                                            GTK_RESPONSE_CANCEL,
+                                            -1);
     gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
                                     GTK_RESPONSE_CANCEL);
   }
