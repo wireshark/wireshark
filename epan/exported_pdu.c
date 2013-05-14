@@ -182,7 +182,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			exp_pdu_data->tlv_buffer[i+1] = (pinfo->destport & 0x00ff0000) >> 16;
 			exp_pdu_data->tlv_buffer[i+2] = (pinfo->destport & 0x0000ff00) >> 8;
 			exp_pdu_data->tlv_buffer[i+3] = (pinfo->destport & 0x000000ff);
-			i = i +EXP_PDU_TAG_DST_PORT_LEN;
+			/*i = i +EXP_PDU_TAG_DST_PORT_LEN;*/
 	}
 
 	return exp_pdu_data;
