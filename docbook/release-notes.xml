@@ -80,6 +80,24 @@ Wireshark Info
           8145</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Decoding of GSM MAP E164 Digits.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8450">Bug
+          8450</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Cannot read content of Ran Information Application Error Rim Container.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8559">Bug
+          8559</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          &quot;ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY&quot; should be &quot;ACE4_APPEND_DATA / ACE4_ADD_SUBDIRECTORY&quot;.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8575">Bug
+          8575</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -107,9 +125,16 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ASN.1 BER,
+BAT,
+BSSGP,
+DTLS,
+E.164,
 GSM MAP,
+NFS,
 RPC,
+SASP,
 SIP,
+SSL/TLS,
 TCP,
 
     </para>
