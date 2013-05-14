@@ -50,6 +50,10 @@
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 
+/* WARNING this is a first draft and tag values can be changed and tags removed
+ * if you want to use this feature outside of Wireshark request a tag freeze
+ * on Wireshark-dev mailing list.
+ */
 /* Tag values */
 #define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
@@ -111,6 +115,8 @@ typedef struct _exp_pdu_data_t {
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
  * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or vice-versa
+ *
+ * The tags in the tag buffer SHOULD be added in numerical order.
  */
 WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, 
                                 const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);
