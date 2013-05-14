@@ -45,6 +45,7 @@ static int hf_exported_pdu_ipv6_src = -1;
 static int hf_exported_pdu_ipv6_dst = -1;
 static int hf_exported_pdu_src_port = -1;
 static int hf_exported_pdu_dst_port = -1;
+static int hf_exported_pdu_orig_fno = -1;
 
 
 /* Initialize the subtree pointers */
@@ -72,6 +73,8 @@ static const value_string exported_pdu_tag_vals[] = {
 
    { EXP_PDU_TAG_SS7_OPC,          "SS7 OPC" },
    { EXP_PDU_TAG_SS7_DPC,          "SS7 DPC" },
+
+   { EXP_PDU_TAG_ORIG_FNO,         "Original Frame number" },
 
    { 0,        NULL   }
 };
@@ -143,6 +146,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case EXP_PDU_TAG_DST_PORT:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                 pinfo->destport = tvb_get_ntohl(tvb,offset);
+                break;
+			case EXP_PDU_TAG_ORIG_FNO:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             default:
                 break;
@@ -225,6 +231,11 @@ proto_register_exported_pdu(void)
         { &hf_exported_pdu_dst_port,
             { "Dst Port", "exported_pdu.dst_port",
                FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_orig_fno,
+            { "Original Frame Number", "exported_pdu.orig_fno",
+               FT_INT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
     };

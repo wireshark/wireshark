@@ -80,6 +80,8 @@
 #define EXP_PDU_TAG_SS7_OPC         27
 #define EXP_PDU_TAG_SS7_DPC         28
 
+#define EXP_PDU_TAG_ORIG_FNO        29
+
 
 typedef struct _exp_pdu_data_t {
     int          tlv_buffer_len;
@@ -99,6 +101,8 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_SS7_OPC_BIT         0x00000020
 #define EXP_PDU_TAG_SS7_DPC_BIT         0x00000040
 
+#define EXP_PDU_TAG_ORIG_FNO_BIT        0x00000080
+
 #define EXP_PDU_TAG_IPV4_SRC_LEN        4
 #define EXP_PDU_TAG_IPV4_DST_LEN        4
 #define EXP_PDU_TAG_IPV6_SRC_LEN        16
@@ -111,6 +115,8 @@ typedef struct _exp_pdu_data_t {
 
 #define EXP_PDU_TAG_SS7_OPC_LEN         2
 #define EXP_PDU_TAG_SS7_DPC_LEN         2
+
+#define EXP_PDU_TAG_ORIG_FNO_LEN        4
 
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags

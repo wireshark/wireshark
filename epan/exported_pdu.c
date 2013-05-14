@@ -83,6 +83,10 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 		tag_buf_size= tag_buf_size + EXP_PDU_TAG_DST_PORT_LEN + 4;
 	}
 
+	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_BIT) == EXP_PDU_TAG_ORIG_FNO_BIT){
+		tag_buf_size= tag_buf_size + EXP_PDU_TAG_ORIG_FNO_LEN + 4;
+	}
+
 	/* Add end of options length */
 	tag_buf_size+=4;
 
@@ -182,6 +186,22 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			exp_pdu_data->tlv_buffer[i+1] = (pinfo->destport & 0x00ff0000) >> 16;
 			exp_pdu_data->tlv_buffer[i+2] = (pinfo->destport & 0x0000ff00) >> 8;
 			exp_pdu_data->tlv_buffer[i+3] = (pinfo->destport & 0x000000ff);
+			i = i +EXP_PDU_TAG_DST_PORT_LEN;
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_LEN) == EXP_PDU_TAG_ORIG_FNO_LEN){
+			exp_pdu_data->tlv_buffer[i] = 0;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = 0;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO_LEN; /* tag length */
+			i++;
+			exp_pdu_data->tlv_buffer[i]   = (pinfo->fd->num & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (pinfo->fd->num & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (pinfo->fd->num & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (pinfo->fd->num & 0x000000ff);
 			/*i = i +EXP_PDU_TAG_DST_PORT_LEN;*/
 	}
 
