@@ -101,6 +101,8 @@ static dissector_table_t sccp_ssn_table;
 #define maxGANSSSatAlmanac             36
 #define maxGANSSClockMod               4
 #define maxGANSS_1                     7
+#define maxNrOfIRATMeasurements        16
+#define maxReportedGERANCells          6
 #define maxNrOfULTSs                   15
 #define maxNrOfDPCHs                   240
 
@@ -173,9 +175,6 @@ typedef enum _ProtocolIE_ID_enum {
   id_OTDOA_AddMeasuredResultsInfo =  49,
   id_GPS_ReferenceLocation =  50,
   id_OTDOA_MeasuredResultsSets =  51,
-  id_Unknown_52 =  52,
-  id_Unknown_53 =  53,
-  id_Unknown_54 =  54,
   id_rxTimingDeviation384extInfo =  55,
   id_ExtendedRoundTripTime =  56,
   id_PeriodicPosCalcInfo =  57,
@@ -239,7 +238,16 @@ typedef enum _ProtocolIE_ID_enum {
   id_GANSS_Reference_Time_Only = 115,
   id_GANSS_AddADchoices = 116,
   id_OTDOA_ReferenceCellInfo = 117,
-  id_DGNSS_ValidityPeriod = 118
+  id_DGNSS_ValidityPeriod = 118,
+  id_AzimuthAndElevationLSB = 119,
+  id_completeAlmanacProvided = 120,
+  id_GPS_Week_Cycle = 121,
+  id_GANSS_Day_Cycle = 122,
+  id_ganss_Delta_T = 123,
+  id_requestedCellIDGERANMeasurements = 124,
+  id_CellId_IRATMeasuredResultsSets = 125,
+  id_IMSI      = 126,
+  id_IMEI      = 127
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-pcap-val.h ---*/
@@ -262,16 +270,21 @@ static int hf_pcap_RxTimingDeviation768Info_PDU = -1;  /* RxTimingDeviation768In
 static int hf_pcap_RxTimingDeviation384extInfo_PDU = -1;  /* RxTimingDeviation384extInfo */
 static int hf_pcap_AddMeasurementInfo_PDU = -1;   /* AddMeasurementInfo */
 static int hf_pcap_AngleOfArrivalLCR_PDU = -1;    /* AngleOfArrivalLCR */
+static int hf_pcap_CellId_IRATMeasuredResultsSets_PDU = -1;  /* CellId_IRATMeasuredResultsSets */
 static int hf_pcap_CellIDPositioning_PDU = -1;    /* CellIDPositioning */
+static int hf_pcap_RequestedCellIDGERANMeasurements_PDU = -1;  /* RequestedCellIDGERANMeasurements */
 static int hf_pcap_ClientType_PDU = -1;           /* ClientType */
 static int hf_pcap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_pcap_DGNSS_ValidityPeriod_PDU = -1;  /* DGNSS_ValidityPeriod */
+static int hf_pcap_IMEI_PDU = -1;                 /* IMEI */
+static int hf_pcap_IMSI_PDU = -1;                 /* IMSI */
 static int hf_pcap_UE_PositionEstimate_PDU = -1;  /* UE_PositionEstimate */
 static int hf_pcap_UE_PositionEstimateInfo_PDU = -1;  /* UE_PositionEstimateInfo */
 static int hf_pcap_GANSS_Reference_Time_Only_PDU = -1;  /* GANSS_Reference_Time_Only */
 static int hf_pcap_PositionDataUEbased_PDU = -1;  /* PositionDataUEbased */
 static int hf_pcap_PositionData_PDU = -1;         /* PositionData */
 static int hf_pcap_GANSS_PositioningDataSet_PDU = -1;  /* GANSS_PositioningDataSet */
+static int hf_pcap_AzimuthAndElevationLSB_PDU = -1;  /* AzimuthAndElevationLSB */
 static int hf_pcap_GANSS_Additional_Ionospheric_Model_PDU = -1;  /* GANSS_Additional_Ionospheric_Model */
 static int hf_pcap_GANSS_Additional_Navigation_Models_PDU = -1;  /* GANSS_Additional_Navigation_Models */
 static int hf_pcap_GANSS_Additional_Time_Models_PDU = -1;  /* GANSS_Additional_Time_Models */
@@ -288,9 +301,13 @@ static int hf_pcap_GANSS_GenericAssistanceDataList_PDU = -1;  /* GANSS_GenericAs
 static int hf_pcap_GanssCodePhaseAmbiguityExt_PDU = -1;  /* GanssCodePhaseAmbiguityExt */
 static int hf_pcap_GanssIntegerCodePhaseExt_PDU = -1;  /* GanssIntegerCodePhaseExt */
 static int hf_pcap_GANSS_MeasuredResultsList_PDU = -1;  /* GANSS_MeasuredResultsList */
+static int hf_pcap_GANSS_Day_Cycle_PDU = -1;      /* GANSS_Day_Cycle */
+static int hf_pcap_GANSS_Delta_T_PDU = -1;        /* GANSS_Delta_T */
 static int hf_pcap_GANSS_UTRAN_TRU_PDU = -1;      /* GANSS_UTRAN_TRU */
+static int hf_pcap_CompleteAlmanacProvided_PDU = -1;  /* CompleteAlmanacProvided */
 static int hf_pcap_MeasuredResultsList_PDU = -1;  /* MeasuredResultsList */
 static int hf_pcap_GPS_ReferenceLocation_PDU = -1;  /* GPS_ReferenceLocation */
+static int hf_pcap_GPS_Week_Cycle_PDU = -1;       /* GPS_Week_Cycle */
 static int hf_pcap_UTRAN_GPS_DriftRate_PDU = -1;  /* UTRAN_GPS_DriftRate */
 static int hf_pcap_GPSReferenceTimeUncertainty_PDU = -1;  /* GPSReferenceTimeUncertainty */
 static int hf_pcap_GPS_UTRAN_TRU_PDU = -1;        /* GPS_UTRAN_TRU */
@@ -426,6 +443,20 @@ static int hf_pcap_cpich_RSCP = -1;               /* CPICH_RSCP */
 static int hf_pcap_cpich_EcNo = -1;               /* CPICH_EcNo */
 static int hf_pcap_aOA_LCR = -1;                  /* AOA_LCR */
 static int hf_pcap_aOA_LCR_Accuracy_Class = -1;   /* AOA_LCR_Accuracy_Class */
+static int hf_pcap_CellId_IRATMeasuredResultsSets_item = -1;  /* CellId_IRATMeasuredResultsInfoList */
+static int hf_pcap_gERAN_MeasuredResultsInfoList = -1;  /* GERAN_MeasuredResultsInfoList */
+static int hf_pcap_iE_Extenstions = -1;           /* ProtocolExtensionContainer */
+static int hf_pcap_GERAN_MeasuredResultsInfoList_item = -1;  /* GERAN_MeasuredResultsInfo */
+static int hf_pcap_gERANCellID = -1;              /* GERANCellGlobalID */
+static int hf_pcap_gERANPhysicalCellID = -1;      /* GERANPhysicalCellID */
+static int hf_pcap_gSM_RSSI = -1;                 /* GSM_RSSI */
+static int hf_pcap_plmn_Identity = -1;            /* PLMN_Identity */
+static int hf_pcap_locationAreaCode = -1;         /* BIT_STRING_SIZE_16 */
+static int hf_pcap_cellIdentity = -1;             /* BIT_STRING_SIZE_16 */
+static int hf_pcap_bsic = -1;                     /* GSM_BSIC */
+static int hf_pcap_arfcn = -1;                    /* GSM_BCCH_ARFCN */
+static int hf_pcap_networkColourCode = -1;        /* BIT_STRING_SIZE_3 */
+static int hf_pcap_baseStationColourCode = -1;    /* BIT_STRING_SIZE_3 */
 static int hf_pcap_requestedCellIDMeasurements = -1;  /* RequestedCellIDMeasurements */
 static int hf_pcap_fdd = -1;                      /* T_fdd */
 static int hf_pcap_roundTripTimeInfoWanted = -1;  /* BOOLEAN */
@@ -440,6 +471,7 @@ static int hf_pcap_rxTimingDeviation768InfoWanted = -1;  /* BOOLEAN */
 static int hf_pcap_rxTimingDeviation384extInfoWanted = -1;  /* BOOLEAN */
 static int hf_pcap_angleOfArrivalLCRWanted = -1;  /* BOOLEAN */
 static int hf_pcap_timingAdvanceLCRWanted = -1;   /* BOOLEAN */
+static int hf_pcap_rSSIMeasurementsWanted = -1;   /* BOOLEAN */
 static int hf_pcap_procedureCode = -1;            /* ProcedureCode */
 static int hf_pcap_triggeringMessage = -1;        /* TriggeringMessage */
 static int hf_pcap_procedureCriticality = -1;     /* Criticality */
@@ -515,6 +547,8 @@ static int hf_pcap_doppler1stOrder = -1;          /* INTEGER_M42_21 */
 static int hf_pcap_dopplerUncertainty = -1;       /* DopplerUncertainty */
 static int hf_pcap_azimuth = -1;                  /* INTEGER_0_31 */
 static int hf_pcap_elevation = -1;                /* INTEGER_0_7 */
+static int hf_pcap_azimuthLSB = -1;               /* INTEGER_0_15 */
+static int hf_pcap_elevationLSB = -1;             /* INTEGER_0_15 */
 static int hf_pcap_AuxInfoGANSS_ID1_item = -1;    /* AuxInfoGANSS_ID1_element */
 static int hf_pcap_svID = -1;                     /* INTEGER_0_63 */
 static int hf_pcap_signalsAvailable = -1;         /* BIT_STRING_SIZE_8 */
@@ -1401,10 +1435,18 @@ static gint ett_pcap_RxTimingDeviation768Info = -1;
 static gint ett_pcap_RxTimingDeviation384extInfo = -1;
 static gint ett_pcap_AddMeasurementInfo = -1;
 static gint ett_pcap_AngleOfArrivalLCR = -1;
+static gint ett_pcap_CellId_IRATMeasuredResultsSets = -1;
+static gint ett_pcap_CellId_IRATMeasuredResultsInfoList = -1;
+static gint ett_pcap_GERAN_MeasuredResultsInfoList = -1;
+static gint ett_pcap_GERAN_MeasuredResultsInfo = -1;
+static gint ett_pcap_GERANCellGlobalID = -1;
+static gint ett_pcap_GERANPhysicalCellID = -1;
+static gint ett_pcap_GSM_BSIC = -1;
 static gint ett_pcap_CellIDPositioning = -1;
 static gint ett_pcap_RequestedCellIDMeasurements = -1;
 static gint ett_pcap_T_fdd = -1;
 static gint ett_pcap_T_tdd = -1;
+static gint ett_pcap_RequestedCellIDGERANMeasurements = -1;
 static gint ett_pcap_CriticalityDiagnostics = -1;
 static gint ett_pcap_CriticalityDiagnostics_IE_List = -1;
 static gint ett_pcap_CriticalityDiagnostics_IE_List_item = -1;
@@ -1437,6 +1479,7 @@ static gint ett_pcap_AcquisitionSatInfoList = -1;
 static gint ett_pcap_AcquisitionSatInfo = -1;
 static gint ett_pcap_ExtraDopplerInfo = -1;
 static gint ett_pcap_AzimuthAndElevation = -1;
+static gint ett_pcap_AzimuthAndElevationLSB = -1;
 static gint ett_pcap_AuxInfoGANSS_ID1 = -1;
 static gint ett_pcap_AuxInfoGANSS_ID1_element = -1;
 static gint ett_pcap_AuxInfoGANSS_ID3 = -1;
@@ -1769,7 +1812,7 @@ static gint ett_pcap_Outcome = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint32 ProtocolExtensionID;
+/*static guint32 ProtocolExtensionID;*/
 
 /* Dissector tables */
 static dissector_table_t pcap_ies_dissector_table;
@@ -1934,9 +1977,6 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { id_OTDOA_AddMeasuredResultsInfo, "id-OTDOA-AddMeasuredResultsInfo" },
   { id_GPS_ReferenceLocation, "id-GPS-ReferenceLocation" },
   { id_OTDOA_MeasuredResultsSets, "id-OTDOA-MeasuredResultsSets" },
-  { id_Unknown_52, "id-Unknown-52" },
-  { id_Unknown_53, "id-Unknown-53" },
-  { id_Unknown_54, "id-Unknown-54" },
   { id_rxTimingDeviation384extInfo, "id-rxTimingDeviation384extInfo" },
   { id_ExtendedRoundTripTime, "id-ExtendedRoundTripTime" },
   { id_PeriodicPosCalcInfo, "id-PeriodicPosCalcInfo" },
@@ -2001,6 +2041,15 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { id_GANSS_AddADchoices, "id-GANSS-AddADchoices" },
   { id_OTDOA_ReferenceCellInfo, "id-OTDOA-ReferenceCellInfo" },
   { id_DGNSS_ValidityPeriod, "id-DGNSS-ValidityPeriod" },
+  { id_AzimuthAndElevationLSB, "id-AzimuthAndElevationLSB" },
+  { id_completeAlmanacProvided, "id-completeAlmanacProvided" },
+  { id_GPS_Week_Cycle, "id-GPS-Week-Cycle" },
+  { id_GANSS_Day_Cycle, "id-GANSS-Day-Cycle" },
+  { id_ganss_Delta_T, "id-ganss-Delta-T" },
+  { id_requestedCellIDGERANMeasurements, "id-requestedCellIDGERANMeasurements" },
+  { id_CellId_IRATMeasuredResultsSets, "id-CellId-IRATMeasuredResultsSets" },
+  { id_IMSI, "id-IMSI" },
+  { id_IMEI, "id-IMEI" },
   { 0, NULL }
 };
 
@@ -3269,6 +3318,143 @@ dissect_pcap_AngleOfArrivalLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
+dissect_pcap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GERANCellGlobalID_sequence[] = {
+  { &hf_pcap_plmn_Identity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_PLMN_Identity },
+  { &hf_pcap_locationAreaCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_16 },
+  { &hf_pcap_cellIdentity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_16 },
+  { &hf_pcap_iE_Extenstions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_GERANCellGlobalID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_GERANCellGlobalID, GERANCellGlobalID_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GSM_BSIC_sequence[] = {
+  { &hf_pcap_networkColourCode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_3 },
+  { &hf_pcap_baseStationColourCode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_3 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_GSM_BSIC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_GSM_BSIC, GSM_BSIC_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_GSM_BCCH_ARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1023U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GERANPhysicalCellID_sequence[] = {
+  { &hf_pcap_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_GSM_BSIC },
+  { &hf_pcap_arfcn          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_GSM_BCCH_ARFCN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_GERANPhysicalCellID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_GERANPhysicalCellID, GERANPhysicalCellID_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_GSM_RSSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 63U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GERAN_MeasuredResultsInfo_sequence[] = {
+  { &hf_pcap_gERANCellID    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GERANCellGlobalID },
+  { &hf_pcap_gERANPhysicalCellID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_GERANPhysicalCellID },
+  { &hf_pcap_gSM_RSSI       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_GSM_RSSI },
+  { &hf_pcap_iE_Extenstions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_GERAN_MeasuredResultsInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_GERAN_MeasuredResultsInfo, GERAN_MeasuredResultsInfo_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GERAN_MeasuredResultsInfoList_sequence_of[1] = {
+  { &hf_pcap_GERAN_MeasuredResultsInfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_GERAN_MeasuredResultsInfo },
+};
+
+static int
+dissect_pcap_GERAN_MeasuredResultsInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_pcap_GERAN_MeasuredResultsInfoList, GERAN_MeasuredResultsInfoList_sequence_of,
+                                                  1, maxReportedGERANCells, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellId_IRATMeasuredResultsInfoList_sequence[] = {
+  { &hf_pcap_gERAN_MeasuredResultsInfoList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GERAN_MeasuredResultsInfoList },
+  { &hf_pcap_iE_Extenstions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_CellId_IRATMeasuredResultsInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_CellId_IRATMeasuredResultsInfoList, CellId_IRATMeasuredResultsInfoList_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellId_IRATMeasuredResultsSets_sequence_of[1] = {
+  { &hf_pcap_CellId_IRATMeasuredResultsSets_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_CellId_IRATMeasuredResultsInfoList },
+};
+
+static int
+dissect_pcap_CellId_IRATMeasuredResultsSets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_pcap_CellId_IRATMeasuredResultsSets, CellId_IRATMeasuredResultsSets_sequence_of,
+                                                  1, maxNrOfIRATMeasurements, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_pcap_BOOLEAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, NULL);
 
@@ -3348,6 +3534,21 @@ static int
 dissect_pcap_CellIDPositioning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_pcap_CellIDPositioning, CellIDPositioning_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t RequestedCellIDGERANMeasurements_sequence[] = {
+  { &hf_pcap_rSSIMeasurementsWanted, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BOOLEAN },
+  { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_RequestedCellIDGERANMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_RequestedCellIDGERANMeasurements, RequestedCellIDGERANMeasurements_sequence);
 
   return offset;
 }
@@ -3678,6 +3879,26 @@ static int
 dissect_pcap_DGNSS_ValidityPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_pcap_DGNSS_ValidityPeriod, DGNSS_ValidityPeriod_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_IMEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 8, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -4127,6 +4348,32 @@ static int
 dissect_pcap_GPS_AcquisitionAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_pcap_GPS_AcquisitionAssistance, GPS_AcquisitionAssistance_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 15U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t AzimuthAndElevationLSB_sequence[] = {
+  { &hf_pcap_azimuthLSB     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_15 },
+  { &hf_pcap_elevationLSB   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_15 },
+  { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_pcap_AzimuthAndElevationLSB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_pcap_AzimuthAndElevationLSB, AzimuthAndElevationLSB_sequence);
 
   return offset;
 }
@@ -6483,6 +6730,26 @@ dissect_pcap_GANSS_MeasuredResultsList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+
+static int
+dissect_pcap_GANSS_Day_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_GANSS_Delta_T(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -128, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const value_string pcap_GANSS_UTRAN_TimeRelationshipUncertainty_vals[] = {
   {   0, "gANSS-UTRAN-TRU-50nano" },
   {   1, "gANSS-UTRAN-TRU-500nano" },
@@ -6516,6 +6783,15 @@ static int
 dissect_pcap_GANSS_UTRAN_TRU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_pcap_GANSS_UTRAN_TRU, GANSS_UTRAN_TRU_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pcap_CompleteAlmanacProvided(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
 }
@@ -6834,6 +7110,16 @@ dissect_pcap_GPS_ReferenceTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+
+static int
+dissect_pcap_GPS_Week_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 7U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const value_string pcap_UTRAN_GPS_DriftRate_vals[] = {
   {   0, "utran-GPSDrift0" },
   {   1, "utran-GPSDrift1" },
@@ -7031,16 +7317,6 @@ static int
 dissect_pcap_DGANSS_Sig_Id_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_pcap_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 15U, NULL, FALSE);
 
   return offset;
 }
@@ -12279,11 +12555,27 @@ static int dissect_AngleOfArrivalLCR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CellId_IRATMeasuredResultsSets_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_CellId_IRATMeasuredResultsSets(tvb, offset, &asn1_ctx, tree, hf_pcap_CellId_IRATMeasuredResultsSets_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CellIDPositioning_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_CellIDPositioning(tvb, offset, &asn1_ctx, tree, hf_pcap_CellIDPositioning_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RequestedCellIDGERANMeasurements_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_RequestedCellIDGERANMeasurements(tvb, offset, &asn1_ctx, tree, hf_pcap_RequestedCellIDGERANMeasurements_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12308,6 +12600,22 @@ static int dissect_DGNSS_ValidityPeriod_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_DGNSS_ValidityPeriod(tvb, offset, &asn1_ctx, tree, hf_pcap_DGNSS_ValidityPeriod_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_IMEI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_IMEI(tvb, offset, &asn1_ctx, tree, hf_pcap_IMEI_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_IMSI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_IMSI(tvb, offset, &asn1_ctx, tree, hf_pcap_IMSI_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12356,6 +12664,14 @@ static int dissect_GANSS_PositioningDataSet_PDU(tvbuff_t *tvb _U_, packet_info *
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_GANSS_PositioningDataSet(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_PositioningDataSet_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_AzimuthAndElevationLSB_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_AzimuthAndElevationLSB(tvb, offset, &asn1_ctx, tree, hf_pcap_AzimuthAndElevationLSB_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12487,11 +12803,35 @@ static int dissect_GANSS_MeasuredResultsList_PDU(tvbuff_t *tvb _U_, packet_info 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_GANSS_Day_Cycle_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GANSS_Day_Cycle(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_Day_Cycle_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GANSS_Delta_T_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GANSS_Delta_T(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_Delta_T_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_GANSS_UTRAN_TRU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_GANSS_UTRAN_TRU(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_UTRAN_TRU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CompleteAlmanacProvided_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_CompleteAlmanacProvided(tvb, offset, &asn1_ctx, tree, hf_pcap_CompleteAlmanacProvided_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -12508,6 +12848,14 @@ static int dissect_GPS_ReferenceLocation_PDU(tvbuff_t *tvb _U_, packet_info *pin
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_GPS_ReferenceLocation(tvb, offset, &asn1_ctx, tree, hf_pcap_GPS_ReferenceLocation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GPS_Week_Cycle_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GPS_Week_Cycle(tvb, offset, &asn1_ctx, tree, hf_pcap_GPS_Week_Cycle_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -13179,7 +13527,7 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return (dissector_try_uint(pcap_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -13282,8 +13630,8 @@ proto_reg_handoff_pcap(void)
   dissector_add_uint("pcap.ies", id_UE_PositionEstimateInfo, new_create_dissector_handle(dissect_UE_PositionEstimateInfo_PDU, proto_pcap));
   dissector_add_uint("pcap.ies", id_OTDOA_MeasuredResultsSets, new_create_dissector_handle(dissect_OTDOA_MeasuredResultsSets_PDU, proto_pcap));
   dissector_add_uint("pcap.ies", id_PeriodicPosCalcInfo, new_create_dissector_handle(dissect_PeriodicPosCalcInfo_PDU, proto_pcap));
-  dissector_add_uint("pcap.ies", id_PeriodicLocationInfo, new_create_dissector_handle(dissect_PeriodicLocationInfo_PDU, proto_pcap));
-  dissector_add_uint("pcap.ies", id_MeasInstructionsUsed, new_create_dissector_handle(dissect_MeasInstructionsUsed_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_PeriodicLocationInfo, new_create_dissector_handle(dissect_PeriodicLocationInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_MeasInstructionsUsed, new_create_dissector_handle(dissect_MeasInstructionsUsed_PDU, proto_pcap));
   dissector_add_uint("pcap.ies", id_PeriodicTerminationCause, new_create_dissector_handle(dissect_PeriodicTerminationCause_PDU, proto_pcap));
   dissector_add_uint("pcap.extension", id_IncludeVelocity, new_create_dissector_handle(dissect_IncludeVelocity_PDU, proto_pcap));
   dissector_add_uint("pcap.extension", id_AmountOfReporting, new_create_dissector_handle(dissect_AmountOfReporting_PDU, proto_pcap));
@@ -13344,6 +13692,15 @@ proto_reg_handoff_pcap(void)
   dissector_add_uint("pcap.extension", id_ganssAuxInfo_req, new_create_dissector_handle(dissect_GANSS_AuxInfo_req_PDU, proto_pcap));
   dissector_add_uint("pcap.extension", id_OTDOA_ReferenceCellInfo, new_create_dissector_handle(dissect_OTDOA_ReferenceCellInfoSAS_centric_PDU, proto_pcap));
   dissector_add_uint("pcap.extension", id_DGNSS_ValidityPeriod, new_create_dissector_handle(dissect_DGNSS_ValidityPeriod_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_AzimuthAndElevationLSB, new_create_dissector_handle(dissect_AzimuthAndElevationLSB_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_completeAlmanacProvided, new_create_dissector_handle(dissect_CompleteAlmanacProvided_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GPS_Week_Cycle, new_create_dissector_handle(dissect_GPS_Week_Cycle_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Day_Cycle, new_create_dissector_handle(dissect_GANSS_Day_Cycle_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganss_Delta_T, new_create_dissector_handle(dissect_GANSS_Delta_T_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_requestedCellIDGERANMeasurements, new_create_dissector_handle(dissect_RequestedCellIDGERANMeasurements_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_CellId_IRATMeasuredResultsSets, new_create_dissector_handle(dissect_CellId_IRATMeasuredResultsSets_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_IMSI, new_create_dissector_handle(dissect_IMSI_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_IMEI, new_create_dissector_handle(dissect_IMEI_PDU, proto_pcap));
   dissector_add_uint("pcap.proc.imsg", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationRequest_PDU, proto_pcap));
   dissector_add_uint("pcap.proc.sout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationResponse_PDU, proto_pcap));
   dissector_add_uint("pcap.proc.uout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationFailure_PDU, proto_pcap));
@@ -13424,8 +13781,16 @@ void proto_register_pcap(void) {
       { "AngleOfArrivalLCR", "pcap.AngleOfArrivalLCR",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pcap_CellId_IRATMeasuredResultsSets_PDU,
+      { "CellId-IRATMeasuredResultsSets", "pcap.CellId_IRATMeasuredResultsSets",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_pcap_CellIDPositioning_PDU,
       { "CellIDPositioning", "pcap.CellIDPositioning",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_RequestedCellIDGERANMeasurements_PDU,
+      { "RequestedCellIDGERANMeasurements", "pcap.RequestedCellIDGERANMeasurements",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_ClientType_PDU,
@@ -13439,6 +13804,14 @@ void proto_register_pcap(void) {
     { &hf_pcap_DGNSS_ValidityPeriod_PDU,
       { "DGNSS-ValidityPeriod", "pcap.DGNSS_ValidityPeriod",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_IMEI_PDU,
+      { "IMEI", "pcap.IMEI",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_IMSI_PDU,
+      { "IMSI", "pcap.IMSI",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_UE_PositionEstimate_PDU,
       { "UE-PositionEstimate", "pcap.UE_PositionEstimate",
@@ -13463,6 +13836,10 @@ void proto_register_pcap(void) {
     { &hf_pcap_GANSS_PositioningDataSet_PDU,
       { "GANSS-PositioningDataSet", "pcap.GANSS_PositioningDataSet",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_AzimuthAndElevationLSB_PDU,
+      { "AzimuthAndElevationLSB", "pcap.AzimuthAndElevationLSB",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_GANSS_Additional_Ionospheric_Model_PDU,
       { "GANSS-Additional-Ionospheric-Model", "pcap.GANSS_Additional_Ionospheric_Model",
@@ -13528,9 +13905,21 @@ void proto_register_pcap(void) {
       { "GANSS-MeasuredResultsList", "pcap.GANSS_MeasuredResultsList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_pcap_GANSS_Day_Cycle_PDU,
+      { "GANSS-Day-Cycle", "pcap.GANSS_Day_Cycle",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_GANSS_Delta_T_PDU,
+      { "GANSS-Delta-T", "pcap.GANSS_Delta_T",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_pcap_GANSS_UTRAN_TRU_PDU,
       { "GANSS-UTRAN-TRU", "pcap.GANSS_UTRAN_TRU",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_CompleteAlmanacProvided_PDU,
+      { "CompleteAlmanacProvided", "pcap.CompleteAlmanacProvided",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_MeasuredResultsList_PDU,
       { "MeasuredResultsList", "pcap.MeasuredResultsList",
@@ -13539,6 +13928,10 @@ void proto_register_pcap(void) {
     { &hf_pcap_GPS_ReferenceLocation_PDU,
       { "GPS-ReferenceLocation", "pcap.GPS_ReferenceLocation",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_GPS_Week_Cycle_PDU,
+      { "GPS-Week-Cycle", "pcap.GPS_Week_Cycle",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_pcap_UTRAN_GPS_DriftRate_PDU,
       { "UTRAN-GPS-DriftRate", "pcap.UTRAN_GPS_DriftRate",
@@ -14080,6 +14473,62 @@ void proto_register_pcap(void) {
       { "aOA-LCR-Accuracy-Class", "pcap.aOA_LCR_Accuracy_Class",
         FT_UINT32, BASE_DEC, VALS(pcap_AOA_LCR_Accuracy_Class_vals), 0,
         NULL, HFILL }},
+    { &hf_pcap_CellId_IRATMeasuredResultsSets_item,
+      { "CellId-IRATMeasuredResultsInfoList", "pcap.CellId_IRATMeasuredResultsInfoList",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_gERAN_MeasuredResultsInfoList,
+      { "gERAN-MeasuredResultsInfoList", "pcap.gERAN_MeasuredResultsInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_iE_Extenstions,
+      { "iE-Extenstions", "pcap.iE_Extenstions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ProtocolExtensionContainer", HFILL }},
+    { &hf_pcap_GERAN_MeasuredResultsInfoList_item,
+      { "GERAN-MeasuredResultsInfo", "pcap.GERAN_MeasuredResultsInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_gERANCellID,
+      { "gERANCellID", "pcap.gERANCellID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GERANCellGlobalID", HFILL }},
+    { &hf_pcap_gERANPhysicalCellID,
+      { "gERANPhysicalCellID", "pcap.gERANPhysicalCellID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_gSM_RSSI,
+      { "gSM-RSSI", "pcap.gSM_RSSI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_plmn_Identity,
+      { "plmn-Identity", "pcap.plmn_Identity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pcap_locationAreaCode,
+      { "locationAreaCode", "pcap.locationAreaCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_16", HFILL }},
+    { &hf_pcap_cellIdentity,
+      { "cellIdentity", "pcap.cellIdentity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_16", HFILL }},
+    { &hf_pcap_bsic,
+      { "bsic", "pcap.bsic",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GSM_BSIC", HFILL }},
+    { &hf_pcap_arfcn,
+      { "arfcn", "pcap.arfcn",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "GSM_BCCH_ARFCN", HFILL }},
+    { &hf_pcap_networkColourCode,
+      { "networkColourCode", "pcap.networkColourCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_3", HFILL }},
+    { &hf_pcap_baseStationColourCode,
+      { "baseStationColourCode", "pcap.baseStationColourCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_3", HFILL }},
     { &hf_pcap_requestedCellIDMeasurements,
       { "requestedCellIDMeasurements", "pcap.requestedCellIDMeasurements",
         FT_UINT32, BASE_DEC, VALS(pcap_RequestedCellIDMeasurements_vals), 0,
@@ -14134,6 +14583,10 @@ void proto_register_pcap(void) {
         "BOOLEAN", HFILL }},
     { &hf_pcap_timingAdvanceLCRWanted,
       { "timingAdvanceLCRWanted", "pcap.timingAdvanceLCRWanted",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_pcap_rSSIMeasurementsWanted,
+      { "rSSIMeasurementsWanted", "pcap.rSSIMeasurementsWanted",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_pcap_procedureCode,
@@ -14436,6 +14889,14 @@ void proto_register_pcap(void) {
       { "elevation", "pcap.elevation",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_7", HFILL }},
+    { &hf_pcap_azimuthLSB,
+      { "azimuthLSB", "pcap.azimuthLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
+    { &hf_pcap_elevationLSB,
+      { "elevationLSB", "pcap.elevationLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_15", HFILL }},
     { &hf_pcap_AuxInfoGANSS_ID1_item,
       { "AuxInfoGANSS-ID1-element", "pcap.AuxInfoGANSS_ID1_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17878,10 +18339,18 @@ void proto_register_pcap(void) {
     &ett_pcap_RxTimingDeviation384extInfo,
     &ett_pcap_AddMeasurementInfo,
     &ett_pcap_AngleOfArrivalLCR,
+    &ett_pcap_CellId_IRATMeasuredResultsSets,
+    &ett_pcap_CellId_IRATMeasuredResultsInfoList,
+    &ett_pcap_GERAN_MeasuredResultsInfoList,
+    &ett_pcap_GERAN_MeasuredResultsInfo,
+    &ett_pcap_GERANCellGlobalID,
+    &ett_pcap_GERANPhysicalCellID,
+    &ett_pcap_GSM_BSIC,
     &ett_pcap_CellIDPositioning,
     &ett_pcap_RequestedCellIDMeasurements,
     &ett_pcap_T_fdd,
     &ett_pcap_T_tdd,
+    &ett_pcap_RequestedCellIDGERANMeasurements,
     &ett_pcap_CriticalityDiagnostics,
     &ett_pcap_CriticalityDiagnostics_IE_List,
     &ett_pcap_CriticalityDiagnostics_IE_List_item,
@@ -17914,6 +18383,7 @@ void proto_register_pcap(void) {
     &ett_pcap_AcquisitionSatInfo,
     &ett_pcap_ExtraDopplerInfo,
     &ett_pcap_AzimuthAndElevation,
+    &ett_pcap_AzimuthAndElevationLSB,
     &ett_pcap_AuxInfoGANSS_ID1,
     &ett_pcap_AuxInfoGANSS_ID1_element,
     &ett_pcap_AuxInfoGANSS_ID3,

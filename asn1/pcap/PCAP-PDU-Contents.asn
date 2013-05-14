@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453  V9.2.0 (2010-09)
+-- 3GPP TS 25.453  V11.0.0 (2012-09)
 --
 --9.3.3	PDU Definitions
 -- **************************************************************
@@ -69,7 +69,10 @@ IMPORTS
 	GANSS-UTRAN-TRU,
 	AdditionalGPSAssistDataRequired,
 	AdditionalGanssAssistDataRequired,
-	OTDOA-ReferenceCellInfoSAS-centric
+	OTDOA-ReferenceCellInfoSAS-centric,
+	CellId-IRATMeasuredResultsSets,
+	IMSI,
+	IMEI
 
 FROM PCAP-IEs
 
@@ -138,7 +141,11 @@ FROM PCAP-Containers
 	id-GANSS-UTRAN-TRU,
 	id-AdditionalGPSAssistDataRequired,
 	id-AdditionalGanssAssistDataRequired,
-	id-OTDOA-ReferenceCellInfo
+	id-OTDOA-ReferenceCellInfo,
+	id-CellId-IRATMeasuredResultsSets,
+	id-IMSI,
+	id-IMEI
+
 
 FROM PCAP-Constants;
 
@@ -161,15 +168,18 @@ PositionCalculationRequestIEs PCAP-PROTOCOL-IES ::= {
 }
 
 PositionCalculationRequestExtensions PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-CellId-MeasuredResultsSets		CRITICALITY reject	EXTENSION CellId-MeasuredResultsSets		PRESENCE optional } |
-	{ ID id-OTDOA-MeasurementGroup			CRITICALITY reject	EXTENSION OTDOA-MeasurementGroup			PRESENCE optional } |
-	{ ID id-HorizontalAccuracyCode			CRITICALITY ignore	EXTENSION HorizontalAccuracyCode			PRESENCE optional } |
-	{ ID id-VerticalAccuracyCode			CRITICALITY ignore	EXTENSION VerticalAccuracyCode				PRESENCE optional } |
-	{ ID id-UTDOA-Group						CRITICALITY reject	EXTENSION UTDOA-Group						PRESENCE optional } |
-	{ ID id-Positioning-ResponseTime		CRITICALITY ignore	EXTENSION Positioning-ResponseTime		PRESENCE optional } |
-	{ ID id-IncludeVelocity					CRITICALITY ignore	EXTENSION IncludeVelocity					PRESENCE optional } |
-	{ ID id-PeriodicPosCalcInfo				CRITICALITY ignore	EXTENSION PeriodicPosCalcInfo				PRESENCE optional } |
-	{ ID id-GANSS-MeasuredResultsList		CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList		PRESENCE optional },
+	{ ID id-CellId-MeasuredResultsSets		CRITICALITY reject	EXTENSION CellId-MeasuredResultsSets			PRESENCE optional } |
+	{ ID id-OTDOA-MeasurementGroup			CRITICALITY reject	EXTENSION OTDOA-MeasurementGroup				PRESENCE optional } |
+	{ ID id-HorizontalAccuracyCode			CRITICALITY ignore	EXTENSION HorizontalAccuracyCode				PRESENCE optional } |
+	{ ID id-VerticalAccuracyCode			CRITICALITY ignore	EXTENSION VerticalAccuracyCode					PRESENCE optional } |
+	{ ID id-UTDOA-Group						CRITICALITY reject	EXTENSION UTDOA-Group							PRESENCE optional } |
+	{ ID id-Positioning-ResponseTime		CRITICALITY ignore	EXTENSION Positioning-ResponseTime			PRESENCE optional } |
+	{ ID id-IncludeVelocity					CRITICALITY ignore	EXTENSION IncludeVelocity						PRESENCE optional } |
+	{ ID id-PeriodicPosCalcInfo				CRITICALITY ignore	EXTENSION PeriodicPosCalcInfo					PRESENCE optional } |
+	{ ID id-GANSS-MeasuredResultsList		CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList			PRESENCE optional } |
+	{ ID id-CellId-IRATMeasuredResultsSets	CRITICALITY ignore	EXTENSION CellId-IRATMeasuredResultsSets	PRESENCE optional } |
+	{ ID id-IMSI							CRITICALITY ignore	EXTENSION IMSI									PRESENCE optional } |
+	{ ID id-IMEI							CRITICALITY ignore	EXTENSION IMEI									PRESENCE optional },
 	...
 }
 
@@ -192,7 +202,7 @@ PositionCalculationResponseIEs PCAP-PROTOCOL-IES ::= {
 }
 
 PositionCalculationResponseExtensions PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-AccuracyFulfilmentIndicator	CRITICALITY ignore	EXTENSION AccuracyFulfilmentIndicator			PRESENCE optional} |
+	{ ID id-AccuracyFulfilmentIndicator	CRITICALITY ignore	EXTENSION AccuracyFulfilmentIndicator		PRESENCE optional} |
 	{ ID id-VelocityEstimate			CRITICALITY ignore 	EXTENSION VelocityEstimate					PRESENCE optional},
 	...
 }
@@ -245,8 +255,10 @@ InformationExchangeInitiationRequest-IEs PCAP-PROTOCOL-IES ::= {
 }
 
 InformationExchangeInitiationRequest-Extensions PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-GANSS-UTRAN-TRU							CRITICALITY reject	EXTENSION GANSS-UTRAN-TRU										PRESENCE conditional },
+	{ ID id-GANSS-UTRAN-TRU						CRITICALITY reject	EXTENSION GANSS-UTRAN-TRU										PRESENCE conditional } |
 	-- This IE shall be present if the information requested in the Information Type IE contains GANSS-related data
+	{ ID id-IMSI								CRITICALITY ignore	EXTENSION IMSI													PRESENCE optional } |
+	{ ID id-IMEI								CRITICALITY ignore	EXTENSION IMEI													PRESENCE optional },
 	...
 }
 
@@ -371,7 +383,9 @@ PositionInitiationRequestIEs PCAP-PROTOCOL-IES ::= {
 
 PositionInitiationRequestExtensions PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-IncludeVelocity				CRITICALITY ignore	EXTENSION IncludeVelocity			PRESENCE optional }|
-	{ ID id-PeriodicLocationInfo		CRITICALITY ignore	EXTENSION PeriodicLocationInfo		PRESENCE optional },
+	{ ID id-PeriodicLocationInfo		CRITICALITY ignore	EXTENSION PeriodicLocationInfo		PRESENCE optional }|
+	{ ID id-IMSI						CRITICALITY ignore	EXTENSION IMSI						PRESENCE optional }|
+	{ ID id-IMEI						CRITICALITY ignore	EXTENSION IMEI						PRESENCE optional },
 	...
 }
 
@@ -478,12 +492,13 @@ PositionActivationResponseIEs PCAP-PROTOCOL-IES ::= {
 }
 
 PositionActivationResponseExtensions PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-VelocityEstimate						CRITICALITY ignore	EXTENSION VelocityEstimate							PRESENCE optional} |
-	{ ID id-MeasInstructionsUsed					CRITICALITY ignore	EXTENSION MeasInstructionsUsed						PRESENCE optional} |
+	{ ID id-VelocityEstimate						CRITICALITY ignore	EXTENSION VelocityEstimate							PRESENCE optional } |
+	{ ID id-MeasInstructionsUsed					CRITICALITY ignore	EXTENSION MeasInstructionsUsed						PRESENCE optional } |
 	{ ID id-GANSS-MeasuredResultsList				CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList				PRESENCE optional } |
 	{ ID id-AdditionalGPSAssistDataRequired			CRITICALITY ignore	EXTENSION AdditionalGPSAssistDataRequired		PRESENCE optional } |
 	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional } |
-	{ ID id-OTDOA-ReferenceCellInfo					CRITICALITY reject	EXTENSION OTDOA-ReferenceCellInfoSAS-centric	PRESENCE optional },
+	{ ID id-OTDOA-ReferenceCellInfo					CRITICALITY reject	EXTENSION OTDOA-ReferenceCellInfoSAS-centric	PRESENCE optional } |
+	{ ID id-CellId-IRATMeasuredResultsSets			CRITICALITY ignore	EXTENSION CellId-IRATMeasuredResultsSets			PRESENCE optional },
 	...
 }
 
@@ -704,7 +719,8 @@ PositionPeriodicReport-Extensions PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GANSS-MeasuredResultsList				CRITICALITY ignore	EXTENSION GANSS-MeasuredResultsList				PRESENCE optional } |
 	{ ID id-AdditionalGPSAssistDataRequired			CRITICALITY ignore	EXTENSION AdditionalGPSAssistDataRequired		PRESENCE optional } |
 	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional } |
-	{ ID id-OTDOA-ReferenceCellInfo					CRITICALITY reject	EXTENSION OTDOA-ReferenceCellInfoSAS-centric	PRESENCE optional },
+	{ ID id-OTDOA-ReferenceCellInfo					CRITICALITY reject	EXTENSION OTDOA-ReferenceCellInfoSAS-centric	PRESENCE optional } |
+	{ ID id-CellId-IRATMeasuredResultsSets			CRITICALITY ignore	EXTENSION CellId-IRATMeasuredResultsSets			PRESENCE optional },
 	...
 }
 
@@ -754,4 +770,3 @@ PositionPeriodicTermination-Extensions PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 END
-

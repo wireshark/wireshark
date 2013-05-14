@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V9.1.0 (2010-03)
+-- 3GPP TS 25.453 V11.0.0 (2012-09)
 --
 -- 9.3.6	Constant Definitions
 -- **************************************************************
@@ -83,7 +83,8 @@ maxGANSSSet							INTEGER ::= 9
 maxGANSSSatAlmanac					INTEGER ::= 36
 maxGANSSClockMod					INTEGER ::= 4
 maxGANSS-1							INTEGER ::= 7
-
+maxNrOfIRATMeasurements				INTEGER ::= 16
+maxReportedGERANCells				INTEGER ::= 6
 
 -- **************************************************************
 --
@@ -145,10 +146,6 @@ id-UTRAN-GPS-DriftRate							ProtocolIE-ID ::= 48
 id-OTDOA-AddMeasuredResultsInfo					ProtocolIE-ID ::= 49
 id-GPS-ReferenceLocation						ProtocolIE-ID ::= 50
 id-OTDOA-MeasuredResultsSets					ProtocolIE-ID ::= 51
--- WS extension
-id-Unknown-52									ProtocolIE-ID ::= 52
-id-Unknown-53									ProtocolIE-ID ::= 53
-id-Unknown-54									ProtocolIE-ID ::= 54
 id-rxTimingDeviation384extInfo					ProtocolIE-ID ::= 55
 id-ExtendedRoundTripTime						ProtocolIE-ID ::= 56
 id-PeriodicPosCalcInfo							ProtocolIE-ID ::= 57
@@ -211,9 +208,17 @@ id-GANSS-alm-keplerianGLONASS					ProtocolIE-ID ::= 112
 id-GANSS-alm-ecefSBASAlmanac					ProtocolIE-ID ::= 113
 id-UTRAN-GANSSReferenceTimeResult				ProtocolIE-ID ::= 114
 id-GANSS-Reference-Time-Only					ProtocolIE-ID ::= 115
-id-GANSS-AddADchoices							ProtocolIE-ID ::= 116 
-id-OTDOA-ReferenceCellInfo						ProtocolIE-ID ::= 117 
+id-GANSS-AddADchoices							ProtocolIE-ID ::= 116
+id-OTDOA-ReferenceCellInfo						ProtocolIE-ID ::= 117
 id-DGNSS-ValidityPeriod							ProtocolIE-ID ::= 118
-
+id-AzimuthAndElevationLSB						ProtocolIE-ID ::= 119
+id-completeAlmanacProvided						ProtocolIE-ID ::= 120
+id-GPS-Week-Cycle								ProtocolIE-ID ::= 121
+id-GANSS-Day-Cycle								ProtocolIE-ID ::= 122
+id-ganss-Delta-T								ProtocolIE-ID ::= 123
+id-requestedCellIDGERANMeasurements				ProtocolIE-ID ::= 124
+id-CellId-IRATMeasuredResultsSets				ProtocolIE-ID ::= 125
+id-IMSI											ProtocolIE-ID ::= 126
+id-IMEI											ProtocolIE-ID ::= 127
 
 END

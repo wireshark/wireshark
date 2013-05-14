@@ -262,9 +262,19 @@ id-ganssReq-EarthOrientPara						ProtocolIE-ID
 id-ganssAddNavigationModel-req					ProtocolIE-ID
 id-ganssAddUTCModel-req							ProtocolIE-ID
 id-ganssAuxInfo-req								ProtocolIE-ID
-id-GANSS-AlmanacModelChoice						ProtocolIE-ID
+id-GANSS-AddADchoices							ProtocolIE-ID
 id-OTDOA-ReferenceCellInfo						ProtocolIE-ID
 id-DGNSS-ValidityPeriod							ProtocolIE-ID
+id-AzimuthAndElevationLSB						ProtocolIE-ID
+id-completeAlmanacProvided						ProtocolIE-ID
+id-GPS-Week-Cycle								ProtocolIE-ID
+id-GANSS-Day-Cycle								ProtocolIE-ID
+id-ganss-Delta-T								ProtocolIE-ID
+id-requestedCellIDGERANMeasurements				ProtocolIE-ID
+id-CellId-IRATMeasuredResultsSets				ProtocolIE-ID
+id-IMSI											ProtocolIE-ID
+id-IMEI											ProtocolIE-ID
+
 #.END
 
 #.REGISTER_NEW
@@ -305,8 +315,8 @@ UC-ID-InfEx-Rqst								N pcap.ies id-UC-ID-InfEx-Rqst
 UE-PositionEstimateInfo							N pcap.ies id-UE-PositionEstimateInfo
 OTDOA-MeasuredResultsSets						N pcap.ies id-OTDOA-MeasuredResultsSets
 PeriodicPosCalcInfo								N pcap.ies id-PeriodicPosCalcInfo
-PeriodicLocationInfo							N pcap.ies id-PeriodicLocationInfo
-MeasInstructionsUsed							N pcap.ies id-MeasInstructionsUsed
+PeriodicLocationInfo							N pcap.extension id-PeriodicLocationInfo
+MeasInstructionsUsed							N pcap.extension id-MeasInstructionsUsed
 PeriodicTerminationCause						N pcap.ies id-PeriodicTerminationCause
 
 #PCAP-PROTOCOL-EXTENSION
@@ -370,6 +380,16 @@ GANSS-AuxInfo-req								N pcap.extension id-ganssAuxInfo-req
 #N pcap.extension id-GANSS-AlmanacModelChoice Not used?
 OTDOA-ReferenceCellInfoSAS-centric				N pcap.extension id-OTDOA-ReferenceCellInfo
 DGNSS-ValidityPeriod							N pcap.extension id-DGNSS-ValidityPeriod
+AzimuthAndElevationLSB							N pcap.extension id-AzimuthAndElevationLSB
+CompleteAlmanacProvided							N pcap.extension id-completeAlmanacProvided
+GPS-Week-Cycle									N pcap.extension id-GPS-Week-Cycle
+GANSS-Day-Cycle									N pcap.extension id-GANSS-Day-Cycle
+GANSS-Delta-T									N pcap.extension id-ganss-Delta-T
+RequestedCellIDGERANMeasurements				N pcap.extension id-requestedCellIDGERANMeasurements
+CellId-IRATMeasuredResultsSets					N pcap.extension id-CellId-IRATMeasuredResultsSets
+IMSI											N pcap.extension id-IMSI
+IMEI											N pcap.extension id-IMEI
+
 
 #PCAP-ELEMENTARY-PROCEDURE
 

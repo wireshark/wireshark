@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V9.2.0 (2010-09)
+-- 3GPP TS 25.453 V11.0.0 (2012-09)
 --
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
@@ -50,7 +50,8 @@ IMPORTS
 	maxGANSSSatAlmanac,
 	maxGANSSClockMod,
 	maxGANSS-1,
-
+	maxNrOfIRATMeasurements,
+	maxReportedGERANCells,
 
 
 	id-UTRAN-GPSReferenceTime,
@@ -109,10 +110,13 @@ IMPORTS
 	id-ganssAddUTCModel-req,
 	id-ganssAuxInfo-req,
 	id-GANSS-AlmanacModelChoice,
-	id-DGNSS-ValidityPeriod
-
-
-
+	id-DGNSS-ValidityPeriod,
+	id-AzimuthAndElevationLSB,
+	id-completeAlmanacProvided,
+	id-GPS-Week-Cycle,
+	id-GANSS-Day-Cycle,
+	id-ganss-Delta-T,
+	id-requestedCellIDGERANMeasurements
 
 
 FROM PCAP-Constants
@@ -434,19 +438,81 @@ TimingAdvance768 ::=					INTEGER (0..511)
 TimingAdvance384ext ::=					INTEGER (0..255)
 
 Pathloss ::=							INTEGER (46..158)
--- Unit: dB; as defined in [4] subclause 10.3.7.3
+-- Unit: dB; as defined in the Cell measured results IE of TS 25.331 [4]
 
 CPICH-EcNo ::=							INTEGER (0..49)
--- According to CPICH_Ec/No in [13]
+-- According to CPICH_Ec/No in TS 25.133 [13]
 
 CPICH-RSCP ::= 							INTEGER (-5..91)
--- According to CPICH_RSCP in [13]
+-- According to CPICH_RSCP in TS 25.133 [13]
 
-AOA-LCR ::=								INTEGER (0..719)-- According to mapping in [14]
+AOA-LCR ::=								INTEGER (0..719)-- According to mapping in TS 25.123 [14]
 
 AOA-LCR-Accuracy-Class ::=				ENUMERATED {
 											a,b,c,d,e,f,g,h, ...}
 
+-- **************************************************************
+--
+-- Cell Id IRAT Measured Results Sets
+--
+-- **************************************************************
+
+CellId-IRATMeasuredResultsSets ::=		SEQUENCE (SIZE (1..maxNrOfIRATMeasurements)) OF
+	CellId-IRATMeasuredResultsInfoList
+
+CellId-IRATMeasuredResultsInfoList ::=	SEQUENCE {
+	gERAN-MeasuredResultsInfoList		GERAN-MeasuredResultsInfoList														OPTIONAL,
+	iE-Extenstions						ProtocolExtensionContainer { { CellId-IRATMeasuredResultsInfoListExtIEs }} 	OPTIONAL,
+	...
+}
+
+CellId-IRATMeasuredResultsInfoListExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GERAN-MeasuredResultsInfoList ::= 		SEQUENCE (SIZE (1..maxReportedGERANCells)) OF
+	GERAN-MeasuredResultsInfo
+
+GERAN-MeasuredResultsInfo ::=			SEQUENCE {
+	gERANCellID							GERANCellGlobalID														OPTIONAL,
+	gERANPhysicalCellID					GERANPhysicalCellID,
+	gSM-RSSI							GSM-RSSI,
+	iE-Extenstions						ProtocolExtensionContainer { { GERAN-MeasuredResultsInfo-ExtIEs }} OPTIONAL,
+	...
+}
+
+GERAN-MeasuredResultsInfo-ExtIEs		PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GERANCellGlobalID ::=					SEQUENCE {
+	plmn-Identity						PLMN-Identity,			--As defined in TS 23.003
+	locationAreaCode					BIT STRING (SIZE (16)),
+	cellIdentity						BIT STRING (SIZE (16)),
+	iE-Extenstions						ProtocolExtensionContainer { { GERANCellGlobalID-ExtIEs }} 			OPTIONAL,
+	...
+}
+
+GERANCellGlobalID-ExtIEs				PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+PLMN-Identity ::=						OCTET STRING (SIZE (3))
+
+
+GSM-RSSI ::=							INTEGER (0..63)
+
+GERANPhysicalCellID ::=					SEQUENCE {
+	bsic								GSM-BSIC,
+	arfcn								GSM-BCCH-ARFCN
+}
+
+GSM-BSIC ::=							SEQUENCE {
+	networkColourCode					BIT STRING (SIZE (3)),
+	baseStationColourCode				BIT STRING (SIZE (3))
+}
+
+GSM-BCCH-ARFCN ::= 						INTEGER (0..1023)
 
 -- **************************************************************
 --
@@ -461,6 +527,7 @@ CellIDPositioning ::= SEQUENCE {
 }
 
 CellIDPositioning-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-requestedCellIDGERANMeasurements	CRITICALITY reject	EXTENSION RequestedCellIDGERANMeasurements	PRESENCE optional },
 	...
 }
 
@@ -493,6 +560,16 @@ RequestedCellIDMeasurementsFDD-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 }
 
 RequestedCellIDMeasurementsTDD-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RequestedCellIDGERANMeasurements ::= SEQUENCE {
+	rSSIMeasurementsWanted	BOOLEAN,
+	iE-Extensions			ProtocolExtensionContainer { { RequestedCellIDGERANMeasurements-ExtIEs} }	OPTIONAL,
+	...
+}
+
+RequestedCellIDGERANMeasurements-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -642,9 +719,19 @@ PRC ::=								INTEGER (-2047..2047)
 
 RRC ::=								INTEGER (-127..127)
 
+-- **************************************************************
+--
+-- IMEI, IMSI
+--
+-- **************************************************************
 
+-- IMEI
 
+IMEI ::=	OCTET STRING (SIZE (3..8))
 
+-- IMSI
+
+IMSI ::=	OCTET STRING (SIZE (8))
 
 
 -- **************************************************************
@@ -938,6 +1025,18 @@ AzimuthAndElevation ::=				SEQUENCE {
 }
 
 AzimuthAndElevation-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-AzimuthAndElevationLSB		CRITICALITY	ignore	EXTENSION	AzimuthAndElevationLSB	PRESENCE	optional},
+	...
+}
+
+AzimuthAndElevationLSB ::=			SEQUENCE {
+	azimuthLSB							INTEGER (0..15),
+	elevationLSB						INTEGER (0..15),
+	iE-Extensions						ProtocolExtensionContainer { { AzimuthAndElevationLSB-ExtIEs } }	OPTIONAL,
+	...
+}
+
+AzimuthAndElevationLSB-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1163,6 +1262,7 @@ GANSS-AlmanacAndSatelliteHealth ::= SEQUENCE {
 }
 
 GANSS-AlmanacAndSatelliteHealth-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-completeAlmanacProvided		CRITICALITY	ignore	EXTENSION	CompleteAlmanacProvided PRESENCE	optional},
 	...
 }
 
@@ -1190,13 +1290,15 @@ GANSS-Auxiliary-Information ::= CHOICE {
 }
 
 GANSS-AzimuthAndElevation ::= SEQUENCE {
-	azimuth						INTEGER(0..31),
+	azimuth						INTEGER(0..31), 
+	-- applicable range of elevation is 0..7. Values 8-75 shall not be used.
 	elevation					INTEGER(0..75),
 	ie-Extensions				ProtocolExtensionContainer { { GANSS-AzimuthAndElevation-ExtIEs } }	OPTIONAL,
 	...
 }
 
 GANSS-AzimuthAndElevation-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-AzimuthAndElevationLSB		CRITICALITY	ignore	EXTENSION	AzimuthAndElevationLSB	PRESENCE	optional},
 	...
 }
 
@@ -1531,8 +1633,11 @@ GANSS-Reference-Time ::= SEQUENCE {
 }
 
 GANSS-Reference-Time-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-GANSS-Day-Cycle		CRITICALITY		ignore	EXTENSION	GANSS-Day-Cycle		PRESENCE optional},
 	...
 }
+
+GANSS-Day-Cycle			::=	INTEGER(0..7)
 
 GANSS-ReferenceTimeOnly ::= SEQUENCE {
 	gANSS-tod					INTEGER(0..3599999),
@@ -1771,8 +1876,11 @@ GANSS-Time-Model ::= SEQUENCE {
 }
 
 GANSS-Time-Model-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-ganss-Delta-T		CRITICALITY		ignore	EXTENSION	GANSS-Delta-T		PRESENCE	optional},
 	...
 }
+
+GANSS-Delta-T	::=	INTEGER(-128..127)
 
 GANSS-UTRAN-TimeRelationshipUncertainty ::= ENUMERATED {
 	gANSS-UTRAN-TRU-50nano,
@@ -2052,9 +2160,11 @@ GPS-AlmanacAndSatelliteHealth ::=	SEQUENCE {
 }
 
 GPS-AlmanacAndSatelliteHealth-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-completeAlmanacProvided		CRITICALITY	ignore	EXTENSION	CompleteAlmanacProvided PRESENCE	optional},
 	...
 }
 
+CompleteAlmanacProvided ::=		BOOLEAN
 
 AlmanacSatInfoList ::=				SEQUENCE (SIZE (1..maxSatAlmanac)) OF
 										AlmanacSatInfo
@@ -2289,9 +2399,12 @@ GPS-ReferenceTime-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 	{ID id-UTRAN-GPSReferenceTime		CRITICALITY	ignore	EXTENSION	UTRAN-GPSReferenceTime			PRESENCE	optional}|
 	{ID id-GPS-UTRAN-TRU				CRITICALITY	ignore	EXTENSION	GPS-UTRAN-TRU					PRESENCE	optional}|
 	{ID id-UTRAN-GPS-DriftRate			CRITICALITY	ignore	EXTENSION	UTRAN-GPS-DriftRate				PRESENCE	optional}|
-	{ID id-GPSReferenceTimeUncertainty	CRITICALITY	ignore	EXTENSION	GPSReferenceTimeUncertainty	PRESENCE	optional},
+	{ID id-GPSReferenceTimeUncertainty	CRITICALITY	ignore	EXTENSION	GPSReferenceTimeUncertainty	PRESENCE	optional}|
+	{ID id-GPS-Week-Cycle				CRITICALITY	ignore	EXTENSION	GPS-Week-Cycle					PRESENCE	optional},
 	...
 }
+
+GPS-Week-Cycle		::=				INTEGER(0..7)
 
 GPS-TOW-AssistList ::=				SEQUENCE (SIZE (1..maxSat)) OF
 										GPS-TOW-Assist
@@ -4019,7 +4132,7 @@ Max-Set-E-DPDCHs ::= ENUMERATED {
 	vN64, vN32, vN16, vN8, v2xN4, v2xN2, v2xN2plus2xN4,
 	...
 	}
--- Values related to [16]
+-- Values related to TS 25.212 [16]
 
 E-TFCS-Information ::= SEQUENCE {
 	e-DCH-TFCS-Index								E-DCH-TFCS-Index,
@@ -4049,7 +4162,7 @@ Reference-E-TFCI-Information-Item-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 }
 
 Reference-E-TFCI-PO ::= INTEGER (0.. maxNrOfRefETFCI-PO-QUANTSTEPs)
-	-- FFS according to mapping in [17]
+	-- FFS according to mapping in TS 25.213 [17]
 
 E-TFCI ::= INTEGER (0..127)
 	
