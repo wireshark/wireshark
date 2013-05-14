@@ -976,33 +976,49 @@ color_clear_cmd(GtkWidget *widget)
   color_filters_read_globals(color_filters);
 }
 
-/* Clear button: user responded to question */
-static void color_clear_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-  switch(btn) {
-  case(ESD_BTN_CLEAR):
-    color_clear_cmd((GtkWidget*)data);
-    break;
-  case(ESD_BTN_CANCEL):
-    break;
-  default:
-    g_assert_not_reached();
-  }
-}
-
 /* User pressed "clear" button: ask user before really doing it */
 void
 color_clear_cb(GtkWidget *widget, gpointer data _U_) {
-  gpointer  dialog;
+  GtkWidget *msg_dialog;
+  gint       response;
 
   /* ask user, if he/she is really sure */
-  dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_CLEAR | ESD_BTN_CANCEL,
-                         "%sRemove all your personal color settings?%s\n\n"
-                         "This will revert the color settings to global defaults.\n\n"
-                         "Are you really sure?",
-                         simple_dialog_primary_start(), simple_dialog_primary_end());
+  msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                      (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
+                                      GTK_MESSAGE_QUESTION,
+                                      GTK_BUTTONS_NONE,
+                                      "Do you want to remove all your personal color settings?");
+  gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+                                           "This will revert the color settings to global defaults.\n\n"
+                                           "Are you really sure?");
+#ifndef _WIN32
+  gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+  gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                        GTK_STOCK_CLEAR, GTK_RESPONSE_ACCEPT);
+#else
+  gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                        GTK_STOCK_CLEAR, GTK_RESPONSE_ACCEPT);
+  gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+#endif
+  gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_CANCEL);
 
-  simple_dialog_set_cb(dialog, color_clear_answered_cb, widget);
+  response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+  gtk_widget_destroy(msg_dialog);
+
+  switch (response) {
+
+  case GTK_RESPONSE_ACCEPT:
+    color_clear_cmd(widget);
+    break;
+
+  case GTK_RESPONSE_CANCEL:
+  case GTK_RESPONSE_NONE:
+  case GTK_RESPONSE_DELETE_EVENT:
+  default:
+    break;
+  }
 }
 
 
