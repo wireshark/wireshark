@@ -983,7 +983,7 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
   gint       response;
 
   /* ask user, if he/she is really sure */
-  msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+  msg_dialog = gtk_message_dialog_new(GTK_WINDOW(gtk_widget_get_toplevel(widget)),
                                       (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                       GTK_MESSAGE_QUESTION,
                                       GTK_BUTTONS_NONE,
