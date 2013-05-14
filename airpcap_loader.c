@@ -156,7 +156,7 @@ get_wep_key(pref_t *pref, gpointer ud)
     keys_cb_data_t* user_data;
     uat_t *uat;
     guint i;
-    const char* err = NULL;
+    char* err = NULL;
     uat_wep_key_record_t* wep_keys;
     decryption_key_t* new_key;
 
@@ -251,7 +251,7 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
     keys_cb_data_t*  user_data;
     uat_t *uat;
     gint i;
-    const char* err = NULL;
+    char* err = NULL;
     char* err2 = NULL;
     uat_wep_key_record_t uat_key;
 
