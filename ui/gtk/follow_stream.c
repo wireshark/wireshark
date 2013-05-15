@@ -73,9 +73,7 @@ static GtkTextTag *server_tag, *client_tag;
 
 static void follow_find_destroy_cb(GtkWidget * win _U_, gpointer data);
 static void follow_find_button_cb(GtkWidget * w, gpointer data);
-static gboolean follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs);
 static void follow_destroy_cb(GtkWidget *w, gpointer data _U_);
-static void follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data);
 
 GList *follow_infos = NULL;
 
@@ -516,85 +514,32 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 #endif
 }
 
-/*
- * Keep a static pointer to the current "Save Follow Stream As" window, if
- * any, so that if somebody tries to do "Save"
- * while there's already a "Save Follow Stream" window up, we just pop
- * up the existing one, rather than creating a new one.
- */
-
-static void
-follow_save_as_cmd_cb(GtkWidget *w, gpointer data)
+static char *
+gtk_follow_save_as_file(GtkWidget *caller)
 {
-	GtkWidget	*caller = gtk_widget_get_toplevel(w);
 	GtkWidget	*new_win;
-	follow_info_t	*follow_info = (follow_info_t *)data;
+	char		*pathname;
 
 	new_win = file_selection_new("Wireshark: Save Follow Stream As",
 				     GTK_WINDOW(caller),
 				     FILE_SELECTION_SAVE);
-	follow_info->follow_save_as_w = new_win;
-
-	/* Tuck away the follow_info object into the window */
-	g_object_set_data(G_OBJECT(new_win), E_FOLLOW_INFO_KEY, follow_info);
-
-	g_signal_connect(new_win, "destroy", G_CALLBACK(follow_save_as_destroy_cb),
-		       follow_info);
-
-#if 0
-	if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
-		{
-			follow_save_as_ok_cb(new_win, new_win);
-		} else {
-		window_destroy(new_win);
+	pathname = file_selection_run(new_win);
+	if (pathname == NULL) {
+		/* User cancelled or closed the dialog. */
+		return NULL;
 	}
-#endif
-	/* "Run" the GtkFileChooserDialog.                                              */
-	/* Upon exit: If "Accept" run the OK callback.                                  */
-	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-	/*            If not accept (ie: cancel) destroy the window.                    */
-	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-	/*      return with a TRUE status so that the dialog window will be destroyed.  */
-	/*      Trying to re-run the dialog after popping up an alert box will not work */
-	/*       since the user will not be able to dismiss the alert box.              */
-	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
-	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
-	/*                                                                              */
-	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
-	/*            GtkFileChooserDialog.                                             */
-	while (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT) {
-		if (follow_save_as_ok_cb(NULL, new_win)) {
-		    break; /* we're done */
-		}
-	}
+
+	/* We've crosed the Rubicon; get rid of the dialog box. */
 	window_destroy(new_win);
+
+	return pathname;
 }
 
-
 static gboolean
-follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
+follow_save_as_ok_cb(gchar *to_name, follow_info_t *follow_info)
 {
-	gchar		*to_name;
-	follow_info_t	*follow_info;
 	FILE		*fh;
-	print_stream_t	*stream = NULL;
-	gchar		*dirname;
-
-	to_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-
-	/* Perhaps the user specified a directory instead of a file.
-	   Check whether they did. */
-	if (test_for_directory(to_name) == EISDIR) {
-		/* It's a directory - set the file selection box to display that
-		   directory, and leave the selection box displayed. */
-		set_last_open_dir(to_name);
-		g_free(to_name);
-		file_selection_set_current_folder((GtkWidget *)fs, get_last_open_dir());
-		gtk_file_chooser_set_current_name((GtkFileChooser *)fs, "");
-		return FALSE; /* do gtk_dialog_run again */
-	}
-
-	follow_info = (follow_info_t *)g_object_get_data(G_OBJECT(fs), E_FOLLOW_INFO_KEY);
+	print_stream_t	*stream;
 
 	if (follow_info->show_type == SHOW_RAW) {
 		/* Write the data out as raw binary data */
@@ -605,66 +550,78 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	}
 	if (fh == NULL) {
 		open_failure_alert_box(to_name, errno, TRUE);
-		g_free(to_name);
-		return TRUE;
+		return FALSE;
 	}
 
-#if 0 /* handled by caller (for now) .... */
-	gtk_widget_hide(GTK_WIDGET(fs));
-	window_destroy(GTK_WIDGET(fs));
-#endif
 	if (follow_info->show_type == SHOW_RAW) {
 		switch (follow_read_stream(follow_info, follow_write_raw, fh)) {
 		case FRS_OK:
-			if (fclose(fh) == EOF)
+			if (fclose(fh) == EOF) {
 				write_failure_alert_box(to_name, errno);
+				return FALSE;
+			}
 			break;
 
 		case FRS_OPEN_ERROR:
 		case FRS_READ_ERROR:
 			fclose(fh);
-			break;
+			return FALSE;
 
 		case FRS_PRINT_ERROR:
 			write_failure_alert_box(to_name, errno);
 			fclose(fh);
-			break;
+			return FALSE;
 		}
 	} else {
 		stream = print_stream_text_stdio_new(fh);
 		switch (follow_read_stream(follow_info, follow_print_text,
 					   stream)) {
 		case FRS_OK:
-			if (!destroy_print_stream(stream))
+			if (!destroy_print_stream(stream)) {
 				write_failure_alert_box(to_name, errno);
+				return FALSE;
+			}
 			break;
 
 		case FRS_OPEN_ERROR:
 		case FRS_READ_ERROR:
 			destroy_print_stream(stream);
-			break;
+			return FALSE;
 
 		case FRS_PRINT_ERROR:
 			write_failure_alert_box(to_name, errno);
 			destroy_print_stream(stream);
-			break;
+			return FALSE;
 		}
 	}
 
-	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(to_name);  /* Overwrites to_name */
-	set_last_open_dir(dirname);
-	g_free(to_name);
 	return TRUE;
 }
 
 static void
-follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
+follow_save_as_cmd_cb(GtkWidget *w, gpointer data)
 {
+	GtkWidget	*caller = gtk_widget_get_toplevel(w);
 	follow_info_t	*follow_info = (follow_info_t *)data;
+	char		*pathname;
 
-	/* Note that we no longer have a dialog box. */
-	follow_info->follow_save_as_w = NULL;
+	/*
+	 * Loop until the user either selects a file or gives up.
+	 */
+	for (;;) {
+		pathname = gtk_follow_save_as_file(caller);
+		if (pathname == NULL) {
+			/* User gave up. */
+			break;
+		}
+		if (follow_save_as_ok_cb(pathname, follow_info)) {
+			/* We succeeded. */
+			g_free(pathname);
+			break;
+		}
+		/* Dump failed; let the user select another file or give up. */
+		g_free(pathname);
+	}
 }
 
 static void

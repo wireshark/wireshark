@@ -523,17 +523,6 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
     gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
 
-
-
-static GtkWidget *savehex_dlg=NULL;
-
-static void
-savehex_dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
-{
-    savehex_dlg = NULL;
-}
-
-
 static void
 copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int data_len, gboolean append_text)
 {
@@ -706,79 +695,25 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 
 /* save the current highlighted hex data */
 static gboolean
-savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
+savehex_save_clicked_cb(gchar *file, int start, int end, const guint8 *data_p)
 {
-    GtkWidget *bv;
-    int fd, start, end;
-    guint len;
-    const guint8 *data_p = NULL;
-    char *file;
-
-    file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
-
-#if 0 /* Not req'd: GtkFileChooserWidget currently being used won't return with a Null filename */
-    if (!file ||! *file) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename.");
-        g_free(file);
-        return TRUE;
-    }
-#endif
-    if (test_for_directory(file) == EISDIR) {
-        /* It's a directory - set the file selection box to display that
-           directory, and leave the selection box displayed. */
-        set_last_open_dir(file);
-        g_free(file);
-        file_selection_set_current_folder(savehex_dlg, get_last_open_dir());
-        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(savehex_dlg), "");
-        return FALSE; /* do gtk_dialog_run again */
-    }
-
-    /* XXX: Must check if file name exists first */
-
-    bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
-    if (bv == NULL) {
-        /* shouldn't happen */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window.");
-        g_free(file);
-        return TRUE;
-    }
-    /*
-     * Retrieve the info we need
-     */
-    start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-    end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
-    data_p = get_byte_view_data_and_length(bv, &len);
-
-    if (data_p == NULL || start == -1 || start > end) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "No data selected to save.");
-        g_free(file);
-        return TRUE;
-    }
+    int fd;
 
     fd = ws_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
     if (fd == -1) {
         open_failure_alert_box(file, errno, TRUE);
-        g_free(file);
-        return TRUE;
+        return FALSE;
     }
     if (ws_write(fd, data_p + start, end - start) < 0) {
         write_failure_alert_box(file, errno);
         ws_close(fd);
-        g_free(file);
-        return TRUE;
+        return FALSE;
     }
     if (ws_close(fd) < 0) {
         write_failure_alert_box(file, errno);
-        g_free(file);
-        return TRUE;
+        return FALSE;
     }
 
-    /* Get rid of the dialog box */
-    g_free(file);
-#if 0 /* being handled by caller  (for now) */
-    window_destroy(GTK_WIDGET(savehex_dlg));
-#endif
     return TRUE;
 }
 
@@ -791,15 +726,47 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     return;
 }
 #else
+static char *
+gtk_export_raw_file(int start, int end)
+{
+    GtkWidget *savehex_dlg;
+    gchar *label;
+    GtkWidget   *dlg_lb;
+    char *pathname;
+
+    /*
+     * Build the dialog box we need.
+     */
+    savehex_dlg = file_selection_new("Wireshark: Export Selected Packet Bytes", GTK_WINDOW(top_level), FILE_SELECTION_SAVE);
+
+    /* label */
+    label = g_strdup_printf("Will save %u %s of raw binary data to specified file.",
+                            end - start, plurality(end - start, "byte", "bytes"));
+    dlg_lb = gtk_label_new(label);
+    g_free(label);
+    file_selection_set_extra_widget(savehex_dlg, dlg_lb);
+    gtk_widget_show(dlg_lb);
+
+    pathname = file_selection_run(savehex_dlg);
+    if (pathname == NULL) {
+        /* User cancelled or closed the dialog. */
+        return NULL;
+    }
+
+    /* We've crosed the Rubicon; get rid of the dialog box. */
+    window_destroy(savehex_dlg);
+
+    return pathname;
+}
+
 void
 savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
     int start, end;
     guint len;
     const guint8 *data_p = NULL;
-    gchar *label;
     GtkWidget   *bv;
-    GtkWidget   *dlg_lb;
+    char *pathname;
 
     /* don't show up the dialog, if no data has to be saved */
     bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
@@ -817,54 +784,23 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
         return;
     }
 
-#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
-    /* if the window is already open, bring it to front */
-    if(savehex_dlg){
-        reactivate_window(savehex_dlg);
-        return;
-    }
-#endif
     /*
-     * Build the dialog box we need.
+     * Loop until the user either selects a file or gives up.
      */
-    savehex_dlg = file_selection_new("Wireshark: Export Selected Packet Bytes", GTK_WINDOW(top_level), FILE_SELECTION_SAVE);
-
-    /* label */
-    label = g_strdup_printf("Will save %u %s of raw binary data to specified file.",
-                            end - start, plurality(end - start, "byte", "bytes"));
-    dlg_lb = gtk_label_new(label);
-    g_free(label);
-    file_selection_set_extra_widget(savehex_dlg, dlg_lb);
-    gtk_widget_show(dlg_lb);
-
-    g_signal_connect(savehex_dlg, "destroy", G_CALLBACK(savehex_dlg_destroy_cb), NULL);
-
-#if 0
-    if (gtk_dialog_run(GTK_DIALOG(savehex_dlg)) == GTK_RESPONSE_ACCEPT) {
-        savehex_save_clicked_cb(savehex_dlg, savehex_dlg);
-    } else {
-        window_destroy(savehex_dlg);
-    }
-#endif
-    /* "Run" the GtkFileChooserDialog.                                              */
-    /* Upon exit: If "Accept" run the OK callback.                                  */
-    /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-    /*            If not accept (ie: cancel) destroy the window.                    */
-    /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-    /*      return with a TRUE status so that the dialog window will be destroyed.  */
-    /*      Trying to re-run the dialog after popping up an alert box will not work */
-    /*       since the user will not be able to dismiss the alert box.              */
-    /*      The (somewhat unfriendly) effect: the user must re-invoke the           */
-    /*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
-    /*                                                                              */
-    /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
-    /*            GtkFileChooserDialog.                                             */
-    while (gtk_dialog_run(GTK_DIALOG(savehex_dlg)) == GTK_RESPONSE_ACCEPT) {
-        if (savehex_save_clicked_cb(NULL, savehex_dlg)) {
-            break; /* we're done */
+    for (;;) {
+        pathname = gtk_export_raw_file(start, end);
+        if (pathname == NULL) {
+            /* User gave up. */
+            break;
         }
+        if (savehex_save_clicked_cb(pathname, start, end, data_p)) {
+            /* We succeeded. */
+            g_free(pathname);
+            break;
+        }
+        /* Dump failed; let the user select another file or give up. */
+        g_free(pathname);
     }
-    window_destroy(savehex_dlg);
 }
 #endif
 

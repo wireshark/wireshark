@@ -99,7 +99,6 @@ typedef struct _rule_info_t {
     GtkWidget *filter_combo_box;
     GtkWidget *deny_cb;
     GtkWidget *inbound_cb;
-    GtkWidget *firewall_save_as_w;
     gboolean inbound;
     gboolean deny;
     rule_type_t rule_type;
@@ -172,8 +171,6 @@ static void set_rule_text(rule_info_t *rule_info);
 static void firewall_destroy_cb(GtkWidget * win, gpointer data);
 static void firewall_copy_cmd_cb(GtkWidget * w, gpointer data);
 static void firewall_save_as_cmd_cb(GtkWidget * w, gpointer data);
-static gboolean firewall_save_as_ok_cb(GtkWidget * w, gpointer fs);
-static void firewall_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
 
 #define WS_RULE_INFO_KEY "rule_info_key"
 
@@ -195,7 +192,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     GtkWidget	    *rule_w, *vbox, *txt_scrollw, *text;
     GtkWidget       *label,  *product_combo_box;
     GtkWidget	    *hbox,   *button_hbox, *button;
-	rule_info_t	    *rule_info;
+    rule_info_t	    *rule_info;
     packet_info     *pinfo = &cfile.edt->pi;
     guint i;
 
@@ -652,7 +649,7 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
     forget_rule_info(rule_info);
 #endif
     g_free(rule_info);
-	gtk_widget_destroy(w);
+    gtk_widget_destroy(w);
 }
 
 static void
@@ -670,91 +667,20 @@ firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
     gtk_text_buffer_copy_clipboard(buf, gtk_clipboard_get(GDK_SELECTION_CLIPBOARD));
 }
 
-/*
- * Keep a static pointer to the current "Save SSL Follow Stream As" window, if
- * any, so that if somebody tries to do "Save"
- * while there's already a "Save SSL Follow Stream" window up, we just pop
- * up the existing one, rather than creating a new one.
- */
-static void
-firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
-{
-    GtkWidget   *caller = gtk_widget_get_toplevel(w);
-    GtkWidget   *new_win;
-    rule_info_t	*rule_info = (rule_info_t *)data;
-
-    new_win = file_selection_new("Wireshark: Save Firewall ACL Rule",
-                                 GTK_WINDOW(caller),
-                                 FILE_SELECTION_SAVE);
-    rule_info->firewall_save_as_w = new_win;
-
-    /* Tuck away the rule_info object into the window */
-    g_object_set_data(G_OBJECT(new_win), WS_RULE_INFO_KEY, rule_info);
-
-    g_signal_connect(new_win, "destroy", G_CALLBACK(firewall_save_as_destroy_cb), rule_info);
-
-#if 0
-    if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
-    {
-        firewall_save_as_ok_cb(new_win, new_win);
-    } else {
-        window_destroy(new_win);
-    }
-#else
-    /* "Run" the GtkFileChooserDialog.                                              */
-    /* Upon exit: If "Accept" run the OK callback.                                  */
-    /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-    /*            If not accept (ie: cancel) destroy the window.                    */
-    /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-    /*      return with a TRUE status so that the dialog window will be destroyed.  */
-    /*      Trying to re-run the dialog after popping up an alert box will not work */
-    /*       since the user will not be able to dismiss the alert box.              */
-    /*      The (somewhat unfriendly) effect: the user must re-invoke the           */
-    /*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
-    /*                                                                              */
-    /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
-    /*            GtkFileChooserDialog.                                             */
-    while (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT) {
-        if (firewall_save_as_ok_cb(NULL, new_win)) {
-            break; /* we're done */
-        }
-    }
-    window_destroy(new_win);
-#endif
-}
-
-
 static gboolean
-firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
+firewall_save_as_ok_cb(char *to_name, rule_info_t *rule_info)
 {
-    gchar	*to_name, *rule;
-    rule_info_t	*rule_info;
     FILE 	*fh;
-    gchar	*dirname;
+    gchar	*rule;
 
     GtkTextIter start, end;
     GtkTextBuffer *buf;
 
-    to_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(to_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display that
-           directory, and leave the selection box displayed. */
-        set_last_open_dir(to_name);
-        g_free(to_name);
-        file_selection_set_current_folder((GtkWidget *)fs, get_last_open_dir());
-        gtk_file_chooser_set_current_name((GtkFileChooser *)fs, "");
-        return FALSE; /* run the dialog again */
-    }
-
-    rule_info = (rule_info_t *)g_object_get_data(G_OBJECT(fs), WS_RULE_INFO_KEY);
     fh = ws_fopen(to_name, "w");
     if (fh == NULL) {
         open_failure_alert_box(to_name, errno, TRUE);
         g_free(to_name);
-        return TRUE;
+        return FALSE;
     }
 
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
@@ -765,23 +691,53 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     fputs(rule, fh);
     fclose(fh);
 
-#if 0 /* handled by caller (for now) */
-    gtk_widget_hide(GTK_WIDGET(fs));
-    window_destroy(GTK_WIDGET(fs));
-#endif
-    /* Save the directory name for future file dialogs. */
-    dirname = get_dirname(to_name);  /* Overwrites to_name */
-    set_last_open_dir(dirname);
-    g_free(to_name);
-
     return TRUE;
 }
 
-static void
-firewall_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
+static char *
+gtk_firewall_save_as_file(GtkWidget *caller)
 {
-   rule_info_t	*rule_info = (rule_info_t *)data;
+    GtkWidget   *new_win;
+    char        *pathname;
 
-    /* Note that we no longer have a dialog box. */
-    rule_info->firewall_save_as_w = NULL;
+    new_win = file_selection_new("Wireshark: Save Firewall ACL Rule",
+                                 GTK_WINDOW(caller),
+                                 FILE_SELECTION_SAVE);
+
+    pathname = file_selection_run(new_win);
+    if (pathname == NULL) {
+        /* User cancelled or closed the dialog. */
+        return NULL;
+    }
+
+    /* We've crosed the Rubicon; get rid of the dialog box. */
+    window_destroy(new_win);
+
+    return pathname;
+}
+
+static void
+firewall_save_as_cmd_cb(GtkWidget *w, gpointer data)
+{
+    GtkWidget   *caller = gtk_widget_get_toplevel(w);
+    rule_info_t	*rule_info = (rule_info_t *)data;
+    char        *pathname;
+
+    /*
+     * Loop until the user either selects a file or gives up.
+     */
+    for (;;) {
+        pathname = gtk_firewall_save_as_file(caller);
+        if (pathname == NULL) {
+            /* User gave up. */
+            break;
+        }
+        if (firewall_save_as_ok_cb(pathname, rule_info)) {
+            /* We succeeded. */
+            g_free(pathname);
+            break;
+        }
+        /* Dump failed; let the user select another file or give up. */
+        g_free(pathname);
+    }
 }

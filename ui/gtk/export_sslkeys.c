@@ -78,54 +78,16 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
-static GtkWidget *savesslkeys_dlg=NULL;
-
-static void
-savesslkeys_dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
-{
-    savesslkeys_dlg = NULL;
-}
-
 /* save the SSL Session Keys */
 static gboolean
-savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
+savesslkeys_save_clicked_cb(char *file, gchar *keylist)
 {
     int fd;
-    char *file;
-    gchar *keylist;
-
-    file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savesslkeys_dlg));
-
-    if (test_for_directory(file) == EISDIR) {
-        /* It's a directory - set the file selection box to display that
-           directory, and leave the selection box displayed. */
-        set_last_open_dir(file);
-        g_free(file);
-        file_selection_set_current_folder(savesslkeys_dlg, get_last_open_dir());
-        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(savesslkeys_dlg), "");
-        return FALSE; /* do gtk_dialog_run again */
-    }
-
-    /* XXX: Must check if file name exists first */
-
-    if (ssl_session_key_count() < 1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "No SSL Session Keys to export.");
-        g_free(file);
-        return TRUE;
-    }
-
-    /*
-     * Retrieve the info we need
-     */
-    keylist = ssl_export_sessions();
 
     fd = ws_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
     if (fd == -1) {
         open_failure_alert_box(file, errno, TRUE);
-        g_free(keylist);
-        g_free(file);
-        return TRUE;
+        return FALSE;
     }
     /*
      * Thanks, Microsoft, for not using size_t for the third argument to
@@ -134,20 +96,14 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
     if (ws_write(fd, keylist, (unsigned int)strlen(keylist)) < 0) {
         write_failure_alert_box(file, errno);
         ws_close(fd);
-        g_free(keylist);
-        g_free(file);
-        return TRUE;
+        return FALSE;
     }
     if (ws_close(fd) < 0) {
         write_failure_alert_box(file, errno);
-        g_free(keylist);
-        g_free(file);
-        return TRUE;
+        return FALSE;
     }
 
-    /* Get rid of the dialog box */
     g_free(keylist);
-    g_free(file);
     return TRUE;
 }
 
@@ -161,21 +117,13 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
     return;
 }
 #else
-void
-savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
+static char *
+gtk_export_sslkeys_file(guint keylist_len)
 {
+    GtkWidget *savesslkeys_dlg;
     gchar *label;
-    GtkWidget   *dlg_lb;
-    guint keylist_len;
-
-    keylist_len = ssl_session_key_count();
-    /* don't show up the dialog, if no data has to be saved */
-    if (keylist_len==0) {
-        /* shouldn't happen as the menu item should have been greyed out */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There are no SSL Session Keys to save.");
-        return;
-    }
-
+    GtkWidget *dlg_lb;
+    char *pathname;
 
     /*
      * Build the dialog box we need.
@@ -192,26 +140,54 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
     file_selection_set_extra_widget(savesslkeys_dlg, dlg_lb);
     gtk_widget_show(dlg_lb);
 
-    g_signal_connect(savesslkeys_dlg, "destroy", G_CALLBACK(savesslkeys_dlg_destroy_cb), NULL);
-
-    /* "Run" the GtkFileChooserDialog.                                              */
-    /* Upon exit: If "Accept" run the OK callback.                                  */
-    /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-    /*            If not accept (ie: cancel) destroy the window.                    */
-    /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-    /*      return with a TRUE status so that the dialog window will be destroyed.  */
-    /*      Trying to re-run the dialog after popping up an alert box will not work */
-    /*       since the user will not be able to dismiss the alert box.              */
-    /*      The (somewhat unfriendly) effect: the user must re-invoke the           */
-    /*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
-    /*                                                                              */
-    /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
-    /*            GtkFileChooserDialog.                                             */
-    while (gtk_dialog_run(GTK_DIALOG(savesslkeys_dlg)) == GTK_RESPONSE_ACCEPT) {
-        if (savesslkeys_save_clicked_cb(NULL, savesslkeys_dlg)) {
-            break; /* we're done */
-        }
+    pathname = file_selection_run(savesslkeys_dlg);
+    if (pathname == NULL) {
+        /* User cancelled or closed the dialog. */
+        return NULL;
     }
+
+    /* We've crosed the Rubicon; get rid of the dialog box. */
     window_destroy(savesslkeys_dlg);
+
+    return pathname;
+}
+
+void
+savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+    char *pathname;
+    guint keylist_len;
+    gchar *keylist;
+
+    keylist_len = ssl_session_key_count();
+    /* don't show up the dialog, if no data has to be saved */
+    if (keylist_len==0) {
+        /* shouldn't happen as the menu item should have been greyed out */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There are no SSL Session Keys to save.");
+        return;
+    }
+
+    /*
+     * Retrieve the info we need
+     */
+    keylist = ssl_export_sessions();
+
+    /*
+     * Loop until the user either selects a file or gives up.
+     */
+    for (;;) {
+        pathname = gtk_export_sslkeys_file(keylist_len);
+        if (pathname == NULL) {
+            /* User gave up. */
+            break;
+        }
+        if (savesslkeys_save_clicked_cb(pathname, keylist)) {
+            /* We succeeded. */
+            g_free(pathname);
+            break;
+        }
+        /* Dump failed; let the user select another file or give up. */
+        g_free(pathname);
+    }
 }
 #endif
