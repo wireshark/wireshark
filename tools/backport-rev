@@ -77,7 +77,7 @@ logfile="/tmp/copyrev-$rev.log"
 oldrev=$(( $rev - 1 ))
 echo "Working on r$rev ($oldrev)"
 
-echo -n "Attempting dry run: "
+echo -n "Attempting 'svn merge' dry run. "
 if [ -n "$subdir" ] ; then
     cd .$subdir
 fi
@@ -87,11 +87,22 @@ svn diff --diff-cmd /usr/bin/diff -x "-w -b -U 5" -c $rev $svnurl$subdir \
 
 svn log -v -r $rev $svnurl | sed -e 's/^..*/  &/' > $logfile || exit 1
 
+merge_ok="Giving up. You'll have to merge the patch yourself."
 svn merge --dry-run -c$rev $svnurl | grep '^Summary' \
-    > /dev/null 2>&1 && exit_err "Conflict"
+    > /dev/null 2>&1 || merge_ok="OK"
 
-echo "OK"
-echo "Attempting patch:"
+if [ "$merge_ok" != "OK" ] ; then
+    dry_run_cmd="patch --batch --ignore-whitespace --strip=0 --dry-run"
+    echo "Failed. Trying 'patch' dry run:"
+    echo "    $dry_run_cmd < $patchfile"
+    echo ""
+    $dry_run_cmd < $patchfile
+    echo ""
+    exit_err "$merge_ok"
+fi
+
+echo "$merge_ok"
+echo "Attempting 'svn merge' live run:"
 svn merge -c$rev $svnurl
 
 if [ -n "$subdir" ] ; then
