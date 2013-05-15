@@ -51,13 +51,18 @@ p_compare(gconstpointer a, gconstpointer b)
   const frame_proto_data *ap = (const frame_proto_data *)a;
   const frame_proto_data *bp = (const frame_proto_data *)b;
 
-  if (ap -> proto > bp -> proto)
+  if (ap -> proto > bp -> proto){
     return 1;
-  else if (ap -> proto == bp -> proto)
-    return 0;
-  else
+  }else if (ap -> proto == bp -> proto){
+    if (ap -> key > bp -> key){
+      return 1;
+    }else if (ap -> key == bp -> key){
+      return 0;
+	}
     return -1;
-
+  }else{
+    return -1;
+  }
 }
 
 void
@@ -112,6 +117,16 @@ p_remove_proto_data(frame_data *fd, int proto, guint8 key)
   if (item) {
     fd->pfd = g_slist_remove(fd->pfd, item->data);
   }
+}
+
+gchar *
+p_get_proto_name_and_key(frame_data *fd, guint index){
+	frame_proto_data  *temp;
+
+	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, index);
+
+	return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
+
 }
 
 #define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \

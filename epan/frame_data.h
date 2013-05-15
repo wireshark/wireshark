@@ -93,6 +93,7 @@ typedef struct {
 WS_DLL_PUBLIC void p_add_proto_data(frame_data *fd, int proto, guint8 key, void *proto_data);
 WS_DLL_PUBLIC void *p_get_proto_data(frame_data *fd, int proto, guint8 key);
 void p_remove_proto_data(frame_data *fd, int proto, guint8 key);
+gchar *p_get_proto_name_and_key(frame_data *fd, guint index);
 
 /** compare two frame_datas */
 WS_DLL_PUBLIC gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
