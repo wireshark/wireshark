@@ -66,6 +66,7 @@ AreaEventInfo
 BasicServiceCode
 CallReferenceNumber
 CCBS-Feature
+CellGlobalIdOrServiceAreaIdOrLAI
 CellGlobalIdOrServiceAreaIdFixedLength
 CUG-CheckInfo
 CUG-Index
