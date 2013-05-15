@@ -1731,6 +1731,10 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 
 	current_offset = start_offset;
 	semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
+	
+	if(semi_colon_offset == -1)
+		return;
+
 	length = semi_colon_offset - current_offset;
 	proto_tree_add_text(tree, tvb, start_offset, length,
 		"Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
@@ -3802,11 +3806,11 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	if (sip_frame_result == NULL)
 	{
 		sip_frame_result = se_new0(sip_frame_result_value);
+		p_add_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num, sip_frame_result);
 	}
 
 	/* Store return value with this packet */
 	sip_frame_result->original_frame_num = result;
-	p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 
 	return result;
 }
@@ -3901,11 +3905,12 @@ guint sip_find_request(packet_info *pinfo,
 
 
 	/* Store return value with this packet */
-	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, 0);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num);
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
 		sip_frame_result = se_new0(sip_frame_result_value);
+		p_add_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num, sip_frame_result);
 	}
 
 	sip_frame_result->response_request_frame_num = result;
@@ -3918,8 +3923,6 @@ guint sip_find_request(packet_info *pinfo,
 	sip_frame_result->response_time = (seconds_between_packets*1000) +
 	                                  (nseconds_between_packets / 1000000);
 	*response_time = sip_frame_result->response_time;
-
-	p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 
 	return result;
 }
@@ -4021,11 +4024,12 @@ guint sip_find_invite(packet_info *pinfo,
 	result = p_val->frame_number;
 
 	/* Store return value with this packet */
-	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, 0);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip, pinfo->curr_layer_num);
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
 		sip_frame_result = se_new0(sip_frame_result_value);
+		p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 	}
 
 	sip_frame_result->response_request_frame_num = result;
@@ -4039,7 +4043,6 @@ guint sip_find_invite(packet_info *pinfo,
 	                                  (nseconds_between_packets / 1000000);
 	*response_time = sip_frame_result->response_time;
 
-	p_add_proto_data(pinfo->fd, proto_sip, 0, sip_frame_result);
 
 	return result;
 }
