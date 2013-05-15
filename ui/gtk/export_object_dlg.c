@@ -173,9 +173,6 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 				       GTK_WINDOW(object_list->dlg),
 				       FILE_SELECTION_SAVE);
 
-	gtk_window_set_transient_for(GTK_WINDOW(save_as_w),
-				     GTK_WINDOW(object_list->dlg));
-
 	auxfilename = eo_saveable_pathname(entry->filename);
 
 	gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w),
@@ -210,9 +207,6 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	save_in_w = file_selection_new("Wireshark: Save All Objects In ...",
 				       GTK_WINDOW(object_list->dlg),
 				       FILE_SELECTION_CREATE_FOLDER);
-
-	gtk_window_set_transient_for(GTK_WINDOW(save_in_w),
-				     GTK_WINDOW(object_list->dlg));
 
 	if (gtk_dialog_run(GTK_DIALOG(save_in_w)) == GTK_RESPONSE_ACCEPT) {
 		while (slist) {

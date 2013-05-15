@@ -127,7 +127,6 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 
 	gtk_widget_show(save_as_w);
 	window_present(save_as_w);
-	gtk_window_set_transient_for(GTK_WINDOW(save_as_w), GTK_WINDOW(parent));
 
 	/*
 	 * Loop until the user either selects a file or gives up.

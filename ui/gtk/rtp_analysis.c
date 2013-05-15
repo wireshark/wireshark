@@ -2360,7 +2360,6 @@ save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 								   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 								   NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
-	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w), GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
 	vertb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -2985,7 +2984,6 @@ on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 								     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 								     NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), TRUE);
-	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w), GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
 	vertb =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
