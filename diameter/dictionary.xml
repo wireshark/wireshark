@@ -6295,7 +6295,7 @@
 		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
-    <avp name="3GPP2-BSID" code="9010" vendor-bit="must" vendor-id="TGPP2">
+    <avp name="3GPP2-BSID" code="9010" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
       <type type-name="UTF8String"/>
     </avp>
   </base>
