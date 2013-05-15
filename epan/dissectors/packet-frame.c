@@ -417,11 +417,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->layer_names = NULL;
 
 		if(pinfo->fd->pfd != 0){
-			proto_item *item;
+			proto_item *ppd_item;
 			guint num_entries = g_slist_length(pinfo->fd->pfd);
 			guint i;
-			item = proto_tree_add_uint(fh_tree, hf_frame_num_p_prot_data, tvb, 0, 0, num_entries);
-			PROTO_ITEM_SET_GENERATED(item);
+			ppd_item = proto_tree_add_uint(fh_tree, hf_frame_num_p_prot_data, tvb, 0, 0, num_entries);
+			PROTO_ITEM_SET_GENERATED(ppd_item);
 			for(i=0; i<num_entries; i++){
 				proto_tree_add_text (fh_tree, tvb, 0, 0, "%s",p_get_proto_name_and_key(pinfo->fd, i));
 			}

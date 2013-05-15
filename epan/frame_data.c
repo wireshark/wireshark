@@ -120,10 +120,10 @@ p_remove_proto_data(frame_data *fd, int proto, guint8 key)
 }
 
 gchar *
-p_get_proto_name_and_key(frame_data *fd, guint index){
+p_get_proto_name_and_key(frame_data *fd, guint pfd_index){
 	frame_proto_data  *temp;
 
-	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, index);
+	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, pfd_index);
 
 	return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
 
