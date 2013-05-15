@@ -126,7 +126,6 @@ static int new_jitter_buff;
 static GHashTable *rtp_channels_hash = NULL;
 
 static int sample_rate = 8000;
-static int channels = 1;
 
 /* Port Audio stuff */
 static int output_channels = 2;
