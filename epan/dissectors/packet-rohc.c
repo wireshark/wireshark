@@ -180,6 +180,7 @@ typedef struct _rohc_cid_context_t
 #define ROHC_PROFILE_UNCOMPRESSED   0
 #define ROHC_PROFILE_RTP            1
 #define ROHC_PROFILE_UDP            2
+#define ROHC_PROFILE_IP             4
 #define ROHC_PROFILE_UNKNOWN        0xFFFF
 
 static const value_string rohc_profile_vals[] =
@@ -1359,6 +1360,10 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0002 UDP Dynamic Chain");
             break;
 
+        case ROHC_PROFILE_IP:
+            item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0004 IP Dynamic Chain");
+            break;
+
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
             return -1;
@@ -1575,7 +1580,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 static int
-dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, gboolean d, guint8 profile, rohc_cid_context_t *rohc_cid_context){
+dissect_rohc_ir_rtp_udp_ip_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, gboolean d, guint8 profile, rohc_cid_context_t *rohc_cid_context){
 
     proto_item *item, *ipv4_item, *udp_item, *rtp_item;
     proto_tree *sub_tree = NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
@@ -1595,6 +1600,10 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
         case ROHC_PROFILE_UDP:
             item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0002 UDP Static Chain");
+            break;
+
+        case ROHC_PROFILE_IP:
+            item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0004 IP Static Chain");
             break;
 
         default:
@@ -1668,19 +1677,19 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 offset+=3;
 
                 /* Next Header */
-                /* protocol = tvb_get_guint8(tvb, offset); */
+                protocol = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(sub_tree, hf_rohc_ipv6_nxt_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
                 /* Source Address */
-                proto_tree_add_item(sub_tree, hf_rohc_ipv6_src, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_rohc_ipv6_src, tvb, offset, 16, ENC_NA);
                 offset+=16;
 
                 /*  Destination Address */
-                proto_tree_add_item(sub_tree, hf_rohc_ipv6_dst, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_rohc_ipv6_dst, tvb, offset, 16, ENC_NA);
                 offset+=16;
 
-                return offset;
+                break;
             }
             default:
                 proto_tree_add_text(sub_tree, tvb, offset, -1, "Error unknown version, only 4 or 6 allowed");
@@ -1717,10 +1726,10 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
             proto_item_append_text(udp_item, " (%u -> %u)", source_port, dest_port);
 
             if (profile == ROHC_PROFILE_UDP) {
+                proto_item_set_len(item, offset - start_offset);
                 if (d==TRUE) {
                     offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
                 }
-                proto_item_set_len(item, offset - start_offset);
                 return offset;
             }
 
@@ -1745,8 +1754,13 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
             }
         }
+    } else if (profile == ROHC_PROFILE_IP) {
+        proto_item_set_len(item, offset - start_offset);
+        if (d==TRUE) {
+            offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
+        }
+        return offset;
     } else {
-            /* Not UDP */
             proto_tree_add_text(sub_tree, tvb, offset, -1, "[Not dissected yet]");
     }
     return offset;
@@ -1901,10 +1915,9 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             }
             break;
         case ROHC_PROFILE_RTP:
-            offset = dissect_rohc_ir_rtp_udp_profile_static(tvb, ir_tree, pinfo, offset, d, profile, rohc_cid_context);
-            break;
         case ROHC_PROFILE_UDP:
-            offset = dissect_rohc_ir_rtp_udp_profile_static(tvb, ir_tree, pinfo, offset, d, profile, rohc_cid_context);
+        case ROHC_PROFILE_IP:
+            offset = dissect_rohc_ir_rtp_udp_ip_profile_static(tvb, ir_tree, pinfo, offset, d, profile, rohc_cid_context);
             break;
         default:
             proto_tree_add_text(ir_tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
