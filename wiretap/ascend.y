@@ -149,7 +149,6 @@ const gchar *ascend_parse_error;
 
 static unsigned int bcur;
 static guint32 start_time, secs, usecs, caplen, wirelen;
-static ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
 static guint8 *pkt_data;
 static gint64 first_hexbyte;
@@ -448,14 +447,13 @@ init_parse_ascend(void)
      PARSE_FAILED if the parser failed. */
 parse_t
 parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
-		ascend_pkthdr *hdr, gint64 *start_of_data)
+		ascend_pkthdr *header, gint64 *start_of_data)
 {
   /* yydebug = 1; */
   int retval;
   ascend_init_lexer(fh);
   pkt_data = pd;
   pseudo_header = phdr;
-  header = hdr;
 
   bcur = 0;
   first_hexbyte = 0;
