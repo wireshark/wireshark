@@ -156,9 +156,12 @@ static gboolean rtmpt_desegment = TRUE;
  * onBWDone() calls) transmits a series of increasing size packets over
  * the course of 2 seconds. On a fast link the largest packet can just
  * exceed 256KB. */
+/* XXX - temporarily reduce the max packet size to silence the fuzz bot.
+ * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6898 .
+ */
 /* #define RTMPT_MAX_PACKET_SIZE     131072 */
-/* #define RTMPT_MAX_PACKET_SIZE     262144 */
-#define RTMPT_MAX_PACKET_SIZE         524288
+ #define RTMPT_MAX_PACKET_SIZE     262144 
+/*#define RTMPT_MAX_PACKET_SIZE         524288*/
 
 #define RTMPT_ID_MAX                     65599
 #define RTMPT_TYPE_HANDSHAKE_1        0x100001
