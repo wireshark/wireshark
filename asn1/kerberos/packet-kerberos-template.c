@@ -1939,7 +1939,7 @@ void proto_register_kerberos(void) {
 		&bitval, KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
 	{ &hf_krb_rm_reclen, {
 		"Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
-		NULL, KRB_RM_RECLEN, "Record length", HFILL }},
+		NULL, KRB_RM_RECLEN, NULL, HFILL }},
 	{ &hf_krb_provsrv_location, {
 		"PROVSRV Location", "kerberos.provsrv_location", FT_STRING, BASE_NONE,
 		NULL, 0, "PacketCable PROV SRV Location", HFILL }},
@@ -1948,13 +1948,13 @@ void proto_register_kerberos(void) {
 		VALS(NT_errors), 0, "NT Status code", HFILL }},
 	{ &hf_krb_smb_unknown,
 		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
-		NULL, 0, "unknown", HFILL }},
+		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_ip, {
 		"IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
-		NULL, 0, "IP Address", HFILL }},
+		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_ipv6, {
 		"IPv6 Address", "kerberos.addr_ipv6", FT_IPv6, BASE_NONE,
-		NULL, 0, "IPv6 Address", HFILL }},
+		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_netbios, {
 		"NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
 		NULL, 0, "NetBIOS Address and type", HFILL }},
