@@ -234,7 +234,7 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
 	struct data_source *src;
 
-	src = (struct data_source *)g_malloc(sizeof(struct data_source));
+	src = g_slice_new(struct data_source);
 	src->tvb = tvb;
 	src->name = g_strdup(name);
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
@@ -268,7 +268,7 @@ free_data_sources(packet_info *pinfo)
 			struct data_source *src = (struct data_source *)l->data;
 
 			g_free(src->name);
-			g_free(src);
+			g_slice_free(struct data_source, src);
 		}
 		g_slist_free(pinfo->data_src);
 		pinfo->data_src = NULL;
