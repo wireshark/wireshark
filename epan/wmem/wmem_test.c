@@ -541,11 +541,11 @@ main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
 
-    g_test_add_func("/wmem/allocator/block",  wmem_test_allocator_block);
-    g_test_add_func("/wmem/allocator/simple", wmem_test_allocator_simple);
-    g_test_add_func("/wmem/allocator/strict", wmem_test_allocator_strict);
-    g_test_add_func("/wmem/allocator/times",  wmem_time_allocators);
-    g_test_add_func("/wmem/allocator/cbs",    wmem_test_allocator_callbacks);
+    g_test_add_func("/wmem/allocator/block",     wmem_test_allocator_block);
+    g_test_add_func("/wmem/allocator/simple",    wmem_test_allocator_simple);
+    g_test_add_func("/wmem/allocator/strict",    wmem_test_allocator_strict);
+    g_test_add_func("/wmem/allocator/times",     wmem_time_allocators);
+    g_test_add_func("/wmem/allocator/callbacks", wmem_test_allocator_callbacks);
 
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 

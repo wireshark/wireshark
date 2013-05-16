@@ -133,9 +133,10 @@ appropriate wmem pool.
 Also note that callback calling order is not defined, you cannot rely on a
 certain callback being called before or after another.
 
-WARNING: Manually freeing memory with wmem_free will NOT trigger any callbacks.
-         It is an error to call wmem_free on memory if you have a callback
-         registered to deal with the contents of a that memory.
+WARNING: Manually freeing or moving memory (with wmem_free or wmem_realloc)
+         will NOT trigger any callbacks. It is an error to call either of
+         those functions on memory if you have a callback registered to deal
+         with the contents of that memory.
 
 3. Usage for Producers
 
