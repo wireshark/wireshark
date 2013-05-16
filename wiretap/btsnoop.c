@@ -69,15 +69,17 @@ struct btsnooprec_hdr {
 #define KHciLoggerACLDataFrame			0
 #define KHciLoggerCommandOrEvent		0x00000002
 
-const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
+static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
-static gboolean snoop_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-    gchar **err_info);
+static gboolean btsnoop_read_record_header(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
+static gboolean btsnoop_read_rec_data(FILE_T fh, guint8 *pd, int length,
+    int *err, gchar **err_info);
 
 int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -155,23 +157,54 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	guint32 packet_size;
-	guint32 flags;
-	guint32 orig_size;
-	int	bytes_read;
-	struct btsnooprec_hdr hdr;
-	gint64 ts;
-
-	/* As the send/receive flag is stored in the middle of the capture header 
-	but needs to go in the pseudo header for wiretap, the header needs to be reread
-	in the seek_read function*/
 	*data_offset = file_tell(wth->fh);
 
 	/* Read record header. */
+	if (!btsnoop_read_record_header(wth, wth->fh, &wth->phdr, err, err_info))
+		return FALSE;
+
+	/* Read packet data. */
+	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	if (!btsnoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    wth->phdr.caplen, err, err_info)) {
+		return FALSE;	/* Read error */
+	}
+
+	return TRUE;
+}
+
+static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    int *err, gchar **err_info)
+{
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	/* Read record header. */
+	if (!btsnoop_read_record_header(wth, wth->random_fh, phdr, err, err_info))
+		return FALSE;
+
+	/* Read packet data. */
+	if (!btsnoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
+		return FALSE;	/* failed */
+
+	return TRUE;
+}
+
+static gboolean btsnoop_read_record_header(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+{
+	int	bytes_read;
+	struct btsnooprec_hdr hdr;
+	guint32 packet_size;
+	guint32 flags;
+	guint32 orig_size;
+	gint64 ts;
+
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -191,102 +224,42 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-		packet_size, err, err_info)) {
-		return FALSE;	/* Read error */
-	}
-
 	ts = GINT64_FROM_BE(hdr.ts_usec);
 	ts -= KUnixTimeBase;
 
-	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	wth->phdr.ts.secs = (guint)(ts / 1000000);
-	wth->phdr.ts.nsecs = (guint)((ts % 1000000) * 1000);
-	wth->phdr.caplen = packet_size;
-	wth->phdr.len = orig_size;
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->ts.secs = (guint)(ts / 1000000);
+	phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
+	phdr->caplen = packet_size;
+	phdr->len = orig_size;
 	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
 	{
-		wth->phdr.pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+		phdr->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 	}
 	else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI)
 	{
-		wth->phdr.pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+		phdr->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 		if(flags & KHciLoggerCommandOrEvent)
 		{
-			if(wth->phdr.pseudo_header.bthci.sent)
+			if(phdr->pseudo_header.bthci.sent)
 			{
-				wth->phdr.pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
+				phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
 			}
 			else
 			{
-				wth->phdr.pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
+				phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
 			}
 		}
 		else
 		{
-			wth->phdr.pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
+			phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
 		}
 	}
 	return TRUE;
 }
 
-static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
-    int *err, gchar **err_info) {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
-	int	bytes_read;
-	struct btsnooprec_hdr hdr;
-	guint32 flags;
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
-
-	/* Read record header. */
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->random_fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->random_fh, err_info);
-		if (*err == 0 && bytes_read != 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	flags = g_ntohl(hdr.flags);
-
-	/*
-	 * Read the packet data.
-	 */
-	if (!snoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
-		return FALSE;	/* failed */
-
-	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
-	{
-		pseudo_header->p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
-	}
-	else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI)
-	{
-		pseudo_header->bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
-		if(flags & KHciLoggerCommandOrEvent)
-		{
-			if(pseudo_header->bthci.sent)
-			{
-				pseudo_header->bthci.channel = BTHCI_CHANNEL_COMMAND;
-			}
-			else
-			{
-				pseudo_header->bthci.channel = BTHCI_CHANNEL_EVENT;
-			}
-		}
-		else
-		{
-			pseudo_header->bthci.channel = BTHCI_CHANNEL_ACL;
-		}
-	}
-	return TRUE;
-}
-
-static gboolean
-snoop_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-    gchar **err_info)
+static gboolean btsnoop_read_rec_data(FILE_T fh, guint8 *pd, int length,
+    int *err, gchar **err_info)
 {
 	int	bytes_read;
 
