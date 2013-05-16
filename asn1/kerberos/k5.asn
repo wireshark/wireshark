@@ -324,7 +324,7 @@ KDCOptions ::= BIT STRING {
 	renewable(8),
 	unused9(9),
 	unused10(10),
-	unused11(11),
+	opt-hardware-auth(11), -- taken from KerberosV5Spec2.asn
 	request-anonymous(14),
 	canonicalize(15),
 	constrained-delegation(16), -- ms extension

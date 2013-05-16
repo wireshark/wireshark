@@ -29,7 +29,7 @@ Applications ::= CHOICE {
 	encASRepPart	EncASRepPart,		-- 25 --
 	encTGSRepPart	EncTGSRepPart,		-- 26 --
 	encAPRepPart	EncAPRepPart,		-- 27 --
-	encKrbPrivPart	EncKrbPrivPart,		-- 28 --
+	encKrbPrivPart	ENC-KRB-PRIV-PART,	-- 28 --
 	encKrbCredPart	EncKrbCredPart,		-- 29 --
 	krb-error		KRB-ERROR			-- 30 --
 	}
@@ -108,11 +108,47 @@ Checksum        ::= SEQUENCE {
         checksum        [1] OCTET STRING
 }
 
+EncryptedTicketData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedAuthorizationData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedKDCREPData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedAPREPData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedKrbPrivData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedKrbCredData   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
 Ticket          ::= [APPLICATION 1] SEQUENCE {
         tkt-vno         [0] INTEGER (5),
         realm           [1] Realm,
         sname           [2] PrincipalName,
-        enc-part        [3] EncryptedData -- EncTicketPart
+        enc-part        [3] EncryptedTicketData 
 }
 
 -- Encrypted part of ticket
@@ -177,14 +213,18 @@ KDC-REQ-BODY    ::= SEQUENCE {
                                     -- Also client's in AS-REQ --,
         sname                   [3] PrincipalName OPTIONAL,
         from                    [4] KerberosTime OPTIONAL,
-        till                    [5] KerberosTime,
+
+-- this field is not optional in the kerberos spec, however, in the packetcable spec it is optional
+-- make it optional here since normal kerberos will still decode the pdu correctly.
+        till                    [5] KerberosTime OPTIONAL, 
+
         rtime                   [6] KerberosTime OPTIONAL,
         nonce                   [7] UInt32,
 --        etype                   [8] SEQUENCE OF Int32 - - EncryptionType Use k5.asn
         etype                   [8] SEQUENCE OF ENCTYPE -- EncryptionType
                                     -- in preference order --,
         addresses               [9] HostAddresses OPTIONAL,
-        enc-authorization-data  [10] EncryptedData OPTIONAL
+        enc-authorization-data  [10] EncryptedAuthorizationData OPTIONAL
                                     -- AuthorizationData --,
         additional-tickets      [11] SEQUENCE OF Ticket OPTIONAL
                                         -- NOTE: not empty
@@ -231,7 +271,7 @@ KDC-REP         ::= SEQUENCE {
         crealm          [3] Realm,
         cname           [4] PrincipalName,
         ticket          [5] Ticket,
-        enc-part        [6] EncryptedData
+        enc-part        [6] EncryptedKDCREPData
                                 -- EncASRepPart or EncTGSRepPart,
                                 -- as appropriate
 }
@@ -268,7 +308,7 @@ AP-REQ          ::= [APPLICATION 14] SEQUENCE {
         msg-type        [1] MESSAGE-TYPE,
         ap-options      [2] APOptions,
         ticket          [3] Ticket,
-        authenticator   [4] EncryptedData -- Authenticator
+        authenticator   [4] EncryptedAuthorizationData -- Authenticator
 }
 -- Use the krb5.asn def.
 --APOptions       ::= KerberosFlags
@@ -293,7 +333,7 @@ AP-REP          ::= [APPLICATION 15] SEQUENCE {
         pvno            [0] INTEGER (5),
 --        msg-type        [1] INTEGER (15), Use k5.asn
         msg-type        [1] MESSAGE-TYPE,
-        enc-part        [2] EncryptedData -- EncAPRepPart
+        enc-part        [2] EncryptedAPREPData -- EncAPRepPart
 }
 
 EncAPRepPart    ::= [APPLICATION 27] SEQUENCE {
@@ -316,7 +356,7 @@ KRB-SAFE-BODY   ::= SEQUENCE {
         timestamp       [1] KerberosTime OPTIONAL,
         usec            [2] Microseconds OPTIONAL,
         seq-number      [3] UInt32 OPTIONAL,
-        s-address       [4] HostAddress,
+        s-address       [4] HostAddress OPTIONAL, -- XXX this one is OPTIONAL in packetcable?  but mandatory in kerberos
         r-address       [5] HostAddress OPTIONAL
 }
 
@@ -325,10 +365,12 @@ KRB-PRIV        ::= [APPLICATION 21] SEQUENCE {
 --        msg-type        [1] INTEGER (21), Use k5.asn
         msg-type        [1] MESSAGE-TYPE,
                         -- NOTE: there is no [2] tag
-        enc-part        [3] EncryptedData -- EncKrbPrivPart
+        enc-part        [3] EncryptedKrbPrivData -- EncKrbPrivPart
 }
 
-EncKrbPrivPart  ::= [APPLICATION 28] SEQUENCE {
+ENC-KRB-PRIV-PART  ::= [APPLICATION 28] EncKrbPrivPart
+
+EncKrbPrivPart  ::= SEQUENCE {
         user-data       [0] OCTET STRING,
         timestamp       [1] KerberosTime OPTIONAL,
         usec            [2] Microseconds OPTIONAL,
@@ -342,7 +384,7 @@ KRB-CRED        ::= [APPLICATION 22] SEQUENCE {
 --        msg-type        [1] INTEGER (22), use k5.asn
         msg-type        [1] MESSAGE-TYPE,
         tickets         [2] SEQUENCE OF Ticket,
-        enc-part        [3] EncryptedData -- EncKrbCredPart
+        enc-part        [3] EncryptedKrbCredData -- EncKrbCredPart
 }
 
 EncKrbCredPart  ::= [APPLICATION 29] SEQUENCE {
@@ -383,7 +425,8 @@ KRB-ERROR       ::= [APPLICATION 30] SEQUENCE {
         realm           [9] Realm -- service realm --,
         sname           [10] PrincipalName -- service name --,
         e-text          [11] KerberosString OPTIONAL,
-        e-data          [12] OCTET STRING OPTIONAL
+        e-data          [12] OCTET STRING OPTIONAL,
+        e-checksum      [13] Checksum OPTIONAL -- used by PacketCable
 }
 
 METHOD-DATA     ::= SEQUENCE OF PA-DATA
@@ -395,7 +438,11 @@ TYPED-DATA      ::= SEQUENCE SIZE (1..MAX) OF SEQUENCE {
 
 -- preauth stuff follows
 
-PA-ENC-TIMESTAMP        ::= EncryptedData -- PA-ENC-TS-ENC
+PA-ENC-TIMESTAMP        ::= SEQUENCE {
+        etype   [0] ENCTYPE -- EncryptionType --,
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext 
+}
 
 PA-ENC-TS-ENC           ::= SEQUENCE {
         patimestamp     [0] KerberosTime -- client's time --,

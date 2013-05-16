@@ -23,8 +23,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PACKET_KERBEROS_H
-#define PACKET_KERBEROS_H
+#ifndef __PACKET_KERBEROS_H
+#define __PACKET_KERBEROS_H
+
+#include "ws_symbol_export.h"
 
 /* This is a list of callback functions a caller can use to specify that
    octet strings in kerberos to be passed back to application specific
@@ -81,8 +83,7 @@ extern enc_key_t *enc_key_list;
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
-			int length,
-			const guint8 *cryptotext,
+			tvbuff_t *crypototvb,
 			int keytype,
 			int *datalen);
 
@@ -90,11 +91,14 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 extern gboolean krb_decrypt;
 
+WS_DLL_PUBLIC
+void read_keytab_file_from_preferences(void);
+
 #endif /* HAVE_KERBEROS */
 
 
 #include "packet-kerberos-exp.h" 
 
-#endif  /* PACKET_KERBEROS_H */
+#endif  /* __PACKET_KERBEROS_H */
 
 

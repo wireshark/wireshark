@@ -59,7 +59,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include <ctype.h>
 
 #ifdef HAVE_LIBNETTLE
 #define HAVE_KERBEROS
@@ -80,14 +79,13 @@
 
 #include <epan/conversation.h>
 #include <epan/emem.h>
-#include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-pkinit.h>
 #include <epan/dissectors/packet-cms.h>
 #include <epan/dissectors/packet-windows-common.h>
@@ -96,23 +94,23 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <epan/dissectors/packet-gssapi.h>
-
-
-#define PNAME  "Kerberos"
-#define PSNAME "KRB5"
-#define PFNAME "kerberos"
+#include <epan/dissectors/packet-smb-common.h>
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
 
-static dissector_handle_t kerberos_handle_udp=NULL;
+#define ADDRESS_STR_BUFSIZ 256
+
+typedef struct kerberos_key {
+	guint32 keytype;
+	int keylength;
+	const guint8 *keyvalue;
+} kerberos_key_t;
+
+static dissector_handle_t kerberos_handle_udp;
 
 /* Global variables */
-static guint32 authenticator_etype;
 static guint32 keytype;
-guint32 krb_PA_DATA_type;
-static guint32 addr_type;
-guint32 krb5_errorcode;
 
 static gboolean do_col_info;
 
@@ -123,6 +121,9 @@ static int dissect_kerberos_KERB_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuf
 static int dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_ETYPE_INFO(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_ETYPE_INFO2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_AD_IF_RELEVANT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
 
@@ -138,6 +139,17 @@ static gint hf_krb_smb_unknown = -1;
 static gint hf_krb_address_ip = -1;
 static gint hf_krb_address_netbios = -1;
 static gint hf_krb_address_ipv6 = -1;
+static gint hf_krb_gssapi_len = -1;
+static gint hf_krb_gssapi_bnd = -1;
+static gint hf_krb_gssapi_dlgopt = -1;
+static gint hf_krb_gssapi_dlglen = -1;
+static gint hf_krb_gssapi_c_flag_deleg = -1;
+static gint hf_krb_gssapi_c_flag_mutual = -1;
+static gint hf_krb_gssapi_c_flag_replay = -1;
+static gint hf_krb_gssapi_c_flag_sequence = -1;
+static gint hf_krb_gssapi_c_flag_conf = -1;
+static gint hf_krb_gssapi_c_flag_integ = -1;
+static gint hf_krb_gssapi_c_flag_dce_style = -1;
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -146,12 +158,12 @@ static gint ett_krb_recordmark = -1;
 
 #include "packet-kerberos-ett.c"
 
-guint32 krb5_errorcode;
+static guint32 krb5_errorcode;
 
 
 static dissector_handle_t krb4_handle=NULL;
 
-static gboolean do_col_info;
+static gboolean gbl_do_col_info;
 
 
 static void
@@ -181,7 +193,47 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 gboolean krb_decrypt = FALSE;
 
 /* keytab filename */
-static const char *keytab_filename = "insert filename here";
+static const char *keytab_filename = "";
+
+WS_DLL_PUBLIC
+void read_keytab_file(const char *);
+
+void
+read_keytab_file_from_preferences(void)
+{
+	static char *last_keytab = NULL;
+
+	if (!krb_decrypt) {
+		return;
+	}
+
+	if (keytab_filename == NULL) {
+		return;
+	}
+
+	if (last_keytab && !strcmp(last_keytab, keytab_filename)) {
+		return;
+	}
+
+	if (last_keytab != NULL) {
+		g_free(last_keytab);
+		last_keytab = NULL;
+	}
+	last_keytab = g_strdup(keytab_filename);
+
+	read_keytab_file(last_keytab);
+}
+
+#elif defined(_WIN32)
+
+/*
+ * Dummy version to allow us to export this function -- even
+ * on systems without KERBEROS.
+ */
+void
+read_keytab_file_from_preferences(void)
+{
+}
 
 #endif
 
@@ -204,24 +256,28 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	}
 printf("added key in %u    keytype:%d len:%d\n",pinfo->fd->num, keytype, keylength);
 
-	new_key=g_malloc(sizeof(enc_key_t));
+	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
 	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->fd->num);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
 	new_key->keylength=keylength;
 	/*XXX this needs to be freed later */
-	new_key->keyvalue=g_memdup(keyvalue, keylength);
+	new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
 }
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
+#if defined(_WIN32) && !defined(HAVE_HEIMDAL_KERBEROS) && !defined(HAVE_MIT_KERBEROS) && !defined(HAVE_LIBNETTLE)
+void
+read_keytab_file(const char *filename _U_)
+{
+}
+#endif
 
 #ifdef HAVE_MIT_KERBEROS
 
 static krb5_context krb5_ctx;
 
-
-WS_DLL_PUBLIC
 void
 read_keytab_file(const char *filename)
 {
@@ -230,13 +286,13 @@ read_keytab_file(const char *filename)
 	krb5_keytab_entry key;
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
-	static int first_time=1;
+	static gboolean first_time=TRUE;
 
 printf("read keytab file %s\n", filename);
 	if(first_time){
-		first_time=0;
+		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
-		if(ret){
+		if(ret && ret != KRB5_CONFIG_CANTOPEN){
 			return;
 		}
 	}
@@ -244,19 +300,19 @@ printf("read keytab file %s\n", filename);
 	/* should use a file in the wireshark users dir */
 	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
+		fprintf(stderr, "KERBEROS ERROR: Badly formatted keytab filename :%s\n",filename);
 
 		return;
 	}
 
 	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
+		fprintf(stderr, "KERBEROS ERROR: Could not open or could not read from keytab file :%s\n",filename);
 		return;
 	}
 
 	do{
-		new_key=g_malloc(sizeof(enc_key_t));
+		new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
 		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
@@ -266,18 +322,18 @@ printf("read keytab file %s\n", filename);
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
 			pos+=MIN(KRB_MAX_ORIG_LEN,
-				 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
+					 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
 			for(i=0;i<key.principal->length;i++){
 				pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),(key.principal->data[i]).data));
+						 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),(key.principal->data[i]).data));
 			}
 			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-				 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm.data));
+					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm.data));
 			*pos=0;
 /*printf("added key for principal :%s\n", new_key->key_origin);*/
 			new_key->keytype=key.key.enctype;
 			new_key->keylength=key.key.length;
-			new_key->keyvalue=g_memdup(key.key.contents, key.key.length);
+			new_key->keyvalue=(char *)g_memdup(key.key.contents, key.key.length);
 			enc_key_list=new_key;
 		}
 	}while(ret==0);
@@ -292,31 +348,31 @@ printf("read keytab file %s\n", filename);
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			int usage,
-			int length,
-			const guint8 *cryptotext,
-			int keytype,
-			int *datalen)
+					int usage,
+					tvbuff_t *cryptotvb,
+					int keytype,
+					int *datalen)
 {
-	static int first_time=1;
 	krb5_error_code ret;
 	enc_key_t *ek;
-	static krb5_data data = {0,0,NULL};
+	krb5_data data = {0,0,NULL};
 	krb5_keytab_entry key;
+	int length = tvb_length(cryptotvb);
+	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
-	/* dont do anything if we are not attempting to decrypt data */
-	if(!krb_decrypt){
+	/* don't do anything if we are not attempting to decrypt data */
+	if(!krb_decrypt || length < 1){
 		return NULL;
 	}
 
-	/* XXX we should only do this for first time, then store somewhere */
-	/* XXX We also need to re-read the keytab when the preference changes */
-
-	/* should this have a destroy context ?  MIT people would know */
-	if(first_time){
-		first_time=0;
-		read_keytab_file(keytab_filename);
+	/* make sure we have all the data we need */
+	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
+		return NULL;
 	}
+
+	read_keytab_file_from_preferences();
+	data.data = (char *)g_malloc(length);
+	data.length = length;
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		krb5_enc_data input;
@@ -330,28 +386,27 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		input.ciphertext.length = length;
 		input.ciphertext.data = (guint8 *)cryptotext;
 
-		data.length = length;
-		g_free(data.data);
-		data.data = g_malloc(length);
-
 		key.key.enctype=ek->keytype;
 		key.key.length=ek->keylength;
 		key.key.contents=ek->keyvalue;
 		ret = krb5_c_decrypt(krb5_ctx, &(key.key), usage, 0, &input, &data);
-		if((ret == 0) && (length>0)){
+		if(ret == 0){
 			char *user_data;
 
-printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num);
+			expert_add_info_format(pinfo, NULL, PI_SECURITY, PI_CHAT,
+								   "Decrypted keytype %d in frame %u using %s",
+								   ek->keytype, pinfo->fd->num, ek->key_origin);
+
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			/* return a private g_malloced blob to the caller */
-			user_data=g_malloc(data.length);
-			memcpy(user_data, data.data, data.length);
+			user_data=data.data;
 			if (datalen) {
 				*datalen = data.length;
 			}
 			return user_data;
 		}
 	}
+	g_free(data.data);
 
 	return NULL;
 }
@@ -359,7 +414,6 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
 
-WS_DLL_PUBLIC
 void
 read_keytab_file(const char *filename)
 {
@@ -368,10 +422,10 @@ read_keytab_file(const char *filename)
 	krb5_keytab_entry key;
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
-	static int first_time=1;
+	static gboolean first_time=TRUE;
 
 	if(first_time){
-		first_time=0;
+		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
 		if(ret){
 			return;
@@ -403,13 +457,13 @@ read_keytab_file(const char *filename)
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
 			pos+=MIN(KRB_MAX_ORIG_LEN,
-				 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
+					 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
 			for(i=0;i<key.principal->name.name_string.len;i++){
 				pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]));
+						 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]));
 			}
 			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-				 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm));
+					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm));
 			*pos=0;
 			new_key->keytype=key.keyblock.keytype;
 			new_key->keylength=key.keyblock.keyvalue.length;
@@ -428,30 +482,28 @@ read_keytab_file(const char *filename)
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			int usage,
-			int length,
-			const guint8 *cryptotext,
-			int keytype,
-			int *datalen)
+					int usage,
+					tvbuff_t *cryptotvb,
+					int keytype,
+					int *datalen)
 {
-	static int first_time=1;
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
+	int length = tvb_length(cryptotvb);
+	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
 		return NULL;
 	}
 
-	/* XXX we should only do this for first time, then store somewhere */
-	/* XXX We also need to re-read the keytab when the preference changes */
-
-	/* should this have a destroy context ?  Heimdal people would know */
-	if(first_time){
-		first_time=0;
-		read_keytab_file(keytab_filename);
+	/* make sure we have all the data we need */
+	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
+		return NULL;
 	}
+
+	read_keytab_file_from_preferences();
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		krb5_keytab_entry key;
@@ -472,17 +524,16 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		}
 
 		/* pre-0.6.1 versions of Heimdal would sometimes change
-		  the cryptotext data even when the decryption failed.
-		  This would obviously not work since we iterate over the
-		  keys. So just give it a copy of the crypto data instead.
-		  This has been seen for RC4-HMAC blobs.
+		   the cryptotext data even when the decryption failed.
+		   This would obviously not work since we iterate over the
+		   keys. So just give it a copy of the crypto data instead.
+		   This has been seen for RC4-HMAC blobs.
 		*/
-		cryptocopy=g_malloc(length);
-		memcpy(cryptocopy, cryptotext, length);
+		cryptocopy=g_memdup(cryptotext, length);
 		ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
-				cryptocopy, length,
-				&data,
-				NULL);
+								cryptocopy, length,
+								&data,
+								NULL);
 		g_free(cryptocopy);
 		if((ret == 0) && (length>0)){
 			char *user_data;
@@ -491,8 +542,7 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private g_malloced blob to the caller */
-			user_data=g_malloc(data.length);
-			memcpy(user_data, data.data, data.length);
+			user_data=g_memdup(data.data, data.length);
 			if (datalen) {
 				*datalen = data.length;
 			}
@@ -509,11 +559,11 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
 #define KEYTYPE_DES3_CBC_MD5 5	/* Currently the only one supported */
 
 typedef struct _service_key_t {
-    guint16 kvno;
-    int     keytype;
-    int     length;
-    guint8 *contents;
-    char    origin[KRB_MAX_ORIG_LEN+1];
+	guint16 kvno;
+	int     keytype;
+	int     length;
+	guint8 *contents;
+	char    origin[KRB_MAX_ORIG_LEN+1];
 } service_key_t;
 GSList *service_key_list = NULL;
 
@@ -532,8 +582,7 @@ printf("added key in %u\n",pinfo->fd->num);
 	new_key->kvno = 0;
 	new_key->keytype = keytype;
 	new_key->length = keylength;
-	new_key->contents = g_malloc(keylength);
-	memcpy(new_key->contents, keyvalue, keylength);
+	new_key->contents = g_memdup(keyvalue, keylength);
 	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->fd->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
 }
@@ -546,15 +595,14 @@ clear_keytab(void) {
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		sk = (service_key_t *) ske->data;
 		if (sk) {
-                    g_free(sk->contents);
-                    g_free(sk);
-                }
+					g_free(sk->contents);
+					g_free(sk);
+				}
 	}
 	g_slist_free(service_key_list);
 	service_key_list = NULL;
 }
 
-WS_DLL_PUBLIC
 static void
 read_keytab_file(const char *service_key_file)
 {
@@ -574,11 +622,11 @@ read_keytab_file(const char *service_key_file)
 		/* XXX We should support the standard keytab format instead */
 		if (st.st_size > SERVICE_KEY_SIZE) {
 			if ( (st.st_size % (SERVICE_KEY_SIZE + 1) == 0) ||
-			     (st.st_size % (SERVICE_KEY_SIZE + 1) == SERVICE_KEY_SIZE) ) {
-			    newline_skip = 1;
+				 (st.st_size % (SERVICE_KEY_SIZE + 1) == SERVICE_KEY_SIZE) ) {
+				newline_skip = 1;
 			} else if ( (st.st_size % (SERVICE_KEY_SIZE + 2) == 0) ||
-			     (st.st_size % (SERVICE_KEY_SIZE + 2) == SERVICE_KEY_SIZE) ) {
-			    newline_skip = 2;
+				 (st.st_size % (SERVICE_KEY_SIZE + 2) == SERVICE_KEY_SIZE) ) {
+				newline_skip = 2;
 			}
 		}
 
@@ -590,8 +638,7 @@ read_keytab_file(const char *service_key_file)
 			sk->kvno = buf[0] << 8 | buf[1];
 			sk->keytype = KEYTYPE_DES3_CBC_MD5;
 			sk->length = DES3_KEY_SIZE;
-			sk->contents = g_malloc(DES3_KEY_SIZE);
-			memcpy(sk->contents, buf + 2, DES3_KEY_SIZE);
+			sk->contents = g_memdup(buf + 2, DES3_KEY_SIZE);
 			g_snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			fseek(skf, newline_skip, SEEK_CUR);
@@ -606,15 +653,13 @@ g_warning("added key: %s", sk->origin);
 
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			int _U_ usage,
-			int length,
-			const guint8 *cryptotext,
-			int keytype,
-			int *datalen)
+					int _U_ usage,
+					tvbuff_t *cryptotvb,
+					int keytype,
+					int *datalen)
 {
 	tvbuff_t *encr_tvb;
 	guint8 *decrypted_data = NULL, *plaintext = NULL;
-	int res;
 	guint8 cls;
 	gboolean pc;
 	guint32 tag, item_len, data_len;
@@ -629,10 +674,17 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	GSList *ske;
 	service_key_t *sk;
 	struct des3_ctx ctx;
+	int length = tvb_length(cryptotvb);
+	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
+		return NULL;
+	}
+
+	/* make sure we have all the data we need */
+	if (tvb_length(cryptotvb) < tvb_reported_length(cryptotvb)) {
 		return NULL;
 	}
 
@@ -649,9 +701,9 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 		md5_init(&md5s);
 		memset(initial_vector, 0, DES_BLOCK_SIZE);
-		res = des3_set_key(&ctx, key);
+		des3_set_key(&ctx, key);
 		cbc_decrypt(&ctx, des3_decrypt, DES_BLOCK_SIZE, initial_vector,
-		    length, decrypted_data, cryptotext);
+					length, decrypted_data, cryptotext);
 		encr_tvb = tvb_new_real_data(decrypted_data, length, length);
 
 		tvb_memcpy(encr_tvb, confounder, 0, 8);
@@ -665,7 +717,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			id_offset = get_ber_identifier(encr_tvb, CONFOUNDER_PLUS_CHECKSUM, &cls, &pc, &tag);
 			offset = get_ber_length(encr_tvb, id_offset, &item_len, &ind);
 		}
-		CATCH (BoundsError) {
+		CATCH_BOUNDS_ERRORS {
 			tvb_free(encr_tvb);
 			do_continue = TRUE;
 		}
@@ -696,20 +748,26 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 			g_free(decrypted_data);
 			return(plaintext);
 		}
+		tvb_free(encr_tvb);
 	}
 
 	g_free(decrypted_data);
 	return NULL;
 }
-
+#else
+/* Make an empty function if none of the decryption algorithms are defined */
+static void
+add_encryption_key(packet_info *pinfo _U_, int keytype _U_, int keylength _U_, const char *keyvalue _U_, const char *origin _U_)
+{
+}
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
 
 #define	INET6_ADDRLEN	16
 
 /* TCP Record Mark */
-#define	KRB_RM_RESERVED	0x80000000L
-#define	KRB_RM_RECLEN	0x7fffffffL
+#define	KRB_RM_RESERVED	0x80000000U
+#define	KRB_RM_RECLEN	0x7fffffffU
 
 #define KRB5_MSG_TICKET			1	/* Ticket */
 #define KRB5_MSG_AUTHENTICATOR		2	/* Authenticator */
@@ -785,7 +843,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_CHKSUM_KRB_DES_MAC_K       5
 #define KRB5_CHKSUM_MD5                 7
 #define KRB5_CHKSUM_MD5_DES             8
-/* the following four comes from packetcable */
+/* the following four come from packetcable */
 #define KRB5_CHKSUM_MD5_DES3            9
 #define KRB5_CHKSUM_HMAC_SHA1_DES3_KD   12
 #define KRB5_CHKSUM_HMAC_SHA1_DES3      13
@@ -847,7 +905,8 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
    we also treat the type as unsigned.
 */
 #define KRB5_PA_PAC_REQUEST              128    /* (Microsoft extension) */
-#define KRB5_PA_FOR_USER                 129    /* Impersonation (Microsoft extension) See [MS-SFU] */
+#define KRB5_PA_FOR_USER                 129    /* Impersonation (Microsoft extension) See [MS-SFU]. XXX - replaced by KRB5_PA_S4U2SELF */
+#define KRB5_PA_S4U2SELF                 129
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 /* Principal name-type */
@@ -1023,15 +1082,15 @@ static const value_string krb5_error_codes[] = {
 #define PAC_SERVER_CHECKSUM	6
 #define PAC_PRIVSVR_CHECKSUM	7
 #define PAC_CLIENT_INFO_TYPE	10
-#define PAC_CONSTRAINED_DELEGATION 11
-#define PAC_UPN_DNS_INFO        12
+#define PAC_S4U_DELEGATION_INFO	11
+#define PAC_UPN_DNS_INFO		12
 static const value_string w2k_pac_types[] = {
     { PAC_LOGON_INFO		, "Logon Info" },
     { PAC_CREDENTIAL_TYPE	, "Credential Type" },
     { PAC_SERVER_CHECKSUM	, "Server Checksum" },
     { PAC_PRIVSVR_CHECKSUM	, "Privsvr Checksum" },
     { PAC_CLIENT_INFO_TYPE	, "Client Info Type" },
-    { PAC_CONSTRAINED_DELEGATION, "Constrained Delegation" },
+    { PAC_S4U_DELEGATION_INFO, "S4U Delegation Info" },
     { PAC_UPN_DNS_INFO		, "UPN DNS Info" },
     { 0, NULL },
 };
@@ -1227,14 +1286,95 @@ static const value_string krb5_msg_types[] = {
         { 0, NULL },
 };
 
+#define KRB5_GSS_C_DELEG_FLAG             0x01
+#define KRB5_GSS_C_MUTUAL_FLAG            0x02
+#define KRB5_GSS_C_REPLAY_FLAG            0x04
+#define KRB5_GSS_C_SEQUENCE_FLAG          0x08
+#define KRB5_GSS_C_CONF_FLAG              0x10
+#define KRB5_GSS_C_INTEG_FLAG             0x20
+#define KRB5_GSS_C_DCE_STYLE            0x1000
+
+static const true_false_string tfs_gss_flags_deleg = {
+	"Delegate credentials to remote peer",
+	"Do NOT delegate"
+};
+static const true_false_string tfs_gss_flags_mutual = {
+	"Request that remote peer authenticates itself",
+	"Mutual authentication NOT required"
+};
+static const true_false_string tfs_gss_flags_replay = {
+	"Enable replay protection for signed or sealed messages",
+	"Do NOT enable replay protection"
+};
+static const true_false_string tfs_gss_flags_sequence = {
+	"Enable Out-of-sequence detection for sign or sealed messages",
+	"Do NOT enable out-of-sequence detection"
+};
+static const true_false_string tfs_gss_flags_conf = {
+	"Confidentiality (sealing) may be invoked",
+	"Do NOT use Confidentiality (sealing)"
+};
+static const true_false_string tfs_gss_flags_integ = {
+	"Integrity protection (signing) may be invoked",
+	"Do NOT use integrity protection"
+};
+
+static const true_false_string tfs_gss_flags_dce_style = {
+	"DCE-STYLE",
+	"Not using DCE-STYLE"
+};
+
 #ifdef HAVE_KERBEROS
 static int
-dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+									proto_tree *tree, int hf_index)
 {
-	guint8 *plaintext=NULL;
+	guint8 *plaintext;
 	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
 
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * All Ticket encrypted parts use usage == 2
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, next_tvb, etype, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+											proto_tree *tree, int hf_index)
+{
+	guint8 *plaintext;
+	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1242,30 +1382,269 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 	 * == 7 or
 	 * == 11
 	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 7, next_tvb, etype, NULL);
+
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 7, length, tvb_get_ptr(tvb, offset, length), authenticator_etype, NULL);
-	}
-	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 11, length, tvb_get_ptr(tvb, offset, length), authenticator_etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 11, next_tvb, etype, NULL);
 	}
 
 	if(plaintext){
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_real_data (plaintext,
-                                          length,
-                                          length);
-		tvb_set_free_cb(next_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
 
-		offset=dissect_kerberos_Applications(FALSE, next_tvb, 0, actx , tree, /* hf_index */ -1);
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
 
+static int
+dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+									proto_tree *tree, int hf_index)
+{
+	guint8 *plaintext;
+	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * ASREP/TGSREP encryptedparts are encrypted with usage
+	 * == 3 or
+	 * == 8 or
+	 * == 9
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 3, next_tvb, etype, NULL);
+
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 8, next_tvb, etype, NULL);
+	}
+
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 9, next_tvb, etype, NULL);
+	}
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+										proto_tree *tree, int hf_index)
+{
+	guint8 *plaintext;
+	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * AS-REQ PA_ENC_TIMESTAMP are encrypted with usage
+	 * == 1
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 1, next_tvb, etype, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+									proto_tree *tree, int hf_index)
+{
+	guint8 *plaintext;
+	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * AP-REP are encrypted with usage == 12
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 12, next_tvb, etype, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+									proto_tree *tree, int hf_index)
+{
+	guint8 *plaintext;
+	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
+
+	/* RFC4120 :
+	 * EncKrbPrivPart encrypted with usage
+	 * == 13
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 13, next_tvb, etype, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+									proto_tree *tree, int hf_index)
+{
+	guint8 *plaintext;
+	int length;
+	guint32 etype = 0;
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_length_remaining(tvb, offset);
+
+	if (actx->value_ptr) {
+		etype = *((guint32*)actx->value_ptr);
+	}
+
+	/* RFC4120 :
+	 * EncKrbCredPart encrypted with usage
+	 * == 14
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 14, next_tvb, etype, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+		tvb_set_free_cb(child_tvb, g_free);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
 	return offset;
 }
 #endif
+
+/* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
+ */
+static int
+dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *tvb)
+{
+	int offset=0;
+	guint32 len;
+	guint16 dlglen;
+
+	/* Length of Bnd field */
+	len=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_gssapi_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* Bnd field */
+	proto_tree_add_item(tree, hf_krb_gssapi_bnd, tvb, offset, len, ENC_NA);
+	offset += len;
+
+
+	/* flags */
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_dce_style, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_integ, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_conf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_sequence, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_replay, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_mutual, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_deleg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* the next fields are optional so we have to check that we have
+	 * more data in our buffers */
+	if(tvb_length_remaining(tvb, offset)<2){
+		return offset;
+	}
+	/* dlgopt identifier */
+	proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	if(tvb_length_remaining(tvb, offset)<2){
+		return offset;
+	}
+	/* dlglen identifier */
+	dlglen=tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	if(dlglen!=tvb_length_remaining(tvb, offset)){
+		proto_tree_add_text(tree, tvb, 0, 0, "Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_length_remaining(tvb, offset));
+		return offset;
+	}
+
+	/* this should now be a KRB_CRED message */
+	offset=dissect_kerberos_Applications(FALSE, tvb, offset, actx, tree, /* hf_index */ -1);
+
+	return offset;
+}
 
 static int
 dissect_krb5_PA_PROV_SRV_LOCATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
@@ -1344,101 +1723,104 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean dci, gboolean do_col_protocol, gboolean have_rm,
     kerberos_callbacks *cb)
 {
-    volatile int offset = 0;
-    proto_tree *volatile kerberos_tree = NULL;
-    proto_item *volatile item = NULL;
-    void *saved_private_data;
+	volatile int offset = 0;
+	proto_tree *volatile kerberos_tree = NULL;
+	proto_item *volatile item = NULL;
+	void *saved_private_data;
 	asn1_ctx_t asn1_ctx;
 
-    /* TCP record mark and length */
-    guint32 krb_rm = 0;
-    gint krb_reclen = 0;
+	/* TCP record mark and length */
+	guint32 krb_rm = 0;
+	gint krb_reclen = 0;
 
-    saved_private_data=pinfo->private_data;
-    pinfo->private_data=cb;
-    do_col_info=dci;
+	saved_private_data=pinfo->private_data;
+	pinfo->private_data=cb;
+	do_col_info=dci;
 
-    if (have_rm) {
-	krb_rm = tvb_get_ntohl(tvb, offset);
-	krb_reclen = kerberos_rm_to_reclen(krb_rm);
-	/*
-	 * What is a reasonable size limit?
-	 */
-	if (krb_reclen > 10 * 1024 * 1024) {
-	    pinfo->private_data=saved_private_data;
-	    return (-1);
-	}
+	if (have_rm) {
+		krb_rm = tvb_get_ntohl(tvb, offset);
+		krb_reclen = kerberos_rm_to_reclen(krb_rm);
+		/*
+		 * What is a reasonable size limit?
+		 */
+		if (krb_reclen > 10 * 1024 * 1024) {
+			pinfo->private_data=saved_private_data;
+			return (-1);
+		}
+
+		if (do_col_protocol) {
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+		}
+
+		if (tree) {
+			item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
+			kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
+		}
+
+		show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
+		offset += 4;
+	} else {
+		/* Do some sanity checking here,
+		 * All krb5 packets start with a TAG class that is BER_CLASS_APP
+		 * and a tag value that is either of the values below:
+		 * If it doesnt look like kerberos, return 0 and let someone else have
+		 * a go at it.
+		 */
+		gint8 tmp_class;
+		gboolean tmp_pc;
+		gint32 tmp_tag;
+
+		get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
+		if(tmp_class!=BER_CLASS_APP){
+			pinfo->private_data=saved_private_data;
+			return 0;
+		}
+		switch(tmp_tag){
+			case KRB5_MSG_TICKET:
+			case KRB5_MSG_AUTHENTICATOR:
+			case KRB5_MSG_ENC_TICKET_PART:
+			case KRB5_MSG_AS_REQ:
+			case KRB5_MSG_AS_REP:
+			case KRB5_MSG_TGS_REQ:
+			case KRB5_MSG_TGS_REP:
+			case KRB5_MSG_AP_REQ:
+			case KRB5_MSG_AP_REP:
+			case KRB5_MSG_ENC_AS_REP_PART:
+			case KRB5_MSG_ENC_TGS_REP_PART:
+			case KRB5_MSG_ENC_AP_REP_PART:
+			case KRB5_MSG_ENC_KRB_PRIV_PART:
+			case KRB5_MSG_ENC_KRB_CRED_PART:
+			case KRB5_MSG_SAFE:
+			case KRB5_MSG_PRIV:
+			case KRB5_MSG_ERROR:
+				break;
+			default:
+				pinfo->private_data=saved_private_data;
+				return 0;
+		}
 	if (do_col_protocol) {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
-	}
-        if (tree) {
-            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
-            kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
-        }
-	show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
-	offset += 4;
-    } else {
-        /* Do some sanity checking here,
-         * All krb5 packets start with a TAG class that is BER_CLASS_APP
-         * and a tag value that is either of the values below:
-         * If it doesnt look like kerberos, return 0 and let someone else have
-         * a go at it.
-         */
-        gint8 tmp_class;
-        gboolean tmp_pc;
-        gint32 tmp_tag;
-
-	get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
-        if(tmp_class!=BER_CLASS_APP){
-	    pinfo->private_data=saved_private_data;
-            return 0;
-        }
-        switch(tmp_tag){
-            case KRB5_MSG_TICKET:
-            case KRB5_MSG_AUTHENTICATOR:
-            case KRB5_MSG_ENC_TICKET_PART:
-            case KRB5_MSG_AS_REQ:
-            case KRB5_MSG_AS_REP:
-            case KRB5_MSG_TGS_REQ:
-            case KRB5_MSG_TGS_REP:
-            case KRB5_MSG_AP_REQ:
-            case KRB5_MSG_AP_REP:
-            case KRB5_MSG_ENC_AS_REP_PART:
-            case KRB5_MSG_ENC_TGS_REP_PART:
-            case KRB5_MSG_ENC_AP_REP_PART:
-            case KRB5_MSG_ENC_KRB_PRIV_PART:
-            case KRB5_MSG_ENC_KRB_CRED_PART:
-            case KRB5_MSG_SAFE:
-            case KRB5_MSG_PRIV:
-            case KRB5_MSG_ERROR:
-                break;
-            default:
-                pinfo->private_data=saved_private_data;
-                return 0;
-        }
-	if (do_col_protocol) {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
 	if (do_col_info) {
-            col_clear(pinfo->cinfo, COL_INFO);
-        }
-        if (tree) {
-            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
-            kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
-        }
-    }
+			col_clear(pinfo->cinfo, COL_INFO);
+		}
+		if (tree) {
+			item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
+			kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
+		}
+	}
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    TRY {
-	offset=dissect_kerberos_Applications(FALSE, tvb, 0, &asn1_ctx , tree, /* hf_index */ -1);
-    } CATCH_BOUNDS_ERRORS {
-	pinfo->private_data=saved_private_data;
-	RETHROW;
-    } ENDTRY;
+	TRY {
+		offset=dissect_kerberos_Applications(FALSE, tvb, 0, &asn1_ctx , tree, /* hf_index */ -1);
+	} CATCH_BOUNDS_ERRORS {
+		pinfo->private_data=saved_private_data;
+		RETHROW;
+	} ENDTRY;
 
-    proto_item_set_len(item, offset);
-    pinfo->private_data=saved_private_data;
-    return offset;
+	proto_item_set_len(item, offset);
+	pinfo->private_data=saved_private_data;
+	return offset;
 }
 
 /*
@@ -1447,56 +1829,56 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 {
-    gint rec_len;
-    proto_item *rm_item;
-    proto_tree *rm_tree;
+	gint rec_len;
+	proto_item *rm_item;
+	proto_tree *rm_tree;
 
-    if (tree == NULL)
-	return;
+	if (tree == NULL)
+		return;
 
-    rec_len = kerberos_rm_to_reclen(krb_rm);
-    rm_item = proto_tree_add_text(tree, tvb, start, 4,
+	rec_len = kerberos_rm_to_reclen(krb_rm);
+	rm_item = proto_tree_add_text(tree, tvb, start, 4,
 	"Record Mark: %u %s", rec_len, plurality(rec_len, "byte", "bytes"));
-    rm_tree = proto_item_add_subtree(rm_item, ett_krb_recordmark);
-    proto_tree_add_boolean(rm_tree, hf_krb_rm_reserved, tvb, start, 4, krb_rm);
-    proto_tree_add_uint(rm_tree, hf_krb_rm_reclen, tvb, start, 4, krb_rm);
+	rm_tree = proto_item_add_subtree(rm_item, ett_krb_recordmark);
+	proto_tree_add_boolean(rm_tree, hf_krb_rm_reserved, tvb, start, 4, krb_rm);
+	proto_tree_add_uint(rm_tree, hf_krb_rm_reclen, tvb, start, 4, krb_rm);
 }
 
 gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb)
 {
-    return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, FALSE, cb));
+	return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, FALSE, cb));
 }
 
 guint32
 kerberos_output_keytype(void)
 {
-  return keytype;
+	return keytype;
 }
 
 static gint
-dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    /* Some weird kerberos implementation apparently do krb4 on the krb5 port.
-       Since all (except weirdo transarc krb4 stuff) use
-       an opcode <=16 in the first byte, use this to see if it might
-       be krb4.
-       All krb5 commands start with an APPL tag and thus is >=0x60
-       so if first byte is <=16  just blindly assume it is krb4 then
-    */
-    if(tvb_length(tvb) >= 1 && tvb_get_guint8(tvb, 0)<=0x10){
-      if(krb4_handle){
-	gboolean res;
+	/* Some weird kerberos implementation apparently do krb4 on the krb5 port.
+	   Since all (except weirdo transarc krb4 stuff) use
+	   an opcode <=16 in the first byte, use this to see if it might
+	   be krb4.
+	   All krb5 commands start with an APPL tag and thus is >=0x60
+	   so if first byte is <=16  just blindly assume it is krb4 then
+	*/
+	if(tvb_length(tvb) >= 1 && tvb_get_guint8(tvb, 0)<=0x10){
+		if(krb4_handle){
+			gboolean res;
 
-	res=call_dissector_only(krb4_handle, tvb, pinfo, tree, NULL);
-	return res;
-      }else{
-        return 0;
-      }
-    }
+			res=call_dissector_only(krb4_handle, tvb, pinfo, tree, NULL);
+			return res;
+		}else{
+			return 0;
+		}
+	}
 
 
-    return dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, FALSE, NULL);
+	return dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, FALSE, NULL);
 }
 
 gint
@@ -1508,12 +1890,12 @@ kerberos_rm_to_reclen(guint krb_rm)
 guint
 get_krb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-    guint krb_rm;
-    gint pdulen;
+	guint krb_rm;
+	gint pdulen;
 
-    krb_rm = tvb_get_ntohl(tvb, offset);
-    pdulen = kerberos_rm_to_reclen(krb_rm);
-    return (pdulen + 4);
+	krb_rm = tvb_get_ntohl(tvb, offset);
+	pdulen = kerberos_rm_to_reclen(krb_rm);
+	return (pdulen + 4);
 }
 static void
 kerberos_prefs_apply_cb(void) {
@@ -1523,21 +1905,44 @@ kerberos_prefs_apply_cb(void) {
 #endif
 }
 
+static void
+dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	pinfo->fragmented = TRUE;
+	if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, TRUE, NULL) < 0) {
+		/*
+		 * The dissector failed to recognize this as a valid
+		 * Kerberos message.  Mark it as a continuation packet.
+		 */
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+	}
+}
+
+static void
+dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
+					 dissect_kerberos_tcp_pdu);
+}
+
 /*--- proto_register_kerberos -------------------------------------------*/
 void proto_register_kerberos(void) {
 
-  /* List of fields */
+	/* List of fields */
 
-   static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 	{ &hf_krb_rm_reserved, {
-	    "Reserved", "kerberos.rm.reserved", FT_BOOLEAN, 32,
-	    &bitval, KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
+		"Reserved", "kerberos.rm.reserved", FT_BOOLEAN, 32,
+		&bitval, KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
 	{ &hf_krb_rm_reclen, {
-	    "Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
-	    NULL, KRB_RM_RECLEN, "Record length", HFILL }},
+		"Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
+		NULL, KRB_RM_RECLEN, "Record length", HFILL }},
 	{ &hf_krb_provsrv_location, {
-	    "PROVSRV Location", "kerberos.provsrv_location", FT_STRING, BASE_NONE,
-	    NULL, 0, "PacketCable PROV SRV Location", HFILL }},
+		"PROVSRV Location", "kerberos.provsrv_location", FT_STRING, BASE_NONE,
+		NULL, 0, "PacketCable PROV SRV Location", HFILL }},
 	{ &hf_krb_smb_nt_status,
 		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0, "NT Status code", HFILL }},
@@ -1545,14 +1950,47 @@ void proto_register_kerberos(void) {
 		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
 		NULL, 0, "unknown", HFILL }},
 	{ &hf_krb_address_ip, {
-	    "IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
-	    NULL, 0, "IP Address", HFILL }},
+		"IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
+		NULL, 0, "IP Address", HFILL }},
 	{ &hf_krb_address_ipv6, {
-	    "IPv6 Address", "kerberos.addr_ipv6", FT_IPv6, BASE_NONE,
-	    NULL, 0, "IPv6 Address", HFILL }},
+		"IPv6 Address", "kerberos.addr_ipv6", FT_IPv6, BASE_NONE,
+		NULL, 0, "IPv6 Address", HFILL }},
 	{ &hf_krb_address_netbios, {
-	    "NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
-	    NULL, 0, "NetBIOS Address and type", HFILL }},
+		"NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
+		NULL, 0, "NetBIOS Address and type", HFILL }},
+	{ &hf_krb_gssapi_len, {
+		"Length", "kerberos.gssapi.len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of GSSAPI Bnd field", HFILL }},
+	{ &hf_krb_gssapi_bnd, {
+		"Bnd", "kerberos.gssapi.bdn", FT_BYTES, BASE_NONE,
+		NULL, 0, "GSSAPI Bnd field", HFILL }},
+	{ &hf_krb_gssapi_c_flag_deleg, {
+		"Deleg", "kerberos.gssapi.checksum.flags.deleg", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_deleg), KRB5_GSS_C_DELEG_FLAG, NULL, HFILL }},
+	{ &hf_krb_gssapi_c_flag_mutual, {
+		"Mutual", "kerberos.gssapi.checksum.flags.mutual", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_mutual), KRB5_GSS_C_MUTUAL_FLAG, NULL, HFILL }},
+	{ &hf_krb_gssapi_c_flag_replay, {
+		"Replay", "kerberos.gssapi.checksum.flags.replay", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_replay), KRB5_GSS_C_REPLAY_FLAG, NULL, HFILL }},
+	{ &hf_krb_gssapi_c_flag_sequence, {
+		"Sequence", "kerberos.gssapi.checksum.flags.sequence", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_sequence), KRB5_GSS_C_SEQUENCE_FLAG, NULL, HFILL }},
+	{ &hf_krb_gssapi_c_flag_conf, {
+		"Conf", "kerberos.gssapi.checksum.flags.conf", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_conf), KRB5_GSS_C_CONF_FLAG, NULL, HFILL }},
+	{ &hf_krb_gssapi_c_flag_integ, {
+		"Integ", "kerberos.gssapi.checksum.flags.integ", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_integ), KRB5_GSS_C_INTEG_FLAG, NULL, HFILL }},
+	{ &hf_krb_gssapi_c_flag_dce_style, {
+		"DCE-style", "kerberos.gssapi.checksum.flags.dce-style", FT_BOOLEAN, 32,
+		TFS(&tfs_gss_flags_dce_style), KRB5_GSS_C_DCE_STYLE, NULL, HFILL }},
+	{ &hf_krb_gssapi_dlgopt, {
+		"DlgOpt", "kerberos.gssapi.dlgopt", FT_UINT16, BASE_DEC,
+		NULL, 0, "GSSAPI DlgOpt", HFILL }},
+	{ &hf_krb_gssapi_dlglen, {
+		"DlgLen", "kerberos.gssapi.dlglen", FT_UINT16, BASE_DEC,
+		NULL, 0, "GSSAPI DlgLen", HFILL }},
 
 #include "packet-kerberos-hfarr.c"
   };
@@ -1564,29 +2002,27 @@ void proto_register_kerberos(void) {
 #include "packet-kerberos-ettarr.c"
   };
 
-  module_t *krb_module;
+	module_t *krb_module;
 
-  /* Register protocol */
-  proto_kerberos = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_kerberos, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_kerberos = proto_register_protocol("Kerberos", "KRB5", "kerberos");
+	proto_register_field_array(proto_kerberos, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
-    /* Register preferences */
-    krb_module = prefs_register_protocol(proto_kerberos, kerberos_prefs_apply_cb);
-    prefs_register_bool_preference(krb_module, "desegment",
+	/* Register preferences */
+	krb_module = prefs_register_protocol(proto_kerberos, kerberos_prefs_apply_cb);
+	prefs_register_bool_preference(krb_module, "desegment",
 	"Reassemble Kerberos over TCP messages spanning multiple TCP segments",
 	"Whether the Kerberos dissector should reassemble messages spanning multiple TCP segments."
 	" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &krb_desegment);
+	&krb_desegment);
 #ifdef HAVE_KERBEROS
-    prefs_register_bool_preference(krb_module, "decrypt",
+	prefs_register_bool_preference(krb_module, "decrypt",
 	"Try to decrypt Kerberos blobs",
 	"Whether the dissector should try to decrypt "
 	"encrypted Kerberos blobs. This requires that the proper "
 	"keytab file is installed as well.", &krb_decrypt);
 
-	prefs_register_string_preference(krb_module, "file",
+	prefs_register_filename_preference(krb_module, "file",
 				   "Kerberos keytab file",
 				   "The keytab file containing all the secrets",
 				   &keytab_filename);
@@ -1606,46 +2042,65 @@ static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static dcerpc_auth_subdissector_fns gss_kerb_auth_fns = {
-	wrap_dissect_gss_kerb,		        /* Bind */
-	wrap_dissect_gss_kerb,	 	        /* Bind ACK */
-	NULL,								/* AUTH3 */
-	wrap_dissect_gssapi_verf, 			/* Request verifier */
-	wrap_dissect_gssapi_verf,			/* Response verifier */
-	wrap_dissect_gssapi_payload,        /* Request data */
-	wrap_dissect_gssapi_payload         /* Response data */
+static dcerpc_auth_subdissector_fns gss_kerb_auth_connect_fns = {
+	wrap_dissect_gss_kerb,                      /* Bind */
+	wrap_dissect_gss_kerb,                      /* Bind ACK */
+	wrap_dissect_gss_kerb,                      /* AUTH3 */
+	NULL,                                       /* Request verifier */
+	NULL,                                       /* Response verifier */
+	NULL,                                       /* Request data */
+	NULL                                        /* Response data */
+};
+
+static dcerpc_auth_subdissector_fns gss_kerb_auth_sign_fns = {
+	wrap_dissect_gss_kerb,                      /* Bind */
+	wrap_dissect_gss_kerb,                      /* Bind ACK */
+	wrap_dissect_gss_kerb,                      /* AUTH3 */
+	wrap_dissect_gssapi_verf,                   /* Request verifier */
+	wrap_dissect_gssapi_verf,                   /* Response verifier */
+	NULL,                                       /* Request data */
+	NULL                                        /* Response data */
+};
+
+static dcerpc_auth_subdissector_fns gss_kerb_auth_seal_fns = {
+	wrap_dissect_gss_kerb,                      /* Bind */
+	wrap_dissect_gss_kerb,                      /* Bind ACK */
+	wrap_dissect_gss_kerb,                      /* AUTH3 */
+	wrap_dissect_gssapi_verf,                   /* Request verifier */
+	wrap_dissect_gssapi_verf,                   /* Response verifier */
+	wrap_dissect_gssapi_payload,                /* Request data */
+	wrap_dissect_gssapi_payload                 /* Response data */
 };
 
 
 
-/*--- proto_reg_handoff_kerberos ---------------------------------------*/
 void
 proto_reg_handoff_kerberos(void)
 {
+	dissector_handle_t kerberos_handle_tcp;
 
-	/*
-    dissector_handle_t kerberos_handle_tcp;
-	*/
-    krb4_handle = find_dissector("krb4");
+	krb4_handle = find_dissector("krb4");
 
-    kerberos_handle_udp = new_create_dissector_handle(dissect_kerberos_udp,
+	kerberos_handle_udp = new_create_dissector_handle(dissect_kerberos_udp,
 	proto_kerberos);
-	/*
-    kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
+
+	kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
 	proto_kerberos);
-	*/
-    dissector_add_uint("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
-	/*
-    dissector_add_uint("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
-	*/
-    register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
-				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
-				      &gss_kerb_auth_fns);
 
-    register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
-				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
-				      &gss_kerb_auth_fns);
+	dissector_add_uint("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
+	dissector_add_uint("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
 
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
+									  DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
+									  &gss_kerb_auth_connect_fns);
+
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
+									  DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
+									  &gss_kerb_auth_sign_fns);
+
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
+									  DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
+									  &gss_kerb_auth_seal_fns);
 }
 
 
