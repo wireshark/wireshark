@@ -141,6 +141,16 @@ static dissector_handle_t rtmpt_http_handle;
 
 static gboolean rtmpt_desegment = TRUE;
 
+/* Native Bandwidth Detection (using the checkBandwidth(), onBWCheck(),
+ * onBWDone() calls) transmits a series of increasing size packets over
+ * the course of 2 seconds. On a fast link the largest packet can just
+ * exceed 256KB, but setting the limit there can cause massive memory
+ * usage in some scenarios. For now make it a preference, but a better fix
+ * is really needed.
+ * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6898
+ */
+static guint rtmpt_max_packet_size = 262144;
+
 #define RTMP_PORT                     1935
 
 #define RTMPT_MAGIC                   0x03
@@ -151,17 +161,6 @@ static gboolean rtmpt_desegment = TRUE;
 #define RTMPT_HANDSHAKE_LENGTH_2      3073
 #define RTMPT_HANDSHAKE_LENGTH_3      1536
 #define RTMPT_DEFAULT_CHUNK_SIZE       128
-
-/* Native Bandwidth Detection (using the checkBandwidth(), onBWCheck(),
- * onBWDone() calls) transmits a series of increasing size packets over
- * the course of 2 seconds. On a fast link the largest packet can just
- * exceed 256KB. */
-/* XXX - temporarily reduce the max packet size to silence the fuzz bot.
- * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6898 .
- */
-/* #define RTMPT_MAX_PACKET_SIZE     131072 */
- #define RTMPT_MAX_PACKET_SIZE     262144 
-/*#define RTMPT_MAX_PACKET_SIZE         524288*/
 
 #define RTMPT_ID_MAX                     65599
 #define RTMPT_TYPE_HANDSHAKE_1        0x100001
@@ -1698,7 +1697,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
                 if (tp->cmd==RTMPT_TYPE_CHUNK_SIZE && tp->len>=4 && iBodyRemain>=4) {
                         guint32 newchunksize = tvb_get_ntohl(tvb, iBodyOffset);
-                        if (newchunksize<RTMPT_MAX_PACKET_SIZE) {
+                        if (newchunksize<rtmpt_max_packet_size) {
                                 se_tree_insert32(rconv->chunksize[cdir], tp->lastseq, GINT_TO_POINTER(newchunksize));
                         }
                 }
@@ -2047,7 +2046,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         else if (ti) body_len = ti->len;
                         else body_len = chunk_size;
 
-                        if (body_len>RTMPT_MAX_PACKET_SIZE) {
+                        if (body_len>(gint)rtmpt_max_packet_size) {
                                 return;
                         }
                 }
@@ -2682,6 +2681,11 @@ proto_register_rtmpt(void)
                                        " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\""
                                        " in the TCP protocol settings.",
                                        &rtmpt_desegment);
+
+        prefs_register_uint_preference(rtmpt_module, "max_packet_size",
+                                       "Maximum packet size",
+                                       "The largest acceptable packet size for reassembly",
+                                       10, &rtmpt_max_packet_size);
 
 }
 
