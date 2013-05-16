@@ -407,9 +407,6 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 extern Ssl_private_key_t *
 ssl_load_key(FILE* fp);
 
-extern Ssl_private_key_t *
-ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd);
-
 /** Deallocate the memory used for specified key
  @param key pointer to the key to be freed */
 void

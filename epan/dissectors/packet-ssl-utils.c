@@ -2971,8 +2971,15 @@ BAGTYPE(gnutls_pkcs12_bag_type_t x) {
     }
 }
 
-Ssl_private_key_t *
-ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
+/**
+ * Load a RSA private key from a PKCS#12 file.
+ * @param fp the file that contains the key data.
+ * @param cert_passwd password to decrypt the PKCS#12 file.
+ * @param[out] err error message upon failure; NULL upon success.
+ * @return a pointer to the loaded key on success; NULL upon failure.
+ */
+static Ssl_private_key_t *
+ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
     int                       i, j, ret;
     int                       rest;
@@ -2990,6 +2997,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     gnutls_x509_privkey_t ssl_pkey = NULL;
 
     Ssl_private_key_t *private_key = (Ssl_private_key_t *)g_malloc0(sizeof(Ssl_private_key_t));
+    *err = NULL;
 
     rest = 4096;
     data.data = (unsigned char *)g_malloc(rest);
@@ -3008,21 +3016,38 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     data.size -= rest;
     ssl_debug_printf("%d bytes read\n", data.size);
     if (!feof(fp)) {
-        ssl_debug_printf( "Error during certificate reading.\n");
+        *err = "Error during certificate reading.";
+        ssl_debug_printf("%s\n", *err);
         g_free(private_key);
+        g_free(data.data);
         return 0;
     }
 
     ret = gnutls_pkcs12_init(&ssl_p12);
     if (ret < 0) {
-        ssl_debug_printf("gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
+        *err = se_strdup_printf("gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
+        ssl_debug_printf("%s\n", *err);
         g_free(private_key);
+        g_free(data.data);
         return 0;
     }
+
+    /* load PKCS#12 in DER or PEM format */
     ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0);
+    if (ret < 0) {
+        *err = se_strdup_printf("could not load PKCS#12 in DER format: %s", gnutls_strerror(ret));
+        ssl_debug_printf("%s\n", *err);
+
+        ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_PEM, 0);
+        if (ret < 0) {
+            *err = se_strdup_printf("could not load PKCS#12 in PEM format: %s", gnutls_strerror(ret));
+            ssl_debug_printf("%s\n", *err);
+        } else {
+            *err = NULL;
+        }
+    }
     g_free(data.data);
     if (ret < 0) {
-        ssl_debug_printf("gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0) - %s\n", gnutls_strerror(ret));
         g_free(private_key);
         return 0;
     }
@@ -3062,14 +3087,16 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
 
                     ret = gnutls_x509_crt_init(&ssl_cert);
                     if (ret < 0) {
-                        ssl_debug_printf( "gnutls_x509_crt_init(&ssl_cert) - %s\n", gnutls_strerror(ret));
+                        *err = se_strdup_printf("gnutls_x509_crt_init(&ssl_cert) - %s", gnutls_strerror(ret));
+                        ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
                     }
 
                     ret = gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER);
                     if (ret < 0) {
-                        ssl_debug_printf( "gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER) - %s\n", gnutls_strerror(ret));
+                        *err = se_strdup_printf("gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER) - %s", gnutls_strerror(ret));
+                        ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
                     }
@@ -3094,20 +3121,23 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
 
                     ret = gnutls_x509_privkey_init(&ssl_pkey);
                     if (ret < 0) {
-                        ssl_debug_printf( "gnutls_x509_privkey_init(&ssl_pkey) - %s\n", gnutls_strerror(ret));
+                        *err = se_strdup_printf("gnutls_x509_privkey_init(&ssl_pkey) - %s", gnutls_strerror(ret));
+                        ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
                     }
                     ret = gnutls_x509_privkey_import_pkcs8(ssl_pkey, &data, GNUTLS_X509_FMT_DER, cert_passwd,
                                                            (bag_type==GNUTLS_BAG_PKCS8_KEY) ? GNUTLS_PKCS_PLAIN : 0);
                     if (ret < 0) {
-                        ssl_debug_printf( "Can not decrypt private key - %s\n", gnutls_strerror(ret));
+                        *err = se_strdup_printf("Can not decrypt private key - %s", gnutls_strerror(ret));
+                        ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
                     }
 
                     if (gnutls_x509_privkey_get_pk_algorithm(ssl_pkey) != GNUTLS_PK_RSA) {
-                        ssl_debug_printf("ssl_load_pkcs12: private key public key algorithm isn't RSA\n");
+                        *err = "ssl_load_pkcs12: private key public key algorithm isn't RSA";
+                        ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
                     }
@@ -3115,6 +3145,8 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
                     private_key->x509_pkey = ssl_pkey;
                     private_key->sexp_pkey = ssl_privkey_to_sexp(ssl_pkey);
                     if ( !private_key->sexp_pkey ) {
+                        *err = "ssl_load_pkcs12: could not create sexp_pkey";
+                        ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return NULL;
                     }
@@ -3227,7 +3259,8 @@ ssl_load_key(FILE* fp)
 }
 
 Ssl_private_key_t *
-ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd _U_) {
+ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd _U_, const char** err) {
+    *err = NULL;
     ssl_debug_printf("ssl_load_pkcs12: impossible without gnutls. fp %p\n",fp);
     return NULL;
 }
@@ -3664,7 +3697,11 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
         if ((gint)strlen(uats->password) == 0) {
             private_key = ssl_load_key(fp);
         } else {
-            private_key = ssl_load_pkcs12(fp, uats->password);
+            const char *err = NULL;
+            private_key = ssl_load_pkcs12(fp, uats->password, &err);
+            if (err) {
+                fprintf(stderr, "%s\n", err);
+            }
         }
 
         if (!private_key) {
@@ -4167,9 +4204,10 @@ ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, co
     if (p && (strlen(p) > 0u)) {
         fp = ws_fopen(f->keyfile, "rb");
         if (fp) {
-            if (!ssl_load_pkcs12(fp, p)) {
+            const char *msg = NULL;
+            if (!ssl_load_pkcs12(fp, p, &msg)) {
                 fclose(fp);
-                *err = ep_strdup_printf("Invalid. Password is necessary only if you use PKCS#12 key file.");
+                *err = ep_strdup_printf("Could not load PKCS#12 key file: %s", msg);
                 return FALSE;
             }
             fclose(fp);
