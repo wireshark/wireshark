@@ -4,7 +4,7 @@
 # $Id$
 
 #.FIELD_RENAME
-EncryptedData/etype encryptedData_etype
+#EncryptedData/etype encryptedData_etype
 KDC-REQ-BODY/etype kDC-REQ-BODY_etype
 KRB-SAFE-BODY/user-data kRB-SAFE-BODY_user_data
 EncKrbPrivPart/user-data encKrbPrivPart_user_data
@@ -21,17 +21,50 @@ AP-REP/_untag/enc-part aP_REP_enc_part
 KDC-REP/enc-part kDC_REP_enc_part
 Ticket/_untag/enc-part ticket_enc_part
 
+#.OMIT_ASSIGNMENT
+AD-AND-OR
+AD-KDCIssued
+AD-LoginAlias
+AD-MANDATORY-FOR-KDC
+ADDR-TYPE
+AUTHDATA-TYPE
+ChangePasswdDataMS
+EncryptedData
+EtypeList
+KerberosFlags
+KRB5SignedPath
+KRB5SignedPathData
+KRB5SignedPathPrincipals
+Krb5int32
+Krb5uint32
+PA-ClientCanonicalized
+PA-ClientCanonicalizedNames
+PA-ENC-TS-ENC
+PA-ENC-SAM-RESPONSE-ENC
+PA-PAC-REQUEST
+PA-SAM-CHALLENGE-2
+PA-SAM-CHALLENGE-2-BODY
+PA-SAM-REDIRECT
+PA-SAM-RESPONSE-2
+PA-SAM-TYPE
+PA-SERVER-REFERRAL-DATA
+PA-ServerReferralData
+PA-SvrReferralData
+Principal
+PROV-SRV-LOCATION
+SAMFlags
+TYPED-DATA
 
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 guint32 msgtype;
 
 %(DEFAULT_BODY)s
-	if (do_col_info) {
+	if (gbl_do_col_info) {
 		col_add_str(actx->pinfo->cinfo, COL_INFO,
 			val_to_str(msgtype, krb5_msg_types,
 			"Unknown msg type %%#x"));
 	}
-	do_col_info=FALSE;
+	gbl_do_col_info=FALSE;
 
 	/* append the application type to the tree */
 	proto_item_append_text(tree, " %%s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%%x"));
@@ -70,7 +103,7 @@ guint32 msgtype;
 	}
 
 
-#.FN_BODY Int32 VAL_PTR = actx->value_ptr
+#.FN_BODY Int32 VAL_PTR = (guint32*)actx->value_ptr
 %(DEFAULT_BODY)s
 
 #.FN_BODY PADATA-TYPE
@@ -78,7 +111,7 @@ guint32 msgtype;
 	actx->value_ptr = ep_alloc(sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									actx->value_ptr);
+									(guint32*)actx->value_ptr);
 
 	if(tree){
 		proto_item_append_text(tree, " %%s",
@@ -134,7 +167,7 @@ guint32 msgtype;
 	}
 
 #.FN_BODY HostAddress/address
-	gint8 class;
+	gint8 appclass;
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
@@ -143,14 +176,14 @@ guint32 msgtype;
 	guint32 addr_type = 0;
 
 	/* read header and len for the octet string */
-	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
 	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
 	if (actx->value_ptr) {
 		addr_type = *((guint32*)actx->value_ptr);
 	}
 
-	address_str=ep_alloc(ADDRESS_STR_BUFSIZ);
+	address_str=(char*)ep_alloc(ADDRESS_STR_BUFSIZ);
 	address_str[0]=0;
 	switch(addr_type){
 	case KRB5_ADDR_IPv4:
@@ -194,7 +227,7 @@ guint32 msgtype;
 	actx->value_ptr = ep_alloc(sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									actx->value_ptr);
+									(guint32*)actx->value_ptr);
 
 #.FN_BODY EncryptedTicketData/cipher
 /**/#ifdef HAVE_KERBEROS
@@ -257,7 +290,7 @@ guint32 msgtype;
 	actx->value_ptr = ep_alloc(sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									actx->value_ptr);
+									(guint32*)actx->value_ptr);
 
 #.FN_BODY Checksum/checksum
 	tvbuff_t *next_tvb;
@@ -278,7 +311,7 @@ guint32 msgtype;
 	return offset;
 
 #.FN_BODY EncryptionKey/keytype
-	kerberos_key_t* key = ep_alloc(sizeof(kerberos_key_t));
+	kerberos_key_t* key = (kerberos_key_t*)ep_alloc(sizeof(kerberos_key_t));
 	actx->value_ptr = key;
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -307,7 +340,7 @@ guint32 msgtype;
 	actx->value_ptr = ep_alloc(sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									actx->value_ptr);
+									(guint32*)actx->value_ptr);
 
 #.FN_BODY AuthorizationData/_item/ad-data
 	guint32 adtype = 0;
@@ -328,7 +361,7 @@ guint32 msgtype;
 	actx->value_ptr = ep_alloc(sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									actx->value_ptr);
+									(guint32*)actx->value_ptr);
 
 	
 #.FN_BODY KDC-REQ-BODY

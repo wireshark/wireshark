@@ -109,11 +109,6 @@ typedef struct kerberos_key {
 
 static dissector_handle_t kerberos_handle_udp;
 
-/* Global variables */
-static guint32 keytype;
-
-static gboolean do_col_info;
-
 /* Forward declarations */
 static int dissect_kerberos_Applications(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_ENC_TIMESTAMP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -1735,7 +1730,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	saved_private_data=pinfo->private_data;
 	pinfo->private_data=cb;
-	do_col_info=dci;
+	gbl_do_col_info=dci;
 
 	if (have_rm) {
 		krb_rm = tvb_get_ntohl(tvb, offset);
@@ -1801,7 +1796,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (do_col_protocol) {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
-	if (do_col_info) {
+	if (gbl_do_col_info) {
 			col_clear(pinfo->cinfo, COL_INFO);
 		}
 		if (tree) {
@@ -1848,12 +1843,6 @@ gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb)
 {
 	return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, FALSE, cb));
-}
-
-guint32
-kerberos_output_keytype(void)
-{
-	return keytype;
 }
 
 static gint
