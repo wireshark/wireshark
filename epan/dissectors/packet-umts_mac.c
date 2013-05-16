@@ -1093,7 +1093,7 @@ static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, pro
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     hsdsch_tree = proto_item_add_subtree(ti, ett_mac_hsdsch);
 
-	fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+	fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 	macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
 
 	 if (!macinf) {

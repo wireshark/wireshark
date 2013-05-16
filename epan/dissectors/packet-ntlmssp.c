@@ -2535,7 +2535,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
   fprintf(stderr, "Called dissect_ntlmssp_encrypted_payload\n");
   /* Check to see if we already have state for this packet */
-  packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
+  packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp, 0);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
     packet_ntlmssp_info = se_alloc0(sizeof(ntlmssp_packet_info));
