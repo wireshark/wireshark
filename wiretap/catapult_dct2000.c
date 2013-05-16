@@ -348,11 +348,6 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
     dct2000_file_externals_t *file_externals =
         (dct2000_file_externals_t*)wth->priv;
 
-    /* There *has* to be an entry for this wth */
-    if (!file_externals) {
-        return FALSE;
-    }
-
     /* Search for a line containing a usable packet */
     while (1) {
         int line_length, seconds, useconds, data_chars;
@@ -491,11 +486,6 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     dct2000_file_externals_t *file_externals =
         (dct2000_file_externals_t*)wth->priv;
 
-    /* There *has* to be an entry for this wth */
-    if (!file_externals) {
-        return FALSE;
-    }
-
     /* Reset errno */
     *err = errno = 0;
 
@@ -554,11 +544,6 @@ catapult_dct2000_close(wtap *wth)
     /* Get externals for this file */
     dct2000_file_externals_t *file_externals =
         (dct2000_file_externals_t*)wth->priv;
-
-    /* The entry *has* to be found */
-    if (!file_externals) {
-        return;
-    }
 
     /* Free up its line prefix values */
     g_hash_table_foreach_remove(file_externals->packet_prefix_table,
