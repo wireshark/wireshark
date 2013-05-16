@@ -175,8 +175,8 @@ static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
 	int len, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	int *err, gchar **err_info);
-static int parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
-	int *err, gchar **err_info);
+static gboolean parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr,
+	int pkt_len, guint8* buf, int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
@@ -294,7 +294,7 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 {
 	gint64	offset;
 	guint8	*buf;
-	int	pkt_len, caplen;
+	int	pkt_len;
 	char	line[COSINE_LINE_LENGTH];
 
 	/* Find the next packet */
@@ -312,21 +312,18 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */
-	if ((caplen = parse_cosine_hex_dump(wth->fh, pkt_len, buf, err,
-	    err_info)) == -1)
+	if (!parse_cosine_hex_dump(wth->fh, &wth->phdr, pkt_len, buf, err,
+	    err_info))
 		return FALSE;
 
-	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	wth->phdr.caplen = caplen;
 	*data_offset = offset;
 	return TRUE;
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
-cosine_seek_read (wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
-	int *err, gchar **err_info)
+cosine_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+	guint8 *pd, int len, int *err, gchar **err_info)
 {
 	char	line[COSINE_LINE_LENGTH];
 
@@ -344,7 +341,7 @@ cosine_seek_read (wtap *wth, gint64 seek_off,
 	if (parse_cosine_rec_hdr(phdr, line, err, err_info) == -1)
 		return FALSE;
 
-	return parse_cosine_hex_dump(wth->random_fh, len, pd, err, err_info);
+	return parse_cosine_hex_dump(wth->random_fh, phdr, len, pd, err, err_info);
 }
 
 /* Parses a packet record header. There are two possible formats:
@@ -395,18 +392,18 @@ parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 		yy = mm = dd = hr = min = sec = csec = 0;
 	}
 
-	{
-		tm.tm_year = yy - 1900;
-		tm.tm_mon = mm - 1;
-		tm.tm_mday = dd;
-		tm.tm_hour = hr;
-		tm.tm_min = min;
-		tm.tm_sec = sec;
-		tm.tm_isdst = -1;
-		phdr->ts.secs = mktime(&tm);
-		phdr->ts.nsecs = csec * 10000000;
-		phdr->len = pkt_len;
-	}
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	tm.tm_year = yy - 1900;
+	tm.tm_mon = mm - 1;
+	tm.tm_mday = dd;
+	tm.tm_hour = hr;
+	tm.tm_min = min;
+	tm.tm_sec = sec;
+	tm.tm_isdst = -1;
+	phdr->ts.secs = mktime(&tm);
+	phdr->ts.nsecs = csec * 10000000;
+	phdr->len = pkt_len;
+
 	/* XXX need to handle other encapsulations like Cisco HDLC,
 	   Frame Relay and ATM */
 	if (strncmp(if_name, "TEST:", 5) == 0) {
@@ -444,11 +441,11 @@ parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	return pkt_len;
 }
 
-/* Converts ASCII hex dump to binary data. Returns the capture length.
-   If any error is encountered, -1 is returned. */
-static int
-parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
-    gchar **err_info)
+/* Converts ASCII hex dump to binary data. Returns TRUE on success,
+   FALSE iIf any error is encountered. */
+static gboolean
+parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr, int pkt_len,
+    guint8* buf, int *err, gchar **err_info)
 {
 	gchar	line[COSINE_LINE_LENGTH];
 	int	i, hex_lines, n, caplen = 0;
@@ -463,7 +460,7 @@ parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
-			return -1;
+			return FALSE;
 		}
 		if (empty_line(line)) {
 			break;
@@ -471,11 +468,12 @@ parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 		if ((n = parse_single_hex_dump_line(line, buf, i*16)) == -1) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("cosine: hex dump line doesn't have 16 numbers");
-			return -1;
+			return FALSE;
 		}
 		caplen += n;
 	}
-	return caplen;
+	phdr->caplen = caplen;
+	return TRUE;
 }
 
 
