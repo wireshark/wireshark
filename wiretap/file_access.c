@@ -167,14 +167,14 @@ static wtap_open_routine_t open_routines_base[] = {
 	ascend_open,
 	toshiba_open,
 	i4btrace_open,
+	mp2t_open,
 	csids_open,
 	vms_open,
 	cosine_open,
 	hcidump_open,
 	commview_open,
 	nstrace_open,
-	camins_open,
-	mp2t_open
+	camins_open
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines_base / sizeof open_routines_base[0])
