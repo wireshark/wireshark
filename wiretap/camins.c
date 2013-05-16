@@ -258,6 +258,16 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
 }
 
  
+static void
+fill_in_phdr(struct wtap_pkthdr *phdr, gint offset)
+{
+    phdr->pkt_encap = WTAP_ENCAP_DVBCI;
+    /* timestamps aren't supported for now */
+    phdr->caplen = offset;
+    phdr->len = offset;
+}
+
+
 static gboolean
 camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
@@ -293,11 +303,7 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     offset += bytes_read;
 
-    wth->phdr.pkt_encap = WTAP_ENCAP_DVBCI;
-    wth->phdr.ts.secs = 0;  /* timestamps aren't supported for now */
-    wth->phdr.ts.nsecs = 0;
-    wth->phdr.caplen = offset;
-    wth->phdr.len = offset;
+    fill_in_phdr(&wth->phdr, offset);
 
     return TRUE;
 }
@@ -305,7 +311,7 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 camins_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *pkthdr _U_, guint8 *pd, int length,
+    struct wtap_pkthdr *pkthdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
     guint8    dat_trans_type;
@@ -337,6 +343,9 @@ camins_seek_read(wtap *wth, gint64 seek_off,
     /* see comment in camins_read() */
     if (bytes_read < 0)
         return FALSE;
+    offset += bytes_read;
+
+    fill_in_phdr(pkthdr, offset);
 
     return TRUE;
 }
@@ -366,7 +375,7 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
     if (found_start_blocks < 2)
         return 0;   /* no CAM Inspector file */
 
-    /* wtap_open_offline() does not rewind the fh, let's do it ourselves */
+    /* rewind the fh so we re-read from the beginning */
     if (-1 == file_seek(wth->fh, 0, SEEK_SET, err))
         return -1;
 
