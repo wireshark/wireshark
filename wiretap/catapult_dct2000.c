@@ -133,22 +133,22 @@ static gboolean parse_line(char *linebuff, gint line_length,
                            gchar *context_name, guint8 *context_portp,
                            gchar *protocol_name, gchar *variant_name,
                            gchar *outhdr_name);
-static int write_stub_header(guint8 *frame_buffer, char *timestamp_string,
-                             packet_direction_t direction, int encap,
-                             gchar *context_name, guint8 context_port,
-                             gchar *protocol_name, gchar *variant_name,
-                             gchar *outhdr_name);
+static void process_parsed_line(wtap *wth,
+                                dct2000_file_externals_t *file_externals,
+                                struct wtap_pkthdr *phdr,
+                                guint8 *frame_buffer, gint64 file_offset,
+                                char *linebuff, long dollar_offset,
+                                int seconds, int useconds, gchar *timestamp_string,
+                                packet_direction_t direction, int encap,
+                                gchar *context_name, guint8 context_port,
+                                gchar *protocol_name, gchar *variant_name,
+                                gchar *outhdr_name, gchar *aal_header_chars,
+                                gboolean is_comment, int data_chars);
 static guint8 hex_from_char(gchar c);
 static void   prepare_hex_byte_from_chars_table(void);
 static guint8 hex_byte_from_chars(gchar *c);
 static gchar char_from_hex(guint8 hex);
 
-static void set_pseudo_header_info(wtap *wth,
-                                   int pkt_encap,
-                                   gint64 file_offset,
-                                   union wtap_pseudo_header *pseudo_header,
-                                   packet_direction_t direction,
-                                   gchar *aal_header_chars);
 static void set_aal_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction,
                          gchar *aal_header_chars);
@@ -391,31 +391,16 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                        context_name, &context_port,
                        protocol_name, variant_name, outhdr_name)) {
             guint8 *frame_buffer;
-            int n;
-            int stub_offset = 0;
             line_prefix_info_t *line_prefix_info;
             char timestamp_string[MAX_TIMESTAMP_LEN+1];
             gint64 *pkey = NULL;
 
             write_timestamp_string(timestamp_string, seconds, useconds/100);
 
-            wth->phdr.presence_flags = WTAP_HAS_TS;
-
-            /* All packets go to Catapult DCT2000 stub dissector */
-            wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
-
             /* Set data_offset to the beginning of the line we're returning.
                This will be the seek_off parameter when this frame is re-read.
             */
             *data_offset = this_offset;
-
-            /* Fill in timestamp (capture base + packet offset) */
-            wth->phdr.ts.secs = file_externals->start_secs + seconds;
-            if ((file_externals->start_usecs + useconds) >= 1000000) {
-                wth->phdr.ts.secs++;
-            }
-            wth->phdr.ts.nsecs =
-                ((file_externals->start_usecs + useconds) % 1000000) *1000;
 
             /* Get buffer pointer ready */
             buffer_assure_space(wth->frame_buffer,
@@ -430,35 +415,16 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                                 (is_comment ? data_chars : (data_chars/2)));
             frame_buffer = buffer_start_ptr(wth->frame_buffer);
 
-
-            /*********************/
-            /* Write stub header */
-            stub_offset = write_stub_header(frame_buffer, timestamp_string,
-                                            direction, encap, context_name,
-                                            context_port,
-                                            protocol_name, variant_name,
-                                            outhdr_name);
-
-            /* Binary data length is half bytestring length + stub header */
-            wth->phdr.len = stub_offset + (is_comment ? data_chars : (data_chars/2));
-            wth->phdr.caplen = stub_offset + (is_comment ? data_chars : (data_chars/2));
-
-
-            if (!is_comment) {
-                /****************************************************/
-                /* Copy data into buffer, converting from ascii hex */
-                for (n=0; n < data_chars; n+=2) {
-                    frame_buffer[stub_offset + n/2] =
-                        hex_byte_from_chars(linebuff+dollar_offset+n);
-                }
-            }
-            else {
-                /***********************************************************/
-                /* Copy packet data into buffer, just copying ascii chars  */
-                for (n=0; n < data_chars; n++) {
-                    frame_buffer[stub_offset + n] = linebuff[dollar_offset+n];
-                }
-            }
+            process_parsed_line(wth, file_externals,
+                                &wth->phdr,
+                                frame_buffer, this_offset,
+                                linebuff, dollar_offset,
+                                seconds, useconds, timestamp_string,
+                                direction, encap,
+                                context_name, context_port,
+                                protocol_name, variant_name,
+                                outhdr_name, aal_header_chars,
+                                is_comment, data_chars);
 
             /* Store the packet prefix in the hash table */
             line_prefix_info = g_new(line_prefix_info_t,1);
@@ -488,10 +454,6 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             *pkey = this_offset;
             g_hash_table_insert(file_externals->packet_prefix_table, pkey, line_prefix_info);
 
-            /* Set pseudo-header if necessary */
-            set_pseudo_header_info(wth, encap, this_offset, &wth->phdr.pseudo_header,
-                                   direction, aal_header_chars);
-
             /* OK, we have packet details to return */
             return TRUE;
         }
@@ -510,7 +472,6 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            struct wtap_pkthdr *phdr, guint8 *pd,
                            int length, int *err, gchar **err_info)
 {
-    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     gint64 offset = 0;
     long dollar_offset, before_time_offset, after_time_offset;
     static gchar linebuff[MAX_LINE_LENGTH+1];
@@ -557,43 +518,19 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                    aal_header_chars,
                    context_name, &context_port,
                    protocol_name, variant_name, outhdr_name)) {
-        int n;
-        int stub_offset = 0;
         char timestamp_string[MAX_TIMESTAMP_LEN+1];
 
         write_timestamp_string(timestamp_string, seconds, useconds/100);
 
-        /* Make sure all packets go to catapult dct2000 dissector */
-        wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
-
-
-        /*********************/
-        /* Write stub header */
-        stub_offset = write_stub_header(pd, timestamp_string,
-                                        direction, encap, context_name,
-                                        context_port,
-                                        protocol_name, variant_name,
-                                        outhdr_name);
-
-
-        if (!is_comment) {
-            /***********************************************************/
-            /* Copy packet data into buffer, converting from ascii hex */
-            for (n=0; n <= data_chars; n+=2) {
-                pd[stub_offset + n/2] = hex_byte_from_chars(linebuff+dollar_offset+n);
-            }
-        }
-        else {
-            /***********************************************************/
-            /* Copy packet data into buffer, just copying ascii chars  */
-            for (n=0; n <= data_chars; n++) {
-                pd[stub_offset+n] = linebuff[dollar_offset+n];
-            }
-        }
-
-        /* Set packet pseudo-header if necessary */
-        set_pseudo_header_info(wth, encap, seek_off, pseudo_header, direction,
-                               aal_header_chars);
+        process_parsed_line(wth, file_externals,
+                            phdr, pd, seek_off,
+                            linebuff, dollar_offset,
+                            seconds, useconds, timestamp_string,
+                            direction, encap,
+                            context_name, context_port,
+                            protocol_name, variant_name,
+                            outhdr_name, aal_header_chars,
+                            is_comment, data_chars);
 
         *err = errno = 0;
         return TRUE;
@@ -1349,19 +1286,42 @@ parse_line(gchar *linebuff, gint line_length,
     return TRUE;
 }
 
-/*****************************************************************/
-/* Write the stub info to the data buffer while reading a packet */
-/*****************************************************************/
-static int
-write_stub_header(guint8 *frame_buffer, char *timestamp_string,
-                  packet_direction_t direction, int encap,
-                  gchar *context_name, guint8 context_port,
-                  gchar *protocol_name, gchar *variant_name,
-                  gchar *outhdr_name)
+/***********************************/
+/* Process results of parse_line() */
+/***********************************/
+static void
+process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
+                    struct wtap_pkthdr *phdr,
+                    guint8 *frame_buffer, gint64 file_offset,
+                    char *linebuff, long dollar_offset,
+                    int seconds, int useconds, gchar *timestamp_string,
+                    packet_direction_t direction, int encap,
+                    gchar *context_name, guint8 context_port,
+                    gchar *protocol_name, gchar *variant_name,
+                    gchar *outhdr_name, gchar *aal_header_chars,
+                    gboolean is_comment, int data_chars)
 {
+    int n;
     int stub_offset = 0;
     gsize length;
 
+    phdr->presence_flags = WTAP_HAS_TS;
+
+    /* Make sure all packets go to Catapult DCT2000 dissector */
+    phdr->pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
+
+    /* Fill in timestamp (capture base + packet offset) */
+    phdr->ts.secs = file_externals->start_secs + seconds;
+    if ((file_externals->start_usecs + useconds) >= 1000000) {
+        phdr->ts.secs++;
+    }
+    phdr->ts.nsecs =
+        ((file_externals->start_usecs + useconds) % 1000000) *1000;
+
+    /******************************************/
+    /* Write the stub info to the data buffer */
+
+    /* Context name */
     length = g_strlcpy((char*)frame_buffer, context_name, MAX_CONTEXT_NAME+1);
     stub_offset += (int)(length + 1);
 
@@ -1393,33 +1353,40 @@ write_stub_header(guint8 *frame_buffer, char *timestamp_string,
     frame_buffer[stub_offset] = (guint8)encap;
     stub_offset++;
 
-    return stub_offset;
-}
+    /* Binary data length is half bytestring length + stub header */
+    phdr->len = stub_offset + (is_comment ? data_chars : (data_chars/2));
+    phdr->caplen = stub_offset + (is_comment ? data_chars : (data_chars/2));
 
+    if (!is_comment) {
+        /***********************************************************/
+        /* Copy packet data into buffer, converting from ascii hex */
+        for (n=0; n < data_chars; n+=2) {
+            frame_buffer[stub_offset + n/2] =
+                hex_byte_from_chars(linebuff+dollar_offset+n);
+        }
+    }
+    else {
+        /***********************************************************/
+        /* Copy packet data into buffer, just copying ascii chars  */
+        for (n=0; n < data_chars; n++) {
+            frame_buffer[stub_offset + n] = linebuff[dollar_offset+n];
+        }
+    }
 
-/**************************************************************/
-/* Set pseudo-header info depending upon packet encapsulation */
-/**************************************************************/
-static void
-set_pseudo_header_info(wtap *wth,
-                       int pkt_encap,
-                       gint64 file_offset,
-                       union wtap_pseudo_header *pseudo_header,
-                       packet_direction_t direction,
-                       gchar *aal_header_chars)
-{
-    pseudo_header->dct2000.seek_off = file_offset;
-    pseudo_header->dct2000.wth = wth;
+    /*****************************************/
+    /* Set packet pseudo-header if necessary */
+    phdr->pseudo_header.dct2000.seek_off = file_offset;
+    phdr->pseudo_header.dct2000.wth = wth;
 
-    switch (pkt_encap) {
+    switch (encap) {
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-            set_aal_info(pseudo_header, direction, aal_header_chars);
+            set_aal_info(&phdr->pseudo_header, direction, aal_header_chars);
             break;
         case WTAP_ENCAP_ISDN:
-            set_isdn_info(pseudo_header, direction);
+            set_isdn_info(&phdr->pseudo_header, direction);
             break;
         case WTAP_ENCAP_PPP:
-            set_ppp_info(pseudo_header, direction);
+            set_ppp_info(&phdr->pseudo_header, direction);
             break;
 
         default:
@@ -1427,7 +1394,6 @@ set_pseudo_header_info(wtap *wth,
             break;
     }
 }
-
 
 /*********************************************/
 /* Fill in atm pseudo-header with known info */
