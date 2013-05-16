@@ -59,24 +59,28 @@ TYPED-DATA
 guint32 msgtype;
 
 %(DEFAULT_BODY)s
+
+#.FN_FTR MESSAGE-TYPE
 	if (gbl_do_col_info) {
 		col_add_str(actx->pinfo->cinfo, COL_INFO,
 			val_to_str(msgtype, krb5_msg_types,
-			"Unknown msg type %%#x"));
+			"Unknown msg type %#x"));
 	}
 	gbl_do_col_info=FALSE;
 
 	/* append the application type to the tree */
-	proto_item_append_text(tree, " %%s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%%x"));
+	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
 
 	
 #.FN_BODY ERROR-CODE VAL_PTR = &krb5_errorcode
 %(DEFAULT_BODY)s
+
+#.FN_FTR ERROR-CODE
 	if(krb5_errorcode) {
 		col_add_fstr(actx->pinfo->cinfo, COL_INFO,
-			"KRB Error: %%s",
+			"KRB Error: %s",
 			val_to_str(krb5_errorcode, krb5_error_codes,
-			"Unknown error code %%#x"));
+			"Unknown error code %#x"));
 	}
 
 	return offset;
@@ -114,9 +118,9 @@ guint32 msgtype;
 									(guint32*)actx->value_ptr);
 
 	if(tree){
-		proto_item_append_text(tree, " %%s",
+		proto_item_append_text(tree, " %s",
 			val_to_str(*((guint32*)actx->value_ptr), krb5_preauthentication_types,
-			"Unknown:%%d"));
+			"Unknown:%d"));
 	}
 
 #.FN_BODY PA-DATA/padata-value
@@ -315,7 +319,8 @@ guint32 msgtype;
 	actx->value_ptr = key;
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									&(key->keytype));
+									&keytype);
+	key->keytype = keytype;
 
 #.FN_BODY EncryptionKey/keyvalue
 	kerberos_key_t* key = (kerberos_key_t*)actx->value_ptr;
@@ -333,7 +338,9 @@ guint32 msgtype;
 	%(DEFAULT_BODY)s
 
 	if (key != NULL) {
+/**/#ifdef HAVE_KERBEROS
 		add_encryption_key(actx->pinfo, key->keytype, key->keylength, key->keyvalue, "key");
+/**/#endif
 	}
 
 #.FN_BODY AuthorizationData/_item/ad-type

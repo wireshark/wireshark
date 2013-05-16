@@ -153,13 +153,12 @@ static gint ett_krb_recordmark = -1;
 
 #include "packet-kerberos-ett.c"
 
-static guint32 krb5_errorcode;
-
-
 static dissector_handle_t krb4_handle=NULL;
 
+/* Global variables */
+static guint32 krb5_errorcode;
+static guint32 keytype;
 static gboolean gbl_do_col_info;
-
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag)
@@ -748,12 +747,6 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 
 	g_free(decrypted_data);
 	return NULL;
-}
-#else
-/* Make an empty function if none of the decryption algorithms are defined */
-static void
-add_encryption_key(packet_info *pinfo _U_, int keytype _U_, int keylength _U_, const char *keyvalue _U_, const char *origin _U_)
-{
 }
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
@@ -1843,6 +1836,12 @@ gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb)
 {
 	return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, FALSE, cb));
+}
+
+guint32
+kerberos_output_keytype(void)
+{
+	return keytype;
 }
 
 static gint

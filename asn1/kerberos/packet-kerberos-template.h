@@ -48,8 +48,6 @@ typedef struct _kerberos_callbacks {
 gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean do_col_info, kerberos_callbacks *cb);
 
-#include "packet-kerberos-exp.h" 
-
 int
 dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 
