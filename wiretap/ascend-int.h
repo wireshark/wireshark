@@ -33,14 +33,6 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-typedef struct {
-  time_t start_time;
-  time_t secs;
-  int usecs;
-  guint32 caplen;
-  guint32 len;
-} ascend_pkthdr;
-
 extern int at_eof;
 
 extern const gchar *ascend_parse_error;
@@ -49,6 +41,12 @@ extern const gchar *ascend_parse_error;
  * Pointer to the pseudo-header for the current packet.
  */
 extern struct ascend_phdr *pseudo_header;
+
+typedef struct {
+	time_t inittime;
+	gboolean adjusted;
+	gint64 next_packet_seek_start;
+} ascend_t;
 
 /* Here we provide interfaces to make our scanner act and look like lex */
 int ascendlex(void);
@@ -60,7 +58,7 @@ typedef enum {
     PARSED_NONRECORD,
     PARSE_FAILED
 } parse_t;
-parse_t parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
-		ascend_pkthdr *hdr, gint64 *start_of_data);
+parse_t parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr,
+		guint8 *pd);
 
 #endif /* ! __ASCEND_INT_H__ */

@@ -76,12 +76,6 @@ static const ascend_magic_string ascend_magic[] = {
   { ASCEND_PFX_ETHER,	"ETHER" },
 };
 
-typedef struct {
-	time_t inittime;
-	int adjusted;
-	gint64 next_packet_seek_start;
-} ascend_t;
-
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
@@ -169,8 +163,6 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
   gint64 offset;
   ws_statb64 statbuf;
   guint8 buf[ASCEND_MAX_PKT_LEN];
-  ascend_pkthdr header;
-  gint64 dummy_seek_start;
   ascend_t *ascend;
 
   /* We haven't yet allocated a data structure for our private stuff;
@@ -187,8 +179,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
   init_parse_ascend();
-  if (parse_ascend(wth->fh, buf, &wth->phdr.pseudo_header.ascend, &header,
-      &dummy_seek_start) != PARSED_RECORD) {
+  if (parse_ascend(NULL, wth->fh, &wth->phdr, buf) != PARSED_RECORD) {
     return 0;
   }
 
@@ -228,31 +219,12 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
     return -1;
   }
   ascend->inittime = statbuf.st_ctime;
-  ascend->adjusted = 0;
+  ascend->adjusted = FALSE;
   wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
   init_parse_ascend();
 
   return 1;
-}
-
-static void config_pseudo_header(union wtap_pseudo_header *pseudo_head)
-{
-  switch(pseudo_head->ascend.type) {
-    case ASCEND_PFX_ISDN_X:
-      pseudo_head->isdn.uton = TRUE;
-      pseudo_head->isdn.channel = 0;
-      break;
-
-    case ASCEND_PFX_ISDN_R:
-      pseudo_head->isdn.uton = FALSE;
-      pseudo_head->isdn.channel = 0;
-      break;
-
-    case ASCEND_PFX_ETHER:
-      pseudo_head->eth.fcs_len = 0;
-      break;
-  }
 }
 
 /* Read the next packet; called from wtap_read(). */
@@ -261,8 +233,6 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 {
   ascend_t *ascend = (ascend_t *)wth->priv;
   gint64 offset;
-  guint8 *buf = buffer_start_ptr(wth->frame_buffer);
-  ascend_pkthdr header;
 
   /* parse_ascend() will advance the point at which to look for the next
      packet's header, to just after the last packet's header (ie. at the
@@ -272,44 +242,16 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
                 SEEK_SET, err) == -1)
     return FALSE;
 
-    offset = ascend_seek(wth, err, err_info);
-    if (offset == -1)
-      return FALSE;
-  if (parse_ascend(wth->fh, buf, &wth->phdr.pseudo_header.ascend, &header,
-      &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
+  offset = ascend_seek(wth, err, err_info);
+  if (offset == -1)
+    return FALSE;
+  buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+  if (parse_ascend(ascend, wth->fh, &wth->phdr,
+                   buffer_start_ptr(wth->frame_buffer)) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
-
-  buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
-
-  config_pseudo_header(&wth->phdr.pseudo_header);
-
-  if (! ascend->adjusted) {
-    ascend->adjusted = 1;
-    if (header.start_time != 0) {
-      /*
-       * Capture file contained a date and time.
-       * We do this only if this is the very first packet we've seen -
-       * i.e., if "ascend->adjusted" is false - because
-       * if we get a date and time after the first packet, we can't
-       * go back and adjust the time stamps of the packets we've already
-       * processed, and basing the time stamps of this and following
-       * packets on the time stamp from the file text rather than the
-       * ctime of the capture file means times before this and after
-       * this can't be compared.
-       */
-      ascend->inittime = header.start_time;
-    }
-    if (ascend->inittime > header.secs)
-      ascend->inittime -= header.secs;
-  }
-  wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-  wth->phdr.ts.secs = header.secs + ascend->inittime;
-  wth->phdr.ts.nsecs = header.usecs * 1000;
-  wth->phdr.caplen = header.caplen;
-  wth->phdr.len = header.len;
 
   *data_offset = offset;
   return TRUE;
@@ -319,18 +261,15 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len _U_,
 	int *err, gchar **err_info)
 {
-  union wtap_pseudo_header *pseudo_head = &phdr->pseudo_header;
   ascend_t *ascend = (ascend_t *)wth->priv;
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL,
-      &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
+  if (parse_ascend(ascend, wth->random_fh, phdr, pd) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
 
-  config_pseudo_header(pseudo_head);
   return TRUE;
 }
