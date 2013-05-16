@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
 
+<application id="16777216" name="3GPP Cx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
+
     <!-- IMS Cx Dx Application -->
     <command name="User-Authorization"       code="300" vendor-id="TGPP"/>
     <command name="Server-Assignment"        code="301" vendor-id="TGPP"/>
