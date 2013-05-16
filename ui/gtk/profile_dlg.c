@@ -648,6 +648,7 @@ profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_)
   profile_def    *profile;
   GtkWidget      *menu;
   GtkWidget      *menu_item;
+  GtkWidget      *sub_menu = NULL;
 
   menu = gtk_menu_new();
 
@@ -676,8 +677,6 @@ profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_)
   init_profile_list();
   fl_entry = current_profile_list();
   while (fl_entry && fl_entry->data) {
-    GtkWidget *sub_menu = NULL;
-
     profile = (profile_def *)fl_entry->data;
 
     if (profile_exists(profile->name, FALSE)) {
@@ -691,17 +690,18 @@ profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_)
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
       gtk_widget_show(menu_item);
     } else if (profile_exists(profile->name, TRUE)) {
-      menu_item =  gtk_separator_menu_item_new();
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-      gtk_widget_show(menu_item);
+      if (!sub_menu) {
+        menu_item =  gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+        gtk_widget_show(menu_item);
 
-      menu_item = gtk_menu_item_new_with_label("New from Global");
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-      gtk_widget_show(menu_item);
+        menu_item = gtk_menu_item_new_with_label("New from Global");
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+        gtk_widget_show(menu_item);
 
-      sub_menu = gtk_menu_new();
-      gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), sub_menu);
-
+        sub_menu = gtk_menu_new();
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), sub_menu);
+      }
 
       menu_item = gtk_menu_item_new_with_label(profile->name);
       g_signal_connect(menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup(profile->name));
