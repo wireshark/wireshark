@@ -49,6 +49,8 @@ static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err, gchar **err_info);
 static gboolean iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr,
     int packet_size, int *err, gchar **err_info);
+static gboolean iptrace_process_rec_data(FILE_T fh, guint8 *data_ptr,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 static void fill_in_pseudo_header(int encap,
     union wtap_pseudo_header *pseudo_header, guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
@@ -191,8 +193,7 @@ iptrace_process_rec_header_1_0(FILE_T fh, struct wtap_pkthdr *phdr,
 		/*
 		 * Read the padding.
 		 */
-		if (!iptrace_read_rec_data(fh, fddi_padding, 3, err,
-		    err_info))
+		if (!iptrace_read_rec_data(fh, fddi_padding, 3, err, err_info))
 			return FALSE;	/* Read error */
 	}
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -234,18 +235,9 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	/* Read the packet data */
 	buffer_assure_space( wth->frame_buffer, wth->phdr.caplen );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	if (!iptrace_read_rec_data(wth->fh, data_ptr, wth->phdr.caplen, err,
-	    err_info))
+	if (!iptrace_process_rec_data(wth->fh, data_ptr, &wth->phdr,
+	    err, err_info))
 		return FALSE;	/* Read error */
-
-	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
-		/*
-		 * Attempt to guess from the packet data, the VPI,
-		 * and the VCI information about the type of traffic.
-		 */
-		atm_guess_traffic_type(data_ptr, wth->phdr.caplen,
-		    &wth->phdr.pseudo_header);
-	}
 
 	/* If the per-file encapsulation isn't known, set it to this
 	   packet's encapsulation.
@@ -274,20 +266,16 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
 	if (!iptrace_process_rec_header_1_0(wth->random_fh, phdr, err, err_info))
 		return FALSE;
 
-	/* Get the packet data */
-	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err,
-	    err_info))
+	if (packet_size != (int)phdr->caplen) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("iptrace: record length %u doesn't match requested length %d",
+		    phdr->caplen, packet_size);
 		return FALSE;
-
-	if (phdr->pkt_encap == WTAP_ENCAP_ATM_PDUS) {
-		/*
-		 * Attempt to guess from the packet data, the VPI,
-		 * and the VCI information about the type of traffic.
-		 */
-		atm_guess_traffic_type(pd, packet_size, &phdr->pseudo_header);
 	}
 
-	return TRUE;
+	/* Get the packet data */
+	return iptrace_process_rec_data(wth->random_fh, pd, phdr,
+	    err, err_info);
 }
 
 /***********************************************************
@@ -470,18 +458,9 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	/* Read the packet data */
 	buffer_assure_space( wth->frame_buffer, wth->phdr.caplen );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	if (!iptrace_read_rec_data(wth->fh, data_ptr, wth->phdr.caplen, err,
-	    err_info))
+	if (!iptrace_process_rec_data(wth->fh, data_ptr, &wth->phdr,
+	    err, err_info))
 		return FALSE;	/* Read error */
-
-	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
-		/*
-		 * Attempt to guess from the packet data, the VPI,
-		 * and the VCI information about the type of traffic.
-		 */
-		atm_guess_traffic_type(data_ptr, wth->phdr.caplen,
-		    &wth->phdr.pseudo_header);
-	}
 
 	/* If the per-file encapsulation isn't known, set it to this
 	   packet's encapsulation.
@@ -510,20 +489,16 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
 	if (!iptrace_process_rec_header_2_0(wth->random_fh, phdr, err, err_info))
 		return FALSE;
 
-	/* Get the packet data */
-	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err,
-	    err_info))
+	if (packet_size != (int)phdr->caplen) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("iptrace: record length %u doesn't match requested length %d",
+		    phdr->caplen, packet_size);
 		return FALSE;
-
-	if (phdr->pkt_encap == WTAP_ENCAP_ATM_PDUS) {
-		/*
-		 * Attempt to guess from the packet data, the VPI,
-		 * and the VCI information about the type of traffic.
-		 */
-		atm_guess_traffic_type(pd, packet_size, &phdr->pseudo_header);
 	}
 
-	return TRUE;
+	/* Get the packet data */
+	return iptrace_process_rec_data(wth->random_fh, pd, phdr, err,
+	    err_info);
 }
 
 static int
@@ -562,6 +537,25 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
+	return TRUE;
+}
+
+static gboolean
+iptrace_process_rec_data(FILE_T fh, guint8 *data_ptr, struct wtap_pkthdr *phdr,
+    int *err, gchar **err_info)
+{
+	if (!iptrace_read_rec_data(fh, data_ptr, phdr->caplen, err, err_info))
+		return FALSE;
+
+	if (phdr->pkt_encap == WTAP_ENCAP_ATM_PDUS) {
+		/*
+		 * Attempt to guess from the packet data, the VPI,
+		 * and the VCI information about the type of traffic.
+		 */
+		atm_guess_traffic_type(data_ptr, phdr->caplen,
+		    &phdr->pseudo_header);
+	}
+
 	return TRUE;
 }
 
