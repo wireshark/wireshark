@@ -188,11 +188,12 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 
-static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-	unsigned char *buf, int *len, int *err, gchar **err_info)
+static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+	unsigned char *buf, int *err, gchar **err_info)
 {
 	unsigned char line[1024];
 	gboolean have_data = FALSE;
+	int len;
 
 	while (file_gets(line, sizeof(line), fh) != NULL)
 	{
@@ -207,6 +208,13 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 			/* Return on end of record </l1> */
 			if( have_data )
 			{
+				/* We've got a full packet! */
+				phdr->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
+				phdr->ts.secs = 0;
+				phdr->ts.nsecs = 0;
+				phdr->caplen = len;
+				phdr->len = len;
+
 				*err = 0;
 				return TRUE;
 			}
@@ -224,38 +232,38 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 			int channel, tmp;
 			char *ptr;
 
-			pseudo_header->gsm_um.uplink = !strstr(line, "direction=\"down\"");
+			phdr->pseudo_header.gsm_um.uplink = !strstr(line, "direction=\"down\"");
 			if (xml_get_int(&channel, line, "logicalchannel") != 0)
 				goto baddata;
 
 			/* Parse downlink only fields */
-			if( !pseudo_header->gsm_um.uplink )
+			if( !phdr->pseudo_header.gsm_um.uplink )
 			{
 				if (xml_get_int(&tmp, line, "physicalchannel") != 0)
 					goto baddata;
-				pseudo_header->gsm_um.arfcn = tmp;
+				phdr->pseudo_header.gsm_um.arfcn = tmp;
 				if (xml_get_int(&tmp, line, "sequence") != 0)
 					goto baddata;
-				pseudo_header->gsm_um.tdma_frame = tmp;
+				phdr->pseudo_header.gsm_um.tdma_frame = tmp;
 				if (xml_get_int(&tmp, line, "bsic") != 0)
 					goto baddata;
-				pseudo_header->gsm_um.bsic = tmp;
+				phdr->pseudo_header.gsm_um.bsic = tmp;
 				if (xml_get_int(&tmp, line, "error") != 0)
 					goto baddata;
-				pseudo_header->gsm_um.error = tmp;
+				phdr->pseudo_header.gsm_um.error = tmp;
 				if (xml_get_int(&tmp, line, "timeshift") != 0)
 					goto baddata;
-				pseudo_header->gsm_um.timeshift = tmp;
+				phdr->pseudo_header.gsm_um.timeshift = tmp;
 			}
 
 			switch( channel )
 			{
-				case 128: pseudo_header->gsm_um.channel = GSM_UM_CHANNEL_SDCCH; break;
-				case 112: pseudo_header->gsm_um.channel = GSM_UM_CHANNEL_SACCH; break;
-				case 176: pseudo_header->gsm_um.channel = GSM_UM_CHANNEL_FACCH; break;
-				case 96: pseudo_header->gsm_um.channel = GSM_UM_CHANNEL_CCCH; break;
-				case 80: pseudo_header->gsm_um.channel = GSM_UM_CHANNEL_BCCH; break;
-				default: pseudo_header->gsm_um.channel = GSM_UM_CHANNEL_UNKNOWN; break;
+				case 128: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SDCCH; break;
+				case 112: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_SACCH; break;
+				case 176: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_FACCH; break;
+				case 96: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_CCCH; break;
+				case 80: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_BCCH; break;
+				default: phdr->pseudo_header.gsm_um.channel = GSM_UM_CHANNEL_UNKNOWN; break;
 			}
 
 			/* Read data (if have it) into buf */
@@ -263,7 +271,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 			if( ptr )
 			{
 				have_data = TRUE; /* If has data... */
-				*len = hex2bin(buf, ptr+6);
+				len = hex2bin(buf, ptr+6);
 			}
 		}
 		else if( !have_data && memcmp(dct3trace_magic_l2_start, line, strlen(dct3trace_magic_l2_start)) == 0 )
@@ -280,21 +288,21 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 
 			have_data = TRUE;
 
-			if( pseudo_header->gsm_um.channel == GSM_UM_CHANNEL_SACCH || pseudo_header->gsm_um.channel == GSM_UM_CHANNEL_FACCH || pseudo_header->gsm_um.channel == GSM_UM_CHANNEL_SDCCH )
+			if( phdr->pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SACCH || phdr->pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_FACCH || phdr->pseudo_header.gsm_um.channel == GSM_UM_CHANNEL_SDCCH )
 			{
 				/* Add LAPDm B header */
 				memset(buf, 0x1, 2);
-				*len = 3;
+				len = 3;
 			}
 			else
 			{
 				/* Add LAPDm Bbis header */
-				*len = 1;
+				len = 1;
 			}
-			buf += *len;
+			buf += len;
 
 			data_len = hex2bin(buf, ptr+6);
-			*len += data_len;
+			len += data_len;
 
 			/* Add LAPDm length byte */
 			*(buf - 1) = data_len << 2 | 0x1;
@@ -320,24 +328,16 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	guint64 offset = file_tell(wth->fh);
-	int buf_len;
 	unsigned char buf[MAX_PACKET_LEN];
 
-	if( !dct3trace_get_packet(wth->fh, &wth->phdr.pseudo_header, buf, &buf_len, err, err_info) )
+	if( !dct3trace_get_packet(wth->fh, &wth->phdr, buf, err, err_info) )
 	{
 		return FALSE;
 	}
 
-	/* We've got a full packet! */
-	wth->phdr.presence_flags = 0; /* no time stamp, no separate "on the wire" length */
-	wth->phdr.ts.secs = 0;
-	wth->phdr.ts.nsecs = 0;
-	wth->phdr.caplen = buf_len;
-	wth->phdr.len = buf_len;
-
 	/* Make sure we have enough room for the packet */
-	buffer_assure_space(wth->frame_buffer, buf_len);
-	memcpy( buffer_start_ptr(wth->frame_buffer), buf, buf_len );
+	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	memcpy( buffer_start_ptr(wth->frame_buffer), buf, wth->phdr.caplen );
 
 	*data_offset = offset;
 
@@ -350,8 +350,6 @@ static gboolean dct3trace_seek_read (wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
-	int buf_len;
 	unsigned char buf[MAX_PACKET_LEN];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -359,26 +357,26 @@ static gboolean dct3trace_seek_read (wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	if( !dct3trace_get_packet(wth->random_fh, pseudo_header, buf, &buf_len, err, err_info) )
+	if( !dct3trace_get_packet(wth->random_fh, phdr, buf, err, err_info) )
 	{
 		return FALSE;
 	}
 
-	if( len != buf_len && len != -1 )
+	if( (guint32)len != phdr->caplen )
 	{
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("dct3trace: requested length %d doesn't match record length %d",
-		    len, buf_len);
+		    len, phdr->caplen);
 		return FALSE;
 	}
 
-	if( buf_len > MAX_PACKET_LEN)
+	if( phdr->caplen > MAX_PACKET_LEN)
 	{
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dct3trace: record length %d too long", buf_len);
+		*err_info = g_strdup_printf("dct3trace: record length %d too long", phdr->caplen);
 		return FALSE;
 	}
 
-	memcpy( pd, buf, buf_len );
+	memcpy( pd, buf, phdr->caplen );
 	return TRUE;
 }
