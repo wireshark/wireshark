@@ -172,10 +172,10 @@ ipfix_read_and_process_message_header(FILE_T fh, struct wtap_pkthdr *phdr, int *
     if (!ipfix_read_message_header(&msg_hdr, fh, err, err_info))
         return FALSE;
 
-    phdr->presence_flags = 0;
+    phdr->presence_flags = WTAP_HAS_TS;
     phdr->len = msg_hdr.message_length;
     phdr->caplen = msg_hdr.message_length;
-    phdr->ts.secs =  0;
+    phdr->ts.secs = msg_hdr.export_time_secs;
     phdr->ts.nsecs = 0;
 
     return TRUE;
