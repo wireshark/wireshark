@@ -3968,21 +3968,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Checksum is valid, so we're willing to desegment it. */
                 desegment_ok = TRUE;
-            } else if (th_sum == 0) {
-                /* checksum is probably fine but checksum offload is used */
-                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-                                                  offset + 16, 2, th_sum, "Checksum: 0x%04x [Checksum Offloaded]", th_sum);
-
-                checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
-                                              offset + 16, 2, FALSE);
-                PROTO_ITEM_SET_GENERATED(item);
-                item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
-                                              offset + 16, 2, FALSE);
-                PROTO_ITEM_SET_GENERATED(item);
-
-                /* Checksum is (probably) valid, so we're willing to desegment it. */
-                desegment_ok = TRUE;
             } else {
                 item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
                                                   offset + 16, 2, th_sum,
@@ -4909,7 +4894,8 @@ proto_register_tcp(void)
         &tcp_summary_in_tree);
     prefs_register_bool_preference(tcp_module, "check_checksum",
         "Validate the TCP checksum if possible",
-        "Whether to validate the TCP checksum",
+        "Whether to validate the TCP checksum or not.  "
+        "(Invalid checksums will cause reassembly, if enabled, to fail.)",
         &tcp_check_checksum);
     prefs_register_bool_preference(tcp_module, "desegment_tcp_streams",
         "Allow subdissector to reassemble TCP streams",

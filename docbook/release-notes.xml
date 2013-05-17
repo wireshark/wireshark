@@ -122,6 +122,18 @@ Wireshark Info
           8627</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Bad TCP checksum not detected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8629">Bug
+          8629</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          AMR Frame Type uses wrong Value String.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8681">Bug
+          8681</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -148,6 +160,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+AMR,
 ASN.1 BER,
 BAT,
 BSSGP,
@@ -162,7 +175,7 @@ SASP,
 SIP,
 SNMP,
 SSL/TLS,
-TCP,
+TCP
 
     </para>
     </section>
