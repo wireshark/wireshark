@@ -91,8 +91,8 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info);
-static int parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf,
-	int *err, gchar **err_info);
+static int parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh,
+	guint8* buf, int *err, gchar **err_info);
 static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
 	int byte_offset);
 static guint parse_hex_dump(char* dump, guint8 *buf, char seperator, char end);
@@ -216,7 +216,8 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Parse the packet */
-	pkt_len = parse_dbs_etherwatch_packet(wth, wth->fh, buf, err, err_info);
+	pkt_len = parse_dbs_etherwatch_packet(&wth->phdr, wth->fh, buf,
+	    err, err_info);
 	if (pkt_len == -1)
 		return FALSE;
 
@@ -232,8 +233,8 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr,
-	guint8 *pd, int len, int *err, gchar **err_info)
+	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+	int *err, gchar **err_info)
 {
 	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	pkt_len;
@@ -241,7 +242,7 @@ dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
 
-	pkt_len = parse_dbs_etherwatch_packet(NULL, wth->random_fh, pd, err,
+	pkt_len = parse_dbs_etherwatch_packet(phdr, wth->random_fh, pd, err,
 	    err_info);
 
 	if (pkt_len != len) {
@@ -306,8 +307,8 @@ unnumbered. Unnumbered has length 1, numbered 2.
 #define CTL_UNNUMB_MASK		0x03
 #define CTL_UNNUMB_VALUE	0x03
 static int
-parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
-    gchar **err_info)
+parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, guint8* buf,
+    int *err, gchar **err_info)
 {
 	char	line[DBS_ETHERWATCH_LINE_LENGTH];
 	int	num_items_scanned;
@@ -463,20 +464,18 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		buf[length_pos+1] = (length) & 0xFF;
 	}
 
-	if (wth) {
-		wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-		p = strstr(months, mon);
-		if (p)
-			tm.tm_mon = (int)(p - months) / 3;
-		tm.tm_year -= 1900;
+	p = strstr(months, mon);
+	if (p)
+		tm.tm_mon = (int)(p - months) / 3;
+	tm.tm_year -= 1900;
 
-		tm.tm_isdst = -1;
-		wth->phdr.ts.secs = mktime(&tm);
-		wth->phdr.ts.nsecs = csec * 10000000;
-		wth->phdr.caplen = eth_hdr_len + pkt_len;
-		wth->phdr.len = eth_hdr_len + pkt_len;
-	}
+	tm.tm_isdst = -1;
+	phdr->ts.secs = mktime(&tm);
+	phdr->ts.nsecs = csec * 10000000;
+	phdr->caplen = eth_hdr_len + pkt_len;
+	phdr->len = eth_hdr_len + pkt_len;
 
 	/* Parse the hex dump */
 	count = 0;
