@@ -533,8 +533,10 @@ struct _9p_trename {
 	guint32 dfid;
 	struct _9p_str name;
 };
+#if 0
 struct _9p_rrename {
 };
+#endif
 struct _9p_treadlink {
 	guint32 fid;
 };
@@ -643,8 +645,10 @@ struct _9p_tlink {
 	guint32 fid;
 	struct _9p_str name;
 };
+#if 0
 struct _9p_rlink {
 };
+#endif
 struct _9p_tmkdir {
 	guint32 fid;
 	struct _9p_str name;
@@ -660,15 +664,19 @@ struct _9p_trenameat {
 	guint32 newdirfid;
 	struct _9p_str newname;
 };
+#if 0
 struct _9p_rrenameat {
 };
+#endif
 struct _9p_tunlinkat {
 	guint32 dirfid;
 	struct _9p_str name;
 	guint32 flags;
 };
+#if 0
 struct _9p_runlinkat {
 };
+#endif
 struct _9p_tawrite {
 	guint32 fid;
 	guint8 datacheck;
@@ -959,7 +967,7 @@ struct _9p_hashkey {
 };
 
 struct _9p_hashval {
-	int len;
+	size_t len;
 	char *data;
 };
 
@@ -998,7 +1006,7 @@ static void _9p_hash_free_val(gpointer value)
 	g_free(value);
 }
 
-static struct _9p_hashval *_9p_hash_new_val(int len)
+static struct _9p_hashval *_9p_hash_new_val(size_t len)
 {
 	struct _9p_hashval *val;
 	val = (struct _9p_hashval *)g_malloc(sizeof(struct _9p_hashval));
@@ -1088,7 +1096,7 @@ static enum _9p_version conv_get_version(packet_info *pinfo)
 	return val ? *(enum _9p_version*)val->data : _9P;
 }
 
-static void conv_set_fid(packet_info *pinfo, guint32 fid, const char *path, int len)
+static void conv_set_fid(packet_info *pinfo, guint32 fid, const char *path, size_t len)
 {
 	struct _9p_hashval *val;
 
@@ -1154,6 +1162,7 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 	const char *mname;
 	char *tmppath, *tmps;
 	gint len, reportedlen;
+	size_t stringlen;
 	tvbuff_t *next_tvb;
 	proto_item *ti;
 	proto_tree *ninep_tree, *tmp_tree;
@@ -1291,7 +1300,7 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 		offset +=4;
 
 		tmppath = (char*)g_malloc(MAXPATHLEN);
-		len = g_strlcpy(tmppath, conv_get_fid(pinfo, fid), MAXPATHLEN);
+		stringlen = g_strlcpy(tmppath, conv_get_fid(pinfo, fid), MAXPATHLEN);
 		proto_item_append_text(ti, " (%s)", tmppath);
 
 		fid = tvb_get_letohl(tvb, offset);
@@ -1318,14 +1327,14 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 			proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
 			tmps = tvb_get_string(tvb, offset+2, tmplen);
-			len += g_strlcat(tmppath, "/", MAXPATHLEN);
-			len += g_strlcat(tmppath, tmps, MAXPATHLEN);
+			stringlen += g_strlcat(tmppath, "/", MAXPATHLEN);
+			stringlen += g_strlcat(tmppath, tmps, MAXPATHLEN);
 			g_free(tmps);
 
 			offset += tmplen + 2;
 		}
 
-		conv_set_fid(pinfo, fid, tmppath, len+1);
+		conv_set_fid(pinfo, fid, tmppath, stringlen+1);
 		g_free(tmppath);
 
 		conv_set_tag(pinfo, tag, ninemsg, fid);
@@ -1641,22 +1650,22 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 		offset += 8;
 
 		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = tvb_get_letoh64(tvb,offset+8);;
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
 		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 16, &tv);
 		offset += 16;
 
 		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = tvb_get_letoh64(tvb,offset+8);;
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 16, &tv);
 		offset += 16;
 
 		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = tvb_get_letoh64(tvb,offset+8);;
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
 		proto_tree_add_time(ninep_tree, hf_9P_ctime, tvb, offset, 16, &tv);
 		offset += 16;
 
 		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = tvb_get_letoh64(tvb,offset+8);;
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
 		proto_tree_add_time(ninep_tree, hf_9P_btime, tvb, offset, 16, &tv);
 		offset += 16;
 
@@ -1693,12 +1702,12 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 		offset += 8;
 
 		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = tvb_get_letoh64(tvb,offset+8);;
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
 		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 16, &tv);
 		offset += 16;
 
 		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = tvb_get_letoh64(tvb,offset+8);;
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 16, &tv);
 		offset += 16;
 
