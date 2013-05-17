@@ -450,9 +450,11 @@ static void synphasor_init(void)
 static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* called for synchrophasors over UDP */
-static void dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	dissect_common(tvb, pinfo, tree);
+
+	return tvb_length(tvb);
 }
 
 /* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
@@ -461,9 +463,11 @@ static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return tvb_get_ntohs(tvb, offset + 2);
 }
 
-static void dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_pdu_length, dissect_common);
+
+	return tvb_length(tvb);
 }
 
 /* Checks the CRC of a synchrophasor frame, 'tvb' has to include the whole
@@ -1351,6 +1355,9 @@ void proto_register_synphasor(void)
 						  PROTOCOL_SHORT_NAME,
 						  PROTOCOL_ABBREV);
 
+	/* Registering protocol to be called by another dissector */
+	new_register_dissector("synphasor", dissect_udp, proto_synphasor);
+
 	proto_register_field_array(proto_synphasor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -1381,8 +1388,8 @@ void proto_reg_handoff_synphasor(void)
 	static guint		  current_tcp_port;
 
 	if (!initialized) {
-		synphasor_udp_handle = create_dissector_handle(dissect_udp, proto_synphasor);
-		synphasor_tcp_handle = create_dissector_handle(dissect_tcp, proto_synphasor);
+		synphasor_udp_handle = new_create_dissector_handle(dissect_udp, proto_synphasor);
+		synphasor_tcp_handle = new_create_dissector_handle(dissect_tcp, proto_synphasor);
 
 		initialized = TRUE;
 	}
