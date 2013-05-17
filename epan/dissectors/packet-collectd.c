@@ -2,7 +2,7 @@
  * Routines for collectd (http://collectd.org/) network plugin dissection
  *
  * Copyright 2008 Bruno Premont <bonbons at linux-vserver.org>
- * Copyright 2009 Florian Forster <octo at verplant.org>
+ * Copyright 2009-2013 Florian Forster <octo at collectd.org>
  *
  * $Id$
  *
@@ -34,14 +34,18 @@
 #include <epan/expert.h>
 #include <epan/stats_tree.h>
 
+#define STR_NONNULL(str) ((str) ? (str) : "(null)")
+
 #define TYPE_HOST            0x0000
 #define TYPE_TIME            0x0001
+#define TYPE_TIME_HR         0x0008
 #define TYPE_PLUGIN          0x0002
 #define TYPE_PLUGIN_INSTANCE 0x0003
 #define TYPE_TYPE            0x0004
 #define TYPE_TYPE_INSTANCE   0x0005
 #define TYPE_VALUES          0x0006
 #define TYPE_INTERVAL        0x0007
+#define TYPE_INTERVAL_HR     0x0009
 #define TYPE_MESSAGE         0x0100
 #define TYPE_SEVERITY        0x0101
 #define TYPE_SIGN_SHA256     0x0200
@@ -54,7 +58,6 @@ typedef struct value_data_s {
 	gint host_off;
 	gint host_len;
 	guint64 time;
-	gchar *time_str;
 	gint time_off;
 	guint64 interval;
 	gint interval_off;
@@ -77,7 +80,6 @@ typedef struct notify_data_s {
 	gint host_off;
 	gint host_len;
 	guint64 time;
-	gchar *time_str;
 	gint time_off;
 	guint64 severity;
 	gint severity_off;
@@ -106,7 +108,9 @@ typedef struct tap_data_s {
 static const value_string part_names[] = {
 	{ TYPE_VALUES,          "VALUES" },
 	{ TYPE_TIME,            "TIME" },
+	{ TYPE_TIME_HR,         "TIME_HR" },
 	{ TYPE_INTERVAL,        "INTERVAL" },
+	{ TYPE_INTERVAL_HR,     "INTERVAL_HR" },
 	{ TYPE_HOST,            "HOST" },
 	{ TYPE_PLUGIN,          "PLUGIN" },
 	{ TYPE_PLUGIN_INSTANCE, "PLUGIN_INSTANCE" },
@@ -193,6 +197,16 @@ static gint st_collectd_values_types   = -1;
 /* Prototype for the handoff function */
 void proto_reg_handoff_collectd (void);
 
+static nstime_t
+collectd_time_to_nstime (guint64 t)
+{
+	nstime_t nstime = { 0, 0 };
+	nstime.secs = (time_t) (t / 1073741824);
+	nstime.nsecs = (int) (((double) (t % 1073741824)) / 1.073741824);
+
+	return (nstime);
+}
+
 static void
 collectd_stats_tree_init (stats_tree *st)
 {
@@ -255,6 +269,88 @@ collectd_stats_tree_register (void)
 			     collectd_stats_tree_packet,
 			     collectd_stats_tree_init, NULL);
 } /* void register_collectd_stat_trees */
+
+static void
+collectd_proto_tree_add_assembled_metric (tvbuff_t *tvb,
+		gint offset, gint length,
+		value_data_t const *vdispatch, proto_tree *root)
+{
+	proto_item *root_item;
+	proto_tree *subtree;
+	nstime_t nstime;
+
+	root_item = proto_tree_add_text (root, tvb, offset + 6, length - 6,
+			"Assembled metric");
+	PROTO_ITEM_SET_GENERATED (root_item);
+
+	subtree = proto_item_add_subtree (root_item, ett_collectd_dispatch);
+
+	proto_tree_add_string (subtree, hf_collectd_data_host, tvb,
+			vdispatch->host_off, vdispatch->host_len,
+			STR_NONNULL (vdispatch->host));
+
+	proto_tree_add_string (subtree, hf_collectd_data_plugin, tvb,
+			vdispatch->plugin_off, vdispatch->plugin_len,
+			STR_NONNULL (vdispatch->plugin));
+
+	if (vdispatch->plugin_instance)
+		proto_tree_add_string (subtree,
+				hf_collectd_data_plugin_inst, tvb,
+				vdispatch->plugin_instance_off,
+				vdispatch->plugin_instance_len,
+				vdispatch->plugin_instance);
+
+	proto_tree_add_string (subtree, hf_collectd_data_type, tvb,
+			vdispatch->type_off, vdispatch->type_len,
+			STR_NONNULL (vdispatch->type));
+
+	if (vdispatch->type_instance)
+		proto_tree_add_string (subtree,
+				hf_collectd_data_type_inst, tvb,
+				vdispatch->type_instance_off,
+				vdispatch->type_instance_len,
+				vdispatch->type_instance);
+
+	nstime = collectd_time_to_nstime (vdispatch->time);
+	proto_tree_add_time (subtree, hf_collectd_data_time, tvb,
+			vdispatch->time_off, /* length = */ 8, &nstime);
+
+	nstime = collectd_time_to_nstime (vdispatch->interval);
+	proto_tree_add_time (subtree, hf_collectd_data_interval, tvb,
+			vdispatch->interval_off, /* length = */ 8, &nstime);
+}
+
+static void
+collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
+		gint offset, gint length,
+		notify_data_t const *ndispatch, proto_tree *root)
+{
+	proto_item *root_item;
+	proto_tree *subtree;
+	nstime_t nstime;
+
+	root_item = proto_tree_add_text (root, tvb, offset + 6, length - 6,
+			"Assembled notification");
+	PROTO_ITEM_SET_GENERATED (root_item);
+
+	subtree = proto_item_add_subtree (root_item, ett_collectd_dispatch);
+
+	proto_tree_add_string (subtree, hf_collectd_data_host, tvb,
+			ndispatch->host_off, ndispatch->host_len,
+			STR_NONNULL (ndispatch->host));
+
+	nstime = collectd_time_to_nstime (ndispatch->time);
+	proto_tree_add_time (subtree, hf_collectd_data_time, tvb,
+			ndispatch->time_off, /* length = */ 8, &nstime);
+
+	proto_tree_add_int (subtree, hf_collectd_data_severity, tvb,
+			ndispatch->severity_off, /* length = */ 8,
+			ndispatch->severity);
+
+	proto_tree_add_string (subtree, hf_collectd_data_message, tvb,
+			ndispatch->message_off, ndispatch->message_len,
+			ndispatch->message);
+}
 
 static int
 dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
@@ -374,10 +470,45 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	*ret_offset = offset + 4;
 	*ret_value = tvb_get_ntoh64 (tvb, offset + 4);
 
-	pi = proto_tree_add_text (tree_root, tvb, offset, length,
-				  "collectd %s segment: %"G_GINT64_MODIFIER"u",
-				  val_to_str_const (type, part_names, "UNKNOWN"),
-				  *ret_value);
+	/* Convert the version 4.* time format to the version 5.* time format. */
+	if ((type == TYPE_TIME) || (type == TYPE_INTERVAL))
+		*ret_value *= 1073741824;
+
+	/* Create an entry in the protocol tree for this part. The value is
+	 * printed depending on the "type" variable: TIME{,_HR} as absolute
+	 * time, INTERVAL{,_HR} as relative time, uint64 otherwise. */
+	if ((type == TYPE_TIME) || (type == TYPE_TIME_HR))
+	{
+		nstime_t nstime;
+		gchar *strtime;
+
+		nstime = collectd_time_to_nstime (*ret_value);
+		strtime = abs_time_to_str (&nstime, ABSOLUTE_TIME_LOCAL, /* show_zone = */ TRUE);
+		pi = proto_tree_add_text (tree_root, tvb, offset, length,
+					  "collectd %s segment: %s",
+					  val_to_str_const (type, part_names, "UNKNOWN"),
+					  STR_NONNULL (strtime));
+	}
+	else if ((type == TYPE_INTERVAL) || (type == TYPE_INTERVAL_HR))
+	{
+		nstime_t nstime;
+		gchar *strtime;
+
+		nstime = collectd_time_to_nstime (*ret_value);
+		strtime = rel_time_to_str (&nstime);
+		pi = proto_tree_add_text (tree_root, tvb, offset, length,
+					  "collectd %s segment: %s",
+					  val_to_str_const (type, part_names, "UNKNOWN"),
+					  strtime);
+	}
+	else
+	{
+		pi = proto_tree_add_text (tree_root, tvb, offset, length,
+					  "collectd %s segment: %"G_GINT64_MODIFIER"u",
+					  val_to_str_const (type, part_names, "UNKNOWN"),
+					  *ret_value);
+	}
+
 	if (ret_item != NULL)
 		*ret_item = pi;
 
@@ -385,7 +516,18 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 			     length);
-	proto_tree_add_item (pt, type_hf, tvb, offset + 4, 8, ENC_BIG_ENDIAN);
+	if ((type == TYPE_TIME) || (type == TYPE_INTERVAL)
+	    || (type == TYPE_TIME_HR) || (type == TYPE_INTERVAL_HR))
+	{
+		nstime_t nstime;
+
+		nstime = collectd_time_to_nstime (*ret_value);
+		proto_tree_add_time (pt, type_hf, tvb, offset + 4, 8, &nstime);
+	}
+	else
+	{
+		proto_tree_add_item (pt, type_hf, tvb, offset + 4, 8, ENC_BIG_ENDIAN);
+	}
 
 	return (0);
 } /* int dissect_collectd_integer */
@@ -611,31 +753,9 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	values_count = corrected_values_count;
 
 	dissect_collectd_values (tvb, offset, values_count, pt);
+	collectd_proto_tree_add_assembled_metric (tvb, offset + 6, length - 6,
+			vdispatch, pt);
 
-	/* tell what would be dispatched...  */
-	pi = proto_tree_add_text (pt, tvb, offset + 6, length - 6, "Dispatch simulation");
-	pt = proto_item_add_subtree(pi, ett_collectd_dispatch);
-	proto_tree_add_text (pt, tvb, vdispatch->host_off, vdispatch->host_len,
-			     "Host: %s", vdispatch->host ? vdispatch->host : "(null)");
-	proto_tree_add_text (pt, tvb, vdispatch->plugin_off,
-			     vdispatch->plugin_len,
-			     "Plugin: %s", vdispatch->plugin ? vdispatch->plugin : "(null)");
-	if (vdispatch->plugin_instance)
-		proto_tree_add_text (pt, tvb, vdispatch->plugin_instance_off,
-				     vdispatch->plugin_instance_len,
-				     "Plugin instance: %s", vdispatch->plugin_instance);
-	proto_tree_add_text (pt, tvb, vdispatch->type_off, vdispatch->type_len,
-			     "Type: %s", vdispatch->type ? vdispatch->type : "(null)");
-	if (vdispatch->type_instance)
-		proto_tree_add_text(pt, tvb, vdispatch->type_instance_off,
-				    vdispatch->type_instance_len,
-				    "Type instance: %s", vdispatch->type_instance);
-	proto_tree_add_text (pt, tvb, vdispatch->time_off, 8,
-			     "Timestamp: %"G_GINT64_MODIFIER"u (%s)",
-			     vdispatch->time, vdispatch->time_str ? vdispatch->time_str : "(null)");
-	proto_tree_add_text (pt, tvb, vdispatch->interval_off, 8,
-			     "Interval: %"G_GINT64_MODIFIER"u",
-			     vdispatch->interval);
 	return (0);
 } /* void dissect_collectd_part_values */
 
@@ -903,6 +1023,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					pkt_host = vdispatch.host;
 				break;
 			case TYPE_TIME:
+			case TYPE_TIME_HR:
 				break;
 			case TYPE_PLUGIN:
 				vdispatch.plugin = tvb_get_ephemeral_string (tvb,
@@ -918,6 +1039,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case TYPE_TYPE_INSTANCE:
 				break;
 			case TYPE_INTERVAL:
+			case TYPE_INTERVAL_HR:
 				break;
 			case TYPE_VALUES:
 			{
@@ -1092,10 +1214,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		case TYPE_TIME:
+		case TYPE_TIME_HR:
 		{
-			ndispatch.time_str = NULL;
-			vdispatch.time_str = NULL;
-
 			pi = NULL;
 			status = dissect_collectd_integer (tvb, pinfo,
 					hf_collectd_data_time,
@@ -1105,21 +1225,12 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					collectd_tree, &pi);
 			if (status != 0)
 				pkt_errors++;
-			else
-			{
-				vdispatch.time_str = abs_time_secs_to_str ((time_t) vdispatch.time, ABSOLUTE_TIME_LOCAL, TRUE);
-
-				ndispatch.time = vdispatch.time;
-				ndispatch.time_str = vdispatch.time_str;
-
-				proto_item_set_text (pi, "collectd TIME segment: %"G_GINT64_MODIFIER"u (%s)",
-						     vdispatch.time, vdispatch.time_str ? vdispatch.time_str : "(null)");
-			}
 
 			break;
 		}
 
 		case TYPE_INTERVAL:
+		case TYPE_INTERVAL_HR:
 		{
 			status = dissect_collectd_integer (tvb, pinfo,
 					hf_collectd_data_interval,
@@ -1174,24 +1285,10 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			pt = proto_item_get_subtree (pi);
 
-			/* tell what would be dispatched...  */
-			pi = proto_tree_add_text (pt, tvb, offset + 4,
-						  part_length - 4,
-						  "Dispatch simulation");
-			pt = proto_item_add_subtree(pi, ett_collectd_dispatch);
-			proto_tree_add_text (pt, tvb, ndispatch.host_off,
-					     ndispatch.host_len,
-					     "Host: %s", ndispatch.host ? ndispatch.host : "(null)");
-			proto_tree_add_text (pt, tvb, ndispatch.time_off, 8,
-					     "Timestamp: %"G_GINT64_MODIFIER"u (%s)",
-					     ndispatch.time, ndispatch.time_str ? ndispatch.time_str : "(null)");
-			proto_tree_add_text (pt, tvb, ndispatch.severity_off, 8,
-					     "Severity: %s (%#"G_GINT64_MODIFIER"x)",
-					     val_to_str_const((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
-					     ndispatch.severity);
-			proto_tree_add_text (pt, tvb, ndispatch.message_off,
-					     ndispatch.message_len,
-					     "Message: %s", ndispatch.message);
+			collectd_proto_tree_add_assembled_notification (tvb,
+					offset + 4, part_length - 1,
+					&ndispatch, pt);
+
 			break;
 		}
 
@@ -1325,11 +1422,11 @@ void proto_register_collectd(void)
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_interval,
-			{ "Interval", "collectd.data.interval", FT_UINT64, BASE_DEC,
+			{ "Interval", "collectd.data.interval", FT_RELATIVE_TIME, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_time,
-			{ "Timestamp", "collectd.data.time", FT_UINT64, BASE_DEC,
+			{ "Timestamp", "collectd.data.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_plugin,
@@ -1378,7 +1475,8 @@ void proto_register_collectd(void)
 		},
 		{ &hf_collectd_data_severity,
 			{ "Severity", "collectd.data.severity", FT_UINT64, BASE_HEX,
-				NULL, 0x0, NULL, HFILL }
+				VALS(severity_names),
+				0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_message,
 			{ "Message", "collectd.data.message", FT_STRING, BASE_NONE,
