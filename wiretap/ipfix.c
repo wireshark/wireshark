@@ -119,36 +119,33 @@ typedef struct ipfix_set_header_s {
 #define IPFIX_SET_HDR_SIZE 4
 
 
-/* Read IPFIX message header from file and fill in the struct wtap_pkthdr
- * for the packet.  Return true on success.  Set *err to 0 on EOF, any
- * other value for "real" errors (EOF is ok, since return value is still
- * FALSE)
+/* Read IPFIX message header from file.  Return true on success.  Set *err to
+ * 0 on EOF, any other value for "real" errors (EOF is ok, since return
+ * value is still FALSE)
  */
 static gboolean
-ipfix_process_message_header(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, gchar **err_info)
 {
-    ipfix_message_header_t msg_hdr;
-
-    wtap_file_read_expected_bytes(&msg_hdr, IPFIX_MSG_HDR_SIZE, fh, err, err_info);  /* macro which does a return if read fails */
+    wtap_file_read_expected_bytes(pfx_hdr, IPFIX_MSG_HDR_SIZE, fh, err, err_info);  /* macro which does a return if read fails */
 
     /* fix endianess, because IPFIX files are always big-endian */
-    msg_hdr.version = g_ntohs(msg_hdr.version);
-    msg_hdr.message_length = g_ntohs(msg_hdr.message_length);
-    msg_hdr.export_time_secs = g_ntohl(msg_hdr.export_time_secs);
-    msg_hdr.sequence_number = g_ntohl(msg_hdr.sequence_number);
-    msg_hdr.observation_id = g_ntohl(msg_hdr.observation_id);
+    pfx_hdr->version = g_ntohs(pfx_hdr->version);
+    pfx_hdr->message_length = g_ntohs(pfx_hdr->message_length);
+    pfx_hdr->export_time_secs = g_ntohl(pfx_hdr->export_time_secs);
+    pfx_hdr->sequence_number = g_ntohl(pfx_hdr->sequence_number);
+    pfx_hdr->observation_id = g_ntohl(pfx_hdr->observation_id);
 
     /* is the version number one we expect? */
-    if (msg_hdr.version != IPFIX_VERSION) {
+    if (pfx_hdr->version != IPFIX_VERSION) {
         /* Not an ipfix file. */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("ipfix: wrong version %d", msg_hdr.version);
+        *err_info = g_strdup_printf("ipfix: wrong version %d", pfx_hdr->version);
         return FALSE;
     }
 
-    if (msg_hdr.message_length < IPFIX_MSG_HDR_SIZE) {
+    if (pfx_hdr->message_length < 16) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("ipfix: message length %u is too short", msg_hdr.message_length);
+        *err_info = g_strdup_printf("ipfix: message length %u is too short", pfx_hdr->message_length);
         return FALSE;
     }
 
@@ -158,13 +155,28 @@ ipfix_process_message_header(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gcha
         return FALSE;
     }
 
-    if (phdr != NULL) {
-        phdr->presence_flags = 0;
-        phdr->len = msg_hdr.message_length;
-        phdr->caplen = msg_hdr.message_length;
-        phdr->ts.secs =  0;
-        phdr->ts.nsecs = 0;
-    }
+    return TRUE;
+}
+
+
+/* Read IPFIX message header from file and fill in the struct wtap_pkthdr
+ * for the packet.  Return true on success.  Set *err to 0 on EOF, any
+ * other value for "real" errors (EOF is ok, since return value is still
+ * FALSE)
+ */
+static gboolean
+ipfix_read_and_process_message_header(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+{
+    ipfix_message_header_t msg_hdr;
+
+    if (!ipfix_read_message_header(&msg_hdr, fh, err, err_info))
+        return FALSE;
+
+    phdr->presence_flags = 0;
+    phdr->len = msg_hdr.message_length;
+    phdr->caplen = msg_hdr.message_length;
+    phdr->ts.secs =  0;
+    phdr->ts.nsecs = 0;
 
     return TRUE;
 }
@@ -199,7 +211,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
      */
     for (i = 0; i < records_for_ipfix_check; i++) {
         /* read first message header to check version */
-        if (!ipfix_process_message_header(wth->fh, NULL, err, err_info)) {
+        if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
             ipfix_debug3("ipfix_open: couldn't read message header #%d with err code #%d (%s)",
                          i, *err, *err_info);
             if (*err == WTAP_ERR_BAD_FILE) {
@@ -215,7 +227,12 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                 /* we haven't seen enough to prove this is a ipfix file */
                 return 0;
             }
-            /* if we got here, it's EOF and we think it's an ipfix file */
+            /*
+             * If we got here, it's EOF and we haven't yet seen anything
+             * that doesn't look like an IPFIX record - i.e. everything
+             * we've seen looks like an IPFIX record - so we assume this
+             * is an IPFIX file.
+             */
             break;
         }
         if (file_seek(wth->fh, IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
@@ -233,7 +250,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                 ((set_hdr.set_length + checked_len) > msg_hdr.message_length))  {
                 ipfix_debug1("ipfix_open: found invalid set_length of %d",
                              set_hdr.set_length);
-                             return 0;
+                return 0;
             }
 
             if (file_seek(wth->fh, set_hdr.set_length - IPFIX_SET_HDR_SIZE,
@@ -272,7 +289,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     *data_offset = file_tell(wth->fh);
     ipfix_debug1("ipfix_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
-    if (!ipfix_process_message_header(wth->fh, &wth->phdr, err, err_info)) {
+    if (!ipfix_read_and_process_message_header(wth->fh, &wth->phdr, err, err_info)) {
         ipfix_debug2("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return FALSE;
@@ -300,7 +317,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off,
 
     ipfix_debug1("ipfix_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
 
-    if (!ipfix_process_message_header(wth->random_fh, phdr, err, err_info)) {
+    if (!ipfix_read_and_process_message_header(wth->random_fh, phdr, err, err_info)) {
         ipfix_debug0("ipfix_seek_read: couldn't read message header");
         return FALSE;
     }
