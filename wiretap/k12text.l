@@ -185,8 +185,7 @@ static void finalize_frame(void) {
 /* Fill in pkthdr */
 
 static void
-k12text_set_headers(gint encap, guint h, guint m, guint s, guint ms, guint ns,
-    struct wtap_pkthdr *phdr)
+k12text_set_headers(struct wtap_pkthdr *phdr)
 {
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
@@ -198,7 +197,7 @@ k12text_set_headers(gint encap, guint h, guint m, guint s, guint ms, guint ns,
 	phdr->pkt_encap = g_encap;
 
 	/* The file-encap is WTAP_ENCAP_PER_PACKET */
-	switch(encap) {
+	switch(g_encap) {
 	    case WTAP_ENCAP_ETHERNET:
 		    phdr->pseudo_header.eth.fcs_len = 0;
 		    break;
@@ -283,7 +282,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	*data_offset = k12text->next_frame_offset;       /* file position for beginning of this frame   */
 	k12text->next_frame_offset += file_bytes_read;   /* file position after end of this frame       */
 
-	k12text_set_headers(g_encap, g_h, g_m, g_s, g_ms, g_ns, &wth->phdr);
+	k12text_set_headers(&wth->phdr);
 
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
@@ -294,7 +293,6 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 static gboolean
 k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err, char **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
@@ -322,7 +320,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *
 		return FALSE;
 	}
 
-	k12text_set_headers(g_encap, g_h, g_m, g_s, g_ms, g_ns, phdr);
+	k12text_set_headers(phdr);
 
 	memcpy(pd, bb, length);
 
@@ -375,7 +373,7 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 #define K12BUF_SIZE 196808
 	char *buf;
 	size_t left = K12BUF_SIZE;
-	gint wl;
+	size_t wl;
 	char *p;
 	const char* str_enc;
 	guint i;
