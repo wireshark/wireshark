@@ -193,7 +193,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 {
 	unsigned char line[1024];
 	gboolean have_data = FALSE;
-	int len;
+	int len = 0;
 
 	while (file_gets(line, sizeof(line), fh) != NULL)
 	{
