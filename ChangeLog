@@ -14,3 +14,1199 @@ Changed paths:
 1.8.6 → 1.8.7.
 
 ------------------------------------------------------------------------
+r48155 | gerald | 2013-03-06 15:37:57 -0800 (Wed, 06 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/ChangeLog
+
+Prep for 1.8.7.
+
+------------------------------------------------------------------------
+r48199 | gerald | 2013-03-08 11:01:12 -0800 (Fri, 08 Mar 2013) | 92 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/capinfos.c
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/dumpcap.c
+   M /trunk-1.8/editcap.c
+   M /trunk-1.8/mergecap.c
+   M /trunk-1.8/packaging/nsis/common.nsh
+   M /trunk-1.8/packaging/nsis/uninstall.nsi
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+   M /trunk-1.8/packaging/nsis/x64.nsh
+   M /trunk-1.8/randpkt.c
+   M /trunk-1.8/rawshark.c
+   M /trunk-1.8/text2pcap.c
+   M /trunk-1.8/tshark.c
+   M /trunk-1.8/ui/gtk/main.c
+   M /trunk-1.8/wsutil/file_util.c
+   M /trunk-1.8/wsutil/file_util.h
+   M /trunk-1.8/wsutil/libwsutil.def
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r47786 | gerald | 2013-02-20 16:55:25 -0800 (Wed, 20 Feb 2013) | 2 lines
+  Changed paths:
+     M /trunk/packaging/nsis/uninstall.nsi
+
+  Pop into the correct variable.
+  ------------------------------------------------------------------------
+  r47788 | gerald | 2013-02-20 17:03:47 -0800 (Wed, 20 Feb 2013) | 2 lines
+  Changed paths:
+     M /trunk/packaging/nsis/wireshark.nsi
+
+  Remove vcredist_??.exe when we're done with it.
+  ------------------------------------------------------------------------
+  r48196 | gerald | 2013-03-08 10:23:58 -0800 (Fri, 08 Mar 2013) | 5 lines
+  Changed paths:
+     M /trunk/packaging/nsis/uninstall.nsi
+     M /trunk/packaging/nsis/wireshark.nsi
+     M /trunk/packaging/nsis/x64.nsh
+
+  Add /SD defaults to every MessageBox call (even if they're commented
+  out). Fixes bug 8451.
+
+  Don't yell at the user so much.
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r47758 | gerald | 2013-02-19 17:19:42 -0800 (Tue, 19 Feb 2013) | 5 lines
+  Changed paths:
+     M /trunk/capinfos.c
+     M /trunk/dumpcap.c
+     M /trunk/editcap.c
+     M /trunk/mergecap.c
+     M /trunk/packaging/nsis/wireshark.nsi
+     M /trunk/randpkt.c
+     M /trunk/rawshark.c
+     M /trunk/text2pcap.c
+     M /trunk/tshark.c
+     M /trunk/ui/gtk/main.c
+     M /trunk/ui/qt/main.cpp
+     M /trunk/wsutil/file_util.c
+     M /trunk/wsutil/file_util.h
+     M /trunk/wsutil/libwsutil.def
+
+  When any of our executables start on Windows create or open a "Wireshark
+  is running" mutex. Have the NSIS installer check for this mutex and ask
+  the user to close Wireshark if it's found. While not perfect this makes
+  the WinSparkle update process much less annoying.
+  ------------------------------------------------------------------------
+  r47773 | gerald | 2013-02-20 11:58:55 -0800 (Wed, 20 Feb 2013) | 6 lines
+  Changed paths:
+     M /trunk/packaging/nsis/wireshark.nsi
+     M /trunk/wsutil/file_util.c
+
+  As http://www.jrsoftware.org/iskb.php?mutexsessions points out, a session
+  mutex may not be visible to other sessions and we may not be able to
+  create a global mutex. Try to create both, and make each one accessible
+  to all users. Update the NSIS installer to check for both global and
+  session mutexes.
+  ------------------------------------------------------------------------
+  r47785 | gerald | 2013-02-20 15:59:49 -0800 (Wed, 20 Feb 2013) | 6 lines
+  Changed paths:
+     M /trunk/packaging/nsis/common.nsh
+     M /trunk/packaging/nsis/uninstall.nsi
+     M /trunk/packaging/nsis/wireshark.nsi
+
+  Move the Wireshark-is-running check to a common macro and call it in
+  both the installer and uninstaller. Roll the .exe removal code into a
+  loop and add missing executables.
+
+  Add modelines and adjust accordingly.
+  ------------------------------------------------------------------------
+  r48196 | gerald | 2013-03-08 10:23:58 -0800 (Fri, 08 Mar 2013) | 5 lines
+  Changed paths:
+     M /trunk/packaging/nsis/uninstall.nsi
+     M /trunk/packaging/nsis/wireshark.nsi
+     M /trunk/packaging/nsis/x64.nsh
+
+  Add /SD defaults to every MessageBox call (even if they're commented
+  out). Fixes bug 8451.
+
+  Don't yell at the user so much.
+  ------------------------------------------------------------------------
+
+Note: This changes the API on Windows.
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r48200 | gerald | 2013-03-08 11:21:58 -0800 (Fri, 08 Mar 2013) | 10 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/wsutil/Makefile.am
+
+Copy over r47762 from the trunk:
+
+  ------------------------------------------------------------------------
+  r47762 | gerald | 2013-02-19 19:01:12 -0800 (Tue, 19 Feb 2013) | 2 lines
+  Changed paths:
+     M /trunk/wsutil/Makefile.am
+
+  Exclude create_app_running_mutex.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r48226 | gerald | 2013-03-10 07:33:50 -0700 (Sun, 10 Mar 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-03-10]
+------------------------------------------------------------------------
+r48243 | gerald | 2013-03-11 09:47:45 -0700 (Mon, 11 Mar 2013) | 2 lines
+Changed paths:
+   D /trunk-1.8/packaging/nsis/WinPcap_4_1_2.exe
+   A /trunk-1.8/packaging/nsis/WinPcap_4_1_3.exe
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+
+WinPcap 4.1.2 → 4.1.3.
+
+------------------------------------------------------------------------
+r48248 | gerald | 2013-03-11 10:57:08 -0700 (Mon, 11 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/packaging/nsis/Makefile.am
+
+Fix dist.
+
+------------------------------------------------------------------------
+r48303 | jake | 2013-03-14 15:01:34 -0700 (Thu, 14 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/capture_if_dlg.c
+
+Remove the tool string if all you do is free it in the end.
+
+------------------------------------------------------------------------
+r48346 | eapache | 2013-03-16 13:59:19 -0700 (Sat, 16 Mar 2013) | 10 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-mpeg-dsmcc.c
+
+Backport from trunk:
+------------------------------------------------------------------------
+r48332 | eapache | 2013-03-15 18:09:51 -0400 (Fri, 15 Mar 2013) | 4 lines
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8481
+
+Trivially wrong format string being passed to val_to_str().
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r48351 | gerald | 2013-03-17 07:33:53 -0700 (Sun, 17 Mar 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-03-17]
+------------------------------------------------------------------------
+r48419 | eapache | 2013-03-19 08:51:19 -0700 (Tue, 19 Mar 2013) | 5 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-websocket.c
+
+Change some ints to guints (as they already are in trunk) so that
+negative values don't falsely pass the bounds checks and cause a crash.
+
+Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8499
+
+------------------------------------------------------------------------
+r48420 | gerald | 2013-03-19 09:09:50 -0700 (Tue, 19 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+   M /trunk-1.8/packaging/portableapps/win32/Installer.nsi
+
+Use a larger LZMA dictionary.
+
+------------------------------------------------------------------------
+r48432 | gerald | 2013-03-19 16:27:15 -0700 (Tue, 19 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/Makefile.nmake
+   M /trunk-1.8/config.nmake
+
+Create separate PCAP_VERSION and WPD_VERSIONs similar to the trunk.
+
+------------------------------------------------------------------------
+r48564 | morriss | 2013-03-26 11:51:38 -0700 (Tue, 26 Mar 2013) | 9 lines
+Changed paths:
+   M /trunk-1.8/wsutil/privileges.c
+
+Copy over from trunk (in order to allow warning-free compilation on newer systems):
+
+  r45286 | wmeier | 2012-10-03 11:22:31 -0400 (Wed, 03 Oct 2012) | 5 lines
+
+  *nix: Test return status of set*uid and related set*gid fcns for failure;
+  This fixes gcc compiler errors [-Werror=unused-result]  caused by the recent addition
+  of the "__wur" (warn_unused_result) attribute to the declarations of these functions in
+  unistd.h.
+
+------------------------------------------------------------------------
+r48583 | stig | 2013-03-27 02:52:07 -0700 (Wed, 27 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/configure.in
+
+Remove searching in $prefix for packages as requested in bug 6011 and bug 7926.
+
+------------------------------------------------------------------------
+r48674 | gerald | 2013-03-31 11:01:24 -0700 (Sun, 31 Mar 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-03-31]
+------------------------------------------------------------------------
+r48677 | guy | 2013-03-31 13:48:02 -0700 (Sun, 31 Mar 2013) | 12 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-reload.c
+
+Copy over r47805 from trunk:
+
+  ------------------------------------------------------------------------
+  r47805 | eapache | 2013-02-21 10:53:18 -0800 (Thu, 21 Feb 2013) | 4 lines
+
+  From Chris Maynard via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8364
+
+  Pacify the fuzz-bots for now, though a better fix is needed.
+
+which somehow *didn't* get backported (perhaps 47808 was backported but
+47805 was forgotten about).  Fixes bug 8546.
+
+------------------------------------------------------------------------
+r48678 | guy | 2013-03-31 14:09:24 -0700 (Sun, 31 Mar 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+
+Add in r48677.
+
+------------------------------------------------------------------------
+r48712 | cmaynard | 2013-04-02 14:20:00 -0700 (Tue, 02 Apr 2013) | 11 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-bat.c
+   M /trunk-1.8/epan/dissectors/packet-dvmrp.c
+   M /trunk-1.8/epan/dissectors/packet-enrp.c
+   M /trunk-1.8/epan/dissectors/packet-image-png.c
+   M /trunk-1.8/epan/dissectors/packet-m2tp.c
+   M /trunk-1.8/epan/dissectors/packet-usb-hid.c
+
+Copy over r48710 from the trunk (with manual intervention):
+
+  ------------------------------------------------------------------------
+  r48710 | cmaynard | 2013-04-02 17:13:02 -0400 (Tue, 02 Apr 2013) | 3 lines
+
+  Both tvb_length_remaining and tvb_reported_length_remaining can return -1.
+  #BACKPORT(1.6,1.8 ... manually as other occurrences are in those trunks)
+
+  ------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r48763 | gerald | 2013-04-07 07:33:55 -0700 (Sun, 07 Apr 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-04-07]
+------------------------------------------------------------------------
+r48794 | morriss | 2013-04-08 18:01:33 -0700 (Mon, 08 Apr 2013) | 12 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dcp-etsi.c
+
+Copy over from trunk in order to silence the 1.8 fuzz bot:
+
+  ------------------------------------------------------------------------
+  r48644 | eapache | 2013-03-29 18:20:04 -0400 (Fri, 29 Mar 2013) | 7 lines
+
+  Bump two guint16 to guint32 to prevent overflow when reassembling a large
+  number of fragments, and add an extra bounds check.
+
+  Fixes
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8540
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8541
+
+------------------------------------------------------------------------
+r48795 | morriss | 2013-04-08 18:30:28 -0700 (Mon, 08 Apr 2013) | 9 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dcp-etsi.c
+
+Copy over from trunk in order to finish fixing the fuzz failure reported in:
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8543
+
+  ------------------------------------------------------------------------
+  r47295 | mmann | 2013-01-26 10:07:25 -0500 (Sat, 26 Jan 2013) | 2 lines
+
+  dcp-etsi dissector: new formula for rx_min 
+  Bug 8231 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8231)
+
+------------------------------------------------------------------------
+r48845 | gerald | 2013-04-14 07:33:55 -0700 (Sun, 14 Apr 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-04-14]
+------------------------------------------------------------------------
+r48857 | gerald | 2013-04-15 12:13:10 -0700 (Mon, 15 Apr 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/tools/make-manuf
+
+Handle recent indentation change.
+
+------------------------------------------------------------------------
+r48866 | gerald | 2013-04-15 16:18:20 -0700 (Mon, 15 Apr 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/tools/make-manuf
+
+Another indentation fix.
+
+------------------------------------------------------------------------
+r48951 | gerald | 2013-04-21 07:33:55 -0700 (Sun, 21 Apr 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-04-21]
+------------------------------------------------------------------------
+r49011 | etxrab | 2013-04-23 22:12:40 -0700 (Tue, 23 Apr 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-rsvp.c
+
+Copy over 
+Revision 48995 - Restore a lost hf def.
+------------------------------------------------------------------------
+r49012 | pascal | 2013-04-24 01:00:31 -0700 (Wed, 24 Apr 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-rsvp.c
+
+Revert r49011
+
+------------------------------------------------------------------------
+r49028 | eapache | 2013-04-25 06:34:58 -0700 (Thu, 25 Apr 2013) | 26 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/dissectors/packet-etch.c
+   M /trunk-1.8/epan/dissectors/packet-mysql.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r48894 | eapache | 2013-04-17 11:38:35 -0400 (Wed, 17 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-mysql.c
+
+  Catch overflow condition in mysql dissector.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8458
+
+  Also add modelines.
+
+  ------------------------------------------------------------------------
+
+  ------------------------------------------------------------------------
+  r48919 | eapache | 2013-04-18 15:45:22 -0400 (Thu, 18 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-etch.c
+
+  Add overflow check to fix
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8464
+
+  Also add modelines.
+
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r49050 | morriss | 2013-04-26 09:07:02 -0700 (Fri, 26 Apr 2013) | 16 lines
+Changed paths:
+   M /trunk-1.8/file.c
+   M /trunk-1.8/wiretap/wtap.def
+
+Copy over from the trunk:
+
+  ------------------------------------------------------------------------
+  r48842 | eapache | 2013-04-13 14:24:06 -0400 (Sat, 13 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/file.c
+
+  Don't take the shortcut of moving/copying the existing file if we have a name
+  resolution block to write (which isn't necessarily in the existing file).
+
+  Fixes at least part of https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8317
+
+  ------------------------------------------------------------------------
+
+Export wtap_dump_has_name_resolution() because this revision depends on it.
+
+------------------------------------------------------------------------
+r49081 | gerald | 2013-04-28 08:04:17 -0700 (Sun, 28 Apr 2013) | 1 line
+Changed paths:
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-04-28]
+------------------------------------------------------------------------
+r49119 | martink | 2013-05-01 14:17:01 -0700 (Wed, 01 May 2013) | 9 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/capture_dlg.c
+
+copy over from the trunk (with manual intervention)
+------------------------------------------------------------------------
+r49072 | martink | 2013-04-27 14:35:30 +0200 (Sat, 27 Apr 2013) | 4 lines
+
+free the linkname allocated by g_strdup()
+set linkname to unknown for interfaces without a linkname (e.g.  pipes)
+remove "this should not happen" warnings
+
+
+------------------------------------------------------------------------
+r49120 | martink | 2013-05-01 14:44:41 -0700 (Wed, 01 May 2013) | 12 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/capture_dlg.c
+
+copy over from the trunk with manual intervention
+
+------------------------------------------------------------------------
+r49071 | martink | 2013-04-27 11:55:46 +0200 (Sat, 27 Apr 2013) | 9 lines
+------------------------------------------------------------------------
+
+free memory allocated with g_strdup()
+
+change "unknown" string used in the trunk to "" to make linkname
+consistent for 1.8
+
+
+------------------------------------------------------------------------
+r49207 | gerald | 2013-05-07 15:27:12 -0700 (Tue, 07 May 2013) | 77 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/asn1/gsm_map/packet-gsm_map-template.c
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/Makefile.am
+   M /trunk-1.8/epan/crypt/Makefile.am
+   M /trunk-1.8/epan/dfilter/Makefile.am
+   M /trunk-1.8/epan/dissectors/Makefile.am
+   M /trunk-1.8/epan/dissectors/packet-gsm_map.c
+   M /trunk-1.8/epan/dissectors/packet-hdfsdata.c
+   M /trunk-1.8/epan/ftypes/Makefile.am
+   M /trunk-1.8/epan/wslua/Makefile.am
+   M /trunk-1.8/epan/wspython/Makefile.am
+   M /trunk-1.8/plugins/asn1/Makefile.am
+   M /trunk-1.8/plugins/docsis/Makefile.am
+   M /trunk-1.8/plugins/ethercat/Makefile.am
+   M /trunk-1.8/plugins/gryphon/Makefile.am
+   M /trunk-1.8/plugins/irda/Makefile.am
+   M /trunk-1.8/plugins/m2m/Makefile.am
+   M /trunk-1.8/plugins/mate/Makefile.am
+   M /trunk-1.8/plugins/opcua/Makefile.am
+   M /trunk-1.8/plugins/profinet/Makefile.am
+   M /trunk-1.8/plugins/stats_tree/Makefile.am
+   M /trunk-1.8/plugins/tpg/Makefile.am
+   M /trunk-1.8/plugins/unistim/Makefile.am
+   M /trunk-1.8/plugins/wimax/Makefile.am
+   M /trunk-1.8/plugins/wimaxasncp/Makefile.am
+   M /trunk-1.8/ui/gtk/capture_dlg.c
+   M /trunk-1.8/wiretap/Makefile.am
+   M /trunk-1.8/wiretap/netscreen.c
+   M /trunk-1.8/wsutil/Makefile.am
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r46905 | guy | 2013-01-02 14:56:24 -0800 (Wed, 02 Jan 2013) | 9 lines
+  Changed paths:
+     M /trunk/wiretap/netscreen.c
+
+  Update TODO list - the first two items are done, and with stuff added to
+  support pcap-NG we might have a better way of doing the third item (more
+  stuff is needed, but that stuff belongs there for pcap-NG, too).
+
+  When parsing hex dump lines, skip leading white space, and skip lines
+  that have nothing but white space, rather than guessing where the hex
+  dump information ends based on the line length.  Parse the hex bytes
+  manually.
+  ------------------------------------------------------------------------
+  r48159 | cmaynard | 2013-03-06 18:04:41 -0800 (Wed, 06 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-hdfsdata.c
+
+  Avoid a potential divide-by-zero condition.
+  #BACKPORT(1.8)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r43547 | morriss | 2012-06-29 14:18:35 -0700 (Fri, 29 Jun 2012) | 1 line
+  Changed paths:
+     M /trunk/ui/gtk/capture_dlg.c
+
+  Clean up capture option tooltip spacing and remove an extraneous word (at the end of the monitor mode description).  Also use sizeof for a buffer size.
+  ------------------------------------------------------------------------
+  r45687 | etxrab | 2012-10-21 08:01:23 -0700 (Sun, 21 Oct 2012) | 1 line
+  Changed paths:
+     M /trunk/asn1/gsm_map/packet-gsm_map-template.c
+     M /trunk/epan/dissectors/packet-gsm_map.c
+
+  AddressString can have a size of 1, fixes Bug 7882 -GSM_MAP show malformed Packets when two IMSI https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7882
+  ------------------------------------------------------------------------
+  r48261 | jake | 2013-03-11 23:53:39 -0700 (Mon, 11 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/Makefile.am
+     M /trunk/epan/Makefile.am
+     M /trunk/epan/crypt/Makefile.am
+     M /trunk/epan/dfilter/Makefile.am
+     M /trunk/epan/dissectors/Makefile.am
+     M /trunk/epan/ftypes/Makefile.am
+     M /trunk/epan/wmem/Makefile.am
+     M /trunk/epan/wslua/Makefile.am
+     M /trunk/epan/wspython/Makefile.am
+     M /trunk/plugins/asn1/Makefile.am
+     M /trunk/plugins/docsis/Makefile.am
+     M /trunk/plugins/ethercat/Makefile.am
+     M /trunk/plugins/gryphon/Makefile.am
+     M /trunk/plugins/irda/Makefile.am
+     M /trunk/plugins/m2m/Makefile.am
+     M /trunk/plugins/mate/Makefile.am
+     M /trunk/plugins/opcua/Makefile.am
+     M /trunk/plugins/profinet/Makefile.am
+     M /trunk/plugins/stats_tree/Makefile.am
+     M /trunk/plugins/tpg/Makefile.am
+     M /trunk/plugins/unistim/Makefile.am
+     M /trunk/plugins/wimax/Makefile.am
+     M /trunk/plugins/wimaxasncp/Makefile.am
+     M /trunk/plugins/wimaxmacphy/Makefile.am
+     M /trunk/wiretap/Makefile.am
+     M /trunk/wsutil/Makefile.am
+
+  From David Arnold:
+  Replace use of INCLUDES with AM_CPPFLAGS in all Makefiles to placate recent autotools.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49208 | gerald | 2013-05-07 15:32:07 -0700 (Tue, 07 May 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-gtpv2.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r48393 | pascal | 2013-03-18 09:11:00 -0700 (Mon, 18 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gtpv2.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8493 :
+  Use proto_tree_add_item instead of proto_tree_add_bits_item to display Used Cipher
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49217 | martink | 2013-05-09 08:10:51 -0700 (Thu, 09 May 2013) | 11 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-fc.c
+
+Copy over from the trunk
+
+------------------------------------------------------------------------
+r49210 | martink | 2013-05-08 22:27:31 +0200 (Wed, 08 May 2013) | 5 lines
+
+From Christian Svensson
+
+use correct Fibre Channel EOFs according to the FC-FS-3 specification
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8636
+
+
+------------------------------------------------------------------------
+r49236 | gerald | 2013-05-10 14:44:09 -0700 (Fri, 10 May 2013) | 68 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/asn1/gsm_map/packet-gsm_map-template.c
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-bat.c
+   M /trunk-1.8/epan/dissectors/packet-gsm_a_common.c
+   M /trunk-1.8/epan/dissectors/packet-gsm_abis_om2000.c
+   M /trunk-1.8/epan/dissectors/packet-gsm_map.c
+   M /trunk-1.8/epan/dissectors/packet-icmp.c
+   M /trunk-1.8/epan/dissectors/packet-icmpv6.c
+   M /trunk-1.8/epan/dissectors/packet-ixveriwave.c
+   M /trunk-1.8/epan/dissectors/packet-kdsp.c
+   M /trunk-1.8/epan/dissectors/packet-sasp.c
+   M /trunk-1.8/epan/dissectors/packet-sip.c
+   M /trunk-1.8/epan/dissectors/packet-tcp.c
+   M /trunk-1.8/epan/dissectors/packet-ua3g.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r48601 | cmaynard | 2013-03-27 14:41:56 -0700 (Wed, 27 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/asn1/gsm_map/packet-gsm_map-template.c
+     M /trunk/epan/dissectors/packet-gsm_map.c
+
+  Fix another incorrectly duplicated display filter, this time for hf_gsm_map_etsi_pdp_type_number.
+  #BACKPORT(1.6,1.8)
+  ------------------------------------------------------------------------
+  r48616 | cmaynard | 2013-03-28 07:56:58 -0700 (Thu, 28 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-kdsp.c
+
+  Fix the incorrectly duplicated display filter for hf_kdsp_source_name.
+  #BACKPORT(1.8)
+  ------------------------------------------------------------------------
+  r48619 | cmaynard | 2013-03-28 08:07:32 -0700 (Thu, 28 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-sasp.c
+
+  first_flag should be static.
+  #BACKPORT(1.6,1.8)
+  ------------------------------------------------------------------------
+  r48620 | cmaynard | 2013-03-28 08:28:12 -0700 (Thu, 28 Mar 2013) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ua3g.c
+
+  Fix Coverity CID's 281433 and 281434: Unintended sign extension. (18 instances)
+  Fix Coverity CID 702381: Missing break in switch.
+
+  Add an "XXX" note regarding the framing_rtp assignment, since something appears to be missing.
+
+  #BACKPORT(1.8)
+  ------------------------------------------------------------------------
+  r48622 | cmaynard | 2013-03-28 09:02:41 -0700 (Thu, 28 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-bat.c
+
+  Fix Coverity CID's 280305-280306: Negative loop bound.  (These are yet more annoying instances of not properly dealing with tvb_reported_length_remaining() possibly returning -1.)
+  #BACKPORT(1.6,1.8)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r48602 | cmaynard | 2013-03-27 15:04:46 -0700 (Wed, 27 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ixveriwave.c
+
+  Fix the incorrectly duplicated display filter for hf_ixveriwave_vw_info_retryCount.
+  #BACKPORT(1.8)
+  ------------------------------------------------------------------------
+  r48613 | cmaynard | 2013-03-28 07:23:07 -0700 (Thu, 28 Mar 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_common.c
+
+  Properly dissect lat and long according to 3GPP TS 23.032.  Fix incorrect display filters for hf_gsm_a_geo_loc_deg_of_lat and hf_gsm_a_geo_loc_deg_of_long.
+
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8532
+  #BACKPORT(1.6,1.8)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49237 | gerald | 2013-05-10 15:06:34 -0700 (Fri, 10 May 2013) | 76 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-bssgp.c
+   M /trunk-1.8/epan/dissectors/packet-e164.c
+   M /trunk-1.8/epan/dissectors/packet-icmpv6.c
+   M /trunk-1.8/epan/dissectors/packet-irc.c
+   M /trunk-1.8/epan/dissectors/packet-openwire.c
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.8/ui/gtk/print_dlg.c
+   M /trunk-1.8/wiretap/file_access.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r48628 | cmaynard | 2013-03-28 11:16:52 -0700 (Thu, 28 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-openwire.c
+
+  Fix incorrectly duplicated display filter for hf_openwire_throwable_linenumber.
+  #BACKPORT(1.8)
+  ------------------------------------------------------------------------
+  r48664 | jake | 2013-03-30 15:52:13 -0700 (Sat, 30 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+
+  From Hauke Mehrtens:
+  Wireshark misses some new TLS and DTLS cipher suite names which are assigned by IANA.
+  ------------------------------------------------------------------------
+  r48697 | pascal | 2013-04-02 06:09:15 -0700 (Tue, 02 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-e164.c
+
+  From Vineeth via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8450 :
+  Do not try to systematically fetch a third digit for Country Code: its length can be from 1 to 3 digits.
+  ------------------------------------------------------------------------
+  r48726 | pascal | 2013-04-04 02:14:11 -0700 (Thu, 04 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-bssgp.c
+
+  From Lukasz Wachowski via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8559 :
+  Fix dissection of RAN-INFORMATION-APPLICATION-ERROR RIM PDU Indications
+  ------------------------------------------------------------------------
+  r48736 | jake | 2013-04-04 10:20:36 -0700 (Thu, 04 Apr 2013) | 2 lines
+  Changed paths:
+     M /trunk/ui/gtk/print_dlg.c
+
+  Set 'details' radio button sensitivity also at the creation of the dialog.
+  ------------------------------------------------------------------------
+  r48767 | alagoutte | 2013-04-07 08:57:01 -0700 (Sun, 07 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-icmpv6.c
+
+  From report TheDarkEye via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8554 Part of Ping Reply Message in ICMPv6 Reply Message is marked as "Malformed Packet"
+
+  (Wrong offset variable...)
+
+  #BACKPORT(1.8)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r48684 | jake | 2013-04-01 07:09:44 -0700 (Mon, 01 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-irc.c
+
+  Fix for bug 8548:
+  Allow the IRC command and response dissection functions to be called with
+  subsets of the original (full) message line. Therefore we need to calculate
+  with real lengths and offsets, not mixed with lengths of the subset itself.
+  ------------------------------------------------------------------------
+  r48724 | guy | 2013-04-03 21:35:09 -0700 (Wed, 03 Apr 2013) | 7 lines
+  Changed paths:
+     M /trunk/wiretap/file_access.c
+
+  From Anthony Coddington: don't check for MPEG-2 Transport before
+  checking for ERF.
+
+  From me: note some heuristic checkers that are in the "magic number" set.
+
+  #BACKPORT 1.8
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49264 | gerald | 2013-05-13 09:25:40 -0700 (Mon, 13 May 2013) | 88 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/airpcap_loader.c
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/crypt/airpdcap.c
+   M /trunk-1.8/epan/dissectors/packet-bt-dht.c
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.h
+   M /trunk-1.8/epan/dissectors/packet-nfs.c
+   M /trunk-1.8/ui/gtk/airpcap_dlg.c
+   M /trunk-1.8/ui/gtk/io_stat.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r48814 | pascal | 2013-04-11 01:41:28 -0700 (Thu, 11 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-nfs.c
+
+  From Cal Turney via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8575 :
+  Fix description of ACE4_APPEND_DATA
+  r46187 | wmeier | 2012-11-25 13:47:04 -0800 (Sun, 25 Nov 2012) | 3 lines
+  Changed paths:
+     M /trunk/airpcap_loader.c
+
+   Fix a [-Wshadow] warning;
+   Also: Do some minor whitespace and formatting changes.
+  ------------------------------------------------------------------------
+  r48308 | mmann | 2013-03-14 18:31:53 -0700 (Thu, 14 Mar 2013) | 3 lines
+  Changed paths:
+     M /trunk/airpcap_loader.c
+     M /trunk/epan/crypt/airpdcap.c
+     M /trunk/epan/dissectors/packet-ieee80211.c
+     M /trunk/epan/dissectors/packet-ieee80211.h
+     M /trunk/ui/gtk/airpcap_dlg.c
+
+  Bugfix Decryption Key Management dialog, bug 8446 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8446)
+
+  Needed to convert use of old IEEE802.11 preference strings to UAT.  Since UAT is self-contained within its own file, the entire preference file doesn't need to be rewritten/saved when UAT values are changed.
+  ------------------------------------------------------------------------
+  r48900 | alagoutte | 2013-04-17 12:38:34 -0700 (Wed, 17 Apr 2013) | 6 lines
+  Changed paths:
+     M /trunk/airpcap_loader.c
+
+  From Michael Mann via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8446 Wifi details are not stored in the Decryption Key Management dialog (post 1.8.x)
+
+  If there is not 80211_keys file, using Decryption Management Key don't create the file and keys is not saved.
+
+  From me:
+  Use a err2 variable to avoid to break API/ABI when backport to 1.8
+  ------------------------------------------------------------------------
+  r48901 | alagoutte | 2013-04-17 12:38:50 -0700 (Wed, 17 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/ui/gtk/airpcap_dlg.c
+
+  Fix the following GTK-CRITICAL error Gtk-CRITICAL **: gtk_list_store_get_path: assertion `iter->stamp == GTK_LIST_STORE (tree_model)->stamp' failed
+
+  Problem come from no item in list (and impossible to select the first item...)
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r48850 | alagoutte | 2013-04-15 01:42:12 -0700 (Mon, 15 Apr 2013) | 8 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-bt-dht.c
+
+  From report of chen li via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8572 Endian error and IP:Port error when decoding BT-DHT response message
+
+  When the remote client sended a node set, it contains nodes info
+  The node info it shows like (1	3cad1f360cc51870d3e68d61ed604078bc608ee2 60.173.31.54:43365), but this node's true ip and port is 99.192.73.131:26025. When we expand these items, the ips and ports in detailed information are right.
+
+  From me :
+  It is a problem of encoding (LITTLE ENDIAN => BIG ENDIAN) and wrong offset
+  Some issue with Peers info
+  ------------------------------------------------------------------------
+  r48882 | eapache | 2013-04-16 09:16:15 -0700 (Tue, 16 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/ui/gtk/io_stat.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8583
+
+  IO graph was misbehaving if the packets covered too much real time.
+  It's still ungodly slow, but at least it seems to work.
+  ------------------------------------------------------------------------
+  r48893 | eapache | 2013-04-17 08:07:48 -0700 (Wed, 17 Apr 2013) | 6 lines
+  Changed paths:
+     M /trunk/ui/gtk/io_stat.c
+
+  Cast scrolling values to gdoubles, not gfloats - GtkAdjustment have
+  always taken doubles that I've been able to find, and casting to floats
+  causes loss of precision and weird bugs when the values get enormous.
+
+  Should fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8460
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49265 | gerald | 2013-05-13 09:37:22 -0700 (Mon, 13 May 2013) | 16 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-ber.c
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r48944 | eapache | 2013-04-20 14:20:00 -0700 (Sat, 20 Apr 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ber.c
+
+  Initialize branch_taken right at the top of dissect_ber_choice so that the
+  caller can depend on it being initialized even in peculiar error conditions.
+
+  Fixes the other half of https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8599
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49266 | gerald | 2013-05-13 10:23:46 -0700 (Mon, 13 May 2013) | 73 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-hsrp.c
+   M /trunk-1.8/epan/dissectors/packet-rtp.c
+   M /trunk-1.8/epan/dissectors/packet-snmp.c
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.8/ui/gtk/main.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r48928 | etxrab | 2013-04-19 09:06:55 -0700 (Fri, 19 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gtpv2.c
+
+  Fix GTPv2 MM Context (UMTS Key, Quad, and Quint Decoded) incorrectly
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8596
+  r47729 | jake | 2013-02-17 22:19:04 -0800 (Sun, 17 Feb 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rtp.c
+
+  Fix for bug 8321:
+  Feed the tap before trying to dissect the payload. This prevents a malformed
+  payload from blocking the tap, resulting in incorrect RTP statistics.
+  ------------------------------------------------------------------------
+  r49024 | pascal | 2013-04-24 22:24:07 -0700 (Wed, 24 Apr 2013) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rtp.c
+
+  Try to please the OSX buildbots
+  ------------------------------------------------------------------------
+  r49111 | morriss | 2013-05-01 07:19:10 -0700 (Wed, 01 May 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8618 :
+
+  Allow port 0 in RSA Key List.
+
+  (This has been broken since r36875.)
+  ------------------------------------------------------------------------
+  r49114 | morriss | 2013-05-01 12:42:28 -0700 (Wed, 01 May 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-hsrp.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8622 :
+
+  hsrp2.md5_auth_data is added to the tree with a length of 16 so declare it as
+  FT_BYTES instead of FT_UINT32 (using the latter causes an assertion in
+  trunk-1.8 and an expert info in trunk and trunk-1.10).
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r49019 | pascal | 2013-04-24 14:25:30 -0700 (Wed, 24 Apr 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rtp.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8610 :
+  Ensure that tap is called after full dissection, even in case of exception
+  ------------------------------------------------------------------------
+  r49046 | guy | 2013-04-25 21:42:20 -0700 (Thu, 25 Apr 2013) | 2 lines
+  Changed paths:
+     M /trunk/ui/win32/console_win32.c
+
+  Work around a bug in a Microsoft security fix.
+  ------------------------------------------------------------------------
+  r49128 | mmann | 2013-05-01 16:59:16 -0700 (Wed, 01 May 2013) | 1 line
+  Changed paths:
+     M /trunk/asn1/snmp/packet-snmp-template.c
+     M /trunk/epan/dissectors/packet-snmp.c
+
+  Protect a "divide by zero" operation.  Bug 7359 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7359).  This seems to have been generated through a corrupted UAT file switching between 1.8 and 1.10, but it's a good check to have regardless.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49267 | gerald | 2013-05-13 10:40:49 -0700 (Mon, 13 May 2013) | 36 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-lisp-data.c
+   M /trunk-1.8/epan/dissectors/packet-lisp.c
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r49154 | mmann | 2013-05-03 19:20:59 -0700 (Fri, 03 May 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-lisp-data.c
+     M /trunk/epan/dissectors/packet-lisp.c
+
+  LISP control packet incorrectly identified as LISP data based when UDP source port is 4341.  Bug 8627 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8627)
+
+  Also did some minor cleanup/improvements while I was there.
+  ------------------------------------------------------------------------
+  r49187 | martink | 2013-05-06 13:00:59 -0700 (Mon, 06 May 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+
+  From Andreas Schultz
+  use correct PRF for DTLS 1.2
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8608
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r49170 | mmann | 2013-05-05 04:02:42 -0700 (Sun, 05 May 2013) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-lisp-data.c
+
+  Remove if (tree) so expert_info will always be called.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49268 | gerald | 2013-05-13 10:48:07 -0700 (Mon, 13 May 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ppp.c
+
+Copy over r49214 from the trunk:
+
+  ------------------------------------------------------------------------
+  r49214 | mmann | 2013-05-09 05:49:31 -0700 (Thu, 09 May 2013) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ppp.c
+
+  NULL terminate bit field list.  Bug 8638 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8638)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49289 | gerald | 2013-05-14 09:49:03 -0700 (Tue, 14 May 2013) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49303 | morriss | 2013-05-14 13:47:22 -0700 (Tue, 14 May 2013) | 13 lines
+Changed paths:
+   M /trunk-1.8/airpcap_loader.c
+
+Fix warnings which have crept into trunk-1.8:
+
+  airpcap_loader.c: In function 'get_wep_key':
+  airpcap_loader.c:172:13: error: passing argument 2 of 'uat_load' from incompatible pointer type [-Werror]
+  In file included from ./epan/uat-int.h:34:0,
+                 from airpcap_loader.c:45:
+  ./epan/uat.h:270:10: note: expected 'char **' but argument is of type 'const char **'
+  airpcap_loader.c: In function 'set_wep_key':
+  airpcap_loader.c:270:13: error: passing argument 2 of 'uat_load' from incompatible pointer type [-Werror]
+  In file included from ./epan/uat-int.h:34:0,
+                 from airpcap_loader.c:45:
+  ./epan/uat.h:270:10: note: expected 'char **' but argument is of type 'const char **'
+
+------------------------------------------------------------------------
+r49304 | morriss | 2013-05-14 13:48:01 -0700 (Tue, 14 May 2013) | 17 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/dissectors/packet-diameter_3gpp.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r49296 | morriss | 2013-05-14 15:26:33 -0400 (Tue, 14 May 2013) | 8 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-diameter_3gpp.c
+
+  Don't try to decode an IPv6 address if it looks like we've been handed the
+  (obsolete) Server-Assignment-Type AVP (which conflicts with the newer
+  3GPP-SGSN-IPv6-Address AVP).
+
+  This allows users to not see malformed packets (which look completely correct)
+  if they choose to use the AVP values from imscxdx.xml instead of those from
+  TGPPGmb.xml.
+
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r49324 | morriss | 2013-05-15 19:00:28 -0700 (Wed, 15 May 2013) | 19 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/epan/dissectors/packet-rtmpt.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r49321 | morriss | 2013-05-15 21:48:44 -0400 (Wed, 15 May 2013) | 10 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rtmpt.c
+
+  Temporarily lower the max packet size for this dissector in order to silence
+  the fuzz bot (see https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6898 and
+  all of its duplicates--and the bugs marked as duplicates of those duplicates).
+
+  Halving the packet size seems to work for most of the captures I've tried;
+  we'll see if the buildbot agrees.
+
+  If someone can figure out a good way to control the memory usage of this
+  dissector then the limit could be increased again.
+
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r49337 | pascal | 2013-05-16 11:29:20 -0700 (Thu, 16 May 2013) | 9 lines
+Changed paths:
+   M /trunk-1.8/wiretap/file_access.c
+
+Copy over from trunk:
+------------------------------------------------------------------------
+r49334 | pascal | 2013-05-16 20:27:03 +0200 (jeu. 16 mai 2013) | 3 lignes
+
+From Weston Schmidt via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8689:
+csids wiretap heuristic overriding mp2t
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r49380 | gerald | 2013-05-17 09:20:36 -0700 (Fri, 17 May 2013) | 35 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-amr.c
+   M /trunk-1.8/epan/dissectors/packet-tcp.c
+   M /trunk-1.8/epan/tvbuff.c
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r49326 | etxrab | 2013-05-15 22:08:16 -0700 (Wed, 15 May 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-amr.c
+
+  From Neil Piercy:
+  AMR Frame Type uses wrong Value String.
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8681
+  Applied by hand, patch not against trunk?
+  ------------------------------------------------------------------------
+  r49332 | cmaynard | 2013-05-16 08:21:42 -0700 (Thu, 16 May 2013) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-tcp.c
+
+  Treat invalid checksum of 0x0000 no different than any other invalid checksum.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8629
+  #BACKPORT (1.10, 1.8, 1.6)
+  ------------------------------------------------------------------------
+  r49379 | morriss | 2013-05-17 07:38:36 -0700 (Fri, 17 May 2013) | 7 lines
+  Changed paths:
+     M /trunk/epan/tvbuff.c
+
+  As suggested by Jakub: don't ep_alloc buffers for TVBs, use g_malloc()'d
+  memory with tvb-free-callback.
+
+  Fixes one of the "read after free" warnings from Valgrind reported in
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8197 and the one reported
+  in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8653
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------

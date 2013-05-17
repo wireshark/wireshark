@@ -1,4 +1,4 @@
-Wireshark 1.8.6 Release Notes
+Wireshark 1.8.7 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,179 +14,148 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2013-10
-
-       The TCP dissector could crash. (Bug 8274)
-
-       Versions affected: 1.8.0 to 1.8.5.
-
-       CVE-2013-2475
-
-     o wnpa-sec-2013-11
-
-       The HART/IP dissectory could go into an infinite loop. (Bug
-       8360)
-
-       Versions affected: 1.8.0 to 1.8.5.
-
-       CVE-2013-2476
-
-     o wnpa-sec-2013-12
-
-       The CSN.1 dissector could crash. Discovered by Laurent Butti.
-       (Bug 8383)
-
-       Versions affected: 1.8.0 to 1.8.5.
-
-       CVE-2013-2477
-
-     o wnpa-sec-2013-13
-
-       The MS-MMS dissector could crash. Discovered by Laurent Butti.
-       (Bug 8382)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2478
-
-     o wnpa-sec-2013-14
-
-       The MPLS Echo dissector could go into an infinite loop.
-       Discovered by Laurent Butti. (Bug 8039)
-
-       Versions affected: 1.8.0 to 1.8.5.
-
-       CVE-2013-2479
-
-     o wnpa-sec-2013-15
-
-       The RTPS and RTPS2 dissectors could crash. Discovered by
-       Alyssa Milburn. (Bug 8332)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2480
-
-     o wnpa-sec-2013-16
-
-       The Mount dissector could crash. Discovered by Alyssa Milburn.
-       (Bug 8335)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2481
-
-     o wnpa-sec-2013-17
-
-       The AMPQ dissector could go into an infinite loop. Discovered
-       by Moshe Kaplan. (Bug 8337)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2482
-
-     o wnpa-sec-2013-18
-
-       The ACN dissector could attempt to divide by zero. Discovered
-       by Alyssa Milburn. (Bug 8340)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2483
-
-     o wnpa-sec-2013-19
-
-       The CIMD dissector could crash. Discovered by Moshe Kaplan.
-       (Bug 8346)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2484
-
-     o wnpa-sec-2013-20
-
-       The FCSP dissector could go into an infinite loop. Discovered
-       by Moshe Kaplan. (Bug 8359)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2485
-
-     o wnpa-sec-2013-21
+     o wnpa-sec-2013-23
 
        The RELOAD dissector could go into an infinite loop.
-       Discovered by Even Jensen. (Bug 8364)
+       Discovered by Evan Jensen. (Bug 8364, (Bug 8546)
 
-       Versions affected: 1.8.0 to 1.8.5.
+       Versions affected: 1.8.0 to 1.8.6.
 
        CVE-2013-2486
 
        CVE-2013-2487
 
-     o wnpa-sec-2013-22
+     o wnpa-sec-2013-24
 
-       The DTLS dissector could crash. Discovered by Laurent Butti.
-       (Bug 8380)
+       The GTPv2 dissector could crash. (Bug 8493)
 
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+       Versions affected: 1.8.0 to 1.8.6.
 
-       CVE-2013-2488
+     o wnpa-sec-2013-25
+
+       The ASN.1 BER dissector could crash. (Bug 8599)
+
+       Versions affected: 1.8.0 to 1.8.6, 1.6.0 to 1.6.14.
+
+     o wnpa-sec-2013-26
+
+       The PPP CCP dissector could crash. (Bug 8638)
+
+       Versions affected: 1.8.0 to 1.8.6.
+
+     o wnpa-sec-2013-27
+
+       The DCP ETSI dissector could crash. Discovered by Evan Jensen.
+       (Bug 8231, bug 8540, bug 8541)
+
+       Versions affected: 1.8.0 to 1.8.6.
+
+     o wnpa-sec-2013-28
+
+       The MPEG DSM-CC dissector could crash. (Bug 8481)
+
+       Versions affected: 1.8.0 to 1.8.6.
+
+     o wnpa-sec-2013-29
+
+       The Websocket dissector could crash. Discovered by Moshe
+       Kaplan. (Bug 8448, Bug 8499)
+
+       Versions affected: 1.8.0 to 1.8.6.
+
+     o wnpa-sec-2013-30
+
+       The MySQL dissector could go into an infinite loop. Discovered
+       by Moshe Kaplan. (Bug 8458)
+
+       Versions affected: 1.8.0 to 1.8.6.
+
+     o wnpa-sec-2013-31
+
+       The ETCH dissector could go into a large loop. Discovered by
+       Moshe Kaplan. (Bug 8464)
+
+       Versions affected: 1.8.0 to 1.8.6.
 
    The following bugs have been fixed:
 
-     o Lua pinfo.cols.protocol not holding value in postdissector.
-       (Bug 6020)
+     o The Windows installer and uninstaller does a better job of
+       detecting running executables.
 
-     o data combined via ssl_desegment_app_data not visible via
-       "Follow SSL Stream" only decrypted ssl data tabs. (Bug 6434)
+     o Library mismatch when compiling on a system with an older
+       Wireshark version. (Bug 6011)
 
-     o HTTP application/json-rpc should be decoded/shown as
-       application/json. (Bug 7939)
+     o SNMP dissector bug: STATUS_INTEGER_DIVIDE_BY_ZERO. (Bug 7359)
 
-     o Maximum value of 802.11-2012 Duration field should be 32767.
-       (Bug 8056)
+     o A console window is never opened. (Bug 7755)
 
-     o Voice RTP player crash if player is closed while playing. (Bug
-       8065)
+     o GSM_MAP show malformed Packets when two IMSI. (Bug 7882)
 
-     o Display Filter Macros crash. (Bug 8073)
+     o Fix include and libs search path when cross compiling. (Bug
+       7926)
 
-     o RRC RadioBearerSetup message decoding issue. (Bug 8290)
+     o PER dissector crash. (Bug 8197)
 
-     o R-click filters add ! in front of field when choosing "apply
-       as filter>selected". (Bug 8297)
-
-     o BACnet - Loop Object - Setpoint-Reference property does not
-       decode correctly. (Bug 8306)
-
-     o WMM TSPEC Element Parsing is not done is wrong due to a wrong
-       switch case number. (Bug 8320)
+     o pcap-ng: name resolution block is not written to file on save.
+       (Bug 8317)
 
      o Incorrect RTP statistics (Lost Packets indication not ok).
        (Bug 8321)
 
-     o Registering ieee802154 dissector for IEEE802.15.4 frames
-       inside Linux SLL frames. (Bug 8325)
+     o Decoding of GSM MAP E164 Digits. (Bug 8450)
 
-     o Version Field is skipped while parsing WMM_TSPEC causing wrong
-       dissecting (1 byte offset missing) of all fields in the TSPEC.
-       (Bug 8330)
+     o Silent installer and uninstaller not silent. (Bug 8451)
 
-     o [BACnet] UCS-2 strings longer than 127 characters do not
-       decode correctly. (Bug 8331)
+     o Replace use of INCLUDES with AM_CPPFLAGS in all Makefiles to
+       placate recent autotools. (Bug 8452)
 
-     o Malformed IEEE80211 frame triggers DISSECTOR_ASSERT. (Bug
-       8345)
+     o Wifi details are not stored in the Decryption Key Management
+       dialog (post 1.8.x). (Bug 8446)
 
-     o Decoding of GSM MAP SMS Diagnostics. (Bug 8378)
+     o IO Graph should not be limited to 100k points (NUM_IO_ITEMS).
+       (Bug 8460)
 
-     o Incorrect packet length displayed for Flight Message Transfer
-       Protocol (FMTP). (Bug 8407)
+     o geographical_description: hf_gsm_a_geo_loc_deg_of_long 24 bit
+       field truncated to 23 bits. (Bug 8532)
 
-     o Netflow dissector flowDurationMicroseconds nanosecond
-       conversion wrong. (Bug 8410)
+     o IRC message with multiple params causes malformed packet
+       exception. (Bug 8548)
 
-     o BE (3) AC is wrongly named as "Video" in (qos_acs). (Bug 8432)
+     o Part of Ping Reply Message in ICMPv6 Reply Message is marked
+       as "Malformed Packet". (Bug 8554)
+
+     o MP2T wiretap heuristic overriding ERF. (Bug 8556)
+
+     o Cannot read content of Ran Information Application Error Rim
+       Container. (Bug 8559)
+
+     o Endian error and IP:Port error when decoding BT-DHT response
+       message. (Bug 8572)
+
+     o "ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY" should be
+       "ACE4_APPEND_DATA / ACE4_ADD_SUBDIRECTORY". (Bug 8575)
+
+     o wireshark crashes while displaying I/O Graph. (Bug 8583)
+
+     o GTPv2 MM Context (UMTS Key, Quad, and Quint Decoded)
+       incorrectly. (Bug 8596)
+
+     o DTLS 1.2 uses wrong PRF. (Bug 8608)
+
+     o RTP DTMF digits are no longer displayed in VoIP graph
+       analysis. (Bug 8610)
+
+     o Universal port not accepted in RSA Keys List window. (Bug
+       8618)
+
+     o Wireshark Dissector bug with HSRP Version 2. (Bug 8622)
+
+     o LISP control packet incorrectly identified as LISP data based
+       when UDP source port is 4341. (Bug 8627)
+
+     o Bad tcp checksum not detected. (Bug 8629)
+
+     o AMR Frame Type uses wrong Value String. (Bug 8681)
 
   New and Updated Features
 
@@ -198,14 +167,14 @@ What's New
 
   Updated Protocol Support
 
-   ACN, AMQP, ASN.1 PER, BACnet, CIMD, CSN.1, DOCSIS TLVs, DTLS,
-   FCSP, FMP/NOTIFY, FMTP, GSM MAP SMS, HART/IP, IEEE 802.11, IEEE
-   802.15.4, JSON, Linux SLL, LTE RRC, Mount, MPLS Echo, Netflow,
-   RELOAD, RSL, RTP, RTPS, RTPS2, SABP, SIP, SSL, TCP
+   AMR, ASN.1 BER, BAT, Bluetooth DHT, BSSGP, DTLS, E.164, Ericsson
+   A-bis OML, GSM A, GSM MAP, HDFSDATA, ICMP, ICMPv6, ixveriwave,
+   IRC, KDSP, LISP Data, MMS, NFS, OpenWire, PPP, RELOAD, RTP, SASP,
+   SIP, SSL/TLS, TCP, UA3G
 
   New and Updated Capture File Support
 
-   .
+   Endace ERF, NetScreen snoop.
 
 Getting Wireshark
 
