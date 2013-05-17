@@ -956,7 +956,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			 "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
 			 cmd_str,
-			 ((flags_bits>>4)&0x08) ? "Request" : "Answer",
+			 ((flags_bits>>4)&0x08) ? " Request" : " Answer",
 			 cmd,
 			 msgflags_str[((flags_bits>>4)&0x0f)],
 			 c->version_rfc ? "appl" : "vend",
@@ -964,6 +964,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 fourth,
 			 tvb_get_ntohl(tvb,12),
 			 tvb_get_ntohl(tvb,16));
+
+	col_append_str(pinfo->cinfo, COL_INFO, " | ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	/* Append name to command item, warn if unknown */
 	proto_item_append_text(cmd_item," %s", cmd_str);
