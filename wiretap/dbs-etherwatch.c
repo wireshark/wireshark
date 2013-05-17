@@ -210,6 +210,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	offset = dbs_etherwatch_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
 		return FALSE;
+	*data_offset = offset;
 
 	/* Make sure we have enough room for the packet */
 	buffer_assure_space(wth->frame_buffer, DBS_ETHERWATCH_MAX_PACKET_LEN);
@@ -221,12 +222,6 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	if (pkt_len == -1)
 		return FALSE;
 
-	/*
-	 * We don't have an FCS in this frame.
-	 */
-	wth->phdr.pseudo_header.eth.fcs_len = 0;
-
-	*data_offset = offset;
 	return TRUE;
 }
 
@@ -236,7 +231,6 @@ dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	pkt_len;
 
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
@@ -253,11 +247,6 @@ dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
 		}
 		return FALSE;
 	}
-
-	/*
-	 * We don't have an FCS in this frame.
-	 */
-	pseudo_header->eth.fcs_len = 0;
 
 	return TRUE;
 }
@@ -476,6 +465,11 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, guint8* buf,
 	phdr->ts.nsecs = csec * 10000000;
 	phdr->caplen = eth_hdr_len + pkt_len;
 	phdr->len = eth_hdr_len + pkt_len;
+
+	/*
+	 * We don't have an FCS in this frame.
+	 */
+	phdr->pseudo_header.eth.fcs_len = 0;
 
 	/* Parse the hex dump */
 	count = 0;
