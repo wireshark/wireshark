@@ -1,4 +1,4 @@
-Wireshark 1.6.14 Release Notes
+Wireshark 1.6.15 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,115 +14,37 @@ What's New
 
    The following vulnerability has been fixed.
 
-     o wnpa-sec-2012-32
+     o wnpa-sec-2013-25
 
-       The sFlow dissector could go into an infinite loop. (Bug 7789)
+       The ASN.1 BER dissector could crash. (Bug 8599)
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.13.
-
-       CVE-2012-6054
-
-     o wnpa-sec-2012-33
-
-       The SCTP dissector could go into an infinite loop. (Bug 7802)
-
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.13.
-
-       CVE-2012-6056
-
-     o wnpa-sec-2013-13
-
-       The MS-MMS dissector could crash. Discovered by Laurent Butti.
-       (Bug 8382)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2478
-
-     o wnpa-sec-2013-15
-
-       The RTPS and RTPS2 dissectors could crash. Discovered by
-       Alyssa Milburn. (Bug 8332)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2480
-
-     o wnpa-sec-2013-16
-
-       The Mount dissector could crash. Discovered by Alyssa Milburn.
-       (Bug 8335)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2481
-
-     o wnpa-sec-2013-17
-
-       The AMPQ dissector could go into an infinite loop. Discovered
-       by Moshe Kaplan. (Bug 8337)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2482
-
-     o wnpa-sec-2013-18
-
-       The ACN dissector could attempt to divide by zero. Discovered
-       by Alyssa Milburn. (Bug 8340)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2483
-
-     o wnpa-sec-2013-19
-
-       The CIMD dissector could crash. Discovered by Moshe Kaplan.
-       (Bug 8346)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2484
-
-     o wnpa-sec-2013-20
-
-       The FCSP dissector could go into an infinite loop. Discovered
-       by Moshe Kaplan. (Bug 8359)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2485
-
-     o wnpa-sec-2013-22
-
-       The DTLS dissector could crash. Discovered by Laurent Butti.
-       (Bug 8380)
-
-       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
-
-       CVE-2013-2488
+       Versions affected: 1.8.0 to 1.8.6, 1.6.0 to 1.6.14.
 
    The following bugs have been fixed:
 
-     o Lua pinfo.cols.protocol not holding value in postdissector.
-       (Bug 6020)
+     o SNMP dissector bug: STATUS_INTEGER_DIVIDE_BY_ZERO. (Bug 7359)
 
-     o Data combined via ssl_desegment_app_data not visible via
-       "Follow SSL Stream" only decrypted ssl data tabs. (Bug 6434)
+     o A console window is never opened. (Bug 7755)
 
-     o HTTP application/json-rpc should be decoded/shown as
-       application/json. (Bug 7939)
+     o dissect_rpc_array causes assertion fault when array is empty.
+       (Bug 8145)
 
-     o WMM TSPEC Element Parsing is not done is wrong due to a wrong
-       switch case number. (Bug 8320)
+     o Decoding of GSM MAP E164 Digits. (Bug 8450)
 
-     o [BACnet] UCS-2 strings longer than 127 characters do not
-       decode correctly. (Bug 8331)
+     o Cannot read content of Ran Information Application Error Rim
+       Container. (Bug 8559)
 
-     o Netflow dissector flowDurationMicroseconds nanosecond
-       conversion wrong. (Bug 8410)
+     o "ACE4_ADD_FILE/ACE4_ADD_SUBDIRECTORY" should be
+       "ACE4_APPEND_DATA / ACE4_ADD_SUBDIRECTORY". (Bug 8575)
 
-     o BE (3) AC is wrongly named as "Video" in (qos_acs). (Bug 8432)
+     o Wireshark Dissector bug with HSRP Version 2. (Bug 8622)
+
+     o LISP control packet incorrectly identified as LISP data based
+       when UDP source port is 4341. (Bug 8627)
+
+     o Bad TCP checksum not detected. (Bug 8629)
+
+     o AMR Frame Type uses wrong Value String. (Bug 8681)
 
   New and Updated Features
 
@@ -134,12 +56,12 @@ What's New
 
   Updated Protocol Support
 
-   ACN, AMQP, BACnet, CIMD, DOCSIS TLVs, DTLS, FCSP, FMP/NOTIFY, IEEE
-   802.11, JSON, Mount, MS-MMS, Netflow, RTPS, RTPS2, SIP, SSL
+   AMR, ASN.1 BER, BAT, BSSGP, DTLS, E.164, GSM MAP, HSRP, LISP, NFS,
+   RPC, SASP, SIP, SNMP, SSL/TLS, TCP
 
   New and Updated Capture File Support
 
-   No new or updated capture file support.
+   Netscreen.
 
 Getting Wireshark
 
