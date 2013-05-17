@@ -442,19 +442,6 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	/* If the per-file encapsulation isn't known, set it to this
-	   packet's encapsulation.
-
-	   If it *is* known, and it isn't this packet's encapsulation,
-	   set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
-	   have a single encapsulation for all packets in the file. */
-	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-		wth->file_encap = wth->phdr.pkt_encap;
-	else {
-		if (wth->file_encap != wth->phdr.pkt_encap)
-			wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	}
-
 	/* Read the packet data */
 	buffer_assure_space( wth->frame_buffer, wth->phdr.caplen );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
