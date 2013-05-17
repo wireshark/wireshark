@@ -1660,23 +1660,23 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 		proto_tree_add_item(ninep_tree, hf_9P_blocks, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
+		tv.secs = (time_t)tvb_get_letoh64(tvb,offset);
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);
 		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 16, &tv);
 		offset += 16;
 
-		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
+		tv.secs = (time_t)tvb_get_letoh64(tvb,offset);
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 16, &tv);
 		offset += 16;
 
-		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
+		tv.secs = (time_t)tvb_get_letoh64(tvb,offset);
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);
 		proto_tree_add_time(ninep_tree, hf_9P_ctime, tvb, offset, 16, &tv);
 		offset += 16;
 
-		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
+		tv.secs = (time_t)tvb_get_letoh64(tvb,offset);
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);
 		proto_tree_add_time(ninep_tree, hf_9P_btime, tvb, offset, 16, &tv);
 		offset += 16;
 
@@ -1712,13 +1712,13 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 		proto_tree_add_item(ninep_tree, hf_9P_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
+		tv.secs = (time_t)tvb_get_letoh64(tvb,offset);
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);
 		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 16, &tv);
 		offset += 16;
 
-		tv.secs = tvb_get_letoh64(tvb,offset);
-		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);;
+		tv.secs = (time_t)tvb_get_letoh64(tvb,offset);
+		tv.nsecs = (guint32)tvb_get_letoh64(tvb,offset+8);
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 16, &tv);
 		offset += 16;
 
