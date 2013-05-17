@@ -581,8 +581,10 @@ struct _9p_tsetattr {
 	guint64 mtime_sec;
 	guint64 mtime_nsec;
 };
+#if 0
 struct _9p_rsetattr {
 };
+#endif
 struct _9p_txattrwalk {
 	guint32 fid;
 	guint32 attrfid;
@@ -597,8 +599,10 @@ struct _9p_txattrcreate {
 	guint64 size;
 	guint32 flag;
 };
+#if 0
 struct _9p_rxattrcreate {
 };
+#endif
 struct _9p_treaddir {
 	guint32 fid;
 	guint64 offset;
@@ -611,8 +615,10 @@ struct _9p_rreaddir {
 struct _9p_tfsync {
 	guint32 fid;
 };
+#if 0
 struct _9p_rfsync {
 };
+#endif
 struct _9p_tlock {
 	guint32 fid;
 	guint8 type;
@@ -713,8 +719,10 @@ struct _9p_rerror {
 struct _9p_tflush {
 	guint16 oldtag;
 };
+#if 0
 struct _9p_rflush {
 };
+#endif
 struct _9p_tattach {
 	guint32 fid;
 	guint32 afid;
@@ -775,17 +783,20 @@ struct _9p_rwrite {
 struct _9p_tclunk {
 	guint32 fid;
 };
+#if 0
 struct _9p_rclunk {
 };
+#endif
 struct _9p_tremove {
 	guint32 fid;
 };
+#if 0
 struct _9p_rremove {
 };
 
 union _9p_tmsg {
 } ;
-
+#endif
 #define NINEPORT 564
 
 /* Forward declarations */
