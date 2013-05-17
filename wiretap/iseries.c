@@ -383,7 +383,7 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
    * Locate the next packet
    */
   offset = iseries_seek_next_packet (wth, err, err_info);
-  if (offset < 1)
+  if (offset < 0)
     return FALSE;
 
   /*
@@ -401,8 +401,9 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
 
 /*
  * Seeks to the beginning of the next packet, and returns the
- * byte offset.  Returns -1 on failure, and sets *err to the error
- * and *err_info to null or an additional error string.
+ * byte offset.  Returns -1 on failure or EOF; on EOF, sets
+ * *err to 0, and, on failure, sets *err to the error and *err_info
+ * to null or an additional error string.
  */
 static gint64
 iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
@@ -413,22 +414,13 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
   gint64     cur_off;
   long       buflen;
 
-  /*
-   * Seeks to the beginning of the next packet, and returns the
-   * byte offset.  Returns -1 on failure, and sets *err to the error
-   * and *err_info to null or an additional error string.
-   */
   for (line = 0; line < ISERIES_MAX_TRACE_LEN; line++)
     {
       if (file_gets (buf, ISERIES_LINE_LENGTH, wth->fh) == NULL)
         {
           /* EOF or error. */
           *err = file_error (wth->fh, err_info);
-          if (*err != 0)
-            {
-              return -1;
-            }
-          return 0;
+          return -1;
         }
         /* Convert UNICODE to ASCII if required and determine    */
         /* the number of bytes to rewind to beginning of record. */
