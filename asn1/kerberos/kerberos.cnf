@@ -319,8 +319,8 @@ guint32 msgtype;
 	actx->value_ptr = key;
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									&keytype);
-	key->keytype = keytype;
+									&gbl_keytype);
+	key->keytype = gbl_keytype;
 
 #.FN_BODY EncryptionKey/keyvalue
 	kerberos_key_t* key = (kerberos_key_t*)actx->value_ptr;

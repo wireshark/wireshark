@@ -157,7 +157,7 @@ static dissector_handle_t krb4_handle=NULL;
 
 /* Global variables */
 static guint32 krb5_errorcode;
-static guint32 keytype;
+static guint32 gbl_keytype;
 static gboolean gbl_do_col_info;
 
 static void
@@ -1315,7 +1315,7 @@ static const true_false_string tfs_gss_flags_dce_style = {
 #ifdef HAVE_KERBEROS
 static int
 dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-									proto_tree *tree, int hf_index)
+									proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1350,7 +1350,7 @@ dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 
 static int
 dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-											proto_tree *tree, int hf_index)
+											proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1391,7 +1391,7 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 
 static int
 dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-									proto_tree *tree, int hf_index)
+									proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1437,7 +1437,7 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 
 static int
 dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-										proto_tree *tree, int hf_index)
+										proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1473,7 +1473,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int 
 
 static int
 dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-									proto_tree *tree, int hf_index)
+									proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1508,7 +1508,7 @@ dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 
 static int
 dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-									proto_tree *tree, int hf_index)
+									proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1543,7 +1543,7 @@ dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 
 static int
 dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
-									proto_tree *tree, int hf_index)
+									proto_tree *tree, int hf_index _U_)
 {
 	guint8 *plaintext;
 	int length;
@@ -1841,7 +1841,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 guint32
 kerberos_output_keytype(void)
 {
-	return keytype;
+	return gbl_keytype;
 }
 
 static gint
