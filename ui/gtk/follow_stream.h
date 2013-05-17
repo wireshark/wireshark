@@ -80,7 +80,7 @@ typedef struct {
 	GtkWidget	*filter_te;
 	GtkWidget	*streamwindow;
         GList           *payload;
-        guint           bytes_written[2];
+        guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
         guint           client_port;
         address         client_ip;
 } follow_info_t;

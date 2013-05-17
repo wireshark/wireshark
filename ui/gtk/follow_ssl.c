@@ -68,61 +68,65 @@
 
 
 typedef struct {
-    gboolean is_server;
+    gboolean   is_from_server;
     StringInfo data;
 } SslDecryptedRecord;
 
 static int
 ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
-    follow_info_t* follow_info = (follow_info_t*)tapdata;
-    SslDecryptedRecord* rec;
-    SslDataInfo* appl_data;
-    gint total_len;
-    guchar *p;
-    int proto_ssl = GPOINTER_TO_INT(ssl);
-    SslPacketInfo* pi = (SslPacketInfo*)p_get_proto_data(pinfo->fd, proto_ssl, 0);
+    follow_info_t *      follow_info = (follow_info_t*) tapdata;
+    SslDecryptedRecord * rec = NULL;
+    SslDataInfo *        appl_data = NULL;
+    int                  proto_ssl = GPOINTER_TO_INT(ssl);
+    SslPacketInfo *      pi = NULL;
+    show_stream_t        from = FROM_CLIENT;
 
-    /* skip packet without decrypted data payload*/
-    if (!pi || !pi->appl_data)
-        return 0;
+    /* Skip packets without decrypted payload data. */
+    pi = (SslPacketInfo*) p_get_proto_data(pinfo->fd, proto_ssl, 0);
+    if (!pi || !pi->appl_data) return 0;
 
-    /* compute total length */
-    total_len = 0;
-    appl_data = pi->appl_data;
-    do {
-      total_len += appl_data->plain_data.data_len;
-      appl_data = appl_data->next;
-    } while (appl_data);
-
-    /* compute packet direction */
-    rec = (SslDecryptedRecord*)g_malloc(sizeof(SslDecryptedRecord) + total_len);
-
+    /* Compute the packet's sender. */
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
         COPY_ADDRESS(&follow_info->client_ip, &pinfo->src);
     }
     if (ADDRESSES_EQUAL(&follow_info->client_ip, &pinfo->src) &&
-        follow_info->client_port == pinfo->srcport)
-        rec->is_server = 0;
-    else
-        rec->is_server = 1;
+            follow_info->client_port == pinfo->srcport) {
+        from = FROM_CLIENT;
+    } else {
+        from = FROM_SERVER;
+    }
 
-    /* update stream counter */
-    follow_info->bytes_written[rec->is_server] += total_len;
+    for (appl_data = pi->appl_data; appl_data != NULL; appl_data = appl_data->next) {
 
-    /* extract decrypted data and queue it locally */
-    rec->data.data = (guchar*)(rec + 1);
-    rec->data.data_len = total_len;
-    appl_data = pi->appl_data;
-    p = rec->data.data;
-    do {
-      memcpy(p, appl_data->plain_data.data, appl_data->plain_data.data_len);
-      p += appl_data->plain_data.data_len;
-      appl_data = appl_data->next;
-    } while (appl_data);
-    follow_info->payload = g_list_append(
-        follow_info->payload,rec);
+        /* TCP segments that contain the end of two or more SSL PDUs will be
+           queued to SSL taps for each of those PDUs. Therefore a single
+           packet could be processed by this SSL tap listener multiple times.
+           The following test handles that scenario by treating the
+           follow_info->bytes_written[] values as the next expected
+           appl_data->seq. Any appl_data instances that fall below that have
+           already been processed and must be skipped. */
+        if (appl_data->seq < follow_info->bytes_written[from]) continue;
+
+        /* Allocate a SslDecryptedRecord to hold the current appl_data
+           instance's decrypted data. Even though it would be possible to
+           consolidate multiple appl_data instances into a single rec, it is
+           beneficial to use a one-to-one mapping. This affords the Follow
+           Stream dialog view modes (ASCII, EBCDIC, Hex Dump, C Arrays, Raw)
+           the opportunity to accurately reflect SSL PDU boundaries. Currently
+           the Hex Dump view does by starting a new line, and the C Arrays
+           view does by starting a new array declaration. */
+        rec = (SslDecryptedRecord*) g_malloc(sizeof(SslDecryptedRecord) + appl_data->plain_data.data_len);
+        rec->is_from_server = from == FROM_SERVER;
+        rec->data.data = (guchar*) (rec + 1);
+        rec->data.data_len = appl_data->plain_data.data_len;
+        memcpy(rec->data.data, appl_data->plain_data.data, appl_data->plain_data.data_len);
+
+        /* Append the record to the follow_info structure. */
+        follow_info->payload = g_list_append(follow_info->payload, rec);
+        follow_info->bytes_written[from] += rec->data.data_len;
+    }
 
     return 0;
 }
@@ -137,18 +141,27 @@ packet_is_ssl(epan_dissect_t* edt);
 void
 follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget	*filter_te, *filter_cm;
-    gchar	*follow_filter;
-    const gchar	*previous_filter;
-    int		filter_out_filter_len, previous_filter_len;
-    const char	*hostname0, *hostname1;
-    char	*port0, *port1;
-    gchar	*server_to_client_string = NULL;
-    gchar       *client_to_server_string = NULL;
-    gchar	*both_directions_string = NULL;
-    follow_stats_t stats;
-    follow_info_t *follow_info;
-    GString*    msg;
+    GtkWidget *     filter_te;
+    GtkWidget *     filter_cm;
+    gchar *         follow_filter;
+    const gchar *   previous_filter;
+    int             filter_out_filter_len;
+    int             previous_filter_len;
+    const char *    hostname0;
+    const char *    hostname1;
+    const char *    port0;
+    const char *    port1;
+    const char *    client_hostname;
+    const char *    server_hostname;
+    const char *    client_port;
+    const char *    server_port;
+    gchar *         server_to_client_string = NULL;
+    gchar *         client_to_server_string = NULL;
+    gchar *         both_directions_string = NULL;
+    const gchar *   single_direction_format = NULL;
+    follow_stats_t  stats;
+    follow_info_t * follow_info;
+    GString *       msg;
 
     /* we got ssl so we can follow */
     if (!packet_is_ssl(cfile.edt)) {
@@ -245,35 +258,34 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     follow_info->is_ipv6 = stats.is_ipv6;
 
-   /* Both Stream Directions */
+    /* Generate the strings for the follow stream dialog's combo box,
+       starting with both directions... */
     both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
 
-    if(follow_info->client_port == stats.port[0]) {
-	    server_to_client_string =
-		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-				    hostname0, port0,
-				    hostname1, port1,
-				    follow_info->bytes_written[0]);
-
-	    client_to_server_string =
-		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-				    hostname1, port1,
-				    hostname0, port0,
-				    follow_info->bytes_written[1]);
+    /* ...and then the server-to-client and client-to-server directions. */
+    if (follow_info->client_port == stats.port[0]) {
+        server_hostname = hostname1;
+        server_port = port1;
+        client_hostname = hostname0;
+        client_port = port0;
     } else {
-	    server_to_client_string =
-		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-				    hostname1, port1,
-				    hostname0, port0,
-				    follow_info->bytes_written[0]);
-
-	    client_to_server_string =
-		    g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-				    hostname0, port0,
-				    hostname1, port1,
-				    follow_info->bytes_written[1]);
+        server_hostname = hostname0;
+        server_port = port0;
+        client_hostname = hostname1;
+        client_port = port1;
     }
 
+    single_direction_format = "%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)";
+    server_to_client_string = g_strdup_printf(single_direction_format,
+        server_hostname, server_port,
+        client_hostname, client_port,
+        follow_info->bytes_written[0]);
+    client_to_server_string = g_strdup_printf(single_direction_format,
+        client_hostname, client_port,
+        server_hostname, server_port,
+        follow_info->bytes_written[1]);
+
+    /* Invoke the dialog. */
     follow_stream("Follow SSL Stream", follow_info, both_directions_string,
 		  server_to_client_string, client_to_server_string);
 
@@ -303,43 +315,41 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
  */
 frs_return_t
 follow_read_ssl_stream(follow_info_t *follow_info,
-		       gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
-		       void *arg)
+               gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+               void *arg)
 {
-    guint32		global_client_pos = 0, global_server_pos = 0;
-    guint32		server_packet_count = 0;
-    guint32		client_packet_count = 0;
-    guint32		*global_pos;
-    gboolean		skip;
-    GList* cur;
-    frs_return_t        frs_return;
+    guint32      global_client_pos = 0, global_server_pos = 0;
+    guint32      server_packet_count = 0;
+    guint32      client_packet_count = 0;
+    guint32 *    global_pos;
+    GList *      cur;
+    frs_return_t frs_return;
 
     for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
-        SslDecryptedRecord* rec = (SslDecryptedRecord*)cur->data;
-	skip = FALSE;
-	if (!rec->is_server) {
-	    global_pos = &global_client_pos;
-	    if (follow_info->show_stream == FROM_SERVER) {
-		skip = TRUE;
-	    }
-	} else {
-	    global_pos = &global_server_pos;
-	    if (follow_info->show_stream == FROM_CLIENT) {
-		skip = TRUE;
-	    }
-	}
+        SslDecryptedRecord * rec = (SslDecryptedRecord*) cur->data;
+        gboolean             include_rec = FALSE;
 
-        if (!skip) {
+        if (rec->is_from_server) {
+            global_pos = &global_server_pos;
+            include_rec = (follow_info->show_stream == BOTH_HOSTS) ||
+                (follow_info->show_stream == FROM_SERVER);
+        } else {
+            global_pos = &global_client_pos;
+            include_rec = (follow_info->show_stream == BOTH_HOSTS) ||
+                (follow_info->show_stream == FROM_CLIENT);
+        }
+
+        if (include_rec) {
             size_t nchars = rec->data.data_len;
             gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
 
-	    frs_return = follow_show(follow_info, print_line_fcn_p, buffer, nchars,
-				     rec->is_server, arg, global_pos,
-				     &server_packet_count, &client_packet_count);
-	    g_free(buffer);
-	    if(frs_return == FRS_PRINT_ERROR)
-		    return frs_return;
-	}
+            frs_return = follow_show(follow_info, print_line_fcn_p, buffer, nchars,
+                rec->is_from_server, arg, global_pos,
+                &server_packet_count, &client_packet_count);
+            g_free(buffer);
+            if (frs_return == FRS_PRINT_ERROR)
+                return frs_return;
+        }
     }
 
     return FRS_OK;

@@ -100,7 +100,7 @@ follow_read_stream(follow_info_t *follow_info,
 }
 
 gboolean
-follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
+follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_from_server,
 		       void *arg)
 {
 	GtkWidget *text = (GtkWidget *)arg;
@@ -123,7 +123,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 	}
 
 	gtk_text_buffer_get_end_iter(buf, &iter);
-	if (is_server) {
+	if (is_from_server) {
 		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, (gint) nchars,
 						 server_tag, NULL);
 	} else {
@@ -141,7 +141,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
  * suggestion.
  */
 static gboolean
-follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
+follow_print_text(char *buffer, size_t nchars, gboolean is_from_server _U_,
 		  void *arg)
 {
 	print_stream_t *stream = (print_stream_t *)arg;
@@ -168,7 +168,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 }
 
 static gboolean
-follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
+follow_write_raw(char *buffer, size_t nchars, gboolean is_from_server _U_, void *arg)
 {
 	FILE *fh = (FILE *)arg;
 	size_t nwritten;
@@ -636,11 +636,11 @@ follow_stream_direction_changed(GtkWidget *w, gpointer data)
 		follow_load_text(follow_info);
 		break;
 	case 1 :
-		follow_info->show_stream = FROM_CLIENT;
+		follow_info->show_stream = FROM_SERVER;
 		follow_load_text(follow_info);
 		break;
 	case 2 :
-		follow_info->show_stream = FROM_SERVER;
+		follow_info->show_stream = FROM_CLIENT;
 		follow_load_text(follow_info);
 		break;
 	}
@@ -932,7 +932,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 frs_return_t
 follow_show(follow_info_t *follow_info,
 	    gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
-	    char *buffer, size_t nchars, gboolean is_server, void *arg,
+	    char *buffer, size_t nchars, gboolean is_from_server, void *arg,
 	    guint32 *global_pos, guint32 *server_packet_count,
 	    guint32 *client_packet_count)
 {
@@ -945,7 +945,7 @@ follow_show(follow_info_t *follow_info,
 	case SHOW_EBCDIC:
 		/* If our native arch is ASCII, call: */
 		EBCDIC_to_ASCII(buffer, (guint) nchars);
-		if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
+		if (!(*print_line_fcn_p) (buffer, nchars, is_from_server, arg))
 			return FRS_PRINT_ERROR;
 		break;
 
@@ -953,7 +953,7 @@ follow_show(follow_info_t *follow_info,
 		/* If our native arch is EBCDIC, call:
 		 * ASCII_TO_EBCDIC(buffer, nchars);
 		 */
-		if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
+		if (!(*print_line_fcn_p) (buffer, nchars, is_from_server, arg))
 			return FRS_PRINT_ERROR;
 		break;
 
@@ -961,7 +961,7 @@ follow_show(follow_info_t *follow_info,
 		/* Don't translate, no matter what the native arch
 		 * is.
 		 */
-		if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
+		if (!(*print_line_fcn_p) (buffer, nchars, is_from_server, arg))
 			return FRS_PRINT_ERROR;
 		break;
 
@@ -972,10 +972,10 @@ follow_show(follow_info_t *follow_info,
 			int i;
 			gchar *cur = hexbuf, *ascii_start;
 
-			/* is_server indentation : put 4 spaces at the
+			/* is_from_server indentation : put 4 spaces at the
 			 * beginning of the string */
 			/* XXX - We might want to prepend each line with "C" or "S" instead. */
-			if (is_server && follow_info->show_stream == BOTH_HOSTS) {
+			if (is_from_server && follow_info->show_stream == BOTH_HOSTS) {
 				memset(cur, ' ', 4);
 				cur += 4;
 			}
@@ -1008,7 +1008,7 @@ follow_show(follow_info_t *follow_info,
 			(*global_pos) += i;
 			*cur++ = '\n';
 			*cur = 0;
-			if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_server, arg))
+			if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_from_server, arg))
 				return FRS_PRINT_ERROR;
 		}
 		break;
@@ -1016,9 +1016,9 @@ follow_show(follow_info_t *follow_info,
 	case SHOW_CARRAY:
 		current_pos = 0;
 		g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n",
-			   is_server ? 1 : 0,
-			   is_server ? (*server_packet_count)++ : (*client_packet_count)++);
-		if (!(*print_line_fcn_p) (initbuf, strlen(initbuf), is_server, arg))
+			   is_from_server ? 1 : 0,
+			   is_from_server ? (*server_packet_count)++ : (*client_packet_count)++);
+		if (!(*print_line_fcn_p) (initbuf, strlen(initbuf), is_from_server, arg))
 			return FRS_PRINT_ERROR;
 
 		while (current_pos < nchars) {
@@ -1052,7 +1052,7 @@ follow_show(follow_info_t *follow_info,
 			(*global_pos) += i;
 			hexbuf[cur++] = '\n';
 			hexbuf[cur] = 0;
-			if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_server, arg))
+			if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_from_server, arg))
 				return FRS_PRINT_ERROR;
 		}
 		break;
