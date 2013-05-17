@@ -61,7 +61,7 @@ enum {
 static GtkWidget *global_profile_w = NULL;
 
 #define PROF_OPERATION_NEW  1
-#define PROF_OPERATION_EDIT 2
+#define PROF_OPERATION_RENAME 2
 
 
 static GtkTreeIter *
@@ -656,18 +656,18 @@ profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_)
     GtkWidget *change_menu = menus_get_profiles_change_menu();
 
 #if GTK_CHECK_VERSION(2,16,0)
-    GtkWidget *edit_menu = menus_get_profiles_edit_menu();
+    GtkWidget *rename_menu = menus_get_profiles_rename_menu();
     GtkWidget *delete_menu = menus_get_profiles_delete_menu();
     if (strcmp(profile_name, DEFAULT_PROFILE) != 0) {
       gchar *label;
-      label = g_strdup_printf("Edit \"%s\"...", profile_name);
-      gtk_menu_item_set_label(GTK_MENU_ITEM(edit_menu), label);
+      label = g_strdup_printf("Rename \"%s\"...", profile_name);
+      gtk_menu_item_set_label(GTK_MENU_ITEM(rename_menu), label);
       g_free(label);
       label = g_strdup_printf("Delete \"%s\"", profile_name);
       gtk_menu_item_set_label(GTK_MENU_ITEM(delete_menu), label);
       g_free(label);
     } else {
-      gtk_menu_item_set_label(GTK_MENU_ITEM(edit_menu), "Edit...");
+      gtk_menu_item_set_label(GTK_MENU_ITEM(rename_menu), "Rename...");
       gtk_menu_item_set_label(GTK_MENU_ITEM(delete_menu), "Delete");
     }
 #endif
@@ -749,7 +749,7 @@ profile_name_edit_ok(GtkWidget *w _U_, gpointer parent_w)
       gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &profile_name, 1, &from_global, -1);
     }
     break;
-  case PROF_OPERATION_EDIT:
+  case PROF_OPERATION_RENAME:
     profile_name = get_profile_name();
     if (strcmp(new_name, profile_name) == 0) {
       /* Rename without a change, do nothing */
@@ -793,7 +793,7 @@ profile_name_edit_ok(GtkWidget *w _U_, gpointer parent_w)
       change_configuration_profile(new_name);
     }
     break;
-  case PROF_OPERATION_EDIT:
+  case PROF_OPERATION_RENAME:
     if (rename_persconffile_profile(profile_name, new_name,
                                     &pf_dir_path, &pf_dir_path2) == -1) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -814,13 +814,13 @@ profile_name_edit_ok(GtkWidget *w _U_, gpointer parent_w)
 }
 
 static void
-profile_name_edit_cancel(GtkWidget *w _U_, gpointer parent_w)
+profile_rename_cancel(GtkWidget *w _U_, gpointer parent_w)
 {
   window_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
-profile_name_edit_dlg(gint operation)
+profile_manage_profiles_dlg(gint operation)
 {
   GtkWidget       *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
   GtkWidget       *entry, *label;
@@ -840,8 +840,8 @@ profile_name_edit_dlg(gint operation)
   case PROF_OPERATION_NEW:
     window_title = g_strdup("Create New Profile");
     break;
-  case PROF_OPERATION_EDIT:
-    window_title = g_strdup_printf("Edit: %s", profile_name);
+  case PROF_OPERATION_RENAME:
+    window_title = g_strdup_printf("Rename: %s", profile_name);
     break;
   default:
     g_assert_not_reached();
@@ -928,7 +928,7 @@ profile_name_edit_dlg(gint operation)
   case PROF_OPERATION_NEW:
     gtk_entry_set_text(GTK_ENTRY(entry), "New profile");
     break;
-  case PROF_OPERATION_EDIT:
+  case PROF_OPERATION_RENAME:
     gtk_entry_set_text(GTK_ENTRY(entry), profile_name);
     break;
   default:
@@ -956,7 +956,7 @@ profile_name_edit_dlg(gint operation)
   gtk_widget_grab_focus(entry);
 
   cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_name_edit_cancel), win);
+  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_rename_cancel), win);
   window_set_cancel_button(win, cancel_bt, NULL);
 
   gtk_widget_grab_default(ok_bt);
@@ -966,7 +966,7 @@ profile_name_edit_dlg(gint operation)
 void
 profile_new_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  profile_name_edit_dlg(PROF_OPERATION_NEW);
+  profile_manage_profiles_dlg(PROF_OPERATION_NEW);
 }
 
 void
@@ -979,9 +979,9 @@ profile_delete_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 void
-profile_edit_cb(GtkWidget *w _U_, gpointer data _U_)
+profile_rename_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  profile_name_edit_dlg(PROF_OPERATION_EDIT);
+  profile_manage_profiles_dlg(PROF_OPERATION_RENAME);
 }
 
 /* Create a profile dialog for editing display profiles; this is to be used

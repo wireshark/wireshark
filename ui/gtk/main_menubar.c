@@ -3081,7 +3081,7 @@ static const char *ui_statusbar_profiles_menu_popup =
 "     <menuitem name='Profiles' action='/Profiles'/>\n"
 "     <separator/>\n"
 "     <menuitem name='New' action='/New'/>\n"
-"     <menuitem name='Edit' action='/Edit'/>\n"
+"     <menuitem name='Rename' action='/Rename'/>\n"
 "     <menuitem name='Delete' action='/Delete'/>\n"
 "     <separator/>\n"
 "     <menu name='Change' action='/Change'>\n"
@@ -3091,12 +3091,12 @@ static const char *ui_statusbar_profiles_menu_popup =
 "</ui>\n";
 static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 {
-    { "/Profiles",  NULL,   "Manage Profiles...",    NULL,   NULL,     G_CALLBACK(profile_dialog_cb) },
-    { "/New",   GTK_STOCK_NEW,  "New...",   NULL,   NULL,     G_CALLBACK(profile_new_cb) },
-    { "/Edit",  GTK_STOCK_EDIT, "Edit...",  NULL,   NULL,     G_CALLBACK(profile_edit_cb) },
-    { "/Delete",    GTK_STOCK_DELETE,   "Delete",   NULL,   NULL,     G_CALLBACK(profile_delete_cb) },
-    { "/Change",    NULL,       "Switch to",   NULL,   NULL,   NULL },
-    { "/Change/Default",    NULL,   "Default",  NULL,   NULL,     NULL },
+    { "/Profiles",       GTK_STOCK_INDEX,   "Manage Profiles...", NULL, NULL, G_CALLBACK(profile_dialog_cb) },
+    { "/New",            GTK_STOCK_NEW,     "New...",             NULL, NULL, G_CALLBACK(profile_new_cb) },
+    { "/Rename",         GTK_STOCK_EDIT,    "Rename...",          NULL, NULL, G_CALLBACK(profile_rename_cb) },
+    { "/Delete",         GTK_STOCK_DELETE,  "Delete",             NULL, NULL, G_CALLBACK(profile_delete_cb) },
+    { "/Change",         GTK_STOCK_JUMP_TO, "Switch to",          NULL, NULL, NULL },
+    { "/Change/Default", NULL,              "Default",            NULL, NULL, NULL },
 };
 
 GtkWidget *
@@ -5739,9 +5739,9 @@ void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean 
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
 }
 
-GtkWidget *menus_get_profiles_edit_menu (void)
+GtkWidget *menus_get_profiles_rename_menu (void)
 {
-    return gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Edit");
+    return gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Rename");
 }
 
 GtkWidget *menus_get_profiles_delete_menu (void)
@@ -5756,7 +5756,7 @@ GtkWidget *menus_get_profiles_change_menu (void)
 
 void set_menus_for_profiles(gboolean default_profile)
 {
-    set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Edit", !default_profile);
+    set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Rename", !default_profile);
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete", !default_profile);
 }
 
