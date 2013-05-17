@@ -320,7 +320,6 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	}
 
 	DISSECTOR_ASSERT(datalen>0);
-	buf = ep_alloc0(datalen);
 
 	/* if at least one trailing byte is available, we must use the content
  	* of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1
@@ -329,11 +328,19 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
  	*/
 	if (tvb_length_remaining(tvb, byte_offset) > datalen) {
 		data = tvb_get_ptr(tvb, byte_offset, datalen + 1);
+
+		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
+		buf = (guint8 *)g_malloc(datalen);
+
 		/* shift tvb data bit_offset bits to the left */
 		for (i = 0; i < datalen; i++)
 			buf[i] = (data[i] << left) | (data[i+1] >> right);
 	} else {
 		data = tvb_get_ptr(tvb, byte_offset, datalen);
+
+		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
+		buf = (guint8 *)g_malloc(datalen);
+
 		/* shift tvb data bit_offset bits to the left */
 		for (i = 0; i < (datalen-1); i++)
 			buf[i] = (data[i] << left) | (data[i+1] >> right);
@@ -342,6 +349,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	buf[datalen-1] &= left_aligned_bitmask[remaining_bits];
 
 	sub_tvb = tvb_new_child_real_data(tvb, buf, datalen, datalen);
+	tvb_set_free_cb(sub_tvb, g_free);
 
 	return sub_tvb;
 }

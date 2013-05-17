@@ -39,7 +39,7 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-23.html">wnpa-sec-2013-23</ulink>
           </para>
           <para>
-	    The RELOAD dissector could go into an infinite loop. Discovered by Even Jensen.
+	    The RELOAD dissector could go into an infinite loop. Discovered by Evan Jensen.
             <!-- Fixed in trunk: r47805, r47808 -->
             <!-- Fixed in trunk-1.8: r48107, r48677  -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8364">Bug
@@ -114,8 +114,108 @@ Wireshark Info
 	  -->
         </listitem>
 
-      </itemizedlist>
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-27.html">wnpa-sec-2013-27</ulink>
+          </para>
+          <para>
+	    The DCP ETSI dissector could crash. Discovered by Evan Jensen.
+            <!-- Fixed in trunk: r47295, r48644 -->
+            <!-- Fixed in trunk-1.8: r48794, r48795 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8231">Bug
+            8231</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8540">bug
+            8540</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8541">bug
+            8541</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-28.html">wnpa-sec-2013-28</ulink>
+          </para>
+          <para>
+	    The MPEG DSM-CC dissector could crash.
+            <!-- Fixed in trunk: r48332 -->
+            <!-- Fixed in trunk-1.8: r48346 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8481">Bug
+	    8481</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-29.html">wnpa-sec-2013-29</ulink>
+          </para>
+          <para>
+	    The Websocket dissector could crash. Discovered by Moshe Kaplan.
+            <!-- Fixed in trunk: r48336 -->
+            <!-- Fixed in trunk-1.8: r48419 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8448">Bug
+            8448</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8499">Bug
+            8499</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-30.html">wnpa-sec-2013-30</ulink>
+          </para>
+          <para>
+	    The MySQL dissector could go into an infinite loop. Discovered by Moshe Kaplan.
+            <!-- Fixed in trunk: r48894 -->
+            <!-- Fixed in trunk-1.8: r49028 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8458">Bug
+            8458</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-31.html">wnpa-sec-2013-31</ulink>
+          </para>
+          <para>
+	    The ETCH dissector could go into a large loop. Discovered by Moshe Kaplan.
+            <!-- Fixed in trunk: r48919 -->
+            <!-- Fixed in trunk-1.8: r49028 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8464">Bug
+            8464</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.6.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+      </itemizedlist>
     </para>
 
     <para>
@@ -140,6 +240,12 @@ Wireshark Info
 	</para></listitem>
 
         <listitem><para>
+          Library mismatch when compiling on a system with an older Wireshark version.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6011">Bug
+          6011</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           SNMP dissector bug: STATUS_INTEGER_DIVIDE_BY_ZERO.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7359">Bug
           7359</ulink>)
@@ -155,6 +261,24 @@ Wireshark Info
           GSM_MAP show malformed Packets when two IMSI.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7882">Bug
           7882</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fix include and libs search path when cross compiling.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7926">Bug
+          7926</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          PER dissector crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8197">Bug
+          8197</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          pcap-ng: name resolution block is not written to file on save.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8317">Bug
+          8317</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -277,6 +401,18 @@ Wireshark Info
           8627</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Bad tcp checksum not detected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8629">Bug
+          8629</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          AMR Frame Type uses wrong Value String.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8681">Bug
+          8681</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -303,6 +439,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+AMR,
 ASN.1 BER,
 BAT,
 Bluetooth DHT,
