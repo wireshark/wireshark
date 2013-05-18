@@ -708,9 +708,9 @@ libpcap_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		else
 			phdr->ts.nsecs = hdr.hdr.ts_usec * 1000;
 	} else {
-	  /* Set interface ID for ERF format */
-	  wth->phdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
-	  wth->phdr.interface_id = wth->phdr.pseudo_header.erf.phdr.flags & 0x03;
+		/* Set interface ID for ERF format */
+		phdr->presence_flags |= WTAP_HAS_INTERFACE_ID;
+		phdr->interface_id = phdr->pseudo_header.erf.phdr.flags & 0x03;
 	}
 	phdr->caplen = packet_size;
 	phdr->len = orig_size;
