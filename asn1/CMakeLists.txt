@@ -62,6 +62,7 @@ set(ASN1_SRC_DIRS
 	idmp
 	inap
 	isdn-sup
+	kerberos
 	lcsap
 	ldap
 	logotypecertextn
@@ -123,8 +124,6 @@ set(ASN1_SRC_DIRS
 )
 
 set( BROKEN_ASN1_SRC_DIRS
-	# Kerberos is a handwritten dissecotr, don't replace
-	kerberos
 	# x721 does not build
 	x721
 )
