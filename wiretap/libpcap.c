@@ -651,7 +651,6 @@ libpcap_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	int bytes_read;
 	guint8 fddi_padding[3];
 	int phdr_len;
-	libpcap_t *libpcap;
 
 	bytes_read = libpcap_read_header(wth, fh, err, err_info, &hdr);
 	if (bytes_read == -1) {
@@ -686,7 +685,6 @@ libpcap_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			return FALSE;	/* Read error */
 	}
 
-	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(fh, wth->file_type,
 	    wth->file_encap, packet_size, TRUE, phdr, err, err_info);
 	if (phdr_len < 0)
