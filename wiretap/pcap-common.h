@@ -32,8 +32,8 @@
 #include "ws_symbol_export.h"
 
 extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
-    guint packet_size, gboolean check_packet_size, struct wtap_pkthdr *phdr,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+    guint packet_size, gboolean check_packet_size,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
 extern void pcap_read_post_process(int file_type, int wtap_encap,
     union wtap_pseudo_header *pseudo_header,

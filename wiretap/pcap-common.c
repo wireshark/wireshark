@@ -1484,8 +1484,8 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, i
 
 int
 pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
-    guint packet_size, gboolean check_packet_size, struct wtap_pkthdr *phdr,
-    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+    guint packet_size, gboolean check_packet_size,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
 	guint size;
@@ -1508,7 +1508,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 				return -1;
 			}
 			if (!pcap_read_nokiaatm_pseudoheader(fh,
-			    pseudo_header, err, err_info))
+			    &phdr->pseudo_header, err, err_info))
 				return -1;	/* Read error */
 
 			phdr_len = NOKIAATM_LEN;
@@ -1527,7 +1527,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 				return -1;
 			}
 			if (!pcap_read_sunatm_pseudoheader(fh,
-			    pseudo_header, err, err_info))
+			    &phdr->pseudo_header, err, err_info))
 				return -1;	/* Read error */
 
 			phdr_len = SUNATM_LEN;
@@ -1540,14 +1540,14 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			 * Nokia IPSO.  Psuedo header has already been read, but it's not considered
 			 * part of the packet size, so reread it to store the data for later (when saving)
 			 */
-			if (!pcap_read_nokia_pseudoheader(fh, pseudo_header, err, err_info))
+			if (!pcap_read_nokia_pseudoheader(fh, &phdr->pseudo_header, err, err_info))
 				return -1;	/* Read error */
 		}
 
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
 		 */
-		pseudo_header->eth.fcs_len = -1;
+		phdr->pseudo_header.eth.fcs_len = -1;
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11:
@@ -1559,11 +1559,11 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		 * XXX - are there any OSes where the capture mechanism
 		 * supplies an FCS?
 		 */
-		pseudo_header->ieee_802_11.fcs_len = -1;
-		pseudo_header->ieee_802_11.decrypted = FALSE;
-		pseudo_header->ieee_802_11.channel = 0;
-		pseudo_header->ieee_802_11.data_rate = 0;
-		pseudo_header->ieee_802_11.signal_level = 0;
+		phdr->pseudo_header.ieee_802_11.fcs_len = -1;
+		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
+		phdr->pseudo_header.ieee_802_11.channel = 0;
+		phdr->pseudo_header.ieee_802_11.data_rate = 0;
+		phdr->pseudo_header.ieee_802_11.signal_level = 0;
 		break;
 
 	case WTAP_ENCAP_IRDA:
@@ -1577,7 +1577,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			    packet_size);
 			return -1;
 		}
-		if (!pcap_read_irda_pseudoheader(fh, pseudo_header,
+		if (!pcap_read_irda_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
@@ -1595,7 +1595,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			    packet_size);
 			return -1;
 		}
-		if (!pcap_read_mtp2_pseudoheader(fh, pseudo_header,
+		if (!pcap_read_mtp2_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
@@ -1613,7 +1613,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			    packet_size);
 			return -1;
 		}
-		if (!pcap_read_lapd_pseudoheader(fh, pseudo_header,
+		if (!pcap_read_lapd_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
@@ -1631,7 +1631,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			    packet_size);
 			return -1;
 		}
-		if (!pcap_read_sita_pseudoheader(fh, pseudo_header,
+		if (!pcap_read_sita_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
@@ -1640,7 +1640,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 
 	case WTAP_ENCAP_BLUETOOTH_H4:
 		/* We don't have pseudoheader, so just pretend we received everything. */
-		pseudo_header->p2p.sent = FALSE;
+		phdr->pseudo_header.p2p.sent = FALSE;
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
@@ -1656,7 +1656,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			return -1;
 		}
 		if (!pcap_read_bt_pseudoheader(fh,
-		    pseudo_header, err, err_info))
+		    &phdr->pseudo_header, err, err_info))
 			return -1;	/* Read error */
 
 		phdr_len = (int)sizeof (struct libpcap_bt_phdr);
@@ -1668,7 +1668,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			*err_info = g_strdup_printf("pcap: libpcap llcp file too short");
 			return -1;
 		}
-		if (!pcap_read_llcp_pseudoheader(fh, pseudo_header, err, err_info))
+		if (!pcap_read_llcp_pseudoheader(fh, &phdr->pseudo_header, err, err_info))
 			return -1;	/* Read error */
 		phdr_len = LLCP_HEADER_LEN;
 		break;
@@ -1686,7 +1686,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			return -1;
 		}
 		if (!pcap_read_ppp_pseudoheader(fh,
-		    pseudo_header, err, err_info))
+		    &phdr->pseudo_header, err, err_info))
 			return -1;	/* Read error */
 
 		phdr_len = (int)sizeof (struct libpcap_ppp_phdr);
@@ -1705,21 +1705,21 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			return -1;
 		}
 
-		if (!pcap_read_erf_pseudoheader(fh, phdr, pseudo_header,
+		if (!pcap_read_erf_pseudoheader(fh, phdr, &phdr->pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
 		phdr_len = (int)sizeof(struct erf_phdr);
 
 		/* check the optional Extension header */
-		if (!pcap_read_erf_exheader(fh, pseudo_header, err, err_info,
+		if (!pcap_read_erf_exheader(fh, &phdr->pseudo_header, err, err_info,
 		    &size))
 			return -1;	/* Read error */
 
 		phdr_len += size;
 
 		/* check the optional Multi Channel header */
-		if (!pcap_read_erf_subheader(fh, pseudo_header, err, err_info,
+		if (!pcap_read_erf_subheader(fh, &phdr->pseudo_header, err, err_info,
 		    &size))
 			return -1;	/* Read error */
 
@@ -1750,7 +1750,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			    packet_size);
 			return -1;
 		}
-		if (!pcap_read_i2c_pseudoheader(fh, pseudo_header,
+		if (!pcap_read_i2c_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return -1;	/* Read error */
 
