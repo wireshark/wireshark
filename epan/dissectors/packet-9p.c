@@ -979,7 +979,7 @@ struct _9p_hashkey {
 
 struct _9p_hashval {
 	size_t len;
-	char *data;
+	void *data;
 };
 
 struct _9p_taginfo {
@@ -1022,7 +1022,7 @@ static struct _9p_hashval *_9p_hash_new_val(size_t len)
 	struct _9p_hashval *val;
 	val = (struct _9p_hashval *)g_malloc(sizeof(struct _9p_hashval));
 
-	val->data = (char *)g_malloc(len);
+	val->data = g_malloc(len);
 	val->len = len;
 
 	return val;
