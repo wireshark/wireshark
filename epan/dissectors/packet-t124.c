@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-t124.c                                                              */
-/* ../../tools/asn2wrs.py -p t124 -c ./t124.cnf -s ./packet-t124-template -D . -O ../../epan/dissectors GCC-PROTOCOL.asn MCS-PROTOCOL.asn */
+/* /home/pascal/wireshark/trunk/tools/asn2wrs.py -p t124 -c /home/pascal/wireshark/trunk/asn1/t124/t124.cnf -s /home/pascal/wireshark/trunk/asn1/t124/packet-t124-template -D /home/pascal/wireshark/trunk/asn1/t124 -O /home/pascal/wireshark/trunk/epan/dissectors GCC-PROTOCOL.asn ../t125/MCS-PROTOCOL.asn */
 
 /* Input file: packet-t124-template.c */
 
