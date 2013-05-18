@@ -327,6 +327,16 @@ static int hf_scsi_block_limits_uga             = -1;
 static int hf_scsi_block_limits_mwsl            = -1;
 static int hf_scsi_prevent_allow_flags          = -1;
 static int hf_scsi_prevent_allow_prevent        = -1;
+static int hf_scsi_mpi_service_action           = -1;
+static int hf_scsi_report_opcodes_rctd          = -1;
+static int hf_scsi_report_opcodes_options       = -1;
+static int hf_scsi_report_opcodes_requested_o   = -1;
+static int hf_scsi_report_opcodes_requested_sa  = -1;
+static int hf_scsi_report_opcodes_cdl           = -1;
+static int hf_scsi_report_opcodes_sa            = -1;
+static int hf_scsi_report_opcodes_ctdp          = -1;
+static int hf_scsi_report_opcodes_servactv      = -1;
+static int hf_scsi_report_opcodes_cdb_length    = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -347,6 +357,7 @@ static gint ett_scsi_fragment = -1;
 static gint ett_persresv_control = -1;
 static gint ett_scsi_lun = -1;
 static gint ett_scsi_prevent_allow = -1;
+static gint ett_command_descriptor = -1;
 
 static int scsi_tap = -1;
 
@@ -415,6 +426,7 @@ static const value_string scsi_spc_vals[] = {
     {SCSI_SPC_INQUIRY            , "Inquiry"},
     {SCSI_SPC_LOGSELECT          , "Log Select"},
     {SCSI_SPC_LOGSENSE           , "Log Sense"},
+    {SCSI_SPC_MGMT_PROTOCOL_IN   , "Mgmt Protocol In"},
     {SCSI_SPC_MODESELECT6        , "Mode Select(6)"},
     {SCSI_SPC_MODESELECT10       , "Mode Select(10)"},
     {SCSI_SPC_MODESENSE6         , "Mode Sense(6)"},
@@ -427,7 +439,6 @@ static const value_string scsi_spc_vals[] = {
     {SCSI_SPC_READBUFFER         , "Read Buffer"},
     {SCSI_SPC_RELEASE6           , "Release(6)"},
     {SCSI_SPC_RELEASE10          , "Release(10)"},
-    {SCSI_SPC_REPORTDEVICEID     , "Report Device ID"},
     {SCSI_SPC_REPORTLUNS         , "Report LUNs"},
     {SCSI_SPC_REQSENSE           , "Request Sense"},
     {SCSI_SPC_RESERVE6           , "Reserve(6)"},
@@ -4275,6 +4286,142 @@ dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 }
 
+const value_string mpi_action_vals[] = {
+    {MPI_MANAGEMENT_PROTOCOL_IN           , "Management Protocol In"},
+    {MPI_REPORT_SUPPORTED_OPERATION_CODES , "Report Supported Opcodes"},
+    {0, NULL}
+};
+
+void
+dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
+			     proto_tree *tree, guint offset,
+			     gboolean isreq, gboolean iscdb,
+			     guint payload_len _U_,
+			     scsi_task_data_t *cdata _U_)
+{
+    tvbuff_t *volatile tvb_v    = tvb;
+    volatile guint     offset_v = offset;
+    guint8 service_action;
+
+    if (isreq && iscdb) {
+	service_action = tvb_get_guint8 (tvb_v, offset_v) & 0x1F;
+	if (cdata) {
+		cdata->itlq->flags=service_action;
+	}	
+        col_append_str(pinfo->cinfo, COL_INFO,
+		val_to_str(service_action, mpi_action_vals, "Unknown"));
+
+	proto_tree_add_item(tree, hf_scsi_mpi_service_action, tvb_v,
+		offset_v, 1, ENC_BIG_ENDIAN);
+
+        switch(service_action){
+	case MPI_REPORT_SUPPORTED_OPERATION_CODES:
+		proto_tree_add_item(tree, hf_scsi_report_opcodes_rctd,
+			tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_scsi_report_opcodes_options,
+			tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+		if (cdata && (tvb_get_guint8(tvb_v, offset_v+1) & 0x07)) {
+			/* Need the one-command parameter format */
+		        cdata->itlq->flags|=0x80;
+		}
+
+		proto_tree_add_item(tree, hf_scsi_report_opcodes_requested_o,
+			tvb_v, offset_v+2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_scsi_report_opcodes_requested_sa,
+			tvb_v, offset_v+3, 2, ENC_BIG_ENDIAN);
+
+		proto_tree_add_item(tree, hf_scsi_alloclen32, tvb_v,
+			offset_v+5, 4, ENC_BIG_ENDIAN);
+		if (cdata) {
+			cdata->itlq->alloc_len = tvb_get_ntohl(tvb_v, offset_v+5);
+		}
+		break;
+	default:
+		proto_tree_add_text(tree, tvb_v, offset_v+1, 8,
+			"No dissection for this service action yet");
+	}
+
+	proto_tree_add_bitmask(tree, tvb_v, offset_v+10, hf_scsi_control,
+		ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+
+    } else if (!isreq) {
+        proto_item *it;
+	int length;
+	cmdset_t *csdata;
+
+        if (!cdata || !cdata->itlq || !cdata->itl) {
+            return;
+        }
+
+	csdata = get_cmdset_data(cdata->itlq, cdata->itl);
+
+        it = proto_tree_add_uint(tree, hf_scsi_mpi_service_action, tvb_v, 0, 0, cdata->itlq->flags & 0x7f);
+        PROTO_ITEM_SET_GENERATED(it);
+
+        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
+
+        switch (cdata->itlq->flags & 0x7f) {
+	case MPI_REPORT_SUPPORTED_OPERATION_CODES:
+		if (cdata->itlq->flags & 0x80) {
+			/* one-command format */
+		} else {
+			/* all commands format */
+			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdl,
+				tvb_v, offset_v+0, 4, ENC_BIG_ENDIAN);
+			length = tvb_get_ntohl(tvb_v, offset_v);
+			offset_v += 4;
+
+			while (length >= 20) {
+				proto_tree *tr;
+				int ctdp;
+
+				it = proto_tree_add_text(tree, tvb_v, offset_v,
+					20, "Command Descriptor: %s",
+					val_to_str(tvb_get_guint8(tvb_v, offset_v+0), csdata->cdb_vals, "Unknown"));
+				tr = proto_item_add_subtree(it,
+					ett_command_descriptor);
+
+				proto_tree_add_item(tr, csdata->hf_opcode,
+					tvb_v, offset_v+0, 1, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_sa,
+					tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_ctdp,
+					tvb_v, offset_v+5, 1, ENC_BIG_ENDIAN);
+				ctdp = tvb_get_guint8(tvb_v, offset_v+5) & 0x02;
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_servactv,
+					tvb_v, offset_v+5, 1, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_cdb_length,
+					tvb_v, offset_v+6, 2, ENC_BIG_ENDIAN);
+
+				offset_v += 8;
+				length -= 8;
+
+				if (!ctdp) {
+					continue;
+				}
+
+				proto_tree_add_text(tree, tvb_v, offset_v, 12,
+					"No dissection for command timeouts descriptor yet");
+
+				offset_v += 12;
+				length -= 12;
+
+			}
+		}
+		break;
+	default:
+		proto_tree_add_text(tree, tvb_v, offset_v+1, 8,
+			"No dissection for this service action yet");
+	}
+
+        END_TRY_SCSI_CDB_ALLOC_LEN;
+    }
+}
+
 static void
 dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
@@ -5898,6 +6045,37 @@ proto_register_scsi(void)
         { &hf_scsi_prevent_allow_prevent,
           { "PREVENT", "scsi.prevent_allow.prevent", FT_BOOLEAN, 8,
             NULL, 0x01, NULL, HFILL}},
+        { &hf_scsi_mpi_service_action,
+          { "Service Action", "scsi.mpi.service_action", FT_UINT8, BASE_HEX,
+          VALS(mpi_action_vals), 0x1f, "Management Protocol In Service Action", HFILL }},
+        { &hf_scsi_report_opcodes_rctd,
+          { "RCTD", "scsi.report_opcodes.rctd", FT_BOOLEAN, 8,
+            NULL, 0x80, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_options,
+          { "Reporting Options", "scsi.report_opcodes.options", FT_UINT8, BASE_HEX,
+            NULL, 0x07, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_requested_o,
+          { "Requested Operation Code", "scsi.report_opcodes.requested_operation_code", FT_UINT8, BASE_HEX,
+            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_requested_sa,
+          { "Requested Service Action", "scsi.report_opcodes.requested_service_action", FT_UINT16, BASE_HEX,
+            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_cdl,
+          { "Command Data Length", "scsi.report_opcodes.command_data_length", FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_sa,
+          { "Service Action", "scsi.report_opcodes.service_action", FT_UINT16, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_ctdp,
+          { "CTDP", "scsi.report_opcodes.ctdp", FT_BOOLEAN, 8,
+            NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_servactv,
+          { "SERVACTV", "scsi.report_opcodes.servactv", FT_BOOLEAN, 8,
+            NULL, 0x01, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_cdb_length,
+          { "CDB Length", "scsi.report_opcodes.cdb_length", FT_UINT16, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+
     };
 
     /* Setup protocol subtree array */
@@ -5920,7 +6098,8 @@ proto_register_scsi(void)
         &ett_scsi_fragment,
         &ett_persresv_control,
         &ett_scsi_lun,
-        &ett_scsi_prevent_allow
+        &ett_scsi_prevent_allow,
+        &ett_command_descriptor
     };
     module_t *scsi_module;
 

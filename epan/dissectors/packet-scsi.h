@@ -130,7 +130,7 @@ typedef struct _scsi_cdb_table_t {
 #define SCSI_SPC_RCVDIAGRESULTS          0x1C
 #define SCSI_SPC_RELEASE6                0x17
 #define SCSI_SPC_RELEASE10               0x57
-#define SCSI_SPC_REPORTDEVICEID          0xA3
+#define SCSI_SPC_MGMT_PROTOCOL_IN        0xA3
 #define SCSI_SPC_REPORTLUNS              0xA0
 #define SCSI_SPC_REQSENSE                0x03
 #define SCSI_SPC_RESERVE6                0x16
@@ -144,6 +144,7 @@ typedef struct _scsi_cdb_table_t {
 void dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint32 payload_len, scsi_task_data_t *cdata);
 void dissect_spc_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
 void dissect_spc_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
 void dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
@@ -233,6 +234,10 @@ extern const value_string service_action_vals[];
 extern const value_string scsi_devid_codeset_val[];
 extern const value_string scsi_devid_idtype_val[];
 extern value_string_ext scsi_asc_val_ext;
+
+/* 0xA3 MGMT PROTOCOL IN service actions */
+#define MPI_MANAGEMENT_PROTOCOL_IN           0x10
+#define MPI_REPORT_SUPPORTED_OPERATION_CODES 0x0C
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
