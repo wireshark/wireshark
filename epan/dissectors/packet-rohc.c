@@ -2311,6 +2311,8 @@ start_over:
         }
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
         col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+        pinfo->private_data = save_private_data;
+        return;
     }
     else if (((oct&0x80)==0x00) && (rohc_cid_context->profile==ROHC_PROFILE_RTP)) {
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
@@ -2342,7 +2344,7 @@ start_over:
     }
 
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
+    call_dissector_only(data_handle, payload_tvb, pinfo, tree, NULL);
 
     pinfo->private_data = save_private_data;
 }
