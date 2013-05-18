@@ -87,6 +87,17 @@ static const mime_files_t magic_files[] = {
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
 
+static void
+mime_set_pkthdr(struct wtap_pkthdr *phdr, int packet_size)
+{
+	phdr->presence_flags = 0;
+
+	phdr->ts.secs = 0;
+	phdr->ts.nsecs = 0;
+	phdr->caplen = packet_size;
+	phdr->len = packet_size;
+}
+
 static gboolean
 mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
@@ -101,39 +112,32 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	wth->phdr.presence_flags = 0;
-
-	wth->phdr.ts.secs = 0;
-	wth->phdr.ts.nsecs = 0;
-
 	*data_offset = file_tell(wth->fh);
 
 	/* try to read max WTAP_MAX_PACKET_SIZE bytes */
 	packet_size = file_read(_buf, sizeof(_buf), wth->fh);
 
 	if (packet_size <= 0) {
+		mime_set_pkthdr(&wth->phdr, 0);
 		priv->last_packet = TRUE;
 		/* signal error for packet-mime-encap */
 		if (packet_size < 0)
 			wth->phdr.ts.nsecs = 1000000000;
-
-		wth->phdr.caplen = 0;
-		wth->phdr.len = 0;
 		return TRUE;
 	}
+
+	mime_set_pkthdr(&wth->phdr, packet_size);
 
 	/* copy to wth frame buffer */
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	buf = buffer_start_ptr(wth->frame_buffer);
 	memcpy(buf, _buf, packet_size);
 
-	wth->phdr.caplen = packet_size;
-	wth->phdr.len = packet_size;
 	return TRUE;
 }
 
 static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr _U_, guint8 *pd, int length, int *err, gchar **err_info)
+mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		*err_info = NULL;
@@ -141,6 +145,8 @@ mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr _U_, guint8 
 	}
 
 	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err, err_info);
+
+	mime_set_pkthdr(phdr, length);
 
 	*err = 0;
 	*err_info = NULL;
