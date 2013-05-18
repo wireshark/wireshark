@@ -1114,18 +1114,18 @@ static void conv_set_fid(packet_info *pinfo, guint32 fid, const char *path, size
 	val = _9p_hash_new_val(len);
 
 	/* Check this is len long? */
-	g_strlcpy(val->data, path, len);
+	g_strlcpy((char *)val->data, path, len);
 
 	_9p_hash_set(pinfo, _9P_NOTAG, fid, val);
 }
 
-static char *conv_get_fid(packet_info *pinfo, guint32 fid)
+static const char *conv_get_fid(packet_info *pinfo, guint32 fid)
 {
 	struct _9p_hashval *val;
 
 	val = _9p_hash_get(pinfo, _9P_NOTAG, fid);
 
-	return val ? val->data : (char*)"";
+	return val ? (char *)val->data : "";
 }
 
 static inline void conv_free_fid(packet_info *pinfo, guint32 fid)
@@ -1172,6 +1172,7 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 	guint offset = 0;
 	const char *mname;
 	char *tmppath, *tmps;
+	const char *fid_str;
 	gint len, reportedlen;
 	size_t stringlen;
 	tvbuff_t *next_tvb;
@@ -1841,13 +1842,13 @@ static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, vo
 	case _9P_TXATTRWALK:
 		fid = tvb_get_letohl(tvb, offset);
 		ti = proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		tmps = conv_get_fid(pinfo, fid);
-		proto_item_append_text(ti, " (%s)", tmps);
+		fid_str = conv_get_fid(pinfo, fid);
+		proto_item_append_text(ti, " (%s)", fid_str);
 		offset +=4;
 
 		fid = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(ninep_tree, hf_9P_newfid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		conv_set_fid(pinfo, fid, tmps, strlen(tmps)+1);
+		conv_set_fid(pinfo, fid, fid_str, strlen(fid_str)+1);
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
