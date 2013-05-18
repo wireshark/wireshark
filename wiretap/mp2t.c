@@ -61,6 +61,32 @@ typedef struct {
     guint8  trailer_len;
 } mp2t_filetype_t;
 
+static void
+mp2t_fill_in_pkthdr(mp2t_filetype_t *mp2t, gint64 offset, struct wtap_pkthdr *phdr)
+{
+    guint64 tmp;
+
+    /* XXX - relative, not absolute, time stamps */
+    phdr->presence_flags = WTAP_HAS_TS;
+
+    /*
+     * Every packet in an MPEG2-TS stream is has a fixed size of
+     * MP2T_SIZE plus the number of trailer bytes.
+     *
+     * The bitrate is constant, so the time offset, from the beginning
+     * of the stream, of a given packet is the packet offset, in bits,
+     * divided by the bitrate.
+     *
+     * It would be really cool to be able to configure the bitrate...
+     */
+    tmp = ((guint64)(offset - mp2t->start_offset) * 8);	/* offset, in bits */
+    phdr->ts.secs = (time_t)(tmp / MP2T_QAM256_BITRATE);
+    phdr->ts.nsecs = (int)((tmp % MP2T_QAM256_BITRATE) * 1000000000 / MP2T_QAM256_BITRATE);
+
+    phdr->caplen = MP2T_SIZE;
+    phdr->len = MP2T_SIZE;
+}
+
 static gboolean
 mp2t_read_data(guint8 *dest, int length, int *err, gchar **err_info, FILE_T fh)
 {
@@ -83,7 +109,6 @@ static gboolean
 mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     mp2t_filetype_t *mp2t;
-    guint64 tmp;
 
     mp2t = (mp2t_filetype_t*) wth->priv;
 
@@ -103,37 +128,24 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     }
 
-    /* XXX - relative, not absolute, time stamps */
-    wth->phdr.presence_flags = WTAP_HAS_TS;
-
-    /*
-     * Every packet in an MPEG2-TS stream is has a fixed size of
-     * MP2T_SIZE plus the number of trailer bytes.
-     *
-     * The bitrate is constant, so the time offset, from the beginning
-     * of the stream, of a given packet is the packet offset, in bits,
-     * divided by the bitrate.
-     *
-     * It would be really cool to be able to configure the bitrate...
-     */
-    tmp = ((guint64)(*data_offset - mp2t->start_offset) * 8);	/* offset, in bits */
-    wth->phdr.ts.secs = (time_t)(tmp / MP2T_QAM256_BITRATE);
-    wth->phdr.ts.nsecs = (int)((tmp % MP2T_QAM256_BITRATE) * 1000000000 / MP2T_QAM256_BITRATE);
-
-    wth->phdr.caplen = MP2T_SIZE;
-    wth->phdr.len = MP2T_SIZE;
+    mp2t_fill_in_pkthdr(mp2t, *data_offset, &wth->phdr);
 
     return TRUE;
 }
 
 static gboolean
-mp2t_seek_read(wtap *wth, gint64 seek_off,
-        struct wtap_pkthdr *phdr _U_, guint8 *pd, int length,
-        int *err, gchar **err_info)
+mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+        guint8 *pd, int length, int *err, gchar **err_info)
 {
+    mp2t_filetype_t *mp2t;
+
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err)) {
         return FALSE;
     }
+
+    mp2t = (mp2t_filetype_t*) wth->priv;
+
+    mp2t_fill_in_pkthdr(mp2t, seek_off, phdr);
 
     return mp2t_read_data(pd, length, err, err_info, wth->random_fh);
 }
