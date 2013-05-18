@@ -442,34 +442,34 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 #define DESCRIPTOR_LEN	32
 
-/* Read the next packet */
-static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean lanalyzer_read_trace_record_header(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
-	int		packet_size = 0;
 	int		bytes_read;
 	char		LE_record_type[2];
 	char		LE_record_length[2];
 	guint16		record_type, record_length;
+	int		record_data_size;
+	int		packet_size;
 	gchar		descriptor[DESCRIPTOR_LEN];
+	lanalyzer_t	*lanalyzer;
 	guint16		time_low, time_med, time_high, true_size;
 	guint64		t;
 	time_t		tsecs;
-	lanalyzer_t	*lanalyzer;
 
 	/* read the record type and length. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(LE_record_type, 2, wth->fh);
+	bytes_read = file_read(LE_record_type, 2, fh);
 	if (bytes_read != 2) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
 		return FALSE;
 	}
-	bytes_read = file_read(LE_record_length, 2, wth->fh);
+	bytes_read = file_read(LE_record_length, 2, fh);
 	if (bytes_read != 2) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -487,39 +487,24 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		    record_type);
 		return FALSE;
 	}
-	else {
-		if (record_length < DESCRIPTOR_LEN) {
-			/*
-			 * Uh-oh, the record isn't big enough to even have a
-			 * descriptor.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
-			    record_length);
-			return FALSE;
-		}
-		packet_size = record_length - DESCRIPTOR_LEN;
+
+	if (record_length < DESCRIPTOR_LEN) {
+		/*
+		 * Uh-oh, the record isn't big enough to even have a
+		 * descriptor.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
+		    record_length);
+		return FALSE;
 	}
+	record_data_size = record_length - DESCRIPTOR_LEN;
 
 	/* Read the descriptor data */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(descriptor, DESCRIPTOR_LEN, wth->fh);
+	bytes_read = file_read(descriptor, DESCRIPTOR_LEN, fh);
 	if (bytes_read != DESCRIPTOR_LEN) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	/* Read the packet data */
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	*data_offset = file_tell(wth->fh);
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
-		packet_size, wth->fh);
-
-	if (bytes_read != packet_size) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -532,7 +517,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	 * OK, is the frame data size greater than than what's left of the
 	 * record?
 	 */
-	if (packet_size > record_length - DESCRIPTOR_LEN) {
+	if (packet_size > record_data_size) {
 		/*
 		 * Yes - treat this as an error.
 		 */
@@ -541,7 +526,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	time_low = pletohs(&descriptor[8]);
 	time_med = pletohs(&descriptor[10]);
@@ -550,8 +535,8 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	    (((guint64)time_high) << 32);
 	tsecs = (time_t) (t/2000000);
 	lanalyzer = (lanalyzer_t *)wth->priv;
-	wth->phdr.ts.secs = tsecs + lanalyzer->start;
-	wth->phdr.ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
+	phdr->ts.secs = tsecs + lanalyzer->start;
+	phdr->ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
 
 	if (true_size - 4 >= packet_size) {
 		/*
@@ -562,28 +547,61 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		 */
 		true_size -= 4;
 	}
-	wth->phdr.len = true_size;
-	wth->phdr.caplen = packet_size;
+	phdr->len = true_size;
+	phdr->caplen = packet_size;
 
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
-		wth->phdr.pseudo_header.eth.fcs_len = 0;
+		phdr->pseudo_header.eth.fcs_len = 0;
 		break;
 	}
 
 	return TRUE;
 }
 
-static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
-    int *err, gchar **err_info)
+/* Read the next packet */
+static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+    gint64 *data_offset)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+	int		bytes_read;
+
+	*data_offset = file_tell(wth->fh);
+
+	/* Read the record header and packet descriptor */
+	if (!lanalyzer_read_trace_record_header(wth, wth->fh,
+	    &wth->phdr, err, err_info))
+		return FALSE;
+
+	/* Read the packet data */
+	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
+		wth->phdr.caplen, wth->fh);
+
+	if (bytes_read != (int)wth->phdr.caplen) {
+		*err = file_error(wth->fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err,
+    gchar **err_info)
+{
 	int bytes_read;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	/* Read the record header and packet descriptor */
+	if (!lanalyzer_read_trace_record_header(wth, wth->random_fh, phdr,
+	    err, err_info))
 		return FALSE;
 
 	/*
@@ -595,14 +613,6 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
-	}
-
-	switch (wth->file_encap) {
-
-	case WTAP_ENCAP_ETHERNET:
-		/* We assume there's no FCS in this frame. */
-		pseudo_header->eth.fcs_len = 0;
-		break;
 	}
 
 	return TRUE;
