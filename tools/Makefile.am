@@ -129,7 +129,7 @@ EXTRA_DIST = \
 	runlex.sh					\
 	setuid-root.pl.in				\
 	test-common.sh					\
-	test-fuzzed-cap.sh				\
+	test-captures.sh				\
 	textify.sh 					\
 	valgrind-wireshark.sh				\
 	win32-setup.sh					\
