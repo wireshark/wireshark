@@ -4292,6 +4292,13 @@ const value_string mpi_action_vals[] = {
     {0, NULL}
 };
 
+const value_string report_opcodes_options_vals[] = {
+    {0, "Report ALL opcodes"},
+    {1, "Report ONE opcode, NO service action"},
+    {2, "Report ONE opcode, WITH service action"},
+    {0, NULL}
+};
+
 void
 dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 			     proto_tree *tree, guint offset,
@@ -6053,7 +6060,7 @@ proto_register_scsi(void)
             NULL, 0x80, NULL, HFILL}},
         { &hf_scsi_report_opcodes_options,
           { "Reporting Options", "scsi.report_opcodes.options", FT_UINT8, BASE_HEX,
-            NULL, 0x07, NULL, HFILL}},
+            VALS(report_opcodes_options_vals), 0x07, NULL, HFILL}},
         { &hf_scsi_report_opcodes_requested_o,
           { "Requested Operation Code", "scsi.report_opcodes.requested_operation_code", FT_UINT8, BASE_HEX,
             NULL, 0, NULL, HFILL}},
