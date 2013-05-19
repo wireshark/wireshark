@@ -40,11 +40,16 @@
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/filter_dlg.h"
+#include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/filter_autocomplete.h"
+#include "ui/gtk/stock_icons.h"
 
 static GtkWidget *export_pdu_dlg = NULL;
 
 
 typedef struct _exp_pdu_t {
+	GtkWidget   *filter_widget;
     int          pkt_encap;
     wtap_dumper* wdh;
 } exp_pdu_t;
@@ -215,16 +220,6 @@ end:
     g_free(capfile_name);
 }
 
-static void
-export_pdu_ok_cb(GtkWidget *widget _U_, gpointer data)
-{
-    exp_pdu_t *exp_pdu_tap_data = (exp_pdu_t *)data;
-
-    exp_pdu_file_open(exp_pdu_tap_data);
-
-    window_destroy(export_pdu_dlg);
-
-}
 
 static void
 export_pdu_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
@@ -233,17 +228,57 @@ export_pdu_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   export_pdu_dlg = NULL;
 }
 
+static void
+export_pdu_ok_cb(GtkWidget *widget _U_, gpointer data)
+{
+	const char *filter = NULL;
+    GString    *error_string;
+    exp_pdu_t *exp_pdu_tap_data = (exp_pdu_t *)data;
+
+	filter = gtk_entry_get_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget));
+
+	/* Register this tap listener now */
+	error_string = register_tap_listener("export_pdu",        /* The name of the tap we want to listen to */
+										exp_pdu_tap_data,    /* instance identifier/pointer to a struct holding
+																* all state variables
+																*/
+										filter,              /* pointer to a filter string */
+										TL_REQUIRES_NOTHING, /* flags for the tap listener */
+										export_pdu_reset,
+										export_pdu_packet,
+										export_pdu_draw);
+	if (error_string){
+		/* Error.  We failed to attach to the tap. Clean up */
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+		g_free(exp_pdu_tap_data);
+		g_string_free(error_string, TRUE);
+		return;
+	}
+
+
+    exp_pdu_file_open(exp_pdu_tap_data);
+
+    window_destroy(export_pdu_dlg);
+
+}
+
+
 void
 export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 
   GtkWidget  *main_vb, *bbox, *close_bt, *ok_bt;
-  GtkWidget  *grid, *label;
-  GString    *error_string;
+  GtkWidget  *grid, *label, *filter_bt;
   exp_pdu_t  *exp_pdu_tap_data;
   const char *filter = NULL;
   guint         row;
 
+  static construct_args_t args = {
+    "Wireshark: Export PDUs Filter",
+    TRUE,                         /* dialog should have an Apply button */
+    FALSE,                        /* if parent text widget should be activated on "Ok" or "Apply" */
+    FALSE                         /* dialog is modal and transient to the parent window */
+};
 
   if (export_pdu_dlg != NULL) {
     /* There's already a export_pdu dialog box; reactivate it. */
@@ -271,7 +306,31 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   row = 0;
 
   label = gtk_label_new("Add a drop-down list to select USER_DLT, currently hardcoded to USER10");
-  ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 1, 1);
+  ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 2, 1);
+  row++;
+
+  /* Filter button */
+  filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+  g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
+  ws_gtk_grid_attach_defaults(GTK_GRID(grid), filter_bt, 0, row, 1, 1);
+  gtk_widget_show(filter_bt);
+
+  /* Entry */
+  exp_pdu_tap_data->filter_widget=gtk_entry_new();
+  g_signal_connect(exp_pdu_tap_data->filter_widget, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+  g_object_set_data(G_OBJECT(grid), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+  g_signal_connect(exp_pdu_tap_data->filter_widget, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, exp_pdu_tap_data->filter_widget);
+
+  filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+  if(filter){
+      gtk_entry_set_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget), filter);
+  } else {
+      colorize_filter_te_as_empty(exp_pdu_tap_data->filter_widget);
+  }
+
+  ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->filter_widget, 1, row, 1, 1);
+  gtk_widget_show(exp_pdu_tap_data->filter_widget);
 
   /* Setup the button row */
 
@@ -286,27 +345,6 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(export_pdu_ok_cb), exp_pdu_tap_data);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_set_tooltip_text(ok_bt, "Export PDU:s to a temporary capture file");
-
-
-  /* Register this tap listener now */
-  error_string = register_tap_listener("export_pdu",        /* The name of the tap we want to listen to */
-                                       exp_pdu_tap_data,    /* instance identifier/pointer to a struct holding
-                                                             * all state variables
-                                                             */
-                                       filter,              /* pointer to a filter string */
-                                       TL_REQUIRES_NOTHING, /* flags for the tap listener */
-                                       export_pdu_reset,
-                                       export_pdu_packet,
-                                       export_pdu_draw);
-  if (error_string){
-      /* Error.  We failed to attach to the tap. Clean up */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-      g_free(exp_pdu_tap_data);
-      g_string_free(error_string, TRUE);
-      return;
-  }
-
-
 
   gtk_widget_show_all(export_pdu_dlg);
   window_present(export_pdu_dlg);
