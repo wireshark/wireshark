@@ -1072,11 +1072,11 @@ which only calculates the number of packets and bytes in each interval.
 B<io,stat> can also do much more statistics and calculate COUNT(), SUM(),
 MIN(), MAX(), AVG() and LOAD() using a slightly different filter syntax:
 
-=item -z io,stat,I<interval>,E<34>[COUNT|SUM|MIN|MAX|AVG|LOAD](I<field>)I<field> [and I<filter>]E<34>
+=item -z io,stat,I<interval>,E<34>[COUNT|SUM|MIN|MAX|AVG|LOAD](I<field>)I<filter>E<34>
 
-NOTE: One important thing to note here is that the field that the
-calculation is based on MUST also be part of the filter string or
-else the calculation will fail.
+NOTE: One important thing to note here is that the filter is not optional
+and that the field that the calculation is based on MUST be part of the filter
+string or the calculation will fail.
 
 So: B<-z io,stat,0.010,AVG(smb.time)> does not work.  Use B<-z
 io,stat,0.010,AVG(smb.time)smb.time> instead.  Also be aware that a field
@@ -1084,10 +1084,10 @@ can exist multiple times inside the same packet and will then be counted
 multiple times in those packets.
 
 NOTE: A second important thing to note is that the system setting for
-decimal separator is set to "."! If it is set to "," the statistics
+decimal separator must be set to "."! If it is set to "," the statistics
 will not be displayed per filter.
 
-B<COUNT(I<field>)I<field> [and I<filter>]> - Calculates the number of times that the
+B<COUNT(I<field>)I<filter>> - Calculates the number of times that the
 field I<name> (not its value) appears per interval in the filtered packet list.
 ''I<field>'' can be any display filter name.
 
@@ -1095,7 +1095,7 @@ Example: B<-z io,stat,0.010,E<34>COUNT(smb.sid)smb.sidE<34>>
 
 This will count the total number of SIDs seen in each 10ms interval.
 
-B<SUM(I<field>)I<field> [and I<filter>]> - Unlike COUNT, the I<values> of the
+B<SUM(I<field>)I<filter>> - Unlike COUNT, the I<values> of the
 specified field are summed per time interval.
 ''I<field>'' can only be a named integer, float, double or relative time field.
 
@@ -1104,7 +1104,7 @@ Example: B<-z io,stat,0.010,E<34>SUM(frame.len)frame.lenE<34>>
 Reports the total number of bytes that were transmitted bidirectionally in
 all the packets within a 10 millisecond interval.
 
-B<MIN/MAX/AVG(I<field>)I<field> [and I<filter>]> - The minimum, maximum, or average field value
+B<MIN/MAX/AVG(I<field>)I<filter>> - The minimum, maximum, or average field value
 in each interval is calculated.  The specified field must be a named integer,
 float, double or relative time field.  For relative time fields, the output is presented in
 seconds with six decimal digits of precision rounded to the nearest microsecond.
@@ -1156,7 +1156,7 @@ the total number of bytes transferred in SMB Write PDUs:
   000.000-                    30018         28067522               72             3240
   =====================================================================================
 
-B<LOAD(I<field>)I<field> [and I<filter>]> - The LOAD/Queue-Depth
+B<LOAD(I<field>)I<filter>> - The LOAD/Queue-Depth
 in each interval is calculated.  The specified field must be a relative time field that represents a response time.  For example smb.time.
 For each interval the Queue-Depth for the specified protocol is calculated.
 
