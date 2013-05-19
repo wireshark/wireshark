@@ -1301,7 +1301,7 @@ manuf_hash_new_entry(const guint8 *addr, gchar *name)
    *  not bytes) in make-manuf.  That doesn't mean a user can't put a longer
    *  name in their personal manuf file, though...
    */
-  mtp->name = g_strdup(name);
+  mtp->name = se_strdup(name);
   mtp->next = NULL;
   return mtp;
 } /* manuf_hash_new_entry */
