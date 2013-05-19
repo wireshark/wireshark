@@ -639,7 +639,7 @@ void usage(void)
 	printf("Types:\n");
 
 	for (i = 0; i < num_entries; i++) {
-		printf("\t%s\t%s\n", examples[i].abbrev, examples[i].longname);
+		printf("\t%-16s%s\n", examples[i].abbrev, examples[i].longname);
 	}
 
 	printf("\n");
