@@ -335,8 +335,11 @@ static int hf_scsi_report_opcodes_requested_sa  = -1;
 static int hf_scsi_report_opcodes_cdl           = -1;
 static int hf_scsi_report_opcodes_sa            = -1;
 static int hf_scsi_report_opcodes_ctdp          = -1;
+static int hf_scsi_report_opcodes_ctdp_one      = -1;
 static int hf_scsi_report_opcodes_servactv      = -1;
 static int hf_scsi_report_opcodes_cdb_length    = -1;
+static int hf_scsi_report_opcodes_support       = -1;
+static int hf_scsi_report_opcodes_cdb_usage_data = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -4355,6 +4358,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_item *it;
 	int length;
 	cmdset_t *csdata;
+	int ctdp;
 
         if (!cdata || !cdata->itlq || !cdata->itl) {
             return;
@@ -4371,6 +4375,24 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 	case MPI_REPORT_SUPPORTED_OPERATION_CODES:
 		if (cdata->itlq->flags & 0x80) {
 			/* one-command format */
+			proto_tree_add_item(tree, hf_scsi_report_opcodes_ctdp_one,
+					tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+			ctdp = tvb_get_guint8(tvb_v, offset_v+1) & 0x80;
+
+			proto_tree_add_item(tree, hf_scsi_report_opcodes_support,
+				tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+
+			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_length,
+				tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
+			length = tvb_get_ntohs(tvb_v, offset_v+2);
+
+			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_usage_data,
+				tvb_v, offset_v+4, length, ENC_BIG_ENDIAN);
+
+			if (ctdp) {
+				proto_tree_add_text(tree, tvb_v, offset_v+4+length, 12,
+					"No dissection for command timeouts descriptor yet");
+			}
 		} else {
 			/* all commands format */
 			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdl,
@@ -4380,7 +4402,6 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 			while (length >= 20) {
 				proto_tree *tr;
-				int ctdp;
 
 				it = proto_tree_add_text(tree, tvb_v, offset_v,
 					20, "Command Descriptor: %s",
@@ -6076,13 +6097,21 @@ proto_register_scsi(void)
         { &hf_scsi_report_opcodes_ctdp,
           { "CTDP", "scsi.report_opcodes.ctdp", FT_BOOLEAN, 8,
             NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_ctdp_one,
+          { "CTDP", "scsi.report_opcodes_one.ctdp", FT_BOOLEAN, 8,
+            NULL, 0x80, NULL, HFILL}},
         { &hf_scsi_report_opcodes_servactv,
           { "SERVACTV", "scsi.report_opcodes.servactv", FT_BOOLEAN, 8,
             NULL, 0x01, NULL, HFILL}},
         { &hf_scsi_report_opcodes_cdb_length,
           { "CDB Length", "scsi.report_opcodes.cdb_length", FT_UINT16, BASE_DEC,
             NULL, 0, NULL, HFILL}},
-
+        { &hf_scsi_report_opcodes_support,
+          { "Support", "scsi.report_opcodes.support", FT_UINT8, BASE_DEC,
+            NULL, 0x07, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_cdb_usage_data,
+          {"CDB Usage Data", "scsi.report_opcodes.cdb_usage_data", FT_BYTES, BASE_NONE,
+	   NULL, 0, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
