@@ -29,6 +29,13 @@
 #include <glib.h>
 
 /**
+ * Define different common tap names to extract PDU:s at different layers, otherwise one packet may
+ * be exported several times at diferent layers if all taps are run.
+ * NOTE if a new tap is added here it needs to be added to export_pdu_dlg.c and packet-exported_pdu.c
+ * TODO: Use an enum_val_t instead?
+ */
+#define EXPORT_PDU_TAP_NAME_LAYER_7 "export_pdu_layer_7_tap"
+/**
  * This struct is used as the data part of tap_queue_packet() and contains a
  * buffer with metadata of the protocol PDU included in the tvb in the struct.
  * the meta data is in TLV form, at least one tag MUST indicate what protocol is

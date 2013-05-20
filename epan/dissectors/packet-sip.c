@@ -5312,5 +5312,5 @@ proto_reg_handoff_sip(void)
 	saved_sip_tls_port = sip_tls_port;
 	ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
 
-	exported_pdu_tap = find_tap_id("export_pdu");
+	exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }

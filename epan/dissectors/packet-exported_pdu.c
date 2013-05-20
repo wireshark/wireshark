@@ -274,7 +274,7 @@ proto_register_exported_pdu(void)
      * The tap is registered here but it is to be used by dissectors that
      * want to export their PDU:s, see packet-sip.c
      */
-    exported_pdu_tap = register_tap("export_pdu");
+    exported_pdu_tap = register_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
 
 }
 

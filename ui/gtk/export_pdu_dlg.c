@@ -50,6 +50,7 @@ static GtkWidget *export_pdu_dlg = NULL;
 
 typedef struct _exp_pdu_t {
 	GtkWidget   *filter_widget;
+	GtkWidget   *tap_name_widget;
     int          pkt_encap;
     wtap_dumper* wdh;
 } exp_pdu_t;
@@ -234,16 +235,18 @@ export_pdu_ok_cb(GtkWidget *widget _U_, gpointer data)
 	const char *filter = NULL;
     GString    *error_string;
     exp_pdu_t *exp_pdu_tap_data = (exp_pdu_t *)data;
+	gchar       *tap_name = NULL;
 
 	filter = gtk_entry_get_text(GTK_ENTRY(exp_pdu_tap_data->filter_widget));
+	tap_name = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget));
 
 	/* Register this tap listener now */
-	error_string = register_tap_listener("export_pdu",        /* The name of the tap we want to listen to */
-										exp_pdu_tap_data,    /* instance identifier/pointer to a struct holding
-																* all state variables
-																*/
-										filter,              /* pointer to a filter string */
-										TL_REQUIRES_NOTHING, /* flags for the tap listener */
+	error_string = register_tap_listener(tap_name,				/* The name of the tap we want to listen to */
+										exp_pdu_tap_data,		/* instance identifier/pointer to a struct holding
+																 * all state variables
+																 */
+										filter,					/* pointer to a filter string */
+										TL_REQUIRES_NOTHING,	/* flags for the tap listener */
 										export_pdu_reset,
 										export_pdu_packet,
 										export_pdu_draw);
@@ -331,6 +334,16 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->filter_widget, 1, row, 1, 1);
   gtk_widget_show(exp_pdu_tap_data->filter_widget);
+  row++;
+
+  /* Select which tap to run */
+  /* Combo box */
+  exp_pdu_tap_data->tap_name_widget = gtk_combo_box_text_new();
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_7);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(exp_pdu_tap_data->tap_name_widget), 0);
+
+  ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->tap_name_widget, 0, row, 1, 1);
+  gtk_widget_show(exp_pdu_tap_data->tap_name_widget);
 
   /* Setup the button row */
 
