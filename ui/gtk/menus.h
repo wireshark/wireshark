@@ -65,7 +65,7 @@ extern void set_menu_object_data(const gchar *path, const gchar *key, gpointer d
  *
  * @param widget the parent widget
  * @param event the GdkEvent
- * @param data the corresponding menu 
+ * @param data the corresponding menu
  */
 extern gboolean popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
 
@@ -88,7 +88,7 @@ void menus_set_column_align_default (gboolean right_justify);
 void menus_set_column_resolved (gboolean resolved, gboolean can_resolve);
 
 /* Fetch the statusbar profiles edit submenu */
-extern GtkWidget *menus_get_profiles_edit_menu (void);
+extern GtkWidget *menus_get_profiles_rename_menu (void);
 
 /* Fetch the statusbar profiles delete submenu */
 extern GtkWidget *menus_get_profiles_delete_menu (void);

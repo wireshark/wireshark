@@ -80,7 +80,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     user_encap_t* encap = NULL;
     tvbuff_t* payload_tvb;
     proto_item* item;
-    int len;
+    gint len, reported_len;
     guint i;
 
     for (i = 0; i < num_encaps; i++) {
@@ -115,8 +115,6 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
     proto_item_set_text(item,"DLT: %d",pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
 
-    len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);
-
     if (encap->header_size) {
         tvbuff_t* hdr_tvb = tvb_new_subset(tvb, 0, encap->header_size, encap->header_size);
         call_dissector(encap->header_proto, hdr_tvb, pinfo, tree);
@@ -128,7 +126,10 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         }
     }
 
-    payload_tvb = tvb_new_subset(tvb, encap->header_size, len, len);
+    len = tvb_length(tvb) - (encap->header_size + encap->trailer_size);
+    reported_len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);
+
+    payload_tvb = tvb_new_subset(tvb, encap->header_size, len, reported_len);
     call_dissector(encap->payload_proto, payload_tvb, pinfo, tree);
     if (encap->payload_proto_name) {
         const char *proto_name = dissector_handle_get_long_name(find_dissector(encap->payload_proto_name));
