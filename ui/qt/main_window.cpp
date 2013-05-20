@@ -92,6 +92,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setMenusForFileSet(false);
     interfaceSelectionChanged();
 
+    //To prevent users use features before initialization complete
+    //Otherwise unexpected problems may occur
+    setFeaturesEnabled(false);
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
+
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
 

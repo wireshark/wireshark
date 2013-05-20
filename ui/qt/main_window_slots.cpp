@@ -971,6 +971,21 @@ void MainWindow::recreatePacketList()
     cfile.columns_changed = FALSE; /* Reset value */
 }
 
+void MainWindow::setFeaturesEnabled(bool enabled)
+{
+    main_ui_->menuBar->setEnabled(enabled);
+    main_ui_->mainToolBar->setEnabled(enabled);
+    main_ui_->displayFilterToolBar->setEnabled(enabled);
+    if(enabled)
+    {
+        main_ui_->statusBar->clearMessage();
+    }
+    else
+    {
+        main_ui_->statusBar->showMessage(tr("Please wait while Wireshark is initializing . . ."));
+    }
+}
+
 // On Qt4 + OS X with unifiedTitleAndToolBarOnMac set it's possible to make
 // the main window obnoxiously wide.
 

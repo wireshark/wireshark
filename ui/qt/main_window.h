@@ -179,6 +179,8 @@ private slots:
     void redissectPackets();
     void recreatePacketList();
 
+    void setFeaturesEnabled(bool enabled = true);
+
     void addDisplayFilterButton(QString df_text);
     void displayFilterButtonClicked();
 
