@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-asn2deb - create a Debian package for BER monitoring from ASN.1
+asn2deb - Create a Debian package for BER monitoring from ASN.1
 
 =head1 SYNOPSIS
 

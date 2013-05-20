@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-idl2deb - create a Debian package for CORBA monitoring from IDL
+idl2deb - Create a Debian package for CORBA monitoring from IDL
 
 =head1 SYNOPSIS
 
