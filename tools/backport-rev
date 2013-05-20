@@ -38,7 +38,7 @@ function exit_err
     if [ -n "$VISUAL" ] ; then
         "$VISUAL" $patchfile $logfile
     else
-	echo "Can't find an editor. You'll have to open $patchfile and $logfile yourself."
+        echo "Can't find an editor. You'll have to open $patchfile and $logfile yourself."
     fi
     exit 1
 }
@@ -115,3 +115,16 @@ echo ""
 uniq < $logfile
 
 rm -v $patchfile $logfile
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=4 tabstop=8 expandtab:
+# :indentSize=4:tabSize=8:noTabs=true:
+#
