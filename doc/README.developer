@@ -2045,7 +2045,7 @@ argument should be ENC_NA (Not Applicable).
 
 For integral, floating-point, Boolean, FT_GUID, and FT_EUI64 fields,
 the encoding specifies the byte order of the value; the 'encoding'
-argument should be is ENC_LITTLE_ENDIAN if the value is little-endian
+argument should be ENC_LITTLE_ENDIAN if the value is little-endian
 and ENC_BIG_ENDIAN if it is big-endian.
 
 For FT_IPv4 fields, the encoding also specifies the byte order of the
