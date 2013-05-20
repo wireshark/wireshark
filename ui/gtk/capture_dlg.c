@@ -442,7 +442,7 @@ update_visible_columns_menu (void)
   sub_menu = gtk_menu_new();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_columns), sub_menu);
 
-  for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
+  for (col_id = 3; col_id < NUM_COLUMNS; col_id++) {
     title = col_index_to_name(col_id);
     menu_item = gtk_check_menu_item_new_with_label(title);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs_capture_options_dialog_column_is_visible(title));
@@ -4568,10 +4568,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_column_set_resizable(column, TRUE );
   gtk_tree_view_column_set_alignment(column, 0.5f);
   g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(INTERFACE));
-  gtk_tree_view_column_set_clickable(column, TRUE);
-  gtk_tree_view_column_set_reorderable(column, TRUE);
-  g_signal_connect(gtk_tree_view_column_get_button(column), "button_press_event",
-                   G_CALLBACK(column_button_pressed_cb), column);
   if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("INTERFACE"))
     gtk_tree_view_column_set_visible(column, TRUE);
   else
