@@ -1255,7 +1255,7 @@ color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
     bg.alpha    = 1;
 
     gtk_widget_override_color(w, GTK_STATE_FLAG_NORMAL, &black);
-    gtk_widget_modify_bg(w, GTK_STATE_FLAG_NORMAL, &bg);
+    gtk_widget_override_background_color(w, GTK_STATE_FLAG_NORMAL, &bg);
     gtk_widget_override_cursor(w, &black, &black);
 #else
     static GdkColor black = { 0, 0, 0, 0 };

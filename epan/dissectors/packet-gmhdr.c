@@ -81,6 +81,9 @@ static const value_string gmhdr_plfm_str[] = {
   { 3, "GV-MP" },
   { 4, "HD4" },
   { 5, "HD8" },
+  { 6, "GV-212" },
+  { 7, "HB1" },
+  { 8, "HC2" },
   { 0, NULL }
 };
 
