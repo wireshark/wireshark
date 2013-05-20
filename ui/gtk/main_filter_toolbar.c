@@ -373,6 +373,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     gboolean   free_filter = TRUE;
     char      *s;
     cf_status_t cf_status;
+    gint filter_count;
 
     s = g_strdup(dftext);
 
@@ -389,9 +390,6 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     if (!s)
         return (cf_status == CF_OK);
 
-    /* GtkCombos don't let us get at their list contents easily, so we maintain
-       our own filter list, and feed it to gtk_combo_set_popdown_strings when
-       a new filter is added. */
     if (cf_status == CF_OK && strlen(s) > 0) {
         int indx;
 
@@ -407,15 +405,16 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
             gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), s);
             indx++;
         }
-
-        /* If we have too many entries, remove some */
-        while ((guint)indx >= prefs.gui_recent_df_entries_max) {
-            gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), indx);
-            indx--;
-        }
     }
     if (free_filter)
         g_free(s);
+
+    /* If we have too many entries, remove some */
+    filter_count = gtk_tree_model_iter_n_children(gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm)), NULL);
+    while (filter_count >= (gint)prefs.gui_recent_df_entries_max) {
+        filter_count--;
+        gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), filter_count);
+    }
 
     return (cf_status == CF_OK);
 }
