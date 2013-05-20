@@ -5,7 +5,7 @@ reordercap - Reorder input file by timestamp into output file
 
 =head1 SYNOPSIS
 
-B<reorder>
+B<reordercap>
 S<[ B<-n> ]>
 E<lt>I<infile>E<gt> E<lt>I<outfile>E<gt>
 
@@ -19,20 +19,26 @@ This functionality may be useful when capture files have been created by
 combining frames from more than one well-synchronised source, but the
 frames have not been combined in strict time order.
 
-When the B<-n> option is used, B<Reordercap> will, if it finds that the input file
-is already in order, not write out the output file.
-
 B<Reordercap> writes the output capture file in the same format as the input
 capture file.
 
 B<Reordercap> is able to detect, read and write the same capture files that
 are supported by B<Wireshark>.
 The input file doesn't need a specific filename extension; the file
-format and an optional gzip compression will be automatically detected.
+format and an optional gzip compression will be detected automatically.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<http://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is
-the same way B<Reordercap> handles this.
+the same way B<reordercap> handles this.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -n
+
+When the B<-n> option is used, B<reordercap> will not write out the output
+file if it finds that the input file is already in order.
 
 =head1 SEE ALSO
 
@@ -44,8 +50,8 @@ text2pcap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
 B<Reordercap> is part of the B<Wireshark> distribution.  The latest version
 of B<Wireshark> can be found at L<http://www.wireshark.org>.
 
-It may make sense to move this functionality into B<Editcap>, or perhaps
-B<Mergecap>, in which case B<reordercap> could be retired.
+It may make sense to move this functionality into B<editcap>, or perhaps
+B<mergecap>, in which case B<reordercap> could be retired.
 
 HTML versions of the Wireshark project man pages are available at:
 L<http://www.wireshark.org/docs/man-pages>.

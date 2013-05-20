@@ -5,9 +5,21 @@ idl2deb - create a Debian package for CORBA monitoring from IDL
 
 =head1 SYNOPSIS
 
-B<idl2deb> [B<-d >I<opts>] [B<--dbopts=>I<opts>] [B<-e >I<address>] [B<--email=>I<address>] [-i I<idlfile>]
-[--idl=I<idlfile>] [B<-h>] [B<--help>] [B<-n >I<name>] [B<--name=>I<name>] [B<-p>] [B<--preserve>] [B<-v>] [B<--version>]
-
+B<idl2deb>
+S< [ B<-d> E<lt>optsE<gt> ]>
+S< [ B<--dbopts>=E<lt>optsE<gt> ]>
+S< [ B<-e> E<lt>addressE<gt> ]>
+S< [ B<--email>=E<lt>addressE<gt> ]>
+S< [ B<-h> ]>
+S< [ B<--help> ]>
+S< [ B<-i> E<lt>idlfileE<gt> ]>
+S< [ B<--idl>=E<lt>idlfileE<gt> ]>
+S< [ B<-n> E<lt>nameE<gt> ]>
+S< [ B<--name>=E<lt>nameE<gt> ]>
+S< [ B<-p> ]>
+S< [ B<--preserve> ]>
+S< [ B<-v> ]>
+S< [ B<--version> ]>
 
 =head1 DESCRIPTION
 
@@ -19,31 +31,31 @@ package contains a loadable module for the wireshark network analyser.
 
 =over 4
 
-=item B<-d>I<opts> B<--dbopts=>I<opts>
+=item -d E<lt>optsE<gt> --dbopts=E<lt>optsE<gt>
 
 options for dpkg-buildpackage.
 
-=item B<-e >I<address> B<--email=>I<address>
+=item -e E<lt>addressE<gt> --email=E<lt>addressE<gt>
 
 use e-mail address.
 
-=item B<-i >I<idlfile> B<--idl=>I<idlfile>
-
-IDL file to use (mandatory)
-
-=item B<-h> B<--help>
+=item -h --help
 
 print help and exit.
 
-=item B<-n >I<name> B<--name=>I<name>
+=item -i E<lt>idlfileE<gt> --idl=E<lt>idlfileE<gt>
+
+IDL file to use (mandatory)
+
+=item -n E<lt>nameE<gt> --name=E<lt>nameE<gt>
 
 use user name.
 
-=item B<-p> B<--preserve>
+=item -p --preserve
 
 do not overwrite files.
 
-=item B<-v> B<--version>
+=item -v --version
 
 print version and exit.
 
@@ -67,7 +79,7 @@ the Free Software Foundation.
 
 =head1 AUTHOR
 
-B<W. Borgert> Author. 
+B<W. Borgert> Author.
 
 =head1 COPYRIGHT
 
