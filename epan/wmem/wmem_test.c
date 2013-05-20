@@ -32,18 +32,6 @@
 #include "wmem_allocator_strict.h"
 #include "config.h"
 
-/* Glibs's testing functions were mostly introduced in 2.16 but Wireshark as
- * a whole supports older Glibs, so if we don't have a new enough Glib then stub
- * the test suite.
- */
-#if !GLIB_CHECK_VERSION(2,16,0)
-int
-main()
-{
-    return 0;
-}
-#else
-
 #define MAX_ALLOC_SIZE          (1024*64)
 #define MAX_SIMULTANEOUS_ALLOCS  1024
 #define CONTAINER_ITERS          10000
@@ -555,8 +543,6 @@ main(int argc, char **argv)
 
     return g_test_run();
 }
-
-#endif /* !GLIB_CHECK_VERSION(2,16,0) */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

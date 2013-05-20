@@ -285,15 +285,9 @@ static void yyGrowStack(yyParser *p){
 ** A pointer to a parser.  This pointer is used in subsequent calls
 ** to Parse and ParseFree.
 */
-#if GLIB_CHECK_VERSION(2,16,0)
 void *ParseAlloc(void *(*mallocProc)(gsize)){
   yyParser *pParser;
   pParser = (yyParser*)(*mallocProc)( (gsize)sizeof(yyParser) );
-#else
-void *ParseAlloc(void *(*mallocProc)(gulong)){
-  yyParser *pParser;
-  pParser = (yyParser*)(*mallocProc)( (gulong)sizeof(yyParser) );
-#endif
   if( pParser ){
     pParser->yyidx = -1;
 #ifdef YYTRACKMAXSTACKDEPTH
