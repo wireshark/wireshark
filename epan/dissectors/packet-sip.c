@@ -968,33 +968,7 @@ sip_init_protocol(void)
 static void
 export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
 {
-#if 0
-  exp_pdu_data_t *exp_pdu_data;
 
-  exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
-
-  exp_pdu_data->tvb_length = tvb_length(tvb); 
-  exp_pdu_data->pdu_tvb = tvb;
-
-  /* For now just put end of options */
-  exp_pdu_data->tlv_buffer_len = 12;
-  exp_pdu_data->tlv_buffer = (guint8 *)g_malloc(12);
-
-  exp_pdu_data->tlv_buffer[0] = 0;
-  exp_pdu_data->tlv_buffer[1] = EXP_PDU_TAG_PROTO_NAME;
-  exp_pdu_data->tlv_buffer[2] = 0;
-  exp_pdu_data->tlv_buffer[3] = 4; /* tag length */
-  exp_pdu_data->tlv_buffer[4] = 's';
-  exp_pdu_data->tlv_buffer[5] = 'i';
-  exp_pdu_data->tlv_buffer[6] = 'p';
-  exp_pdu_data->tlv_buffer[7] = 0;
-
-  /* End of options */
-  exp_pdu_data->tlv_buffer[8] = 0;
-  exp_pdu_data->tlv_buffer[9] = 0;
-  exp_pdu_data->tlv_buffer[10] = 0;
-  exp_pdu_data->tlv_buffer[11] = 0;
-#endif
   exp_pdu_data_t *exp_pdu_data;
   guint32 tags_bit_field;
 
