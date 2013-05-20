@@ -1080,7 +1080,7 @@ iostat_draw(void *arg)
                     item_in_column[j] = item_in_column[j]->next;
                 }
             } else {
-                printf(fmt, (guint64)0);
+                printf(fmt, (guint64)0, (guint64)0);
             }
         }
         if (filler_s)
