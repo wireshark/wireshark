@@ -59,6 +59,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/exported_pdu.h>
 #include <epan/diam_dict.h>
 #include <epan/sctpppids.h>
 #include "packet-tcp.h"
@@ -96,6 +97,8 @@
 
 #define DIAMETER_V16 16
 #define DIAMETER_RFC 1
+
+static gint exported_pdu_tap = -1;
 
 /* Conversation Info */
 typedef struct _diameter_conv_info_t {
@@ -306,6 +309,24 @@ static const char *avpflags_str[] = {
 	"VM-",
 	"VMP",
 };
+
+static void
+export_diameter_pdu(packet_info *pinfo, tvbuff_t *tvb)
+{
+  exp_pdu_data_t *exp_pdu_data;
+  guint32 tags_bit_field;
+
+  tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
+	  EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
+
+  exp_pdu_data = load_export_pdu_tags(pinfo, "diameter", -1, tags_bit_field);
+
+  exp_pdu_data->tvb_length = tvb_length(tvb); 
+  exp_pdu_data->pdu_tvb = tvb;
+
+  tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+
+}
 
 static gint
 compare_avps (gconstpointer  a, gconstpointer  b)
@@ -1097,6 +1118,10 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 *   return;
 	 */
 	tap_queue_packet(diameter_tap, pinfo, diameter_pair);
+
+	if(have_tap_listener(exported_pdu_tap)){
+		export_diameter_pdu(pinfo,tvb);
+	}
 
 	pinfo->private_data = pd_save;
 }
@@ -1927,5 +1952,8 @@ proto_reg_handoff_diameter(void)
 	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
 	range_foreach(diameter_tcp_port_range, tcp_range_add_callback);
 	range_foreach(diameter_sctp_port_range, sctp_range_add_callback);
+
+	exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
+
 }
 
