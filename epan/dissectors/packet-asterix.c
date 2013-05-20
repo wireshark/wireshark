@@ -1465,7 +1465,12 @@ static const value_string valstr_XXX_FX[] = {
     { 1, "Extension into next extent" },
     { 0, NULL }
 };
-static const FieldPart IXXX_FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_FX, NULL };
+static const FieldPart IXXX_FX = {
+    1,
+    1.0,
+    FIELD_PART_FX,
+    &hf_XXX_FX,
+    NULL };
 static const FieldPart IXXX_1bit_spare = { 1, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_2bit_spare = { 2, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_3bit_spare = { 3, 1.0, FIELD_PART_UINT, NULL, NULL };
@@ -4332,7 +4337,7 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, guint offset, proto_tree 
 
 static gint dissect_asterix_fields (tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 category, const AsterixField *current_uap[])
 {
-    uint i, j, size, start, len, inner_offset, fspec_len;
+    guint i, j, size, start, len, inner_offset, fspec_len;
     guint64 counter;
     proto_item *asterix_field_item = NULL;
     proto_tree *asterix_field_tree = NULL;
@@ -4459,10 +4464,10 @@ static guint8 asterix_fspec_len (tvbuff_t *tvb, guint offset)
     return i + 1;
 }
 
-static guint8 asterix_field_exists (tvbuff_t *tvb, guint offset, int index)
+static guint8 asterix_field_exists (tvbuff_t *tvb, guint offset, int bitIndex)
 {
     guint8 bitNo, i;
-    bitNo = index + index / 7;
+    bitNo = bitIndex + bitIndex / 7;
     for (i = 0; i < bitNo / 8; i++) {
         if (!(tvb_get_guint8 (tvb, offset + i) & 1)) return 0;
     }
