@@ -61,7 +61,7 @@ while getopts "at:" opt ; do
 done
 shift $((OPTIND-1))
 
-svninfo="`svn info | grep ^URL: | cut -f2 -d' '`"
+svninfo="`svn info | grep ^URL | cut -f2 -d' '`"
 if [ -z "$svninfo" ] ; then
     exit_err "Can't find repository information. Are you running this from a Wireshark SVN directory?"
 fi
