@@ -8,7 +8,7 @@
  * Routines for Port Control Protocol packet disassembly 
  * (backwards compatible with NAT Port Mapping protocol)
  * http://tools.ietf.org/html/draft-ietf-pcp-base-24
- * http://tools.ietf.org/html/draft-ietf-pcp-base-29
+ * RFC6887: Port Control Protocol (PCP) http://tools.ietf.org/html/rfc6887
  *
  * Copyright 2012, Michael Mann
  *
@@ -84,6 +84,7 @@ static gint ett_nat_pmp = -1;
 static int hf_pcp_version = -1;
 static int hf_request = -1;
 static int hf_response = -1;
+static int hf_pcp_r = -1;
 static int hf_pcp_opcode = -1;
 static int hf_pcp_result_code = -1;
 static int hf_reserved1 = -1;
@@ -147,7 +148,19 @@ static const value_string result_vals[] = {
   { 0, NULL }
 };
 
+const true_false_string tfs_request_response = {
+  "Request",
+  "Response"
+};
+
 static const value_string pcp_opcode_vals[] = {
+  { 0,  "Announce" },
+  { 1,  "Map" },
+  { 2,  "Peer" },
+  { 0, NULL }
+};
+
+static const value_string pcp_ropcode_vals[] = {
   { ANNOUNCE_REQUEST,  "Announce Request" },
   { MAP_REQUEST,       "Map Request" },
   { PEER_REQUEST,      "Peer Request" },
@@ -273,7 +286,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   proto_tree *pcp_tree, *opcode_tree = NULL, *option_tree, *option_sub_tree;
   proto_item *ti, *opcode_ti, *option_ti, *suboption_ti;
   gint offset = 0, start_offset, start_opcode_offset, start_option_offset;
-  guint8 opcode, option;
+  guint8 ropcode, option;
   guint16 option_length;
   gboolean is_response;
   const gchar* op_str;
@@ -291,10 +304,11 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   proto_tree_add_item (pcp_tree, hf_pcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  opcode = tvb_get_guint8 (tvb, offset);
-  is_response = opcode & 0x80;
-  op_str = val_to_str (opcode, opcode_vals, "Unknown opcode: %d");
+  ropcode = tvb_get_guint8 (tvb, offset);
+  is_response = ropcode & 0x80;
+  op_str = val_to_str (ropcode, pcp_ropcode_vals, "Unknown opcode: %d");
   proto_item_append_text (ti, ", %s", op_str);
+  proto_tree_add_item (pcp_tree, hf_pcp_r, tvb, offset, 1, ENC_BIG_ENDIAN);
   opcode_ti = proto_tree_add_item (pcp_tree, hf_pcp_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
   col_add_str (pinfo->cinfo, COL_INFO, op_str);
@@ -335,13 +349,13 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   }
 
   start_opcode_offset = offset;
-  if (try_val_to_str(opcode, opcode_vals) != NULL)
+  if (try_val_to_str(ropcode, pcp_ropcode_vals) != NULL)
   {
     opcode_ti = proto_tree_add_text(pcp_tree, tvb, offset, 0, "%s", op_str);
     opcode_tree = proto_item_add_subtree (opcode_ti, ett_opcode);
   }
 
-  switch(opcode) {
+  switch(ropcode) {
 
   case ANNOUNCE_REQUEST:
   case ANNOUNCE_RESPONSE:
@@ -361,7 +375,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     offset+=3;
     proto_tree_add_item (opcode_tree, hf_map_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    if (opcode == MAP_REQUEST)
+    if (ropcode == MAP_REQUEST)
     {
       proto_tree_add_item (opcode_tree, hf_map_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
@@ -390,7 +404,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     offset+=3;
     proto_tree_add_item (opcode_tree, hf_peer_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    if (opcode == PEER_REQUEST)
+    if (ropcode == PEER_REQUEST)
     {
       proto_tree_add_item (opcode_tree, hf_peer_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
@@ -414,13 +428,13 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     break;
   default:
     /* Unknown OP */
-    expert_add_info_format (pinfo, opcode_ti, PI_RESPONSE_CODE, PI_WARN, "Unknown opcode: %d", opcode);
+    expert_add_info_format (pinfo, opcode_ti, PI_RESPONSE_CODE, PI_WARN, "Unknown opcode: %d", ropcode);
     break;
   }
 
   /* Now see if there are any options for the supported opcodes */
   if ((tvb_reported_length_remaining(tvb, offset) > 0) &&
-      (try_val_to_str(opcode, opcode_vals) != NULL))
+      (try_val_to_str(ropcode, pcp_ropcode_vals) != NULL))
   {
     start_option_offset = offset;
     option_ti = proto_tree_add_text(opcode_tree, tvb, offset, 0, "Options");
@@ -455,7 +469,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
           proto_tree_add_item (option_sub_tree, hf_option_filter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
           proto_tree_add_item (option_sub_tree, hf_option_filter_prefix_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
           proto_tree_add_item (option_sub_tree, hf_option_filter_remote_peer_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-          proto_tree_add_item (option_sub_tree, hf_option_filter_remote_peer_ip, tvb, offset+4, 16, ENC_BIG_ENDIAN);
+          proto_tree_add_item (option_sub_tree, hf_option_filter_remote_peer_ip, tvb, offset+4, 16, ENC_NA);
           break;
 
         default:
@@ -542,9 +556,12 @@ void proto_register_nat_pmp (void)
     { &hf_response,
       { "Response", "portcontrol.response", FT_BOOLEAN, 8,
         NULL, 0x01, NULL, HFILL } },
+    { &hf_pcp_r,
+      { "R", "portcontrol.r", FT_BOOLEAN, 8,
+        TFS(&tfs_request_response), 0x80, "Indicates Request (0) or Response (1)", HFILL } },
     { &hf_pcp_opcode,
       { "Opcode", "portcontrol.opcode", FT_UINT8, BASE_DEC,
-        VALS(pcp_opcode_vals), 0x0, NULL, HFILL } },
+        VALS(pcp_opcode_vals), 0x7F, NULL, HFILL } },
     { &hf_pcp_result_code,
       { "Result Code", "portcontrol.result_code", FT_UINT16, BASE_DEC,
         VALS(pcp_result_vals), 0x0, NULL, HFILL } },
