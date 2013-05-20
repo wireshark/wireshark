@@ -282,6 +282,7 @@ DISSECTOR_SRC = \
 	packet-ascend.c		\
 	packet-asf.c		\
 	packet-assa_r3.c	\
+	packet-asterix.c	\
 	packet-at.c		\
 	packet-atalk.c		\
 	packet-atm.c		\

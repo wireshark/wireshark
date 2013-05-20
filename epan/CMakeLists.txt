@@ -362,6 +362,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ascend.c
 	dissectors/packet-asf.c
 	dissectors/packet-assa_r3.c
+	dissectors/packet-asterix.c
 	dissectors/packet-at.c
 	dissectors/packet-atalk.c
 	dissectors/packet-atm.c
