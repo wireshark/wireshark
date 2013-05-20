@@ -362,7 +362,20 @@ void MainWindow::closeEvent(QCloseEvent *event) {
       the user can try deleting the window after the capture stops. */
     if (capture_stopping_) {
         event->ignore();
+        return;
     }
+
+    if(testCaptureFileClose(true)) {
+        /* QCoreApplication::quit() won't exit properly
+             * because when during initialization phase we are not in the event loop */
+        exit(0);
+    }
+    else
+    {
+        event->ignore();
+        return;
+    }
+
 }
 
 
@@ -968,7 +981,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
 }
 
 bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
-    bool   capture_in_progress = FALSE;
+    bool capture_in_progress = FALSE;
 
     if (!cap_file_ || cap_file_->state == FILE_CLOSED)
         return true; /* Already closed, nothing to do */
@@ -988,8 +1001,8 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
         if (cf_has_unsaved_data(cap_file_) || capture_in_progress) {
             QMessageBox msg_dialog;
             QString question;
-            QPushButton *default_button;
-            int response;
+            QPushButton *saveButton;
+            QPushButton *discardButton;
 
             msg_dialog.setIcon(QMessageBox::Question);
 
@@ -1033,34 +1046,40 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
             // Cancel = RejectRole
             // Save = AcceptRole
             // Don't Save = DestructiveRole
-            msg_dialog.setStandardButtons(QMessageBox::Cancel);
+            msg_dialog.addButton(QMessageBox::Cancel);
 
             if (capture_in_progress) {
-                default_button = msg_dialog.addButton(tr("Stop and Save"), QMessageBox::AcceptRole);
+                saveButton = msg_dialog.addButton(tr("Stop and Save"), QMessageBox::AcceptRole);
             } else {
-                default_button = msg_dialog.addButton(QMessageBox::Save);
+                saveButton = msg_dialog.addButton(QMessageBox::Save);
             }
-            msg_dialog.setDefaultButton(default_button);
+            msg_dialog.setDefaultButton(saveButton);
 
             if (from_quit) {
                 if (cap_file_->state == FILE_READ_IN_PROGRESS) {
-                    msg_dialog.addButton(tr("Stop and Quit without Saving"), QMessageBox::DestructiveRole);
+                    discardButton = msg_dialog.addButton(tr("Stop and Quit without Saving"),
+                                                         QMessageBox::DestructiveRole);
                 } else {
-                    msg_dialog.addButton(tr("Quit without Saving"), QMessageBox::DestructiveRole);
+                    discardButton = msg_dialog.addButton(tr("Quit without Saving"),
+                                                         QMessageBox::DestructiveRole);
                 }
             } else {
                 if (capture_in_progress) {
-                    msg_dialog.addButton(tr("Stop and Continue without Saving"), QMessageBox::DestructiveRole);
+                    discardButton = msg_dialog.addButton(tr("Stop and Continue without Saving"),
+                                                         QMessageBox::DestructiveRole);
                 } else {
-                    msg_dialog.addButton(QMessageBox::Discard);
+                    discardButton = msg_dialog.addButton(QMessageBox::Discard);
                 }
             }
 
-            response = msg_dialog.exec();
+            msg_dialog.exec();
+            /* According to the Qt doc:
+             * when using QMessageBox with custom buttons, exec() function returns an opaque value.
+             *
+             * Therefore we should use clickedButton() to determine which button was clicked. */
 
-            switch (response) {
-
-            case QMessageBox::Save:
+            if(msg_dialog.clickedButton() == saveButton)
+            {
 #ifdef HAVE_LIBPCAP
                 /* If there's a capture in progress, we have to stop the capture
              and then do the save. */
@@ -1069,9 +1088,9 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
 #endif
                 /* Save the file and close it */
                 saveCaptureFile(cap_file_, TRUE);
-                break;
-
-            case QMessageBox::Discard:
+            }
+            else if(msg_dialog.clickedButton() == discardButton)
+            {
 #ifdef HAVE_LIBPCAP
                 /*
                  * If there's a capture in progress; we have to stop the capture
@@ -1083,14 +1102,12 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                 /* Just close the file, discarding changes */
                 cf_close(cap_file_);
                 return true;
-                break;
-
-            case QMessageBox::Cancel:
-            default:
-                /* Don't close the file (and don't stop any capture in progress). */
-                return false; /* file not closed */
-                break;
             }
+            else    //cancelButton or some other unspecified button
+            {
+                return false;
+            }
+
         } else {
             /* Unchanged file, just close it */
             cf_close(cap_file_);
