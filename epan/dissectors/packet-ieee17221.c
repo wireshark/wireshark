@@ -1,6 +1,6 @@
 /* packet-ieee17221.c
  * Dissector for IEEE P1722.1
- * Copyright 2011-2012, Thomas Bottom <tom.bottom@labxtechnologies.com>
+ * Copyright 2011-2013, Thomas Bottom <tom.bottom@labxtechnologies.com>
  *                      Chris Pane <chris.pane@labxtechnologies.com>
  *                      Chris Wulff <chris.wulff@labxtechnologies.com>
  *
@@ -31,7 +31,6 @@
 /* DEV NOTES
  * This file uses 3 space indentation
  */
-
 
 #include "config.h"
 
@@ -275,6 +274,7 @@
 #define AECP_OFFSET_STREAM_INFO_STREAM_DEST_MAC          52
 #define AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE        58
 #define AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID   60
+#define AECP_OFFSET_STREAM_INFO_STREAM_VLAN_ID           68
 
 /* GET/SET_NAME */
 #define AECP_OFFSET_NAME_DESCRIPTOR_TYPE             24
@@ -2014,6 +2014,7 @@ static int hf_aecp_msrp_acc_lat_valid_flag = -1;
 static int hf_aecp_msrp_accumulated_latency = -1;
 static int hf_aecp_msrp_failure_bridge_id = -1;
 static int hf_aecp_msrp_failure_code = -1;
+static int hf_aecp_stream_vlan_id = -1;
 static int hf_aecp_name = -1;
 static int hf_aecp_name_index = -1;
 static int hf_aecp_number_of_maps = -1;
@@ -3886,6 +3887,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
                AECP_OFFSET_STREAM_INFO_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
          if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_STREAM_INFO)) {
+             /* FLAGS */
             proto_tree_add_item(aecp_tree, hf_acmp_flags_class_b, tvb,
                   AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_acmp_flags_fast_connect, tvb,
@@ -3916,6 +3918,9 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
                   AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE, 1, ENC_NA);
             proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_bridge_id, tvb,
                   AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID, 8, ENC_NA);
+
+            proto_tree_add_item(aecp_tree, hf_aecp_stream_vlan_id, tvb,
+                  AECP_OFFSET_STREAM_INFO_STREAM_VLAN_ID, 2, ENC_BIG_ENDIAN);
          }
          break;
       case AECP_COMMAND_SET_NAME:
@@ -5205,6 +5210,10 @@ proto_register_17221(void)
       { &hf_aecp_msrp_failure_bridge_id,
          {"MSRP Failure Bridge ID", "ieee17221.msrp_failure_bridge_id",
             FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_stream_vlan_id,
+         {"Stream VLAN ID", "ieee17221.stream_vlan_id",
+             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_connected_flag,
          {"Connected Flag", "ieee17221.flags.connected",
