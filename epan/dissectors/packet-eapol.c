@@ -161,6 +161,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *keyinfo_tree = NULL;
   proto_tree *key_index_tree, *keydes_tree;
   tvbuff_t   *next_tvb;
+  guint8     counter;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPOL");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -214,21 +215,44 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             masked = keyinfo &
               (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
                KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK);
-            switch (masked) {
-            case KEY_INFO_KEY_ACK_MASK:
-              col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
-              break;
-            case KEY_INFO_KEY_MIC_MASK:
-              col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
-              break;
-            case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
-                  KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
-              col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
-              break;
-            case (KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
-              col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
-              break;
-            }
+
+           if (keydesc_type == EAPOL_WPA_KEY) {
+               switch (masked) {
+                       case KEY_INFO_KEY_ACK_MASK:
+                       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+                       break;
+                       case KEY_INFO_KEY_MIC_MASK:
+                       counter = tvb_get_guint8(tvb, offset+11);
+                       if (!counter)
+                               col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+                       else
+                               col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+                       break;
+                       case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
+                       KEY_INFO_KEY_MIC_MASK):
+                       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+                       break;
+               }
+           }
+
+           if (keydesc_type == EAPOL_RSN_KEY) {
+               switch (masked) {
+                       case KEY_INFO_KEY_ACK_MASK:
+                       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+                       break;
+                       case KEY_INFO_KEY_MIC_MASK:
+                       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+                       break;
+                       case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
+                       KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
+                       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+                       break;
+                       case (KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
+                       col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+                       break;
+                }
+           }
+
           } else {
             if (keyinfo & KEY_INFO_KEY_ACK_MASK)
               col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 1 of 2)");
