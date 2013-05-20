@@ -1,4 +1,4 @@
-/* main_window.cpp
+/* main_window_slots.cpp
  *
  * $Id$
  *
