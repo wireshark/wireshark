@@ -304,7 +304,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 2;
         if (eapol_data_len != 0) {
           ti = proto_tree_add_item(eapol_tree, hf_eapol_wpa_keydes_data,
-                tvb, offset, eapol_data_len, ENCNA);
+                tvb, offset, eapol_data_len, ENC_NA);
           if ((keyinfo & KEY_INFO_ENCRYPTED_KEY_DATA_MASK) ||
               !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
             /* RSN: EAPOL-Key Key Data is encrypted.
