@@ -348,7 +348,7 @@ or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>.
 =head1 SEE ALSO
 
 wireshark(1), tshark(1), editcap(1), mergecap(1), capinfos(1), pcap(3),
-pcap-filter(7) or tcpdump(8) if it doesn't exist.
+pcap-filter(7) or tcpdump(8)
 
 =head1 NOTES
 
