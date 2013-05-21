@@ -439,6 +439,9 @@ static int hf_tds_fragment_multiple_tails = -1;
 static int hf_tds_fragment_too_long_fragment = -1;
 static int hf_tds_fragment_error = -1;
 static int hf_tds_fragment_count = -1;
+static int hf_tds_collate_codepage = -1;
+static int hf_tds_collate_flags = -1;
+static int hf_tds_collate_charset_id = -1;
 
 static int hf_tds7_login_total_size = -1;
 static int hf_tds7_version = -1;
@@ -1451,8 +1454,6 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
     char *new_val = NULL, *old_val = NULL;
     guint32 string_offset;
     gboolean is_unicode = FALSE;
-    guint16 collate_codepage, collate_flags;
-    guint8 collate_charset_id;
 
     env_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1, "Type: %u (%s)", env_type,
@@ -1488,14 +1489,11 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
         }
         else { /* parse collation info structure. From http://www.freetds.org/tds.html#collate */
             offset +=2;
-            collate_codepage = tvb_get_letohs(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %u" , collate_codepage);
+            proto_tree_add_item(tree, hf_tds_collate_codepage, tvb, offset, 2, ENC_LITTLE_ENDIAN );
             offset += 2;
-            collate_flags = tvb_get_letohs(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 2, "Flags: 0x%x", collate_flags);
+            proto_tree_add_item(tree, hf_tds_collate_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN );
             offset += 2;
-            collate_charset_id = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
+            proto_tree_add_item(tree, hf_tds_collate_charset_id, tvb, offset, 1, ENC_LITTLE_ENDIAN );
             /*offset +=1;*/
         }
     }
@@ -1643,8 +1641,6 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
     guint8 type, msg_len;
     int i;
     char *msg;
-    guint16 collate_codepage, collate_flags;
-    guint8 collate_charset_id;
 
     num_columns = tvb_get_letohs(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 2, "Columns: %u", tvb_get_letohs(tvb, offset));
@@ -1670,14 +1666,11 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
         else if (type == 35) {
             proto_tree_add_text(tree, tvb, offset, 4, "unknown 4 bytes (%x)", tvb_get_letohl(tvb, offset));
             offset += 4;
-            collate_codepage = tvb_get_letohs(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %u" , collate_codepage);
+            proto_tree_add_item(tree, hf_tds_collate_codepage, tvb, offset, 2, ENC_LITTLE_ENDIAN );
             offset += 2;
-            collate_flags = tvb_get_letohs(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 2, "Flags: 0x%x", collate_flags);
+            proto_tree_add_item(tree, hf_tds_collate_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN );
             offset += 2;
-            collate_charset_id = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
+            proto_tree_add_item(tree, hf_tds_collate_charset_id, tvb, offset, 1, ENC_LITTLE_ENDIAN );
             offset +=1;
             table_len = tvb_get_letohs(tvb, offset);
             offset +=2;
@@ -1696,14 +1689,11 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_co
             proto_tree_add_text(tree, tvb, offset, 2, "Large type size: 0x%x", tvb_get_letohs(tvb, offset));
             offset += 2;
             if (type != 165) {
-                collate_codepage = tvb_get_letohs(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %u" , collate_codepage);
+                proto_tree_add_item(tree, hf_tds_collate_codepage, tvb, offset, 2, ENC_LITTLE_ENDIAN );
                 offset += 2;
-                collate_flags = tvb_get_letohs(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 2, "Flags: 0x%x", collate_flags);
+                proto_tree_add_item(tree, hf_tds_collate_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN );
                 offset += 2;
-                collate_charset_id = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
+                proto_tree_add_item(tree, hf_tds_collate_charset_id, tvb, offset, 1, ENC_LITTLE_ENDIAN );
                 offset +=1;
             }
         }
@@ -2233,18 +2223,20 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
         length_remaining = tvb_ensure_length_remaining(tvb, pos);
 
         if ((int) token_sz < 0) {
-            proto_tree_add_text(tree, tvb, pos, 0, "Bogus token size: %u",
-                                token_sz);
-            break;
-        }
-        if ((int) token_len_field_size < 0) {
-            proto_tree_add_text(tree, tvb, pos, 0, "Bogus token length field size: %u",
-                                token_len_field_size);
+            token_item = proto_tree_add_text(tree, tvb, pos, 0, "Token");
+            expert_add_info_format(pinfo, token_item, PI_PROTOCOL, PI_WARN, "Bogus token size: %u", token_sz);
             break;
         }
         token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
                                          "Token 0x%02x %s", token,
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
+
+        if ((int) token_len_field_size < 0) {
+            expert_add_info_format(pinfo, token_item, PI_PROTOCOL, PI_WARN, 
+                                    "Bogus token length field size: %u", token_len_field_size);
+            break;
+        }
+
         token_tree = proto_item_add_subtree(token_item, ett_tds_token);
 
         /*
@@ -2504,9 +2496,8 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     offset, 1, type);
                 proto_tree_add_item(tds_tree, hf_tds_status,
                                     tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_uint_format(tds_tree,
-                                           hf_tds_length, tvb, offset + 2, 2, plen,
-                                           "Size: %u (bogus, should be >= 8)", plen);
+                tds_item = proto_tree_add_uint(tds_tree, hf_tds_length, tvb, offset + 2, 2, plen);
+                expert_add_info_format(pinfo, tds_item, PI_PROTOCOL, PI_WARN, "bogus, should be >= 8");
             }
 
             /*
@@ -2759,6 +2750,21 @@ proto_register_tds(void)
         },
         { &hf_tds_window,
           { "Window",           "tds.window",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_collate_codepage,
+          { "Codepage",           "tds.collate_codepage",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_collate_flags,
+          { "Flags",           "tds.collate_flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_collate_charset_id,
+          { "Charset ID",           "tds.collate_charset_id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
