@@ -7898,7 +7898,7 @@ static const value_string seal_algs[] = {
 static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,guint8* seal_key)
 {
     guint8 zeros[4];
-    guint8 *buf = (guint8 *)g_malloc(key_len);
+    guint8 *buf = (guint8 *)ep_alloc(key_len);
     guint8 buf2[16];
     guint8 zero_sk[16];
     int i = 0;
@@ -7911,11 +7911,9 @@ static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,g
         }
         md5_hmac(zeros,4,buf,key_len,buf2);
         md5_hmac((guint8*)&sequence,8,buf2,16,seal_key);
-        g_free(buf);
         return 1;
     }
     else {
-        g_free(buf);
         return 0;
     }
 
