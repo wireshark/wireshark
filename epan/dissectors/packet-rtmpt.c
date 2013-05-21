@@ -1661,7 +1661,6 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         proto_tree   *rtmpt_tree           = NULL;
         proto_tree   *rtmptroot_tree       = NULL;
         proto_item   *ti                   = NULL;
-        static guint  iPreviousFrameNumber = 0;
         gint          offset               = 0;
 
         gchar        *sDesc                = NULL;
@@ -1672,16 +1671,12 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
-        RTMPT_DEBUG("Dissect: frame=%u prev=%u visited=%d len=%d col=%d tree=%p\n",
-                    pinfo->fd->num, iPreviousFrameNumber, pinfo->fd->flags.visited,
+        RTMPT_DEBUG("Dissect: frame=%u visited=%d len=%d col=%d tree=%p\n",
+                    pinfo->fd->num, pinfo->fd->flags.visited,
                     tvb_length_remaining(tvb, offset), check_col(pinfo->cinfo, COL_INFO), tree);
 
-        /* This is a trick to know whether this is the first PDU in this packet or not */
-        if (iPreviousFrameNumber != PINFO_FD_NUM(pinfo))
-                col_clear(pinfo->cinfo, COL_INFO);
-        else
-                col_append_str(pinfo->cinfo, COL_INFO, " | ");
-        iPreviousFrameNumber = pinfo->fd->num;
+        /* Clear any previous data in Info column (RTMP packets are protected by a "fence") */
+        col_clear(pinfo->cinfo, COL_INFO);
 
         if (tvb_length_remaining(tvb, offset) < 1) return;
 
@@ -1726,13 +1721,16 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
                 if (tp->id>RTMPT_ID_MAX) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "|", "%s",
                                         val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                        col_set_fence(pinfo->cinfo, COL_INFO);
                 } else if (sDesc) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", sDesc);
+                        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "|", "%s", sDesc);
+                        col_set_fence(pinfo->cinfo, COL_INFO);
                 } else {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "|", "%s",
                                         val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
+                        col_set_fence(pinfo->cinfo, COL_INFO);
                 }
         }
 
