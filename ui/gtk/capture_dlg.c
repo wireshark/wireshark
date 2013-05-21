@@ -752,7 +752,7 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
       filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
       if (strlen(filter_text) == 0) {
         colorize_filter_te_as_empty(filter_te);
-        if (strlen(device.cfilter) == 1) {
+        if (strlen(device.cfilter) > 0) {
           g_array_remove_index(global_capture_opts.all_ifaces, i);
           device.cfilter = g_strdup(filter_text);
           g_array_insert_val(global_capture_opts.all_ifaces, i, device);
@@ -3140,10 +3140,11 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   GtkTreeIter   iter;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
-  GtkWidget    *pcap_ng_cb;
-  gchar        *interface = NULL;
+  GtkWidget    *filter_cm, *pcap_ng_cb;
+  gchar        *interface = NULL, *filter_text = NULL;
   gboolean      enabled = FALSE, capture_set = FALSE, pseudo = FALSE;
-  guint16       num_temp;
+  guint16       num_temp, i;
+  interface_t   device;
 
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
@@ -3151,6 +3152,8 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   model = gtk_tree_view_get_model(if_cb);
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
   num_temp = global_capture_opts.num_selected++;
+  filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
+  filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
   if (gtk_tree_model_get_iter_first(model, &iter)) {
     do {
       gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, IFACE_HIDDEN_NAME, &interface, -1);
@@ -3164,6 +3167,17 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
       }
       if (!pseudo) {
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
+        if (strlen(filter_text) != 0) {
+          for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (strcmp(device.name, interface) == 0) {
+              g_array_remove_index(global_capture_opts.all_ifaces, i);
+              device.cfilter = g_strdup(filter_text);
+              g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+              update_filter_string(device.name, filter_text);
+            }
+          }
+        }
       } else {
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, -1);
       }
