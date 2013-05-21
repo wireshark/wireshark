@@ -28,12 +28,25 @@ if [ -z "$VISUAL" ] ; then
     VISUAL=$EDITOR
 fi
 
+#Check if pbcopy (or similar) is available...
+if [ `builtin type -p pbcopy` ] ; then
+    PBCOPY="pbcopy"
+fi
+
+if [ `builtin type -p xsel` ]  ; then
+    PBCOPY="xsel --clipboard --input"
+fi
+
+if [ -z "$PBCOPY" ] ; then
+    echo "Can't find an clipboard copy. Check if pbcopy or xsel is installed in your system"
+    exit 1
+fi
 function exit_err
 {
     if [ -n "$*" ] ; then
         echo "$*"
     fi
-    echo -n $patchfile | pbcopy
+    echo -n $patchfile | $PBCOPY
     echo "Patch saved to $patchfile and copied to pasteboard"
     if [ -n "$VISUAL" ] ; then
         "$VISUAL" $patchfile $logfile
