@@ -45,6 +45,8 @@
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/stock_icons.h"
 
+#include "ui/gtk/old-gtk-compat.h"
+
 static GtkWidget *export_pdu_dlg = NULL;
 
 
