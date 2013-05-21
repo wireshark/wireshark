@@ -91,7 +91,7 @@ static int mgcp_udp_port_count;
 
 e_prefs prefs;
 
-static enum_val_t gui_ptree_line_style[] = {
+static const enum_val_t gui_ptree_line_style[] = {
     {"NONE", "NONE", 0},
     {"SOLID", "SOLID", 1},
     {"DOTTED", "DOTTED", 2},
@@ -99,7 +99,7 @@ static enum_val_t gui_ptree_line_style[] = {
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_ptree_expander_style[] = {
+static const enum_val_t gui_ptree_expander_style[] = {
     {"NONE", "NONE", 0},
     {"SQUARE", "SQUARE", 1},
     {"TRIANGLE", "TRIANGLE", 2},
@@ -107,20 +107,20 @@ static enum_val_t gui_ptree_expander_style[] = {
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_hex_dump_highlight_style[] = {
+static const enum_val_t gui_hex_dump_highlight_style[] = {
     {"BOLD", "BOLD", 0},
     {"INVERSE", "INVERSE", 1},
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_console_open_type[] = {
+static const enum_val_t gui_console_open_type[] = {
     {"NEVER", "NEVER", console_open_never},
     {"AUTOMATIC", "AUTOMATIC", console_open_auto},
     {"ALWAYS", "ALWAYS", console_open_always},
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_version_placement_type[] = {
+static const enum_val_t gui_version_placement_type[] = {
     {"WELCOME", "WELCOME", version_welcome_only},
     {"TITLE", "TITLE", version_title_only},
     {"BOTH", "BOTH", version_both},
@@ -128,7 +128,7 @@ static enum_val_t gui_version_placement_type[] = {
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_fileopen_style[] = {
+static const enum_val_t gui_fileopen_style[] = {
     {"LAST_OPENED", "LAST_OPENED", 0},
     {"SPECIFIED", "SPECIFIED", 1},
     {NULL, NULL, -1}
@@ -136,14 +136,14 @@ static enum_val_t gui_fileopen_style[] = {
 
 /* GTK knows of two ways representing "both", vertical and horizontal aligned.
  * as this may not work on other guis, we use only "both" in general here */
-static enum_val_t gui_toolbar_style[] = {
+static const enum_val_t gui_toolbar_style[] = {
     {"ICONS", "ICONS", 0},
     {"TEXT", "TEXT", 1},
     {"BOTH", "BOTH", 2},
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_layout_content[] = {
+static const enum_val_t gui_layout_content[] = {
     {"NONE", "NONE", 0},
     {"PLIST", "PLIST", 1},
     {"PDETAILS", "PDETAILS", 2},
@@ -151,7 +151,7 @@ static enum_val_t gui_layout_content[] = {
     {NULL, NULL, -1}
 };
 
-static enum_val_t gui_update_channel[] = {
+static const enum_val_t gui_update_channel[] = {
     {"DEVELOPMENT", "DEVELOPMENT", UPDATE_CHANNEL_DEVELOPMENT},
     {"STABLE", "STABLE", UPDATE_CHANNEL_STABLE},
     {NULL, NULL, -1}
@@ -1289,7 +1289,7 @@ static char * console_log_level_to_str_cb(pref_t* pref, gboolean default_val) {
 }
 
 /*
- * Column hidden custom preference functions
+ * Column preference functions
  */
 #define PRS_COL_HIDDEN                   "column.hidden"
 #define PRS_COL_FMT                      "column.format"
@@ -1518,7 +1518,7 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
         return PREFS_SET_SYNTAX_ERR;
       }
       if (cfmt_check.fmt != COL_CUSTOM) {
-        /* Some predefined columns have been migrated to use custom colums.
+        /* Some predefined columns have been migrated to use custom columns.
          * We'll convert these silently here */
         try_convert_to_custom_column(&col_l_elt->data);
       } else {
@@ -3021,8 +3021,13 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
 
               case PREFS_SET_NO_SUCH_PREF:
-                g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
-                                pline, cur_var->str, hint);
+                /*
+                 * If "print.command" silently ignore it because it's valid
+                 * on non-Win32 platforms.
+                 */
+                if (strcmp(cur_var->str, "print.command") != 0)
+                    g_warning ("%s line %d: No such preference \"%s\" %s",
+                               pf_path, pline, cur_var->str, hint);
                 break;
 
               case PREFS_SET_OBSOLETE:
@@ -3053,8 +3058,13 @@ read_prefs_file(const char *pf_path, FILE *pf,
         if (got_c != ':') {
           g_string_append_c(cur_var, (gchar) got_c);
         } else {
+          /* This is a colon (':') */
           state   = PRE_VAL;
           g_string_truncate(cur_val, 0);
+          /*
+           * Set got_val to TRUE to accommodate prefs such as
+           * "gui.fileopen.dir" that do not require a value.
+           */
           got_val = TRUE;
         }
         break;
@@ -3468,10 +3478,11 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     } else {
         prefs.gui_version_placement = version_neither;
     }
-/* handle the deprecated name resolution options */
   } else if (strcmp(pref_name, "name_resolve") == 0 ||
              strcmp(pref_name, "capture.name_resolve") == 0) {
     /*
+     * Handle the deprecated name resolution options.
+     *
      * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
      * RESOLV_ALL and RESOLV_NONE.
      *
@@ -3550,7 +3561,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          *
          * The SynOptics Network Management Protocol (SONMP) is now known by
          * its modern name, the Nortel Discovery Protocol (NDP).
-         *
          */
         if (module == NULL) {
           if (strcmp(pref_name, "column") == 0)
@@ -3576,11 +3586,11 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             module = prefs_find_module("ndp");
           else if (strcmp(pref_name, "etheric") == 0 ||
                    strcmp(pref_name, "isup_thin") == 0)
-            /* This protocols was removed 7. July 2009 */
+            /* This protocol was removed 7. July 2009 */
             return PREFS_SET_OBSOLETE;
         }
         *dotp = '.';                /* put the preference string back */
-        dotp++;                        /* skip past separator to preference name */
+        dotp++;                     /* skip past separator to preference name */
         last_dotp = dotp;
       }
     }
@@ -3821,8 +3831,9 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
           }
         }
       } else if (strcmp(module->name, "taps") == 0) {
-          /* taps preferences moved to stats module */
-          if (strcmp(dotp, "update_interval") == 0 || strcmp(value, "rtp_player_max_visible") == 0)
+          /* taps preferences moved to "statistics" module */
+          if (strcmp(dotp, "update_interval") == 0 ||
+              strcmp(dotp, "rtp_player_max_visible") == 0)
             pref = prefs_find_preference(stats_module, dotp);
       } else if (strcmp(module->name, "packet_list") == 0) {
           /* packet_list preferences moved to protocol module */
@@ -3830,8 +3841,10 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             pref = prefs_find_preference(protocols_module, dotp);
       } else if (strcmp(module->name, "stream") == 0) {
           /* stream preferences moved to gui color module */
-          if ((strcmp(dotp, "stream.client.fg") == 0) || (strcmp(value, "stream.client.bg") == 0) ||
-              (strcmp(dotp, "stream.server.fg") == 0) || (strcmp(value, "stream.server.bg") == 0))
+          if ((strcmp(dotp, "client.fg") == 0) ||
+              (strcmp(dotp, "client.bg") == 0) ||
+              (strcmp(dotp, "server.fg") == 0) ||
+              (strcmp(dotp, "server.bg") == 0))
             pref = prefs_find_preference(gui_color_module, pref_name);
       } else if (strcmp(module->name, "nameres") == 0) {
           if (strcmp(pref_name, "name_resolve_concurrency") == 0) {
