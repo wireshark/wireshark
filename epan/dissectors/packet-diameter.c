@@ -1079,45 +1079,45 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	diameter_pair->processing_request=(flags_bits & DIAM_FLAGS_R)!=0;
 
-	if (!tree) return;
+	if (tree){
+		/* print state tracking info in the tree */
+		if (flags_bits & DIAM_FLAGS_R) {
+			/* This is a request */
+			if (diameter_pair->ans_frame) {
+				it = proto_tree_add_uint(diam_tree, hf_diameter_answer_in,
+						tvb, 0, 0, diameter_pair->ans_frame);
+				PROTO_ITEM_SET_GENERATED(it);
+			}
+		} else {
+			/* This is an answer */
+			if (diameter_pair->req_frame) {
+				it = proto_tree_add_uint(diam_tree, hf_diameter_answer_to,
+						tvb, 0, 0, diameter_pair->req_frame);
+				PROTO_ITEM_SET_GENERATED(it);
 
-	/* print state tracking info in the tree */
-	if (flags_bits & DIAM_FLAGS_R) {
-		/* This is a request */
-		if (diameter_pair->ans_frame) {
-			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_in,
-					tvb, 0, 0, diameter_pair->ans_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+				nstime_delta(&ns, &pinfo->fd->abs_ts, &diameter_pair->req_time);
+				diameter_pair->srt_time = ns;
+				it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
+				PROTO_ITEM_SET_GENERATED(it);
+				/* TODO: Populate result_code in tap record from AVP 268 */
+			}
 		}
-	} else {
-		/* This is an answer */
-		if (diameter_pair->req_frame) {
-			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_to,
-					tvb, 0, 0, diameter_pair->req_frame);
-			PROTO_ITEM_SET_GENERATED(it);
 
-			nstime_delta(&ns, &pinfo->fd->abs_ts, &diameter_pair->req_time);
-			diameter_pair->srt_time = ns;
-			it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
-			PROTO_ITEM_SET_GENERATED(it);
-			/* TODO: Populate result_code in tap record from AVP 268 */
+		offset = 20;
+
+		/* Dissect AVPs until the end of the packet is reached */
+		while (offset < packet_len) {
+			offset += dissect_diameter_avp(c, tvb, offset);
 		}
+
+		/* Handle requests for which no answers were found and
+		 * anawers for which no requests were found in the tap listener.
+		 * In case if you don't need unpaired requests/answers use:
+		 * if(diameter_pair->processing_request || !diameter_pair->req_frame)
+		 *   return;
+		 */
+		tap_queue_packet(diameter_tap, pinfo, diameter_pair);
 	}
-
-	offset = 20;
-
-	/* Dissect AVPs until the end of the packet is reached */
-	while (offset < packet_len) {
-		offset += dissect_diameter_avp(c, tvb, offset);
-	}
-
-	/* Handle requests for which no answers were found and
-	 * anawers for which no requests were found in the tap listener.
-	 * In case if you don't need unpaired requests/answers use:
-	 * if(diameter_pair->processing_request || !diameter_pair->req_frame)
-	 *   return;
-	 */
-	tap_queue_packet(diameter_tap, pinfo, diameter_pair);
 
 	if(have_tap_listener(exported_pdu_tap)){
 		export_diameter_pdu(pinfo,tvb);
