@@ -369,53 +369,6 @@ get_interface_type(gchar *name, gchar *description)
     } else if (description && strstr(description, "Bluetooth") != NULL ) {
         return IF_BLUETOOTH;
     }
-#elif defined(__APPLE__)
-    /*
-     * XXX - yes, fetching all the network addresses for an interface
-     * gets you an AF_LINK address, of type "struct sockaddr_dl", and,
-     * yes, that includes an SNMP MIB-II ifType value.
-     *
-     * However, it's IFT_ETHER, i.e. Ethernet, for AirPort interfaces,
-     * not IFT_IEEE80211 (which isn't defined in OS X in any case).
-     *
-     * Perhaps some other BSD-flavored OSes won't make this mistake;
-     * however, FreeBSD 7.0 and OpenBSD 4.2, at least, appear to have
-     * made the same mistake, at least for my Belkin ZyDAS stick.
-     *
-     * XXX - this is wrong on a MacBook Air, as en0 is the AirPort
-     * interface, and it's also wrong on a Mac that has no AirPort
-     * interfaces and has multiple Ethernet interfaces.
-     *
-     * The SystemConfiguration framework is your friend here.
-     * SCNetworkInterfaceGetInterfaceType() will get the interface
-     * type.  SCNetworkInterfaceCopyAll() gets all network-capable
-     * interfaces on the system; SCNetworkInterfaceGetBSDName()
-     * gets the "BSD name" of the interface, so we look for
-     * an interface with the specified "BSD name" and get its
-     * interface type.  The interface type is a CFString, and:
-     *
-     *    kSCNetworkInterfaceTypeIEEE80211 means IF_WIRELESS;
-     *    kSCNetworkInterfaceTypeBluetooth means IF_BLUETOOTH;
-     *    kSCNetworkInterfaceTypeModem or
-     *    kSCNetworkInterfaceTypePPP or
-     *    maybe kSCNetworkInterfaceTypeWWAN means IF_DIALUP
-     */
-    if (strcmp(name, "en1") == 0) {
-        return IF_WIRELESS;
-    }
-    /*
-     * XXX - PPP devices have names beginning with "ppp" and an IFT_ of
-     * IFT_PPP, but they could be dial-up, or PPPoE, or mobile phone modem,
-     * or VPN, or... devices.  One might have to dive into the bowels of
-     * IOKit to find out.
-     */
-
-    /*
-     * XXX - there's currently no support for raw Bluetooth capture,
-     * and IP-over-Bluetooth devices just look like fake Ethernet
-     * devices.  There's also Bluetooth modem support, but that'll
-     * probably just give you a device that looks like a PPP device.
-     */
 #elif defined(__linux__)
     /*
      * Look for /sys/class/net/{device}/wireless.
