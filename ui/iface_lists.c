@@ -272,7 +272,9 @@ scan_local_interfaces(void)
                     device.has_snaplen = interface_opts.has_snaplen;
                     device.snaplen = interface_opts.snaplen;
                     device.cfilter = g_strdup(interface_opts.cfilter);
-                    device.active_dlt = interface_opts.linktype;
+                    if (interface_opts.linktype != -1) {
+                        device.active_dlt = interface_opts.linktype;
+                    }
                     device.selected = TRUE;
                     global_capture_opts.num_selected++;
                     break;
