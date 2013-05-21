@@ -23,6 +23,7 @@
  * RFC5007.txt (DHCPv6 Leasequery)
  * RFC5417.txt (CAPWAP Access Controller DHCP Option)
  * RFC5460.txt (DHCPv6 Bulk Leasequery)
+ * RFC5908.txt (Network Time Protocol (NTP) Server Option)
  * RFC6334.txt (Dual-Stack Lite Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
@@ -147,6 +148,10 @@ static int hf_dhcpv6_hopcount = -1;
 static int hf_dhcpv6_xid = -1;
 static int hf_dhcpv6_peeraddr = -1;
 static int hf_dhcpv6_linkaddr = -1;
+static int hf_option_ntpserver_type = -1;
+static int hf_option_ntpserver_length = -1;
+static int hf_option_ntpserver_addr = -1;
+static int hf_option_ntpserver_mc_addr = -1;
 static int hf_packetcable_ccc_suboption = -1;
 static int hf_packetcable_ccc_pri_dhcp = -1;
 static int hf_packetcable_ccc_sec_dhcp = -1;
@@ -193,6 +198,7 @@ static gint ett_dhcpv6_option = -1;
 static gint ett_dhcpv6_option_vsoption = -1;
 static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
+static gint ett_dhcpv6_netserver_option = -1;
 
 static int hf_dhcpv6_bulk_leasequery_size = -1;
 static int hf_dhcpv6_bulk_leasequery_msgtype = -1;
@@ -274,6 +280,7 @@ static gint ett_dhcpv6_bulk_leasequery_options = -1;
 #define OPTION_LQ_CLIENT_LINK   48
 #define OPTION_CAPWAP_AC_V6     52
 #define OPTION_RELAYID          53
+#define OPTION_NTP_SERVER       56
 #define OPTION_AFTR_NAME        64
 
 /* temporary value until defined by IETF */
@@ -388,6 +395,20 @@ static const value_string duidtype_vals[] =
     { DUID_LL_OLD, "link-layer address (old)" },
     { 0, NULL }
 };
+
+#define NTP_SUBOPTION_SRV_ADDR  1
+#define NTP_SUBOPTION_MC_ADDR   2
+#define NTP_SUBOPTION_SRV_FQDN  3
+
+static const value_string ntp_server_opttype_vals[] =
+{
+    { NTP_SUBOPTION_SRV_ADDR,    "NTP Server Address" },
+    { NTP_SUBOPTION_MC_ADDR,     "NTP Multicast Address" },
+    { NTP_SUBOPTION_SRV_FQDN,    "NTP Server FQDN" },
+
+    { 0, NULL }
+};
+
 
 static const true_false_string fqdn_n = {
     "Server should not perform DNS updates",
@@ -1194,8 +1215,8 @@ static int
 dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
               gboolean downstream, int off, int eoff, gboolean *at_end, int protocol)
 {
-    guint16     opttype, optlen, hwtype;
-    guint16     temp_optlen = 0;
+    guint16     opttype, hwtype, subopt_type;
+    int     temp_optlen = 0, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
     proto_item *ti, *option_item;
     proto_tree *subtree;
     proto_tree *subtree_2;
@@ -1291,6 +1312,36 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
             break;
         }
+        break;
+    case OPTION_NTP_SERVER:
+        if (optlen < 4) {
+            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "NTP Server: malformed option");
+            break;
+        }
+        while (optlen > temp_optlen) {
+            subopt_type = tvb_get_ntohs(tvb, off+temp_optlen);
+            subopt_len = tvb_get_ntohs(tvb, off+2+temp_optlen);
+            ti = proto_tree_add_text(subtree, tvb, off+temp_optlen, 4 + subopt_len,
+                             "%s", val_to_str(opttype, ntp_server_opttype_vals, "NTP Server suboption %u"));
+            subtree_2 = proto_item_add_subtree(option_item, ett_dhcpv6_netserver_option);
+            proto_tree_add_item(subtree_2, hf_option_ntpserver_type, tvb, off + temp_optlen, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree_2, hf_option_ntpserver_length, tvb, off + 2 + temp_optlen, 2, ENC_BIG_ENDIAN);
+            temp_optlen += 4;
+            switch(subopt_type) {
+            case NTP_SUBOPTION_SRV_ADDR:
+                proto_tree_add_item(subtree_2, hf_option_ntpserver_addr, tvb, off + temp_optlen, 16, ENC_NA);
+                break;
+            case NTP_SUBOPTION_MC_ADDR:
+                proto_tree_add_item(subtree_2, hf_option_ntpserver_mc_addr, tvb, off + temp_optlen, 16, ENC_NA);
+                break;
+            case NTP_SUBOPTION_SRV_FQDN:
+                dhcpv6_domain(subtree_2, ti, pinfo, tvb, off + temp_optlen, subopt_len);
+                break;
+            }
+
+            temp_optlen += subopt_len;
+        }
+
         break;
     case OPTION_IA_NA:
     case OPTION_IA_PD:
@@ -2083,6 +2134,14 @@ proto_register_dhcpv6(void)
           { "Home Address", "dhcpv6.mip6_home_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_nai,
           { "NAI", "dhcpv6.nai", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_ntpserver_type,
+          { "Suboption", "dhcpv6.ntpserver.option.type", FT_UINT16, BASE_DEC, VALS(ntp_server_opttype_vals), 0x0, NULL, HFILL}},
+        { &hf_option_ntpserver_length,
+          { "Length", "dhcpv6.ntpserver.option.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        { &hf_option_ntpserver_addr,
+          { "NTP Server Address", "dhcpv6.ntpserver.addr", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_option_ntpserver_mc_addr,
+          { "NTP Multicast Address", "dhcpv6.ntpserver.mc_addr", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_packetcable_ccc_suboption,
           { "Sub element", "dhcpv6.packetcable.ccc.suboption", FT_UINT16, BASE_DEC, VALS(pkt_ccc_opt_vals), 0, NULL, HFILL }},
         { &hf_packetcable_ccc_pri_dhcp,
@@ -2171,6 +2230,7 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_option_vsoption,
         &ett_dhcpv6_vendor_option,
         &ett_dhcpv6_pkt_option,
+        &ett_dhcpv6_netserver_option
     };
 
     static hf_register_info bulk_leasequery_hf[] = {
