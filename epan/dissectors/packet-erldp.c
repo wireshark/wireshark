@@ -206,7 +206,7 @@ static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint 
                             (flg & (0x08 << 4*(i%2))), "NewCacheEntryFlag[%2d]: %s",
                             i, (flg & (0x08 << 4*(i%2))) ? "SET" : "---");
     proto_tree_add_uint_format(flags_tree, hf_etf_dist_header_segment_index, tvb, offset + i / 2, 1, 
-                            (flg & (0x07 << 4*(i%2))), "SegmentIndex     [%2d]: %%u",
+                            (flg & (0x07 << 4*(i%2))), "SegmentIndex     [%2d]: %u",
                             i, (flg & (0x07 << 4*(i%2))));
   }
   flg = tvb_get_guint8(tvb, offset + num / 2);
