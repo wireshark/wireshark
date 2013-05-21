@@ -73,7 +73,7 @@ static void try_convert_to_custom_column(gpointer *el_data);
 
 
 #define PF_NAME		"preferences"
-#define OLD_GPF_NAME	"wireshark.conf"	/* old name for global preferences file */
+#define OLD_GPF_NAME	"wireshark.conf" /* old name for global preferences file */
 
 static gboolean prefs_initialized = FALSE;
 static gboolean prefs_pre_initialized = FALSE;
@@ -92,70 +92,71 @@ static int mgcp_udp_port_count;
 e_prefs prefs;
 
 static enum_val_t gui_ptree_line_style[] = {
-		{"NONE", "NONE", 0},
-		{"SOLID", "SOLID", 1},
-		{"DOTTED", "DOTTED", 2},
-		{"TABBED", "TABBED", 3},
-		{NULL, NULL, -1}
-	};
+    {"NONE", "NONE", 0},
+    {"SOLID", "SOLID", 1},
+    {"DOTTED", "DOTTED", 2},
+    {"TABBED", "TABBED", 3},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_ptree_expander_style[] = {
-		{"NONE", "NONE", 0},
-		{"SQUARE", "SQUARE", 1},
-		{"TRIANGLE", "TRIANGLE", 2},
-		{"CIRCULAR", "CIRCULAR", 3},
-		{NULL, NULL, -1}
-	};
+    {"NONE", "NONE", 0},
+    {"SQUARE", "SQUARE", 1},
+    {"TRIANGLE", "TRIANGLE", 2},
+    {"CIRCULAR", "CIRCULAR", 3},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_hex_dump_highlight_style[] = {
-		{"BOLD", "BOLD", 0},
-		{"INVERSE", "INVERSE", 1},
-		{NULL, NULL, -1}
-	};
+    {"BOLD", "BOLD", 0},
+    {"INVERSE", "INVERSE", 1},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_console_open_type[] = {
-		{"NEVER", "NEVER", console_open_never},
-		{"AUTOMATIC", "AUTOMATIC", console_open_auto},
-		{"ALWAYS", "ALWAYS", console_open_always},
-		{NULL, NULL, -1}
-	};
+    {"NEVER", "NEVER", console_open_never},
+    {"AUTOMATIC", "AUTOMATIC", console_open_auto},
+    {"ALWAYS", "ALWAYS", console_open_always},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_version_placement_type[] = {
-		{"WELCOME", "WELCOME", version_welcome_only},
-		{"TITLE", "TITLE", version_title_only},
-		{"BOTH", "BOTH", version_both},
-		{"NEITHER", "NEITHER", version_neither},
-		{NULL, NULL, -1}
-	};
+    {"WELCOME", "WELCOME", version_welcome_only},
+    {"TITLE", "TITLE", version_title_only},
+    {"BOTH", "BOTH", version_both},
+    {"NEITHER", "NEITHER", version_neither},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_fileopen_style[] = {
-		{"LAST_OPENED", "LAST_OPENED", 0},
-		{"SPECIFIED", "SPECIFIED", 1},
-		{NULL, NULL, -1}
-	};
+    {"LAST_OPENED", "LAST_OPENED", 0},
+    {"SPECIFIED", "SPECIFIED", 1},
+    {NULL, NULL, -1}
+};
 
 /* GTK knows of two ways representing "both", vertical and horizontal aligned.
  * as this may not work on other guis, we use only "both" in general here */
 static enum_val_t gui_toolbar_style[] = {
-		{"ICONS", "ICONS", 0},
-		{"TEXT", "TEXT", 1},
-		{"BOTH", "BOTH", 2},
-		{NULL, NULL, -1}
-	};
+    {"ICONS", "ICONS", 0},
+    {"TEXT", "TEXT", 1},
+    {"BOTH", "BOTH", 2},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_layout_content[] = {
-		{"NONE", "NONE", 0},
-		{"PLIST", "PLIST", 1},
-		{"PDETAILS", "PDETAILS", 2},
-		{"PBYTES", "PBYTES", 3},
-		{NULL, NULL, -1}
-	};
+    {"NONE", "NONE", 0},
+    {"PLIST", "PLIST", 1},
+    {"PDETAILS", "PDETAILS", 2},
+    {"PBYTES", "PBYTES", 3},
+    {NULL, NULL, -1}
+};
 
 static enum_val_t gui_update_channel[] = {
-		{"DEVELOPMENT", "DEVELOPMENT", UPDATE_CHANNEL_DEVELOPMENT},
-		{"STABLE", "STABLE", UPDATE_CHANNEL_STABLE},
-		{NULL, NULL, -1}
-	};
+    {"DEVELOPMENT", "DEVELOPMENT", UPDATE_CHANNEL_DEVELOPMENT},
+    {"STABLE", "STABLE", UPDATE_CHANNEL_STABLE},
+    {NULL, NULL, -1}
+};
+
 /*
  * List of all modules with preference settings.
  */
@@ -3463,13 +3464,13 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
   } else if (strcmp(pref_name, "gui.version_in_start_page") == 0) {
     /* Convert deprecated value to closest current equivalent */
     if (g_ascii_strcasecmp(value, "true") == 0) {
-	    prefs.gui_version_placement = version_both;
+        prefs.gui_version_placement = version_both;
     } else {
-	    prefs.gui_version_placement = version_neither;
+        prefs.gui_version_placement = version_neither;
     }
 /* handle the deprecated name resolution options */
   } else if (strcmp(pref_name, "name_resolve") == 0 ||
-	     strcmp(pref_name, "capture.name_resolve") == 0) {
+             strcmp(pref_name, "capture.name_resolve") == 0) {
     /*
      * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
      * RESOLV_ALL and RESOLV_NONE.
@@ -3526,7 +3527,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         else {
             had_a_dot = TRUE;
         }
-        *dotp = '\0';		/* separate module and preference name */
+        *dotp = '\0'; /* separate module and preference name */
         module = prefs_find_module(pref_name);
 
         /*
@@ -3984,7 +3985,7 @@ prefs_pref_type_name(pref_t *pref)
 
     case PREF_STRING:
         type_name = "String";
-	break;
+        break;
 
     case PREF_FILENAME:
         type_name = "Filename";
@@ -4072,7 +4073,7 @@ prefs_pref_type_description(pref_t *pref)
 
     case PREF_STRING:
         type_desc = "A string";
-	break;
+        break;
 
     case PREF_FILENAME:
         type_desc = "A path to a file";
@@ -4329,10 +4330,10 @@ write_pref(gpointer data, gpointer user_data)
 
     case PREF_STATIC_TEXT:
     case PREF_UAT:
-	/* Nothing to do; don't bother printing the description */
+        /* Nothing to do; don't bother printing the description */
         return;
     default:
-	break;
+        break;
     }
 
     if (pref->type != PREF_CUSTOM || pref->custom_cbs.type_name_cb() != NULL) {
