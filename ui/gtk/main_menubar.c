@@ -56,6 +56,7 @@
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
+#include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 #include "ui/software_update.h"
 #include "ui/ui_util.h"
@@ -4392,7 +4393,7 @@ add_menu_recent_capture_file_absolute(const gchar *cf_name)
  * http:                        //stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 void
-add_menu_recent_capture_file(gchar *cf_name)
+add_menu_recent_capture_file(const gchar *cf_name)
 {
     gchar *curr;
     gchar *absolute;
