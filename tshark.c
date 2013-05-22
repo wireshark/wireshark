@@ -2631,7 +2631,7 @@ capture_cleanup(DWORD ctrltype _U_)
      building it with Cygwin may make the problem go away). */
 
   /* tell the capture child to stop */
-  sync_pipe_stop(&global_capture_opts);
+  sync_pipe_stop(&global_capture_session);
 
   /* don't stop our own loop already here, otherwise status messages and
    * cleanup wouldn't be done properly. The child will indicate the stop of
