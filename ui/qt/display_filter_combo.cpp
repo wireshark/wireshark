@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include "qt_ui_utils.h"
+#include "ui/recent_utils.h"
 #include "ui/recent.h"
 
 #include <epan/prefs.h>

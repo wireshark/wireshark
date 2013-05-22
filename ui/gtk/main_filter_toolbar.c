@@ -34,6 +34,7 @@
 #include <gtk/gtk.h>
 
 #include "ui/recent.h"
+#include "ui/recent_utils.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 
