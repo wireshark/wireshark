@@ -185,7 +185,7 @@ SOURCES_WS_C = \
     ../../u3.c \
     ../../version_info.c
 
-unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c ../../capture_unix_ifnames.c
+unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
 win32:SOURCES_WS_C += \
     ../../capture_win_ifnames.c \
     ../../capture-wpcap.c \
