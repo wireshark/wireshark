@@ -126,6 +126,7 @@
 #include "capture_ui_utils.h"
 #include "capture-pcap-util.h"
 #include "capture_ifinfo.h"
+#include "capture_session.h"
 #include "capture.h"
 #include "capture_sync.h"
 #endif
