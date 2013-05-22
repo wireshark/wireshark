@@ -127,8 +127,10 @@
 #include <qlocale.h>
 #include <qlibraryinfo.h>
 
+#ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
 capture_session global_capture_session;
+#endif
 
 capture_file cfile;
 
