@@ -239,7 +239,7 @@ frame_data_sequence_find(frame_data_sequence *fds, guint32 num)
 }
 
 /* recursively frees a frame_data radix level */
-void
+static void
 free_frame_data_array(void *array, guint count, guint level, gboolean last)
 {
   guint i, level_count;
