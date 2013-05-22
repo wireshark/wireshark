@@ -285,8 +285,7 @@ wimaxasncp_DATA = \
 	wimaxasncp/dictionary.dtd
 
 PLATFORM_SRC = \
-	capture-pcap-util-unix.c \
-	capture_unix_ifnames.c
+	capture-pcap-util-unix.c
 
 if HAVE_PLUGINS
 -include plugins/Custom.make

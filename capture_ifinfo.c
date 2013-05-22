@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -141,9 +142,9 @@ capture_interface_list(int *err, char **err_str)
     g_free(data);
 
     for (i = 0; raw_list[i] != NULL; i++) {
-        if_parts = g_strsplit(raw_list[i], "\t", 5);
+        if_parts = g_strsplit(raw_list[i], "\t", 6);
         if (if_parts[0] == NULL || if_parts[1] == NULL || if_parts[2] == NULL ||
-                if_parts[3] == NULL || if_parts[4] == NULL) {
+                if_parts[3] == NULL || if_parts[4] == NULL || if_parts[5] == NULL) {
             g_strfreev(if_parts);
             continue;
         }
@@ -163,7 +164,8 @@ capture_interface_list(int *err, char **err_str)
             if_info->vendor_description = g_strdup(if_parts[1]);
         if (strlen(if_parts[2]) > 0)
             if_info->friendly_name = g_strdup(if_parts[2]);
-        addr_parts = g_strsplit(if_parts[3], ",", 0);
+        if_info->type = (interface_type)strtol(if_parts[3], NULL, 10);
+        addr_parts = g_strsplit(if_parts[4], ",", 0);
         for (j = 0; addr_parts[j] != NULL; j++) {
             if_addr = g_new0(if_addr_t,1);
             if (inet_pton(AF_INET, addr_parts[j], &if_addr->addr.ip4_addr)) {
@@ -179,7 +181,7 @@ capture_interface_list(int *err, char **err_str)
                 if_info->addrs = g_slist_append(if_info->addrs, if_addr);
             }
         }
-        if (strcmp(if_parts[4], "loopback") == 0)
+        if (strcmp(if_parts[5], "loopback") == 0)
             if_info->loopback = TRUE;
         g_strfreev(if_parts);
         g_strfreev(addr_parts);
@@ -340,82 +342,4 @@ void add_interface_to_remote_list(if_info_t *if_info)
     remote_interface_list = g_list_append(remote_interface_list, temp);
 }
 #endif
-
-guint
-get_interface_type(gchar *name, gchar *description)
-{
-#if defined(__linux__)
-    ws_statb64 statb;
-    char *wireless_path;
-#endif
-#if defined(_WIN32)
-    /*
-     * Much digging failed to reveal any obvious way to get something such
-     * as the SNMP MIB-II ifType value for an interface:
-     *
-     *    http://www.iana.org/assignments/ianaiftype-mib
-     *
-     * by making some NDIS request.
-     */
-    if (description && (strstr(description,"generic dialup") != NULL ||
-            strstr(description,"PPP/SLIP") != NULL )) {
-        return IF_DIALUP;
-    } else if (description && (strstr(description,"Wireless") != NULL ||
-            strstr(description,"802.11") != NULL)) {
-        return IF_WIRELESS;
-    } else if (description && strstr(description,"AirPcap") != NULL ||
-            strstr(name,"airpcap")) {
-        return IF_AIRPCAP;
-    } else if (description && strstr(description, "Bluetooth") != NULL ) {
-        return IF_BLUETOOTH;
-    }
-#elif defined(__linux__)
-    /*
-     * Look for /sys/class/net/{device}/wireless.
-     */
-    wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", name);
-    if (wireless_path != NULL) {
-        if (ws_stat64(wireless_path, &statb) == 0) {
-            g_free(wireless_path);
-            return IF_WIRELESS;
-        }
-        g_free(wireless_path);
-    }
-    /*
-     * Bluetooth devices.
-     *
-     * XXX - this is for raw Bluetooth capture; what about IP-over-Bluetooth
-     * devices?
-     */
-    if ( strstr(name,"bluetooth") != NULL) {
-        return IF_BLUETOOTH;
-    }
-
-    /*
-     * USB devices.
-     */
-    if ( strstr(name,"usbmon") != NULL ) {
-        return IF_USB;
-    }
-#endif
-    /*
-     * Bridge, NAT, or host-only interfaces on VMWare hosts have the name
-     * vmnet[0-9]+ or VMnet[0-9+ on Windows. Guests might use a native
-     * (LANCE or E1000) driver or the vmxnet driver. These devices have an
-     * IFT_ of IFT_ETHER, so we have to check the name.
-     */
-    if ( g_ascii_strncasecmp(name, "vmnet", 5) == 0) {
-        return IF_VIRTUAL;
-    }
-
-    if ( g_ascii_strncasecmp(name, "vmxnet", 6) == 0) {
-        return IF_VIRTUAL;
-    }
-
-    if (description && strstr(description, "VMware") != NULL ) {
-        return IF_VIRTUAL;
-    }
-
-    return IF_WIRED;
-}
 #endif /* HAVE_LIBPCAP */

@@ -54,8 +54,181 @@
 
 #ifdef _WIN32
 #include "capture_win_ifnames.h" /* windows friendly interface names */
+#endif
+
+/*
+ * Given an interface name, find the "friendly name" and interface
+ * type for the interface.
+ */
+
+#if defined(__APPLE__)
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <SystemConfiguration/SystemConfiguration.h>
+
+#include "cfutils.h"
+
+/*
+ * On OS X, we get the "friendly name" and interface type for the interface
+ * from the System Configuration framework.
+ *
+ * To find the System Configuration framework information for the
+ * interface, we get all the interfaces that the System Configuration
+ * framework knows about and look for the one with a "BSD name" matching
+ * the interface name.
+ *
+ * If we find it, we use its "localized display name", if it has one, as
+ * the "friendly name".
+ *
+ * As for the interface type:
+ *
+ * Yes, fetching all the network addresses for an interface gets you an
+ * AF_LINK address, of type "struct sockaddr_dl", and, yes, that includes
+ * an SNMP MIB-II ifType value.
+ *
+ * However, it's IFT_ETHER, i.e. Ethernet, for AirPort interfaces,
+ * not IFT_IEEE80211 (which isn't defined in OS X in any case).
+ *
+ * Perhaps some other BSD-flavored OSes won't make this mistake;
+ * however, FreeBSD 7.0 and OpenBSD 4.2, at least, appear to have
+ * made the same mistake, at least for my Belkin ZyDAS stick.
+ *
+ * SCNetworkInterfaceGetInterfaceType() will get the interface
+ * type.  The interface type is a CFString, and:
+ *
+ *    kSCNetworkInterfaceTypeIEEE80211 means IF_WIRELESS;
+ *    kSCNetworkInterfaceTypeBluetooth means IF_BLUETOOTH;
+ *    kSCNetworkInterfaceTypeModem or
+ *    kSCNetworkInterfaceTypePPP or
+ *    maybe kSCNetworkInterfaceTypeWWAN means IF_DIALUP
+ */
+static void
+add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
+    const char *description _U_)
+{
+	CFStringRef name_CFString;
+	CFArrayRef interfaces;
+	CFIndex num_interfaces;
+	CFIndex i;
+	SCNetworkInterfaceRef interface;
+	CFStringRef bsdname_CFString;
+	CFStringRef friendly_name_CFString;
+	CFStringRef interface_type_CFString;
+
+	interfaces = SCNetworkInterfaceCopyAll();
+	if (interfaces == NULL) {
+		/*
+		 * Couldn't get a list of interfaces.
+		 */
+		return;
+	}
+
+	name_CFString = CFStringCreateWithCString(kCFAllocatorDefault,
+	    name, kCFStringEncodingUTF8);
+	if (name_CFString == NULL) {
+		/*
+		 * Couldn't convert the interface name to a CFString.
+		 */
+		CFRelease(interfaces);
+		return;
+	}
+
+	num_interfaces = CFArrayGetCount(interfaces);
+	for (i = 0; i < num_interfaces; i++) {
+		interface = (SCNetworkInterfaceRef)CFArrayGetValueAtIndex(interfaces, i);
+		bsdname_CFString = SCNetworkInterfaceGetBSDName(interface);
+		if (bsdname_CFString == NULL) {
+			/*
+			 * This interface has no BSD name, so it's not
+			 * a regular network interface.
+			 */
+			continue;
+		}
+		if (CFStringCompare(name_CFString, bsdname_CFString, 0) == 0) {
+			/*
+			 * This is the interface.
+			 * First, get the friendly name.
+			 */
+			friendly_name_CFString = SCNetworkInterfaceGetLocalizedDisplayName(interface);
+			if (friendly_name_CFString != NULL)
+				if_info->friendly_name = CFString_to_C_string(friendly_name_CFString);
+
+			/*
+			 * Now get the interface type.
+			 */
+			interface_type_CFString = SCNetworkInterfaceGetInterfaceType(interface);
+			if (CFStringCompare(interface_type_CFString,
+			    kSCNetworkInterfaceTypeIEEE80211, 0) == kCFCompareEqualTo)
+				if_info->type = IF_WIRELESS;
+			else if (CFStringCompare(interface_type_CFString,
+			    kSCNetworkInterfaceTypeBluetooth, 0) == kCFCompareEqualTo)
+				if_info->type = IF_BLUETOOTH;
+			else if (CFStringCompare(interface_type_CFString,
+			    kSCNetworkInterfaceTypeModem, 0) == kCFCompareEqualTo)
+				if_info->type = IF_DIALUP;
+			else if (CFStringCompare(interface_type_CFString,
+			    kSCNetworkInterfaceTypePPP, 0) == kCFCompareEqualTo)
+				if_info->type = IF_DIALUP;
+			else if (CFStringCompare(interface_type_CFString,
+			    kSCNetworkInterfaceTypeWWAN, 0) == kCFCompareEqualTo)
+				if_info->type = IF_DIALUP;
+			else
+				if_info->type = IF_WIRED;
+			break;
+		}
+	}
+
+	CFRelease(interfaces);
+}
+#elif defined(__linux__)
+/*
+ * Linux doesn't offer any form of "friendly name", but you can
+ * determine an interface type to some degree.
+ */
+static void
+add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
+    const char *description _U_)
+{
+	char *wireless_path;
+	ws_statb64 statb;
+
+	/*
+	 * Look for /sys/class/net/{device}/wireless.  If it exists,
+	 * it's a wireless interface.
+	 */
+	wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", name);
+	if (wireless_path != NULL) {
+		if (ws_stat64(wireless_path, &statb) == 0)
+			if_info->type = IF_WIRELESS;
+		g_free(wireless_path);
+	}
+	if (if_info->type == IF_WIRED) {
+		/*
+		 * We still don't know what it is.  Check for
+		 * Bluetooth and USB devices.
+		 */
+		if (strstr(name, "bluetooth") != NULL) {
+			/*
+			 * XXX - this is for raw Bluetooth capture; what
+			 * about IP-over-Bluetooth devices?
+			 */
+			if_info->type = IF_BLUETOOTH;
+		} else if (strstr(name, "usbmon") != NULL)
+			if_info->type = IF_USB;
+	}
+}
 #else
-#include "capture_unix_ifnames.h"
+/*
+ * On other UN*Xes, if there is a description, it's a friendly
+ * name, and there is no vendor description.  ("Other UN*Xes"
+ * currently means "FreeBSD and OpenBSD".)
+ */
+void
+add_unix_interface_ifinfo(if_info_t *if_info, const char *name _U_,
+    const char *description)
+{
+	if_info->friendly_name = g_strdup(description);
+}
 #endif
 
 if_info_t *
@@ -69,7 +242,47 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 
 	if_info = (if_info_t *)g_malloc(sizeof (if_info_t));
 	if_info->name = g_strdup(name);
+	if_info->friendly_name = NULL;	/* default - unknown */
+	if_info->vendor_description = NULL;
+	if_info->type = IF_WIRED;	/* default */
 #ifdef _WIN32
+	/*
+	 * Get the interface type.
+	 *
+	 * Much digging failed to reveal any obvious way to get something
+	 * such as the SNMP MIB-II ifType value for an interface:
+	 *
+	 *    http://www.iana.org/assignments/ianaiftype-mib
+	 *
+	 * by making some NDIS request.  And even if there were such
+	 * a way, there's no guarantee that the ifType reflects an
+	 * interface type that a user would view as correct (for
+	 * example, some systems report Wi-Fi interfaces as
+	 * Ethernet interfaces).
+	 *
+	 * So we look for keywords in the vendor's interface
+	 * description.
+	 */
+	if (description && (strstr(description, "generic dialup") != NULL ||
+	    strstr(description, "PPP/SLIP") != NULL)) {
+		if_info->type = IF_DIALUP;
+	} else if (description && (strstr(description, "Wireless") != NULL ||
+	    strstr(description,"802.11") != NULL)) {
+		if_info->type = IF_WIRELESS;
+	} else if (description && strstr(description, "AirPcap") != NULL ||
+	    strstr(name, "airpcap") != NULL) {
+		if_info->type = IF_AIRPCAP;
+	} else if (description && strstr(description, "Bluetooth") != NULL ) {
+		if_info->type = IF_BLUETOOTH;
+	} else if (description && strstr(description, "VMware") != NULL) {
+		/*
+		 * Bridge, NAT, or host-only interface on a VMware host.
+		 *
+		 * XXX - what about guest interfaces?
+		 */
+		if_info->type = IF_VIRTUAL;
+	}
+
 	/*
 	 * On Windows, the "description" is a vendor description,
 	 * and the friendly name isn't returned by WinPcap.
@@ -110,21 +323,39 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	/*
 	 * On UN*X, if there is a description, it's a friendly
 	 * name, and there is no vendor description.
-	 * If there's no description, fetch a friendly name
-	 * if we can; if that fails, then, for a loopback
-	 * interface, give it the friendly name "Loopback".
+	 *
+	 * Try the platform's way of getting a friendly name and
+	 * interface type first.
+	 *
+	 * If that fails, then, for a loopback interface, give it the
+	 * friendly name "Loopback" and, for VMware interfaces,
+	 * give them the type IF_VIRTUAL.
 	 */
-	if_info->friendly_name = g_strdup(description);
+	add_unix_interface_ifinfo(if_info, name, description);
+	if (if_info->type == IF_WIRED) {
+		/*
+		 * This is the default interface type.
+		 *
+		 * Bridge, NAT, or host-only interfaces on VMWare hosts
+		 * have the name vmnet[0-9]+. Guests might use a native
+		 * (LANCE or E1000) driver or the vmxnet driver.  Check
+		 * the name.
+		 */
+		if (g_ascii_strncasecmp(name, "vmnet", 5) == 0)
+			if_info->type = IF_VIRTUAL;
+		else if (g_ascii_strncasecmp(name, "vmxnet", 6) == 0)
+			if_info->type = IF_VIRTUAL;
+	}
 	if (if_info->friendly_name == NULL) {
-		if_info->friendly_name = get_unix_interface_friendly_name(name);
-		if (if_info->friendly_name == NULL) {
-			/*
-			 * If this is a loopback interface, give it a
-			 * "friendly name" of "Loopback".
-			 */
-			if (loopback)
-				if_info->friendly_name = g_strdup("Loopback");
-		}
+		/*
+		 * We couldn't get interface information using platform-
+		 * dependent calls.
+		 *
+		 * If this is a loopback interface, give it a
+		 * "friendly name" of "Loopback".
+		 */
+		if (loopback)
+			if_info->friendly_name = g_strdup("Loopback");
 	}
 	if_info->vendor_description = NULL;
 #endif

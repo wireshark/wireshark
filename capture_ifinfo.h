@@ -29,6 +29,18 @@
 extern "C" {
 #endif /* __cplusplus */
 
+typedef enum {
+	IF_WIRED,
+	IF_AIRPCAP,
+	IF_PIPE,
+	IF_STDIN,
+	IF_BLUETOOTH,
+	IF_WIRELESS,
+	IF_DIALUP,
+	IF_USB,
+	IF_VIRTUAL
+} interface_type;
+
 /*
  * The list of interfaces returned by "get_interface_list()" is
  * a list of these structures.
@@ -42,6 +54,7 @@ typedef struct {
 				   e.g. "Realtek PCIe GBE Family Controller",
 				   or NULL if not available */
 	GSList  *addrs;         /* containing address values of if_addr_t */
+	interface_type type;    /* type of interface */
 	gboolean loopback;      /* TRUE if loopback, FALSE otherwise */
 } if_info_t;
 
@@ -102,12 +115,6 @@ capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
 void free_if_capabilities(if_capabilities_t *caps);
 
 void add_interface_to_remote_list(if_info_t *if_info);
-
-/**
- * Get the type of an interface, given its name and description.
- */
-extern guint
-get_interface_type(gchar *name, gchar *description);
 
 #ifdef __cplusplus
 }

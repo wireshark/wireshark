@@ -159,7 +159,7 @@ scan_local_interfaces(void)
         if (prefs_is_capture_device_hidden(if_info->name)) {
             device.hidden = TRUE;
         }
-        device.type = get_interface_type(if_info->name, if_info->vendor_description);
+        device.type = if_info->type;
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
         caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
