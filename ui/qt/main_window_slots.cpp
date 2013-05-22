@@ -202,7 +202,7 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
 // Capture callbacks
 
 #ifdef HAVE_LIBPCAP
-void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
+void MainWindow::captureCapturePrepared(capture_session *cap_session) {
     qDebug() << "FIX captureCapturePrepared";
     setTitlebarForCaptureInProgress();
 
@@ -219,10 +219,10 @@ void MainWindow::captureCapturePrepared(capture_options *capture_opts) {
 //    /* Don't set up main window for a capture file. */
 //    main_set_for_capture_file(FALSE);
     main_ui_->mainStack->setCurrentWidget(packet_splitter_);
-    cap_file_ = (capture_file *) capture_opts->cf;
+    cap_file_ = (capture_file *) cap_session->cf;
 }
-void MainWindow::captureCaptureUpdateStarted(capture_options *capture_opts) {
-    Q_UNUSED(capture_opts);
+void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
+    Q_UNUSED(cap_session);
 
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
@@ -232,8 +232,8 @@ void MainWindow::captureCaptureUpdateStarted(capture_options *capture_opts) {
 
     setForCapturedPackets(true);
 }
-void MainWindow::captureCaptureUpdateFinished(capture_options *capture_opts) {
-    Q_UNUSED(capture_opts);
+void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
+    Q_UNUSED(cap_session);
 
     /* The capture isn't stopping any more - it's stopped. */
     capture_stopping_ = false;
@@ -246,12 +246,12 @@ void MainWindow::captureCaptureUpdateFinished(capture_options *capture_opts) {
     setForCaptureInProgress(false);
 
 }
-void MainWindow::captureCaptureFixedStarted(capture_options *capture_opts) {
-    Q_UNUSED(capture_opts);
+void MainWindow::captureCaptureFixedStarted(capture_session *cap_session) {
+    Q_UNUSED(cap_session);
     qDebug() << "captureCaptureFixedStarted";
 }
-void MainWindow::captureCaptureFixedFinished(capture_options *capture_opts) {
-    Q_UNUSED(capture_opts);
+void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
+    Q_UNUSED(cap_session);
     qDebug() << "captureCaptureFixedFinished";
 
     /* The capture isn't stopping any more - it's stopped. */
@@ -262,14 +262,14 @@ void MainWindow::captureCaptureFixedFinished(capture_options *capture_opts) {
     setForCaptureInProgress(false);
 
 }
-void MainWindow::captureCaptureStopping(capture_options *capture_opts) {
-    Q_UNUSED(capture_opts);
+void MainWindow::captureCaptureStopping(capture_session *cap_session) {
+    Q_UNUSED(cap_session);
 
     capture_stopping_ = true;
     setMenusForCaptureStopping();
 }
-void MainWindow::captureCaptureFailed(capture_options *capture_opts) {
-    Q_UNUSED(capture_opts);
+void MainWindow::captureCaptureFailed(capture_session *cap_session) {
+    Q_UNUSED(cap_session);
     qDebug() << "captureCaptureFailed";
     /* Capture isn't stopping any more. */
     capture_stopping_ = false;
@@ -432,7 +432,7 @@ void MainWindow::startCapture() {
     collect_ifaces(&global_capture_opts);
 
     cfile.window = this;
-    if (capture_start(&global_capture_opts)) {
+    if (capture_start(&global_capture_opts, &global_capture_session)) {
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -524,7 +524,7 @@ void MainWindow::stopCapture() {
 //    airpcap_set_toolbar_stop_capture(airpcap_if_active);
 //#endif
 
-    capture_stop(&global_capture_opts);
+    capture_stop(&global_capture_session);
 }
 
 // XXX - Copied from ui/gtk/menus.c
