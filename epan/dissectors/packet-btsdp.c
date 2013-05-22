@@ -1653,7 +1653,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
         dissect_data_element(feature_tree, &sub_tree, pinfo, tvb, list_offset);
 
-        entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, 0, "Protocol Entry");
+        entry_item = proto_tree_add_text(sub_tree, tvb, entry_offset, entry_length, "Protocol Entry");
         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_id);
         dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
         new_offset = get_type_length(tvb, entry_offset, &length);
@@ -1677,7 +1677,6 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         if (entry_offset - list_offset <= entry_length) {
             dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
             new_offset = get_type_length(tvb, entry_offset, &length);
-            proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
             entry_offset = new_offset;
             value = get_int_by_size(tvb, entry_offset, length / 2);
 
@@ -1707,7 +1706,6 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
                     entry_offset += length;
                     dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
                     new_offset = get_type_length(tvb, entry_offset, &length);
-                    proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
                     entry_offset = new_offset;
                     value = get_int_by_size(tvb, entry_offset, length / 2);
 
@@ -1855,7 +1853,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     g_snprintf(str, MAX_SDP_LEN, "%x.%x.%x (0x%04x)", version >> 8, (version >> 4) & 0xF, version & 0xF, version);
                     break;
                 case 0x204:
-                    proto_tree_add_item(next_tree, hf_did_primary_record, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_did_primary_record, tvb, offset, 1, ENC_BIG_ENDIAN);
                     primary_record = tvb_get_guint8(tvb, offset);
                     g_snprintf(str, MAX_SDP_LEN, "%s", primary_record ? "true" : "false");
                     break;
@@ -3833,7 +3831,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
 
     while (current_count > 0) {
         proto_tree_add_item(st, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset     += 4;
+        offset += 4;
         current_count -= 1;
     }
 
