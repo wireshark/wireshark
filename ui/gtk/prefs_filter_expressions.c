@@ -42,6 +42,7 @@
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
+#include "ui/gtk/prefs_filter_expressions.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 static void filter_expressions_list_new_cb(GtkWidget *, gpointer);
