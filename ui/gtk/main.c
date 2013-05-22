@@ -210,7 +210,7 @@
 #define RC_FILE "gtkrc"
 
 capture_options global_capture_opts;
-capture_session global_capture_session;
+struct oh_shut_up_already global_capture_session;
 
 capture_file cfile;
 
