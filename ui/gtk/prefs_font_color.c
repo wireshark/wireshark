@@ -73,8 +73,8 @@
 
 #define SAMPLE_MARKED_TEXT  "Sample marked packet text\n"
 #define SAMPLE_IGNORED_TEXT "Sample ignored packet text\n"
-#define SAMPLE_CLIENT_TEXT  "Sample stream client text\n"
-#define SAMPLE_SERVER_TEXT  "Sample stream server text\n"
+#define SAMPLE_CLIENT_TEXT  "Sample 'Follow Stream' client text\n"
+#define SAMPLE_SERVER_TEXT  "Sample 'Follow Stream' server text\n"
 
 #define MFG_IDX 0
 #define MBG_IDX 1
@@ -130,10 +130,10 @@ font_color_prefs_show(void)
     "Marked packet background",  /* MBG_IDX 1*/
     "Ignored packet foreground", /* IFG_IDX 2*/
     "Ignored packet background", /* IBG_IDX 3*/
-    "Stream client foreground",  /* CFG_IDX 4*/
-    "Stream client background",  /* CBG_IDX 5*/
-    "Stream server foreground",  /* SFG_IDX 6*/
-    "Stream server background"   /* SBG_IDX 7*/
+    "'Follow Stream' client foreground",  /* CFG_IDX 4*/
+    "'Follow Stream' client background",  /* CBG_IDX 5*/
+    "'Follow Stream' server foreground",  /* SFG_IDX 6*/
+    "'Follow Stream' server background"   /* SBG_IDX 7*/
   };
   int            mcount = sizeof(mt) / sizeof (gchar *);
   GtkTextBuffer *buf;
