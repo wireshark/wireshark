@@ -86,5 +86,51 @@ sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg);
 extern int
 sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max);
 
+/*
+ * Routines supplied by our caller; we call them back to notify them
+ * of various events.
+ *
+ * XXX - this is *really* ugly.  We should do this better.
+ */
+
+/**
+ * Capture child told us we have a new (or the first) capture file.
+ */
+extern gboolean
+capture_input_new_file(capture_session *cap_session, gchar *new_file);
+
+/**
+ * Capture child told us we have new packets to read.
+ */
+extern void
+capture_input_new_packets(capture_session *cap_session, int to_read);
+
+/**
+ * Capture child told us how many dropped packets it counted.
+ */
+extern void
+capture_input_drops(capture_session *cap_session, guint32 dropped);
+
+/**
+ * Capture child told us that an error has occurred while starting the capture.
+ */
+extern void
+capture_input_error_message(capture_session *cap_session, char *error_message,
+                            char *secondary_error_msg);
+
+/**
+ * Capture child told us that an error has occurred while parsing a
+ * capture filter when starting/running the capture.
+ */
+extern void
+capture_input_cfilter_error_message(capture_session *cap_session, guint i,
+                                    char *error_message);
+
+/**
+ * Capture child closed its side of the pipe, report any error and
+ * do the required cleanup.
+ */
+extern void
+capture_input_closed(capture_session *cap_session, gchar *msg);
 
 #endif /* capture_sync.h */

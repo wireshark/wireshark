@@ -2350,7 +2350,7 @@ void main_window_update(void)
 
 /* capture child detected an error */
 void
-capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, char *secondary_error_msg)
+capture_input_error_message(capture_session *cap_session _U_, char *error_msg, char *secondary_error_msg)
 {
   cmdarg_err("%s", error_msg);
   cmdarg_err_cont("%s", secondary_error_msg);
@@ -2359,8 +2359,9 @@ capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, 
 
 /* capture child detected an capture filter related error */
 void
-capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char *error_message)
+capture_input_cfilter_error_message(capture_session *cap_session, guint i, char *error_message)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   dfilter_t         *rfcode = NULL;
   interface_options  interface_opts;
 
@@ -2558,7 +2559,7 @@ report_counts_siginfo(int signum _U_)
 
 /* capture child detected any packet drops? */
 void
-capture_input_drops(capture_options *capture_opts _U_, guint32 dropped)
+capture_input_drops(capture_session *cap_session _U_, guint32 dropped)
 {
   if (print_packet_counts) {
     /* We're printing packet counts to stderr.
