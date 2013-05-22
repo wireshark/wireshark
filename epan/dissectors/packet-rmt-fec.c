@@ -98,8 +98,14 @@ void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint et
 		ext_tree = proto_item_add_subtree(ti, ett);
 		rmt_ext_decode_default_header(e, tvb, ext_tree);
 
-		/* Decode 48-bit length field */
-		f.fec->transfer_length = tvb_get_ntoh64(tvb, e->offset) & G_GINT64_CONSTANT(0xFFFFFFFFFFFFU);
+		if (f.fec->encoding_id == 6){
+			/* Raptor Q uses 40-bit transfer length */
+			f.fec->transfer_length = tvb_get_ntoh40(tvb, e->offset+2);
+		}
+		else {
+			/* Decode 48-bit length field */
+			f.fec->transfer_length = tvb_get_ntoh48(tvb, e->offset+2);
+		}
 
 		if (f.fec->encoding_id >= 128)
 		{
@@ -108,16 +114,52 @@ void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint et
 			f.fec->instance_id = (guint8) tvb_get_ntohs(tvb, e->offset+8);
 		}
 
-		if (tree){
-			proto_tree_add_uint64(ext_tree, f.hf->fti_transfer_length, tvb, e->offset+2, 6, f.fec->transfer_length);
-			item = proto_tree_add_item(ext_tree, f.hf->instance_id, tvb,  e->offset+8, 2, ENC_BIG_ENDIAN);
-			if(f.fec->instance_id_present == FALSE){
-				proto_item_append_text(item," - [FEC Encoding ID < 128, should be zero]");
+		if (tree) {
+			if (f.fec->encoding_id == 6){
+				/* Raptor Q uses 40-bit transfer length */
+				proto_tree_add_uint64(ext_tree, f.hf->fti_transfer_length, tvb, e->offset+2, 5, f.fec->transfer_length);
+			}
+			else {
+				proto_tree_add_uint64(ext_tree, f.hf->fti_transfer_length, tvb, e->offset+2, 6, f.fec->transfer_length);
+				item = proto_tree_add_item(ext_tree, f.hf->instance_id, tvb,  e->offset+8, 2, ENC_BIG_ENDIAN);
+				if(f.fec->instance_id_present == FALSE){
+					proto_item_append_text(item," - [FEC Encoding ID < 128, should be zero]");
+				}
 			}
 		}
 
 		switch (f.fec->encoding_id)
 		{
+		case 1:
+			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+10);
+			f.fec->num_blocks = tvb_get_ntohs(tvb, e->offset+12);
+			f.fec->num_subblocks = tvb_get_guint8(tvb, e->offset+14);
+			f.fec->alignment = tvb_get_guint8(tvb, e->offset+15);
+
+			if (tree)
+			{
+				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+10, 2, f.fec->encoding_symbol_length);
+				proto_tree_add_uint(ext_tree, f.hf->fti_num_blocks, tvb, e->offset+12, 2, f.fec->num_blocks);
+				proto_tree_add_uint(ext_tree, f.hf->fti_num_subblocks, tvb, e->offset+14, 1, f.fec->num_subblocks);
+				proto_tree_add_uint(ext_tree, f.hf->fti_alignment, tvb, e->offset+15, 1, f.fec->alignment);
+			}
+			break;
+
+		case 6:
+			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+8);
+			f.fec->num_blocks = tvb_get_guint8(tvb, e->offset+10);
+			f.fec->num_subblocks = tvb_get_ntohs(tvb, e->offset+11);
+			f.fec->alignment = tvb_get_guint8(tvb, e->offset+13);
+
+			if (tree)
+			{
+				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+8, 2, f.fec->encoding_symbol_length);
+				proto_tree_add_uint(ext_tree, f.hf->fti_num_blocks, tvb, e->offset+10, 1, f.fec->num_blocks);
+				proto_tree_add_uint(ext_tree, f.hf->fti_num_subblocks, tvb, e->offset+11, 2, f.fec->num_subblocks);
+				proto_tree_add_uint(ext_tree, f.hf->fti_alignment, tvb, e->offset+13, 1, f.fec->alignment);
+			}
+			break;
+
 		case 0:
 		case 2:
 		case 128:
@@ -205,6 +247,7 @@ void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *of
 		switch (f.fec->encoding_id)
 		{
 		case 0:
+		case 1:
 		case 130:
 			f.fec->sbn = tvb_get_ntohs(tvb, *offset);
 			f.fec->esi = tvb_get_ntohs(tvb, *offset+2);
@@ -254,7 +297,22 @@ void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *of
 			f.fec->esi_present = TRUE;
 			*offset += 4;
 			break;
-			
+
+		case 6:
+			f.fec->sbn = tvb_get_guint8(tvb, *offset);
+			f.fec->esi = tvb_get_ntoh24(tvb, *offset+1);
+
+			if (tree)
+			{
+				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 1, f.fec->sbn);
+				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset+1, 3, f.fec->esi);
+			}
+
+			f.fec->sbn_present = TRUE;
+			f.fec->esi_present = TRUE;
+			*offset += 4;
+			break;
+
 		case 129:
 			f.fec->sbn = tvb_get_ntohl(tvb, *offset);
 			f.fec->sbl = tvb_get_ntohs(tvb, *offset+4);

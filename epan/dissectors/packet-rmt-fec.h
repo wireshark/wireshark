@@ -45,6 +45,9 @@ struct _fec
 	guint32 encoding_symbol_length;
 	guint32 max_source_block_length;
 	guint32 max_number_encoding_symbols;
+	guint16 num_blocks;
+	guint16 num_subblocks;
+	guint8 alignment;
 	gboolean sbn_present;
 	gboolean sbl_present;
 	gboolean esi_present;
@@ -70,6 +73,9 @@ struct _fec_hf
 	int fti_encoding_symbol_length;
 	int fti_max_source_block_length;
 	int fti_max_number_encoding_symbols;
+	int fti_num_blocks;
+	int fti_num_subblocks;
+	int fti_alignment;
 };
 
 /* FEC subtrees */
@@ -117,7 +123,13 @@ struct _fec_ptr
 	{ &base_structure.fti_max_source_block_length,	\
 		{ "Maximum Source Block Length", base_protocol ".fec.fti.max_source_block_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 	{ &base_structure.fti_max_number_encoding_symbols,	\
-		{ "Maximum Number of Encoding Symbols", base_protocol ".fec.fti.max_number_encoding_symbols", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+		{ "Maximum Number of Encoding Symbols", base_protocol ".fec.fti.max_number_encoding_symbols", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
+	{ &base_structure.fti_num_blocks,	\
+		{ "Number of Source Blocks", base_protocol ".fec.fti.num_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
+	{ &base_structure.fti_num_subblocks,	\
+		{ "Number of Sub-Blocks", base_protocol ".fec.fti.num_subblocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
+	{ &base_structure.fti_alignment,	\
+		{ "Symbol Alignment", base_protocol ".fec.fti.alignment", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 
 #define FEC_SUBTREE_ARRAY(base_structure) \
 	&base_structure.main
