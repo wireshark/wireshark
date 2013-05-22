@@ -35,7 +35,7 @@ typedef enum {
 /*
  * State of a capture session.
  */
-typedef struct oh_shut_up_already {
+struct oh_shut_up_already {
     int fork_child;                 /**< If not -1, in parent, process ID of child */
     int fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
@@ -49,7 +49,9 @@ typedef struct oh_shut_up_already {
     gboolean session_started;
     capture_options *capture_opts;  /**< options for this capture */
     void *cf;                       /**< handle to cfile (note: untyped handle) */
-} capture_session;
+};
+
+typedef struct oh_shut_up_already capture_session;
 
 extern void
 capture_session_init(capture_session *cap_session, void *cf);
