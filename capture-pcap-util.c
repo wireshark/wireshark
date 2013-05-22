@@ -48,6 +48,8 @@
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 
+#include "wsutil/file_util.h"
+
 #ifndef _WIN32
 #include <netinet/in.h>
 #endif
