@@ -32,6 +32,7 @@
 #include <epan/dissectors/packet-ssl.h>
 #include <epan/dissectors/packet-ssl-utils.h>
 
+#include "ui/ssl_key_export.h"
 
 int
 ssl_session_key_count(void)
