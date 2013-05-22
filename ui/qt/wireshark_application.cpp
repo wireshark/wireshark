@@ -187,45 +187,45 @@ void WiresharkApplication::refreshRecentFiles(void) {
     }
 }
 
-void WiresharkApplication::captureCallback(int event, capture_options * capture_opts)
+void WiresharkApplication::captureCallback(int event, capture_session * cap_session)
 {
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
-        emit captureCapturePrepared(capture_opts);
+        emit captureCapturePrepared(cap_session);
         break;
     case(capture_cb_capture_update_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
-        emit captureCaptureUpdateStarted(capture_opts);
+        emit captureCaptureUpdateStarted(cap_session);
         break;
     case(capture_cb_capture_update_continue):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
-        emit captureCaptureUpdateContinue(capture_opts);
+        emit captureCaptureUpdateContinue(cap_session);
         break;
     case(capture_cb_capture_update_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
-        emit captureCaptureUpdateFinished(capture_opts);
+        emit captureCaptureUpdateFinished(cap_session);
         break;
     case(capture_cb_capture_fixed_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
-        emit captureCaptureFixedStarted(capture_opts);
+        emit captureCaptureFixedStarted(cap_session);
         break;
     case(capture_cb_capture_fixed_continue):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
         break;
     case(capture_cb_capture_fixed_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
-        emit captureCaptureFixedFinished(capture_opts);
+        emit captureCaptureFixedFinished(cap_session);
         break;
     case(capture_cb_capture_stopping):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         /* Beware: this state won't be called, if the capture child
          * closes the capturing on it's own! */
-        emit captureCaptureStopping(capture_opts);
+        emit captureCaptureStopping(cap_session);
         break;
     case(capture_cb_capture_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
-        emit captureCaptureFailed(capture_opts);
+        emit captureCaptureFailed(cap_session);
         break;
     default:
         g_warning("main_capture_callback: event %u unknown", event);

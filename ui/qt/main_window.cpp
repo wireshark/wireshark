@@ -35,6 +35,7 @@
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
+#include "capture_session.h"
 #endif
 
 #include "ui/alert_box.h"
@@ -179,20 +180,20 @@ MainWindow::MainWindow(QWidget *parent) :
     main_welcome_ = main_ui_->welcomePage;
 
 #ifdef HAVE_LIBPCAP
-    connect(wsApp, SIGNAL(captureCapturePrepared(capture_options *)),
-            this, SLOT(captureCapturePrepared(capture_options *)));
-    connect(wsApp, SIGNAL(captureCaptureUpdateStarted(capture_options *)),
-            this, SLOT(captureCaptureUpdateStarted(capture_options *)));
-    connect(wsApp, SIGNAL(captureCaptureUpdateFinished(capture_options *)),
-            this, SLOT(captureCaptureUpdateFinished(capture_options *)));
-    connect(wsApp, SIGNAL(captureCaptureFixedStarted(capture_options *)),
-            this, SLOT(captureCaptureFixedStarted(capture_options *)));
-    connect(wsApp, SIGNAL(captureCaptureFixedFinished(capture_options *)),
-            this, SLOT(captureCaptureFixedFinished(capture_options *)));
-    connect(wsApp, SIGNAL(captureCaptureStopping(capture_options *)),
-            this, SLOT(captureCaptureStopping(capture_options *)));
-    connect(wsApp, SIGNAL(captureCaptureFailed(capture_options *)),
-            this, SLOT(captureCaptureFailed(capture_options *)));
+    connect(wsApp, SIGNAL(captureCapturePrepared(capture_session *)),
+            this, SLOT(captureCapturePrepared(capture_session *)));
+    connect(wsApp, SIGNAL(captureCaptureUpdateStarted(capture_session *)),
+            this, SLOT(captureCaptureUpdateStarted(capture_session *)));
+    connect(wsApp, SIGNAL(captureCaptureUpdateFinished(capture_session *)),
+            this, SLOT(captureCaptureUpdateFinished(capture_session *)));
+    connect(wsApp, SIGNAL(captureCaptureFixedStarted(capture_session *)),
+            this, SLOT(captureCaptureFixedStarted(capture_session *)));
+    connect(wsApp, SIGNAL(captureCaptureFixedFinished(capture_session *)),
+            this, SLOT(captureCaptureFixedFinished(capture_session *)));
+    connect(wsApp, SIGNAL(captureCaptureStopping(capture_session *)),
+            this, SLOT(captureCaptureStopping(capture_session *)));
+    connect(wsApp, SIGNAL(captureCaptureFailed(capture_session *)),
+            this, SLOT(captureCaptureFailed(capture_session *)));
 #endif
 
     connect(wsApp, SIGNAL(captureFileOpened(const capture_file*)),

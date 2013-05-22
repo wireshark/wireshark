@@ -295,12 +295,12 @@ void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
+void MainStatusBar::updateCaptureStatistics(capture_session *cap_session)
 {
     QString packets_str;
 
     /* Do we have any packets? */
-    if ((!capture_opts || capture_opts->cf == cap_file_) && cap_file_ && cap_file_->count) {
+    if ((!cap_session || cap_session->cf == cap_file_) && cap_file_ && cap_file_->count) {
         packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
                           .arg(cap_file_->count)
                           .arg(cap_file_->displayed_count)

@@ -151,10 +151,10 @@ extern capture_options global_capture_opts;
 #endif
 
 static void
-main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data )
+main_capture_callback(gint event, capture_session *cap_session, gpointer user_data )
 {
     Q_UNUSED(user_data);
-    wsApp->captureCallback(event, capture_opts);
+    wsApp->captureCallback(event, cap_session);
 }
 
 static void
