@@ -127,6 +127,9 @@
 #include <qlocale.h>
 #include <qlibraryinfo.h>
 
+capture_options global_capture_opts;
+capture_session global_capture_session;
+
 capture_file cfile;
 
 #ifdef HAVE_AIRPCAP
