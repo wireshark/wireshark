@@ -32,8 +32,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-wmem_allocator_t *
-wmem_simple_allocator_new(void);
+void
+wmem_simple_allocator_init(wmem_allocator_t *allocator);
 
 #ifdef __cplusplus
 }

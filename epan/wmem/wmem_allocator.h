@@ -47,7 +47,7 @@ struct _wmem_allocator_t {
     /* Producer/Manager functions */
     void  (*free_all)(void *private_data);
     void  (*gc)(void *private_data);
-    void  (*destroy)(struct _wmem_allocator_t *allocator);
+    void  (*cleanup)(void *private_data);
 
     /* Callback List */
     struct _wmem_user_cb_container_t *callbacks;

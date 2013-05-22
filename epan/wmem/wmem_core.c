@@ -123,7 +123,8 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 {
 
     wmem_free_all_real(allocator, TRUE);
-    allocator->destroy(allocator);
+    allocator->cleanup(allocator->private_data);
+    g_slice_free(wmem_allocator_t, allocator);
 }
 
 wmem_allocator_t *
@@ -156,15 +157,19 @@ wmem_allocator_new(const wmem_allocator_type_t type)
         real_type = type;
     }
 
+    allocator = g_slice_new(wmem_allocator_t);
+    allocator->type = real_type;
+    allocator->callbacks = NULL;
+
     switch (real_type) {
         case WMEM_ALLOCATOR_SIMPLE:
-            allocator = wmem_simple_allocator_new();
+            wmem_simple_allocator_init(allocator);
             break;
         case WMEM_ALLOCATOR_BLOCK:
-            allocator = wmem_block_allocator_new();
+            wmem_block_allocator_init(allocator);
             break;
         case WMEM_ALLOCATOR_STRICT:
-            allocator = wmem_strict_allocator_new();
+            wmem_strict_allocator_init(allocator);
             break;
         default:
             g_assert_not_reached();
@@ -173,9 +178,6 @@ wmem_allocator_new(const wmem_allocator_type_t type)
 	       never returns? */
             return NULL;
     };
-
-    allocator->type = real_type;
-    allocator->callbacks = NULL;
 
     return allocator;
 }

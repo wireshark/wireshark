@@ -222,24 +222,21 @@ wmem_strict_gc(void *private_data _U_)
 }
 
 static void
-wmem_strict_allocator_destroy(wmem_allocator_t *allocator)
+wmem_strict_allocator_cleanup(void *private_data)
 {
-    wmem_strict_allocator_t *private_allocator;
+    wmem_strict_allocator_t *allocator;
     
-    private_allocator = (wmem_strict_allocator_t*) allocator->private_data;
+    allocator = (wmem_strict_allocator_t*) private_data;
 
-    g_hash_table_destroy(private_allocator->block_table);
-    g_slice_free(wmem_strict_allocator_t, private_allocator);
-    g_slice_free(wmem_allocator_t, allocator);
+    g_hash_table_destroy(allocator->block_table);
+    g_slice_free(wmem_strict_allocator_t, allocator);
 }
 
-wmem_allocator_t *
-wmem_strict_allocator_new(void)
+void
+wmem_strict_allocator_init(wmem_allocator_t *allocator)
 {
-    wmem_allocator_t        *allocator;
     wmem_strict_allocator_t *strict_allocator;
 
-    allocator        = g_slice_new(wmem_allocator_t);
     strict_allocator = g_slice_new(wmem_strict_allocator_t);
 
     allocator->alloc   = &wmem_strict_alloc;
@@ -248,15 +245,13 @@ wmem_strict_allocator_new(void)
 
     allocator->free_all = &wmem_strict_free_all;
     allocator->gc       = &wmem_strict_gc;
-    allocator->destroy  = &wmem_strict_allocator_destroy;
+    allocator->cleanup  = &wmem_strict_allocator_cleanup;
 
     allocator->private_data = (void*) strict_allocator;
 
     strict_allocator->block_table = g_hash_table_new_full(
             &g_direct_hash, &g_direct_equal,
             NULL, &wmem_strict_ghash_block_free);
-
-    return allocator;
 }
 
 /*

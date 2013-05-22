@@ -853,31 +853,22 @@ wmem_block_gc(void *private_data)
 }
 
 static void
-wmem_block_allocator_destroy(wmem_allocator_t *allocator)
+wmem_block_allocator_cleanup(void *private_data)
 {
-    wmem_block_allocator_t *real_allocator;
-
-    real_allocator = (wmem_block_allocator_t*) allocator->private_data;
-
     /* wmem guarantees that free_all() is called directly before this, so
      * calling gc will return all our blocks to the OS automatically */
-    wmem_block_gc(real_allocator);
+    wmem_block_gc(private_data);
 
     /* then just free the allocator structs */
-    g_slice_free(wmem_block_allocator_t, real_allocator);
-    g_slice_free(wmem_allocator_t, allocator);
+    g_slice_free(wmem_block_allocator_t, private_data);
 }
 
-wmem_allocator_t *
-wmem_block_allocator_new(void)
+void
+wmem_block_allocator_init(wmem_allocator_t *allocator)
 {
-    wmem_allocator_t       *allocator;
     wmem_block_allocator_t *block_allocator;
 
-    allocator       = g_slice_new(wmem_allocator_t);
     block_allocator = g_slice_new(wmem_block_allocator_t);
-
-    allocator->private_data = (void*) block_allocator;
 
     allocator->alloc   = &wmem_block_alloc;
     allocator->realloc = &wmem_block_realloc;
@@ -885,13 +876,13 @@ wmem_block_allocator_new(void)
 
     allocator->free_all = &wmem_block_free_all;
     allocator->gc       = &wmem_block_gc;
-    allocator->destroy  = &wmem_block_allocator_destroy;
+    allocator->cleanup  = &wmem_block_allocator_cleanup;
+
+    allocator->private_data = (void*) block_allocator;
 
     block_allocator->block_list        = NULL;
     block_allocator->free_list_head    = NULL;
     block_allocator->free_insert_point = NULL;
-
-    return allocator;
 }
 
 /*

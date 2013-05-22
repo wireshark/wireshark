@@ -32,8 +32,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-wmem_allocator_t *
-wmem_strict_allocator_new(void);
+void
+wmem_strict_allocator_init(wmem_allocator_t *allocator);
 
 void
 wmem_strict_check_canaries(wmem_allocator_t *allocator);

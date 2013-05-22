@@ -284,23 +284,24 @@ and realloc) are non-0.
 
  - free_all()
  - gc()
- - destroy()
+ - cleanup()
 
-The free_all() function takes the private_data pointer and should free all the
-memory currently allocated in the pool. Note that this is not necessarilly
-exactly the same as calling free() on all the allocated blocks - free_all() is
-allowed to do additional cleanup or to make use of optimizations not available
-when freeing one block at a time.
+All of these functions take only one parameter, which is the allocator's
+private_data pointer.
 
-The gc() function takes the private_data pointer and should do whatever it can
-to reduce excess memory usage in the dissector by returning unused blocks to
-the OS, optimizing internal data structures, etc.
+The free_all() function should free all the memory currently allocated in the
+pool. Note that this is not necessarily exactly the same as calling free()
+on all the allocated blocks - free_all() is allowed to do additional cleanup
+or to make use of optimizations not available when freeing one block at a time.
 
-The destroy() function does NOT take the private_data pointer - it instead takes
-a pointer to the allocator structure as a whole, since that structure may also
-need freeing. This function can assume that free_all() has been called
-immediately before it (though it can make no assumptions about whether or not
-gc() has ever been called).
+The gc() function should do whatever it can to reduce excess memory usage in
+the dissector by returning unused blocks to the OS, optimizing internal data
+structures, etc.
+
+The cleanup() function should do any final cleanup and free any and all memory.
+It is basically the equivalent of a destructor function. For simplicity, wmem
+is guaranteed to call free_all() immediately before this function. There is no
+such guarantee that gc() has (ever) been called.
 
 4.2 Pool-Agnostic API
 

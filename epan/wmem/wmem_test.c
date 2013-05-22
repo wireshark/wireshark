@@ -46,15 +46,19 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
 {
     wmem_allocator_t      *allocator;
 
+    allocator = g_slice_new(wmem_allocator_t);
+    allocator->type = type;
+    allocator->callbacks = NULL;
+
     switch (type) {
         case WMEM_ALLOCATOR_SIMPLE:
-            allocator = wmem_simple_allocator_new();
+            wmem_simple_allocator_init(allocator);
             break;
         case WMEM_ALLOCATOR_BLOCK:
-            allocator = wmem_block_allocator_new();
+            wmem_block_allocator_init(allocator);
             break;
         case WMEM_ALLOCATOR_STRICT:
-            allocator = wmem_strict_allocator_new();
+            wmem_strict_allocator_init(allocator);
             break;
         default:
             g_assert_not_reached();
@@ -63,9 +67,6 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
 	       never returns? */
             return NULL;
     };
-
-    allocator->type = type;
-    allocator->callbacks = NULL;
 
     return allocator;
 }
