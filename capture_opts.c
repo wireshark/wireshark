@@ -928,9 +928,12 @@ capture_opts_trim_ring_num_files(capture_options *capture_opts)
 #endif
 }
 
-
+/*
+ * If no interface was specified explicitly, pick a default.
+ */
 int
-capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device)
+capture_opts_default_iface_if_necessary(capture_options *capture_opts,
+                                        const char *capture_device)
 {
     int status;
 
