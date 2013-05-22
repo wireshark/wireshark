@@ -145,13 +145,13 @@ public slots:
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
 
 #ifdef HAVE_LIBPCAP
-    void captureCapturePrepared(capture_options *capture_opts);
-    void captureCaptureUpdateStarted(capture_options *capture_opts);
-    void captureCaptureUpdateFinished(capture_options *capture_opts);
-    void captureCaptureFixedStarted(capture_options *capture_opts);
-    void captureCaptureFixedFinished(capture_options *capture_opts);
-    void captureCaptureStopping(capture_options *capture_opts);
-    void captureCaptureFailed(capture_options *capture_opts);
+    void captureCapturePrepared(capture_session *cap_session);
+    void captureCaptureUpdateStarted(capture_session *cap_session);
+    void captureCaptureUpdateFinished(capture_session *cap_session);
+    void captureCaptureFixedStarted(capture_session *cap_session);
+    void captureCaptureFixedFinished(capture_session *cap_session);
+    void captureCaptureStopping(capture_session *cap_session);
+    void captureCaptureFailed(capture_session *cap_session);
 #endif
 
     void captureFileOpened(const capture_file *cf);
