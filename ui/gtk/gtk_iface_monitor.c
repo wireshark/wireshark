@@ -38,6 +38,7 @@
 #include "ui/iface_lists.h"
 
 #include "ui/gtk/capture_dlg.h"
+#include "ui/gtk/gtk_iface_monitor.h"
 
 GIOChannel *iface_mon_channel;
 
