@@ -186,7 +186,8 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS)
 
 EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
-	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe reordercap.exe dumpcap.exe
+	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe \
+	reordercap.exe dumpcap.exe dftest.exe
 
 RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\libwireshark.res image\tshark.res image\capinfos.res \
@@ -520,13 +521,13 @@ text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.
 
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
- 		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
+		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
 		capinfos.obj capinfos.exp editcap.obj editcap.exp \
 		mergecap.obj text2pcap.obj \
 		reordercap.obj nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c $(LIBS_CHECK) \
-		dftest.obj dftest.exe randpkt.obj randpkt.ext \
+		dftest.obj dftest.exe randpkt.obj randpkt.exe \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \
 		libwsutil.dll \
