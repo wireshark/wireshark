@@ -34,10 +34,10 @@
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(
 capture_info    *cinfo,
-capture_options *capture_opts)
+capture_session *cap_session)
 {
     Q_UNUSED(cinfo);
-    Q_UNUSED(capture_opts);
+    Q_UNUSED(cap_session);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: capture_info_ui_create");
 }
 

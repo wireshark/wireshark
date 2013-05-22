@@ -25,6 +25,10 @@
 #ifndef __CAPTURE_SESSION_H__
 #define __CAPTURE_SESSION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
     CAPTURE_STOPPED,        /**< stopped */
@@ -53,5 +57,9 @@ typedef struct {
 
 extern void
 capture_session_init(capture_session *cap_session, void *cf);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __CAPTURE_SESSION_H__ */
