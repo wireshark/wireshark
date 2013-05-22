@@ -43,6 +43,7 @@
 
 #include "ui/recent.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/main_80211_toolbar.h"
 
 #include <ws80211_utils.h>
 #include "capture_session.h"
