@@ -35,7 +35,7 @@ typedef enum {
 /*
  * State of a capture session.
  */
-typedef struct {
+typedef struct oh_shut_up_already {
     int fork_child;                 /**< If not -1, in parent, process ID of child */
     int fork_child_status;          /**< Child exit status */
 #ifdef _WIN32
