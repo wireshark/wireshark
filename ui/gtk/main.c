@@ -1293,13 +1293,6 @@ tap_update_cb(gpointer data _U_)
     return TRUE;
 }
 
-/* Restart the tap update display timer with new configured interval */
-void reset_tap_update_timer(void)
-{
-    g_source_remove(tap_update_timer_id);
-    tap_update_timer_id = g_timeout_add(prefs.tap_update_interval, tap_update_cb, NULL);
-}
-
 /*
  * Periodically process outstanding hostname lookups. If we have new items,
  * redraw the packet list and tree view.

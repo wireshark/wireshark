@@ -350,9 +350,6 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 #ifdef _WIN32
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
-
-/** Restart the tap update display timer with new configured interval */
-extern void reset_tap_update_timer(void);
 #endif
 
 /** Change configuration profile */
