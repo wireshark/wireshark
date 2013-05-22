@@ -512,7 +512,7 @@ activate_monitor(GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
                  GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 #endif
 
-void
+static void
 init_columns_menu(void)
 {
   GtkActionGroup *columns_action_group;
