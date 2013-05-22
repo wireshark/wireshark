@@ -36,6 +36,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
+#include "capture_session.h"
 #endif
 
 #include <QMainWindow>

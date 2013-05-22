@@ -115,14 +115,14 @@ signals:
 
 #ifdef HAVE_LIBPCAP
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.
-    void captureCapturePrepared(capture_options *capture_opts);
-    void captureCaptureUpdateStarted(capture_options *capture_opts);
-    void captureCaptureUpdateContinue(capture_options *capture_opts);
-    void captureCaptureUpdateFinished(capture_options *capture_opts);
-    void captureCaptureFixedStarted(capture_options *capture_opts);
-    void captureCaptureFixedFinished(capture_options *capture_opts);
-    void captureCaptureStopping(capture_options *capture_opts);
-    void captureCaptureFailed(capture_options *capture_opts);
+    void captureCapturePrepared(capture_session *cap_session);
+    void captureCaptureUpdateStarted(capture_session *cap_session);
+    void captureCaptureUpdateContinue(capture_session *cap_session);
+    void captureCaptureUpdateFinished(capture_session *cap_session);
+    void captureCaptureFixedStarted(capture_session *cap_session);
+    void captureCaptureFixedFinished(capture_session *cap_session);
+    void captureCaptureStopping(capture_session *cap_session);
+    void captureCaptureFailed(capture_session *cap_session);
 #endif
 
     void captureFileOpened(const capture_file *cf);

@@ -48,6 +48,7 @@
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
+#include "capture_session.h"
 #endif
 
 #include "wsutil/file_util.h"
@@ -421,11 +422,11 @@ void MainWindow::startCapture() {
 //    main_auto_scroll_live_changed(auto_scroll_live);
 
     /* XXX - can this ever happen? */
-    if (global_capture_opts.state != CAPTURE_STOPPED)
+    if (global_capture_session.state != CAPTURE_STOPPED)
       return;
 
     /* close the currently loaded capture file */
-    cf_close((capture_file *) global_capture_opts.cf);
+    cf_close((capture_file *) global_capture_session.cf);
 
     /* Copy the selected interfaces to the set of interfaces to use for
        this capture. */
