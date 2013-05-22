@@ -1,5 +1,5 @@
 /* addr_resolution_dlg.c
- * Show current addres resolution as a hosts file
+ * Show current address resolution as a hosts file
  *
  * Copyright 2012 Anders Broman <anders.broman@ericsson.com>
  *
@@ -46,6 +46,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/packet_list.h"
+#include "ui/gtk/addr_resolution_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 
