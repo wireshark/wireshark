@@ -707,11 +707,12 @@ main_welcome_add_recent_capture_file(const char *widget_cf_name, GObject *menu_i
 }
 
 #ifdef HAVE_LIBPCAP
-gboolean on_selection_changed(GtkTreeSelection *selection _U_,
-                              GtkTreeModel *model,
-                              GtkTreePath *path,
-                              gboolean path_currently_selected,
-                              gpointer data _U_)
+static gboolean
+on_selection_changed(GtkTreeSelection *selection _U_,
+                     GtkTreeModel *model,
+                     GtkTreePath *path,
+                     gboolean path_currently_selected,
+                     gpointer data _U_)
 {
     GtkTreeIter  iter;
     gchar *if_name;
