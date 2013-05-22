@@ -1,75 +1,104 @@
-                         Wireshark 1.9.2 Release Notes
-     __________________________________________________________________
+                     Wireshark 1.10.0 Release Notes
+     __________________________________________________________
 
 What is Wireshark?
 
-   Wireshark is the world's most popular network protocol analyzer. It is
-   used for troubleshooting, analysis, development and education.
-     __________________________________________________________________
+   Wireshark is the world's most popular network protocol
+   analyzer. It is used for troubleshooting, analysis, development
+   and education.
+     __________________________________________________________
 
 What's New
 
   Bug Fixes
 
    The following bugs have been fixed:
+     * Redirecting the standard output didn't redirect the output
+       the of -D or -L flags. This fix means that the output of
+       those flags now goes to the standard output, not the
+       standard error, as it did in previous releases. [1]Bug 8609
 
   New and Updated Features
 
-   The following features are new (or have been significantly updated)
-   since version 1.8:
-     * Wireshark on 32- and 64-bit Windows supports automatic updates.
+   The following features are new (or have been significantly
+   updated) since version 1.8:
+     * Wireshark on 32- and 64-bit Windows supports automatic
+       updates.
      * The packet bytes view is faster.
-     * You can now display a list of resolved host names in "hosts" format
-       within Wireshark.
+     * You can now display a list of resolved host names in
+       "hosts" format within Wireshark.
      * The wireless toolbar has been updated.
      * Wireshark on Linux does a better job of detecting interface
        addition and removal.
-     * It is now possible to compare two fields in a display filter (for
-       example: udp.srcport != udp.dstport). The two fields must be of the
-       same type for this to work.
-     * The Windows installers ship with WinPcap 4.1.3, which supports
-       Windows 8.
+     * It is now possible to compare two fields in a display
+       filter (for example: udp.srcport != udp.dstport). The two
+       fields must be of the same type for this to work.
+     * The Windows installers ship with WinPcap 4.1.3, which
+       supports Windows 8.
      * USB type and product name support has been improved.
-     * Wireshark now calculates HTTP response times and presents the
-       result in a new field in the HTTP response. Links from the
-       request's frame to the response's frame and vice-versa are also
-       added.
-     * The main welcome screen and status bar now display file sizes using
-       strict SI prefixes instead of old-style binary prefixes.
-     * Capinfos now prints human-readable statistics with SI suffixes by
-       default.
-     * It is now possible to open a referenced packet (such as the matched
-       request or response packet) in a new window.
-     * It is now possible for tshark to display only the hex/ascii packet
-       data without also requiring that the packet summary and/or packet
-       details are also displayed. If you want the old behavior, use -Px
-       instead of just -x.
-     * The Wireshark application icon, capture toolbar icons, and other
-       icons have been updated.
+     * All Bluetooth profiles and protocols are now supported.
+     * Wireshark now calculates HTTP response times and presents
+       the result in a new field in the HTTP response. Links from
+       the request's frame to the response's frame and vice-versa
+       are also added.
+     * The main welcome screen and status bar now display file
+       sizes using strict SI prefixes instead of old-style binary
+       prefixes.
+     * Capinfos now prints human-readable statistics with SI
+       suffixes by default.
+     * It is now possible to open a referenced packet (such as the
+       matched request or response packet) in a new window.
+     * Tshark can now display only the hex/ascii packet data
+       without requiring that the packet summary and/or packet
+       details are also displayed. If you want the old behavior,
+       use -Px instead of just -x.
+     * Wireshark can be compiled using GTK+ 3.
+     * The Wireshark application icon, capture toolbar icons, and
+       other icons have been updated.
+     * Tshark's filtering and multi-pass analysis have been
+       reworked for consistency and in order to support dependent
+       frame calculations during reassembly. See the man page
+       descriptions for -2, -R, and -Y.
+     * Tshark's -G fields2 and -G fields3 options have been
+       eliminated. The -G fields option now includes the 2 extra
+       fields that -G fields3 previously provided, and the blurb
+       information has been relegated to the last column since in
+       many cases it is blank anyway.
+     * Wireshark dropped the left-handed settings from the
+       preferences. This is still configurable via the GTK
+       settings (add "gtk-scrolled-window-placement = top-right"
+       in the config file, which might be called [/.gtkrc-2.0 or
+       ]/.config/gtk-3.0/settings.ini).
+     * Wireshark now ships with two global configuration files:
+       Bluetooth, which contains coloring rules for Bluetooth and
+       Classic, which contains the old-style coloring rules.
 
   New Protocol Support
 
-   Amateur Radio AX.25, Amateur Radio BPQ, Amateur Radio NET/ROM, America
-   Online (AOL), AR Drone, Automatic Position Reporting System (APRS),
-   AX.25 KISS, AX.25 no Layer 3, Bitcoin Protocol, Bluetooth Attribute
-   Protocol, Bluetooth AVCTP Protocol, Bluetooth AVDTP Protocol, Bluetooth
-   AVRCP Profile, Bluetooth BNEP Protocol, Bluetooth HCI USB Transport,
-   Bluetooth HCRP Profile, Bluetooth HID Profile, Bluetooth MCAP Protocol,
-   Bluetooth SAP Profile, Bluetooth SBC Codec, Bluetooth Security Manager
-   Protocol, Cisco GED-125 Protocol, Clique Reliable Multicast Protocol
-   (CliqueRM), D-Bus, Digital Transmission Content Protection over IP,
-   DVB-S2 Baseband, FlexNet, Forwarding and Control Element Separation
-   Protocol (ForCES), Foundry Discovery Protocol (FDP), Gearman Protocol,
-   GEO-Mobile Radio (1) RACH, HoneyPot Feeds Protocol (HPFEEDS), LTE
-   Positioning Protocol Extensions (LLPe), Media Resource Control Protocol
-   Version 2 (MRCPv2), Media-Independent Handover (MIH), MIDI System
-   Exclusive (SYSEX), Mojito DHT, MPLS-TP Fault-Management, MPLS-TP
-   Lock-Instruct, NASDAQ's OUCH 4.x, NASDAQ's SoupBinTCP, OpenVPN
-   Protocol, Pseudo-Wire OAM, RPKI-Router Protocol, SEL Fast Message,
-   Simple Packet Relay Transport (SPRT), Skype, Smart Message Language
-   (SML), SPNEGO Extended Negotiation Security Mechanism (NEGOEX),
-   UHD/USRP, USB Audio, USB Video, v.150.1 State Signaling Event (SSE),
-   VITA 49 Radio Transport, VNTAG, WebRTC Datachannel Protocol (RTCDC),
+   Amateur Radio AX.25, Amateur Radio BPQ, Amateur Radio NET/ROM,
+   America Online (AOL), AR Drone, Automatic Position Reporting
+   System (APRS), AX.25 KISS, AX.25 no Layer 3, Bitcoin Protocol,
+   Bluetooth Attribute Protocol, Bluetooth AVCTP Protocol,
+   Bluetooth AVDTP Protocol, Bluetooth AVRCP Profile, Bluetooth
+   BNEP Protocol, Bluetooth HCI USB Transport, Bluetooth HCRP
+   Profile, Bluetooth HID Profile, Bluetooth MCAP Protocol,
+   Bluetooth SAP Profile, Bluetooth SBC Codec, Bluetooth Security
+   Manager Protocol, Cisco GED-125 Protocol, Clique Reliable
+   Multicast Protocol (CliqueRM), D-Bus, Digital Transmission
+   Content Protection over IP, DVB-S2 Baseband, FlexNet,
+   Forwarding and Control Element Separation Protocol (ForCES),
+   Foundry Discovery Protocol (FDP), Gearman Protocol, GEO-Mobile
+   Radio (1) RACH, HoneyPot Feeds Protocol (HPFEEDS), LTE
+   Positioning Protocol Extensions (LLPe), Media Resource Control
+   Protocol Version 2 (MRCPv2), Media-Independent Handover (MIH),
+   MIDI System Exclusive (SYSEX), Mojito DHT, MPLS-TP
+   Fault-Management, MPLS-TP Lock-Instruct, NASDAQ's OUCH 4.x,
+   NASDAQ's SoupBinTCP, OpenVPN Protocol, Pseudo-Wire OAM,
+   RPKI-Router Protocol, SEL Fast Message, Simple Packet Relay
+   Transport (SPRT), Skype, Smart Message Language (SML), SPNEGO
+   Extended Negotiation Security Mechanism (NEGOEX), UHD/USRP, USB
+   Audio, USB Video, v.150.1 State Signaling Event (SSE), VITA 49
+   Radio Transport, VNTAG, WebRTC Datachannel Protocol (RTCDC),
    and WiMAX OFDMA PHY SAP
 
   Updated Protocol Support
@@ -78,91 +107,97 @@ What's New
 
   New and Updated Capture File Support
 
-   AIX iptrace, Catapult DCT2000, Citrix NetScaler, DBS Etherwatch (VMS),
-   Endace ERF, HP-UX nettl, IBM iSeries, Ixia IxVeriWave, NA Sniffer
-   (DOS), Netscreen, Network Instruments Observer, pcap, pcap-ng, Symbian
-   OS btsnoop, TamoSoft CommView, and Tektronix K12xx
-     __________________________________________________________________
+   AIX iptrace, CAM Inspector, Catapult DCT2000, Citrix NetScaler,
+   DBS Etherwatch (VMS), Endace ERF, HP-UX nettl, IBM iSeries,
+   Ixia IxVeriWave, NA Sniffer (DOS), Netscreen, Network
+   Instruments Observer, pcap, pcap-ng, Symbian OS btsnoop,
+   TamoSoft CommView, and Tektronix K12xx
+     __________________________________________________________
 
 Getting Wireshark
 
-   Wireshark source code and installation packages are available from
-   [1]http://www.wireshark.org/download.html.
+   Wireshark source code and installation packages are available
+   from [2]http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
-   Most Linux and Unix vendors supply their own Wireshark packages. You
-   can usually install or upgrade Wireshark using the package management
-   system specific to that platform. A list of third-party packages can be
-   found on the [2]download page on the Wireshark web site.
-     __________________________________________________________________
+   Most Linux and Unix vendors supply their own Wireshark
+   packages. You can usually install or upgrade Wireshark using
+   the package management system specific to that platform. A list
+   of third-party packages can be found on the [3]download page on
+   the Wireshark web site.
+     __________________________________________________________
 
 File Locations
 
-   Wireshark and TShark look in several different locations for preference
-   files, plugins, SNMP MIBS, and RADIUS dictionaries. These locations
-   vary from platform to platform. You can use About->Folders to find the
-   default locations on your system.
-     __________________________________________________________________
+   Wireshark and TShark look in several different locations for
+   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+   These locations vary from platform to platform. You can use
+   About->Folders to find the default locations on your system.
+     __________________________________________________________
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([3]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([4]Bug
+   1419)
 
-   The BER dissector might infinitely loop. ([4]Bug 1516)
+   The BER dissector might infinitely loop. ([5]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
    (ws-buglink:1814)
 
-   Filtering tshark captures with display filters (-R) no longer works.
-   ([5]Bug 2234)
+   Filtering tshark captures with read filters (-R) no longer
+   works. ([6]Bug 2234)
 
-   The 64-bit Windows installer does not support Kerberos decryption.
-   ([6]Win64 development page)
+   The 64-bit Windows installer does not support Kerberos
+   decryption. ([7]Win64 development page)
 
-   Application crash when changing real-time option. ([7]Bug 4035)
+   Application crash when changing real-time option. ([8]Bug 4035)
 
-   Hex pane display issue after startup. ([8]Bug 4056)
+   Hex pane display issue after startup. ([9]Bug 4056)
 
-   Packet list rows are oversized. ([9]Bug 4357)
+   Packet list rows are oversized. ([10]Bug 4357)
 
-   Summary pane selected frame highlighting not maintained. ([10]Bug 4445)
+   Summary pane selected frame highlighting not maintained.
+   ([11]Bug 4445)
 
-   Wireshark and TShark will display incorrect delta times in some cases.
-   ([11]Bug 4985)
-     __________________________________________________________________
+   Wireshark and TShark will display incorrect delta times in some
+   cases. ([12]Bug 4985)
+     __________________________________________________________
 
 Getting Help
 
-   Community support is available on [12]Wireshark's Q&A site and on the
-   wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [13]the web site.
+   Community support is available on [13]Wireshark's Q&A site and
+   on the wireshark-users mailing list. Subscription information
+   and archives for all of Wireshark's mailing lists can be found
+   on [14]the web site.
 
-   Official Wireshark training and certification are available from
-   [14]Wireshark University.
-     __________________________________________________________________
+   Official Wireshark training and certification are available
+   from [15]Wireshark University.
+     __________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [15]Wireshark web site.
-     __________________________________________________________________
+   A complete FAQ is available on the [16]Wireshark web site.
+     __________________________________________________________
 
-   Last updated 2013-03-27 11:36:52 PDT
+   Last updated 2013-05-20 15:54:29 PDT
 
 References
 
-   1. http://www.wireshark.org/download.html
-   2. http://www.wireshark.org/download.html#thirdparty
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   6. https://wiki.wireshark.org/Development/Win64
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  12. http://ask.wireshark.org/
-  13. http://www.wireshark.org/lists/
-  14. http://www.wiresharktraining.com/
-  15. http://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8609
+   2. http://www.wireshark.org/download.html
+   3. http://www.wireshark.org/download.html#thirdparty
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   7. https://wiki.wireshark.org/Development/Win64
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  13. http://ask.wireshark.org/
+  14. http://www.wireshark.org/lists/
+  15. http://www.wiresharktraining.com/
+  16. http://www.wireshark.org/faq.html
