@@ -617,7 +617,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
     sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
 
     /* associate the operating system filehandle to a C run-time file handle */
-    capture_opts->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe, _O_BINARY);
+    cap_session->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe, _O_BINARY);
 
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
@@ -678,7 +678,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
         report_failure("Couldn't create child process: %s", g_strerror(errno));
         ws_close(sync_pipe_read_fd);
 #ifdef _WIN32
-        ws_close(capture_opts->signal_pipe_write_fd);
+        ws_close(cap_session->signal_pipe_write_fd);
 #endif
         return FALSE;
     }
@@ -1680,7 +1680,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         cap_session->fork_child_status = ret;
 
 #ifdef _WIN32
-        ws_close(capture_opts->signal_pipe_write_fd);
+        ws_close(cap_session->signal_pipe_write_fd);
 #endif
         capture_input_closed(cap_session, primary_msg);
         g_free(primary_msg);
