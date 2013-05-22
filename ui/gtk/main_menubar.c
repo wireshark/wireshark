@@ -4905,25 +4905,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
 }
 
-
-gboolean
-packet_is_ssl(epan_dissect_t* edt)
-{
-    GPtrArray* array;
-    int        ssl_id;
-    gboolean   is_ssl;
-
-    if (!edt || !edt->tree)
-        return FALSE;
-    ssl_id = proto_get_id_by_filter_name("ssl");
-    if (ssl_id < 0)
-        return FALSE;
-    array = proto_find_finfo(edt->tree, ssl_id);
-    is_ssl = (array->len > 0) ? TRUE : FALSE;
-    g_ptr_array_free(array, TRUE);
-    return is_ssl;
-}
-
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
@@ -4937,7 +4918,7 @@ set_menus_for_selected_packet(capture_file *cf)
        desired item and has the added benefit, with large captures, of
        avoiding needless looping through huge lists for marked, ignored,
        or time-referenced packets. */
-    gboolean is_ssl = packet_is_ssl(cf->edt);
+    gboolean is_ssl = epan_dissect_packet_contains_field(cf->edt, "ssl");
     gboolean frame_selected = cf->current_frame != NULL;
         /* A frame is selected */
     gboolean have_marked = frame_selected && cf->marked_count > 0;

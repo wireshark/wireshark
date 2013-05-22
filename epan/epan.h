@@ -175,6 +175,12 @@ WS_DLL_PUBLIC
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
 
+/** Check whether a dissected packet contains a given named field */
+WS_DLL_PUBLIC
+gboolean
+epan_dissect_packet_contains_field(epan_dissect_t* edt,
+                                   const char *field_name);
+
 /** releases resources attached to the packet dissection. DOES NOT free the actual pointer */
 WS_DLL_PUBLIC
 void

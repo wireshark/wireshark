@@ -131,10 +131,6 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     return 0;
 }
 
-extern gboolean
-packet_is_ssl(epan_dissect_t* edt);
-
-
 /* Follow the SSL stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
@@ -164,7 +160,7 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     GString *       msg;
 
     /* we got ssl so we can follow */
-    if (!packet_is_ssl(cfile.edt)) {
+    if (!epan_dissect_packet_contains_field(cfile.edt, "ssl")) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Error following stream.  Please make\n"
                       "sure you have an SSL packet selected.");

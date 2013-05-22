@@ -272,6 +272,25 @@ epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs,
     col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);
 }
 
+gboolean
+epan_dissect_packet_contains_field(epan_dissect_t* edt,
+                                   const char *field_name)
+{
+    GPtrArray* array;
+    int        field_id;
+    gboolean   contains_field;
+
+    if (!edt || !edt->tree)
+        return FALSE;
+    field_id = proto_get_id_by_filter_name(field_name);
+    if (field_id < 0)
+        return FALSE;
+    array = proto_find_finfo(edt->tree, field_id);
+    contains_field = (array->len > 0) ? TRUE : FALSE;
+    g_ptr_array_free(array, TRUE);
+    return contains_field;
+}
+
 /*
  * Get compile-time information for libraries used by libwireshark.
  */

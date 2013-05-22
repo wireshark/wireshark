@@ -606,7 +606,7 @@ void MainWindow::setMenusForSelectedPacket()
 //       desired item and has the added benefit, with large captures, of
 //       avoiding needless looping through huge lists for marked, ignored,
 //       or time-referenced packets. */
-//    gboolean is_ssl = packet_is_ssl(cf->edt);
+//    gboolean is_ssl = epan_dissect_packet_contains_field(cf->edt, "ssl");
 
     /* We have one or more items in the packet list */
     gboolean have_frames = FALSE;
