@@ -278,7 +278,9 @@ GHashTable *value_entry_table = NULL;
  * A callback function to changed a dissector_handle if matched
  * This is used when iterating a dissector table
  */
-void change_dissector_if_matched(gpointer item, gpointer user_data) {
+static void
+change_dissector_if_matched(gpointer item, gpointer user_data)
+{
   dissector_handle_t handle = (dissector_handle_t)item;
   lookup_entry_t * lookup = (lookup_entry_t *)user_data;
   if (strcmp(lookup->dissector_short_name, dissector_handle_get_short_name(handle)) == 0) {
@@ -289,7 +291,7 @@ void change_dissector_if_matched(gpointer item, gpointer user_data) {
 /*
  * A callback function to parse each "decode as" entry in the file and apply the change
  */
-prefs_set_pref_e
+static prefs_set_pref_e
 read_set_decode_as_entries(gchar *key, const gchar *value,
 			   void *user_data _U_,
 			   gboolean return_range_errors _U_)
@@ -341,7 +343,9 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
 /*
  * Save entries into preferences.
  */
-void write_da_entry(gpointer item, gpointer user_data) {
+static void
+write_da_entry(gpointer item, gpointer user_data)
+{
   da_entry_t *entry = (da_entry_t *)item;
   FILE *daf = (FILE *)user_data;
   fprintf (daf, DECODE_AS_ENTRY ": %s,%d,%s,%s\n", entry->table, entry->selector, entry->initial, entry->current);
@@ -350,7 +354,9 @@ void write_da_entry(gpointer item, gpointer user_data) {
 /*
  * Free memory used by the da_entry
  */
-void free_da_entry(gpointer item, gpointer user_data _U_) {
+static void
+free_da_entry(gpointer item, gpointer user_data _U_)
+{
   da_entry_t *entry = (da_entry_t *)item;
   g_free(entry->table);
   g_free(entry->initial);
@@ -671,7 +677,7 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
  *
  * @param user_data Unused
  */
-void
+static void
 decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
   char        *pf_dir_path;

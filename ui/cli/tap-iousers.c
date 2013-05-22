@@ -72,7 +72,7 @@ typedef struct _io_users_item_t {
 #define iousers_process_name_packet(iu, name1, name2, direction, pkt_len, rel_ts, abs_ts) \
     iousers_process_name_packet_with_conv_id(iu, name1, name2, CONV_ID_UNSET, direction, pkt_len, rel_ts, abs_ts)
 
-void
+static void
 iousers_process_name_packet_with_conv_id(
 	io_users_t *iu,
 	char *name1,
@@ -126,7 +126,7 @@ iousers_process_name_packet_with_conv_id(
 	}
 }
 
-void
+static void
 iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len, 
 								nstime_t *ts)
 {

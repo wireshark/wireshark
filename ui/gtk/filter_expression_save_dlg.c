@@ -103,7 +103,7 @@ filter_expression_save_dlg_init(gpointer filter_tb, gpointer filter_te)
 	}
 }
 
-void
+static void
 filter_expression_nuke(struct filter_expression *fe)
 {
 	if (fe == NULL)
