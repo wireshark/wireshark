@@ -3721,7 +3721,7 @@ void register_lua_menu_bar_menu_items(
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#XML-UI
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
  */
-const gchar*
+static const gchar*
 make_menu_xml(const char *path)
 {
     GString     *xml;
