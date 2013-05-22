@@ -97,6 +97,7 @@ SHARK_COMMON_CAPTURE_SRC =	\
 # corresponding headers
 SHARK_COMMON_CAPTURE_INCLUDES =	\
 	capture_ifinfo.h	\
+	capture_session.h	\
 	capture_sync.h		\
 	capture_ui_utils.h
 

@@ -34,7 +34,6 @@
 #ifndef __CAPTURE_SYNC_H__
 #define __CAPTURE_SYNC_H__
 
-
 /**
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
@@ -44,14 +43,15 @@
  *  Most of the parameters are passed through the global capture_opts.
  *
  *  @param capture_opts the options
+ *  @param cap_session a handle for the capture session
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean
-sync_pipe_start(capture_options *capture_opts);
+sync_pipe_start(capture_options *capture_opts, capture_session *cap_session);
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void
-sync_pipe_stop(capture_options *capture_opts);
+sync_pipe_stop(capture_session *cap_session);
 
 /** User wants to stop the program, just kill the child as soon as possible */
 extern void

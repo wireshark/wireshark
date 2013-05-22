@@ -34,7 +34,7 @@ void statusbar_widgets_pack(GtkWidget *statusbar);
 void statusbar_widgets_show_or_hide(GtkWidget *statusbar);
 void statusbar_cf_callback(gint event, gpointer data, gpointer user_data);
 #ifdef HAVE_LIBPCAP
-void statusbar_capture_callback(gint event, capture_options *capture_opts,
+void statusbar_capture_callback(gint event, capture_session *cap_session,
                                 gpointer user_data);
 #endif
 

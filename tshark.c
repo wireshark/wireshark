@@ -89,6 +89,7 @@
 #include "capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
+#include "capture_session.h"
 #include "capture_sync.h"
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
@@ -146,6 +147,7 @@ static const char *separator = "";
 static gboolean print_packet_counts = TRUE;
 
 static capture_options global_capture_opts;
+static capture_session global_capture_session;
 
 #ifdef SIGINFO
 static gboolean infodelay;      /* if TRUE, don't print capture info in SIGINFO handler */
@@ -1056,7 +1058,8 @@ main(int argc, char *argv[])
   initialize_funnel_ops();
 
 #ifdef HAVE_LIBPCAP
-  capture_opts_init(&global_capture_opts, &cfile);
+  capture_opts_init(&global_capture_opts);
+  capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
   timestamp_set_type(TS_RELATIVE);
@@ -2005,7 +2008,7 @@ main(int argc, char *argv[])
      * Instead, pass on the exit status from the capture child.
      */
     capture();
-    exit_status = global_capture_opts.fork_child_status;
+    exit_status = global_capture_session.fork_child_status;
 
     if (print_packet_info) {
       if (!write_finale()) {
@@ -2232,7 +2235,7 @@ capture(void)
 #endif /* SIGINFO */
 #endif /* _WIN32 */
 
-  global_capture_opts.state = CAPTURE_PREPARING;
+  global_capture_session.state = CAPTURE_PREPARING;
 
   /* Let the user know which interfaces were chosen. */
   for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -2271,7 +2274,7 @@ capture(void)
   fflush(stderr);
   g_string_free(str, TRUE);
 
-  ret = sync_pipe_start(&global_capture_opts);
+  ret = sync_pipe_start(&global_capture_opts, &global_capture_session);
 
   if (!ret)
     return FALSE;
@@ -2390,27 +2393,28 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
 
 /* capture child tells us we have a new (or the first) capture file */
 gboolean
-capture_input_new_file(capture_options *capture_opts, gchar *new_file)
+capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   gboolean is_tempfile;
   int      err;
 
-  if (capture_opts->state == CAPTURE_PREPARING) {
+  if (cap_session->state == CAPTURE_PREPARING) {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
   }
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
 
-  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
   /* free the old filename */
   if (capture_opts->save_file != NULL) {
 
     /* we start a new capture file, close the old one (if we had one before) */
-    if ( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
-      if ( ((capture_file *) capture_opts->cf)->wth != NULL) {
-        wtap_close(((capture_file *) capture_opts->cf)->wth);
+    if ( ((capture_file *) cap_session->cf)->state != FILE_CLOSED) {
+      if ( ((capture_file *) cap_session->cf)->wth != NULL) {
+        wtap_close(((capture_file *) cap_session->cf)->wth);
       }
-      ((capture_file *) capture_opts->cf)->state = FILE_CLOSED;
+      ((capture_file *) cap_session->cf)->state = FILE_CLOSED;
     }
 
     g_free(capture_opts->save_file);
@@ -2426,7 +2430,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if (do_dissection) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_open((capture_file *)capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:
@@ -2438,7 +2442,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     }
   }
 
-  capture_opts->state = CAPTURE_RUNNING;
+  cap_session->state = CAPTURE_RUNNING;
 
   return TRUE;
 }
@@ -2446,13 +2450,13 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 
 /* capture child tells us we have new packets to read */
 void
-capture_input_new_packets(capture_options *capture_opts, int to_read)
+capture_input_new_packets(capture_session *cap_session, int to_read)
 {
   gboolean      ret;
   int           err;
   gchar        *err_info;
   gint64        data_offset;
-  capture_file *cf = (capture_file *)capture_opts->cf;
+  capture_file *cf = (capture_file *)cap_session->cf;
   gboolean      filtering_tap_listeners;
   guint         tap_flags;
 
@@ -2477,7 +2481,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
       ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
       if (ret == FALSE) {
         /* read from file failed, tell the capture child to stop */
-        sync_pipe_stop(capture_opts);
+        sync_pipe_stop(cap_session);
         wtap_close(cf->wth);
         cf->wth = NULL;
       } else {
@@ -2575,9 +2579,9 @@ capture_input_drops(capture_options *capture_opts _U_, guint32 dropped)
  * do the required cleanup.
  */
 void
-capture_input_closed(capture_options *capture_opts, gchar *msg)
+capture_input_closed(capture_session *cap_session, gchar *msg)
 {
-  capture_file *cf = (capture_file *) capture_opts->cf;
+  capture_file *cf = (capture_file *) cap_session->cf;
 
   if (msg != NULL)
     fprintf(stderr, "tshark: %s\n", msg);
@@ -2640,7 +2644,7 @@ static void
 capture_cleanup(int signum _U_)
 {
   /* tell the capture child to stop */
-  sync_pipe_stop(&global_capture_opts);
+  sync_pipe_stop(&global_capture_session);
 
   /* don't stop our own loop already here, otherwise status messages and
    * cleanup wouldn't be done properly. The child will indicate the stop of

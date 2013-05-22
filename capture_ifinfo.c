@@ -49,6 +49,7 @@
 #include <glib.h>
 
 #include "capture_opts.h"
+#include "capture_session.h"
 #include "capture_sync.h"
 #include "log.h"
 

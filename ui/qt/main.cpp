@@ -811,7 +811,9 @@ int main(int argc, char *argv[])
 
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
-    capture_opts_init(&global_capture_opts, &cfile);
+    capture_opts_init(&global_capture_opts);
+
+    capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
     /* Register all dissectors; we must do this before checking for the

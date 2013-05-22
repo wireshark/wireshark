@@ -209,6 +209,9 @@
  */
 #define RC_FILE "gtkrc"
 
+capture_options global_capture_opts;
+capture_session global_capture_session;
+
 capture_file cfile;
 
 static gboolean capture_stopping;
@@ -980,7 +983,7 @@ main_do_quit(void)
 
 #ifdef HAVE_LIBPCAP
     /* Nuke any child capture in progress. */
-    capture_kill_child(&global_capture_opts);
+    capture_kill_child(&global_capture_session);
 #endif
 
     /* Are we in the middle of reading a capture? */
@@ -1514,11 +1517,11 @@ static GList *icon_list_create(
 }
 
 static void
-main_capture_cb_capture_prepared(capture_options *capture_opts)
+main_capture_cb_capture_prepared(capture_session *cap_session)
 {
     static GList *icon_list = NULL;
 
-    set_titlebar_for_capture_in_progress((capture_file *)capture_opts->cf);
+    set_titlebar_for_capture_in_progress((capture_file *)cap_session->cf);
 
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsiconcap_16_pb_data, wsiconcap_32_pb_data, wsiconcap_48_pb_data, wsiconcap_64_pb_data);
@@ -1535,11 +1538,11 @@ main_capture_cb_capture_prepared(capture_options *capture_opts)
 }
 
 static void
-main_capture_cb_capture_update_started(capture_options *capture_opts)
+main_capture_cb_capture_update_started(capture_session *cap_session)
 {
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
-    set_titlebar_for_capture_in_progress((capture_file *)capture_opts->cf);
+    set_titlebar_for_capture_in_progress((capture_file *)cap_session->cf);
 
     main_set_for_capture_in_progress(TRUE);
     set_capture_if_dialog_for_capture_in_progress(TRUE);
@@ -1553,9 +1556,9 @@ main_capture_cb_capture_update_started(capture_options *capture_opts)
 }
 
 static void
-main_capture_cb_capture_update_finished(capture_options *capture_opts)
+main_capture_cb_capture_update_finished(capture_session *cap_session)
 {
-    capture_file *cf = (capture_file *)capture_opts->cf;
+    capture_file *cf = (capture_file *)cap_session->cf;
     static GList *icon_list = NULL;
 
     /* The capture isn't stopping any more - it's stopped. */
@@ -1593,17 +1596,17 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
 }
 
 static void
-main_capture_cb_capture_fixed_started(capture_options *capture_opts _U_)
+main_capture_cb_capture_fixed_started(capture_session *cap_session _U_)
 {
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
 }
 
 static void
-main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
+main_capture_cb_capture_fixed_finished(capture_session *cap_session _U_)
 {
 #if 0
-    capture_file *cf = capture_opts->cf;
+    capture_file *cf = (capture_file *)cap_session->cf;
 #endif
     static GList *icon_list = NULL;
 
@@ -1637,7 +1640,7 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 }
 
 static void
-main_capture_cb_capture_stopping(capture_options *capture_opts _U_)
+main_capture_cb_capture_stopping(capture_session *cap_session _U_)
 {
     capture_stopping = TRUE;
     set_menus_for_capture_stopping();
@@ -1649,7 +1652,7 @@ main_capture_cb_capture_stopping(capture_options *capture_opts _U_)
 }
 
 static void
-main_capture_cb_capture_failed(capture_options *capture_opts _U_)
+main_capture_cb_capture_failed(capture_session *cap_session _U_)
 {
     static GList *icon_list = NULL;
 
@@ -1813,7 +1816,7 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 
 #ifdef HAVE_LIBPCAP
 static void
-main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data _U_)
+main_capture_callback(gint event, capture_session *cap_session, gpointer user_data _U_)
 {
 #ifdef HAVE_GTKOSXAPPLICATION
     GtkosxApplication *theApp;
@@ -1821,11 +1824,11 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
-        main_capture_cb_capture_prepared(capture_opts);
+        main_capture_cb_capture_prepared(cap_session);
         break;
     case(capture_cb_capture_update_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
-        main_capture_cb_capture_update_started(capture_opts);
+        main_capture_cb_capture_update_started(cap_session);
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
         gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsiconcap_48_pb_data, FALSE, NULL));
@@ -1836,18 +1839,18 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         break;
     case(capture_cb_capture_update_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
-        main_capture_cb_capture_update_finished(capture_opts);
+        main_capture_cb_capture_update_finished(cap_session);
         break;
     case(capture_cb_capture_fixed_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
-        main_capture_cb_capture_fixed_started(capture_opts);
+        main_capture_cb_capture_fixed_started(cap_session);
         break;
     case(capture_cb_capture_fixed_continue):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
         break;
     case(capture_cb_capture_fixed_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
-        main_capture_cb_capture_fixed_finished(capture_opts);
+        main_capture_cb_capture_fixed_finished(cap_session);
         break;
     case(capture_cb_capture_stopping):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
@@ -1857,11 +1860,11 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
         gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
 #endif
-        main_capture_cb_capture_stopping(capture_opts);
+        main_capture_cb_capture_stopping(cap_session);
         break;
     case(capture_cb_capture_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
-        main_capture_cb_capture_failed(capture_opts);
+        main_capture_cb_capture_failed(cap_session);
         break;
     default:
         g_warning("main_capture_callback: event %u unknown", event);
@@ -2476,7 +2479,9 @@ main(int argc, char *argv[])
 
   /* Set the initial values in the capture options. This might be overwritten
      by preference settings and then again by the command line parameters. */
-  capture_opts_init(&global_capture_opts, &cfile);
+  capture_opts_init(&global_capture_opts);
+
+  capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
   /* Initialize whatever we need to allocate colors for GTK+ */
@@ -3131,7 +3136,7 @@ main(int argc, char *argv[])
          to use for this capture. */
       if (global_capture_opts.ifaces->len == 0)
         collect_ifaces(&global_capture_opts);
-      if (capture_start(&global_capture_opts)) {
+      if (capture_start(&global_capture_opts, &global_capture_session)) {
         /* The capture started.  Open stat windows; we do so after creating
            the main window, to avoid GTK warnings, and after successfully
            opening the capture file, so we know we have something to compute

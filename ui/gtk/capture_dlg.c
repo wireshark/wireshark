@@ -555,7 +555,7 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
     airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
 
-  capture_stop(&global_capture_opts);
+  capture_stop(&global_capture_session);
 }
 
 /* restart (stop - delete old file - start) running capture */
@@ -567,7 +567,7 @@ capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
     airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
-  capture_restart(&global_capture_opts);
+  capture_restart(&global_capture_session);
 }
 
 enum cfc_state_t {
@@ -4715,7 +4715,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_sensitive(GTK_WIDGET(all_cb), if_present);
   /* Promiscuous mode row */
   promisc_cb = gtk_check_button_new_with_mnemonic("Use _promiscuous mode on all interfaces");
-  if (!global_capture_opts.session_started) {
+  if (!global_capture_session.session_started) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), prefs.capture_prom_mode);
   } else {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), get_all_prom_mode());
@@ -5233,7 +5233,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   window_present(cap_open_w);
 
   cap_open_complete = TRUE;   /* "Capture:Start" is now OK */
-  global_capture_opts.session_started = TRUE;
+  global_capture_session.session_started = TRUE;
 }
 
 /* user pressed the "Start" button (in dialog or toolbar) */
@@ -5283,17 +5283,17 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   main_auto_scroll_live_changed(auto_scroll_live);
 
   /* XXX - can this ever happen? */
-  if (global_capture_opts.state != CAPTURE_STOPPED)
+  if (global_capture_session.state != CAPTURE_STOPPED)
     return;
 
   /* close the currently loaded capture file */
-  cf_close((capture_file *)global_capture_opts.cf);
+  cf_close((capture_file *)global_capture_session.cf);
 
   /* Copy the selected interfaces to the set of interfaces to use for
      this capture. */
   collect_ifaces(&global_capture_opts);
 
-  if (capture_start(&global_capture_opts)) {
+  if (capture_start(&global_capture_opts, &global_capture_session)) {
     /* The capture succeeded, which means the capture filter syntax is
        valid; add this capture filter to the recent capture filter list. */
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -5570,7 +5570,7 @@ create_and_fill_model(GtkTreeView *view)
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
       linkname = NULL;
-      if(global_capture_opts.session_started == FALSE && capture_dev_user_linktype_find(device.name) != -1) {
+      if(global_capture_session.session_started == FALSE && capture_dev_user_linktype_find(device.name) != -1) {
         device.active_dlt = capture_dev_user_linktype_find(device.name);
       }
       for (list = device.links; list != NULL; list = g_list_next(list)) {
@@ -5583,10 +5583,10 @@ create_and_fill_model(GtkTreeView *view)
       if (!linkname)
           linkname = g_strdup("unknown");
       pmode = capture_dev_user_pmode_find(device.name);
-      if (global_capture_opts.session_started == FALSE && pmode != -1) {
+      if (global_capture_session.session_started == FALSE && pmode != -1) {
         device.pmode = pmode;
       }
-      if(global_capture_opts.session_started == FALSE) {
+      if(global_capture_session.session_started == FALSE) {
         hassnap = capture_dev_user_hassnap_find(device.name);
         snaplen = capture_dev_user_snaplen_find(device.name);
         if(snaplen != -1 && hassnap != -1) {
@@ -5606,10 +5606,10 @@ create_and_fill_model(GtkTreeView *view)
       }
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      if (global_capture_opts.session_started == FALSE && capture_dev_user_buffersize_find(device.name) != -1) {
+      if (global_capture_session.session_started == FALSE && capture_dev_user_buffersize_find(device.name) != -1) {
         buffer = capture_dev_user_buffersize_find(device.name);
         device.buffer = buffer;
-      } else if (global_capture_opts.session_started == FALSE) {
+      } else if (global_capture_session.session_started == FALSE) {
         device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
       } 
 #endif

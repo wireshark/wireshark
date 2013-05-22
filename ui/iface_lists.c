@@ -39,8 +39,6 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 
-capture_options global_capture_opts;
-
 /*
  * Used when sorting an interface list into alphabetical order by
  * their friendly names.

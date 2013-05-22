@@ -254,7 +254,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 
 #ifdef HAVE_LIBPCAP
         /* if a capture is running, do nothing but warn the user */
-        if((global_capture_opts.state != CAPTURE_STOPPED)) {
+        if((global_capture_session.state != CAPTURE_STOPPED)) {
             simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
                         "%sDrag and Drop currently not possible!%s\n\n"

@@ -118,7 +118,21 @@ static void pipe_convert_header(const guchar *header, int header_len, char *indi
 static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                            char **err_msg);
 
-
+void
+capture_session_init(capture_session *cap_session, void *cf)
+{
+    cap_session->cf                              = cf;
+    cap_session->fork_child                      = -1;               /* invalid process handle */
+#ifdef _WIN32
+    cap_session->signal_pipe_write_fd            = -1;
+#endif
+    cap_session->state                           = CAPTURE_STOPPED;
+#ifndef _WIN32
+    cap_session->owner                           = getuid();
+    cap_session->group                           = getgid();
+#endif
+    cap_session->session_started                 = FALSE;
+}
 
 /* Append an arg (realloc) to an argc/argv array */
 /* (add a string pointer to a NULL-terminated array of string pointers) */
@@ -320,7 +334,8 @@ init_pipe_args(int *argc) {
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
-sync_pipe_start(capture_options *capture_opts) {
+sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
+{
     char ssnap[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
     char sfilesize[ARGV_NUMBER_LEN];
@@ -368,7 +383,7 @@ sync_pipe_start(capture_options *capture_opts) {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
     capture_opts_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, capture_opts);
 
-    capture_opts->fork_child = -1;
+    cap_session->fork_child = -1;
 
     argv = init_pipe_args(&argc);
     if (!argv) {
@@ -594,7 +609,7 @@ sync_pipe_start(capture_options *capture_opts) {
         g_free( (gpointer) argv);
         return FALSE;
     }
-    capture_opts->fork_child = (int) pi.hProcess;
+    cap_session->fork_child = (int) pi.hProcess;
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandle to a C run-time file handle */
@@ -615,7 +630,7 @@ sync_pipe_start(capture_options *capture_opts) {
         return FALSE;
     }
 
-    if ((capture_opts->fork_child = fork()) == 0) {
+    if ((cap_session->fork_child = fork()) == 0) {
         /*
          * Child process - run dumpcap with the right arguments to make
          * it just capture with the specified capture parameters
@@ -658,7 +673,7 @@ sync_pipe_start(capture_options *capture_opts) {
     ws_close(sync_pipe[PIPE_WRITE]);
 #endif
 
-    if (capture_opts->fork_child == -1) {
+    if (cap_session->fork_child == -1) {
         /* We couldn't even create the child process. */
         report_failure("Couldn't create child process: %s", g_strerror(errno));
         ws_close(sync_pipe_read_fd);
@@ -668,7 +683,8 @@ sync_pipe_start(capture_options *capture_opts) {
         return FALSE;
     }
 
-    capture_opts->fork_child_status = 0;
+    cap_session->fork_child_status = 0;
+    cap_session->capture_opts = capture_opts;
 
     /* we might wait for a moment till child is ready, so update screen now */
     main_window_update();
@@ -679,8 +695,8 @@ sync_pipe_start(capture_options *capture_opts) {
        the child process wants to tell us something. */
 
     /* we have a running capture, now wait for the real capture filename */
-    pipe_input_set_handler(sync_pipe_read_fd, (gpointer) capture_opts,
-                           &capture_opts->fork_child, sync_pipe_input_cb);
+    pipe_input_set_handler(sync_pipe_read_fd, (gpointer) cap_session,
+                           &cap_session->fork_child, sync_pipe_input_cb);
 
     return TRUE;
 }
@@ -1612,7 +1628,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 static gboolean
 sync_pipe_input_cb(gint source, gpointer user_data)
 {
-    capture_options *capture_opts = (capture_options *)user_data;
+    capture_session *cap_session = (capture_session *)user_data;
     int  ret;
     char buffer[SP_MAX_MSG_LEN+1];
     ssize_t nread;
@@ -1639,7 +1655,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
            If we got an EOF, nread is 0 and primary_msg isn't set.  This
            is an indication that the capture is finished. */
-        ret = sync_pipe_wait_for_child(capture_opts->fork_child, &wait_msg);
+        ret = sync_pipe_wait_for_child(cap_session->fork_child, &wait_msg);
         if(nread == 0) {
             /* We got an EOF from the sync pipe.  That means that the capture
                child exited, and not in the middle of a message; we treat
@@ -1660,13 +1676,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         }
 
         /* No more child process. */
-        capture_opts->fork_child = -1;
-        capture_opts->fork_child_status = ret;
+        cap_session->fork_child = -1;
+        cap_session->fork_child_status = ret;
 
 #ifdef _WIN32
         ws_close(capture_opts->signal_pipe_write_fd);
 #endif
-        capture_input_closed(capture_opts, primary_msg);
+        capture_input_closed(cap_session, primary_msg);
         g_free(primary_msg);
         return FALSE;
     }
@@ -1674,7 +1690,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* we got a valid message block from the child, process it */
     switch(indicator) {
     case SP_FILE:
-        if(!capture_input_new_file(capture_opts, buffer)) {
+        if(!capture_input_new_file(cap_session, buffer)) {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: file failed, closing capture");
 
             /* We weren't able to open the new capture file; user has been
@@ -1694,15 +1710,15 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
                This can also happen if the user specified "-", meaning
                "standard output", as the capture file. */
-            sync_pipe_stop(capture_opts);
-            capture_input_closed(capture_opts, NULL);
+            sync_pipe_stop(cap_session);
+            capture_input_closed(cap_session, NULL);
             return FALSE;
         }
         break;
     case SP_PACKET_COUNT:
         npackets = atoi(buffer);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", npackets);
-        capture_input_new_packets(capture_opts, npackets);
+        capture_input_new_packets(cap_session, npackets);
         break;
     case SP_ERROR_MSG:
         /* convert primary message */
@@ -1712,7 +1728,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         pipe_convert_header((guchar*)primary_msg + primary_len, 4, &indicator, &secondary_len);
         secondary_msg = primary_msg + primary_len + 4;
         /* message output */
-        capture_input_error_message(capture_opts, primary_msg, secondary_msg);
+        capture_input_error_message(cap_session, primary_msg, secondary_msg);
         /* the capture child will close the sync_pipe, nothing to do for now */
         /* (an error message doesn't mean we have to stop capturing) */
         break;
@@ -1723,12 +1739,12 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         ch = strtok(buffer, ":");
         indx = (int)strtol(ch, NULL, 10);
         ch = strtok(NULL, ":");
-        capture_input_cfilter_error_message(capture_opts, indx, ch);
+        capture_input_cfilter_error_message(cap_session, indx, ch);
          /* the capture child will close the sync_pipe, nothing to do for now */
          break;
         }
     case SP_DROPS:
-        capture_input_drops(capture_opts, (guint32)strtoul(buffer, NULL, 10));
+        capture_input_drops(cap_session, (guint32)strtoul(buffer, NULL, 10));
         break;
     default:
         g_assert_not_reached();
@@ -1923,21 +1939,20 @@ sync_pipe_signame(int sig)
 #ifdef _WIN32
 /* tell the child through the signal pipe that we want to quit the capture */
 static void
-signal_pipe_capquit_to_child(capture_options *capture_opts)
+signal_pipe_capquit_to_child(capture_session *cap_session)
 {
     const char quit_msg[] = "QUIT";
     int ret;
-
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
 
     /* it doesn't matter *what* we send here, the first byte will stop the capture */
     /* simply sending a "QUIT" string */
-    /*pipe_write_block(capture_opts->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
-    ret = write(capture_opts->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
+    /*pipe_write_block(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
+    ret = write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-              "signal_pipe_capquit_to_child: %d header: error %s", capture_opts->signal_pipe_write_fd, g_strerror(errno));
+              "signal_pipe_capquit_to_child: %d header: error %s", cap_session->signal_pipe_write_fd, g_strerror(errno));
     }
 }
 #endif
@@ -1945,7 +1960,7 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 
 /* user wants to stop the capture run */
 void
-sync_pipe_stop(capture_options *capture_opts)
+sync_pipe_stop(capture_session *cap_session)
 {
 #ifdef _WIN32
     int count;
@@ -1953,10 +1968,10 @@ sync_pipe_stop(capture_options *capture_opts)
     gboolean terminate = TRUE;
 #endif
 
-    if (capture_opts->fork_child != -1) {
+    if (cap_session->fork_child != -1) {
 #ifndef _WIN32
         /* send the SIGINT signal to close the capture child gracefully. */
-        int sts = kill(capture_opts->fork_child, SIGINT);
+        int sts = kill(cap_session->fork_child, SIGINT);
         if (sts != 0) {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
                   "Sending SIGINT to child failed: %s\n", g_strerror(errno));
@@ -1967,11 +1982,11 @@ sync_pipe_stop(capture_options *capture_opts)
         /* First, use the special signal pipe to try to close the capture child
          * gracefully.
          */
-        signal_pipe_capquit_to_child(capture_opts);
+        signal_pipe_capquit_to_child(cap_session);
 
         /* Next, wait for the process to exit on its own */
         for (count = 0; count < STOP_SLEEP_TIME / STOP_CHECK_TIME; count++) {
-            if (GetExitCodeProcess((HANDLE) capture_opts->fork_child, &childstatus) &&
+            if (GetExitCodeProcess((HANDLE) cap_session->fork_child, &childstatus) &&
                 childstatus != STILL_ACTIVE) {
                 terminate = FALSE;
                 break;
@@ -1983,7 +1998,7 @@ sync_pipe_stop(capture_options *capture_opts)
         if (terminate) {
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
                   "sync_pipe_stop: forcing child to exit");
-            sync_pipe_kill(capture_opts->fork_child);
+            sync_pipe_kill(cap_session->fork_child);
         }
 #endif
     }
