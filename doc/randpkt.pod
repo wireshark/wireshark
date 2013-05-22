@@ -56,28 +56,37 @@ Defines the number of packets to generate.
 Default Ethernet II frame.
 
 Defines the type of packet to generate:
-        arp     Address Resolution Protocol
-        bgp     Border Gateway Protocol
-        bvlc    BACnet Virtual Link Control
-        dns     Domain Name Service
-        eth     Ethernet
-        fddi    Fiber Distributed Data Interface
-        giop    General Inter-ORB Protocol
-        icmp    Internet Control Message Protocol
-        ip      Internet Protocol
-        llc     Logical Link Control
-        m2m     WiMAX M2M Encapsulation Protocol
-        megaco  MEGACO
-        nbns    NetBIOS-over-TCP Name Service
-        ncp2222 NetWare Core Protocol
-        sctp    Stream Control Transmission Protocol
-        syslog  Syslog message
-        tds     TDS NetLib
-        tcp     Transmission Control Protocol
-        tr      Token-Ring
-        udp     User Datagram Protocol
-        usb     Universal Serial Bus
+
+=for html <pre>
+
+=for man .nf
+
+        arp             Address Resolution Protocol
+        bgp             Border Gateway Protocol
+        bvlc            BACnet Virtual Link Control
+        dns             Domain Name Service
+        eth             Ethernet
+        fddi            Fiber Distributed Data Interface
+        giop            General Inter-ORB Protocol
+        icmp            Internet Control Message Protocol
+        ip              Internet Protocol
+        llc             Logical Link Control
+        m2m             WiMAX M2M Encapsulation Protocol
+        megaco          MEGACO
+        nbns            NetBIOS-over-TCP Name Service
+        ncp2222         NetWare Core Protocol
+        sctp            Stream Control Transmission Protocol
+        syslog          Syslog message
+        tds             TDS NetLib
+        tcp             Transmission Control Protocol
+        tr              Token-Ring
+        udp             User Datagram Protocol
+        usb             Universal Serial Bus
         usb-linux       Universal Serial Bus with Linux specific header
+
+=for html </pre>
+
+=for man .fi
 
 =back
 
