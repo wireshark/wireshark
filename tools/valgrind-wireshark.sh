@@ -36,7 +36,7 @@ VALID=0
 PCAP=""
 TOOL=""
 
-while getopts ":2b:C:lmnrtTwcevW" OPTCHAR ; do
+while getopts ":2b:C:lmnprtTwcevW" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -45,6 +45,7 @@ while getopts ":2b:C:lmnrtTwcevW" OPTCHAR ; do
         m) TOOL="--tool=massif" ;;
         n) COMMAND_ARGS="-v"
            VALID=1 ;;
+        p) TOOL="--tool=callgrind" ;;
         r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         T) COMMAND_ARGS="-Vx $COMMAND_ARGS" ;; # "build the Tree"
