@@ -3721,7 +3721,6 @@ void register_lua_menu_bar_menu_items(
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#XML-UI
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
  */
-#ifdef HAVE_LUA
 static const gchar*
 make_menu_xml(const char *path)
 {
@@ -3818,8 +3817,6 @@ make_menu_xml(const char *path)
  * Creates an action group for the menu items in xpath, and returns it. The caller should
  * use g_object_unref() on the returned pointer if transferring scope.
  */
-/* NOTE currently only used from Lua, remove this ifdef when used
-  outside of #ifdef LUA */
 static GtkActionGroup*
 make_menu_actions(const char *path, const menu_item_t *menu_item_data)
 {
@@ -3902,15 +3899,6 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data)
 
     return action_group;
 }
-#endif
-
-#ifndef HAVE_LUA
-static void
-merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list _U_)
-{
-}
-
-#else
 
 static void
 merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
@@ -3953,8 +3941,6 @@ merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
         lcl_merge_lua_menu_items_list = g_list_next(lcl_merge_lua_menu_items_list);
     }
 }
-#endif
-
 
 /*
  * Enable/disable menu sensitivity.
