@@ -47,6 +47,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "ui/gtk/export_pdu_dlg.h"
+
 static GtkWidget *export_pdu_dlg = NULL;
 
 
