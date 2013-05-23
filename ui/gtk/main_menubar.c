@@ -3721,6 +3721,7 @@ void register_lua_menu_bar_menu_items(
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#XML-UI
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
  */
+#ifdef HAVE_LUA
 static const gchar*
 make_menu_xml(const char *path)
 {
@@ -3812,6 +3813,7 @@ make_menu_xml(const char *path)
 
     return markup;
 }
+#endif
 
 /**
  * Creates an action group for the menu items in xpath, and returns it. The caller should
