@@ -163,7 +163,7 @@ capture_interface_list(int *err, char **err_str)
             if_info->vendor_description = g_strdup(if_parts[1]);
         if (strlen(if_parts[2]) > 0)
             if_info->friendly_name = g_strdup(if_parts[2]);
-        if_info->type = (interface_type)strtol(if_parts[3], NULL, 10);
+        if_info->type = (interface_type)(int)strtol(if_parts[3], NULL, 10);
         addr_parts = g_strsplit(if_parts[4], ",", 0);
         for (j = 0; addr_parts[j] != NULL; j++) {
             if_addr = g_new0(if_addr_t,1);
