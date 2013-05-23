@@ -136,14 +136,14 @@ capture_session_init(capture_session *cap_session, void *cf)
 
 /* Append an arg (realloc) to an argc/argv array */
 /* (add a string pointer to a NULL-terminated array of string pointers) */
-static const char **
-sync_pipe_add_arg(const char **args, int *argc, const char *arg)
+static char **
+sync_pipe_add_arg(char **args, int *argc, const char *arg)
 {
     /* Grow the array; "*argc" currently contains the number of string
        pointers, *not* counting the NULL pointer at the end, so we have
        to add 2 in order to get the new size of the array, including the
        new pointer and the terminating NULL pointer. */
-    args = (const char **)g_realloc( (gpointer) args, (*argc + 2) * sizeof (char *));
+    args = (char **)g_realloc( (gpointer) args, (*argc + 2) * sizeof (char *));
 
     /* Stuff the pointer into the penultimate element of the array, which
        is the one at the index specified by "*argc". */
@@ -302,9 +302,9 @@ win32strexception(DWORD exception)
 #endif
 
 /* Initialize an argument list and add dumpcap to it. */
-static const char **
+static char **
 init_pipe_args(int *argc) {
-    const char **argv;
+    char **argv;
     const char *progfile_dir;
     char *exename;
 
@@ -316,7 +316,7 @@ init_pipe_args(int *argc) {
     /* Allocate the string pointer array with enough space for the
        terminating NULL pointer. */
     *argc = 0;
-    argv = (const char **)g_malloc(sizeof (char *));
+    argv = (char **)g_malloc(sizeof (char *));
     *argv = NULL;
 
     /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
@@ -373,7 +373,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
 #endif
     int sync_pipe_read_fd;
     int argc;
-    const char **argv;
+    char **argv;
     int i;
     guint j;
     interface_options interface_opts;
@@ -637,7 +637,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
          */
         dup2(sync_pipe[PIPE_WRITE], 2);
         ws_close(sync_pipe[PIPE_READ]);
-        execv(argv[0], (char * const*)argv);
+        execv(argv[0], argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
@@ -717,7 +717,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
 /* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_open_command(const char** argv, int *data_read_fd,
+sync_pipe_open_command(char** argv, int *data_read_fd,
                        int *message_read_fd, int *fork_child, gchar **msg)
 {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
@@ -864,7 +864,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         dup2(sync_pipe[PIPE_WRITE], 2);
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
-        execv(argv[0], (char * const*)argv);
+        execv(argv[0], argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
@@ -956,7 +956,7 @@ sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
 /* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
+sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
                       gchar **secondary_msg)
 {
     gchar *msg;
@@ -1134,7 +1134,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
                               gchar **secondary_msg)
 {
     int argc, ret;
-    const char **argv;
+    char **argv;
     gchar *opt;
 
     argv = init_pipe_args(&argc);
@@ -1192,7 +1192,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
                          gchar **secondary_msg)
 {
     int argc;
-    const char **argv;
+    char **argv;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
 
@@ -1234,7 +1234,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
                           gchar **secondary_msg)
 {
     int argc;
-    const char **argv;
+    char **argv;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_linktype_list_open");
 
@@ -1272,7 +1272,7 @@ int
 sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
 {
     int argc;
-    const char **argv;
+    char **argv;
     int message_read_fd, ret;
     char *wait_msg;
     gchar buffer[PIPE_BUF_SIZE+1];
