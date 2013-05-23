@@ -233,8 +233,9 @@ static const fragment_items sm_frag_items = {
 };
 
 typedef struct {
-    guint8 udl;
     guint32 length;
+    guint8 udl;
+    guint8 fill_bits;
 } sm_fragment_params;
 
 static void
@@ -2588,8 +2589,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     proto_tree        *udh_subtree = NULL;
     tvbuff_t          *sm_tvb = NULL;
     fragment_data     *fd_sm = NULL;
-    guint8            oct;
-    guint             fill_bits;
+    guint8            oct, fill_bits;
     guint32           out_len, total_sms_len, len_sms, length_ucs2, i;
     char              *ustr;
     proto_item        *ucs2_item;
@@ -2634,20 +2634,19 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                             oct);
 
         offset++;
-        udl--;
         length--;
 
         dis_field_ud_iei(tvb, udh_subtree, offset, oct);
 
         offset += oct;
-        udl -= oct;
         length -= oct;
 
-        if (seven_bit)
+        if (seven_bit && !compressed)
         {
             /* step over fill bits ? */
 
             fill_bits = 6 - ((oct * 8) % 7);
+            udl -= (((oct + 1)*8) + fill_bits) / 7;
             if (fill_bits)
             {
                 oct = tvb_get_guint8(tvb, offset);
@@ -2659,6 +2658,10 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                                     bigbuf);
                 /* Note: Could add an expert item here if ((oct & fill_bits_mask[fill_bits]) != 0) */
             }
+        }
+        else
+        {
+            udl -= oct + 1;
         }
     }
 
@@ -2703,6 +2706,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         /* Store udl and length for later decoding of reassembled SMS */
         p_frag_params = se_new0(sm_fragment_params);
         p_frag_params->udl = udl;
+        p_frag_params->fill_bits =  fill_bits;
         p_frag_params->length = length;
         g_hash_table_insert(g_sm_fragment_params_table,
                             GUINT_TO_POINTER((guint)((g_sm_id<<16)|(g_frag-1))),
@@ -2745,7 +2749,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
                     if (p_frag_params) {
                         out_len =
-                            gsm_sms_char_7bit_unpack(fill_bits, p_frag_params->length,
+                            gsm_sms_char_7bit_unpack(p_frag_params->fill_bits, p_frag_params->length,
                                 (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
                                 tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
 
