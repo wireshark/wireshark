@@ -3813,13 +3813,11 @@ make_menu_xml(const char *path)
 
     return markup;
 }
-#endif
 
 /**
  * Creates an action group for the menu items in xpath, and returns it. The caller should
  * use g_object_unref() on the returned pointer if transferring scope.
  */
-#ifdef HAVE_LUA
 /* NOTE currently only used from Lua, remove this ifdef when used
   outside of #ifdef LUA */
 static GtkActionGroup*
