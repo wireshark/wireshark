@@ -57,10 +57,6 @@ Default Ethernet II frame.
 
 Defines the type of packet to generate:
 
-=for html <pre>
-
-=for man .nf
-
         arp             Address Resolution Protocol
         bgp             Border Gateway Protocol
         bvlc            BACnet Virtual Link Control
@@ -83,10 +79,6 @@ Defines the type of packet to generate:
         udp             User Datagram Protocol
         usb             Universal Serial Bus
         usb-linux       Universal Serial Bus with Linux specific header
-
-=for html </pre>
-
-=for man .fi
 
 =back
 
