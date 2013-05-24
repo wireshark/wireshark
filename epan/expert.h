@@ -160,8 +160,8 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
  @param format Printf-style format string for additional arguments
  */
 WS_DLL_PUBLIC void
-expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field* eiindex,
-	const char *format, ...) G_GNUC_PRINTF(5, 6);
+expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field *eiindex,
+	const char *format, ...) G_GNUC_PRINTF(4, 5);
 
 /*
  * Register that a protocol has expert info.
