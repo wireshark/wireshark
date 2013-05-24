@@ -141,7 +141,7 @@ static GSList *popup_menu_list = NULL;
 
 static GtkAccelGroup *grp;
 
-static GList *merge_lua_menu_items_list = NULL;
+static GList *merge_menu_items_list = NULL;
 static GList *build_menubar_items_callback_list = NULL;
 
 GtkWidget *popup_menu_object;
@@ -151,7 +151,7 @@ static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 static void add_tap_plugins (guint merge_id, GtkUIManager *ui_manager);
 
 static void menus_init(void);
-static void merge_lua_menu_items(GList *node);
+static void merge_menu_items(GList *node);
 static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 #if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_LIBPCAP)
@@ -1194,22 +1194,8 @@ static const char *ui_desc_menubar =
 "        <menuitem name='WLAN' action='/Statistics/EndpointList/WLAN'/>\n"
 "      </menu>\n"
 "      <menu name='ServiceResponseTimeMenu' action='/Statistics/ServiceResponseTime'>\n"
-"        <menuitem name='AFP' action='/Statistics/ServiceResponseTime/AFP'/>\n"
-"        <menuitem name='ONC-RPC' action='/Statistics/ServiceResponseTime/ONC-RPC'/>\n"
-"        <menuitem name='Camel' action='/Statistics/ServiceResponseTime/Camel'/>\n"
 "        <menuitem name='DCE-RPC' action='/Statistics/ServiceResponseTime/DCE-RPC'/>\n"
-"        <menuitem name='Diameter' action='/Statistics/ServiceResponseTime/Diameter'/>\n"
-"        <menuitem name='FibreChannel' action='/Statistics/ServiceResponseTime/FibreChannel'/>\n"
-"        <menuitem name='GTP' action='/Statistics/ServiceResponseTime/GTP'/>\n"
-"        <menuitem name='H225' action='/Statistics/ServiceResponseTime/H225'/>\n"
-"        <menuitem name='LDAP' action='/Statistics/ServiceResponseTime/LDAP'/>\n"
-"        <menuitem name='MEGACO' action='/Statistics/ServiceResponseTime/MEGACO'/>\n"
-"        <menuitem name='MGCP' action='/Statistics/ServiceResponseTime/MGCP'/>\n"
-"        <menuitem name='NCP' action='/Statistics/ServiceResponseTime/NCP'/>\n"
-"        <menuitem name='RADIUS' action='/Statistics/ServiceResponseTime/RADIUS'/>\n"
-"        <menuitem name='SCSI' action='/Statistics/ServiceResponseTime/SCSI'/>\n"
-"        <menuitem name='SMB' action='/Statistics/ServiceResponseTime/SMB'/>\n"
-"        <menuitem name='SMB2' action='/Statistics/ServiceResponseTime/SMB2'/>\n"
+"        <menuitem name='ONC-RPC' action='/Statistics/ServiceResponseTime/ONC-RPC'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='ANCP' action='/StatisticsMenu/ancp'/>\n"
@@ -1650,23 +1636,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/EndpointList/USB",                WIRESHARK_STOCK_ENDPOINTS,      "USB",                          NULL, NULL, G_CALLBACK(gtk_usb_hostlist_cb) },
    { "/Statistics/EndpointList/WLAN",               WIRESHARK_STOCK_ENDPOINTS,      "WLAN",                         NULL, NULL, G_CALLBACK(gtk_wlan_hostlist_cb) },
 
-   { "/Statistics/ServiceResponseTime",                     NULL,               "Service _Response Time",       NULL, NULL, NULL },
-   { "/Statistics/ServiceResponseTime/ONC-RPC", WIRESHARK_STOCK_TIME,           "ONC-RPC...",                   NULL, NULL, G_CALLBACK(gtk_rpcstat_cb) },
-   { "/Statistics/ServiceResponseTime/AFP",     WIRESHARK_STOCK_TIME,           "AFP...",                       NULL, NULL, G_CALLBACK(afp_srt_stat_cb) },
-   { "/Statistics/ServiceResponseTime/Camel",       WIRESHARK_STOCK_TIME,           "Camel...",                     NULL, NULL, G_CALLBACK(camel_srt_cb) },
-   { "/Statistics/ServiceResponseTime/DCE-RPC", WIRESHARK_STOCK_TIME,           "DCE-RPC...",                   NULL, NULL, G_CALLBACK(gtk_dcerpcstat_cb) },
-   { "/Statistics/ServiceResponseTime/Diameter",    WIRESHARK_STOCK_TIME,           "Diameter...",                  NULL, NULL, G_CALLBACK(diameter_srt_cb) },
-   { "/Statistics/ServiceResponseTime/FibreChannel",    WIRESHARK_STOCK_TIME,       "Fibre Channel...",             NULL, NULL, G_CALLBACK(fc_srt_cb) },
-   { "/Statistics/ServiceResponseTime/GTP",     WIRESHARK_STOCK_TIME,           "GTP...",                       NULL, NULL, G_CALLBACK(gtp_srt_cb) },
-   { "/Statistics/ServiceResponseTime/H225",        WIRESHARK_STOCK_TIME,           "H225...",                      NULL, NULL, G_CALLBACK(h225_srt_cb) },
-   { "/Statistics/ServiceResponseTime/LDAP",        WIRESHARK_STOCK_TIME,           "LDAP...",                      NULL, NULL, G_CALLBACK(ldap_srt_cb) },
-   { "/Statistics/ServiceResponseTime/MEGACO",      WIRESHARK_STOCK_TIME,           "MEGACO...",                    NULL, NULL, G_CALLBACK(megaco_srt_cb) },
-   { "/Statistics/ServiceResponseTime/MGCP",        WIRESHARK_STOCK_TIME,           "MGCP...",                      NULL, NULL, G_CALLBACK(mgcp_srt_cb) },
-   { "/Statistics/ServiceResponseTime/NCP",     WIRESHARK_STOCK_TIME,           "NCP...",                       NULL, NULL, G_CALLBACK(ncp_srt_cb) },
-   { "/Statistics/ServiceResponseTime/RADIUS",      WIRESHARK_STOCK_TIME,           "RADIUS...",                    NULL, NULL, G_CALLBACK(radius_srt_cb) },
-   { "/Statistics/ServiceResponseTime/SCSI",        WIRESHARK_STOCK_TIME,           "SCSI...",                      NULL, NULL, G_CALLBACK(scsi_srt_cb) },
-   { "/Statistics/ServiceResponseTime/SMB",     WIRESHARK_STOCK_TIME,           "SMB...",                       NULL, NULL, G_CALLBACK(smb_srt_cb) },
-   { "/Statistics/ServiceResponseTime/SMB2",        WIRESHARK_STOCK_TIME,           "SMB2...",                      NULL, NULL, G_CALLBACK(smb2_srt_cb) },
+   { "/Statistics/ServiceResponseTime",             NULL,           "Service _Response Time",       NULL, NULL, NULL },
+   { "/Statistics/ServiceResponseTime/DCE-RPC",     WIRESHARK_STOCK_TIME,           "DCE-RPC...",                   NULL, NULL, G_CALLBACK(gtk_dcerpcstat_cb) },
+   { "/Statistics/ServiceResponseTime/ONC-RPC",     WIRESHARK_STOCK_TIME,           "ONC-RPC...",                   NULL, NULL, G_CALLBACK(gtk_rpcstat_cb) },
 
    { "/StatisticsMenu/ancp",                            NULL,       "ANCP",                             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/BACnet",                          NULL,       "BACnet",                           NULL, NULL, NULL },
@@ -3573,8 +3545,7 @@ menus_init(void)
         popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_statusbar_profiles_menu);
 
         menu_dissector_filter(&cfile);
-        /* Only Lua uses this currently. */
-        merge_lua_menu_items(merge_lua_menu_items_list);
+        merge_menu_items(merge_menu_items_list);
 
         /* Add external menus and items */
         ws_menubar_build_external_menus();
@@ -3644,6 +3615,15 @@ typedef struct _menu_item {
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data);
 } menu_item_t;
 
+static gint
+insert_sorted_by_label(gconstpointer aparam, gconstpointer bparam)
+{
+    const menu_item_t *a = (menu_item_t *)aparam;
+    const menu_item_t *b = (menu_item_t *)bparam;
+
+    return g_ascii_strcasecmp(a->label, b->label);
+}
+
 void register_menu_bar_menu_items(
     const char   *gui_path,
     const char   *name,
@@ -3672,8 +3652,9 @@ void register_menu_bar_menu_items(
     menu_item_data->selected_packet_enabled = selected_packet_enabled;
     menu_item_data->selected_tree_row_enabled = selected_tree_row_enabled;
 
-    merge_lua_menu_items_list = g_list_append(merge_lua_menu_items_list, menu_item_data);
-
+    merge_menu_items_list = g_list_insert_sorted(merge_menu_items_list,
+                                                 menu_item_data,
+                                                 insert_sorted_by_label);
 }
 
 #define XMENU_MAX_DEPTH         (1 + 32)        /* max number of menus in an xpath (+1 for Menubar) */
@@ -3808,7 +3789,6 @@ make_menu_xml(const char *path)
 
     /* free the GString object, return the allocated char buf which must be g_freed */
     markup = g_string_free(xml, FALSE);
-    /* printf("Lua Menu XML:\n%s\n", markup); */
 
     return markup;
 }
@@ -3818,14 +3798,13 @@ make_menu_xml(const char *path)
  * use g_object_unref() on the returned pointer if transferring scope.
  */
 static GtkActionGroup*
-make_menu_actions(const char *path, const menu_item_t *menu_item_data)
+make_menu_actions(char *path, const menu_item_t *menu_item_data)
 {
     GtkActionGroup  *action_group;
     GtkAction       *action;
     char           **p;
     char           **tokens;
-    char            *lbl;
-    const char      *tok = path;
+    char            *tok = path, *lbl;
 
     action_group = gtk_action_group_new (path);
 
@@ -3847,7 +3826,7 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data)
                 *lbl++ = '\0';
             }
             if ((lbl == NULL) || (*lbl == '\0')) {
-                lbl = (char*)tok;
+                lbl = tok;
             }
 
             action = (GtkAction *)g_object_new (
@@ -3863,20 +3842,10 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data)
 
     /* handle menu item (blank names ok) */
     if ( (tok != NULL) /* && (tok[0] != '\0') */ && (menu_item_data != NULL) ) {
-
-        /* parse label from token */
-        lbl = strchr(tok, '|');
-        if (lbl != NULL) {
-            *lbl++ = '\0';
-        }
-        if ((lbl == NULL) || (*lbl == '\0')) {
-            lbl = (char*)tok;
-        }
-
         action = (GtkAction *)g_object_new (
                 GTK_TYPE_ACTION,
                 "name", tok,
-                "label", lbl,
+                "label", menu_item_data->label,
                 "stock-id", menu_item_data->stock_id,
                 "tooltip", menu_item_data->tooltip,
                 "sensitive", menu_item_data->enabled,
@@ -3901,7 +3870,7 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data)
 }
 
 static void
-merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
+merge_menu_items(GList *lcl_merge_menu_items_list)
 {
     guint           merge_id;
     GtkActionGroup *action_group;
@@ -3910,13 +3879,11 @@ merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
     const gchar    *xml;
     gchar          *xpath;
 
-    while (lcl_merge_lua_menu_items_list != NULL) {
-        menu_item_data = (menu_item_t *)lcl_merge_lua_menu_items_list->data;
+    while (lcl_merge_menu_items_list != NULL) {
+        menu_item_data = (menu_item_t *)lcl_merge_menu_items_list->data;
         xpath = g_strdup_printf("%s/%s", menu_item_data->gui_path, menu_item_data->name);
-
         xml = make_menu_xml(xpath);
         if (xml != NULL) {
-
             /* create action group for menu elements */
             action_group = make_menu_actions(xpath, menu_item_data);
             gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
@@ -3925,7 +3892,7 @@ merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
             err = NULL;
             merge_id = gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar, xml, -1, &err);
             if (err != NULL) {
-                fprintf (stderr, "Warning: building Lua menus failed: %s\n",
+                fprintf (stderr, "Warning: building menus failed: %s\n",
                         err->message);
                 g_error_free (err);
 
@@ -3938,8 +3905,27 @@ merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
         }
 
         g_free(xpath);
-        lcl_merge_lua_menu_items_list = g_list_next(lcl_merge_lua_menu_items_list);
+        lcl_merge_menu_items_list = g_list_next(lcl_merge_menu_items_list);
     }
+}
+
+const char *
+stat_group_name(register_stat_group_t group)
+{
+    /* See make_menu_xml() for an explanation of the string format */
+    static const value_string group_name_vals[] = {
+        {REGISTER_ANALYZE_GROUP_UNSORTED,            "/Menubar/AnalyzeMenu|Analyze"},                                                              /* unsorted analyze stuff */
+        {REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, "/Menubar/AnalyzeMenu|Analyze/ConversationFilterMenu|Analyze#ConversationFilter"},            /* conversation filters */
+        {REGISTER_STAT_GROUP_UNSORTED,               "/Menubar/StatisticsMenu|Statistics"},                                                        /* unsorted statistic function */
+        {REGISTER_STAT_GROUP_GENERIC,                "/Menubar/StatisticsMenu|Statistics"},                                                        /* generic statistic function, not specific to a protocol */
+        {REGISTER_STAT_GROUP_CONVERSATION_LIST,      "/Menubar/StatisticsMenu|Statistics/ConversationListMenu|Statistics#ConversationList"},       /* member of the conversation list */
+        {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|Statistics#EndpointList"},               /* member of the endpoint list */
+        {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Statistics#ServiceResponseTime"}, /* member of the service response time list */
+        {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephony"},                                                          /* telephony specific */
+        {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                                                                  /* unsorted tools */
+        {0, NULL}
+    };
+    return val_to_str_const(group, group_name_vals, "/Menubar/ToolsMenu|Tools");
 }
 
 /*

@@ -239,9 +239,3 @@ register_tap_listener_gtk_camelsrt(void)
   register_param_stat(&camel_srt_dlg, "CAMEL",
 			REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-
-void camel_srt_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &camel_srt_dlg);
-}
-

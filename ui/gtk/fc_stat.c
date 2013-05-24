@@ -210,9 +210,3 @@ register_tap_listener_gtkfcstat(void)
 	register_param_stat(&fc_stat_dlg, "Fibre Channel",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-
-void fc_srt_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &fc_stat_dlg);
-}
-

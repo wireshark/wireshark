@@ -233,9 +233,3 @@ register_tap_listener_gtkdiameterstat(void)
 	register_param_stat(&diameter_stat_dlg, "Diameter",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-
-void diameter_srt_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &diameter_stat_dlg);
-}
-

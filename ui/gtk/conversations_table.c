@@ -39,6 +39,8 @@
 
 #include "../globals.h"
 
+#include "../stat_menu.h"
+
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 

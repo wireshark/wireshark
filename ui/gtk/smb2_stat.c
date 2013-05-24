@@ -208,8 +208,3 @@ register_tap_listener_gtksmb2stat(void)
 	register_param_stat(&smb2_stat_dlg, "SMB2",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-void smb2_srt_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &smb2_stat_dlg);
-}
-

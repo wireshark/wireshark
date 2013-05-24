@@ -64,11 +64,59 @@ static tap_param_dlg_list_item *current_dlg = NULL;
  * We register it both as a command-line stat and a menu item stat.
  */
 void
-register_param_stat(tap_param_dlg *info, const char *name _U_,
-    register_stat_group_t group _U_ )
+register_param_stat(tap_param_dlg *info, const char *name,
+    register_stat_group_t group)
 {
+    gchar *full_name;
+    const gchar *stock_id = NULL;
+
     register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
-/*    funnel_register_menu(name, group, ???, ???, ???); */
+
+    /*
+     * This menu item will pop up a dialog box, so append "..."
+     * to it.
+     */
+    full_name = g_strdup_printf("%s...", name);
+
+    switch (group) {
+
+    case REGISTER_ANALYZE_GROUP_UNSORTED:
+    case REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER:
+    case REGISTER_STAT_GROUP_UNSORTED:
+    case REGISTER_STAT_GROUP_GENERIC:
+        break;
+
+    case REGISTER_STAT_GROUP_CONVERSATION_LIST:
+        stock_id = WIRESHARK_STOCK_CONVERSATIONS;
+        break;
+
+    case REGISTER_STAT_GROUP_ENDPOINT_LIST:
+        stock_id = WIRESHARK_STOCK_ENDPOINTS;
+        break;
+
+    case REGISTER_STAT_GROUP_RESPONSE_TIME:
+        stock_id = WIRESHARK_STOCK_TIME;
+        break;
+
+    case REGISTER_STAT_GROUP_TELEPHONY:
+        break;
+
+    case REGISTER_TOOLS_GROUP_UNSORTED:
+        break;
+    }
+
+    register_menu_bar_menu_items(
+        stat_group_name(group), /* GUI path to the place holder in the menu */
+        name,                   /* Action name */
+        stock_id,               /* Stock id */
+        full_name,              /* label */
+        NULL,                   /* Accelerator */
+        NULL,                   /* Tooltip */
+        tap_param_dlg_cb,       /* Callback */
+        info,                   /* Callback data */
+        TRUE,                   /* Enabled */
+        NULL,
+        NULL);
 }
 
 void tap_param_dlg_update (void)

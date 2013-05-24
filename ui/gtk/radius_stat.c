@@ -383,8 +383,3 @@ register_tap_listener_gtkradiusstat(void)
 	register_param_stat(&radius_srt_dlg, "RADIUS",
 		    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-void radius_srt_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &radius_srt_dlg);
-}
-

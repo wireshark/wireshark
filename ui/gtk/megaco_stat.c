@@ -227,9 +227,3 @@ register_tap_listener_gtkmegacostat(void)
 	register_param_stat(&megaco_srt_dlg, "MEGACO",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
-
-void megaco_srt_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &megaco_srt_dlg);
-}
-
