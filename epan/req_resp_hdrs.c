@@ -148,6 +148,16 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * have already been handled above.
 			 */
 			if (desegment_body) {
+				/* Optimization to avoid fetching the whole (potentially very long)
+				 * line and doing expensive string comparisons if the first
+				 * character doesn't match. Shaves about 20% off the load time of
+				 * one of my sample files that's HTTP-alike. */
+				guchar first_byte = tvb_get_guint8(tvb, next_offset_sav);
+				if (! (first_byte == 'c' || first_byte == 'C' ||
+				       first_byte == 't' || first_byte == 'T')) {
+					continue;
+				}
+
 				/*
 				 * Check if we've found Content-Length.
 				 */
@@ -405,3 +415,16 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 */
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
