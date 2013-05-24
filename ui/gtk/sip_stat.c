@@ -692,7 +692,7 @@ static tap_param_dlg sip_stat_dlg = {
 void
 register_tap_listener_gtksipstat(void)
 {
-    register_dfilter_stat(&sip_stat_dlg, "_SIP", REGISTER_STAT_GROUP_TELEPHONY);
+    register_param_stat(&sip_stat_dlg, "_SIP", REGISTER_STAT_GROUP_TELEPHONY);
 }
 
 void

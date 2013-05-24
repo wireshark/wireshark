@@ -722,7 +722,7 @@ static tap_param_dlg ncp_stat_dlg = {
 void
 register_tap_listener_gtkncpstat(void)
 {
-	register_dfilter_stat(&ncp_stat_dlg, "NCP",
+	register_param_stat(&ncp_stat_dlg, "NCP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 void ncp_srt_cb(GtkAction *action, gpointer user_data _U_)

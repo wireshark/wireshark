@@ -268,7 +268,7 @@ static tap_param_dlg dhcp_stat_dlg = {
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_dfilter_stat(&dhcp_stat_dlg, "BOOTP-DHCP",
+	register_param_stat(&dhcp_stat_dlg, "BOOTP-DHCP",
 	    REGISTER_STAT_GROUP_UNSORTED);
 }
 

@@ -380,7 +380,7 @@ static tap_param_dlg radius_srt_dlg = {
 void
 register_tap_listener_gtkradiusstat(void)
 {
-	register_dfilter_stat(&radius_srt_dlg, "RADIUS",
+	register_param_stat(&radius_srt_dlg, "RADIUS",
 		    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 void radius_srt_cb(GtkAction *action, gpointer user_data _U_)

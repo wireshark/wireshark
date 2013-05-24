@@ -230,7 +230,7 @@ static tap_param_dlg diameter_stat_dlg = {
 void
 register_tap_listener_gtkdiameterstat(void)
 {
-	register_dfilter_stat(&diameter_stat_dlg, "Diameter",
+	register_param_stat(&diameter_stat_dlg, "Diameter",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

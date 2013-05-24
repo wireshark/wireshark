@@ -239,7 +239,7 @@ static tap_param_dlg ldap_stat_dlg = {
 void
 register_tap_listener_gtkldapstat(void)
 {
-	register_dfilter_stat(&ldap_stat_dlg, "LDAP",
+	register_param_stat(&ldap_stat_dlg, "LDAP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 void ldap_srt_cb(GtkAction *action, gpointer user_data _U_)

@@ -321,7 +321,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 void
 register_tap_listener_sctpstat(void)
 {
-	register_dfilter_stat(&sctp_stat_dlg, "S_CTP/Chunk Counter",
+	register_param_stat(&sctp_stat_dlg, "S_CTP/Chunk Counter",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
 

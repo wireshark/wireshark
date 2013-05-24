@@ -243,7 +243,7 @@ static tap_param_dlg smb_stat_dlg = {
 void
 register_tap_listener_gtksmbstat(void)
 {
-	register_dfilter_stat(&smb_stat_dlg, "SMB",
+	register_param_stat(&smb_stat_dlg, "SMB",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 void smb_srt_cb(GtkAction *action, gpointer user_data _U_)

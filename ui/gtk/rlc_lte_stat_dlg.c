@@ -1662,7 +1662,7 @@ static tap_param_dlg rlc_lte_stat_dlg = {
 void
 register_tap_listener_rlc_lte_stat(void)
 {
-    register_dfilter_stat(&rlc_lte_stat_dlg, "_LTE/_RLC", REGISTER_STAT_GROUP_TELEPHONY);
+    register_param_stat(&rlc_lte_stat_dlg, "_LTE/_RLC", REGISTER_STAT_GROUP_TELEPHONY);
 }
 
 void rlc_lte_stat_cb(GtkAction *action, gpointer user_data _U_)

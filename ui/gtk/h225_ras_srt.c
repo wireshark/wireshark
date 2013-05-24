@@ -332,7 +332,7 @@ gtk_h225rassrt_init(const char *opt_arg, void *userdata _U_)
 void
 register_tap_listener_gtk_h225rassrt(void)
 {
-	register_dfilter_stat(&h225_rassrt_dlg, "H.225 RAS",
+	register_param_stat(&h225_rassrt_dlg, "H.225 RAS",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

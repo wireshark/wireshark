@@ -236,7 +236,7 @@ static tap_param_dlg camel_srt_dlg = {
 void /* Next line mandatory */
 register_tap_listener_gtk_camelsrt(void)
 {
-  register_dfilter_stat(&camel_srt_dlg, "CAMEL",
+  register_param_stat(&camel_srt_dlg, "CAMEL",
 			REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

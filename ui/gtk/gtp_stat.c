@@ -225,7 +225,7 @@ static tap_param_dlg gtp_stat_dlg = {
 void
 register_tap_listener_gtkgtpstat(void)
 {
-	register_dfilter_stat(&gtp_stat_dlg, "GTP",
+	register_param_stat(&gtp_stat_dlg, "GTP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

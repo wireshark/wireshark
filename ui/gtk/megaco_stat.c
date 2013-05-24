@@ -224,7 +224,7 @@ static tap_param_dlg megaco_srt_dlg = {
 void
 register_tap_listener_gtkmegacostat(void)
 {
-	register_dfilter_stat(&megaco_srt_dlg, "MEGACO",
+	register_param_stat(&megaco_srt_dlg, "MEGACO",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

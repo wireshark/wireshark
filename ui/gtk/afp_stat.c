@@ -201,7 +201,7 @@ static tap_param_dlg afp_stat_dlg = {
 void
 register_tap_listener_gtkafpstat(void)
 {
-	register_dfilter_stat(&afp_stat_dlg, "AFP",
+	register_param_stat(&afp_stat_dlg, "AFP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

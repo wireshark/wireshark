@@ -207,7 +207,7 @@ static tap_param_dlg fc_stat_dlg = {
 void
 register_tap_listener_gtkfcstat(void)
 {
-	register_dfilter_stat(&fc_stat_dlg, "Fibre Channel",
+	register_param_stat(&fc_stat_dlg, "Fibre Channel",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

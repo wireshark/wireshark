@@ -298,7 +298,7 @@ static tap_param_dlg scsi_stat_dlg = {
 void
 register_tap_listener_gtkscsistat(void)
 {
-	register_dfilter_stat(&scsi_stat_dlg, "SCSI",
+	register_param_stat(&scsi_stat_dlg, "SCSI",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 

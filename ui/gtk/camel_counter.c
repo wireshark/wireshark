@@ -224,7 +224,7 @@ static tap_param_dlg camel_counter_dlg = {
 void  /* Next line mandatory */
 register_tap_listener_gtk_camelcounter(void)
 {
-  register_dfilter_stat(&camel_counter_dlg, "_GSM/CAMEL",
+  register_param_stat(&camel_counter_dlg, "_GSM/CAMEL",
   			REGISTER_STAT_GROUP_TELEPHONY);
 
 }

@@ -414,7 +414,7 @@ static tap_param_dlg wsp_stat_dlg = {
 void
 register_tap_listener_gtkwspstat(void)
 {
-	register_dfilter_stat(&wsp_stat_dlg, "_WAP-WSP",
+	register_param_stat(&wsp_stat_dlg, "_WAP-WSP",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
 

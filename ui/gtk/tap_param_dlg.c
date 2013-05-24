@@ -64,10 +64,11 @@ static tap_param_dlg_list_item *current_dlg = NULL;
  * We register it both as a command-line stat and a menu item stat.
  */
 void
-register_dfilter_stat(tap_param_dlg *info, const char *name _U_,
+register_param_stat(tap_param_dlg *info, const char *name _U_,
     register_stat_group_t group _U_ )
 {
     register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
+/*    funnel_register_menu(name, group, ???, ???, ???); */
 }
 
 void tap_param_dlg_update (void)

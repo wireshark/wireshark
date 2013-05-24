@@ -565,7 +565,7 @@ gtk_h225counter_init(const char *opt_arg, void *userdata _U_)
 void
 register_tap_listener_gtk_h225counter(void)
 {
-	register_dfilter_stat(&h225_counter_dlg, "_H.225",
+	register_param_stat(&h225_counter_dlg, "_H.225",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
 

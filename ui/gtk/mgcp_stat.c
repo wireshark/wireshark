@@ -311,7 +311,7 @@ static tap_param_dlg mgcp_srt_dlg = {
 void
 register_tap_listener_gtkmgcpstat(void)
 {
-	register_dfilter_stat(&mgcp_srt_dlg, "MGCP",
+	register_param_stat(&mgcp_srt_dlg, "MGCP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
 void mgcp_srt_cb(GtkAction *action, gpointer user_data _U_)

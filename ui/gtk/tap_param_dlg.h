@@ -39,9 +39,9 @@
  *    on the start button in the display filter dialog.
  * 4) the index with "-1"
  *
- * Within register_tap_menu_yourtap(void), call register_dfilter_stat()
+ * Within register_tap_menu_yourtap(void), call register_param_stat()
  * with a pointer to the tap_param_dlg structure, a string for the
- * menu item (don't put "..." at the end, register_dfilter_stat() will
+ * menu item (don't put "..." at the end, register_param_stat() will
  * add it for you), and the REGISTER_STAT_GROUP_ value for the stat
  * group to which your stat should belong.
  *
@@ -55,7 +55,7 @@
  * };
  *
  * register_tap_menu_mytap(void) {
- *   register_dfilter_stat(&my_tap_param_dlg, "My Menu Item",
+ *   register_param_stat(&my_tap_param_dlg, "My Menu Item",
  *       REGISTER_STAT_GROUP_my_group);
  * }
  *
@@ -88,10 +88,10 @@ typedef struct _tap_param_dlg {
 } tap_param_dlg;
 
 /*
- * Register a stat that has a display filter dialog.
+ * Register a stat that has a parameter dialog.
  * We register it both as a command-line stat and a menu item stat.
  */
-void register_dfilter_stat(tap_param_dlg *info, const char *name,
+void register_param_stat(tap_param_dlg *info, const char *name,
     register_stat_group_t group);
 
 void tap_param_dlg_cb(GtkAction *action, gpointer user_data);
