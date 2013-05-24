@@ -70,8 +70,6 @@ static int hf_arp_dst_hw_mac = -1;
 static int hf_arp_dst_proto = -1;
 static int hf_arp_dst_proto_ipv4 = -1;
 static int hf_drarp_error_status = -1;
-static int hf_arp_packet_storm = -1;
-static int hf_arp_duplicate_ip_address = -1;
 static int hf_arp_duplicate_ip_address_earlier_frame = -1;
 static int hf_arp_duplicate_ip_address_seconds_since_earlier_frame = -1;
 
@@ -89,6 +87,9 @@ static gint ett_arp = -1;
 static gint ett_atmarp_nsap = -1;
 static gint ett_atmarp_tl = -1;
 static gint ett_arp_duplicate_address = -1;
+
+static expert_field ei_seq_arp_dup_ip = EI_INIT;
+static expert_field ei_seq_arp_storm = EI_INIT;
 
 static dissector_handle_t atmarp_handle;
 
@@ -692,8 +693,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     proto_tree *duplicate_tree;
 
     /* Create subtree */
-    proto_item *ti = proto_tree_add_none_format(tree, hf_arp_duplicate_ip_address,
-                                                tvb, 0, 0,
+    proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0,
                                                 "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
                                                 arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
                                                 ether_to_str(mac),
@@ -706,8 +706,8 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
                              tvb, 0, 0, result->frame_num);
     PROTO_ITEM_SET_GENERATED(ti);
-    expert_add_info_format(pinfo, ti,
-                           PI_SEQUENCE, PI_WARN,
+    expert_add_info_format_text(pinfo, ti,
+                           &ei_seq_arp_dup_ip,
                            "Duplicate IP address configured (%s)",
                            arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
 
@@ -808,14 +808,13 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (report_storm)
   {
     /* Report storm and reset counter */
-    proto_item *ti = proto_tree_add_none_format(tree, hf_arp_packet_storm, tvb, 0, 0,
+    proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0,
                                                 "Packet storm detected (%u packets in < %u ms)",
                                                 global_arp_detect_request_storm_packets,
                                                 global_arp_detect_request_storm_period);
     PROTO_ITEM_SET_GENERATED(ti);
-
-    expert_add_info_format(pinfo, ti,
-                           PI_SEQUENCE, PI_NOTE,
+    expert_add_info_format_text(pinfo, ti,
+                           &ei_seq_arp_storm,
                            "ARP packet storm detected (%u packets in < %u ms)",
                            global_arp_detect_request_storm_packets,
                            global_arp_detect_request_storm_period);
@@ -1966,16 +1965,6 @@ proto_register_arp(void)
         FT_UINT16,      BASE_DEC,      VALS(drarp_status),   0x0,
         NULL, HFILL }},
 
-    { &hf_arp_packet_storm,
-      { "Packet storm detected",        "arp.packet-storm-detected",
-        FT_NONE,        BASE_NONE,      NULL,   0x0,
-        NULL, HFILL }},
-
-    { &hf_arp_duplicate_ip_address,
-      { "Duplicate IP address detected",        "arp.duplicate-address-detected",
-        FT_NONE,        BASE_NONE,      NULL,   0x0,
-        NULL, HFILL }},
-
     { &hf_arp_duplicate_ip_address_earlier_frame,
       { "Frame showing earlier use of IP address",      "arp.duplicate-address-frame",
         FT_FRAMENUM,    BASE_NONE,      NULL,   0x0,
@@ -1995,12 +1984,21 @@ proto_register_arp(void)
     &ett_arp_duplicate_address
   };
 
+  static ei_register_info ei[] = {
+     { &ei_seq_arp_dup_ip, { "arp.duplicate-address-detected", PI_SEQUENCE, PI_WARN, "Duplicate IP address configured", EXPFILL }},
+     { &ei_seq_arp_storm, { "arp.packet-storm-detected", PI_SEQUENCE, PI_NOTE, "ARP packet storm detected", EXPFILL }},
+  };
+
   module_t *arp_module;
+  expert_module_t* expert_arp;
 
   proto_arp = proto_register_protocol("Address Resolution Protocol",
                                       "ARP/RARP", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_arp = expert_register_protocol(proto_arp);
+  expert_register_field_array(expert_arp, ei, array_length(ei));
 
   atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
   ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);

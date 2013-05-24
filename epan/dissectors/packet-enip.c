@@ -296,6 +296,26 @@ static gint ett_elink_icontrol_bits = -1;
 static gint ett_dlr_capability_flags = -1;
 static gint ett_dlr_lnknbrstatus_flags = -1;
 
+static expert_field ei_mal_tcpip_status = EI_INIT;
+static expert_field ei_mal_tcpip_config_cap = EI_INIT;
+static expert_field ei_mal_tcpip_config_control = EI_INIT;
+static expert_field ei_mal_tcpip_physical_link_size = EI_INIT;
+static expert_field ei_mal_tcpip_interface_config = EI_INIT;
+static expert_field ei_mal_tcpip_mcast_config = EI_INIT;
+static expert_field ei_mal_tcpip_last_conflict = EI_INIT;
+static expert_field ei_mal_elink_interface_flags = EI_INIT;
+static expert_field ei_mal_elink_interface_counters = EI_INIT;
+static expert_field ei_mal_elink_media_counters = EI_INIT;
+static expert_field ei_mal_elink_interface_control = EI_INIT;
+static expert_field ei_mal_dlr_ring_supervisor_config = EI_INIT;
+static expert_field ei_mal_dlr_last_active_node_on_port_1 = EI_INIT;
+static expert_field ei_mal_dlr_last_active_node_on_port_2 = EI_INIT;
+static expert_field ei_mal_dlr_ring_protocol_participants_list = EI_INIT;
+static expert_field ei_mal_dlr_active_supervisor_address = EI_INIT;
+static expert_field ei_mal_dlr_capability_flags = EI_INIT;
+static expert_field ei_mal_dlr_redundant_gateway_config = EI_INIT;
+static expert_field ei_mal_dlr_active_gateway_address = EI_INIT;
+
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
 static dissector_handle_t  data_handle;
@@ -1125,7 +1145,7 @@ int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item,
 
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 1");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_status);
       return total_len;
    }
 
@@ -1149,7 +1169,7 @@ int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *i
 
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 2");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_config_cap);
       return total_len;
    }
 
@@ -1177,7 +1197,7 @@ int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_ite
 
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 3");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_config_control);
       return total_len;
    }
 
@@ -1202,7 +1222,7 @@ int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item
 
    if (total_len < path_size+2)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 4");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_physical_link_size);
       return total_len;
    }
 
@@ -1220,7 +1240,7 @@ int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_i
 
    if (total_len < 22)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 5");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_interface_config);
       return total_len;
    }
 
@@ -1242,7 +1262,7 @@ int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item 
 {
    if (total_len < 8)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 9");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_mcast_config);
       return total_len;
    }
 
@@ -1261,7 +1281,7 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
 
    if (total_len < 35)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 11");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_last_conflict);
       return total_len;
    }
 
@@ -1289,7 +1309,7 @@ int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_it
 
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 2");
+      expert_add_info(pinfo, item, &ei_mal_elink_interface_flags);
       return total_len;
    }
 
@@ -1311,7 +1331,7 @@ int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto
 {
    if (total_len < 44)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 4");
+      expert_add_info(pinfo, item, &ei_mal_elink_interface_counters);
       return total_len;
    }
 
@@ -1335,7 +1355,7 @@ int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_ite
 {
    if (total_len < 48)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 5");
+      expert_add_info(pinfo, item, &ei_mal_elink_media_counters);
       return total_len;
    }
 
@@ -1363,7 +1383,7 @@ int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_
 
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 6");
+      expert_add_info(pinfo, item, &ei_mal_elink_interface_control);
       return total_len;
    }
 
@@ -1383,7 +1403,7 @@ int dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, pro
 {
    if (total_len < 12)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 4");
+      expert_add_info(pinfo, item, &ei_mal_dlr_ring_supervisor_config);
       return total_len;
    }
 
@@ -1401,7 +1421,7 @@ int dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree,
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 6");
+      expert_add_info(pinfo, item, &ei_mal_dlr_last_active_node_on_port_1);
       return total_len;
    }
 
@@ -1416,7 +1436,7 @@ int dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree,
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 7");
+      expert_add_info(pinfo, item, &ei_mal_dlr_last_active_node_on_port_2);
       return total_len;
    }
 
@@ -1433,7 +1453,7 @@ int dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *
 
    if (total_len % 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 9");
+      expert_add_info(pinfo, item, &ei_mal_dlr_ring_protocol_participants_list);
       return total_len;
    }
 
@@ -1453,7 +1473,7 @@ int dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, 
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 10");
+      expert_add_info(pinfo, item, &ei_mal_dlr_active_supervisor_address);
       return total_len;
    }
 
@@ -1471,7 +1491,7 @@ int dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_ite
 
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 12");
+      expert_add_info(pinfo, item, &ei_mal_dlr_capability_flags);
       return total_len;
    }
 
@@ -1494,7 +1514,7 @@ int dissect_dlr_redundant_gateway_config(packet_info *pinfo, proto_tree *tree, p
 {
    if (total_len < 11)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 13");
+      expert_add_info(pinfo, item, &ei_mal_dlr_redundant_gateway_config);
       return total_len;
    }
 
@@ -1512,7 +1532,7 @@ int dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, pro
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 15");
+      expert_add_info(pinfo, item, &ei_mal_dlr_active_gateway_address);
       return total_len;
    }
 
@@ -3275,6 +3295,28 @@ proto_register_enip(void)
       &ett_dlr_lnknbrstatus_flags
    };
 
+   static ei_register_info ei[] = {
+      { &ei_mal_tcpip_status, { "cip.malformed.tcpip.status", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 1", EXPFILL }},
+      { &ei_mal_tcpip_config_cap, { "cip.malformed.tcpip.config_cap", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 2", EXPFILL }},
+      { &ei_mal_tcpip_config_control, { "cip.malformed.tcpip.config_control", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 3", EXPFILL }},
+      { &ei_mal_tcpip_physical_link_size, { "cip.malformed.tcpip.physical_link_size", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 4", EXPFILL }},
+      { &ei_mal_tcpip_interface_config, { "cip.malformed.tcpip.interface_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 5", EXPFILL }},
+      { &ei_mal_tcpip_mcast_config, { "cip.malformed.tcpip.mcast_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 9", EXPFILL }},
+      { &ei_mal_tcpip_last_conflict, { "cip.malformed.tcpip.last_conflict", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Attribute 11", EXPFILL }},
+      { &ei_mal_elink_interface_flags, { "cip.malformed.elink.interface_flags", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 2", EXPFILL }},
+      { &ei_mal_elink_interface_counters, { "cip.malformed.elink.interface_counters", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 4", EXPFILL }},
+      { &ei_mal_elink_media_counters, { "cip.malformed.elink.media_counters", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 5", EXPFILL }},
+      { &ei_mal_elink_interface_control, { "cip.malformed.elink.interface_control", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Attribute 6", EXPFILL }},
+      { &ei_mal_dlr_ring_supervisor_config, { "cip.malformed.dlr.ring_supervisor_config", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 4", EXPFILL }},
+      { &ei_mal_dlr_last_active_node_on_port_1, { "cip.malformed.dlr.last_active_node_on_port_1", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 6", EXPFILL }},
+      { &ei_mal_dlr_last_active_node_on_port_2, { "cip.malformed.dlr.last_active_node_on_port_2", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 7", EXPFILL }},
+      { &ei_mal_dlr_ring_protocol_participants_list, { "cip.malformed.dlr.ring_protocol_participants_list", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 9", EXPFILL }},
+      { &ei_mal_dlr_active_supervisor_address, { "cip.malformed.dlr.active_supervisor_address", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 10", EXPFILL }},
+      { &ei_mal_dlr_capability_flags, { "cip.malformed.dlr.capability_flags", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 12", EXPFILL }},
+      { &ei_mal_dlr_redundant_gateway_config, { "cip.malformed.dlr.redundant_gateway_config", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 13", EXPFILL }},
+      { &ei_mal_dlr_active_gateway_address, { "cip.malformed.dlr.active_gateway_address", PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 15", EXPFILL }},
+   };
+
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
    static hf_register_info hfdlr[] = {
       /* Ring Sub-type */
@@ -3491,6 +3533,7 @@ proto_register_enip(void)
    };
 
    module_t *enip_module;
+   expert_module_t* expert_enip;
 
    /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
@@ -3498,6 +3541,9 @@ proto_register_enip(void)
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+
+   expert_enip = expert_register_protocol(proto_enip);
+   expert_register_field_array(expert_enip, ei, array_length(ei));
 
    enip_module = prefs_register_protocol(proto_enip, NULL);
    prefs_register_bool_preference(enip_module, "desegment",
