@@ -96,7 +96,7 @@ const value_string string_fec_encoding_id[] =
 /* ---------- */
 
 /* Decode an EXT_FTI extension and fill FEC array */
-void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, guint8 encoding_id)
+void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 encoding_id)
 {
 	guint64 transfer_length;
 	fec_packet_data_t* fec_data;

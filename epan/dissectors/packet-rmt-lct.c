@@ -223,7 +223,7 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
 			break;
 
 		case 64: /* EXT_FTI */
-			fec_decode_ext_fti(tvb, pinfo, ext_tree, offset, length, 
+			fec_decode_ext_fti(tvb, pinfo, ext_tree, offset,
 				(data_exchange == NULL) ? 0 : data_exchange->codepoint);
 			break;
 
@@ -282,7 +282,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	guint64 tsi;
 	guint64 toi;
 	guint16 hlen;
-	nstime_t time;
+	nstime_t tmp_time;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -442,15 +442,15 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	/* Sender Current Time (SCT) */
 	if (buffer16 & LCT_SCT_FLAG) {
-		lct_timestamp_parse(tvb_get_ntohl(tvb, offset), &time);
-		proto_tree_add_time(lct_tree, hf_sct, tvb, offset, 4, &time);
+		lct_timestamp_parse(tvb_get_ntohl(tvb, offset), &tmp_time);
+		proto_tree_add_time(lct_tree, hf_sct, tvb, offset, 4, &tmp_time);
 		offset += 4;
 	}
 
 	/* Expected Residual Time (ERT) */
 	if (buffer16 & LCT_ERT_FLAG) {
-		lct_timestamp_parse(tvb_get_ntohl(tvb, offset), &time);
-		proto_tree_add_time(lct_tree, hf_ert, tvb, offset, 4, &time);
+		lct_timestamp_parse(tvb_get_ntohl(tvb, offset), &tmp_time);
+		proto_tree_add_time(lct_tree, hf_ert, tvb, offset, 4, &tmp_time);
 		offset += 4;
 	}
 

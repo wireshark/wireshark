@@ -69,7 +69,7 @@ typedef struct fec_data_exchange
 /* ============================= */
 extern int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset, guint offset_max, lct_data_exchange_t *data_exchange,
                    int hfext, int ettext);
-extern void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, guint8 encoding_id);
+extern void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 encoding_id);
 
 extern double rmt_decode_send_rate(guint16 send_rate );
 
