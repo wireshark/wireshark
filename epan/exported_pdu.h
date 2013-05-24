@@ -69,10 +69,10 @@
                                           * http://www.tcpdump.org/linktypes.html
                                           */ 
 #define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string 
-                                          * of the sort protocol name used by Wireshark e.g "sip"
+                                          * of the short protocol name used by Wireshark e.g "sip"
                                           * Will be used to call the next dissector.
                                           */
-/* Add protocol type related tags here */
+/* Add protocol type related tags here NOTE Only one protocol typ tag may be present in a packet, the first one found will be used*/
 /* 13 - 19 reserved */
 #define EXP_PDU_TAG_IPV4_SRC        20
 #define EXP_PDU_TAG_IPV4_DST        21
