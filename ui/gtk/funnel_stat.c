@@ -633,7 +633,7 @@ static void register_menu_cb(const char *name,
         label = name;
     }
 
-    register_lua_menu_bar_menu_items(
+    register_menu_bar_menu_items(
         stat_group_name(group), /* GUI path to the place holder in the menu */
         name, /* Action name */
         NULL, /* Stock id */

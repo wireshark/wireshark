@@ -3644,7 +3644,7 @@ typedef struct _menu_item {
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data);
 } menu_item_t;
 
-void register_lua_menu_bar_menu_items(
+void register_menu_bar_menu_items(
     const char   *gui_path,
     const char   *name,
     const gchar  *stock_id,

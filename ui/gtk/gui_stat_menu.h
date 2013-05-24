@@ -63,7 +63,7 @@ extern "C" {
  *
  * @param callback_data data for callback function
  */
-void register_lua_menu_bar_menu_items(
+void register_menu_bar_menu_items(
     const char   *gui_path,
     const char   *name,
     const gchar  *stock_id,
