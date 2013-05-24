@@ -548,42 +548,45 @@
     <para>
       There are several mailing lists of specific Wireshark topics available:
       <variablelist>
-    <varlistentry><term><command>wireshark-announce</command></term>
-      <listitem>
-        <para>
-          This mailing list will inform you about new program
-          releases, which usually appear about every 4-8 weeks.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry><term><command>wireshark-users</command></term>
-      <listitem>
-        <para>
-          This list is for users of Wireshark.  People post
-          questions about building and using Wireshark, others (hopefully)
-          provide answers.
-        </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry><term><command>wireshark-dev</command></term>
-      <listitem>
-        <para>
-          This list is for Wireshark developers. If you want to start
-          developing a protocol dissector, join this list.
-        </para>
-      </listitem>
-    </varlistentry>
+	<varlistentry><term><command>wireshark-announce</command></term>
+	  <listitem>
+	    <para>
+	      This mailing list will inform you about new program
+	      releases, which usually appear about every 4-8 weeks.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>wireshark-users</command></term>
+	  <listitem>
+	    <para>
+	      This list is for users of Wireshark.  People post
+	      questions about building and using Wireshark, others (hopefully)
+	      provide answers.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>wireshark-dev</command></term>
+	  <listitem>
+	    <para>
+	      This list is for Wireshark developers. If you want to start
+	      developing a protocol dissector, join this list.
+	    </para>
+	  </listitem>
+	</varlistentry>
       </variablelist>
+
       You can subscribe to each of these lists from the Wireshark web site:
-      <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.  Simply
-      select the <command>mailing lists</command> link on the left hand
-      side of the site. The lists are archived at the Wireshark web site
-      as well.
+      <ulink url="&WiresharkListsPage;">&WiresharkListsPage;</ulink>.
+      From there, you can choose which mailing list you want to subscribe to
+      by clicking on the Subscribe/Unsubscribe/Options button under the title
+      of the relevant list. The links to the archives are included on that
+      page as well.
+
     <tip><title>Tip!</title>
     <para>
-    You can search in the list archives to see if someone asked the same
-    question some time before and maybe already got an answer. That way you
-    don't have to wait until someone answers your question.
+      You can search in the list archives to see if someone asked the same
+      question some time before and maybe already got an answer. That way you
+      don't have to wait until someone answers your question.
     </para>
     </tip>
     </para>

@@ -477,7 +477,7 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-    the file <filename>doc/README.developer</filename> and
+	the file <filename>doc/README.developer</filename> and
 	all the other README.xxx files in the source code - these are various
 	documentation files on different topics
 	</para>
@@ -492,30 +492,30 @@
 	</listitem>
 	<listitem>
 	<para>
-    the Wireshark source code
+	the Wireshark source code
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    tool documentation of the various tools used
+	tool documentation of the various tools used
 	(e.g. manpages of sed, gcc, ...)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    the different mailing lists: see <xref linkend="ChIntroMailingLists"/>
+	the different mailing lists: see <xref linkend="ChIntroMailingLists"/>
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    ...
+	...
 	</para>
 	</listitem>
 	</itemizedlist>
     </para>
     </section>
 
-	<section id="ChIntroMailingLists"><title>Mailing Lists</title>
+    <section id="ChIntroMailingLists"><title>Mailing Lists</title>
     <para>
       There are several mailing lists available on specific Wireshark topics:
       <variablelist>
@@ -523,7 +523,7 @@
 	  <listitem>
 	    <para>
 	      This mailing list will inform you about new program
-		  releases, which usually appear about every 4-8 weeks.
+	      releases, which usually appear about every 4-8 weeks.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -532,7 +532,7 @@
 	    <para>
 	      This list is for users of Wireshark. People post
 	      questions about building and using Wireshark, others (hopefully)
-		  provide answers.
+	      provide answers.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -540,8 +540,8 @@
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. People post questions about
-		  the development of Wireshark, others (hopefully) provide answers.
-		  If you want to start developing a protocol dissector, join this list.
+	      the development of Wireshark, others (hopefully) provide answers.
+	      If you want to start developing a protocol dissector, join this list.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -549,10 +549,10 @@
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. Every time a change to the bug
-		  database occurs, a mail to this mailing list is generated.
-		  If you want to be notified about all the changes to the bug
-		  database, join this list. Details about the bug database can be
-		  found in <xref linkend="ChIntroBugDatabase"/>.
+	      database occurs, a mail to this mailing list is generated.
+	      If you want to be notified about all the changes to the bug
+	      database, join this list. Details about the bug database can be
+	      found in <xref linkend="ChIntroBugDatabase"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -560,52 +560,66 @@
 	  <listitem>
 	    <para>
 	      This list is for Wireshark developers. Every time a change to the SVN
-		  repository is checked in, a mail to this mailing list is generated.
-		  If you want to be notified about all the changes to the SVN
-		  repository, join this list. Details about the SVN repository can be
-		  found in <xref linkend="ChSrcSVNServer"/>.
+	      repository is checked in, a mail to this mailing list is generated.
+	      If you want to be notified about all the changes to the SVN
+	      repository, join this list. Details about the SVN repository can be
+	      found in <xref linkend="ChSrcSVNServer"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
       </variablelist>
+
       You can subscribe to each of these lists from the Wireshark web site:
-      <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.  Simply
-      select the <command>mailing lists</command> link on the left hand
-      side of the site. The lists are archived at the Wireshark web site
-      as well.
-	<tip><title>Tip!</title>
-	<para>
+      <ulink url="&WiresharkListsPage;">&WiresharkListsPage;</ulink>.
+      From there, you can choose which mailing list you want to subscribe to
+      by clicking on the Subscribe/Unsubscribe/Options button under the title
+      of the relevant list. The links to the archives are included on that
+      page as well.
+
+      <tip><title>Tip!</title>
+      <para>
 	You can search in the list archives to see if someone previously asked the same
 	question and maybe already got an answer. That way you
 	don't have to wait until someone answers your question.
-	</para>
-	</tip>
+      </para>
+      </tip>
     </para>
-	</section>
+    </section>
 
-	<section id="ChIntroBugDatabase"><title>Bug database (Bugzilla)</title>
-	<para>
-	The Wireshark community collects bug reports in a Bugzilla database at
-	<ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
-	This database is filled with manually filed bug reports, usually after some
-	discussion on wireshark-dev, and automatic bug reports from the buildbot tools.
-	</para>
-	</section>
-
-	<section id="ChIntroReportProblems"><title>Reporting Problems</title>
-	<note><title>Note!</title>
-	<para>
-	Before reporting any problems, please make sure you have installed the
-	latest version of Wireshark. Reports on older maintainance releases are
-	usually met with an upgrade request.
-	</para>
-	</note>
+    <section id="ChIntroBugDatabase"><title>Bug database (Bugzilla)</title>
     <para>
-	If you report problems, provide as much
-	information as possible. In general, just think about what
-	you would need to find that problem, if someone else sends you such a
-	problem report. Also keep in mind that people compile/run Wireshark on a lot of different
-	platforms.
+      The Wireshark community collects bug reports in a Bugzilla database at
+      <ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
+      This database is filled with manually filed bug reports, usually after some
+      discussion on wireshark-dev, and automatic bug reports from the buildbot tools.
+    </para>
+    </section>
+
+    <section id="ChIntroQA"><title>Q&amp;A Forum</title>
+    <para>
+      The Wireshark Q and A forum at
+      <ulink url="&WiresharkQASite;">&WiresharkQASite;</ulink> offers a resource
+      where questions and answers come together. You have the option to search
+      what questions were asked before and what answers were given by people who
+      knew about the issue. Answers are graded, so you can pick out the best ones
+      easily. If your issue isn't discussed before you can post one yourself.
+    </para>
+    </section>
+
+    <section id="ChIntroReportProblems"><title>Reporting Problems</title>
+    <note><title>Note!</title>
+    <para>
+      Before reporting any problems, please make sure you have installed the
+      latest version of Wireshark. Reports on older maintainance releases are
+      usually met with an upgrade request.
+    </para>
+    </note>
+    <para>
+      If you report problems, provide as much
+      information as possible. In general, just think about what
+      you would need to find that problem, if someone else sends you such a
+      problem report. Also keep in mind that people compile/run Wireshark on a lot of different
+      platforms.
     </para>
     <para>
       When reporting problems with Wireshark, it is helpful if you supply the
