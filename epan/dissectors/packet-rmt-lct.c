@@ -45,25 +45,83 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/garrayfix.h>
 
 #include <math.h>
 
-#include "packet-rmt-lct.h"
+#include "packet-rmt-common.h"
+
+#define LCT_SCT_FLAG 0x0008
+#define LCT_ERT_FLAG 0x0004
+#define LCT_CLOSE_SESSION_FLAG 0x0002
+#define LCT_CLOSE_OBJECT_FLAG 0x0001
+
+static int proto_rmt_lct = -1;
+
+static int hf_version = -1;
+static int hf_fsize_header = -1;
+static int hf_fsize_cci = -1;
+static int hf_fsize_tsi = -1;
+static int hf_fsize_toi = -1;
+static int hf_flags_header = -1;
+static int hf_flags_sct_present = -1;
+static int hf_flags_ert_present = -1;
+static int hf_flags_close_session = -1;
+static int hf_flags_close_object = -1;
+static int hf_hlen = -1;
+static int hf_codepoint = -1;
+static int hf_cci = -1;
+static int hf_tsi = -1;
+static int hf_tsi16 = -1;
+static int hf_tsi32 = -1;
+static int hf_tsi48 = -1;
+static int hf_toi = -1;
+static int hf_toi16 = -1;
+static int hf_toi32 = -1;
+static int hf_toi48 = -1;
+static int hf_toi64 = -1;
+static int hf_toi_extended = -1;
+static int hf_sct = -1;
+static int hf_ert = -1;
+static int hf_ext = -1;
+static int hf_hec_type = -1;
+static int hf_hec_len = -1;
+static int hf_hec_data = -1;
+static int hf_send_rate = -1;
+static int hf_cenc = -1;
+static int hf_flute_version = -1;
+static int hf_fdt_instance_id = -1;
+
+static int ett_main = -1;
+static int ett_fsize = -1;
+static int ett_flags = -1;
+static int ett_ext = -1;
+static int ett_ext_ext = -1;
 
 /* Enumerated data types for LCT preferences */
-static const enum_val_t enum_lct_ext_192[] =
+const enum_val_t enum_lct_ext_192[] =
 {
 	{ "none", "Don't decode", LCT_PREFS_EXT_192_NONE },
 	{ "flute", "Decode as FLUTE extension (EXT_FDT)", LCT_PREFS_EXT_192_FLUTE },
 	{ NULL, NULL, 0 }
 };
 
-static const enum_val_t enum_lct_ext_193[] =
+const enum_val_t enum_lct_ext_193[] =
 {
 	{ "none", "Don't decode", LCT_PREFS_EXT_193_NONE },
 	{ "flute", "Decode as FLUTE extension (EXT_CENC)", LCT_PREFS_EXT_193_FLUTE },
 	{ NULL, NULL, 0 }
+};
+
+static const value_string hec_type_vals[] = {
+	{ 0,   "EXT_NOP, No-Operation" },
+	{ 1,   "EXT_AUTH, Packet authentication" },
+	{ 2,   "EXT_CC, Congestion Control Feedback" },
+	{ 64,  "EXT_FTI, FEC Object Transmission Information" },
+	{ 128,  "EXT_RATE, Send Rate" },
+	{ 192,  "EXT_FDT, FDT Instance Header" },
+	{ 193,  "EXT_CENC, FDT Instance Content Encoding" },
+
+	{ 0,  NULL }
 };
 
 /* LCT helper functions */
@@ -75,168 +133,130 @@ static void lct_timestamp_parse(guint32 t, nstime_t* s)
 	s->nsecs = (t % 1000) * 1000000;
 }
 
-gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *lct_prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
+double rmt_decode_send_rate(guint16 send_rate )
 {
-	guint32 buffer32;
-	proto_item *ti;
-	proto_tree *ext_tree;
-	gboolean is_flute = FALSE;
+	double value;
 
-	switch (e->het)
+	value = (send_rate >> 4) * 10.0 / 4096.0 * pow(10.0, (send_rate & 0xf));
+	return value;
+}
+
+
+int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset, guint offset_max, lct_data_exchange_t *data_exchange,
+                   int hfext, int ettext)
+{
+	guint8 het;
+	guint i, count = 0;
+	guint length, 
+		  tmp_offset = offset,
+		  start_offset = offset;
+	proto_item* ti;
+	proto_tree *hec_tree, *ext_tree;
+
+	/* Figure out the extention count */
+	while (tmp_offset < offset_max)
 	{
-
-	/* EXT_NOP */
-	case 0:
-		if (tree)
+		het = tvb_get_guint8(tvb, tmp_offset);
+		if (het <= 127)
 		{
-			ti = proto_tree_add_text(tree, tvb, e->offset, e->length,
-				"EXT_NOP, No-Operation (0)");
-
-			rmt_ext_decode_default_subtree(e, tvb, ti, ett);
+			length = tvb_get_guint8(tvb, tmp_offset+1)*4;
 		}
-		break;
-
-	/* EXT_AUTH */
-	case 1:
-		if (tree)
+		else
 		{
-			ti = proto_tree_add_text(tree, tvb, e->offset, e->length,
-				"EXT_AUTH, Packet authentication (1)");
-
-			rmt_ext_decode_default_subtree(e, tvb, ti, ett);
+			length = 4;
 		}
-		break;
 
-    /* EXT_CC RATE */
-    case 3:
-        if (tree) {
-			ti = proto_tree_add_text(tree, tvb, e->offset, e->length,
-				"EXT_CC, Congestion Control Feedback (%u)", e->het);
-
-			ext_tree = proto_item_add_subtree(ti, ett);
-			rmt_ext_decode_default_header(e, tvb, ext_tree);
-			proto_tree_add_text(ext_tree, tvb, e->offset+2, 2,
-					"CC Sequence: %u", tvb_get_ntohs(tvb, e->offset+2));
-			proto_tree_add_text(ext_tree, tvb, e->offset+4, 1,
-					"CC Flags: 0x%x", tvb_get_guint8(tvb, e->offset+4));
-			proto_tree_add_text(ext_tree, tvb, e->offset+5, 1,
-					"CC RTT: %u", tvb_get_guint8(tvb, e->offset+5));
-			proto_tree_add_text(ext_tree, tvb, e->offset+6, 2,
-					"CC Loss: %g", tvb_get_ntohs(tvb, e->offset+6)/65535.0);
-			proto_tree_add_text(ext_tree, tvb, e->offset+8, 2,
-					"CC Rate: %u", tvb_get_ntohs(tvb, e->offset+8));
-
-		}
-		break;
-	/* EXT_FTI */
-	case 64:
-		fec_decode_ext_fti(e, tvb, tree, ett, f);
-		break;
-
-	/* EXT_RATE */
-    case 128:
-        if (tree) {
-			guint16 send_rate;
-			double value;
-			ti = proto_tree_add_text(tree, tvb, e->offset, e->length,
-				"EXT_RATE, Send Rate (%u)", e->het);
-
-			ext_tree = proto_item_add_subtree(ti, ett);
-			rmt_ext_decode_default_header(e, tvb, ext_tree);
-			send_rate = tvb_get_ntohs(tvb, e->offset+2);
-			value = (send_rate >> 4) * 10.0 / 4096.0 * pow(10.0, (send_rate & 0xf));
-			proto_tree_add_text(ext_tree, tvb, e->offset+2, 2,
-					"Send Rate: %g", value);
-		}
-		break;
-
-	/* EXT_FDT */
-	case 192:
-		switch (lct_prefs->ext_192)
-		{
-		case LCT_PREFS_EXT_192_NONE:
-			rmt_ext_decode_default(e, tvb, tree, ett);
+		/* Prevents infinite loops */
+		if (length == 0)
 			break;
 
-		case LCT_PREFS_EXT_192_FLUTE:
-			if (tree)
-			{
-				ti = proto_tree_add_text(tree, tvb, e->offset, e->length,
-					"EXT_FDT, FDT Instance Header (192)");
-
-				ext_tree = proto_item_add_subtree(ti, ett);
-				buffer32 = tvb_get_ntohl(tvb, e->offset);
-
-				rmt_ext_decode_default_header(e, tvb, ext_tree);
-
-				proto_tree_add_text(ext_tree, tvb, e->offset+1, 1,
-					"FLUTE version (V): %u", (buffer32 & 0x00F00000) >> 20);
-
-				proto_tree_add_text(ext_tree, tvb, e->offset+1, 3,
-					"FDT Instance ID: %u", buffer32 & 0x000FFFFF);
-			}
-			is_flute = TRUE;
-			break;
-		}
-		break;
-
-	/* EXT_CENC */
-	case 193:
-		switch (lct_prefs->ext_193)
-		{
-		case LCT_PREFS_EXT_193_NONE:
-			rmt_ext_decode_default(e, tvb, tree, ett);
-			break;
-
-		case LCT_PREFS_EXT_193_FLUTE:
-			if (tree)
-			{
-				ti = proto_tree_add_text(tree, tvb, e->offset, e->length,
-					"EXT_CENC, FDT Instance Content Encoding (193)");
-
-				ext_tree = proto_item_add_subtree(ti, ett);
-				buffer32 = tvb_get_ntohl(tvb, e->offset);
-
-				rmt_ext_decode_default_header(e, tvb, ext_tree);
-
-				proto_tree_add_text(ext_tree, tvb, e->offset+1, 1,
-					"Content Encoding Algorithm (CENC): %u", (buffer32 & 0x00FF0000) >> 16);
-			}
-			break;
-		}
-		break;
-
-	default:
-		rmt_ext_decode_default(e, tvb, tree, ett);
+		tmp_offset += length;
+		count++;
 	}
-	return is_flute;
+
+	if (count == 0)
+		return 0;
+
+	ti = proto_tree_add_uint(tree, hfext, tvb, offset, tmp_offset - offset, count);
+	hec_tree = proto_item_add_subtree(ti, ettext);
+
+	for (i = 0; i < count; i++)
+	{
+		het = tvb_get_guint8(tvb, offset);
+		if (het <= 127)
+		{
+			length = tvb_get_guint8(tvb, offset+1)*4;
+		}
+		else
+		{
+			length = 4;
+		}
+
+		ti = proto_tree_add_item(hec_tree, hf_hec_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		ext_tree = proto_item_add_subtree(ti, ett_ext_ext);
+		proto_item_set_len(ti, length);
+
+		if (het <= 127)
+		{
+			proto_tree_add_item(ext_tree, hf_hec_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+		}
+
+		switch (het)
+		{
+		case 0: /* EXT_NOP */
+		case 1: /* EXT_AUTH */
+		default:
+			proto_tree_add_item(ext_tree, hf_hec_data, tvb, offset+2, length-2, ENC_NA);
+			break;
+
+		case 3: /* EXT_CC RATE */
+			proto_tree_add_text(ext_tree, tvb, offset+2, 2,
+					"CC Sequence: %u", tvb_get_ntohs(tvb, offset+2));
+			proto_tree_add_text(ext_tree, tvb, offset+4, 1,
+					"CC Flags: 0x%x", tvb_get_guint8(tvb, offset+4));
+			proto_tree_add_text(ext_tree, tvb, offset+5, 1,
+					"CC RTT: %u", tvb_get_guint8(tvb, offset+5));
+			proto_tree_add_text(ext_tree, tvb, offset+6, 2,
+					"CC Loss: %g", tvb_get_ntohs(tvb, offset+6)/65535.0);
+			proto_tree_add_text(ext_tree, tvb, offset+8, 2,
+					"CC Rate: %u", tvb_get_ntohs(tvb, offset+8));
+			break;
+
+		case 64: /* EXT_FTI */
+			fec_decode_ext_fti(tvb, pinfo, ext_tree, offset, length, 
+				(data_exchange == NULL) ? 0 : data_exchange->codepoint);
+			break;
+
+		case 128: /* EXT_RATE */
+			proto_tree_add_double(ext_tree, hf_send_rate, tvb, offset+2, 2, 
+					rmt_decode_send_rate(tvb_get_ntohs(tvb, offset+2)));
+			break;
+		
+		case 192: /* EXT_FDT */
+			if ((data_exchange != NULL) && (data_exchange->ext_192 == LCT_PREFS_EXT_192_FLUTE))
+			{
+				proto_tree_add_item(ext_tree, hf_flute_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ext_tree, hf_fdt_instance_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+				data_exchange->is_flute = TRUE;
+			}
+			break;
+
+		case 193: /* EXT_CENC */
+			if ((data_exchange != NULL) && (data_exchange->ext_193 == LCT_PREFS_EXT_193_FLUTE))
+			{
+				proto_tree_add_item(ext_tree, hf_cenc, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+			}
+			break;
+		}
+
+		offset += length;
+	}
+
+	return offset-start_offset;
 }
 
 /* LCT exported functions */
 /* ====================== */
-
-/* Info */
-/* ---- */
-
-void lct_info_column(struct _lct *lct, packet_info *pinfo)
-{
-	if (lct->tsi_present)
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" G_GINT64_MODIFIER "u", lct->tsi);
-
-	if (lct->toi_present)
-	{
-		if (lct->toi_size <= 8)
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" G_GINT64_MODIFIER "u", lct->toi);
-		else
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: 0x%s", bytes_to_str(lct->toi_extended, lct->toi_size));
-	}
-
-	if (lct->close_session)
-		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close session");
-
-	if (lct->close_object)
-		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close object");
-}
 
 /* Dissection */
 /* ---------- */
@@ -249,268 +269,297 @@ void lct_info_column(struct _lct *lct, packet_info *pinfo)
  * tree - tree where to add LCT header subtree
  * offset - ptr to offset to use and update
  */
-gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static int
+dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	guint i;
-	guint offset_old;
-	guint offset_start;
+	int offset = 0;
 	guint16 buffer16;
-	gboolean is_flute_tmp =FALSE;
-	gboolean is_flute =FALSE;
-	guint8 *tmp;
+	lct_data_exchange_t *data_exchange = (lct_data_exchange_t*)data;
+
+	guint8 cci_size;
+	guint8 tsi_size;
+	guint8 toi_size;
+	guint64 tsi;
+	guint64 toi;
+	guint16 hlen;
+	nstime_t time;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *lct_tree;
-	proto_tree *lct_fsize_tree;
-	proto_tree *lct_flags_tree;
-	proto_tree *lct_ext_tree;
+	proto_tree *lct_tree = tree, *lct_fsize_tree, *lct_flags_tree;
 
 	/* LCT fixed-size fields dissection */
 	/* -------------------------------- */
+	buffer16 = tvb_get_ntohs(tvb, offset);
 
-	offset_start = *offset;
+	cci_size = ((buffer16 & 0x0C00) >> 10) * 4 + 4;
+	tsi_size = ((buffer16 & 0x0080) >> 7) * 4 + ((buffer16 & 0x0010) >> 4) * 2;
+	toi_size = ((buffer16 & 0x0060) >> 5) * 4 + ((buffer16 & 0x0010) >> 4) * 2;
 
-	buffer16 = tvb_get_ntohs(tvb, *offset);
+	hlen = tvb_get_guint8(tvb, offset+2) * 4;
 
-	l.lct->version = ((buffer16 & 0xF000) >> 12);
-
-	l.lct->cci_size = ((buffer16 & 0x0C00) >> 10) * 4 + 4;
-	l.lct->tsi_size = ((buffer16 & 0x0080) >> 7) * 4 + ((buffer16 & 0x0010) >> 4) * 2;
-	l.lct->toi_size = ((buffer16 & 0x0060) >> 5) * 4 + ((buffer16 & 0x0010) >> 4) * 2;
-
-	l.lct->tsi_present = (l.lct->tsi_size > 0);
-	l.lct->toi_present = (l.lct->toi_size > 0);
-	l.lct->sct_present = (buffer16 & 0x0008) != 0;
-	l.lct->ert_present = (buffer16 & 0x0004) != 0;
-	l.lct->close_session = (buffer16 & 0x0002) != 0;
-	l.lct->close_object = (buffer16 & 0x0001) != 0;
-
-	l.lct->hlen = tvb_get_guint8(tvb, *offset+2) * 4;
-	l.lct->codepoint = tvb_get_guint8(tvb, *offset+3);
-
-	if (l.prefs->codepoint_as_fec_encoding)
+	if (data_exchange != NULL)
 	{
-		f.fec->encoding_id_present = TRUE;
-		f.fec->encoding_id = l.lct->codepoint;
+		data_exchange->codepoint = tvb_get_guint8(tvb, offset+3);
+		data_exchange->is_flute = FALSE;
 	}
 
 	if (tree)
 	{
 		/* Create the LCT subtree */
-		ti = proto_tree_add_item(tree, l.hf->header, tvb, *offset, l.lct->hlen, ENC_NA);
-		lct_tree = proto_item_add_subtree(ti, l.ett->main);
+		ti = proto_tree_add_item(tree, proto_rmt_lct, tvb, offset, hlen, ENC_NA);
+		lct_tree = proto_item_add_subtree(ti, ett_main);
 
 		/* Fill the LCT subtree */
-		proto_tree_add_uint(lct_tree, l.hf->version, tvb, *offset, 1, l.lct->version);
+		proto_tree_add_item(lct_tree, hf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-		ti = proto_tree_add_item(lct_tree, l.hf->fsize_header, tvb, *offset, 2, ENC_NA);
-		lct_fsize_tree = proto_item_add_subtree(ti, l.ett->fsize);
-
-		ti = proto_tree_add_item(lct_tree, l.hf->flags_header, tvb, *offset, 2, ENC_NA);
-		lct_flags_tree = proto_item_add_subtree(ti, l.ett->flags);
-
-		proto_tree_add_uint(lct_tree, l.hf->hlen, tvb, *offset+2, 1, l.lct->hlen);
-		proto_tree_add_uint(lct_tree, l.hf->codepoint, tvb, *offset+3, 1, l.lct->codepoint);
+		ti = proto_tree_add_item(lct_tree, hf_fsize_header, tvb, offset, 1, ENC_BIG_ENDIAN);
+		lct_fsize_tree = proto_item_add_subtree(ti, ett_fsize);
 
 		/* Fill the LCT fsize subtree */
-		proto_tree_add_uint(lct_fsize_tree, l.hf->fsize_cci, tvb, *offset, 1, l.lct->cci_size);
-		proto_tree_add_uint(lct_fsize_tree, l.hf->fsize_tsi, tvb, *offset+1, 1, l.lct->tsi_size);
-		proto_tree_add_uint(lct_fsize_tree, l.hf->fsize_toi, tvb, *offset+1, 1, l.lct->toi_size);
+		proto_tree_add_uint(lct_fsize_tree, hf_fsize_cci, tvb, offset, 2, cci_size);
+		proto_tree_add_uint(lct_fsize_tree, hf_fsize_tsi, tvb, offset, 2, tsi_size);
+		proto_tree_add_uint(lct_fsize_tree, hf_fsize_toi, tvb, offset, 2, toi_size);
+
+		ti = proto_tree_add_item(lct_tree, hf_flags_header, tvb, offset, 2, ENC_BIG_ENDIAN);
+		lct_flags_tree = proto_item_add_subtree(ti, ett_flags);
 
 		/* Fill the LCT flags subtree */
-		proto_tree_add_boolean(lct_flags_tree, l.hf->flags_sct_present, tvb, *offset+1, 1, l.lct->sct_present);
-		proto_tree_add_boolean(lct_flags_tree, l.hf->flags_ert_present, tvb, *offset+1, 1, l.lct->ert_present);
-		proto_tree_add_boolean(lct_flags_tree, l.hf->flags_close_session, tvb, *offset+1, 1, l.lct->close_session);
-		proto_tree_add_boolean(lct_flags_tree, l.hf->flags_close_object, tvb, *offset+1, 1, l.lct->close_object);
+		proto_tree_add_item(lct_flags_tree, hf_flags_sct_present, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(lct_flags_tree, hf_flags_ert_present, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(lct_flags_tree, hf_flags_close_session, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(lct_flags_tree, hf_flags_close_object, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-	} else {
-		lct_tree = NULL;
-		lct_fsize_tree = NULL;
-		lct_flags_tree = NULL;
+		proto_tree_add_uint(lct_tree, hf_hlen, tvb, offset+2, 1, hlen);
+		proto_tree_add_item(lct_tree, hf_codepoint, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+
 	}
 
-	*offset += 4;
+	offset += 4;
 
 	/* LCT variable-size and optional fields dissection */
 	/* ------------------------------------------------ */
 
 	/* Congestion Control Information (CCI) */
-	if (l.lct->cci_size > 0) {
-		if (tree)
-			proto_tree_add_item(lct_tree, l.hf->cci, tvb, *offset, l.lct->cci_size, ENC_NA);
-		*offset += l.lct->cci_size;
+	if (cci_size > 0) {
+		proto_tree_add_item(lct_tree, hf_cci, tvb, offset, cci_size, ENC_NA);
+		offset += cci_size;
 	}
 
 	/* Transmission Session Identifier (TSI) */
-	if (l.lct->tsi_present) {
+	if (tsi_size > 0) {
 
-		switch (l.lct->tsi_size)
+		switch (tsi_size)
 		{
 			case 0:
-				l.lct->tsi = 0;
+				proto_tree_add_uint(lct_tree, hf_tsi, tvb, offset, tsi_size, 0);
+				tsi = 0;
 				break;
 
 			case 2:
-				l.lct->tsi = tvb_get_ntohs(tvb, *offset);
+				proto_tree_add_item(lct_tree, hf_tsi16, tvb, offset, tsi_size, ENC_BIG_ENDIAN);
+				tsi = tvb_get_ntohs(tvb, offset);
 				break;
 
 			case 4:
-				l.lct->tsi = tvb_get_ntohl(tvb, *offset);
+				proto_tree_add_item(lct_tree, hf_tsi32, tvb, offset, tsi_size, ENC_BIG_ENDIAN);
+				tsi = tvb_get_ntohl(tvb, offset);
 				break;
 
 			case 6:
-				l.lct->tsi = tvb_get_ntoh64(tvb, *offset-2) & G_GINT64_CONSTANT(0x0000FFFFFFFFFFFFU);
+				proto_tree_add_item(lct_tree, hf_tsi48, tvb, offset, tsi_size, ENC_BIG_ENDIAN);
+				tsi = tvb_get_ntoh64(tvb, offset) & G_GINT64_CONSTANT(0x0000FFFFFFFFFFFFU);
+				break;
+			default:
+				tsi = 0;
 				break;
 		}
 
-		if (tree)
-			proto_tree_add_uint64(lct_tree, l.hf->tsi, tvb, *offset, l.lct->tsi_size, l.lct->tsi);
-		*offset += l.lct->tsi_size;
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" G_GINT64_MODIFIER "u", tsi);
+		offset += tsi_size;
 	}
 
 	/* Transmission Object Identifier (TOI) */
-	if (l.lct->toi_present) {
+	if (toi_size > 0) {
 
-		switch (l.lct->toi_size)
+		switch (toi_size)
 		{
 			case 0:
-				l.lct->toi = 0;
+				proto_tree_add_uint(lct_tree, hf_toi, tvb, offset, toi_size, 0);
+				toi = 0;
 				break;
 
 			case 2:
-				l.lct->toi = tvb_get_ntohs(tvb, *offset);
+				proto_tree_add_item(lct_tree, hf_toi16, tvb, offset, toi_size, ENC_BIG_ENDIAN);
+				toi = tvb_get_ntohs(tvb, offset);
 				break;
 
 			case 4:
-				l.lct->toi = tvb_get_ntohl(tvb, *offset);
+				proto_tree_add_item(lct_tree, hf_toi32, tvb, offset, toi_size, ENC_BIG_ENDIAN);
+				toi = tvb_get_ntohl(tvb, offset);
 				break;
 
 			case 6:
-				l.lct->toi = tvb_get_ntoh64(tvb, *offset-2) & G_GINT64_CONSTANT(0x0000FFFFFFFFFFFFU);
+				proto_tree_add_item(lct_tree, hf_toi48, tvb, offset, toi_size, ENC_BIG_ENDIAN);
+				toi = tvb_get_ntoh64(tvb, offset) & G_GINT64_CONSTANT(0x0000FFFFFFFFFFFFU);
 				break;
 
 			case 8:
-				l.lct->toi = tvb_get_ntoh64(tvb, *offset);
+				proto_tree_add_item(lct_tree, hf_toi64, tvb, offset, toi_size, ENC_BIG_ENDIAN);
+				toi = tvb_get_ntoh64(tvb, offset);
 				break;
 
 			case 10:
-				l.lct->toi = tvb_get_ntoh64(tvb, *offset+2);
+				proto_tree_add_item(lct_tree, hf_toi64, tvb, offset+2, 8, ENC_BIG_ENDIAN);
+				proto_tree_add_item(lct_tree, hf_toi_extended, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 
 			case 12:
-				l.lct->toi = tvb_get_ntoh64(tvb, *offset+4);
+				proto_tree_add_item(lct_tree, hf_toi64, tvb, offset+4, 8, ENC_BIG_ENDIAN);
+				proto_tree_add_item(lct_tree, hf_toi_extended, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case 14:
-				l.lct->toi = tvb_get_ntoh64(tvb, *offset)+6;
+				proto_tree_add_item(lct_tree, hf_toi64, tvb, offset+6, 8, ENC_BIG_ENDIAN);
+				proto_tree_add_item(lct_tree, hf_toi_extended, tvb, offset, 6, ENC_BIG_ENDIAN);
+				break;
+			default:
 				break;
 		}
 
-		tmp = (guint8 *)ep_alloc(l.lct->toi_size);
-		tvb_memcpy(tvb, tmp, *offset, l.lct->toi_size);
-		l.lct->toi_extended = tmp;
-
-		if (tree)
-		{
-			if (l.lct->toi_size > 8)
-				proto_tree_add_uint64(lct_tree, l.hf->toi, tvb, *offset+(l.lct->toi_size-8), 8, l.lct->toi);
-			else
-				proto_tree_add_uint64(lct_tree, l.hf->toi, tvb, *offset, l.lct->toi_size, l.lct->toi);
-
-			proto_tree_add_item(lct_tree, l.hf->toi_extended, tvb, *offset, l.lct->toi_size, ENC_NA);
-		}
-
-		*offset += l.lct->toi_size;
+		if (toi_size <= 8)
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" G_GINT64_MODIFIER "u", toi);
+		else
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: 0x%s", tvb_bytes_to_str(tvb, offset, toi_size));
+		offset += toi_size;
 	}
 
+	if (buffer16 & LCT_CLOSE_SESSION_FLAG)
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close session");
+
+	if (buffer16 & LCT_CLOSE_OBJECT_FLAG)
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close object");
+
 	/* Sender Current Time (SCT) */
-	if (l.lct->sct_present) {
-		lct_timestamp_parse(tvb_get_ntohl(tvb, *offset), &l.lct->sct);
-		if (tree)
-			proto_tree_add_time(lct_tree, l.hf->sct, tvb, *offset, 4, &l.lct->sct);
-		*offset += 4;
+	if (buffer16 & LCT_SCT_FLAG) {
+		lct_timestamp_parse(tvb_get_ntohl(tvb, offset), &time);
+		proto_tree_add_time(lct_tree, hf_sct, tvb, offset, 4, &time);
+		offset += 4;
 	}
 
 	/* Expected Residual Time (ERT) */
-	if (l.lct->ert_present) {
-		lct_timestamp_parse(tvb_get_ntohl(tvb, *offset), &l.lct->ert);
-		if (tree)
-			proto_tree_add_time(lct_tree, l.hf->ert, tvb, *offset, 4, &l.lct->ert);
-		*offset += 4;
+	if (buffer16 & LCT_ERT_FLAG) {
+		lct_timestamp_parse(tvb_get_ntohl(tvb, offset), &time);
+		proto_tree_add_time(lct_tree, hf_ert, tvb, offset, 4, &time);
+		offset += 4;
 	}
 
 	/* LCT header extensions, if applicable */
 	/* ------------------------------------ */
+	lct_ext_decode(lct_tree, tvb, pinfo, offset, hlen, data_exchange, hf_ext, ett_ext);
 
-	/* Allocate an array of _ext elements */
-	l.lct->ext = g_array_new(FALSE, TRUE, sizeof(struct _ext));
-
-	offset_old = *offset;
-	rmt_ext_parse(l.lct->ext, tvb, offset, offset_start + l.lct->hlen);
-
-	/* Resync the offset with the end of LCT header */
-	*offset = offset_start + l.lct->hlen;
-
-	if (l.lct->ext->len > 0)
-	{
-		if (tree)
-		{
-			/* Add the extensions subtree */
-			ti = proto_tree_add_uint(lct_tree, l.hf->ext, tvb, offset_old, *offset - offset_old, l.lct->ext->len);
-			lct_ext_tree = proto_item_add_subtree(ti, l.ett->ext);
-		} else
-			lct_ext_tree = NULL;
-
-		/* Add the extensions to the subtree */
-		for (i = 0; i < l.lct->ext->len; i++){
-			is_flute_tmp = lct_ext_decode(&g_array_index(l.lct->ext, struct _ext, i), l.prefs, tvb, lct_ext_tree, l.ett->ext_ext, f);
-			if (is_flute_tmp == TRUE )
-				is_flute = TRUE;
-		}
-	}
-
-	return is_flute;
+	return hlen;
 }
 
-void lct_dissector_free(struct _lct *lct)
+void
+proto_register_rmt_lct(void)
 {
-	g_array_free(lct->ext, TRUE);
+    static hf_register_info hf[] = {
+		{ &hf_version,
+			{ "Version", "rmt-lct.version", FT_UINT16, BASE_DEC, NULL, 0xF000, NULL, HFILL }},
+		{ &hf_fsize_header,
+			{ "Field size flags", "rmt-lct.fsize", FT_UINT16, BASE_HEX, NULL, 0x0FD0, NULL, HFILL }},
+		{ &hf_fsize_cci,
+			{ "Congestion Control Information field size", "rmt-lct.fsize.cci", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fsize_tsi,
+			{ "Transport Session Identifier field size", "rmt-lct.fsize.tsi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fsize_toi,
+			{ "Transport Object Identifier field size", "rmt-lct.fsize.toi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_flags_header,
+			{ "Flags", "rmt-lct.flags", FT_UINT16, BASE_HEX, NULL, 0x001F, NULL, HFILL }},
+		{ &hf_flags_sct_present,
+			{ "Sender Current Time present flag", "rmt-lct.flags.sct_present", FT_BOOLEAN, 16, TFS(&tfs_set_notset), LCT_SCT_FLAG, NULL, HFILL }},
+		{ &hf_flags_ert_present,
+			{ "Expected Residual Time present flag", "rmt-lct.flags.ert_present", FT_BOOLEAN, 16, TFS(&tfs_set_notset), LCT_ERT_FLAG, NULL, HFILL }},
+		{ &hf_flags_close_session,
+			{ "Close Session flag", "rmt-lct.flags.close_session", FT_BOOLEAN, 16, TFS(&tfs_set_notset), LCT_CLOSE_SESSION_FLAG, NULL, HFILL }},
+		{ &hf_flags_close_object,
+			{ "Close Object flag", "rmt-lct.flags.close_object", FT_BOOLEAN, 16, TFS(&tfs_set_notset), LCT_CLOSE_OBJECT_FLAG, NULL, HFILL }},
+		{ &hf_hlen,
+			{ "Header length", "rmt-lct.hlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_codepoint,
+			{ "Codepoint", "rmt-lct.codepoint", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_cci,
+			{ "Congestion Control Information", "rmt-lct.cci", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_tsi,
+			{ "Transport Session Identifier", "rmt-lct.tsi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_tsi16,
+			{ "Transport Session Identifier", "rmt-lct.tsi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_tsi32,
+			{ "Transport Session Identifier", "rmt-lct.tsi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_tsi48,
+			{ "Transport Session Identifier", "rmt-lct.tsi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_toi,
+			{ "Transport Object Identifier", "rmt-lct.toi", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_toi16,
+			{ "Transport Object Identifier", "rmt-lct.toi", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_toi32,
+			{ "Transport Object Identifier", "rmt-lct.toi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_toi48,
+			{ "Transport Object Identifier", "rmt-lct.toi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_toi64,
+			{ "Transport Object Identifier (up to 64 bits)", "rmt-lct.toi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_toi_extended,
+			{ "Transport Object Identifier (bits 64-112)", "rmt-lct.toi_extended", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sct,
+			{ "Sender Current Time", "rmt-lct.sct", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ert,
+			{ "Expected Residual Time", "rmt-lct.ert", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_ext,
+			{ "Extension count", "rmt-lct.ext", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hec_type,
+			{ "Header Extension Type (HET)", "rmt-lct.hec.type", FT_UINT8, BASE_DEC, VALS(hec_type_vals), 0x0, NULL, HFILL }},
+		{ &hf_hec_len,
+			{ "Header Extension Length (HEL)", "rmt-lct.hec.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hec_data,
+			{ "Header Extension Data", "rmt-lct.hec.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_send_rate,
+			{ "Send Rate", "rmt-lct.send_rate", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_cenc,
+			{ "Content Encoding Algorithm (CENC)", "rmt-lct.cenc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_flute_version,
+			{ "FLUTE version (V)", "rmt-lct.flute_version", FT_UINT32, BASE_DEC, NULL, 0x00F00000, NULL, HFILL }},
+		{ &hf_fdt_instance_id,
+			{ "FDT Instance ID", "rmt-lct.fdt_instance_id", FT_UINT32, BASE_DEC, NULL, 0x000FFFFF, NULL, HFILL }},
+    };
+
+    /* Setup protocol subtree array */
+    static gint *ett[] = {
+	    &ett_main,
+	    &ett_fsize,
+	    &ett_flags,
+	    &ett_ext,
+	    &ett_ext_ext
+    };
+
+	/* Register the protocol name and description */
+	proto_rmt_lct = proto_register_protocol("Layered Coding Transport", "RMT-LCT", "rmt-lct");
+	new_register_dissector("rmt-lct", dissect_lct, proto_rmt_lct);
+
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_rmt_lct, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
-/* Preferences */
-/* ----------- */
-
-/* Set/Reset preferences to default values */
-void lct_prefs_set_default(struct _lct_prefs *lct_prefs)
-{
-	lct_prefs->codepoint_as_fec_encoding = TRUE;
-	lct_prefs->ext_192 = LCT_PREFS_EXT_192_FLUTE;
-	lct_prefs->ext_193 = LCT_PREFS_EXT_193_FLUTE;
-}
-
-/* Register preferences */
-void lct_prefs_register(struct _lct_prefs *lct_prefs, module_t *module)
-{
- 	prefs_register_bool_preference(module,
-		"lct.codepoint_as_fec_id",
-		"LCT Codepoint as FEC Encoding ID",
-		"Whether the LCT header Codepoint field should be considered the FEC Encoding ID of carried object",
-		 &lct_prefs->codepoint_as_fec_encoding);
-
-	prefs_register_enum_preference(module,
-		"lct.ext.192",
-		"LCT header extension 192",
-		"How to decode LCT header extension 192",
-		&lct_prefs->ext_192,
-		enum_lct_ext_192,
-		FALSE);
-
-	prefs_register_enum_preference(module,
-		"lct.ext.193",
-		"LCT header extension 193",
-		"How to decode LCT header extension 193",
-		&lct_prefs->ext_193,
-		enum_lct_ext_193,
-		FALSE);
-}
+/*
+* Editor modelines - http://www.wireshark.org/tools/modelines.html
+*
+* Local variables:
+* c-basic-offset: 4
+* tab-width: 8
+* indent-tabs-mode: nil
+* End:
+*
+* ex: set shiftwidth=4 tabstop=8 expandtab:
+* :indentSize=4:tabSize=8:noTabs=true:
+*/

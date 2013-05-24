@@ -27,29 +27,50 @@
 #ifndef __PACKET_RMT_COMMON__
 #define __PACKET_RMT_COMMON__
 
-/* Type definitions */
-/* ================ */
+/* LCT preferences */
 
-/* Logical header extension representation */
-struct _ext
+#define LCT_PREFS_EXT_192_NONE 0
+#define LCT_PREFS_EXT_192_FLUTE 1
+
+#define LCT_PREFS_EXT_193_NONE 0
+#define LCT_PREFS_EXT_193_FLUTE 1
+
+
+extern const enum_val_t enum_lct_ext_192[];
+extern const enum_val_t enum_lct_ext_193[];
+
+/* String tables external references */
+extern const value_string string_fec_encoding_id[];
+
+
+/* Structures to exchange data between RMT dissectors */
+/* ============================= */
+typedef struct lct_data_exchange
 {
-	guint offset;
-	guint length;
+	/* inputs */
+	gint ext_192;
+	gint ext_193;
 
-	guint8 het;
-	guint8 hel;
+	/* outputs */
+	guint8 codepoint;
+	gboolean is_flute;
 
-	guint hec_offset;
-	guint8 hec_size;
-};
+} lct_data_exchange_t;
+
+typedef struct fec_data_exchange
+{
+	/* inputs */
+	guint8 encoding_id;
+
+} fec_data_exchange_t;
+
 
 /* Common RMT exported functions */
 /* ============================= */
+extern int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint offset, guint offset_max, lct_data_exchange_t *data_exchange,
+                   int hfext, int ettext);
+extern void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, guint8 encoding_id);
 
-void rmt_ext_parse(GArray *a, tvbuff_t *tvb, guint *offset, guint offset_max);
-
-void rmt_ext_decode_default(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint ett);
-void rmt_ext_decode_default_subtree(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint ett);
-void rmt_ext_decode_default_header(struct _ext *e, tvbuff_t *tvb, proto_tree *tree);
+extern double rmt_decode_send_rate(guint16 send_rate );
 
 #endif

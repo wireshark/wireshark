@@ -1063,7 +1063,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-rmi.c
 	dissectors/packet-rmp.c
 	dissectors/packet-rmt-alc.c
-	dissectors/packet-rmt-common.c
 	dissectors/packet-rmt-fec.c
 	dissectors/packet-rmt-lct.c
 	dissectors/packet-rmt-norm.c

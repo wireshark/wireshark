@@ -44,8 +44,35 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
-#include "packet-rmt-fec.h"
+#include "packet-rmt-common.h"
+
+static int proto_rmt_fec = -1;
+
+static int hf_encoding_id = -1;
+static int hf_instance_id = -1;
+static int hf_sbn = -1;
+static int hf_sbn_with_mask = -1;
+static int hf_sbl = -1;
+static int hf_esi = -1;
+static int hf_esi_with_mask = -1;
+static int hf_fti_transfer_length = -1;
+static int hf_fti_encoding_symbol_length = -1;
+static int hf_fti_max_source_block_length = -1;
+static int hf_fti_max_number_encoding_symbols = -1;
+static int hf_fti_num_blocks = -1;
+static int hf_fti_num_subblocks = -1;
+static int hf_fti_alignment = -1;
+
+static int ett_main = -1;
+
+typedef struct fec_packet_data
+{
+	guint8 instance_id;
+
+} fec_packet_data_t;
+
 
 /* String tables */
 const value_string string_fec_encoding_id[] =
@@ -65,145 +92,85 @@ const value_string string_fec_encoding_id[] =
 	{ 0, NULL }
 };
 
-/* FEC exported functions */
-/* ====================== */
-
-/* Info */
-/* ---- */
-
-void fec_info_column(struct _fec *fec, packet_info *pinfo)
-{
-	if (fec->sbn_present)
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", fec->sbn);
-
-	if (fec->esi_present)
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", fec->esi);
-}
-
 /* Dissection */
 /* ---------- */
 
 /* Decode an EXT_FTI extension and fill FEC array */
-void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
+void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, guint8 encoding_id)
 {
-	proto_item* ti = NULL, *item = NULL;
-	proto_tree *ext_tree;
+	guint64 transfer_length;
+	fec_packet_data_t* fec_data;
+	guint8 instance_id = 0;
+	proto_item* ti;
 
-	if (tree)
-		ti = proto_tree_add_none_format(tree, f.hf->fti_header, tvb, e->offset, e->length,
-			"EXT_FTI, FEC Object Transmission Information (%u)", e->het);
+	if (encoding_id == 6){
+		/* Raptor Q uses 40-bit transfer length */
+		transfer_length = tvb_get_ntoh40(tvb, offset+2);
+	}
+	else {
+		/* Decode 48-bit length field */
+		transfer_length = tvb_get_ntoh48(tvb, offset+2);
+	}
 
-	if (f.fec->encoding_id_present)
+	if (encoding_id >= 128)
 	{
-		ext_tree = proto_item_add_subtree(ti, ett);
-		rmt_ext_decode_default_header(e, tvb, ext_tree);
+		instance_id = (guint8) tvb_get_ntohs(tvb, offset+8);
 
-		if (f.fec->encoding_id == 6){
-			/* Raptor Q uses 40-bit transfer length */
-			f.fec->transfer_length = tvb_get_ntoh40(tvb, e->offset+2);
+		/* Decode FEC Instance ID */
+		fec_data = se_new0(fec_packet_data_t);
+		fec_data->instance_id = instance_id;
+
+		p_add_proto_data(pinfo->fd, proto_rmt_fec, 0, fec_data);
+	}
+
+	if (encoding_id == 6){
+		/* Raptor Q uses 40-bit transfer length */
+		proto_tree_add_uint64(tree, hf_fti_transfer_length, tvb, offset+2, 5, transfer_length);
+	}
+	else {
+		proto_tree_add_uint64(tree, hf_fti_transfer_length, tvb, offset+2, 6, transfer_length);
+		ti = proto_tree_add_item(tree, hf_instance_id, tvb,  offset+8, 2, ENC_BIG_ENDIAN);
+		if ((encoding_id < 128) && (instance_id != 0)) {
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "FEC Encoding ID < 128, should be zero");
 		}
-		else {
-			/* Decode 48-bit length field */
-			f.fec->transfer_length = tvb_get_ntoh48(tvb, e->offset+2);
-		}
+	}
 
-		if (f.fec->encoding_id >= 128)
-		{
-			/* Decode FEC Instance ID */
-			f.fec->instance_id_present = TRUE;
-			f.fec->instance_id = (guint8) tvb_get_ntohs(tvb, e->offset+8);
-		}
+	switch (encoding_id)
+	{
+	case 1:
+		proto_tree_add_item(tree, hf_fti_encoding_symbol_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_num_blocks, tvb, offset+12, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_num_subblocks, tvb, offset+14, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_alignment, tvb, offset+15, 1, ENC_BIG_ENDIAN);
+		break;
 
-		if (tree) {
-			if (f.fec->encoding_id == 6){
-				/* Raptor Q uses 40-bit transfer length */
-				proto_tree_add_uint64(ext_tree, f.hf->fti_transfer_length, tvb, e->offset+2, 5, f.fec->transfer_length);
-			}
-			else {
-				proto_tree_add_uint64(ext_tree, f.hf->fti_transfer_length, tvb, e->offset+2, 6, f.fec->transfer_length);
-				item = proto_tree_add_item(ext_tree, f.hf->instance_id, tvb,  e->offset+8, 2, ENC_BIG_ENDIAN);
-				if(f.fec->instance_id_present == FALSE){
-					proto_item_append_text(item," - [FEC Encoding ID < 128, should be zero]");
-				}
-			}
-		}
+	case 6:
+		proto_tree_add_item(tree, hf_fti_encoding_symbol_length, tvb, offset+8, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_num_blocks, tvb, offset+10, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_num_subblocks, tvb, offset+11, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_alignment, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+		break;
 
-		switch (f.fec->encoding_id)
-		{
-		case 1:
-			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+10);
-			f.fec->num_blocks = tvb_get_ntohs(tvb, e->offset+12);
-			f.fec->num_subblocks = tvb_get_guint8(tvb, e->offset+14);
-			f.fec->alignment = tvb_get_guint8(tvb, e->offset+15);
+	case 0:
+	case 2:
+	case 128:
+	case 130:
+		proto_tree_add_item(tree, hf_fti_encoding_symbol_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_max_source_block_length, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+		break;
 
-			if (tree)
-			{
-				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+10, 2, f.fec->encoding_symbol_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_num_blocks, tvb, e->offset+12, 2, f.fec->num_blocks);
-				proto_tree_add_uint(ext_tree, f.hf->fti_num_subblocks, tvb, e->offset+14, 1, f.fec->num_subblocks);
-				proto_tree_add_uint(ext_tree, f.hf->fti_alignment, tvb, e->offset+15, 1, f.fec->alignment);
-			}
-			break;
+	case 129:
+		proto_tree_add_item(tree, hf_fti_encoding_symbol_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_max_source_block_length, tvb, offset+12, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_max_number_encoding_symbols, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+		break;
 
-		case 6:
-			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+8);
-			f.fec->num_blocks = tvb_get_guint8(tvb, e->offset+10);
-			f.fec->num_subblocks = tvb_get_ntohs(tvb, e->offset+11);
-			f.fec->alignment = tvb_get_guint8(tvb, e->offset+13);
-
-			if (tree)
-			{
-				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+8, 2, f.fec->encoding_symbol_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_num_blocks, tvb, e->offset+10, 1, f.fec->num_blocks);
-				proto_tree_add_uint(ext_tree, f.hf->fti_num_subblocks, tvb, e->offset+11, 2, f.fec->num_subblocks);
-				proto_tree_add_uint(ext_tree, f.hf->fti_alignment, tvb, e->offset+13, 1, f.fec->alignment);
-			}
-			break;
-
-		case 0:
-		case 2:
-		case 128:
-		case 130:
-			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+10);
-			f.fec->max_source_block_length = tvb_get_ntohl(tvb, e->offset+12);
-
-			if (tree)
-			{
-				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+10, 2, f.fec->encoding_symbol_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_max_source_block_length, tvb, e->offset+12, 4, f.fec->max_source_block_length);
-			}
-			break;
-
-		case 129:
-			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+10);
-			f.fec->max_source_block_length = tvb_get_ntohs(tvb, e->offset+12);
-			f.fec->max_number_encoding_symbols = tvb_get_ntohs(tvb, e->offset+14);
-
-			if (tree)
-			{
-				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+10, 2, f.fec->encoding_symbol_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_max_source_block_length, tvb, e->offset+12, 2, f.fec->max_source_block_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_max_number_encoding_symbols, tvb, e->offset+14, 2, f.fec->max_number_encoding_symbols);
-			}
-			break;
-
-		case 132:
-			f.fec->encoding_symbol_length = tvb_get_ntohs(tvb, e->offset+10);
-			f.fec->max_source_block_length = tvb_get_ntohl(tvb, e->offset+12);
-			f.fec->max_number_encoding_symbols = tvb_get_ntohl(tvb, e->offset+16);
-
-			if (tree)
-			{
-				proto_tree_add_uint(ext_tree, f.hf->fti_encoding_symbol_length, tvb, e->offset+10, 2, f.fec->encoding_symbol_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_max_source_block_length, tvb, e->offset+12, 4, f.fec->max_source_block_length);
-				proto_tree_add_uint(ext_tree, f.hf->fti_max_number_encoding_symbols, tvb, e->offset+16, 4, f.fec->max_number_encoding_symbols);
-			}
-			break;
-		}
-
-	} else
-		if (tree)
-			rmt_ext_decode_default_subtree(e, tvb, ti, ett);
+	case 132:
+		proto_tree_add_item(tree, hf_fti_encoding_symbol_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_max_source_block_length, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_fti_max_number_encoding_symbols, tvb, offset+16, 4, ENC_BIG_ENDIAN);
+		break;
+	}
 }
 
 /* Dissect a FEC header:
@@ -216,142 +183,148 @@ void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint et
  * tree - tree where to add FEC header subtree
  * offset - ptr to offset to use and update
  */
-void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static int
+dissect_fec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item *ti;
 	proto_tree *fec_tree;
-	guint offset_save = *offset;
+	guint offset = 0;
+	fec_data_exchange_t* fec = (fec_data_exchange_t*)data;
+	guint8 encoding_id = 0;
+	fec_packet_data_t* packet_data = (fec_packet_data_t*)p_get_proto_data(pinfo->fd, proto_rmt_fec, 0);
+
+	if (fec != NULL)
+	{
+		encoding_id = fec->encoding_id;
+	}
 
 	/* Create the FEC subtree */
-	if (tree)
+	ti = proto_tree_add_item(tree, proto_rmt_fec, tvb, offset, -1, ENC_NA);
+	fec_tree = proto_item_add_subtree(ti, ett_main);
+
+	proto_tree_add_uint(fec_tree, hf_encoding_id, tvb, offset, 0, encoding_id);
+
+	if (encoding_id >= 128 && (packet_data != NULL))
+		proto_tree_add_uint(fec_tree, hf_instance_id, tvb, offset, 0, packet_data->instance_id);
+
+	switch (encoding_id)
 	{
-		ti = proto_tree_add_item(tree, f.hf->header, tvb, *offset, -1, ENC_NA);
-		fec_tree = proto_item_add_subtree(ti, f.ett->main);
-	} else
-	{
-		ti = NULL;
-		fec_tree = NULL;
+	case 0:
+	case 1:
+	case 130:
+		proto_tree_add_item(fec_tree, hf_sbn, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_esi, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_ntohs(tvb, offset));
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntohs(tvb, offset+2));
+
+		offset += 4;
+		break;
+
+	case 2:
+	case 128:
+	case 132:
+		proto_tree_add_item(fec_tree, hf_sbn, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_esi, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_ntohl(tvb, offset));
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntohl(tvb, offset+4));
+
+		offset += 8;
+		break;
+
+	case 3:
+	case 4:
+		proto_tree_add_item(fec_tree, hf_sbn_with_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_esi_with_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+			
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_ntohl(tvb, offset) >> 20);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntohl(tvb, offset) & 0xfffff);
+
+		offset += 4;
+		break;
+
+	case 6:
+		proto_tree_add_item(fec_tree, hf_sbn, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_esi, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_guint8(tvb, offset));
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntoh24(tvb, offset+1));
+
+		offset += 4;
+		break;
+
+	case 129:
+		proto_tree_add_item(fec_tree, hf_sbn, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_sbl, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fec_tree, hf_esi, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", tvb_get_ntohl(tvb, offset));
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", tvb_get_ntohs(tvb, offset+6));
+
+		offset += 8;
+		break;
 	}
 
-	/* FEC Encoding ID and FEC Instance ID processing */
-	if (f.fec->encoding_id_present)
-	{
-		if (tree)
-		{
-			proto_tree_add_uint(fec_tree, f.hf->encoding_id, tvb, *offset, 0, f.fec->encoding_id);
-
-			if (f.fec->encoding_id >= 128 && f.fec->instance_id_present)
-				proto_tree_add_uint(fec_tree, f.hf->instance_id, tvb, *offset, 0, f.fec->instance_id);
-		}
-
-		switch (f.fec->encoding_id)
-		{
-		case 0:
-		case 1:
-		case 130:
-			f.fec->sbn = tvb_get_ntohs(tvb, *offset);
-			f.fec->esi = tvb_get_ntohs(tvb, *offset+2);
-
-			if (tree)
-			{
-				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 2, f.fec->sbn);
-				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset+2, 2, f.fec->esi);
-			}
-
-			f.fec->sbn_present = TRUE;
-			f.fec->esi_present = TRUE;
-			*offset += 4;
-			break;
-
-		case 2:
-		case 128:
-		case 132:
-			f.fec->sbn = tvb_get_ntohl(tvb, *offset);
-			f.fec->esi = tvb_get_ntohl(tvb, *offset+4);
-
-			if (tree)
-			{
-				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 4, f.fec->sbn);
-				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset+4, 4, f.fec->esi);
-			}
-
-			f.fec->sbn_present = TRUE;
-			f.fec->esi_present = TRUE;
-			*offset += 8;
-			break;
-
-		case 3:
-		case 4:
-			f.fec->sbn = tvb_get_ntohl(tvb, *offset);
-			f.fec->sbn = f.fec->sbn >> 20;
-			f.fec->esi = tvb_get_ntohl(tvb, *offset);
-			f.fec->esi &= 0xfffff;
-			
-			if (tree)
-			{
-				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 4, f.fec->sbn);
-				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset, 4, f.fec->esi);
-			}
-			
-			f.fec->sbn_present = TRUE;
-			f.fec->esi_present = TRUE;
-			*offset += 4;
-			break;
-
-		case 6:
-			f.fec->sbn = tvb_get_guint8(tvb, *offset);
-			f.fec->esi = tvb_get_ntoh24(tvb, *offset+1);
-
-			if (tree)
-			{
-				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 1, f.fec->sbn);
-				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset+1, 3, f.fec->esi);
-			}
-
-			f.fec->sbn_present = TRUE;
-			f.fec->esi_present = TRUE;
-			*offset += 4;
-			break;
-
-		case 129:
-			f.fec->sbn = tvb_get_ntohl(tvb, *offset);
-			f.fec->sbl = tvb_get_ntohs(tvb, *offset+4);
-			f.fec->esi = tvb_get_ntohs(tvb, *offset+6);
-
-			if (tree)
-			{
-				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 4, f.fec->sbn);
-				proto_tree_add_uint(fec_tree, f.hf->sbl, tvb, *offset+4, 2, f.fec->sbl);
-				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset+6, 2, f.fec->esi);
-			}
-
-			f.fec->sbn_present = TRUE;
-			f.fec->sbl_present = TRUE;
-			f.fec->esi_present = TRUE;
-			*offset += 8;
-			break;
-		}
-	}
-	if (tree)
-		proto_item_set_len(ti, *offset - offset_save);
+	return offset;
 }
 
-void fec_dissector_free(struct _fec *fec _U_)
+void proto_register_rmt_fec(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_encoding_id,
+			{ "FEC Encoding ID", "rmt-fec.encoding_id", FT_UINT8, BASE_DEC, VALS(string_fec_encoding_id), 0x0, NULL, HFILL }},
+		{ &hf_instance_id,
+			{ "FEC Instance ID", "rmt-fec.instance_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sbn,
+			{ "Source Block Number", "rmt-fec.sbn", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sbn_with_mask,
+			{ "Source Block Number", "rmt-fec.sbn", FT_UINT32, BASE_DEC, NULL, 0xFFF00000, NULL, HFILL }},
+		{ &hf_sbl,
+			{ "Source Block Length", "rmt-fec.sbl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_esi,
+			{ "Encoding Symbol ID", "rmt-fec.esi", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_esi_with_mask,
+			{ "Encoding Symbol ID", "rmt-fec.esi", FT_UINT32, BASE_HEX, NULL, 0x000FFFFF, NULL, HFILL }},
+		{ &hf_fti_transfer_length,
+			{ "Transfer Length", "rmt-fec.fti.transfer_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fti_encoding_symbol_length,
+			{ "Encoding Symbol Length", "rmt-fec.fti.encoding_symbol_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fti_max_source_block_length,
+			{ "Maximum Source Block Length", "rmt-fec.fti.max_source_block_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fti_max_number_encoding_symbols,
+			{ "Maximum Number of Encoding Symbols", "rmt-fec.fti.max_number_encoding_symbols", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fti_num_blocks,
+			{ "Number of Source Blocks", "rmt-fec.fti.num_blocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fti_num_subblocks,
+			{ "Number of Sub-Blocks", "rmt-fec.fti.num_subblocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_fti_alignment,
+			{ "Symbol Alignment", "rmt-fec.fti.alignment", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+	};
 
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_main,
+	};
+
+	/* Register the protocol name and description */
+	proto_rmt_fec = proto_register_protocol("Forward Error Correction (FEC)", "RMT-FEC", "rmt-fec");
+	new_register_dissector("rmt-fec", dissect_fec, proto_rmt_fec);
+
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_rmt_fec, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
-/* Preferences */
-/* ----------- */
-
-/* Set/Reset preferences to default values */
-void fec_prefs_set_default(struct _fec_prefs *fec_prefs _U_)
-{
-
-}
-
-/* Register preferences */
-void fec_prefs_register(struct _fec_prefs *fec_prefs _U_, module_t *module _U_)
-{
-
-}
+/*
+* Editor modelines - http://www.wireshark.org/tools/modelines.html
+*
+* Local variables:
+* c-basic-offset: 4
+* tab-width: 8
+* indent-tabs-mode: nil
+* End:
+*
+* ex: set shiftwidth=4 tabstop=8 expandtab:
+* :indentSize=4:tabSize=8:noTabs=true:
+*/
