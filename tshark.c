@@ -2713,7 +2713,13 @@ process_packet_first_pass(capture_file *cf,
     frame_data_set_after_dissect(&fdlocal, &cum_bytes);
     prev_cap = prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
 
-    g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+    /* If we're not doing dissection then there won't be any dependent frames.
+     * More importantly, edt.pi.dependent_frames won't be initialized because
+     * epan hasn't been initialized.
+     */
+    if (do_dissection) {
+      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+    }
 
     cf->count++;
   } else {
