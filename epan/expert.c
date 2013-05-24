@@ -364,7 +364,7 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, int group, int severi
 }
 
 void
-expert_add_info(packet_info *pinfo, proto_item *pi, expert_field* expindex)
+expert_add_info(packet_info *pinfo, proto_item *pi, expert_field *expindex)
 {
 	va_list ap;
 	expert_field_info* eiinfo;
@@ -373,13 +373,11 @@ expert_add_info(packet_info *pinfo, proto_item *pi, expert_field* expindex)
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
 	/* Not used by expert_set_info_vformat, but need the variable initialized */
-	va_start(ap, eiinfo);
 	expert_set_info_vformat(pinfo, pi, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, ap);
-	va_end(ap);
 }
 
 void
-expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field* expindex, const char *format, ...)
+expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field *expindex, const char *format, ...)
 {
 	va_list ap;
 	expert_field_info* eiinfo;
