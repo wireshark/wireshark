@@ -1,5 +1,5 @@
 -- TETRA packet dissection
--- Copyright (c) 2007 - 2012 Professional Mobile Communication Research Group,
+-- Copyright (c) 2007 - 2013 Professional Mobile Communication Research Group,
 --    Beijing Institute of Technology, China
 --
 
@@ -292,7 +292,7 @@ BNCH ::= SEQUENCE
 		extend-service  Extended-Services-Broadcast
 	},
 	la                INTEGER(0..16383),
-	subscriber-class  INTEGER(0..65535),
+	subscriber-class  Subscriber-class,
 	registriation     INTEGER(0..1),
 	de-registration   INTEGER(0..1),
 	priority-cell     INTEGER(0..1),
@@ -1697,7 +1697,7 @@ D-LOCATION-UPDATE-ACCEPT ::= SEQUENCE
 	 {
         ssi  CHOICE{none NULL,ssi  OCTET STRING(SIZE(3))},
         address-extension  CHOICE{none NULL,address-extension OCTET STRING(SIZE(3))},
-        suscriber-class CHOICE{none NULL,suscriber-class INTEGER(0..32767)},
+        subscriber-class CHOICE{none NULL,subscriber-class Subscriber-class},
         energy-saving-mode CHOICE{none NULL,energy-saving-mode INTEGER(0..7)},
         scch-info CHOICE{none NULL,scch-info INTEGER(0..16383)},
          type3 CHOICE{
@@ -1735,6 +1735,8 @@ D-MM-STATUS ::= SEQUENCE
 {
    status-downlink INTEGER(0..63)
 }
+
+Subscriber-class ::= BIT STRING(SIZE(16))
 
 U-CMCE-PDU  ::= CHOICE
 {
