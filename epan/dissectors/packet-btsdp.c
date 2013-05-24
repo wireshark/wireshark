@@ -1657,7 +1657,6 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
         entry_tree = proto_item_add_subtree(entry_item, ett_btsdp_supported_features_mdep_id);
         dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, entry_offset);
         new_offset = get_type_length(tvb, entry_offset, &length);
-        proto_item_set_len(entry_item, (new_offset - entry_offset) + length);
         entry_offset = new_offset;
 
         if (length == 2) {
