@@ -71,7 +71,7 @@ static int hf_hlen = -1;
 static int hf_codepoint = -1;
 static int hf_cci = -1;
 static int hf_tsi = -1;
-static int hf_tsi16 = -1;
+static int hf_tsi16 = -1;283
 static int hf_tsi32 = -1;
 static int hf_tsi48 = -1;
 static int hf_toi = -1;
@@ -280,7 +280,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	guint8 tsi_size;
 	guint8 toi_size;
 	guint64 tsi;
-	guint64 toi;
+	guint64 toi = 0;
 	guint16 hlen;
 	nstime_t tmp_time;
 
