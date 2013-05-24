@@ -160,7 +160,7 @@ init_dissection(void)
 	stream_init();
 
 	/* Initialize the expert infos */
-	expert_init();
+	expert_packet_init();
 }
 
 void
@@ -185,7 +185,7 @@ cleanup_dissection(void)
 	stream_cleanup();
 
 	/* Initialize the expert infos */
-	expert_cleanup();
+	expert_packet_cleanup();
 
 	wmem_leave_file_scope();
 

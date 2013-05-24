@@ -5105,7 +5105,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	}
 }
 
-#define PROTO_PRE_ALLOC_HF_FIELDS_MEM 120000
+#define PROTO_PRE_ALLOC_HF_FIELDS_MEM (120000+PRE_ALLOC_EXPERT_FIELDS_MEM)
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
