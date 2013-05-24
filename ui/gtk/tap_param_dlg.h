@@ -23,8 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __TAP_DFILTER_DLG_H__
-#define __TAP_DFILTER_DLG_H__
+#ifndef __TAP_PARAM_DLG_H__
+#define __TAP_PARAM_DLG_H__
 
 /*
  * You can easily add a parameter dialog for your gui tap by using
@@ -99,4 +99,4 @@ void tap_param_dlg_cb(GtkAction *action, gpointer user_data);
 /* This will update the titles of the dialog windows when we load a new capture file. */
 void tap_param_dlg_update (void);
 
-#endif /* __TAP_DFILTER_DLG_H__ */
+#endif /* __TAP_PARAM_DLG_H__ */
