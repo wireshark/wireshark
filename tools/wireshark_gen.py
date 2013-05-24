@@ -378,6 +378,19 @@ class wireshark_gen_C:
             for cl in uc.labels():      # for all Caselabel objects in this UnionCase
                 self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier())
 
+
+    #
+    # genExpertInfoDeclares()
+    #
+    # Generate ei variables for expert info filters
+    #
+
+    def genExpertInfoDeclares(self):
+        if self.DEBUG:
+            print "XXX genExpertInfoDeclares"
+
+        self.st.out(self.template_proto_register_ei_filters, dissector_name=self.dissname)
+
     #
     # genDeclares
     #
@@ -425,6 +438,9 @@ class wireshark_gen_C:
             self.st.out(self.template_proto_register_un_filter_comment)
         for un in unlist:
             self.genUnionDeclares(un)
+
+        #expert info filters
+        self.genExpertInfoDeclares()
 
         # prototype for start_dissecting()
 
@@ -818,14 +834,14 @@ class wireshark_gen_C:
         self.st.out(self.template_helper_switch_msgtype_reply_user_exception_end)
         self.st.dec_indent()
 
-        self.st.out(self.template_helper_switch_msgtype_reply_default_start)
+        self.st.out(self.template_helper_switch_msgtype_reply_default_start, dissector_name=self.dissname)
         self.st.out(self.template_helper_switch_msgtype_reply_default_end)
 
         self.st.out(self.template_helper_switch_rep_status_end)
 
         self.st.dec_indent()
 
-        self.st.out(self.template_helper_switch_msgtype_default_start)
+        self.st.out(self.template_helper_switch_msgtype_default_start, dissector_name=self.dissname)
         self.st.out(self.template_helper_switch_msgtype_default_end)
 
         self.st.out(self.template_helper_switch_msgtype_end)
@@ -1990,16 +2006,28 @@ void proto_register_giop_@dissector_name@(void)
     template_proto_register_end = """
    };
 
+   static ei_register_info ei[] = {
+      { &ei_@dissector_name@_unknown_giop_msg, { "giop-@dissector_name@.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
+      { &ei_@dissector_name@_unknown_exception, { "giop-@dissector_name@.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
+      { &ei_@dissector_name@_unknown_reply_status, { "giop-@dissector_name@.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
+   };
+
    /* setup protocol subtree array */
 
    static gint *ett[] = {
       &ett_@dissector_name@,
    };
 
+   expert_module_t* expert_@dissector_name@;
+
+
    /* Register the protocol name and description */
    proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"giop-@dissector_name@\" );
    proto_register_field_array(proto_@dissector_name@, hf, array_length(hf));
-   proto_register_subtree_array(ett,array_length(ett));
+   proto_register_subtree_array(ett, array_length(ett));
+
+   expert_@dissector_name@ = expert_register_protocol(proto_@dissector_name@);
+   expert_register_field_array(expert_@dissector_name@, ei, array_length(ei));
 }
 """
 
@@ -2018,6 +2046,12 @@ void proto_register_giop_@dissector_name@(void)
     template_proto_register_un_filter_comment = """\
         /* Union filters */"""
 
+    template_proto_register_ei_filters = """\
+        /* Expert info filters */
+static expert_field ei_@dissector_name@_unknown_giop_msg = EI_INIT;
+static expert_field ei_@dissector_name@_unknown_exception = EI_INIT;
+static expert_field ei_@dissector_name@_unknown_reply_status = EI_INIT;
+"""
 
     #
     # template for delegation code
@@ -2044,7 +2078,7 @@ switch(header->message_type) {"""
     template_helper_switch_msgtype_default_start = """\
 default:
     /* Unknown GIOP Message */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);"""
+    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
     
     template_helper_switch_msgtype_default_end = """\
 break;"""
@@ -2076,7 +2110,7 @@ break;"""
     template_helper_switch_msgtype_reply_default_start = """\
 default:
     /* Unknown Exception */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);"""
+    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_exception, "Unknown exception %d", header->rep_status);"""
     
     template_helper_switch_msgtype_reply_default_end = """\
     break;"""
@@ -2087,7 +2121,7 @@ break;"""
     template_helper_switch_msgtype_default_start = """\
 default:
     /* Unknown GIOP Message */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);"""
+    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);"""
     
     template_helper_switch_msgtype_default_end = """\
     break;"""
@@ -2098,7 +2132,7 @@ switch(header->rep_status) {"""
     template_helper_switch_rep_status_default_start = """\
 default:
     /* Unknown Reply Status */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown reply status %d", header->rep_status);"""
+    expert_add_info_format_text(pinfo, item, &ei_@dissector_name@_unknown_reply_status, "Unknown reply status %d", header->rep_status);"""
     
     template_helper_switch_rep_status_default_end = """\
     break;"""
@@ -2356,10 +2390,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
 #include <epan/expert.h>
-
-/* plugins are DLLs */
-#define WS_BUILD_DLL
-#include "ws_symbol_export.h"
 
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */

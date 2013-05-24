@@ -65,6 +65,11 @@ static int hf_CosEventComm_PullSupplier_pull_return = -1;
 static int hf_CosEventComm_PullSupplier_try_pull_return = -1;
 static int hf_CosEventComm_PullSupplier_try_pull_has_event = -1;
         /* User exception filters */
+        /* Expert info filters */
+static expert_field ei_coseventcomm_unknown_giop_msg = EI_INIT;
+static expert_field ei_coseventcomm_unknown_exception = EI_INIT;
+static expert_field ei_coseventcomm_unknown_reply_status = EI_INIT;
+
 
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
 
@@ -112,14 +117,14 @@ decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -143,14 +148,14 @@ decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -174,14 +179,14 @@ decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -205,14 +210,14 @@ decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -238,14 +243,14 @@ decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo 
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -269,14 +274,14 @@ decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -300,14 +305,14 @@ decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, pac
             break;
         default:
             /* Unknown Exception */
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown exception %d", header->rep_status);
+            expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_exception, "Unknown exception %d", header->rep_status);
             break;
         }   /* switch(header->rep_status) */
 
         break;
     default:
         /* Unknown GIOP Message */
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown GIOP message %d", header->message_type);
+        expert_add_info_format_text(pinfo, item, &ei_coseventcomm_unknown_giop_msg, "Unknown GIOP message %d", header->message_type);
         break;
     } /* switch(header->message_type) */
 }
@@ -464,16 +469,28 @@ void proto_register_giop_coseventcomm(void)
 
    };
 
+   static ei_register_info ei[] = {
+      { &ei_coseventcomm_unknown_giop_msg, { "giop-coseventcomm.unknown_giop_msg", PI_PROTOCOL, PI_WARN, "Unknown GIOP message", EXPFILL }},
+      { &ei_coseventcomm_unknown_exception, { "giop-coseventcomm.unknown_exception", PI_PROTOCOL, PI_WARN, "Unknown exception", EXPFILL }},
+      { &ei_coseventcomm_unknown_reply_status, { "giop-coseventcomm.unknown_reply_status", PI_PROTOCOL, PI_WARN, "Unknown reply status", EXPFILL }},
+   };
+
    /* setup protocol subtree array */
 
    static gint *ett[] = {
       &ett_coseventcomm,
    };
 
+   expert_module_t* expert_coseventcomm;
+
+
    /* Register the protocol name and description */
    proto_coseventcomm = proto_register_protocol("Coseventcomm Dissector Using GIOP API" , "COSEVENTCOMM", "giop-coseventcomm" );
    proto_register_field_array(proto_coseventcomm, hf, array_length(hf));
-   proto_register_subtree_array(ett,array_length(ett));
+   proto_register_subtree_array(ett, array_length(ett));
+
+   expert_coseventcomm = expert_register_protocol(proto_coseventcomm);
+   expert_register_field_array(expert_coseventcomm, ei, array_length(ei));
 }
 
 /* register me as handler for these interfaces */
