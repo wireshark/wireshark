@@ -200,6 +200,16 @@ static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
 static gint ett_dhcpv6_netserver_option = -1;
 
+static expert_field ei_dhcpv6_bogus_length = EI_INIT;
+static expert_field ei_dhcpv6_malformed_option = EI_INIT;
+static expert_field ei_dhcpv6_no_suboption_len = EI_INIT;
+static expert_field ei_dhcpv6_invalid_byte = EI_INIT;
+static expert_field ei_dhcpv6_invalid_time_value = EI_INIT;
+static expert_field ei_dhcpv6_invalid_type = EI_INIT;
+static expert_field ei_dhcpv6_bad_length3_6 = EI_INIT;
+static expert_field ei_dhcpv6_malformed_dns = EI_INIT;
+
+
 static int hf_dhcpv6_bulk_leasequery_size = -1;
 static int hf_dhcpv6_bulk_leasequery_msgtype = -1;
 static int hf_dhcpv6_bulk_leasequery_reserved = -1;
@@ -207,6 +217,10 @@ static int hf_dhcpv6_bulk_leasequery_trans_id = -1;
 
 static gint ett_dhcpv6_bulk_leasequery = -1;
 static gint ett_dhcpv6_bulk_leasequery_options = -1;
+
+static expert_field ei_dhcpv6_bulk_leasequery_bad_query_type = EI_INIT;
+static expert_field ei_dhcpv6_bulk_leasequery_no_lq_relay_data = EI_INIT;
+static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 
 #define UDP_PORT_DHCPV6_DOWNSTREAM      546
 #define UDP_PORT_DHCPV6_UPSTREAM        547
@@ -599,7 +613,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
 
     /* There must be at least five octets left to be a valid sub element */
     if (optend <= 0) {
-        expert_add_info_format(pinfo, v_item, PI_PROTOCOL, PI_WARN, "Sub element %d: no room left in option for suboption length", subopt);
+        expert_add_info_format_text(pinfo, v_item, &ei_dhcpv6_no_suboption_len, "Sub element %d: no room left in option for suboption length", subopt);
         return (optend);
     }
     /* g_print("dissect packetcable ccc option subopt_len=%d optend=%d\n\n", subopt_len, optend); */
@@ -613,7 +627,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_pri_dhcp, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
 
         suboptoff += subopt_len;
@@ -623,7 +637,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_dhcp, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
 
         suboptoff += subopt_len;
@@ -642,11 +656,11 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_srv_ipv4, tvb, suboptoff+1, 4, ENC_BIG_ENDIAN);
             }
             else {
-                expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_WARN, "Invalid type: %u (%u byte%s)",
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_invalid_type, "Invalid type: %u (%u byte%s)",
                 type, subopt_len, plurality(subopt_len, "", "s"));
         }
         suboptoff += subopt_len;
@@ -659,7 +673,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_as_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
         suboptoff += subopt_len;
         break;
@@ -670,7 +684,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_ap_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
         suboptoff += subopt_len;
         break;
@@ -709,7 +723,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
 
             ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_krb_realm, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
             if (kr_fail_flag)
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid at byte=%d", kr_pos);
+                expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_invalid_byte, "Invalid at byte=%d", kr_pos);
         }
         suboptoff += subopt_len;
         break;
@@ -720,7 +734,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_tgt_flag_fetch, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
         suboptoff += subopt_len;
         break;
@@ -729,10 +743,10 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         if (subopt_len == 1) {
             ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
             if (tvb_get_guint8(tvb, suboptoff ) > 30)
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid time value");
+                expert_add_info(pinfo, ti, &ei_dhcpv6_invalid_time_value);
         }
         else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
         suboptoff += subopt_len;
         break;
@@ -743,7 +757,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_tcm_provisioning_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_tcm_call_manager_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
         } else {
-            expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+            expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
         suboptoff += subopt_len;
         break;
@@ -782,7 +796,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
 
     /* There must be at least five octets left to be a valid sub element */
     if (optend <= 0) {
-        expert_add_info_format(pinfo, v_item, PI_PROTOCOL, PI_WARN, "Sub element %d: no room left in option for suboption length", subopt);
+        expert_add_info_format_text(pinfo, v_item, &ei_dhcpv6_no_suboption_len, "Sub element %d: no room left in option for suboption length", subopt);
         return (optend);
     }
 
@@ -794,7 +808,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             if (subopt_len < 35) {
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_pri_dss, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
             } else {
-                expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
             suboptoff += subopt_len;
             break;
@@ -802,7 +816,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             if (subopt_len < 35) {
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_dss, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
             } else {
-                expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
             suboptoff += subopt_len;
             break;
@@ -871,7 +885,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
 
                 ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_krb_realm, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
                 if (kr_fail_flag)
-                    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid at byte=%d", kr_pos);
+                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_invalid_byte, "Invalid at byte=%d", kr_pos);
             }
             suboptoff += subopt_len;
             break;
@@ -882,7 +896,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_tgt_flag_fetch, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
             }
             else {
-                expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
             suboptoff += subopt_len;
             break;
@@ -891,10 +905,10 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             if (subopt_len == 1) {
                 ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
                 if (tvb_get_guint8(tvb, suboptoff ) > 30)
-                    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid time value");
+                    expert_add_info(pinfo, ti, &ei_dhcpv6_invalid_time_value);
             }
             else {
-                expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
             suboptoff += subopt_len;
             break;
@@ -905,7 +919,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_provisioning_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_call_manager_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
             } else {
-                expert_add_info_format(pinfo, vti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", subopt_len);
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
             suboptoff += subopt_len;
             break;
@@ -973,7 +987,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 } else if (tlv_len == 6) {
                     proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
                 } else {
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Suboption %d: suboption length isn't 3 or 6", type);
+                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bad_length3_6, "Suboption %d: suboption length isn't 3 or 6", type);
                 }
                 break;
 
@@ -1009,7 +1023,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 if (tlv_len != 6) {
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", tlv_len);
+                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bogus_length, "Bogus length: %d", tlv_len);
                 }
                 else {
                     proto_item_append_text(ti, "%s",
@@ -1081,7 +1095,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
             case CL_CM_MAC_ADDR :
                 opt_len = tlv_len;
                 if (tlv_len != 6) {
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Bogus length: %d", tlv_len);
+                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bogus_length, "Bogus length: %d", tlv_len);
                 }
                 else {
                     /*proto_item_append_text(ti, "CM MAC Address Option = %s", */
@@ -1142,7 +1156,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
         }
     }
     else {
-        expert_add_info_format(pinfo, v_item, PI_PROTOCOL, PI_WARN, "Bogus length: %d", len);
+        expert_add_info_format_text(pinfo, v_item, &ei_dhcpv6_bogus_length, "Bogus length: %d", len);
     }
 }
 
@@ -1170,7 +1184,7 @@ dhcpv6_domain(proto_tree * subtree, proto_item *v_item, packet_info *pinfo, tvbu
          * to allow us to continue after such a malformed record.
          */
         if ( optlen < len ) {
-            expert_add_info_format(pinfo, v_item, PI_PROTOCOL, PI_WARN, "Malformed DNS name record (MS Vista client?)");
+            expert_add_info(pinfo, v_item, &ei_dhcpv6_malformed_dns);
             return;
         }
         offset++;
@@ -1179,7 +1193,7 @@ dhcpv6_domain(proto_tree * subtree, proto_item *v_item, packet_info *pinfo, tvbu
         if(!len){
             if(!pos){
                 /* empty string, this must be an error? */
-                expert_add_info_format(pinfo, v_item, PI_MALFORMED, PI_ERROR, "Malformed option");
+                expert_add_info(pinfo, v_item, &ei_dhcpv6_malformed_option);
                 return;
             } else {
                 proto_tree_add_string(subtree, hf_dhcpv6_domain, tvb, start_offset, offset-start_offset, domain);
@@ -1195,7 +1209,7 @@ dhcpv6_domain(proto_tree * subtree, proto_item *v_item, packet_info *pinfo, tvbu
         }
         if(pos+len>254){
             /* too long string, this must be an error? */
-            expert_add_info_format(pinfo, v_item, PI_MALFORMED, PI_ERROR, "Malformed option");
+            expert_add_info(pinfo, v_item, &ei_dhcpv6_malformed_option);
             return;
         }
         tvb_memcpy(tvb, domain+pos, offset, len);
@@ -1258,7 +1272,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_SERVERID:
     case OPTION_RELAYID:
         if (optlen < 2) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "DUID: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
             break;
         }
 
@@ -1271,10 +1285,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             nstime_t llt_time;
 
             if (optlen < 8) {
-                expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "DUID: malformed option");
+                expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
                 break;
             }
-			proto_tree_add_item(subtree, hf_duidllt_hwtype, tvb, off + 2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_duidllt_hwtype, tvb, off + 2, 2, ENC_BIG_ENDIAN);
 
             /* Packet specifies seconds since Jan 1 2000, so add 946684800U (30 years) to get back to epoch */
             llt_time.secs = tvb_get_ntohl(tvb, off + 4)+946684800U;
@@ -1290,7 +1304,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
         case DUID_EN:
             if (optlen < 6) {
-                expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "DUID: malformed option");
+                expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
                 break;
             }
             proto_tree_add_item(subtree, hf_duiden_enterprise, tvb, off + 2, 4, ENC_BIG_ENDIAN);
@@ -1301,7 +1315,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         case DUID_LL:
         case DUID_LL_OLD:
             if (optlen < 4) {
-                expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "DUID: malformed option");
+                expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
                 break;
             }
             proto_tree_add_item(subtree, hf_duidll_hwtype, tvb, off + 2, 2, ENC_BIG_ENDIAN);
@@ -1315,7 +1329,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_NTP_SERVER:
         if (optlen < 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "NTP Server: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "NTP Server: malformed option");
             break;
         }
         while (optlen > temp_optlen) {
@@ -1347,9 +1361,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_IA_PD:
         if (optlen < 12) {
             if (opttype == OPTION_IA_NA)
-                expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "IA_NA: malformed option");
+                expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "IA_NA: malformed option");
             else
-                expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "IA_PD: malformed option");
+                expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "IA_PD: malformed option");
             break;
         }
         proto_tree_add_string(subtree, hf_iaid, tvb, off,
@@ -1382,7 +1396,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_IA_TA:
         if (optlen < 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "IA_TA: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "IA_TA: malformed option");
             break;
         }
         proto_tree_add_string(subtree, hf_iata, tvb, off,
@@ -1402,7 +1416,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         guint32 preferred_lifetime, valid_lifetime;
 
         if (optlen < 24) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "IA_TA: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "IA_TA: malformed option");
             break;
         }
 
@@ -1447,14 +1461,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_PREFERENCE:
         if (optlen != 1) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "PREFERENCE: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "PREFERENCE: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_option_preference, tvb, off, 1, ENC_BIG_ENDIAN);
         break;
     case OPTION_ELAPSED_TIME:
         if (optlen != 2) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "ELAPSED-TIME: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "ELAPSED-TIME: malformed option");
             break;
         }
 
@@ -1464,7 +1478,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_RELAY_MSG:
         if (optlen == 0) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "RELAY-MSG: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "RELAY-MSG: malformed option");
         } else {
             /* here, we should dissect a full DHCP message */
             dissect_dhcpv6(tvb, pinfo, subtree, downstream, off, off + optlen);
@@ -1472,7 +1486,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_AUTH:
         if (optlen < 11) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "AUTH: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "AUTH: malformed option");
             break;
         }
 
@@ -1485,7 +1499,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_UNICAST:
         if (optlen != 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "UNICAST: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "UNICAST: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_opt_unicast, tvb, off, 16, ENC_NA);
@@ -1497,7 +1511,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_VENDOR_CLASS:
         if (optlen < 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "VENDOR_CLASS: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "VENDOR_CLASS: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_vendorclass_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
@@ -1506,7 +1520,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_VENDOR_OPTS:
         if (optlen < 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "VENDOR_OPTS: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "VENDOR_OPTS: malformed option");
             break;
         }
 
@@ -1537,7 +1551,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         gint namelen;
 
         if (optlen == 0) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "INTERFACE_ID: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "INTERFACE_ID: malformed option");
             break;
         }
 
@@ -1556,7 +1570,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     break;
     case OPTION_RECONF_MSG:
         if (optlen != 1) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "RECONF_MSG: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "RECONF_MSG: malformed option");
             break;
         }
 
@@ -1564,7 +1578,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_RECONF_ACCEPT:
         if (optlen)
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "RECONF_ACCEPT: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "RECONF_ACCEPT: malformed option");
         break;
     case OPTION_SIP_SERVER_D:
         if (optlen > 0) {
@@ -1574,7 +1588,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_SIP_SERVER_A:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "SIP servers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "SIP servers address: malformed option");
             break;
         }
 
@@ -1583,7 +1597,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_DNS_SERVERS:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "DNS servers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "DNS servers address: malformed option");
             break;
         }
 
@@ -1598,7 +1612,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_NIS_SERVERS:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "NIS servers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "NIS servers address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1606,7 +1620,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_NISP_SERVERS:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "NISP servers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "NISP servers address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1626,7 +1640,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_SNTP_SERVERS:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "SNTP servers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "SNTP servers address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1634,7 +1648,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_LIFETIME:
         if (optlen != 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "LIFETIME: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "LIFETIME: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_opt_lifetime, tvb, off, 4, ENC_BIG_ENDIAN);
@@ -1647,7 +1661,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_BCMCS_SERVER_A:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "BCMCS servers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "BCMCS servers address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1655,7 +1669,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_REMOTE_ID:
         if (optlen < 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "REMOTE_ID: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "REMOTE_ID: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_remoteid_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
@@ -1664,14 +1678,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_SUBSCRIBER_ID:
         if (optlen == 0) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "SUBSCRIBER_ID: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "SUBSCRIBER_ID: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_subscriber_id, tvb, off, optlen, ENC_ASCII|ENC_NA);
         break;
     case OPTION_CLIENT_FQDN:
         if (optlen < 1) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "FQDN: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "FQDN: malformed option");
         } else {
             /*
              * +-----+-+-+-+
@@ -1688,7 +1702,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_PANA_AGENT:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "PANA agent address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "PANA agent address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1706,7 +1720,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     {
         guint8 query_type;
         if (optlen < 17) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "LQ-QUERY: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "LQ-QUERY: malformed option");
             break;
         }
         query_type = tvb_get_guint8(tvb, off);
@@ -1715,8 +1729,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             ((query_type == LQ_QUERY_RELAYID) ||
              (query_type == LQ_QUERY_LINK_ADDRESS) ||
              (query_type == LQ_QUERY_REMOTEID))) {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
-                "LQ-QUERY: Query types only supported by Bulk Leasequery");
+            expert_add_info(pinfo, ti, &ei_dhcpv6_bulk_leasequery_bad_query_type);
         }
 
         proto_tree_add_item(subtree, hf_lq_query_link_address, tvb, off+1, 16, ENC_NA);
@@ -1746,7 +1759,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_CLT_TIME:
         if (optlen != 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "CLT_TIME: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "CLT_TIME: malformed option");
             break;
         }
 
@@ -1754,12 +1767,12 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_LQ_RELAY_DATA:
         if (optlen < 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "LQ_RELAY_DATA: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "LQ_RELAY_DATA: malformed option");
             break;
         }
 
         if (protocol == proto_dhcpv6_bulk_leasequery) {
-            expert_add_info_format(pinfo, option_item, PI_PROTOCOL, PI_WARN, "LQ_RELAY_DATA: Not allowed in Bulk Leasequery");
+            expert_add_info(pinfo, option_item, &ei_dhcpv6_bulk_leasequery_no_lq_relay_data);
         }
 
         proto_tree_add_item(subtree, hf_lq_relay_data_peer_addr, tvb, off, 16, ENC_NA);
@@ -1767,7 +1780,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_LQ_CLIENT_LINK:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "LQ client links address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "LQ client links address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1775,7 +1788,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_CAPWAP_AC_V6:
         if (optlen % 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "CAPWAP Access Controllers address: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "CAPWAP Access Controllers address: malformed option");
             break;
         }
         for (i = 0; i < optlen; i += 16)
@@ -1790,7 +1803,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     }
     case OPTION_IAPREFIX:
         if (optlen < 25) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "IAPREFIX: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "IAPREFIX: malformed option");
             break;
         }
 
@@ -1822,14 +1835,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_MIP6_HA:
         if (optlen != 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "MIP6_HA: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "MIP6_HA: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_mip6_ha, tvb, off, 16, ENC_NA);
         break;
     case OPTION_MIP6_HOA:
         if (optlen != 16) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "MIP6_HOA: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "MIP6_HOA: malformed option");
             break;
         }
 
@@ -1837,7 +1850,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_NAI:
         if (optlen < 4) {
-            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "NAI: malformed option");
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "NAI: malformed option");
             break;
         }
         proto_tree_add_item(subtree, hf_nai, tvb, off, optlen - 2, ENC_ASCII|ENC_NA);
@@ -1941,7 +1954,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         (msg_type != LEASEQUERY_REPLY) &&
         (msg_type != LEASEQUERY_DONE) &&
         (msg_type != LEASEQUERY_DATA))
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
+        expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bulk_leasequery_bad_msg_type, 
             "Message Type %d not allowed by DHCPv6 Bulk Leasequery", msg_type);
 
     offset++;
@@ -2233,6 +2246,17 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_netserver_option
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dhcpv6_bogus_length, { "dhcpv6.bogus_length", PI_MALFORMED, PI_ERROR, "Bogus length", EXPFILL }},
+        { &ei_dhcpv6_malformed_option, { "dhcpv6.malformed_option", PI_MALFORMED, PI_ERROR, "Malformed option", EXPFILL }},
+        { &ei_dhcpv6_no_suboption_len, { "dhcpv6.no_suboption_len", PI_PROTOCOL, PI_WARN, "no room left in option for suboption length", EXPFILL }},
+        { &ei_dhcpv6_invalid_byte, { "dhcpv6.invalid_byte", PI_PROTOCOL, PI_WARN, "Invalid at byte", EXPFILL }},
+        { &ei_dhcpv6_invalid_time_value, { "dhcpv6.invalid_time_value", PI_PROTOCOL, PI_WARN, "Invalid time value", EXPFILL }},
+        { &ei_dhcpv6_invalid_type, { "dhcpv6.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
+        { &ei_dhcpv6_bad_length3_6, { "dhcpv6.bad_length3or6", PI_MALFORMED, PI_ERROR, "suboption length isn't 3 or 6", EXPFILL }},
+        { &ei_dhcpv6_malformed_dns, { "dhcpv6.malformed_dns", PI_PROTOCOL, PI_WARN, "Malformed DNS name record (MS Vista client?)", EXPFILL }},
+    };
+
     static hf_register_info bulk_leasequery_hf[] = {
         { &hf_dhcpv6_bulk_leasequery_size,
           { "Message size", "dhcpv6.bulk_leasequery.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2249,13 +2273,28 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_bulk_leasequery_options
     };
 
+    static ei_register_info ei_bulk_leasequery[] = {
+        { &ei_dhcpv6_bulk_leasequery_bad_query_type, { "dhcpv6.bulk_leasequery.bad_query_type", PI_MALFORMED, PI_WARN, "LQ-QUERY: Query types only supported by Bulk Leasequery", EXPFILL }},
+        { &ei_dhcpv6_bulk_leasequery_no_lq_relay_data, { "dhcpv6.bulk_leasequery.no_lq_relay_data", PI_MALFORMED, PI_WARN, "LQ_RELAY_DATA: Not allowed in Bulk Leasequery", EXPFILL }},
+        { &ei_dhcpv6_bulk_leasequery_bad_msg_type, { "dhcpv6.bulk_leasequery.bad_msg_type", PI_MALFORMED, PI_WARN, "Message Type %d not allowed by DHCPv6 Bulk Leasequery", EXPFILL }},
+    };
+
+    expert_module_t* expert_dhcpv6;
+    expert_module_t* expert_dhcpv6_bulk_leasequery;
+
     proto_dhcpv6 = proto_register_protocol("DHCPv6", "DHCPv6", "dhcpv6");
     proto_register_field_array(proto_dhcpv6, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    expert_dhcpv6 = expert_register_protocol(proto_dhcpv6);
+    expert_register_field_array(expert_dhcpv6, ei, array_length(ei));
+
     proto_dhcpv6_bulk_leasequery = proto_register_protocol("DHCPv6 Bulk Leasequery", "DHCPv6 Bulk Leasequery", "dhcpv6.bulk_leasequery");
     proto_register_field_array(proto_dhcpv6_bulk_leasequery, bulk_leasequery_hf, array_length(bulk_leasequery_hf));
     proto_register_subtree_array(ett_bulk_leasequery, array_length(ett_bulk_leasequery));
+
+    expert_dhcpv6_bulk_leasequery = expert_register_protocol(proto_dhcpv6_bulk_leasequery);
+    expert_register_field_array(expert_dhcpv6_bulk_leasequery, ei_bulk_leasequery, array_length(ei_bulk_leasequery));
 
     /* Allow other dissectors to find this one by name.
        Just choose upstream version for now as they are identical. */
