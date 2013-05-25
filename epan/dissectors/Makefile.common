@@ -1213,6 +1213,7 @@ DISSECTOR_SRC = \
 	packet-zbee-nwk.c	\
 	packet-zbee-security.c	\
 	packet-zbee-zcl.c	\
+	packet-zbee-zcl-on-off.c	\
 	packet-zbee-zdp-binding.c	\
 	packet-zbee-zdp-discovery.c	\
 	packet-zbee-zdp-management.c	\

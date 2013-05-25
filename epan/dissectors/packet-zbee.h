@@ -398,6 +398,9 @@
 #define ZBEE_ZCL_FCF_PROFILE_WIDE           0x00
 #define ZBEE_ZCL_FCF_CLUSTER_SPEC           0x01
 
+#define ZBEE_ZCL_FCF_TO_SERVER              0x00
+#define ZBEE_ZCL_FCF_TO_CLIENT              0x01
+
 /* Manufacturer Codes */
 /* Codes less than 0x1000 were issued for RF4CE */
 #define ZBEE_MFG_CODE_SAMSUNG           0x0003
@@ -574,6 +577,7 @@
 /**/
 /**/
 #define ZBEE_MFG_CODE_MAINSTREAM        0x10cc
+#define ZBEE_MFG_CODE_INDESIT_C         0x10cd
 /**/
 #define ZBEE_MFG_CODE_RADIOCRAFTS       0x10dd
 /**/
@@ -585,6 +589,8 @@
 #define ZBEE_MFG_CODE_ABB               0x10eb
 /**/
 #define ZBEE_MFG_CODE_GENUS             0x10ed
+/**/
+#define ZBEE_MFG_CODE_RELOC             0x1114
 
 /* Manufacturer Names */
 #define ZBEE_MFG_CIRRONET       "Cirronet"
@@ -762,6 +768,7 @@
 #define ZBEE_MFG_SAMSUNG        "Samsung Electronics Co., Ltd."
 /**/
 #define ZBEE_MFG_MAINSTREAM     "Mainstream Engineering"
+#define ZBEE_MFG_INDESIT_C      "Indesit Company"  
 /**/
 #define ZBEE_MFG_RADIOCRAFTS    "Radiocrafts AS"
 /**/
@@ -772,11 +779,15 @@
 #define ZBEE_MFG_ABB            "ABB"
 /**/
 #define ZBEE_MFG_GENUS          "Genus Power Infrastructures Limited"
+/**/
+#define ZBEE_MFG_RELOC          "RELOC"
 
 /* Protocol Abbreviations */
-#define ZBEE_PROTOABBREV_NWK    "zbee_nwk"
-#define ZBEE_PROTOABBREV_APS    "zbee_aps"
-#define ZBEE_PROTOABBREV_APF    "zbee_apf"
+#define ZBEE_PROTOABBREV_NWK                "zbee_nwk"
+#define ZBEE_PROTOABBREV_APS                "zbee_aps"
+#define ZBEE_PROTOABBREV_APF                "zbee_apf"
+#define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
+#define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_onoff"
 
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);

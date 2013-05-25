@@ -176,4 +176,22 @@ typedef struct{
 #define MONTHS_PER_YEAR                             12
 #define YEAR_OFFSET                                 1900
 
+typedef void (*zbee_zcl_fn_attr_id)      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+typedef void (*zbee_zcl_fn_attr_data)    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+typedef struct _zbee_zcl_cluster_desc {
+    int         proto_id;
+    protocol_t  *proto;
+    const char  *name;
+    int         ett;
+    guint16     cluster_id;
+    zbee_zcl_fn_attr_id fn_attr_id;
+    zbee_zcl_fn_attr_data fn_attr_data;
+} zbee_zcl_cluster_desc;
+
+
+void dissect_zcl_attr_data (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint data_type);
+void zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_id fn_attr_id, zbee_zcl_fn_attr_data fn_attr_data);
+zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id);
+
 #endif /* PACKET_ZBEE_ZCL_H*/

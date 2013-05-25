@@ -211,7 +211,7 @@ typedef struct{
     gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
     guint8      type;
     guint8      delivery;
-    gboolean    ack_format;       /* ZigBee 2007 and Later    */
+    gboolean    ack_format;     /* ZigBee 2007 and Later    */
     gboolean    security;
     gboolean    ack_req;
     gboolean    ext_header;     /* ZigBee 2007 and Later    */

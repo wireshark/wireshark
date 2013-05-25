@@ -1291,6 +1291,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-zbee-nwk.c
 	dissectors/packet-zbee-security.c
 	dissectors/packet-zbee-zcl.c
+	dissectors/packet-zbee-zcl-on-off.c
 	dissectors/packet-zbee-zdp-binding.c
 	dissectors/packet-zbee-zdp-discovery.c
 	dissectors/packet-zbee-zdp-management.c
