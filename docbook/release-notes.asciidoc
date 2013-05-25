@@ -20,109 +20,15 @@ The following bugs have been fixed:
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
-since version 1.8:
+since version 1.10:
 
-* Wireshark on 32- and 64-bit Windows supports automatic updates.
-* The packet bytes view is faster.
-* You can now display a list of resolved host names in "hosts" format
-within Wireshark.
-* The wireless toolbar has been updated.
-* Wireshark on Linux does a better job of detecting interface addition
-and removal.
-* It is now possible to compare two fields in a display filter (for
-example: udp.srcport != udp.dstport). The two fields must be of the same
-type for this to work.
-* The Windows installers ship with WinPcap 4.1.3, which supports Windows 8.
-* USB type and product name support has been improved.
-* All Bluetooth profiles and protocols are now supported.
-* Wireshark now calculates HTTP response times and presents the result in a new
-field in the HTTP response. Links from the request's frame to the response's
-frame and vice-versa are also added.
-* The main welcome screen and status bar now display file sizes using
-strict SI prefixes instead of old-style binary prefixes.
-* Capinfos now prints human-readable statistics with SI suffixes by
-default.
-* It is now possible to open a referenced packet (such as the matched request or
-response packet) in a new window.
-* Tshark can now display only the hex/ascii packet data
-without requiring that the packet summary and/or packet details are also
-displayed.  If you want the old behavior, use -Px instead of just -x.
-* Wireshark can be compiled using GTK+ 3.
-* The Wireshark application icon, capture toolbar icons, and other icons
-have been updated.
-* Tshark's filtering and multi-pass analysis have been reworked for consistency
-and in order to support dependent frame calculations during reassembly. See the
-man page descriptions for -2, -R, and -Y.
-* Tshark's -G fields2 and -G fields3 options have been eliminated.  The
--G fields option now includes the 2 extra fields that -G fields3 previously
-provided, and the blurb information has been relegated to the last column since
-in many cases it is blank anyway.
-* Wireshark dropped the left-handed settings from the preferences. This is
-still configurable via the GTK settings (add
-"gtk-scrolled-window-placement = top-right" in the config file, which might be
-called ~/.gtkrc-2.0 or ~/.config/gtk-3.0/settings.ini).
+* Expert info is now filterable (if the dissector has been updated to support the new API).
 
 === New Protocol Support
 
 --sort-and-group--
 
-Amateur Radio BPQ
-Amateur Radio NET/ROM
-Amateur Radio AX.25
-America Online (AOL)
-AR Drone
-Automatic Position Reporting System (APRS)
-AX.25 KISS
-AX.25 no Layer 3
-Bitcoin Protocol
-Bluetooth Attribute Protocol
-Bluetooth AVDTP Protocol
-Bluetooth AVRCP Profile
-Bluetooth AVCTP Protocol
-Bluetooth BNEP Protocol
-Bluetooth HCI USB Transport
-Bluetooth HCRP Profile
-Bluetooth HID Profile
-Bluetooth MCAP Protocol
-Bluetooth SAP Profile
-Bluetooth SBC Codec
-Bluetooth Security Manager Protocol
-Cisco GED-125 Protocol
-Clique Reliable Multicast Protocol (CliqueRM)
-D-Bus
-Digital Transmission Content Protection over IP
-DVB-S2 Baseband
-FlexNet
-Forwarding and Control Element Separation Protocol (ForCES)
-Foundry Discovery Protocol (FDP)
-Gearman Protocol
-GEO-Mobile Radio (1) RACH
-HoneyPot Feeds Protocol (HPFEEDS)
-LTE Positioning Protocol Extensions (LLPe)
-Media Resource Control Protocol Version 2 (MRCPv2)
-MIDI System Exclusive (SYSEX)
-Media-Independent Handover (MIH)
-MPLS-TP Fault-Management
-MPLS-TP Lock-Instruct
-Mojito DHT
-NASDAQ's SoupBinTCP
-NASDAQ's OUCH 4.x
-OpenVPN Protocol
-Pseudo-Wire OAM
-RPKI-Router Protocol
-Skype
-SEL Fast Message
-Smart Message Language (SML)
-SPNEGO Extended Negotiation Security Mechanism (NEGOEX)
-Simple Packet Relay Transport (SPRT)
-UHD/USRP
-USB Audio
-USB Video
-v.150.1 State Signaling Event (SSE)
-VITA 49 Radio Transport
-VNTAG
-WebRTC Datachannel Protocol (RTCDC)
-WiMAX OFDMA PHY SAP
+ASTERIX
 
 --sort-and-group--
 
@@ -134,23 +40,7 @@ Too many protocols have been updated to list here.
 
 --sort-and-group--
 
-AIX iptrace
-CAM Inspector
-Catapult DCT2000
-Citrix NetScaler
-DBS Etherwatch (VMS)
-Endace ERF
-HP-UX nettl
-IBM iSeries
-Ixia IxVeriWave
-Netscreen
-Network Instruments Observer
-NA Sniffer (DOS)
-pcap
-pcap-ng
-Symbian OS btsnoop
-TamoSoft CommView
-Tektronix K12xx
+Netscaler 2.6
 
 --sort-and-group--
 
