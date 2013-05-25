@@ -128,7 +128,7 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str_const(cmd_id, zbee_zcl_on_off_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
     }
-}
+} /*dissect_zbee_zcl_on_off*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -192,15 +192,15 @@ proto_register_zbee_zcl_on_off(void)
 
         { &hf_zbee_zcl_on_off_attr_id,
             { "Attribute", "zbee.zcl.on_off.attr.id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_on_off_attr_names),
-            0x00, NULL, HFILL }},
+            0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_onoff,
-            { "Data Value",    "zbee.zcl.on_off.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_onoff_names),
-            0x00, NULL, HFILL }},
+            { "Data Value", "zbee.zcl.on_off.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_onoff_names),
+            0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_srv_rx_cmd_id,
             { "Command", "zbee.zcl.on_off.srv_rx.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_srv_rx_cmd_names),
-            0x00, NULL, HFILL }}
+            0x00, NULL, HFILL } }
 
     };
 
@@ -208,7 +208,7 @@ proto_register_zbee_zcl_on_off(void)
     proto_zbee_zcl_on_off = proto_register_protocol("ZigBee ZCL OnOff", "ZCL OnOff", ZBEE_PROTOABBREV_ZCL_ONOFF);
     proto_register_field_array(proto_zbee_zcl_on_off, hf, array_length(hf));
 
-    /* Register the ZigBee ZCL Power Profile dissector. */
+    /* Register the ZigBee ZCL OnOff dissector. */
     register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF, dissect_zbee_zcl_on_off, proto_zbee_zcl_on_off);
 } /* proto_register_zbee_zcl_on_off */
 
