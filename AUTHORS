@@ -3735,6 +3735,7 @@ Hauke Mehrtens		<hauke[AT]hauke-m.de>
 0xBismarck		<0xbismarck[AT]gmail.com>
 Peter Van Eynde		<pevaneyn[AT]cisco.com> 
 Marko Hrastovec		<marko.hrastovec[AT]sloveniacontrol.si>
+Mike Garratt		<mg.wireshark[AT]evn.co.nz>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
