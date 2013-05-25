@@ -138,6 +138,10 @@ static int hf_scsi_sbc_get_lba_status_lba= -1;
 static int hf_scsi_sbc_get_lba_status_data_length= -1;
 static int hf_scsi_sbc_get_lba_status_num_blocks= -1;
 static int hf_scsi_sbc_get_lba_status_provisioning_status= -1;
+static int hf_scsi_sbc_sanitize_flags= -1;
+static int hf_scsi_sbc_sanitize_immed= -1;
+static int hf_scsi_sbc_sanitize_ause= -1;
+static int hf_scsi_sbc_sanitize_sa= -1;
 
 static gint ett_scsi_format_unit= -1;
 static gint ett_scsi_prefetch= -1;
@@ -158,6 +162,7 @@ static gint ett_scsi_writesame= -1;
 static gint ett_scsi_unmap= -1;
 static gint ett_scsi_unmap_block_descriptor= -1;
 static gint ett_scsi_lba_status_descriptor= -1;
+static gint ett_scsi_sanitize= -1;
 
 
 static const true_false_string dpo_tfs = {
@@ -1196,6 +1201,50 @@ dissect_sbc_unmap (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 }
 
+static const value_string sanitize_val[] = {
+    {0x01, "OVERWRITE"},
+    {0x02, "BLOCK ERASE"},
+    {0x03, "CRYPTO ERASE"},
+    {0x1f, "EXIT FAILURE MODE"},
+    {0, NULL},
+};
+
+static void
+dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
+                      proto_tree *tree, guint offset, gboolean isreq,
+                      gboolean iscdb,
+                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    static const int *sanitize_fields[] = {
+        &hf_scsi_sbc_sanitize_immed,
+        &hf_scsi_sbc_sanitize_ause,
+        &hf_scsi_sbc_sanitize_sa,
+        NULL
+    };
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        guint8 service_action;
+
+        service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
+        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(service_action,
+							sanitize_val,
+							"Unknown (0x%02x)"));
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_sanitize_flags,
+                ett_scsi_sanitize, sanitize_fields, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+    } else if (isreq) {
+        /* no dissection of data-out yet */
+    }
+}
+
 static void
 dissect_sbc_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *tree, guint offset, gboolean isreq,
@@ -1469,6 +1518,7 @@ const value_string scsi_sbc_vals[] = {
     {SCSI_SPC_RELEASE10         , "Release(10)"},/* obsolete in SBC2 and later */
     {SCSI_SPC_RESERVE6          , "Reserve(6)"}, /* obsolete in SBC2 and later */
     {SCSI_SPC_RESERVE10         , "Reserve(10)"},/* obsolete in SBC2 and later */
+    {SCSI_SBC_SANITIZE          , "Sanitize"},
     {SCSI_SBC_SEEK10            , "Seek(10)"},
     {SCSI_SPC_SENDDIAG          , "Send Diagnostic"},
     {SCSI_SBC_SETLIMITS10       , "Set Limits(10)"},
@@ -1580,7 +1630,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x45*/{NULL},
 /*SBC 0x46*/{NULL},
 /*SBC 0x47*/{NULL},
-/*SBC 0x48*/{NULL},
+/*SBC 0x48*/{dissect_sbc_sanitize},
 /*SBC 0x49*/{NULL},
 /*SBC 0x4a*/{NULL},
 /*SBC 0x4b*/{NULL},
@@ -2039,6 +2089,18 @@ proto_register_scsi_sbc(void)
     { &hf_scsi_sbc_get_lba_status_provisioning_status,
           {"Provisioning Type", "scsi_sbc.get_lba_status.provisioning_type", FT_UINT8, BASE_DEC,
            VALS(scsi_provisioning_type_val), 0x07, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_sa,
+          {"Service Action", "scsi_sbc.sanitize.sa", FT_UINT8, BASE_HEX, VALS(sanitize_val),
+           0x1f, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_ause,
+          {"AUSE", "scsi_sbc.sanitize.ause", FT_BOOLEAN, 8, NULL,
+           0x20, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_immed,
+          {"IMMED", "scsi_sbc.sanitize.immed", FT_BOOLEAN, 8, NULL,
+           0x80, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_flags,
+          {"Flags", "scsi_sbc.sanitize_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, NULL, HFILL}},
     };
 
 
@@ -2062,7 +2124,8 @@ proto_register_scsi_sbc(void)
         &ett_scsi_writesame,
         &ett_scsi_unmap,
         &ett_scsi_unmap_block_descriptor,
-        &ett_scsi_lba_status_descriptor
+        &ett_scsi_lba_status_descriptor,
+        &ett_scsi_sanitize
     };
 
     /* Register the protocol name and description */

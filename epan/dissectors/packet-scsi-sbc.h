@@ -51,6 +51,7 @@
 #define SCSI_SBC_REBUILD32              0x7F
 #define SCSI_SBC_REGENERATE16           0x82
 #define SCSI_SBC_REGENERATE32           0x7F
+#define SCSI_SBC_SANITIZE               0x48
 #define SCSI_SBC_SEEK10                 0x2B
 #define SCSI_SBC_SETLIMITS10            0x33
 #define SCSI_SBC_SETLIMITS12            0xB3
