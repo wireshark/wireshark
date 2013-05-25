@@ -216,7 +216,7 @@ proto_register_zbee_zcl_on_off(void)
  *  NAME
  *      proto_reg_handoff_zbee_zcl_on_off
  *  DESCRIPTION
- *      Hands off the Zcl Power Profile cluster dissector.
+ *      Hands off the Zcl OnOff cluster dissector.
  *  PARAMETERS
  *      none
  *  RETURNS
