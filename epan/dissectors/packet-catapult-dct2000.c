@@ -137,6 +137,9 @@ static int ett_catapult_dct2000_ipprim = -1;
 static int ett_catapult_dct2000_sctpprim = -1;
 static int ett_catapult_dct2000_tty = -1;
 
+static expert_field ei_catapult_dct2000_lte_ccpri_status_error = EI_INIT;
+static expert_field ei_catapult_dct2000_error_comment_expert = EI_INIT;
+
 static const value_string direction_vals[] = {
     { 0,   "Sent" },
     { 1,   "Received" },
@@ -1063,8 +1066,7 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
         offset++;
 
         if (status != 0) {
-            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                   "CCPRI Indication has error status");
+            expert_add_info(pinfo, ti, &ei_catapult_dct2000_lte_ccpri_status_error);
 
         }
     }
@@ -2480,7 +2482,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item *error_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_error_comment, tvb,
                                                                offset, -1, ENC_NA);
                     PROTO_ITEM_SET_GENERATED(error_ti);
-                    expert_add_info_format(pinfo, string_ti, PI_SEQUENCE, PI_ERROR,
+                    expert_add_info_format_text(pinfo, string_ti, &ei_catapult_dct2000_error_comment_expert,
                                           "%s", string);
                 }
 
@@ -3303,7 +3305,13 @@ void proto_register_catapult_dct2000(void)
         &ett_catapult_dct2000_tty
     };
 
+    static ei_register_info ei[] = {
+        { &ei_catapult_dct2000_lte_ccpri_status_error, { "dct2000.lte.ccpri.status.error", PI_SEQUENCE, PI_ERROR, "CCPRI Indication has error status", EXPFILL }},
+        { &ei_catapult_dct2000_error_comment_expert, { "dct2000.error-comment.expert", PI_SEQUENCE, PI_ERROR, "Formatted expert comment", EXPFILL }},
+    };
+
     module_t *catapult_dct2000_module;
+    expert_module_t* expert_catapult_dct2000;
 
     /* Register protocol. */
     proto_catapult_dct2000 = proto_register_protocol("Catapult DCT2000 packet",
@@ -3311,6 +3319,8 @@ void proto_register_catapult_dct2000(void)
                                                      "dct2000");
     proto_register_field_array(proto_catapult_dct2000, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_catapult_dct2000 = expert_register_protocol(proto_catapult_dct2000);
+    expert_register_field_array(expert_catapult_dct2000, ei, array_length(ei));
 
     /* Allow dissector to find be found by name. */
     register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);

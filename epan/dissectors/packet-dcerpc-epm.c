@@ -70,6 +70,9 @@ static gint ett_epm = -1;
 static gint ett_epm_tower_floor = -1;
 static gint ett_epm_entry = -1;
 
+static expert_field ei_epm_proto_undecoded = EI_INIT;
+
+
 /* the UUID is identical for interface versions 3 and 4 */
 static e_uuid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
 static guint16  ver_epm3 = 3;
@@ -456,10 +459,8 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
         default:
             if(len){
-                expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "RightHandSide not decoded yet for proto_id 0x%x",
+                expert_add_info_format_text(pinfo, pi, &ei_epm_proto_undecoded, "RightHandSide not decoded yet for proto_id 0x%x",
                     proto_id);
-                tvb_ensure_bytes_exist(tvb, offset, len);
-                proto_tree_add_text(tr, tvb, offset, len, "RightHandSide not decoded yet for proto_id 0x%x", proto_id);
             }
         }
         offset += len;
@@ -767,10 +768,18 @@ proto_register_epm (void)
         &ett_epm_entry
     };
 
+    static ei_register_info ei[] = {
+        { &ei_epm_proto_undecoded, { "epm.proto_id.undecoded", PI_UNDECODED, PI_WARN, "RightHandSide not decoded yet for proto_id", EXPFILL }},
+    };
+
+    expert_module_t* expert_epm3;
+
     /* interface version 3 */
     proto_epm3 = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
     proto_register_field_array (proto_epm3, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    expert_epm3 = expert_register_protocol(proto_epm3);
+    expert_register_field_array(expert_epm3, ei, array_length(ei));
 
     /* interface version 4 */
     proto_epm4 = proto_register_protocol ("DCE/RPC Endpoint Mapper v4", "EPMv4", "epm4");

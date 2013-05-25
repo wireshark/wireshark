@@ -836,7 +836,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
                     }
                 }
             } else {
-                expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_WARN, "Invalid type: %u (%u byte%s)",
+                expert_add_info_format_text(pinfo, vti, &ei_dhcpv6_invalid_type, "Invalid type: %u (%u byte%s)",
                     type, subopt_len, plurality(subopt_len, "", "s"));
             }
             suboptoff += subopt_len;

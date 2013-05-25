@@ -64,6 +64,8 @@ static gint ett_esio_transfer_header = -1;
 static gint ett_esio_transfer_data = -1;
 static gint ett_esio_data = -1;
 
+static expert_field ei_esio_telegram_lost = EI_INIT;
+
 /* value to string definitions*/
 /* Ether-S-I/O telegram types*/
 static const value_string esio_tlg_types[] = {
@@ -264,8 +266,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                          hf_esio_rio_flags, tvb, offset+11, 1, ENC_BIG_ENDIAN);
               } /* if (tree) */
               if (tvb_get_guint8(tvb, offset + 9) > 0) {
-                     expert_add_info_format(pinfo, hi, PI_SEQUENCE, PI_NOTE,
-                                            "Telegram(s) lost");
+                     expert_add_info(pinfo, hi, &ei_esio_telegram_lost);
               }
               break;
        }
@@ -402,12 +403,20 @@ proto_register_esio(void)
               &ett_esio_data
        };
 
+        static ei_register_info ei[] = {
+            { &ei_esio_telegram_lost, { "esio.telegram_lost", PI_SEQUENCE, PI_NOTE, "Telegram(s) lost", EXPFILL }},
+        };
+
+       expert_module_t* expert_esio;
+
 /* Register the protocol name and description */
        proto_esio = proto_register_protocol("SAIA Ether-S-I/O protocol", "ESIO", "esio");
 
 /* Required function calls to register the header fields and subtrees used */
        proto_register_field_array(proto_esio, hf, array_length(hf));
        proto_register_subtree_array(ett, array_length(ett));
+       expert_esio = expert_register_protocol(proto_esio);
+       expert_register_field_array(expert_esio, ei, array_length(ei));
 }
 
 void

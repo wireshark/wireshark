@@ -88,6 +88,9 @@ static gint ett_LED = -1;
 static gint ett_ANIM = -1;
 static gint ett_CTRL = -1;
 
+static expert_field ei_NO_COMMA = EI_INIT;
+static expert_field ei_NO_CR = EI_INIT;
+
 /* Value String */
 #if 0 /* TODO: Delete these?  Or make use of them? */
 static const value_string REF_types_vs[] = {
@@ -160,7 +163,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add PCMD ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_PCMD_id, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -169,7 +172,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add PCMD Flag */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_PCMD_flag, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -178,7 +181,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add PCMD Roll */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_roll, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -210,7 +213,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add PCMD Pitch */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_pitch, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -242,7 +245,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add PCMD Gaz */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_gaz, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -274,7 +277,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add PCMD Yaw */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_yaw, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -313,7 +316,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add REF ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_REF_id, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -322,7 +325,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add REF ctrl */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_REF_ctrl, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -338,7 +341,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Sequence Number */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -347,7 +350,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Session ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_session, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -356,7 +359,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add User ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_user, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -365,7 +368,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Application ID */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_app, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -381,7 +384,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_ANIM_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -390,7 +393,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Animation */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_ANIM_anim, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -399,7 +402,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add animation time(sec) */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_ANIM_sec, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -415,7 +418,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add sequence number */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_text(sub_tree, tvb, master_offset, length, "(Sets the reference for the horizontal plane)");
@@ -431,7 +434,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -440,7 +443,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Name */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_name, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -449,7 +452,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Value */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CONFIG_val, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -465,7 +468,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_LED_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -474,7 +477,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add animation to play */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_LED_anim, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -483,7 +486,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add frequency */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_LED_freq, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -492,7 +495,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Time to play in sec  */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_LED_sec, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -508,7 +511,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add sequence number */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_COMWDG, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -524,7 +527,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CTRL_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -533,7 +536,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Mode */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Comma delimiter not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_COMMA);
                 return offset;
             }
             ti = proto_tree_add_item(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -544,7 +547,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add File Size */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             if (length < 0) {
-                expert_add_info_format(pinfo, sub_item, PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found");
+                expert_add_info(pinfo, sub_item, &ei_NO_CR);
                 return offset;
             }
             proto_tree_add_item(sub_tree, hf_CTRL_fsize, tvb, offset, length, ENC_ASCII|ENC_NA);
@@ -752,7 +755,17 @@ proto_register_ar_drone(void)
     &ett_CTRL
     };
 
+  static ei_register_info ei[] = {
+     { &ei_NO_COMMA, { "ar_drone.no_comma", PI_MALFORMED, PI_ERROR, "Comma delimiter not found", EXPFILL }},
+     { &ei_NO_CR, { "ar_drone.no_cr", PI_MALFORMED, PI_ERROR, "Carriage return delimiter (0x0d) not found", EXPFILL }},
+  };
+
+/*
+static expert_field  = EI_INIT;
+static expert_field  = EI_INIT;
+*/
     module_t *drone_module;
+    expert_module_t* expert_drone;
 
     /* Setup protocol info */
     proto_ar_drone = proto_register_protocol (
@@ -763,6 +776,9 @@ proto_register_ar_drone(void)
 
     proto_register_field_array(proto_ar_drone, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_drone = expert_register_protocol(proto_ar_drone);
+    expert_register_field_array(expert_drone, ei, array_length(ei));
 
     drone_module = prefs_register_protocol(proto_ar_drone, NULL);
 

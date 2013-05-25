@@ -179,6 +179,9 @@ static gint ett_tx_in_list = -1;
 static gint ett_tx_in_outp = -1;
 static gint ett_tx_out_list = -1;
 
+static expert_field ei_bitcoin_command_unknown = EI_INIT;
+
+
 static dissector_handle_t bitcoin_handle;
 static gboolean bitcoin_desegment  = TRUE;
 
@@ -874,7 +877,7 @@ static void dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   /* no handler found */
   col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "[unknown command]");
 
-  expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Unknown command");
+  expert_add_info(pinfo, ti, &ei_bitcoin_command_unknown);
 }
 
 static int
@@ -1233,13 +1236,21 @@ proto_register_bitcoin(void)
     &ett_tx_out_list,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_bitcoin_command_unknown, { "bitcoin.command.unknown", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
+  };
+
   module_t *bitcoin_module;
+  expert_module_t* expert_bitcoin;
 
   proto_bitcoin = proto_register_protocol( "Bitcoin protocol", "Bitcoin",
       "bitcoin");
 
   proto_register_subtree_array(ett, array_length(ett));
   proto_register_field_array(proto_bitcoin, hf, array_length(hf));
+
+  expert_bitcoin = expert_register_protocol(proto_bitcoin);
+  expert_register_field_array(expert_bitcoin, ei, array_length(ei));
 
   new_register_dissector("bitcoin", dissect_bitcoin, proto_bitcoin);
 

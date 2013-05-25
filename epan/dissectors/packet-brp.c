@@ -126,6 +126,8 @@ static gint ett_brp_flid = -1;
 static gint ett_brp_rmttl = -1;
 static gint ett_brp_fltype = -1;
 
+static expert_field ei_brp_type_unknown = EI_INIT;
+
 /* Preferences */
 static guint global_brp_port = 0;
 
@@ -314,7 +316,7 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         default:
             /* Invalid type */
-            expert_add_info_format(pinfo, brp_item, PI_UNDECODED, PI_WARN, "Unknown packet type");
+            expert_add_info(pinfo, brp_item, &ei_brp_type_unknown);
             break;
         }
 
@@ -326,6 +328,7 @@ return offset;
 void proto_register_brp (void)
 {
     module_t *brp_module;
+    expert_module_t* expert_brp;
 
     /* A data field is something you can search/filter on.
     *
@@ -391,9 +394,16 @@ void proto_register_brp (void)
         &ett_brp_rmttl
 
     };
+
+    static ei_register_info ei[] = {
+        { &ei_brp_type_unknown, { "brp.type.unknown", PI_UNDECODED, PI_WARN, "Unknown packet type", EXPFILL }},
+    };
+
     proto_brp = proto_register_protocol ("BRP Protocol", "BRP", "brp");
     proto_register_field_array (proto_brp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    expert_brp = expert_register_protocol(proto_brp);
+    expert_register_field_array(expert_brp, ei, array_length(ei));
 
     /* Register preferences module */
     brp_module = prefs_register_protocol(proto_brp, proto_reg_handoff_brp);

@@ -84,6 +84,8 @@ static int hf_erspan_unknown5 = -1;
 static int hf_erspan_unknown6 = -1;
 static int hf_erspan_unknown7 = -1;
 
+static expert_field ei_erspan_version_unknown = EI_INIT;
+
 #define PROTO_SHORT_NAME "ERSPAN"
 #define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"
 
@@ -151,8 +153,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti_ver = proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		if ((version != 1) && (version != 2 )) {
-			expert_add_info_format(pinfo, ti_ver, PI_UNDECODED, PI_WARN, "Unknown version, please report or test to use fake ERSPAN preference");
-                	return;
+			expert_add_info(pinfo, ti_ver, &ei_erspan_version_unknown);
+			return;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
@@ -211,6 +213,7 @@ void
 proto_register_erspan(void)
 {
 	module_t *erspan_module;
+	expert_module_t* expert_erspan;
 
 	static hf_register_info hf[] = {
 
@@ -270,15 +273,21 @@ proto_register_erspan(void)
 		{ "Unknown7",	"erspan.unknown7", FT_BYTES, BASE_NONE, NULL,
 			0, NULL, HFILL }},
 
-        };
+	};
+
 	static gint *ett[] = {
 		&ett_erspan,
 	};
 
-        proto_erspan = proto_register_protocol(PROTO_LONG_NAME,
-	    PROTO_SHORT_NAME, "erspan");
-        proto_register_field_array(proto_erspan, hf, array_length(hf));
+	static ei_register_info ei[] = {
+		{ &ei_erspan_version_unknown, { "erspan.version.unknown", PI_UNDECODED, PI_WARN, "Unknown version, please report or test to use fake ERSPAN preference", EXPFILL }},
+	};
+
+	proto_erspan = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "erspan");
+	proto_register_field_array(proto_erspan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_erspan = expert_register_protocol(proto_erspan);
+	expert_register_field_array(expert_erspan, ei, array_length(ei));
 
 	/* register dissection preferences */
 	erspan_module = prefs_register_protocol(proto_erspan, NULL);

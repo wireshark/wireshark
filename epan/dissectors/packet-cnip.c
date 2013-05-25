@@ -70,7 +70,9 @@ static gint hf_cnip_tstamp		= -1;
 static gint proto_cnip			= -1;
 
 static gint ett_cnip			= -1;
-static gint ett_pf			= -1;
+static gint ett_pf				= -1;
+
+static expert_field ei_cnip_type_unknown = EI_INIT;
 
 static dissector_table_t cnip_dissector_table;
 static dissector_handle_t data_handle;
@@ -143,8 +145,7 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(ti, offset);
 
 		if (type != DATA_PACKET) {
-			expert_add_info_format(pinfo, cnip_tree,
-					       PI_UNDECODED, PI_WARN,
+			expert_add_info_format_text(pinfo, cnip_tree, &ei_cnip_type_unknown,
 					       "This dissector doesn't yet decode packets of type %s (0x%x)",
 					       val_to_str_const(type, type_tuple, "Unknown"), type);
 		}
@@ -234,11 +235,19 @@ void proto_register_cnip(void)
 		&ett_pf
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_cnip_type_unknown, { "cnip.type.unknown", PI_UNDECODED, PI_WARN, "This dissector doesn't yet decode packets of type", EXPFILL }},
+	};
+
+	expert_module_t* expert_cnip;
+
 	proto_cnip = proto_register_protocol("Component Network over IP",
 			"CN/IP", "cnip");
 
 	proto_register_field_array(proto_cnip, hf, array_length (hf));
 	proto_register_subtree_array(ett, array_length (ett));
+	expert_cnip = expert_register_protocol(proto_cnip);
+	expert_register_field_array(expert_cnip, ei, array_length(ei));
 
 	/* Register table for subdissectors */
 	cnip_dissector_table = register_dissector_table("cnip.protocol",

@@ -78,6 +78,8 @@ static int hf_ctdb_process_exists = -1;
 static gint ett_ctdb = -1;
 static gint ett_ctdb_key = -1;
 
+static expert_field ei_ctdb_too_many_nodes = EI_INIT;
+
 /* this tree keeps track of caller/reqid for ctdb transactions */
 static emem_tree_t *ctdb_transactions=NULL;
 typedef struct _ctdb_trans_t {
@@ -295,7 +297,7 @@ static int dissect_control_get_nodemap_reply(packet_info *pinfo, proto_tree *tre
 	offset+=4;
 
 	if (num_nodes > CTDB_MAX_NODES) {
-		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Too many nodes (%u). Stopping dissection.", num_nodes);
+		expert_add_info_format_text(pinfo, item, &ei_ctdb_too_many_nodes, "Too many nodes (%u). Stopping dissection.", num_nodes);
 		THROW(ReportedBoundsError);
 	}
 
@@ -1217,12 +1219,21 @@ proto_register_ctdb(void)
 		&ett_ctdb_key,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_ctdb_too_many_nodes, { "ctdb.too_many_nodes", PI_UNDECODED, PI_WARN, "Too many nodes", EXPFILL }},
+	};
+
+	expert_module_t* expert_ctdb;
+
+
 	/* Register the protocol name and description */
 	proto_ctdb = proto_register_protocol("Cluster TDB", "CTDB", "ctdb");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ctdb, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ctdb = expert_register_protocol(proto_ctdb);
+	expert_register_field_array(expert_ctdb, ei, array_length(ei));
 }
 
 

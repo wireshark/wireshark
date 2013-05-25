@@ -216,6 +216,7 @@ static gint ett_a11_reverse_profile = -1;
 static gint ett_a11_aut_flow_profile_ids = -1;
 static gint ett_a11_bcmcs_entry = -1;
 
+static expert_field ei_a11_sub_type_length_not2 = EI_INIT;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
@@ -745,7 +746,7 @@ dissect_3gpp2_service_option_profile(proto_tree  *tree, tvbuff_t  *tvb, packet_i
         pi = proto_tree_add_item(tree, hf_a11_sub_type_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         if (sub_type_length < 2) {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Sub-Type Length should be at least 2");
+            expert_add_info(pinfo, pi, &ei_a11_sub_type_length_not2);
             sub_type_length = 2;
         }
         if (sub_type==1){
@@ -793,7 +794,7 @@ dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree  *tree, tvbuff_t  *tvb, pac
         offset++;
         item = proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (sub_type_length < 2) {
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Sub-Type Length should be at least 2");
+            expert_add_info(pinfo, item, &ei_a11_sub_type_length_not2);
             sub_type_length = 2;
         }
         offset++;
@@ -2736,8 +2737,14 @@ proto_register_a11(void)
         &ett_a11_forward_profile,
         &ett_a11_reverse_profile,
         &ett_a11_aut_flow_profile_ids,
-		&ett_a11_bcmcs_entry,
+        &ett_a11_bcmcs_entry,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_a11_sub_type_length_not2, { "a11.sub_type_length.bad", PI_PROTOCOL, PI_WARN, "Sub-Type Length should be at least 2", EXPFILL }},
+    };
+
+    expert_module_t* expert_a11;
 
     /* Register the protocol name and description */
     proto_a11 = proto_register_protocol("3GPP2 A11", "3GPP2 A11", "a11");
@@ -2748,6 +2755,9 @@ proto_register_a11(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_a11, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_a11 = expert_register_protocol(proto_a11);
+    expert_register_field_array(expert_a11, ei, array_length(ei));
 }
 
 void

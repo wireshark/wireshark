@@ -202,6 +202,8 @@ static gint ett_t_key_flags = -1;
 static gint ett_t_key = -1;
 static gint ett_dns_mac = -1;
 
+static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
+
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
 /* Added to be able to configure DNS ports. */
@@ -2389,8 +2391,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             cur_offset += 1;
 
             if (optlen-4 > 16) {
-              expert_add_info_format(pinfo, rropt, PI_MALFORMED, PI_ERROR,
-                  "Length too long for any type of IP address.");
+              expert_add_info(pinfo, rropt, &ei_dns_rr_opt_bad_length);
               /* Avoid stack-smashing which occurs otherwise with the
                * following tvb_memcpy. */
               optlen = 20;
@@ -4533,6 +4534,11 @@ proto_register_dns(void)
         NULL, HFILL }}
 
   };
+
+  static ei_register_info ei[] = {
+     { &ei_dns_rr_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
+  };
+
   static gint *ett[] = {
     &ett_dns,
     &ett_dns_qd,
@@ -4547,10 +4553,13 @@ proto_register_dns(void)
     &ett_dns_mac,
   };
   module_t *dns_module;
+  expert_module_t* expert_dns;
 
   proto_dns = proto_register_protocol("Domain Name Service", "DNS", "dns");
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dns = expert_register_protocol(proto_dns);
+  expert_register_field_array(expert_dns, ei, array_length(ei));
 
   /* Set default ports */
   range_convert_str(&global_dns_tcp_port_range, DEFAULT_DNS_PORT_RANGE, MAX_TCP_PORT);

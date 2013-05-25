@@ -130,6 +130,9 @@ static int hf_aol_conn_spd      = -1;
 static int ett_aol              = -1;
 static int ett_aol_data         = -1;
 
+static expert_field ei_aol_pdu_length_bad = EI_INIT;
+static expert_field ei_aol_end_missing = EI_INIT;
+
 /* Prefs */
 static gboolean aol_desegment  = TRUE;
 
@@ -281,7 +284,7 @@ static void dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		} else {
 			/* Malformed packet */
-			expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"[Malformed Packet] pdu length > tvb length");
+			expert_add_info(pinfo,ti,&ei_aol_pdu_length_bad);
 		}
 	}
 
@@ -290,7 +293,7 @@ static void dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(aol_tree,hf_aol_end,tvb,offset,1,ENC_NA);/* offset += 1;*/
 	} else {
 		/* Malformed Packet */
-		expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"[Malformed Packet] End of frame marker expected");
+		expert_add_info(pinfo,ti,&ei_aol_end_missing);
 	}
 
 	return;
@@ -365,13 +368,22 @@ void proto_register_aol(void) {
 		&ett_aol_data
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_aol_pdu_length_bad, { "aol.pdu_length_bad", PI_MALFORMED, PI_ERROR, "pdu length > tvb length", EXPFILL }},
+		{ &ei_aol_end_missing, { "aol.end_missing", PI_PROTOCOL, PI_WARN, "End of frame marker expected", EXPFILL }},
+	};
+
 	/* Module (for prefs) */
 	module_t *aol_module;
+	expert_module_t* expert_aol;
 
 	/* Register the protocol and header fields */
 	proto_aol = proto_register_protocol("America Online","AOL","aol");
 	proto_register_field_array(proto_aol,hf,array_length(hf));
 	proto_register_subtree_array(ett,array_length(ett));
+
+	expert_aol = expert_register_protocol(proto_aol);
+	expert_register_field_array(expert_aol, ei, array_length(ei));
 
 	/* Register prefs */
 	aol_module = prefs_register_protocol(proto_aol,NULL);

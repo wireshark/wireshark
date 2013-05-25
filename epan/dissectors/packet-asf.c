@@ -65,6 +65,9 @@ static gint ett_asf = -1;
 static gint ett_asf_payload = -1;
 static gint ett_asf_alg_payload = -1;
 
+static expert_field ei_asf_payload_too_short = EI_INIT;
+
+
 #define ASF_TYPE_RESET                  0x10
 #define ASF_TYPE_PWR_UP                 0x11
 #define ASF_TYPE_PWR_DOWN               0x12
@@ -240,9 +243,7 @@ dissect_asf_payloads(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		ti = proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2,ENC_BIG_ENDIAN);
 		if (plen < 4)
 		{
-			expert_add_info_format(pinfo, ti, PI_MALFORMED,
-			    PI_ERROR,
-			    "Payload length too short to include the type and length");
+			expert_add_info(pinfo, ti, &ei_asf_payload_too_short);
 			break;
 		}
 		if ( ptype && (plen > 4) )
@@ -370,11 +371,19 @@ proto_register_asf(void)
 		&ett_asf_alg_payload
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_asf_payload_too_short, { "asf.payload_too_short", PI_MALFORMED, PI_ERROR, "Payload length too short to include the type and length", EXPFILL }},
+	};
+
+	expert_module_t* expert_asf;
+
 	proto_asf = proto_register_protocol(
 		"Alert Standard Forum", "ASF", "asf");
 
 	proto_register_field_array(proto_asf, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_asf = expert_register_protocol(proto_asf);
+	expert_register_field_array(expert_asf, ei, array_length(ei));
 }
 
 void

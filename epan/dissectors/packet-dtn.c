@@ -232,6 +232,8 @@ static gint ett_admin_record = -1;
 static gint ett_admin_rec_status = -1;
 static gint ett_metadata_hdr = -1;
 
+static expert_field ei_bundle_control_flags_length = EI_INIT;
+
 static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
 
@@ -1117,7 +1119,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     pri_hdr_procflags = (guint8) (bundle_processing_control_flags & 0x7f);
 
     if (sdnv_length < 1 || sdnv_length > 8) {
-        expert_add_info_format(pinfo, primary_tree, PI_UNDECODED, PI_WARN,
+        expert_add_info_format_text(pinfo, primary_tree, &ei_bundle_control_flags_length,
                                "Wrong bundle control flag length: %d", sdnv_length);
         return 0;
     }
@@ -2882,7 +2884,12 @@ proto_register_bundle(void)
         &ett_metadata_hdr
     };
 
+    static ei_register_info ei[] = {
+        { &ei_bundle_control_flags_length, { "bundle.block.control.flags.length", PI_UNDECODED, PI_WARN, "Wrong bundle control flag length", EXPFILL }},
+    };
+
     module_t *bundle_module;
+    expert_module_t* expert_bundle;
 
     proto_bundle = proto_register_protocol (
         "Bundle Protocol",
@@ -2911,6 +2918,8 @@ proto_register_bundle(void)
 
     proto_register_field_array(proto_bundle, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_bundle = expert_register_protocol(proto_bundle);
+    expert_register_field_array(expert_bundle, ei, array_length(ei));
     register_init_routine(bundle_defragment_init);
 }
 

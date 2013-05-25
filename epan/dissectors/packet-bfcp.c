@@ -75,6 +75,8 @@ static int hf_bfcp_req_by_id = -1;
 static gint ett_bfcp = -1;
 static gint ett_bfcp_attr = -1;
 
+static expert_field ei_bfcp_attribute_length_too_small = EI_INIT;
+
 /* Initialize BFCP primitives */
 static const value_string map_bfcp_primitive[] = {
 	{ 0,  "<Invalid Primitive>"},
@@ -374,7 +376,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			break;
 		}
 		if (length < (offset - attr_start_offset)){
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+			expert_add_info_format_text(pinfo, item, &ei_bfcp_attribute_length_too_small,
 							"Attribute length is too small (%d bytes)", length);
 			break;
 		}
@@ -485,6 +487,7 @@ dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void proto_register_bfcp(void)
 {
 	module_t *bfcp_module;
+	expert_module_t* expert_bfcp;
 
 	static hf_register_info hf[] = {
 		{
@@ -656,6 +659,10 @@ void proto_register_bfcp(void)
 		&ett_bfcp_attr,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_bfcp_attribute_length_too_small, { "bfcp.attribute_length.too_small", PI_MALFORMED, PI_ERROR, "Attribute length is too small", EXPFILL }},
+	};
+
 	/* Register protocol name and description */
 	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
 				"BFCP", "bfcp");
@@ -673,6 +680,9 @@ void proto_register_bfcp(void)
 	/* Register field and subtree array */
 	proto_register_field_array(proto_bfcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_bfcp = expert_register_protocol(proto_bfcp);
+	expert_register_field_array(expert_bfcp, ei, array_length(ei));
 }
 
 void proto_reg_handoff_bfcp(void)

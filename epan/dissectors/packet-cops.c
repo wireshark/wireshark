@@ -766,6 +766,8 @@ static gint ett_cops_gperror = -1;
 static gint ett_cops_cperror = -1;
 static gint ett_cops_pdp = -1;
 
+static expert_field ei_cops_pepid_not_null = EI_INIT;
+
 /* For PacketCable */
 static gint ett_cops_subtree = -1;
 
@@ -1274,11 +1276,8 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             break;
 
         if (tvb_strnlen(tvb, offset, len) == -1) {
-            proto_item *pep_ti;
-            pep_ti = proto_tree_add_text(tree, tvb, offset, len, "PEP Id is not a NULL terminated ASCII string");
-            expert_add_info_format(pinfo, pep_ti, PI_MALFORMED, PI_NOTE,
-                                   "PEP Id is not a NULL terminated ASCII string");
-            PROTO_ITEM_SET_GENERATED(pep_ti);
+            ti = proto_tree_add_item(tree, hf_cops_pepid, tvb, offset, len, ENC_ASCII|ENC_NA);
+            expert_add_info(pinfo, ti, &ei_cops_pepid_not_null);
         }
         else
             proto_tree_add_item(tree, hf_cops_pepid, tvb, offset,
@@ -2535,7 +2534,13 @@ void proto_register_cops(void)
         &ett_docsis_request_transmission_policy,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_cops_pepid_not_null, { "cops.pepid.not_null", PI_MALFORMED, PI_NOTE, "PEP Id is not a NULL terminated ASCII string", EXPFILL }},
+    };
+
+
     module_t* cops_module;
+    expert_module_t* expert_cops;
 
     /* Register the protocol name and description */
     proto_cops = proto_register_protocol("Common Open Policy Service",
@@ -2544,6 +2549,8 @@ void proto_register_cops(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_cops, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_cops = expert_register_protocol(proto_cops);
+    expert_register_field_array(expert_cops, ei, array_length(ei));
 
     /* Make dissector findable by name */
     register_dissector("cops", dissect_cops, proto_cops);

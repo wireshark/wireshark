@@ -711,6 +711,8 @@ static gint ett_srvc_con_rec = -1;
 static gint ett_cm2_band_class = -1;
 static gint ett_vp_algs = -1;
 
+static expert_field ei_ansi_a_extraneous_data = EI_INIT;
+
 static char a_bigbuf[1024];
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t data_handle;
@@ -928,7 +930,7 @@ ansi_a_so_int_to_str(
         proto_item *expert_item; \
         expert_item = proto_tree_add_text(tree, tvb, \
             curr_offset, (edc_len) - (edc_max_len), "Extraneous Data, dissector bug or later version spec(report to wireshark.org)"); \
-        expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)"); \
+        expert_add_info(pinfo, expert_item, &ei_ansi_a_extraneous_data); \
         curr_offset += ((edc_len) - (edc_max_len)); \
     }
 
@@ -12070,6 +12072,12 @@ proto_register_ansi_a(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ansi_a_extraneous_data, { "ansi_a.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+    };
+
+    expert_module_t* expert_a_bsmap;
+
     static const enum_val_t a_variant_options[] = {
             { "is-634-rev0",    "IS-634 rev. 0",        A_VARIANT_IS634 },
             { "tsb-80",         "TSB-80",               A_VARIANT_TSB80 },
@@ -12157,6 +12165,8 @@ proto_register_ansi_a(void)
         proto_register_protocol("ANSI A-I/F BSMAP", "ANSI BSMAP", "ansi_a_bsmap");
 
     proto_register_field_array(proto_a_bsmap, hf, array_length(hf));
+    expert_a_bsmap = expert_register_protocol(proto_a_bsmap);
+    expert_register_field_array(expert_a_bsmap, ei, array_length(ei));
 
     proto_a_dtap =
         proto_register_protocol("ANSI A-I/F DTAP", "ANSI DTAP", "ansi_a_dtap");
