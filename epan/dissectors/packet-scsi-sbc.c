@@ -142,6 +142,12 @@ static int hf_scsi_sbc_sanitize_flags= -1;
 static int hf_scsi_sbc_sanitize_immed= -1;
 static int hf_scsi_sbc_sanitize_ause= -1;
 static int hf_scsi_sbc_sanitize_sa= -1;
+static int hf_scsi_sbc_sanitize_overwrite_flags= -1;
+static int hf_scsi_sbc_sanitize_invert= -1;
+static int hf_scsi_sbc_sanitize_test= -1;
+static int hf_scsi_sbc_sanitize_owcount= -1;
+static int hf_scsi_sbc_sanitize_pattern_length= -1;
+static int hf_scsi_sbc_sanitize_pattern= -1;
 
 static gint ett_scsi_format_unit= -1;
 static gint ett_scsi_prefetch= -1;
@@ -163,6 +169,7 @@ static gint ett_scsi_unmap= -1;
 static gint ett_scsi_unmap_block_descriptor= -1;
 static gint ett_scsi_lba_status_descriptor= -1;
 static gint ett_scsi_sanitize= -1;
+static gint ett_scsi_sanitize_overwrite= -1;
 
 
 static const true_false_string dpo_tfs = {
@@ -1221,6 +1228,12 @@ dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
         &hf_scsi_sbc_sanitize_sa,
         NULL
     };
+    static const int *sanitize_overwrite_fields[] = {
+        &hf_scsi_sbc_sanitize_invert,
+        &hf_scsi_sbc_sanitize_test,
+        &hf_scsi_sbc_sanitize_owcount,
+        NULL
+    };
 
     if (!tree)
         return;
@@ -1236,12 +1249,25 @@ dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_sanitize_flags,
                 ett_scsi_sanitize, sanitize_fields, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2,
+                             ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
                 ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     } else if (isreq) {
-        /* no dissection of data-out yet */
+        proto_tree_add_bitmask(tree, tvb, offset,
+                               hf_scsi_sbc_sanitize_overwrite_flags,
+                               ett_scsi_sanitize_overwrite,
+                               sanitize_overwrite_fields,
+                               ENC_BIG_ENDIAN);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_sanitize_pattern_length,
+                             tvb, offset+2, 2,
+                             ENC_BIG_ENDIAN);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_sanitize_pattern,
+                             tvb, offset+4, -1,
+                             ENC_BIG_ENDIAN);
     }
 }
 
@@ -2101,6 +2127,24 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_sanitize_flags,
           {"Flags", "scsi_sbc.sanitize_flags", FT_UINT8, BASE_HEX,
            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_overwrite_flags,
+          {"Flags", "scsi_sbc.sanitize_overwrite_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_invert,
+          {"INVERT", "scsi_sbc.sanitize.invert", FT_BOOLEAN, 8, NULL,
+           0x80, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_test,
+          {"TEST", "scsi_sbc.sanitize.test", FT_UINT8, BASE_HEX, NULL,
+           0x60, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_owcount,
+          {"Overwrite Count", "scsi_sbc.sanitize.overwrite_count", FT_UINT8, BASE_HEX, NULL,
+           0x1f, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_pattern_length,
+          {"Initialization Pattern Length", "scsi_sbc.sanitize.pattern_length", FT_UINT16, BASE_DEC, NULL,
+           0, NULL, HFILL}},
+        { &hf_scsi_sbc_sanitize_pattern,
+          {"Initialization Pattern", "scsi_sbc.sanitize.pattern", FT_BYTES, BASE_NONE, NULL,
+           0, NULL, HFILL}},
     };
 
 
@@ -2125,7 +2169,8 @@ proto_register_scsi_sbc(void)
         &ett_scsi_unmap,
         &ett_scsi_unmap_block_descriptor,
         &ett_scsi_lba_status_descriptor,
-        &ett_scsi_sanitize
+        &ett_scsi_sanitize,
+        &ett_scsi_sanitize_overwrite
     };
 
     /* Register the protocol name and description */
