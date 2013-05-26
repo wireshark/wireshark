@@ -35,6 +35,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @addtogroup wmem
+ *  @{
+ *    @defgroup wmem-slist Singly-Linked List
+ *
+ *    A singly-linked list implementation on top of wmem.
+ *
+ *    @{
+ */
+
 struct _wmem_slist_t;
 struct _wmem_slist_frame_t;
 
@@ -73,6 +82,9 @@ WS_DLL_PUBLIC
 wmem_slist_t *
 wmem_slist_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;
+
+/**   @}
+ *  @} */
 
 #ifdef __cplusplus
 }

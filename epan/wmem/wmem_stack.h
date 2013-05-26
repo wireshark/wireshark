@@ -36,6 +36,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @addtogroup wmem
+ *  @{
+ *    @defgroup wmem-stack Stack
+ *
+ *    A stack implementation on top of wmem.
+ *
+ *    @{
+ */
+
 /* Wmem stack is implemented as a simple wrapper over Wmem slist */
 typedef wmem_slist_t wmem_stack_t;
 
@@ -54,6 +63,9 @@ void
 wmem_stack_push(wmem_stack_t *stack, void *data);
 
 #define wmem_stack_new(ALLOCATOR) wmem_slist_new(ALLOCATOR)
+
+/**   @}
+ *  @} */
 
 #ifdef __cplusplus
 }

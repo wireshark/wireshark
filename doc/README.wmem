@@ -111,26 +111,10 @@ Sometimes (though hopefully rarely) it may be necessary to store data in a wmem
 pool that requires additional cleanup before it is freed. For example, perhaps
 you have a pointer to a file-handle that needs to be closed. In this case, you
 can register a callback with the wmem_register_cleanup_callback function
-declared in wmem_user_cb.h. This function takes as parameters:
- - the allocator
- - boolean indicating whether or not the callback should be recurring (ie
-   happens once if FALSE, or every time if TRUE)
- - the callback function (signature defined in wmem_user_cb.h)
- - a void user_data pointer
+declared in wmem_user_cb.h. Every time the memory in a pool is freed, all
+registered cleanup functions are called first.
 
-Every time the memory in a pool is freed, all registered cleanup functions are
-called first, being passed:
- - a pointer to the allocator
- - a boolean indicating if this is just a free_all (FALSE) or if this was
-   triggered by destruction of the entire pool (TRUE) - mostly useful for
-   recurring callbacks
- - whatever user_data was registered with that callback.
-
-Note that the user_data pointer is not freed when a callback is finished, you
-have to do that yourself in the callback, or just allocate it in the
-appropriate wmem pool.
-
-Also note that callback calling order is not defined, you cannot rely on a
+Note that callback calling order is not defined, you cannot rely on a
 certain callback being called before or after another.
 
 WARNING: Manually freeing or moving memory (with wmem_free or wmem_realloc)
@@ -152,22 +136,8 @@ pool to pick one.
 3.1 Available Allocator Back-Ends
 
 Each available allocator type has a corresponding entry in the
-wmem_allocator_type_t enumeration defined in wmem_core.h.
-
-The currently available allocators are:
- - WMEM_ALLOCATOR_SIMPLE (wmem_allocator_simple.*)
-        A trivial allocator that g_allocs requested memory and tracks
-        allocations via a GHashTable. As simple as possible, intended more as
-        a demo than for practical usage. Also has the benefit of being friendly
-        to tools like valgrind.
- - WMEM_ALLOCATOR_BLOCK (wmem_allocator_block.*)
-        A block allocator that grabs large chunks of memory at a time
-        (8 MB currently) and serves allocations out of those chunks.
-        Designed for efficiency, especially in the free_all operation.
- - WMEM_ALLOCATOR_STRICT (wmem_allocator_strict.*)
-        An allocator that does its best to find invalid memory usage via
-        things like canaries and scrubbing freed memory. Valgrind is the
-        better choice on platforms that support it.
+wmem_allocator_type_t enumeration defined in wmem_core.h. See the doxygen
+comments in that header file for details on each type.
 
 3.2 Creating a Pool
 

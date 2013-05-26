@@ -35,6 +35,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @addtogroup wmem
+ *  @{
+ *    @defgroup wmem-strbuf String Buffer
+ *
+ *    A string object implementation on top of wmem.
+ *
+ *    @{
+ */
+
 struct _wmem_strbuf_t;
 
 typedef struct _wmem_strbuf_t wmem_strbuf_t;
@@ -78,6 +87,9 @@ wmem_strbuf_get_str(wmem_strbuf_t *strbuf);
 WS_DLL_PUBLIC
 gsize
 wmem_strbuf_get_len(wmem_strbuf_t *strbuf);
+
+/**   @}
+ *  @} */
 
 #ifdef __cplusplus
 }

@@ -34,6 +34,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @addtogroup wmem
+ *  @{
+ *    @defgroup wmem-strutl String Utilities
+ *
+ *    A collection of utility function for operating on C strings with wmem.
+ *
+ *    @{
+ */
+
 WS_DLL_PUBLIC
 gchar *
 wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
@@ -53,6 +62,9 @@ WS_DLL_PUBLIC
 gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 G_GNUC_MALLOC;
+
+/**   @}
+ *  @} */
 
 #ifdef __cplusplus
 }

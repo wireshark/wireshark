@@ -26,19 +26,52 @@
 #ifndef __WMEM_USER_CB_H__
 #define __WMEM_USER_CB_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#include <glib.h>
+/** @addtogroup wmem
+ *  @{
+ *    @defgroup wmem-user-cb User Callbacks
+ *
+ *    User callbacks.
+ *
+ *    @{
+ */
 
-/* User callback type for registering cleanup routines */
+/** Function signature for registered user callbacks.
+ *
+ * @param allocator The allocator that triggered this callback.
+ * @param final Whether this is was triggered due to the allocator being
+ *              destroyed (TRUE) or simply a call to wmem_free_all() (FALSE).
+ * @param user_data Whatever user_data was originally passed to the call to
+ *              wmem_register_cleanup_callback().
+ */
 typedef void (*wmem_user_cb_t) (wmem_allocator_t *, gboolean, void *);
 
+/** Register a callback function with the given allocator pool.
+ *
+ * @param allocator The allocator with which to register the callback.
+ * @param recurring If this is FALSE then the callback is called exactly once.
+ *                  If this is TRUE then the callback is called every time
+ *                  wmem_free_all() is called on the allocator, and one last
+ *                  time when wmem_destroy_allocator() is called on it.
+ * @param callback  The function to be called as the callback.
+ * @param user_data An arbitrary data pointer that is passed to the callback as
+ *                  a way to specify extra parameters or store extra data. Note
+ *                  that this pointer is not freed when a callback is finished,
+ *                  you have to do that yourself in the callback, or just
+ *                  allocate it in the appropriate wmem pool.
+ */
 WS_DLL_PUBLIC
 void
 wmem_register_cleanup_callback(wmem_allocator_t *allocator, gboolean recurring,
         wmem_user_cb_t callback, void *user_data);
+
+/**   @}
+ *  @} */
 
 #ifdef __cplusplus
 }
