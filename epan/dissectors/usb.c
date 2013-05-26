@@ -11983,6 +11983,8 @@ static const value_string usb_products_vals[] = {
     { 0x09557030, "Tegra 3 (recovery mode)" },
     { 0x095570a9, "nVidia CM9-Adam" },
     { 0x09557100, "Notion Ink Adam" },
+    { 0x0955b400, "SHIELD (debug)" },
+    { 0x0955b401, "SHIELD" },
     { 0x09570200, "E-Video DC-350 Camera" },
     { 0x09570202, "E-Video DC-350 Camera" },
     { 0x09570518, "82357B GPIB Interface" },
