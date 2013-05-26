@@ -39,6 +39,9 @@ static int hf_etherip_reserved = -1;
 
 static gint ett_etherip = -1;
 
+static expert_field ei_etherip_ver_3 = EI_INIT;
+static expert_field ei_etherip_reserved_0 = EI_INIT;
+
 static dissector_handle_t eth_withoutfcs_handle;
 
 
@@ -77,13 +80,13 @@ dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(etherip_tree, hf_etherip_ver, tvb,
              0, 2, ENC_BIG_ENDIAN);
     if (version != 3) {
-      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Version must be 3");
+      expert_add_info(pinfo, ti, &ei_etherip_ver_3);
     }
 
     ti = proto_tree_add_item(etherip_tree, hf_etherip_reserved, tvb,
              0, 2, ENC_BIG_ENDIAN);
     if ((field & ETHERIP_RESERVE_MASK) != 0) {
-      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Reserved field must be 0");
+      expert_add_info(pinfo, ti, &ei_etherip_reserved_0);
     }
   }
 
@@ -109,10 +112,19 @@ proto_register_etherip(void)
     &ett_etherip,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_etherip_ver_3, { "etherip.ver.not3", PI_PROTOCOL, PI_WARN, "Version must be 3", EXPFILL }},
+     { &ei_etherip_reserved_0, { "etherip.reserved.not0", PI_PROTOCOL, PI_WARN, "Reserved field must be 0", EXPFILL }},
+  };
+
+  expert_module_t* expert_etherip;
+
   proto_etherip = proto_register_protocol("Ethernet over IP",
                                           "ETHERIP", "etherip");
   proto_register_field_array(proto_etherip, hf_etherip, array_length(hf_etherip));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_etherip = expert_register_protocol(proto_etherip);
+  expert_register_field_array(expert_etherip, ei, array_length(ei));
 
   register_dissector("etherip", dissect_etherip, proto_etherip);
 }

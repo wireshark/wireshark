@@ -120,7 +120,7 @@ static gint ett_gmhdr = -1;
 static gint ett_srcport = -1;
 static gint ett_gmtrailer = -1;
 
-
+static expert_field ei_gmhdr_field_length_invalid = EI_INIT;
 
 static void
 dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, guint offset, guint16 length)
@@ -141,7 +141,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         guint32 tv = tvb_get_ntohl(tvb, offset) >> 8; /* Only 24-bit field */
 
         if (fl != 3) {
-          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          expert_add_info_format_text(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
           break;
         }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_srcport_g,      tvb, offset, fl, ENC_BIG_ENDIAN);
@@ -159,7 +159,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
       }
       case GMHDR_FTYPE_PKTSIZE:
         if (fl != 2) {
-          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          expert_add_info_format_text(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
           break;
         }
         proto_tree_add_item(gmhdr_tree, hf_gmhdr_pktsize, tvb, offset, fl, ENC_BIG_ENDIAN);
@@ -169,7 +169,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
       case GMHDR_FTYPE_TIMESTAMP_GPS:
       case GMHDR_FTYPE_TIMESTAMP_1588:
         if (fl != 8) {
-          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          expert_add_info_format_text(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
           break;
         }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
@@ -177,7 +177,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         break;
       case GMHDR_FTYPE_FCS: {
         if (fl != 4) {
-          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          expert_add_info_format_text(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
           break;
         }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_origcrc, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -186,7 +186,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
       }
       case GMHDR_FTYPE_SRCPORT_H: {
         if (fl != 4) {
-          expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
+          expert_add_info_format_text(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
           break;
         }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_srcport_h, tvb, offset, fl, ENC_BIG_ENDIAN);
@@ -459,12 +459,19 @@ proto_register_gmhdr(void)
   static gint *gmtrailer_ett[] = {
     &ett_gmtrailer,
   };
+  static ei_register_info ei[] = {
+     { &ei_gmhdr_field_length_invalid, { "gmhdr.field_length_invalid", PI_MALFORMED, PI_ERROR, "Field length invalid", EXPFILL }},
+  };
+
   module_t *gmhdr_module;
   module_t *gmtrailer_module;
+  expert_module_t* expert_gmhdr;
 
   proto_gmhdr = proto_register_protocol("Gigamon Header", "GMHDR", "gmhdr");
   proto_register_field_array(proto_gmhdr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_gmhdr = expert_register_protocol(proto_gmhdr);
+  expert_register_field_array(expert_gmhdr, ei, array_length(ei));
 
   proto_gmtrailer = proto_register_protocol("Gigamon Trailer", "GMTRAILER", "gmtrailer");
   proto_register_field_array(proto_gmtrailer, gmtrailer_hf, array_length(gmtrailer_hf));

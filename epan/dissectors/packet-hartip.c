@@ -68,6 +68,9 @@ static gint ett_hartip = -1;
 static gint ett_hartip_hdr = -1;
 static gint ett_hartip_body = -1;
 
+static expert_field ei_hartip_data_none = EI_INIT;
+static expert_field ei_hartip_data_unexpected = EI_INIT;
+
 /* Command 0 response */
 static int hf_hartip_pt_rsp_expansion_code = -1;
 static int hf_hartip_pt_rsp_expanded_device_type = -1;
@@ -308,9 +311,9 @@ dissect_empty_body(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 
   ti = proto_tree_add_item(tree, hf_hartip_data, tvb, offset, bodylen, ENC_NA);
   if (bodylen == 0) {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "No data");
+    expert_add_info(pinfo, ti, &ei_hartip_data_none);
   } else {
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Unexpected message body");
+    expert_add_info(pinfo, ti, &ei_hartip_data_unexpected);
   }
   return bodylen;
 }
@@ -1516,11 +1519,19 @@ proto_register_hartip(void)
     &ett_hartip_body
   };
 
+  static ei_register_info ei[] = {
+     { &ei_hartip_data_none, { "hart_ip.data.none", PI_PROTOCOL, PI_NOTE, "No data", EXPFILL }},
+     { &ei_hartip_data_unexpected, { "hart_ip.data.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected message body", EXPFILL }},
+  };
+
   module_t *hartip_module;
+  expert_module_t* expert_hartip;
 
   proto_hartip = proto_register_protocol("HART_IP Protocol", "HART_IP", "hart_ip");
   proto_register_field_array(proto_hartip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_hartip = expert_register_protocol(proto_hartip);
+  expert_register_field_array(expert_hartip, ei, array_length(ei));
 
   hartip_module = prefs_register_protocol(proto_hartip, NULL);
   prefs_register_bool_preference(hartip_module, "desegment",

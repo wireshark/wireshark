@@ -78,6 +78,10 @@ static gint ett_payload_kink_error = -1;
 static gint ett_payload_not_defined = -1;
 static gint ett_decrypt_kink_encrypt = -1;
 
+static expert_field ei_kink_payload_length_small = EI_INIT;
+static expert_field ei_kink_payload_length_mismatch = EI_INIT;
+
+
 /* Define the kink type value */
 #define KINK_TYPE_RESERVED 0
 #define KINK_TYPE_CREATE   1
@@ -350,7 +354,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
   ti = proto_tree_add_uint(payload_kink_ap_req_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
+    expert_add_info(pinfo, ti, &ei_kink_payload_length_small);
   }
   offset += 2;
 
@@ -405,7 +409,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
   ti = proto_tree_add_uint(payload_kink_ap_rep_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
+    expert_add_info(pinfo, ti, &ei_kink_payload_length_small);
   }
   offset += 2;
 
@@ -460,7 +464,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
 
   ti = proto_tree_add_uint(payload_kink_krb_error_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= KINK_KRB_ERROR_HEADER){
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
+    expert_add_info(pinfo, ti, &ei_kink_payload_length_small);
   }
   else {
     offset += 2;
@@ -617,7 +621,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
   ti = proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
+    expert_add_info(pinfo, ti, &ei_kink_payload_length_small);
   }
   offset += 2;
 
@@ -695,7 +699,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 
   ti = proto_tree_add_uint(payload_kink_encrypt_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
+    expert_add_info(pinfo, ti, &ei_kink_payload_length_small);
   }
   offset += 2;
 
@@ -799,7 +803,7 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
 
   ti = proto_tree_add_uint(payload_kink_error_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length != KINK_ERROR_LENGTH){
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is mismatch");
+    expert_add_info(pinfo, ti, &ei_kink_payload_length_mismatch);
   }
   offset += 2;
 
@@ -976,9 +980,18 @@ proto_register_kink(void) {
 
   };
 
+  static ei_register_info ei[] = {
+     { &ei_kink_payload_length_small, { "kink.payload_length_small", PI_PROTOCOL, PI_WARN, "This Payload Length is too small", EXPFILL }},
+     { &ei_kink_payload_length_mismatch, { "kink.payload_length_mismatch", PI_PROTOCOL, PI_WARN, "This Payload Length is mismatch", EXPFILL }},
+  };
+
+  expert_module_t* expert_kink;
+
   proto_kink = proto_register_protocol("Kerberized Internet Negotiation of Key", "KINK", "kink");
   proto_register_field_array(proto_kink, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_kink = expert_register_protocol(proto_kink);
+  expert_register_field_array(expert_kink, ei, array_length(ei));
 
 }
 

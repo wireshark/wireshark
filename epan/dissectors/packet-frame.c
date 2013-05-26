@@ -87,6 +87,9 @@ static gint ett_frame = -1;
 static gint ett_flags = -1;
 static gint ett_comments = -1;
 
+static expert_field ei_comments_text = EI_INIT;
+static expert_field ei_arrive_time_out_of_range = EI_INIT;
+
 static int frame_tap = -1;
 
 static dissector_handle_t data_handle;
@@ -233,7 +236,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
 							                   pinfo->fd->opt_comment, "%s",
 							                   pinfo->fd->opt_comment);
-		expert_add_info_format(pinfo, comment_item, PI_COMMENTS_GROUP, PI_COMMENT,
+		expert_add_info_format_text(pinfo, comment_item, &ei_comments_text,
 					                       "%s",  pinfo->fd->opt_comment);
 
 
@@ -245,8 +248,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree=NULL;
 		if(pinfo->fd->flags.has_ts) {
 			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
-				expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
-						       "Arrival Time: Fractional second out of range (0-1000000000)");
+				expert_add_info(pinfo, NULL, &ei_arrive_time_out_of_range);
 		}
 	} else {
 		proto_tree *fh_tree;
@@ -321,8 +323,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 								  " the valid range is 0-1000000000",
 								  (long) pinfo->fd->abs_ts.nsecs);
 				PROTO_ITEM_SET_GENERATED(item);
-				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-						       "Arrival Time: Fractional second out of range (0-1000000000)");
+				expert_add_info(pinfo, item, &ei_arrive_time_out_of_range);
 			}
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
@@ -779,7 +780,13 @@ proto_register_frame(void)
 		&ett_comments
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_comments_text, { "frame.comment.expert", PI_COMMENTS_GROUP, PI_COMMENT, "Formatted comment", EXPFILL }},
+		{ &ei_arrive_time_out_of_range, { "frame.time_invalid.expert", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
+	};
+
 	module_t *frame_module;
+	expert_module_t* expert_frame;
 
 	if (hf_encap.hfinfo.strings == NULL) {
 		int encap_count = wtap_get_num_encap_types();
@@ -804,6 +811,8 @@ proto_register_frame(void)
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_field_array(proto_frame, &hf_encap, 1);
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_frame = expert_register_protocol(proto_frame);
+	expert_register_field_array(expert_frame, ei, array_length(ei));
 	register_dissector("frame",dissect_frame,proto_frame);
 
 	/* You can't disable dissection of "Frame", as that would be

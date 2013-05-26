@@ -60,6 +60,7 @@ static gint ett_ixiatrailer = -1;
 static int hf_ixiatrailer_timestamp = -1;
 static int hf_ixiatrailer_generic = -1;
 
+static expert_field ei_ixiatrailer_field_length_invalid = EI_INIT;
 
 /* Format is as follows:
    - Time Sync source (1 byte)
@@ -137,7 +138,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
         case IXIATRAILER_FTYPE_TIMESTAMP_1588:
         case IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER:
             if (time_length != 8) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Field length %u invalid", time_length);
+                expert_add_info_format_text(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", time_length);
                 break;
             }
             /* Timestamp */
@@ -173,11 +174,18 @@ proto_register_ixiatrailer(void)
     &ett_ixiatrailer
   };
 
+  static ei_register_info ei[] = {
+     { &ei_ixiatrailer_field_length_invalid, { "ixiatrailer.field_length_invalid", PI_MALFORMED, PI_ERROR, "Field length invalid", EXPFILL }},
+  };
+
   module_t *ixiatrailer_module;
+  expert_module_t* expert_ixiatrailer;
 
   proto_ixiatrailer = proto_register_protocol("Ixia Trailer", "IXIATRAILER", "ixiatrailer");
   proto_register_field_array(proto_ixiatrailer, hf, array_length(hf));
   proto_register_subtree_array(ixiatrailer_ett, array_length(ixiatrailer_ett));
+  expert_ixiatrailer = expert_register_protocol(proto_ixiatrailer);
+  expert_register_field_array(expert_ixiatrailer, ei, array_length(ei));
 
   ixiatrailer_module = prefs_register_protocol(proto_ixiatrailer, NULL);
   prefs_register_bool_preference(ixiatrailer_module, "summary_in_tree",

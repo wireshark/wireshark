@@ -496,6 +496,9 @@ static gint ett_sco = -1;
 static gint ett_dco = -1;
 static gint ett_rco = -1;
 
+static expert_field ei_iec104_short_asdu = EI_INIT;
+static expert_field ei_iec104_apdu_min_len = EI_INIT;
+    
 /* Misc. functions for dissection of signal values */
 
 /* ====================================================================
@@ -955,7 +958,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					ioa_item = proto_tree_add_uint(trSignal, hf_ioa, tvb, offset_start_ioa, 3, asdu_info_obj_addr);
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					offset += 3;  /* step over IOA bytes */
@@ -969,7 +972,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 						/* --------  Information object address */
 						/* check length */
 						if( Len < (guint)(offset+3) ) {
-							expert_add_info_format(pinfo, itSignal, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+							expert_add_info(pinfo, itSignal, &ei_iec104_short_asdu);
 							return;
 						}
 						ioa_item = get_InfoObjectAddress( &asdu_info_obj_addr, tvb, &offset, trSignal);
@@ -981,7 +984,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_SP_NA_1: /* 1	Single-point information */
 					/* check length */
 					if( Len < (guint)(offset+1) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SIQ( tvb, &offset, trSignal );
@@ -989,7 +992,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_DP_NA_1: /* 3	Double-point information */
 					/* check length */
 					if( Len < (guint)(offset+1) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_DIQ( tvb, &offset, trSignal );
@@ -997,7 +1000,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ST_NA_1: /* 5	Step position information */
 					/* check length */
 					if( Len < (guint)(offset+2) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_VTI( tvb, &offset, trSignal );
@@ -1006,7 +1009,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_BO_NA_1: /* 7	Bitstring of 32 bits */
 					/* check length */
 					if( Len < (guint)(offset+5) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_BSI( tvb, &offset, trSignal );
@@ -1015,7 +1018,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_NA_1: /* 9	Measured value, normalized value */
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_NVA( tvb, &offset, trSignal );
@@ -1024,7 +1027,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_NB_1: /* 11     Measured value, scaled value */
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SVA( tvb, &offset, trSignal );
@@ -1033,7 +1036,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_NC_1: /* 13	Measured value, short floating point value */
 					/* check length */
 					if( Len < (guint)(offset+5) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_FLT( tvb, &offset, trSignal );
@@ -1042,7 +1045,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_ND_1: /* 21    Measured value, normalized value without quality descriptor */
 					/* check length */
 					if( Len < (guint)(offset+2) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_NVA( tvb, &offset, trSignal );
@@ -1050,7 +1053,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_SP_TB_1: /* 30	Single-point information with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+8) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SIQ( tvb, &offset, trSignal );
@@ -1059,7 +1062,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_DP_TB_1: /* 31	Double-point information with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+8) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_DIQ( tvb, &offset, trSignal );
@@ -1068,7 +1071,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ST_TB_1: /* 32	Step position information with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+9) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_VTI( tvb, &offset, trSignal );
@@ -1078,7 +1081,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_BO_TB_1: /* 33	bitstring of 32 bit with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+12) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_BSI( tvb, &offset, trSignal );
@@ -1088,7 +1091,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_TD_1: /* 34    Measured value, normalized value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+10) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_NVA( tvb, &offset, trSignal );
@@ -1098,7 +1101,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_TE_1: /* 35    Measured value, scaled value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+10) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SVA( tvb, &offset, trSignal );
@@ -1108,7 +1111,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case M_ME_TF_1: /* 36    Measured value, short floating point value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+12) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_FLT( tvb, &offset, trSignal );
@@ -1118,7 +1121,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SC_NA_1: /* 45	Single command */
 					/* check length */
 					if( Len < (guint)(offset+1) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SCO( tvb, &offset, trSignal );
@@ -1126,7 +1129,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_DC_NA_1: /* 46	Double command */
 					/* check length */
 					if( Len < (guint)(offset+1) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_DCO( tvb, &offset, trSignal );
@@ -1134,7 +1137,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_RC_NA_1: /* 47	Regulating step command */
 					/* check length */
 					if( Len < (guint)(offset+1) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_RCO( tvb, &offset, trSignal );
@@ -1142,7 +1145,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SE_NA_1: /*  48    Set point command, normalized value */
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_NVAspt( tvb, &offset, trSignal );
@@ -1151,7 +1154,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SE_NB_1: /* 49    Set point command, scaled value */
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SVAspt( tvb, &offset, trSignal );
@@ -1160,7 +1163,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SE_NC_1: /* 50    Set point command, short floating point value */
 					/* check length */
 					if( Len < (guint)(offset+5) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_FLTspt( tvb, &offset, trSignal );
@@ -1169,7 +1172,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_BO_NA_1: /* 51    Bitstring of 32 bits */
 					/* check length */
 					if( Len < (guint)(offset+4) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_BSIspt( tvb, &offset, trSignal );
@@ -1177,7 +1180,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SC_TA_1: /* 58    Single command with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+8) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SCO( tvb, &offset, trSignal );
@@ -1186,7 +1189,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_DC_TA_1: /* 59    Double command with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+8) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_DCO( tvb, &offset, trSignal );
@@ -1195,7 +1198,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_RC_TA_1: /* 60    Regulating step command with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+8) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_RCO( tvb, &offset, trSignal );
@@ -1204,7 +1207,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SE_TA_1: /* 61    Set point command, normalized value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+10) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_NVAspt( tvb, &offset, trSignal );
@@ -1214,7 +1217,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SE_TB_1: /* 62    Set point command, scaled value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+10) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_SVAspt( tvb, &offset, trSignal );
@@ -1224,7 +1227,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_SE_TC_1: /* 63    Set point command, short floating point value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+12) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_FLTspt( tvb, &offset, trSignal );
@@ -1234,7 +1237,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_BO_TA_1: /* 64    Bitstring of 32 bits with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+11) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_BSIspt( tvb, &offset, trSignal );
@@ -1243,7 +1246,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				case C_CS_NA_1: /* 103    clock synchronization command  */
 					/* check length */
 					if( Len < (guint)(offset+7) ) {
-						expert_add_info_format(pinfo, ioa_item, PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>");
+						expert_add_info(pinfo, ioa_item, &ei_iec104_short_asdu);
 						return;
 					}
 					get_CP56Time( tvb, &offset, trSignal );
@@ -1295,7 +1298,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 			len = tvb_get_guint8(tvb, Off+ 1);
 			if (len < APDU_MIN_LEN)  {
-				expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "APDU less than %d bytes", APDU_MIN_LEN);
+				expert_add_info_format_text(pinfo, ti, &ei_iec104_apdu_min_len, "APDU less than %d bytes", APDU_MIN_LEN);
 				col_append_fstr( pinfo->cinfo, COL_INFO, "<ERR ApduLen=%u bytes> ", len);
 				return;
 			}
@@ -1615,6 +1618,13 @@ proto_register_iec104asdu(void)
 		&ett_rco
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_iec104_short_asdu, { "iec104.short_asdu", PI_MALFORMED, PI_ERROR, "<ERR Short Asdu>", EXPFILL }},
+		{ &ei_iec104_apdu_min_len, { "iec104.apdu_min_len", PI_MALFORMED, PI_ERROR, "APDU less than bytes", EXPFILL }},
+	};
+
+	expert_module_t* expert_iec104;
+
 	proto_iec104asdu = proto_register_protocol(
 		"IEC 60870-5-104-Asdu",
 		"104asdu",
@@ -1622,6 +1632,8 @@ proto_register_iec104asdu(void)
 		);
 	proto_register_field_array(proto_iec104asdu, hf_as, array_length(hf_as));
 	proto_register_subtree_array(ett_as, array_length(ett_as));
+	expert_iec104 = expert_register_protocol(proto_iec104asdu);
+	expert_register_field_array(expert_iec104, ei, array_length(ei));
 
 }
 

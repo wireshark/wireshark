@@ -77,6 +77,10 @@ static gint ett_ether = -1;
 static gint ett_addr = -1;
 static gint ett_eth_fcs = -1;
 
+static expert_field ei_eth_invalid_lentype = EI_INIT;
+static expert_field ei_eth_src_not_group = EI_INIT;
+static expert_field ei_eth_fcs_bad = EI_INIT;
+
 static dissector_handle_t fw1_handle;
 static dissector_handle_t data_handle;
 static heur_dissector_list_t heur_subdissector_list;
@@ -311,7 +315,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item(fh_tree, hf_eth_invalid_lentype, tvb, 12, 2, ENC_BIG_ENDIAN);
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+    expert_add_info_format_text(pinfo, ti, &ei_eth_invalid_lentype,
         "Invalid length/type: 0x%04x (%d)", ehdr->type, ehdr->type);
     next_tvb = tvb_new_subset_remaining(tvb, 14);
     call_dissector(data_handle, next_tvb, pinfo, parent_tree);
@@ -393,8 +397,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
         if (tvb_get_guint8(tvb, 6) & 0x01) {
-            expert_add_info_format(pinfo, addr_item, PI_PROTOCOL, PI_WARN,
-                "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)");
+            expert_add_info(pinfo, addr_item, &ei_eth_src_not_group);
         }
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
@@ -634,7 +637,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
           item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
                                         trailer_length, 2, TRUE);
           PROTO_ITEM_SET_GENERATED(item);
-          expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+          expert_add_info(pinfo, item, &ei_eth_fcs_bad);
           col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
         }
       }else{
@@ -747,11 +750,21 @@ proto_register_eth(void)
         &ett_addr,
         &ett_eth_fcs
     };
+
+    static ei_register_info ei[] = {
+        { &ei_eth_invalid_lentype, { "arp.duplicate-address-detected", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
+        { &ei_eth_src_not_group, { "arp.packet-storm-detected", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
+        { &ei_eth_fcs_bad, { "arp.packet-storm-detected", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
     module_t *eth_module;
+    expert_module_t* expert_eth;
 
     proto_eth = proto_register_protocol("Ethernet", "Ethernet", "eth");
     proto_register_field_array(proto_eth, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_eth = expert_register_protocol(proto_eth);
+    expert_register_field_array(expert_eth, ei, array_length(ei));
 
     /* subdissector code */
     register_heur_dissector_list("eth", &heur_subdissector_list);

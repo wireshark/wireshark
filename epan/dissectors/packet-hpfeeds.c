@@ -58,6 +58,8 @@ static int hf_hpfeeds_errmsg = -1;
 
 static gint ett_hpfeeds = -1;
 
+static expert_field ei_hpfeeds_opcode_unknown = EI_INIT;
+
 static dissector_handle_t json_hdl;
 
 /* OPCODE */
@@ -271,7 +273,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     if (opcode >= array_length(opcode_vals) - 1) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
+        expert_add_info_format_text(pinfo, ti, &ei_hpfeeds_opcode_unknown,
                 "Unknown value %02x for opcode field", opcode);
     }
 
@@ -414,7 +416,12 @@ proto_register_hpfeeds(void)
         &ett_hpfeeds
     };
 
+    static ei_register_info ei[] = {
+        { &ei_hpfeeds_opcode_unknown, { "hpfeeds.opcode.unknown", PI_PROTOCOL, PI_WARN, "Unknown value for opcode field", EXPFILL }},
+    };
+
     module_t *hpfeeds_module;
+    expert_module_t* expert_hpfeeds;
 
     proto_hpfeeds = proto_register_protocol (
         "HPFEEDS HoneyPot Feeds Protocol", /* name */
@@ -424,6 +431,8 @@ proto_register_hpfeeds(void)
 
     proto_register_field_array(proto_hpfeeds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_hpfeeds = expert_register_protocol(proto_hpfeeds);
+    expert_register_field_array(expert_hpfeeds, ei, array_length(ei));
 
     hpfeeds_module = prefs_register_protocol(proto_hpfeeds, proto_reg_handoff_hpfeeds);
     prefs_register_bool_preference(hpfeeds_module, "desegment_hpfeeds_messages",

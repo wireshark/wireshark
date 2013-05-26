@@ -138,6 +138,8 @@ static gint ett_fctl = -1;
 static gint ett_fcbls = -1;
 static gint ett_fc_vft = -1;
 
+static expert_field ei_fccrc = EI_INIT;
+
 static dissector_table_t fcftype_dissector_table;
 static dissector_handle_t data_handle, fc_handle;
 
@@ -1301,7 +1303,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                        "[error: should be %8.8x]",
                                        crc, crc_computed);
 
-        expert_add_info_format(pinfo, it, PI_CHECKSUM, PI_ERROR,
+        expert_add_info_format_text(pinfo, it, &ei_fccrc,
                                    "Bad FC CRC %8.8x %8.x",
                                    crc, crc_computed);
     }
@@ -1501,7 +1503,12 @@ proto_register_fc(void)
         &ett_fctl
     };
 
+    static ei_register_info ei[] = {
+        { &ei_fccrc, { "fc.crc.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
     module_t *fc_module;
+    expert_module_t* expert_fc;
 
     /* FC SOF */
 
@@ -1532,6 +1539,8 @@ proto_register_fc(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fc = expert_register_protocol(proto_fc);
+    expert_register_field_array(expert_fc, ei, array_length(ei));
 
     /* subdissectors called through this table will find the fchdr structure
      * through pinfo->private_data

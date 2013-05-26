@@ -150,6 +150,8 @@ static int ett_imf_siolabel = -1;
 static int ett_imf_extension = -1;
 static int ett_imf_message_text = -1;
 
+static expert_field ei_imf_unknown_param = EI_INIT;
+
 struct imf_field {
   const char   *name;           /* field name - in lower case for matching purposes */
   int          *hf_id;          /* wireshark field */
@@ -563,7 +565,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
     } else {
       sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
-      expert_add_info_format(pinfo, sub_item, PI_PROTOCOL, PI_WARN, "Unknown parameter");
+      expert_add_info(pinfo, sub_item, &ei_imf_unknown_param);
     }
 
     if (end_offset != -1) {
@@ -1202,6 +1204,10 @@ proto_register_imf(void)
     &ett_imf_message_text,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_imf_unknown_param, { "imf.unknown_param", PI_PROTOCOL, PI_WARN, "Unknown parameter", EXPFILL }},
+  };
+
   static uat_field_t attributes_flds[] = {
     UAT_FLD_CSTRING(header_fields, header_name, "Header name", "IMF header name"),
     UAT_FLD_CSTRING(header_fields, description, "Description", "Description of the value contained in the header"),
@@ -1227,12 +1233,15 @@ proto_register_imf(void)
                                attributes_flds);
 
   module_t *imf_module;
+  expert_module_t* expert_imf;
   struct imf_field *f;
 
   proto_imf = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   proto_register_field_array(proto_imf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_imf = expert_register_protocol(proto_imf);
+  expert_register_field_array(expert_imf, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
   register_dissector(PFNAME, dissect_imf, proto_imf);

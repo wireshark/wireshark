@@ -101,6 +101,8 @@ static int hf_fcoe_crc_good    = -1;
 static int ett_fcoe            = -1;
 static int ett_fcoe_crc        = -1;
 
+static expert_field ei_fcoe_crc = EI_INIT;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t fc_handle;
 
@@ -221,7 +223,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               "CRC: %8.8x "
                                               "[error: should be %8.8x]",
                                               crc, crc_computed);
-            expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
+            expert_add_info_format_text(pinfo, item, &ei_fcoe_crc,
                                    "Bad FC CRC %8.8x %8.x",
                                    crc, crc_computed);
         }
@@ -303,6 +305,12 @@ proto_register_fcoe(void)
         &ett_fcoe_crc
     };
 
+    static ei_register_info ei[] = {
+        { &ei_fcoe_crc, { "fcoe.crc.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_fcoe;
+
     /* Register the protocol name and description */
     proto_fcoe = proto_register_protocol("Fibre Channel over Ethernet",
         "FCoE", "fcoe");
@@ -311,6 +319,8 @@ proto_register_fcoe(void)
      * subtrees used */
     proto_register_field_array(proto_fcoe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fcoe = expert_register_protocol(proto_fcoe);
+    expert_register_field_array(expert_fcoe, ei, array_length(ei));
 
     fcoe_module = prefs_register_protocol(proto_fcoe, NULL);
 

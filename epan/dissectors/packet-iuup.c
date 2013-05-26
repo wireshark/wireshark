@@ -147,6 +147,9 @@ static gint ett_rfciinds = -1;
 static gint ett_payload = -1;
 static gint ett_payload_subflows = -1;
 
+static expert_field ei_iuup_hdr_crc_bad = EI_INIT;
+static expert_field ei_iuup_payload_crc_bad = EI_INIT;
+
 static GHashTable* circuits = NULL;
 
 static dissector_handle_t data_handle = NULL;
@@ -563,7 +566,7 @@ static void add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree
     crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,ENC_BIG_ENDIAN);
     if (crccheck) {
         proto_item_append_text(crc_item, "%s", " [incorrect]");
-        expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+        expert_add_info(pinfo, crc_item, &ei_iuup_hdr_crc_bad);
     }
 }
 
@@ -577,7 +580,7 @@ static void add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_
     crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,ENC_BIG_ENDIAN);
     if (crccheck) {
         proto_item_append_text(crc_item, "%s", " [incorrect]");
-        expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+        expert_add_info(pinfo, crc_item, &ei_iuup_payload_crc_bad);
     }
 }
 
@@ -970,12 +973,19 @@ void proto_register_iuup(void) {
         &ett_payload_subflows
     };
 
-    module_t* iuup_module;
+    static ei_register_info ei[] = {
+        { &ei_iuup_hdr_crc_bad, { "iuup.hdr.crc.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_iuup_payload_crc_bad, { "iuup.payload.crc.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
 
+    module_t *iuup_module;
+    expert_module_t* expert_iuup;
 
     proto_iuup = proto_register_protocol("IuUP", "IuUP", "iuup");
     proto_register_field_array(proto_iuup, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_iuup = expert_register_protocol(proto_iuup);
+    expert_register_field_array(expert_iuup, ei, array_length(ei));
     register_dissector("iuup", dissect_iuup, proto_iuup);
     register_dissector("find_iuup", find_iuup, proto_iuup);
 

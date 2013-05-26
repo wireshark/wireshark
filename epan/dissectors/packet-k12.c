@@ -62,6 +62,8 @@ static gint ett_k12 = -1;
 static gint ett_port = -1;
 static gint ett_stack_item = -1;
 
+static expert_field ei_k12_unmatched_stk_file = EI_INIT;
+
 static dissector_handle_t k12_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t sscop_handle;
@@ -262,7 +264,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 		item = proto_tree_add_text(stack_tree,tvb,0,0,
 					   "Warning: stk file not matched in the 'K12 Protocols' table");
 		PROTO_ITEM_SET_GENERATED(item);
-		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "unmatched stk file");
+		expert_add_info(pinfo, item, &ei_k12_unmatched_stk_file);
 
 		item = proto_tree_add_text(stack_tree,tvb,0,0,
 					   "Info: You can edit the 'K12 Protocols' table from Preferences->Protocols->k12xx");
@@ -432,6 +434,10 @@ proto_register_k12(void)
 	  &ett_stack_item
   };
 
+  static ei_register_info ei[] = {
+     { &ei_k12_unmatched_stk_file, { "k12.unmatched_stk_file", PI_UNDECODED, PI_WARN, "unmatched stk file", EXPFILL }},
+  };
+
   static uat_field_t uat_k12_flds[] = {
       UAT_FLD_CSTRING_ISPRINT(k12,match,"Match string",
 			      "A string that will be matched (a=A) against an .stk filename or the name of a port.\n"
@@ -443,10 +449,13 @@ proto_register_k12(void)
   };
 
   module_t *k12_module;
+  expert_module_t* expert_k12;
 
   proto_k12 = proto_register_protocol("K12xx", "K12xx", "k12");
   proto_register_field_array(proto_k12, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_k12 = expert_register_protocol(proto_k12);
+  expert_register_field_array(expert_k12, ei, array_length(ei));
   register_dissector("k12", dissect_k12, proto_k12);
 
   k12_uat = uat_new("K12 Protocols",

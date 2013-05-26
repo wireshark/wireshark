@@ -86,6 +86,8 @@ static int hf_iso7816_sel_file_ctrl = -1;
 static int hf_iso7816_sel_file_fci_req = -1;
 static int hf_iso7816_sel_file_occ = -1;
 
+static expert_field ie_iso7816_atr_tck_not1 = EI_INIT;
+
 #define ADDR_INTF "Interface"
 #define ADDR_CARD "Card"
 
@@ -326,8 +328,7 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     else if (tck_len>1) {
         err_it = proto_tree_add_text(proto_tr, tvb, offset, tck_len,
                 "Invalid TCK byte");
-        expert_add_info_format(pinfo, err_it, PI_PROTOCOL, PI_WARN,
-                "TCK byte must either be absent or exactly one byte");
+        expert_add_info(pinfo, err_it, &ie_iso7816_atr_tck_not1);
     }
 
     proto_item_set_len(proto_it, offset);
@@ -830,10 +831,18 @@ proto_register_iso7816(void)
         &ett_iso7816_atr_td
     };
 
+    static ei_register_info ei[] = {
+        { &ie_iso7816_atr_tck_not1, { "iso7816.atr_tck.not1", PI_PROTOCOL, PI_WARN, "TCK byte must either be absent or exactly one byte", EXPFILL }},
+    };
+
+    expert_module_t* expert_arp;
+
     proto_iso7816 = proto_register_protocol(
             "ISO/IEC 7816", "ISO 7816", "iso7816");
     proto_register_field_array(proto_iso7816, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_arp = expert_register_protocol(proto_iso7816);
+    expert_register_field_array(expert_arp, ei, array_length(ei));
 
     new_register_dissector("iso7816", dissect_iso7816, proto_iso7816);
     register_init_routine(iso7816_init);

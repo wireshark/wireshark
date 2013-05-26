@@ -69,6 +69,8 @@ static gint ett_gearman = -1;
 static gint ett_gearman_command = -1;
 static gint ett_gearman_content = -1;
 
+static expert_field ei_gearman_pkt_type_unknown = EI_INIT;
+
 static gboolean gearman_desegment  = TRUE;
 
 static const int GEARMAN_COMMAND_HEADER_SIZE = 12;
@@ -408,7 +410,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   default:
     if (size > 0)
-      expert_add_info_format(pinfo, content_item, PI_PROTOCOL, PI_WARN, "Unknown command");
+      expert_add_info(pinfo, content_item, &ei_gearman_pkt_type_unknown);
   }
 
   col_set_fence(pinfo->cinfo, COL_INFO);
@@ -518,12 +520,19 @@ proto_register_gearman(void)
     &ett_gearman_content
   };
 
+  static ei_register_info ei[] = {
+     { &ei_gearman_pkt_type_unknown, { "gearman.pkt_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
+  };
+
   module_t *gearman_module;
+  expert_module_t* expert_gearman;
 
   proto_gearman = proto_register_protocol("Gearman Protocol", "Gearman", "gearman");
 
   proto_register_field_array(proto_gearman, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_gearman = expert_register_protocol(proto_gearman);
+  expert_register_field_array(expert_gearman, ei, array_length(ei));
 
   gearman_module = prefs_register_protocol(proto_gearman, NULL);
   prefs_register_bool_preference(gearman_module, "desegment",

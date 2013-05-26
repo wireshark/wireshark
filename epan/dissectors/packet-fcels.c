@@ -219,6 +219,9 @@ static gint ett_fcels_fcpflags          = -1;
 static gint ett_fcels_prliloflags       = -1;
 static gint ett_fcels_speedflags        = -1;
 
+static expert_field ei_fcels_src_unknown = EI_INIT;
+static expert_field ei_fcels_dst_unknown = EI_INIT;
+
 static const int *hf_fcels_estat_fields[] = {
     &hf_fcels_estat_resp,
     &hf_fcels_estat_seq_init,
@@ -1972,7 +1975,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /* Check that the source address is, in fact, an FC address */
             if (pinfo->src.type != AT_FC) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                expert_add_info_format_text(pinfo, ti, &ei_fcels_src_unknown,
                                        "Unknown source address type: %u",
                                        pinfo->src.type);
                 return;
@@ -2036,7 +2039,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /* Check that the source address is, in fact, an FC address */
             if (pinfo->dst.type != AT_FC) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                expert_add_info_format_text(pinfo, ti, &ei_fcels_dst_unknown,
                                        "Unknown destination address type: %u",
                                        pinfo->dst.type);
                 return;
@@ -2662,10 +2665,20 @@ proto_register_fcels (void)
         &ett_fcels_speedflags,
     };
 
+
+    static ei_register_info ei[] = {
+        { &ei_fcels_src_unknown, { "fcels.src.type.unknown", PI_MALFORMED, PI_WARN, "Unknown source address type", EXPFILL }},
+        { &ei_fcels_dst_unknown, { "fcels.dst.type.unknown", PI_MALFORMED, PI_WARN, "Unknown destination address type", EXPFILL }},
+    };
+
+    expert_module_t* expert_fcels;
+
     proto_fcels = proto_register_protocol("FC Extended Link Svc", "FC ELS", "fcels");
 
     proto_register_field_array(proto_fcels, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fcels = expert_register_protocol(proto_fcels);
+    expert_register_field_array(expert_fcels, ei, array_length(ei));
     register_init_routine (&fcels_init_protocol);
 }
 

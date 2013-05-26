@@ -124,6 +124,8 @@ static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;   /* CLV 242 */
 static gint ett_isis_lsp_clv_grp_address_IPv4_prefx = -1;  /* CLV 142 */
 static gint ett_isis_lsp_clv_mt_cap_spbv_mac_address = -1;
 
+static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
+
 static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_UNUSED0,	"Unused 0x0 (invalid)"},
 	{ ISIS_LSP_TYPE_LEVEL_1,	"Level 1"},
@@ -2642,7 +2644,7 @@ static void isis_lsp_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo
 	                              offset, 2, !is_cksum_correct);
 	PROTO_ITEM_SET_GENERATED(item);
 	if (!is_cksum_correct) {
-		expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+		expert_add_info(pinfo, item, &ie_isis_lsp_checksum_bad);
 		col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
 	}
 }
@@ -2955,6 +2957,14 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_mt_cap_spbv_mac_address
 	};
 
+	static ei_register_info ei[] = {
+		{ &ie_isis_lsp_checksum_bad, { "isis.lsp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_isis;
+
 	proto_register_field_array(proto_isis, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_isis = expert_register_protocol(proto_isis);
+	expert_register_field_array(expert_isis, ei, array_length(ei));
 }

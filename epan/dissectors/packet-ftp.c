@@ -80,6 +80,9 @@ static int hf_ftp_epsv_port = -1;
 static gint ett_ftp = -1;
 static gint ett_ftp_reqresp = -1;
 
+static expert_field ei_ftp_eprt_args_invalid = EI_INIT;
+static expert_field ei_ftp_epsv_args_invalid = EI_INIT;
+
 static dissector_handle_t ftpdata_handle;
 
 #define TCP_PORT_FTPDATA        20
@@ -826,8 +829,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item *item;
             item = proto_tree_add_text(reqresp_tree, 
                     tvb, offset - linelen - 1, linelen, "Invalid EPRT arguments");
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-                    "EPRT arguments must have the form: |<family>|<addr>|<port>|");
+            expert_add_info(pinfo, item, &ei_ftp_eprt_args_invalid);
         }
     }
 
@@ -877,8 +879,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item *item;
                 item = proto_tree_add_text(reqresp_tree,
                         tvb, offset - linelen - 1, linelen, "Invalid EPSV arguments");
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-                        "EPSV arguments must have the form (|||<port>|)");
+                expert_add_info(pinfo, item, &ei_ftp_epsv_args_invalid);
             }
         }
     }
@@ -1045,13 +1046,22 @@ proto_register_ftp(void)
         &ett_ftp_reqresp
     };
 
-    proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP",
-                                        "ftp");
+    static ei_register_info ei[] = {
+        { &ei_ftp_eprt_args_invalid, { "ftp.eprt.args_invalid", PI_MALFORMED, PI_WARN, "EPRT arguments must have the form: |<family>|<addr>|<port>|", EXPFILL }},
+        { &ei_ftp_epsv_args_invalid, { "ftp.epsv.args_invalid", PI_MALFORMED, PI_WARN, "EPSV arguments must have the form (|||<port>|)", EXPFILL }},
+    };
+
+    expert_module_t* expert_ftp;
+
+    proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP", "ftp");
+
     register_dissector("ftp", dissect_ftp, proto_ftp);
     proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
     register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
     proto_register_field_array(proto_ftp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ftp = expert_register_protocol(proto_ftp);
+    expert_register_field_array(expert_ftp, ei, array_length(ei));
 }
 
 void

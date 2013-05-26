@@ -127,6 +127,9 @@ static gint ett_http_chunk_data = -1;
 static gint ett_http_encoded_entity = -1;
 static gint ett_http_header_item = -1;
 
+static expert_field ei_http_chat = EI_INIT;
+static expert_field ei_http_subdissector_failed = EI_INIT;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
@@ -975,7 +978,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				hdr_item = proto_tree_add_text(http_tree, tvb,
 				    offset, next_offset - offset, "%s", text);
 			}
-			expert_add_info_format(pinfo, hdr_item, PI_SEQUENCE, PI_CHAT, "%s", text);
+			expert_add_info_format_text(pinfo, hdr_item, &ei_http_chat, "%s", text);
 			if (reqresp_dissector) {
 				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
 				else req_tree = NULL;
@@ -1412,8 +1415,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			dissected = call_dissector_only(handle, next_tvb, pinfo, tree, NULL);
 			if (!dissected)
-				expert_add_info_format(pinfo, http_tree, PI_MALFORMED, PI_NOTE,
-						       "HTTP body subdissector failed, trying heuristic subdissector");
+				expert_add_info(pinfo, http_tree, &ei_http_subdissector_failed);
 		}
 
 		if (!dissected) {
@@ -2920,6 +2922,12 @@ proto_register_http(void)
 		&ett_http_encoded_entity,
 		&ett_http_header_item
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_http_chat, { "http.chat", PI_SEQUENCE, PI_CHAT, "Formatted text", EXPFILL }},
+		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
+	};
+
 	/* UAT for header fields */
 	static uat_field_t custom_header_uat_fields[] = {
 		UAT_FLD_CSTRING(header_fields, header_name, "Header name", "HTTP header name"),
@@ -2928,12 +2936,15 @@ proto_register_http(void)
 	};
 
 	module_t *http_module;
+	expert_module_t* expert_http;
 	uat_t* headers_uat;
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_http = expert_register_protocol(proto_http);
+	expert_register_field_array(expert_http, ei, array_length(ei));
 	register_dissector("http", dissect_http, proto_http);
 	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",

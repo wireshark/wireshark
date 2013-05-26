@@ -96,6 +96,8 @@ static gint ett_gre_wccp2_redirect_header = -1;
 static gint ett_3gpp2_attribs = -1;
 static gint ett_3gpp2_attr = -1;
 
+static expert_field ei_gre_checksum_incorrect = EI_INIT;
+
 static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
 
@@ -418,7 +420,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item_append_text(it_checksum," [correct]");
                 } else {
                     proto_item_append_text(it_checksum," [incorrect, should be 0x%04x]",in_cksum_shouldbe(cksum, computed_cksum));
-                    expert_add_info_format(pinfo, it_checksum, PI_MALFORMED, PI_WARN, "Incorrect GRE Checksum");
+                    expert_add_info(pinfo, it_checksum, &ei_gre_checksum_incorrect);
                 }
             }
 
@@ -721,10 +723,19 @@ proto_register_gre(void)
         &ett_3gpp2_attr,
     };
 
+
+    static ei_register_info ei[] = {
+        { &ei_gre_checksum_incorrect, { "gre.checksum.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect GRE Checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_gre;
+
     proto_gre = proto_register_protocol("Generic Routing Encapsulation",
                                         "GRE", "gre");
     proto_register_field_array(proto_gre, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_gre = expert_register_protocol(proto_gre);
+    expert_register_field_array(expert_gre, ei, array_length(ei));
 
     /* subdissector code */
     gre_dissector_table = register_dissector_table("gre.proto",
