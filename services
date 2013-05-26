@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-05-10
+# 2013-05-24
 # 
 # Expert(s)
 # 
@@ -185,10 +185,7 @@ re-mail-ck	50/tcp	# Remote Mail Checking         [Steve_Dorner]                 
 # Protocol
 re-mail-ck	50/udp	# Remote Mail Checking         [Steve_Dorner]                                     [Steve_Dorner]
 # Protocol
-la-maint	51/tcp	# IMP Logical Address          [Andy_Malis]                                       [Andy_Malis]
-# Maintenance
-la-maint	51/udp	# IMP Logical Address          [Andy_Malis]                                       [Andy_Malis]
-# Maintenance
+# 51                Reserved                                                                                                                                               2013-05-24                                                                This entry is being removed on 2013-05-24.
 xns-time	52/tcp	# XNS Time Protocol            [Susie_Armstrong]                                  [Susie_Armstrong]
 xns-time	52/udp	# XNS Time Protocol            [Susie_Armstrong]                                  [Susie_Armstrong]
 domain	53/tcp	# Domain Name Server           [Paul_Mockapetris]                                 [Paul_Mockapetris]
@@ -2133,12 +2130,9 @@ cap	1026/udp	# Calendar Access Protocol     [Doug_Royer]                        
 # 1028               Deprecated                                                                                                                                             2004-02
 solid-mux	1029/tcp	# Solid Mux Server             [Anders_Borg]                                      [Anders_Borg]                                             2004-11
 solid-mux	1029/udp	# Solid Mux Server             [Anders_Borg]                                      [Anders_Borg]                                             2004-11
-iad1	1030/tcp	# BBN IAD
-iad1	1030/udp	# BBN IAD
-iad2	1031/tcp	# BBN IAD
-iad2	1031/udp	# BBN IAD
-iad3	1032/tcp	# BBN IAD                      [Andy_Malis]                                       [Andy_Malis]
-iad3	1032/udp	# BBN IAD                      [Andy_Malis]                                       [Andy_Malis]
+# 1030               Reserved                                                                                                                                               2013-05-24                                                                This entry is being removed on 2013-05-24.
+# 1031               Reserved                                                                                                                                               2013-05-24                                                                This entry is being removed on 2013-05-24.
+# 1032               Reserved                                                                                                                                               2013-05-24                                                                This entry is being removed on 2013-05-24.
 netinfo-local	1033/tcp	# local netinfo port           [Marc_Majka]                                       [Marc_Majka]                                              2002-08
 netinfo-local	1033/udp	# local netinfo port           [Marc_Majka]                                       [Marc_Majka]                                              2002-08
 activesync	1034/tcp	# ActiveSync Notifications     [Sandra_Vargas]                                    [Sandra_Vargas]                                           2003-03
@@ -13593,7 +13587,7 @@ openremote-ctrl	8688/tcp	# OpenRemote Controller        [OpenRemote_Inc]        
 # 8688        udp    Reserved
 # 8689-8698            Unassigned
 vnyx	8699/tcp	# VNYX Primary Port            [Gregg_Green]                                      [Gregg_Green]                                             2004-11
-vnyx	8699/udp	# VNYX Primary Port            [Gregg_Green]                                      [Gregg_Green]                                             2004-11
+# 8699        udp    Reserved                                                                                                                                  2004-11      2013-05-24                                                                This entry is being removed on 2013-05-24.
 # 8700-8710            Unassigned
 nvc	8711/tcp	# Nuance Voice Control         [Nuance_Communications_Inc2]                       [Diego_Negre]                                             2012-10-05
 # 8711        udp    Reserved
@@ -16169,6 +16163,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Interface
 # bridgeprotocol                 tcp    JSON RPC Bridge Protocol     [Michel_Stam_2]                                    [Michel_Stam_2]                                           2012-11-20                                                                             Defined TXT keys: path, version
 # bsqdea                                Backup Simplicity            [Qdea]                                             [Qdea]                                                                                                                                           Defined TXT keys: None
+# buddycloud-api                 tcp    buddycloud API               [buddycloud]                                       [Simon_Tennant]                                           2013-05-20                                                                             Defined TXT keys: v, host, protocol, path, port
 # caldav                         tcp    Calendaring Extensions to    [IESG]                                             [IETF_Chair]                                              2012-02-17                [RFC6764]                                                    This is an extension of the http service. Defined TXT keys:
 # WebDAV (CalDAV) - non-TLS                                                                                                                                                                                                        path=<context path>
 # caldavs                        tcp    Calendaring Extensions to    [IESG]                                             [IETF_Chair]                                              2012-02-17                [RFC6764]                                                    This is an extension of the https service. Defined TXT keys:
@@ -16451,6 +16446,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # htvncconf                      udp    HomeTouch Vnc Configuration  [Yuval_Rakavy]                                     [Yuval_Rakavy]                                            2012-07-10                                                                             Defined TXT keys: None
 # hyperstream                           Atempo HyperStream           [Laurent_Charmet]                                  [Laurent_Charmet]                                                                                                                                Defined TXT keys: version=x.y.z.w uuid=<36 bytes UUID string>
 # deduplication server                                                                                                                                                                                                             host=<real host name>
+# iad1                                  BBN IAD                                                                                                                                                2013-05-24                                                                This service name is no longer in use.
+# iad2                                  BBN IAD                                                                                                                                                2013-05-24                                                                This service name is no longer in use.
+# iad3                                  BBN IAD                                                                                                                                                2013-05-24                                                                This service name is no longer in use.
 # ibiz                                  iBiz Server                  [IGG_Software]                                     [IGG_Software]                                                                                                                                   Defined TXT keys: None
 # ica-networking                        Image Capture Networking     [Baskaran_Subramaniam]                             [Baskaran_Subramaniam]                                                                                                                           Defined TXT keys: None
 # ican                                  Northrup Grumman/TASC/ICAN   [Laurent_Mihalkovic]                               [Laurent_Mihalkovic]                                                                                                                             Defined TXT keys: None
@@ -16525,6 +16523,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # keynotepairing                 tcp    pair Keynote Remote with     [Apple]                                            [Brad_Vaughan]                                            2011-10-12                                                                             Defined TXT keys: None
 # Keynote
 # ktp                                   Kabira Transaction Platform  [Ramiro_Sarmiento]                                 [Ramiro_Sarmiento]                                                                                                                               Defined TXT keys: None
+# la-maint                              IMP Logical Address                                                                                                                                    2013-05-24                                                                This service name is no longer in use.
+# Maintenance
 # labyrinth                      udp    Labyrinth local multiplayer  [Andreas_Alptun]                                   [Andreas_Alptun]                                                                                                                                 Defined TXT keys: None
 # protocol
 # lan2p                                 Lan2P Peer-to-Peer Network   [Ben_Guild]                                        [Ben_Guild]                                                                                                                                      Defined TXT keys: None
@@ -17480,7 +17480,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andy_Grover]                                             Andy Grover                                     mailto:andy.grover&oracle.com                                 2009-05-20
 # [Andy_Heron]                                              Andy Heron                                      mailto:btexact.ports&bt.com
 # [Andy_Krouwel]                                            Andy Krouwel                                    mailto:andy&kar2ouche.com
-# [Andy_Malis]                                              Andy Malis                                      mailto:malis_a&timeplex.com
 # [Andy_McKeen]                                             Andy McKeen                                     mailto:mckeen&osf.org
 # [Andy_O_Meara]                                            Andy O'Meara                                    mailto:andy&soundspectrum.com
 # [Andy_Perreault]                                          Andy Perreault                                  mailto:aperreault&erlphase.com                                2010-03-31
@@ -17826,6 +17825,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # America (PEWLA)
 # [Bryce_Beeston]                                           Bryce Beeston                                   mailto:bryce.beeston&emerson.com                              2011-06-23
 # [Bryce_Bhatnagar]                                         Bryce Bhatnagar                                 mailto:BRYCEBH&attachmate.com
+# [buddycloud]                                                                        buddycloud            mailto:simon&buddycloud.com                                   2013-05-20
 # [Buck_Caldwell]                                           Buck Caldwell                                   mailto:buck_c&polygon.com
 # [Bulent_Kasman]                                           Bulent Kasman                                   mailto:BKasman&symantec.com
 # [Byron_Jones]                                             Byron Jones                                     mailto:byronj&bellsouth.net
@@ -21358,6 +21358,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Simon_Phipps]                                            Simon Phipps                                    mailto:sphipps&vnet.ibm.com
 # [Simon_Robillard]                                         Simon Robillard                                 mailto:RobillardS&actresearch.com
 # [Simon_Skaria]                                            Simon Skaria                                    mailto:simonsk&microsoft.com                                  2006-01
+# [Simon_Tennant]                                           Simon Tennant             buddycloud            mailto:simon&buddycloud.com                                   2013-05-20
 # [Simon_Wunderlich]                                        Simon Wunderlich                                mailto:siwu&hrz.tu-chemnitz.de                                2007-08-30
 # [Simone_Molendini]                                        Simone Molendini                                mailto:simone.molendini&unile.it                              2003-11
 # [Simson_L_Garfinkel]                                      Simson L. Garfinkel                             mailto:simsong&next.cambridge.ma.us
