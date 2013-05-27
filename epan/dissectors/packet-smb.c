@@ -800,6 +800,8 @@ static gint ett_smb_posix_ace = -1;
 static gint ett_smb_posix_ace_perms = -1;
 static gint ett_smb_info2_file_flags = -1;
 
+static expert_field ei_smb_mal_information_level = EI_INIT;
+
 static int smb_tap = -1;
 static int smb_eo_tap = -1;
 
@@ -13411,8 +13413,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	if (trunc) {
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-				       "Information level structure goes past the end of the transation data.");
+		expert_add_info(pinfo, item, &ei_smb_mal_information_level);
 	}
 	return offset;
 }
@@ -13548,8 +13549,7 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	if (trunc) {
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-				       "Information level structure goes past the end of the transation data.");
+		expert_add_info(pinfo, item, &ei_smb_mal_information_level);
 	}
 	return offset;
 }
@@ -21055,12 +21055,20 @@ proto_register_smb(void)
 		&ett_smb_posix_ace_perms,
 		&ett_smb_info2_file_flags
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_smb_mal_information_level, { "smb.information_level.malformed", PI_MALFORMED, PI_ERROR, "Information level structure goes past the end of the transation data.", EXPFILL }},
+	};
+
 	module_t *smb_module;
+	expert_module_t* expert_smb;
 
 	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
 	    "SMB", "smb");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
+	expert_smb = expert_register_protocol(proto_smb);
+	expert_register_field_array(expert_smb, ei, array_length(ei));
 
 	proto_do_register_windows_common(proto_smb);
 

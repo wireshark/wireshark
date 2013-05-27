@@ -60,6 +60,8 @@ static int hf_sbc_data                                                     = -1;
 static gint ett_sbc             = -1;
 static gint ett_sbc_list        = -1;
 
+static expert_field ei_sbc_syncword = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 extern value_string_ext media_codec_audio_type_vals_ext;
@@ -192,8 +194,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         pitem = proto_tree_add_item(rtree, hf_sbc_syncword, tvb, offset, 1, ENC_BIG_ENDIAN);
         syncword = tvb_get_guint8(tvb, offset);
         if (syncword != 0x9C) {
-            expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                    "Unexpected syncword");
+            expert_add_info(pinfo, pitem, &ei_sbc_syncword);
         }
         offset += 1;
 
@@ -232,6 +233,7 @@ void
 proto_register_sbc(void)
 {
     module_t *module;
+    expert_module_t* expert_sbc;
 
     static hf_register_info hf[] = {
         { &hf_sbc_fragmented,
@@ -312,10 +314,16 @@ proto_register_sbc(void)
         &ett_sbc_list,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_sbc_syncword, { "sbc.syncword.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected syncword", EXPFILL }},
+    };
+
     proto_sbc = proto_register_protocol("Bluetooth SBC Codec", "SBC", "sbc");
 
     proto_register_field_array(proto_sbc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_sbc = expert_register_protocol(proto_sbc);
+    expert_register_field_array(expert_sbc, ei, array_length(ei));
 
     new_register_dissector("sbc", dissect_sbc, proto_sbc);
 

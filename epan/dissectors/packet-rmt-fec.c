@@ -67,6 +67,8 @@ static int hf_fti_alignment = -1;
 
 static int ett_main = -1;
 
+static expert_field ei_fec_encoding_id = EI_INIT;
+
 typedef struct fec_packet_data
 {
 	guint8 instance_id;
@@ -131,7 +133,7 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		proto_tree_add_uint64(tree, hf_fti_transfer_length, tvb, offset+2, 6, transfer_length);
 		ti = proto_tree_add_item(tree, hf_instance_id, tvb,  offset+8, 2, ENC_BIG_ENDIAN);
 		if ((encoding_id < 128) && (instance_id != 0)) {
-			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "FEC Encoding ID < 128, should be zero");
+			expert_add_info(pinfo, ti, &ei_fec_encoding_id);
 		}
 	}
 
@@ -307,6 +309,12 @@ void proto_register_rmt_fec(void)
 		&ett_main,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_fec_encoding_id, { "rmt-fec.encoding_id.not0", PI_PROTOCOL, PI_WARN, "FEC Encoding ID < 128, should be zero", EXPFILL }},
+	};
+
+	expert_module_t* expert_rmt_fec;
+
 	/* Register the protocol name and description */
 	proto_rmt_fec = proto_register_protocol("Forward Error Correction (FEC)", "RMT-FEC", "rmt-fec");
 	new_register_dissector("rmt-fec", dissect_fec, proto_rmt_fec);
@@ -314,6 +322,8 @@ void proto_register_rmt_fec(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_rmt_fec, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_rmt_fec = expert_register_protocol(proto_rmt_fec);
+	expert_register_field_array(expert_rmt_fec, ei, array_length(ei));
 }
 
 /*

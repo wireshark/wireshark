@@ -302,6 +302,10 @@ static gint ett_pct_exch_suites       = -1;
 static gint ett_ssl_segments          = -1;
 static gint ett_ssl_segment           = -1;
 
+static expert_field ei_ssl_handshake_cipher_suites_mult2 = EI_INIT;
+static expert_field ei_ssl_handshake_sig_hash_algs_mult2 = EI_INIT;
+static expert_field ei_ssl2_handshake_session_id_len_error = EI_INIT;
+
 
 /* not all of the hf_fields below make sense for SSL but we have to provide
    them anyways to comply with the api (which was aimed for ip fragment
@@ -2727,7 +2731,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
             if (cipher_suite_length % 2) {
                 proto_tree_add_text(tree, tvb, offset, 2,
                     "Invalid cipher suite length: %d", cipher_suite_length);
-                expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, NULL, &ei_ssl_handshake_cipher_suites_mult2,
                     "Cipher suite length (%d) must be a multiple of 2",
                     cipher_suite_length);
                 return;
@@ -3083,7 +3087,7 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                 if (sh_alg_length % 2) {
                     proto_tree_add_text(tree, tvb, offset, 2,
                         "Invalid Signature Hash Algorithm length: %d", sh_alg_length);
-                    expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, NULL, &ei_ssl_handshake_sig_hash_algs_mult2,
                         "Signature Hash Algorithm length (%d) must be a multiple of 2",
                         sh_alg_length);
                     return;
@@ -4017,7 +4021,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         if (session_id_length > SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES) {
             proto_tree_add_text(tree, tvb, offset, 2,
                                 "Invalid session ID length: %d", session_id_length);
-            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, NULL, &ei_ssl2_handshake_session_id_len_error,
                                    "Session ID length (%u) must be less than %u.",
                                    session_id_length, SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES);
             return;
@@ -5868,6 +5872,14 @@ proto_register_ssl(void)
         &ett_ssl_segment
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ssl_handshake_cipher_suites_mult2, { "ssl.handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, "Cipher suite length must be a multiple of 2", EXPFILL }},
+        { &ei_ssl_handshake_sig_hash_algs_mult2, { "ssl.handshake.sig_hash_alg_len.mult2", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
+        { &ei_ssl2_handshake_session_id_len_error, { "ssl.handshake.session_id_length.error", PI_MALFORMED, PI_ERROR, "Session ID length error", EXPFILL }},
+    };
+
+    expert_module_t* expert_ssl;
+
     /* Register the protocol name and description */
     proto_ssl = proto_register_protocol("Secure Sockets Layer",
                                         "SSL", "ssl");
@@ -5876,6 +5888,8 @@ proto_register_ssl(void)
      * subtrees used */
     proto_register_field_array(proto_ssl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ssl = expert_register_protocol(proto_ssl);
+    expert_register_field_array(expert_ssl, ei, array_length(ei));
 
     {
         module_t *ssl_module = prefs_register_protocol(proto_ssl, proto_reg_handoff_ssl);

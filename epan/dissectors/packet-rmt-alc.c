@@ -58,6 +58,8 @@ static int hf_payload = -1;
 
 static int ett_main = -1;
 
+static expert_field ei_version1_only = EI_INIT;
+
 static dissector_handle_t xml_handle;
 static dissector_handle_t rmt_lct_handle;
 static dissector_handle_t rmt_fec_handle;
@@ -106,7 +108,7 @@ dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	 * If version > 1 print only version field and quit.
 	 */
 	if (version != 1) {
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Sorry, this dissector supports ALC version 1 only");
+		expert_add_info(pinfo, ti, &ei_version1_only);
 
 		/* Complete entry in Info column on summary display */
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Version: %u (not supported)", version);
@@ -202,7 +204,12 @@ void proto_register_alc(void)
 		&ett_main,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_version1_only, { "alc.version1_only", PI_PROTOCOL, PI_WARN, "Sorry, this dissector supports ALC version 1 only", EXPFILL }},
+	};
+
 	module_t *module;
+	expert_module_t* expert_rmt_alc;
 
 	/* Register the protocol name and description */
 	proto_rmt_alc = proto_register_protocol("Asynchronous Layered Coding", "ALC", "alc");
@@ -211,6 +218,8 @@ void proto_register_alc(void)
 	/* Register the header fields and subtrees used */
 	proto_register_field_array(proto_rmt_alc, hf_ptr, array_length(hf_ptr));
 	proto_register_subtree_array(ett_ptr, array_length(ett_ptr));
+	expert_rmt_alc = expert_register_protocol(proto_rmt_alc);
+	expert_register_field_array(expert_rmt_alc, ei, array_length(ei));
 
 	/* Register preferences */
 	module = prefs_register_protocol(proto_rmt_alc, proto_reg_handoff_alc);

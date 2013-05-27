@@ -74,6 +74,7 @@ static gint ett_reload_framing = -1;
 static gint ett_reload_framing_message = -1;
 static gint ett_reload_framing_received = -1;
 
+static expert_field ei_reload_no_dissector = EI_INIT;
 
 #define UDP_PORT_RELOAD                 6084
 #define TCP_PORT_RELOAD                 6084
@@ -329,7 +330,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(message_tree, hf_reload_framing_message_data, tvb, offset, message_length, ENC_NA);
     next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
     if (reload_handle == NULL) {
-      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Can not find reload dissector");
+      expert_add_info(pinfo, ti, &ei_reload_no_dissector);
       return tvb_length(tvb);
     }
     call_dissector_only(reload_handle, next_tvb, pinfo, tree, NULL);
@@ -538,12 +539,20 @@ proto_register_reload_framing(void)
     &ett_reload_framing_received,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_reload_no_dissector, { "reload_framing.no_dissector", PI_PROTOCOL, PI_WARN, "Can not find reload dissector", EXPFILL }},
+  };
+
+  expert_module_t* expert_reload_framing;
+
   /* Register the protocol name and description */
   proto_reload_framing = proto_register_protocol("REsource LOcation And Discovery Framing", "RELOAD FRAMING", "reload-framing");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_reload_framing, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_reload_framing = expert_register_protocol(proto_reload_framing);
+  expert_register_field_array(expert_reload_framing, ei, array_length(ei));
 
   register_dissector("reload-framing", dissect_reload_framing_message_no_return, proto_reload_framing);
 

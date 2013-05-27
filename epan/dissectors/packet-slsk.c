@@ -110,6 +110,8 @@ static int hf_slsk_ranking = -1;
 static gint ett_slsk = -1;
 static gint ett_slsk_compr_packet = -1;
 
+static expert_field ei_slsk_unknown_data = EI_INIT;
+
 #define TCP_PORT_SLSK_1       2234
 #define TCP_PORT_SLSK_2       5534
 #define TCP_PORT_SLSK_3       2240
@@ -2379,7 +2381,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   }
   if(offset < (int)msg_len){
-   expert_add_info_format(pinfo, ti_len, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
+   expert_add_info(pinfo, ti_len, &ei_slsk_unknown_data);
   }
 
 
@@ -2591,7 +2593,13 @@ proto_register_slsk(void)
     &ett_slsk,
     &ett_slsk_compr_packet,
   };
+
+  static ei_register_info ei[] = {
+     { &ei_slsk_unknown_data, { "slsk.unknown_data", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
+  };
+
   module_t *slsk_module;
+  expert_module_t* expert_slsk;
 
 /* Registers the protocol name and description */
   proto_slsk = proto_register_protocol("SoulSeek Protocol", "SoulSeek", "slsk");
@@ -2599,6 +2607,8 @@ proto_register_slsk(void)
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_slsk, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_slsk = expert_register_protocol(proto_slsk);
+  expert_register_field_array(expert_slsk, ei, array_length(ei));
 
   slsk_module = prefs_register_protocol(proto_slsk, NULL);
 

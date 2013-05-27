@@ -145,6 +145,8 @@ static gint ett_key_init = -1;
 static gint ett_ssh1 = -1;
 static gint ett_ssh2 = -1;
 
+static expert_field ei_ssh_packet_length = EI_INIT;
+
 static gboolean ssh_desegment = TRUE;
 
 #define TCP_PORT_SSH  22
@@ -634,7 +636,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	ti = proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
 					offset, 4, plen);
 	if (plen >= 0xffff) {
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Overly large number %d",plen);
+		expert_add_info_format_text(pinfo, ti, &ei_ssh_packet_length, "Overly large number %d", plen);
 		plen = remain_length-4;
 	}
 	offset+=4;
@@ -1237,11 +1239,19 @@ proto_register_ssh(void)
 		&ett_ssh2,
 		&ett_key_init
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_ssh_packet_length, { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
+	};
+
 	module_t *ssh_module;
+	expert_module_t* expert_ssh;
 
 	proto_ssh = proto_register_protocol("SSH Protocol", "SSH", "ssh");
 	proto_register_field_array(proto_ssh, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ssh = expert_register_protocol(proto_ssh);
+	expert_register_field_array(expert_ssh, ei, array_length(ei));
 
 	ssh_module = prefs_register_protocol(proto_ssh, NULL);
 	prefs_register_bool_preference(ssh_module, "desegment_buffers",

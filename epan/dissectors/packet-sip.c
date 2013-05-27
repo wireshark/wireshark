@@ -208,6 +208,9 @@ static gint ett_sip_pmiss_uri             = -1;
 static gint ett_sip_ppi_uri               = -1;
 static gint ett_sip_tc_uri                = -1;
 
+static expert_field ei_sip_unrecognized_header = EI_INIT;
+static expert_field ei_sip_header_not_terminated = EI_INIT;
+
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
 #define SIP_METHOD_INVALID	0
@@ -2378,8 +2381,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					next_tvb2 = tvb_new_subset(tvb, value_offset, value_len, value_len);
 					dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, proto_item_add_subtree(ti_c, ett_sip_ext_hdr));
  				} else {
-					expert_add_info_format(pinfo, ti_c,
-					                       PI_UNDECODED, PI_NOTE,
+					expert_add_info_format_text(pinfo, ti_c, &ei_sip_unrecognized_header,
 					                       "Unrecognised SIP header (%s)",
 					                       tvb_format_text(tvb, offset, header_len));
 				}
@@ -3097,9 +3099,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						"[Header not terminated by empty line (CRLF)]");
 
 			proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-			expert_add_info_format(pinfo, sip_element_item,
-				PI_MALFORMED, PI_WARN,
-				"Header not terminated by empty line (CRLF)");
+			expert_add_info(pinfo, sip_element_item, &ei_sip_header_not_terminated);
 		}
 		offset = next_offset;
 	}/* End while */
@@ -5168,7 +5168,13 @@ void proto_register_sip(void)
 		&ett_raw_text,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_sip_unrecognized_header, { "sip.unrecognized_header", PI_UNDECODED, PI_NOTE, "Unrecognised SIP header", EXPFILL }},
+		{ &ei_sip_header_not_terminated, { "sip.header_not_terminated", PI_MALFORMED, PI_WARN, "Header not terminated by empty line (CRLF)", EXPFILL }},
+	};
+
 	module_t *sip_module;
+	expert_module_t* expert_sip;
 
 	/* Register the protocol name and description */
 	proto_sip = proto_register_protocol("Session Initiation Protocol",
@@ -5181,6 +5187,8 @@ void proto_register_sip(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_sip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_sip = expert_register_protocol(proto_sip);
+	expert_register_field_array(expert_sip, ei, array_length(ei));
 	proto_register_subtree_array(ett_raw, array_length(ett_raw));
 
 	/* Register raw_sip field(s) */

@@ -85,6 +85,8 @@ static int hf_pptp_receive_accm = -1;
 
 static gint ett_pptp = -1;
 
+static expert_field ei_pptp_incorrect_magic_cookie = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 #define TCP_PORT_PPTP		1723
@@ -621,7 +623,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text(item," (correct)");
   else {
     proto_item_append_text(item," (incorrect)");
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Incorrect Magic Cookie");
+    expert_add_info(pinfo, item, &ei_pptp_incorrect_magic_cookie);
   }
 
   if (tree) {
@@ -940,10 +942,18 @@ proto_register_pptp(void)
     },
   };
 
+  static ei_register_info ei[] = {
+     { &ei_pptp_incorrect_magic_cookie, { "pptp.magic_cookie.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect Magic Cookie", EXPFILL }},
+  };
+
+  expert_module_t* expert_pptp;
+
   proto_pptp = proto_register_protocol("Point-to-Point Tunnelling Protocol",
 				       "PPTP", "pptp");
   proto_register_field_array(proto_pptp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_pptp = expert_register_protocol(proto_pptp);
+  expert_register_field_array(expert_pptp, ei, array_length(ei));
 }
 
 void

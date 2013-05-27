@@ -1026,6 +1026,8 @@ static int hf_severity = -1;
 static int hf_visibility = -1;
 static int hf_num_glyphs = -1;
 
+static expert_field ei_spice_decompress_error = EI_INIT;
+
 static dissector_handle_t jpeg_handle;
 
 static guint32
@@ -1486,7 +1488,7 @@ dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_in
         Uncomp_tree = proto_item_add_subtree(ti, ett_Uncomp_tree);
         dissect_ImageGLZ_RGB(uncompressed_tvb, Uncomp_tree, 0, ZLIB_uncompSize);
     } else {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error: Unable to decompress content");
+        expert_add_info(pinfo, ti, &ei_spice_decompress_error);
     }
 }
 #else
@@ -4343,6 +4345,12 @@ proto_register_spice(void)
         &ett_cap_tree
     };
 
+    static ei_register_info ei[] = {
+        { &ei_spice_decompress_error, { "spice.decompress_error", PI_PROTOCOL, PI_WARN, "Error: Unable to decompress content", EXPFILL }},
+    };
+
+    expert_module_t* expert_spice;
+
     /* Register the protocol name and description */
     proto_spice = proto_register_protocol("Spice protocol",
                                           "Spice", "spice");
@@ -4350,6 +4358,8 @@ proto_register_spice(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_spice, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_spice = expert_register_protocol(proto_spice);
+    expert_register_field_array(expert_spice, ei, array_length(ei));
 
 }
 

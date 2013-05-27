@@ -220,6 +220,12 @@ static gint ett_pcp_text_ident = -1;
 static gint ett_pcp_text_buflen = -1;
 static gint ett_pcp_text_buffer = -1;
 
+static expert_field ei_pcp_type_event_unimplemented = EI_INIT;
+static expert_field ei_pcp_type_nosupport_unsupported = EI_INIT;
+static expert_field ei_pcp_type_unknown_unknown_value = EI_INIT;
+static expert_field ei_pcp_unimplemented_value = EI_INIT;
+static expert_field ei_pcp_unimplemented_packet_type = EI_INIT;
+
 /* packet types */
 static const value_string packettypenames[] = {
     #define    START_OR_ERROR 0x7000
@@ -985,20 +991,16 @@ static int dissect_pcp_message_result(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                 pmvalueblock_offset, pmvalueblock_value_length-4, ENC_NA);
                             break;
                         case PM_TYPE_EVENT:
-                            expert_add_info_format(pinfo, pcp_result_instance_tree, PI_UNDECODED, PI_WARN,
-                                                   "PM_TYPE_EVENT: Unimplemented Value Type");
+                            expert_add_info(pinfo, pcp_result_instance_tree, &ei_pcp_type_event_unimplemented);
                             break;
                         case PM_TYPE_NOSUPPORT:
-                            expert_add_info_format(pinfo, pcp_result_instance_tree, PI_UNDECODED, PI_WARN,
-                                                   "PM_TYPE_NOSUPPORT: Unsupported Value Type");
+                            expert_add_info(pinfo, pcp_result_instance_tree, &ei_pcp_type_nosupport_unsupported);
                             break;
                         case PM_TYPE_UNKNOWN:
-                            expert_add_info_format(pinfo, pcp_result_instance_tree, PI_UNDECODED,
-                                                   PI_WARN, "PM_TYPE_UNKNOWN: Unknown Value Type");
+                            expert_add_info(pinfo, pcp_result_instance_tree, &ei_pcp_type_unknown_unknown_value);
                             break;
                         default:
-                            expert_add_info_format(pinfo, pcp_result_instance_tree, PI_UNDECODED, PI_WARN,
-                                                   "Unimplemented Value Type");
+                            expert_add_info(pinfo, pcp_result_instance_tree, &ei_pcp_unimplemented_value);
                             break;
                 }
             }
@@ -1479,7 +1481,7 @@ static void dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             /* append the type of packet */
             col_append_str(pinfo->cinfo, COL_INFO, "[UNIMPLEMENTED TYPE]");
             /* if we got here, then we didn't get a packet type that we know of */
-            expert_add_info_format(pinfo, pcp_tree, PI_UNDECODED, PI_WARN, "Unimplemented Packet Type");
+            expert_add_info(pinfo, pcp_tree, &ei_pcp_unimplemented_packet_type);
             break;
     }
 }
@@ -2234,6 +2236,19 @@ void proto_register_pcp(void)
         &ett_pcp_text_buflen,
         &ett_pcp_text_buffer,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_pcp_type_event_unimplemented, { "pcp.pmid.type.event.unimplemented", PI_UNDECODED, PI_WARN, "PM_TYPE_EVENT: Unimplemented Value Type", EXPFILL }},
+        { &ei_pcp_type_nosupport_unsupported, { "pcp.pmid.type.nosupport.unsupported", PI_UNDECODED, PI_WARN, "PM_TYPE_NOSUPPORT: Unsupported Value Type", EXPFILL }},
+        { &ei_pcp_type_unknown_unknown_value, { "pcp.pmid.type.unknown.unknown_value", PI_UNDECODED, PI_WARN, "PM_TYPE_UNKNOWN: Unknown Value Type", EXPFILL }},
+        { &ei_pcp_unimplemented_value, { "pcp.pmid.type.unimplemented", PI_UNDECODED, PI_WARN, "Unimplemented Value Type", EXPFILL }},
+        { &ei_pcp_unimplemented_packet_type, { "pcp.type.unimplemented", PI_UNDECODED, PI_WARN, "Unimplemented Packet Type", EXPFILL }},
+    };
+
+    expert_module_t* expert_pcp;
+
+    expert_pcp = expert_register_protocol(proto_pcp);
+    expert_register_field_array(expert_pcp, ei, array_length(ei));
 
     proto_pcp = proto_register_protocol("Performance Co-Pilot", "PCP", "pcp");
 

@@ -676,6 +676,8 @@ static gint ett_sflow_245_gw_as_dst_seg = -1;
 static gint ett_sflow_245_gw_community = -1;
 static gint ett_sflow_245_sampled_header = -1;
 
+static expert_field ei_sflow_invalid_address_type = EI_INIT;
+
 /* dissectors for other protocols */
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
@@ -895,7 +897,7 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
            Note that we have a problem, though. */
         len = 0;
         pi = proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unknown/invalid address type");
+        expert_add_info(pinfo, pi, &ei_sflow_invalid_address_type);
     }
 
     if (addr_detail) {
@@ -3348,6 +3350,12 @@ proto_register_sflow(void) {
         &ett_sflow_245_sampled_header,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_sflow_invalid_address_type, { "sflow.invalid_address_type", PI_MALFORMED, PI_ERROR, "Unknown/invalid address type", EXPFILL }},
+    };
+
+    expert_module_t* expert_sflow;
+
     /* Register the protocol name and description */
     proto_sflow = proto_register_protocol(
             "InMon sFlow", /* name       */
@@ -3358,6 +3366,8 @@ proto_register_sflow(void) {
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sflow, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_sflow = expert_register_protocol(proto_sflow);
+    expert_register_field_array(expert_sflow, ei, array_length(ei));
 
     /* Register our configuration options for sFlow */
     sflow_245_module = prefs_register_protocol(proto_sflow, proto_reg_handoff_sflow_245);

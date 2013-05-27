@@ -115,6 +115,8 @@ static gint ett_sigcomp_udvm        = -1;
 static gint ett_sigcomp_udvm_exe    = -1;
 static gint ett_raw_text            = -1;
 
+static expert_field ei_sigcomp_nack_failed_op_code = EI_INIT;
+
 static dissector_handle_t sip_handle;
 /* set the udp ports */
 static guint SigCompUDPPort1 = 5555;
@@ -829,7 +831,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             offset++;
 
             /* Add expert item for NACK */
-            expert_add_info_format(pinfo, reason_ti, PI_SEQUENCE, PI_WARN,
+            expert_add_info_format_text(pinfo, reason_ti, &ei_sigcomp_nack_failed_op_code,
                                    "SigComp NACK (reason=%s, opcode=%s)",
                                    val_to_str_const(octet, sigcomp_nack_reason_code_vals, "Unknown"),
                                    val_to_str_const(opcode, udvm_instruction_code_vals, "Unknown"));
@@ -2582,7 +2584,13 @@ proto_register_sigcomp(void)
         &ett_raw_text,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_sigcomp_nack_failed_op_code, { "sigcomp.nack.failed_op_code.expert", PI_SEQUENCE, PI_WARN, "SigComp NACK", EXPFILL }},
+    };
+
     module_t *sigcomp_module;
+    expert_module_t* expert_sigcomp;
+
     static const enum_val_t udvm_detail_vals[] = {
         {"no-printout",   "No-Printout", 0},
         {"low-detail",    "Low-detail", 1},
@@ -2604,6 +2612,8 @@ proto_register_sigcomp(void)
     proto_register_field_array(proto_sigcomp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_subtree_array(ett_raw, array_length(ett_raw));
+    expert_sigcomp = expert_register_protocol(proto_sigcomp);
+    expert_register_field_array(expert_sigcomp, ei, array_length(ei));
 
 /* Register a configuration option for port */
     sigcomp_module = prefs_register_protocol(proto_sigcomp,

@@ -104,6 +104,8 @@ static int hf_roofnet_link_dst = -1;
 static gint ett_roofnet = -1;
 static gint ett_roofnet_link = -1;
 
+static expert_field ei_rooftop_too_many_links = EI_INIT;
+
 /*
  * dissect the header of roofnet
  */
@@ -224,9 +226,7 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   roofnet_nlinks= tvb_get_guint8(tvb, ROOFNET_OFFSET_NLINKS);
   /* Check that we do not have a malformed roofnet packet */
   if ((roofnet_nlinks*6*4)+ROOFNET_HEADER_LENGTH > ROOFNET_MAX_LENGTH) {
-    if (tree) {
-      expert_add_info_format(pinfo, it, PI_MALFORMED, PI_ERROR, "Too many links (%u)\n", roofnet_nlinks);
-    }
+    expert_add_info_format_text(pinfo, it, &ei_rooftop_too_many_links, "Too many links (%u)\n", roofnet_nlinks);
     return;
   }
 
@@ -338,6 +338,12 @@ void proto_register_roofnet(void)
     &ett_roofnet_link
   };
 
+  static ei_register_info ei[] = {
+     { &ei_rooftop_too_many_links, { "rooftop.too_many_links", PI_MALFORMED, PI_ERROR, "Too many links", EXPFILL }},
+  };
+
+  expert_module_t* expert_roofnet;
+
   proto_roofnet = proto_register_protocol(
 				"Roofnet Protocol", /* Name */
 				"Roofnet",	    /* Short Name */
@@ -346,6 +352,8 @@ void proto_register_roofnet(void)
 
   proto_register_field_array(proto_roofnet, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_roofnet = expert_register_protocol(proto_roofnet);
+  expert_register_field_array(expert_roofnet, ei, array_length(ei));
 }
 
 

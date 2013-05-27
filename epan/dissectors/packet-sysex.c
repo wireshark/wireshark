@@ -93,10 +93,12 @@ static int hf_digitech_ack_request_proc_id = -1;
 static int hf_digitech_nack_request_proc_id = -1;
 
 static int hf_digitech_checksum = -1;
-static int hf_digitech_checksum_bad = -1;
-
 
 static gint ett_sysex = -1;
+
+static expert_field ei_sysex_message_start_byte = EI_INIT;
+static expert_field ei_digitech_checksum_bad = EI_INIT;
+static expert_field ei_sysex_message_end_byte = EI_INIT;
 
 #define SYSEX_MANUFACTURER_DOD 0x000010
 
@@ -1122,8 +1124,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
         item = proto_tree_add_item(tree, hf_sysex_message_start, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (sysex_helper != 0xF0)
         {
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-                                   "SYSEX Error: Wrong start byte");
+            expert_add_info(pinfo, item, &ei_sysex_message_start_byte);
         }
 
         offset++;
@@ -1180,25 +1181,16 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
                     digitech_helper ^= *data_ptr++;
                 }
 
+                item = proto_tree_add_item(tree, hf_digitech_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
                 checksum = tvb_get_guint8(tvb, offset);
                 if (digitech_helper == 0)
                 {
-                    proto_tree_add_uint_format(tree,
-                                               hf_digitech_checksum, tvb, offset, 1, checksum,
-                                               "Checksum: 0x%02x (correct)", checksum);
-
+                    proto_item_append_text(item, " (correct)");
                 }
                 else
                 {
-                    item = proto_tree_add_uint_format(tree,
-                                                      hf_digitech_checksum, tvb, offset, 1, checksum,
-                                                      "Checksum: 0x%02x (NOT correct)", checksum);
-                    expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
-                                           "Bad checksum");
-                    item = proto_tree_add_boolean(tree,
-                                                  hf_digitech_checksum_bad, tvb, offset, 1, TRUE);
-                    PROTO_ITEM_SET_HIDDEN(item);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_append_text(item, " (NOT correct)");
+                    expert_add_info(pinfo, item, &ei_digitech_checksum_bad);
                 }
                 offset++;
                 break;
@@ -1219,8 +1211,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
         item = proto_tree_add_item(tree, hf_sysex_message_eox, tvb, data_len - 1, 1, ENC_BIG_ENDIAN);
         if (sysex_helper != 0xF7)
         {
-            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-                                   "SYSEX Error: Wrong end byte");
+            expert_add_info(pinfo, item, &ei_sysex_message_end_byte);
         }
     }
 }
@@ -1396,18 +1387,25 @@ proto_register_sysex(void)
         { &hf_digitech_checksum,
             { "Checksum", "sysex.digitech.checksum", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
-        { &hf_digitech_checksum_bad,
-            { "Bad Checksum", "sysex.digitech.checksum_bad", FT_BOOLEAN, BASE_NONE,
-              NULL, 0, "A bad checksum in command", HFILL }},
     };
 
     static gint *sysex_subtrees[] = {
         &ett_sysex
     };
 
+    static ei_register_info ei[] = {
+        { &ei_sysex_message_start_byte, { "sysex.message_start_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong start byte", EXPFILL }},
+        { &ei_digitech_checksum_bad, { "sysex.digitech.checksum_bad", PI_CHECKSUM, PI_WARN, "ARP packet storm detected", EXPFILL }},
+        { &ei_sysex_message_end_byte, { "sysex.message_end_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong end byte", EXPFILL }},
+    };
+
+    expert_module_t* expert_sysex;
+
     proto_sysex = proto_register_protocol("MIDI System Exclusive", "SYSEX", "sysex");
     proto_register_field_array(proto_sysex, hf, array_length(hf));
     proto_register_subtree_array(sysex_subtrees, array_length(sysex_subtrees));
+    expert_sysex = expert_register_protocol(proto_sysex);
+    expert_register_field_array(expert_sysex, ei, array_length(ei));
 
     register_dissector("sysex", dissect_sysex_command, proto_sysex);
 }

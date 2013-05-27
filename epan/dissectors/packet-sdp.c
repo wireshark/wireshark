@@ -205,6 +205,9 @@ static int ett_sdp_fmtp = -1;
 static int ett_sdp_key_mgmt = -1;
 static int ett_sdp_crypto_key_parameters = -1;
 
+static expert_field ei_sdp_invalid_key_param = EI_INIT;
+static expert_field ei_sdp_invalid_line = EI_INIT;
+
 #define SDP_RTP_PROTO       0x00000001
 #define SDP_SRTP_PROTO      0x00000002
 #define SDP_T38_PROTO       0x00000004
@@ -1484,8 +1487,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
           /* key-method or key-method-ext */
           next_offset = tvb_find_guint8(tvb, offset, -1, ':');
           if (next_offset == -1) {
-              expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_NOTE,
-                  "Invalid key-param (no ':' delimiter)");
+              expert_add_info(pinfo, parameter_item, &ei_sdp_invalid_key_param);
               break;
           }
 
@@ -2058,8 +2060,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     delim = tvb_get_guint8(tvb, offset + 1);
     if (delim != '=') {
       proto_item *ti2 = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, ENC_ASCII|ENC_NA);
-      expert_add_info_format(pinfo, ti2, PI_MALFORMED, PI_NOTE,
-                             "Invalid SDP line (no '=' delimiter)");
+      expert_add_info(pinfo, ti2, &ei_sdp_invalid_line);
       offset = next_offset;
       continue;
     }
@@ -2702,12 +2703,20 @@ proto_register_sdp(void)
     &ett_sdp_crypto_key_parameters,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_sdp_invalid_key_param, { "sdp.invalid_key_param", PI_MALFORMED, PI_NOTE, "Invalid key-param (no ':' delimiter)", EXPFILL }},
+     { &ei_sdp_invalid_line, { "sdp.invalid_line", PI_MALFORMED, PI_NOTE, "Invalid SDP line (no '=' delimiter)", EXPFILL }},
+  };
+
   module_t *sdp_module;
+  expert_module_t* expert_sdp;
 
   proto_sdp = proto_register_protocol("Session Description Protocol",
                                       "SDP", "sdp");
   proto_register_field_array(proto_sdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_sdp = expert_register_protocol(proto_sdp);
+  expert_register_field_array(expert_sdp, ei, array_length(ei));
 
   key_mgmt_dissector_table = register_dissector_table("key_mgmt",
                                                       "Key Management", FT_STRING, BASE_NONE);

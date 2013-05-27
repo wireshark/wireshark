@@ -70,6 +70,8 @@ static int hf_pflog_sport = -1;
 static int hf_pflog_dport = -1;
 static gint ett_pflog = -1;
 
+static expert_field ei_pflog_invalid_header_length = EI_INIT;
+
 /* old header */
 static int proto_old_pflog = -1;
 static int hf_old_pflog_af = -1;
@@ -176,7 +178,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti_len = proto_tree_add_item(pflog_tree, hf_pflog_length, tvb, offset, 1, ENC_BIG_ENDIAN);
   if(length < LEN_PFLOG_BSD34)
   {
-    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Invalid header length %u", length);
+    expert_add_info_format_text(pinfo, ti_len, &ei_pflog_invalid_header_length, "Invalid header length %u", length);
   }
 
   offset += 1;
@@ -381,10 +383,18 @@ proto_register_pflog(void)
   };
   static gint *ett[] = { &ett_pflog };
 
+  static ei_register_info ei[] = {
+     { &ei_pflog_invalid_header_length, { "pflog.invalid_header_length", PI_MALFORMED, PI_ERROR, "Invalid header length ", EXPFILL }},
+  };
+
+  expert_module_t* expert_pflog;
+
   proto_pflog = proto_register_protocol("OpenBSD Packet Filter log file",
                                         "PFLOG", "pflog");
   proto_register_field_array(proto_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_pflog = expert_register_protocol(proto_pflog);
+  expert_register_field_array(expert_pflog, ei, array_length(ei));
 }
 
 void
