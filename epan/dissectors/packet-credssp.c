@@ -407,11 +407,11 @@ void proto_register_credssp(void) {
 /*--- Included file: packet-credssp-hfarr.c ---*/
 #line 1 "../../asn1/credssp/packet-credssp-hfarr.c"
     { &hf_credssp_TSRequest_PDU,
-      { "TSRequest", "credssp.TSRequest",
+      { "TSRequest", "credssp.TSRequest_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_credssp_NegoData_item,
-      { "NegoData item", "credssp.NegoData_item",
+      { "NegoData item", "credssp.NegoData_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_credssp_negoToken,
@@ -455,7 +455,7 @@ void proto_register_credssp(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_credssp_cspData,
-      { "cspData", "credssp.cspData",
+      { "cspData", "credssp.cspData_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "TSCspDataDetail", HFILL }},
     { &hf_credssp_userHint,

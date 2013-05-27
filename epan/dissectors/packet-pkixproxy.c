@@ -153,7 +153,7 @@ void proto_register_pkixproxy(void) {
 /*--- Included file: packet-pkixproxy-hfarr.c ---*/
 #line 1 "../../asn1/pkixproxy/packet-pkixproxy-hfarr.c"
     { &hf_pkixproxy_ProxyCertInfoExtension_PDU,
-      { "ProxyCertInfoExtension", "pkixproxy.ProxyCertInfoExtension",
+      { "ProxyCertInfoExtension", "pkixproxy.ProxyCertInfoExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pkixproxy_pCPathLenConstraint,
@@ -161,7 +161,7 @@ void proto_register_pkixproxy(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         "ProxyCertPathLengthConstraint", HFILL }},
     { &hf_pkixproxy_proxyPolicy,
-      { "proxyPolicy", "pkixproxy.proxyPolicy",
+      { "proxyPolicy", "pkixproxy.proxyPolicy_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pkixproxy_policyLanguage,

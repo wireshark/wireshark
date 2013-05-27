@@ -1872,11 +1872,11 @@ void proto_register_spnego(void) {
 /*--- Included file: packet-spnego-hfarr.c ---*/
 #line 1 "../../asn1/spnego/packet-spnego-hfarr.c"
     { &hf_spnego_negTokenInit,
-      { "negTokenInit", "spnego.negTokenInit",
+      { "negTokenInit", "spnego.negTokenInit_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_spnego_negTokenTarg,
-      { "negTokenTarg", "spnego.negTokenTarg",
+      { "negTokenTarg", "spnego.negTokenTarg_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_spnego_MechTypeList_item,
@@ -1924,7 +1924,7 @@ void proto_register_spnego(void) {
         FT_OID, BASE_NONE, NULL, 0,
         "MechType", HFILL }},
     { &hf_spnego_innerContextToken,
-      { "innerContextToken", "spnego.innerContextToken",
+      { "innerContextToken", "spnego.innerContextToken_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_spnego_ContextFlags_delegFlag,

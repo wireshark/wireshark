@@ -569,7 +569,7 @@ void proto_register_sv(void) {
 /*--- Included file: packet-sv-hfarr.c ---*/
 #line 1 "../../asn1/sv/packet-sv-hfarr.c"
     { &hf_sv_savPdu,
-      { "savPdu", "sv.savPdu",
+      { "savPdu", "sv.savPdu_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sv_noASDU,
@@ -581,7 +581,7 @@ void proto_register_sv(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_ASDU", HFILL }},
     { &hf_sv_seqASDU_item,
-      { "ASDU", "sv.ASDU",
+      { "ASDU", "sv.ASDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sv_svID,

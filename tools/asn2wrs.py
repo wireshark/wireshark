@@ -1575,7 +1575,10 @@ class EthCtx:
       else:
         blurb = '"%s"' % (t)
       attr = self.eth_hf[f]['attr'].copy()
-      attr['ABBREV'] = '"%s.%s"' % (self.proto, attr['ABBREV'])
+      if attr['TYPE'] == 'FT_NONE':
+        attr['ABBREV'] = '"%s.%s_element"' % (self.proto, attr['ABBREV'])
+      else:
+        attr['ABBREV'] = '"%s.%s"' % (self.proto, attr['ABBREV'])
       if 'BLURB' not in attr:
         attr['BLURB'] = blurb
       fx.write('    { &%s,\n' % (self.eth_hf[f]['fullname']))

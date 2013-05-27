@@ -371,7 +371,7 @@ void proto_register_cdt (void) {
 /*--- Included file: packet-cdt-hfarr.c ---*/
 #line 1 "../../asn1/cdt/packet-cdt-hfarr.c"
     { &hf_cdt_CompressedData_PDU,
-      { "CompressedData", "cdt.CompressedData",
+      { "CompressedData", "cdt.CompressedData_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cdt_compressionAlgorithm,
@@ -379,7 +379,7 @@ void proto_register_cdt (void) {
         FT_UINT32, BASE_DEC, VALS(cdt_CompressionAlgorithmIdentifier_vals), 0,
         "CompressionAlgorithmIdentifier", HFILL }},
     { &hf_cdt_compressedContentInfo,
-      { "compressedContentInfo", "cdt.compressedContentInfo",
+      { "compressedContentInfo", "cdt.compressedContentInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_cdt_algorithmID_ShortForm,
