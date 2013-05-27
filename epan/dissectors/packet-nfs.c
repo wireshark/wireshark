@@ -714,6 +714,9 @@ static gint ett_nfs4_reclaim_complete = -1;
 static gint ett_nfs4_chan_attrs = -1;
 static gint ett_nfs4_want_notify_flags = -1;
 
+static expert_field ei_nfs_too_many_ops = EI_INIT;
+
+
 /* Types of fhandles we can dissect */
 static dissector_table_t nfs_fhandle_table;
 
@@ -8861,7 +8864,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		 *  This is an arbitrary number to keep us from attempting to
 		 *  allocate too much memory below.
 		 */
-		expert_add_info_format(pinfo, fitem, PI_MALFORMED, PI_NOTE, "Too many operations");
+		expert_add_info(pinfo, fitem, &ei_nfs_too_many_ops);
 		ops = MAX_NFSV4_OPS;
 	}
 
@@ -9494,7 +9497,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	offset += 4;
 
 	if (ops > MAX_NFSV4_OPS) {
-		expert_add_info_format(pinfo, fitem, PI_MALFORMED, PI_NOTE, "Too many operations");
+		expert_add_info(pinfo, fitem, &ei_nfs_too_many_ops);
 		ops = MAX_NFSV4_OPS;
 	}
 
@@ -12576,11 +12579,19 @@ proto_register_nfs(void)
 		&ett_nfs4_sequence_status_flags,
 		&ett_nfs4_want_notify_flags
 	};
-	module_t *nfs_module;
+
+  	static ei_register_info ei[] = {
+  	  	{ &ei_nfs_too_many_ops, { "nfs.too_many_ops", PI_PROTOCOL, PI_NOTE, "Too many operations", EXPFILL }},
+  	};
+
+  	module_t *nfs_module;
+	expert_module_t* expert_nfs;
 
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_nfs = expert_register_protocol(proto_nfs);
+	expert_register_field_array(expert_nfs, ei, array_length(ei));
 
 	nfs_module=prefs_register_protocol(proto_nfs, NULL);
 	prefs_register_bool_preference(nfs_module, "file_name_snooping",

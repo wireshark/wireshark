@@ -157,6 +157,9 @@ static gint ett_events_send = -1;
 static gint ett_device_id_objects = -1;
 static gint ett_device_id_object_items = -1;
 
+static expert_field ei_mbrtu_crc16_incorrect = EI_INIT;
+static expert_field ei_modbus_data_decode = EI_INIT;
+
 static dissector_table_t   modbus_data_dissector_table;
 static dissector_table_t   modbus_dissector_table;
 static dissector_handle_t  modbus_handle;
@@ -587,7 +590,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         calc_crc16 = crc16_plain_tvb_offset_seed(tvb, offset, len-2, 0xFFFF);
         if (g_htons(calc_crc16) != crc16)
-            expert_add_info_format(pinfo, crc_item, PI_PROTOCOL, PI_WARN, "Incorrect CRC - should be 0x%04x", g_htons(calc_crc16));
+            expert_add_info_format_text(pinfo, crc_item, &ei_mbrtu_crc16_incorrect, "Incorrect CRC - should be 0x%04x", g_htons(calc_crc16));
     }
 
     /* make sure to ignore the CRC-16 footer bytes */
@@ -722,7 +725,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
         (register_format == MBTCP_PREF_REGISTER_FORMAT_IEEE_FLOAT) ||
         (register_format == MBTCP_PREF_REGISTER_FORMAT_MODICON_FLOAT) ) ) {
         register_item = proto_tree_add_item(tree, hf_modbus_data, tvb, payload_start, payload_len, ENC_NA);
-        expert_add_info_format(pinfo, register_item, PI_PROTOCOL, PI_WARN, "Invalid decoding options, register data not a multiple of 4!");
+        expert_add_info(pinfo, register_item, &ei_modbus_data_decode);
         return;
     }
 
@@ -1388,6 +1391,10 @@ proto_register_modbus(void)
         },
     };
 
+    static ei_register_info mbrtu_ei[] = {
+        { &ei_mbrtu_crc16_incorrect, { "mbrtu.crc16.incorrect", PI_CHECKSUM, PI_WARN, "Incorrect CRC", EXPFILL }},
+    };
+
     static hf_register_info hf[] = {
         /* Modbus header fields */
         { &hf_mbtcp_functioncode,
@@ -1684,8 +1691,14 @@ proto_register_modbus(void)
         &ett_device_id_object_items
     };
 
+    static ei_register_info ei[] = {
+        { &ei_modbus_data_decode, { "modbus.data.decode", PI_PROTOCOL, PI_WARN, "Invalid decoding options, register data not a multiple of 4!", EXPFILL }},
+    };
+
     module_t *mbtcp_module;
     module_t *mbrtu_module;
+    expert_module_t* expert_mbrtu;
+    expert_module_t* expert_modbus;
 
     /* Register the protocol name and description */
     proto_mbtcp = proto_register_protocol("Modbus/TCP", "Modbus/TCP", "mbtcp");
@@ -1706,6 +1719,10 @@ proto_register_modbus(void)
     proto_register_field_array(proto_mbrtu, mbrtu_hf, array_length(mbrtu_hf));
     proto_register_field_array(proto_modbus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mbrtu = expert_register_protocol(proto_mbrtu);
+    expert_register_field_array(expert_mbrtu, mbrtu_ei, array_length(mbrtu_ei));
+    expert_modbus = expert_register_protocol(proto_modbus);
+    expert_register_field_array(expert_modbus, ei, array_length(ei));
 
 
     /* Register required preferences for Modbus Protocol register decoding */

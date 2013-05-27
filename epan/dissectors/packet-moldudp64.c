@@ -60,6 +60,10 @@ static guint pf_moldudp64_port = 0;
 static gint ett_moldudp64        = -1;
 static gint ett_moldudp64_msgblk = -1;
 
+static expert_field ei_moldudp64_msglen_invalid = EI_INIT;
+static expert_field ei_moldudp64_end_of_session_extra = EI_INIT;
+static expert_field ei_moldudp64_count_invalid = EI_INIT;
+
 /* Code to dissect a message block */
 guint
 dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -101,7 +105,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb, offset, MOLDUDP64_MSGLEN_LEN, ENC_BIG_ENDIAN);
 
     if (msglen != real_msglen)
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_moldudp64_msglen_invalid,
                 "Invalid Message Length (claimed %u, found %u)",
                 msglen, real_msglen);
 
@@ -175,13 +179,12 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     {
         if (real_count != 0)
         {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                   "End Of Session packet with extra data.");
+            expert_add_info(pinfo, ti, &ei_moldudp64_end_of_session_extra);
         }
     }
     else if (real_count != count)
     {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_moldudp64_count_invalid,
                                "Invalid Message Count (claimed %u, found %u)",
                                count, real_count);
     }
@@ -235,6 +238,14 @@ proto_register_moldudp64(void)
         &ett_moldudp64_msgblk
     };
 
+    static ei_register_info ei[] = {
+        { &ei_moldudp64_msglen_invalid, { "moldudp64.msglen.invalid", PI_MALFORMED, PI_ERROR, "Invalid Message Length", EXPFILL }},
+        { &ei_moldudp64_end_of_session_extra, { "moldudp64.end_of_session_extra", PI_MALFORMED, PI_ERROR, "End Of Session packet with extra data.", EXPFILL }},
+        { &ei_moldudp64_count_invalid, { "moldudp64.count.invalid", PI_MALFORMED, PI_ERROR, "Invalid Message Count", EXPFILL }},
+    };
+
+    expert_module_t* expert_moldudp64;
+
     /* Register the protocol name and description */
     proto_moldudp64 = proto_register_protocol("MoldUDP64",
             "MoldUDP64", "moldudp64");
@@ -242,6 +253,8 @@ proto_register_moldudp64(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp64, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_moldudp64 = expert_register_protocol(proto_moldudp64);
+    expert_register_field_array(expert_moldudp64, ei, array_length(ei));
 
     /* Register preferences module */
     moldudp64_module = prefs_register_protocol(proto_moldudp64,

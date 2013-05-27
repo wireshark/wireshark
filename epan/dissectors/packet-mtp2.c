@@ -54,6 +54,8 @@ static int hf_mtp2_ext_spare = -1;
 static int hf_mtp2_sf        = -1;
 static int hf_mtp2_sf_extra  = -1;
 
+static expert_field ei_mtp2_checksum_error = EI_INIT;
+
 /* Initialize the subtree pointers */
 static gint ett_mtp2       = -1;
 
@@ -193,8 +195,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
       cause=proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
 				"FCS 16: 0x%04x [incorrect, should be 0x%04x]",
 				rx_fcs_got, rx_fcs_exp);
-      proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-      expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "MTP2 Frame CheckFCS 16 Error");
+      expert_add_info(pinfo, cause, &ei_mtp2_checksum_error);
     } else {
       proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
 			  "FCS 16: 0x%04x [correct]",
@@ -388,13 +389,20 @@ proto_register_mtp2(void)
     &ett_mtp2
   };
 
+  static ei_register_info ei[] = {
+     { &ei_mtp2_checksum_error, { "mtp2.checksum.error", PI_CHECKSUM, PI_WARN, "MTP2 Frame CheckFCS 16 Error", EXPFILL }},
+  };
+
   module_t *mtp2_module;
+  expert_module_t* expert_mtp2;
 
   proto_mtp2 = proto_register_protocol("Message Transfer Part Level 2", "MTP2", "mtp2");
   register_dissector("mtp2", dissect_mtp2, proto_mtp2);
 
   proto_register_field_array(proto_mtp2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_mtp2 = expert_register_protocol(proto_mtp2);
+  expert_register_field_array(expert_mtp2, ei, array_length(ei));
   
   mtp2_module = prefs_register_protocol(proto_mtp2, NULL);
   prefs_register_bool_preference(mtp2_module, 

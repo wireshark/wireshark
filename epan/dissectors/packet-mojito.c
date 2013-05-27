@@ -116,6 +116,9 @@ static gint ett_mojito_dht = -1;
 static gint ett_mojito_status_code = -1;
 static gint ett_mojito_kuids = -1;
 
+static expert_field ei_mojito_socketaddress_unknown = EI_INIT;
+static expert_field ei_mojito_bigint_unsupported = EI_INIT;
+
 /* Preferences */
 static int udp_mojito_port = 0;
 
@@ -214,7 +217,7 @@ dissect_mojito_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	default: /* ABORT */
-		expert_add_info_format(pinfo, socket_item, PI_PROTOCOL, PI_ERROR, "Unsupported Socket Address Type");
+		expert_add_info(pinfo, socket_item, &ei_mojito_socketaddress_unknown);
 		return 0;
 	}
 
@@ -391,7 +394,7 @@ dissect_mojito_ping_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(bigint_tree, hf_mojito_bigint_value_four, tvb, offset, bigintlen, ENC_BIG_ENDIAN);
 		break;
 	default: /* ABORT */
-		expert_add_info_format(pinfo, bigint_item, PI_PROTOCOL, PI_ERROR, "Unsupported BigInt length");
+		expert_add_info(pinfo, bigint_item, &ei_mojito_bigint_unsupported);
 		return;
 	}
 
@@ -725,6 +728,7 @@ void
 proto_register_mojito(void)
 {
 	module_t *mojito_module;
+	expert_module_t* expert_mojito;
 
 	static hf_register_info hf[] = {
 		{ &hf_mojito_dhtvaluecount,
@@ -1022,10 +1026,17 @@ proto_register_mojito(void)
 		&ett_mojito_kuids
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_mojito_socketaddress_unknown, { "mojito.socketaddress.unknown", PI_PROTOCOL, PI_ERROR, "Unsupported Socket Address Type", EXPFILL }},
+		{ &ei_mojito_bigint_unsupported, { "mojito.bigint.unsupported", PI_PROTOCOL, PI_ERROR, "Unsupported BigInt length", EXPFILL }},
+	};
+
 	proto_mojito = proto_register_protocol("Mojito DHT", "Mojito", "mojito");
 
 	proto_register_field_array(proto_mojito, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mojito = expert_register_protocol(proto_mojito);
+	expert_register_field_array(expert_mojito, ei, array_length(ei));
 
 	/* Set the Prefs */
 	mojito_module = prefs_register_protocol(proto_mojito, NULL);

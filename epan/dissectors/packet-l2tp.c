@@ -142,6 +142,8 @@ static gint ett_l2tp_avp_sub = -1;
 static gint ett_l2tp_lcp = -1;
 static gint ett_l2tp_l2_spec = -1;
 
+static expert_field ei_l2tp_incorrect_digest = EI_INIT;
+
 static const enum_val_t l2tpv3_cookies[] = {
     {"detect",  "Detect",              -1},
     {"cookie0", "None",                 0},
@@ -1968,7 +1970,7 @@ static void process_control_avps(tvbuff_t *tvb,
     /* SCCRQ digest can only be calculated once we know whether nonces are being used */
     if (digest_avp_len) {
         if (check_control_digest(tunnel, tvb, length, digest_idx, digest_avp_len, msg_type, pinfo) < 0)
-            expert_add_info_format(pinfo, digest_item, PI_CHECKSUM, PI_WARN, "Incorrect Digest");
+            expert_add_info(pinfo, digest_item, &ei_l2tp_incorrect_digest);
     }
 
     update_session(tunnel, session);
@@ -2873,12 +2875,19 @@ proto_register_l2tp(void)
         &ett_l2tp_lcp,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_l2tp_incorrect_digest, { "l2tp.incorrect_digest", PI_CHECKSUM, PI_WARN, "Incorrect Digest", EXPFILL }},
+    };
+
     module_t *l2tp_module;
+    expert_module_t* expert_l2tp;
 
     proto_l2tp = proto_register_protocol(
         "Layer 2 Tunneling Protocol", "L2TP", "l2tp");
     proto_register_field_array(proto_l2tp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_l2tp = expert_register_protocol(proto_l2tp);
+    expert_register_field_array(expert_l2tp, ei, array_length(ei));
 
     l2tp_module = prefs_register_protocol(proto_l2tp, NULL);
 

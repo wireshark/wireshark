@@ -79,6 +79,9 @@ static gint hf_miop_unique_id = -1;
 
 static gint ett_miop = -1;
 
+static expert_field ei_miop_version_not_supported = EI_INIT;
+static expert_field ei_miop_unique_id_len_exceed_max_value = EI_INIT;
+
 #define MIOP_MAGIC   "MIOP"
 
 static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
@@ -157,7 +160,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
           proto_tree_add_text (miop_tree, tvb, 0, -1,
                                "Version %u.%u",
                                version_major, version_minor);
-          expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+          expert_add_info_format_text(pinfo, ti, &ei_miop_version_not_supported,
                                "MIOP version %u.%u not supported",
                                version_major, version_minor);
         }
@@ -217,7 +220,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
       ti = proto_tree_add_item(miop_tree, hf_miop_unique_id_len, tvb, offset, 4, byte_order);
 
       if (unique_id_len >= MIOP_MAX_UNIQUE_ID_LENGTH) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(pinfo, ti, &ei_miop_unique_id_len_exceed_max_value,
                        "Unique Id length (%u) exceeds max value (%u)",
                        unique_id_len, MIOP_MAX_UNIQUE_ID_LENGTH);
         return;
@@ -285,10 +288,18 @@ void proto_register_miop (void) {
     &ett_miop
   };
 
-  proto_miop = proto_register_protocol("Unreliable Multicast Inter-ORB Protocol", "MIOP",
-                                       "miop");
+  static ei_register_info ei[] = {
+     { &ei_miop_version_not_supported, { "miop.version.not_supported", PI_UNDECODED, PI_WARN, "MIOP version not supported", EXPFILL }},
+     { &ei_miop_unique_id_len_exceed_max_value, { "miop.unique_id_len.exceed_max_value", PI_MALFORMED, PI_WARN, "Unique Id length exceeds max value", EXPFILL }},
+  };
+
+  expert_module_t* expert_miop;
+
+  proto_miop = proto_register_protocol("Unreliable Multicast Inter-ORB Protocol", "MIOP", "miop");
   proto_register_field_array (proto_miop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_miop = expert_register_protocol(proto_miop);
+  expert_register_field_array(expert_miop, ei, array_length(ei));
 
   register_dissector("miop", dissect_miop, proto_miop);
 

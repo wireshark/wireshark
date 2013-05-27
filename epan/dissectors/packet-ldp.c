@@ -301,6 +301,11 @@ static int ett_ldp_gen_saii = -1;
 static int ett_ldp_gen_taii = -1;
 static int ett_ldp_gen_aai_type2 = -1;
 
+static expert_field ei_ldp_dtsm_and_target = EI_INIT;
+static expert_field ei_ldp_gtsm_supported = EI_INIT;
+static expert_field ei_ldp_gtsm_not_supported_basic_discovery = EI_INIT;
+static expert_field ei_ldp_gtsm_not_supported = EI_INIT;
+
 /* desegmentation of LDP over TCP */
 static gboolean ldp_desegment = TRUE;
 
@@ -1547,15 +1552,15 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 
     if ( gtsm_flag_buffer & 0x2000 ) {
         if ( gtsm_flag_buffer & 0x8000 ) {
-            expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_WARN,"ERROR - Both GTSM and Target Flag are enabled.");
+            expert_add_info(pinfo, gtsm_flag_item, &ei_ldp_dtsm_and_target);
         } else {
-            expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source");
+            expert_add_info(pinfo, gtsm_flag_item, &ei_ldp_gtsm_supported);
         }
     } else {
         if ( gtsm_flag_buffer & 0x8000 ) {
-                expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_WARN,"GTSM is not supported by the source, since basic discovery is not enabled");
+                expert_add_info(pinfo, gtsm_flag_item, &ei_ldp_gtsm_not_supported_basic_discovery);
         } else {
-                expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_CHAT,"GTSM is not supported by the source");
+                expert_add_info(pinfo, gtsm_flag_item, &ei_ldp_gtsm_not_supported);
         }
     }
 
@@ -3995,13 +4000,23 @@ proto_register_ldp(void)
         &ett_ldp_gen_aai_type2
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ldp_dtsm_and_target, { "ldp.dtsm_and_target", PI_PROTOCOL, PI_WARN,"ERROR - Both GTSM and Target Flag are enabled.", EXPFILL }},
+        { &ei_ldp_gtsm_supported, { "ldp.gtsm_supported", PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source", EXPFILL }},
+        { &ei_ldp_gtsm_not_supported_basic_discovery, { "ldp.gtsm_not_supported_basic_discovery", PI_PROTOCOL, PI_WARN,"GTSM is not supported by the source, since basic discovery is not enabled", EXPFILL }},
+        { &ei_ldp_gtsm_not_supported, { "ldp.gtsm_not_supported", PI_PROTOCOL, PI_CHAT,"GTSM is not supported by the source", EXPFILL }},
+    };
+
     module_t *ldp_module;
+    expert_module_t* expert_ldp;
 
     proto_ldp = proto_register_protocol("Label Distribution Protocol",
                                         "LDP", "ldp");
 
     proto_register_field_array(proto_ldp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ldp = expert_register_protocol(proto_ldp);
+    expert_register_field_array(expert_ldp, ei, array_length(ei));
 
     /* Register our configuration options for , particularly our port */
 

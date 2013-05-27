@@ -81,6 +81,8 @@ static int hfbit30 = -1;
 static int hfbit31 = -1;
 static int hfbit32 = -1;
 
+static expert_field ei_return_code = EI_INIT;
+
 static const value_string sss_func_enum[] = {
     { 0x00000001, "Ping Server" },
     { 0x00000002, "Fragment" },
@@ -717,10 +719,8 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
             if (str)
             {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
-                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "SSS Error: %s", str);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                   col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
-                }
+                expert_add_info_format_text(pinfo, expert_item, &ei_return_code, "SSS Error: %s", str);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
                 foffset+=4;
             }
             else
@@ -934,9 +934,17 @@ proto_register_sss(void)
         static gint *ett[] = {
             &ett_sss,
         };
+
+        static ei_register_info ei[] = {
+            { &ei_return_code, { "ncp.return_code.expert", PI_RESPONSE_CODE, PI_NOTE, "SSS Error", EXPFILL }},
+        };
+
+        expert_module_t* expert_sss;
         /*module_t *sss_module;*/
 
         proto_sss = proto_register_protocol("Novell SecretStore Services", "SSS", "sss");
         proto_register_field_array(proto_sss, hf_sss, array_length(hf_sss));
         proto_register_subtree_array(ett, array_length(ett));
+        expert_sss = expert_register_protocol(proto_sss);
+        expert_register_field_array(expert_sss, ei, array_length(ei));
 }

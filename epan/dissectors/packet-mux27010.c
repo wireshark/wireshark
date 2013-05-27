@@ -206,6 +206,8 @@ static gint ett_mux27010_controlchannelvalue = -1;
 static gint ett_mux27010_information = -1;
 static gint ett_mux27010_checksum = -1;
 
+static expert_field ei_mux27010_message_illogical = EI_INIT;
+
 /*private MUX frame header (PPP)*/
 static guint8 sizeMuxPPPHeader = 0;
 static guint8 sizeOfOneMuxPPPHeader = 0;
@@ -1046,8 +1048,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item *pi;
                     pi = proto_tree_add_text(field_tree, tvb, tmpOffset-3, 2,
                         "Message start and end are illogical, aborting dissection");
-                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                                           "Message start and end are illogical");
+                    expert_add_info(pinfo, pi, &ei_mux27010_message_illogical);
                     continue;
                 }
 
@@ -1519,6 +1520,12 @@ proto_register_mux27010 (void)
         &ett_msg_fragments
         };
 
+    static ei_register_info ei[] = {
+        { &ei_mux27010_message_illogical, { "mux27010.message_illogical", PI_MALFORMED, PI_ERROR, "Message start and end are illogical", EXPFILL }},
+    };
+
+    expert_module_t* expert_mux27010;
+
     /*Register protocoll*/
     proto_mux27010 = proto_register_protocol ("MUX27010 Protocol", "MUX27010", "mux27010");
 
@@ -1526,6 +1533,8 @@ proto_register_mux27010 (void)
     proto_register_field_array (proto_mux27010, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_dissector("mux27010", dissect_mux27010, proto_mux27010);
+    expert_mux27010 = expert_register_protocol(proto_mux27010);
+    expert_register_field_array(expert_mux27010, ei, array_length(ei));
 
     register_init_routine(mux27010_init);
 }

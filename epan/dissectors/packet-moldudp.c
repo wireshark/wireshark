@@ -59,6 +59,9 @@ static guint pf_moldudp_port = 0;
 static gint ett_moldudp        = -1;
 static gint ett_moldudp_msgblk = -1;
 
+static expert_field ei_moldudp_msglen_invalid = EI_INIT;
+static expert_field ei_moldudp_count_invalid = EI_INIT;
+
 /* Code to dissect a message block */
 guint
 dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -103,7 +106,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb, offset, MOLDUDP_MSGLEN_LEN, ENC_LITTLE_ENDIAN);
 
     if (msglen != real_msglen)
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_moldudp_msglen_invalid,
                 "Invalid Message Length (claimed %u, found %u)",
                 msglen, real_msglen);
 
@@ -173,7 +176,7 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     if (real_count != count)
     {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_moldudp_count_invalid,
                                "Invalid Message Count (claimed %u, found %u)",
                                count, real_count);
     }
@@ -227,6 +230,13 @@ proto_register_moldudp(void)
         &ett_moldudp_msgblk
     };
 
+    static ei_register_info ei[] = {
+        { &ei_moldudp_msglen_invalid, { "moldudp.msglen.invalid", PI_MALFORMED, PI_ERROR, "Invalid Message Length", EXPFILL }},
+        { &ei_moldudp_count_invalid, { "moldudp.count.invalid", PI_MALFORMED, PI_ERROR, "Invalid Count", EXPFILL }},
+    };
+
+    expert_module_t* expert_moldudp;
+
     /* Register the protocol name and description */
     proto_moldudp = proto_register_protocol("MoldUDP",
             "MoldUDP", "moldudp");
@@ -234,6 +244,8 @@ proto_register_moldudp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_moldudp = expert_register_protocol(proto_moldudp);
+    expert_register_field_array(expert_moldudp, ei, array_length(ei));
 
     /* Register preferences module */
     moldudp_module = prefs_register_protocol(proto_moldudp,

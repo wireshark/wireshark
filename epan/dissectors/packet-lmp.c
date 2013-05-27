@@ -503,6 +503,9 @@ enum hf_lmp_filter_keys {
 
 static int hf_lmp_filter[LMPF_MAX];
 
+static expert_field ei_lmp_checksum_incorrect = EI_INIT;
+
+
 static int
 lmp_valid_class(int lmp_class)
 {
@@ -751,7 +754,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				proto_item_append_text( ti, " [correct]");
 			}
 			else {
-				expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "[incorrect, should be 0x%04x]",
+				expert_add_info_format_text(pinfo, ti, &ei_lmp_checksum_incorrect, "[incorrect, should be 0x%04x]",
 					in_cksum_shouldbe(cksum, computed_cksum));
 			}
 		}
@@ -2706,10 +2709,19 @@ proto_register_lmp(void)
 			NULL, HFILL }},
 	};
 
+    static ei_register_info ei[] = {
+        { &ei_lmp_checksum_incorrect, { "lmp.checksum.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_lmp;
+
     for (i=0; i<NUM_LMP_SUBTREES; i++) {
 	lmp_subtree[i] = -1;
 	ett[i] = &lmp_subtree[i];
     }
+
+    expert_lmp = expert_register_protocol(proto_lmp);
+    expert_register_field_array(expert_lmp, ei, array_length(ei));
 
     proto_lmp = proto_register_protocol("Link Management Protocol (LMP)",
 					"LMP", "lmp");

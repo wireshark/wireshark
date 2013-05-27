@@ -74,6 +74,9 @@ static gint ett_lisp_data = -1;
 static gint ett_lisp_data_flags = -1;
 static gint ett_lisp_data_mapver = -1;
 
+static expert_field ei_lisp_data_flags_en_invalid = EI_INIT;
+static expert_field ei_lisp_data_flags_nv_invalid = EI_INIT;
+
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t lisp_handle;
@@ -132,14 +135,12 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset += 1;
 
     if (flags&LISP_DATA_FLAG_E && !(flags&LISP_DATA_FLAG_N)) {
-        expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
-            "Invalid flag combination: if E is set, N MUST be set");
+        expert_add_info(pinfo, tif, &ei_lisp_data_flags_en_invalid);
     }
 
     if (flags&LISP_DATA_FLAG_N) {
         if (flags&LISP_DATA_FLAG_V) {
-            expert_add_info_format(pinfo, tif, PI_PROTOCOL, PI_WARN,
-                    "Invalid flag combination: N and V can't be set both");
+            expert_add_info(pinfo, tif, &ei_lisp_data_flags_nv_invalid);
         }
         proto_tree_add_item(lisp_data_tree,
                 hf_lisp_data_nonce, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -260,6 +261,13 @@ proto_register_lisp_data(void)
         &ett_lisp_data_mapver
     };
 
+    static ei_register_info ei[] = {
+        { &ei_lisp_data_flags_en_invalid, { "lisp-data.flags.en_invalid", PI_PROTOCOL, PI_WARN, "Invalid flag combination: if E is set, N MUST be set", EXPFILL }},
+        { &ei_lisp_data_flags_nv_invalid, { "lisp-data.flags.nv_invalid", PI_PROTOCOL, PI_WARN, "Invalid flag combination: N and V can't be set both", EXPFILL }},
+    };
+
+    expert_module_t* expert_lisp_data;
+
     /* Register the protocol name and description */
     proto_lisp_data = proto_register_protocol("Locator/ID Separation Protocol (Data)",
         "LISP Data", "lisp-data");
@@ -267,6 +275,8 @@ proto_register_lisp_data(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_lisp_data, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_lisp_data = expert_register_protocol(proto_lisp_data);
+    expert_register_field_array(expert_lisp_data, ei, array_length(ei));
 }
 
 /* Simple form of proto_reg_handoff_lisp_data which can be used if there are

@@ -91,6 +91,10 @@ static int hf_mstp_frame_crc16 = -1;
 static int hf_mstp_frame_checksum_bad = -1;
 static int hf_mstp_frame_checksum_good = -1;
 
+static expert_field ei_mstp_frame_pdu_len = EI_INIT;
+static expert_field ei_mstp_frame_checksum_bad = EI_INIT;
+
+
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 /* Accumulate "dataValue" into the CRC in crcValue. */
 /* Return value is updated CRC */
@@ -188,8 +192,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* check the length - which does not include the crc16 checksum */
 	if (mstp_tvb_pdu_len > 2) {
 		if (mstp_frame_pdu_len > (mstp_tvb_pdu_len-2)) {
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-				"Length field value goes past the end of the payload");
+			expert_add_info(pinfo, item, &ei_mstp_frame_pdu_len);
 		}
 	}
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
@@ -227,8 +230,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			hf_mstp_frame_checksum_bad,
 			tvb, offset+5, 1, TRUE);
 		PROTO_ITEM_SET_GENERATED(item);
-		expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
-			"Bad Checksum");
+		expert_add_info(pinfo, item, &ei_mstp_frame_checksum_bad);
 	}
 #else
 	proto_tree_add_item(subtree, hf_mstp_frame_crc8,
@@ -303,8 +305,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				hf_mstp_frame_checksum_bad,
 				tvb, offset+mstp_frame_pdu_len, 2, TRUE);
 			PROTO_ITEM_SET_GENERATED(item);
-			expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
-				"Bad Checksum");
+			expert_add_info(pinfo, item, &ei_mstp_frame_checksum_bad);
 		}
 #else
 		proto_tree_add_item(subtree, hf_mstp_frame_crc16,
@@ -417,11 +418,20 @@ proto_register_mstp(void)
 		&ett_bacnet_mstp_checksum
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_mstp_frame_pdu_len, { "mstp.len.bad", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
+		{ &ei_mstp_frame_checksum_bad, { "mstp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad Checksum", EXPFILL }},
+	};
+
+	expert_module_t* expert_mstp;
+
 	proto_mstp = proto_register_protocol("BACnet MS/TP",
 	    "BACnet MS/TP", "mstp");
 
 	proto_register_field_array(proto_mstp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mstp = expert_register_protocol(proto_mstp);
+	expert_register_field_array(expert_mstp, ei, array_length(ei));
 
 	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
 

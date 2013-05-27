@@ -93,6 +93,9 @@ static int hf_msproxy_server_int_port = -1;
 static int hf_msproxy_server_ext_addr = -1;
 static int hf_msproxy_server_ext_port = -1;
 
+static expert_field ei_msproxy_unknown = EI_INIT;
+static expert_field ei_msproxy_unhandled = EI_INIT;
+
 static dissector_handle_t msproxy_sub_handle;
 
 
@@ -1052,16 +1055,16 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 
 		case MSPROXY_CONNECT_AUTHFAILED:
 		case MSPROXY_BIND_AUTHFAILED:
-			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "No know information (help wanted)");
+			expert_add_info(pinfo, ti, &ei_msproxy_unknown);
 			break;
 
 		default:
 
 			if ((((cmd >> 8) ==  MSPROXY_CONNREFUSED) ||
 				((cmd >> 12) ==  MSPROXY_CONNREFUSED)))
-				expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "No know information (help wanted)");
+				expert_add_info(pinfo, ti, &ei_msproxy_unknown);
 			else
-				expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unhandled response command (report this, please)");                
+				expert_add_info(pinfo, ti, &ei_msproxy_unhandled);
 	}
 
 
@@ -1270,11 +1273,20 @@ proto_register_msproxy( void){
 		},
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_msproxy_unknown, { "msproxy.unknown", PI_UNDECODED, PI_WARN, "No know information (help wanted)", EXPFILL }},
+		{ &ei_msproxy_unhandled, { "msproxy.command.unhandled", PI_UNDECODED, PI_WARN, "Unhandled response command (report this, please)", EXPFILL }},
+	};
+
+	expert_module_t* expert_msproxy;
+
 	proto_msproxy = proto_register_protocol( "MS Proxy Protocol",
 		"MS Proxy", "msproxy");
 
 	proto_register_field_array(proto_msproxy, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_msproxy = expert_register_protocol(proto_msproxy);
+	expert_register_field_array(expert_msproxy, ei, array_length(ei));
 
 	register_init_routine( &msproxy_reinit);	/* register re-init routine */
 

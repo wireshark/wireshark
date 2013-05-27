@@ -42,6 +42,8 @@ static int hf_mpeg_sect_crc = -1;
 
 static gint ett_mpeg_sect = -1;
 
+static expert_field ei_mpeg_sect_crc = EI_INIT;
+
 static dissector_table_t mpeg_sect_tid_dissector_table;
 
 static gboolean mpeg_sect_check_crc = FALSE;
@@ -256,15 +258,14 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
             end, 4, crc, "CRC: 0x%08x [%s]", crc, label);
     } else {
-        proto_item *msg_error = NULL;
+        proto_item *msg_error;
 
         msg_error = proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
                             end, 4, crc,
                             "CRC: 0x%08x [Failed Verification (Calculated: 0x%08x)]",
                             crc, calculated_crc );
         PROTO_ITEM_SET_GENERATED(msg_error);
-        expert_add_info_format( pinfo, msg_error, PI_MALFORMED,
-                    PI_ERROR, "Invalid CRC" );
+        expert_add_info( pinfo, msg_error, &ei_mpeg_sect_crc);
     }
 
     return 4;
@@ -338,13 +339,21 @@ proto_register_mpeg_sect(void)
     static gint *ett[] = {
         &ett_mpeg_sect
     };
+
+    static ei_register_info ei[] = {
+        { &ei_mpeg_sect_crc, { "mpeg_sect.crc.invalid", PI_CHECKSUM, PI_WARN, "Invalid CRC", EXPFILL }},
+    };
+
     module_t *mpeg_sect_module;
+    expert_module_t* expert_mpeg_sect;
 
     proto_mpeg_sect = proto_register_protocol("MPEG2 Section", "MPEG SECT", "mpeg_sect");
     register_dissector("mpeg_sect", dissect_mpeg_sect, proto_mpeg_sect);
 
     proto_register_field_array(proto_mpeg_sect, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mpeg_sect = expert_register_protocol(proto_mpeg_sect);
+    expert_register_field_array(expert_mpeg_sect, ei, array_length(ei));
 
     mpeg_sect_module = prefs_register_protocol(proto_mpeg_sect, NULL);
 

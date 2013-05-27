@@ -103,6 +103,9 @@ static int hf_ltp_fragment_count = -1;
 static int hf_ltp_reassembled_in = -1;
 static int hf_ltp_reassembled_length = -1;
 
+static expert_field ei_ltp_neg_reception_claim_count = EI_INIT;
+static expert_field ei_ltp_mal_reception_claim = EI_INIT;
+
 static const value_string ltp_type_codes[] = {
 	{0x0, "Red data, NOT {Checkpoint, EORP or EOB}"},
 	{0x1, "Red data, Checkpoint, NOT {EORP or EOB}"},
@@ -435,7 +438,8 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	rcpt_clm_cnt = evaluate_sdnv(tvb, frame_offset + segment_offset, &rcpt_clm_cnt_size);
 	if (rcpt_clm_cnt < 0){
 		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
-		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Negative reception claim count: %d", rcpt_clm_cnt);
+		expert_add_info_format_text(pinfo, ltp_tree, &ei_ltp_neg_reception_claim_count,
+				"Negative reception claim count: %d", rcpt_clm_cnt);
 		return 0;
 	}
     /* Each reception claim is at least 2 bytes, so if the count is larger than the
@@ -444,7 +448,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
      */
 	if (rcpt_clm_cnt > tvb_length_remaining(tvb, frame_offset + segment_offset) / 2) {
 		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
-		expert_add_info_format(pinfo, ltp_tree, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, ltp_tree, &ei_ltp_mal_reception_claim,
 				"Reception claim count impossibly large: %d > %d", rcpt_clm_cnt,
 				tvb_length_remaining(tvb, frame_offset + segment_offset) / 2);
 		return 0;
@@ -963,12 +967,22 @@ proto_register_ltp(void)
 		&ett_ltp_fragments
 	};
 
-/* Register the protocol name and description */
+	static ei_register_info ei[] = {
+		{ &ei_ltp_neg_reception_claim_count, { "ltp.neg_reception_claim_count", PI_UNDECODED, PI_ERROR, "Negative reception claim count", EXPFILL }},
+		{ &ei_ltp_mal_reception_claim, { "ltp.mal_reception_claim", PI_MALFORMED, PI_ERROR, "Reception claim count impossibly large", EXPFILL }},
+	};
+
+	expert_module_t* expert_ltp;
+
+	/* Register the protocol name and description */
 	proto_ltp = proto_register_protocol("Licklider Transmission Protocol",
 		"LTP", "ltp");
 
 	proto_register_field_array(proto_ltp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ltp = expert_register_protocol(proto_ltp);
+	expert_register_field_array(expert_ltp, ei, array_length(ei));
+
 	ltp_module = prefs_register_protocol(proto_ltp, proto_reg_handoff_ltp);
 
 	prefs_register_obsolete_preference(ltp_module, "udp.port");

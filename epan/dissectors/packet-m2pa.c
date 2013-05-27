@@ -74,6 +74,8 @@ static int hf_undecode_data   = -1;
 static gint ett_m2pa       = -1;
 static gint ett_m2pa_li    = -1;
 
+static expert_field ei_undecode_data = EI_INIT;
+
 static dissector_handle_t mtp3_handle;
 
 typedef enum {
@@ -483,7 +485,7 @@ dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa
     proto_item *pi;
 
     pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), ENC_NA);
-    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
+    expert_add_info_format_text(pinfo, pi, &ei_undecode_data,
 			   "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
 			   actual_length, length);
   }
@@ -590,10 +592,18 @@ proto_register_m2pa(void)
     { NULL, NULL, 0 }
   };
 
+  static ei_register_info ei[] = {
+     { &ei_undecode_data, { "m2pa.undecoded_data.expert", PI_MALFORMED, PI_WARN, "There are bytes of data which is greater than M2PA's length parameter", EXPFILL }},
+  };
+
+  expert_module_t* expert_m2pa;
+
   proto_m2pa = proto_register_protocol("MTP2 Peer Adaptation Layer", "M2PA", "m2pa");
 
   proto_register_field_array(proto_m2pa, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_m2pa = expert_register_protocol(proto_m2pa);
+  expert_register_field_array(expert_m2pa, ei, array_length(ei));
 
   /* Allow other dissectors to find this one by name. */
   register_dissector("m2pa", dissect_m2pa, proto_m2pa);

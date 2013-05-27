@@ -65,6 +65,9 @@ static int hf_enc_data = -1;
 static int hf_reply_buffer_size = -1;
 static int hf_encrypt_error = -1;
 
+static expert_field ei_encrypt_error = EI_INIT;
+static expert_field ei_return_error = EI_INIT;
+
 static const value_string nmas_func_enum[] = {
     { 0x01, "Ping" },
     { 0x02, "Fragment" },
@@ -599,7 +602,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", str);
                         expert_item = proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, ENC_BIG_ENDIAN);
-                        expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Payload Error: %s", str);
+                        expert_add_info_format_text(pinfo, expert_item, &ei_encrypt_error, "NMAS Payload Error: %s", str);
                     }
                     else
                     {
@@ -622,7 +625,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         if (str)
         {
             expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
-            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x %s", return_code, str);
+            expert_add_info_format_text(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x %s", return_code, str);
             col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", str);
         }
         else
@@ -630,7 +633,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
             if (return_code!=0)
             {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
-                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x is unknown", return_code);
+                expert_add_info_format_text(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x is unknown", return_code);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                    col_add_fstr(pinfo->cinfo, COL_INFO, "R Unknown NMAS Error - 0x%08x", return_code);
                 }
@@ -789,7 +792,16 @@ proto_register_nmas(void)
         &ett_nmas,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_encrypt_error, { "nmas.encrypt_error.expert", PI_RESPONSE_CODE, PI_NOTE, "NMAS Payload Erro", EXPFILL }},
+        { &ei_return_error, { "nmas.return_code.expert", PI_RESPONSE_CODE, PI_NOTE, "NMAS Error", EXPFILL }},
+    };
+
+    expert_module_t* expert_nmas;
+
     proto_nmas = proto_register_protocol("Novell Modular Authentication Service", "NMAS", "nmas");
     proto_register_field_array(proto_nmas, hf_nmas, array_length(hf_nmas));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_nmas = expert_register_protocol(proto_nmas);
+    expert_register_field_array(expert_nmas, ei, array_length(ei));
 }

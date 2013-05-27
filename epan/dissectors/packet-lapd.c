@@ -82,6 +82,9 @@ static gint ett_lapd_control = -1;
 static gint ett_lapd_checksum = -1;
 static gint pref_lapd_rtp_payload_type = 0;
 
+static expert_field ei_lapd_abort = EI_INIT;
+static expert_field ei_lapd_checksum_bad = EI_INIT;
+
 static dissector_table_t lapd_sapi_dissector_table;
 static dissector_table_t lapd_gsm_sapi_dissector_table;
 
@@ -212,11 +215,10 @@ lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 {	proto_tree *lapd_tree;
 	proto_item *lapd_ti, *pi;
 
-	lapd_ti = proto_tree_add_item(tree, proto_lapd, tvb, offset, 1,
-	    ENC_NA);
+	lapd_ti = proto_tree_add_item(tree, proto_lapd, tvb, offset, 1, ENC_NA);
 	lapd_tree = proto_item_add_subtree(lapd_ti, ett_lapd);
 	pi = proto_tree_add_boolean(lapd_tree, hf_lapd_abort, tvb, offset, 1, TRUE);
-	expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "%s", msg);
+	expert_add_info_format_text(pinfo, pi, &ei_lapd_abort, "%s", msg);
 }
 
 static void
@@ -557,7 +559,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 			checksum_tree = proto_item_add_subtree(checksum_ti, ett_lapd_checksum);
 			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_good, tvb, checksum_offset, 2, FALSE);
 			pi = proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_bad, tvb, checksum_offset, 2, TRUE);
-			expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_WARN, "Bad FCS");
+			expert_add_info(pinfo, pi, &ei_lapd_checksum_bad);
 		}
 
 		next_tvb = tvb_new_subset(tvb, lapd_header_len, tvb_length_remaining(tvb,lapd_header_len) - 2, tvb_length_remaining(tvb,lapd_header_len) - 2);
@@ -565,7 +567,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	} else
 		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);
 
-    /* Dissection done, append " | " to COL_INFO */
+	/* Dissection done, append " | " to COL_INFO */
 	col_append_fstr(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -701,12 +703,20 @@ proto_register_lapd(void)
         &ett_lapd_checksum
     };
 
+	static ei_register_info ei[] = {
+		{ &ei_lapd_abort, { "lapd.abort.expert", PI_PROTOCOL, PI_ERROR, "Formatted message", EXPFILL }},
+		{ &ei_lapd_checksum_bad, { "lapd.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad FCS", EXPFILL }},
+	};
+
 	module_t *lapd_module;
+	expert_module_t* expert_lapd;
 
 	proto_lapd = proto_register_protocol("Link Access Procedure, Channel D (LAPD)",
 					 "LAPD", "lapd");
 	proto_register_field_array (proto_lapd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_lapd = expert_register_protocol(proto_lapd);
+	expert_register_field_array(expert_lapd, ei, array_length(ei));
 
 	register_dissector("lapd", dissect_lapd, proto_lapd);
 

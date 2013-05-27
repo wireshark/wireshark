@@ -68,7 +68,6 @@ static int hf_mp2t_pid = -1;
 static int hf_mp2t_tsc = -1;
 static int hf_mp2t_afc = -1;
 static int hf_mp2t_cc = -1;
-static int hf_mp2t_cc_drop = -1;
 
 /* static int hf_mp2t_analysis_flags = -1; */
 static int hf_mp2t_analysis_skips = -1;
@@ -217,6 +216,9 @@ static int hf_msg_fragment_error = -1;
 static int hf_msg_fragment_count = -1;
 static int hf_msg_reassembled_in = -1;
 static int hf_msg_reassembled_length = -1;
+
+static expert_field ei_mp2t_pointer = EI_INIT;
+static expert_field ei_mp2t_cc_drop = EI_INIT;
 
 static const fragment_items mp2t_msg_frag_items = {
 	/* Fragment subtrees */
@@ -620,8 +622,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 		remaining_len--;
 		if (pointer > remaining_len) {
 			/* Bogus pointer */
-			expert_add_info_format(pinfo, pi, PI_MALFORMED,
-			    PI_ERROR,
+			expert_add_info_format_text(pinfo, pi, &ei_mp2t_pointer,
 			    "Pointer value is too large (> remaining data length %u)",
 			    remaining_len);
 		}
@@ -921,27 +922,20 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 	/* Add info to the proto tree about drops */
 	if (detected_drop) {
-
-		flags_item =
-			proto_tree_add_none_format(
-				tree, hf_mp2t_cc_drop, tvb, 0, 0,
-				"Detected %d missing TS frames before this"
-				" (last_cc:%d total skips:%d discontinuity:%d)",
+		expert_add_info_format_text(pinfo, tree, &ei_mp2t_cc_drop,
+				"Detected %d missing TS frames before this (last_cc:%d total skips:%d discontinuity:%d)",
 				skips, cc_prev,
 				mp2t_data->total_skips,
 				mp2t_data->total_discontinuity
 				);
-
-		PROTO_ITEM_SET_GENERATED(flags_item);
-		expert_add_info_format(pinfo, flags_item, PI_MALFORMED,
-				       PI_ERROR, "Detected TS frame loss");
 
 		flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_skips,
 					       tvb, 0, 0, skips);
 		PROTO_ITEM_SET_GENERATED(flags_item);
 
 		flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_drops,
-					       tvb, 0, 0, 1);
+
+            tvb, 0, 0, 1);
 		PROTO_ITEM_SET_GENERATED(flags_item);
 
 	}
@@ -1331,10 +1325,6 @@ proto_register_mp2t(void)
 			"Continuity Counter", "mp2t.cc",
 			FT_UINT32, BASE_DEC, NULL, MP2T_CC_MASK, NULL, HFILL
 		} } ,
-		{ &hf_mp2t_cc_drop, {
-			"Continuity Counter Drops", "mp2t.cc.drop",
-			FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
-		} } ,
 #if 0
 		{ &hf_mp2t_analysis_flags, {
 			"MPEG2-TS Analysis Flags", "mp2t.analysis.flags",
@@ -1549,10 +1539,19 @@ proto_register_mp2t(void)
 		&ett_msg_fragments
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_mp2t_pointer, { "mp2t.pointer", PI_MALFORMED, PI_ERROR, "Pointer value is too large", EXPFILL }},
+		{ &ei_mp2t_cc_drop, { "mp2t.cc.drop", PI_MALFORMED, PI_ERROR, "Detected missing TS frames", EXPFILL }},
+	};
+
+	expert_module_t* expert_mp2t;
+
 	proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
 	register_dissector("mp2t", dissect_mp2t, proto_mp2t);
 	proto_register_field_array(proto_mp2t, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_mp2t = expert_register_protocol(proto_mp2t);
+	expert_register_field_array(expert_mp2t, ei, array_length(ei));
 
 	register_heur_dissector_list("mp2t.pid", &heur_subdissector_list);
 	/* Register init of processing of fragmented DEPI packets */

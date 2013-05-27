@@ -1154,6 +1154,8 @@ static gint ett_mip6_opt_cr = -1;
 static gint ett_mip6_opt_lmaa = -1;
 static gint ett_mip6_opt_mng = -1;
 
+static expert_field ei_mip6_ie_not_dissected = EI_INIT;
+
 
 typedef struct mip6_opt {
   int           optcode;            /**< code for option */
@@ -3402,11 +3404,8 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                 }
                 proto_tree_add_item(opt_data_tree, hf_mip6_mobility_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (optp == NULL) {
-                    proto_item *expert_item;
                     proto_item_append_text(ti, "(%u byte%s)",len, plurality(len, "", "s"));
-                    expert_item = proto_tree_add_text(opt_tree, tvb,  offset+2, len, "IE data not dissected yet");
-                    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-                    PROTO_ITEM_SET_GENERATED(expert_item);
+                    expert_add_info(pinfo, ti, &ei_mip6_ie_not_dissected);
                 } else {
                     if (dissect != NULL) {
                         /* Option has a dissector. */
@@ -4455,6 +4454,12 @@ proto_register_mip6(void)
         &ett_mip6_opt_mng,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_mip6_ie_not_dissected, { "mip6.ie_not_dissected", PI_UNDECODED, PI_NOTE, "IE data not dissected yet", EXPFILL }},
+    };
+
+    expert_module_t* expert_mip6;
+
     /* Register the protocol name and description */
     proto_mip6 = proto_register_protocol("Mobile IPv6 / Network Mobility", "MIPv6", "mipv6");
 
@@ -4464,6 +4469,8 @@ proto_register_mip6(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mip6, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mip6 = expert_register_protocol(proto_mip6);
+    expert_register_field_array(expert_mip6, ei, array_length(ei));
 
     mip6_vsm_dissector_table = register_dissector_table("mip6.vsm", "Mobile IPv6 vendor specific option", FT_UINT32, BASE_DEC);
 }
