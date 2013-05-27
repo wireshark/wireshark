@@ -805,6 +805,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 
 /* WFA vendor specific subtypes */
 #define WFA_SUBTYPE_P2P 9
+#define WFA_SUBTYPE_WIFI_DISPLAY 10
 #define WFA_SUBTYPE_HS20_INDICATION 16
 #define WFA_SUBTYPE_HS20_ANQP 17
 
@@ -8012,6 +8013,10 @@ dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
   case WFA_SUBTYPE_P2P:
     dissect_wifi_p2p_ie(pinfo, item, tag_tvb, 4, tag_len - 4);
     proto_item_append_text(item, ": P2P");
+    break;
+  case WFA_SUBTYPE_WIFI_DISPLAY:
+    dissect_wifi_display_ie(pinfo, item, tag_tvb, 4, tag_len - 4);
+    proto_item_append_text(item, ": Wi-Fi Display");
     break;
   case WFA_SUBTYPE_HS20_INDICATION:
     dissect_hs20_indication(item, tag_tvb, 4);

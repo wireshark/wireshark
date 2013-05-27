@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include "packet-ieee80211.h"
 #include "packet-wifi-p2p.h"
 
 enum {
@@ -212,6 +213,7 @@ static const value_string p2p_service_protocol_types[] = {
   { 1, "Bonjour" },
   { 2, "UPnP" },
   { 3, "WS-Discovery" },
+  { 4, "Wi-Fi Display" },
   { 0, NULL }
 };
 
@@ -1013,7 +1015,7 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   while (tvb_length_remaining(tvb, offset) >= (request ? 4 : 5)) {
     guint16 len;
     proto_tree *tlv;
-    guint8 type, id;
+    guint8 type, id, sd_proto;
 
     len = tvb_get_letohs(tvb, offset);
     if (len < 2) {
@@ -1037,6 +1039,7 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     proto_tree_add_item(tlv, hf_p2p_anqp_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
+    sd_proto = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tlv, hf_p2p_anqp_service_protocol_type, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv, hf_p2p_anqp_service_transaction_id, tvb,
@@ -1049,6 +1052,8 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                           offset + 2, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tlv, hf_p2p_anqp_response_data, tvb,
                           offset + 3, len - 3, ENC_NA);
+      if (sd_proto == 4)
+        dissect_wifi_display_ie(pinfo, tlv, tvb, offset + 3, len - 3);
     }
     offset += len;
   }
