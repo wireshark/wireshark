@@ -90,6 +90,10 @@ static dissector_table_t gtp_cdr_fmt_dissector_table;
 #define GTP_OPTIONAL    2
 #define GTP_CONDITIONAL 4
 
+#define GTP_TPDU_AS_NONE -1
+#define GTP_TPDU_AS_TPDU 0
+#define GTP_TPDU_AS_SYNC 2
+
 static gboolean g_gtp_over_tcp = TRUE;
 
 static guint g_gtpv0_port  = GTPv0_PORT;
@@ -322,8 +326,16 @@ static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_uli_rai = -1;
 
-static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
+
+static gint dissect_tpdu_as = -1;
+static const enum_val_t gtp_decode_tpdu_as[] = {
+	{"none", "None",   GTP_TPDU_AS_NONE},
+	{"tpdu", "TPDU",   GTP_TPDU_AS_TPDU},
+	{"sync", "SYNC",   GTP_TPDU_AS_SYNC},
+	{NULL, NULL, 0}
+};
+
 
 static int gtp_tap = -1;
 static int gtpv1_tap = -1;
@@ -1661,6 +1673,7 @@ static const value_string tft_code_type[] = {
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
+static dissector_handle_t sync_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
@@ -8175,7 +8188,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     proto_item_set_end (ti, tvb, offset);
 
-    if ((gtp_hdr->message == GTP_MSG_TPDU) && g_gtp_tpdu) {
+    if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU) {
         if(tvb_reported_length_remaining(tvb, offset) > 0){
             proto_tree_add_text(tree, tvb, offset, -1, "T-PDU Data %u bytes", tvb_reported_length_remaining(tvb, offset));
 
@@ -8213,7 +8226,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
-    
+    else if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_SYNC) {
+	next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+	call_dissector(sync_handle, next_tvb, pinfo, tree);
+	col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+    }  
     pinfo->private_data = pd_save;
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
 
@@ -9304,13 +9322,19 @@ proto_register_gtp(void)
                                    &g_gtpv1c_port);
     prefs_register_uint_preference(gtp_module, "v1u_port", "GTPv1 user plane (GTP-U) port", "GTPv1 user plane port (default 2152)", 10,
                                    &g_gtpv1u_port);
-    prefs_register_bool_preference(gtp_module, "dissect_tpdu", "Dissect T-PDU", "Dissect T-PDU", &g_gtp_tpdu);
+    prefs_register_enum_preference(gtp_module, "dissect_tpdu_as",
+                                               "Dissect T-PDU as",
+                                               "Dissect T-PDU as",
+                                               &dissect_tpdu_as,
+                                               gtp_decode_tpdu_as,
+                                               FALSE);
 
     prefs_register_obsolete_preference(gtp_module, "v0_dissect_cdr_as");
     prefs_register_obsolete_preference(gtp_module, "v0_check_etsi");
     prefs_register_obsolete_preference(gtp_module, "v1_check_etsi");
     prefs_register_bool_preference(gtp_module, "check_etsi", "Compare GTP order with ETSI", "GTP ETSI order", &g_gtp_etsi_order);
     prefs_register_obsolete_preference(gtp_module, "ppp_reorder");
+    prefs_register_obsolete_preference(gtp_module, "dissect_tpdu");
 
     /* This preference can be used to disable the dissection of GTP over TCP. Most of the Wireless operators uses GTP over UDP.
      * The preference is set to TRUE by default forbackward compatibility
@@ -9362,6 +9386,7 @@ proto_reg_handoff_gtp(void)
         ip_handle            = find_dissector("ip");
         ipv6_handle          = find_dissector("ipv6");
         ppp_handle           = find_dissector("ppp");
+        sync_handle          = find_dissector("sync");
         data_handle          = find_dissector("data");
         gtpcdr_handle        = find_dissector("gtpcdr");
         sndcpxid_handle      = find_dissector("sndcpxid");
