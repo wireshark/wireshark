@@ -340,6 +340,9 @@ static int hf_scsi_report_opcodes_servactv      = -1;
 static int hf_scsi_report_opcodes_cdb_length    = -1;
 static int hf_scsi_report_opcodes_support       = -1;
 static int hf_scsi_report_opcodes_cdb_usage_data = -1;
+static int hf_scsi_report_opcodes_tdl           = -1;
+static int hf_scsi_report_opcodes_npt           = -1;
+static int hf_scsi_report_opcodes_rct           = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -361,6 +364,7 @@ static gint ett_persresv_control = -1;
 static gint ett_scsi_lun = -1;
 static gint ett_scsi_prevent_allow = -1;
 static gint ett_command_descriptor = -1;
+static gint ett_timeout_descriptor = -1;
 
 static int scsi_tap = -1;
 
@@ -4390,8 +4394,22 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 				tvb_v, offset_v+4, length, ENC_BIG_ENDIAN);
 
 			if (ctdp) {
-				proto_tree_add_text(tree, tvb_v, offset_v+4+length, 12,
-					"No dissection for command timeouts descriptor yet");
+				proto_tree *tr;
+
+				it = proto_tree_add_text(tree, tvb_v, offset_v,
+					 12, "Timeout Descriptor: ");
+
+				tr = proto_item_add_subtree(it,
+					ett_timeout_descriptor);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
+					tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_npt,
+					tvb_v, offset_v + 4, 4, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_rct,
+					tvb_v, offset_v + 8, 4, ENC_BIG_ENDIAN);
 			}
 		} else {
 			/* all commands format */
@@ -4432,8 +4450,20 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 					continue;
 				}
 
-				proto_tree_add_text(tree, tvb_v, offset_v, 12,
-					"No dissection for command timeouts descriptor yet");
+				it = proto_tree_add_text(tree, tvb_v, offset_v,
+					 12, "Timeout Descriptor: ");
+
+				tr = proto_item_add_subtree(it,
+					ett_timeout_descriptor);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
+					tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_npt,
+					tvb_v, offset_v + 4, 4, ENC_BIG_ENDIAN);
+
+				proto_tree_add_item(tr, hf_scsi_report_opcodes_rct,
+					tvb_v, offset_v + 8, 4, ENC_BIG_ENDIAN);
 
 				offset_v += 12;
 				length -= 12;
@@ -6112,6 +6142,15 @@ proto_register_scsi(void)
         { &hf_scsi_report_opcodes_cdb_usage_data,
           {"CDB Usage Data", "scsi.report_opcodes.cdb_usage_data", FT_BYTES, BASE_NONE,
 	   NULL, 0, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_tdl,
+          { "Timeout Descriptor Length", "scsi.report_opcodes.timeout_descriptor_length", FT_UINT16, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_report_opcodes_npt,
+          { "Nominal Command Processing Timeout", "scsi.report_opcodes.ncpt", FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_report_opcodes_rct,
+          { "Recommended Command Timeout", "scsi.report_opcodes.rct", FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -6135,7 +6174,8 @@ proto_register_scsi(void)
         &ett_persresv_control,
         &ett_scsi_lun,
         &ett_scsi_prevent_allow,
-        &ett_command_descriptor
+        &ett_command_descriptor,
+        &ett_timeout_descriptor
     };
     module_t *scsi_module;
 
