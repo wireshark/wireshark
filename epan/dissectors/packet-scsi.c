@@ -2477,8 +2477,12 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
         if (flags & 0x1) {
             proto_tree_add_item(tree, hf_scsi_inquiry_evpd_page, tvb_v, offset_v+1,
                                 1, ENC_BIG_ENDIAN);
-        }
-        else if (flags & 0x2) {
+
+	    col_add_fstr(pinfo->cinfo, COL_INFO, " %s",
+			 val_to_str(tvb_get_guint8(tvb_v, offset_v+1),
+				    scsi_evpd_pagecode_val,
+				    "Unknown VPD 0x%02x"));
+	} else if (flags & 0x2) {
             proto_tree_add_item(tree, hf_scsi_inquiry_cmdt_page, tvb_v, offset_v+1,
                                 1, ENC_BIG_ENDIAN);
         }
