@@ -343,6 +343,13 @@ static int hf_scsi_report_opcodes_cdb_usage_data = -1;
 static int hf_scsi_report_opcodes_tdl           = -1;
 static int hf_scsi_report_opcodes_npt           = -1;
 static int hf_scsi_report_opcodes_rct           = -1;
+static int hf_scsi_inquiry_bdc_mrr              = -1;
+static int hf_scsi_inquiry_bdc_pt               = -1;
+static int hf_scsi_inquiry_bdc_wabereq          = -1;
+static int hf_scsi_inquiry_bdc_wacereq          = -1;
+static int hf_scsi_inquiry_bdc_nff              = -1;
+static int hf_scsi_inquiry_bdc_fuab              = -1;
+static int hf_scsi_inquiry_bdc_vbuls            = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -492,6 +499,7 @@ static const value_string scsi_select_report_val[] = {
 #define SCSI_EVPD_ASCIIOPER       0x82
 #define SCSI_EVPD_DEVID           0x83
 #define SCSI_EVPD_BLKLIMITS       0xb0
+#define SCSI_EVPD_BLKDEVCHAR      0xb1
 #define SCSI_EVPD_LBP             0xb2
 
 static const value_string scsi_evpd_pagecode_val[] = {
@@ -509,7 +517,8 @@ static const value_string scsi_evpd_pagecode_val[] = {
     {SCSI_EVPD_ASCIIOPER, "ASCII Implemented Operating Definition Page"},
     {SCSI_EVPD_DEVID,     "Device Identification Page"},
     {SCSI_EVPD_BLKLIMITS, "Block Limits Page"},
-    {SCSI_EVPD_LBP,        "Logical Block Provisioning Page"},
+    {SCSI_EVPD_BLKDEVCHAR,"Block Device Characteristics"},
+    {SCSI_EVPD_LBP,       "Logical Block Provisioning Page"},
     {0, NULL},
 };
 
@@ -2154,6 +2163,29 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     tvb_format_text(tvb, offset, plen));
             }
             break;
+        case SCSI_EVPD_BLKDEVCHAR:
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_mrr, tvb,
+				offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_pt, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_wabereq, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_wacereq, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_nff, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_fuab, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_vbuls, tvb,
+				offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+	    break;
         case SCSI_EVPD_BLKLIMITS:
             proto_tree_add_item(evpd_tree, hf_scsi_block_limits_wsnz, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -6155,6 +6187,27 @@ proto_register_scsi(void)
 	{ &hf_scsi_report_opcodes_rct,
           { "Recommended Command Timeout", "scsi.report_opcodes.rct", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_mrr,
+          { "Medium Rotation Rate", "scsi.inquiry.bdc.mrr", FT_UINT16, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_pt,
+          { "Product Type", "scsi.inquiry.bdc.pt", FT_UINT8, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_wabereq,
+          { "WABEREQ", "scsi.inquiry.bdc.wabereq", FT_UINT8, BASE_DEC,
+            NULL, 0xc0, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_wacereq,
+          { "WACEREQ", "scsi.inquiry.bdc.wacereq", FT_UINT8, BASE_DEC,
+            NULL, 0x30, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_nff,
+          { "Nominal Form factor", "scsi.inquiry.bdc.nff", FT_UINT8, BASE_DEC,
+            NULL, 0x0f, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_fuab,
+          { "FUAB", "scsi.inquiry.bdc.fuab", FT_BOOLEAN, 8,
+            NULL, 0x02, NULL, HFILL}},
+	{ &hf_scsi_inquiry_bdc_vbuls,
+          { "VBULS", "scsi.inquiry.bdc.vbuls", FT_BOOLEAN, 8,
+            NULL, 0x01, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
