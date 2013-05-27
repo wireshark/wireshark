@@ -215,7 +215,7 @@ dissect_wfd_subelem_coupled_sink(packet_info *pinfo, proto_tree *tree,
 
 static void
 dissect_wfd_subelem_session_info(packet_info *pinfo, proto_tree *tree,
-                                 tvbuff_t *tvb, int offset, guint8 len)
+                                 tvbuff_t *tvb, int offset, guint16 len)
 {
   int end = offset + len, next;
   proto_item *item;
