@@ -2020,7 +2020,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (ID 07)");
         break;
       case M3UA_RFC:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (RFC 3332)");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (RFC 4666)");
         break;
       };
 
@@ -2133,7 +2133,7 @@ proto_register_m3ua(void)
     { "draft-5", "Internet Draft version 5",        M3UA_V5  },
     { "draft-6", "Internet Draft version 6",        M3UA_V6  },
     { "draft-7", "Internet Draft version 7",        M3UA_V7  },
-    { "rfc3332", "RFC 3332",                        M3UA_RFC },
+    { "rfc4666", "RFC 4666",                        M3UA_RFC },
     { NULL, NULL, 0 }
   };
 
