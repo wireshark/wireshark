@@ -28,7 +28,6 @@
 #include <epan/expert.h>
 
 #include "packet-ieee80211.h"
-#include "packet-wifi-p2p.h"
 
 enum {
   P2P_ATTR_STATUS = 0,

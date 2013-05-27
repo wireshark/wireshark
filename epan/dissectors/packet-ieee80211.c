@@ -102,7 +102,6 @@
 #include <epan/uat.h>
 
 #include "packet-wps.h"
-#include "packet-wifi-p2p.h"
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #include <epan/crypt/airpdcap_ws.h>
