@@ -1152,7 +1152,6 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
         {
             case SYSEX_MANUFACTURER_DOD:
             {
-                guint8 checksum;
                 guint8 digitech_helper;
                 const guint8 *data_ptr;
                 int len;
@@ -1182,7 +1181,6 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
                 }
 
                 item = proto_tree_add_item(tree, hf_digitech_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
-                checksum = tvb_get_guint8(tvb, offset);
                 if (digitech_helper == 0)
                 {
                     proto_item_append_text(item, " (correct)");
