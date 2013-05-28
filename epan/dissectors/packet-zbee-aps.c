@@ -135,6 +135,9 @@ static gint ett_zbee_aps_fragments = -1;
 /* Subtree indices for the ZigBee 2004 & earlier Application Framework. */
 static gint ett_zbee_apf = -1;
 
+static expert_field ei_zbee_aps_invalid_delivery_mode = EI_INIT;
+static expert_field ei_zbee_aps_missing_payload = EI_INIT;
+
 /* Dissector Handles. */
 static dissector_handle_t   data_handle;
 static dissector_handle_t   zbee_aps_handle;
@@ -704,7 +707,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else {
         /* Illegal Delivery Mode. */
-        expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_WARN, "Invalid Delivery Mode");
+        expert_add_info(pinfo, proto_root, &ei_zbee_aps_invalid_delivery_mode);
         return;
 
     }
@@ -933,7 +936,7 @@ dissect_zbee_aps_no_endpt:
         case ZBEE_APS_FCF_CMD:
             if (!payload_tvb) {
                 /* Command packets MUST contain a payload. */
-                expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_ERROR, "Missing Payload");
+                expert_add_info(pinfo, proto_root, &ei_zbee_aps_missing_payload);
                 THROW(BoundsError);
                 return;
             }
@@ -1956,10 +1959,19 @@ void proto_register_zbee_aps(void)
         &ett_zbee_apf
     };
 
+    static ei_register_info ei[] = {
+        { &ei_zbee_aps_invalid_delivery_mode, { "zbee_aps.invalid_delivery_mode", PI_PROTOCOL, PI_WARN, "Invalid Delivery Mode", EXPFILL }},
+        { &ei_zbee_aps_missing_payload, { "zbee_aps.missing_payload", PI_MALFORMED, PI_ERROR, "Missing Payload", EXPFILL }},
+    };
+
+    expert_module_t* expert_zbee_aps;
+
     /* Register ZigBee APS protocol with Wireshark. */
     proto_zbee_aps = proto_register_protocol("ZigBee Application Support Layer", "ZigBee APS", ZBEE_PROTOABBREV_APS);
     proto_register_field_array(proto_zbee_aps, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_zbee_aps = expert_register_protocol(proto_zbee_aps);
+    expert_register_field_array(expert_zbee_aps, ei, array_length(ei));
 
     /* Register the APS dissector and subdissector list. */
     zbee_aps_dissector_table = register_dissector_table("zbee.profile", "ZigBee Profile ID", FT_UINT16, BASE_HEX);

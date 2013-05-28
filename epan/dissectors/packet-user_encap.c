@@ -71,6 +71,8 @@ static const value_string user_dlts[] = {
 };
 static int proto_user_encap = -1;
 
+static expert_field ei_user_encap_not_handled = EI_INIT;
+
 static user_encap_t* encaps = NULL;
 static guint num_encaps = 0;
 static uat_t* encaps_uat;
@@ -96,7 +98,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
                                      "check your Preferences->Protocols->DLT_USER",
                          pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
         proto_item_set_text(item,"%s",msg);
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
+        expert_add_info_format_text(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
         call_dissector(data_handle, tvb, pinfo, tree);
         return;
@@ -107,7 +109,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
                                      encap->payload_proto_name,
                                      pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
         proto_item_set_text(item,"%s",msg);
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%s", msg);
+        expert_add_info_format_text(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
         call_dissector(data_handle, tvb, pinfo, tree);
         return;
@@ -195,6 +197,7 @@ void proto_reg_handoff_user_encap(void)
 void proto_register_user_encap(void)
 {
     module_t *module;
+    expert_module_t* expert_user_encap;
 
     static uat_field_t user_flds[] = {
         UAT_FLD_VS(user_encap,encap,"DLT",user_dlts,"The DLT"),
@@ -211,8 +214,13 @@ void proto_register_user_encap(void)
         UAT_END_FIELDS
     };
 
+    static ei_register_info ei[] = {
+        { &ei_user_encap_not_handled, { "user_dlt.not_handled", PI_UNDECODED, PI_WARN, "Formatted text", EXPFILL }},
+    };
 
     proto_user_encap = proto_register_protocol("DLT User","DLT_USER","user_dlt");
+    expert_user_encap = expert_register_protocol(proto_user_encap);
+    expert_register_field_array(expert_user_encap, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_user_encap, NULL);
 

@@ -220,6 +220,8 @@ static gint hf_x25_icrd = -1;
 static gint hf_x25_reg_confirm_cause = -1;
 static gint hf_x25_reg_confirm_diagnostic = -1;
 
+static expert_field ei_x25_facility_length = EI_INIT;
+
 static const value_string vals_modulo[] = {
 	{ 1, "8" },
 	{ 2, "128" },
@@ -828,7 +830,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					int i;
 
 					if ((byte1 < 4) || (byte1 % 4)) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					for (i = 0; (i<byte1); i+=4) {
@@ -846,7 +848,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					int i;
 
 					if ((byte1 < 8) || (byte1 % 8)) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					for (i = 0; (i<byte1); i+=8) {
@@ -870,7 +872,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					char *tmpbuf;
 
 					if (byte1 < 2) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					byte2 = tvb_get_guint8(tvb, *offset+2);
@@ -894,7 +896,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					int i;
 
 					if ((byte1 < 2) || (byte1 % 2)) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					for (i = 0; (i<byte1); i+=2) {
@@ -930,7 +932,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					char *tmpbuf;
 
 					if (byte1 < 1) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
@@ -957,7 +959,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					char *tmpbuf;
 
 					if (byte1 < 2) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					byte2 = tvb_get_guint8(tvb, *offset+2);
@@ -2424,11 +2426,19 @@ proto_register_x25(void)
 	&ett_x25_segment,
 	&ett_x25_segments
     };
+
+    static ei_register_info ei[] = {
+        { &ei_x25_facility_length, { "x25.facility_length.bogus", PI_PROTOCOL, PI_WARN, "Bogus length", EXPFILL }},
+    };
+
     module_t *x25_module;
+    expert_module_t* expert_x25;
 
     proto_x25 = proto_register_protocol ("X.25", "X.25", "x25");
     proto_register_field_array (proto_x25, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_x25 = expert_register_protocol(proto_x25);
+    expert_register_field_array(expert_x25, ei, array_length(ei));
 
     x25_subdissector_table = register_dissector_table("x.25.spi",
 	"X.25 secondary protocol identifier", FT_UINT8, BASE_HEX);

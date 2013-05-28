@@ -85,6 +85,8 @@ static gint ett_ws = -1;
 static gint ett_ws_pl = -1;
 static gint ett_ws_mask = -1;
 
+static expert_field ei_ws_payload_unknown = EI_INIT;
+
 #define WS_CONTINUE 0x0
 #define WS_TEXT     0x1
 #define WS_BINARY   0x2
@@ -289,7 +291,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 
     default: /* Unknown */
       ti = proto_tree_add_item(pl_tree, hf_ws_payload_unknown, tvb, offset, payload_length, ENC_NA);
-      expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Dissector for Websocket Opcode (%d)"
+      expert_add_info_format_text(pinfo, ti, &ei_ws_payload_unknown, "Dissector for Websocket Opcode (%d)"
         " code not implemented, Contact Wireshark developers"
         " if you want this supported", opcode);
     break;
@@ -571,6 +573,10 @@ proto_register_websocket(void)
     &ett_ws_mask
   };
 
+  static ei_register_info ei[] = {
+     { &ei_ws_payload_unknown, { "websocket.payload.unknown.expert", PI_UNDECODED, PI_NOTE, "Dissector for Websocket Opcode", EXPFILL }},
+  };
+
   static const enum_val_t text_types[] = {
       {"None",            "No subdissection", WEBSOCKET_NONE},
       {"Line based text", "Line based text",  WEBSOCKET_TEXT},
@@ -579,6 +585,7 @@ proto_register_websocket(void)
   };
 
   module_t *websocket_module;
+  expert_module_t* expert_websocket;
 
   proto_websocket = proto_register_protocol("WebSocket",
       "WebSocket", "websocket");
@@ -595,6 +602,8 @@ proto_register_websocket(void)
 
   proto_register_field_array(proto_websocket, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_websocket = expert_register_protocol(proto_websocket);
+  expert_register_field_array(expert_websocket, ei, array_length(ei));
 
   new_register_dissector("websocket", dissect_websocket, proto_websocket);
 

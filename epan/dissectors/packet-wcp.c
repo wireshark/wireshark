@@ -167,6 +167,9 @@ static gint ett_wcp = -1;
 static gint ett_wcp_comp_data = -1;
 static gint ett_wcp_field = -1;
 
+static expert_field ei_wcp_compressed_data_exceeds = EI_INIT;
+static expert_field ei_wcp_uncompressed_data_exceeds = EI_INIT;
+
 static dissector_handle_t fr_uncompressed_handle;
 
 /*
@@ -489,7 +492,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	    src_tvb, offset, cnt - offset, ENC_NA);
 	cd_tree = proto_item_add_subtree(cd_item, ett_wcp_comp_data);
 	if (cnt - offset > MAX_WCP_BUF_LEN) {
-		expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, cd_item, &ei_wcp_compressed_data_exceeds,
 			"Compressed data exceeds maximum buffer length (%d > %d)",
 			cnt - offset, MAX_WCP_BUF_LEN);
 		return NULL;
@@ -508,7 +511,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				if ( !pinfo->fd->flags.visited){	/* if first pass */
 					dst = decompressed_entry( src, dst, &len, buf_start, buf_end);
 					if (dst == NULL){
-						expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+						expert_add_info_format_text(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
 							"Uncompressed data exceeds maximum buffer length (%d > %d)",
 							len, MAX_WCP_BUF_LEN);
 						return NULL;
@@ -542,7 +545,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				}
 			}else {
 				if ( ++len >MAX_WCP_BUF_LEN){
-					expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+					expert_add_info_format_text(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
 						"Uncompressed data exceeds maximum buffer length (%d > %d)",
 						len, MAX_WCP_BUF_LEN);
 					return NULL;
@@ -697,9 +700,18 @@ proto_register_wcp(void)
 	&ett_wcp_field,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_wcp_compressed_data_exceeds, { "wcp.compressed_data.exceeds", PI_MALFORMED, PI_ERROR, "Compressed data exceeds maximum buffer length", EXPFILL }},
+        { &ei_wcp_uncompressed_data_exceeds, { "wcp.uncompressed_data.exceeds", PI_MALFORMED, PI_ERROR, "Uncompressed data exceeds maximum buffer length", EXPFILL }},
+    };
+
+    expert_module_t* expert_wcp;
+
     proto_wcp = proto_register_protocol ("Wellfleet Compression", "WCP", "wcp");
     proto_register_field_array (proto_wcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_wcp = expert_register_protocol(proto_wcp);
+    expert_register_field_array(expert_wcp, ei, array_length(ei));
 }
 
 

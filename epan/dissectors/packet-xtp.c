@@ -317,6 +317,8 @@ static gint ett_xtp_aseg = -1;
 static gint ett_xtp_data = -1;
 static gint ett_xtp_diag = -1;
 
+static expert_field ei_xtp_spans_bad = EI_INIT;
+
 /* dissector of each payload */
 static int
 dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
@@ -770,12 +772,12 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	spans_len = 16 * ecntl->nspan;
 
 	if (len != spans_len) {
-		expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR, "Number of spans (%u) incorrect. Should be %u.", ecntl->nspan, len);
+		expert_add_info_format_text(pinfo, top_ti, &ei_xtp_spans_bad, "Number of spans (%u) incorrect. Should be %u.", ecntl->nspan, len);
 		THROW(ReportedBoundsError);
 	}
 
 	if (ecntl->nspan > XTP_MAX_NSPANS) {
-		expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR, "Too many spans: %u", ecntl->nspan);
+		expert_add_info_format_text(pinfo, top_ti, &ei_xtp_spans_bad, "Too many spans: %u", ecntl->nspan);
 		THROW(ReportedBoundsError);
 	}
 
@@ -1409,6 +1411,15 @@ proto_register_xtp(void)
 		&ett_xtp_data,
 		&ett_xtp_diag,
 	};
+
+    static ei_register_info ei[] = {
+        { &ei_xtp_spans_bad, { "xtp.spans_bad", PI_MALFORMED, PI_ERROR, "Number of spans incorrect", EXPFILL }},
+    };
+
+    expert_module_t* expert_xtp;
+
+    expert_xtp = expert_register_protocol(proto_xtp);
+    expert_register_field_array(expert_xtp, ei, array_length(ei));
 
 	proto_xtp = proto_register_protocol("Xpress Transport Protocol",
 	    "XTP", "xtp");

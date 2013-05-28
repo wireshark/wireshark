@@ -115,6 +115,8 @@ static gint ett_xdmcp_authorization_names = -1;
 static gint ett_xdmcp_connections = -1;
 static gint ett_xdmcp_connection = -1;
 
+static expert_field ei_xdmcp_conn_address_mismatch = EI_INIT;
+
 static gint xdmcp_add_string(proto_tree *tree, gint hf,
                              tvbuff_t *tvb, gint offset)
 {
@@ -309,7 +311,7 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       caddrs_offset = offset + 1 + 2*ctypes_len;
       caddrs_len = tvb_get_guint8(tvb, caddrs_offset);
       if (ctypes_len != caddrs_len) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error: Connection type/address arrays don't match");
+        expert_add_info(pinfo, ti, &ei_xdmcp_conn_address_mismatch);
         return offset;
       }
 
@@ -613,6 +615,12 @@ void proto_register_xdmcp(void)
     &ett_xdmcp_connection
   };
 
+  static ei_register_info ei[] = {
+     { &ei_xdmcp_conn_address_mismatch, { "xdmcp.conn_address_mismatch", PI_PROTOCOL, PI_WARN, "Error: Connection type/address arrays don't match", EXPFILL }},
+  };
+
+  expert_module_t* expert_xdmcp;
+
   /* Register the protocol name and description */
   proto_xdmcp = proto_register_protocol("X Display Manager Control Protocol",
                                         "XDMCP", "xdmcp");
@@ -620,6 +628,8 @@ void proto_register_xdmcp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_xdmcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_xdmcp = expert_register_protocol(proto_xdmcp);
+  expert_register_field_array(expert_xdmcp, ei, array_length(ei));
 }
 
 void

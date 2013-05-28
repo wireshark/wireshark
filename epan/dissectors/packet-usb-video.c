@@ -347,6 +347,8 @@ static gint ett_probe_framing = -1;
 static gint ett_video_standards = -1;
 static gint ett_control_capabilities = -1;
 
+static expert_field ei_usb_vid_subtype_unknown = EI_INIT;
+
 /* Lookup tables */
 static const value_string vc_ep_descriptor_subtypes[] = {
         { EP_INTERRUPT, "Interrupt" },
@@ -992,9 +994,9 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
         {
             /* @todo UVC 1.5 */
         }
-        else
+        else 
         {
-            expert_add_info_format(pinfo, subtype_item, PI_UNDECODED, PI_WARN,
+            expert_add_info_format_text(pinfo, subtype_item, &ei_usb_vid_subtype_unknown,
                                    "Unknown VC subtype %u", subtype);
         }
     }
@@ -3216,9 +3218,17 @@ proto_register_usb_vid(void)
             &ett_control_capabilities
     };
 
+    static ei_register_info ei[] = {
+        { &ei_usb_vid_subtype_unknown, { "usbvideo.subtype.unknown", PI_UNDECODED, PI_WARN, "Unknown VC subtype", EXPFILL }},
+    };
+
+    expert_module_t* expert_usb_vid;
+
     proto_usb_vid = proto_register_protocol("USB Video", "USBVIDEO", "usbvideo");
     proto_register_field_array(proto_usb_vid, hf, array_length(hf));
     proto_register_subtree_array(usb_vid_subtrees, array_length(usb_vid_subtrees));
+    expert_usb_vid = expert_register_protocol(proto_usb_vid);
+    expert_register_field_array(expert_usb_vid, ei, array_length(ei));
 }
 
 void

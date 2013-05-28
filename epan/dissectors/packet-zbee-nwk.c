@@ -151,6 +151,8 @@ static gint ett_zbee_nwk_cmd = -1;
 static gint ett_zbee_nwk_cmd_options = -1;
 static gint ett_zbee_nwk_cmd_cinfo = -1;
 
+static expert_field ei_zbee_nwk_missing_payload = EI_INIT;
+
 static dissector_handle_t   data_handle;
 static dissector_handle_t   aps_handle;
 
@@ -668,7 +670,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (offset >= tvb_length(tvb)) {
         /* Non-existent or truncated payload. */
-        expert_add_info_format(pinfo, proto_root, PI_MALFORMED, PI_ERROR, "Missing Payload");
+        expert_add_info(pinfo, proto_root, &ei_zbee_nwk_missing_payload);
         THROW(BoundsError);
     }
     /* Payload is encrypted, attempt security operations. */
@@ -1818,6 +1820,15 @@ void proto_register_zbee_nwk(void)
         &ett_zbee_nwk_cmd_options,
         &ett_zbee_nwk_cmd_cinfo
     };
+
+    static ei_register_info ei[] = {
+        { &ei_zbee_nwk_missing_payload, { "zbee_nwk.missing_payload", PI_MALFORMED, PI_ERROR, "Missing Payload", EXPFILL }},
+    };
+
+    expert_module_t* expert_zbee_nwk;
+
+    expert_zbee_nwk = expert_register_protocol(proto_zbee_nwk);
+    expert_register_field_array(expert_zbee_nwk, ei, array_length(ei));
 
     register_init_routine(proto_init_zbee_nwk);
 

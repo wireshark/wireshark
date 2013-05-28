@@ -180,6 +180,9 @@ static gint ett_configuration_bEndpointAddress = -1;
 static gint ett_endpoint_bmAttributes = -1;
 static gint ett_endpoint_wMaxPacketSize = -1;
 
+static expert_field ei_usb_bLength_even = EI_INIT;
+static expert_field ei_usb_desc_length_invalid = EI_INIT;
+
 static const int *usb_endpoint_fields[] = {
     &hf_usb_endpoint_direction,
     &hf_usb_endpoint_number_value,
@@ -1396,8 +1399,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
 
         /* bLength */
         len_item = proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        expert_add_info_format(pinfo, len_item, PI_PROTOCOL, PI_WARN,
-                    "Invalid STRING DESCRIPTOR Length (must be even)");
+        expert_add_info(pinfo, len_item, &ei_usb_bLength_even);
 
         /* bDescriptorType */
         proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
@@ -1827,7 +1829,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
                 item = proto_tree_add_text(parent_tree, tvb, offset, 1,
                     "Invalid descriptor length: %u",  next_len);
                 proto_item_set_len(item, 1);
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, item, &ei_usb_desc_length_invalid,
                     "Invalid descriptor length: %u",  next_len);
                 item = NULL;
                 break;
@@ -3931,6 +3933,16 @@ proto_register_usb(void)
         &ett_endpoint_bmAttributes,
         &ett_endpoint_wMaxPacketSize
     };
+
+    static ei_register_info ei[] = {
+        { &ei_usb_bLength_even, { "usb.bLength.even", PI_PROTOCOL, PI_WARN, "Invalid STRING DESCRIPTOR Length (must be even)", EXPFILL }},
+        { &ei_usb_desc_length_invalid, { "usb.desc_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid descriptor length", EXPFILL }},
+    };
+
+    expert_module_t* expert_usb;
+
+    expert_usb = expert_register_protocol(proto_usb);
+    expert_register_field_array(expert_usb, ei, array_length(ei));
 
     device_to_product_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "usb device_address, bus_id and frame number to vendor_product");
     device_to_protocol_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "usb device_address, bus_id and frame number to class_subclass_protocol");

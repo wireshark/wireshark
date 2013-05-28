@@ -201,6 +201,8 @@ static gint ett_x11_keyboard_value_mask = -1;   /* XXX - unused */
 static gint ett_x11_same_screen_focus = -1;
 static gint ett_x11_event = -1;
 
+static expert_field ei_x11_invalid_format = EI_INIT;
+
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
 
@@ -3397,7 +3399,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                     LISTofCARD32(data32, v32 * 4);
                 break;
             default:
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid Format");
+                expert_add_info(pinfo, ti, &ei_x11_invalid_format);
                 break;
             }
             PAD();
@@ -5601,7 +5603,13 @@ void proto_register_x11(void)
             &ett_x11_same_screen_focus,
             &ett_x11_event,
       };
+
+      static ei_register_info ei[] = {
+            { &ei_x11_invalid_format, { "x11.invalid_format", PI_PROTOCOL, PI_WARN, "Invalid Format", EXPFILL }},
+      };
+
       module_t *x11_module;
+      expert_module_t* expert_x11;
 
 /* Register the protocol name and description */
       proto_x11 = proto_register_protocol("X11", "X11", "x11");
@@ -5609,6 +5617,8 @@ void proto_register_x11(void)
 /* Required function calls to register the header fields and subtrees used */
       proto_register_field_array(proto_x11, hf, array_length(hf));
       proto_register_subtree_array(ett, array_length(ett));
+      expert_x11 = expert_register_protocol(proto_x11);
+      expert_register_field_array(expert_x11, ei, array_length(ei));
 
       register_init_routine(x11_init_protocol);
 

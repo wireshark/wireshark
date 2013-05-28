@@ -87,6 +87,8 @@ static int hf_tacacs_password = -1;
 
 static gint ett_tacacs = -1;
 
+static expert_field ei_tacplus_packet_len_invalid = EI_INIT;
+
 static gboolean tacplus_preference_desegment = TRUE;
 
 static const char *tacplus_opt_key;
@@ -955,7 +957,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tmp_pi = proto_tree_add_uint(tacplus_tree, hf_tacplus_packet_len, tvb, 8, 4, len);
 		if ((gint)len < 1) {
-			expert_add_info_format(pinfo, tmp_pi, PI_PROTOCOL, PI_WARN, "Invalid length: %u", len);
+			expert_add_info_format_text(pinfo, tmp_pi, &ei_tacplus_packet_len_invalid, "Invalid length: %u", len);
 		}
 
 		tmp_pi = proto_tree_add_text(tacplus_tree, tvb, TAC_PLUS_HDR_SIZE, len, "%s%s",
@@ -1238,11 +1240,19 @@ proto_register_tacplus(void)
 		&ett_tacplus_body,
 		&ett_tacplus_body_chap,
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_tacplus_packet_len_invalid, { "tacplus.packet_len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+	};
+
 	module_t *tacplus_module;
+	expert_module_t* expert_tacplus;
 
 	proto_tacplus = proto_register_protocol("TACACS+", "TACACS+", "tacplus");
 	proto_register_field_array(proto_tacplus, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_tacplus = expert_register_protocol(proto_tacplus);
+	expert_register_field_array(expert_tacplus, ei, array_length(ei));
 	tacplus_module = prefs_register_protocol (proto_tacplus, tacplus_pref_cb );
 
 	prefs_register_bool_preference(tacplus_module, "desegment", "Reassemble TACACS+ messages spanning multiple TCP segments.", "Whether the TACACS+ dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &tacplus_preference_desegment);
