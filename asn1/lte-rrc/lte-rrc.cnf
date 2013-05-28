@@ -1110,3 +1110,49 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_HDR MBMSInterestIndication-r11
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
+  
+#.FN_BODY Paging/systemInfoModification
+%(DEFAULT_BODY)s
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification)");
+  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period - signalled in Paging message");
+
+#.FN_BODY Paging/pagingRecordList
+  /* Number of items is (last 3 bits of first byte and first bit of second) + 1 */
+  guint16 number_of_records = ((tvb_get_ntohs(tvb, 0) >> 7) & 0x0f) + 1;
+%(DEFAULT_BODY)s
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%u PagingRecords)", number_of_records);
+
+#.FN_BODY MasterInformationBlock/systemFrameNumber VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
+  guint32 sfn;
+%(DEFAULT_BODY)s
+  /* Show SFN in info column */
+  sfn = tvb_get_guint8(value_tvb, 0);
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (SFN=%%u)", sfn);
+  
+#.FN_BODY SystemInformationBlockType1/systemInfoValueTag VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  /* Track whether systemInfoValue has changed since last seen, indicating new SI config
+     TODO: add link back to previous config and (if known) time since previous config
+     was first seen */
+  if (!actx->pinfo->fd->flags.visited) {
+    if (system_info_value_current_set && (value != system_info_value_current)) {
+      /* Add entry to the hash table.  Offset by one to distinguish 0 from lookup failure */
+      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num),
+                          GUINT_TO_POINTER(system_info_value_current+1));
+    }
+    system_info_value_current_set = TRUE;
+    system_info_value_current = value;
+  }
+  else {
+    /* Look up indication of changed info value from hash table */
+    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num));
+    if (p_previous != NULL) {
+      /* Subtract one from stored result to get previous value */
+      guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;
+      expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN,
+                             "SI Info Value changed (now %%u, was %%u)", value, previous);
+    }
+  }
+

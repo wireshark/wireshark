@@ -65,6 +65,11 @@ static guint32 lte_rrc_etws_cmas_dcs_key = -1;
 
 static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 
+/* Keep track of where/how the System Info value has changed */
+static GHashTable *lte_rrc_system_info_value_changed_hash = NULL;
+static guint8     system_info_value_current;
+static gboolean   system_info_value_current_set;
+
 /* Include constants */
 
 /*--- Included file: packet-lte-rrc-val.h ---*/
@@ -163,7 +168,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 62 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 67 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -386,7 +391,7 @@ static int hf_lte_rrc_areaConfiguration_v1130 = -1;  /* AreaConfiguration_v1130 
 static int hf_lte_rrc_nonCriticalExtension_18 = -1;  /* T_nonCriticalExtension_08 */
 static int hf_lte_rrc_dl_Bandwidth = -1;          /* T_dl_Bandwidth */
 static int hf_lte_rrc_phich_Config = -1;          /* PHICH_Config */
-static int hf_lte_rrc_systemFrameNumber = -1;     /* BIT_STRING_SIZE_8 */
+static int hf_lte_rrc_systemFrameNumber = -1;     /* T_systemFrameNumber */
 static int hf_lte_rrc_spare = -1;                 /* BIT_STRING_SIZE_10 */
 static int hf_lte_rrc_countingRequestList_r10 = -1;  /* CountingRequestList_r10 */
 static int hf_lte_rrc_nonCriticalExtension_19 = -1;  /* T_nonCriticalExtension_09 */
@@ -455,7 +460,7 @@ static int hf_lte_rrc_messageContCDMA2000_1XRTT_r9 = -1;  /* OCTET_STRING */
 static int hf_lte_rrc_mobilityCDMA2000_HRPD_r9 = -1;  /* T_mobilityCDMA2000_HRPD_r9 */
 static int hf_lte_rrc_messageContCDMA2000_HRPD_r9 = -1;  /* OCTET_STRING */
 static int hf_lte_rrc_redirectCarrierCDMA2000_HRPD_r9 = -1;  /* CarrierFreqCDMA2000 */
-static int hf_lte_rrc_pagingRecordList = -1;      /* PagingRecordList */
+static int hf_lte_rrc_pagingRecordList = -1;      /* T_pagingRecordList */
 static int hf_lte_rrc_systemInfoModification = -1;  /* T_systemInfoModification */
 static int hf_lte_rrc_etws_Indication = -1;       /* T_etws_Indication */
 static int hf_lte_rrc_nonCriticalExtension_32 = -1;  /* Paging_v890_IEs */
@@ -736,7 +741,7 @@ static int hf_lte_rrc_freqBandIndicator = -1;     /* FreqBandIndicator */
 static int hf_lte_rrc_schedulingInfoList = -1;    /* SchedulingInfoList */
 static int hf_lte_rrc_tdd_Config = -1;            /* TDD_Config */
 static int hf_lte_rrc_si_WindowLength = -1;       /* T_si_WindowLength */
-static int hf_lte_rrc_systemInfoValueTag = -1;    /* INTEGER_0_31 */
+static int hf_lte_rrc_systemInfoValueTag = -1;    /* T_systemInfoValueTag */
 static int hf_lte_rrc_nonCriticalExtension_81 = -1;  /* SystemInformationBlockType1_v890_IEs */
 static int hf_lte_rrc_lateNonCriticalExtension_02 = -1;  /* T_lateNonCriticalExtension_01 */
 static int hf_lte_rrc_nonCriticalExtension_82 = -1;  /* SystemInformationBlockType1_v920_IEs */
@@ -2297,7 +2302,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 67 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 72 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -3492,7 +3497,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 177 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 182 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -5334,9 +5339,16 @@ dissect_lte_rrc_PHICH_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_lte_rrc_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_systemFrameNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *value_tvb;
+  guint32 sfn;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL);
+                                     8, 8, FALSE, &value_tvb);
+
+  /* Show SFN in info column */
+  sfn = tvb_get_guint8(value_tvb, 0);
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (SFN=%u)", sfn);
+  
 
   return offset;
 }
@@ -5355,7 +5367,7 @@ dissect_lte_rrc_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static const per_sequence_t MasterInformationBlock_sequence[] = {
   { &hf_lte_rrc_dl_Bandwidth, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_dl_Bandwidth },
   { &hf_lte_rrc_phich_Config, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PHICH_Config },
-  { &hf_lte_rrc_systemFrameNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_8 },
+  { &hf_lte_rrc_systemFrameNumber, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_systemFrameNumber },
   { &hf_lte_rrc_spare       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_10 },
   { NULL, 0, 0, NULL }
 };
@@ -8046,6 +8058,16 @@ dissect_lte_rrc_CarrierFreqsGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
+dissect_lte_rrc_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lte_rrc_INTEGER_0_45(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 45U, NULL, FALSE);
@@ -10413,6 +10435,41 @@ dissect_lte_rrc_T_si_WindowLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
+dissect_lte_rrc_T_systemInfoValueTag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 31U, &value, FALSE);
+
+  /* Track whether systemInfoValue has changed since last seen, indicating new SI config
+     TODO: add link back to previous config and (if known) time since previous config
+     was first seen */
+  if (!actx->pinfo->fd->flags.visited) {
+    if (system_info_value_current_set && (value != system_info_value_current)) {
+      /* Add entry to the hash table.  Offset by one to distinguish 0 from lookup failure */
+      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num),
+                          GUINT_TO_POINTER(system_info_value_current+1));
+    }
+    system_info_value_current_set = TRUE;
+    system_info_value_current = value;
+  }
+  else {
+    /* Look up indication of changed info value from hash table */
+    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num));
+    if (p_previous != NULL) {
+      /* Subtract one from stored result to get previous value */
+      guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;
+      expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN,
+                             "SI Info Value changed (now %u, was %u)", value, previous);
+    }
+  }
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_lte_rrc_T_lateNonCriticalExtension_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
                                                                 NO_BOUND, NO_BOUND, FALSE, dissect_SystemInformationBlockType1_v8h0_IEs_PDU);
@@ -10576,7 +10633,7 @@ static const per_sequence_t SystemInformationBlockType1_sequence[] = {
   { &hf_lte_rrc_schedulingInfoList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SchedulingInfoList },
   { &hf_lte_rrc_tdd_Config  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_TDD_Config },
   { &hf_lte_rrc_si_WindowLength, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_si_WindowLength },
-  { &hf_lte_rrc_systemInfoValueTag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_31 },
+  { &hf_lte_rrc_systemInfoValueTag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_systemInfoValueTag },
   { &hf_lte_rrc_nonCriticalExtension_81, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SystemInformationBlockType1_v890_IEs },
   { NULL, 0, 0, NULL }
 };
@@ -11228,6 +11285,20 @@ dissect_lte_rrc_PagingRecordList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+
+static int
+dissect_lte_rrc_T_pagingRecordList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  /* Number of items is (last 3 bits of first byte and first bit of second) + 1 */
+  guint16 number_of_records = ((tvb_get_ntohs(tvb, 0) >> 7) & 0x0f) + 1;
+  offset = dissect_lte_rrc_PagingRecordList(tvb, offset, actx, tree, hf_index);
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%u PagingRecords)", number_of_records);
+
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_T_systemInfoModification_vals[] = {
   {   0, "true" },
   { 0, NULL }
@@ -11238,6 +11309,10 @@ static int
 dissect_lte_rrc_T_systemInfoModification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification)");
+  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period - signalled in Paging message");
+
 
   return offset;
 }
@@ -11347,7 +11422,7 @@ dissect_lte_rrc_Paging_v890_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t Paging_sequence[] = {
-  { &hf_lte_rrc_pagingRecordList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PagingRecordList },
+  { &hf_lte_rrc_pagingRecordList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_pagingRecordList },
   { &hf_lte_rrc_systemInfoModification, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_systemInfoModification },
   { &hf_lte_rrc_etws_Indication, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_etws_Indication },
   { &hf_lte_rrc_nonCriticalExtension_32, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_Paging_v890_IEs },
@@ -29701,6 +29776,7 @@ static int
 dissect_lte_rrc_MBMSInterestIndication_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
+  
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MBMSInterestIndication_r11, MBMSInterestIndication_r11_sequence);
 
@@ -33879,7 +33955,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1930 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1935 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -33971,11 +34047,11 @@ dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  /* Dissect regardless of whether tree is set, so that we can track whether
+     systemInfoValue has changed */
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -34016,7 +34092,12 @@ lte_rrc_init_protocol(void)
   if (lte_rrc_etws_cmas_dcs_hash) {
     g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
   }
+  if (lte_rrc_system_info_value_changed_hash) {
+    g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
+  }
+
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+  lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
@@ -34891,7 +34972,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_systemFrameNumber,
       { "systemFrameNumber", "lte-rrc.systemFrameNumber",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_8", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_spare,
       { "spare", "lte-rrc.spare",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -36291,7 +36372,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_systemInfoValueTag,
       { "systemInfoValueTag", "lte-rrc.systemInfoValueTag",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_31", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_nonCriticalExtension_81,
       { "nonCriticalExtension", "lte-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42522,7 +42603,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2076 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2086 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44030,7 +44111,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2499 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2509 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44082,7 +44163,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2535 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2545 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

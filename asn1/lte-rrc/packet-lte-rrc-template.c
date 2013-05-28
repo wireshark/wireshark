@@ -57,6 +57,11 @@ static guint32 lte_rrc_etws_cmas_dcs_key = -1;
 
 static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 
+/* Keep track of where/how the System Info value has changed */
+static GHashTable *lte_rrc_system_info_value_changed_hash = NULL;
+static guint8     system_info_value_current;
+static gboolean   system_info_value_current_set;
+
 /* Include constants */
 #include "packet-lte-rrc-val.h"
 
@@ -2018,11 +2023,11 @@ dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+  /* Dissect regardless of whether tree is set, so that we can track whether
+     systemInfoValue has changed */
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 static void
@@ -2063,7 +2068,12 @@ lte_rrc_init_protocol(void)
   if (lte_rrc_etws_cmas_dcs_hash) {
     g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
   }
+  if (lte_rrc_system_info_value_changed_hash) {
+    g_hash_table_destroy(lte_rrc_system_info_value_changed_hash);
+  }
+
   lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+  lte_rrc_system_info_value_changed_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 /*--- proto_register_rrc -------------------------------------------*/
