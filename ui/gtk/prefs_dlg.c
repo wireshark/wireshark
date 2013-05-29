@@ -141,11 +141,12 @@ pref_show(pref_t *pref, gpointer user_data)
   label_string = (char *)g_malloc(label_len);
   g_strlcpy(label_string, title, label_len);
 
-  tooltip_txt = pref->description? g_strdup_printf("%s.%s: %s\n%s",
+  tooltip_txt = pref->description? g_strdup_printf("%s\n\nName: %s.%s\nType: %s",
+                                                   pref->description,
                                                    module->name,
                                                    pref->name,
-                                                   type_name ? type_name : "Unknown",
-                                                   pref->description): NULL;
+                                                   type_name ? type_name : "Unknown"
+                                                   ): NULL;
 
   /*
    * Sometimes we don't want to append a ':' after a static text string...

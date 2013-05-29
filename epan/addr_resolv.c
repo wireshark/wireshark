@@ -2406,17 +2406,17 @@ addr_resolve_pref_init(module_t *nameres)
     prefs_register_bool_preference(nameres, "network_name",
                                    "Resolve network (IP) addresses",
                                    "Resolve IPv4, IPv6, and IPX addresses into host names."
-                                   " Next set of check boxes determines how name resolution should be performed"
-                                   " If unchecked name resolution is made from Wiresharks host file,"
-                                   " name resolution block and DNS packets in the capture",
+                                   " The next set of check boxes determines how name resolution should be performed."
+                                   " If no other options are checked name resolution is made from Wireshark's host file,"
+                                   " capture file name resolution blocks and DNS packets in the capture.",
                                    &gbl_resolv_flags.network_name);
 
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
                                    "Use an external network name resolver",
-                                   "Use the (system's) configured name resolver"
+                                   "Use your system's configured name resolver"
                                    " (usually DNS) to resolve network names."
                                    " Only applies when network name resolution"
-                                   " is enabled",
+                                   " is enabled.",
                                    &gbl_resolv_flags.use_external_net_name_resolver);
 
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
