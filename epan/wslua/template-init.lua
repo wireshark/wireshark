@@ -66,6 +66,8 @@ end
 
 -- %WTAP_ENCAPS%
 
+-- %WTAP_FILETYPES%
+
 -- %FT_TYPES%
 
 -- %BASES%

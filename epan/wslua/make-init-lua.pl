@@ -33,6 +33,7 @@ my $WSROOT = shift;
 die "'$WSROOT' is not a directory" unless -d $WSROOT;
 
 my $wtap_encaps_table = '';
+my $wtap_filetypes_table = '';
 my $ft_types_table = '';
 my $bases_table = '';
 my $encodings = '';
@@ -41,6 +42,7 @@ my $menu_groups = '';
 
 my %replacements = %{{
     WTAP_ENCAPS => \$wtap_encaps_table,
+    WTAP_FILETYPES => \$wtap_filetypes_table,
     FT_TYPES => \$ft_types_table,
     BASES => \$bases_table,
     ENCODINGS => \$encodings,
@@ -62,10 +64,12 @@ close TEMPLATE;
 #
 # Extract values from wiretap/wtap.h:
 #
+#   WTAP_FILE_  values
 #	WTAP_ENCAP_ values
 #
 
-$wtap_encaps_table = "-- Wiretap encapsulations\nwtap = {\n";
+$wtap_encaps_table = "-- Wiretap encapsulations XXX\nwtap = wtap_encaps = {\n";
+$wtap_filetypes_table = "-- Wiretap file types\nwtap_filetypes = {\n";
 
 open WTAP_H, "< $WSROOT/wiretap/wtap.h" or die "cannot open '$WSROOT/wiretap/wtap.h':  $!";
 
@@ -73,9 +77,14 @@ while(<WTAP_H>) {
     if ( /^#define WTAP_ENCAP_([A-Z0-9_]+)\s+(\d+)/ ) {
         $wtap_encaps_table .= "\t[\"$1\"] = $2,\n";
     }
+
+    if ( /^#define WTAP_FILE_([A-Z0-9_]+)\s+(\d+)/ ) {
+        $wtap_filetypes_table .= "\t[\"$1\"] = $2,\n";
+    }
 }
 
 $wtap_encaps_table =~ s/,\n$/\n}\n/msi;
+$wtap_filetypes_table =~ s/,\n$/\n}\n/msi;
 
 #
 # Extract values from epan/ftypes/ftypes.h:
