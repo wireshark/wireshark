@@ -2,7 +2,7 @@
 #
 # make-init-lua.pl
 #
-# create the init.lua file based on a template (stdin) 
+# create the init.lua file based on a template (stdin)
 #
 # (c) 2006, Luis E. Garcia Onatnon <luis@ontanon.org>
 #
@@ -68,7 +68,7 @@ close TEMPLATE;
 #	WTAP_ENCAP_ values
 #
 
-$wtap_encaps_table = "-- Wiretap encapsulations XXX\nwtap = wtap_encaps = {\n";
+$wtap_encaps_table = "-- Wiretap encapsulations XXX\nwtap_encaps = {\n";
 $wtap_filetypes_table = "-- Wiretap file types\nwtap_filetypes = {\n";
 
 open WTAP_H, "< $WSROOT/wiretap/wtap.h" or die "cannot open '$WSROOT/wiretap/wtap.h':  $!";
