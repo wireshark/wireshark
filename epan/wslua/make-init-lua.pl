@@ -83,7 +83,7 @@ while(<WTAP_H>) {
     }
 }
 
-$wtap_encaps_table =~ s/,\n$/\n}\n/msi;
+$wtap_encaps_table =~ s/,\n$/\n}\nwtap = wtap_encaps -- for bw compatibility\n/msi;
 $wtap_filetypes_table =~ s/,\n$/\n}\n/msi;
 
 #
