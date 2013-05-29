@@ -422,6 +422,8 @@ sctp_set_filter(GtkButton *button _U_, struct sctp_analyse *u_data)
 	gchar *filter_string = NULL;
 
 	selected_stream = u_data->assoc;
+	if (selected_stream == NULL)
+		return;
 
 	if (selected_stream->check_address == FALSE)
 	{
