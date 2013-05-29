@@ -37,8 +37,12 @@ if [ `builtin type -p xsel` ]  ; then
     PBCOPY="xsel --clipboard --input"
 fi
 
+if [ `builtin type -p putclip` ]  ; then
+    PBCOPY="putclip"
+fi
+
 if [ -z "$PBCOPY" ] ; then
-    echo "Can't find an clipboard copy. Check if pbcopy or xsel is installed in your system"
+    echo "Can't find an clipboard copy. Check if pbcopy, xsel or putclip is installed in your system"
     exit 1
 fi
 function exit_err
