@@ -154,6 +154,8 @@ static gint hf_m2m_value_preamble_uint16 = -1;
 static gint hf_m2m_value_harq_ack_burst_bytes = -1;
 static gint hf_m2m_phy_attributes = -1;
 
+static expert_field ei_m2m_unexpected_length = EI_INIT;
+
 /* Register M2M defrag table init routine. */
 static void
 m2m_defragment_init(void)
@@ -394,7 +396,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (offset - tlv_offset == expected_len) {
 					proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf, encoding);
 				} else {
-					expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Expected length %d, got %d.", expected_len, offset - tlv_offset);
+					expert_add_info_format_text(pinfo, NULL, &ei_m2m_unexpected_length, "Expected length %d, got %d.", expected_len, offset - tlv_offset);
 				}
 			}
 			offset += tlv_len;
@@ -773,7 +775,13 @@ void proto_register_m2m(void)
 			&ett_m2m_ffb,
 		};
 
-	proto_m2m = proto_register_protocol (
+	static ei_register_info ei[] = {
+		{ &ei_m2m_unexpected_length, { "m2m.unexpected_length", PI_MALFORMED, PI_ERROR, "Unexpected length", EXPFILL }},
+	};
+
+	expert_module_t* expert_m2m;
+
+    proto_m2m = proto_register_protocol (
 		"WiMax Mac to Mac Packet", /* name       */
 		"M2M  (m2m)",              /* short name */
 		"m2m"                      /* abbrev     */
@@ -782,6 +790,8 @@ void proto_register_m2m(void)
 	proto_register_field_array(proto_m2m, hf, array_length(hf));
 	proto_register_field_array(proto_m2m, hf_tlv, array_length(hf_tlv));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_m2m = expert_register_protocol(proto_m2m);
+	expert_register_field_array(expert_m2m, ei, array_length(ei));
 
 	/* Register the PDU fragment table init routine */
 	register_init_routine(m2m_defragment_init);

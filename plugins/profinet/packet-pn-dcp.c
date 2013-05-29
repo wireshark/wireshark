@@ -90,6 +90,8 @@ static int hf_pn_dcp_suboption_manuf = -1;
 static gint ett_pn_dcp = -1;
 static gint ett_pn_dcp_block = -1;
 
+static expert_field ei_pn_dcp_block_error_unknown = EI_INIT;
+static expert_field ei_pn_dcp_ip_conflict = EI_INIT;
 
 
 #define PNDCP_SERVICE_ID_GET        0x03
@@ -385,7 +387,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    val_to_str(block_info, pn_dcp_suboption_ip_block_info, "Undecoded"));
             block_length -= 2;
             if (block_info & 0x80) {
-                expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "IP address conflict detected!");
+                expert_add_info(pinfo, item, &ei_pn_dcp_ip_conflict);
             }
         }
 
@@ -697,7 +699,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         offset += 1;
         if (block_error != 0) {
-            expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_CHAT, "%s",
+            expert_add_info_format_text(pinfo, item, &ei_pn_dcp_block_error_unknown, "%s",
                                     val_to_str(block_error, pn_dcp_block_error, "Unknown"));
         }
         info_str = ep_strdup_printf(", Response(%s)",
@@ -1181,9 +1183,19 @@ proto_register_pn_dcp (void)
         &ett_pn_dcp,
         &ett_pn_dcp_block
     };
+
+    static ei_register_info ei[] = {
+        { &ei_pn_dcp_block_error_unknown, { "pn_dcp.block_error.unknown", PI_RESPONSE_CODE, PI_CHAT, "Unknown", EXPFILL }},
+        { &ei_pn_dcp_ip_conflict, { "pn_dcp.ip_conflict", PI_RESPONSE_CODE, PI_NOTE, "IP address conflict detected!", EXPFILL }},
+    };
+
+    expert_module_t* expert_pn_dcp;
+
     proto_pn_dcp = proto_register_protocol ("PROFINET DCP", "PN-DCP", "pn_dcp");
     proto_register_field_array (proto_pn_dcp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    expert_pn_dcp = expert_register_protocol(proto_pn_dcp);
+    expert_register_field_array(expert_pn_dcp, ei, array_length(ei));
 }
 
 void

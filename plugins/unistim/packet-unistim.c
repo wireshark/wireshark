@@ -129,6 +129,8 @@ static int hf_generic_string=-1;
 
 static gint ett_unistim = -1;
 
+static expert_field ei_unistim_len = EI_INIT;
+
 static const value_string packet_names[]={
    {0,"NAK"},
    {1,"ACK"},
@@ -416,7 +418,7 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
    if (msg_len<=2)
    {
       ti=proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,ENC_BIG_ENDIAN);
-      expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Length too short");
+      expert_add_info(pinfo,ti,&ei_unistim_len);
       return tvb_length(tvb);
    } else {
       proto_item_set_len(ti,msg_len);
@@ -4053,10 +4055,18 @@ proto_register_unistim(void){
          &ett_unistim
    };
 
+   static ei_register_info ei[] = {
+       { &ei_unistim_len, { "unistim.len.bad", PI_MALFORMED, PI_ERROR, "Length too short", EXPFILL }},
+   };
+
+   expert_module_t* expert_unistim;
+
    proto_unistim=proto_register_protocol("UNISTIM Protocol", "UNISTIM", "unistim");
 
    proto_register_subtree_array(ett,array_length(ett));
    proto_register_field_array(proto_unistim,hf,array_length(hf));
+   expert_unistim = expert_register_protocol(proto_unistim);
+   expert_register_field_array(expert_unistim, ei, array_length(ei));
 
    unistim_tap = register_tap("unistim");
 

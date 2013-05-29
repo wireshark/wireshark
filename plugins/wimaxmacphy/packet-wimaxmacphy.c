@@ -308,6 +308,8 @@ static gint ett_wimaxmacphy_ul_sub_burst_harq_chase                  = -1;
 static gint ett_wimaxmacphy_ul_sub_burst_mimo_chase                  = -1;
 static gint ett_wimaxmacphy_ul_sub_burst_sub_allocation_specific     = -1;
 
+static expert_field ei_wimaxmacphy_unknown = EI_INIT;
+
 /* Preferences */
 static guint wimaxmacphy_udp_port = 0;
 
@@ -2483,7 +2485,7 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         item = proto_tree_add_item(wimaxmacphy_tree, hf_wimaxmacphy_unknown,
                                    tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
 
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unexpected bytes");
+        expert_add_info(pinfo, item, &ei_wimaxmacphy_unknown);
     }
 
     return tvb_length(tvb);
@@ -5456,6 +5458,12 @@ proto_register_wimaxmacphy(void)
         &ett_wimaxmacphy_ul_sub_burst_sub_allocation_specific
     };
 
+    static ei_register_info ei[] = {
+        { &ei_wimaxmacphy_unknown, { "wimaxmacphy.unexpected_bytes", PI_MALFORMED, PI_ERROR, "Unexpected bytes", EXPFILL }},
+    };
+
+    expert_module_t* expert_wimaxmacphy;
+
     /* Register the protocol name and description */
     proto_wimaxmacphy = proto_register_protocol(
         "WiMAX MAC-PHY over Ethernet",
@@ -5466,6 +5474,8 @@ proto_register_wimaxmacphy(void)
      * used */
     proto_register_field_array(proto_wimaxmacphy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_wimaxmacphy = expert_register_protocol(proto_wimaxmacphy);
+    expert_register_field_array(expert_wimaxmacphy, ei, array_length(ei));
 
     /* Register preferences module (See Section 2.6 for more on
      * preferences) */

@@ -107,6 +107,11 @@ static gint ett_wimaxasncp_tlv_ip_address_mask                   = -1;
 static gint ett_wimaxasncp_tlv_eap                               = -1;
 static gint ett_wimaxasncp_tlv_vendor_specific_information_field = -1;
 
+static expert_field ei_wimaxasncp_tlv_type = EI_INIT;
+static expert_field ei_wimaxasncp_function_type = EI_INIT;
+static expert_field ei_wimaxasncp_op_id = EI_INIT;
+static expert_field ei_wimaxasncp_length_bad = EI_INIT;
+
 /* Header size, up to, but not including, the TLV fields. */
 #define WIMAXASNCP_HEADER_SIZE       20
 
@@ -1896,8 +1901,7 @@ static guint dissect_wimaxasncp_tlvs(
 
             if (tlv_info->decoder == WIMAXASNCP_TLV_UNKNOWN)
             {
-                expert_add_info_format(pinfo, type_item,
-                                       PI_UNDECODED, PI_WARN,
+                expert_add_info_format_text(pinfo, type_item, &ei_wimaxasncp_tlv_type,
                                        "Unknown TLV type (%u)",
                                        type);
             }
@@ -2322,8 +2326,8 @@ dissect_wimaxasncp(
             tvb, offset, 1, function_type,
             "Unknown (%u)", function_type);
 
-        expert_add_info_format(pinfo, function_type_item,
-                               PI_UNDECODED, PI_WARN,
+        expert_add_info_format_text(pinfo, function_type_item,
+                               &ei_wimaxasncp_function_type,
                                "Unknown function type (%u)",
                                function_type);
     }
@@ -2383,8 +2387,7 @@ dissect_wimaxasncp(
     /* Add expert item if not matched */
     if (strcmp(message_name, unknown) == 0)
     {
-        expert_add_info_format(pinfo, item,
-                               PI_UNDECODED, PI_WARN,
+        expert_add_info_format_text(pinfo, item, &ei_wimaxasncp_op_id,
                                "Unknown message op (%u)",
                                0x1f & ui8);
     }
@@ -2414,8 +2417,7 @@ dissect_wimaxasncp(
 
     if (length < WIMAXASNCP_HEADER_SIZE)
     {
-        expert_add_info_format(
-            pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length");
+        expert_add_info(pinfo, item, &ei_wimaxasncp_length_bad);
 
         if (tree)
         {
@@ -3267,6 +3269,15 @@ register_wimaxasncp_fields(const char* unused _U_)
             &ett_wimaxasncp_tlv_vendor_specific_information_field
     };
 
+    static ei_register_info ei[] = {
+        { &ei_wimaxasncp_tlv_type, { "wimaxasncp.tlv.type.unknown", PI_UNDECODED, PI_WARN, "Unknown tlv", EXPFILL }},
+        { &ei_wimaxasncp_function_type, { "wimaxasncp.function_type.unknown", PI_UNDECODED, PI_WARN, "Unknown function type", EXPFILL }},
+        { &ei_wimaxasncp_op_id, { "wimaxasncp.opid.unknown", PI_UNDECODED, PI_WARN, "Unknown message op", EXPFILL }},
+        { &ei_wimaxasncp_length_bad, { "wimaxasncp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
+    };
+
+    expert_module_t* expert_wimaxasncp;
+
     /* ------------------------------------------------------------------------
      * load the XML dictionary
      * ------------------------------------------------------------------------
@@ -3401,6 +3412,10 @@ register_wimaxasncp_fields(const char* unused _U_)
     proto_register_subtree_array(
         (gint**)(void *)wimaxasncp_build_dict.ett->data,
         wimaxasncp_build_dict.ett->len);
+
+    expert_wimaxasncp = expert_register_protocol(proto_wimaxasncp);
+    expert_register_field_array(expert_wimaxasncp, ei, array_length(ei));
+
 }
 
 

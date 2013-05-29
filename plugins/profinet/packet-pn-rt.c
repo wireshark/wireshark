@@ -94,6 +94,8 @@ static int ett_pn_rt_sf = -1;
 static int ett_pn_rt_frag = -1;
 static int ett_pn_rt_frag_status = -1;
 
+static expert_field ei_pn_rt_sf_crc16 = EI_INIT;
+
 /*
  * Here are the global variables associated with
  * the various user definable characteristics of the dissection
@@ -302,7 +304,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 crc = crc16_plain_tvb_offset_seed(tvb, u32SubStart, offset-u32SubStart, 0);
                 if (crc != u16SFCRC16) {
                     proto_item_append_text(item, " [Preliminary check: incorrect, should be: %u]", crc);
-                    expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+                    expert_add_info(pinfo, item, &ei_pn_rt_sf_crc16);
                 } else {
                     proto_item_append_text(item, " [Preliminary check: Correct]");
                 }
@@ -960,13 +962,21 @@ proto_register_pn_rt(void)
         &ett_pn_rt_frag,
         &ett_pn_rt_frag_status
     };
+
+    static ei_register_info ei[] = {
+        { &ei_pn_rt_sf_crc16, { "pn_rt.sf.crc16_bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+    };
+
     module_t *pn_rt_module;
+    expert_module_t* expert_pn_rt;
 
     proto_pn_rt = proto_register_protocol("PROFINET Real-Time Protocol",
                                           "PN-RT", "pn_rt");
 
     proto_register_field_array(proto_pn_rt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pn_rt = expert_register_protocol(proto_pn_rt);
+    expert_register_field_array(expert_pn_rt, ei, array_length(ei));
 
     /* Register our configuration options */
 

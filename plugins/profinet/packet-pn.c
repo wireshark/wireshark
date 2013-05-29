@@ -43,7 +43,7 @@ static int hf_pn_user_bytes = -1;
 static int hf_pn_frag_bytes = -1;
 static int hf_pn_malformed = -1;
 
-
+static expert_field ei_pn_undecoded_data = EI_INIT;
 
 /* dissect an 8 bit unsigned integer */
 int
@@ -204,7 +204,7 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     item = proto_tree_add_string_format(tree, hf_pn_undecoded_data, tvb, offset, length, "data",
         "Undecoded Data: %d bytes", length);
 
-    expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+    expert_add_info_format_text(pinfo, item, &ei_pn_undecoded_data,
                            "Undecoded Data, %u bytes", length);
 
     return offset + length;
@@ -321,11 +321,19 @@ init_pn (int proto)
 
     };
 
-
     /*static gint *ett[] = {
       };*/
 
+    static ei_register_info ei[] = {
+        { &ei_pn_undecoded_data, { "pn.undecoded_data", PI_UNDECODED, PI_WARN, "Undecoded Data", EXPFILL }},
+    };
+
+    expert_module_t* expert_pn;
+
+
     proto_register_field_array (proto, hf, array_length (hf));
     /*proto_register_subtree_array (ett, array_length (ett));*/
+    expert_pn = expert_register_protocol(proto);
+    expert_register_field_array(expert_pn, ei, array_length(ei));
 }
 
