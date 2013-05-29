@@ -16,6 +16,7 @@ body blockquote {
 html body {
   margin: 1em 5% 1em 5%;
   line-height: 1.2;
+  font-family: "Times New Roman", Times, serif;
 }
 
 body div {
@@ -28,8 +29,8 @@ div.list-of-figures p b,
 div.list-of-tables p b,
 div.abstract p.title
 {
-  color: #1f3b5e;
-  font-family: Arial, Helvetica, sans-serif;
+  color: #004698;
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Helvetica, Arial, sans-serif;
 }
 
 div.toc p:first-child,
@@ -60,10 +61,10 @@ div.footnotes hr {
 }
 
 div.navheader th, div.navheader td, div.navfooter td {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Helvetica, Arial, sans-serif;
   font-size: 0.9em;
   font-weight: bold;
-  color: #1f3b5e;
+  color: #004698;
 }
 div.navheader img, div.navfooter img {
   border-style: none;
@@ -106,6 +107,11 @@ body pre {
   color: 333;
 }
 
+pre, tt, code {
+  font-family: Menlo, Consolas, "Bitstream Vera Sans Mono", "Liberation Mono", monospace;
+  font-size: 0.9em;
+}
+
 tt.literal, code.literal {
   color: 333;
 }
@@ -126,7 +132,7 @@ div.sidebar {
 div.sidebar * { padding: 0; }
 div.sidebar div { margin: 0; }
 div.sidebar p.title {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Helvetica, Arial, sans-serif;
   margin-top: 0.5em;
   margin-bottom: 0.2em;
 }
@@ -186,7 +192,7 @@ div.revhistory table {
 div.revhistory th {
   border: none;
   color: #1f3b5e;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Bitstream Vera Sans", "DejaVu Sans", Helvetica, Arial, sans-serif;
 }
 div.revhistory td {
   border: 1px solid silver;
