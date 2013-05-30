@@ -29,6 +29,7 @@ since version 1.10:
 --sort-and-group--
 
 ASTERIX
+SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
 
 --sort-and-group--
 
