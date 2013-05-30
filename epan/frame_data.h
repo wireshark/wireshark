@@ -33,6 +33,15 @@
 #define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)
 #define PINFO_FD_VISITED(pinfo)   ((pinfo)->fd->flags.visited)
 
+/** @file
+ * Low-level frame data and metadata.
+ */
+
+/** @defgroup framedata Frame Data
+ *
+ * @{
+ */
+
 /** @todo XXX - some of this stuff is used only while a packet is being dissected;
    should we keep that stuff in the "packet_info" structure, instead, to
    save memory? */
@@ -119,5 +128,7 @@ WS_DLL_PUBLIC void frame_data_set_before_dissect(frame_data *fdata,
 
 WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
                 guint32 *cum_bytes);
+
+/** @} */
 
 #endif  /* __FRAME_DATA__ */

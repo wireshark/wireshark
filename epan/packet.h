@@ -43,6 +43,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @defgroup packet General Packet Dissection
+ *
+ * @{
+ */
+
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
 
@@ -462,6 +467,8 @@ WS_DLL_PUBLIC void dissector_dump_heur_decodes(void);
 WS_DLL_PUBLIC void register_postdissector(dissector_handle_t);
 extern gboolean have_postdissector(void);
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -57,6 +57,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/** @defgroup prototree The Protocol Tree
+ *
+ * Dissectors use proto_tree_add_* to add items to the protocol tree. In
+ * most cases you'll want to use proto_tree_add_item(). In general
+ * proto_tree_add_text() should be avoided unless you explicitly don't
+ * want to allow filtering.
+ *
+ * @{
+ */
+
 /** The header-field index for the special text pseudo-field. Exported by libwireshark.dll */
 WS_DLL_PUBLIC int hf_text_only;
 
@@ -2103,6 +2113,8 @@ proto_custom_set(proto_tree* tree, const int field_id,
                              gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );
+
+/** @} */
 
 #ifdef __cplusplus
 }

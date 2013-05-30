@@ -64,8 +64,9 @@ typedef enum {
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
 
-/**
- * tvbuffs: dissector use and management
+/** @defgroup tvbuff Testy, Virtual(-izable) Buffers
+ *
+ * Dissector use and management
  *
  *  Consider a collection of tvbs as being a chain or stack of tvbs.
  *
@@ -91,7 +92,10 @@ typedef struct tvbuff tvbuff_t;
  *    This (obviously) also applies to any tvbs chained to the tvb handed
  *    to the dissector.
  *  - Can create its own tvb chain (using tvb_new_real_data() which the
- *    dissector is free to manage as desired. */
+ *
+ *    dissector is free to manage as desired.
+ * @{
+ */
 
 /** TVBUFF_REAL_DATA contains a guint8* that points to real data.
  * The data is allocated and contiguous.
@@ -697,6 +701,8 @@ WS_DLL_PUBLIC tvbuff_t* tvb_uncompress(tvbuff_t *tvb, const int offset,  int com
 extern tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen);
 
 /************** END OF ACCESSORS ****************/
+
+/** @} */
 
 #ifdef __cplusplus
 }
