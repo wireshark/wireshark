@@ -116,7 +116,7 @@ static int hf_http_next_request_in = -1;
 static int hf_http_next_response_in = -1;
 static int hf_http_prev_request_in = -1;
 static int hf_http_prev_response_in = -1;
-static int hf_http_response_ts = -1;
+static int hf_http_time = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -1046,7 +1046,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 				if (! nstime_is_unset(&(curr->req_ts))) {
 					nstime_delta(&delta, &pinfo->fd->abs_ts, &(curr->req_ts));
-					pi = proto_tree_add_time(http_tree, hf_http_response_ts, tvb, 0, 0, &delta);
+					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
 					PROTO_ITEM_SET_GENERATED(pi);
 				}
 			}
@@ -2921,8 +2921,8 @@ proto_register_http(void)
 	      { "Prev response in frame","http.prev_response_in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0,
 		"The previous HTTP response starts in packet number", HFILL }},
-	    { &hf_http_response_ts,
-	      { "Time since request", "http.response_ts",
+	    { &hf_http_time,
+	      { "Time since request", "http.time",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
 		"Time since the request was send", HFILL }},
 	};
