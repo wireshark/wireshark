@@ -224,7 +224,11 @@ bytes_view_realize(GtkWidget *widget)
 
 	gtk_widget_set_window(widget, win);
 
+#if GTK_CHECK_VERSION(3, 8, 0)
+	gtk_widget_register_window(widget, win);
+#else
 	gdk_window_set_user_data(win, widget);
+#endif
 
 #if !GTK_CHECK_VERSION(3, 0, 0)	/* XXX, check */
 	gdk_window_set_back_pixmap(win, NULL, FALSE);
@@ -253,7 +257,11 @@ bytes_view_unrealize(GtkWidget *widget)
 		bv->context = NULL;
 	}
 	/* if there are still events in the queue, this'll avoid segfault */
+#if GTK_CHECK_VERSION(3, 8, 0)
+	gtk_widget_unregister_window(widget, gtk_widget_get_window(widget));
+#else
 	gdk_window_set_user_data(gtk_widget_get_window(widget), NULL);
+#endif
 
 	if (parent_class->unrealize)
 		(*GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
