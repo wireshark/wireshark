@@ -224,13 +224,7 @@ static tap_param_dlg camel_counter_dlg = {
 void  /* Next line mandatory */
 register_tap_listener_gtk_camelcounter(void)
 {
-  register_param_stat(&camel_counter_dlg, "_GSM/CAMEL",
-  			REGISTER_STAT_GROUP_TELEPHONY);
+  register_param_stat(&camel_counter_dlg, "CAMEL Messages and Response Status",
+  			REGISTER_STAT_GROUP_TELEPHONY_GSM);
 
 }
-
-void camel_counter_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &camel_counter_dlg);
-}
-

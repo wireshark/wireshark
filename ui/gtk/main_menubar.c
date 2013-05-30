@@ -1685,7 +1685,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/ANSI/MAP-OP",          NULL,                       "MAP Operation",            NULL,                       NULL,               G_CALLBACK(ansi_map_stat_gtk_cb) },
 
    { "/Telephony/GSM",                  NULL,                       "_GSM",                     NULL, NULL, NULL },
-   { "/Telephony/GSM/CAMEL",            NULL,                       "CAMEL Messages and Response Status",   NULL,           NULL,               G_CALLBACK(camel_counter_cb) },
    { "/Telephony/GSM/BSSMAP",           NULL,                       "A-Interface BSSMAP",  NULL,                       NULL,               G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },
 
    { "/Telephony/GSM/DTAP",             NULL,                       "A-Interface DTAP",    NULL, NULL, NULL },
@@ -3922,6 +3921,7 @@ stat_group_name(register_stat_group_t group)
         {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|Statistics#EndpointList"},               /* member of the endpoint list */
         {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Statistics#ServiceResponseTime"}, /* member of the service response time list */
         {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephony"},                                                          /* telephony specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_GSM,          "/Menubar/TelephonyMenu|Telephony/GSM|Telephony#GSM"},                                                          /* GSM-specific */
         {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                                                                  /* unsorted tools */
         {0, NULL}
     };

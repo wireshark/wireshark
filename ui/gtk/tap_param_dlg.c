@@ -99,6 +99,7 @@ register_param_stat(tap_param_dlg *info, const char *name,
         break;
 
     case REGISTER_STAT_GROUP_TELEPHONY:
+    case REGISTER_STAT_GROUP_TELEPHONY_GSM:
         break;
 
     case REGISTER_TOOLS_GROUP_UNSORTED:
