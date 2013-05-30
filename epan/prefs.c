@@ -3009,6 +3009,13 @@ read_prefs_file(const char *pf_path, FILE *pf,
         if (isalnum(got_c)) {
           if (cur_var->len > 0) {
             if (got_val) {
+              if (cur_val->str[strlen(cur_val->str)-1] == ',') {
+                /* 
+                 * If the pref has a trailing comma, eliminate it.
+                 */
+                cur_val->str[strlen(cur_val->str)-1] = '\0';
+                g_warning ("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
+              }
               /* Call the routine to set the preference; it will parse
                  the value as appropriate. */
               switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data, FALSE)) {
@@ -3017,7 +3024,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
 
               case PREFS_SET_SYNTAX_ERR:
-                g_warning ("%s line %d: Syntax error in preference %s %s", pf_path, pline, cur_var->str, hint);
+                g_warning ("%s line %d: Syntax error in preference \"%s\" %s",
+                  pf_path, pline, cur_var->str, hint);
                 break;
 
               case PREFS_SET_NO_SUCH_PREF:
