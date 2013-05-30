@@ -209,11 +209,7 @@ developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 
 
-if HAVE_FOP
 RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
-else
-RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt
-endif
 
 release_notes: $(RELEASE_NOTES_TARGETS)
 
