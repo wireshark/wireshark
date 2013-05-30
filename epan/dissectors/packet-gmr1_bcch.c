@@ -884,6 +884,7 @@ CSN_ChoiceElement_t SI1_SegmentChoice[] =
   {7, 0x68, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4I,    Segment4I_t,    "Segment 4I")},
   {7, 0x69, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4J,    Segment4J_t,    "Segment 4J")},
   {7, 0x6a, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4K,    Segment4K_t,    "Segment 4K")},
+  {0, 0x00, 1, CSN_ERROR(SystemInformation1_t, "Unknown segment !", -1)},
 };
 
 static const
@@ -910,6 +911,7 @@ CSN_ChoiceElement_t SI2_SegmentChoice[] =
   {5, 0x04, 1, M_TYPE_LABEL(SystemInformation2_t, u.Segment3E, Segment3E_t, "Segment 3E")},
   {5, 0x06, 1, M_TYPE_LABEL(SystemInformation2_t, u.Segment3G, Segment3G_t, "Segment 3G")},
   {5, 0x0a, 1, M_TYPE_LABEL(SystemInformation2_t, u.Segment3J, Segment3J_t, "Segment 3J")},
+  {0, 0x00, 1, CSN_ERROR(SystemInformation2_t, "Unknown segment !", -1)},
 };
 
 static const
