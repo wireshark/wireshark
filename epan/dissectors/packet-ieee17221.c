@@ -81,8 +81,8 @@
 #define ADP_LEGACY_AVC_BITMASK               0x10
 #define ADP_ASSOC_ID_SUPPORT_BITMASK         0x20
 #define ADP_ASSOC_ID_VALID_BITMASK           0x40
-#define ADP_CLASS_A_SUPPORTED_BITMASK        0x80
-#define ADP_VENDOR_UNIQUE_BITMASK            0x100
+#define ADP_VENDOR_UNIQUE_BITMASK            0x80
+#define ADP_CLASS_A_SUPPORTED_BITMASK        0x100
 #define ADP_CLASS_B_SUPPORTED_BITMASK        0x200
 #define ADP_AS_SUPPORTED_BITMASK             0x400
 
@@ -160,7 +160,7 @@
 #define ACMP_CONNECTION_COUNT_OFFSET        46
 #define ACMP_SEQUENCE_ID_OFFSET             48
 #define ACMP_FLAGS_OFFSET                   50
-#define ACMP_DEFAULT_FORMAT_OFFSET          52
+#define ACMP_VLAN_ID_OFFSET                 52
 
 /* Bit Field Masks */
 
@@ -200,8 +200,6 @@
 #define ACMP_STATUS_NOT_CONNECTED                       10
 #define ACMP_STATUS_NO_SUCH_CONNECTION                  11
 #define ACMP_STATUS_COULD_NOT_SEND_MESSAGE              12
-#define ACMP_STATUS_LISTENER_DEFAULT_FORMAT_INVALID     13
-#define ACMP_STATUS_TALKER_DEFAULT_FORMAT_INVALID       14
 #define ACMP_STATUS_DEFAULT_SET_DIFFERENT               15
 #define ACMP_STATUS_NOT_SUPPORTED                       31
 
@@ -223,8 +221,11 @@
 
 #define AECP_OFFSET_STATUS_CODE                    2
 
-/* AECP Command Specific Offsets */
-/* IEEE 1722.1 draft D21 section 7.4.1 - 7.4.71 */
+/* AECP Address Access Command Specific Offsets */
+#define AECP_AA_OFFSET_COUNT                       22
+#define AECP_AA_OFFSET_TLVS_START                  24
+
+/* AECP AEM Command Specific Offsets */
 /* Note that these values include the 12 byte common header */
 
 /* ACQUIRE_ENTITY */
@@ -343,6 +344,8 @@
 #define AECP_OFFSET_AVB_INFO_DESCRIPTOR_INDEX        26
 #define AECP_OFFSET_AVB_INFO_AS_GRANDMASTER_ID       28
 #define AECP_OFFSET_AVB_INFO_PROPAGATION_DELAY       36
+#define AECP_OFFSET_AVB_INFO_AS_DOMAIN_NUMBER        40
+#define AECP_OFFSET_AVB_INFO_FLAGS                   41
 #define AECP_OFFSET_AVB_INFO_MSRP_MAPPINGS_COUNT     42
 #define AECP_OFFSET_AVB_INFO_MSRP_MAPPINGS           44
 
@@ -460,6 +463,18 @@
 #define AECP_OFFSET_STREAM_ENCRYPTION_DESCRIPTOR_INDEX 26
 #define AECP_OFFSET_STREAM_ENCRYPTION_KEY_EUI          28
 
+/* Set/Get Stream Backup */
+#define AECP_OFFSET_STREAM_BACKUP_DESCRIPTOR_TYPE        24
+#define AECP_OFFSET_STREAM_BACKUP_DESCRIPTOR_INDEX       26
+#define AECP_OFFSET_STREAM_BACKUP_TALKER_ENTITY_ID_0     28
+#define AECP_OFFSET_STREAM_BACKUP_TALKER_UNIQUE_ID_0     36
+#define AECP_OFFSET_STREAM_BACKUP_TALKER_ENTITY_ID_1     40
+#define AECP_OFFSET_STREAM_BACKUP_TALKER_UNIQUE_ID_1     48
+#define AECP_OFFSET_STREAM_BACKUP_TALKER_ENTITY_ID_2     52
+#define AECP_OFFSET_STREAM_BACKUP_TALKER_UNIQUE_ID_2     60
+#define AECP_OFFSET_STREAM_BACKEDUP_TALKER_ENTITY_ID     64
+#define AECP_OFFSET_STREAM_BACKEDUP_TALKER_UNIQUE_ID     72
+
 /* aecp_message_type */
 /* 1722.1 draft 2011-11-14 table 9.1 */
 #define AECP_AEM_COMMAND_MESSAGE                0
@@ -570,6 +585,8 @@
 #define AECP_COMMAND_DISABLE_TRANSPORT_SECURITY     0x0044
 #define AECP_COMMAND_ENABLE_STREAM_ENCRYPTION       0x0045
 #define AECP_COMMAND_DISABLE_STREAM_ENCRYPTION      0x0046
+#define AECP_COMMAND_SET_STREAM_BACKUP              0x0049
+#define AECP_COMMAND_GET_STREAM_BACKUP              0x004a
 /* 0x002e - 0x7ffe RESERVED for future use */
 #define AECP_COMMAND_EXPANSION                      0x7fff /* reserved */
 
@@ -954,7 +971,7 @@
 #define STREAM_OFFSET_BACKUP_TALKER_GUID_2                  106
 #define STREAM_OFFSET_BACKUP_TALKER_UNIQUE_2                114
 #define STREAM_OFFSET_BACKEDUP_TALKER_GUID                  116
-#define STREAM_OFFSET_BACKEDUP_TALKER_UNIQUE                124
+#define STREAM_OFFSET_BACKEDUP_TALKER_UNIQUE_ID             124
 #define STREAM_OFFSET_AVB_INTERFACE_ID                      126
 #define STREAM_OFFSET_BUFFER_LENGTH                         128
 
@@ -1274,7 +1291,6 @@
 #define AECP_CD_LENGTH_MASK                     0x07ff
 #define AECP_COMMAND_TYPE_MASK                  0x7fff
 #define AECP_CONNECTED_FLAG_MASK                0x08000000
-#define AECP_DEFAULT_FORMAT_VALID_FLAG_MASK     0x80000000
 #define AECP_DEST_MAC_VALID_FLAG_MASK           0x40000000
 #define AECP_KEYCHAIN_ID_MASK                   0xe0
 #define AECP_KEYTYPE_MASK                       0x1c
@@ -1294,6 +1310,10 @@
 #define AECP_STREAM_ID_VALID_FLAG_MASK          0x10000000
 #define AECP_UNLOCK_FLAG_MASK                   0x00000001
 #define AECP_U_FLAG_MASK                        0x80
+#define AECP_MSRP_MAPPINGS_COUNT_MASK           0x00
+#define AECP_AS_CAPABLE_FLAG_MASK               0x01
+#define AECP_GPTP_ENABLED_FLAG_MASK             0x02 
+#define AECP_SRP_ENABLED_FLAG_MASK              0x04
 
 /* key permission flag masks */
 #define AECP_PRIVATE_KEY_READ_FLAG_MASK         0x80000000
@@ -1777,6 +1797,8 @@ static const value_string aecp_command_type_vals[] = {
    {AECP_COMMAND_DISABLE_TRANSPORT_SECURITY    , "DISABLE_TRANSPORT_SECURITY"},
    {AECP_COMMAND_ENABLE_STREAM_ENCRYPTION      , "ENABLE_STREAM_ENCRYPTION"},
    {AECP_COMMAND_DISABLE_STREAM_ENCRYPTION     , "DISABLE_STREAM_ENCRYPTION"},
+   {AECP_COMMAND_SET_STREAM_BACKUP             , "SET_STREAM_BACKUP"},
+   {AECP_COMMAND_GET_STREAM_BACKUP             , "GET_STREAM_BACKUP"},
    {0                                          , NULL}
 };
 
@@ -1820,8 +1842,6 @@ static const value_string acmp_status_field_vals[] = {
    {ACMP_STATUS_NOT_CONNECTED,                         "NOT_CONNECTED"},
    {ACMP_STATUS_NO_SUCH_CONNECTION,                    "NO_SUCH_CONNECTION"},
    {ACMP_STATUS_COULD_NOT_SEND_MESSAGE,                "COULD_NOT_SEND_MESSAGE"},
-   {ACMP_STATUS_LISTENER_DEFAULT_FORMAT_INVALID,       "LISTENER_DEFAULT_FORMAT_INVALID"},
-   {ACMP_STATUS_TALKER_DEFAULT_FORMAT_INVALID,         "TALKER_DEFAULT_FORMAT_INVALID"},
    {ACMP_STATUS_DEFAULT_SET_DIFFERENT,                 "DEFAULT_SET_DIFFERENT"},
    {ACMP_STATUS_NOT_SUPPORTED,                         "NOT_SUPPORTED"},
    {0,                                  NULL }
@@ -1926,9 +1946,18 @@ static int hf_adp_chan_format_24ch = -1;
 /* ***************************************************************** */
 /*     AVDECC Enumeration and Control Protocol Data Unit (AECPDU)    */
 /* ***************************************************************** */
+
+static int hf_aecp_aa_count = -1;
+static int hf_aecp_aa_tlv_mode = -1;
+static int hf_aecp_aa_tlv_length = -1;
+static int hf_aecp_aa_tlv_address = -1;
+
 /* static int hf_aecp_address_type = -1; */
 static int hf_aecp_association_id = -1;
 static int hf_aecp_as_path_count = -1;
+static int hf_aecp_as_path_sequences = -1;
+static int ett_aecp_get_as_path_sequences = -1;
+static int hf_aecp_get_as_info_clock_id = -1;
 static int hf_aecp_auth_token = -1;
 static int hf_aecp_avb_interface_gptp_gm_changed_valid = -1;
 static int hf_aecp_avb_interface_gptp_gm_changed = -1;
@@ -1950,6 +1979,7 @@ static int hf_aecp_clock_domain_unlocked = -1;
 static int hf_aecp_clock_source_id = -1;
 static int hf_aecp_command_type = -1;
 static int hf_aecp_configuration = -1;
+static int hf_aecp_configuration_index = -1;
 static int hf_aecp_connected_flag = -1;
 /* static int hf_aecp_continued_flag = -1; */
 /* static int hf_aecp_control_admin_flag = -1; */
@@ -2072,6 +2102,27 @@ static int hf_aecp_unlock_flag = -1;
 /* static int hf_aecp_values_count = -1; */
 static int hf_aecp_video_format = -1;
 static int hf_aecp_status_code = -1;
+static int hf_aecp_backup_talker_entity_id_0 = -1;
+static int hf_aecp_backup_talker_entity_id_1 = -1;
+static int hf_aecp_backup_talker_entity_id_2 = -1;
+static int hf_aecp_backup_talker_unique_id_0 = -1;
+static int hf_aecp_backup_talker_unique_id_1 = -1;
+static int hf_aecp_backup_talker_unique_id_2 = -1;
+static int hf_aecp_backedup_talker_entity_id = -1;
+static int hf_aecp_backedup_talker_unique_id = -1;
+static int hf_aecp_avb_info_ptp_grandmaster_id = -1;
+static int hf_aecp_avb_info_propegation_delay = -1;
+static int hf_aecp_avb_info_gptp_domain_number = -1;
+static int hf_aecp_avb_info_flags = -1;
+static int hf_aecp_as_capable_flag = -1;
+static int hf_aecp_gptp_enabled_flag = -1;
+static int hf_aecp_srp_enabled_flag = -1;
+static int hf_aecp_avb_info_msrp_mappings_count = -1;
+static int hf_aecp_avb_info_msrp_mappings = -1;
+static int hf_aecp_avb_info_msrp_mapping_traffic_class = -1;
+static int hf_aecp_avb_info_msrp_mapping_priority = -1;
+
+static int hf_aecp_get_avb_info_msrp_vlan_id = -1;
 
 /* ***************************************************************** */
 /*                   AVDECC Entity Model (AEM)                       */
@@ -2154,15 +2205,13 @@ static int hf_aem_control_domain = -1;
 static int hf_aem_control_latency = -1;
 /* static int hf_aem_control_location_id = -1; */
 /* static int hf_aem_control_location_type = -1; */
-static int hf_aem_control_name = -1;
-static int hf_aem_control_name_string = -1;
 static int hf_aem_control_type = -1;
 static int hf_aem_control_value_type = -1;
 static int hf_aem_count = -1;
 /* static int hf_aem_cs_eui64 = -1; */
 static int hf_aem_ctrl_double = -1;
 static int hf_aem_ctrl_float = -1;
-static int hf_aem_ctrl_int16 = -1; 
+static int hf_aem_ctrl_int16 = -1;
 static int hf_aem_ctrl_int32 = -1;
 static int hf_aem_ctrl_int64 = -1;
 static int hf_aem_ctrl_int8 = -1;
@@ -2230,11 +2279,6 @@ static int hf_aem_memory_object_type = -1;
 /* static int hf_aem_mf_width = -1; */
 /* static int hf_aem_mfd_type = -1; */
 static int hf_aem_model_name_string = -1;
-/* static int hf_aem_msrp_mapping_priority = -1; */
-/* static int hf_aem_msrp_mapping_traffic_class = -1; */
-/* static int hf_aem_msrp_mappings = -1; */
-/* static int hf_aem_msrp_mappings_count = -1; */
-/* static int hf_aem_msrp_mappings_offset = -1; */
 static int hf_aem_avb_interface_flags = -1;
 static int hf_aem_avb_clock_identity = -1;
 static int hf_aem_avb_priority1 = -1;
@@ -2245,7 +2289,6 @@ static int hf_aem_avb_priority2 = -1;
 static int hf_aem_avb_domain_number = -1;
 static int hf_aem_avb_log_sync_interval = -1;
 /* static int hf_aem_avb_propagation_delay = -1; */
-/* static int hf_aem_msrp_vlan_id = -1; */
 static int hf_aem_nb_flag = -1;
 static int hf_aem_number_audio_maps = -1;
 /* static int hf_aem_number_destinations = -1; */
@@ -2267,7 +2310,7 @@ static int hf_aem_number_of_strings = -1;
 static int hf_aem_number_of_values = -1;
 static int hf_aem_number_signal_selectors = -1;
 static int hf_aem_object_name = -1;
-static int hf_aem_object_name_string = -1;
+static int hf_aem_localized_description = -1;
 /* static int hf_aem_oui24 = -1; */
 static int hf_aem_path_latency = -1;
 static int hf_aem_port_flags = -1;
@@ -2278,6 +2321,7 @@ static int hf_aem_sample_rates_offset = -1;
 static int hf_aem_serial_number = -1;
 static int hf_aem_sf = -1;
 static int hf_aem_sf_version = -1;
+static int hf_aem_sf_subtype = -1;
 static int hf_aem_signal_index = -1;
 static int hf_aem_signal_output = -1;
 static int hf_aem_signal_type = -1;
@@ -2298,8 +2342,6 @@ static int hf_aem_string_ref = -1;
 static int hf_aem_target_descriptor_id = -1;
 static int hf_aem_target_descriptor_type = -1;
 static int hf_aem_unit = -1;
-static int hf_aem_unit_name = -1;
-static int hf_aem_unit_name_string = -1;
 static int hf_aem_unknown_descriptor = -1;
 /* static int hf_aem_value_offset = -1; */
 static int hf_aem_values_offset = -1;
@@ -2324,7 +2366,7 @@ static int hf_acmp_stream_dest_mac = -1;
 static int hf_acmp_connection_count = -1;
 static int hf_acmp_sequence_id = -1;
 static int hf_acmp_flags = -1;
-static int hf_acmp_default_format = -1;
+static int hf_acmp_vlan_id = -1;
 
 /* ACMP Flags */
 static int hf_acmp_flags_class_b = -1;
@@ -2353,7 +2395,7 @@ static int ett_aem_clock_sources = -1;
 static int ett_aem_stream_formats = -1;
 static int ett_aem_jack_flags = -1;
 static int ett_aem_port_flags = -1;
-static int ett_aem_msrp_mappings = -1;
+static int ett_aecp_get_avb_info_msrp_mappings = -1;
 static int ett_aem_clock_source_flags = -1;
 static int ett_aem_mappings = -1;
 static int ett_aem_ctrl_vals = -1;
@@ -2473,7 +2515,10 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
 
    if (version == 0) {       /* stream format version 0 */
 
-      subtype = tvb_get_guint8(tvb, 0) & AEM_MASK_SF_SUBTYPE;
+      subtype = tvb_get_guint8(tvb, AEM_OFFSET_SF_SUBTYPE) & AEM_MASK_SF_SUBTYPE;
+
+      proto_tree_add_item(stream_tree, hf_aem_sf_subtype, tvb,
+            AEM_OFFSET_SF_SUBTYPE, 1, ENC_BIG_ENDIAN);
 
       switch(subtype) {
          case IEC_61883_IIDC_SUBTYPE:
@@ -2933,9 +2978,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          }
          break;
       case AEM_DESCRIPTOR_AUDIO_UNIT:
-         proto_tree_add_item(aem_tree, hf_aem_unit_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                AUDIO_UNIT_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_unit_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                AUDIO_UNIT_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
 
          /* D20 clock domain */
@@ -3052,9 +3097,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          break;
       case AEM_DESCRIPTOR_VIDEO_UNIT:
       case AEM_DESCRIPTOR_SENSOR_UNIT:
-         proto_tree_add_item(aem_tree, hf_aem_unit_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                VIDEO_UNIT_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_unit_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                VIDEO_UNIT_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
 
          /* D20 clock domain */
@@ -3174,7 +3219,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          proto_tree_add_item(aem_tree, hf_aem_backedup_talker_guid, tvb,
                STREAM_OFFSET_BACKEDUP_TALKER_GUID, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backedup_talker_unique, tvb,
-               STREAM_OFFSET_BACKEDUP_TALKER_UNIQUE, 2, ENC_BIG_ENDIAN);
+               STREAM_OFFSET_BACKEDUP_TALKER_UNIQUE_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_avb_interface_id, tvb,
                STREAM_OFFSET_AVB_INTERFACE_ID, 2, ENC_BIG_ENDIAN);
 
@@ -3368,6 +3413,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                AUDIO_MAP_OFFSET_MAPPINGS_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_mappings, tvb,
                AUDIO_MAP_OFFSET_NUMBER_OF_MAPPINGS, 2, ENC_BIG_ENDIAN);
+
          /* prepare mappings subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_mappings, tvb,
                0, 0, ENC_NA);
@@ -3417,9 +3463,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
          break;
       case AEM_DESCRIPTOR_CONTROL:
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                CONTROL_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                CONTROL_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
@@ -3455,9 +3501,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
          break;
       case AEM_DESCRIPTOR_SIGNAL_SELECTOR:
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                SIGNAL_SELECTOR_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                SIGNAL_SELECTOR_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
@@ -3474,9 +3520,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                AEM_OFFSET_CONTROL_LOCATION_ID_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
                AEM_OFFSET_CONTROL_DOMAIN_SIGS, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                AEM_OFFSET_CONTROL_NAME_SIGS, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                AEM_OFFSET_CONTROL_NAME_STRING_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_sources_offset, tvb,
                AEM_OFFSET_SOURCES_OFFSET_SIGS, 2, ENC_BIG_ENDIAN);
@@ -3514,9 +3560,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          */
          break;
       case AEM_DESCRIPTOR_MIXER:
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                MIXER_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                MIXER_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
@@ -3536,9 +3582,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                AEM_OFFSET_CONTROL_VALUE_TYPE_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
                AEM_OFFSET_CONTROL_DOMAIN_MXR, 2 ,ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                AEM_OFFSET_CONTROL_NAME_MXR, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                AEM_OFFSET_CONTROL_NAME_STRING_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_sources_offset, tvb,
                AEM_OFFSET_SOURCES_OFFSET_MXR, 2, ENC_BIG_ENDIAN);
@@ -3578,9 +3624,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 #endif
          break;
       case AEM_DESCRIPTOR_MATRIX:
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                MATRIX_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                MATRIX_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
@@ -3601,9 +3647,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                AEM_OFFSET_CONTROL_VALUE_TYPE_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
                AEM_OFFSET_CONTROL_DOMAIN_MTRX, 2 ,ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                AEM_OFFSET_CONTROL_NAME_MTRX, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                AEM_OFFSET_CONTROL_NAME_STRING_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_width, tvb,
                AEM_OFFSET_WIDTH_MTRX, 2, ENC_BIG_ENDIAN);
@@ -3681,7 +3727,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                MEMORY_OBJECT_OFFSET_TARGET_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                MEMORY_OBJECT_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_object_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                MEMORY_OBJECT_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_start_address, tvb,
                MEMORY_OBJECT_OFFSET_START_ADDRESS, 8, ENC_BIG_ENDIAN);
@@ -3689,9 +3735,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                MEMORY_OBJECT_OFFSET_LENGTH, 8, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_CLOCK_DOMAIN:
-         proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
                CLOCK_DOMAIN_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
-         proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
+         proto_tree_add_item(aem_tree, hf_aem_localized_description, tvb,
                CLOCK_DOMAIN_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_index, tvb,
                CLOCK_DOMAIN_OFFSET_CLOCK_SOURCE_INDEX, 2, ENC_BIG_ENDIAN);
@@ -3732,654 +3778,737 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
    guint16 mess_status;
    guint16 mess_type;
    guint16 mr_counter;
-   /*proto_item *mr_subtree;*/
-   /*proto_item *mr_item;*/
-   /*int i;*/
+   guint32 mr_offset;
+   proto_item *mr_subtree;
+   proto_item *mr_item;
+   int i;
    /* next tvb for use in subdissection */
    tvbuff_t *next_tvb;
    proto_tree *flags_tree;
    proto_item *flags_ti;
 
 
-   /* AEM Common Format Fields */
+   /* AECP Common Format Fields */
    proto_tree_add_item(aecp_tree, hf_aecp_message_type, tvb,
          AECP_OFFSET_VERSION, 1, ENC_BIG_ENDIAN);
-
    proto_tree_add_item(aecp_tree, hf_aecp_status_code, tvb,
          AECP_OFFSET_STATUS_CODE, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_cd_length, tvb,
          AECP_OFFSET_CD_LENGTH, 2, ENC_BIG_ENDIAN);
-
    proto_tree_add_item(aecp_tree, hf_aecp_target_guid, tvb,
          AECP_OFFSET_TARGET_GUID, 8, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_controller_guid, tvb,
          AECP_OFFSET_CONTROLLER_GUID, 8, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_sequence_id, tvb,
          AECP_OFFSET_SEQUENCE_ID, 2, ENC_BIG_ENDIAN);
-   proto_tree_add_item(aecp_tree, hf_aecp_u_flag, tvb,
-         AECP_OFFSET_U_FLAG, 1, ENC_BIG_ENDIAN);
-   proto_tree_add_item(aecp_tree, hf_aecp_command_type, tvb,
-         AECP_OFFSET_COMMAND_TYPE, 2, ENC_BIG_ENDIAN);
-
-   /* get the command type for detailed dissection */
-   c_type = tvb_get_ntohs(tvb, AECP_OFFSET_COMMAND_TYPE) & AECP_COMMAND_TYPE_MASK;
-
-   /* get the control data length field - number of octets following target_guid */
-   /*ctrl_data_len = tvb_get_ntohs(tvb, AECP_OFFSET_CD_LENGTH) & AECP_CD_LENGTH_MASK;*/
 
    /* get the message type */
-   mess_type = tvb_get_ntohs(tvb, 0) & ACMP_MSG_TYPE_MASK;
+   mess_type = tvb_get_ntohs(tvb, 0) & AECP_MSG_TYPE_MASK;
 
-   /* get the status */
-   mess_status = tvb_get_ntohs(tvb, 2) & 0xF800;
+   if  ((mess_type == AECP_AEM_COMMAND_MESSAGE) || (mess_type == AECP_AEM_RESPONSE_MESSAGE))
+   {
+      proto_tree_add_item(aecp_tree, hf_aecp_u_flag, tvb,
+         AECP_OFFSET_U_FLAG, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(aecp_tree, hf_aecp_command_type, tvb,
+         AECP_OFFSET_COMMAND_TYPE, 2, ENC_BIG_ENDIAN);
 
-   /* break dissection down by command type */
-   /* fields are added in the order they are listed by 1722.1 */
-   switch(c_type) {
-      case AECP_COMMAND_ACQUIRE_ENTITY:
-         /* set up the flags subtree */
-         flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
-         flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
-         proto_tree_add_item(flags_tree, hf_aecp_persistent_flag, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_release_flag, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
-         /* end flags subtree */
+    /* get the command type for detailed dissection */
+      c_type = tvb_get_ntohs(tvb, AECP_OFFSET_COMMAND_TYPE) & AECP_COMMAND_TYPE_MASK;
 
-         proto_tree_add_item(aecp_tree, hf_aecp_owner_guid, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_OWNER_GUID, 8, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_LOCK_ENTITY:
-         proto_tree_add_item(aecp_tree, hf_aecp_unlock_flag, tvb,
-               AECP_OFFSET_LOCK_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_locked_guid, tvb,
-               AECP_OFFSET_LOCK_ENTITY_LOCKED_GUID, 8, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_READ_DESCRIPTOR:
-         proto_tree_add_item(aecp_tree, hf_aecp_configuration, tvb,
-               AECP_OFFSET_DESCRIPTOR_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
+      /* get the control data length field - number of octets following target_guid */
+      /*ctrl_data_len = tvb_get_ntohs(tvb, AECP_OFFSET_CD_LENGTH) & AECP_CD_LENGTH_MASK;*/
 
-         if ((mess_type == AECP_AEM_COMMAND_MESSAGE)||(mess_status != 0))
-         {
+
+      /* get the status */
+      mess_status = tvb_get_ntohs(tvb, 2) & 0xF800;
+
+      /* break dissection down by command type */
+      /* fields are added in the order they are listed by 1722.1 */
+      switch(c_type) {
+        case AECP_COMMAND_ACQUIRE_ENTITY:
+           /* set up the flags subtree */
+           flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
+                 AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
+           flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
+           proto_tree_add_item(flags_tree, hf_aecp_persistent_flag, tvb,
+                 AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
+           proto_tree_add_item(aecp_tree, hf_aecp_release_flag, tvb,
+                 AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
+           /* end flags subtree */
+
+           proto_tree_add_item(aecp_tree, hf_aecp_owner_guid, tvb,
+                 AECP_OFFSET_ACQUIRE_ENTITY_OWNER_GUID, 8, ENC_BIG_ENDIAN);
+           proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                 AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+           proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                 AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+           break;
+        case AECP_COMMAND_LOCK_ENTITY:
+           proto_tree_add_item(aecp_tree, hf_aecp_unlock_flag, tvb,
+                 AECP_OFFSET_LOCK_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
+           proto_tree_add_item(aecp_tree, hf_aecp_locked_guid, tvb,
+                 AECP_OFFSET_LOCK_ENTITY_LOCKED_GUID, 8, ENC_BIG_ENDIAN);
+           break;
+        case AECP_COMMAND_READ_DESCRIPTOR:
+           proto_tree_add_item(aecp_tree, hf_aecp_configuration, tvb,
+                 AECP_OFFSET_DESCRIPTOR_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
+
+           if ((mess_type == AECP_AEM_COMMAND_MESSAGE)||(mess_status != 0))
+           {
+              proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                    AECP_OFFSET_DESCRIPTOR_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                    AECP_OFFSET_DESCRIPTOR_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+           }
+           else
+           {
+              next_tvb = tvb_new_subset_remaining(tvb, AECP_OFFSET_DESCRIPTOR_DESCRIPTOR);
+              dissect_17221_aem(next_tvb, pinfo, aecp_tree);
+           }
+           break;
+        case AECP_COMMAND_WRITE_DESCRIPTOR:
+           proto_tree_add_item(aecp_tree, hf_aecp_configuration, tvb,
+                 AECP_OFFSET_DESCRIPTOR_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
+
+           /* on command descriptor is value to write
+            * on response descriptor is command value if successful
+            * or old value if unsuccessful */
+           next_tvb = tvb_new_subset_remaining(tvb, AECP_OFFSET_DESCRIPTOR_DESCRIPTOR);
+           dissect_17221_aem(next_tvb, pinfo, aecp_tree);
+           break;
+        case AECP_COMMAND_SET_CONFIGURATION:
+        case AECP_COMMAND_GET_CONFIGURATION:
+           proto_tree_add_item(aecp_tree, hf_aecp_configuration,
+                 tvb, AECP_OFFSET_CONFIGURATION_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
+           break;
+        case AECP_COMMAND_SET_STREAM_FORMAT:
+        case AECP_COMMAND_GET_STREAM_FORMAT:
+           proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                 AECP_OFFSET_STREAM_FORMAT_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+           proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                 AECP_OFFSET_STREAM_FORMAT_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+
+           if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_STREAM_FORMAT))
+           {
+              next_tvb = tvb_new_subset(tvb, AECP_OFFSET_STREAM_FORMAT_STREAM_FORMAT, 8, 8);
+              dissect_17221_stream_format(next_tvb, aecp_tree);
+           }
+           break;
+        case AECP_COMMAND_SET_VIDEO_FORMAT:
+        case AECP_COMMAND_GET_VIDEO_FORMAT:
             proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-                  AECP_OFFSET_DESCRIPTOR_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-                  AECP_OFFSET_DESCRIPTOR_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         }
-         else
-         {
-            next_tvb = tvb_new_subset_remaining(tvb, AECP_OFFSET_DESCRIPTOR_DESCRIPTOR);
-            dissect_17221_aem(next_tvb, pinfo, aecp_tree);
-         }
-         break;
-      case AECP_COMMAND_WRITE_DESCRIPTOR:
-         proto_tree_add_item(aecp_tree, hf_aecp_configuration, tvb,
-               AECP_OFFSET_DESCRIPTOR_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
-
-         /* on command descriptor is value to write
-          * on response descriptor is command value if successful
-          * or old value if unsuccessful */
-         next_tvb = tvb_new_subset_remaining(tvb, AECP_OFFSET_DESCRIPTOR_DESCRIPTOR);
-         dissect_17221_aem(next_tvb, pinfo, aecp_tree);
-         break;
-      case AECP_COMMAND_SET_CONFIGURATION:
-      case AECP_COMMAND_GET_CONFIGURATION:
-         proto_tree_add_item(aecp_tree, hf_aecp_configuration,
-               tvb, AECP_OFFSET_CONFIGURATION_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_SET_STREAM_FORMAT:
-      case AECP_COMMAND_GET_STREAM_FORMAT:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_STREAM_FORMAT_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_STREAM_FORMAT_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-
-         if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_STREAM_FORMAT))
-         {
-            next_tvb = tvb_new_subset(tvb, AECP_OFFSET_STREAM_FORMAT_STREAM_FORMAT, 8, 8);
-            dissect_17221_stream_format(next_tvb, aecp_tree);
-         }
-         break;
-      case AECP_COMMAND_SET_VIDEO_FORMAT:
-      case AECP_COMMAND_GET_VIDEO_FORMAT:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
                AECP_OFFSET_VIDEO_FORMAT_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
                AECP_OFFSET_VIDEO_FORMAT_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
 
-         if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_VIDEO_FORMAT))
-         {
-            next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_FORMAT_SPECIFIC, 4, 4);
-            dissect_17221_video_format(next_tvb, aecp_tree);
+            if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_VIDEO_FORMAT))
+            {
+                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_FORMAT_SPECIFIC, 4, 4);
+                dissect_17221_video_format(next_tvb, aecp_tree);
 
-            next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_ASPECT_RATIO, 2, 2);
-            dissect_17221_video_aspect_ratio(next_tvb, aecp_tree);
+                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_ASPECT_RATIO, 2, 2);
+                dissect_17221_video_aspect_ratio(next_tvb, aecp_tree);
 
-            proto_tree_add_item(aecp_tree, hf_aem_color_space, tvb,
-                  AECP_OFFSET_VIDEO_FORMAT_COLOR_SPACE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aem_color_space, tvb,
+                     AECP_OFFSET_VIDEO_FORMAT_COLOR_SPACE, 2, ENC_BIG_ENDIAN);
 
-            next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_FRAME_SIZE, 4, 4);
-            dissect_17221_video_frame_size(next_tvb, aecp_tree);
-         }
-         break;
-      case AECP_COMMAND_SET_SENSOR_FORMAT:
-      case AECP_COMMAND_GET_SENSOR_FORMAT:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_SENSOR_FORMAT_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_SENSOR_FORMAT_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-
-         if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_SENSOR_FORMAT))
-         {
-            next_tvb = tvb_new_subset(tvb, AECP_OFFSET_SENSOR_FORMAT_SENSOR_FORMAT, 8, 8);
-            dissect_17221_sensor_format(next_tvb, aecp_tree);
-         }
-         break;
-      case AECP_COMMAND_SET_STREAM_INFO:
-      case AECP_COMMAND_GET_STREAM_INFO:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_STREAM_INFO_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_STREAM_INFO_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_STREAM_INFO)) {
-             /* FLAGS */
-            proto_tree_add_item(aecp_tree, hf_acmp_flags_class_b, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_acmp_flags_fast_connect, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_acmp_flags_saved_state, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_acmp_flags_streaming_wait, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_connected_flag, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_stream_id_valid_flag, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_msrp_acc_lat_valid_flag, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_dest_mac_valid_flag, tvb,
-                  AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
-
-            proto_tree_add_item(aecp_tree, hf_aecp_stream_format, tvb,
-                  AECP_OFFSET_STREAM_INFO_STREAM_FORMAT, 8, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_acmp_stream_id, tvb,
-                  AECP_OFFSET_STREAM_INFO_STREAM_ID, 8, ENC_BIG_ENDIAN);
-
-            proto_tree_add_item(aecp_tree, hf_aecp_msrp_accumulated_latency, tvb,
-                  AECP_OFFSET_STREAM_INFO_MSRP_ACCUMULATED_LATENCY, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_acmp_stream_dest_mac, tvb,
-                  AECP_OFFSET_STREAM_INFO_STREAM_DEST_MAC, 6, ENC_NA);
-            proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_code, tvb,
-                  AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE, 1, ENC_NA);
-            proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_bridge_id, tvb,
-                  AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID, 8, ENC_NA);
-
-            proto_tree_add_item(aecp_tree, hf_aecp_stream_vlan_id, tvb,
-                  AECP_OFFSET_STREAM_INFO_STREAM_VLAN_ID, 2, ENC_BIG_ENDIAN);
-         }
-         break;
-      case AECP_COMMAND_SET_NAME:
-      case AECP_COMMAND_GET_NAME:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_NAME_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_NAME_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_name_index, tvb,
-               AECP_OFFSET_NAME_NAME_INDEX, 2, ENC_BIG_ENDIAN);
-         if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_NAME)) {
-            proto_tree_add_item(aecp_tree, hf_aecp_name, tvb,
-                  AECP_OFFSET_NAME_NAME, 64, ENC_ASCII|ENC_NA);
-         }
-         break;
-      case AECP_COMMAND_SET_ASSOCIATION_ID:
-      case AECP_COMMAND_GET_ASSOCIATION_ID:
-         proto_tree_add_item(aecp_tree, hf_aecp_association_id, tvb,
-               AECP_OFFSET_ASSOCIATION_ID_ASSOCIATION_ID, 8, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_SET_SAMPLING_RATE:
-      case AECP_COMMAND_GET_SAMPLING_RATE:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_SAMPLING_RATE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_SAMPLING_RATE_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_SAMPLING_RATE)) {
-            proto_tree_add_item(aecp_tree, hf_aecp_sampling_rate, tvb,
-                  AECP_OFFSET_SAMPLING_RATE_SAMPLING_RATE, 64, ENC_BIG_ENDIAN);
-         }
-         break;
-      case AECP_COMMAND_SET_CLOCK_SOURCE:
-      case AECP_COMMAND_GET_CLOCK_SOURCE:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_CLOCK_SOURCE)) {
-            proto_tree_add_item(aecp_tree, hf_aem_clock_source_id, tvb,
-                  AECP_OFFSET_CLOCK_SOURCE_CLOCK_SOURCE_INDEX, 2, ENC_BIG_ENDIAN);
-         }
-         break;
-      case AECP_COMMAND_SET_CONTROL_VALUE:
-      case AECP_COMMAND_GET_CONTROL_VALUE:
-      case AECP_COMMAND_SET_MIXER:
-      case AECP_COMMAND_GET_MIXER:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_CONTROL_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_CONTROL_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         /* TODO: dissect control/mixer values */
-         break;
-      case AECP_COMMAND_INCREMENT_CONTROL:
-      case AECP_COMMAND_DECREMENT_CONTROL:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_INCDEC_CONTROL_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_INCDEC_CONTROL_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         /* TODO: dissect control index list (message) or values (response) */
-         break;
-      case AECP_COMMAND_SET_SIGNAL_SELECTOR:
-      case AECP_COMMAND_GET_SIGNAL_SELECTOR:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_SIGNAL_SELECTOR_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_SIGNAL_SELECTOR_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_SIGNAL_SELECTOR)) {
-            proto_tree_add_item(aecp_tree, hf_aecp_signal_type, tvb,
-                  AECP_OFFSET_SIGNAL_SELECTOR_SIGNAL_TYPE, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_signal_index, tvb,
-                  AECP_OFFSET_SIGNAL_SELECTOR_SIGNAL_INDEX, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_signal_output, tvb,
-                  AECP_OFFSET_SIGNAL_SELECTOR_SIGNAL_OUTPUT, 2, ENC_BIG_ENDIAN);
-         }
-         break;
-      case AECP_COMMAND_GET_MATRIX:
-      case AECP_COMMAND_SET_MATRIX:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_MATRIX_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_MATRIX_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_column, tvb,
-               AECP_OFFSET_MATRIX_MATRIX_COLUMN, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_row, tvb,
-               AECP_OFFSET_MATRIX_MATRIX_ROW, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_width, tvb,
-               AECP_OFFSET_MATRIX_REGION_WIDTH, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_height, tvb,
-               AECP_OFFSET_MATRIX_REGION_HEIGHT, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_rep, tvb,
-               AECP_OFFSET_MATRIX_REP, 1, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_direction, tvb,
-               AECP_OFFSET_MATRIX_DIRECTION, 1, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_value_count, tvb,
-               AECP_OFFSET_MATRIX_VALUE_COUNT, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_matrix_item_offset, tvb,
-               AECP_OFFSET_MATRIX_ITEM_OFFSET, 2, ENC_BIG_ENDIAN);
-
-         if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_GET_MATRIX)) {
-            /* TODO: dissect matrix values */
-         }
-         break;
-      case AECP_COMMAND_START_STREAMING:
-      case AECP_COMMAND_STOP_STREAMING:
-      case AECP_COMMAND_REBOOT:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_STREAMING_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_STREAMING_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_REGISTER_UNSOL_NOTIFICATION:
-      case AECP_COMMAND_DEREGISTER_UNSOL_NOTIFICATION:
-         /* No additional fields in these command types */
-         break;
-      case AECP_COMMAND_IDENTIFY_NOTIFICATION:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_IDENTIFY_NOTIFICATION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_IDENTIFY_NOTIFICATION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_GET_AVB_INFO:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_AVB_INFO_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_AVB_INFO_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
-            /* TODO: dissect AVB INFO */
-         }
-         break;
-      case AECP_COMMAND_GET_AS_PATH:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_AS_PATH_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
-            proto_tree_add_item(aecp_tree, hf_aecp_as_path_count, tvb,
-                  AECP_OFFSET_AS_PATH_COUNT, 2, ENC_BIG_ENDIAN);
-            /* TODO: dissect AS path entries */
-         }
-         break;
-      case AECP_COMMAND_GET_COUNTERS:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_COUNTERS_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
-
-            flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
-
-            /* begin counters_valid flags field */
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific1_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific2_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific3_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific4_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific5_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific6_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific7_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(flags_tree, hf_aecp_entity_specific8_valid, tvb,
-                  AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-
-            switch (tvb_get_ntohs(tvb, AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE)) {
-            case AEM_DESCRIPTOR_ENTITY:
-               break;
-            case AEM_DESCRIPTOR_AVB_INTERFACE:
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_link_up_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_link_down_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_packets_tx_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_packets_rx_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_rx_crc_error_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_gptp_gm_changed_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               break;
-            case AEM_DESCRIPTOR_CLOCK_DOMAIN:
-               proto_tree_add_item(flags_tree, hf_aecp_clock_domain_locked_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_clock_domain_unlocked_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               break;
-            case AEM_DESCRIPTOR_STREAM_INPUT:
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_media_locked_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_media_unlocked_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_stream_reset_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_seq_num_mismatch_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_media_reset_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_timestamp_uncertain_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_timestamp_valid_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_timestamp_not_valid_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_unsupported_format_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_late_timestamp_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_early_timestamp_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_packets_tx_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_packets_rx_valid, tvb,
-                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               break;
-            default:
-               break;
+                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_VIDEO_FORMAT_FRAME_SIZE, 4, 4);
+                dissect_17221_video_frame_size(next_tvb, aecp_tree);
             }
-            /* end counters_valid flags field */
+            break;
+          case AECP_COMMAND_SET_SENSOR_FORMAT:
+          case AECP_COMMAND_GET_SENSOR_FORMAT:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_SENSOR_FORMAT_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_SENSOR_FORMAT_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific1, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_1, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific2, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_2, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific3, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_3, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific4, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific5, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_5, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific6, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_6, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific7, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_7, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_entity_specific8, tvb,
-                  AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_8, 4, ENC_BIG_ENDIAN);
-
-            switch (tvb_get_ntohs(tvb, AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE)) {
-            case AEM_DESCRIPTOR_ENTITY:
-               break;
-            case AEM_DESCRIPTOR_AVB_INTERFACE:
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_link_up, tvb,
-                     AECP_OFFSET_COUNTERS_AVB_INTERFACE_LINK_UP, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_link_down, tvb,
-                     AECP_OFFSET_COUNTERS_AVB_INTERFACE_LINK_DOWN, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_packets_tx, tvb,
-                     AECP_OFFSET_COUNTERS_AVB_INTERFACE_PACKETS_TX, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_packets_rx, tvb,
-                     AECP_OFFSET_COUNTERS_AVB_INTERFACE_PACKETS_RX, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_rx_crc_error, tvb,
-                     AECP_OFFSET_COUNTERS_AVB_INTERFACE_RX_CRC_ERROR, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_avb_interface_gptp_gm_changed, tvb,
-                     AECP_OFFSET_COUNTERS_AVB_INTERFACE_GPTP_GM_CHANGED, 4, ENC_BIG_ENDIAN);
-               break;
-            case AEM_DESCRIPTOR_CLOCK_DOMAIN:
-               proto_tree_add_item(flags_tree, hf_aecp_clock_domain_locked, tvb,
-                     AECP_OFFSET_COUNTERS_CLOCK_DOMAIN_LOCKED, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_clock_domain_unlocked, tvb,
-                     AECP_OFFSET_COUNTERS_CLOCK_DOMAIN_UNLOCKED, 4, ENC_BIG_ENDIAN);
-               break;
-            case AEM_DESCRIPTOR_STREAM_INPUT:
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_media_locked, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_MEDIA_LOCKED, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_media_unlocked, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_MEDIA_UNLOCKED, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_stream_reset, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_STREAM_RESET, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_seq_num_mismatch, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_SEQ_NUM_MISMATCH, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_media_reset, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_MEDIA_RESET, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_timestamp_uncertain, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_TIMESTAMP_UNCERTAIN, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_timestamp_valid, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_TIMESTAMP_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_timestamp_not_valid, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_TIMESTAMP_NOT_VALID, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_unsupported_format, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_UNSUPPORTED_FORMAT, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_late_timestamp, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_LATE_TIMESTAMP, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_early_timestamp, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_EARLY_TIMESTAMP, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_packets_tx, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_TX, 4, ENC_BIG_ENDIAN);
-               proto_tree_add_item(flags_tree, hf_aecp_stream_input_packets_rx, tvb,
-                     AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_RX, 4, ENC_BIG_ENDIAN);
-               break;
-            default:
-               break;
+            if ((mess_type != AECP_AEM_COMMAND_MESSAGE)||(c_type == AECP_COMMAND_SET_SENSOR_FORMAT))
+            {
+                next_tvb = tvb_new_subset(tvb, AECP_OFFSET_SENSOR_FORMAT_SENSOR_FORMAT, 8, 8);
+                dissect_17221_sensor_format(next_tvb, aecp_tree);
             }
-         }
-         break;
-      case AECP_COMMAND_GET_AUDIO_MAP:
-      case AECP_COMMAND_GET_VIDEO_MAP:
-      case AECP_COMMAND_GET_SENSOR_MAP:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_MAP_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_MAP_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_map_index, tvb,
-               AECP_OFFSET_MAP_MAP_INDEX, 2, ENC_BIG_ENDIAN);
-         if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+            break;
+          case AECP_COMMAND_SET_STREAM_INFO:
+          case AECP_COMMAND_GET_STREAM_INFO:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_STREAM_INFO_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_STREAM_INFO_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_STREAM_INFO)) {
+               proto_tree_add_item(aecp_tree, hf_acmp_flags_class_b, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_acmp_flags_fast_connect, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_acmp_flags_saved_state, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_acmp_flags_streaming_wait, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_connected_flag, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_stream_id_valid_flag, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_msrp_acc_lat_valid_flag, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_dest_mac_valid_flag, tvb,
+                     AECP_OFFSET_STREAM_INFO_FLAGS, 4, ENC_BIG_ENDIAN);
+
+                proto_tree_add_item(aecp_tree, hf_aecp_stream_format, tvb,
+                     AECP_OFFSET_STREAM_INFO_STREAM_FORMAT, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_acmp_stream_id, tvb,
+                     AECP_OFFSET_STREAM_INFO_STREAM_ID, 8, ENC_BIG_ENDIAN);
+
+                proto_tree_add_item(aecp_tree, hf_aecp_msrp_accumulated_latency, tvb,
+                     AECP_OFFSET_STREAM_INFO_MSRP_ACCUMULATED_LATENCY, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_acmp_stream_dest_mac, tvb,
+                     AECP_OFFSET_STREAM_INFO_STREAM_DEST_MAC, 6, ENC_NA);
+                proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_code, tvb,
+                     AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE, 1, ENC_NA);
+                proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_bridge_id, tvb,
+                     AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID, 8, ENC_NA);
+            }
+          case AECP_COMMAND_SET_NAME:
+          case AECP_COMMAND_GET_NAME:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_NAME_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_NAME_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_name_index, tvb,
+                  AECP_OFFSET_NAME_NAME_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_configuration_index, tvb,
+                  AECP_OFFSET_NAME_CONFIGURATION_INDEX, 2, ENC_BIG_ENDIAN);
+
+            if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_NAME)) {
+               proto_tree_add_item(aecp_tree, hf_aecp_name, tvb,
+                     AECP_OFFSET_NAME_NAME, 64, ENC_ASCII|ENC_NA);
+            }
+            break;
+          case AECP_COMMAND_SET_ASSOCIATION_ID:
+          case AECP_COMMAND_GET_ASSOCIATION_ID:
+            proto_tree_add_item(aecp_tree, hf_aecp_association_id, tvb,
+                  AECP_OFFSET_ASSOCIATION_ID_ASSOCIATION_ID, 8, ENC_BIG_ENDIAN);
+            break;
+          case AECP_COMMAND_SET_SAMPLING_RATE:
+          case AECP_COMMAND_GET_SAMPLING_RATE:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_SAMPLING_RATE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_SAMPLING_RATE_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_SAMPLING_RATE)) {
+               proto_tree_add_item(aecp_tree, hf_aecp_sampling_rate, tvb,
+                     AECP_OFFSET_SAMPLING_RATE_SAMPLING_RATE, 64, ENC_BIG_ENDIAN);
+            }
+            break;
+          case AECP_COMMAND_SET_CLOCK_SOURCE:
+          case AECP_COMMAND_GET_CLOCK_SOURCE:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_CLOCK_SOURCE)) {
+               proto_tree_add_item(aecp_tree, hf_aem_clock_source_id, tvb,
+                     AECP_OFFSET_CLOCK_SOURCE_CLOCK_SOURCE_INDEX, 2, ENC_BIG_ENDIAN);
+            }
+            break;
+          case AECP_COMMAND_SET_CONTROL_VALUE:
+          case AECP_COMMAND_GET_CONTROL_VALUE:
+          case AECP_COMMAND_SET_MIXER:
+          case AECP_COMMAND_GET_MIXER:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_CONTROL_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_CONTROL_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            /* TODO: dissect control/mixer values */
+            break;
+          case AECP_COMMAND_INCREMENT_CONTROL:
+          case AECP_COMMAND_DECREMENT_CONTROL:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_INCDEC_CONTROL_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_INCDEC_CONTROL_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            /* TODO: dissect control index list (message) or values (response) */
+            break;
+          case AECP_COMMAND_SET_SIGNAL_SELECTOR:
+          case AECP_COMMAND_GET_SIGNAL_SELECTOR:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_SIGNAL_SELECTOR_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_SIGNAL_SELECTOR_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_SET_SIGNAL_SELECTOR)) {
+               proto_tree_add_item(aecp_tree, hf_aecp_signal_type, tvb,
+                     AECP_OFFSET_SIGNAL_SELECTOR_SIGNAL_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_signal_index, tvb,
+                     AECP_OFFSET_SIGNAL_SELECTOR_SIGNAL_INDEX, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_signal_output, tvb,
+                     AECP_OFFSET_SIGNAL_SELECTOR_SIGNAL_OUTPUT, 2, ENC_BIG_ENDIAN);
+            }
+            break;
+          case AECP_COMMAND_GET_MATRIX:
+          case AECP_COMMAND_SET_MATRIX:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_MATRIX_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_MATRIX_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_column, tvb,
+                  AECP_OFFSET_MATRIX_MATRIX_COLUMN, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_row, tvb,
+                  AECP_OFFSET_MATRIX_MATRIX_ROW, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_width, tvb,
+                  AECP_OFFSET_MATRIX_REGION_WIDTH, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_height, tvb, AECP_OFFSET_MATRIX_REGION_HEIGHT, 2, ENC_BIG_ENDIAN); proto_tree_add_item(aecp_tree, hf_aecp_matrix_rep, tvb,
+                  AECP_OFFSET_MATRIX_REP, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_direction, tvb,
+                  AECP_OFFSET_MATRIX_DIRECTION, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_value_count, tvb,
+                  AECP_OFFSET_MATRIX_VALUE_COUNT, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_matrix_item_offset, tvb,
+                  AECP_OFFSET_MATRIX_ITEM_OFFSET, 2, ENC_BIG_ENDIAN);
+
+            if ((mess_type == AECP_AEM_RESPONSE_MESSAGE) || (c_type == AECP_COMMAND_GET_MATRIX)) {
+               /* TODO: dissect matrix values */
+            }
+            break;
+         case AECP_COMMAND_START_STREAMING:
+         case AECP_COMMAND_STOP_STREAMING:
+         case AECP_COMMAND_REBOOT:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_STREAMING_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_STREAMING_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            break;
+         case AECP_COMMAND_REGISTER_UNSOL_NOTIFICATION:
+         case AECP_COMMAND_DEREGISTER_UNSOL_NOTIFICATION:
+            /* No additional fields in these command types */
+            break;
+         case AECP_COMMAND_IDENTIFY_NOTIFICATION:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_IDENTIFY_NOTIFICATION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_IDENTIFY_NOTIFICATION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            break;
+         case AECP_COMMAND_GET_AVB_INFO:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_AVB_INFO_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_AVB_INFO_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+                proto_tree_add_item(aecp_tree, hf_aecp_avb_info_ptp_grandmaster_id, tvb,
+                        AECP_OFFSET_AVB_INFO_AS_GRANDMASTER_ID, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_avb_info_propegation_delay, tvb,
+                        AECP_OFFSET_AVB_INFO_PROPAGATION_DELAY, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_avb_info_gptp_domain_number, tvb,
+                        AECP_OFFSET_AVB_INFO_AS_DOMAIN_NUMBER, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_as_capable_flag, tvb,
+                        AECP_OFFSET_AVB_INFO_FLAGS, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_gptp_enabled_flag, tvb,
+                        AECP_OFFSET_AVB_INFO_FLAGS, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_srp_enabled_flag, tvb,
+                        AECP_OFFSET_AVB_INFO_FLAGS, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(aecp_tree, hf_aecp_avb_info_msrp_mappings_count, tvb,
+                        AECP_OFFSET_AVB_INFO_MSRP_MAPPINGS_COUNT, 2, ENC_BIG_ENDIAN);
+
+                /* prepare msrp mappings subtree */
+                mr_item = proto_tree_add_item(aecp_tree, hf_aecp_avb_info_msrp_mappings, tvb,
+                               0, 0, ENC_NA);
+                mr_subtree = proto_item_add_subtree(mr_item, ett_aecp_get_avb_info_msrp_mappings);
+                mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AVB_INFO_MSRP_MAPPINGS_COUNT);
+
+                mr_offset = AECP_OFFSET_AVB_INFO_MSRP_MAPPINGS;
+                for (i = 0; i < mr_counter; i++) {
+                    proto_tree_add_item(mr_subtree, hf_aecp_avb_info_msrp_mapping_traffic_class, tvb,
+                       mr_offset, 1, ENC_BIG_ENDIAN);
+                    mr_offset += 1;
+                    proto_tree_add_item(mr_subtree, hf_aecp_avb_info_msrp_mapping_priority, tvb,
+                       mr_offset, 1, ENC_BIG_ENDIAN);
+                    mr_offset += 1;
+                    proto_tree_add_item(mr_subtree, hf_aecp_get_avb_info_msrp_vlan_id, tvb,
+                       mr_offset, 2, ENC_BIG_ENDIAN);
+                    mr_offset += 2;
+                }
+            }
+            break;
+         case AECP_COMMAND_GET_AS_PATH:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_AS_PATH_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+                proto_tree_add_item(aecp_tree, hf_aecp_as_path_count, tvb,
+                    AECP_OFFSET_AS_PATH_COUNT, 2, ENC_BIG_ENDIAN);
+
+                mr_item = proto_tree_add_item(aecp_tree, hf_aecp_as_path_sequences, tvb,
+                               0, 0, ENC_NA);
+                mr_subtree = proto_item_add_subtree(mr_item, ett_aecp_get_as_path_sequences);
+                mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AS_PATH_COUNT);
+
+                mr_offset = AECP_OFFSET_AS_PATH_PATH_SEQUENCE;
+                for (i = 0; i < mr_counter; i++) {
+                    proto_tree_add_item(mr_subtree, hf_aecp_get_as_info_clock_id, tvb,
+                       mr_offset, 8, ENC_BIG_ENDIAN);
+                    mr_offset += 8;
+                }
+            }
+            break;
+         case AECP_COMMAND_GET_COUNTERS:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_COUNTERS_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+
+               flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
+
+               /* begin counters_valid flags field */
+               switch (tvb_get_ntohs(tvb, AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE)) {
+               case AEM_DESCRIPTOR_ENTITY:
+                  break;
+               case AEM_DESCRIPTOR_AVB_INTERFACE:
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_link_up_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_link_down_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_packets_tx_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_packets_rx_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_rx_crc_error_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_gptp_gm_changed_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  break;
+               case AEM_DESCRIPTOR_CLOCK_DOMAIN:
+                  proto_tree_add_item(aecp_tree, hf_aecp_clock_domain_locked_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_clock_domain_unlocked_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  break;
+               case AEM_DESCRIPTOR_STREAM_INPUT:
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_media_locked_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_media_unlocked_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_stream_reset_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_seq_num_mismatch_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_media_reset_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_timestamp_uncertain_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_timestamp_valid_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_timestamp_not_valid_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_unsupported_format_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_late_timestamp_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_early_timestamp_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_tx_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_rx_valid, tvb,
+                        AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+                  break;
+               default:
+                  break;
+               }
+
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific1_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific2_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific3_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific4_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific5_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific6_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific7_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific8_valid, tvb,
+                     AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
+
+
+               /* end counters_valid flags field */
+
+
+               switch (tvb_get_ntohs(tvb, AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE)) {
+               case AEM_DESCRIPTOR_ENTITY:
+                  break;
+               case AEM_DESCRIPTOR_AVB_INTERFACE:
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_link_up, tvb,
+                        AECP_OFFSET_COUNTERS_AVB_INTERFACE_LINK_UP, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_link_down, tvb,
+                        AECP_OFFSET_COUNTERS_AVB_INTERFACE_LINK_DOWN, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_packets_tx, tvb,
+                        AECP_OFFSET_COUNTERS_AVB_INTERFACE_PACKETS_TX, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_packets_rx, tvb,
+                        AECP_OFFSET_COUNTERS_AVB_INTERFACE_PACKETS_RX, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_rx_crc_error, tvb,
+                        AECP_OFFSET_COUNTERS_AVB_INTERFACE_RX_CRC_ERROR, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_avb_interface_gptp_gm_changed, tvb,
+                        AECP_OFFSET_COUNTERS_AVB_INTERFACE_GPTP_GM_CHANGED, 4, ENC_BIG_ENDIAN);
+                  break;
+               case AEM_DESCRIPTOR_CLOCK_DOMAIN:
+                  proto_tree_add_item(aecp_tree, hf_aecp_clock_domain_locked, tvb,
+                        AECP_OFFSET_COUNTERS_CLOCK_DOMAIN_LOCKED, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_clock_domain_unlocked, tvb,
+                        AECP_OFFSET_COUNTERS_CLOCK_DOMAIN_UNLOCKED, 4, ENC_BIG_ENDIAN);
+                  break;
+               case AEM_DESCRIPTOR_STREAM_INPUT:
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_media_locked, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_MEDIA_LOCKED, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_media_unlocked, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_MEDIA_UNLOCKED, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_stream_reset, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_STREAM_RESET, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_seq_num_mismatch, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_SEQ_NUM_MISMATCH, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_media_reset, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_MEDIA_RESET, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_timestamp_uncertain, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_TIMESTAMP_UNCERTAIN, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_timestamp_valid, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_TIMESTAMP_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_timestamp_not_valid, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_TIMESTAMP_NOT_VALID, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_unsupported_format, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_UNSUPPORTED_FORMAT, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_late_timestamp, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_LATE_TIMESTAMP, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_early_timestamp, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_EARLY_TIMESTAMP, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_tx, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_TX, 4, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(aecp_tree, hf_aecp_stream_input_packets_rx, tvb,
+                        AECP_OFFSET_COUNTERS_STREAM_INPUT_PACKETS_RX, 4, ENC_BIG_ENDIAN);
+                  break;
+               default:
+                  break;
+               }
+
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific1, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_1, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific2, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_2, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific3, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_3, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific4, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_4, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific5, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_5, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific6, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_6, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific7, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_7, 4, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_entity_specific8, tvb,
+                     AECP_OFFSET_COUNTERS_ENTITY_SPECIFIC_8, 4, ENC_BIG_ENDIAN);
+
+            }
+            break;
+         case AECP_COMMAND_GET_AUDIO_MAP:
+         case AECP_COMMAND_GET_VIDEO_MAP:
+         case AECP_COMMAND_GET_SENSOR_MAP:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_MAP_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_MAP_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_map_index, tvb,
+                  AECP_OFFSET_MAP_MAP_INDEX, 2, ENC_BIG_ENDIAN);
+            if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+               proto_tree_add_item(aecp_tree, hf_aecp_number_of_maps, tvb,
+                     AECP_OFFSET_MAP_NUMBER_OF_MAPS, 2, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_number_of_maps, tvb,
+                     AECP_OFFSET_MAP_NUMBER_OF_MAPPINGS, 2, ENC_BIG_ENDIAN);
+               /* TODO: dissect mappings */
+            }
+            break;
+         case AECP_COMMAND_ADD_AUDIO_MAPPINGS:
+         case AECP_COMMAND_REMOVE_AUDIO_MAPPINGS:
+         case AECP_COMMAND_ADD_VIDEO_MAPPINGS:
+         case AECP_COMMAND_REMOVE_VIDEO_MAPPINGS:
+         case AECP_COMMAND_ADD_SENSOR_MAPPINGS:
+         case AECP_COMMAND_REMOVE_SENSOR_MAPPINGS:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_ADDREM_MAP_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_ADDREM_MAP_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_number_of_maps, tvb,
-                  AECP_OFFSET_MAP_NUMBER_OF_MAPS, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_number_of_maps, tvb,
-                  AECP_OFFSET_MAP_NUMBER_OF_MAPPINGS, 2, ENC_BIG_ENDIAN);
+                  AECP_OFFSET_ADDREM_MAP_NUMBER_OF_MAPPINGS, 2, ENC_BIG_ENDIAN);
             /* TODO: dissect mappings */
-         }
-         break;
-      case AECP_COMMAND_ADD_AUDIO_MAPPINGS:
-      case AECP_COMMAND_REMOVE_AUDIO_MAPPINGS:
-      case AECP_COMMAND_ADD_VIDEO_MAPPINGS:
-      case AECP_COMMAND_REMOVE_VIDEO_MAPPINGS:
-      case AECP_COMMAND_ADD_SENSOR_MAPPINGS:
-      case AECP_COMMAND_REMOVE_SENSOR_MAPPINGS:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_ADDREM_MAP_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_ADDREM_MAP_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_number_of_maps, tvb,
-               AECP_OFFSET_ADDREM_MAP_NUMBER_OF_MAPPINGS, 2, ENC_BIG_ENDIAN);
-         /* TODO: dissect mappings */
-         break;
-      case AECP_COMMAND_START_OPERATION:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_START_OPERATION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_START_OPERATION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
-               AECP_OFFSET_START_OPERATION_OPERATION_ID, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_operation_type, tvb,
-               AECP_OFFSET_START_OPERATION_OPERATION_TYPE, 2, ENC_BIG_ENDIAN);
-         /* TODO: add values support when operation types are defined */
-         break;
-      case AECP_COMMAND_ABORT_OPERATION:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_ABORT_OPERATION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_ABORT_OPERATION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
-               AECP_OFFSET_ABORT_OPERATION_OPERATION_ID, 2, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_OPERATION_STATUS:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_OPERATION_STATUS_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_OPERATION_STATUS_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
-               AECP_OFFSET_OPERATION_STATUS_OPERATION_ID, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_percent_complete, tvb,
-               AECP_OFFSET_OPERATION_STATUS_PERCENT_COMPLETE, 2, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_AUTH_ADD_KEY:
-      case AECP_COMMAND_AUTH_DELETE_KEY:
-      case AECP_COMMAND_AUTH_GET_KEY:
-         proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
-               AECP_OFFSET_AUTH_KEY_KEY_EUI, 8, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_key_type, tvb,
-               AECP_OFFSET_AUTH_KEY_KEY_TYPE, 1, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_key_length, tvb,
-               AECP_OFFSET_AUTH_KEY_KEY_LENGTH, 2, ENC_BIG_ENDIAN);
-
-         if (((mess_type == AECP_AEM_RESPONSE_MESSAGE) && (c_type == AECP_COMMAND_AUTH_GET_KEY)) ||
-             ((mess_type == AECP_AEM_COMMAND_MESSAGE) && (c_type == AECP_COMMAND_AUTH_ADD_KEY))) {
-
-            mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AUTH_KEY_KEY_LENGTH) & AECP_KEY_LENGTH_MASK;
-            proto_tree_add_item(aecp_tree, hf_aecp_key, tvb,
-                  AECP_OFFSET_AUTH_KEY_KEY, mr_counter, ENC_NA);
-         }
-         break;
-      case AECP_COMMAND_AUTH_GET_KEY_LIST:
-         proto_tree_add_item(aecp_tree, hf_aecp_keychain_id_small, tvb,
-               AECP_OFFSET_AUTH_GET_KEY_LIST_KEYCHAIN_ID, 1, ENC_BIG_ENDIAN);
-         if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
-            proto_tree_add_item(aecp_tree, hf_aecp_keychain_id_small, tvb,
-                  AECP_OFFSET_AUTH_GET_KEY_LIST_NUMBER_OF_KEYS, 1, ENC_BIG_ENDIAN);
-         }
-         break;
-      case AECP_COMMAND_AUTH_ADD_KEY_TO_CHAIN:
-      case AECP_COMMAND_AUTH_DELETE_KEY_FROM_CHAIN:
-         proto_tree_add_item(aecp_tree, hf_aecp_keychain_id, tvb,
-               AECP_OFFSET_AUTH_KEYCHAIN_KEYCHAIN_ID, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
-               AECP_OFFSET_AUTH_KEYCHAIN_KEY_EUI, 8, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_AUTH_GET_KEYCHAIN_LIST:
-         proto_tree_add_item(aecp_tree, hf_aecp_keychain_id, tvb,
-               AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_KEYCHAIN_ID, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_keychain_list_index, tvb,
-               AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_LIST_INDEX, 2, ENC_BIG_ENDIAN);
-         if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
-            proto_tree_add_item(aecp_tree, hf_aecp_keychain_number_of_lists, tvb,
-                  AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_NUMBER_OF_LISTS, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_keychain_number_of_keys, tvb,
-                  AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_NUMBER_OF_KEYS, 2, ENC_BIG_ENDIAN);
-            /* TODO: dissect key euis */
-         }
-         break;
-      case AECP_COMMAND_AUTH_GET_IDENTITY:
-         proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
-               AECP_OFFSET_AUTH_GET_IDENTITY_KEY_GUID, 8, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_key_signature, tvb,
-               AECP_OFFSET_AUTH_GET_IDENTITY_SIGNATURE, 28, ENC_NA);
-         break;
-      case AECP_COMMAND_AUTH_ADD_TOKEN:
-         if (mess_type == AECP_AEM_COMMAND_MESSAGE) {
-            guint32 token_length = tvb_get_ntohl(tvb, AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH);
+            break;
+         case AECP_COMMAND_START_OPERATION:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_START_OPERATION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_START_OPERATION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
+                  AECP_OFFSET_START_OPERATION_OPERATION_ID, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_operation_type, tvb,
+                  AECP_OFFSET_START_OPERATION_OPERATION_TYPE, 2, ENC_BIG_ENDIAN);
+            /* TODO: add values support when operation types are defined */
+            break;
+         case AECP_COMMAND_ABORT_OPERATION:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_ABORT_OPERATION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_ABORT_OPERATION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
+                  AECP_OFFSET_ABORT_OPERATION_OPERATION_ID, 2, ENC_BIG_ENDIAN);
+            break;
+         case AECP_COMMAND_OPERATION_STATUS:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_OPERATION_STATUS_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_OPERATION_STATUS_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
+                  AECP_OFFSET_OPERATION_STATUS_OPERATION_ID, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_percent_complete, tvb,
+                  AECP_OFFSET_OPERATION_STATUS_PERCENT_COMPLETE, 2, ENC_BIG_ENDIAN);
+            break;
+         case AECP_COMMAND_AUTH_ADD_KEY:
+         case AECP_COMMAND_AUTH_DELETE_KEY:
+         case AECP_COMMAND_AUTH_GET_KEY:
+            proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
+                  AECP_OFFSET_AUTH_KEY_KEY_EUI, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_key_type, tvb,
+                  AECP_OFFSET_AUTH_KEY_KEY_TYPE, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_key_length, tvb,
-                  AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(aecp_tree, hf_aecp_key_signature, tvb,
-                  AECP_OFFSET_AUTH_TOKEN_AUTHENTICATION_TOKEN, token_length, ENC_NA);
-         }
-         break;
-      case AECP_COMMAND_AUTH_DELETE_TOKEN:
-         /* No command specific fields */
-         break;
-      case AECP_COMMAND_AUTHENTICATE:
-      case AECP_COMMAND_DEAUTHENTICATE:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_AUTHENTICATE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_AUTHENTICATE_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_token_length, tvb,
-               AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH, 2, ENC_BIG_ENDIAN);
+                  AECP_OFFSET_AUTH_KEY_KEY_LENGTH, 2, ENC_BIG_ENDIAN);
 
-         mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH)
-            & AECP_TOKEN_LENGTH_MASK;
-         proto_tree_add_item(aecp_tree, hf_aecp_auth_token, tvb,
-               AECP_OFFSET_AUTHENTICATE_AUTH_TOKEN, mr_counter, ENC_NA);
-         break;
-      case AECP_COMMAND_ENABLE_TRANSPORT_SECURITY:
-         proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
-               AECP_OFFSET_TRANSPORT_SECURITY_KEY_EUI, 8, ENC_BIG_ENDIAN);
-         break;
-      case AECP_COMMAND_DISABLE_TRANSPORT_SECURITY:
-         /* No command specific fields */
-         break;
-      case AECP_COMMAND_ENABLE_STREAM_ENCRYPTION:
-      case AECP_COMMAND_DISABLE_STREAM_ENCRYPTION:
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_STREAM_ENCRYPTION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
-               AECP_OFFSET_STREAM_ENCRYPTION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
-         if (c_type == AECP_COMMAND_ENABLE_STREAM_ENCRYPTION) {
-           proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
-                 AECP_OFFSET_STREAM_ENCRYPTION_KEY_EUI, 8, ENC_BIG_ENDIAN);
-         }
-         break;
-         /* * * * AEM COMMON FORMAT PACKETS * * * */
-      case AECP_COMMAND_CONTROLLER_AVAILABLE:
-         break;
-      default:
-         /* the command type is not one of the valid spec values */
-         break;
+            if (((mess_type == AECP_AEM_RESPONSE_MESSAGE) && (c_type == AECP_COMMAND_AUTH_GET_KEY)) ||
+                ((mess_type == AECP_AEM_COMMAND_MESSAGE) && (c_type == AECP_COMMAND_AUTH_ADD_KEY))) {
+
+               mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AUTH_KEY_KEY_LENGTH) & AECP_KEY_LENGTH_MASK;
+               proto_tree_add_item(aecp_tree, hf_aecp_key, tvb,
+                     AECP_OFFSET_AUTH_KEY_KEY, mr_counter, ENC_NA);
+            }
+            break;
+         case AECP_COMMAND_AUTH_GET_KEY_LIST:
+            proto_tree_add_item(aecp_tree, hf_aecp_keychain_id_small, tvb,
+                  AECP_OFFSET_AUTH_GET_KEY_LIST_KEYCHAIN_ID, 1, ENC_BIG_ENDIAN);
+            if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+               proto_tree_add_item(aecp_tree, hf_aecp_keychain_id_small, tvb,
+                     AECP_OFFSET_AUTH_GET_KEY_LIST_NUMBER_OF_KEYS, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+         case AECP_COMMAND_AUTH_ADD_KEY_TO_CHAIN:
+         case AECP_COMMAND_AUTH_DELETE_KEY_FROM_CHAIN:
+            proto_tree_add_item(aecp_tree, hf_aecp_keychain_id, tvb,
+                  AECP_OFFSET_AUTH_KEYCHAIN_KEYCHAIN_ID, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
+                  AECP_OFFSET_AUTH_KEYCHAIN_KEY_EUI, 8, ENC_BIG_ENDIAN);
+            break;
+         case AECP_COMMAND_AUTH_GET_KEYCHAIN_LIST:
+            proto_tree_add_item(aecp_tree, hf_aecp_keychain_id, tvb,
+                  AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_KEYCHAIN_ID, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_keychain_list_index, tvb,
+                  AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_LIST_INDEX, 2, ENC_BIG_ENDIAN);
+            if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
+               proto_tree_add_item(aecp_tree, hf_aecp_keychain_number_of_lists, tvb,
+                     AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_NUMBER_OF_LISTS, 2, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_keychain_number_of_keys, tvb,
+                     AECP_OFFSET_AUTH_GET_KEYCHAIN_LIST_NUMBER_OF_KEYS, 2, ENC_BIG_ENDIAN);
+               /* TODO: dissect key euis */
+            }
+            break;
+         case AECP_COMMAND_AUTH_GET_IDENTITY:
+            proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
+                  AECP_OFFSET_AUTH_GET_IDENTITY_KEY_GUID, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_key_signature, tvb,
+                  AECP_OFFSET_AUTH_GET_IDENTITY_SIGNATURE, 28, ENC_NA);
+            break;
+         case AECP_COMMAND_AUTH_ADD_TOKEN:
+            if (mess_type == AECP_AEM_COMMAND_MESSAGE) {
+               guint32 token_length = tvb_get_ntohl(tvb, AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH);
+               proto_tree_add_item(aecp_tree, hf_aecp_key_length, tvb,
+                     AECP_OFFSET_AUTH_TOKEN_TOKEN_LENGTH, 2, ENC_BIG_ENDIAN);
+               proto_tree_add_item(aecp_tree, hf_aecp_key_signature, tvb,
+                     AECP_OFFSET_AUTH_TOKEN_AUTHENTICATION_TOKEN, token_length, ENC_NA);
+            }
+            break;
+         case AECP_COMMAND_AUTH_DELETE_TOKEN:
+            /* No command specific fields */
+            break;
+         case AECP_COMMAND_AUTHENTICATE:
+         case AECP_COMMAND_DEAUTHENTICATE:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_AUTHENTICATE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_AUTHENTICATE_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_token_length, tvb,
+                  AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH, 2, ENC_BIG_ENDIAN);
+
+            mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH)
+               & AECP_TOKEN_LENGTH_MASK;
+            proto_tree_add_item(aecp_tree, hf_aecp_auth_token, tvb,
+                  AECP_OFFSET_AUTHENTICATE_AUTH_TOKEN, mr_counter, ENC_NA);
+            break;
+         case AECP_COMMAND_ENABLE_TRANSPORT_SECURITY:
+            proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
+                  AECP_OFFSET_TRANSPORT_SECURITY_KEY_EUI, 8, ENC_BIG_ENDIAN);
+            break;
+         case AECP_COMMAND_DISABLE_TRANSPORT_SECURITY:
+            /* No command specific fields */
+            break;
+         case AECP_COMMAND_ENABLE_STREAM_ENCRYPTION:
+         case AECP_COMMAND_DISABLE_STREAM_ENCRYPTION:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_STREAM_ENCRYPTION_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_STREAM_ENCRYPTION_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            if (c_type == AECP_COMMAND_ENABLE_STREAM_ENCRYPTION) {
+              proto_tree_add_item(aecp_tree, hf_aecp_key_eui, tvb,
+                    AECP_OFFSET_STREAM_ENCRYPTION_KEY_EUI, 8, ENC_BIG_ENDIAN);
+            }
+            break;
+
+         case AECP_COMMAND_SET_STREAM_BACKUP:
+         case AECP_COMMAND_GET_STREAM_BACKUP:
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
+                  AECP_OFFSET_STREAM_BACKUP_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_descriptor_index, tvb,
+                  AECP_OFFSET_STREAM_BACKUP_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backup_talker_entity_id_0, tvb,
+                 AECP_OFFSET_STREAM_BACKUP_TALKER_ENTITY_ID_0, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backup_talker_unique_id_0, tvb,
+                  AECP_OFFSET_STREAM_BACKUP_TALKER_UNIQUE_ID_0, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backup_talker_entity_id_1, tvb,
+                 AECP_OFFSET_STREAM_BACKUP_TALKER_ENTITY_ID_1, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backup_talker_unique_id_1, tvb,
+                  AECP_OFFSET_STREAM_BACKUP_TALKER_UNIQUE_ID_1, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backup_talker_entity_id_2, tvb,
+                 AECP_OFFSET_STREAM_BACKUP_TALKER_ENTITY_ID_2, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backup_talker_unique_id_2, tvb,
+                  AECP_OFFSET_STREAM_BACKUP_TALKER_UNIQUE_ID_2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backedup_talker_entity_id, tvb,
+                 AECP_OFFSET_STREAM_BACKEDUP_TALKER_ENTITY_ID, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(aecp_tree, hf_aecp_backedup_talker_unique_id, tvb,
+                  AECP_OFFSET_STREAM_BACKEDUP_TALKER_UNIQUE_ID, 2, ENC_BIG_ENDIAN);
+            break;
+            /* * * * AEM COMMON FORMAT PACKETS * * * */
+         case AECP_COMMAND_CONTROLLER_AVAILABLE:
+            break;
+         default:
+            /* the command type is not one of the valid spec values */
+            break;
+      }
+   } // AECP AEM Command
+   else if ((mess_type == AECP_ADDRESS_ACCESS_COMMAND_MESSAGE) || (mess_type == AECP_ADDRESS_ACCESS_RESPONSE_MESSAGE))
+   {
+      proto_tree_add_item(aecp_tree, hf_aecp_aa_count, tvb,
+         AECP_AA_OFFSET_COUNT, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(aecp_tree, hf_aecp_aa_tlv_mode, tvb,
+         AECP_AA_OFFSET_TLVS_START, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(aecp_tree, hf_aecp_aa_tlv_length, tvb,
+         AECP_AA_OFFSET_TLVS_START, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(aecp_tree, hf_aecp_aa_tlv_address, tvb,
+         AECP_AA_OFFSET_TLVS_START+2, 8, ENC_BIG_ENDIAN);
    }
+
 }
 
 static void
@@ -4588,7 +4717,7 @@ dissect_17221_acmp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *acmp_tree)
    proto_tree_add_item(flags_tree, hf_acmp_flags_saved_state, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(flags_tree, hf_acmp_flags_streaming_wait, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(acmp_tree, hf_acmp_default_format, tvb, ACMP_DEFAULT_FORMAT_OFFSET, 4, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_vlan_id, tvb, ACMP_VLAN_ID_OFFSET, 2, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -5027,9 +5156,9 @@ proto_register_17221(void)
             FT_BOOLEAN, 16, NULL, ACMP_FLAG_STREAMING_WAIT_BITMASK, NULL, HFILL }
       },
       /* ACMP Flags End */
-      { &hf_acmp_default_format,
-         { "Default Format", "ieee17221.default_format",
-            FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      { &hf_acmp_vlan_id,
+         { "Stream VLAN Id", "ieee17221.vlan_id",
+            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       /******* AECP ******/
       /* COMMON FIELDS */
@@ -5060,6 +5189,23 @@ proto_register_17221(void)
       { &hf_aecp_command_type,
          { "Command Type", "ieee17221.command_type",
             FT_UINT16, BASE_HEX, VALS(aecp_command_type_vals), AECP_COMMAND_TYPE_MASK, NULL, HFILL }
+      },
+      /* Address Access Fields */
+      { &hf_aecp_aa_count,
+         { "Count", "ieee17221.count",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_aa_tlv_mode,
+         { "Tlv Mode", "ieee17221.tlv_mode",
+            FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
+      },
+      { &hf_aecp_aa_tlv_length,
+         { "Tlv Length", "ieee17221.tlv_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }
+      },
+       { &hf_aecp_aa_tlv_address,
+         { "Tlv Address", "ieee17221.tlv_address",
+            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
       },
 
       /* SLIGHTLY LESS COMMON FIELDS */
@@ -5184,11 +5330,62 @@ proto_register_17221(void)
 
       /* STOP_STREAMING */
 
+      /* GET_AVB_INFO */
+      { &hf_aecp_avb_info_ptp_grandmaster_id,
+         {"gPTP Grandmaster ID", "ieee17221.avb_info_gptp_grandmaster_id",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_avb_info_propegation_delay,
+         {"Progagation Delay", "ieee17221.avb_info_propegation_delay",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_avb_info_gptp_domain_number,
+         {"gPTP Domain Number", "ieee17221.avb_info_gptp_domain_number",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_avb_info_flags,
+         {"Flags", "ieee17221.avbinfo_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      
+      { &hf_aecp_as_capable_flag,
+         { "AS Capable Flag", "ieee17221.as_capable_flag",
+            FT_BOOLEAN, 8, NULL, AECP_AS_CAPABLE_FLAG_MASK, NULL, HFILL }
+      },
 
-      { &hf_aecp_as_path_count,
-         {"AS Path Count", "ieee17221.as_path_count",
+      { &hf_aecp_gptp_enabled_flag,
+         { "gPTP Enabled Flag", "ieee17221.gptp_enabled_flag",
+            FT_BOOLEAN, 8, NULL, AECP_GPTP_ENABLED_FLAG_MASK, NULL, HFILL }
+      },
+
+      { &hf_aecp_srp_enabled_flag,
+         { "SRP Enabled Flag", "ieee17221.srp_enabled_flag",
+            FT_BOOLEAN, 8, NULL, AECP_SRP_ENABLED_FLAG_MASK, NULL, HFILL }
+      },
+ 
+      { &hf_aecp_avb_info_msrp_mappings_count,
+         {"MSRP Mappings Count", "ieee17221.msrp_mappings",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
+
+      { &hf_aecp_avb_info_msrp_mappings,
+         {"MSRP Mappings", "ieee17221.msrp_mappings",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+
+      { &hf_aecp_avb_info_msrp_mapping_traffic_class,
+         {"MSRP Mapping Traffic Class", "ieee17221.msrp_mapping_traffic_class",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_avb_info_msrp_mapping_priority,
+         {"MSRP Mapping Priority", "ieee17221.msrp_mapping_priority",
+            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_get_avb_info_msrp_vlan_id,
+         {"MSRP VLAN ID", "ieee17221.msrp_vlan_id",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+ 
       { &hf_aecp_map_index,
          {"Map Index", "ieee17221.map_index",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -5237,6 +5434,11 @@ proto_register_17221(void)
          {"Name Index", "ieee17221.name_index",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
+      { &hf_aecp_configuration_index,
+         {"Configuration Index", "ieee17221.configuration_index",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+
       { &hf_aecp_name,
          {"Name", "ieee17221.name",
             FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
@@ -5248,6 +5450,22 @@ proto_register_17221(void)
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
 
+      /* GET_AS_PATH */
+      { &hf_aecp_as_path_count,
+         {"Count", "ieee17221.as_path_count",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      
+      { &hf_aecp_as_path_sequences,
+         {"Path Sequence", "ieee17221.as_path_sequences",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+
+      { &hf_aecp_get_as_info_clock_id,
+         { "ClockId", "ieee17221.get_as_info_clock_id",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+ 
       /* AUTH_ADD_KEY */
       { &hf_aecp_keychain_id,
          {"Keychain ID", "ieee17221.keychain_id",
@@ -5364,6 +5582,8 @@ proto_register_17221(void)
       /* AUTH_GET_KEY */
       /* AUTHENTICATE */
       /* GET_COUNTERS */
+
+      /* Counter valid bits */
       { &hf_aecp_avb_interface_link_up_valid,
          {"Link Up Valid", "ieee17221.flags.link_up_valid",
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_LINK_UP, NULL, HFILL }
@@ -5484,123 +5704,124 @@ proto_register_17221(void)
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_ENTITY_SPECIFIC_8, NULL, HFILL }
       },
 
+      /* Counters */
       { &hf_aecp_avb_interface_link_up,
-         {"Link Up Valid", "ieee17221.flags.link_up",
+         {"Link Up", "ieee17221.link_up",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_link_down,
-         {"Link Down Valid", "ieee17221.flags.link_up",
+         {"Link Down", "ieee17221.link_down",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_packets_tx,
-         {"Packets TX Valid", "ieee17221.flags.packets_tx",
+         {"Frames TX", "ieee17221.frames_tx",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_packets_rx,
-         {"Packets RX Valid", "ieee17221.flags.packets_rx",
+         {"Frames RX", "ieee17221.frames_rx",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_rx_crc_error,
-         {"RX CRC Error Valid", "ieee17221.flags.rx_crc_error",
+         {"RX CRC Error", "ieee17221.rx_crc_error",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_gptp_gm_changed,
-         {"GPTP GM Changed Valid", "ieee17221.flags.gptp_gm_changed",
+         {"GPTP GM Changed", "ieee17221.gptp_gm_changed",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 
       { &hf_aecp_clock_domain_unlocked,
-         {"Clock Domain Unlocked Valid", "ieee17221.flags.clock_domain_unlocked",
+         {"Clock Domain Unlocked", "ieee17221.clock_domain_unlocked",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_clock_domain_locked,
-         {"Clock_Domain Locked Valid", "ieee17221.flags.clock_domain_locked",
+         {"Clock_Domain Locked", "ieee17221.clock_domain_locked",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 
       { &hf_aecp_stream_input_media_unlocked,
-         {"Media Unlocked Valid", "ieee17221.flags.media_unlocked",
+         {"Media Unlocked", "ieee17221.media_unlocked",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_media_locked,
-         {"Media Locked Valid", "ieee17221.flags.media_locked",
+         {"Media Locked", "ieee17221.media_locked",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_stream_reset,
-         {"Stream Reset Valid", "ieee17221.flags.stream_reset",
+         {"Stream Reset", "ieee17221.stream_reset",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_seq_num_mismatch,
-         {"Seq Num Mismatch Valid", "ieee17221.flags.seq_num_mismatch",
+         {"Seq Num Mismatch", "ieee17221.seq_num_mismatch",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_media_reset,
-         {"Media Reset Valid", "ieee17221.flags.media_reset",
+         {"Media Reset", "ieee17221.media_reset",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_timestamp_uncertain,
-         {"Timestamp Uncertain Valid", "ieee17221.flags.timestamp_uncertain",
+         {"Timestamp Uncertain", "ieee17221.timestamp_uncertain",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_timestamp_valid,
-         {"Timestamp Valid Valid", "ieee17221.flags.timestamp",
+         {"Timestamp Valid", "ieee17221.timestamp",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_timestamp_not_valid,
-         {"Timestamp Not Valid Valid", "ieee17221.flags.timestamp_not",
+         {"Timestamp Not Valid", "ieee17221.timestamp_not",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_unsupported_format,
-         {"Unsupported Format Valid", "ieee17221.flags.unsupported_format",
+         {"Unsupported Format", "ieee17221.unsupported_format",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_late_timestamp,
-         {"Late Timestamp Valid", "ieee17221.flags.late_timestamp",
+         {"Late Timestamp", "ieee17221.late_timestamp",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_early_timestamp,
-         {"Early Timestamp Valid", "ieee17221.flags.early_timestamp",
+         {"Early Timestamp", "ieee17221.early_timestamp",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_packets_tx,
-         {"Stream Packets TX Valid", "ieee17221.flags.stream_packets_tx",
+         {"Stream Packets TX", "ieee17221.stream_packets_tx",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_stream_input_packets_rx,
-         {"Stream Packets RX Valid", "ieee17221.flags.stream_packets_rx",
+         {"Stream Packets RX", "ieee17221.stream_packets_rx",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 
       { &hf_aecp_entity_specific1,
-         {"Entity Specific 1", "ieee17221.flags.entity_specific1",
+         {"Entity Specific 1", "ieee17221.entity_specific1",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific2,
-         {"Entity Specific 2", "ieee17221.flags.entity_specific2",
+         {"Entity Specific 2", "ieee17221.entity_specific2",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific3,
-         {"Entity Specific 3", "ieee17221.flags.entity_specific3",
+         {"Entity Specific 3", "ieee17221.entity_specific3",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific4,
-         {"Entity Specific 4", "ieee17221.flags.entity_specific4",
+         {"Entity Specific 4", "ieee17221.entity_specific4",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific5,
-         {"Entity Specific 5", "ieee17221.flags.entity_specific5",
+         {"Entity Specific 5", "ieee17221.entity_specific5",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific6,
-         {"Entity Specific 6", "ieee17221.flags.entity_specific6",
+         {"Entity Specific 6", "ieee17221.entity_specific6",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific7,
-         {"Entity Specific 7", "ieee17221.flags.entity_specific7",
+         {"Entity Specific 7", "ieee17221.entity_specific7",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_entity_specific8,
-         {"Entity Specific 8", "ieee17221.flags.entity_specific8",
+         {"Entity Specific 8", "ieee17221.entity_specific8",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 
@@ -5892,12 +6113,12 @@ proto_register_17221(void)
          {"Base Control Block", "ieee17221.base_control_block",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_aem_unit_name,
-         {"Unit Name", "ieee17221.unit_name",
+      { &hf_aem_object_name,
+         {"Object Name", "ieee17221.object_name",
             FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_aem_unit_name_string,
-         {"Unit Name String", "ieee17221.unit_name_string",
+      { &hf_aem_localized_description,
+         {"Localized Description", "ieee17221.localized_description",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_current_sample_rate,
@@ -6176,33 +6397,9 @@ proto_register_17221(void)
          {"Internal ID", "ieee17221.internal_id",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      /* AVB_INTERFACE */
-      { &hf_aem_msrp_mappings_offset,
-         {"MSRP Mappings Offset", "ieee17221.msrp_mappings_offset",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_msrp_mappings_count,
-         {"MSRP Mappings Count", "ieee17221.msrp_mappings_count",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_msrp_mappings,
-         {"MSRP Mappings", "ieee17221.msrp_mappings",
-            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_msrp_mapping_traffic_class,
-         {"MSRP Mapping Traffic Class", "ieee17221.msrp_mapping_traffic_class",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_msrp_mapping_priority,
-         {"MSRP Mapping Priority", "ieee17221.msrp_mapping_priority",
-            FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_msrp_vlan_id,
-         {"MSRP VLAN ID", "ieee17221.msrp_vlan_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
-      },
 #endif
-      { &hf_aem_avb_interface_flags,
+      /* AVB_INTERFACE */
+     { &hf_aem_avb_interface_flags,
          {"Interface Flags", "ieee17221.interface_flags",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
@@ -6346,14 +6543,6 @@ proto_register_17221(void)
          {"Control Domain", "ieee17221.control_domain",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_aem_control_name,
-         {"Control Name", "ieee17221.control_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_control_name_string,
-         {"Control Name String", "ieee17221.control_name_string",
-            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
-      },
       { &hf_aem_values_offset,
          {"Values Offset", "ieee17221.values_offset",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -6486,14 +6675,6 @@ proto_register_17221(void)
       },
       { &hf_aem_target_descriptor_id,
          {"Target Descriptor ID", "ieee17221.target_descriptor_id",
-            FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_object_name,
-         {"Object Name", "ieee17221.object_name",
-            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
-      },
-      { &hf_aem_object_name_string,
-         {"Object Name String", "ieee17221.object_name_string",
             FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_start_address,
@@ -6667,6 +6848,11 @@ proto_register_17221(void)
          {"Version", "ieee17221.sf_version",
             FT_UINT8, BASE_HEX, NULL, AEM_MASK_SF_VERSION, NULL, HFILL }
       },
+      { &hf_aem_sf_subtype,
+         {"Subtype", "ieee17221.sf_subtype",
+            FT_UINT8, BASE_HEX, NULL, AEM_MASK_SF_SUBTYPE, NULL, HFILL }
+      },
+
       { &hf_aem_sf,
          {"SF", "ieee17221.sf",
             FT_BOOLEAN, 8, NULL, AEM_MASK_SF, NULL, HFILL }
@@ -6744,9 +6930,42 @@ proto_register_17221(void)
       { &hf_aecp_status_code,
          {"Status", "ieee17221.status",
             FT_UINT8, BASE_HEX, VALS(aem_status_type_vals), AECP_STATUS_CODE_MASK, NULL, HFILL }
-      }
-
+      },
       /* END STREAM FORMAT (SF) FIELDS */
+
+      /* SET/GET_STREAM_BACKUP */
+      { &hf_aecp_backup_talker_entity_id_0,
+         {"Backup Talker Entity ID 0", "ieee17221.backup_talker_entity_id_0",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backup_talker_unique_id_0,
+         {"Backup Talker Unique ID 0", "ieee17221.backup_talker_unique_id_0",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backup_talker_entity_id_1,
+         {"Backup Talker Entity ID 1", "ieee17221.backup_talker_entity_id_1",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backup_talker_unique_id_1,
+         {"Backup Talker Unique ID 1", "ieee17221.backup_talker_unique_id_1",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backup_talker_entity_id_2,
+         {"Backup Talker Entity ID 2", "ieee17221.backup_talker_entity_id_2",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backup_talker_unique_id_2,
+         {"Backup Talker Unique ID 2", "ieee17221.backup_talker_unique_id_2",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backedup_talker_entity_id,
+         {"Backed up Talker Entity ID", "ieee17221.backedup_talker_entity_id",
+            FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_backedup_talker_unique_id,
+         {"Backedup Talker Unique ID", "ieee17221.backedup_talker_unique_id",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      }
    };
 
    /* Setup protocol subtree array */
@@ -6768,7 +6987,8 @@ proto_register_17221(void)
       &ett_aem_stream_formats,
       &ett_aem_jack_flags,
       &ett_aem_port_flags,
-      &ett_aem_msrp_mappings,
+      &ett_aecp_get_avb_info_msrp_mappings,
+      &ett_aecp_get_as_path_sequences,
       &ett_aem_clock_source_flags,
       &ett_aem_mappings,
       &ett_aem_ctrl_vals,
@@ -6776,7 +6996,7 @@ proto_register_17221(void)
 /*       &ett_aem_media_format, */
       &ett_aecp_descriptors,
       &ett_aecp_flags_32,
-      &ett_aem_stream_format
+      &ett_aem_stream_format,
    };
 
    /* Register the protocol name and description */
