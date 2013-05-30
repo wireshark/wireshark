@@ -10,7 +10,7 @@
 # repeatedly until an error is found.
 
 TEST_TYPE="fuzz"
-. `dirname $0`/test-common.sh
+. `dirname $0`/test-common.sh || exit 1
 
 # Directory containing binaries.  Default current directory.
 BIN_DIR=.

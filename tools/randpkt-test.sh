@@ -9,7 +9,7 @@
 # The files are processed repeatedly until an error is found.
 
 TEST_TYPE="randpkt"
-. `dirname $0`/test-common.sh
+. `dirname $0`/test-common.sh || exit 1
 
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable
