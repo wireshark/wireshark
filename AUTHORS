@@ -2720,6 +2720,7 @@ Robin Seggelmann	<seggelmann[AT]fh-muenster.de> {
 Chris Bontje		<cbontje[AT]gmail.com> {
 	Support for DNP3 Application Layer dissection
 	Support for SEL Fast Message dissection
+	Support for RTAC Serial dissection
 }
 
 Ryan Wamsley		<wamslers[AT]sbcglobal.net> {

@@ -1078,6 +1078,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rstat.c
 	dissectors/packet-rsvp.c
 	dissectors/packet-rsync.c
+	dissectors/packet-rtacser.c
 	dissectors/packet-rtcdc.c
 	dissectors/packet-rtcp.c
 	dissectors/packet-rtmpt.c

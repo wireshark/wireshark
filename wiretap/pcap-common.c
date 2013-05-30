@@ -340,7 +340,7 @@ static const struct {
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
 	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
 	/* AX.25 packet with a 1-byte KISS header */
-	{ 202,          WTAP_ENCAP_AX25_KISS },
+	{ 202,		WTAP_ENCAP_AX25_KISS },
 	/* LAPD frame */
 	{ 203, 		WTAP_ENCAP_LAPD },
 	/* PPP with pseudoheader */
@@ -374,7 +374,7 @@ static const struct {
 	/* Raw IPv6 */
 	{ 229,		WTAP_ENCAP_RAW_IP6 },
 	/* IEEE 802.15.4 Wireless PAN no fcs */
-	{ 230,          WTAP_ENCAP_IEEE802_15_4_NOFCS },
+	{ 230,		WTAP_ENCAP_IEEE802_15_4_NOFCS },
 	/* D-BUS */
 	{ 231,		WTAP_ENCAP_DBUS },
 	/* DVB-CI (Common Interface) */
@@ -396,7 +396,9 @@ static const struct {
 	/* SCTP */
 	{ 248,		WTAP_ENCAP_SCTP},
 	/* USBPcap */
-	{ 249,          WTAP_ENCAP_USBPCAP},
+	{ 249,		WTAP_ENCAP_USBPCAP},
+	/* RTAC SERIAL */
+	{ 250,		WTAP_ENCAP_RTAC_SERIAL},
 
 	/*
 	 * To repeat:

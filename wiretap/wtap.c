@@ -608,6 +608,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_USBPCAP */
 	{ "USB packets with USBPcap header", "usb-usbpcap" },
+
+	/* WTAP_ENCAP_RTAC_SERIAL */
+	{ "RTAC serial-line", "rtac-serial" },
 };
 
 WS_DLL_LOCAL

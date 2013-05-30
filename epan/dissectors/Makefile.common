@@ -1000,6 +1000,7 @@ DISSECTOR_SRC = \
 	packet-rstat.c		\
 	packet-rsvp.c		\
 	packet-rsync.c		\
+	packet-rtacser.c	\
 	packet-rtcdc.c		\
 	packet-rtcp.c		\
 	packet-rtmpt.c		\

@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.9.3 (SVN Rev 48842 from /trunk)
+TShark 1.11.0 (SVN Rev 49633 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -178,7 +178,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.9.3 (SVN Rev 48842 from /trunk)
+Dumpcap 1.11.0 (SVN Rev 49633 from /trunk)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -252,7 +252,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.9.3 (SVN Rev 48842 from /trunk)
+Capinfos 1.11.0 (SVN Rev 49633 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -326,7 +326,7 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.9.3 (SVN Rev 48842 from /trunk)
+Rawshark 1.11.0 (SVN Rev 49633 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -380,7 +380,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.9.3 (SVN Rev 48842 from /trunk)
+Editcap 1.11.0 (SVN Rev 49633 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -612,6 +612,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     rawip4 - Raw IPv4
     rawip6 - Raw IPv6
     redback - Redback SmartEdge
+    rtac-serial - RTAC serial-line
     sccp - SS7 SCCP
     sctp - SCTP
     sdh - SDH
@@ -725,7 +726,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.9.3 (SVN Rev 48842 from /trunk)
+Mergecap 1.11.0 (SVN Rev 49633 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -829,7 +830,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.9.3 (SVN Rev 48842 from /trunk)
+Text2pcap 1.11.0 (SVN Rev 49633 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -1146,7 +1147,7 @@ CLEAN_DISSECTOR_SRC = \
     <example id="AppToolsreordercapEx">
       <title>Help information available from reordercap</title>
       <programlisting>
-Reordercap 1.9.0
+Reordercap 1.11.0
 Reorder timestamps of input file frames into output file.
 See http://www.wireshark.org for more information.
 
