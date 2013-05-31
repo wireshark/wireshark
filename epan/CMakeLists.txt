@@ -1209,6 +1209,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
 	dissectors/packet-udp.c
+	dissectors/packet-udt.c
 	dissectors/packet-uhd.c
 	dissectors/packet-uma.c
 	dissectors/packet-umts_fp.c
