@@ -1797,13 +1797,23 @@ test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
 	gint size = length;
 
 	if (!tvb)
-	    return;
+		return;
 
 	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
-	    guint32 n;
+		guint32 n;
 
-	    n = get_uint_value(tree, tvb, start, length, little_endian);
-	    size += n;
+		n = get_uint_value(tree, tvb, start, length, little_endian);
+		if (n > size + n) {
+			/* If n > size + n then we have an integer overflow, so
+			 * set size to -1, which will force the
+			 * tvb_ensure_bytes_exist call below to throw a
+			 * ReportedBoundsError
+			 */
+			size = -1;
+		}
+		else {
+			size += n;
+		}
 	}
 	tvb_ensure_bytes_exist(tvb, start, size);
 }
