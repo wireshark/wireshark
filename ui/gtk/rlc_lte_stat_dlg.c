@@ -1248,7 +1248,7 @@ static void dl_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
 
 
 /* Create a new RLC LTE stats dialog */
-void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
+static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     rlc_lte_stat_t    *hs;
     const char        *filter = NULL;
