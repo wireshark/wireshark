@@ -67,6 +67,8 @@ called ~/.gtkrc-2.0 or ~/.config/gtk-3.0/settings.ini).
 * Wireshark now ships with two global configuration files: Bluetooth, which
 contains coloring rules for Bluetooth and Classic, which contains the old-style
 coloring rules.
+* The LOAD() metric in the IO-graph now shows the load in IO units instead 
+of thousands of IO units.
 
 === New Protocol Support
 
