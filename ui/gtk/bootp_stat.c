@@ -271,11 +271,3 @@ register_tap_listener_gtkdhcpstat(void)
 	register_param_stat(&dhcp_stat_dlg, "BOOTP-DHCP",
 	    REGISTER_STAT_GROUP_UNSORTED);
 }
-
-
-void
-bootp_dhcp_stat_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &dhcp_stat_dlg);
-}
-

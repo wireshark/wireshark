@@ -112,7 +112,6 @@ void gtk_usb_hostlist_cb(GtkAction *action, gpointer user_data);
 void gtk_wlan_hostlist_cb(GtkAction *action, gpointer user_data);
 
 void gtk_rpcstat_cb(GtkAction *action, gpointer user_data);
-void bootp_dhcp_stat_cb(GtkAction *action, gpointer user_data);
 void gtk_comparestat_cb(GtkAction *action, gpointer user_data);
 
 void flow_graph_launch(GtkAction *action, gpointer user_data);

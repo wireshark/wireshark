@@ -1209,7 +1209,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='bacapp_objectid' action='/Statistics/BACnet/bacapp_objectid'/>\n"
 "        <menuitem name='bacapp_service' action='/Statistics/BACnet/bacapp_service'/>\n"
 "      </menu>\n"
-"      <menuitem name='BOOTP-DHCP' action='/Statistics/BOOTP-DHCP'/>\n"
 "      <menuitem name='Collectd' action='/Statistics/collectd'/>\n"
 "      <menuitem name='Compare' action='/Statistics/compare'/>\n"
 "      <menuitem name='FlowGraph' action='/Statistics/FlowGraph'/>\n"
@@ -1652,7 +1651,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/BACnet/bacapp_ip",                NULL,       "Packets sorted by IP",             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/BACnet/bacapp_objectid",          NULL,       "Packets sorted by Object Type",    NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/BACnet/bacapp_service",           NULL,       "Packets sorted by Service",        NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/Statistics/BOOTP-DHCP",                      NULL,       "BOOTP-DHCP...",                    NULL, NULL, G_CALLBACK(bootp_dhcp_stat_cb) },
 
    { "/Statistics/collectd",                        NULL,       "Collectd...",                      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/compare",                         NULL,       "Compare...",                       NULL, NULL, G_CALLBACK(gtk_comparestat_cb) },
