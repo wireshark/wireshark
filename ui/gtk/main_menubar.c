@@ -154,9 +154,6 @@ static void menus_init(void);
 static void merge_menu_items(GList *node);
 static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
-#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_LIBPCAP)
-static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
-#endif
 static void menu_name_resolution_update_cb(GtkAction *action, gpointer data);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gboolean* res_flag);
 static void colorize_cb(GtkWidget *w, gpointer d);
@@ -360,13 +357,13 @@ new_window_cb_ref(GtkWidget *widget)
     new_packet_window(widget, TRUE, FALSE);
 }
 
+#ifdef WANT_PACKET_EDITOR
 static void
 edit_window_cb(GtkWidget *widget _U_)
 {
-#ifdef WANT_PACKET_EDITOR
     new_packet_window(widget, FALSE, TRUE);
-#endif
 }
+#endif
 
 static void
 conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
@@ -710,10 +707,10 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action _U_, gpointer user_data)
 
 }
 
+#ifdef HAVE_LIBPCAP
 static void
 view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-#ifdef HAVE_LIBPCAP
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
 
     if (!widget){
@@ -721,8 +718,8 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
     }else{
         main_auto_scroll_live_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
     }
-#endif
 }
+#endif
 
 static void
 view_menu_color_conv_color1_cb(GtkAction *action, gpointer user_data)
@@ -795,53 +792,51 @@ view_menu_reset_coloring_cb(GtkAction *action, gpointer user_data)
 {
     colorize_conversation_cb(action, user_data, 255*256);
 }
+
 /*
  * TODO Move this menu to capture_if_dlg.c ?
  */
 #ifdef HAVE_LIBPCAP
 static void
-capture_cb(GtkAction *action, gpointer user_data)
+capture_if_action_cb(GtkAction *action _U_, gpointer user_data)
 {
-    const gchar *action_name;
-    const gchar *name;
-
-    action_name = gtk_action_get_name (action);
-    name = strrchr(action_name,'/');
-    if(name) {
-        name = name+1;
-    } else {
-        name = action_name;
-    }
-    if(strcmp(name, "Interfaces") == 0){
-        capture_if_cb(NULL /* GtkWidget *w _U_ */, user_data);
-        return;
-    }else if(strcmp(name, "Options") == 0){
-        capture_prep_cb(NULL /* GtkWidget *w _U_ */, user_data);
-        return;
-    }else if(strcmp(name, "Start") == 0){
-        capture_start_cb(NULL /* GtkWidget *w _U_ */, user_data);
-        return;
-    }else if(strcmp(name, "Stop") == 0){
-        capture_stop_cb(NULL /* GtkWidget *w _U_ */, user_data);
-        return;
-    }else if(strcmp(name, "Restart") == 0){
-        capture_restart_cb(NULL /* GtkWidget *w _U_ */, user_data);
-        return;
-    }else if(strcmp(name, "CaptureFilters") == 0){
-        cfilter_dialog_cb(NULL /* GtkWidget *w _U_ */);
-        return;
-    }else if(strcmp(name, "RefreshInterfaces") == 0){
-        refresh_local_interface_lists();
-        return;
-    }
-
-    fprintf (stderr, "Warning capture_cb unknown action: %s/n",action_name);
+    capture_if_cb(NULL /* GtkWidget *w _U_ */, user_data);
 }
-#else
+
 static void
-capture_cb(GtkAction *action _U_, gpointer user_data _U_)
+capture_prep_action_cb(GtkAction *action _U_, gpointer user_data)
 {
-    return;
+    capture_prep_cb(NULL /* GtkWidget *w _U_ */, user_data);
+}
+
+static void
+capture_start_action_cb(GtkAction *action _U_, gpointer user_data)
+{
+    capture_start_cb(NULL /* GtkWidget *w _U_ */, user_data);
+}
+
+static void
+capture_stop_action_cb(GtkAction *action _U_, gpointer user_data)
+{
+    capture_stop_cb(NULL /* GtkWidget *w _U_ */, user_data);
+}
+
+static void
+capture_restart_action_cb(GtkAction *action _U_, gpointer user_data)
+{
+    capture_restart_cb(NULL /* GtkWidget *w _U_ */, user_data);
+}
+
+static void
+capture_filters_action_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    cfilter_dialog_cb(NULL /* GtkWidget *w _U_ */);
+}
+
+static void
+refresh_interfaces_action_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    refresh_local_interface_lists();
 }
 #endif /* HAVE_LIBPCAP */
 
@@ -1017,7 +1012,9 @@ static const char *ui_desc_menubar =
 "        <separator/>\n"
 "        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <separator/>\n"
+#ifdef WANT_PACKET_EDITOR
 "        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
+#endif
 "        <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
 "        <separator/>\n"
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
@@ -1063,7 +1060,9 @@ static const char *ui_desc_menubar =
 "         <menuitem name='UseExternalNetworkNameResolver' action='/View/NameResolution/UseExternalNetworkNameResolver'/>\n"
 "      </menu>\n"
 "      <menuitem name='ColorizePacketList' action='/View/ColorizePacketList'/>\n"
+#ifdef HAVE_LIBPCAP
 "      <menuitem name='AutoScrollinLiveCapture' action='/View/AutoScrollinLiveCapture'/>\n"
+#endif
 "      <separator/>\n"
 "      <menuitem name='ZoomIn' action='/View/ZoomIn'/>\n"
 "      <menuitem name='ZoomOut' action='/View/ZoomOut'/>\n"
@@ -1109,6 +1108,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='PreviousPacketInConversation' action='/Go/PreviousPacketInConversation'/>\n"
 "      <menuitem name='NextPacketInConversation' action='/Go/NextPacketInConversation'/>\n"
 "    </menu>\n"
+#ifdef HAVE_LIBPCAP
 "    <menu name= 'CaptureMenu' action='/Capture'>\n"
 "      <menuitem name='Interfaces' action='/Capture/Interfaces'/>\n"
 "      <menuitem name='Options' action='/Capture/Options'/>\n"
@@ -1118,6 +1118,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='CaptureFilters' action='/Capture/CaptureFilters'/>\n"
 "      <menuitem name='RefreshInterfaces' action='/Capture/RefreshInterfaces'/>\n"
 "    </menu>\n"
+#endif
 "    <menu name= 'AnalyzeMenu' action='/Analyze'>\n"
 "      <menuitem name='DisplayFilters' action='/Analyze/DisplayFilters'/>\n"
 "      <menuitem name='DisplayFilterMacros' action='/Analyze/DisplayFilterMacros'/>\n"
@@ -1382,6 +1383,7 @@ static const char *ui_desc_menubar =
  *
  */
 
+#ifdef HAVE_LIBPCAP
 /*
  * TODO Move this menu to capture_if_dlg.c
  * eg put a "place holder" in the UI description and
@@ -1390,14 +1392,15 @@ static const char *ui_desc_menubar =
  */
 static const GtkActionEntry capture_menu_entries[] = {
    { "/Capture",                    NULL,                               "_Capture",             NULL,            NULL,    NULL },
-   { "/Capture/Interfaces",         WIRESHARK_STOCK_CAPTURE_INTERFACES, "_Interfaces...",       "<control>I",    NULL,    G_CALLBACK(capture_cb) },
-   { "/Capture/Options",            WIRESHARK_STOCK_CAPTURE_OPTIONS,    "_Options...",          "<control>K",    NULL,    G_CALLBACK(capture_cb) },
-   { "/Capture/Start",              WIRESHARK_STOCK_CAPTURE_START,      "_Start",               "<control>E",    NULL,    G_CALLBACK(capture_cb) },
-   { "/Capture/Stop",               WIRESHARK_STOCK_CAPTURE_STOP,       "S_top",                "<control>E",    NULL,    G_CALLBACK(capture_cb) },
-   { "/Capture/Restart",            WIRESHARK_STOCK_CAPTURE_RESTART,    "_Restart",             "<control>R",    NULL,    G_CALLBACK(capture_cb) },
-   { "/Capture/CaptureFilters",     WIRESHARK_STOCK_CAPTURE_FILTER,     "Capture _Filters...",  NULL,            NULL,    G_CALLBACK(capture_cb) },
-   { "/Capture/RefreshInterfaces",  GTK_STOCK_REFRESH,                  "Refresh Interfaces",   NULL,            NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/Interfaces",         WIRESHARK_STOCK_CAPTURE_INTERFACES, "_Interfaces...",       "<control>I",    NULL,    G_CALLBACK(capture_if_action_cb) },
+   { "/Capture/Options",            WIRESHARK_STOCK_CAPTURE_OPTIONS,    "_Options...",          "<control>K",    NULL,    G_CALLBACK(capture_prep_action_cb) },
+   { "/Capture/Start",              WIRESHARK_STOCK_CAPTURE_START,      "_Start",               "<control>E",    NULL,    G_CALLBACK(capture_start_action_cb) },
+   { "/Capture/Stop",               WIRESHARK_STOCK_CAPTURE_STOP,       "S_top",                "<control>E",    NULL,    G_CALLBACK(capture_stop_action_cb) },
+   { "/Capture/Restart",            WIRESHARK_STOCK_CAPTURE_RESTART,    "_Restart",             "<control>R",    NULL,    G_CALLBACK(capture_restart_action_cb) },
+   { "/Capture/CaptureFilters",     WIRESHARK_STOCK_CAPTURE_FILTER,     "Capture _Filters...",  NULL,            NULL,    G_CALLBACK(capture_filters_action_cb) },
+   { "/Capture/RefreshInterfaces",  GTK_STOCK_REFRESH,                  "Refresh Interfaces",   NULL,            NULL,    G_CALLBACK(refresh_interfaces_action_cb) },
 };
+#endif
 
 static const GtkActionEntry main_menu_bar_entries[] = {
   /* Top level */
@@ -1538,7 +1541,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Edit/ConfigurationProfiles", NULL,                   "_Configuration Profiles...",           "<shift><control>A",        NULL,           G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",           GTK_STOCK_PREFERENCES,  "_Preferences...",                      "<shift><control>P",        NULL,           G_CALLBACK(menus_prefs_cb) },
+#ifdef WANT_PACKET_EDITOR
    { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
+#endif
    { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
    { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                 NULL,                       NULL,           NULL },
@@ -1777,7 +1782,9 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
     {"/View/NameResolution/EnableforNetworkLayer",                  NULL, "Enable for _Network Layer",              NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
     {"/View/NameResolution/UseExternalNetworkNameResolver",         NULL, "Use _External Network Name Resolver",    NULL, NULL, G_CALLBACK(view_menu_en_use_external_resolver_cb), TRUE },
     {"/View/ColorizePacketList",                                    NULL, "Colorize Packet List",                   NULL, NULL, G_CALLBACK(view_menu_colorize_pkt_lst_cb), TRUE },
+#ifdef HAVE_LIBPCAP
     {"/View/AutoScrollinLiveCapture",                               NULL, "Auto Scroll in Li_ve Capture",           NULL, NULL, G_CALLBACK(view_menu_auto_scroll_live_cb), TRUE },
+#endif
 };
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
@@ -3457,11 +3464,14 @@ menus_init(void)
                                     main_menu_bar_entries,                              /* an array of action descriptions */
                                     G_N_ELEMENTS(main_menu_bar_entries),                /* the number of entries */
                                     NULL);                                              /* data to pass to the action callbacks */
+
+#ifdef HAVE_LIBPCAP
         /* Add the capture menu actions */
         gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
                                     capture_menu_entries,                               /* an array of action descriptions */
                                     G_N_ELEMENTS(capture_menu_entries),                 /* the number of entries */
                                     NULL);                                              /* data to pass to the action callbacks */
+#endif
 
         /* Add the filter menu actions */
         gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
@@ -3562,13 +3572,7 @@ menus_init(void)
         set_menu_sensitivity_old("/Edit/Paste", FALSE);
 #endif
        /* Hide not usable menus */
-#ifndef WANT_PACKET_EDITOR
-        set_menu_visible(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket", FALSE);
-#endif /* WANT_PACKET_EDITOR */
 
-#ifndef HAVE_LIBPCAP
-        set_menu_visible(ui_manager_main_menubar, "/Menubar/CaptureMenu", FALSE);
-#endif
         set_menus_for_captured_packets(FALSE);
         set_menus_for_selected_packet(&cfile);
         set_menus_for_selected_tree_row(&cfile);
@@ -3947,22 +3951,6 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
     }
     gtk_action_set_sensitive (action, val); /* TRUE to make the action sensitive */
 }
-
-#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_LIBPCAP)
-static void
-set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val)
-{
-    GtkAction *action;
-
-    action = gtk_ui_manager_get_action(ui_manager, path);
-    if(!action){
-        fprintf (stderr, "Warning: set_menu_visible couldn't find action path= %s\n",
-                path);
-        return;
-    }
-    gtk_action_set_visible (action, val); /* TRUE to make the action visible */
-}
-#endif
 
 static void
 set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gchar *key, gpointer data)
