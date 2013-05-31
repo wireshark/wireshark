@@ -514,8 +514,7 @@ int
 dissect_rpc_bool(tvbuff_t *tvb, proto_tree *tree,
 		 int hfindex, int offset)
 {
-	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset + 4;
 }
 
@@ -524,8 +523,7 @@ int
 dissect_rpc_uint32(tvbuff_t *tvb, proto_tree *tree,
 		   int hfindex, int offset)
 {
-	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset + 4;
 }
 
@@ -538,8 +536,7 @@ dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
 
 	hfinfo = proto_registrar_get_nth(hfindex);
 	DISSECTOR_ASSERT(hfinfo->type == FT_UINT64);
-	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_BIG_ENDIAN);
 
 	return offset + 8;
 }
@@ -876,24 +873,21 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	guint gid;
 
 	stamp = tvb_get_ntohl(tvb,offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_auth_stamp, tvb,
-			offset, 4, stamp);
+	proto_tree_add_uint(tree, hf_rpc_auth_stamp, tvb,
+			    offset, 4, stamp);
 	offset += 4;
 
 	offset = dissect_rpc_string(tvb, tree,
 			hf_rpc_auth_machinename, offset, NULL);
 
 	uid = tvb_get_ntohl(tvb,offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_auth_uid, tvb,
-			offset, 4, uid);
+	proto_tree_add_uint(tree, hf_rpc_auth_uid, tvb,
+			    offset, 4, uid);
 	offset += 4;
 
 	gid = tvb_get_ntohl(tvb,offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_auth_gid, tvb,
-			offset, 4, gid);
+	proto_tree_add_uint(tree, hf_rpc_auth_gid, tvb,
+			    offset, 4, gid);
 	offset += 4;
 
 	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
@@ -995,27 +989,23 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 	guint agc_svc;
 
 	agc_v = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_v,
-				    tvb, offset, 4, agc_v);
+	proto_tree_add_uint(tree, hf_rpc_authgss_v,
+			    tvb, offset, 4, agc_v);
 	offset += 4;
 
 	agc_proc = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_proc,
-				    tvb, offset, 4, agc_proc);
+	proto_tree_add_uint(tree, hf_rpc_authgss_proc,
+			    tvb, offset, 4, agc_proc);
 	offset += 4;
 
 	agc_seq = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_seq,
-				    tvb, offset, 4, agc_seq);
+	proto_tree_add_uint(tree, hf_rpc_authgss_seq,
+			    tvb, offset, 4, agc_seq);
 	offset += 4;
 
 	agc_svc = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_svc,
-				    tvb, offset, 4, agc_svc);
+	proto_tree_add_uint(tree, hf_rpc_authgss_svc,
+			    tvb, offset, 4, agc_svc);
 	offset += 4;
 
 	offset = dissect_rpc_authgss_context(tree, tvb, offset, pinfo, rpc_conv_info, FALSE, agc_proc == RPCSEC_GSS_DESTROY ? TRUE : FALSE);
@@ -1050,9 +1040,8 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	guint nickname = 0;
 
 	adc_namekind = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authdes_namekind,
-				    tvb, offset, 4, adc_namekind);
+	proto_tree_add_uint(tree, hf_rpc_authdes_namekind,
+			    tvb, offset, 4, adc_namekind);
 	offset += 4;
 
 	switch(adc_namekind)
@@ -1082,9 +1071,8 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 static int
 dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
-	if (tree)
-		proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
-								8, ENC_NA);
+	proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
+			    8, ENC_NA);
 	offset += 8;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
@@ -1108,9 +1096,8 @@ dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	len = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 
-	if (tree)
-		proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
-								len, ENC_NA);
+	proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
+			    len, ENC_NA);
 	offset += len;
 
 	return offset;
@@ -1123,15 +1110,13 @@ dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	guint agc_msg;
 
 	agc_v = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgssapi_v,
-				    tvb, offset, 4, agc_v);
+	proto_tree_add_uint(tree, hf_rpc_authgssapi_v,
+			    tvb, offset, 4, agc_v);
 	offset += 4;
 
 	agc_msg = tvb_get_ntohl(tvb, offset);
-	if (tree)
-		proto_tree_add_boolean(tree, hf_rpc_authgssapi_msg,
-				    tvb, offset, 4, agc_msg);
+	proto_tree_add_boolean(tree, hf_rpc_authgssapi_msg,
+			       tvb, offset, 4, agc_msg);
 	offset += 4;
 
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgssapi_handle,
@@ -1222,13 +1207,13 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 	opaque_length = tvb_get_ntohl(tvb, offset);
 	rounded_length = rpc_roundup(opaque_length);
-	if (tree) {
-		gitem = proto_tree_add_item(tree, hfindex, tvb, offset, 4+rounded_length, ENC_NA);
-		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
-		proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
-				    tvb, offset, 4, opaque_length);
-	}
+
+	gitem = proto_tree_add_item(tree, hfindex, tvb, offset, 4+rounded_length, ENC_NA);
+	gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
+	proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
+			    tvb, offset, 4, opaque_length);
 	offset += 4;
+
 	if (opaque_length != 0) {
 		length = tvb_length_remaining(tvb, offset);
 		reported_length = tvb_reported_length_remaining(tvb, offset);
@@ -1337,21 +1322,18 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 	offset = dissect_rpc_authgss_context(tree, tvb, offset, pinfo, rpc_conv_info, TRUE, FALSE);
 
 	major = tvb_get_ntohl(tvb,offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_major, tvb,
-				    offset, 4, major);
+	proto_tree_add_uint(tree, hf_rpc_authgss_major, tvb,
+			    offset, 4, major);
 	offset += 4;
 
 	minor = tvb_get_ntohl(tvb,offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_minor, tvb,
-				    offset, 4, minor);
+	proto_tree_add_uint(tree, hf_rpc_authgss_minor, tvb,
+			    offset, 4, minor);
 	offset += 4;
 
 	window = tvb_get_ntohl(tvb,offset);
-	if (tree)
-		proto_tree_add_uint(tree, hf_rpc_authgss_window, tvb,
-				    offset, 4, window);
+	proto_tree_add_uint(tree, hf_rpc_authgss_window, tvb,
+			    offset, 4, window);
 	offset += 4;
 
 	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_token);
@@ -1477,15 +1459,13 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	rounded_length = rpc_roundup(length);
 	seq = tvb_get_ntohl(tvb, offset+4);
 
-	if (tree) {
-		gitem = proto_tree_add_text(tree, tvb, offset,
-					    4+rounded_length, "GSS Data");
-		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_data);
-		proto_tree_add_uint(gtree, hf_rpc_authgss_data_length,
-				    tvb, offset, 4, length);
-		proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
-				    tvb, offset+4, 4, seq);
-	}
+	gitem = proto_tree_add_text(tree, tvb, offset,
+				    4+rounded_length, "GSS Data");
+	gtree = proto_item_add_subtree(gitem, ett_rpc_gss_data);
+	proto_tree_add_uint(gtree, hf_rpc_authgss_data_length,
+			    tvb, offset, 4, length);
+	proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
+			    tvb, offset+4, 4, seq);
 	offset += 8;
 
 	if (dissect_function != NULL) {
@@ -1815,12 +1795,9 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return offset;
 	}
 
-	if (tree) {
-		/* Put the length of the reply value into the tree. */
-		proto_tree_add_text(tree, tvb, offset, 4,
-			"Argument length: %u",
-			tvb_get_ntohl(tvb, offset));
-	}
+	/* Put the length of the reply value into the tree. */
+	proto_tree_add_text(tree, tvb, offset, 4, "Argument length: %u",
+			    tvb_get_ntohl(tvb, offset));
 	offset += 4;
 
 	/* Dissect the return value */
