@@ -1403,11 +1403,5 @@ static tap_param_dlg mac_lte_stat_dlg = {
 /* Register this tap listener (need void on own so line register function found) */
 void register_tap_listener_mac_lte_stat(void)
 {
-    register_param_stat(&mac_lte_stat_dlg, "_LTE/_MAC", REGISTER_STAT_GROUP_TELEPHONY);
+    register_param_stat(&mac_lte_stat_dlg, "_MAC", REGISTER_STAT_GROUP_TELEPHONY_LTE);
 }
-
-void mac_lte_stat_cb(GtkAction *action, gpointer user_data _U_)
-{
-    tap_param_dlg_cb(action, &mac_lte_stat_dlg);
-}
-

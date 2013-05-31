@@ -1261,8 +1261,6 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "      <menuitem name='ISUP' action='/Telephony/isup_msg'/>\n"
 "      <menu name= 'LTEmenu' action='/Telephony/LTE'>\n"
-"        <menuitem name='LTE_MAC' action='/Telephony/LTE/MAC'/>\n"
-"        <menuitem name='LTE_RLC' action='/Telephony/LTE/RLC'/>\n"
 "        <menuitem name='LTE_RLC_Graph' action='/Telephony/LTE/RLCGraph'/>\n"
 "      </menu>\n"
 "      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
@@ -1717,8 +1715,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/isup_msg",             NULL,                       "_ISUP Messages",           NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
 
    { "/Telephony/LTE",                  NULL,                       "_LTE",                     NULL, NULL, NULL },
-   { "/Telephony/LTE/MAC",              NULL,                       "_MAC Stats...",                  NULL,                       NULL,               G_CALLBACK(mac_lte_stat_cb) },
-   { "/Telephony/LTE/RLC",              NULL,                       "_RLC Stats...",                  NULL,                       NULL,               G_CALLBACK(rlc_lte_stat_cb) },
    { "/Telephony/LTE/RLCGraph",         NULL,                       "RLC _Graph...",            NULL,                       NULL,               G_CALLBACK(rlc_lte_graph_cb) },
    { "/Telephony/MTP3",                 NULL,                       "_MTP3",                    NULL, NULL, NULL },
    { "/Telephony/MTP3/MSUs",            NULL,                       "MSUs",                     NULL,                       NULL,               G_CALLBACK(mtp3_stat_gtk_cb) },
@@ -3929,6 +3925,7 @@ stat_group_name(register_stat_group_t group)
         {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Statistics#ServiceResponseTime"}, /* member of the service response time list */
         {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephony"},                                                          /* telephony specific */
         {REGISTER_STAT_GROUP_TELEPHONY_GSM,          "/Menubar/TelephonyMenu|Telephony/GSM|Telephony#GSM"},                                                          /* GSM-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_LTE,          "/Menubar/TelephonyMenu|Telephony/LTEmenu|Telephony#LTE"},                                                          /* LTE-specific */
         {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                                                                  /* unsorted tools */
         {0, NULL}
     };
