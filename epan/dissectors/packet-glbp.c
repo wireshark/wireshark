@@ -92,6 +92,12 @@ static gint hf_glbp_unknown_data = -1;
 static gint ett_glbp = -1;
 static gint ett_glbp_tlv = -1;
 
+/* filterable expert infos */
+static expert_field ei_glbp_ipv4_wrong_length = EI_INIT;
+static expert_field ei_glbp_ipv6_wrong_length = EI_INIT;
+static expert_field ei_glbp_tlv_length_too_small = EI_INIT;
+static expert_field ei_glbp_tlv_invalid_bytes_used = EI_INIT;
+
 static const value_string glbp_type_vals[] = {
   { 1,  "Hello" },
   { 2,  "Request/Response?" },
@@ -196,14 +202,16 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   switch (addrtype) {
     case 1:
     if (addrlen != 4) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv4 address length: %u", addrlen);
+      expert_add_info_format_text(pinfo, NULL, &ei_glbp_ipv4_wrong_length,
+        "Wrong IPv4 address length: %u", addrlen);
       return offset + addrlen;
     }
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv4, tvb, offset, addrlen, ENC_BIG_ENDIAN);
     break;
   case 2:
     if (addrlen != 16) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv6 address length: %u", addrlen);
+      expert_add_info_format_text(pinfo, NULL, &ei_glbp_ipv6_wrong_length,
+        "Wrong IPv6 address length: %u", addrlen);
       return offset + addrlen;
     }
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, ENC_NA);
@@ -325,7 +333,8 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_guint8(tvb, offset);
     length = tvb_get_guint8(tvb, offset+1);
     if (length < 2) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Length %u too small", length);
+      expert_add_info_format_text(pinfo, NULL, &ei_glbp_tlv_length_too_small,
+        "Length %u too small", length);
       return offset;
     }
     length -= 2;
@@ -358,7 +367,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
     if (lastoffset >= offset) {
-      expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
+      expert_add_info(pinfo, NULL, &ei_glbp_tlv_invalid_bytes_used);
       return lastoffset;
     }
     /* Skip over trailing bytes before starting with the next element */
@@ -566,10 +575,33 @@ proto_register_glbp(void)
     &ett_glbp_tlv,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_glbp_ipv4_wrong_length,
+      { "glbp.ipv4_wrong_length", PI_MALFORMED, PI_ERROR,
+        "Wrong IPv4 address length: %u",
+        EXPFILL }},
+    { &ei_glbp_ipv6_wrong_length,
+      { "glbp.ipv6_wrong_length", PI_MALFORMED, PI_ERROR,
+        "Wrong IPv6 address length: %u",
+        EXPFILL }},
+    { &ei_glbp_tlv_length_too_small,
+      { "glbp.tlv_length_too_small", PI_MALFORMED, PI_ERROR,
+        "Length %u too small",
+        EXPFILL }},
+    { &ei_glbp_tlv_invalid_bytes_used,
+      { "glbp.tlv_invalid_bytes_used", PI_MALFORMED, PI_ERROR,
+        "Zero or negative length",
+        EXPFILL }},
+  };
+
+  expert_module_t* expert_glbp;
+
   proto_glbp = proto_register_protocol(
         "Gateway Load Balancing Protocol", "GLBP", "glbp");
   proto_register_field_array(proto_glbp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_glbp = expert_register_protocol(proto_glbp);
+  expert_register_field_array(expert_glbp, ei, array_length(ei));
 }
 
 void
