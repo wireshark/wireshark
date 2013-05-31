@@ -2973,9 +2973,11 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
    * to have a version of dissect_per_sequence() that checks all
    * references to the tvbuff before making them and returning "no"
    * if they would fail.
+   *
+   * We (ab)use hf_t124_connectGCCPDU here just to give a valid entry...
    */
   TRY {
-    (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, -1, -1, t124Heur_sequence);
+    (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, hf_t124_connectGCCPDU, -1, t124Heur_sequence);
   } CATCH_BOUNDS_ERRORS {
     failed = TRUE;
   } ENDTRY;
@@ -3900,7 +3902,7 @@ void proto_register_t124(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t124-hfarr.c ---*/
-#line 201 "../../asn1/t124/packet-t124-template.c"
+#line 203 "../../asn1/t124/packet-t124-template.c"
   };
 
   /* List of subtrees */
@@ -4013,7 +4015,7 @@ void proto_register_t124(void) {
     &ett_t124_DomainMCSPDU,
 
 /*--- End of included file: packet-t124-ettarr.c ---*/
-#line 208 "../../asn1/t124/packet-t124-template.c"
+#line 210 "../../asn1/t124/packet-t124-template.c"
   };
   
   /* Register protocol */
