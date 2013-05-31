@@ -55,6 +55,7 @@ Usage: $THIS [-c] [-h] [-s <suite>]
       decryption
       fileformats
       io
+      nameres
       prerequisites
       unittests
 FIN
@@ -70,6 +71,7 @@ source suite-capture.sh
 source suite-unittests.sh
 source suite-fileformats.sh
 source suite-decryption.sh
+source suite-nameres.sh
 
 
 #check prerequisites
@@ -116,6 +118,7 @@ test_suite() {
 	test_suite_add "Unit tests" unittests_suite
 	test_suite_add "File formats" fileformats_suite
 	test_suite_add "Decryption" decryption_suite
+#	test_suite_add "Name Resolution" name_resolution_suite
 }
 
 
@@ -151,6 +154,9 @@ if [ -n "$RUN_SUITE" ] ; then
             exit $? ;;
 	  "io")
 	    test_suite_run "File I/O" io_suite
+            exit $? ;;
+	  "nameres")
+	    test_suite_run "Name Resolution" name_resolution_suite
             exit $? ;;
 	  "prerequisites")
             test_suite_run "Prerequisites" prerequisites_suite
