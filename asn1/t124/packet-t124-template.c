@@ -150,16 +150,31 @@ static gboolean
 dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
   asn1_ctx_t asn1_ctx;
+  gboolean failed = FALSE;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
   t124Identifier = NULL;
 
-  (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, -1, -1, t124Heur_sequence);
+  /*
+   * We must catch all the "ran past the end of the packet" exceptions
+   * here and, if we catch one, just return FALSE.  It's too painful
+   * to have a version of dissect_per_sequence() that checks all
+   * references to the tvbuff before making them and returning "no"
+   * if they would fail.
+   *
+   * We (ab)use hf_t124_connectGCCPDU here just to give a valid entry...
+   */
+  TRY {
+    (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, hf_t124_connectGCCPDU, -1, t124Heur_sequence);
+  } CATCH2(BoundsError,ReportedBoundsError) {
+    failed = TRUE;
+  } CATCH(ScsiBoundsError) {
+    failed = TRUE;
+  } ENDTRY;
 
-  if((t124Identifier != NULL) &&
-     (strcmp(t124Identifier, "0.0.20.124.0.1") == 0)) {
-
+  if (!failed && ((t124Identifier != NULL) &&
+                  (strcmp(t124Identifier, "0.0.20.124.0.1") == 0))) {
     dissect_t124(tvb, pinfo, parent_tree);
 
   }
@@ -193,7 +208,7 @@ void proto_register_t124(void) {
 	  &ett_t124_connectGCCPDU,
 #include "packet-t124-ettarr.c"
   };
-  
+
   /* Register protocol */
   proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
