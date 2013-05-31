@@ -28,17 +28,9 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
-
-TEST_KEYS_DIR="$PWD/keys/"
-if [ "$WS_SYSTEM" == "Windows" ] ; then
-	TEST_KEYS_DIR="`cygpath -w $TEST_KEYS_DIR`"
-fi
-
 #TS_ARGS="-Tfields -e frame.number -e frame.time_epoch -e frame.time_delta"
 TS_NR_ARGS="-r captures/dns+icmp.pcapng.gz"
 TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${TEST_HOME}"
-
-DIFF_OUT=./diff-output.txt
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
 	CONF_PATH="fakehome/Wireshark"
@@ -177,7 +169,7 @@ name_resolution_cleanup_step() {
 name_resolution_prep_step() {
 	name_resolution_cleanup_step
 	mkdir -p "$CUSTOM_PROFILE_PATH"
-	cp hosts.global ../hosts
+	cp hosts.global $WS_BIN_PATH/hosts
 	cp hosts.personal "$CONF_PATH/hosts"
 	cp hosts.custom "$CUSTOM_PROFILE_PATH/hosts"
 }

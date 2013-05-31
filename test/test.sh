@@ -118,7 +118,7 @@ test_suite() {
 	test_suite_add "Unit tests" unittests_suite
 	test_suite_add "File formats" fileformats_suite
 	test_suite_add "Decryption" decryption_suite
-#	test_suite_add "Name Resolution" name_resolution_suite
+	test_suite_add "Name Resolution" name_resolution_suite
 }
 
 
