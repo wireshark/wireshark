@@ -55,6 +55,17 @@ do
 		if $BIN_DIR/tshark -nr $file > /dev/null
 		then
 			echo "OK"
+			# We may not be ready to looking for all these bugs yet...
+			#echo -n " - without tree but with a read filter... "
+			#export WIRESHARK_ABORT_ON_DISSECTOR_BUG=
+			#if $BIN_DIR/tshark -Rframe -nr $file > /dev/null
+			#then
+			#	echo "OK"
+			#else
+			#	echo "Failed"
+			#	exit 1
+			#fi
+			#unset WIRESHARK_ABORT_ON_DISSECTOR_BUG
 		else
 			echo "Failed"
 			exit 1
