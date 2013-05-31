@@ -728,6 +728,7 @@ static void
     guint64        max_value;   /* max value of seen data */
     guint32        max_y;       /* max value of the Y scale */
     gboolean       draw_y_as_time;
+    gboolean       draw_y_as_load;
     cairo_t       *cr;
 
     if (!io->needs_redraw) {
@@ -832,6 +833,7 @@ static void
     *   and we will present the unit in decimal
     */
     draw_y_as_time = FALSE;
+    draw_y_as_load = FALSE;
     if (io->count_type == COUNT_TYPE_ADVANCED) {
         draw_y_as_time = TRUE;
         for (i=0; i<MAX_GRAPHS; i++) {
@@ -840,6 +842,10 @@ static void
             if (!io->graphs[i].display) {
                 continue;
             }
+            if (io->graphs[i].calc_type == CALC_TYPE_LOAD) {
+                draw_y_as_load = TRUE;
+	    }
+
             adv_type = proto_registrar_get_ftype(io->graphs[i].hf_index);
             switch (adv_type) {
             case FT_RELATIVE_TIME:
@@ -973,6 +979,8 @@ static void
                 value = (guint32)(max_y / pow(10,tics-i));
                 if (draw_y_as_time) {
                     print_time_scale_string(label_string, 15, value, value, TRUE);
+                } else if (draw_y_as_load) {
+		  g_snprintf(label_string, 15, "%d.%1d", value/1000, (value/100)%10);
                 } else {
                     g_snprintf(label_string, 15, "%d", value);
                 }
@@ -980,6 +988,8 @@ static void
                 value = (max_y/10)*i;
                 if (draw_y_as_time) {
                     print_time_scale_string(label_string, 15, value, max_y, FALSE);
+                } else if (draw_y_as_load) {
+		  g_snprintf(label_string, 15, "%d.%1d", value/1000, (value/100)%10);
                 } else {
                     g_snprintf(label_string, 15, "%d", value);
                 }
