@@ -257,9 +257,7 @@ bytes_view_unrealize(GtkWidget *widget)
 		bv->context = NULL;
 	}
 	/* if there are still events in the queue, this'll avoid segfault */
-#if GTK_CHECK_VERSION(3, 8, 0)
-	gtk_widget_unregister_window(widget, gtk_widget_get_window(widget));
-#else
+#if !GTK_CHECK_VERSION(3, 8, 0)
 	gdk_window_set_user_data(gtk_widget_get_window(widget), NULL);
 #endif
 
