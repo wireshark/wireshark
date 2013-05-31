@@ -58,7 +58,7 @@ do
 			# We may not be ready to looking for all these bugs yet...
 			#echo -n " - without tree but with a read filter... "
 			#export WIRESHARK_ABORT_ON_DISSECTOR_BUG=
-			#if $BIN_DIR/tshark -Rframe -nr $file > /dev/null
+			#if $BIN_DIR/tshark -Yframe -nr $file > /dev/null
 			#then
 			#	echo "OK"
 			#else

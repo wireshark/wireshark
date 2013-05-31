@@ -65,7 +65,7 @@ else
     # error should have its own environment variable?).
     # Leave this commented out for now until someone has time to run it through the menagerie once
     # or twice (so we don't get buried in bugs)...
-    #declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}-nVxr" "${CONFIG_PROFILE}${TWO_PASS}-nr" "-Rframe ${CONFIG_PROFILE}${TWO_PASS}-nr")
+    #declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}-nVxr" "${CONFIG_PROFILE}${TWO_PASS}-nr" "-Yframe ${CONFIG_PROFILE}${TWO_PASS}-nr")
     #export WIRESHARK_ABORT_ON_DISSECTOR_BUG=
 fi
 
