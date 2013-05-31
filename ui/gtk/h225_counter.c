@@ -568,8 +568,3 @@ register_tap_listener_gtk_h225counter(void)
 	register_param_stat(&h225_counter_dlg, "_H.225",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
-
-void h225_counter_cb(GtkAction *action, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &h225_counter_dlg);
-}

@@ -1254,7 +1254,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='MAP-OP' action='/Telephony/GSM/MAP-OP'/>\n"
 "        <menuitem name='MAP-Summary' action='/Telephony/GSM/MAPSummary'/>\n"
 "      </menu>\n"
-"      <menuitem name='H225' action='/Telephony/H225'/>\n"
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>\n"
 "      </menu>\n"
@@ -1276,7 +1275,6 @@ static const char *ui_desc_menubar =
 "      <menu name= 'SCTPmenu' action='/Telephony/SCTP'>\n"
 "        <menuitem name='AnalysethisAssociation' action='/Telephony/SCTP/AnalysethisAssociation'/>\n"
 "        <menuitem name='ShowAllAssociations' action='/Telephony/SCTP/ShowAllAssociations'/>\n"
-"        <menuitem name='ChunkCounter' action='/Telephony/SCTP/ChunkCounter'/>\n"
 "      </menu>\n"
 "      <menuitem name='SIP' action='/Telephony/SIP'/>\n"
 "      <menuitem name='SMPP' action='/Telephony/smpp_commands'/>\n"
@@ -1705,8 +1703,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/GSM/MAP-OP",           NULL,                       "MAP Operation",       NULL,                       NULL,               G_CALLBACK(gsm_map_stat_gtk_cb) },
    { "/Telephony/GSM/MAPSummary",       NULL,                       "MAP Summary",              NULL,                       NULL,               G_CALLBACK(gsm_map_stat_gtk_sum_cb) },
 
-   { "/Telephony/H225",                 NULL,                       "_H.225...",                NULL,                       NULL,               G_CALLBACK(h225_counter_cb) },
-
    { "/Telephony/IAX2",                 NULL,                       "IA_X2",                    NULL, NULL, NULL },
    { "/Telephony/IAX2/StreamAnalysis",  NULL,                       "Stream Analysis...",       NULL,                       NULL,               G_CALLBACK(iax2_analysis_cb) },
 
@@ -1725,7 +1721,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/SCTP",                 NULL,                       "S_CTP",                        NULL, NULL, NULL },
    { "/Telephony/SCTP/AnalysethisAssociation",  NULL,               "Analyse this Association", NULL,                       NULL,               G_CALLBACK(sctp_analyse_start) },
    { "/Telephony/SCTP/ShowAllAssociations",     NULL,               "Show All Associations...", NULL,                       NULL,               G_CALLBACK(sctp_stat_start) },
-   { "/Telephony/SCTP/ChunkCounter",            NULL,               "Chunk Counter",            NULL,                       NULL,               G_CALLBACK(sctp_chunk_counter_cb) },
    { "/Telephony/SIP",                  NULL,                       "_SIP...",                  NULL,                       NULL,               G_CALLBACK(sipstat_cb) },
    { "/Telephony/smpp_commands",        NULL,                       "SM_PPOperations",          NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
    { "/Telephony/ucp_messages",         NULL,                       "_UCP Messages",            NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
@@ -3924,6 +3919,7 @@ stat_group_name(register_stat_group_t group)
         {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephony"},                                                          /* telephony specific */
         {REGISTER_STAT_GROUP_TELEPHONY_GSM,          "/Menubar/TelephonyMenu|Telephony/GSM|Telephony#GSM"},                                                          /* GSM-specific */
         {REGISTER_STAT_GROUP_TELEPHONY_LTE,          "/Menubar/TelephonyMenu|Telephony/LTEmenu|Telephony#LTE"},                                                          /* LTE-specific */
+        {REGISTER_STAT_GROUP_TELEPHONY_SCTP,         "/Menubar/TelephonyMenu|Telephony/SCTPmenu|Telephony#SCTP"},                                                          /* SCTP-specific */
         {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                                                                  /* unsorted tools */
         {0, NULL}
     };

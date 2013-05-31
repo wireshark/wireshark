@@ -321,12 +321,6 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 void
 register_tap_listener_sctpstat(void)
 {
-	register_param_stat(&sctp_stat_dlg, "S_CTP/Chunk Counter",
-	    REGISTER_STAT_GROUP_TELEPHONY);
+	register_param_stat(&sctp_stat_dlg, "Chunk Counter",
+	    REGISTER_STAT_GROUP_TELEPHONY_SCTP);
 }
-
-void sctp_chunk_counter_cb(GtkAction *action _U_, gpointer user_data _U_)
-{
-	tap_param_dlg_cb(action, &sctp_stat_dlg);
-}
-

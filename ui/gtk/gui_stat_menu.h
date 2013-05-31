@@ -122,7 +122,6 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action, gpointer user_data);
 void rtp_analysis_cb(GtkAction *action, gpointer user_data);
 void rtpstream_launch(GtkAction *action, gpointer user_data);
 void sctp_analyse_start(GtkAction *action, gpointer user_data);
-void sctp_chunk_counter_cb(GtkAction *action, gpointer user_data);
 void sctp_stat_start(GtkAction *action, gpointer user_data);
 
 void gui_iostat_cb(GtkAction *action, gpointer user_data);
@@ -133,7 +132,6 @@ void ansi_a_stat_gtk_bsmap_cb(GtkAction *action, gpointer user_data);
 void ansi_a_stat_gtk_dtap_cb(GtkAction *action, gpointer user_data);
 void ansi_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 
-void h225_counter_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_bssmap_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data);
