@@ -1202,36 +1202,36 @@ static const char *ui_desc_menubar =
 "        <menuitem name='ONC-RPC' action='/Statistics/ServiceResponseTime/ONC-RPC'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
-"      <menuitem name='ANCP' action='/StatisticsMenu/ancp'/>\n"
-"      <menu name= 'BACnetMenu' action='/StatisticsMenu/BACnet'>\n"
-"        <menuitem name='bacapp_instanceid' action='/StatisticsMenu/BACnet/bacapp_instanceid'/>\n"
-"        <menuitem name='bacapp_ip' action='/StatisticsMenu/BACnet/bacapp_ip'/>\n"
-"        <menuitem name='bacapp_objectid' action='/StatisticsMenu/BACnet/bacapp_objectid'/>\n"
-"        <menuitem name='bacapp_service' action='/StatisticsMenu/BACnet/bacapp_service'/>\n"
+"      <menuitem name='ANCP' action='/Statistics/ancp'/>\n"
+"      <menu name= 'BACnetMenu' action='/Statistics/BACnet'>\n"
+"        <menuitem name='bacapp_instanceid' action='/Statistics/BACnet/bacapp_instanceid'/>\n"
+"        <menuitem name='bacapp_ip' action='/Statistics/BACnet/bacapp_ip'/>\n"
+"        <menuitem name='bacapp_objectid' action='/Statistics/BACnet/bacapp_objectid'/>\n"
+"        <menuitem name='bacapp_service' action='/Statistics/BACnet/bacapp_service'/>\n"
 "      </menu>\n"
-"      <menuitem name='BOOTP-DHCP' action='/StatisticsMenu/BOOTP-DHCP'/>\n"
-"      <menuitem name='Collectd' action='/StatisticsMenu/collectd'/>\n"
-"      <menuitem name='Compare' action='/StatisticsMenu/compare'/>\n"
-"      <menuitem name='FlowGraph' action='/StatisticsMenu/FlowGraph'/>\n"
-"      <menuitem name='HART-IP' action='/StatisticsMenu/hart_ip'/>\n"
-"      <menu name= 'HTTPMenu' action='/StatisticsMenu/HTTP'>\n"
-"        <menuitem name='http' action='/StatisticsMenu/HTTP/http'/>\n"
-"        <menuitem name='http_req' action='/StatisticsMenu/HTTP/http_req'/>\n"
-"        <menuitem name='http_srv' action='/StatisticsMenu/HTTP/http_srv'/>\n"
+"      <menuitem name='BOOTP-DHCP' action='/Statistics/BOOTP-DHCP'/>\n"
+"      <menuitem name='Collectd' action='/Statistics/collectd'/>\n"
+"      <menuitem name='Compare' action='/Statistics/compare'/>\n"
+"      <menuitem name='FlowGraph' action='/Statistics/FlowGraph'/>\n"
+"      <menuitem name='HART-IP' action='/Statistics/hart_ip'/>\n"
+"      <menu name= 'HTTPMenu' action='/Statistics/HTTP'>\n"
+"        <menuitem name='http' action='/Statistics/HTTP/http'/>\n"
+"        <menuitem name='http_req' action='/Statistics/HTTP/http_req'/>\n"
+"        <menuitem name='http_srv' action='/Statistics/HTTP/http_srv'/>\n"
 "      </menu>\n"
-"      <menuitem name='ONC-RPC-Programs' action='/StatisticsMenu/ONC-RPC-Programs'/>\n"
-"      <menu name= 'SametimeMenu' action='/StatisticsMenu/Sametime'>\n"
-"        <menuitem name='sametime' action='/StatisticsMenu/Sametime/sametime'/>\n"
+"      <menuitem name='ONC-RPC-Programs' action='/Statistics/ONC-RPC-Programs'/>\n"
+"      <menu name= 'SametimeMenu' action='/Statistics/Sametime'>\n"
+"        <menuitem name='sametime' action='/Statistics/Sametime/sametime'/>\n"
 "      </menu>\n"
-"      <menu name= 'TCPStreamGraphMenu' action='/StatisticsMenu/TCPStreamGraphMenu'>\n"
-"        <menuitem name='Sequence-Graph-Stevens' action='/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
-"        <menuitem name='Sequence-Graph-tcptrace' action='/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace'/>\n"
-"        <menuitem name='Throughput-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph'/>\n"
-"        <menuitem name='RTT-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph'/>\n"
-"        <menuitem name='Window-Scaling-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph'/>\n"
+"      <menu name= 'TCPStreamGraphMenu' action='/Statistics/TCPStreamGraphMenu'>\n"
+"        <menuitem name='Sequence-Graph-Stevens' action='/Statistics/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
+"        <menuitem name='Sequence-Graph-tcptrace' action='/Statistics/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace'/>\n"
+"        <menuitem name='Throughput-Graph' action='/Statistics/TCPStreamGraphMenu/Throughput-Graph'/>\n"
+"        <menuitem name='RTT-Graph' action='/Statistics/TCPStreamGraphMenu/RTT-Graph'/>\n"
+"        <menuitem name='Window-Scaling-Graph' action='/Statistics/TCPStreamGraphMenu/Window-Scaling-Graph'/>\n"
 "      </menu>\n"
-"      <menuitem name='UDPMulticastStreams' action='/StatisticsMenu/UDPMulticastStreams'/>\n"
-"      <menuitem name='WLANTraffic' action='/StatisticsMenu/WLANTraffic'/>\n"
+"      <menuitem name='UDPMulticastStreams' action='/Statistics/UDPMulticastStreams'/>\n"
+"      <menuitem name='WLANTraffic' action='/Statistics/WLANTraffic'/>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
 "      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
@@ -1646,35 +1646,35 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/ServiceResponseTime/DCE-RPC",     WIRESHARK_STOCK_TIME,           "DCE-RPC...",                   NULL, NULL, G_CALLBACK(gtk_dcerpcstat_cb) },
    { "/Statistics/ServiceResponseTime/ONC-RPC",     WIRESHARK_STOCK_TIME,           "ONC-RPC...",                   NULL, NULL, G_CALLBACK(gtk_rpcstat_cb) },
 
-   { "/StatisticsMenu/ancp",                            NULL,       "ANCP",                             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/BACnet",                          NULL,       "BACnet",                           NULL, NULL, NULL },
-   { "/StatisticsMenu/BACnet/bacapp_instanceid",        NULL,       "Packets sorted by Instance ID",    NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/BACnet/bacapp_ip",                NULL,       "Packets sorted by IP",             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/BACnet/bacapp_objectid",          NULL,       "Packets sorted by Object Type",    NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/BACnet/bacapp_service",           NULL,       "Packets sorted by Service",        NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/BOOTP-DHCP",                      NULL,       "BOOTP-DHCP...",                    NULL, NULL, G_CALLBACK(bootp_dhcp_stat_cb) },
+   { "/Statistics/ancp",                            NULL,       "ANCP",                             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/BACnet",                          NULL,       "BACnet",                           NULL, NULL, NULL },
+   { "/Statistics/BACnet/bacapp_instanceid",        NULL,       "Packets sorted by Instance ID",    NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/BACnet/bacapp_ip",                NULL,       "Packets sorted by IP",             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/BACnet/bacapp_objectid",          NULL,       "Packets sorted by Object Type",    NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/BACnet/bacapp_service",           NULL,       "Packets sorted by Service",        NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/BOOTP-DHCP",                      NULL,       "BOOTP-DHCP...",                    NULL, NULL, G_CALLBACK(bootp_dhcp_stat_cb) },
 
-   { "/StatisticsMenu/collectd",                        NULL,       "Collectd...",                      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/compare",                         NULL,       "Compare...",                       NULL, NULL, G_CALLBACK(gtk_comparestat_cb) },
-   { "/StatisticsMenu/FlowGraph",       WIRESHARK_STOCK_FLOW_GRAPH, "Flo_w Graph...",                   NULL, NULL, G_CALLBACK(flow_graph_launch) },
-   { "/StatisticsMenu/hart_ip",                         NULL,       "HART-IP",                          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/HTTP",                            NULL,       "HTTP",                             NULL, NULL, NULL },
-   { "/StatisticsMenu/HTTP/http",                       NULL,       "Packet Counter",                   NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/HTTP/http_req",                   NULL,       "Requests",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/HTTP/http_srv",                   NULL,       "Load Distribution",                NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/collectd",                        NULL,       "Collectd...",                      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/compare",                         NULL,       "Compare...",                       NULL, NULL, G_CALLBACK(gtk_comparestat_cb) },
+   { "/Statistics/FlowGraph",       WIRESHARK_STOCK_FLOW_GRAPH, "Flo_w Graph...",                   NULL, NULL, G_CALLBACK(flow_graph_launch) },
+   { "/Statistics/hart_ip",                         NULL,       "HART-IP",                          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/HTTP",                            NULL,       "HTTP",                             NULL, NULL, NULL },
+   { "/Statistics/HTTP/http",                       NULL,       "Packet Counter",                   NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/HTTP/http_req",                   NULL,       "Requests",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/HTTP/http_srv",                   NULL,       "Load Distribution",                NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
 
-   { "/StatisticsMenu/ONC-RPC-Programs",                NULL,       "ONC-RPC Programs",                 NULL, NULL, G_CALLBACK(gtk_rpcprogs_cb) },
-   { "/StatisticsMenu/Sametime",                        NULL,       "Sametime",                         NULL, NULL, NULL },
-   { "/StatisticsMenu/Sametime/sametime",               NULL,       "Messages",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/TCPStreamGraphMenu",  NULL,           "TCP StreamGraph",                          NULL, NULL, NULL },
-   { "/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",  NULL, "Time-Sequence Graph (Stevens)",  NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace", NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph",             NULL, "Throughput Graph",               NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph",                    NULL, "Round Trip Time Graph",          NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph",         NULL, "Window Scaling Graph",           NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Statistics/ONC-RPC-Programs",                NULL,       "ONC-RPC Programs",                 NULL, NULL, G_CALLBACK(gtk_rpcprogs_cb) },
+   { "/Statistics/Sametime",                        NULL,       "Sametime",                         NULL, NULL, NULL },
+   { "/Statistics/Sametime/sametime",               NULL,       "Messages",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/TCPStreamGraphMenu",  NULL,           "TCP StreamGraph",                          NULL, NULL, NULL },
+   { "/Statistics/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",  NULL, "Time-Sequence Graph (Stevens)",  NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Statistics/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace", NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Statistics/TCPStreamGraphMenu/Throughput-Graph",             NULL, "Throughput Graph",               NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Statistics/TCPStreamGraphMenu/RTT-Graph",                    NULL, "Round Trip Time Graph",          NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/Statistics/TCPStreamGraphMenu/Window-Scaling-Graph",         NULL, "Window Scaling Graph",           NULL, NULL, G_CALLBACK(tcp_graph_cb) },
 
-   { "/StatisticsMenu/UDPMulticastStreams",                             NULL, "UDP Multicast Streams",          NULL, NULL, G_CALLBACK(mcaststream_launch) },
-   { "/StatisticsMenu/WLANTraffic",                                     NULL, "WLAN Traffic",                   NULL, NULL, G_CALLBACK(wlanstat_launch) },
+   { "/Statistics/UDPMulticastStreams",                             NULL, "UDP Multicast Streams",          NULL, NULL, G_CALLBACK(mcaststream_launch) },
+   { "/Statistics/WLANTraffic",                                     NULL, "WLAN Traffic",                   NULL, NULL, G_CALLBACK(wlanstat_launch) },
 
    { "/Statistics/Summary",                     GTK_STOCK_PROPERTIES,           "_Summary",                     NULL, NULL, G_CALLBACK(summary_open_cb) },
    { "/Statistics/CommentsSummary",             NULL,                           "Comments Summary",             NULL, NULL, G_CALLBACK(show_packet_comment_summary_dlg) },
