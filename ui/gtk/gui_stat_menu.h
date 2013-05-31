@@ -144,8 +144,6 @@ void gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action, gpointer user_data);
 void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata);
 void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata);
-void sipstat_cb(GtkAction *action, gpointer user_data);
-void wsp_stat_cb(GtkAction *action, gpointer user_data);
 
 void gsm_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
