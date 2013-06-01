@@ -152,6 +152,7 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 {
     GString *params;
     size_t i;
+    gdouble d;
     gint j;
 
     tap_param_dlg_list_item *dlg_data = (tap_param_dlg_list_item *) dialog_data;
@@ -168,6 +169,10 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
             break;
 
         case PARAM_UINT:
+            d = gtk_spin_button_get_value(GTK_SPIN_BUTTON(dlg_data->param_items[i]));
+            g_string_append_printf(params,"%u",(guint)d);
+            break;
+
         case PARAM_STRING:
         case PARAM_FILTER:
             g_string_append(params,
@@ -261,6 +266,19 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
         switch (current_dlg->cont.params[i].type) {
 
         case PARAM_UINT:
+            /* Label */
+            label_with_colon=g_strdup_printf("%s:", current_dlg->cont.params[i].title);
+            label=gtk_label_new(label_with_colon);
+            g_free(label_with_colon);
+            gtk_box_pack_start(GTK_BOX(item_box), label, FALSE, TRUE, 0);
+            gtk_widget_show(label);
+
+            /* Spin button */
+            item=gtk_spin_button_new_with_range(0, G_MAXUINT, 1);
+            gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(item), TRUE);
+
+            break;
+
         case PARAM_STRING:
             /* Label */
             label_with_colon=g_strdup_printf("%s:", current_dlg->cont.params[i].title);
@@ -347,10 +365,10 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     for(i=0;i<current_dlg->cont.nparams;i++){
         switch (current_dlg->cont.params[i].type) {
 
+        case PARAM_UINT:
         case PARAM_ENUM:
             break;
 
-        case PARAM_UINT:
         case PARAM_STRING:
         case PARAM_FILTER:
             dlg_set_activate(current_dlg->param_items[i], start_button);
