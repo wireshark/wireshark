@@ -772,7 +772,7 @@ MAKENSIS_UNICODE="$(PROGRAM_FILES)\NSIS\Unicode\makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
+HHC_DIR=$(PROGRAM_FILES)\HTML Help Workshop
 
 #
 # Optional: To reduce the size of dlls and exes, which is especially useful for USB device distributions (U3, PortableApps)
