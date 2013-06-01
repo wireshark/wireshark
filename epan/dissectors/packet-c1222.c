@@ -108,6 +108,8 @@ static int hf_c1222_calling_AP_invocation_id = -1;  /* Calling_AP_invocation_id 
 static int hf_c1222_mechanism_name = -1;          /* Mechanism_name */
 static int hf_c1222_calling_authentication_value = -1;  /* Calling_authentication_value */
 static int hf_c1222_user_information = -1;        /* User_information */
+static int hf_c1222_ap_title_form2 = -1;          /* OBJECT_IDENTIFIER */
+static int hf_c1222_ap_title_form4 = -1;          /* OBJECT_IDENTIFIER */
 static int hf_c1222_calling_authentication_value_indirect = -1;  /* INTEGER */
 static int hf_c1222_calling_authentication_value_encoding = -1;  /* Authentication_value_encoding */
 static int hf_c1222_calling_authentication_value_single_asn1 = -1;  /* Calling_authentication_value_single_asn1 */
@@ -217,6 +219,7 @@ static guint32 iv_element_len = 0;
 /*--- Included file: packet-c1222-ett.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-ett.c"
 static gint ett_c1222_C1222_MESSAGE_U = -1;
+static gint ett_c1222_AP_title = -1;
 static gint ett_c1222_Calling_authentication_value_U = -1;
 static gint ett_c1222_Authentication_value_encoding = -1;
 static gint ett_c1222_Calling_authentication_value_single_asn1 = -1;
@@ -1036,7 +1039,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
 
 static int
 dissect_c1222_ASO_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "../../asn1/c1222/c1222.cnf"
+#line 52 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
@@ -1050,8 +1053,30 @@ dissect_c1222_ASO_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_c1222_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_c1222_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const value_string c1222_AP_title_vals[] = {
+  {   0, "ap-title-form2" },
+  {   1, "ap-title-form4" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AP_title_choice[] = {
+  {   0, &hf_c1222_ap_title_form2, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_c1222_OBJECT_IDENTIFIER },
+  {   1, &hf_c1222_ap_title_form4, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_c1222_OBJECT_IDENTIFIER },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_c1222_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AP_title_choice, hf_index, ett_c1222_AP_title,
+                                 NULL);
 
   return offset;
 }
@@ -1060,7 +1085,7 @@ dissect_c1222_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_c1222_Called_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "../../asn1/c1222/c1222.cnf"
+#line 57 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_c1222_AP_title(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -1085,7 +1110,7 @@ dissect_c1222_AP_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_c1222_Called_AP_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 61 "../../asn1/c1222/c1222.cnf"
+#line 62 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_c1222_AP_invocation_id(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -1100,7 +1125,7 @@ dissect_c1222_Called_AP_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_c1222_Calling_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "../../asn1/c1222/c1222.cnf"
+#line 87 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_c1222_AP_title(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -1125,7 +1150,7 @@ dissect_c1222_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_c1222_Calling_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "../../asn1/c1222/c1222.cnf"
+#line 67 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_c1222_AE_qualifier(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -1140,7 +1165,7 @@ dissect_c1222_Calling_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_c1222_Calling_AP_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "../../asn1/c1222/c1222.cnf"
+#line 72 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_c1222_AP_invocation_id(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -1155,7 +1180,7 @@ dissect_c1222_Calling_AP_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_c1222_Mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "../../asn1/c1222/c1222.cnf"
+#line 77 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
@@ -1180,7 +1205,7 @@ dissect_c1222_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_c1222_Key_id_element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "../../asn1/c1222/c1222.cnf"
+#line 92 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -1196,7 +1221,7 @@ dissect_c1222_Key_id_element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_c1222_Iv_element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "../../asn1/c1222/c1222.cnf"
+#line 97 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -1370,7 +1395,7 @@ dissect_c1222_Calling_authentication_value_U(gboolean implicit_tag _U_, tvbuff_t
 
 static int
 dissect_c1222_Calling_authentication_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 81 "../../asn1/c1222/c1222.cnf"
+#line 82 "../../asn1/c1222/c1222.cnf"
   FILL_START;
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_CON, 2, TRUE, dissect_c1222_Calling_authentication_value_U);
@@ -1386,7 +1411,7 @@ dissect_c1222_Calling_authentication_value(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 27 "../../asn1/c1222/c1222.cnf"
+#line 28 "../../asn1/c1222/c1222.cnf"
   gint8 end_device_class;
   gboolean pc, ind;
   gint32 tag;
@@ -1418,9 +1443,9 @@ dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static const ber_sequence_t C1222_MESSAGE_U_sequence[] = {
   { &hf_c1222_aSO_context   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_c1222_ASO_qualifier },
-  { &hf_c1222_called_AP_title, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_c1222_Called_AP_title },
+  { &hf_c1222_called_AP_title, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_c1222_Called_AP_title },
   { &hf_c1222_called_AP_invocation_id, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_c1222_Called_AP_invocation_id },
-  { &hf_c1222_calling_AP_title, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_c1222_Calling_AP_title },
+  { &hf_c1222_calling_AP_title, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_c1222_Calling_AP_title },
   { &hf_c1222_calling_AE_qualifier, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_c1222_Calling_AE_qualifier },
   { &hf_c1222_calling_AP_invocation_id, BER_CLASS_CON, 8, 0, dissect_c1222_Calling_AP_invocation_id },
   { &hf_c1222_mechanism_name, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_c1222_Mechanism_name },
@@ -1746,7 +1771,7 @@ void proto_register_c1222(void) {
         "ASO_qualifier", HFILL }},
     { &hf_c1222_called_AP_title,
       { "called-AP-title", "c1222.called_AP_title",
-        FT_OID, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(c1222_AP_title_vals), 0,
         NULL, HFILL }},
     { &hf_c1222_called_AP_invocation_id,
       { "called-AP-invocation-id", "c1222.called_AP_invocation_id",
@@ -1754,11 +1779,11 @@ void proto_register_c1222(void) {
         NULL, HFILL }},
     { &hf_c1222_calling_AP_title,
       { "calling-AP-title", "c1222.calling_AP_title",
-        FT_OID, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(c1222_AP_title_vals), 0,
         NULL, HFILL }},
     { &hf_c1222_calling_AE_qualifier,
       { "calling-AE-qualifier", "c1222.calling_AE_qualifier",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_c1222_calling_AP_invocation_id,
       { "calling-AP-invocation-id", "c1222.calling_AP_invocation_id",
@@ -1776,6 +1801,14 @@ void proto_register_c1222(void) {
       { "user-information", "c1222.user_information_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_c1222_ap_title_form2,
+      { "ap-title-form2", "c1222.ap_title_form2",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_c1222_ap_title_form4,
+      { "ap-title-form4", "c1222.ap_title_form4",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
     { &hf_c1222_calling_authentication_value_indirect,
       { "calling-authentication-value-indirect", "c1222.calling_authentication_value_indirect",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -1836,6 +1869,7 @@ void proto_register_c1222(void) {
 /*--- Included file: packet-c1222-ettarr.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-ettarr.c"
     &ett_c1222_C1222_MESSAGE_U,
+    &ett_c1222_AP_title,
     &ett_c1222_Calling_authentication_value_U,
     &ett_c1222_Authentication_value_encoding,
     &ett_c1222_Calling_authentication_value_single_asn1,
