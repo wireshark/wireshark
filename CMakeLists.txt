@@ -135,6 +135,7 @@ set(WIRESHARK_C_ONLY_FLAGS
 	# The following are C only, not C++
 	-Wc++-compat
 	-Wdeclaration-after-statement
+	-Wlogical-op
 	-Wno-pointer-sign
 	-Wold-style-definition
 	-Wshadow
@@ -143,7 +144,6 @@ set(WIRESHARK_C_ONLY_FLAGS
 set(WIRESHARK_EXTRA_C_FLAGS
 	-pedantic
 	-Woverflow
-	-Wlogical-op
 	-Wno-overlength-strings
 	-fstrict-overflow -Wstrict-overflow=4
 	-Wunreachable-code
