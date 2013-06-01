@@ -96,7 +96,7 @@ TODO
 static FILE *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
 static char *uuid=NULL;
 static char *version=NULL;
-static char *pointer_default=NULL;
+static const char *pointer_default=NULL;
 static char *ifname=NULL;
 static char hf_status[256];
 static int lineno,linepos;
@@ -135,7 +135,7 @@ typedef struct _pointer_item_t {
 #define BI_SWITCH_TYPE		0x00000400
 typedef struct _bracket_item_t {
 	unsigned int flags;
-	char *case_name;
+	const char *case_name;
 	pointer_item_t *pointer_list;
 	int union_tag_size;
 } bracket_item_t;
@@ -248,7 +248,7 @@ prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 	return ptrs;
 }
 
-static char *
+static const char *
 ptr_to_define(char *pointer_type)
 {
 	if(!strcmp(pointer_type, "unique")){
@@ -333,7 +333,7 @@ find_hf_field(char *name)
    for fields that are to be renamed  no code is generated
 */
 static char *
-register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, char *base_type, char *valsstring, char *mask, char *blurb)
+register_hf_field(const char *hf_name, const char *title, const char *filter_name, const char *ft_type, const char *base_type, const char *valsstring, const char *mask, const char *blurb)
 {
 	hf_field_item_t *hfi;
 	hf_rename_item_t *hri;
@@ -421,7 +421,7 @@ rename_tokens(const char *old_name, const char *new_name)
 }
 
 static void
-prune_keyword_parameters(char *name)
+prune_keyword_parameters(const char *name)
 {
 	token_item_t *ti, *tmpti;
 
