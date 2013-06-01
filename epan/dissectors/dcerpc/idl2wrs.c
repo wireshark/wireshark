@@ -1,5 +1,5 @@
 /* idl2wrs.c
- * IDL to Wireshark dissector compiler
+ * DCE RPC IDL to Wireshark dissector compiler
  *
  * $Id$
  *
@@ -214,7 +214,7 @@ register_dissector_param_value(char *name, char *value)
 	dpv->value=strdup(value);
 }
 
-static char *
+static const char *
 find_dissector_param_value(char *name)
 {
 	dissector_param_value_t *dpv;
@@ -409,7 +409,7 @@ prune_keywords(char *name)
 #endif
 
 static void
-rename_tokens(char *old_name, char *new_name)
+rename_tokens(const char *old_name, const char *new_name)
 {
 	token_item_t *ti;
 
@@ -742,7 +742,7 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 /* this function will register a new type learnt from the IDL file
 */
 static type_item_t *
-register_new_type(char *name, char *dissectorname, char *ft_type, char *base_type, char *mask, char *valsstring, int alignment){
+register_new_type(const char *name, const char *dissectorname, const char *ft_type, const char *base_type, const char *mask, const char *valsstring, int alignment){
 	type_item_t *new_type;
 
 FPRINTF(NULL,"XXX new type:%s dissector:%s Type:%s Base:%s Mask:%s Vals:%s alignment:%d\n", name, dissectorname, ft_type, base_type, mask, valsstring, alignment);
@@ -2992,7 +2992,7 @@ static void usage(void)
 }
 
 static void
-mergefile(char *name, FILE *outfile)
+mergefile(const char *name, FILE *outfile)
 {
 	FILE *infile;
 
