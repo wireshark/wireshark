@@ -45,6 +45,7 @@ void proto_reg_handoff_eth(void);
 
 /* Assume all packets have an FCS */
 static gboolean eth_assume_padding = TRUE;
+static guint eth_trailer_length = 0;
 static gboolean eth_assume_fcs = FALSE;
 static gboolean eth_check_fcs = TRUE;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
@@ -207,7 +208,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
 
 static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len);
 
-static void
+static proto_tree *
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int fcs_len)
 {
@@ -252,7 +253,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    * Ethernet packet.
    */
   if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree, NULL))
-    return;
+    return fh_tree;
 
   if (ehdr->type <= IEEE_802_3_MAX_LEN) {
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the
@@ -266,7 +267,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       tvb_get_guint8(tvb, 3) == 0x00 &&
       tvb_get_guint8(tvb, 4) == 0x00) {
       dissect_isl(tvb, pinfo, parent_tree, fcs_len);
-      return;
+      return fh_tree;
     }
   }
 
@@ -319,7 +320,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         "Invalid length/type: 0x%04x (%d)", ehdr->type, ehdr->type);
     next_tvb = tvb_new_subset_remaining(tvb, 14);
     call_dissector(data_handle, next_tvb, pinfo, parent_tree);
-    return;
+    return fh_tree;
   }
 
   if (ehdr->type <= IEEE_802_3_MAX_LEN && ehdr->type != ETHERTYPE_UNK) {
@@ -367,7 +368,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
             (dst_addr[0] == 'o') || (dst_addr[0] == 'O')) {
             call_dissector(fw1_handle, tvb, pinfo, parent_tree);
-            return;
+            return fh_tree;
         }
     }
 
@@ -407,6 +408,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
           hf_eth_trailer, fcs_len);
   }
+  return fh_tree;
 }
 
 /* -------------- */
@@ -663,9 +665,33 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 static void
 dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_eth_common(tvb, pinfo, tree,
-                     eth_assume_fcs ? 4 :
-                     pinfo->pseudo_header->eth.fcs_len);
+  proto_tree        *fh_tree;
+
+  /* Some devices slice the packet and add their own trailer before
+     putting the frame on the network. Make sure these packets get 
+	 a proper trailer (even though the sliced frame might not
+	 properly dissect. */
+  if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_length(tvb)) ) {
+    tvbuff_t *next_tvb;
+	guint total_trailer_length;
+
+	total_trailer_length = eth_trailer_length + (eth_assume_fcs ? 4 : 0);
+
+	/* Dissect the tvb up to, but not including the trailer */
+    next_tvb = tvb_new_subset(tvb, 0,
+                              tvb_length(tvb) - total_trailer_length,
+							  tvb_reported_length(tvb) - total_trailer_length);
+    fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0);
+
+	/* Now handle the ethernet trailer and optional FCS */
+	if ( fh_tree != NULL ) {
+	  next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - total_trailer_length);
+	  add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
+						   eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
+    }
+  } else {
+    dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
+  }
 }
 
 /* Called by other dissectors  This one's for encapsulated Ethernet
@@ -780,6 +806,13 @@ proto_register_eth(void)
             "frame before the trailer was added. Uncheck if a device added a trailer "
             "before the frame was padded.",
             &eth_assume_padding);
+
+    prefs_register_uint_preference(eth_module, "trailer_length",
+            "Fixed ethernet trailer length",
+            "Some TAPs add a fixed length ethernet trailer at the end "
+            "of the frame, but before the (optional) FCS. Make sure it "
+            "gets interpreted correctly.",
+            10, &eth_trailer_length);
 
     prefs_register_bool_preference(eth_module, "assume_fcs",
             "Assume packets have FCS",
