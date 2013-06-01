@@ -466,54 +466,22 @@ netmon_set_pseudo_header_info(int pkt_encap,
 	}
 }
 
-/* Read the next packet */
-static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean netmon_process_rec_header(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
-	guint32	packet_size = 0;
-	guint32 orig_size = 0;
-	int	bytes_read;
+	int	hdr_size = 0;
 	union {
 		struct netmonrec_1_x_hdr hdr_1_x;
 		struct netmonrec_2_x_hdr hdr_2_x;
 	}	hdr;
-	int	hdr_size = 0;
-	int	trlr_size;
-	gint64	rec_offset;
-	guint8	*data_ptr;
+	int	bytes_read;
 	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
 	gint64	t;
 	time_t	secs;
 	guint32	nsecs;
-
-again:
-	/* Have we reached the end of the packet data? */
-	if (netmon->current_frame >= netmon->frame_table_size) {
-		/* Yes.  We won't need the frame table any more;
-		   free it. */
-		g_free(netmon->frame_table);
-		netmon->frame_table = NULL;
-		*err = 0;	/* it's just an EOF, not an error */
-		return FALSE;
-	}
-
-	/* Seek to the beginning of the current record, if we're
-	   not there already (seeking to the current position
-	   may still cause a seek and a read of the underlying file,
-	   so we don't want to do it unconditionally).
-
-	   Yes, the current record could be before the previous
-	   record.  At least some captures put the trailer record
-	   with statistics as the first physical record in the
-	   file, but set the frame table up so it's the last
-	   record in sequence. */
-	rec_offset = netmon->frame_table[netmon->current_frame];
-	if (file_tell(wth->fh) != rec_offset) {
-		if (file_seek(wth->fh, rec_offset, SEEK_SET, err) == -1)
-			return FALSE;
-	}
-	netmon->current_frame++;
+	guint32	packet_size = 0;
+	guint32 orig_size = 0;
 
 	/* Read record header. */
 	switch (netmon->version_major) {
@@ -528,9 +496,9 @@ again:
 	}
 	errno = WTAP_ERR_CANT_READ;
 
-	bytes_read = file_read(&hdr, hdr_size, wth->fh);
+	bytes_read = file_read(&hdr, hdr_size, fh);
 	if (bytes_read != hdr_size) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -560,8 +528,6 @@ again:
 		return FALSE;
 	}
 
-	*data_offset = file_tell(wth->fh);
-
 	/*
 	 * If this is an ATM packet, the first
 	 * "sizeof (struct netmon_atm_hdr)" bytes have destination and
@@ -582,7 +548,7 @@ again:
 			    packet_size);
 			return FALSE;
 		}
-		if (!netmon_read_atm_pseudoheader(wth->fh, &wth->phdr.pseudo_header,
+		if (!netmon_read_atm_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return FALSE;	/* Read error */
 
@@ -596,12 +562,6 @@ again:
 	default:
 		break;
 	}
-
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_ptr = buffer_start_ptr(wth->frame_buffer);
-	if (!netmon_read_rec_data(wth->fh, data_ptr, packet_size, err,
-	    err_info))
-		return FALSE;	/* Read error */
 
 	switch (netmon->version_major) {
 
@@ -670,34 +630,109 @@ again:
 	}
 	secs += (time_t)(t/1000000000);
 	nsecs = (guint32)(t%1000000000);
-	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	wth->phdr.ts.secs = netmon->start_secs + secs;
-	wth->phdr.ts.nsecs = nsecs;
-	wth->phdr.caplen = packet_size;
-	wth->phdr.len = orig_size;
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->ts.secs = netmon->start_secs + secs;
+	phdr->ts.nsecs = nsecs;
+	phdr->caplen = packet_size;
+	phdr->len = orig_size;
 
-	/*
-	 * For version 2.1 and later, there's additional information
-	 * after the frame data.
-	 */
+	return TRUE;
+}
+
+typedef enum {
+	SUCCESS,
+	FAILURE,
+	RETRY
+} process_trailer_retval;
+
+static process_trailer_retval netmon_process_rec_trailer(netmon_t *netmon,
+    FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+{
+	int	trlr_size;
+
 	trlr_size = (int)netmon_trailer_size(netmon);
 	if (trlr_size != 0) {
 		/*
 		 * I haz a trailer.
 		 */
-		wth->phdr.pkt_encap = netmon_read_rec_trailer(wth->fh,
+		phdr->pkt_encap = netmon_read_rec_trailer(fh,
 		    trlr_size, err, err_info);
-		if (wth->phdr.pkt_encap == -1)
-			return FALSE;	/* error */
-		if (wth->phdr.pkt_encap == 0)
-			goto again;
-		netmon_set_pseudo_header_info(wth->phdr.pkt_encap,
-		    &wth->phdr.pseudo_header, data_ptr, packet_size);
-	} else {
-		netmon_set_pseudo_header_info(wth->file_encap,
-		    &wth->phdr.pseudo_header, data_ptr, packet_size);
+		if (phdr->pkt_encap == -1)
+			return FAILURE;	/* error */
+		if (phdr->pkt_encap == 0)
+			return RETRY;
 	}
 
+	return SUCCESS;
+}
+
+/* Read the next packet */
+static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
+    gint64 *data_offset)
+{
+	netmon_t *netmon = (netmon_t *)wth->priv;
+	gint64	rec_offset;
+	guint8	*data_ptr;
+
+again:
+	/* Have we reached the end of the packet data? */
+	if (netmon->current_frame >= netmon->frame_table_size) {
+		/* Yes.  We won't need the frame table any more;
+		   free it. */
+		g_free(netmon->frame_table);
+		netmon->frame_table = NULL;
+		*err = 0;	/* it's just an EOF, not an error */
+		return FALSE;
+	}
+
+	/* Seek to the beginning of the current record, if we're
+	   not there already (seeking to the current position
+	   may still cause a seek and a read of the underlying file,
+	   so we don't want to do it unconditionally).
+
+	   Yes, the current record could be before the previous
+	   record.  At least some captures put the trailer record
+	   with statistics as the first physical record in the
+	   file, but set the frame table up so it's the last
+	   record in sequence. */
+	rec_offset = netmon->frame_table[netmon->current_frame];
+	if (file_tell(wth->fh) != rec_offset) {
+		if (file_seek(wth->fh, rec_offset, SEEK_SET, err) == -1)
+			return FALSE;
+	}
+	netmon->current_frame++;
+
+	*data_offset = file_tell(wth->fh);
+
+	if (!netmon_process_rec_header(wth, wth->fh, &wth->phdr,
+	    err, err_info))
+		return FALSE;
+
+	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	data_ptr = buffer_start_ptr(wth->frame_buffer);
+	if (!netmon_read_rec_data(wth->fh, data_ptr, wth->phdr.caplen, err,
+	    err_info))
+		return FALSE;	/* Read error */
+
+	/*
+	 * For version 2.1 and later, there's additional information
+	 * after the frame data.
+	 */
+	switch (netmon_process_rec_trailer(netmon, wth->fh, &wth->phdr,
+	    err, err_info)) {
+
+	case RETRY:
+		goto again;
+
+	case SUCCESS:
+		break;
+
+	case FAILURE:
+		return FALSE;
+	}
+
+	netmon_set_pseudo_header_info(wth->phdr.pkt_encap,
+	    &wth->phdr.pseudo_header, data_ptr, wth->phdr.caplen);
 	return TRUE;
 }
 
@@ -706,24 +741,14 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	netmon_t *netmon = (netmon_t *)wth->priv;
-	int	trlr_size;
-	int	pkt_encap;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	switch (wth->file_encap) {
-
-	case WTAP_ENCAP_ATM_PDUS:
-		if (!netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    err, err_info)) {
-			/* Read error */
-			return FALSE;
-		}
-		break;
-	}
+	if (!netmon_process_rec_header(wth, wth->random_fh, phdr,
+	    err, err_info))
+		return FALSE;
 
 	/*
 	 * Read the packet data.
@@ -735,29 +760,26 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	 * For version 2.1 and later, there's additional information
 	 * after the frame data.
 	 */
-	trlr_size = (int)netmon_trailer_size(netmon);
-	if (trlr_size != 0) {
+	switch (netmon_process_rec_trailer(netmon, wth->random_fh, phdr,
+	    err, err_info)) {
+
+	case RETRY:
 		/*
-		 * I haz a trailer.
+		 * This should not happen.
 		 */
-		pkt_encap = netmon_read_rec_trailer(wth->random_fh,
-		    trlr_size, err, err_info);
-		if (pkt_encap == -1)
-			return FALSE;	/* error */
-		if (pkt_encap == 0) {
-			/*
-			 * This should not happen.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
-			return FALSE;
-		}
-		netmon_set_pseudo_header_info(pkt_encap, pseudo_header,
-		    pd, length);
-	} else {
-		netmon_set_pseudo_header_info(wth->file_encap, pseudo_header,
-		    pd, length);
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
+		return FALSE;
+
+	case SUCCESS:
+		break;
+
+	case FAILURE:
+		return FALSE;
 	}
+
+	netmon_set_pseudo_header_info(phdr->pkt_encap,
+	    &phdr->pseudo_header, pd, phdr->caplen);
 
 	return TRUE;
 }
