@@ -684,11 +684,9 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0);
 
 	/* Now handle the ethernet trailer and optional FCS */
-	if ( fh_tree != NULL ) {
-	  next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - total_trailer_length);
-	  add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
-						   eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
-    }
+	next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - total_trailer_length);
+	add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
+						 eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
   } else {
     dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
   }
