@@ -21,6 +21,7 @@ C1222-MESSAGE
 #.TYPE_ATTR 
 Calling-authentication-value-c1222/_untag/iv-element  BLURB="c1222.iv-element"
 Calling-authentication-value-c1222/_untag/key-id-element BLURB = "c1222.key-id-element"
+AP-invocation-id TYPE=FT_UINT32
 
 #.FN_BODY User-information
   gint8 end_device_class;
