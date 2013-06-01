@@ -126,6 +126,17 @@ set(WIRESHARK_C_FLAGS
 	-Warray-bounds
 	-Wcast-align
 	-Wformat-security
+	-Wshorten-64-to-32
+	-Wvla
+	-Waddress
+	-Warray-bounds
+	-Wattributes
+	-Wdiv-by-zero
+	-Wignored-qualifiers
+	-Wpragmas
+	-Wno-overlength-strings
+	-Wwrite-strings
+	-Wno-long-long
 )
 if (NOT APPLE)
 	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} -fexcess-precision=fast)
@@ -136,46 +147,30 @@ set(WIRESHARK_C_ONLY_FLAGS
 	-Wc++-compat
 	-Wdeclaration-after-statement
 	-Wlogical-op
+	-Wshadow
 	-Wno-pointer-sign
 	-Wold-style-definition
 	-Wshadow
+	-Wstrict-prototypes
+	-Wjump-misses-init
 )
 
 set(WIRESHARK_EXTRA_C_FLAGS
 	-pedantic
 	-Woverflow
-	-Wno-overlength-strings
 	-fstrict-overflow -Wstrict-overflow=4
 	-Wunreachable-code
 	-Wunsafe-loop-optimizations
-	-Wno-long-long
 	-Wcast-qual
-	-Waddress
-	-Warray-bounds
-	-Wattributes
-	-Wdiv-by-zero
 	-Wformat-security
-	-Wignored-qualifiers
-	-Wpragmas
 	-Wredundant-decls
-	-Wvla
-	# packet-ncp2222.inc prevents this from going into all warnings
-	-Wwrite-strings
 	# All the registration functions block these for now.
 	-Wmissing-declarations
-	# Problem with packet-afs.c
-	-Wshadow
-	# More cleanup needed for this on LP64
-	-Wshorten-64-to-32
-
 )
 
 set(WIRESHARK_EXTRA_C_ONLY_FLAGS
 	# The following are C only, not C++
 	-Wbad-function-cast
-	-Wjump-misses-init
-	# GLib blocks this for now.
-	-Wstrict-prototypes
 	# All the registration functions block these for now.
 	-Wmissing-prototypes
 )
