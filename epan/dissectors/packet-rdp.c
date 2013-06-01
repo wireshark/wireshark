@@ -794,17 +794,15 @@ static const value_string rdp_wMonth_vals[] = {
 
 
 static int
-dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_field_info_t *fields)
+dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_field_info_t *fields, int totlen)
 {
   rdp_field_info_t *c;
   int               base_offset = offset;
-  guint16           length      = 0;
   guint16           len         = 0;
   char             *string;
 
-  length = tvb_length_remaining(tvb, offset);
 
-  for (c = fields; (c->field != -1) && ((offset - base_offset) < length); c++) {
+  while (((c = fields++)->field) != -1) {
 
     if ((c->fixedLength == 0) && (c->variableLength)) {
       len = *(c->variableLength);
@@ -849,12 +847,14 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
           REPORT_DISSECTOR_BUG("Tree Error!!\n");
 
         if (c->subfields)
-          dissect_rdp_fields(tvb, offset, pinfo, next_tree, c->subfields);
+          dissect_rdp_fields(tvb, offset, pinfo, next_tree, c->subfields, 0);
       }
 
       if (!(c->flags & RDP_FI_NOINCOFFSET))
         offset += len;
     }
+    if ((totlen > 0) && ((offset-base_offset) >= totlen))
+      break;
   }
 
   return offset;
@@ -869,7 +869,7 @@ dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
   };
 
   nyi_fields[0].fixedLength = tvb_length_remaining(tvb, offset);
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, nyi_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, nyi_fields, 0);
 
   if ((tree != NULL) && (info != NULL))
     proto_item_append_text(tree->last_child, " (%s)", info);
@@ -886,7 +886,7 @@ dissect_rdp_encrypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
   };
 
   enc_fields[0].fixedLength = tvb_length_remaining(tvb, offset);
-  offset = dissect_rdp_fields(tvb, offset,pinfo, tree, enc_fields);
+  offset = dissect_rdp_fields(tvb, offset,pinfo, tree, enc_fields, 0);
 
   if ((tree != NULL) && (info != NULL))
     proto_item_append_text(tree->last_child, " (%s)", info);
@@ -937,7 +937,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
   pi        = proto_tree_add_item(tree, hf_rdp_clientNetworkData, tvb, offset, length, ENC_NA);
   next_tree = proto_item_add_subtree(pi, ett_rdp_clientNetworkData);
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, net_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, net_fields, 0);
 
   if (channelCount > 0) {
     guint16 i;
@@ -952,7 +952,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
         rdp_info->channels[i].value = -1; /* unset */
         rdp_info->channels[i].strptr = tvb_get_ephemeral_string(tvb, offset, 8);
       }
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
     }
 
     if (rdp_info) {
@@ -987,7 +987,7 @@ dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, p
     FI_TERMINATOR
   };
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, flags_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, flags_fields, 0);
 
   if (flags_ptr)
     *flags_ptr = flags;
@@ -1027,7 +1027,7 @@ dissect_rdp_securityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
     }
 
     if (fields)
-      offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
   }
   return offset;
 }
@@ -1064,7 +1064,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
   /* length is the uncompressed length, and the PDU may be compressed */
   channelPDU_fields[1].fixedLength = tvb_length_remaining(tvb, offset) - 8;
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, channelPDU_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, channelPDU_fields, 0);
 
   return offset;
 }
@@ -1134,7 +1134,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
   rdp_field_info_t *fields;
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields, 0);
 
   if (pduType2 != PDUTYPE2_CONTROL)
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(pduType2, rdp_pduType2_vals, "Unknown"));
@@ -1198,7 +1198,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   }
 
   if (fields) {
-    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
   }
 
   if (pduType2 == PDUTYPE2_CONTROL)
@@ -1229,7 +1229,7 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
   length = tvb_length_remaining(tvb, offset);
 
   for(i = 0; (i < numberCapabilities) && (offset - base_offset < length); i++) {
-    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields);
+    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields, 0);
   }
 
   return offset;
@@ -1255,11 +1255,11 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     FI_TERMINATOR
   };
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
 
   offset = dissect_rdp_capabilitySets(tvb, offset, pinfo, tree, numberCapabilities);
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, final_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, final_fields, 0);
 
   return offset;
 }
@@ -1281,7 +1281,7 @@ dissect_rdp_confirmActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     FI_TERMINATOR
   };
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
 
   offset = dissect_rdp_capabilitySets(tvb, offset, pinfo, tree, numberCapabilities);
 
@@ -1438,7 +1438,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "SecurityExchange");
 
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, se_fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, se_fields, 0);
 
       break;
 
@@ -1452,7 +1452,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if (!(flags & SEC_ENCRYPT)) {
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ue_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ue_fields, 0);
       } else {
 
         offset = dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
@@ -1465,7 +1465,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       offset = dissect_rdp_securityHeader(tvb, offset, pinfo, next_tree, rdp_info, TRUE, NULL);
       if (!(flags & SEC_ENCRYPT)) {
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, msg_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, msg_fields, 0);
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(bMsgType, rdp_bMsgType_vals, "Unknown"));
 
@@ -1481,7 +1481,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           offset = dissect_rdp_nyi(tvb, offset, pinfo, next_tree, "RDPELE not implemented");
           break;
         case ERROR_ALERT:
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, error_fields);
+          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, error_fields, 0);
           rdp_info->licenseAgreed = pinfo->fd->num;
           break;
         default:
@@ -1514,7 +1514,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       pi        = proto_tree_add_item(tree, hf_rdp_shareControlHeader, tvb, offset, length, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_shareControlHeader);
 
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ctrl_fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ctrl_fields, 0);
 
       pduType &= PDUTYPE_TYPE_MASK; /* mask out just the type */
 
@@ -1672,7 +1672,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi        = proto_tree_add_item(tree, hf_rdp_clientCoreData, tvb, offset, length, ENC_NA);
         next_tree = proto_item_add_subtree(pi, ett_rdp_clientCoreData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, core_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, core_fields, 0);
 
       } else {
         /* block not big enough */
@@ -1685,7 +1685,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi        = proto_tree_add_item(tree, hf_rdp_clientSecurityData, tvb, offset, length, ENC_NA);
         next_tree = proto_item_add_subtree(pi, ett_rdp_clientSecurityData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, security_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, security_fields, 0);
 
       } else {
         /* not enough data */
@@ -1711,7 +1711,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi        = proto_tree_add_item(tree, hf_rdp_clientClusterData, tvb, offset, length, ENC_NA);
         next_tree = proto_item_add_subtree(pi, ett_rdp_clientClusterData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, cluster_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, cluster_fields, 0);
 
       } else {
         /* not enough data */
@@ -1724,7 +1724,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           pi        = proto_tree_add_item(tree, hf_rdp_clientUnknownData, tvb, offset, length, ENC_NA);
           next_tree = proto_item_add_subtree(pi, ett_rdp_clientUnknownData);
 
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields);
+          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields, 0);
 
         } else {
           return;
@@ -1849,7 +1849,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi        = proto_tree_add_item(tree, hf_rdp_serverCoreData, tvb, offset, length, ENC_NA);
         next_tree = proto_item_add_subtree(pi, ett_rdp_serverCoreData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sc_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sc_fields, length);
 
       } else {
         /* block not big enough */
@@ -1862,7 +1862,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi        = proto_tree_add_item(tree, hf_rdp_serverSecurityData, tvb, offset, length, ENC_NA);
         next_tree = proto_item_add_subtree(pi, ett_rdp_serverSecurityData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ss_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ss_fields, 0);
 
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "Encryption: %s (%s)",
                             val_to_str(encryptionMethod, rdp_encryptionMethod_vals, "Unknown"),
@@ -1870,7 +1870,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         if ((encryptionLevel != 0) || (encryptionMethod != 0)) {
 
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, encryption_fields);
+          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, encryption_fields, 0);
         }
 
         rdp_info->encryptionMethod = encryptionMethod;
@@ -1888,7 +1888,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi        = proto_tree_add_item(tree, hf_rdp_serverNetworkData, tvb, offset, length, ENC_NA);
         next_tree = proto_item_add_subtree(pi, ett_rdp_serverNetworkData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sn_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sn_fields, 0);
 
         rdp_info->staticChannelId = channelId;
         register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
@@ -1896,13 +1896,13 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           proto_tree *old_tree;
 
           array_fields[0].fixedLength = channelCount * 2;
-          dissect_rdp_fields(tvb, offset, pinfo, next_tree, array_fields);
+          dissect_rdp_fields(tvb, offset, pinfo, next_tree, array_fields, 0);
 
           old_tree = next_tree; /* XXX: save not actually req'd ? */
           if (next_tree)
             next_tree = proto_item_add_subtree(next_tree->last_child, ett_rdp_channelIdArray);
           for(i = 0; i < channelCount; i++) {
-            offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, channel_fields);
+            offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, channel_fields, 0);
             if (i < MAX_CHANNELS)
               rdp_info->channels[i].value = channelId;
 
@@ -1910,7 +1910,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
           }
           if (channelCount % 2)
-            offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, pad_fields);
+            offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, pad_fields, 0);
           next_tree = old_tree;
         }
 
@@ -1926,7 +1926,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           pi        = proto_tree_add_item(tree, hf_rdp_serverUnknownData, tvb, offset, length, ENC_NA);
           next_tree = proto_item_add_subtree(pi, ett_rdp_serverUnknownData);
 
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields);
+          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields, 0);
 
         } else {
           return;
