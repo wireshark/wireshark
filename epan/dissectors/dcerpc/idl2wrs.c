@@ -249,7 +249,7 @@ prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 }
 
 static const char *
-ptr_to_define(char *pointer_type)
+ptr_to_define(const char *pointer_type)
 {
 	if(!strcmp(pointer_type, "unique")){
 		return "NDR_POINTER_UNIQUE";
@@ -1655,7 +1655,7 @@ static void parsetypedefstruct(int pass)
 		/* pass 0  generate subdissectors */
 		if(pass==0){
 			char filter_name[256];
-			char *hf;
+			const char *hf;
 
 			sprintf(tmpstr, "%s_dissect_%s_%s", ifname, struct_name, field_name);
 			ptmpstr=strdup(tmpstr);
