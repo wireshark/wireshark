@@ -11332,6 +11332,7 @@ dissect_lte_rrc_T_etws_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (ETWS)");
   expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!");
 
+
   return offset;
 }
 
@@ -11346,6 +11347,9 @@ static int
 dissect_lte_rrc_T_cmas_Indication_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (CMAS)");
+  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!");
 
   return offset;
 }

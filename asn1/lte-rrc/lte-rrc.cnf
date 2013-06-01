@@ -1160,3 +1160,8 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (ETWS)");
   expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!");
+
+#.FN_BODY Paging-v920-IEs/cmas-Indication-r9
+%(DEFAULT_BODY)s
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (CMAS)");
+  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!");
