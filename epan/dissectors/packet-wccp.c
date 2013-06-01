@@ -460,7 +460,7 @@ static gint dissect_wccp2_value_element(tvbuff_t *tvb, int offset,
 					gint length, int idx, packet_info *pinfo, proto_tree *info_tree);
 static gint dissect_wccp2_alternate_mask_value_set_list(tvbuff_t *tvb, int offset,
 							gint length, packet_info *pinfo _U_, proto_tree *info_tree);
-static gint dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, guint index, packet_info *pinfo, proto_tree *info_tree);
+static gint dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, guint el_index, packet_info *pinfo, proto_tree *info_tree);
 static gint dissect_wccp2_web_cache_value_element(tvbuff_t *tvb, int offset,
 						  gint length,  packet_info *pinfo, proto_tree *info_tree);
 static gchar *assignment_bucket_name(guint8 bucket);
@@ -552,7 +552,7 @@ static void wccp_fmt_ipadddress(gchar *buffer, guint32 host_addr)
     {
       /* we need to decode the encoded address: */
       guint16 reserv = (host_addr & 0xFF00) >> 16;
-      guint16 index  = (host_addr & 0x00FF);
+      guint16 addr_index  = (host_addr & 0x00FF);
 
       if (reserv != 0) {
 	g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID: reserved part non zero");
@@ -565,20 +565,20 @@ static void wccp_fmt_ipadddress(gchar *buffer, guint32 host_addr)
 	/* IPv4 */
 
 	/* special case: index 0 -> undefined IP */
-	if (index == 0) {
+	if (addr_index == 0) {
 	  g_snprintf(buffer, ITEM_LABEL_LENGTH, "0.0.0.0");
 	  return;
 	}
 	/* are we be beyond the end of the table? */
-	if (index > wccp_wccp_address_table.table_length) {
+	if (addr_index > wccp_wccp_address_table.table_length) {
 	  g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IPv4 index: %d > %d",
-		     index, wccp_wccp_address_table.table_length);
+		     addr_index, wccp_wccp_address_table.table_length);
 	  return;
 	}
 
 	/* ok get the IP */
 	if (wccp_wccp_address_table.table_ipv4 != NULL) {
-	  ip_to_str_buf( (guint8 *) &(wccp_wccp_address_table.table_ipv4[index-1]), buffer, ITEM_LABEL_LENGTH);
+	  ip_to_str_buf( (guint8 *) &(wccp_wccp_address_table.table_ipv4[addr_index-1]), buffer, ITEM_LABEL_LENGTH);
 	  return;
 	}
 	else {
@@ -589,21 +589,21 @@ static void wccp_fmt_ipadddress(gchar *buffer, guint32 host_addr)
       case 2:
 	/* IPv6 */
 	/* special case: index 0 -> undefined IP */
-	if (index == 0) {
+	if (addr_index == 0) {
 	  g_snprintf(buffer, ITEM_LABEL_LENGTH, "::");
 	  return;
 	}
 
 	/* are we be beyond the end of the table? */
-	if (index > wccp_wccp_address_table.table_length) {
+	if (addr_index > wccp_wccp_address_table.table_length) {
 	  g_snprintf(buffer, ITEM_LABEL_LENGTH, "INVALID IPv6 index: %d > %d",
-		     index, wccp_wccp_address_table.table_length);
+		     addr_index, wccp_wccp_address_table.table_length);
 	  return;
 	}
 
 	/* ok get the IP */
 	if (wccp_wccp_address_table.table_ipv6 != NULL) {
-	  ip6_to_str_buf(&(wccp_wccp_address_table.table_ipv6[index-1]), buffer);
+	  ip6_to_str_buf(&(wccp_wccp_address_table.table_ipv6[addr_index-1]), buffer);
 	  return;
 	}
 	else {
@@ -2567,7 +2567,7 @@ static gint dissect_wccp2_alternate_mask_value_set_list(tvbuff_t *tvb, int offse
 
 /* 6.18 Alternate Mask/Value Set Element */
 static gint
-dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, guint index, packet_info *pinfo, proto_tree *info_tree)
+dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, guint el_index, packet_info *pinfo, proto_tree *info_tree)
 {
   proto_item *tl, *header;
   proto_tree *element_tree, *value_tree;
@@ -2576,7 +2576,7 @@ dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint l
   guint i;
 
   header = proto_tree_add_text(info_tree, tvb, offset, 0,
-			       "Alternate Mask/Value Set Element(%d)", index);
+			       "Alternate Mask/Value Set Element(%d)", el_index);
   element_tree = proto_item_add_subtree(header, ett_alternate_mask_value_set_element);
 
   total_length = 0;
