@@ -1156,3 +1156,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     }
   }
 
+#.FN_BODY Paging/etws-Indication
+%(DEFAULT_BODY)s
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (ETWS)");
+  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!");

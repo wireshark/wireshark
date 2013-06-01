@@ -11329,6 +11329,9 @@ dissect_lte_rrc_T_etws_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (ETWS)");
+  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!");
+
   return offset;
 }
 
