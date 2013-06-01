@@ -1447,7 +1447,7 @@ static void parsetypedefstruct(int pass)
 	char hf_index[256];
 	bracket_item_t *bi=NULL;
 	pointer_item_t *pi;
-	char *pointer_type;
+	const char *pointer_type;
 	char *field_name;
 	int fixed_array_size;
 	int is_array_of_pointers;
@@ -2364,7 +2364,8 @@ static void parsetypedefunion(int pass)
 		/* pass 0  generate subdissectors */
 		if(pass==0){
 			char filter_name[256];
-			char *hf;
+			const char *hf;
+
 			sprintf(tmpstr, "%s_dissect_union_%s_%s_%s", ifname, union_name, case2str(bi->case_name), ti->str);
 			ptmpstr=strdup(tmpstr);
 
@@ -2503,7 +2504,7 @@ static void parsefunction(int pass)
 	token_item_t *ti;
 	bracket_item_t *bi=NULL;
 	pointer_item_t *pi;
-	char *pointer_type;
+	const char *pointer_type;
 
 	char tmpstr[256], *ptmpstr;
 	int level, num_pointers;
@@ -2604,11 +2605,10 @@ static void parsefunction(int pass)
 		/* pass 0  generate subdissectors */
 		if(pass==0){
 			char filter_name[256];
-			char *hf;
+			const char *hf;
 
 			sprintf(tmpstr, "%s_dissect_%s_%s", ifname, function_name, ti->str);
 			ptmpstr=strdup(tmpstr);
-
 
 			sprintf(filter_name, "%s.%s.%s", ifname, function_name, ti->str);
 			hf=register_hf_field(hf_index, ti->str, filter_name, type_item->ft_type, type_item->base_type, type_item->vals, type_item->mask, "");
