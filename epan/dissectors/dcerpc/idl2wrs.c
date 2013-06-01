@@ -120,7 +120,7 @@ static void FPRINTF(FILE *fh, const char *format, ...)
 
 typedef struct _pointer_item_t {
 	struct _pointer_item_t *next;
-	char *type;
+	const char *type;
 } pointer_item_t;
 
 #define BI_CASE			0x00000001
@@ -332,7 +332,7 @@ find_hf_field(char *name)
    from this function.
    for fields that are to be renamed  no code is generated
 */
-static char *
+static const char *
 register_hf_field(const char *hf_name, const char *title, const char *filter_name, const char *ft_type, const char *base_type, const char *valsstring, const char *mask, const char *blurb)
 {
 	hf_field_item_t *hfi;
@@ -2121,8 +2121,8 @@ static void parsetypedefbitmap(int pass)
 /* a case tag might be a negative number, i.e. contain a '-' sign which
    is not valid inside a symbol name in c.
 */
-static char *
-case2str(char *str)
+static const char *
+case2str(const char *str)
 {
   char *newstr;
   if(str[0]!='-'){
