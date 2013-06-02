@@ -120,7 +120,7 @@
     </para>
     <para>
       There have also been a large number of people who have contributed
-      protocol dissectors and oher improvements to Wireshark, and it is
+      protocol dissectors and other improvements to Wireshark, and it is
       expected that this will continue.  You can find a list of the people who
       have contributed code to Wireshark by checking the About dialog box of
       Wireshark, or have a look at the <ulink url="&WiresharkAuthorsPage;"/>
