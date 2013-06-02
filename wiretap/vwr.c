@@ -612,13 +612,13 @@ static gboolean     vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr, guch
                                   int, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
-static void         vwr_read_rec_data(wtap *, guint8 *, guint8 *, int);
+static void         vwr_read_rec_data(wtap *, struct wtap_pkthdr *, guint8 *, guint8 *, int);
 
 static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 
 
-static void         vwr_read_rec_data_vVW510021(wtap *, guint8 *, guint8 *, int, int);
-static void         vwr_read_rec_data_ethernet(wtap *, guint8 *, guint8 *, int, int);
+static void         vwr_read_rec_data_vVW510021(wtap *, struct wtap_pkthdr *, guint8 *, guint8 *, int, int);
+static void         vwr_read_rec_data_ethernet(wtap *, struct wtap_pkthdr *, guint8 *, guint8 *, int, int);
 
 static int          find_signature(register guint8 *, int, register guint32, register guint8);
 static guint64      get_signature_ts(register guint8 *, int);
@@ -727,16 +727,16 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     switch (vwr->FPGA_VERSION)
     {
         case vVW510006_W_FPGA:
-            vwr_read_rec_data(wth, data_ptr, rec, rec_size);
+            vwr_read_rec_data(wth, &wth->phdr, data_ptr, rec, rec_size);
             break;
         case vVW510021_W_FPGA:
-            vwr_read_rec_data_vVW510021(wth, data_ptr, rec, rec_size, IS_TX);
+            vwr_read_rec_data_vVW510021(wth, &wth->phdr, data_ptr, rec, rec_size, IS_TX);
             break;
         case vVW510012_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, data_ptr, rec, rec_size, IS_TX);
+            vwr_read_rec_data_ethernet(wth, &wth->phdr, data_ptr, rec, rec_size, IS_TX);
             break;
         case vVW510024_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, data_ptr, rec, rec_size, IS_TX);
+            vwr_read_rec_data_ethernet(wth, &wth->phdr, data_ptr, rec, rec_size, IS_TX);
             break;
     }
 
@@ -756,7 +756,8 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
 /* read a random frame in the middle of a file; the start of the PLCP frame is @ seek_off */
 
-static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr _U_, guchar *pd, int pkt_size _U_,
+static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, guchar *pd, int pkt_size _U_,
     int *err, gchar **err_info)
 {
     vwr_t       *vwr = (vwr_t *)wth->priv;
@@ -783,16 +784,16 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
     /* now format up the frame data into the passed buffer, according to the FPGA type */
     switch (vwr->FPGA_VERSION) {
         case vVW510006_W_FPGA:
-            vwr_read_rec_data(wth, pd, rec, rec_size);
+            vwr_read_rec_data(wth, phdr, pd, rec, rec_size);
             break;
         case vVW510021_W_FPGA:
-            vwr_read_rec_data_vVW510021(wth, pd, rec, rec_size, IS_TX);
+            vwr_read_rec_data_vVW510021(wth, phdr, pd, rec, rec_size, IS_TX);
             break;
         case vVW510012_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, pd, rec, rec_size, IS_TX);
+            vwr_read_rec_data_ethernet(wth, phdr, pd, rec, rec_size, IS_TX);
             break;
         case vVW510024_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, pd, rec, rec_size, IS_TX);
+            vwr_read_rec_data_ethernet(wth, phdr, pd, rec, rec_size, IS_TX);
             break;
     }
 
@@ -992,7 +993,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 /* the packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /* MAC octets */
 
-static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_size)
+static void vwr_read_rec_data(wtap *wth, struct wtap_pkthdr *phdr,
+    guint8 *data_ptr, guint8 *rec, int rec_size)
 {
     vwr_t           *vwr = (vwr_t *)wth->priv;
     int             bytes_written = 0;              /* bytes output to buf so far */
@@ -1121,14 +1123,14 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     /* the FCS is NOT included */
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
 
-    wth->phdr.len = (msdu_length - 4) + r_hdr_len;
-    wth->phdr.caplen = (octets - 4) + r_hdr_len;
+    phdr->len = (msdu_length - 4) + r_hdr_len;
+    phdr->caplen = (octets - 4) + r_hdr_len;
 
-    wth->phdr.presence_flags = WTAP_HAS_TS;
+    phdr->presence_flags = WTAP_HAS_TS;
 
-    wth->phdr.ts.secs = (time_t)s_sec;
-    wth->phdr.ts.nsecs = (int)(s_usec * 1000);
-    wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
+    phdr->ts.secs = (time_t)s_sec;
+    phdr->ts.nsecs = (int)(s_usec * 1000);
+    phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
     /* generate and copy out the radiotap header, set the port type to 0 (WLAN) */
     common_fields.vw_port_type = 0;
@@ -1252,7 +1254,8 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
 /* the packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /* MAC octets */
 
-static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_size, int IS_TX)
+static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
+    guint8 *data_ptr, guint8 *rec, int rec_size, int IS_TX)
 {
     vwr_t           *vwr = (vwr_t *)wth->priv;
     int             bytes_written = 0;              /* bytes output to buf so far */
@@ -1454,14 +1457,14 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     /* len is the length of the original packet before truncation */
     /* the FCS is NOT included */
     r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
-    wth->phdr.len = (actual_octets - 4) + r_hdr_len;
-    wth->phdr.caplen = (msdu_length - 4) + r_hdr_len;
+    phdr->len = (actual_octets - 4) + r_hdr_len;
+    phdr->caplen = (msdu_length - 4) + r_hdr_len;
 
-    wth->phdr.presence_flags = WTAP_HAS_TS;
+    phdr->presence_flags = WTAP_HAS_TS;
 
-    wth->phdr.ts.secs = (time_t)s_sec;
-    wth->phdr.ts.nsecs = (int)(s_usec * 1000);
-    wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
+    phdr->ts.secs = (time_t)s_sec;
+    phdr->ts.nsecs = (int)(s_usec * 1000);
+    phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
     /* generate and copy out the radiotap header, set the port type to 0 (WLAN) */
     common_fields.vw_port_type = 0;
@@ -1596,7 +1599,8 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
 /* the packet is constructed as a 38-byte VeriWave-extended Radiotap header plus the raw */
 /* MAC octets */
 
-static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_size, int IS_TX)
+static void vwr_read_rec_data_ethernet(wtap *wth, struct wtap_pkthdr *phdr,
+    guint8 *data_ptr, guint8 *rec, int rec_size, int IS_TX)
 {
     vwr_t           *vwr = (vwr_t *)wth->priv;
     int             bytes_written = 0;              /* bytes output to buf so far */
@@ -1734,14 +1738,14 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     /* len is the length of the original packet before truncation*/
     /* the FCS is NEVER included */
     e_hdr_len = STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN;
-    wth->phdr.len = (actual_octets - 4) + e_hdr_len;
-    wth->phdr.caplen = (msdu_length - 4) + e_hdr_len;
+    phdr->len = (actual_octets - 4) + e_hdr_len;
+    phdr->caplen = (msdu_length - 4) + e_hdr_len;
 
-    wth->phdr.presence_flags = WTAP_HAS_TS;
+    phdr->presence_flags = WTAP_HAS_TS;
 
-    wth->phdr.ts.secs = (time_t)s_sec;
-    wth->phdr.ts.nsecs = (int)(s_usec * 1000);
-    wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
+    phdr->ts.secs = (time_t)s_sec;
+    phdr->ts.nsecs = (int)(s_usec * 1000);
+    phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
     /* generate and copy out the ETHERNETTAP header, set the port type to 1 (Ethernet) */
     common_hdr.vw_port_type = 1;
