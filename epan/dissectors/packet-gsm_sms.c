@@ -339,15 +339,15 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     guint8       oct;
     guint32      offset;
     guint32      numdigocts;
-    guint32      length;
+    guint32      length, addrlength;
     guint32      i, j;
     char         addrbuf[MAX_ADDR_SIZE+1];
     gchar        *addrstr;
 
     offset = *offset_p;
 
-    oct = tvb_get_guint8(tvb, offset);
-    numdigocts = (oct + 1) / 2;
+    addrlength = tvb_get_guint8(tvb, offset);
+    numdigocts = (addrlength + 1) / 2;
 
     length = tvb_length_remaining(tvb, offset);
 
@@ -371,7 +371,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     proto_tree_add_text(subtree,
         tvb, offset, 1,
         "Length: %d address digits",
-        oct);
+        addrlength);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
@@ -433,7 +433,9 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     switch ((oct & 0x70) >> 4)
     {
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
-        i = gsm_sms_char_7bit_unpack(0, numdigocts, MAX_ADDR_SIZE, tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
+        addrlength = (addrlength << 2) / 7;
+        i = gsm_sms_char_7bit_unpack(0, numdigocts, ((addrlength > MAX_ADDR_SIZE) ? MAX_ADDR_SIZE : addrlength),
+                                     tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
         addrbuf[i] = '\0';
         addrstr = gsm_sms_chars_to_utf8(addrbuf, i);
         break;
