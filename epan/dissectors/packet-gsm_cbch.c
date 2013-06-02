@@ -125,9 +125,9 @@ cbch_defragment_init(void)
 static void
 dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 {
+    guint       len, offset     = 0;
     guint8      octet1, i, j, k = 0;
-    guint8      len, sched_begin, sched_end, new_slots[48];
-    guint8      offset          = 0;
+    guint8      sched_begin, sched_end, new_slots[48];
     gboolean    valid_message   = TRUE;
     guint16     other_slots[48];
     proto_item *item            = NULL, *schedule_item = NULL;
@@ -252,7 +252,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             /* print schedule of other messages */
             item = proto_tree_add_text(sched_tree, tvb, offset, 0, "Other message slots in this schedule");
             sched_subtree = proto_item_add_subtree(item, ett_schedule_new_msg);
-            for (k=0; offset<len; j++)
+            for (k=0; offset < len; j++)
             {
                 while ((other_slots[k]!=0xFFFF) && (k<sched_end))
                 {
@@ -277,6 +277,16 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                                             "Slot: %d, Message: %d, First transmission of an SMSCB within the Schedule Period",
                                             ++k, msg_id);
                         offset +=2;
+                    }
+                    else
+                    {
+                        /* I'm not sure what's supposed to be dissected in this
+                         * case. Perhaps just an expert info is appropriate?
+                         * Regardless, we need to increment k to prevent an
+                         * infinite loop, see
+                         * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8730
+                         */
+                        ++k;
                     }
                 }
                 else if ((octet1 & 0xC0) == 0)
