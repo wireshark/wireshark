@@ -721,8 +721,8 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr, int offset,
 
 /*Get values information field*/
 static int
-getFrameInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree, int offset,
-                    guint16 length_info, struct controlchannel_type* cctype){
+getFrameInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree,
+                    int offset, guint16 length_info){
 
     /*Get the data from information field as string*/
     char *information_field = tvb_get_ephemeral_string(tvb,offset,length_info);
@@ -963,7 +963,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /*Get and display information*/
-        offset += getFrameInformation(tvb, pinfo, field_tree, offset, length_info, &cc_type);
+        offset += getFrameInformation(tvb, pinfo, field_tree, offset, length_info);
 
     }
     /*~~~~~~~~/Information~~~~~~~~*/
