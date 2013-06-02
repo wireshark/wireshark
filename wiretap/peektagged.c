@@ -368,18 +368,30 @@ typedef struct {
 } hdr_info_t;
 
 /*
+ * Time stamps appear to be in nanoseconds since the Windows epoch
+ * as used in FILETIMEs, i.e. midnight, January 1, 1601.
+ *
+ * This magic number came from "nt_time_to_nstime()" in "packet-smb.c".
+ * 1970-1601 is 369; I'm not sure what the extra 3 days and 6 hours are
+ * that are being subtracted.
+ */
+#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
+
+/*
  * Process the packet header.
  *
  * XXX - we should supply the additional radio information;
  * the pseudo-header should probably be supplied in a fashion
- * similar to the new BSD radio header, so that the 802.11
+ * similar to the radiotap radio header, so that the 802.11
  * dissector can determine which, if any, information items
  * are present.
  */
 static int
-peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
-    gchar **err_info)
+peektagged_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    int *err, gchar **err_info)
 {
+    peektagged_t *peektagged = (peektagged_t *)wth->priv;
+    hdr_info_t hdr_info;
     int header_len = 0;
     int bytes_read;
     guint8 tag_value[6];
@@ -387,6 +399,8 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     gboolean saw_length = FALSE;
     gboolean saw_timestamp_lower = FALSE;
     gboolean saw_timestamp_upper = FALSE;
+    int skip_len = 0;
+    double  t;
 
     /* Extract the fields from the packet header */
     do {
@@ -407,7 +421,7 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 			*err = WTAP_ERR_SHORT_READ;
 		}
 	    }
-	    return 0;
+	    return -1;
 	}
 	header_len += (int) sizeof(tag_value);
 	tag = pletohs(&tag_value[0]);
@@ -417,9 +431,9 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	    if (saw_length) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("peektagged: record has two length fields");
-		return 0;
+		return -1;
 	    }
-	    hdr_info->length = pletohl(&tag_value[2]);
+	    hdr_info.length = pletohl(&tag_value[2]);
 	    saw_length = TRUE;
 	    break;
     
@@ -427,9 +441,9 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	    if (saw_timestamp_lower) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("peektagged: record has two timestamp-lower fields");
-		return 0;
+		return -1;
 	    }
-	    hdr_info->timestamp.lower = pletohl(&tag_value[2]);
+	    hdr_info.timestamp.lower = pletohl(&tag_value[2]);
 	    saw_timestamp_lower = TRUE;
 	    break;
 
@@ -437,9 +451,9 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	    if (saw_timestamp_upper) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("peektagged: record has two timestamp-upper fields");
-		return 0;
+		return -1;
 	    }
-	    hdr_info->timestamp.upper = pletohl(&tag_value[2]);
+	    hdr_info.timestamp.upper = pletohl(&tag_value[2]);
 	    saw_timestamp_upper = TRUE;
 	    break;
 
@@ -448,15 +462,15 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	    break;
 
 	case TAG_PEEKTAGGED_CHANNEL:
-	    hdr_info->ieee_802_11.channel = pletohl(&tag_value[2]);
+	    hdr_info.ieee_802_11.channel = pletohl(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_RATE:
-	    hdr_info->ieee_802_11.data_rate = pletohl(&tag_value[2]);
+	    hdr_info.ieee_802_11.data_rate = pletohl(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_SIGNAL_PERC:
-	    hdr_info->ieee_802_11.signal_level = pletohl(&tag_value[2]);
+	    hdr_info.ieee_802_11.signal_level = pletohl(&tag_value[2]);
 	    break;
 
 	case TAG_PEEKTAGGED_SIGNAL_DBM:
@@ -476,7 +490,7 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	    break;
 
 	case TAG_PEEKTAGGED_SLICE_LENGTH:
-	    hdr_info->sliceLength = pletohl(&tag_value[2]);
+	    hdr_info.sliceLength = pletohl(&tag_value[2]);
 	    break;
 
 	default:
@@ -487,46 +501,18 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     if (!saw_length) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: record has no length field");
-	return 0;
+	return -1;
     }
     if (!saw_timestamp_lower) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: record has no timestamp-lower field");
-	return 0;
+	return -1;
     }
     if (!saw_timestamp_upper) {
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("peektagged: record has no timestamp-upper field");
-	return 0;
+	return -1;
     }
-
-    return header_len;
-}
-
-/*
- * Time stamps appear to be in nanoseconds since the Windows epoch
- * as used in FILETIMEs, i.e. midnight, January 1, 1601.
- *
- * This magic number came from "nt_time_to_nstime()" in "packet-smb.c".
- * 1970-1601 is 369; I'm not sure what the extra 3 days and 6 hours are
- * that are being subtracted.
- */
-#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
-
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
-{
-    peektagged_t *peektagged = (peektagged_t *)wth->priv;
-    hdr_info_t hdr_info;
-    int hdrlen;
-    double  t;
-
-    *data_offset = file_tell(wth->fh);
-
-    /* Process the packet header. */
-    hdrlen = peektagged_process_header(wth->fh, &hdr_info, err, err_info);
-    if (hdrlen == 0)
-	return FALSE;
 
     /*
      * If sliceLength is 0, force it to be the actual length of the packet.
@@ -542,52 +528,39 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("peektagged: File has %u-byte packet, bigger than maximum of %u",
 	    hdr_info.sliceLength, WTAP_MAX_PACKET_SIZE);
-	return FALSE;
+	return -1;
     }
 
-    wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    phdr->len    = hdr_info.length;
+    phdr->caplen = hdr_info.sliceLength;
 
-    /* fill in packet header length values before slicelength may be
-       adjusted */
-    wth->phdr.len    = hdr_info.length;
-    wth->phdr.caplen = hdr_info.sliceLength;
-
-    /* read the frame data */
-    buffer_assure_space(wth->frame_buffer, hdr_info.sliceLength);
-    wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-				  hdr_info.sliceLength, wth->fh, err,
-				  err_info);
-
-    /* recalculate and fill in packet time stamp */
+    /* calculate and fill in packet time stamp */
     t =  (double) hdr_info.timestamp.lower +
 	 (double) hdr_info.timestamp.upper * 4294967296.0;
-
     t *= 1.0e-9;
     t -= TIME_FIXUP_CONSTANT;
-    wth->phdr.ts.secs  = (time_t) t;
-    wth->phdr.ts.nsecs = (guint32) ((t - wth->phdr.ts.secs)*1000000000);
+    phdr->ts.secs  = (time_t) t;
+    phdr->ts.nsecs = (guint32) ((t - phdr->ts.secs)*1000000000);
 
     switch (wth->file_encap) {
 
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-	/*
-	 * The last 4 bytes sometimes contains the FCS but on a lot of
-	 * interfaces these are zero.  Is there some way to determine
-	 * from the packet header whether it's an FCS or not?
-	 *
-	 * For now, we just discard those bytes; if we can determine
-	 * whether it's an FCS or not, we should use that to determine
-	 * whether to supply it as an FCS or discard it.
-	 */
-	wth->phdr.pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
+	phdr->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
 	if (peektagged->has_fcs)
-	    wth->phdr.pseudo_header.ieee_802_11.fcs_len = 4;
+	    phdr->pseudo_header.ieee_802_11.fcs_len = 4;
 	else {
-	    wth->phdr.pseudo_header.ieee_802_11.fcs_len = 0;
-	    wth->phdr.len -= 4;
-	    wth->phdr.caplen -= 4;
+	    if (phdr->len < 4 || phdr->caplen < 4) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("peektagged: 802.11 packet has length < 4");
+		return FALSE;
+	    }
+	    phdr->pseudo_header.ieee_802_11.fcs_len = 0;
+	    phdr->len -= 4;
+	    phdr->caplen -= 4;
+	    skip_len = 4;
 	}
-	wth->phdr.pseudo_header.ieee_802_11.decrypted = FALSE;
+	phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 	break;
 
     case WTAP_ENCAP_ETHERNET:
@@ -595,47 +568,59 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 	 * The last 4 bytes appear to be 0 in the captures I've seen;
 	 * are there any captures where it's an FCS?
 	 */
-	wth->phdr.pseudo_header.eth.fcs_len = 0;
-	wth->phdr.len -= 4;
-	wth->phdr.caplen -= 4;
+	if (phdr->len < 4 || phdr->caplen < 4) {
+	    *err = WTAP_ERR_BAD_FILE;
+	    *err_info = g_strdup_printf("peektagged: Ethernet packet has length < 4");
+	    return FALSE;
+	}
+	phdr->pseudo_header.eth.fcs_len = 0;
+	phdr->len -= 4;
+	phdr->caplen -= 4;
+	skip_len = 4;
 	break;
+    }
+
+    return skip_len;
+}
+
+static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
+    gint64 *data_offset)
+{
+    int skip_len;
+
+    *data_offset = file_tell(wth->fh);
+
+    /* Process the packet header. */
+    skip_len = peektagged_process_header(wth, wth->fh, &wth->phdr, err, err_info);
+    if (skip_len == -1)
+	return FALSE;
+
+    /* read the frame data */
+    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+    wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
+				  wth->phdr.caplen, wth->fh, err,
+				  err_info);
+
+    if (skip_len != 0) {
+	/* Skip extra junk at the end of the packet data. */
+        if (!file_skip(wth->fh, skip_len, err))
+	    return FALSE;
     }
 
     return TRUE;
 }
-
 
 static gboolean
 peektagged_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-    union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
-    peektagged_t *peektagged = (peektagged_t *)wth->priv;
-    hdr_info_t hdr_info;
-
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
     /* Process the packet header. */
-    if (peektagged_process_header(wth->random_fh, &hdr_info, err, err_info) == -1)
+    if (peektagged_process_header(wth, wth->random_fh, phdr, err, err_info) == -1)
 	return FALSE;
-
-    switch (wth->file_encap) {
-
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-	pseudo_header->ieee_802_11 = hdr_info.ieee_802_11;
-	if (peektagged->has_fcs)
-	    pseudo_header->ieee_802_11.fcs_len = 4;
-	else
-	    pseudo_header->ieee_802_11.fcs_len = 0;
-	pseudo_header->ieee_802_11.decrypted = FALSE;
-	break;
-
-    case WTAP_ENCAP_ETHERNET:
-	pseudo_header->eth.fcs_len = 0;
-	break;
-    }
 
     /*
      * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
