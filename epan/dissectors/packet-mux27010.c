@@ -31,8 +31,6 @@
 #include <epan/crc8-tvb.h>
 #include <expert.h>
 
-#include <string.h>
-
 #define PROTO_TAG_MUX27010  "MUX27010"
 
 /*Extended Header*/
@@ -90,7 +88,7 @@
 #define MUX27010_COMMAND_MULTIPLEXER_CLOSEDOWN  0xC3                /*11000011*/
 #define MUX27010_COMMAND_TEST_COMMAND           0x23                /*00100011*/
 #define MUX27010_COMMAND_POWER_SAVING_CONTROL   0x43                /*01000011*/
-#define MUX27010_COMMAND_NON_SUPPORTED_COMMAND_REPSONSE     0x13    /*00010011*/
+#define MUX27010_COMMAND_NON_SUPPORTED_COMMAND_RESPONSE     0x13    /*00010011*/
 #define MUX27010_COMMAND_MODEM_STATUS_COMMAND   0xE3                /*00010011*/
 #define MUX27010_COMMAND_PARAMETER_NEGOTIATION  0x83                /*10000011*/
 
@@ -107,6 +105,62 @@ static const value_string packettypenames[] = {
     { 0, NULL }
 };
 
+static const value_string direction_vals[] = {
+    { 0, "Direction: Application => Module" },
+    { 1, "Module => Application" },
+    { 2, "Not valid" },
+    { 3, "Not valid" },
+    { 0, NULL }
+};
+
+static const value_string detailedvalue_response_vals[] = {
+    { 0, "Failure" },
+    { 1, "Success" },
+    { 0, NULL }
+};
+
+static const value_string frame_type_vals[] = {
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_SABM, "SABM" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_UA, "UA" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_DM, "DM" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_DISC, "DISC" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_UIH, "UIH" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E, "UIH_E" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_RR, "Receive Ready" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_RNR, "Receive Not Ready" },
+    { MUX27010_FRAMETYPE_CONTROL_FLAG_REJ, "Reject" },
+    { 0, NULL }
+};
+
+static const value_string command_vals[] = {
+    { (MUX27010_COMMAND_MULTIPLEXER_CLOSEDOWN>>2), "Multiplexer Close Down" },
+    { (MUX27010_COMMAND_TEST_COMMAND>>2), "Test Command" },
+    { (MUX27010_COMMAND_POWER_SAVING_CONTROL>>2), "Power Saving Control" },
+    { (MUX27010_COMMAND_NON_SUPPORTED_COMMAND_RESPONSE>>2), "Non-supported Command Response" },
+    { (MUX27010_COMMAND_MODEM_STATUS_COMMAND>>2), "Modem Status Command" },
+    { (MUX27010_COMMAND_PARAMETER_NEGOTIATION>>2), "Parameter Negotiation" },
+    { 0, NULL }
+};
+
+static const value_string iei_coding_vals[] = {
+    { MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_TE, "TEMUX_VERSION" },
+    { MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_MS, "MSMUX_VERSION" },
+    { 0, NULL }
+};
+
+/*Control channel*/
+struct controlchannel_type
+{
+    guint8 cr;
+    guint8 command;
+    gint number_of_type_frames;
+};
+
+struct controlchannel
+{
+    guint8 length_value;
+    gint number_of_length_frames;
+};
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
 * the header fields; they are filled out when call
@@ -170,7 +224,9 @@ static int hf_mux27010_controlchannellength = -1;
 static int hf_mux27010_controlchannelealength = -1;
 static int hf_mux27010_controlchannellengthfield = -1;
 static int hf_mux27010_controlchannelvalue = -1;
+static int hf_mux27010_controlchannel_iei_coding = -1;
 static int hf_mux27010_controlchanneldetailedvalue = -1;
+static int hf_mux27010_controlchannel_detailedvalue_response = -1;
 static int hf_mux27010_controlchanneldetailedvaluetestcommandversion = -1;
 static int hf_mux27010_controlchanneldetailedvaluemscdlci = -1;
 /* static int hf_mux27010_controlchanneldetailedvaluemscv24 = -1; */
@@ -190,8 +246,10 @@ static int hf_mux27010_controlchanneldetailedvaluepnna = -1;
 static int hf_mux27010_controlchanneldetailedvaluepnwinsize = -1;
 /*Information*/
 static int hf_mux27010_information = -1;
+static int hf_mux27010_information_str = -1;
 /*Checksum*/
 static int hf_mux27010_checksum = -1;
+static int hf_mux27010_checksum_correct = -1;
 
 /* These are the ids of the subtrees that we may be creating */
 static gint ett_mux27010_extended_header = -1;
@@ -207,52 +265,7 @@ static gint ett_mux27010_information = -1;
 static gint ett_mux27010_checksum = -1;
 
 static expert_field ei_mux27010_message_illogical = EI_INIT;
-
-/*private MUX frame header (PPP)*/
-static guint8 sizeMuxPPPHeader = 0;
-static guint8 sizeOfOneMuxPPPHeader = 0;
-/*Offset of tvb*/
-static gint offset = 0;
-/*Address DLCI*/
-static gint8 dlci_number = 0;
-/*Frame type*/
-static guint8 frame_type = 0;
-/*Command*/
-static guint8 command_or_response = 0;
-/*Length*/
-static guint8 length_ea = 0;
-static guint16 length_info = 0;
-static guint16 length_info_second_byte = 0;
-/*Control channel*/
-static guint8 controlchannel_type_ea = 0;
-static guint8 controlchannel_type_cr = 0;
-static guint8 controlchannel_type_command = 0;
-static gint number_of_type_frames = 0;
-static guint8 controlchannel_length_ea = 0;
-static guint8 controlchannel_length_value = 0;
-static gint number_of_length_frames = 0;
-static guint8 controlchannel_value = 0;
-static guint8 controlchannel_psc = 0;
-static guint8 controlchannel_iei = 0;
-static guint8 controlchannel_cl = 0;
-/*Checksum*/
-static gint8 checksum_validation = 0;
-
-static guint8 direction_in_out = 0;
-/*if the frame type is known -> 1 else 0*/
-static guint8 known_frame_type = 0;
-
-
-static char colInfoText[256];
-static char colDestText[256];
-static char colSourceText[256];
-static char frameTypeText[64];
-
-static char dlci_char[3];
-
-static guint8 i = 0;
-static guint8 tmp = 0;
-
+static expert_field ei_mux27010_checksum_incorrect = EI_INIT;
 
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
@@ -268,7 +281,7 @@ static int hf_msg_reassembled_length = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
-    static const fragment_items msg_frag_items = {
+static const fragment_items msg_frag_items = {
     /* Fragment subtrees */
     &ett_msg_fragment,
     &ett_msg_fragments,
@@ -295,16 +308,17 @@ static reassembly_table msg_reassembly_table;
 
 
 
-static void
-getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
+static int
+getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree, int offset, guint8* sizeMuxPPPHeader){
+    int i;
 
-    sizeMuxPPPHeader = tvb_get_guint8(tvb, offset);
+    *sizeMuxPPPHeader = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(field_tree, hf_mux27010_extended_header_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if (sizeMuxPPPHeader > 0){
+    if (*sizeMuxPPPHeader > 0){
         int tmpOffset = 1;
         guint16 tmpStartByte = 0;
         guint16 tmpLastByte = 0;
-        for (i=0; i < sizeMuxPPPHeader/7; i++){
+        for (i=0; i < *sizeMuxPPPHeader/7; i++){
             switch(i){
                 case(0) :
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_I, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
@@ -313,12 +327,12 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_I, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
-                    tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
+                    tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + *sizeMuxPPPHeader + 1;
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_I, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_I, tvb, tmpStartByte, 1, ENC_BIG_ENDIAN);
                     tmpOffset+=1;
 
-                    tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
+                    tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + *sizeMuxPPPHeader + 1;
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_I, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_I, tvb, tmpLastByte, 1, ENC_BIG_ENDIAN);
 
@@ -338,12 +352,12 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_II, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
-                    tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
+                    tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + *sizeMuxPPPHeader + 1;
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_II, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_II, tvb, tmpStartByte, 1, ENC_BIG_ENDIAN);
                     tmpOffset+=1;
 
-                    tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
+                    tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + *sizeMuxPPPHeader + 1;
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_II, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_II, tvb, tmpLastByte, 1, ENC_BIG_ENDIAN);
 
@@ -363,12 +377,12 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_III, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
-                    tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
+                    tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + *sizeMuxPPPHeader + 1;
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_III, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_III, tvb, tmpStartByte, 1, ENC_BIG_ENDIAN);
                     tmpOffset+=1;
 
-                    tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
+                    tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + *sizeMuxPPPHeader + 1;
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_III, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_III, tvb, tmpLastByte, 1, ENC_BIG_ENDIAN);
 
@@ -384,162 +398,127 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
         }
 
     }
-    offset = offset + sizeMuxPPPHeader;
 
+    return *sizeMuxPPPHeader;
 }
 
 
 /*Get the direction of the actual packet*/
-static void
-getFrameDirection(tvbuff_t *tvb, proto_tree *field_tree){
+static int
+getFrameDirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree, int offset){
+    guint8 direction_in_out;
 
     /*Direction is coded in the first byte of the frame*/
     direction_in_out = tvb_get_guint8(tvb, offset);
-    colInfoText[0] = 0;
 
     /*If first byte is 0 => Frame source is Application*/
     /*If first byte is 1 => Frame source is Module*/
     /*else Error*/
-    switch (direction_in_out) {
+    proto_tree_add_uint(field_tree, hf_mux27010_direction, tvb, offset, 1, direction_in_out & 3);
+    switch (direction_in_out & 3) {
         case (0):/*Application >> Module*/
-            g_snprintf(colSourceText,sizeof(colSourceText),"Application  DLCI ");
-            g_snprintf(colDestText,sizeof(colDestText),"Module");
-            proto_tree_add_uint_format(field_tree, hf_mux27010_direction, tvb, offset, 1, 0, "Direction: Application => Module");
+            col_add_str(pinfo->cinfo, COL_DEF_SRC, "Application  DLCI ");
+            col_add_str(pinfo->cinfo, COL_DEF_DST, "Module");
             break;
         case (1):/*Module >> Application*/
-            g_snprintf(colSourceText,sizeof(colSourceText), "Module       DLCI ");
-            g_snprintf(colDestText,sizeof(colDestText), "Application");
-            proto_tree_add_uint_format(field_tree, hf_mux27010_direction, tvb, offset, 1, 1, "Direction: Module => Application");
+            col_add_str(pinfo->cinfo, COL_DEF_SRC, "Module       DLCI ");
+            col_add_str(pinfo->cinfo, COL_DEF_DST, "Application");
             break;
         default:/*?? >> ??*/
-            g_snprintf(colSourceText,sizeof(colSourceText),"Direction not valid ");
-            g_snprintf(colDestText,sizeof(colDestText),"Direction not valid ");
-            proto_tree_add_uint_format(field_tree, hf_mux27010_direction, tvb, offset, 1, 2, "Direction not valid");
+            col_add_str(pinfo->cinfo, COL_DEF_SRC, "Direction not valid ");
+            col_add_str(pinfo->cinfo, COL_DEF_DST, "Direction not valid ");
             break;
     }
-    /*Increment offset*/
-    offset++;
 
+    return 1;
 }
 
 
 
 /*Get the address of the actual frame*/
-static void
-getFrameAddress(tvbuff_t *tvb, proto_tree *field_tree_addr){
+static int
+getFrameAddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree_addr, int offset, guint8* dlci_number){
+    guint8 byte;
 
+    byte = tvb_get_guint8(tvb, offset);
     /*Get the DCLI number of the frame >> overwrite other bits (E/A, CR) >> shift*/
-    dlci_number = tvb_get_guint8(tvb, offset);
-    dlci_number = dlci_number & MUX27010_DLCI_ADDRESS_FLAG;
-    dlci_number = dlci_number >> 2;
+    *dlci_number = (byte & MUX27010_DLCI_ADDRESS_FLAG) >> 2;
 
-    /*Convert int to string*/
-    dlci_char[0] = dlci_number+48;
-    dlci_char[1] = ' ';
-    dlci_char[2] = '\0';
     /*Add text to string for Source column*/
-    g_snprintf(colSourceText,sizeof(colSourceText),"%s %s", colSourceText, dlci_char);
+    col_append_fstr(pinfo->cinfo, COL_DEF_SRC, "%d ", *dlci_number);
 
     /*Add items to subtree to display the details*/
     proto_tree_add_item(field_tree_addr, hf_mux27010_eaaddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_addr, hf_mux27010_craddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_addr, hf_mux27010_dlciaddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    /*Get info if frame is command or response*/
-    command_or_response = tvb_get_guint8(tvb, offset);
-    command_or_response = command_or_response & MUX27010_CR_ADDRESS_FLAG;
-
-    /*Increment offset*/
-    offset += 1;
+    return 1;
 }
 
 
 
 /*Get frame data from control field*/
-static void
-getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
+static int
+getFrameControlData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree, int offset, guint8* frame_type){
+    /*if the frame type is known -> 1 else 0*/
+    guint8 known_frame_type = 0;
 
     /*Get the type of frame*/
-    frame_type = tvb_get_guint8(tvb, offset);
-    frame_type = frame_type & MUX27010_FRAMETYPE_CONTROL_FLAG;
-
-    /*variable which stores if the frame type is un/known*/
-    known_frame_type = 0;
+    *frame_type = tvb_get_guint8(tvb, offset) & MUX27010_FRAMETYPE_CONTROL_FLAG;
 
     /*Find out the frame type and write info into column*/
-    switch (frame_type) {
+    switch (*frame_type) {
         case (MUX27010_FRAMETYPE_CONTROL_FLAG_SABM): /*SABM frame*/
-            proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_SABM, "Frame Type= SABM");
-            g_snprintf(frameTypeText,sizeof(frameTypeText),"SABM");
-            break;
-
         case (MUX27010_FRAMETYPE_CONTROL_FLAG_UA): /*UA frame*/
-            proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_UA, "Frame Type= UA");
-            g_snprintf(frameTypeText,sizeof(frameTypeText),"UA");
-            break;
-
         case (MUX27010_FRAMETYPE_CONTROL_FLAG_DM): /*DM frame*/
-            proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_DM, "Frame Type= DM");
-            g_snprintf(frameTypeText,sizeof(frameTypeText),"DM");
-            break;
-
         case (MUX27010_FRAMETYPE_CONTROL_FLAG_DISC): /*DISC frame*/
-            proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_DISC, "Frame Type= DISC");
-            g_snprintf(frameTypeText,sizeof(frameTypeText),"DISC");
-            break;
-
         case (MUX27010_FRAMETYPE_CONTROL_FLAG_UIH): /*UIH frame*/
-            proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_UIH, "Frame Type= UIH");
-            g_snprintf(frameTypeText,sizeof(frameTypeText),"UIH");
+            proto_tree_add_uint(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, *frame_type);
             break;
 
         default:
             /*Got another frame -> probably a UIH_E, RR, RNR or REJ frame from a DLCI channel != 0 ==> Data channel*/
 
             /*Check if frame is a UIH_E frame*/
-            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E | MUX27010_FRAMETYPE_CONTROL_FLAG_NS | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NS | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E | MUX27010_FRAMETYPE_CONTROL_FLAG_NS | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (*frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NS | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+                *frame_type = MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E;
                 /*Add frame type to column*/
-                proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E, "Frame Type= UIH_E");
+                proto_tree_add_uint(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E);
                 /*Add info about sequence numbers to column*/
                 proto_tree_add_item(field_tree, hf_mux27010_controlframetypens, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                /*Copy frame name to string for info column*/
-                g_snprintf(frameTypeText,sizeof(frameTypeText),"UIH_E");
                 /*Frame type is known*/
                 known_frame_type = 1;
             }
             /*Check if frame is a RR frame*/
-            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_RR | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_RR | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (*frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+                *frame_type = MUX27010_FRAMETYPE_CONTROL_FLAG_RR;
                 /*Add frame type to column*/
-                proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_RR, "Frame Type= Receive Ready");
+                proto_tree_add_uint(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_RR);
                 /*Add info about sequence number to column*/
                 proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                /*Copy frame name to string for info column*/
-                g_snprintf(frameTypeText,sizeof(frameTypeText),"RR");
                 /*Frame type is known*/
                 known_frame_type = 1;
             }
-            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_RNR | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_RNR | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (*frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+                *frame_type = MUX27010_FRAMETYPE_CONTROL_FLAG_RNR;
                 /*Add frame type to column*/
-                proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_RNR, "Frame Type= Receive Not Ready");
+                proto_tree_add_uint(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_RNR);
                 /*Add info about sequence number to column*/
                 proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                /*Copy frame name to string for info column*/
-                g_snprintf(frameTypeText,sizeof(frameTypeText),"RNR");
                 /*Frame type is known*/
                 known_frame_type = 1;
             }
-            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_REJ | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+            if ((MUX27010_FRAMETYPE_CONTROL_FLAG_REJ | MUX27010_FRAMETYPE_CONTROL_FLAG_NR) == (*frame_type | MUX27010_FRAMETYPE_CONTROL_FLAG_NR)) {
+                *frame_type = MUX27010_FRAMETYPE_CONTROL_FLAG_REJ;
                 /*Add frame type to column*/
-                proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_REJ, "Frame Type= Reject");
+                proto_tree_add_uint(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_REJ);
                 /*Add info about sequence number to column*/
                 proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                /*Copy frame name to string for info column*/
-                g_snprintf(frameTypeText,sizeof(frameTypeText),"REJ");
                 /*Frame type is known*/
                 known_frame_type = 1;
             }
@@ -547,99 +526,76 @@ getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
             /*Unknown frame*/
             if (known_frame_type == 0) {
                 /*Add frame type to column*/
-                proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, frame_type, "Frame Type= Unknown");
-                /*Copy frame name to string for info column*/
-                g_snprintf(frameTypeText,sizeof(frameTypeText),"Unknown");
+                proto_tree_add_uint(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, *frame_type);
             }
     }
 
     /*Write information to string for column info*/
-    g_snprintf(colInfoText,sizeof(colInfoText),"%s(", colInfoText);
-    g_snprintf(colInfoText,sizeof(colInfoText),"%s%s", colInfoText, frameTypeText);
-    g_snprintf(colInfoText,sizeof(colInfoText),"%s)", colInfoText);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "(%s)", val_to_str_const(*frame_type, frame_type_vals, "Unknown"));
+
     /*Add Frame type value and PF bit to column*/
     proto_tree_add_item(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_mux27010_pfcontrolflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    /*Increment offset*/
-    offset += 1;
+    return 1;
 }
 
 
 
 
 /*Get frame data from length field*/
-static void
-getFrameLength(tvbuff_t *tvb, proto_tree *field_tree){
+static int
+getFrameLength(tvbuff_t *tvb, proto_tree *field_tree, int offset, guint16* length_info){
 
     /*Get the E/A bit*/
-    length_ea = tvb_get_guint8(tvb, offset);
-    length_ea = length_ea & MUX27010_EA_LENGTH_FLAG;
+    guint8 length_ea = tvb_get_guint8(tvb, offset) & MUX27010_EA_LENGTH_FLAG;
+    proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /*Get the length of the info field*/
 
     /*If E/A = 1 it is the last octet*/
     if (length_ea == 1) {
-        /*Get the length of the info field*/
-        length_info = tvb_get_guint8(tvb, offset);
-        length_info = length_info & MUX27010_FRAMESIZE_LENGTH_FLAG;
-        length_info = length_info >> 1; /*Shift because of EA bit*/
 
         /*Add the E/A bit and the length value to the subtree*/
-        proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_uint_format(field_tree, hf_mux27010_lengthframesize, tvb, offset, 1, length_info, "Info length: %i", length_info);
+        proto_tree_add_item(field_tree, hf_mux27010_lengthframesize, tvb, offset, 1, ENC_BIG_ENDIAN);
+        *length_info = (tvb_get_guint8(tvb, offset) & MUX27010_FRAMESIZE_LENGTH_FLAG) >> 1; /*Shift because of EA bit*/
+        return 1;
     }
+
     /*If E/A = 0 the length of the info field is >127*/
-    else {
-        /*Get first Byte of length*/
-        length_info = tvb_get_guint8(tvb, offset);
-        length_info = length_info & MUX27010_FRAMESIZE_LENGTH_FLAG;
-        length_info = length_info >> 1; /*Shift because of EA bit*/
-        offset++;
-        /*Get second byte of length byte*/
-        length_info_second_byte = tvb_get_guint8(tvb, offset);
-        /*shift the bits into the second byte of the length_info_second_byte*/
-        length_info_second_byte = length_info_second_byte << 7;
+    proto_tree_add_item(field_tree, hf_mux27010_lengthframesize_ea, tvb, offset, 2, ENC_BIG_ENDIAN);
+    *length_info = (tvb_get_ntohs(tvb, offset) & MUX27010_FRAMESIZE_LENGTH_FLAG_EA) >> 1; /*Shift because of EA bit*/
 
-        /*combine the two length bytes*/
-        length_info = length_info | length_info_second_byte;
-
-        offset--;
-        /*Add info to subtree*/
-        proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_uint_format(field_tree, hf_mux27010_lengthframesize_ea, tvb, offset, 2, length_info, "Info length: %i", length_info);
-        offset++;
-    }
-    offset += 1;
+    return 2;
 }
 
 
 /*Get frame type of control channel frame*/
-static void
-getControlChannelFrameType(tvbuff_t *tvb, proto_tree *field_tree_ctr){
+static int
+getControlChannelFrameType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree_ctr, int offset,
+                           struct controlchannel_type* cctype){
+    guint8 controlchannel_type_ea;
 
     /*Get the E/A bit*/
-    controlchannel_type_ea = tvb_get_guint8(tvb, offset);
-    controlchannel_type_ea = controlchannel_type_ea & MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG;
+    controlchannel_type_ea = tvb_get_guint8(tvb, offset) & MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG;
 
     /*Set variable for number of octets for frame type to 0*/
-    number_of_type_frames = 0;
+    cctype->number_of_type_frames = 0;
     /*If E/A bit = 1, there will be no other frame type octet*/
-    if (controlchannel_type_ea == 1) number_of_type_frames++;
+    if (controlchannel_type_ea == 1)
+        cctype->number_of_type_frames++;
 
     /*If E/A = 0, read all frame type octets*/
     while (controlchannel_type_ea == 0){
-        number_of_type_frames++;
-        controlchannel_type_ea = tvb_get_guint8(tvb, offset+number_of_type_frames);
-        controlchannel_type_ea = controlchannel_type_ea & MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG;
+        cctype->number_of_type_frames++;
+        controlchannel_type_ea = tvb_get_guint8(tvb, offset+cctype->number_of_type_frames) & MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG;
     }
 
     /*Get CR bit*/
-    controlchannel_type_cr = tvb_get_guint8(tvb, offset);
-    controlchannel_type_cr = controlchannel_type_cr & MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG;
-    controlchannel_type_cr = controlchannel_type_cr >> 1;
+    cctype->cr = (tvb_get_guint8(tvb, offset) & MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) >> 1;
 
     /*Get command info*/
-    controlchannel_type_command = tvb_get_guint8(tvb, offset);
-    controlchannel_type_command = controlchannel_type_command & MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG;
+    cctype->command = tvb_get_guint8(tvb, offset) & MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG;
 
     /*Add info to subtree*/
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneleaframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -647,119 +603,89 @@ getControlChannelFrameType(tvbuff_t *tvb, proto_tree *field_tree_ctr){
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Check the control channel frame types and add the name to the subtree and strcat the name to the info column*/
-    /*Command pattern for Multiplexer Close Down (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_MULTIPLEXER_CLOSEDOWN){
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, controlchannel_type_command, "Command   = Multiplexer Close Down");
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s Multiplexer Close Down", colInfoText);
-    }
-    /*Command pattern for Test Command (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_TEST_COMMAND){
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, controlchannel_type_command, "Command   = Test Command");
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s Test Command", colInfoText);
-    }
-    /*Command pattern for Power saving control (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_POWER_SAVING_CONTROL){
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, controlchannel_type_command, "Command   = Power Saving Control");
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s Power Saving Control", colInfoText);
-    }
-    /*Command pattern for non-supported command response (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_NON_SUPPORTED_COMMAND_REPSONSE){
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, controlchannel_type_command, "Command   = Non-supported Command Response");
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s Non-supported Command Response", colInfoText);
-    }
-    /*Command pattern for Modem Status Command (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_MODEM_STATUS_COMMAND){
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, controlchannel_type_command, "Command   = Modem Status Command");
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s Modem Status Command", colInfoText);
-    }
-    /*Command pattern for Parameter Negotiation (EA + C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_PARAMETER_NEGOTIATION){
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, controlchannel_type_command, "Command   = Parameter Negotiation");
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s Parameter Negotiation", colInfoText);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_const(cctype->command>>2, command_vals, "Unknown"));
 
-    if (controlchannel_type_cr == 1) /*Command C/R*/{
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s (Command)", colInfoText);
+    if (cctype->cr == 1) /*Command C/R*/{
+        col_append_str(pinfo->cinfo, COL_INFO, " (Command)");
     }
     else{ /*Response*/
-        g_snprintf(colInfoText,sizeof(colInfoText),"%s (Response)", colInfoText);
+        col_append_str(pinfo->cinfo, COL_INFO, " (Response)");
     }
 
-    /*Increment the offset*/
-    offset +=number_of_type_frames;
-
+    return cctype->number_of_type_frames;
 }
 
 
 /*Get length of control channel info field*/
-static void
-getControlChannelLength(tvbuff_t *tvb, proto_tree *field_tree_ctr) {
+static int
+getControlChannelLength(tvbuff_t *tvb, proto_tree *field_tree_ctr, int offset, struct controlchannel* cc) {
+    guint8 controlchannel_length_ea;
 
     /*Get the E/A bit*/
-    controlchannel_length_ea = tvb_get_guint8(tvb, offset);
-    controlchannel_length_ea = controlchannel_length_ea & MUX27010_EA_CONTROLCHANNEL_LENGTH_FLAG;
+    controlchannel_length_ea = tvb_get_guint8(tvb, offset) & MUX27010_EA_CONTROLCHANNEL_LENGTH_FLAG;
 
     /*Set variable for number of octets for info field to 0*/
-    number_of_length_frames = 0;
+    cc->number_of_length_frames = 0;
     /*If E/A bit = 1, there will be no other info field length octet*/
-    if (controlchannel_length_ea == 1) number_of_length_frames++;
+    if (controlchannel_length_ea == 1)
+        cc->number_of_length_frames++;
 
     /*If E/A = 0, read all length of info field octets*/
     while (controlchannel_length_ea == 0){
-        number_of_length_frames++;
-        controlchannel_length_ea = tvb_get_guint8(tvb, offset+number_of_length_frames);
-        controlchannel_length_ea = controlchannel_length_ea & MUX27010_EA_CONTROLCHANNEL_LENGTH_FLAG;
+        cc->number_of_length_frames++;
+        controlchannel_length_ea = tvb_get_guint8(tvb, offset+cc->number_of_length_frames) & MUX27010_EA_CONTROLCHANNEL_LENGTH_FLAG;
     }
 
     /*Get the data from info field*/
-    controlchannel_length_value = tvb_get_guint8(tvb, offset);
-    controlchannel_length_value = controlchannel_length_value & MUX27010_LENGTHFIELD_CONTROLCHANNEL_LENGTH_FLAG;
-    controlchannel_length_value = controlchannel_length_value >> 1; /*Shift because of EA bit*/
+    cc->length_value = (tvb_get_guint8(tvb, offset) & MUX27010_LENGTHFIELD_CONTROLCHANNEL_LENGTH_FLAG) >> 1;
 
     /*Add data to subtree*/
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelealength, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannellengthfield, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    /*Increment the offset by the number of info octets*/
-    offset +=number_of_length_frames;
+    return cc->number_of_length_frames;
 }
 
 
 
 /*Get values of control channel*/
-static void
-getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
+static int
+getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr, int offset,
+                        struct controlchannel* cc, struct controlchannel_type* cctype){
+    guint8 controlchannel_iei;
+    guint8 controlchannel_psc;
 
     /*Command pattern for Test Command (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_TEST_COMMAND){
+    switch (cctype->command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG)
+    {
+    case MUX27010_COMMAND_TEST_COMMAND:
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluetestcommandversion, tvb, offset, 1, ENC_BIG_ENDIAN);
         controlchannel_iei = tvb_get_guint8(tvb, offset);
-        if (controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_TE) {
-            proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset, 1, controlchannel_value, "IEI coding: TEMUX_VERSION");
+        if ((controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_TE) || 
+            (controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_MS)) {
+            proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannel_iei_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
-        if (controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_MS){
-            proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset, 1, controlchannel_value, "IEI coding: MSMUX_VERSION");
-        }
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset+1, controlchannel_length_value-1, controlchannel_value, "Value (ASCII): %s", tvb_get_ephemeral_string(tvb, offset+1,controlchannel_length_value-1));
-    }
+
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset+1, cc->length_value-1, ENC_NA|ENC_ASCII);
+        break;
 
     /*Command pattern for Power saving control (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_POWER_SAVING_CONTROL){
+    case MUX27010_COMMAND_POWER_SAVING_CONTROL:
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
         controlchannel_psc = tvb_get_guint8(tvb, offset);
-        if (controlchannel_type_cr == 0 && controlchannel_psc == 0) /*Response Failure*/
-            proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, controlchannel_length_value, controlchannel_value, "Response: Failure");
-        if (controlchannel_type_cr == 0 && controlchannel_psc == 1) /*Response Success*/
-            proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, controlchannel_length_value, controlchannel_value, "Response: Success");
-    }
+        if (cctype->cr == 0 && controlchannel_psc == 0) /*Response Failure*/
+            proto_tree_add_uint(field_tree_ctr, hf_mux27010_controlchannel_detailedvalue_response, tvb, offset, cc->length_value, 0);
+        if (cctype->cr == 0 && controlchannel_psc == 1) /*Response Success*/
+            proto_tree_add_uint(field_tree_ctr, hf_mux27010_controlchannel_detailedvalue_response, tvb, offset, cc->length_value, 1);
+        break;
 
     /*Command pattern for non-supported command response (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_NON_SUPPORTED_COMMAND_REPSONSE){
+    case MUX27010_COMMAND_NON_SUPPORTED_COMMAND_RESPONSE:
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, controlchannel_length_value, controlchannel_value, "Non-supported Command");
-    }
+        break;
+
     /*Command pattern for Modem Status Command (C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_MODEM_STATUS_COMMAND){
+    case MUX27010_COMMAND_MODEM_STATUS_COMMAND:
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscdlci, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /*Add bits of Flow Control*/
@@ -770,71 +696,47 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24dcd, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         /**/
 
-        if (controlchannel_length_value == 3) {
+        if (cc->length_value == 3) {
             proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscbreak, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         }
-    }
+        break;
+
     /*Command pattern for Parameter Negotiation (EA + C/R is set to 1)*/
-    if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_PARAMETER_NEGOTIATION){
+    case MUX27010_COMMAND_PARAMETER_NEGOTIATION:
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepndlci, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnframetype, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepncl, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        controlchannel_cl = tvb_get_guint8(tvb, offset+1);
-        controlchannel_cl = controlchannel_cl & MUX27010_VALUE_CONTROLCHANNEL_PN_CL;
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnprio, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepntimer, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnframesize, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnna, tvb, offset+6, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnwinsize, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-
+        break;
     }
 
-    offset += controlchannel_length_value;
+    return cc->length_value;
 }
 
 
 
 /*Get values information field*/
-static void
-getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
-    char  information_field_content[52];
-    char *information_field, *save_information_field_ptr;
+static int
+getFrameInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree, int offset,
+                    guint16 length_info, struct controlchannel_type* cctype){
 
     /*Get the data from information field as string*/
-    information_field = tvb_get_ephemeral_string(tvb,offset,length_info);
-    save_information_field_ptr = information_field;
-    tmp = 0;
+    char *information_field = tvb_get_ephemeral_string(tvb,offset,length_info);
 
-    /*Copy data from buffer to local array information_field_content*/
-    /*and delete unneeded signs out of info field -> for info column: CR (0x0d) and LF (0x0a)*/
-    for (i = 0; i<length_info && i<(sizeof(information_field_content)-1); i++) {
-        /*Check every sign in information field for CR and LF*/
-        if (*information_field != 0x0a && *information_field != 0x0d){
-            /*Copy char to array*/
-            information_field_content[i] = *information_field;
-        }
-        /*if CR or LF found ==> replace it ' '*/
-        else {
-            /*Copy ' '  to array*/
-            information_field_content[i] =' ';
-        }
-        /*Increment pointer*/
-        information_field++;
-    }
-    /*Add String end*/
-    information_field_content[i] = '\0';
+    /*delete unneeded signs out of info field -> for info column: CR (0x0d) and LF (0x0a)*/
+    information_field = g_strdelimit(information_field, "\r\n", ' ');
 
-    /*strcat: for info column*/
-    g_snprintf(colInfoText,sizeof(colInfoText),"%s %s", colInfoText, information_field_content);
-
-    /*Get pointer to begin of buffer again*/
-    information_field = save_information_field_ptr;
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", information_field);
 
     /*Add info to subtree*/
-    proto_tree_add_uint_format(field_tree, hf_mux27010_information, tvb, offset, length_info, controlchannel_type_command, "Information: %s",information_field);
+    proto_tree_add_string(field_tree, hf_mux27010_information_str, tvb, offset, length_info, information_field);
 
     /*Increment offset by the length of chars in info field*/
-    offset +=length_info;
+    return length_info;
 }
 
 
@@ -843,67 +745,44 @@ getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
 static void
 dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti            = NULL;
-    proto_item *tf            = NULL, *tf_extended_header, *tf_addr, *tf_ctr;
-    proto_tree *mux27010_tree = NULL;
-    proto_tree *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
+    proto_item *ti, *tf, *tf_extended_header, *tf_addr, *tf_ctr;
+    proto_tree *mux27010_tree, *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
+    int offset = 0;
+    guint16 length_info;
+    packet_info pinfo_tmp;
+    /*Address DLCI*/
+    gint8 dlci_number = 0;
+    guint8 frame_type;
+    /*private MUX frame header (PPP)*/
+    guint8 sizeMuxPPPHeader;
+    struct controlchannel_type cc_type;
+    struct controlchannel cc;
 
-    /* Set row to protocol*/
+    /* Setup columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_MUX27010);
-
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo,COL_INFO);
-
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Info Type:[]",pinfo->srcport, pinfo->destport);
-
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* Set offset to 0 => start to read at the begin of the frame*/
     offset = 0;
 
-    /*Strings for info column*/
-    colInfoText[0] = 0;
-    colDestText[0] = 0;
-    colSourceText[0] = 0;
-    frameTypeText[0] = 0;
-
-
-    /*Add a subtree/item to wireshark => in this subtree the details will of the protocol will be displayed*/
-    /*@param tree: Tree in WS (root)*/
-    /*@param proto_mux27010: Protocol name*/
-    /*@param tvb: Buffer to dissect (data for protocol)*/
-    /*@param "0" and "-1": All data is for the protocol*/
     ti = proto_tree_add_item(tree, proto_mux27010, tvb, 0, -1, ENC_NA);
-
-    /*Add a subtree to the protocol tree (child node)*/
     mux27010_tree = proto_item_add_subtree(ti, ett_mux27010);
-
-
-
-    /*Size of one header in byte*/
-    sizeOfOneMuxPPPHeader = 7;
 
     /*Add a subtree (=item) to the child node => in this subtree the details of extended header will be displayed*/
     tf_extended_header = proto_tree_add_item(mux27010_tree, hf_mux27010_extended_header, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /*Create the subtree*/
     field_tree_extended_header = proto_item_add_subtree(tf_extended_header, ett_mux27010_extended_header);
 
-    getExtendedHeader(tvb, field_tree_extended_header);
+    offset += getExtendedHeader(tvb, field_tree_extended_header, offset, &sizeMuxPPPHeader);
     offset++;
 
-
     /*Get direction of the frame*/
-    getFrameDirection(tvb, mux27010_tree);
-
-
-
-
-
+    offset += getFrameDirection(tvb, pinfo, mux27010_tree, offset);
 
     /*~~~~~~~~Flag~~~~~~~~*/
     /*(Insert data into the child node)*/
     /*Create item to show/highlight flag sequence*/
     proto_tree_add_item(mux27010_tree, hf_mux27010, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    offset++;
     /*~~~~~~~~/Flag~~~~~~~~*/
 
 
@@ -911,11 +790,10 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*~~~~~~~~Address~~~~~~~~*/
     /*Add a subtree (=item) to the child node => in this subtree the details of address data will be displayed*/
     tf_addr = proto_tree_add_item(mux27010_tree, hf_mux27010_address, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /*Create the subtree*/
     field_tree_addr = proto_item_add_subtree(tf_addr, ett_mux27010_address);
 
     /*Get address data (DLCI, E/A, CR)*/
-    getFrameAddress(tvb, field_tree_addr);
+    offset += getFrameAddress(tvb, pinfo, field_tree_addr, offset, &dlci_number);
     /*~~~~~~~~/Address~~~~~~~~*/
 
 
@@ -923,11 +801,10 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*~~~~~~~~Control Data~~~~~~~~*/
     /*Add a subtree (=item) to the child node => in this subtree the details of control data will be displayed*/
     tf = proto_tree_add_item(mux27010_tree, hf_mux27010_control, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /*Create the subtree*/
     field_tree = proto_item_add_subtree(tf, ett_mux27010_control);
 
     /*Get control data of frame (Frame type)*/
-    getFrameControlData(tvb, field_tree);
+    offset += getFrameControlData(tvb, pinfo, field_tree, offset, &frame_type);
     /*~~~~~~~~/Control Data~~~~~~~~*/
 
 
@@ -938,14 +815,14 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length_info = 0;
 
     /*Check the frame type because in RR, RNR and REJ are no info and no lenght fields*/
-    if (strcmp(frameTypeText,"RR")!= 0 && strcmp(frameTypeText,"RNR")!= 0 && strcmp(frameTypeText,"REJ")!= 0){
+    if ((frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RR) && (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_RNR) && 
+        (frame_type != MUX27010_FRAMETYPE_CONTROL_FLAG_REJ)){
         /*Add a subtree (=item) to the child node => in this subtree will be the details of length field*/
         tf = proto_tree_add_item(mux27010_tree, hf_mux27010_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        /*Create the subtree*/
         field_tree = proto_item_add_subtree(tf, ett_mux27010_length);
 
         /*Get frame length data*/
-        getFrameLength(tvb, field_tree);
+        offset += getFrameLength(tvb, field_tree, offset, &length_info);
     }
     /*~~~~~~~~/Length~~~~~~~~*/
 
@@ -963,40 +840,38 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /*Add a subtree (=item) to the child node => in this subtree the details of control channel will be displayed*/
             tf = proto_tree_add_item(mux27010_tree, hf_mux27010_controlchannel, tvb, offset, 1, ENC_BIG_ENDIAN);
-            /*Create the subtree*/
             field_tree = proto_item_add_subtree(tf, ett_mux27010_controlchannel);
 
             /*Add another subtree to the control channel subtree => in this subtree the details of control channel frame type will be displayed*/
-            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannelframetype, tvb, offset, number_of_type_frames, ENC_BIG_ENDIAN);
-            /*Create the subtree*/
+            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannelframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
             field_tree_ctr = proto_item_add_subtree(tf_ctr, ett_mux27010_controlchannelframetype);
 
             /*Get data about the type of the frame*/
-            getControlChannelFrameType(tvb, field_tree_ctr);
+            offset += getControlChannelFrameType(tvb, pinfo, field_tree_ctr, offset, &cc_type);
+            proto_item_set_len(tf_ctr, cc_type.number_of_type_frames);
             /*--------/Frame Type--------*/
 
 
             /*--------Length Field--------*/
             /*Add another subtree to the control channel subtree => in this subtree the details of control channel length field will be displayed*/
-            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannellength, tvb, offset, number_of_length_frames, ENC_BIG_ENDIAN);
-            /*Create the subtree*/
+            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannellength, tvb, offset, 1, ENC_BIG_ENDIAN);
             field_tree_ctr = proto_item_add_subtree(tf_ctr, ett_mux27010_controlchannellength);
 
             /*Get data of length field*/
-            getControlChannelLength(tvb, field_tree_ctr);
+            offset += getControlChannelLength(tvb, field_tree_ctr, offset, &cc);
+            proto_item_set_len(tf_ctr, cc.number_of_length_frames);
             /*--------/Length Field--------*/
 
 
             /*--------Values--------*/
             /*If frame has data inside the length_value is > 0*/
-            if (controlchannel_length_value > 0) {
+            if (cc.length_value > 0) {
                 /*Add another subtree to the control channel subtree => in this subtree the details of control channel values/data will be displayed*/
-                tf_ctr = proto_tree_add_uint_format(field_tree, hf_mux27010_controlchannelvalue, tvb, offset, controlchannel_length_value, controlchannel_value, "Data: %i Byte(s)", controlchannel_length_value);
-                /*Create the subtree*/
+                tf_ctr = proto_tree_add_text(field_tree, tvb, offset, cc.length_value, "Data: %i Byte(s)", cc.length_value);
                 field_tree_ctr = proto_item_add_subtree(tf_ctr, ett_mux27010_controlchannelvalue);
 
                 /*Get data of frame*/
-                getControlChannelValues(tvb, field_tree_ctr);
+                offset += getControlChannelValues(tvb, field_tree_ctr, offset, &cc, &cc_type);
             }/*(controlchannel_length_value > 0)*/
             /*--------/Values--------*/
 
@@ -1011,7 +886,6 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (dlci_number != 0 && length_info > 0) {
         /*Add a subtree (=item) to the child node => in this subtree will be the data*/
         tf = proto_tree_add_item(mux27010_tree, hf_mux27010_information, tvb, offset, 1, ENC_BIG_ENDIAN);
-        /*Create the subtree*/
         field_tree = proto_item_add_subtree(tf, ett_mux27010_information);
 
         /*We have at least one PPP packet*/
@@ -1031,7 +905,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvbuff_t *new_tvb = NULL;
             tvbuff_t *next_tvb2 = NULL;
 
-            packet_info pinfo_tmp;
+            int i;
 
             for (i = 0; i < sizeMuxPPPHeader/7; i++){
 
@@ -1057,6 +931,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 pinfo->fragmented = TRUE;
 
+                /* XXX - WHY? Isn't there a simpler way? */
                 memcpy(&pinfo_tmp, pinfo, sizeof(*pinfo));
 
                 frag_msg = fragment_add_seq_check(&msg_reassembly_table,
@@ -1075,7 +950,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     NULL, mux27010_tree);
 
                 if (!frag_msg) { /* Not last packet of reassembled Message */
-                    g_snprintf(colInfoText, sizeof(colInfoText), "%s [Split Msg]", colInfoText);
+                    col_append_str(pinfo->cinfo, COL_INFO, " [Split Msg]");
                 }
 
                 if (new_tvb) { /* take it all */
@@ -1088,7 +963,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /*Get and display information*/
-        getFrameInformation(tvb, field_tree);
+        offset += getFrameInformation(tvb, pinfo, field_tree, offset, length_info, &cc_type);
 
     }
     /*~~~~~~~~/Information~~~~~~~~*/
@@ -1098,35 +973,18 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*Validate checksum of frame*/
     /*Add a subtree (=item) to the child node => in this subtree will be the checksum*/
     tf = proto_tree_add_item(mux27010_tree, hf_mux27010_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /*Create the subtree*/
     field_tree = proto_item_add_subtree(tf, ett_mux27010_checksum);
 
     /*Call method check_checksum and validate checksum*/
     if (check_fcs(tvb,offset-sizeMuxPPPHeader-3-length_info, sizeMuxPPPHeader+3, tvb_get_guint8(tvb, offset))){
         /*Checksum is correct*/
-
-        /*WS Variable to identify correct (1) or incorrect (0) packets*/
-        checksum_validation = 1;
-        proto_tree_add_uint_format(field_tree, hf_mux27010_checksum, tvb, offset, 1, checksum_validation, "Checksum: correct");
+        proto_tree_add_boolean(field_tree, hf_mux27010_checksum_correct, tvb, offset, 1, TRUE);
     }
     else{
-        /*Checksum is correct*/
-
-        /*WS Variable to identify correct (1) or incorrect (0) packets*/
-        checksum_validation = -1;
-        proto_tree_add_uint_format(field_tree, hf_mux27010_checksum, tvb, offset, 1, checksum_validation, "Checksum: incorrect!");
+        /*Checksum is incorrect*/
+        expert_add_info(pinfo, tf, &ei_mux27010_checksum_incorrect);
     }
     /*~~~~~~~~/Checksum~~~~~~~~*/
-
-
-
-    /*Write text into columns*/
-    /*Info column*/
-    col_add_str(pinfo->cinfo, COL_INFO, colInfoText);
-    /*Source column*/
-    col_add_str(pinfo->cinfo, COL_DEF_SRC, colSourceText);
-    /*Destination column*/
-    col_add_str(pinfo->cinfo, COL_DEF_DST, colDestText);
 }
 
 static void
@@ -1250,7 +1108,7 @@ proto_register_mux27010 (void)
 
         {&hf_mux27010_direction,
          { "Direction", "mux27010.direction",
-           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+           FT_UINT8, BASE_HEX, VALS(&direction_vals), 0x0, NULL, HFILL }},
 
         /*Flag*/
 
@@ -1290,7 +1148,7 @@ proto_register_mux27010 (void)
 
         { &hf_mux27010_controlframetype,
           { "Frame Type", "mux27010.control.frametype",
-            FT_UINT8, BASE_HEX, NULL, MUX27010_FRAMETYPE_CONTROL_FLAG, NULL, HFILL }},
+            FT_UINT8, BASE_HEX, VALS(frame_type_vals), MUX27010_FRAMETYPE_CONTROL_FLAG, NULL, HFILL }},
 
         { &hf_mux27010_controlframetypens,
           { "N(S) Sequence Number", "mux27010.control.frametype.ns",
@@ -1315,12 +1173,12 @@ proto_register_mux27010 (void)
             FT_BOOLEAN, 8, NULL, MUX27010_EA_LENGTH_FLAG, NULL, HFILL }},
 
         { &hf_mux27010_lengthframesize_ea,
-          { "Frame Size", "mux27010.length.framesize_ea",
+          { "Info length", "mux27010.length.framesize_ea",
             FT_UINT16, BASE_DEC, NULL, MUX27010_FRAMESIZE_LENGTH_FLAG_EA, NULL, HFILL }},
 
 
         { &hf_mux27010_lengthframesize,
-          { "Frame Size", "mux27010.length.framesize",
+          { "Info length", "mux27010.length.framesize",
             FT_UINT8, BASE_DEC, NULL, MUX27010_FRAMESIZE_LENGTH_FLAG, NULL, HFILL }},
 
         /*Control Channel DLCI = 0*/
@@ -1345,7 +1203,7 @@ proto_register_mux27010 (void)
 
         { &hf_mux27010_controlchannelframetypecommand,
           { "Command Type", "mux27010.controlchannel.frametype.command",
-            FT_UINT8, BASE_HEX, NULL, MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
+            FT_UINT8, BASE_HEX, VALS(command_vals), MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG, NULL, HFILL }},
 
         /*Length*/
 
@@ -1364,12 +1222,20 @@ proto_register_mux27010 (void)
         /*Value*/
 
         { &hf_mux27010_controlchannelvalue,
-          { "Value", "mux27010.controlchannel.value",
-            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+          { "Value (ASCII)", "mux27010.controlchannel.value",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_controlchannel_iei_coding,
+          { "IEI coding", "mux27010.controlchannel.value.iei_coding",
+            FT_UINT8, BASE_HEX, VALS(iei_coding_vals), 0x0, NULL, HFILL }},
 
         { &hf_mux27010_controlchanneldetailedvalue,
           { "Detailed Values", "mux27010.controlchannel.value.detailedvalues",
             FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
+
+        { &hf_mux27010_controlchannel_detailedvalue_response,
+          { "Resposne", "mux27010.controlchannel.value.detailedvalue.response",
+            FT_UINT8, BASE_DEC, VALS(detailedvalue_response_vals), 0, NULL, HFILL }},
 
         /*Test Command*/
 
@@ -1453,11 +1319,19 @@ proto_register_mux27010 (void)
           { "Information field", "mux27010.information",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_mux27010_information_str,
+          { "Information", "mux27010.information_str",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         /*Checksum frame*/
 
         { &hf_mux27010_checksum,
           { "Checksum", "mux27010.checksum",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_mux27010_checksum_correct,
+          { "Correct", "mux27010.checksum_correct",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         {&hf_msg_fragments,
          {"Message fragments", "mux27010.fragments",
@@ -1522,6 +1396,7 @@ proto_register_mux27010 (void)
 
     static ei_register_info ei[] = {
         { &ei_mux27010_message_illogical, { "mux27010.message_illogical", PI_MALFORMED, PI_ERROR, "Message start and end are illogical", EXPFILL }},
+        { &ei_mux27010_checksum_incorrect, { "mux27010.checksum_incorrect", PI_CHECKSUM, PI_WARN, "Checksum: incorrect", EXPFILL }},
     };
 
     expert_module_t* expert_mux27010;
