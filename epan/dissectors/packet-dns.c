@@ -172,6 +172,8 @@ static int hf_dns_loc_longitude = -1;
 static int hf_dns_loc_altitude = -1;
 static int hf_dns_loc_unknown_data = -1;
 static int hf_dns_nxt_next_domain_name = -1;
+static int hf_dns_kx_preference = -1;
+static int hf_dns_kx_key_exchange = -1;
 static int hf_dns_nsec_next_domain_name = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
@@ -2281,9 +2283,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_KX:
+    case T_KX: /* Key Exchange (36) */
     {
-      guint16       preference = 0;
       const guchar *kx_name;
       int           kx_name_len;
 
@@ -2291,13 +2292,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       kx_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &kx_name);
       name_out = format_text(kx_name, strlen(kx_name));
       if (cinfo != NULL) {
-        col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
+        col_append_fstr(cinfo, COL_INFO, " %u %s", tvb_get_ntohs(tvb, cur_offset), name_out);
       }
       proto_item_append_text(trr, ", preference %u, kx %s",
-                             preference, name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", preference);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 2, kx_name_len, "Key exchange: %s",
-                          name_out);
+                             tvb_get_ntohs(tvb, cur_offset), name_out);
+      proto_tree_add_item(rr_tree, hf_dns_kx_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_string(rr_tree, hf_dns_kx_key_exchange, tvb, cur_offset + 2, kx_name_len, name_out);
 
     }
     break;
@@ -4411,6 +4411,16 @@ proto_register_dns(void)
 
     { &hf_dns_nxt_next_domain_name,
       { "Next Domain Name", "dns.nxt.next_domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_kx_preference,
+      { "Preference", "dns.kx.preference",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_kx_key_exchange,
+      { "Key Exchange", "dns.kx.key_exchange",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
