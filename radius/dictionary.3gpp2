@@ -136,13 +136,13 @@ ATTRIBUTE	3GPP2-Allowed-Persistent-TFTs			89	integer
 # The next set of attributes contain sub-types
 ATTRIBUTE	3GPP2-Prepaid-Acct-Quota				90	tlv
 BEGIN-TLV 3GPP2-Prepaid-Acct-Quota
-	ATTRIBUTE	QID									 1 string
-	ATTRIBUTE	VolumeQuota							 2 string
-	ATTRIBUTE	VolumeQuotaOverflow					 3 string
-	ATTRIBUTE	VolumeThreshold						 4 string
-	ATTRIBUTE	VolumeThreshouldOverflow			 5 string
-	ATTRIBUTE	DurationQuota						 6 string
-	ATTRIBUTE	DurationThreshold					 7 string
+	ATTRIBUTE	QID									 1 integer
+	ATTRIBUTE	VolumeQuota							 2 integer
+	ATTRIBUTE	VolumeQuotaOverflow					 3 integer
+	ATTRIBUTE	VolumeThreshold						 4 integer
+	ATTRIBUTE	VolumeThreshouldOverflow			 5 integer
+	ATTRIBUTE	DurationQuota						 6 integer
+	ATTRIBUTE	DurationThreshold					 7 integer
 	ATTRIBUTE	Update-Reason						 8 string
 END-TLV 3GPP2-Prepaid-Acct-Quota
 
@@ -261,8 +261,8 @@ ATTRIBUTE	3GPP2-DNS-Server-IP-Address				117	tlv
 BEGIN-TLV 3GPP2-DNS-Server-IP-Address
 	ATTRIBUTE	Primary-DNS-Server						1 ipaddr							
 	ATTRIBUTE	Secondary-DNS-Server					2 ipaddr
-	ATTRIBUTE	Flag									3 string
-	ATTRIBUTE	Entity-Type								4 string
+	ATTRIBUTE	Flag									3 integer
+	ATTRIBUTE	Entity-Type								4 integer
 END-TLV 3GPP2-DNS-Server-IP-Address
 
 ATTRIBUTE	3GPP2-MIP6-Home-Agent-Address-From-BU	118	ipv6addr
@@ -395,5 +395,11 @@ VALUE SelectedForSession PrePaid Accounting not used										0
 VALUE SelectedForSession Usage-of-PrePaid-Accounting-for-Volume								1
 VALUE SelectedForSession Usage-of-PrePaid-Accounting-for-Duration							2
 VALUE SelectedForSession Usage-of-PrePaid-Accounting-for-Volume-and-Duration				3
+
+VALUE Flag DNS-IP-Addresses-Provided-By-HAAA-Forcibly  1
+VALUE Flag DNS-IP-Addresses-Provided-By-HAAA-Unobtrusively  0
+ 
+VALUE Entity-Type  HAAA 1
+VALUE Entity-Type  VAAA 2
 
 END-VENDOR 3GPP2
