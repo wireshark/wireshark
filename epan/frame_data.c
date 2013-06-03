@@ -57,7 +57,7 @@ p_compare(gconstpointer a, gconstpointer b)
     if (ap -> key > bp -> key){
       return 1;
     }else if (ap -> key == bp -> key){
-    return 0;
+      return 0;
 	}
     return -1;
   }else{
@@ -71,7 +71,7 @@ p_add_proto_data(frame_data *fd, int proto, guint8 key, void *proto_data)
   frame_proto_data *p1 = (frame_proto_data *)wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
 
   p1->proto = proto;
-  p1->proto = key;
+  p1->key = key;
   p1->proto_data = proto_data;
 
   /* Add it to the GSLIST */
@@ -88,7 +88,7 @@ p_get_proto_data(frame_data *fd, int proto, guint8 key)
   GSList           *item;
 
   temp.proto = proto;
-  temp.proto = key;
+  temp.key = key;
   temp.proto_data = NULL;
 
   item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
@@ -109,7 +109,7 @@ p_remove_proto_data(frame_data *fd, int proto, guint8 key)
   GSList           *item;
 
   temp.proto = proto;
-  temp.proto = key;
+  temp.key = key;
   temp.proto_data = NULL;
 
   item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
@@ -120,10 +120,10 @@ p_remove_proto_data(frame_data *fd, int proto, guint8 key)
 }
 
 gchar *
-p_get_proto_name_and_key(frame_data *fd, guint index){
+p_get_proto_name_and_key(frame_data *fd, guint pfd_index){
 	frame_proto_data  *temp;
 
-	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, index);
+	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, pfd_index);
 
 	return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
 
