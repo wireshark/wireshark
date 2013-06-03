@@ -72,8 +72,8 @@ static gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
 static void try_convert_to_custom_column(gpointer *el_data);
 
 
-#define PF_NAME		"preferences"
-#define OLD_GPF_NAME	"wireshark.conf" /* old name for global preferences file */
+#define PF_NAME         "preferences"
+#define OLD_GPF_NAME    "wireshark.conf" /* old name for global preferences file */
 
 static gboolean prefs_initialized = FALSE;
 static gboolean prefs_pre_initialized = FALSE;
@@ -1316,7 +1316,7 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, g
     fmt_data    *cfmt;
     pref_t  *format_pref;
 
-    if (*pref->varp.string) { 
+    if (*pref->varp.string) {
         if (strcmp(*pref->varp.string, value) != 0) {
             *changed = TRUE;
             g_free((void *)*pref->varp.string);
@@ -1324,7 +1324,7 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, g
         }
     } else if (value) {
         *pref->varp.string = g_strdup(value);
-    } 
+    }
 
     /*
      * Set the "visible" flag for the existing columns; we need to
@@ -3009,12 +3009,14 @@ read_prefs_file(const char *pf_path, FILE *pf,
         if (isalnum(got_c)) {
           if (cur_var->len > 0) {
             if (got_val) {
-              if (cur_val->str[strlen(cur_val->str)-1] == ',') {
-                /* 
-                 * If the pref has a trailing comma, eliminate it.
-                 */
-                cur_val->str[strlen(cur_val->str)-1] = '\0';
-                g_warning ("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
+              if (cur_val->len > 0) {
+                if (cur_val->str[cur_val->len-1] == ',') {
+                  /*
+                   * If the pref has a trailing comma, eliminate it.
+                   */
+                  cur_val->str[cur_val->len-1] = '\0';
+                  g_warning ("%s line %d: trailing comma in \"%s\" %s", pf_path, pline, cur_var->str, hint);
+                }
               }
               /* Call the routine to set the preference; it will parse
                  the value as appropriate. */
