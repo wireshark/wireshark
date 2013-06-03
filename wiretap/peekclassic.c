@@ -146,7 +146,7 @@ static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean peekclassic_process_record_header_v7(wtap *wth, FILE_T fh,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
+    struct wtap_pkthdr *phdr, guint *sliceLengthp, int *err, gchar **err_info);
 static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
@@ -365,11 +365,13 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
+	guint sliceLength;
+
 	*data_offset = file_tell(wth->fh);
 
 	/* process the packet header */
 	if (!peekclassic_process_record_header_v7(wth, wth->fh, &wth->phdr,
-	    err, err_info))
+	    &sliceLength, err, err_info))
 		return FALSE;
 
 	/* read the frame data */
@@ -377,9 +379,15 @@ static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 	                              wth->phdr.caplen, wth->fh, err, err_info);
 
+	/* Skip extra ignored data at the end of the packet. */
+	if (sliceLength > wth->phdr.caplen) {
+		if (!file_skip(wth->fh, sliceLength - wth->phdr.caplen, err))
+			return FALSE;
+	}
+
 	/* Records are padded to an even length, so if the slice length
 	   is odd, read the padding byte. */
-	if (wth->phdr.caplen & 0x01) {
+	if (sliceLength & 0x01) {
 		if (!file_skip(wth->fh, 1, err))
 			return FALSE;
 	}
@@ -396,7 +404,7 @@ static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
 
 	/* process the packet header */
 	if (!peekclassic_process_record_header_v7(wth, wth->random_fh, phdr,
-	    err, err_info))
+	    NULL, err, err_info))
 		return FALSE;
 
 	/*
@@ -409,7 +417,7 @@ static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
 }
 
 static gboolean peekclassic_process_record_header_v7(wtap *wth, FILE_T fh,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+    struct wtap_pkthdr *phdr, guint *sliceLengthp, int *err, gchar **err_info)
 {
 	guint8 ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
 #if 0
@@ -485,6 +493,8 @@ static gboolean peekclassic_process_record_header_v7(wtap *wth, FILE_T fh,
 		break;
 	}
 
+	if (sliceLengthp)
+		*sliceLengthp = sliceLength;
 	return TRUE;
 }
 
