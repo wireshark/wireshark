@@ -162,6 +162,7 @@ static int hf_dns_ipseckey_public_key = -1;
 static int hf_dns_a6_prefix_len = -1;
 static int hf_dns_a6_address_suffix = -1;
 static int hf_dns_a6_prefix_name = -1;
+static int hf_dns_dname = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -2096,7 +2097,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_DNAME:
+    case T_DNAME: /* Non-terminal DNS name redirection (39) */
     {
       const guchar *dname;
       int           dname_len;
@@ -2109,8 +2110,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", dname %s", name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset,
-                          dname_len, "Target name: %s", name_out);
+      proto_tree_add_string(rr_tree, hf_dns_dname, tvb, cur_offset, dname_len, name_out);
 
     }
     break;
@@ -4372,6 +4372,12 @@ proto_register_dns(void)
       { "Prefix name", "dns.a6.prefix_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_dname,
+      { "Dname", "dns.dname",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
 
     { &hf_dns_rr_ns,
       { "Name Server", "dns.resp.ns",
