@@ -163,6 +163,14 @@ static int hf_dns_a6_prefix_len = -1;
 static int hf_dns_a6_address_suffix = -1;
 static int hf_dns_a6_prefix_name = -1;
 static int hf_dns_dname = -1;
+static int hf_dns_loc_version = -1;
+static int hf_dns_loc_size = -1;
+static int hf_dns_loc_horizontal_precision = -1;
+static int hf_dns_loc_vertical_precision = -1;
+static int hf_dns_loc_latitude = -1;
+static int hf_dns_loc_longitude = -1;
+static int hf_dns_loc_altitude = -1;
+static int hf_dns_loc_unknown_data = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -2115,41 +2123,42 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_LOC:
+    case T_LOC: /* Geographical Location (29) */
     {
       guint8 version;
+      proto_item *ti;
 
 
       version = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Version: %u", version);
+      proto_tree_add_item(rr_tree, hf_dns_loc_version, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       if (version == 0) {
         /* Version 0, the only version RFC 1876 discusses. */
         cur_offset++;
 
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Size: %g m",
-                            rfc1867_size(tvb, cur_offset));
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_size, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g m)", rfc1867_size(tvb, cur_offset));
         cur_offset++;
 
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Horizontal precision: %g m",
-                            rfc1867_size(tvb, cur_offset));
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_horizontal_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
         cur_offset++;
 
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Vertical precision: %g m",
-                            rfc1867_size(tvb, cur_offset));
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_vertical_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
         cur_offset++;
 
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Latitude: %s",
-                            rfc1867_angle(tvb, cur_offset, "NS"));
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_latitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "NS"));
         cur_offset += 4;
 
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Longitude: %s",
-                            rfc1867_angle(tvb, cur_offset, "EW"));
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_longitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "EW"));
         cur_offset += 4;
 
-        proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Altitude: %g m",
-                            ((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
+        ti = proto_tree_add_item(rr_tree, hf_dns_loc_altitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, "(%g m)", ((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
       } else {
-        proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
+        proto_tree_add_item(rr_tree, hf_dns_loc_unknown_data, tvb, cur_offset, data_len, ENC_NA);
       }
     }
     break;
@@ -4378,6 +4387,45 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_dns_loc_version,
+      { "Version", "dns.loc.version",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_size,
+      { "Size", "dns.loc.size",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_horizontal_precision,
+      { "Horizontal Precision", "dns.loc.horizontal_precision",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_vertical_precision,
+      { "Vertial Precision", "dns.loc.vertial_precision",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_latitude,
+      { "Latitude", "dns.loc.latitude",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_longitude,
+      { "Longitude", "dns.loc.longitude",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_altitude,
+      { "Altitude", "dns.loc.altitude",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_loc_unknown_data,
+      { "Unknown data", "dns.loc.unknown_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_rr_ns,
       { "Name Server", "dns.resp.ns",
