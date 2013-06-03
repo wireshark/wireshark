@@ -276,6 +276,10 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
       offset += string_len;
     }
   }
+
+  if (tvb_get_guint8(tvb,offset)=='e') /* list ending delimiter */
+    offset++;
+
   proto_item_set_text( ti, "%s: %d peers", label, peer_index );
   col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d peers ", peer_index );
   *result = ep_strdup_printf("%d peers", peer_index);
