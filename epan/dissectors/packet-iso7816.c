@@ -832,17 +832,17 @@ proto_register_iso7816(void)
     };
 
     static ei_register_info ei[] = {
-        { &ie_iso7816_atr_tck_not1, { "iso7816.atr_tck.not1", PI_PROTOCOL, PI_WARN, "TCK byte must either be absent or exactly one byte", EXPFILL }},
+        { &ie_iso7816_atr_tck_not1, { "iso7816.atr.tck.not1", PI_PROTOCOL, PI_WARN, "TCK byte must either be absent or exactly one byte", EXPFILL }}
     };
 
-    expert_module_t* expert_arp;
+    expert_module_t* expert_iso7816;
 
     proto_iso7816 = proto_register_protocol(
             "ISO/IEC 7816", "ISO 7816", "iso7816");
     proto_register_field_array(proto_iso7816, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_arp = expert_register_protocol(proto_iso7816);
-    expert_register_field_array(expert_arp, ei, array_length(ei));
+    expert_iso7816 = expert_register_protocol(proto_iso7816);
+    expert_register_field_array(expert_iso7816, ei, array_length(ei));
 
     new_register_dissector("iso7816", dissect_iso7816, proto_iso7816);
     register_init_routine(iso7816_init);
