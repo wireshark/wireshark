@@ -51,6 +51,8 @@ static gint hf_counter = -1;
 static gint hf_XXX_SAC = -1;
 static gint hf_XXX_SIC = -1;
 static gint hf_XXX_FX = -1;
+/*static gint hf_XXX_2FX = -1;*/
+static gint hf_XXX_3FX = -1;
 static gint hf_XXX_TOD = -1;
 static gint hf_XXX_AA = -1;
 static gint hf_XXX_AI = -1;
@@ -151,6 +153,31 @@ static gint hf_002_100_THETAS = -1;
 static gint hf_002_100_THETAE = -1;
 static gint hf_002_RE = -1;
 static gint hf_002_SP = -1;
+/* Category 009 */
+static gint hf_009_000 = -1;
+static gint hf_009_000_MT = -1;
+static gint hf_009_010 = -1;
+static gint hf_009_020 = -1;
+static gint hf_009_020_ORG = -1;
+static gint hf_009_020_INT = -1;
+static gint hf_009_020_DIR = -1;
+static gint hf_009_030 = -1;
+static gint hf_009_030_X = -1;
+static gint hf_009_030_Y = -1;
+static gint hf_009_030_VL = -1;
+static gint hf_009_060 = -1;
+static gint hf_009_060_STEP = -1;
+static gint hf_009_070 = -1;
+static gint hf_009_080 = -1;
+static gint hf_009_080_SCALE = -1;
+static gint hf_009_080_R = -1;
+static gint hf_009_080_Q = -1;
+static gint hf_009_090 = -1;
+static gint hf_009_090_CP = -1;
+static gint hf_009_090_WO = -1;
+static gint hf_009_090_RS = -1;
+static gint hf_009_100 = -1;
+static gint hf_009_100_VC = -1;
 /* Category 034 */
 static gint hf_034_000 = -1;
 static gint hf_034_000_MT = -1;
@@ -730,6 +757,8 @@ static gint ett_counter = -1;
 static gint ett_XXX_SAC = -1;
 static gint ett_XXX_SIC = -1;
 static gint ett_XXX_FX = -1;
+/*static gint ett_XXX_2FX = -1;*/
+static gint ett_XXX_3FX = -1;
 static gint ett_XXX_TOD = -1;
 static gint ett_XXX_AA = -1;
 static gint ett_XXX_AI = -1;
@@ -830,6 +859,31 @@ static gint ett_002_100_THETAS = -1;
 static gint ett_002_100_THETAE = -1;
 static gint ett_002_RE = -1;
 static gint ett_002_SP = -1;
+/* Category 009 */
+static gint ett_009_000 = -1;
+static gint ett_009_000_MT = -1;
+static gint ett_009_010 = -1;
+static gint ett_009_020 = -1;
+static gint ett_009_020_ORG = -1;
+static gint ett_009_020_INT = -1;
+static gint ett_009_020_DIR = -1;
+static gint ett_009_030 = -1;
+static gint ett_009_030_X = -1;
+static gint ett_009_030_Y = -1;
+static gint ett_009_030_VL = -1;
+static gint ett_009_060 = -1;
+static gint ett_009_060_STEP = -1;
+static gint ett_009_070 = -1;
+static gint ett_009_080 = -1;
+static gint ett_009_080_SCALE = -1;
+static gint ett_009_080_R = -1;
+static gint ett_009_080_Q = -1;
+static gint ett_009_090 = -1;
+static gint ett_009_090_CP = -1;
+static gint ett_009_090_WO = -1;
+static gint ett_009_090_RS = -1;
+static gint ett_009_100 = -1;
+static gint ett_009_100_VC = -1;
 /* Category 034 */
 static gint ett_034_000 = -1;
 static gint ett_034_000_MT = -1;
@@ -1466,6 +1520,8 @@ static const value_string valstr_XXX_FX[] = {
     { 0, NULL }
 };
 static const FieldPart IXXX_FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_FX, NULL };
+/*static const FieldPart IXXX_2FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_2FX, NULL };*/
+static const FieldPart IXXX_3FX = { 1, 1.0, FIELD_PART_FX, &hf_XXX_3FX, NULL };
 static const FieldPart IXXX_1bit_spare = { 1, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_2bit_spare = { 2, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_3bit_spare = { 3, 1.0, FIELD_PART_UINT, NULL, NULL };
@@ -1832,6 +1888,90 @@ static const AsterixField I002_SP = { VAR, 0, 0, 1, &hf_002_SP, NULL, { NULL } }
 
 static const AsterixField *I002[] = { &I002_010, &I002_000, &I002_020, &I002_030, &I002_041, &I002_050, &I002_060,
                                       &I002_070, &I002_100, &I002_090, &I002_080, &IX_SPARE, &I002_SP,  &I002_RE, NULL };
+
+/* *********************** */
+/*      Category 009       */
+/* *********************** */
+/* Fields */
+
+/* Message Type */
+static const value_string valstr_009_000_MT[] = {
+    { 2, "Cartesian vector messages" },
+    { 253, "intermediate-update-step message" },
+    { 254, "start-of-picture message" },
+    { 255, "end-of-picture message" },
+    { 0, NULL }
+};
+static const FieldPart I009_000_MT = { 8, 1.0, FIELD_PART_UINT, &hf_009_000_MT, NULL };
+static const FieldPart *I009_000_PARTS[] = { &I009_000_MT, NULL };
+
+/* Vector Qualifier */
+static const value_string valstr_009_020_INT[] = {
+    { 0, "no data available" },
+    { 1, "intensity 1" },
+    { 2, "intensity 2" },
+    { 3, "intensity 3" },
+    { 4, "intensity 4" },
+    { 5, "intensity 5" },
+    { 6, "intensity 6" },
+    { 7, "intensity 7" },
+    { 0, NULL }
+};
+static const value_string valstr_009_020_DIR[] = {
+    { 0, "0" },
+    { 1, "22.5" },
+    { 2, "45" },
+    { 3, "67.5" },
+    { 4, "90" },
+    { 5, "112,5" },
+    { 6, "135" },
+    { 7, "157.5" },
+    { 0, NULL }
+};
+static const FieldPart I009_020_ORG = { 1, 1.0, FIELD_PART_UINT, &hf_009_020_ORG, NULL };
+static const FieldPart I009_020_INT = { 3, 1.0, FIELD_PART_UINT, &hf_009_020_INT, NULL };
+static const FieldPart I009_020_DIR = { 3, 1.0, FIELD_PART_UINT, &hf_009_020_DIR, NULL };
+static const FieldPart *I009_020_PARTS[] = { &I009_020_ORG, &I009_020_INT, &I009_020_DIR, &IXXX_FX, NULL };
+
+/* Cartesian Vector */
+static const FieldPart I009_030_X = { 16, 1.0/32.0, FIELD_PART_FLOAT, &hf_009_030_X, NULL };
+static const FieldPart I009_030_Y = { 16, 1.0/32.0, FIELD_PART_FLOAT, &hf_009_030_Y, NULL };
+static const FieldPart I009_030_VL = { 16, 1.0/32.0, FIELD_PART_FLOAT, &hf_009_030_VL, NULL };
+static const FieldPart *I009_030_PARTS[] = { &I009_030_X, &I009_030_Y, &I009_030_VL, NULL };
+
+/* Synchronisation/Control Signal */
+static const FieldPart I009_060_STEP = { 6, 1.0, FIELD_PART_UINT, &hf_009_060_STEP, NULL };
+static const FieldPart *I009_060_PARTS[] = { &I009_060_STEP, &IXXX_1bit_spare, &IXXX_FX, NULL };
+
+/* Processing Status */
+static const FieldPart I009_080_SCALE = { 5, 1.0, FIELD_PART_UINT, &hf_009_080_SCALE, NULL };
+static const FieldPart I009_080_R = { 3, 1.0, FIELD_PART_UINT, &hf_009_080_R, NULL };
+static const FieldPart I009_080_Q = { 15, 1.0, FIELD_PART_UINT, &hf_009_080_Q, NULL };
+static const FieldPart *I009_080_PARTS[] = { &I009_080_SCALE, &I009_080_R, &I009_080_Q, &IXXX_3FX, NULL };
+
+/* Radar Configuration and Status */
+static const FieldPart I009_090_CP = { 1, 1.0, FIELD_PART_UINT, &hf_009_090_CP, NULL };
+static const FieldPart I009_090_WO = { 1, 1.0, FIELD_PART_UINT, &hf_009_090_WO, NULL };
+static const FieldPart I009_090_RS = { 3, 1.0, FIELD_PART_UINT, &hf_009_090_RS, NULL };
+static const FieldPart *I009_090_PARTS[] = { &IXXX_SAC, &IXXX_SIC, &IXXX_3bit_spare, &I009_090_CP, &I009_090_WO, &I009_090_RS, NULL };
+
+/* Vector Count */
+static const FieldPart I009_100_VC = { 16, 1.0, FIELD_PART_UINT, &hf_009_100_VC, NULL };
+static const FieldPart *I009_100_PARTS[] = { &I009_100_VC, NULL };
+
+/* Items */
+static const AsterixField I009_000 = { FIXED, 1, 0, 0, &hf_009_000, I009_000_PARTS, { NULL } };
+static const AsterixField I009_010 = { FIXED, 2, 0, 0, &hf_009_010, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I009_020 = { FX, 1, 0, 0, &hf_009_020, I009_020_PARTS, { NULL } };
+static const AsterixField I009_030 = { REPETITIVE, 6, 1, 0, &hf_009_030, I009_030_PARTS, { NULL } };
+static const AsterixField I009_060 = { FX, 1, 0, 0, &hf_009_060, I009_060_PARTS, { NULL } };
+static const AsterixField I009_070 = { FIXED, 3, 0, 0, &hf_009_070, IXXX_TOD, { NULL } };
+static const AsterixField I009_080 = { FX, 3, 0, 0, &hf_009_080, I009_080_PARTS, { NULL } };
+static const AsterixField I009_090 = { REPETITIVE, 3, 1, 0, &hf_009_090, I009_090_PARTS, { NULL } };
+static const AsterixField I009_100 = { FIXED, 2, 0, 0, &hf_009_100, I009_100_PARTS, { NULL } };
+
+static const AsterixField *I009[] = { &I009_010, &I009_000, &I009_020, &I009_030, &I009_060, &I009_070, &I009_080,
+                                      &I009_090, &I009_100, NULL };
 
 /* *********************** */
 /*      Category 034       */
@@ -3706,7 +3846,7 @@ static const FieldPart *I062_500_08_PARTS[] = { &I062_500_08_ARC, NULL };
 /* Composed Track Number */
 static const FieldPart I062_510_SID = { 8, 1.0, FIELD_PART_UINT, &hf_062_510_SID, NULL };
 static const FieldPart I062_510_STN = { 15, 1.0, FIELD_PART_UINT, &hf_062_510_STN, NULL };
-static const FieldPart *I062_510_PARTS[] = { &I062_510_SID, &I062_510_STN, &IXXX_FX, NULL };
+static const FieldPart *I062_510_PARTS[] = { &I062_510_SID, &I062_510_STN, &IXXX_3FX, NULL };
 
 /* Items */
 static const AsterixField I062_010 = { FIXED, 2, 0, 0, &hf_062_010, IXXX_SAC_SIC, { NULL } };
@@ -4017,7 +4157,7 @@ static const AsterixField **uap[][2] = {
     { NULL, NULL }, /* 006 */
     { NULL, NULL }, /* 007 */
     { NULL, NULL }, /* 008 */
-    { NULL, NULL }, /* 009 */
+    { I009, NULL }, /* 009 */
     { NULL, NULL }, /* 010 */
     { NULL, NULL }, /* 011 */
     { NULL, NULL }, /* 012 */
@@ -4572,6 +4712,8 @@ void proto_register_asterix (void)
         { &hf_XXX_SAC, { "SAC", "asterix.SAC", FT_UINT8, BASE_DEC, NULL, 0x0, "SAC code of the source", HFILL } },
         { &hf_XXX_SIC, { "SIC", "asterix.SIC", FT_UINT8, BASE_DEC, NULL, 0x0, "SIC code of the source", HFILL } },
         { &hf_XXX_FX, { "FX", "asterix.FX", FT_UINT8, BASE_DEC, VALS (valstr_XXX_FX), 0x01, "Extension into next extent", HFILL } },
+        /*{ &hf_XXX_2FX, { "FX", "asterix.FX", FT_UINT16, BASE_DEC, VALS (valstr_XXX_FX), 0x0001, "Extension into next extent", HFILL } },*/
+        { &hf_XXX_3FX, { "FX", "asterix.FX", FT_UINT24, BASE_DEC, VALS (valstr_XXX_FX), 0x000001, "Extension into next extent", HFILL } },
         { &hf_XXX_TOD, { "[s]", "asterix.TOD", FT_DOUBLE, BASE_NONE, NULL, 0x0, "Time of day", HFILL } },
         { &hf_XXX_AA, { "Aircraft Address", "asterix.AA", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_XXX_AI, { "Aircraft Identification", "asterix.AI", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -4672,6 +4814,31 @@ void proto_register_asterix (void)
         { &hf_002_100_THETAE, { "Theta end[deg]", "asterix.002_100_THETAE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_002_RE, { "Reserved Field", "asterix.002_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_002_SP, { "Special Field", "asterix.002_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        /* Category 009 */
+        { &hf_009_000, { "000, Message Type", "asterix.009_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_000_MT, { "MT", "asterix.009_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_009_000_MT), 0x0, NULL, HFILL } },
+        { &hf_009_010, { "010, Data Source Identifier", "asterix.009_010", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_020, { "020, Vector Qualifier", "asterix.009_020", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_020_ORG, { "ORG", "asterix.009_020_ORG", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL } },
+        { &hf_009_020_INT, { "INT", "asterix.009_020_INT", FT_UINT8, BASE_DEC, VALS (valstr_009_020_INT), 0x70, NULL, HFILL } },
+        { &hf_009_020_DIR, { "DIR", "asterix.009_020_DIR", FT_UINT8, BASE_DEC, VALS (valstr_009_020_DIR), 0x0e, NULL, HFILL } },
+        { &hf_009_030, { "030, Sequence of Cartesian Vectors", "asterix.009_030", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_030_X, { "X", "asterix.009_030_X", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_030_Y, { "Y", "asterix.009_030_Y", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_030_VL, { "VL", "asterix.009_030_VL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_060, { "060, Synchronisation/Control Signal", "asterix.009_060", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_060_STEP, { "Step number", "asterix.009_060_STEP", FT_UINT8, BASE_DEC, NULL, 0xfc, NULL, HFILL } },
+        { &hf_009_070, { "070, Time of Day", "asterix.009_070", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_080, { "080, Processing Status", "asterix.009_080", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_080_SCALE, { "Scaling factor", "asterix.009_080_SCALE", FT_UINT24, BASE_DEC, NULL, 0xf80000, NULL, HFILL } },
+        { &hf_009_080_R, { "R", "asterix.009_080_R", FT_UINT24, BASE_DEC, NULL, 0x070000, NULL, HFILL } },
+        { &hf_009_080_Q, { "Q", "asterix.009_080_Q", FT_UINT24, BASE_DEC, NULL, 0x00fffe, NULL, HFILL } },
+        { &hf_009_090, { "090, Radar Configuration and Status", "asterix.009_090", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_090_CP, { "CP", "asterix.009_090_CP", FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL } },
+        { &hf_009_090_WO, { "WO", "asterix.009_090_WO", FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
+        { &hf_009_090_RS, { "RS", "asterix.009_090_RS", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
+        { &hf_009_100, { "100, Vector Count", "asterix.009_100", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_009_100_VC, { "VC", "asterix.009_030_VC", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         /* Category 034 */
         { &hf_034_000, { "000, Message Type", "asterix.034_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_000_MT, { "MT", "asterix.034_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_034_000_MT), 0x0, NULL, HFILL } },
@@ -5253,6 +5420,8 @@ void proto_register_asterix (void)
         &ett_XXX_SAC,
         &ett_XXX_SIC,
         &ett_XXX_FX,
+        /*&ett_XXX_2FX,*/
+        &ett_XXX_3FX,
         &ett_XXX_TOD,
         &ett_XXX_AA,
         &ett_XXX_AI,
@@ -5353,6 +5522,31 @@ void proto_register_asterix (void)
         &ett_002_100_THETAE,
         &ett_002_RE,
         &ett_002_SP,
+        /* Category 009 */
+        &ett_009_000,
+        &ett_009_000_MT,
+        &ett_009_010,
+        &ett_009_020,
+        &ett_009_020_ORG,
+        &ett_009_020_INT,
+        &ett_009_020_DIR,
+        &ett_009_030,
+        &ett_009_030_X,
+        &ett_009_030_Y,
+        &ett_009_030_VL,
+        &ett_009_060,
+        &ett_009_060_STEP,
+        &ett_009_070,
+        &ett_009_080,
+        &ett_009_080_SCALE,
+        &ett_009_080_R,
+        &ett_009_080_Q,
+        &ett_009_090,
+        &ett_009_090_CP,
+        &ett_009_090_WO,
+        &ett_009_090_RS,
+        &ett_009_100,
+        &ett_009_100_VC,
         /* Category 034 */
         &ett_034_000,
         &ett_034_000_MT,
