@@ -1659,9 +1659,9 @@ file_open_error_message(int err, gboolean for_writing)
 #endif
 #endif /* GLIB_SIZEOF_VOID_P == 4 */
         if (for_writing)
-            errmsg = "The file \"%s\" could not be created because" ENOMEM_REASON ".";
+            errmsg = "The file \"%s\" could not be created because " ENOMEM_REASON ".";
         else
-            errmsg = "The file \"%s\" could not be opened because" ENOMEM_REASON ".";
+            errmsg = "The file \"%s\" could not be opened because " ENOMEM_REASON ".";
         break;
 
     default:
