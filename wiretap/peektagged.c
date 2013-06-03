@@ -402,6 +402,9 @@ peektagged_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     int skip_len = 0;
     double  t;
 
+    hdr_info.length      = 0;
+    hdr_info.sliceLength = 0;
+
     /* Extract the fields from the packet header */
     do {
 	/* Get the tag and value.
