@@ -1671,7 +1671,7 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
                     }
                 }
 %(DEFAULT_BODY)s
-                add_hsdsch_bind(actx->pinfo,tree);
+                add_hsdsch_bind(actx->pinfo);
 
             break;
             default:

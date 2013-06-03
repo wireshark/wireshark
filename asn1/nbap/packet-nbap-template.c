@@ -315,7 +315,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 /*Easy way to add hsdhsch binds for corner cases*/
-static void add_hsdsch_bind(packet_info * pinfo, proto_tree * tree);
+static void add_hsdsch_bind(packet_info * pinfo);
 
 #include "packet-nbap-fn.c"
 
@@ -346,7 +346,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   if (!ProcedureID) return 0;
   return (dissector_try_string(nbap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
-static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
+static void add_hsdsch_bind(packet_info *pinfo){
 	address 	null_addr;
 	conversation_t *conversation = NULL;
 	umts_fp_conversation_info_t *umts_fp_conversation_info;
