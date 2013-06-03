@@ -129,7 +129,7 @@ icmpv6stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
         if (rt == NULL)
             return 0;
         *rt = resp_time;
-        icmpv6stat->rt_list = g_slist_insert_sorted(icmpv6stat->rt_list, rt, compare_doubles);
+        icmpv6stat->rt_list = g_slist_prepend(icmpv6stat->rt_list, rt);
         icmpv6stat->num_resps++;
         if (icmpv6stat->min_msecs > resp_time) {
             icmpv6stat->min_frame = trans->resp_frame;
@@ -154,9 +154,12 @@ icmpv6stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
  */
 static void compute_stats(icmpv6stat_t *icmpv6stat, double *mean, double *med, double *sdev)
 {
-    GSList *slist = icmpv6stat->rt_list;
+    GSList *slist;
     double diff;
     double sq_diff_sum = 0.0;
+
+    icmpv6stat->rt_list = g_slist_sort(icmpv6stat->rt_list, compare_doubles);
+    slist = icmpv6stat->rt_list;
 
     if (icmpv6stat->num_resps == 0 || slist == NULL) {
         *mean = 0.0;

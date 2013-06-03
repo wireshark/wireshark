@@ -2470,15 +2470,13 @@ host_name_lookup_init(void) {
   }
 
   /*
-   * Load the user's hosts file, if they have one.
+   * Load the user's hosts file no matter what, if they have one.
    */
-  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
-    hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
-    if (!read_hosts_file(hostspath) && errno != ENOENT) {
-      report_open_failure(hostspath, errno, FALSE);
-    }
-    g_free(hostspath);
+  hostspath = get_persconffile_path(ENAME_HOSTS, TRUE);
+  if (!read_hosts_file(hostspath) && errno != ENOENT) {
+    report_open_failure(hostspath, errno, FALSE);
   }
+  g_free(hostspath);
   /*
    * Load the global hosts file, if we have one.
    */

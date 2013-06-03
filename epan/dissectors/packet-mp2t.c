@@ -634,11 +634,11 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 		frag_tot_len = pid_analysis->frag_tot_len;
 		fragmentation = pid_analysis->fragmentation;
 		frag_id = pid_analysis->frag_id;
-		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t);
+		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
 		if (!pdata) {
 			pdata = se_new0(packed_analysis_data_t);
 			pdata->subpacket_table = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "mp2t_frame_table");
-			p_add_proto_data(pinfo->fd, proto_mp2t, pdata);
+			p_add_proto_data(pinfo->fd, proto_mp2t, 0, pdata);
 
 		} else {
 			spdata = (subpacket_analysis_data_t *)se_tree_lookup32(pdata->subpacket_table, offset);
@@ -657,7 +657,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
 	} else {
 		/* Get saved values */
-		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t);
+		pdata = (packed_analysis_data_t *)p_get_proto_data(pinfo->fd, proto_mp2t, 0);
 		if (!pdata) {
 			/* Occurs for the first packets in the capture which cannot be reassembled */
 			return;

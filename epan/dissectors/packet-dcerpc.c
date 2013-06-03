@@ -2552,13 +2552,15 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    if (!name)
-        name = "Unknown?!";
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                 name, (info->ptype == PDU_REQ) ? "request" : "response");
+    if (!name)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown operation %u %s",
+                     info->call_data->opnum,
+                     (info->ptype == PDU_REQ) ? "request" : "response");
+    else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                     name, (info->ptype == PDU_REQ) ? "request" : "response");
 
     sub_dissect = (info->ptype == PDU_REQ) ?
         proc->dissect_rqst : proc->dissect_resp;
@@ -2570,7 +2572,11 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
 
         if (sub_item) {
             sub_tree = proto_item_add_subtree(sub_item, sub_proto->ett);
-            proto_item_append_text(sub_item, ", %s", name);
+            if (!name)
+                proto_item_append_text(sub_item, ", unknown operation %u",
+                                       info->call_data->opnum);
+            else
+                proto_item_append_text(sub_item, ", %s", name);
         }
 
         /*
@@ -2581,12 +2587,14 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
                                        tvb, 0, 0, info->call_data->opnum,
                                        "Operation: %s (%u)",
-                                       name, info->call_data->opnum);
+                                       name ? name : "Unknown operation",
+                                       info->call_data->opnum);
         else
             proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
                                        0, 0, info->call_data->opnum,
                                        "Operation: %s (%u)",
-                                       name, info->call_data->opnum);
+                                       name ? name : "Unknown operation",
+                                       info->call_data->opnum);
 
         if ((info->ptype == PDU_REQ) && (info->call_data->rep_frame != 0)) {
             pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,

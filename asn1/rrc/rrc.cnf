@@ -404,7 +404,7 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
 
-  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
+  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp, 0);
   if(fpinf && ((c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) != NULL) ){
     c_inf->setup_frame = actx->pinfo->fd->num;
   }
@@ -718,7 +718,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         num_chans_per_flow[flowd]++;
 
         if(num_chans_per_flow[flowd] > 1 ){
-            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc);
+            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
                 expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_NOTE, "Did not detect any H-RNTI");
             }
@@ -754,7 +754,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 
         if(num_chans_per_flow[flowd] > 1 ){
-            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc);
+            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
                 expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_NOTE, "Did not detect any H-RNTI");
             }
@@ -785,10 +785,10 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
 #.FN_FTR H-RNTI
-  rrcinf = (struct rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc);
+  rrcinf = (struct rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
   if (!rrcinf) {
     rrcinf = se_new0(struct rrc_info);
-    p_add_proto_data(actx->pinfo->fd, proto_rrc, rrcinf);
+    p_add_proto_data(actx->pinfo->fd, proto_rrc, 0, rrcinf);
   }
   rrcinf->hrnti[actx->pinfo->fd->subnum] = tvb_get_ntohs(hrnti_tvb, 0);
 
@@ -802,7 +802,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
   /*We base this map on communication context from fp*/
-    fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
+    fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp, 0);
 
   /*If no info found, skip all this*/
   if(fpinf == NULL){
@@ -854,7 +854,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 
 
-  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
+  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp, 0);
 
 %(DEFAULT_BODY)s
 

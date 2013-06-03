@@ -279,12 +279,12 @@ dissect_soupbintcp_common(
                     wmem_file_scope(),
                     sizeof(struct pdu_data));
                 pdu_data->seq_num = this_seq;
-                p_add_proto_data(pinfo->fd, proto_soupbintcp, pdu_data);
+                p_add_proto_data(pinfo->fd, proto_soupbintcp, 0, pdu_data);
             }
         } else {
             pdu_data = (struct pdu_data *)p_get_proto_data(
                 pinfo->fd,
-                proto_soupbintcp);
+                proto_soupbintcp, 0);
             if (pdu_data) {
                 this_seq = pdu_data->seq_num;
             } else {

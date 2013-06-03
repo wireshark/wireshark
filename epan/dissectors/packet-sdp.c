@@ -1855,7 +1855,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
           }
           transport_info->media[n].set_rtp = TRUE;
           /* SPRT might use the same port... */
-          p_add_proto_data(pinfo->fd, proto_sprt, &transport_info->media_port[n]);
+          p_add_proto_data(pinfo->fd, proto_sprt, 0, &transport_info->media_port[n]);
         }
         if (rtcp_handle) {
           if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
@@ -1872,7 +1872,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
           (sprt_handle)) {
         guint32 *port2;
 
-        port2 = (guint32 *)p_get_proto_data(pinfo->fd, proto_sprt);
+        port2 = (guint32 *)p_get_proto_data(pinfo->fd, proto_sprt, 0);
         if (transport_info->media_port[n] == 0 && port2) {
           sprt_add_address(pinfo, &transport_info->src_addr[n], *port2,
                            0, "SDP", pinfo->fd->num); /* will use same port as RTP */
@@ -2197,7 +2197,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         transport_info->media[n].set_rtp = TRUE;
         /* SPRT might use the same port... */
-        p_add_proto_data(pinfo->fd, proto_sprt, &transport_info->media_port[n]);
+        p_add_proto_data(pinfo->fd, proto_sprt, 0, &transport_info->media_port[n]);
       }
       if (rtcp_handle) {
         if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
@@ -2216,7 +2216,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (sprt_handle)) {
       guint32 *port2;
 
-      port2 = (guint32 *)p_get_proto_data(pinfo->fd, proto_sprt);
+      port2 = (guint32 *)p_get_proto_data(pinfo->fd, proto_sprt, 0);
       if (transport_info->media_port[n] == 0 && port2) {
         sprt_add_address(pinfo, &transport_info->src_addr[n], *port2,
                          0, "SDP", pinfo->fd->num); /* will use same port as RTP */

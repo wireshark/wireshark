@@ -339,8 +339,8 @@ rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinf
     fp_info         *fpinf;
 
     atm = &pinfo->pseudo_header->atm;
-    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
     if (!fpinf || !rlcinf) return -1;
 
     if (rlcinf->urnti[fpinf->cur_tb]) {
@@ -1308,11 +1308,11 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
     if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
         struct rrc_info *rrcinf;
         fp_info *fpinf;
-        fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-        rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc);
+        fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+        rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc, 0);
         if (!rrcinf) {
             rrcinf = (rrc_info *)se_alloc0(sizeof(struct rrc_info));
-            p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
+            p_add_proto_data(pinfo->fd, proto_rrc, 0, rrcinf);
         }
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
         call_dissector(rrc_handle, tvb, pinfo, tree);
@@ -1574,8 +1574,8 @@ dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     fp_info       *fpinf;
     rlc_info      *rlcinf;
 
-    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (tree) {
         if (fpinf && rlcinf) {
@@ -1830,8 +1830,8 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     next_byte = tvb_get_guint8(tvb, offs++);
     seq = next_byte >> 1;
 
-    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (tree) {
         if (fpinf && rlcinf) {
@@ -2245,8 +2245,8 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     proto_item    *truncated_ti;
     guint64        polling;
 
-    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     next_byte = tvb_get_guint8(tvb, offs++);
     dc = next_byte >> 7;
@@ -2383,7 +2383,7 @@ dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
@@ -2404,7 +2404,7 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
@@ -2434,7 +2434,7 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
@@ -2459,8 +2459,8 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (!fpi || !rlci){
         ti = proto_tree_add_text(tree, tvb, 0, -1,
@@ -2499,8 +2499,8 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpi  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (!fpi || !rlci) {
         ti = proto_tree_add_text(tree, tvb, 0, -1,
@@ -2541,8 +2541,8 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (!fpi || !rlci) return;
 
@@ -2611,14 +2611,14 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += (gint)strlen(RLC_START_STRING);
 
     /* If redissecting, use previous info struct (if available) */
-    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
     if (fpi == NULL) {
         /* Allocate new info struct for this frame */
         fpi = (fp_info *)se_alloc0(sizeof(fp_info));
     } else {
         fpInfoAlreadySet = TRUE;
     }
-    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
     if (rlci == NULL) {
         /* Allocate new info struct for this frame */
         rlci = (rlc_info *)se_alloc0(sizeof(rlc_info));
@@ -2679,10 +2679,10 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* Store info in packet if needed */
     if (!fpInfoAlreadySet) {
-        p_add_proto_data(pinfo->fd, proto_fp, fpi);
+        p_add_proto_data(pinfo->fd, proto_fp, 0, fpi);
     }
     if (!rlcInfoAlreadySet) {
-        p_add_proto_data(pinfo->fd, proto_rlc, rlci);
+        p_add_proto_data(pinfo->fd, proto_rlc, 0, rlci);
     }
 
     /**************************************/
@@ -2747,8 +2747,8 @@ rlc_is_ciphered(packet_info * pinfo){
         return global_rlc_ciphered;
     }
 
-    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     return ((rlcinf && fpinf && (rlcinf->ciphered[fpinf->cur_tb] == TRUE) && (rlcinf->deciphered[fpinf->cur_tb] == FALSE))
             || global_rlc_ciphered);

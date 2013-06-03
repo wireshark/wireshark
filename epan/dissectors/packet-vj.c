@@ -476,7 +476,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   DISSECTOR_ASSERT(src_tvb);
 
   /* Get decompressed header stored in fd protocol area */
-  hdr_buf = (vj_header_t *)p_get_proto_data(pinfo->fd, proto_vj);
+  hdr_buf = (vj_header_t *)p_get_proto_data(pinfo->fd, proto_vj, 0);
   if(hdr_buf == NULL) {
     col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (previous data bad or missing)");
     return VJ_ERROR;
@@ -739,7 +739,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     data_ptr += TCP_HDR_LEN;
     if(TCP_OFFSET(thp) > 5)
       memcpy(data_ptr, cs->cs_tcpopt, (TCP_OFFSET(thp) - 5) * 4);
-    p_add_proto_data(pinfo->fd, proto_vj, buf_hdr);
+    p_add_proto_data(pinfo->fd, proto_vj, 0, buf_hdr);
   }
 
   return VJ_OK;

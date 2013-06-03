@@ -1469,10 +1469,10 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
     pkg_data = se_new (dmp_id_val);
     *pkg_data = *dmp_data;
-    p_add_proto_data (pinfo->fd, proto_dmp, pkg_data);
+    p_add_proto_data (pinfo->fd, proto_dmp, 0, pkg_data);
   } else {
     /* Fetch last values from data saved in packet */
-    pkg_data = (dmp_id_val *)p_get_proto_data (pinfo->fd, proto_dmp);
+    pkg_data = (dmp_id_val *)p_get_proto_data (pinfo->fd, proto_dmp, 0);
 
     if (dmp_data && pkg_data && dmp.msg_type != ACK && pkg_data->ack_id == 0) {
       pkg_data->ack_id = dmp_data->ack_id;

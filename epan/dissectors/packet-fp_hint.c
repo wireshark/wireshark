@@ -147,15 +147,15 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 	struct umts_mac_info *macinf;
 	struct rlc_info *rlcinf;
 
-	macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-	rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+	macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
+	rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 	if (!macinf) {
 		macinf = se_new0(struct umts_mac_info);
-		p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+		p_add_proto_data(pinfo->fd, proto_umts_mac, 0, macinf);
 	}
 	if (!rlcinf) {
 		rlcinf = se_new0(struct rlc_info);
-		p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+		p_add_proto_data(pinfo->fd, proto_rlc, 0, rlcinf);
 	}
 
 	while (i < rbcnt) {
@@ -428,10 +428,10 @@ static void attach_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, guint
 {
 	fp_info *fpi;
 
-	fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+	fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 	if (!fpi) {
 		fpi = se_new0(fp_info);
-		p_add_proto_data(pinfo->fd, proto_fp, fpi);
+		p_add_proto_data(pinfo->fd, proto_fp, 0, fpi);
 	}
 
 	fpi->is_uplink = pinfo->p2p_dir == P2P_DIR_RECV;

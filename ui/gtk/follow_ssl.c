@@ -81,7 +81,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     gint total_len;
     guchar *p;
     int proto_ssl = GPOINTER_TO_INT(ssl);
-    SslPacketInfo* pi = (SslPacketInfo*)p_get_proto_data(pinfo->fd, proto_ssl);
+    SslPacketInfo* pi = (SslPacketInfo*)p_get_proto_data(pinfo->fd, proto_ssl, 0);
 
     /* skip packet without decrypted data payload*/
     if (!pi || !pi->appl_data)

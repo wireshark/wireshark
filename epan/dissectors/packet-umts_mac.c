@@ -289,9 +289,9 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     rach_tree = proto_item_add_subtree(ti, ett_mac_rach);
 
-    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
+    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
     if (!macinf || !fpinf) {
         proto_tree_add_text(rach_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
@@ -381,9 +381,9 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     fach_tree = proto_item_add_subtree(ti, ett_mac_fach);
 
-    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
+    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
 
     if (!macinf || !fpinf) {
         proto_tree_add_text(fach_tree, tvb, 0, -1,
@@ -462,10 +462,10 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             add_new_data_source(pinfo, next_tvb, "Octet-Aligned BCCH Data");
 
             /* In this case skip RLC and call RRC immediately subdissector */
-            rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc);
+            rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc, 0);
             if (!rrcinf) {
                 rrcinf = se_new0(struct rrc_info);
-                p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
+                p_add_proto_data(pinfo->fd, proto_rrc, 0, rrcinf);
             }
             rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
 
@@ -501,9 +501,9 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     dch_tree = proto_item_add_subtree(ti, ett_mac_dch);
 
-    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
+    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
     if (!macinf || !fpinf) {
     if(!macinf){
         g_warning("MACinf == NULL");
@@ -943,9 +943,9 @@ static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_
     guint16 tsn;
     proto_item *pi, *temp;
     proto_tree *macis_pdu_tree, *macis_sdu_tree;
-    umts_mac_is_info * mac_is_info = (umts_mac_is_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-    rlc_info * rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
-    struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    umts_mac_is_info * mac_is_info = (umts_mac_is_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
+    rlc_info * rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
+    struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 
     DISSECTOR_ASSERT(mac_is_info != NULL && rlcinf != NULL && p_fp_info != NULL);
 
@@ -1014,9 +1014,9 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     edch_tree = proto_item_add_subtree(ti, ett_mac_edch);
 
-    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
 
-    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
     if (!macinf|| !fpinf) {
         ti = proto_tree_add_text(edch_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
@@ -1152,8 +1152,8 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     hsdsch_tree = proto_item_add_subtree(ti, ett_mac_hsdsch);
 
-    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+    fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
+    macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac, 0);
 
     pos = fpinf->cur_tb;
     bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;	/*No MAC-d header for type 2*/
@@ -1172,7 +1172,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         macinf->fake_chid[pos] = FALSE;
         macinf->content[pos] = lchId_type_table[macinf->lchid[pos]];	/*Lookup MAC content*/
 
-        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc, 0);
         rlcinf->rbid[pos] = macinf->lchid[pos];
         rlcinf->mode[pos] =  lchId_rlc_map[macinf->lchid[pos]];	/*Look up RLC mode*/
         bitoffs += 4;

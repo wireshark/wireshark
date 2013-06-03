@@ -339,7 +339,7 @@ static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
     dissector_handle_t subdissector;
 
 	/* Look for packet info for subdissector information */
-    p_sscop_info = (struct _sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop);
+    p_sscop_info = (struct _sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop, 0);
 
 	if ( p_sscop_info
 		 && ( subdissector = p_sscop_info->subdissector )

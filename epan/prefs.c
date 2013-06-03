@@ -1315,13 +1315,15 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, g
     fmt_data    *cfmt;
     pref_t  *format_pref;
 
-    if (*pref->varp.string && (strcmp(*pref->varp.string, value) != 0)) {
-        *changed = TRUE;
-        g_free((void *)*pref->varp.string);
+    if (*pref->varp.string) { 
+        if (strcmp(*pref->varp.string, value) != 0) {
+            *changed = TRUE;
+            g_free((void *)*pref->varp.string);
+            *pref->varp.string = g_strdup(value);
+        }
+    } else if (value) {
         *pref->varp.string = g_strdup(value);
-    } else {
-        *pref->varp.string = NULL;
-    }
+    } 
 
     /*
      * Set the "visible" flag for the existing columns; we need to

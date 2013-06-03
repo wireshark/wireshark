@@ -390,7 +390,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* XXX: Following fragmentation stuff should be separate from the GUI stuff ??    */
 	/* Get our stored fragmentation data or create one! */
-	if ( ! ( frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2) ) ) {
+	if ( ! ( frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2, 0) ) ) {
 		frag = se_new(ts2_frag);
 		frag->frag_num=0;
 	}
@@ -414,11 +414,11 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			frag->frag_size=conversation_data->client_frag_size;
 		}
 		frag->outoforder=outoforder;
-		p_add_proto_data(pinfo->fd, proto_ts2, frag);
+		p_add_proto_data(pinfo->fd, proto_ts2, 0, frag);
 	}
 
 	/* Get our stored fragmentation data */
-	frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2);
+	frag = (ts2_frag *)p_get_proto_data(pinfo->fd, proto_ts2, 0);
 
 	proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 16, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, ENC_LITTLE_ENDIAN);

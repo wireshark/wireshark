@@ -730,7 +730,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 				spx_rexmit_info_p = se_new(spx_rexmit_info);
 				spx_rexmit_info_p->num = pkt_value->num;
-				p_add_proto_data(pinfo->fd, proto_spx,
+				p_add_proto_data(pinfo->fd, proto_spx, 0,
 				    spx_rexmit_info_p);
 			}
 		} else {
@@ -741,7 +741,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * transmission.
 			 */
 			spx_rexmit_info_p = (spx_rexmit_info *)p_get_proto_data(pinfo->fd,
-			    proto_spx);
+			    proto_spx, 0);
 		}
 	}
 

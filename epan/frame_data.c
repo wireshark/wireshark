@@ -38,6 +38,7 @@
    index and opaque pointer. */
 typedef struct _frame_proto_data {
   int   proto;
+  guint8 key;
   void *proto_data;
 } frame_proto_data;
 
@@ -50,21 +51,27 @@ p_compare(gconstpointer a, gconstpointer b)
   const frame_proto_data *ap = (const frame_proto_data *)a;
   const frame_proto_data *bp = (const frame_proto_data *)b;
 
-  if (ap -> proto > bp -> proto)
+  if (ap -> proto > bp -> proto){
     return 1;
-  else if (ap -> proto == bp -> proto)
+  }else if (ap -> proto == bp -> proto){
+    if (ap -> key > bp -> key){
+      return 1;
+    }else if (ap -> key == bp -> key){
     return 0;
-  else
+	}
     return -1;
-
+  }else{
+    return -1;
+  }
 }
 
 void
-p_add_proto_data(frame_data *fd, int proto, void *proto_data)
+p_add_proto_data(frame_data *fd, int proto, guint8 key, void *proto_data)
 {
   frame_proto_data *p1 = (frame_proto_data *)wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
 
   p1->proto = proto;
+  p1->proto = key;
   p1->proto_data = proto_data;
 
   /* Add it to the GSLIST */
@@ -75,12 +82,13 @@ p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 }
 
 void *
-p_get_proto_data(frame_data *fd, int proto)
+p_get_proto_data(frame_data *fd, int proto, guint8 key)
 {
   frame_proto_data  temp, *p1;
   GSList           *item;
 
   temp.proto = proto;
+  temp.proto = key;
   temp.proto_data = NULL;
 
   item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
@@ -95,12 +103,13 @@ p_get_proto_data(frame_data *fd, int proto)
 }
 
 void
-p_remove_proto_data(frame_data *fd, int proto)
+p_remove_proto_data(frame_data *fd, int proto, guint8 key)
 {
   frame_proto_data  temp;
   GSList           *item;
 
   temp.proto = proto;
+  temp.proto = key;
   temp.proto_data = NULL;
 
   item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
@@ -108,6 +117,16 @@ p_remove_proto_data(frame_data *fd, int proto)
   if (item) {
     fd->pfd = g_slist_remove(fd->pfd, item->data);
   }
+}
+
+gchar *
+p_get_proto_name_and_key(frame_data *fd, guint index){
+	frame_proto_data  *temp;
+
+	temp = (frame_proto_data*)g_slist_nth_data(fd->pfd, index);
+
+	return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);
+
 }
 
 #define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \

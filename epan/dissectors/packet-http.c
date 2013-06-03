@@ -640,7 +640,7 @@ static void push_req(http_conv_t *conv_data, packet_info *pinfo)
 	req_res->req_framenum = pinfo->fd->num;
 	req_res->req_ts = pinfo->fd->abs_ts;
 
-	p_add_proto_data(pinfo->fd, proto_http, req_res);
+	p_add_proto_data(pinfo->fd, proto_http, 0, req_res);
 }
 
 /**
@@ -659,7 +659,7 @@ static void push_res(http_conv_t *conv_data, packet_info *pinfo)
 		req_res = push_req_res(conv_data);
 	}
 	req_res->res_framenum = pinfo->fd->num;
-	p_add_proto_data(pinfo->fd, proto_http, req_res);
+	p_add_proto_data(pinfo->fd, proto_http, 0, req_res);
 }
 
 /*
@@ -1018,7 +1018,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		proto_item *pi;
-		http_req_res_t *curr = (http_req_res_t *)p_get_proto_data(pinfo->fd, proto_http);
+		http_req_res_t *curr = (http_req_res_t *)p_get_proto_data(pinfo->fd, proto_http, 0);
 		http_req_res_t *prev = curr ? curr->prev : NULL;
 		http_req_res_t *next = curr ? curr->next : NULL;
 
@@ -1915,10 +1915,11 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			  packet_info *pinfo, http_conv_t *conv_data)
 {
 	guint32 *ptr = NULL;
- 	guint32 dissect_as, saved_port;
+ 	guint32 uri_port, saved_port, srcport, destport;
 	gchar **strings; /* An array for splitting the request URI into hostname and port */
 	proto_item *item;
 	proto_tree *proxy_tree;
+	conversation_t *conv;
 
 	/* Grab the destination port number from the request URI to find the right subdissector */
 	strings = g_strsplit(conv_data->request_uri, ":", 2);
@@ -1941,15 +1942,28 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 
-		/* We're going to get stuck in a loop if we let process_tcp_payload call
-		   us, so call the data dissector instead for proxy connections to http ports. */
-		dissect_as = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
+		uri_port = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
 
-		if (value_is_in_range(http_tcp_range, dissect_as)) {
+		if (value_is_in_range(http_tcp_range, pinfo->destport)) {
+			srcport = pinfo->srcport;
+			destport = uri_port;
+		} else {
+			srcport = uri_port;
+			destport = pinfo->destport;
+		}
+
+		conv = find_conversation(PINFO_FD_NUM(pinfo), &pinfo->src, &pinfo->dst, PT_TCP, srcport, destport, 0);
+
+		/* We may get stuck in a recursion loop if we let process_tcp_payload() call us.
+		 * So, if the port in the URI is one we're registered for or we have set up a
+		 * conversation (e.g., one we detected heuristically or via Decode-As) call the data
+		 * dissector directly.
+		 */
+		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conv->dissector_handle == http_handle)) {
 			call_dissector(data_handle, tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
-			if ( !ptr && value_is_in_range(http_tcp_range, pinfo->destport) )
+			if (value_is_in_range(http_tcp_range, pinfo->destport))
 				ptr = &pinfo->destport;
 			else
 				ptr = &pinfo->srcport;
@@ -1962,7 +1976,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 				pinfo->can_desegment++;
 
 			saved_port = *ptr;
-			*ptr = dissect_as;
+			*ptr = uri_port;
 			decode_tcp_ports(tvb, 0, pinfo, tree,
 				pinfo->srcport, pinfo->destport, NULL);
 			*ptr = saved_port;

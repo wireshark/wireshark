@@ -7149,7 +7149,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
             }
-            p_add_proto_data(pinfo->fd, proto_ncp, (void*) request_value);
+            p_add_proto_data(pinfo->fd, proto_ncp, 0, (void*) request_value);
         }
         /* else... we haven't seen an NCP Request for that conversation and sequence. */
         else
@@ -7159,7 +7159,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
             }
     }
     else {
-        request_value = (ncp_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ncp);
+        request_value = (ncp_req_hash_value *)p_get_proto_data(pinfo->fd, proto_ncp, 0);
         if (!request_value) {
                 dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
@@ -8886,7 +8886,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             if (request_value) {
                 ncp_rec = request_value->ncp_rec;
             }
-            p_add_proto_data(pinfo->fd, proto_ncp, (void*) request_value);
+            p_add_proto_data(pinfo->fd, proto_ncp, 0, (void*) request_value);
         }
         /* else... we haven't seen an NCP Request for that conversation
            and sequence.
@@ -8907,7 +8907,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 if (request_value) {
                     ncp_rec = request_value->ncp_rec;
                 }
-                p_add_proto_data(pinfo->fd, proto_ncp,
+                p_add_proto_data(pinfo->fd, proto_ncp, 0,
                                  (void*) request_value);
             }
             else {
@@ -8921,7 +8921,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                     if (request_value) {
                         ncp_rec = request_value->ncp_rec;
                     }
-                    p_add_proto_data(pinfo->fd, proto_ncp,
+                    p_add_proto_data(pinfo->fd, proto_ncp, 0,
                                      (void*) request_value);
                 }
                 /* else... we haven't seen an NCP Request for that

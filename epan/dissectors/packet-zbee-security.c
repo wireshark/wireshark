@@ -440,9 +440,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     memset(&packet, 0, sizeof(zbee_security_packet));
 
     /* Get pointers to any useful frame data from lower layers */
-    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK));
+    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
-    proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+    proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
 
     /* Create a subtree for the security information. */
     if (tree) {

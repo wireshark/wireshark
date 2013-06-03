@@ -5,19 +5,22 @@ C1222-PROTOCOL DEFINITIONS ::=
 BEGIN
 
 C1222-MESSAGE  ::= [APPLICATION 0] IMPLICIT SEQUENCE {
-    aSO-context			    [1] ASO-qualifier OPTIONAL,
-    called-AP-title		    [2] Called-AP-title OPTIONAL,
-    called-AP-invocation-id	    [4] Called-AP-invocation-id OPTIONAL,
-    calling-AP-title		    [6] Calling-AP-title OPTIONAL,
-    calling-AE-qualifier	    [7] Calling-AE-qualifier OPTIONAL,
-    calling-AP-invocation-id	    [8] Calling-AP-invocation-id,
-    mechanism-name		    [11] IMPLICIT Mechanism-name OPTIONAL,
-    calling-authentication-value    [12] Calling-authentication-value OPTIONAL,
-    user-information		    [30] User-information
+    aSO-context                   [1]  ASO-qualifier OPTIONAL,
+    called-AP-title               [2]  Called-AP-title OPTIONAL,
+    called-AP-invocation-id       [4]  Called-AP-invocation-id OPTIONAL,
+    calling-AP-title              [6]  Calling-AP-title OPTIONAL,
+    calling-AE-qualifier          [7]  Calling-AE-qualifier OPTIONAL,
+    calling-AP-invocation-id      [8]  Calling-AP-invocation-id,
+    mechanism-name                [11] IMPLICIT Mechanism-name OPTIONAL,
+    calling-authentication-value  [12] Calling-authentication-value OPTIONAL,
+    user-information              [30] User-information
 }
 
 ASO-qualifier ::= OBJECT IDENTIFIER
-AP-title ::= OBJECT IDENTIFIER
+AP-title ::= CHOICE {
+    ap-title-form2 OBJECT IDENTIFIER,
+    ap-title-form4 [0] IMPLICIT OBJECT IDENTIFIER -- RELATIVE-OID
+}
 Called-AP-title ::= AP-title
 Calling-AP-title ::= AP-title
 AP-invocation-id ::= INTEGER
@@ -35,8 +38,8 @@ Calling-authentication-value ::= [2] IMPLICIT SEQUENCE {
 }
 
 Authentication-value-encoding ::= CHOICE { 
-    calling-authentication-value-single-asn1	[0] Calling-authentication-value-single-asn1, 
-    calling-authentication-value-octet-aligned	[1] IMPLICIT OCTET STRING
+    calling-authentication-value-single-asn1    [0] Calling-authentication-value-single-asn1, 
+    calling-authentication-value-octet-aligned  [1] IMPLICIT OCTET STRING
 }
 
 Calling-authentication-value-single-asn1 ::= CHOICE { 

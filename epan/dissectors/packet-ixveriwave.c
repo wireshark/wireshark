@@ -507,7 +507,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Calculate the IFG */
 
     /* Check for an existing ifg value associated with the frame */
-    p_ifg_info = (ifg_info *)p_get_proto_data(pinfo->fd, proto_ixveriwave);
+    p_ifg_info = (ifg_info *)p_get_proto_data(pinfo->fd, proto_ixveriwave, 0);
     if (!p_ifg_info)
     {
         /* allocate the space */
@@ -533,7 +533,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         p_ifg_info->current_start_time = vw_startt;
 
         /* Add the ifg onto the frame */
-        p_add_proto_data(pinfo->fd, proto_ixveriwave, p_ifg_info);
+        p_add_proto_data(pinfo->fd, proto_ixveriwave, 0, p_ifg_info);
     }
 
     if (tree) {
