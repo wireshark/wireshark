@@ -174,6 +174,10 @@ static int hf_dns_loc_unknown_data = -1;
 static int hf_dns_nxt_next_domain_name = -1;
 static int hf_dns_kx_preference = -1;
 static int hf_dns_kx_key_exchange = -1;
+static int hf_dns_cert_type = -1;
+static int hf_dns_cert_key_tag = -1;
+static int hf_dns_cert_algorithm = -1;
+static int hf_dns_cert_certificate = -1;
 static int hf_dns_nsec_next_domain_name = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
@@ -1380,7 +1384,7 @@ static const true_false_string dns_dnskey_zone_key_tfs = { "This is the zone key
 #define DNS_CERT_PRIVATEURI     253     /* Private, URI */
 #define DNS_CERT_PRIVATEOID     254     /* Private, OID */
 
-static const value_string cert_vals[] = {
+static const value_string dns_cert_type_vals[] = {
   { DNS_CERT_PKIX,       "PKIX" },
   { DNS_CERT_SPKI,       "SPKI" },
   { DNS_CERT_PGP,        "PGP" },
@@ -2302,44 +2306,24 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_CERT:
+    case T_CERT: /* Certificate (37) */
     {
-      guint16 cert_type, cert_keytag;
-      guint8  cert_keyalg;
       int     rr_len = data_len;
 
-
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
-      cert_type = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type: %s",
-                          val_to_str(cert_type, cert_vals,
-                                     "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree, hf_dns_cert_type, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 2) {
-        goto bad_rr;
-      }
-      cert_keytag = tvb_get_ntohs(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key tag: 0x%04x",
-                          cert_keytag);
+      proto_tree_add_item(rr_tree, hf_dns_cert_key_tag, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
       rr_len     -= 2;
 
-      if (rr_len < 1) {
-        goto bad_rr;
-      }
-      cert_keyalg = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(cert_keyalg, dnssec_algo_vals,
-                                     "Unknown (0x%02X)"));
+      proto_tree_add_item(rr_tree, hf_dns_cert_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len != 0) {
-        proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Certificate or CRL");
+        proto_tree_add_item(rr_tree, hf_dns_cert_certificate, tvb, cur_offset, rr_len, ENC_NA);
       }
     }
 
@@ -4422,6 +4406,26 @@ proto_register_dns(void)
     { &hf_dns_kx_key_exchange,
       { "Key Exchange", "dns.kx.key_exchange",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_cert_type,
+      { "Type", "dns.cert.type",
+        FT_UINT16, BASE_DEC, VALS(dns_cert_type_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_cert_key_tag,
+      { "Key Tag", "dns.cert.key_tag",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_cert_algorithm,
+      { "Algorithm", "dns.cert.algorithm",
+        FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_cert_certificate,
+      { "Certificate (or CRL)", "dns.cert.certificate",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_nsec_next_domain_name,
