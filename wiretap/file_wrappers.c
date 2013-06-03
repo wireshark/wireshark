@@ -1104,10 +1104,12 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
  * sequentially from a pipe, this could instead just skip
  * forward by reading the bytes in question.
  */
-gint64
+gboolean
 file_skip(FILE_T file, gint64 delta, int *err)
 {
-	return file_seek(file, delta, SEEK_CUR, err);
+	if (file_seek(file, delta, SEEK_CUR, err) == -1)
+		return FALSE;
+	return TRUE;
 }
 
 gint64

@@ -2654,9 +2654,7 @@ ng_file_skip_seq(wtap *wth, gint64 delta, int *err, gchar **err_info)
 
 	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
 		ngsniffer->seq.uncomp_offset += delta;
-		if (file_skip(wth->fh, delta, err) == -1)
-			return FALSE;
-		return TRUE;
+		return file_skip(wth->fh, delta, err);
 	}
 
 	g_assert(delta >= 0);
