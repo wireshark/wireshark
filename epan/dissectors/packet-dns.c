@@ -171,6 +171,7 @@ static int hf_dns_loc_latitude = -1;
 static int hf_dns_loc_longitude = -1;
 static int hf_dns_loc_altitude = -1;
 static int hf_dns_loc_unknown_data = -1;
+static int hf_dns_nsec_next_domain_name = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -2163,7 +2164,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NSEC:
+    case T_NSEC: /* NSEC (43) */
     {
       int           rr_len = data_len;
       const guchar *next_domain_name;
@@ -2177,8 +2178,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", next domain name %s", name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, next_domain_name_len,
-                          "Next domain name: %s", name_out);
+      proto_tree_add_string(rr_tree, hf_dns_nsec_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
       cur_offset += next_domain_name_len;
       rr_len     -= next_domain_name_len;
       dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
@@ -4425,6 +4425,11 @@ proto_register_dns(void)
     { &hf_dns_loc_unknown_data,
       { "Unknown data", "dns.loc.unknown_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_nsec_next_domain_name,
+      { "Next Domain Name", "dns.nsec.next_domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rr_ns,
