@@ -151,6 +151,13 @@ static int hf_dns_key_protocol = -1;
 static int hf_dns_key_algorithm = -1;
 static int hf_dns_key_key_id = -1;
 static int hf_dns_key_public_key = -1;
+static int hf_dns_ipseckey_gateway_precedence = -1;
+static int hf_dns_ipseckey_gateway_type = -1;
+static int hf_dns_ipseckey_gateway_algorithm = -1;
+static int hf_dns_ipseckey_gateway_ipv4 = -1;
+static int hf_dns_ipseckey_gateway_ipv6 = -1;
+static int hf_dns_ipseckey_gateway_dns = -1;
+static int hf_dns_ipseckey_public_key = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -796,6 +803,21 @@ static const value_string tlsa_matching_type_vals[] = {
   {0,            NULL}
 };
 
+/* IPSECKEY RFC4025 */
+static const value_string gw_algo_vals[] = {
+  { 1,     "DSA" },
+  { 2,     "RSA" },
+  { 0,      NULL }
+};
+
+static const value_string gw_type_vals[] = {
+  { 0,     "No Gateway" },
+  { 1,     "IPv4 Gateway" },
+  { 2,     "IPv6 Gateway" },
+  { 3,     "DNS Gateway" },
+  { 0,      NULL }
+};
+
 static const value_string dns_classes[] = {
   {C_IN,   "IN"},
   {C_CS,   "CS"},
@@ -805,7 +827,6 @@ static const value_string dns_classes[] = {
   {C_ANY,  "ANY"},
   {0,NULL}
 };
-
 const char *
 dns_class_name(int dns_class)
 {
@@ -1935,71 +1956,58 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
     }
     break;
-    case T_IPSECKEY:
+
+    case T_IPSECKEY: /* IPsec Key (45) */
     {
       int           rr_len = data_len;
-      guint8        gw_type, algo;
+      guint8        gw_type;
       const guchar *gw;
       int           gw_name_len;
-
-      static const value_string gw_algo[] = {
-        { 1,     "DSA" },
-        { 2,     "RSA" },
-        { 0,      NULL }
-      };
-
-
 
       if (rr_len < 3) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Gateway precedence: %u",
-                          tvb_get_guint8(tvb, cur_offset));
+      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_precedence, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
+      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       gw_type = tvb_get_guint8(tvb, cur_offset);
       cur_offset += 1;
       rr_len     -= 1;
 
-      algo = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(algo, gw_algo, "Unknown (0x%02X)"));
+
+      proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
+
       switch( gw_type ) {
         case 0:
-          proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: no gateway");
+          /* No Gateway */
           break;
         case 1:
-          proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Gateway: %s",
-                              tvb_ip_to_str(tvb, cur_offset) );
-
+          proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_ipv4, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
           cur_offset += 4;
           rr_len     -= 4;
           break;
         case 2:
-          proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Gateway: %s",
-                              tvb_ip6_to_str(tvb, cur_offset));
-
+          proto_tree_add_item(rr_tree, hf_dns_ipseckey_gateway_ipv6, tvb, cur_offset, 16, ENC_BIG_ENDIAN);
           cur_offset += 16;
           rr_len     -= 16;
           break;
         case 3:
           /* XXX Fix data length */
           gw_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &gw);
-          proto_tree_add_text(rr_tree, tvb, cur_offset, gw_name_len,
-                              "Gateway: %s", format_text(gw, strlen(gw)));
+          proto_tree_add_string(rr_tree, hf_dns_ipseckey_gateway_dns, tvb, cur_offset, gw_name_len, gw);
 
           cur_offset += gw_name_len;
           rr_len     -= gw_name_len;
           break;
         default:
-          proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: Unknown gateway type(%u)", gw_type);
           break;
       }
       if (rr_len != 0) {
-        proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+        proto_tree_add_item(rr_tree, hf_dns_ipseckey_public_key, tvb, cur_offset, rr_len, ENC_NA);
       }
     }
     break;
@@ -4306,6 +4314,41 @@ proto_register_dns(void)
 
     { &hf_dns_key_public_key,
       { "Public Key", "dns.key.public_key",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_gateway_precedence,
+      { "Gateway Precedence", "dns.ipseckey.gateway_precedence",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_gateway_algorithm,
+      { "Gateway Algorithm", "dns.ipseckey.gateway_algorithm",
+        FT_UINT8, BASE_DEC, VALS(gw_algo_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_gateway_type,
+      { "Gateway Type", "dns.ipseckey.gateway_type",
+        FT_UINT8, BASE_DEC, VALS(gw_type_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_gateway_ipv4,
+      { "IPv4 Gateway", "dns.ipseckey.gateway_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_gateway_ipv6,
+      { "IPv6 Gateway", "dns.ipseckey.gateway_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_gateway_dns,
+      { "DNS Gateway", "dns.ipseckey.gateway_dns",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_ipseckey_public_key,
+      { "Public Key", "dns.ipseckey.public_key",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
