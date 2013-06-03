@@ -327,10 +327,21 @@ DIS_ParserNode DIS_FIELDS_VP_ENTITY_OFFSET[] =
     { DIS_FIELDTYPE_UINT8,                       "Offset Type",0,0,0,0 },
     { DIS_FIELDTYPE_PAD8,                        "Padding",2,0,0,0 },
     { DIS_FIELDTYPE_VECTOR_32,                   "Offset",0,0,0,0 },
-    { DIS_FIELDTYPE_ORIENTATION,                 "Orientation",0,0,0,0 },
     { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
 };
 
+DIS_ParserNode DIS_FIELDS_VP_ENTITY_ASSOCIATION[] =
+{
+    { DIS_FIELDTYPE_UINT8,                       "Change Indicator",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                       "Association Status",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                       "Association Type",0,0,0,0 },
+    { DIS_FIELDTYPE_ENTITY_ID,                   "Object Identifier",2,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                      "Own Station Location",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                       "Physical Connection Type",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                       "Group Member Type",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                      "Group Number",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
+};
 /* Variable Records
  */
 DIS_ParserNode DIS_FIELDS_VR_TYPE[] =
@@ -491,7 +502,7 @@ void initializeFieldParsers(void)
     initializeParser(DIS_FIELDS_VP_ARTICULATED_PART);
     initializeParser(DIS_FIELDS_VP_ATTACHED_PART);
     initializeParser(DIS_FIELDS_VP_ENTITY_OFFSET);
-
+    initializeParser(DIS_FIELDS_VP_ENTITY_ASSOCIATION);
     initializeParser(DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS);
     initializeParser(DIS_FIELDS_VR_APPLICATION_INITIALIZATION);
     initializeParser(DIS_FIELDS_VR_DATA_QUERY);
@@ -1022,6 +1033,9 @@ gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset)
         break;
     case DIS_PARAM_TYPE_DESIG_ENTITY_OFFSET:
         paramParser = DIS_FIELDS_VP_ENTITY_OFFSET;
+        break;
+    case DIS_PARAM_TYPE_DESIG_ENTITY_ASSOCIATION:
+        paramParser = DIS_FIELDS_VP_ENTITY_ASSOCIATION;
         break;
     default:
         paramParser = DIS_FIELDS_VP_GENERIC;
