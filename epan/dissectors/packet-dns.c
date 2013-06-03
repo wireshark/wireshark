@@ -97,6 +97,7 @@ static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_rr_addr = -1;
+static int hf_dns_aaaa = -1;
 static int hf_dns_rr_primaryname = -1;
 static int hf_dns_rr_udp_payload_size = -1;
 static int hf_dns_soa_mname = -1;
@@ -2012,7 +2013,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_AAAA:
+    case T_AAAA: /* IPv6 Address (28) */
     {
       const char        *addr6;
       struct e_in6_addr  addr_in6;
@@ -2023,7 +2024,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
 
       proto_item_append_text(trr, ", addr %s", addr6);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s", addr6);
+      proto_tree_add_item(rr_tree, hf_dns_aaaa, tvb, cur_offset, 16, ENC_BIG_ENDIAN);
+
 
       if ((dns_class & 0x7f) == C_IN) {
         tvb_memcpy(tvb, &addr_in6, cur_offset, sizeof(addr_in6));
@@ -4046,6 +4048,11 @@ proto_register_dns(void)
       { "Addr", "dns.resp.addr",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "Response Address", HFILL }},
+
+    { &hf_dns_aaaa,
+      { "AAAA Address", "dns.aaaa",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        "AAAA Response Address", HFILL }},
 
     { &hf_dns_rr_primaryname,
       { "Primaryname", "dns.resp.primaryname",
