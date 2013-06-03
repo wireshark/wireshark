@@ -159,6 +159,9 @@ static int hf_dns_ipseckey_gateway_ipv4 = -1;
 static int hf_dns_ipseckey_gateway_ipv6 = -1;
 static int hf_dns_ipseckey_gateway_dns = -1;
 static int hf_dns_ipseckey_public_key = -1;
+static int hf_dns_a6_prefix_len = -1;
+static int hf_dns_a6_address_suffix = -1;
+static int hf_dns_a6_prefix_name = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -2034,7 +2037,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_A6:
+    case T_A6: /* IPv6 address with indirection (38) Obso */
     {
       unsigned short     pre_len;
       unsigned short     suf_len;
@@ -2076,18 +2079,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                         name_out);
       }
 
-      proto_tree_add_text(rr_tree, tvb, a6_offset, 1,
-                          "Prefix len: %u", pre_len);
+      proto_tree_add_item(rr_tree, hf_dns_a6_prefix_len,tvb, a6_offset, 1, ENC_BIG_ENDIAN);
       a6_offset++;
       if (suf_len) {
-        proto_tree_add_text(rr_tree, tvb, a6_offset, suf_octet_count,
-                            "Address suffix: %s",
-                            ip6_to_str(&suffix));
+        proto_tree_add_ipv6(rr_tree, hf_dns_a6_address_suffix,tvb, a6_offset, suf_octet_count, ip6_to_str(&suffix));
         a6_offset += suf_octet_count;
       }
       if (pre_len > 0) {
-        proto_tree_add_text(rr_tree, tvb, a6_offset, pname_len,
-                            "Prefix name: %s", name_out);
+        proto_tree_add_string(rr_tree, hf_dns_a6_prefix_name, tvb, a6_offset, pname_len, name_out);
       }
       proto_item_append_text(trr, ", addr %d %s %s",
                              pre_len,
@@ -4357,6 +4356,21 @@ proto_register_dns(void)
     { &hf_dns_ipseckey_public_key,
       { "Public Key", "dns.ipseckey.public_key",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_a6_prefix_len,
+      { "Prefix len", "dns.a6.prefix_len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_a6_address_suffix,
+      { "Address Suffix", "dns.a6.address_suffix",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_a6_prefix_name,
+      { "Prefix name", "dns.a6.prefix_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rr_ns,
