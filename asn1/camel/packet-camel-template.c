@@ -135,6 +135,9 @@ static gint ett_camel_locationnumber = -1;
 
 #include "packet-camel-ett.c"
 
+static expert_field ei_camel_unknown_invokeData = EI_INIT;
+static expert_field ei_camel_unknown_returnResultData = EI_INIT;
+static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
 
 /* Preference settings default */
 #define MAX_SSN 254
@@ -704,6 +707,15 @@ void proto_register_camel(void) {
 
 #include "packet-camel-ettarr.c"
   };
+
+  static ei_register_info ei[] = {
+     { &ei_camel_unknown_invokeData, { "camel.unknown.invokeData", PI_MALFORMED, PI_WARN, "Unknown invokeData", EXPFILL }},
+     { &ei_camel_unknown_returnResultData, { "camel.unknown.returnResultData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
+     { &ei_camel_unknown_returnErrorData, { "camel.unknown.returnErrorData", PI_MALFORMED, PI_WARN, "Unknown returnResultData", EXPFILL }},
+  };
+
+  expert_module_t* expert_camel;
+
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
@@ -713,6 +725,8 @@ void proto_register_camel(void) {
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_camel = expert_register_protocol(proto_camel);
+  expert_register_field_array(expert_camel, ei, array_length(ei));
 
   rose_ctx_init(&camel_rose_ctx);
 

@@ -88,6 +88,8 @@ static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 
 #include "packet-h248-ett.c"
 
+static expert_field ei_h248_errored_command = EI_INIT;
+
 static dissector_table_t subdissector_table;
 
 static emem_tree_t* msgs = NULL;
@@ -1587,8 +1589,12 @@ void proto_register_h248(void) {
 #include "packet-h248-ettarr.c"
     };
 
-    module_t *h248_module;
+    static ei_register_info ei[] = {
+        { &ei_h248_errored_command, { "h248.errored_command", PI_RESPONSE_CODE, PI_WARN, "Errored Command", EXPFILL }},
+    };
 
+    expert_module_t* expert_h248;
+    module_t *h248_module;
 
     /* Register protocol */
     proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1598,6 +1604,8 @@ void proto_register_h248(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_h248, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_h248 = expert_register_protocol(proto_h248);
+    expert_register_field_array(expert_h248, ei, array_length(ei));
     
     subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", FT_UINT32, BASE_HEX);
 

@@ -133,6 +133,9 @@ static gint ett_ros_Code = -1;
 /*--- End of included file: packet-ros-ett.c ---*/
 #line 81 "../../asn1/ros/packet-ros-template.c"
 
+static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
+static expert_field ei_ros_unknown_ros_pdu = EI_INIT;
+
 static dissector_table_t ros_oid_dissector_table=NULL;
 
 static GHashTable *oid_table=NULL;
@@ -271,7 +274,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 
-		expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN,
+		expert_add_info_format_text(pinfo, item, &ei_ros_dissector_oid_not_implemented,
                                         "ROS: Dissector for OID %s not implemented", oid);
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
@@ -1013,7 +1016,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 372 "../../asn1/ros/packet-ros-template.c"
+#line 375 "../../asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1079,7 +1082,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			item = proto_tree_add_text(tree, tvb, offset, -1,"Unknown ROS PDU");
 
 			if(item){
-				expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN, "Unknown ROS PDU");
+				expert_add_info(pinfo, item, &ei_ros_unknown_ros_pdu);
 				next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 			}
@@ -1244,7 +1247,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 490 "../../asn1/ros/packet-ros-template.c"
+#line 493 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1265,8 +1268,15 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 497 "../../asn1/ros/packet-ros-template.c"
+#line 500 "../../asn1/ros/packet-ros-template.c"
   };
+
+  static ei_register_info ei[] = {
+     { &ei_ros_dissector_oid_not_implemented, { "ros.dissector_oid_not_implemented", PI_UNDECODED, PI_WARN, "ROS: Dissector for OID not implemented", EXPFILL }},
+     { &ei_ros_unknown_ros_pdu, { "ros.unknown_ros_pdu", PI_UNDECODED, PI_WARN, "Unknown ROS PDU", EXPFILL }},
+  };
+
+  expert_module_t* expert_ros;
 
   /* Register protocol */
   proto_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1274,6 +1284,8 @@ void proto_register_ros(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_ros = expert_register_protocol(proto_ros);
+  expert_register_field_array(expert_ros, ei, array_length(ei));
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);

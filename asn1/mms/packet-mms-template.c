@@ -49,6 +49,9 @@ static int proto_mms = -1;
 static gint ett_mms = -1;
 #include "packet-mms-ett.c"
 
+static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
+static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
+
 #include "packet-mms-fn.c"
 
 /*
@@ -97,13 +100,21 @@ void proto_register_mms(void) {
 #include "packet-mms-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_mms_mal_timeofday_encoding, { "mms.malformed.timeofday_encoding", PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding", EXPFILL }},
+     { &ei_mms_mal_utctime_encoding, { "mms.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding", EXPFILL }},
+  };
+
+  expert_module_t* expert_mms;
+
   /* Register protocol */
   proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("mms", dissect_mms, proto_mms);
   /* Register fields and subtrees */
   proto_register_field_array(proto_mms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
+  expert_mms = expert_register_protocol(proto_mms);
+  expert_register_field_array(expert_mms, ei, array_length(ei));
 
 }
 

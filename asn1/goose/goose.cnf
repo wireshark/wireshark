@@ -32,7 +32,7 @@
 				"BER Error: malformed UTCTime encoding, "
 				"length must be 8 bytes");
 		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
+		expert_add_info(actx->pinfo, cause, &ei_goose_mal_utctime);
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");

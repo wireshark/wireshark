@@ -230,6 +230,8 @@ static gint ett_pres_UD_type = -1;
 /*--- End of included file: packet-pres-ett.c ---*/
 #line 100 "../../asn1/pres/packet-pres-template.c"
 
+static expert_field ei_pres_dissector_not_available = EI_INIT;
+
 UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
 UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)
 
@@ -643,7 +645,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-		expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+		expert_add_info(actx->pinfo, ti, &ei_pres_dissector_not_available);
 	}
 
 
@@ -666,7 +668,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-		expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+		expert_add_info(actx->pinfo, ti, &ei_pres_dissector_not_available);
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1357,7 +1359,7 @@ static void dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 225 "../../asn1/pres/packet-pres-template.c"
+#line 227 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1841,7 +1843,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 396 "../../asn1/pres/packet-pres-template.c"
+#line 398 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1888,7 +1890,11 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 402 "../../asn1/pres/packet-pres-template.c"
+#line 404 "../../asn1/pres/packet-pres-template.c"
+  };
+
+  static ei_register_info ei[] = {
+     { &ei_pres_dissector_not_available, { "pres.dissector_not_available", PI_UNDECODED, PI_WARN, "Dissector is not available", EXPFILL }},
   };
 
   static uat_field_t users_flds[] = {
@@ -1911,7 +1917,8 @@ void proto_register_pres(void) {
                              NULL,
                              users_flds);
 
-  static module_t *pres_module;
+  expert_module_t* expert_pres;
+  module_t *pres_module;
 
   /* Register protocol */
   proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1923,6 +1930,8 @@ void proto_register_pres(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_pres, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_pres = expert_register_protocol(proto_pres);
+  expert_register_field_array(expert_pres, ei, array_length(ei));
   register_init_routine(pres_init);
 
   pres_module = prefs_register_protocol(proto_pres, NULL);

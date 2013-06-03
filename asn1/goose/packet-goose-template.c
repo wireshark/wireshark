@@ -46,6 +46,8 @@ static int hf_goose_length = -1;
 static int hf_goose_reserve1 = -1;
 static int hf_goose_reserve2 = -1;
 
+static expert_field ei_goose_mal_utctime = EI_INIT;
+
 #include "packet-goose-hf.c"
 
 /* Initialize the subtree pointers */
@@ -130,6 +132,12 @@ void proto_register_goose(void) {
 #include "packet-goose-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_goose_mal_utctime, { "goose.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+  };
+
+  expert_module_t* expert_goose;
+
 	/* Register protocol */
 	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
 	register_dissector("goose", dissect_goose, proto_goose);
@@ -137,7 +145,8 @@ void proto_register_goose(void) {
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_goose, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
+	expert_goose = expert_register_protocol(proto_goose);
+	expert_register_field_array(expert_goose, ei, array_length(ei));
 }
 
 /*--- proto_reg_handoff_goose --- */

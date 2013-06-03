@@ -145,6 +145,8 @@ static gint ett_sv_ASDU = -1;
 /*--- End of included file: packet-sv-ett.c ---*/
 #line 112 "../../asn1/sv/packet-sv-template.c"
 
+static expert_field ei_sv_mal_utctime = EI_INIT;
+
 #if 0
 static const value_string sv_q_validity_vals[] = {
   {   0, "good" },
@@ -294,7 +296,7 @@ dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 				"BER Error: malformed UTCTime encoding, "
 				"length must be 8 bytes");
 		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
+		expert_add_info(actx->pinfo, cause, &ei_sv_mal_utctime);
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
@@ -448,7 +450,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 193 "../../asn1/sv/packet-sv-template.c"
+#line 195 "../../asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -622,7 +624,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 310 "../../asn1/sv/packet-sv-template.c"
+#line 312 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -639,8 +641,14 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 318 "../../asn1/sv/packet-sv-template.c"
+#line 320 "../../asn1/sv/packet-sv-template.c"
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_sv_mal_utctime, { "sv.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+	};
+
+	expert_module_t* expert_sv;
 
 	/* Register protocol */
 	proto_sv = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -649,6 +657,8 @@ void proto_register_sv(void) {
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_sv, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_sv = expert_register_protocol(proto_sv);
+	expert_register_field_array(expert_sv, ei, array_length(ei));
 
 	/* Register tap */
 	sv_tap = register_tap("sv");

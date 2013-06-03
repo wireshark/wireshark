@@ -63,6 +63,9 @@ static dissector_handle_t data_handle = NULL;
 /* Initialize the subtree pointers */
 #include "packet-cdt-ett.c"
 
+static expert_field ei_cdt_unable_compress_content = EI_INIT;
+static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
+
 #include "packet-cdt-fn.c"
 
 
@@ -101,13 +104,21 @@ void proto_register_cdt (void) {
 #include "packet-cdt-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_cdt_unable_compress_content, { "cdt.unable_compress_content", PI_UNDECODED, PI_ERROR, "Unable to get compressed content", EXPFILL }},
+     { &ei_cdt_unable_uncompress_content, { "cdt.unable_uncompress_content", PI_UNDECODED, PI_ERROR, "Unable to get uncompressed content", EXPFILL }},
+  };
+
+  expert_module_t* expert_cdt;
+
   /* Register protocol */
   proto_cdt = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
   proto_register_field_array (proto_cdt, hf, array_length(hf));
   proto_register_subtree_array (ett, array_length(ett));
-
+  expert_cdt = expert_register_protocol(proto_cdt);
+  expert_register_field_array(expert_cdt, ei, array_length(ei));
 }
 
 

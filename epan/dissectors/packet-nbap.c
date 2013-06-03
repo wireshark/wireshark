@@ -6490,6 +6490,10 @@ static gint ett_nbap_Outcome = -1;
 /*--- End of included file: packet-nbap-ett.c ---*/
 #line 99 "../../asn1/nbap/packet-nbap-template.c"
 
+static expert_field ei_nbap_no_find_comm_context_id = EI_INIT;
+static expert_field ei_nbap_no_find_port_info = EI_INIT;
+static expert_field ei_nbap_no_set_comm_context_id = EI_INIT;
+static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
 
 extern int proto_fp;
 
@@ -18501,13 +18505,13 @@ num_items = 1;
         if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
             com_context_id= cur_val->crnc_context;
         }else{
-            expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.");
+            expert_add_info(actx->pinfo, NULL, &ei_nbap_no_find_comm_context_id);
         }
     }
 
     /*This should not happen*/
     if(( old_info = (nbap_edch_port_info_t *)g_tree_lookup(edch_flow_port_map, GINT_TO_POINTER((gint)com_context_id))) == NULL ){
-        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure");
+        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_find_port_info);
         return offset;
     }
     nbap_debug1("    Found com_context_id %u", com_context_id);
@@ -18687,7 +18691,7 @@ BindingID_port = 0;
                     if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                     }
                 }
 
@@ -28837,7 +28841,7 @@ BindingID_port = 0;
                     if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                     }
                 }
 
@@ -55155,7 +55159,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 317 "../../asn1/nbap/packet-nbap-template.c"
+#line 321 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -55234,7 +55238,7 @@ static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
 					/*XXX: Is this craziness, what is physical_layer? */
 					if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 						/*Error*/
-						expert_add_info_format(pinfo, tree, PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!");
+						expert_add_info(pinfo, NULL, &ei_nbap_hsdsch_entity_not_specified);
 					}else{
 						umts_fp_conversation_info->hsdsch_entity = (enum fp_hsdsch_entity)nbap_hsdsch_channel_info[i].entity;
 					}
@@ -68489,7 +68493,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 486 "../../asn1/nbap/packet-nbap-template.c"
+#line 490 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	/* List of subtrees */
@@ -70129,14 +70133,25 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 495 "../../asn1/nbap/packet-nbap-template.c"
+#line 499 "../../asn1/nbap/packet-nbap-template.c"
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_nbap_no_set_comm_context_id, { "nbap.no_set_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail", EXPFILL }},
+		{ &ei_nbap_no_find_comm_context_id, { "nbap.no_find_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.", EXPFILL }},
+		{ &ei_nbap_no_find_port_info, { "nbap.no_find_port_info", PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure", EXPFILL }},
+		{ &ei_nbap_hsdsch_entity_not_specified, { "nbap.hsdsch_entity_not_specified", PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!", EXPFILL }},
+	};
+
+	expert_module_t* expert_nbap;
 
 	/* Register protocol */
 	proto_nbap = proto_register_protocol(PNAME, PSNAME, PFNAME);
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_nbap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_nbap = expert_register_protocol(proto_nbap);
+	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
 	register_dissector("nbap", dissect_nbap, proto_nbap);
@@ -71272,7 +71287,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 541 "../../asn1/nbap/packet-nbap-template.c"
+#line 556 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

@@ -140,12 +140,12 @@ if(ue_cap_tvb){
     subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
     byte = tvb_get_guint8(ue_cap_tvb, 0);
     if (byte != 0x33) {
-      expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_type_value,
                              "Unexpected type value (found 0x%02X)", byte);
     }
     byte = tvb_get_guint8(ue_cap_tvb, 1);
     if (byte != 0x03) {
-      expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format_text(actx->pinfo, item, &ei_lte_rrc_unexpected_length_value,
                              "Unexpected length value (found %d)", byte);
     }
     de_ms_cm_2(ue_cap_tvb, subtree2, actx->pinfo, 2, 3, NULL, 0);
@@ -1114,7 +1114,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_BODY Paging/systemInfoModification
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification)");
-  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period - signalled in Paging message");
+  expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_sibs_changing);
 
 #.FN_BODY Paging/pagingRecordList
   /* Number of items is (last 3 bits of first byte and first bit of second) + 1 */
@@ -1151,7 +1151,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     if (p_previous != NULL) {
       /* Subtract one from stored result to get previous value */
       guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;
-      expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN,
+      expert_add_info_format_text(actx->pinfo, actx->created_item, &ei_lte_rrc_si_info_value_changed,
                              "SI Info Value changed (now %%u, was %%u)", value, previous);
     }
   }
@@ -1159,9 +1159,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_BODY Paging/etws-Indication
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (ETWS)");
-  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!");
+  expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_earthquake_warning_sys);
 
 #.FN_BODY Paging-v920-IEs/cmas-Indication-r9
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (CMAS)");
-  expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!");
+  expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_commercial_mobile_alert_sys);

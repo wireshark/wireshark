@@ -563,6 +563,8 @@ static gint ett_h248_SigParameterV1 = -1;
 /*--- End of included file: packet-h248-ett.c ---*/
 #line 90 "../../asn1/h248/packet-h248-template.c"
 
+static expert_field ei_h248_errored_command = EI_INIT;
+
 static dissector_table_t subdissector_table;
 
 static emem_tree_t* msgs = NULL;
@@ -2080,7 +2082,7 @@ static int
 dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 302 "../../asn1/h248/h248.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
-    expert_add_info_format(actx->pinfo, actx->created_item, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+    expert_add_info(actx->pinfo, actx->created_item, &ei_h248_errored_command);
     
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
@@ -5365,7 +5367,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1408 "../../asn1/h248/packet-h248-template.c"
+#line 1410 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6784,7 +6786,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1570 "../../asn1/h248/packet-h248-template.c"
+#line 1572 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6950,11 +6952,15 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1588 "../../asn1/h248/packet-h248-template.c"
+#line 1590 "../../asn1/h248/packet-h248-template.c"
     };
 
-    module_t *h248_module;
+    static ei_register_info ei[] = {
+        { &ei_h248_errored_command, { "h248.errored_command", PI_RESPONSE_CODE, PI_WARN, "Errored Command", EXPFILL }},
+    };
 
+    expert_module_t* expert_h248;
+    module_t *h248_module;
 
     /* Register protocol */
     proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -6964,6 +6970,8 @@ void proto_register_h248(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_h248, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_h248 = expert_register_protocol(proto_h248);
+    expert_register_field_array(expert_h248, ei, array_length(ei));
     
     subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", FT_UINT32, BASE_HEX);
 

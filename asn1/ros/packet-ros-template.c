@@ -79,6 +79,9 @@ static int hf_ros_time = -1;
 static gint ett_ros = -1;
 #include "packet-ros-ett.c"
 
+static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
+static expert_field ei_ros_unknown_ros_pdu = EI_INIT;
+
 static dissector_table_t ros_oid_dissector_table=NULL;
 
 static GHashTable *oid_table=NULL;
@@ -217,7 +220,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 
-		expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN,
+		expert_add_info_format_text(pinfo, item, &ei_ros_dissector_oid_not_implemented,
                                         "ROS: Dissector for OID %s not implemented", oid);
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
@@ -434,7 +437,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			item = proto_tree_add_text(tree, tvb, offset, -1,"Unknown ROS PDU");
 
 			if(item){
-				expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN, "Unknown ROS PDU");
+				expert_add_info(pinfo, item, &ei_ros_unknown_ros_pdu);
 				next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 			}
@@ -496,12 +499,21 @@ void proto_register_ros(void) {
 #include "packet-ros-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_ros_dissector_oid_not_implemented, { "ros.dissector_oid_not_implemented", PI_UNDECODED, PI_WARN, "ROS: Dissector for OID not implemented", EXPFILL }},
+     { &ei_ros_unknown_ros_pdu, { "ros.unknown_ros_pdu", PI_UNDECODED, PI_WARN, "Unknown ROS PDU", EXPFILL }},
+  };
+
+  expert_module_t* expert_ros;
+
   /* Register protocol */
   proto_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("ros", dissect_ros, proto_ros);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_ros = expert_register_protocol(proto_ros);
+  expert_register_field_array(expert_ros, ei, array_length(ei));
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);

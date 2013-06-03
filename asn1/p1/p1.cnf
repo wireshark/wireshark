@@ -546,7 +546,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 				"Dissector for standard-extension %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
 			next_tree = proto_item_add_subtree(item, ett_p1_unknown_standard_extension);
 			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
-			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown standard-extension");
+			expert_add_info(actx->pinfo, item, &ei_p1_unknown_standard_extension);
 		}
 	} else if (object_identifier_id) {
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
@@ -585,7 +585,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 			"Dissector for extension-attribute-type %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_extension_attribute_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
-		expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown extension-attribute-type");
+		expert_add_info(actx->pinfo, item, &ei_p1_unknown_extension_attribute_type);
 	}
 
 
@@ -665,7 +665,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
       proto_tree *next_tree = NULL;
 
       item = proto_tree_add_text(top_tree ? top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "P1 Unknown Content (unknown built-in content-type)");
-      expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown built-in content-type");
+      expert_add_info(actx->pinfo, item, &ei_p1_unknown_built_in_content_type);
       if (item) {
         next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
       }
@@ -1247,7 +1247,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 			"Dissector for tokendata-type %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_tokendata_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
-		expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown tokendata-type");
+		expert_add_info(actx->pinfo, item, &ei_p1_unknown_tokendata_type);
 	}
 
 #.FN_BODY PerDomainBilateralInformation/bilateral-information

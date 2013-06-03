@@ -62,6 +62,8 @@ static gboolean rtse_reassemble = TRUE;
 static gint ett_rtse = -1;
 #include "packet-rtse-ett.c"
 
+static expert_field ei_rtse_dissector_oid_not_implemented = EI_INIT;
+static expert_field ei_rtse_unknown_rtse_pdu = EI_INIT;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static GHashTable *oid_table=NULL;
@@ -149,7 +151,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 		proto_item *item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		proto_tree *next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
 
-		expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN,
+		expert_add_info_format_text(pinfo, item, &ei_rtse_dissector_oid_not_implemented,
                                         "RTSE: Dissector for OID %s not implemented", oid);
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
@@ -288,12 +290,9 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			if(offset == old_offset){
 				item = proto_tree_add_text(tree, tvb, offset, -1, "Unknown RTSE PDU");
 
-				if(item){
-					expert_add_info_format (pinfo, item, PI_UNDECODED, PI_WARN, "Unknown RTSE PDU");
-					next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
-					dissect_unknown_ber(pinfo, tvb, offset, next_tree);
-				}
-
+				expert_add_info (pinfo, item, &ei_rtse_unknown_rtse_pdu);
+				next_tree=proto_item_add_subtree(item, ett_rtse_unknown);
+				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 				break;
 			}
 		}
@@ -363,6 +362,12 @@ void proto_register_rtse(void) {
 #include "packet-rtse-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_rtse_dissector_oid_not_implemented, { "rtse.dissector_oid_not_implemented", PI_UNDECODED, PI_WARN, "RTSE: Dissector for OID not implemented", EXPFILL }},
+     { &ei_rtse_unknown_rtse_pdu, { "rtse.unknown_rtse_pdu", PI_UNDECODED, PI_WARN, "Unknown RTSE PDU", EXPFILL }},
+  };
+
+  expert_module_t* expert_rtse;
   module_t *rtse_module;
 
   /* Register protocol */
@@ -371,6 +376,8 @@ void proto_register_rtse(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_rtse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_rtse = expert_register_protocol(proto_rtse);
+  expert_register_field_array(expert_rtse, ei, array_length(ei));
   register_init_routine (&rtse_reassemble_init);
   rtse_module = prefs_register_protocol_subtree("OSI", proto_rtse, NULL);
 

@@ -98,6 +98,8 @@ static gint ett_pres           = -1;
 
 #include "packet-pres-ett.c"
 
+static expert_field ei_pres_dissector_not_available = EI_INIT;
+
 UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
 UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)
 
@@ -401,6 +403,10 @@ void proto_register_pres(void) {
 #include "packet-pres-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_pres_dissector_not_available, { "pres.dissector_not_available", PI_UNDECODED, PI_WARN, "Dissector is not available", EXPFILL }},
+  };
+
   static uat_field_t users_flds[] = {
     UAT_FLD_DEC(pres_users,ctx_id,"Context Id","Presentation Context Identifier"),
     UAT_FLD_CSTRING(pres_users,oid,"Syntax Name OID","Abstract Syntax Name (Object Identifier)"),
@@ -421,7 +427,8 @@ void proto_register_pres(void) {
                              NULL,
                              users_flds);
 
-  static module_t *pres_module;
+  expert_module_t* expert_pres;
+  module_t *pres_module;
 
   /* Register protocol */
   proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -433,6 +440,8 @@ void proto_register_pres(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_pres, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_pres = expert_register_protocol(proto_pres);
+  expert_register_field_array(expert_pres, ei, array_length(ei));
   register_init_routine(pres_init);
 
   pres_module = prefs_register_protocol(proto_pres, NULL);

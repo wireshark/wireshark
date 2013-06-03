@@ -90,6 +90,11 @@ static gint ett_p1_unknown_extension_attribute_type = -1;
 static gint ett_p1_unknown_tokendata_type = -1;
 #include "packet-p1-ett.c"
 
+static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
+static expert_field ei_p1_unknown_standard_extension = EI_INIT;
+static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
+static expert_field ei_p1_unknown_tokendata_type = EI_INIT;
+
 /* Dissector tables */
 static dissector_table_t p1_extension_dissector_table;
 static dissector_table_t p1_extension_attribute_dissector_table;
@@ -268,6 +273,14 @@ void proto_register_p1(void) {
 #include "packet-p1-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_p1_unknown_extension_attribute_type, { "p1.unknown.extension_attribute_type", PI_UNDECODED, PI_WARN, "Unknown extension-attribute-type", EXPFILL }},
+     { &ei_p1_unknown_standard_extension, { "p1.unknown.standard_extension", PI_UNDECODED, PI_WARN, "Unknown standard-extension", EXPFILL }},
+     { &ei_p1_unknown_built_in_content_type, { "p1.unknown.built_in_content_type", PI_UNDECODED, PI_WARN, "Unknown built-in content-type", EXPFILL }},
+     { &ei_p1_unknown_tokendata_type, { "p1.unknown.tokendata_type", PI_UNDECODED, PI_WARN, "Unknown tokendata-type", EXPFILL }},
+  };
+
+  expert_module_t* expert_p1;
   module_t *p1_module;
 
   /* Register protocol */
@@ -279,6 +292,8 @@ void proto_register_p1(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_p1, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_p1 = expert_register_protocol(proto_p1);
+  expert_register_field_array(expert_p1, ei, array_length(ei));
 
   p1_extension_dissector_table = register_dissector_table("p1.extension", "P1-EXTENSION", FT_UINT32, BASE_DEC);
   p1_extension_attribute_dissector_table = register_dissector_table("p1.extension-attribute", "P1-EXTENSION-ATTRIBUTE", FT_UINT32, BASE_DEC);

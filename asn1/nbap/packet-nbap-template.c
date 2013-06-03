@@ -97,6 +97,10 @@ static int ett_nbap_ib_sg_data = -1;
 
 #include "packet-nbap-ett.c"
 
+static expert_field ei_nbap_no_find_comm_context_id = EI_INIT;
+static expert_field ei_nbap_no_find_port_info = EI_INIT;
+static expert_field ei_nbap_no_set_comm_context_id = EI_INIT;
+static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
 
 extern int proto_fp;
 
@@ -392,7 +396,7 @@ static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
 					/*XXX: Is this craziness, what is physical_layer? */
 					if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 						/*Error*/
-						expert_add_info_format(pinfo, tree, PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!");
+						expert_add_info(pinfo, NULL, &ei_nbap_hsdsch_entity_not_specified);
 					}else{
 						umts_fp_conversation_info->hsdsch_entity = (enum fp_hsdsch_entity)nbap_hsdsch_channel_info[i].entity;
 					}
@@ -494,11 +498,22 @@ void proto_register_nbap(void)
 	#include "packet-nbap-ettarr.c"
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_nbap_no_set_comm_context_id, { "nbap.no_set_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail", EXPFILL }},
+		{ &ei_nbap_no_find_comm_context_id, { "nbap.no_find_comm_context_id", PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.", EXPFILL }},
+		{ &ei_nbap_no_find_port_info, { "nbap.no_find_port_info", PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure", EXPFILL }},
+		{ &ei_nbap_hsdsch_entity_not_specified, { "nbap.hsdsch_entity_not_specified", PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!", EXPFILL }},
+	};
+
+	expert_module_t* expert_nbap;
+
 	/* Register protocol */
 	proto_nbap = proto_register_protocol(PNAME, PSNAME, PFNAME);
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_nbap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_nbap = expert_register_protocol(proto_nbap);
+	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
 	register_dissector("nbap", dissect_nbap, proto_nbap);

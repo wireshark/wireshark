@@ -44,7 +44,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-		expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+		expert_add_info(actx->pinfo, ti, &ei_pres_dissector_not_available);
 	}
 
 #.FN_BODY PDV-list/presentation-data-values/octet-aligned
@@ -58,7 +58,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-		expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+		expert_add_info(actx->pinfo, ti, &ei_pres_dissector_not_available);
 		%(DEFAULT_BODY)s
 	}
 

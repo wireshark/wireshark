@@ -300,7 +300,7 @@ AuditReplyV1/auditResult	audit_result
 
 #.FN_BODY ErrorDescriptor/errorCode
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
-    expert_add_info_format(actx->pinfo, actx->created_item, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+    expert_add_info(actx->pinfo, actx->created_item, &ei_h248_errored_command);
     
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);

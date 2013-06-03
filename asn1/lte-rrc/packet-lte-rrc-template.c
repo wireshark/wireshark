@@ -194,6 +194,14 @@ static gint ett_lte_rrc_warningType = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 
+static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
+static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
+static expert_field ei_lte_rrc_sibs_changing = EI_INIT;
+static expert_field ei_lte_rrc_earthquake_warning_sys = EI_INIT;
+static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
+static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
+static expert_field ei_lte_rrc_unexpected_length_value = EI_INIT;
+
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1794,7 +1802,7 @@ dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree 
   nb_of_pages = tvb_get_guint8(warning_msg_seg_tvb, 0);
   ti = proto_tree_add_uint(tree, hf_lte_rrc_warningMessageSegment_nb_pages, warning_msg_seg_tvb, 0, 1, nb_of_pages);
   if (nb_of_pages > 15) {
-    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, ti, &ei_lte_rrc_number_pages_le15,
                            "Number of pages should be <=15 (found %u)", nb_of_pages);
     nb_of_pages = 15;
   }
@@ -2522,6 +2530,17 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_warningMessageSegment
   };
 
+  static ei_register_info ei[] = {
+     { &ei_lte_rrc_number_pages_le15, { "lte_rrc.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
+     { &ei_lte_rrc_si_info_value_changed, { "lte_rrc.si_info_value_changed", PI_SEQUENCE, PI_WARN, "SI Info Value changed", EXPFILL }},
+     { &ei_lte_rrc_sibs_changing, { "lte_rrc.sibs_changing", PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period - signalled in Paging message", EXPFILL }},
+     { &ei_lte_rrc_earthquake_warning_sys, { "lte_rrc.earthquake_warning_sys", PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!", EXPFILL }},
+     { &ei_lte_rrc_commercial_mobile_alert_sys, { "lte_rrc.commercial_mobile_alert_sys", PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!", EXPFILL }},
+     { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
+     { &ei_lte_rrc_unexpected_length_value, { "lte_rrc.unexpected_length_value", PI_MALFORMED, PI_ERROR, "Unexpected type length", EXPFILL }},
+  };
+
+  expert_module_t* expert_lte_rrc;
 
   /* Register protocol */
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -2539,6 +2558,8 @@ void proto_register_lte_rrc(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_lte_rrc = expert_register_protocol(proto_lte_rrc);
+  expert_register_field_array(expert_lte_rrc, ei, array_length(ei));
 
   /* Register the dissectors defined in lte-rrc.conf */
 #include "packet-lte-rrc-dis-reg.c"

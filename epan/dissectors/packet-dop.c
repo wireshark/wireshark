@@ -345,6 +345,8 @@ static gint ett_dop_GrantsAndDenials = -1;
 /*--- End of included file: packet-dop-ett.c ---*/
 #line 71 "../../asn1/dop/packet-dop-template.c"
 
+static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
+
 /* Dissector table */
 static dissector_table_t dop_dissector_table;
 
@@ -2042,7 +2044,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 84 "../../asn1/dop/packet-dop-template.c"
+#line 86 "../../asn1/dop/packet-dop-template.c"
 
 static int
 call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info)
@@ -2064,7 +2066,7 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
         next_tree = proto_item_add_subtree(item, ett_dop_unknown);
      }
      offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
-     expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Unknown binding-parameter");
+     expert_add_info(pinfo, item, &ei_dop_unknown_binding_parameter);
    }
 
    return offset;
@@ -2962,7 +2964,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 239 "../../asn1/dop/packet-dop-template.c"
+#line 241 "../../asn1/dop/packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3041,9 +3043,14 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 246 "../../asn1/dop/packet-dop-template.c"
+#line 248 "../../asn1/dop/packet-dop-template.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_dop_unknown_binding_parameter, { "dop.unknown_binding_parameter", PI_UNDECODED, PI_WARN, "Unknown binding-parameter", EXPFILL }},
+  };
+
+  expert_module_t* expert_dop;
   module_t *dop_module;
 
   /* Register protocol */
@@ -3056,6 +3063,8 @@ void proto_register_dop(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_dop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dop = expert_register_protocol(proto_dop);
+  expert_register_field_array(expert_dop, ei, array_length(ei));
 
   /* Register our configuration options for DOP, particularly our port */
 
@@ -3097,7 +3106,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 279 "../../asn1/dop/packet-dop-template.c"
+#line 288 "../../asn1/dop/packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

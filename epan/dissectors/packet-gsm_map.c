@@ -2379,6 +2379,11 @@ static gint ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg = -1;
 /*--- End of included file: packet-gsm_map-ett.c ---*/
 #line 185 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
+static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
+static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
+static expert_field ei_gsm_map_unknown_parameter = EI_INIT;
+static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
+
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
 static dissector_handle_t	ranap_handle;
@@ -18269,7 +18274,7 @@ dissect_gsm_map_ericsson_EnhancedCheckIMEI_Arg(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 841 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 846 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -18487,7 +18492,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 852 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 857 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -18698,7 +18703,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 856 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 861 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -18828,24 +18833,21 @@ static int dissect_mc_message(tvbuff_t *tvb,
       offset= (sequence3) (implicit_seq3, tvb, offset, actx, tree, hf_index_seq3);
     } else {
       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented [3] sequence, cannot decode");
-      proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
-      expert_add_info_format(actx->pinfo, cause, PI_UNDECODED, PI_ERROR, "Unknown or not implemented [3] sequence");
+      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_sequence3);
     }
   } else if (octet == 0x30) {
     if (sequence != NULL) {
       offset= (sequence) (implicit_seq, tvb, 0, actx, tree, hf_index_seq);
     } else {
       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented sequence");
-      proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
-      expert_add_info_format(actx->pinfo, cause, PI_UNDECODED, PI_ERROR, "Unknown or not implemented sequence");
+      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_sequence);
     }
   } else {
     if (parameter != NULL) {
       offset= (parameter) (implicit_param, tvb, offset, actx, tree, hf_index_param);
     } else {
       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented parameter");
-      proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
-      expert_add_info_format(actx->pinfo, cause, PI_UNDECODED, PI_ERROR, "Unknown or not implemented parameter");
+      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_parameter);
     }
   }
   return offset;
@@ -19202,8 +19204,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   default:
     if(!dissector_try_uint(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
         cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
-        proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-        expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+        expert_add_info_format_text(actx->pinfo, cause, &ei_gsm_map_unknown_invokeData, "Unknown invokeData %d",opcode);
 	}
 	offset+= tvb_length_remaining(tvb,offset);
 	break;
@@ -19510,8 +19511,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
  default:
    if(!dissector_try_uint(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
        cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
-       proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-       expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+       expert_add_info_format_text(actx->pinfo, cause, &ei_gsm_map_unknown_invokeData, "Unknown invokeData %d",opcode);
    }
    offset+= tvb_length_remaining(tvb,offset);
    break;
@@ -19675,8 +19675,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
   default:
     if(!dissector_try_uint(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
         cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
-        proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-        expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",errorCode);
+        expert_add_info_format_text(actx->pinfo, cause, &ei_gsm_map_unknown_invokeData, "Unknown invokeData %d",errorCode);
     }
 	offset+= tvb_length_remaining(tvb,offset);
     break;
@@ -20161,6 +20160,7 @@ void proto_reg_handoff_gsm_map(void) {
 /*--- proto_register_gsm_map -------------------------------------------*/
 void proto_register_gsm_map(void) {
 	module_t *gsm_map_module;
+	expert_module_t* expert_gsm_map;
 
   /* List of fields */
   static hf_register_info hf[] = {
@@ -27240,6 +27240,13 @@ void proto_register_gsm_map(void) {
 #line 2647 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_gsm_map_unknown_sequence3, { "gsm_map.unknown.sequence3", PI_UNDECODED, PI_ERROR, "Unknown or not implemented [3] sequence", EXPFILL }},
+     { &ei_gsm_map_unknown_sequence, { "gsm_map.unknown.sequence", PI_UNDECODED, PI_ERROR, "Unknown or not implemented sequence", EXPFILL }},
+     { &ei_gsm_map_unknown_parameter, { "gsm_map.unknown.parameter", PI_UNDECODED, PI_ERROR, "Unknown or not implemented parameter", EXPFILL }},
+     { &ei_gsm_map_unknown_invokeData, { "gsm_map.unknown.invokeData", PI_MALFORMED, PI_WARN, "Unknown invokeData", EXPFILL }},
+  };
+
   static const enum_val_t application_context_modes[] = {
     {"Use Application Context from the trace", "Use application context from the trace", APPLICATON_CONTEXT_FROM_TRACE},
     {"Treat as AC 1", "Treat as AC 1", 1},
@@ -27257,6 +27264,8 @@ void proto_register_gsm_map(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_gsm_map = expert_register_protocol(proto_gsm_map);
+  expert_register_field_array(expert_gsm_map, ei, array_length(ei));
 
   sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu",
 						 "GSM SMS TPDU", FT_UINT8,
@@ -27330,7 +27339,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2678 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2687 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

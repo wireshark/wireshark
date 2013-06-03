@@ -94,6 +94,9 @@ static gint ett_cdt_T_contentType = -1;
 /*--- End of included file: packet-cdt-ett.c ---*/
 #line 65 "../../asn1/cdt/packet-cdt-template.c"
 
+static expert_field ei_cdt_unable_compress_content = EI_INIT;
+static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
+
 
 /*--- Included file: packet-cdt-fn.c ---*/
 #line 1 "../../asn1/cdt/packet-cdt-fn.c"
@@ -250,8 +253,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (compr_tvb == NULL) {
     tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
                               "[Error: Unable to get compressed content]");
-    expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
-                            "Unable to get compressed content");
+    expert_add_info(actx->pinfo, tf, &ei_cdt_unable_compress_content);
     col_append_str (actx->pinfo->cinfo, COL_INFO, 
                     "[Error: Unable to get compressed content]");
     return offset;
@@ -262,8 +264,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (next_tvb == NULL) {
     tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
                               "[Error: Unable to uncompress content]");
-    expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
-                            "Unable to uncompress content");
+    expert_add_info(actx->pinfo, tf, &ei_cdt_unable_uncompress_content);
     col_append_str (actx->pinfo->cinfo, COL_INFO, 
                     "[Error: Unable to uncompress content]");
     return offset;
@@ -337,7 +338,7 @@ static void dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 67 "../../asn1/cdt/packet-cdt-template.c"
+#line 70 "../../asn1/cdt/packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -408,7 +409,7 @@ void proto_register_cdt (void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 97 "../../asn1/cdt/packet-cdt-template.c"
+#line 100 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -422,8 +423,15 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 102 "../../asn1/cdt/packet-cdt-template.c"
+#line 105 "../../asn1/cdt/packet-cdt-template.c"
   };
+
+  static ei_register_info ei[] = {
+     { &ei_cdt_unable_compress_content, { "cdt.unable_compress_content", PI_UNDECODED, PI_ERROR, "Unable to get compressed content", EXPFILL }},
+     { &ei_cdt_unable_uncompress_content, { "cdt.unable_uncompress_content", PI_UNDECODED, PI_ERROR, "Unable to get uncompressed content", EXPFILL }},
+  };
+
+  expert_module_t* expert_cdt;
 
   /* Register protocol */
   proto_cdt = proto_register_protocol (PNAME, PSNAME, PFNAME);
@@ -431,7 +439,8 @@ void proto_register_cdt (void) {
   /* Register fields and subtrees */
   proto_register_field_array (proto_cdt, hf, array_length(hf));
   proto_register_subtree_array (ett, array_length(ett));
-
+  expert_cdt = expert_register_protocol(proto_cdt);
+  expert_register_field_array(expert_cdt, ei, array_length(ei));
 }
 
 
@@ -444,7 +453,7 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 117 "../../asn1/cdt/packet-cdt-template.c"
+#line 128 "../../asn1/cdt/packet-cdt-template.c"
 
   data_handle = find_dissector ("data");
 }

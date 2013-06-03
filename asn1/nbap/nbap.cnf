@@ -1300,7 +1300,7 @@ BindingID_port = 0;
                     if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                     }
                 }
 
@@ -1474,7 +1474,7 @@ BindingID_port = 0;
                     if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
                         umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
                     }else{
-                        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
+                        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_set_comm_context_id);
                     }
                 }
 
@@ -1518,13 +1518,13 @@ num_items = 1;
         if((cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
             com_context_id= cur_val->crnc_context;
         }else{
-            expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find Communication Context-ID, unable to reconfigure this E-DCH flow.");
+            expert_add_info(actx->pinfo, NULL, &ei_nbap_no_find_comm_context_id);
         }
     }
 
     /*This should not happen*/
     if(( old_info = (nbap_edch_port_info_t *)g_tree_lookup(edch_flow_port_map, GINT_TO_POINTER((gint)com_context_id))) == NULL ){
-        expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not find port information for reconfigured E-DCH flow, unable to reconfigure");
+        expert_add_info(actx->pinfo, NULL, &ei_nbap_no_find_port_info);
         return offset;
     }
     nbap_debug1("    Found com_context_id %%u", com_context_id);

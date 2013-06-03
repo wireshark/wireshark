@@ -720,7 +720,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         if(num_chans_per_flow[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
-                expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_NOTE, "Did not detect any H-RNTI");
+                expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
             else{
                 /*If it doesnt exists, insert it*/
@@ -756,7 +756,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         if(num_chans_per_flow[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc, 0);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
-                expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_NOTE, "Did not detect any H-RNTI");
+                expert_add_info(actx->pinfo, actx->created_item, &ei_rrc_no_hrnti);
             }
             else{
                 /*If it doesnt exists, insert it*/

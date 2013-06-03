@@ -74,6 +74,8 @@ int proto_clacse = -1;
 static gint ett_acse = -1;
 #include "packet-acse-ett.c"
 
+static expert_field ei_acse_dissector_not_available = EI_INIT;
+
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 static const char *object_identifier_id;
@@ -215,7 +217,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
 			proto_item *ti = proto_tree_add_text(parent_tree, tvb, offset, -1, "dissector is not available");
-			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+			expert_add_info(pinfo, ti, &ei_acse_dissector_not_available);
 		}
 		top_tree = NULL;
 		return;
@@ -275,6 +277,12 @@ void proto_register_acse(void) {
 #include "packet-acse-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_acse_dissector_not_available, { "acse.dissector_not_available", PI_UNDECODED, PI_WARN, "Dissector is not available", EXPFILL }},
+  };
+
+  expert_module_t* expert_acse;
+
   /* Register protocol */
   proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("acse", dissect_acse, proto_acse);
@@ -286,7 +294,8 @@ void proto_register_acse(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_acse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
+  expert_acse = expert_register_protocol(proto_acse);
+  expert_register_field_array(expert_acse, ei, array_length(ei));
 }
 
 

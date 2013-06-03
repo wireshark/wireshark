@@ -153,6 +153,8 @@ static gint ett_krb_recordmark = -1;
 
 #include "packet-kerberos-ett.c"
 
+static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
+
 static dissector_handle_t krb4_handle=NULL;
 
 /* Global variables */
@@ -387,7 +389,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		if(ret == 0){
 			char *user_data;
 
-			expert_add_info_format(pinfo, NULL, PI_SECURITY, PI_CHAT,
+			expert_add_info_format_text(pinfo, NULL, &ei_kerberos_decrypted_keytype,
 								   "Decrypted keytype %d in frame %u using %s",
 								   ek->keytype, pinfo->fd->num, ek->key_origin);
 
@@ -1990,11 +1992,18 @@ void proto_register_kerberos(void) {
 #include "packet-kerberos-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
+  };
+
+	expert_module_t* expert_krb;
 	module_t *krb_module;
 
 	proto_kerberos = proto_register_protocol("Kerberos", "KRB5", "kerberos");
 	proto_register_field_array(proto_kerberos, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_krb = expert_register_protocol(proto_kerberos);
+	expert_register_field_array(expert_krb, ei, array_length(ei));
 
 	/* Register preferences */
 	krb_module = prefs_register_protocol(proto_kerberos, kerberos_prefs_apply_cb);

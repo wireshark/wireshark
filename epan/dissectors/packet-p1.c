@@ -854,6 +854,11 @@ static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionF
 /*--- End of included file: packet-p1-ett.c ---*/
 #line 92 "../../asn1/p1/packet-p1-template.c"
 
+static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
+static expert_field ei_p1_unknown_standard_extension = EI_INIT;
+static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
+static expert_field ei_p1_unknown_tokendata_type = EI_INIT;
+
 /* Dissector tables */
 static dissector_table_t p1_extension_dissector_table;
 static dissector_table_t p1_extension_attribute_dissector_table;
@@ -903,7 +908,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 99 "../../asn1/p1/packet-p1-template.c"
+#line 104 "../../asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-fn.c ---*/
@@ -2221,7 +2226,7 @@ dissect_p1_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb 
 			"Dissector for extension-attribute-type %d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_extension_attribute_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
-		expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown extension-attribute-type");
+		expert_add_info(actx->pinfo, item, &ei_p1_unknown_extension_attribute_type);
 	}
 
 
@@ -3041,7 +3046,7 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 				"Dissector for standard-extension %d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
 			next_tree = proto_item_add_subtree(item, ett_p1_unknown_standard_extension);
 			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
-			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown standard-extension");
+			expert_add_info(actx->pinfo, item, &ei_p1_unknown_standard_extension);
 		}
 	} else if (object_identifier_id) {
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
@@ -3224,7 +3229,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
       proto_tree *next_tree = NULL;
 
       item = proto_tree_add_text(top_tree ? top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "P1 Unknown Content (unknown built-in content-type)");
-      expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown built-in content-type");
+      expert_add_info(actx->pinfo, item, &ei_p1_unknown_built_in_content_type);
       if (item) {
         next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
       }
@@ -7224,7 +7229,7 @@ dissect_p1_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 			"Dissector for tokendata-type %d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_tokendata_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
-		expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown tokendata-type");
+		expert_add_info(actx->pinfo, item, &ei_p1_unknown_tokendata_type);
 	}
 
 
@@ -8207,7 +8212,7 @@ static void dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 101 "../../asn1/p1/packet-p1-template.c"
+#line 106 "../../asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
@@ -8239,7 +8244,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 103 "../../asn1/p1/packet-p1-template.c"
+#line 108 "../../asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
 #line 1 "../../asn1/p1/packet-p1-table21.c"
@@ -8284,7 +8289,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 104 "../../asn1/p1/packet-p1-template.c"
+#line 109 "../../asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -10697,7 +10702,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 256 "../../asn1/p1/packet-p1-template.c"
+#line 261 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10896,9 +10901,17 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 269 "../../asn1/p1/packet-p1-template.c"
+#line 274 "../../asn1/p1/packet-p1-template.c"
   };
 
+  static ei_register_info ei[] = {
+     { &ei_p1_unknown_extension_attribute_type, { "p1.unknown.extension_attribute_type", PI_UNDECODED, PI_WARN, "Unknown extension-attribute-type", EXPFILL }},
+     { &ei_p1_unknown_standard_extension, { "p1.unknown.standard_extension", PI_UNDECODED, PI_WARN, "Unknown standard-extension", EXPFILL }},
+     { &ei_p1_unknown_built_in_content_type, { "p1.unknown.built_in_content_type", PI_UNDECODED, PI_WARN, "Unknown built-in content-type", EXPFILL }},
+     { &ei_p1_unknown_tokendata_type, { "p1.unknown.tokendata_type", PI_UNDECODED, PI_WARN, "Unknown tokendata-type", EXPFILL }},
+  };
+
+  expert_module_t* expert_p1;
   module_t *p1_module;
 
   /* Register protocol */
@@ -10910,6 +10923,8 @@ void proto_register_p1(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_p1, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_p1 = expert_register_protocol(proto_p1);
+  expert_register_field_array(expert_p1, ei, array_length(ei));
 
   p1_extension_dissector_table = register_dissector_table("p1.extension", "P1-EXTENSION", FT_UINT32, BASE_DEC);
   p1_extension_attribute_dissector_table = register_dissector_table("p1.extension-attribute", "P1-EXTENSION-ATTRIBUTE", FT_UINT32, BASE_DEC);
@@ -11089,7 +11104,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 305 "../../asn1/p1/packet-p1-template.c"
+#line 320 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 
