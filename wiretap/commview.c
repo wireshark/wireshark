@@ -152,7 +152,8 @@ commview_read_and_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
 		phdr->pkt_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 		phdr->pseudo_header.ieee_802_11.fcs_len = -1; /* Unknown */
 		phdr->pseudo_header.ieee_802_11.channel = cv_hdr.channel;
-		phdr->pseudo_header.ieee_802_11.data_rate = cv_hdr.rate;
+		phdr->pseudo_header.ieee_802_11.data_rate =
+		    cv_hdr.rate | (cv_hdr.direction << 8);
 		phdr->pseudo_header.ieee_802_11.signal_level = cv_hdr.signal_level_percent;
 		break;
 
