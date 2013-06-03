@@ -1783,6 +1783,38 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		offset, length, encoding);
 }
 
+/*
+ * Validates that field length bytes are available starting from
+ * start (pos/neg). Throws an exception if they aren't.
+ */
+static void
+test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
+	    gint start, gint length, gboolean little_endian)
+{
+	gint size = length;
+
+	if (!tvb)
+		return;
+
+	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
+		guint32 n;
+
+		n = get_uint_value(tree, tvb, start, length, little_endian);
+		if (n > size + n) {
+			/* If n > size + n then we have an integer overflow, so
+			 * set size to -1, which will force the
+			 * tvb_ensure_bytes_exist call below to throw a
+			 * ReportedBoundsError
+			 */
+			size = -1;
+		}
+		else {
+			size += n;
+		}
+	}
+	tvb_ensure_bytes_exist(tvb, start, size);
+}
+
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
 proto_item *
@@ -1791,16 +1823,19 @@ proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 {
 	field_info        *new_fi;
 	header_field_info *hfinfo;
+	gint		  item_length;
+
+	hfinfo = get_hfi_and_length(hfindex, tvb, start, &length, &item_length);
+	test_length(hfinfo, tree, tvb, start, item_length, encoding);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	new_fi = alloc_field_info(tree, hfindex, tvb, start, &length);
+	new_fi = new_field_info(tree, hfinfo, tvb, start, item_length);
 
 	if (new_fi == NULL)
 		return NULL;
 
-	return proto_tree_new_item(new_fi, tree, tvb, start,
-		length, encoding);
+	return proto_tree_new_item(new_fi, tree, tvb, start, length, encoding);
 }
 
 /* Add a FT_NONE to a proto_tree */
