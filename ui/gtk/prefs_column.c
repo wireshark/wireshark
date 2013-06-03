@@ -267,7 +267,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     ws_gtk_grid_attach_extended(GTK_GRID(grid), field_lb, 0, 1, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_sensitive(field_lb, FALSE);
     gtk_widget_set_tooltip_text(field_lb,
-                          "Display filter field name to show when thefield type is \"Custom\".");
+                          "Display filter field name to show when the field type is \"Custom\".");
     gtk_widget_show(field_lb);
 
     field_te = gtk_entry_new();
@@ -287,8 +287,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     ws_gtk_grid_attach_extended(GTK_GRID(grid), field_te, 1, 1, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
     gtk_widget_set_sensitive(field_te, FALSE);
     gtk_widget_set_tooltip_text(field_te,
-                          "Field name used when field type is \"Custom\". "
-                          "This string has the same syntax as a display filter string.");
+                          "Display filter field name to show when the field type is \"Custom\".");
     gtk_widget_show(field_te);
 
     occurrence_lb = gtk_label_new("Field occurrence:");
