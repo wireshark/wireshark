@@ -402,8 +402,7 @@ peektagged_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     int skip_len = 0;
     double  t;
 
-    hdr_info.length      = 0;
-    hdr_info.sliceLength = 0;
+    memset(&hdr_info, 0, sizeof(hdr_info_t));
 
     /* Extract the fields from the packet header */
     do {
