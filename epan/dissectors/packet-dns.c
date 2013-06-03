@@ -138,15 +138,19 @@ static int hf_dns_dnskey_protocol = -1;
 static int hf_dns_dnskey_algorithm = -1;
 static int hf_dns_dnskey_key_id = -1;
 static int hf_dns_dnskey_public_key = -1;
-static int hf_dns_t_key_flags = -1;
-static int hf_dns_t_key_flags_authentication = -1;
-static int hf_dns_t_key_flags_confidentiality = -1;
-static int hf_dns_t_key_flags_key_required = -1;
-static int hf_dns_t_key_flags_associated_user = -1;
-static int hf_dns_t_key_flags_associated_named_entity = -1;
-static int hf_dns_t_key_flags_ipsec = -1;
-static int hf_dns_t_key_flags_mime = -1;
-static int hf_dns_t_key_flags_signatory = -1;
+static int hf_dns_key_flags = -1;
+static int hf_dns_key_flags_authentication = -1;
+static int hf_dns_key_flags_confidentiality = -1;
+static int hf_dns_key_flags_key_required = -1;
+static int hf_dns_key_flags_associated_user = -1;
+static int hf_dns_key_flags_associated_named_entity = -1;
+static int hf_dns_key_flags_ipsec = -1;
+static int hf_dns_key_flags_mime = -1;
+static int hf_dns_key_flags_signatory = -1;
+static int hf_dns_key_protocol = -1;
+static int hf_dns_key_algorithm = -1;
+static int hf_dns_key_key_id = -1;
+static int hf_dns_key_public_key = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
 static int hf_dns_rr_opt_code = -1;
@@ -198,7 +202,7 @@ static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
 static gint ett_dns_opts = -1;
 static gint ett_nsec3_flags = -1;
-static gint ett_t_key_flags = -1;
+static gint ett_key_flags = -1;
 static gint ett_t_key = -1;
 static gint ett_dns_mac = -1;
 
@@ -1839,7 +1843,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 
       tf = proto_tree_add_item(rr_tree, hf_dns_dnskey_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
+      flags_tree = proto_item_add_subtree(tf, ett_key_flags);
       proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_zone_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_key_revoked, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(flags_tree, hf_dns_dnskey_flags_secure_entry_point, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
@@ -1874,7 +1878,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_KEY:
+    case T_KEY: /* Public Key (25) */ 
     {
       int         rr_len = data_len;
       guint16     flags;
@@ -1887,19 +1891,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 2) {
         goto bad_rr;
       }
+      tf = proto_tree_add_item(rr_tree, hf_dns_key_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      flags_tree = proto_item_add_subtree(tf, ett_key_flags);
       flags = tvb_get_ntohs(tvb, cur_offset);
-      tf = proto_tree_add_item(rr_tree, hf_dns_t_key_flags, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
-      proto_tree_add_item(flags_tree, hf_dns_t_key_flags_authentication, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_dns_t_key_flags_confidentiality, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+
+      proto_tree_add_item(flags_tree, hf_dns_key_flags_authentication, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_dns_key_flags_confidentiality, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       if ((flags & 0xC000) != 0xC000) {
         /* We have a key */
-        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_key_required, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_associated_user, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_associated_named_entity, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_ipsec, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_mime, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_dns_t_key_flags_signatory, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_key_flags_key_required, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_key_flags_associated_user, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_key_flags_associated_named_entity, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_key_flags_ipsec, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_key_flags_mime, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_dns_key_flags_signatory, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+
       }
       cur_offset += 2;
       rr_len     -= 2;
@@ -1907,26 +1913,24 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       if (rr_len < 1) {
         goto bad_rr;
       }
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Protocol: %u",
-                          tvb_get_guint8(tvb, cur_offset));
+      proto_tree_add_item(rr_tree, hf_dns_key_protocol, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
       rr_len     -= 1;
 
       if (rr_len < 1) {
         goto bad_rr;
       }
+      proto_tree_add_item(rr_tree, hf_dns_key_algorithm, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       algo = tvb_get_guint8(tvb, cur_offset);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
-                          val_to_str(algo, dnssec_algo_vals, "Unknown (0x%02X)"));
       cur_offset += 1;
       rr_len     -= 1;
 
       key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-      ti_gen = proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+      ti_gen = proto_tree_add_uint(rr_tree, hf_dns_key_key_id, tvb, 0, 0, key_id);
       PROTO_ITEM_SET_GENERATED(ti_gen);
 
       if (rr_len != 0) {
-        proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+        proto_tree_add_item(rr_tree, hf_dns_key_public_key, tvb, cur_offset, rr_len, ENC_NA);
       }
 
     }
@@ -4240,49 +4244,69 @@ proto_register_dns(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags,
-      { "Flags", "dns.t_key.flags",
+    { &hf_dns_key_flags,
+      { "Flags", "dns.key.flags",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_authentication,
-      { "Key allowed for authentication", "dns.t_key.flags.authentication",
+    { &hf_dns_key_flags_authentication,
+      { "Key allowed for authentication", "dns.key.flags.authentication",
         FT_BOOLEAN, 16, TFS(&tfs_not_allowed_allowed), 0x8000,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_confidentiality,
-      { "Key allowed for confidentiality", "dns.t_key.flags.confidentiality",
+    { &hf_dns_key_flags_confidentiality,
+      { "Key allowed for confidentiality", "dns.key.flags.confidentiality",
         FT_BOOLEAN, 16, TFS(&tfs_not_allowed_allowed), 0x4000,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_key_required,
-      { "Key required", "dns.t_key.flags.required",
+    { &hf_dns_key_flags_key_required,
+      { "Key required", "dns.key.flags.required",
         FT_BOOLEAN, 16, TFS(&tfs_required_experimental), 0x2000,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_associated_user,
-      { "Key is associated with a user", "dns.t_key.flags.associated_user",
+    { &hf_dns_key_flags_associated_user,
+      { "Key is associated with a user", "dns.key.flags.associated_user",
         FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0400,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_associated_named_entity,
-      { "Key is associated with the named entity", "dns.t_key.flags.associated_named_entity",
+    { &hf_dns_key_flags_associated_named_entity,
+      { "Key is associated with the named entity", "dns.key.flags.associated_named_entity",
         FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_ipsec,
-      { "Key use with IPSEC", "dns.t_key.flags.ipsec",
+    { &hf_dns_key_flags_ipsec,
+      { "Key use with IPSEC", "dns.key.flags.ipsec",
         FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x0080,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_mime,
-      { "Key use with MIME security multiparts", "dns.t_key.flags.mime",
+    { &hf_dns_key_flags_mime,
+      { "Key use with MIME security multiparts", "dns.key.flags.mime",
         FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x0040,
         NULL, HFILL }},
 
-    { &hf_dns_t_key_flags_signatory,
-      { "Signatory", "dns.t_key.flags.signatory",
+    { &hf_dns_key_flags_signatory,
+      { "Signatory", "dns.key.flags.signatory",
         FT_UINT16, BASE_DEC, NULL, 0x000F,
+        NULL, HFILL }},
+
+    { &hf_dns_key_protocol,
+      { "Protocol", "dns.key.protocol",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_key_algorithm,
+      { "Algorithm", "dns.key.algorithm",
+        FT_UINT8, BASE_DEC, VALS(dnssec_algo_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_key_key_id,
+      { "Key ID", "dns.key.key_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_key_public_key,
+      { "Public Key", "dns.key.public_key",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_rr_ns,
@@ -4548,7 +4572,7 @@ proto_register_dns(void)
     &ett_dns_flags,
     &ett_dns_opts,
     &ett_nsec3_flags,
-    &ett_t_key_flags,
+    &ett_key_flags,
     &ett_t_key,
     &ett_dns_mac,
   };
