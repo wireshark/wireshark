@@ -171,6 +171,7 @@ static int hf_dns_loc_latitude = -1;
 static int hf_dns_loc_longitude = -1;
 static int hf_dns_loc_altitude = -1;
 static int hf_dns_loc_unknown_data = -1;
+static int hf_dns_nxt_next_domain_name = -1;
 static int hf_dns_nsec_next_domain_name = -1;
 static int hf_dns_rr_ns = -1;
 static int hf_dns_rr_opt = -1;
@@ -2257,15 +2258,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_NXT:
+    case T_NXT: /* Next name (30) */
     {
       int           rr_len = data_len;
       const guchar *next_domain_name;
       int           next_domain_name_len;
-      int           rr_type;
-      guint8        bits;
-      int           mask;
-      int           i;
+
 
       /* XXX Fix data length */
       next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
@@ -2275,26 +2273,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       }
       proto_item_append_text(trr, ", next domain name %s", name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, next_domain_name_len,
-                          "Next domain name: %s", name_out);
+      proto_tree_add_string(rr_tree, hf_dns_nxt_next_domain_name, tvb, cur_offset, next_domain_name_len, name_out);
       cur_offset += next_domain_name_len;
       rr_len     -= next_domain_name_len;
-      rr_type = 0;
-      while (rr_len != 0) {
-        bits = tvb_get_guint8(tvb, cur_offset);
-        mask = 1<<7;
-        for (i = 0; i < 8; i++) {
-          if (bits & mask) {
-            proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-                                "RR type in bit map: %s",
-                                dns_type_description(rr_type));
-          }
-          mask >>= 1;
-          rr_type++;
-        }
-        cur_offset += 1;
-        rr_len     -= 1;
-      }
+      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
 
     }
     break;
@@ -4425,6 +4407,11 @@ proto_register_dns(void)
     { &hf_dns_loc_unknown_data,
       { "Unknown data", "dns.loc.unknown_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_nxt_next_domain_name,
+      { "Next Domain Name", "dns.nxt.next_domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_nsec_next_domain_name,
