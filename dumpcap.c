@@ -1294,7 +1294,7 @@ print_machine_readable_interfaces(GList *if_list)
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;
-        printf("%d. %s", i++, if_info->name);
+        printf("%d. %s\t", i++, if_info->name);
 
         /*
          * Print the contents of the if_entry struct in a parseable format.
@@ -1303,15 +1303,17 @@ print_machine_readable_interfaces(GList *if_list)
          */
         /* XXX - Make sure our description doesn't contain a tab */
         if (if_info->vendor_description != NULL)
-            printf("\t%s\t", if_info->vendor_description);
+            printf("%s\t", if_info->vendor_description);
         else
-            printf("\t\t");
+            printf("\t");
 
         /* XXX - Make sure our friendly name doesn't contain a tab */
         if (if_info->friendly_name != NULL)
             printf("%s\t", if_info->friendly_name);
         else
             printf("\t");
+
+        printf("%u\t", if_info->type);
 
         for (addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
                     addr = g_slist_next(addr)) {

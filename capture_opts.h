@@ -77,18 +77,6 @@ typedef enum {
 } capture_sampling;
 #endif
 
-typedef enum {
-    IF_WIRED,
-    IF_AIRPCAP,
-    IF_PIPE,
-    IF_STDIN,
-    IF_BLUETOOTH,
-    IF_WIRELESS,
-    IF_DIALUP,
-    IF_USB,
-    IF_VIRTUAL
-} interface_type;
-
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host_info {
     gchar *remote_host;          /**< Host name or network address for remote capturing */

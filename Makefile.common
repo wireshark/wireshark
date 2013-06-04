@@ -66,7 +66,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
-	capture_unix_ifnames.h	\
 	cfile.h			\
 	cfutils.h		\
 	clopts_common.h		\
