@@ -801,7 +801,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * pass through the data.
      */
     fd = se_new(ajp13_frame_data);
-    p_add_proto_data(pinfo->fd, proto_ajp13, fd, 0);
+    p_add_proto_data(pinfo->fd, proto_ajp13, 0, fd);
     fd->is_request_body = FALSE;
     if (cd->content_length) {
       /* this is screwy, see AJPv13.html. the idea is that if the
