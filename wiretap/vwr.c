@@ -711,8 +711,14 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
         return(FALSE);
     }
 
+    if (rec_size < (int)vwr->STATS_LEN) {
+        *err = file_error(wth->fh, err_info);
+        if (*err == 0)
+            *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
+            *err = WTAP_ERR_BAD_FILE;
+        return(FALSE);
+    }
     
-
     /* before writing anything out, make sure the buffer has enough space for everything */
     if ((vwr->FPGA_VERSION == vVW510021_W_FPGA) || (vwr->FPGA_VERSION == vVW510006_W_FPGA) )
     /* frames are always 802.11 with an extended radiotap header */
