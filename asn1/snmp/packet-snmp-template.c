@@ -232,6 +232,7 @@ static int hf_snmp_gauge32_value = -1;
 static int hf_snmp_objectname = -1;
 static int hf_snmp_scalar_instance_index = -1;
 
+static int hf_snmp_var_bind_str = -1;
 
 #include "packet-snmp-hf.c"
 
@@ -352,6 +353,15 @@ snmp_lookup_specific_trap (guint specific_trap)
 	}
 
 	return NULL;
+}
+
+static int
+dissect_snmp_variable_string(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+
+	proto_tree_add_item(tree, hf_snmp_var_bind_str, tvb, 0, -1, ENC_ASCII|ENC_NA);
+
+	return tvb_length(tvb);
 }
 
 /*
@@ -2316,6 +2326,9 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_scalar_instance_index, {
 		    "Scalar Instance Index", "snmp.name.index", FT_UINT64, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
+		{ &hf_snmp_var_bind_str, {
+		    "Variable-binding-string", "snmp.var-bind_str", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
 
 
 #include "packet-snmp-hfarr.c"
@@ -2490,6 +2503,13 @@ void proto_reg_handoff_snmp(void) {
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
 	data_handle = find_dissector("data");
+
+	/* SNMPv2-MIB sysDescr "1.3.6.1.2.1.1.1.0" */
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0", 
+		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
+	/* SNMPv2-MIB::sysName.0 (1.3.6.1.2.1.1.5.0) */
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0", 
+		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 
 	/*
 	 * Process preference settings.

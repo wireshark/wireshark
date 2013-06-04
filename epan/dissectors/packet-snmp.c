@@ -240,6 +240,7 @@ static int hf_snmp_gauge32_value = -1;
 static int hf_snmp_objectname = -1;
 static int hf_snmp_scalar_instance_index = -1;
 
+static int hf_snmp_var_bind_str = -1;
 
 
 /*--- Included file: packet-snmp-hf.c ---*/
@@ -311,7 +312,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 237 "../../asn1/snmp/packet-snmp-template.c"
+#line 238 "../../asn1/snmp/packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -354,7 +355,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 256 "../../asn1/snmp/packet-snmp-template.c"
+#line 257 "../../asn1/snmp/packet-snmp-template.c"
 
 static expert_field ei_snmp_failed_decrypted_data_pdu = EI_INIT;
 static expert_field ei_snmp_decrypted_data_bad_formatted = EI_INIT;
@@ -454,6 +455,15 @@ snmp_lookup_specific_trap (guint specific_trap)
 	}
 
 	return NULL;
+}
+
+static int
+dissect_snmp_variable_string(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+
+	proto_tree_add_item(tree, hf_snmp_var_bind_str, tvb, 0, -1, ENC_ASCII|ENC_NA);
+
+	return tvb_length(tvb);
 }
 
 /*
@@ -2880,7 +2890,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1664 "../../asn1/snmp/packet-snmp-template.c"
+#line 1674 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3536,6 +3546,9 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_scalar_instance_index, {
 		    "Scalar Instance Index", "snmp.name.index", FT_UINT64, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
+		{ &hf_snmp_var_bind_str, {
+		    "Variable-binding-string", "snmp.var-bind_str", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
 
 
 
@@ -3803,7 +3816,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2322 "../../asn1/snmp/packet-snmp-template.c"
+#line 2335 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3843,7 +3856,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2338 "../../asn1/snmp/packet-snmp-template.c"
+#line 2351 "../../asn1/snmp/packet-snmp-template.c"
   };
   static ei_register_info ei[] = {
      { &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},
@@ -3999,6 +4012,13 @@ void proto_reg_handoff_snmp(void) {
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
 	data_handle = find_dissector("data");
+
+	/* SNMPv2-MIB sysDescr "1.3.6.1.2.1.1.1.0" */
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0", 
+		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
+	/* SNMPv2-MIB::sysName.0 (1.3.6.1.2.1.1.5.0) */
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0", 
+		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 
 	/*
 	 * Process preference settings.
