@@ -133,6 +133,28 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
     return TRUE;
 }
 
+/* dfilter function: size() */
+static gboolean
+df_func_size(GList* arg1list, GList *arg2junk _U_, GList **retval)
+{
+    GList       *arg1;
+    fvalue_t    *arg_fvalue;
+    fvalue_t    *ft_len;
+
+    arg1 = arg1list;
+    while (arg1) {
+        arg_fvalue = (fvalue_t *)arg1->data; 
+
+        ft_len = fvalue_new(FT_UINT32);
+        fvalue_set_uinteger(ft_len, fvalue_length(arg_fvalue));
+        *retval = g_list_append(*retval, ft_len);
+
+        arg1 = arg1->next;
+    }
+
+    return TRUE;
+}
+
 /* For upper(), lower() and len(), checks that the parameter passed to
  * it is an FT_STRING */
 static void
@@ -165,12 +187,34 @@ ul_semcheck_params(int param_num, stnode_t *st_node)
     }
 }
 
+static void
+ul_semcheck_params_size(int param_num, stnode_t *st_node)
+{
+    sttype_id_t type;
+
+    type = stnode_type_id(st_node);
+
+    if (param_num == 0) {
+        switch(type) {
+            case STTYPE_FIELD:
+                break;
+            default:
+                dfilter_fail("Only type fields can be used in size()");
+                THROW(TypeError);
+        }
+    }
+    else {
+        g_assert_not_reached();
+    }
+}
+
 /* The table of all display-filter functions */
 static df_func_def_t
 df_functions[] = {
     { "lower", df_func_lower, FT_STRING, 1, 1, ul_semcheck_params },
     { "upper", df_func_upper, FT_STRING, 1, 1, ul_semcheck_params },
     { "len", df_func_len, FT_UINT32, 1, 1, ul_semcheck_params },
+    { "size", df_func_size, FT_UINT32, 1, 1, ul_semcheck_params_size },
     { NULL, NULL, FT_NONE, 0, 0, NULL }
 };
 
