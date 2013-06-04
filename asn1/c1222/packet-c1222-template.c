@@ -590,11 +590,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	/* don't do anything */
 	proto_item_set_text(tree, "C12.22 EPSEM: %s", val_to_str(cmd, commandnames, "Unknown (0x%02x)"));
 	if (*length) {
-	    if (*length >= *length) {
-	      proto_tree_add_item(tree, hf_c1222_data, tvb, *offset, *length, ENC_NA);
-	    } else {
-		expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 unknown command truncated");
-	    }
+	  proto_tree_add_item(tree, hf_c1222_data, tvb, *offset, *length, ENC_NA);
 	}
 	break;
   }
@@ -1361,7 +1357,7 @@ proto_reg_handoff_c1222(void)
 
     if( !initialized ) {
         c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
-		c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
+	c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
         dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
         dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;

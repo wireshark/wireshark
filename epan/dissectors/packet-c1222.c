@@ -638,11 +638,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	/* don't do anything */
 	proto_item_set_text(tree, "C12.22 EPSEM: %s", val_to_str(cmd, commandnames, "Unknown (0x%02x)"));
 	if (*length) {
-	    if (*length >= *length) {
-	      proto_tree_add_item(tree, hf_c1222_data, tvb, *offset, *length, ENC_NA);
-	    } else {
-		expert_add_info_format_text(pinfo, tree, &ei_c1222_command_truncated, "C12.22 unknown command truncated");
-	    }
+	  proto_tree_add_item(tree, hf_c1222_data, tvb, *offset, *length, ENC_NA);
 	}
 	break;
   }
@@ -1495,7 +1491,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1001 "../../asn1/c1222/packet-c1222-template.c"
+#line 997 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1868,7 +1864,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1277 "../../asn1/c1222/packet-c1222-template.c"
+#line 1273 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1890,7 +1886,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1287 "../../asn1/c1222/packet-c1222-template.c"
+#line 1283 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1968,7 +1964,7 @@ proto_reg_handoff_c1222(void)
 
     if( !initialized ) {
         c1222_handle = create_dissector_handle(dissect_c1222, proto_c1222);
-		c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
+	c1222_udp_handle = create_dissector_handle(dissect_c1222_common, proto_c1222);
         dissector_add_uint("tcp.port", global_c1222_port, c1222_handle);
         dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
         initialized = TRUE;
