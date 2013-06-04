@@ -1,6 +1,6 @@
 /* vwr.c
  * Copyright (c) 2011 by Tom Alexander <talexander@ixiacom.com>
- * 
+ *
  * $Id$
  *
  * Wiretap Library
@@ -78,7 +78,7 @@ typedef struct {
 } stats_common_fields;
 
 /* Size of those fields - regardless of how the compiler packs them */
-#define STATS_COMMON_FIELDS_LEN	(2+2+2+2+4+2+2+4+4+8+8+4+4)
+#define STATS_COMMON_FIELDS_LEN (2+2+2+2+4+2+2+4+4+8+8+4+4)
 
 /* Veriwave-specific extended radiotap header fields (following vwr_rtap_hdr above) */
 /* structure elements correspond one-to-one with the RADIOTAP_PRESENT bitmask below */
@@ -101,7 +101,7 @@ typedef struct {
 } ext_rtap_fields;
 
 /* Size of those fields - regardless of how the compiler packs them */
-#define EXT_RTAP_FIELDS_LEN	(2+2+2+1+1+1+1+2+2+2+4)
+#define EXT_RTAP_FIELDS_LEN (2+2+2+1+1+1+1+2+2+2+4)
 
 /* Veriwave-specific Ethernettap header */
 typedef struct {
@@ -114,7 +114,7 @@ typedef struct {
 } stats_ethernettap_fields;
 
 /* Size of those fields - regardless of how the compiler packs them */
-#define STATS_ETHERNETTAP_FIELDS_LEN	(2+2+2+2+4+4+4)
+#define STATS_ETHERNETTAP_FIELDS_LEN (2+2+2+2+4+4+4)
 
 /* the bitmap offsets of the bits in it_present, above */
 /* also lists the expected field sizes in bytes */
@@ -664,7 +664,7 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
         wth->file_type = WTAP_FILE_VWR_80211;
         wth->file_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    } 
+    }
     else if (fpgaVer == vVW510012_E_FPGA) {
         wth->file_type = WTAP_FILE_VWR_ETH;
         wth->file_encap = WTAP_ENCAP_IXVERIWAVE;
@@ -718,7 +718,7 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
             *err = WTAP_ERR_BAD_FILE;
         return(FALSE);
     }
-    
+
     /* before writing anything out, make sure the buffer has enough space for everything */
     if ((vwr->FPGA_VERSION == vVW510021_W_FPGA) || (vwr->FPGA_VERSION == vVW510006_W_FPGA) )
     /* frames are always 802.11 with an extended radiotap header */
@@ -863,7 +863,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     int         rec_size = 0;
     guint8      i;
     guint8      *s_510006_ptr = NULL;
-    guint8      *s_510024_ptr = NULL; 
+    guint8      *s_510024_ptr = NULL;
     guint8      *s_510012_ptr = NULL;               /* stats pointers */
     gint64      filePos = -1;
     guint32     frame_type = 0;
@@ -922,7 +922,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 if (rec_size > v22_W_STATS_LEN) {
                     s_510006_ptr = &(rec[rec_size - v22_W_STATS_LEN]);      /* point to 510006 WLAN */
                                                                             /* stats block */
-                
+
                     data_length = pntohs(&s_510006_ptr[v22_W_OCTET_OFF]);
                     i = 0;
                     while (((data_length + i) % 4) != 0)
@@ -931,7 +931,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     frame_type = pntohl(&s_510006_ptr[v22_W_FRAME_TYPE_OFF]);
 
                     if (rec_size == (data_length + v22_W_STATS_LEN + i) && (frame_type & v22_W_IS_80211) == 0x1000000) {
-                        fpga_version = vVW510006_W_FPGA; 
+                        fpga_version = vVW510006_W_FPGA;
                     }
                 }
 
@@ -945,7 +945,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                         i = i + 1;
 
                     if (rec_size == (data_length + v22_E_STATS_LEN + i))
-                        fpga_version = vVW510012_E_FPGA; 
+                        fpga_version = vVW510012_E_FPGA;
                 }
 
 
@@ -961,7 +961,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 
                     /*the 12 is from the 12 bytes of plcp header */
                     if (rec_size == (data_length + vVW510021_W_STATS_LEN +vVW510021_W_AFTERHEADER_LEN+12+i))
-                        fpga_version = vVW510021_W_FPGA; 
+                        fpga_version = vVW510021_W_FPGA;
                 }
 
                 /* Finally the Series II Ethernet */
@@ -974,7 +974,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                         i = i + 1;
 
                     if (rec_size == (data_length + vVW510024_E_STATS_LEN + i))
-                        fpga_version = vVW510024_E_FPGA; 
+                        fpga_version = vVW510024_E_FPGA;
                 }
                 if (fpga_version != 1000)
                 {
@@ -1240,7 +1240,7 @@ static void vwr_read_rec_data(wtap *wth, struct wtap_pkthdr *phdr,
     bytes_written += 4;
 
     /* finally, copy the whole MAC frame to the packet buffer as-is; exclude FCS */
-    if ( rec_size < ((int)msdu_length + (int)vwr->STATS_LEN) ) 
+    if ( rec_size < ((int)msdu_length + (int)vwr->STATS_LEN) )
         /*something's been truncated, DUMP AS-IS*/
         memcpy(&data_ptr[bytes_written], m_ptr, octets);
     else if (octets >= 4)
@@ -1293,7 +1293,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
     guint16         chanflags = 0;                  /* extended radio tap channel flags */
     guint16         radioflags = 0;                 /* extended radio tap flags */
     guint64         delta_b;                        /* Used for calculating latency */
-    
+
     /* calculate the start of the statistics block in the buffer */
     /* also get a bunch of fields from the stats block */
     s_start_ptr = &(rec[0]);
@@ -1307,7 +1307,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
     /* If the packet has an MSDU length of 0, then bail - malformed packet */
     /* if (msdu_length < 4) return; */
     actual_octets = msdu_length;
-    
+
 
     f_tx = IS_TX;
     vc_id = pntohs(&s_start_ptr[vwr->VCID_OFF]);
@@ -1376,11 +1376,11 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
     else {
         rate = 1;
     }
-    
+
     /* calculate the MPDU size/ptr stuff; MPDU starts at 4 or 6 depending on OFDM/CCK */
     /* note that the number of octets in the frame also varies depending on OFDM/CCK, */
     /*  because the PLCP header is prepended to the actual MPDU */
-    /*the 8 is from the 8 bytes of stats block that precede the plcps , 
+    /*the 8 is from the 8 bytes of stats block that precede the plcps ,
     the 12 is for 11 bytes plcp and 1 byte of pad before the data*/
     m_ptr = &(rec[8+12]);
 
@@ -1485,8 +1485,8 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
         er_fields.flags |= RADIOTAP_F_SHORTPRE;
 
     er_fields.rate = rate;
-    er_fields.chanflags = chanflags; 
-    
+    er_fields.chanflags = chanflags;
+
     if (f_tx) {
         er_fields.tx_power = (gint8)tx_power;
         er_fields.signal = 100;
@@ -1591,7 +1591,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
     bytes_written += 4;
 
     /* finally, copy the whole MAC frame to the packet buffer as-is; exclude 4-byte FCS */
-    if ( rec_size < ((int)actual_octets + (int)vwr->STATS_LEN) ) 
+    if ( rec_size < ((int)actual_octets + (int)vwr->STATS_LEN) )
         /*something's been truncated, DUMP AS-IS*/
         memcpy(&data_ptr[bytes_written], m_ptr, msdu_length);
     else if (msdu_length >= 4)
@@ -1636,7 +1636,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, struct wtap_pkthdr *phdr,
     /* also get a bunch of fields from the stats block */
     m_ptr = &(rec[0]);                              /* point to the data block */
     s_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to the stats block */
-    
+
     msdu_length = pntohs(&s_ptr[vwr->OCTET_OFF]);
     actual_octets = msdu_length;
     /* sanity check the msdu_length field to determine if it is OK (or segfaults result) */
@@ -1833,7 +1833,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, struct wtap_pkthdr *phdr,
     bytes_written += 4;
 
     /* finally, copy the whole MAC frame to the packet bufffer as-is; ALWAYS exclude 4-byte FCS */
-    if ( rec_size < ((int)actual_octets + (int)vwr->STATS_LEN) ) 
+    if ( rec_size < ((int)actual_octets + (int)vwr->STATS_LEN) )
         /*something's been truncated, DUMP AS-IS*/
         memcpy(&data_ptr[bytes_written], m_ptr, msdu_length);
     else if (msdu_length >= 4)
