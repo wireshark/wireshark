@@ -32,6 +32,8 @@
 
 #include <epan/prefs.h>
 
+#include "../capture_opts.h"
+#include "../capture_session.h"
 #include "../capture_ifinfo.h"
 #include "../capture.h"
 #include "../capture-pcap-util.h"
