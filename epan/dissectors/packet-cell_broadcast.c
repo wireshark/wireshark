@@ -127,6 +127,7 @@ static int hf_gsm_cbs_page_count		= -1;
 static int hf_gsm_cbs_message_reassembled_in		= -1;
 static int hf_gsm_cbs_message_reassembled_length		= -1;
 static int hf_gsm_cbs_page_content		= -1;
+static int hf_gsm_cbs_page_content_padding = -1;
 static int hf_gsm_cbs_message_content		= -1;
 
 /* Initialize the subtree pointers */
@@ -308,7 +309,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    guint8 sms_encoding, total_pages, current_page;
    guint32       offset = 0;
-   guint         len;
+   guint         len, text_len;
    guint32       msg_key;
    proto_item    *cbs_page_item = NULL;
    proto_tree    *cbs_page_tree = NULL;
@@ -339,30 +340,45 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    if (cbs_page_tvb != NULL)
    {
-     if (tree != NULL)
-     {
-        proto_item *item = proto_tree_add_text(cbs_page_tree, tvb, offset, -1, "Cell Broadcast Page Contents");
-        proto_tree *cbs_page_subtree = proto_item_add_subtree(item, ett_gsm_cbs_page_content);
-        len = tvb_length(cbs_page_tvb);
-        proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0, len, tvb_get_ephemeral_string(cbs_page_tvb, 0, len));
-     }
-     if (total_pages == 1)
-     {
-        /* no need for reassembly */
-        cbs_msg_tvb = cbs_page_tvb;
-     }
-     else
-     {
-         /* now we have a complete page, try to concatenate the full message */
-        /* we can use the serial number and message ID as keys, as they are the same for all pages of a message */
-        msg_key = (serial_number << 16) + message_id;
-        frag_data = fragment_add_check(&gsm_cbs_reassembly_table,
-                                       cbs_page_tvb, 0, pinfo, msg_key, NULL,
-                                       ((current_page -1) * GSM_CBS_PAGE_SIZE),
-                                       GSM_CBS_PAGE_SIZE, (current_page!=total_pages));
-        cbs_msg_tvb = process_reassembled_data(cbs_page_tvb, 0, pinfo, "Reassembled Cell Broadcast message",
-                                            frag_data, &gsm_page_items, NULL, cbs_page_tree);
-     }
+      text_len = tvb_length(cbs_page_tvb);
+      while (text_len && (tvb_get_guint8(cbs_page_tvb, text_len-1) == '\r')) {
+         text_len--;
+      }
+      if (tree != NULL)
+      {
+         proto_item *item = proto_tree_add_text(cbs_page_tree, tvb, offset, -1, "Cell Broadcast Page Contents");
+         proto_tree *cbs_page_subtree = proto_item_add_subtree(item, ett_gsm_cbs_page_content);
+         len = tvb_length(cbs_page_tvb);
+         proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0,
+                               text_len, tvb_get_ephemeral_string(cbs_page_tvb, 0, text_len));
+         len -= text_len;
+         if (len)
+         {
+            proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content_padding, cbs_page_tvb, text_len, len,
+                                  tvb_get_ephemeral_string(cbs_page_tvb, text_len, len));
+         }
+      }
+      if (text_len)
+      {
+         cbs_page_tvb = tvb_new_subset(cbs_page_tvb, 0, text_len, text_len);
+         if (total_pages == 1)
+         {
+            /* no need for reassembly */
+            cbs_msg_tvb = cbs_page_tvb;
+         }
+         else
+         {
+             /* now we have a complete page, try to concatenate the full message */
+            /* we can use the serial number and message ID as keys, as they are the same for all pages of a message */
+            msg_key = (serial_number << 16) + message_id;
+            frag_data = fragment_add_seq_check(&gsm_cbs_reassembly_table,
+                                               cbs_page_tvb, 0, pinfo, msg_key, NULL,
+                                               (current_page -1), text_len,
+                                               (current_page!=total_pages));
+            cbs_msg_tvb = process_reassembled_data(cbs_page_tvb, 0, pinfo, "Reassembled Cell Broadcast message",
+                                                frag_data, &gsm_page_items, NULL, cbs_page_tree);
+         }
+      }
    }
    if (cbs_msg_tvb != NULL)
    {
@@ -524,6 +540,13 @@ proto_register_cbs(void)
             { &hf_gsm_cbs_page_content,
               {	"CBS Page Content",
             "gsm_cbs.page_content",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL
+              }
+            },
+            { &hf_gsm_cbs_page_content_padding,
+              {	"CBS Page Content Padding",
+            "gsm_cbs.page_content_padding",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL
               }
