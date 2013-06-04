@@ -102,7 +102,6 @@ void color_filters_prime_edt(epan_dissect_t *edt);
 
 /** Colorize a specific packet.
  *
- * @param row the row in the packet list
  * @param edt the dissected packet
  * @return the matching color filter or NULL
  */

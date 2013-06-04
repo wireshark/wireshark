@@ -143,8 +143,8 @@ cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
  *
  * @param cf the capture file from which to read the packet
  * @param fdata the frame_data structure for the packet in question
- * @param pseudo_header pointer to a wtap_pseudo_header union into
- * which to read the packet's pseudo-header
+ * @param phdr pointer to a wtap_pkthdr structure to contain the
+ * packet's pseudo-header and other metadata
  * @param pd a guin8 array into which to read the packet's raw data
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
@@ -245,7 +245,7 @@ gboolean cf_has_unsaved_data(capture_file *cf);
  * @param fname the filename to save to
  * @param save_format the format of the file to save (libpcap, ...)
  * @param compressed whether to gzip compress the file
- * @discard_comments TRUE if we should discard comments if the save
+ * @param discard_comments TRUE if we should discard comments if the save
  * succeeds (because we saved in a format that doesn't support
  * comments)
  * @param dont_reopen TRUE if it shouldn't reopen and make that file the
