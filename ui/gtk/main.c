@@ -2848,8 +2848,10 @@ main(int argc, char *argv[])
   }
 
   if (start_capture || list_link_layer_types) {
-    /* Did the user specify an interface to use? */
-    status = capture_opts_trim_iface(&global_capture_opts,
+    /* We're supposed to do a live capture or get a list of link-layer
+       types for a live capture device; if the user didn't specify an
+       interface to use, pick a default. */
+    status = capture_opts_default_iface_if_necessary(&global_capture_opts,
         ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
     if (status != 0) {
       exit(status);

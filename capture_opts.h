@@ -252,9 +252,10 @@ capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min);
 extern void
 capture_opts_trim_ring_num_files(capture_options *capture_opts);
 
-/* trim the interface entry */
+/* pick default interface if none was specified */
 extern int
-capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device);
+capture_opts_default_iface_if_necessary(capture_options *capture_opts,
+                                        const char *capture_device);
 
 extern void
 collect_ifaces(capture_options *capture_opts);

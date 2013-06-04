@@ -1937,11 +1937,11 @@ main(int argc, char *argv[])
     }
   } else {
     /* No capture file specified, so we're supposed to do a live capture
-       (or get a list of link-layer types for a live capture device);
+       or get a list of link-layer types for a live capture device;
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
-    /* trim the interface name and exit if that failed */
-    exit_status = capture_opts_trim_iface(&global_capture_opts,
+    /* if no interface was specified, pick a default */
+    exit_status = capture_opts_default_iface_if_necessary(&global_capture_opts,
         ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
     if (exit_status != 0)
         return exit_status;

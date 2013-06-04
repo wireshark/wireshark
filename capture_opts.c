@@ -39,7 +39,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "ui/simple_dialog.h"
 #include "capture_ui_utils.h"
 
 #include "capture_opts.h"
@@ -518,7 +517,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
          * the interface name, so that the user can try specifying an
          * interface explicitly for testing purposes.
          */
-        if_list = capture_interface_list(&err, &err_str);
+        if_list = capture_interface_list(&err, NULL);
         if (if_list != NULL) {
             /* try and do an exact match (case insensitive) */
             GList   *if_entry;
@@ -929,9 +928,12 @@ capture_opts_trim_ring_num_files(capture_options *capture_opts)
 #endif
 }
 
-
+/*
+ * If no interface was specified explicitly, pick a default.
+ */
 int
-capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device)
+capture_opts_default_iface_if_necessary(capture_options *capture_opts,
+                                        const char *capture_device)
 {
     int status;
 
