@@ -956,7 +956,7 @@ sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
 /* XXX - assumes PIPE_BUF_SIZE > SP_MAX_MSG_LEN */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
+sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
                       gchar **secondary_msg)
 {
     gchar *msg;
@@ -1128,6 +1128,43 @@ sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
     return ret;
 }
 
+/* centralised logging and timing for sync_pipe_run_command_actual(), 
+* redirects to sync_pipe_run_command_actual()
+*/
+static int
+sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
+                      gchar **secondary_msg)
+{
+    int ret, i;
+    GTimeVal start_time;
+    GTimeVal end_time;
+    float elapsed;
+    int logging_enabled;
+    
+    /* check if logging is actually enabled, otherwise don't expend the CPU generating logging */
+    logging_enabled=( (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO) & G_LOG_LEVEL_MASK & prefs.console_log_level);
+    if(logging_enabled){
+        g_get_current_time(&start_time);
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "sync_pipe_run_command() starts");
+        for(i=0; argv[i] != 0; i++) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  argv[%d]: %s", i, argv[i]);
+        }
+    }
+    /* do the actual sync pipe run command */
+    ret=sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg);
+
+    if(logging_enabled){
+        g_get_current_time(&end_time);
+        elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
+                           ((end_time.tv_usec - start_time.tv_usec) / 1e6));
+
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "sync_pipe_run_command() ends, taking %.3fs, result=%d", elapsed, ret);
+
+    }
+    return ret;
+}
+
+
 int
 sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
                               gchar **data, gchar **primary_msg,
@@ -1236,7 +1273,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
     int argc;
     char **argv;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_linktype_list_open");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_if_capabilities_open");
 
     argv = init_pipe_args(&argc);
 

@@ -4459,6 +4459,9 @@ main(int argc, char *argv[])
     global_capture_opts.saving_to_file      = TRUE;
     global_capture_opts.has_ring_num_files  = TRUE;
 
+	/* Pass on capture_child mode for capture_opts */
+	global_capture_opts.capture_child = capture_child;
+
     /* Now get our args */
     while ((opt = getopt(argc, argv, OPTSTRING)) != -1) {
         switch (opt) {
