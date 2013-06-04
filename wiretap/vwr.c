@@ -620,7 +620,7 @@ static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 static void         vwr_read_rec_data_vVW510021(wtap *, struct wtap_pkthdr *, guint8 *, guint8 *, int, int);
 static void         vwr_read_rec_data_ethernet(wtap *, struct wtap_pkthdr *, guint8 *, guint8 *, int, int);
 
-static int          find_signature(register guint8 *, int, register guint32, register guint8);
+static int          find_signature(register guint8 *, int, int, register guint32, register guint8);
 static guint64      get_signature_ts(register guint8 *, int);
 
 /* open a .vwr file for reading */
@@ -1115,7 +1115,7 @@ static void vwr_read_rec_data(wtap *wth, struct wtap_pkthdr *phdr,
         pay_off = mac_snap + 20;
     }
 
-    sig_off = find_signature(m_ptr, pay_off, flow_id, flow_seq);
+    sig_off = find_signature(m_ptr, pay_off, rec_size, flow_id, flow_seq);
     if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= msdu_length) && (f_flow != 0))
         sig_ts = get_signature_ts(m_ptr, sig_off);
     else
@@ -1435,7 +1435,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, struct wtap_pkthdr *phdr,
         pay_off = mac_snap + 20;
     }
 
-    sig_off = find_signature(m_ptr, pay_off, flow_id, flow_seq);
+    sig_off = find_signature(m_ptr, pay_off, rec_size, flow_id, flow_seq);
     if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= msdu_length) && (f_flow != 0))
         sig_ts = get_signature_ts(m_ptr, sig_off);
     else
@@ -1717,7 +1717,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, struct wtap_pkthdr *phdr,
         pay_off = mac_len + 20;
     }
 
-    sig_off = find_signature(m_ptr, pay_off, flow_id, flow_seq);
+    sig_off = find_signature(m_ptr, pay_off, rec_size, flow_id, flow_seq);
     if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= msdu_length) && (f_flow != 0))
         sig_ts = get_signature_ts(m_ptr, sig_off);
     else
@@ -2152,7 +2152,7 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
 
 /* utility routine: check that signature is at specified location; scan for it if not */
 /* if we can't find a signature at all, then simply return the originally supplied offset */
-int find_signature(guint8 *m_ptr, int pay_off, guint32 flow_id, guint8 flow_seq)
+int find_signature(guint8 *m_ptr, int pay_off, gint rec_size, guint32 flow_id, guint8 flow_seq)
 {
     int     tgt;                /* temps */
     guint32 fid;
@@ -2165,7 +2165,7 @@ int find_signature(guint8 *m_ptr, int pay_off, guint32 flow_id, guint8 flow_seq)
     /* payload until maximum scan range exhausted to see if we can find it */
     /* the scanning process consists of looking for a '0xdd', then checking for the correct */
     /* flow ID and sequence number at the appropriate offsets */
-    for (tgt = pay_off; tgt < (pay_off + SIG_SCAN_RANGE); tgt++) {
+    for (tgt = pay_off; tgt < (pay_off + SIG_SCAN_RANGE) && tgt < rec_size; tgt++) {
         if (m_ptr[tgt] == 0xdd) {                       /* found magic byte? check fields */
             if (m_ptr[tgt + 15] == 0xe2) {
                 if (m_ptr[tgt + 4] != flow_seq)
