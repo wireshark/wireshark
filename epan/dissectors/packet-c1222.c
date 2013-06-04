@@ -164,6 +164,7 @@ static int hf_c1222_write_table = -1;
 static int hf_c1222_write_offset = -1;
 static int hf_c1222_write_size = -1;
 static int hf_c1222_write_data = -1;
+static int hf_c1222_procedure_num = -1;
 static int hf_c1222_write_chksum = -1;
 static int hf_c1222_wait_secs = -1;
 static int hf_c1222_neg_pkt_size = -1;
@@ -227,7 +228,7 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 183 "../../asn1/c1222/packet-c1222-template.c"
+#line 184 "../../asn1/c1222/packet-c1222-template.c"
 
 static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
@@ -277,7 +278,7 @@ static const value_string tableflags[] = {
 
 static const value_string procflags[] = {
   { 0x00, "SF" },
-  { 0x01, "MF" },
+  { 0x08, "MF" },
   { 0, NULL }
 };
 
@@ -410,6 +411,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   guint8 wait_seconds = 0;
   int numrates = 0;
   guint16 packet_size;
+  guint16 procedure_num;
   guint8 nbr_packet;
   /* timing setup parameters */
   guint8 traffic;
@@ -525,18 +527,36 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    *offset += 2;
 	    *length -= 2;
 	    if (*length >= tblsize+1U) {
+		if (table == 7) {/* is it a procedure call? */
+		    procedure_num = tvb_get_letohs(tvb, *offset);
+		    proto_tree_add_uint(tree, hf_c1222_procedure_num, tvb, *offset, 2, procedure_num);
+		    *offset += 2;
+		    *length -= 2;
+		    tblsize -= 2;
+		} 
 		proto_tree_add_item(tree, hf_c1222_write_data, tvb, *offset, tblsize, ENC_NA);
 		*offset += tblsize;
 		*length -= tblsize;
 		chksum = tvb_get_guint8(tvb, *offset);
 		item = proto_tree_add_uint(tree, hf_c1222_write_chksum, tvb, *offset, 1, chksum);
-		calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
+		if (table == 7) {/* is it a procedure call? */
+		    calcsum = c1222_cksum(tvb, (*offset)-tblsize-2, tblsize+2);
+		} else {
+		    calcsum = c1222_cksum(tvb, (*offset)-tblsize, tblsize);
+		}
 		if (chksum != calcsum) {
 		  expert_add_info_format_text(pinfo, item, &ei_c1222_bad_checksum, "Bad checksum [should be 0x%02x]", calcsum);
 		}
-		proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-			val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
-			val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
+		if (table == 7) {/* is it a procedure call? */
+		    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d, %s-%d)",
+			    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+			    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF,
+			    val_to_str((procedure_num >> 8) & 0xF8, procflags,"Unknown (0x%04x)"), procedure_num & 0x7FF);
+		} else {
+		    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
+			    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
+			    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
+		}
 		*offset += 1;
 		*length -= 1;
 	    } else {
@@ -1491,7 +1511,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 997 "../../asn1/c1222/packet-c1222-template.c"
+#line 1017 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1707,6 +1727,12 @@ void proto_register_c1222(void) {
     NULL, 0x0,
     NULL, HFILL }
    },
+   { &hf_c1222_procedure_num,
+    { "C12.22 Procedure Number", "c1222.procedure.num",
+    FT_UINT16, BASE_DEC,
+    NULL, 0x7ff,
+    NULL, HFILL }
+   },
    { &hf_c1222_neg_pkt_size,
     { "C12.22 Negotiate Packet Size", "c1222.negotiate.pktsize",
     FT_UINT16, BASE_DEC,
@@ -1864,7 +1890,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1273 "../../asn1/c1222/packet-c1222-template.c"
+#line 1299 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1886,7 +1912,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1283 "../../asn1/c1222/packet-c1222-template.c"
+#line 1309 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
