@@ -516,6 +516,7 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
   size_t size        = 0;
   size_t subhdr_size = 0;
   int    i           = 0;
+  guint8 has_more    = 0;
 
   switch(encap){
     case WTAP_ENCAP_ERF:
@@ -558,15 +559,17 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
   wdh->bytes_dumped += size;
 
   /*write out up to MAX_ERF_EHDR extension headers*/
-  if((pseudo_header->erf.phdr.type & 0x80) != 0){  /*we have extension headers*/
+  has_more = pseudo_header->erf.phdr.type & 0x80;
+  if(has_more){  /*we have extension headers*/
     do{
       phtonll(ehdr+(i*8), pseudo_header->erf.ehdr_list[i].ehdr);
       if(i == MAX_ERF_EHDR-1) ehdr[i*8] = ehdr[i*8] & 0x7F;
+      has_more = ehdr[i*8] & 0x80;
       i++;
-    }while((ehdr[0] & 0x80) != 0 && i < MAX_ERF_EHDR);
-    if (!wtap_dump_file_write(wdh, ehdr, MAX_ERF_EHDR*i, err))
+    }while(has_more && i < MAX_ERF_EHDR);
+    if (!wtap_dump_file_write(wdh, ehdr, 8*i, err))
       return FALSE;
-    wdh->bytes_dumped += MAX_ERF_EHDR*i;
+    wdh->bytes_dumped += 8*i;
   }
 
   if(!wtap_dump_file_write(wdh, erf_subhdr, subhdr_size, err))
@@ -606,6 +609,11 @@ static gboolean erf_dump(
     if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
     wdh->bytes_dumped += phdr->caplen;
 
+    /*XXX: this pads the record to its original length, which is fine in most 
+     * cases. However with >MAX_ERF_EHDR unnecessary padding will be added, and 
+     * if the record was truncated this will be incorrectly treated as payload. 
+     * More than 8 extension headers is unusual though, only the first 8 are 
+     * written out anyway and fixing properly would require major refactor.*/
     while(wdh->bytes_dumped < alignbytes){
       if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
       wdh->bytes_dumped++;
