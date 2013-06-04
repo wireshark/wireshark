@@ -259,7 +259,7 @@ guint32_to_str_buf_len(const guint32 u) {
     return 1;
 }
 
-static const char * const fast_strings[] = {
+static const char const fast_strings[][4] = {
 "0", "1", "2", "3", "4", "5", "6", "7",
 "8", "9", "10", "11", "12", "13", "14", "15",
 "16", "17", "18", "19", "20", "21", "22", "23",
@@ -499,7 +499,7 @@ time_msecs_to_str(gint32 time_val)
   return buf->str;
 }
 
-static const char *mon_names[12] = {
+static const char mon_names[12][4] = {
 	"Jan",
 	"Feb",
 	"Mar",
