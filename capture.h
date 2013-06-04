@@ -32,6 +32,7 @@
  */
 
 #include "capture_opts.h"
+#include "capture_session.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +50,7 @@ typedef enum {
     capture_cb_capture_failed
 } capture_cbs;
 
-typedef void (*capture_callback_t) (gint event, capture_options *capture_opts,
+typedef void (*capture_callback_t) (gint event, capture_session *cap_session,
                                     gpointer user_data);
 
 extern void
@@ -64,48 +65,60 @@ capture_callback_remove(capture_callback_t func);
  * @param capture_opts the numerous capture options
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
-extern gboolean capture_start(capture_options *capture_opts);
+extern gboolean
+capture_start(capture_options *capture_opts, capture_session *cap_session);
 
 /** Stop a capture session (usually from a menu item). */
-extern void capture_stop(capture_options *capture_opts);
+extern void
+capture_stop(capture_session *cap_session);
 
 /** Restart the current captured packets and start again. */
-extern void capture_restart(capture_options *capture_opts);
+extern void
+capture_restart(capture_session *cap_session);
 
 /** Terminate the capture child cleanly when exiting. */
-extern void capture_kill_child(capture_options *capture_opts);
+extern void
+capture_kill_child(capture_session *cap_session);
 
 /**
  * Capture child told us we have a new (or the first) capture file.
  */
-extern gboolean capture_input_new_file(capture_options *capture_opts, gchar *new_file);
+extern gboolean
+capture_input_new_file(capture_session *cap_session, gchar *new_file);
 
 /**
  * Capture child told us we have new packets to read.
  */
-extern void capture_input_new_packets(capture_options *capture_opts, int to_read);
+extern void
+capture_input_new_packets(capture_session *cap_session, int to_read);
 
 /**
  * Capture child told us how many dropped packets it counted.
  */
-extern void capture_input_drops(capture_options *capture_opts, guint32 dropped);
+extern void
+capture_input_drops(capture_session *cap_session, guint32 dropped);
 
 /**
  * Capture child told us that an error has occurred while starting the capture.
  */
-extern void capture_input_error_message(capture_options *capture_opts, char *error_message, char *secondary_error_msg);
+extern void
+capture_input_error_message(capture_session *cap_session, char *error_message,
+                            char *secondary_error_msg);
 
 /**
  * Capture child told us that an error has occurred while parsing a
  * capture filter when starting/running the capture.
  */
-extern void capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char *error_message);
+extern void
+capture_input_cfilter_error_message(capture_session *cap_session, guint i,
+                                    char *error_message);
 
 /**
  * Capture child closed its side of the pipe, report any error and
  * do the required cleanup.
  */
-extern void capture_input_closed(capture_options *capture_opts, gchar *msg);
+extern void
+capture_input_closed(capture_session *cap_session, gchar *msg);
 
 struct if_stat_cache_s;
 typedef struct if_stat_cache_s if_stat_cache_t;

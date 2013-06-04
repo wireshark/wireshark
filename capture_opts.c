@@ -54,9 +54,8 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 
 
 void
-capture_opts_init(capture_options *capture_opts, void *cf)
+capture_opts_init(capture_options *capture_opts)
 {
-  capture_opts->cf                              = cf;
   capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
   capture_opts->all_ifaces                      = g_array_new(FALSE, FALSE, sizeof(interface_t));
   capture_opts->num_selected                    = 0;
@@ -114,18 +113,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->has_autostop_duration           = FALSE;
   capture_opts->autostop_duration               = 60;               /* 1 min */
 
-
-  capture_opts->fork_child                      = -1;               /* invalid process handle */
-#ifdef _WIN32
-  capture_opts->signal_pipe_write_fd            = -1;
-#endif
-  capture_opts->state                           = CAPTURE_STOPPED;
   capture_opts->output_to_pipe                  = FALSE;
-#ifndef _WIN32
-  capture_opts->owner                           = getuid();
-  capture_opts->group                           = getgid();
-#endif
-  capture_opts->session_started                 = FALSE;
 }
 
 
@@ -135,7 +123,6 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     guint i;
 
     g_log(log_domain, log_level, "CAPTURE OPTIONS     :");
-    g_log(log_domain, log_level, "CFile               : %p", capture_opts->cf);
 
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         interface_options interface_opts;
@@ -229,11 +216,6 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
     g_log(log_domain, log_level, "AutostopFilesize(%u) : %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
     g_log(log_domain, log_level, "AutostopDuration(%u) : %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
-
-    g_log(log_domain, log_level, "ForkChild           : %d", capture_opts->fork_child);
-#ifdef _WIN32
-    g_log(log_domain, log_level, "SignalPipeWrite     : %d", capture_opts->signal_pipe_write_fd);
-#endif
 }
 
 /*

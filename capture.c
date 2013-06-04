@@ -77,7 +77,7 @@ typedef struct {
 static GList *capture_callbacks = NULL;
 
 static void
-capture_callback_invoke(int event, capture_options *capture_opts)
+capture_callback_invoke(int event, capture_session *cap_session)
 {
   capture_callback_data_t *cb;
   GList *cb_item = capture_callbacks;
@@ -87,7 +87,7 @@ capture_callback_invoke(int event, capture_options *capture_opts)
 
   while(cb_item != NULL) {
     cb = (capture_callback_data_t *)cb_item->data;
-    cb->cb_fct(event, capture_opts, cb->user_data);
+    cb->cb_fct(event, cap_session, cb->user_data);
     cb_item = g_list_next(cb_item);
   }
 }
@@ -130,13 +130,13 @@ capture_callback_remove(capture_callback_t func)
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 gboolean
-capture_start(capture_options *capture_opts)
+capture_start(capture_options *capture_opts, capture_session *cap_session)
 {
   gboolean ret;
   guint i;
   GString *source = g_string_new("");
 
-  capture_opts->state = CAPTURE_PREPARING;
+  cap_session->state = CAPTURE_PREPARING;
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 #ifdef _WIN32
   if (capture_opts->ifaces->len < 2) {
@@ -165,10 +165,10 @@ capture_start(capture_options *capture_opts)
   } else {
     g_string_append_printf(source, "%u interfaces", capture_opts->ifaces->len);
   }
-  cf_set_tempfile_source((capture_file *)capture_opts->cf, source->str);
+  cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
   g_string_free(source, TRUE);
   /* try to start the capture child process */
-  ret = sync_pipe_start(capture_opts);
+  ret = sync_pipe_start(capture_opts, cap_session);
   if(!ret) {
       if(capture_opts->save_file != NULL) {
           g_free(capture_opts->save_file);
@@ -176,17 +176,17 @@ capture_start(capture_options *capture_opts)
       }
 
       g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start failed!");
-      capture_opts->state = CAPTURE_STOPPED;
+      cap_session->state = CAPTURE_STOPPED;
   } else {
       /* the capture child might not respond shortly after bringing it up */
       /* (for example: it will block if no input arrives from an input capture pipe (e.g. mkfifo)) */
 
       /* to prevent problems, bring the main GUI into "capture mode" right after a successful */
       /* spawn/exec of the capture child, without waiting for any response from it */
-      capture_callback_invoke(capture_cb_capture_prepared, capture_opts);
+      capture_callback_invoke(capture_cb_capture_prepared, cap_session);
 
       if(capture_opts->show_info)
-        capture_info_open(capture_opts);
+        capture_info_open(cap_session);
   }
 
   return ret;
@@ -194,54 +194,55 @@ capture_start(capture_options *capture_opts)
 
 
 void
-capture_stop(capture_options *capture_opts)
+capture_stop(capture_session *cap_session)
 {
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Stop ...");
 
-  capture_callback_invoke(capture_cb_capture_stopping, capture_opts);
+  capture_callback_invoke(capture_cb_capture_stopping, cap_session);
 
   /* stop the capture child gracefully */
-  sync_pipe_stop(capture_opts);
+  sync_pipe_stop(cap_session);
 }
 
 
 void
-capture_restart(capture_options *capture_opts)
+capture_restart(capture_session *cap_session)
 {
+    capture_options *capture_opts = cap_session->capture_opts;
+
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Restart");
 
     capture_opts->restart = TRUE;
-    capture_stop(capture_opts);
+    capture_stop(cap_session);
 }
 
 
 void
-capture_kill_child(capture_options *capture_opts)
+capture_kill_child(capture_session *cap_session)
 {
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "Capture Kill");
 
   /* kill the capture child */
-  sync_pipe_kill(capture_opts->fork_child);
+  sync_pipe_kill(cap_session->fork_child);
 }
-
-
 
 /* We've succeeded in doing a (non real-time) capture; try to read it into a new capture file */
 static gboolean
-capture_input_read_all(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
-guint32 drops)
+capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
+                       gboolean drops_known, guint32 drops)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   int err;
 
   /* Capture succeeded; attempt to open the capture file. */
-  if (cf_open((capture_file *)capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
+  if (cf_open((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
     /* We're not doing a capture any more, so we don't have a save file. */
     return FALSE;
   }
 
   /* Set the read filter to NULL. */
   /* XXX - this is odd here; try to put it somewhere where it fits better */
-  cf_set_rfcode((capture_file *)capture_opts->cf, NULL);
+  cf_set_rfcode((capture_file *)cap_session->cf, NULL);
 
   /* Get the packet-drop statistics.
 
@@ -262,7 +263,7 @@ guint32 drops)
      thus not have to set them here - "cf_read()" will get them from
      the file and use them. */
   if (drops_known) {
-    cf_set_drops_known((capture_file *)capture_opts->cf, TRUE);
+    cf_set_drops_known((capture_file *)cap_session->cf, TRUE);
 
     /* XXX - on some systems, libpcap doesn't bother filling in
        "ps_ifdrop" - it doesn't even set it to zero - so we don't
@@ -272,11 +273,11 @@ guint32 drops)
        several statistics - perhaps including various interface
        error statistics - and would tell us which of them it
        supplies, allowing us to display only the ones it does. */
-    cf_set_drops((capture_file *)capture_opts->cf, drops);
+    cf_set_drops((capture_file *)cap_session->cf, drops);
   }
 
   /* read in the packet data */
-  switch (cf_read((capture_file *)capture_opts->cf, FALSE)) {
+  switch (cf_read((capture_file *)cap_session->cf, FALSE)) {
 
   case CF_READ_OK:
   case CF_READ_ERROR:
@@ -293,7 +294,7 @@ guint32 drops)
   }
 
   /* if we didn't capture even a single packet, close the file again */
-  if(cf_get_packet_count((capture_file *)capture_opts->cf) == 0 && !capture_opts->restart) {
+  if(cf_get_packet_count((capture_file *)cap_session->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
 "%sNo packets captured!%s\n"
 "\n"
@@ -310,8 +311,8 @@ guint32 drops)
 #endif
 "",
     simple_dialog_primary_start(), simple_dialog_primary_end(),
-    (cf_is_tempfile((capture_file *)capture_opts->cf)) ? "temporary " : "");
-    cf_close((capture_file *)capture_opts->cf);
+    (cf_is_tempfile((capture_file *)cap_session->cf)) ? "temporary " : "");
+    cf_close((capture_file *)cap_session->cf);
   }
   return TRUE;
 }
@@ -319,38 +320,39 @@ guint32 drops)
 
 /* capture child tells us we have a new (or the first) capture file */
 gboolean
-capture_input_new_file(capture_options *capture_opts, gchar *new_file)
+capture_input_new_file(capture_session *cap_session, gchar *new_file)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   gboolean is_tempfile;
   int  err;
 
-  if(capture_opts->state == CAPTURE_PREPARING) {
+  if(cap_session->state == CAPTURE_PREPARING) {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
   }
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
 
-  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
   /* free the old filename */
   if(capture_opts->save_file != NULL) {
     /* we start a new capture file, close the old one (if we had one before). */
     /* (we can only have an open capture file in real_time_mode!) */
-    if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
+    if( ((capture_file *) cap_session->cf)->state != FILE_CLOSED) {
         if(capture_opts->real_time_mode) {
-            capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
-            cf_finish_tail((capture_file *)capture_opts->cf, &err);
-            cf_close((capture_file *)capture_opts->cf);
+            capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
+            cf_finish_tail((capture_file *)cap_session->cf, &err);
+            cf_close((capture_file *)cap_session->cf);
         } else {
-            capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
+            capture_callback_invoke(capture_cb_capture_fixed_finished, cap_session);
         }
     }
     g_free(capture_opts->save_file);
     is_tempfile = FALSE;
-    cf_set_tempfile((capture_file *)capture_opts->cf, FALSE);
+    cf_set_tempfile((capture_file *)cap_session->cf, FALSE);
   } else {
     /* we didn't have a save_file before; must be a tempfile */
     is_tempfile = TRUE;
-    cf_set_tempfile((capture_file *)capture_opts->cf, TRUE);
+    cf_set_tempfile((capture_file *)cap_session->cf, TRUE);
   }
 
   /* save the new filename */
@@ -359,7 +361,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if(capture_opts->real_time_mode) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_start_tail((capture_file *)capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_start_tail((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:
@@ -370,7 +372,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       return FALSE;
     }
   } else {
-    capture_callback_invoke(capture_cb_capture_prepared, capture_opts);
+    capture_callback_invoke(capture_cb_capture_prepared, cap_session);
   }
 
   if(capture_opts->show_info) {
@@ -379,11 +381,11 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   }
 
   if(capture_opts->real_time_mode) {
-    capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
+    capture_callback_invoke(capture_cb_capture_update_started, cap_session);
   } else {
-    capture_callback_invoke(capture_cb_capture_fixed_started, capture_opts);
+    capture_callback_invoke(capture_cb_capture_fixed_started, cap_session);
   }
-  capture_opts->state = CAPTURE_RUNNING;
+  cap_session->state = CAPTURE_RUNNING;
 
   return TRUE;
 }
@@ -391,16 +393,16 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 
 /* capture child tells us we have new packets to read */
 void
-capture_input_new_packets(capture_options *capture_opts, int to_read)
+capture_input_new_packets(capture_session *cap_session, int to_read)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   int  err;
-
 
   g_assert(capture_opts->save_file);
 
   if(capture_opts->real_time_mode) {
     /* Read from the capture file the number of records the child told us it added. */
-    switch (cf_continue_tail((capture_file *)capture_opts->cf, to_read, &err)) {
+    switch (cf_continue_tail((capture_file *)cap_session->cf, to_read, &err)) {
 
     case CF_READ_OK:
     case CF_READ_ERROR:
@@ -409,22 +411,22 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
          file.
 
          XXX - abort on a read error? */
-         capture_callback_invoke(capture_cb_capture_update_continue, capture_opts);
+         capture_callback_invoke(capture_cb_capture_update_continue, cap_session);
       break;
 
     case CF_READ_ABORTED:
       /* Kill the child capture process; the user wants to exit, and we
          shouldn't just leave it running. */
-      capture_kill_child(capture_opts);
+      capture_kill_child(cap_session);
       break;
     }
   } else {
     /* increase the capture file packet counter by the number of incoming packets */
-    cf_set_packet_count((capture_file *)capture_opts->cf,
-        cf_get_packet_count((capture_file *)capture_opts->cf) + to_read);
-    cf_fake_continue_tail((capture_file *)capture_opts->cf);
+    cf_set_packet_count((capture_file *)cap_session->cf,
+        cf_get_packet_count((capture_file *)cap_session->cf) + to_read);
+    cf_fake_continue_tail((capture_file *)cap_session->cf);
 
-    capture_callback_invoke(capture_cb_capture_fixed_continue, capture_opts);
+    capture_callback_invoke(capture_cb_capture_fixed_continue, cap_session);
   }
 
   /* update the main window so we get events (e.g. from the stop toolbar button) */
@@ -441,14 +443,14 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 /* Capture child told us how many dropped packets it counted.
  */
 void
-capture_input_drops(capture_options *capture_opts, guint32 dropped)
+capture_input_drops(capture_session *cap_session, guint32 dropped)
 {
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%u packet%s dropped", dropped, plurality(dropped, "", "s"));
 
-  g_assert(capture_opts->state == CAPTURE_RUNNING);
+  g_assert(cap_session->state == CAPTURE_RUNNING);
 
-  cf_set_drops_known((capture_file *)capture_opts->cf, TRUE);
-  cf_set_drops((capture_file *)capture_opts->cf, dropped);
+  cf_set_drops_known((capture_file *)cap_session->cf, TRUE);
+  cf_set_drops((capture_file *)cap_session->cf, dropped);
 }
 
 
@@ -459,7 +461,8 @@ capture_input_drops(capture_options *capture_opts, guint32 dropped)
    The secondary message might be a null string.
  */
 void
-capture_input_error_message(capture_options *capture_opts, char *error_msg, char *secondary_error_msg)
+capture_input_error_message(capture_session *cap_session, char *error_msg,
+                            char *secondary_error_msg)
 {
   gchar *safe_error_msg;
   gchar *safe_secondary_error_msg;
@@ -467,7 +470,7 @@ capture_input_error_message(capture_options *capture_opts, char *error_msg, char
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\", \"%s\"",
         error_msg, secondary_error_msg);
 
-  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
   safe_error_msg = simple_dialog_format_message(error_msg);
   if (*secondary_error_msg != '\0') {
@@ -488,14 +491,14 @@ capture_input_error_message(capture_options *capture_opts, char *error_msg, char
   /* the capture child will close the sync_pipe if required, nothing to do for now */
 }
 
-
-
 /* Capture child told us that an error has occurred while parsing a
    capture filter when starting/running the capture.
  */
 void
-capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char *error_message)
+capture_input_cfilter_error_message(capture_session *cap_session, guint i,
+                                    char *error_message)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   dfilter_t *rfcode = NULL;
   gchar *safe_cfilter;
   gchar *safe_descr;
@@ -504,7 +507,7 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture filter error message from child: \"%s\"", error_message);
 
-  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
   g_assert(i < capture_opts->ifaces->len);
 
   interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
@@ -542,24 +545,24 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
   /* the capture child will close the sync_pipe if required, nothing to do for now */
 }
 
-
 /* capture child closed its side of the pipe, do the required cleanup */
 void
-capture_input_closed(capture_options *capture_opts, gchar *msg)
+capture_input_closed(capture_session *cap_session, gchar *msg)
 {
+  capture_options *capture_opts = cap_session->capture_opts;
   int  err;
   int  packet_count_save;
 
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
-  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_assert(cap_session->state == CAPTURE_PREPARING || cap_session->state == CAPTURE_RUNNING);
 
   if (msg != NULL)
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", msg);
 
-  if(capture_opts->state == CAPTURE_PREPARING) {
+  if(cap_session->state == CAPTURE_PREPARING) {
     /* We didn't start a capture; note that the attempt to start it
        failed. */
-    capture_callback_invoke(capture_cb_capture_failed, capture_opts);
+    capture_callback_invoke(capture_cb_capture_failed, cap_session);
   } else {
     /* We started a capture; process what's left of the capture file if
        we were in "update list of packets in real time" mode, or process
@@ -568,14 +571,14 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
       cf_read_status_t status;
 
       /* Read what remains of the capture file. */
-      status = cf_finish_tail((capture_file *)capture_opts->cf, &err);
+      status = cf_finish_tail((capture_file *)cap_session->cf, &err);
 
       /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
-      packet_count_save = cf_get_packet_count((capture_file *)capture_opts->cf);
+      packet_count_save = cf_get_packet_count((capture_file *)cap_session->cf);
       /* Tell the GUI we are not doing a capture any more.
          Must be done after the cf_finish_tail(), so file lengths are
          correctly displayed */
-      capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
+      capture_callback_invoke(capture_cb_capture_update_finished, cap_session);
 
       /* Finish the capture. */
       switch (status) {
@@ -598,8 +601,8 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 #endif
             "",
             simple_dialog_primary_start(), simple_dialog_primary_end(),
-            cf_is_tempfile((capture_file *)capture_opts->cf) ? "temporary " : "");
-          cf_close((capture_file *)capture_opts->cf);
+            cf_is_tempfile((capture_file *)cap_session->cf) ? "temporary " : "");
+          cf_close((capture_file *)cap_session->cf);
         }
         break;
       case CF_READ_ERROR:
@@ -616,12 +619,12 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
       }
     } else {
       /* first of all, we are not doing a capture any more */
-      capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
+      capture_callback_invoke(capture_cb_capture_fixed_finished, cap_session);
 
       /* this is a normal mode capture and if no error happened, read in the capture file data */
       if(capture_opts->save_file != NULL) {
-        capture_input_read_all(capture_opts, cf_is_tempfile((capture_file *)capture_opts->cf),
-          cf_get_drops_known((capture_file *)capture_opts->cf), cf_get_drops((capture_file *)capture_opts->cf));
+        capture_input_read_all(cap_session, cf_is_tempfile((capture_file *)cap_session->cf),
+          cf_get_drops_known((capture_file *)cap_session->cf), cf_get_drops((capture_file *)cap_session->cf));
       }
     }
   }
@@ -629,11 +632,11 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
   if(capture_opts->show_info)
     capture_info_close();
 
-  capture_opts->state = CAPTURE_STOPPED;
+  cap_session->state = CAPTURE_STOPPED;
 
   /* if we couldn't open a capture file, there's nothing more for us to do */
   if(capture_opts->save_file == NULL) {
-    cf_close((capture_file *)capture_opts->cf);
+    cf_close((capture_file *)cap_session->cf);
     return;
   }
 
@@ -644,7 +647,7 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
     ws_unlink(capture_opts->save_file);
 
     /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
-    if(cf_is_tempfile((capture_file *)capture_opts->cf)) {
+    if(cf_is_tempfile((capture_file *)cap_session->cf)) {
       g_free(capture_opts->save_file);
       capture_opts->save_file = NULL;
     }
@@ -655,9 +658,9 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
     }
 
     /* close the currently loaded capture file */
-    cf_close((capture_file *)capture_opts->cf);
+    cf_close((capture_file *)cap_session->cf);
 
-    capture_start(capture_opts);
+    capture_start(capture_opts, cap_session);
   } else {
     /* We're not doing a capture any more, so we don't have a save file. */
     g_free(capture_opts->save_file);

@@ -110,6 +110,7 @@
 #include "sync_pipe.h"
 
 #include "capture_opts.h"
+#include "capture_session.h"
 #include "capture_ifinfo.h"
 #include "capture_sync.h"
 
@@ -4451,7 +4452,7 @@ main(int argc, char *argv[])
 
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
-    capture_opts_init(&global_capture_opts, NULL);
+    capture_opts_init(&global_capture_opts);
 
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
