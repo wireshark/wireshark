@@ -3912,23 +3912,30 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, gui
 
   while (offset < tvb_reported_length (tvb))
   {
-    proto_item  *upstreamfield_item;
+    proto_item  *upstreamfield_item, *pi;
     proto_tree  *upstreamfield_tree;
     const gchar *ci;
+    guint8 item_length;
 
     ci = val_to_str_ext_const (tvb_get_guint8 (tvb, offset + 1), &r3_configitemnames_ext, "[Unknown Configuration Item]");
 
-    upstreamfield_item = proto_tree_add_text (tree, tvb, offset + 0, tvb_get_guint8 (tvb, offset + 0), "Config Field: %s (%u)", ci, tvb_get_guint8 (tvb, offset + 1));
+    item_length = tvb_get_guint8 (tvb, offset + 0);
+    upstreamfield_item = proto_tree_add_text (tree, tvb, offset + 0, item_length, "Config Field: %s (%u)", ci, tvb_get_guint8 (tvb, offset + 1));
     upstreamfield_tree = proto_item_add_subtree (upstreamfield_item, ett_r3upstreamfield);
 
-    proto_tree_add_item (upstreamfield_tree, hf_r3_configitemlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    pi = proto_tree_add_item (upstreamfield_tree, hf_r3_configitemlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    if (item_length == 0) {
+      expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN, "Invalid item length");
+      return;
+    }
+
     proto_tree_add_item (upstreamfield_tree, hf_r3_configitem,       tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (upstreamfield_tree, hf_r3_configitemtype,   tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 
     switch (tvb_get_guint8 (tvb, offset + 2))
     {
       case CONFIGTYPE_NONE :
-        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata, tvb, offset + 3, tvb_get_guint8 (tvb, offset + 0) - 3, ENC_NA);
+        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata, tvb, offset + 3, item_length - 3, ENC_NA);
         break;
 
       case CONFIGTYPE_BOOL :
@@ -3948,15 +3955,15 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, gui
         break;
 
       case CONFIGTYPE_STRING :
-        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_string, tvb, offset + 3, tvb_get_guint8 (tvb, offset + 0) - 3, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_string, tvb, offset + 3, item_length - 3, ENC_ASCII|ENC_NA);
         break;
 
       default :
-        proto_tree_add_none_format (upstreamfield_tree, hf_r3_upstreamfielderror, tvb, offset + 3, tvb_get_guint8 (tvb, offset + 0) - 3, "Unknown Field Type");
+        proto_tree_add_none_format (upstreamfield_tree, hf_r3_upstreamfielderror, tvb, offset + 3, item_length - 3, "Unknown Field Type");
         break;
     }
 
-    offset += tvb_get_guint8 (tvb, offset + 0);
+    offset += item_length;
   }
 }
 
