@@ -28,8 +28,11 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+#include "packet-erf.h"
+
 
 #define COLUMNS 270
+#define EXT_HDR_TYPE_RAW_LINK        5
 
 static int proto_sdh = -1;
 
@@ -100,19 +103,26 @@ const value_string sdh_s1_vals[] = {
 static int
 get_sdh_level(tvbuff_t *tvb, packet_info *pinfo)
 {
+  guint64 *hdr = NULL;
+
   /*data rate has been set in the SDH options*/
   if(sdh_data_rate != -1) return sdh_data_rate;
+
   /*ERF specifies data rate*/
-  switch((pinfo->pseudo_header->erf.ehdr_list[0].ehdr & 0xff00) >> 8){
-    case 1: /*OC-3*/
-      return 1;
-    case 2: /*OC-12*/
-      return 4;
-    case 3: /*OC-48*/
-      return 16;
-    default:  /*drop through and try the next method*/
-      ;
+  hdr = erf_get_ehdr(pinfo, EXT_HDR_TYPE_RAW_LINK, NULL);
+  if (hdr != NULL){
+    switch((*hdr & 0xff00) >> 8){
+      case 1: /*OC-3*/
+        return 1;
+      case 2: /*OC-12*/
+        return 4;
+      case 3: /*OC-48*/
+        return 16;
+      default:  /*drop through and try the next method*/
+        ;
+    }
   }
+
   /*returns the multiplier for each data level*/
   switch(tvb_reported_length(tvb)){
     case 2430:  /*OC-3*/
@@ -144,42 +154,47 @@ dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8  h1;
     guint8  h2;
     guint16 au;
+    int auoffset;
 
     sdh_item = proto_tree_add_protocol_format(tree, proto_sdh, tvb, 0, -1, "SDH");
     sdh_tree = proto_item_add_subtree(sdh_item, ett_sdh);
 
-    h1  = tvb_get_guint8(tvb, 0+(3*level*COLUMNS));
-    h2  = tvb_get_guint8(tvb, 3+(3*level*COLUMNS));
+    h1  = tvb_get_guint8(tvb, 0*level+(3*level*COLUMNS));
+    h2  = tvb_get_guint8(tvb, 3*level+(3*level*COLUMNS));
     au  = (h2 | ((0x03 & h1) << 8));
 
-    proto_tree_add_item(sdh_tree, hf_sdh_a1, tvb, 0, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_a2, tvb, 3, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_j0, tvb, 6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_b1, tvb, 0+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_e1, tvb, 3+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_f1, tvb, 6+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d1, tvb, 0+(2*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d2, tvb, 3+(2*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d3, tvb, 6+(2*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_h1, tvb, 0+(3*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_h2, tvb, 3+(3*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_uint(sdh_tree, hf_sdh_au, tvb, 0+(3*level*COLUMNS), 4, au);
-    proto_tree_add_item(sdh_tree, hf_sdh_b2, tvb, 0+(4*level*COLUMNS), 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_k1, tvb, 3+(4*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_k2, tvb, 6+(4*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d4, tvb, 0+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d5, tvb, 3+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d6, tvb, 6+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d7, tvb, 0+(6*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d8, tvb, 3+(6*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d9, tvb, 6+(6*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d10, tvb, 0+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d11, tvb, 3+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_d12, tvb, 6+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_s1, tvb, 0+(8*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_m1, tvb, 5+(8*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_e2, tvb, 6+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_j1, tvb, au, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_a1, tvb, 0*level, 3*level, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_a2, tvb, 3*level, 3*level, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_j0, tvb, 6*level, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_b1, tvb, 0*level+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_e1, tvb, 3*level+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_f1, tvb, 6*level+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d1, tvb, 0*level+(2*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d2, tvb, 3*level+(2*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d3, tvb, 6*level+(2*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_h1, tvb, 0*level+(3*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_h2, tvb, 3*level+(3*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(sdh_tree, hf_sdh_au, tvb, 0*level+(3*level*COLUMNS), 3*level+1, au);
+    proto_tree_add_item(sdh_tree, hf_sdh_b2, tvb, 0*level+(4*level*COLUMNS), 3*level, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_k1, tvb, 3*level+(4*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_k2, tvb, 6*level+(4*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d4, tvb, 0*level+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d5, tvb, 3*level+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d6, tvb, 6*level+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d7, tvb, 0*level+(6*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d8, tvb, 3*level+(6*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d9, tvb, 6*level+(6*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d10, tvb, 0*level+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d11, tvb, 3*level+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_d12, tvb, 6*level+(7*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_s1, tvb, 0*level+(8*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_m1, tvb, 3*level+2+(8*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_e2, tvb, 6*level+(8*level*COLUMNS), 1, ENC_BIG_ENDIAN);
+
+    /*XXX: POH that au points to may not be in the same frame. Also wrong on pointer justification*/
+    /*calculate start of SPE by wrapping AU pointer*/
+    auoffset = (((9 + 3*COLUMNS) /*start after H3*/ + au*3 + 9*(au/87) /*add extra SOH rows to offset*/) * level) % (COLUMNS*9*level);
+    proto_tree_add_item(sdh_tree, hf_sdh_j1, tvb, auoffset, 1, ENC_BIG_ENDIAN);
   }
 }
 
@@ -188,9 +203,9 @@ proto_register_sdh(void)
 {
   static hf_register_info hf[] = {
     { &hf_sdh_a1,
-    { "A1", "sdh.a1", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "A1", "sdh.a1", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_sdh_a2,
-    { "A2", "sdh.a2", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "A2", "sdh.a2", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_sdh_j0,
     { "J0", "sdh.j0", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_sdh_b1,
@@ -208,7 +223,7 @@ proto_register_sdh(void)
     { &hf_sdh_au,
     { "AU", "sdh.au", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_sdh_b2,
-    { "B2", "sdh.b2", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "B2", "sdh.b2", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_sdh_k1,
     { "K1", "sdh.k1", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_sdh_k2,

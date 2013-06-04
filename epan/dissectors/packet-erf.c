@@ -29,6 +29,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
+#include "packet-erf.h"
+
 /*
 #include "wiretap/atm.h"
 */
@@ -799,7 +801,7 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tr
     proto_tree_add_boolean(tree, hf_erf_ehdr_chan_morefrag, tvb, 0, 0, (guint8)((hdr >> 55) & 0x1));
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (guint16)((hdr >> 40) & 0x7FFF));
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
-    proto_tree_add_uint_format(tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id, "Virtual Container ID: 0x%0x2 (g.707: %s)", vc_id, vc_id_string->str);
+    proto_tree_add_uint_format(tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id, "Virtual Container ID: 0x%.2x (g.707: %s)", vc_id, vc_id_string->str);
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_rate, tvb, 0, 0, line_rate);
     proto_tree_add_uint(tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
@@ -1152,6 +1154,35 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Some of the extension headers are not shown");
   }
 
+}
+
+guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {
+  guint8      type;
+  guint8      has_more;
+  int         max;
+  int         i        = afterindex ? *afterindex + 1 : 0; /*allow specifying instance to start after for use in loop*/
+
+  if (!pinfo) /*XXX: how to determine if erf pseudo_header is valid?*/
+      return NULL;
+
+  has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
+  max      = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+
+
+  while(has_more && (i < max)) {
+    type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
+
+    if ((type & 0x7f) == (hdrtype & 0x7f)) {
+         if (afterindex)
+             *afterindex = i;
+         return &pinfo->pseudo_header->erf.ehdr_list[i].ehdr;
+    }
+
+    has_more = type & 0x80;
+    i += 1;
+  }
+
+  return NULL;
 }
 
 static void
