@@ -74,6 +74,11 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          TRY_TO_FAKE_THIS_ITEM disables bounds errors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290">Bug
+          3290</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
@@ -102,6 +107,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 CAPWAP,
+RPC
 
     </para>
     </section>
