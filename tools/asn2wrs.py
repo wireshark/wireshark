@@ -2352,8 +2352,9 @@ class EthCnf:
     lineno = 0
     is_import = False
     directive = re.compile(r'^\s*#\.(?P<name>[A-Z_][A-Z_0-9]*)(\s+|$)')
+    cdirective = re.compile(r'^\s*##')
     report = re.compile(r'^TABLE(?P<num>\d*)_(?P<type>HDR|BODY|FTR)$')
-    comment = re.compile(r'^\s*#[^.]')
+    comment = re.compile(r'^\s*#[^.#]')
     empty = re.compile(r'^\s*$')
     ctx = None
     name = ''
@@ -2710,6 +2711,9 @@ class EthCnf:
         else:
           self.add_item(ctx, par[0], pars=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
+        result = cdirective.search(line)
+        if result:  # directive
+          line = '#' + line[result.end():]
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
       elif ctx == 'CLASS':
         if empty.match(line): continue
