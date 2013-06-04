@@ -1658,9 +1658,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     break;
                 case CDN_FILEOK: {
                     HWND   parent;
-                    TCHAR  file_name16_selected[MAX_PATH];
-                    char  *file_name8_selected;
-                    int    selected_size;
+                    char  *file_name8;
 
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
@@ -1669,22 +1667,19 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     else
                         g_compressed = FALSE;
 
-                    /* Check if trying to do 'save as' to the currently open file */
+                    /* Check if we're trying to overwrite the currently open file */
                     parent = GetParent(sf_hwnd);
-                    selected_size = CommDlg_OpenSave_GetFilePath(parent, file_name16_selected, MAX_PATH);
-                    if (selected_size > 0) {
-                        file_name8_selected = utf_16to8(file_name16_selected);
-                        if (files_identical(cfile.filename, file_name8_selected)) {
-                            /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                            gchar *str = g_strdup_printf(
-                                "Capture File \"%s\" identical to loaded file !!\n\n"
-                                "Please choose a different filename.",
-                                file_name8_selected);
-                            MessageBox( parent, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
-                            g_free(str);
-                            SetWindowLongPtr(sf_hwnd, DWLP_MSGRESULT, 1L); /* Don't allow ! */
-                            return 1;
-                        }
+                    file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
+                    if (files_identical(cfile.filename, file_name8)) {
+                        /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
+                        gchar *str = g_strdup_printf(
+                            "Capture File \"%s\" identical to loaded file.\n\n"
+                            "Please choose a different filename.",
+                            file_name8);
+                        MessageBox( parent, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
+                        g_free(str);
+                        SetWindowLongPtr(sf_hwnd, DWLP_MSGRESULT, 1L); /* Don't allow ! */
+                        return 1;
                     }
                 }
                     break;
@@ -1763,9 +1758,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     break;
                 case CDN_FILEOK: {
                     HWND   parent;
-                    TCHAR  file_name16_selected[MAX_PATH];
-                    char  *file_name8_selected;
-                    int    selected_size;
+                    char  *file_name8;
 
                     /* Fetch our compression value */
                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
@@ -1774,22 +1767,19 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     else
                         g_compressed = FALSE;
 
-                    /* Check if trying to do 'save as' to the currently open file */
+                    /* Check if we're trying to overwrite the currently open file */
                     parent = GetParent(sf_hwnd);
-                    selected_size = CommDlg_OpenSave_GetFilePath(parent, file_name16_selected, MAX_PATH);
-                    if (selected_size > 0) {
-                        file_name8_selected = utf_16to8(file_name16_selected);
-                        if (files_identical(cfile.filename, file_name8_selected)) {
-                            /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                            gchar *str = g_strdup_printf(
-                                "Capture File \"%s\" identical to loaded file.\n\n"
-                                "Please choose a different filename.",
-                                file_name8_selected);
-                            MessageBox( parent, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
-                            g_free(str);
-                            SetWindowLongPtr(sf_hwnd, DWLP_MSGRESULT, 1L); /* Don't allow ! */
-                            return 1;
-                        }
+                    file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
+                    if (files_identical(cfile.filename, file_name8)) {
+                        /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
+                        gchar *str = g_strdup_printf(
+                            "Capture File \"%s\" identical to loaded file.\n\n"
+                            "Please choose a different filename.",
+                            file_name8);
+                        MessageBox( parent, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
+                        g_free(str);
+                        SetWindowLongPtr(sf_hwnd, DWLP_MSGRESULT, 1L); /* Don't allow ! */
+                        return 1;
                     }
                 }
                     break;
