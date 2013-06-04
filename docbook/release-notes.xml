@@ -54,6 +54,107 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-33.html">wnpa-sec-2013-33</ulink>
+          </para>
+          <para>
+	    The GMR-1 BCCH dissector could crash. Discovered by Sylvain Munaut and Laurent Butti.
+            <!-- Fixed in trunk: r44674 -->
+            <!-- Fixed in trunk-1.8: r49627 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7664">Bug
+            7664</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8726">Bug
+            8726</ulink>
+	    )
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-34.html">wnpa-sec-2013-34</ulink>
+          </para>
+          <para>
+	    The PPP dissector could crash. Discovered by Laurent Butti.
+            <!-- Fixed in trunk: r46128 -->
+            <!-- Fixed in trunk-1.8: r49612 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7880">Bug
+            7880</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8727">Bug
+            8727</ulink>
+	    )
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-35.html">wnpa-sec-2013-35</ulink>
+          </para>
+          <para>
+	    The NBAP dissector could crash.
+            <!-- Fixed in trunk: r49418 -->
+            <!-- Fixed in trunk-1.8: r49420 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8697">Bug
+            8697</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-36.html">wnpa-sec-2013-36</ulink>
+          </para>
+          <para>
+	    The RDP dissector could crash. Discovered by Laurent Butti
+            <!-- Fixed in trunk: r46158  -->
+            <!-- Fixed in trunk-1.8: r49679 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8729">Bug
+            8729</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-37.html">wnpa-sec-2013-37</ulink>
+          </para>
+          <para>
+	    The GSM CBCH dissector could crash. Discovered by Laurent Butti
+            <!-- Fixed in trunk: r49686  -->
+            <!-- Fixed in trunk-1.8: r49688 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8730">Bug
+            8730</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
     </para>
 
@@ -72,6 +173,12 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+          TRY_TO_FAKE_THIS_ITEM disables bounds errors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290">Bug
+          3290</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
