@@ -127,6 +127,11 @@
 #include <qlocale.h>
 #include <qlibraryinfo.h>
 
+#ifdef HAVE_LIBPCAP
+capture_options global_capture_opts;
+capture_session global_capture_session;
+#endif
+
 capture_file cfile;
 
 #ifdef HAVE_AIRPCAP
@@ -148,10 +153,10 @@ extern capture_options global_capture_opts;
 #endif
 
 static void
-main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data )
+main_capture_callback(gint event, capture_session *cap_session, gpointer user_data )
 {
     Q_UNUSED(user_data);
-    wsApp->captureCallback(event, capture_opts);
+    wsApp->captureCallback(event, cap_session);
 }
 
 static void
@@ -811,7 +816,9 @@ int main(int argc, char *argv[])
 
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
-    capture_opts_init(&global_capture_opts, &cfile);
+    capture_opts_init(&global_capture_opts);
+
+    capture_session_init(&global_capture_session, (void *)&cfile);
 #endif
 
     /* Register all dissectors; we must do this before checking for the
