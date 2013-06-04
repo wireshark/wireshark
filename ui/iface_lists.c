@@ -38,6 +38,7 @@
 
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
+#include "../log.h"
 
 /*
  * Used when sorting an interface list into alphabetical order by
@@ -341,18 +342,33 @@ scan_local_interfaces(void)
 }
 
 /*
- * Get the global interface list.  Generate it if we haven't
- * done so already.
+ * Get the global interface list.  Generate it if we haven't done so 
+ * already.  This can be quite time consuming the first time, so 
+ * record how long it takes in the info log.
  */
 void
 fill_in_local_interfaces(void)
 {
-    static gboolean initialized = FALSE;
+	GTimeVal start_time;
+	GTimeVal end_time;
+	float elapsed;
+	static gboolean initialized = FALSE;
 
+	/* record the time we started, so we can log total time later */
+	g_get_current_time(&start_time);
+	g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
+	
     if (!initialized) {
+		/* do the actual work */
         scan_local_interfaces();
         initialized = TRUE;
     }
+	/* log how long it took */
+    g_get_current_time(&end_time);
+    elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
+                        ((end_time.tv_usec - start_time.tv_usec) / 1e6));
+
+    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
 }
 
 void

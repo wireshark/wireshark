@@ -114,6 +114,7 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->autostop_duration               = 60;               /* 1 min */
 
   capture_opts->output_to_pipe                  = FALSE;
+  capture_opts->capture_child                   = FALSE;
 }
 
 
@@ -488,6 +489,11 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             interface_opts.console_display_name = g_strdup(if_info->name);
         }
         free_interface_list(if_list);
+    } else if (capture_opts->capture_child) {
+        /* In Wireshark capture child mode, thus proper device name is supplied. */
+        /* No need for trying to match it for friendly names. */
+        interface_opts.name = g_strdup(optarg_str_p);
+        interface_opts.console_display_name = g_strdup(optarg_str_p);
     } else {
         /*
          * Retrieve the interface list so that we can search for the
