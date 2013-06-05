@@ -451,14 +451,6 @@ static gboolean
 process_packet_header(wtap *wth, packet_entry_header *packet_header,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
-    /* neglect frame markers for wiretap */
-    if (packet_header->network_size < 4) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Observer: bad record: Packet length %u < 4",
-            packet_header->network_size);
-        return FALSE;
-    }
-
     /* set the wiretap packet header fields */
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->pkt_encap = observer_to_wtap_encap(packet_header->network_type);
@@ -466,6 +458,33 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
         phdr->len = packet_header->network_size;
         phdr->caplen = packet_header->captured_size;
     } else {
+        /*
+         * XXX - what are those 4 bytes?
+         *
+         * The comment in the code said "neglect frame markers for wiretap",
+         * but in the captures I've seen, there's no actual data corresponding
+         * to them that might be a "frame marker".
+         *
+         * Instead, the packets had a network_size 4 bytes larger than the
+         * captured_size; does the network_size include the CRC, even
+         * though it's not included in a capture?  If so, most other
+         * network analyzers that have a "network size" and a "captured
+         * size" don't include the CRC in the "network size" if they
+         * don't include the CRC in a full-length captured packet; the
+         * "captured size" is less than the "network size" only if a
+         * user-specified "snapshot length" caused the packet to be
+         * sliced at a particular point.
+         *
+         * That's the model that wiretap and Wireshark/TShark use, so
+         * we implement that model here.
+         */
+        if (packet_header->network_size < 4) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("Observer: bad record: Packet length %u < 4",
+                                        packet_header->network_size);
+            return FALSE;
+        }
+
         phdr->len = packet_header->network_size - 4;
         phdr->caplen = MIN(packet_header->captured_size, phdr->len);
     }
