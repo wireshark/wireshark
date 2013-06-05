@@ -72,6 +72,8 @@ What's New
      * Wireshark now ships with two global configuration files:
        Bluetooth, which contains coloring rules for Bluetooth and
        Classic, which contains the old-style coloring rules.
+     * The LOAD() metric in the IO-graph now shows the load in IO
+       units instead of thousands of IO units.
 
   New Protocol Support
 
@@ -181,7 +183,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [16]Wireshark web site.
      __________________________________________________________
 
-   Last updated 2013-05-20 15:54:29 PDT
+   Last updated 2013-06-03 10:42:44 PDT
 
 References
 
