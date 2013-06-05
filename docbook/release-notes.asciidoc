@@ -58,6 +58,7 @@ GSM SMS
 NAS-EPS
 SGSAP
 T.124
+TETRA
 
 --sort-and-group--
 
