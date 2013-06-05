@@ -39,6 +39,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
@@ -683,7 +684,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 85 "../../asn1/tetra/packet-tetra-template.c"
+#line 86 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -965,7 +966,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 95 "../../asn1/tetra/packet-tetra-template.c"
+#line 96 "../../asn1/tetra/packet-tetra-template.c"
 
 
 /*--- Included file: packet-tetra-fn.c ---*/
@@ -8627,7 +8628,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 97 "../../asn1/tetra/packet-tetra-template.c"
+#line 98 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -8866,6 +8867,11 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 	channels = rxreg & 0x3;
 	tetra_sub_item = proto_tree_add_uint( tetra_tree, hf_tetra_channels, tvb, offset, 4, channels );
 	tetra_header_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
+	if (channels > 3) {
+		expert_add_info_format(pinfo, tetra_sub_item, PI_MALFORMED, PI_WARN,
+                    "Channel count incorrect, must be <= 3");
+		channels = 3;
+	}
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
@@ -8921,6 +8927,12 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	/* Skip 0000B */
 	if(channels == 2)
 		txreg >>= 4;
+
+	if (channels > 3) {
+		expert_add_info_format(pinfo, tetra_sub_item, PI_MALFORMED, PI_WARN,
+                    "Channel count incorrect, must be <= 3");
+		channels = 3;
+	}
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
@@ -11503,7 +11515,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 612 "../../asn1/tetra/packet-tetra-template.c"
+#line 624 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11785,7 +11797,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 622 "../../asn1/tetra/packet-tetra-template.c"
+#line 634 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */
