@@ -5,11 +5,11 @@ idl2wrs - CORBA IDL to Wireshark Plugin Generator
 
 =head1 SYNOPSIS
 
-B<idl2wrs> filename
+B<idl2wrs> E<lt>filenameE<gt>
 
 =head1 DESCRIPTION
 
-B<idl2wrs> is a program that takes a user specified B<CORBA IDL> 
+B<idl2wrs> is a program that takes a user specified B<CORBA IDL>
 file and generates B<"C"> source code for a B<Wireshark> "plugin".
 
 This resulting file can be compiled as a B<Wireshark> plugin, and
@@ -23,7 +23,7 @@ These programs are:
 
 B<wireshark_be.py>  - Contains the main IDL Visitor Class
 
-B<wireshark_gen.py> - Contains the Source Code Generator Class 
+B<wireshark_gen.py> - Contains the Source Code Generator Class
 
 =back
 
@@ -39,7 +39,7 @@ method unless you have some namespace collisions.
 
 Currently there are no options. B<idl2wrs> can be invoked as follows.
 
-1.  To write the C code to stdout.  
+1.  To write the C code to stdout.
 
     idl2wrs  <your_file.idl>
 
@@ -63,10 +63,10 @@ The B<-p> option passed to omniidl (inside B<idl2wrs>) indicates where
 B<wireshark_be.py> and B<wireshark_gen.py> will be searched.  This may
 need tweaking if you place these files somewhere else.
 
-If it complains about being unable to find some modules (eg tempfile.py), 
+If it complains about being unable to find some modules (eg tempfile.py),
 you may want to check if PYTHONPATH is set correctly.
 
-eg:  PYTHONPATH=/usr/lib/python1.5/ 
+eg:  PYTHONPATH=/usr/lib/python1.5/
 
 
 =head1 SEE ALSO
@@ -76,8 +76,8 @@ wireshark(1), tshark(1)
 
 =head1 NOTES
 
-B<idl2wrs> (including B<wireshark_be.py> and B<wireshark_gen.py>) are part of 
-the B<Wireshark> distribution.  The latest version of B<Wireshark> can 
+B<idl2wrs> (including B<wireshark_be.py> and B<wireshark_gen.py>) are part of
+the B<Wireshark> distribution.  The latest version of B<Wireshark> can
 be found at L<http://www.wireshark.org>.
 
 B<idl2wrs> uses B<omniidl>, an IDL parser, and can be found at
