@@ -105,6 +105,9 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
     packet_entry_header *packet_header, int *err, gchar **err_info);
+static gboolean process_packet_header(wtap *wth,
+    packet_entry_header *packet_header, struct wtap_pkthdr *phdr, int *err,
+    gchar **err_info);
 static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
     guint8 *pd, int length, int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
@@ -287,61 +290,8 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         }
     }
 
-    /* neglect frame markers for wiretap */
-    if (packet_header.network_size < 4) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Observer: bad record: Packet length %u < 4",
-            packet_header.network_size);
+    if (!process_packet_header(wth, &packet_header, &wth->phdr, err, err_info))
         return FALSE;
-    }
-
-    /* set the wiretap packet header fields */
-    wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    wth->phdr.pkt_encap = observer_to_wtap_encap(packet_header.network_type);
-    if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
-        wth->phdr.len = packet_header.network_size;
-        wth->phdr.caplen = packet_header.captured_size;
-    } else {
-        wth->phdr.len = packet_header.network_size - 4;
-        wth->phdr.caplen = MIN(packet_header.captured_size, wth->phdr.len);
-    }
-
-    /* set the wiretap timestamp, assuming for the moment that Observer encoded it in GMT */
-    wth->phdr.ts.secs = (time_t) ((packet_header.nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);
-    wth->phdr.ts.nsecs = (int) (packet_header.nano_seconds_since_2000 % 1000000000);
-
-    /* adjust to local time, if necessary, also accounting for DST if the frame
-       was captured while it was in effect */
-    if (((observer_dump_private_state*)wth->priv)->time_format == TIME_INFO_LOCAL)
-    {
-        struct tm daylight_tm;
-        struct tm standard_tm;
-        time_t    dst_offset;
-
-        /* the Observer timestamp was encoded as local time, so add a
-           correction from local time to GMT */
-        wth->phdr.ts.secs += gmt_to_localtime_offset;
-
-        /* perform a DST adjustment if necessary */
-        standard_tm = *localtime(&wth->phdr.ts.secs);
-        if (standard_tm.tm_isdst > 0) {
-            daylight_tm = standard_tm;
-            standard_tm.tm_isdst = 0;
-            dst_offset = mktime(&standard_tm) - mktime(&daylight_tm);
-            wth->phdr.ts.secs -= dst_offset;
-        }
-    }
-
-    /* update the pseudo header */
-    switch (wth->file_encap) {
-    case WTAP_ENCAP_ETHERNET:
-        /* There is no FCS in the frame */
-        wth->phdr.pseudo_header.eth.fcs_len = 0;
-        break;
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-        /* Updated in read_packet_header */
-        break;
-    }
 
     /* set-up the packet buffer */
     buffer_assure_space(wth->frame_buffer, packet_header.captured_size);
@@ -382,17 +332,8 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     if (offset <= 0)
         return FALSE;    /* EOF or error */
 
-    /* update the pseudo header */
-    switch (wth->file_encap) {
-
-    case WTAP_ENCAP_ETHERNET:
-        /* There is no FCS in the frame */
-        pseudo_header->eth.fcs_len = 0;
-        break;
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-        /* Updated in read_packet_header */
-        break;
-    }
+    if (!process_packet_header(wth, &packet_header, phdr, err, err_info))
+        return FALSE;
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
@@ -504,6 +445,69 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     }
 
     return offset;
+}
+
+static gboolean
+process_packet_header(wtap *wth, packet_entry_header *packet_header,
+    struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+{
+    /* neglect frame markers for wiretap */
+    if (packet_header->network_size < 4) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("Observer: bad record: Packet length %u < 4",
+            packet_header->network_size);
+        return FALSE;
+    }
+
+    /* set the wiretap packet header fields */
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    phdr->pkt_encap = observer_to_wtap_encap(packet_header->network_type);
+    if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
+        phdr->len = packet_header->network_size;
+        phdr->caplen = packet_header->captured_size;
+    } else {
+        phdr->len = packet_header->network_size - 4;
+        phdr->caplen = MIN(packet_header->captured_size, phdr->len);
+    }
+
+    /* set the wiretap timestamp, assuming for the moment that Observer encoded it in GMT */
+    phdr->ts.secs = (time_t) ((packet_header->nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);
+    phdr->ts.nsecs = (int) (packet_header->nano_seconds_since_2000 % 1000000000);
+
+    /* adjust to local time, if necessary, also accounting for DST if the frame
+       was captured while it was in effect */
+    if (((observer_dump_private_state*)wth->priv)->time_format == TIME_INFO_LOCAL)
+    {
+        struct tm daylight_tm;
+        struct tm standard_tm;
+        time_t    dst_offset;
+
+        /* the Observer timestamp was encoded as local time, so add a
+           correction from local time to GMT */
+        phdr->ts.secs += gmt_to_localtime_offset;
+
+        /* perform a DST adjustment if necessary */
+        standard_tm = *localtime(&phdr->ts.secs);
+        if (standard_tm.tm_isdst > 0) {
+            daylight_tm = standard_tm;
+            standard_tm.tm_isdst = 0;
+            dst_offset = mktime(&standard_tm) - mktime(&daylight_tm);
+            phdr->ts.secs -= dst_offset;
+        }
+    }
+
+    /* update the pseudo header */
+    switch (wth->file_encap) {
+    case WTAP_ENCAP_ETHERNET:
+        /* There is no FCS in the frame */
+        phdr->pseudo_header.eth.fcs_len = 0;
+        break;
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+        /* Updated in read_packet_header */
+        break;
+    }
+
+    return TRUE;
 }
 
 static int
