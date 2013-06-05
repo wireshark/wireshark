@@ -2867,7 +2867,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
 #ifdef PCAP_NG_DEFAULT
-  if (idb_inf->number_of_interfaces > 0) {
+  if (idb_inf->number_of_interfaces > 1) {
     linktype = WTAP_ENCAP_PER_PACKET;
   } else {
     linktype = wtap_file_encap(cf->wth);
@@ -2891,8 +2891,12 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         shb_hdr->shb_user_appl = appname;
     }
 
-    pdh = wtap_dump_open_ng(save_file, out_file_type, linktype, snapshot_length,
-        FALSE /* compressed */, shb_hdr, idb_inf, &err);
+    if (linktype != WTAP_ENCAP_PER_PACKET && out_file_type == WTAP_FILE_PCAP)
+        pdh = wtap_dump_open(save_file, out_file_type, linktype,
+            snapshot_length, FALSE /* compressed */, &err);
+    else
+        pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
+            snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
     g_free(idb_inf);
     idb_inf = NULL;
