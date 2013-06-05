@@ -67,6 +67,8 @@ export WIRESHARK_EP_VERIFY_POINTERS=
 export WIRESHARK_SE_VERIFY_POINTERS=
 # Use the Wmem strict allocator which does canaries and scrubbing etc.
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=strict
+# Abort if a dissector adds too many items to the tree
+export WIRESHARK_ABORT_ON_TOO_MANY_ITEMS=
 
 # Turn on GLib memory debugging (since 2.13)
 export G_SLICE=debug-blocks
