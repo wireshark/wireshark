@@ -2942,7 +2942,7 @@ proto_register_wccp(void)
 	"The WCCP message that was sent", HFILL }
     },
     { &hf_wccp_version,
-      { "WCCP Version", "wccp.version", FT_UINT32, BASE_HEX|BASE_EXT_STRING, VALS(wccp_version_val), 0x0,
+      { "WCCP Version", "wccp.version", FT_UINT32, BASE_HEX, VALS(wccp_version_val), 0x0,
 	"The WCCP version", HFILL }
     },
     { &hf_message_header_version,
