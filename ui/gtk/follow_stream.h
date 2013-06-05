@@ -74,7 +74,6 @@ typedef struct {
 	GtkWidget	*hexdump_bt;
 	GtkWidget	*carray_bt;
 	GtkWidget	*raw_bt;
-	GtkWidget	*follow_save_as_w;
 	GtkWidget	*find_dlg_w;
 	gboolean        is_ipv6;
 	char		*filter_out_filter;

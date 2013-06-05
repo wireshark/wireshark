@@ -66,10 +66,11 @@ static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 /* Keys ... */
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 
-/* Create a file selection dialog box window that belongs to Wireshark's
-   main window. */
+/* Create a file selection dialog box window that belongs to a top-level
+   window. */
 GtkWidget *
-file_selection_new(const gchar *title, file_selection_action_t action)
+file_selection_new(const gchar *title, GtkWindow *parent,
+                   file_selection_action_t action)
 {
     GtkWidget *win;
     GtkFileChooserAction gtk_action;
@@ -111,15 +112,16 @@ file_selection_new(const gchar *title, file_selection_action_t action)
         ok_button_text = NULL;
         break;
     }
-    win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), gtk_action,
-#ifndef _WIN32
+    win = gtk_file_chooser_dialog_new(title, parent, gtk_action,
                                       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                       ok_button_text, GTK_RESPONSE_ACCEPT,
-#else
-                                      ok_button_text, GTK_RESPONSE_ACCEPT,
-                                      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-#endif
                                       NULL);
+    gtk_dialog_set_alternative_button_order(GTK_DIALOG(win),
+                                            GTK_RESPONSE_ACCEPT,
+                                            GTK_RESPONSE_CANCEL,
+                                            -1);
+    if (action == FILE_SELECTION_SAVE)
+        gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(win), TRUE);
 
     /* If we've opened a file before, start out by showing the files in the directory
        in which that file resided. */
@@ -397,7 +399,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
     GtkWidget *fs;
     gchar     *f_name;
 
-    fs = file_selection_new(label, action);
+    fs = file_selection_new(label, GTK_WINDOW(caller), action);
 
     g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 

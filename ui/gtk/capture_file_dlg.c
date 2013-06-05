@@ -493,6 +493,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
     return FALSE;
 
   file_open_w = file_selection_new("Wireshark: Open Capture File",
+                                   GTK_WINDOW(top_level),
                                    FILE_SELECTION_OPEN);
   /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
@@ -760,7 +761,8 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   /* Default to saving all packets, in the file's current format. */
 
   file_merge_w = file_selection_new("Wireshark: Merge with Capture File",
-                                   FILE_SELECTION_OPEN);
+                                    GTK_WINDOW(top_level),
+                                    FILE_SELECTION_OPEN);
   /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
   gtk_widget_set_size_request(file_merge_w, DEF_WIDTH, DEF_HEIGHT);
@@ -1664,9 +1666,8 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
 
   /* build the file selection */
   file_save_as_w = file_selection_new("Wireshark: Save Capture File As",
+                                      GTK_WINDOW(top_level),
                                       FILE_SELECTION_SAVE);
-  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file_save_as_w),
-                                                 TRUE);
 
   /* Container for each row of widgets */
 
@@ -1928,9 +1929,8 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
 
   /* build the file selection */
   file_export_specified_packets_w = file_selection_new("Wireshark: Export Specified Packets",
+                                                       GTK_WINDOW(top_level),
                                                        FILE_SELECTION_SAVE);
-  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file_export_specified_packets_w),
-                                                 TRUE);
 
   /* Container for each row of widgets */
 
@@ -2160,6 +2160,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
      activate it (i.e., it doesn't cause us to try to open the file). */
 
   file_color_import_w = file_selection_new("Wireshark: Import Color Filters",
+                                           GTK_WINDOW(top_level),
                                            FILE_SELECTION_OPEN);
 
   /* Container for each row of widgets */
@@ -2253,9 +2254,8 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   color_selected   = FALSE;
 
   file_color_export_w = file_selection_new("Wireshark: Export Color Filters",
+                                           GTK_WINDOW(top_level),
                                            FILE_SELECTION_SAVE);
-  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file_color_export_w),
-                                                 TRUE);
 
   /* Container for each row of widgets */
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

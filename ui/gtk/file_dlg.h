@@ -60,14 +60,16 @@ typedef enum {
 	FILE_SELECTION_CREATE_FOLDER    /**< browse for a dir. to save in */  
 } file_selection_action_t;
 
-/** Create a file selection dialog box window that belongs to Wireshark's
- *  main window. See window_new() for usage.
+/** Create a file selection dialog box window that belongs to a top-level
+ *  window. See window_new() for usage.
  *
  * @param title the title for the new file selection dialog
+ * @param parent the top-level window
  * @param action the desired action
  * @return the newly created file selection dialog
  */
-extern GtkWidget *file_selection_new(const gchar *title, file_selection_action_t action);
+extern GtkWidget *file_selection_new(const gchar *title, GtkWindow *parent,
+                                     file_selection_action_t action);
 
 /** Set the current folder for a file selection dialog.
  *
@@ -79,7 +81,7 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
 
 /** Set the current file for a file selection dialog.
  *
- * @param fs the file selection dialog from file_selection_new()
+ * @param chooser the file selection dialog from file_selection_new()
  * @param filename the folder to set
  * @return TRUE if the folder could be changed successfully
  */
