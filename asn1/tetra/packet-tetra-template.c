@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
@@ -340,6 +341,11 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 	channels = rxreg & 0x3;
 	tetra_sub_item = proto_tree_add_uint( tetra_tree, hf_tetra_channels, tvb, offset, 4, channels );
 	tetra_header_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
+	if (channels > 3) {
+		expert_add_info_format(pinfo, tetra_sub_item, PI_MALFORMED, PI_WARN,
+                    "Channel count incorrect, must be <= 3");
+		channels = 3;
+	}
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
@@ -395,6 +401,12 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	/* Skip 0000B */
 	if(channels == 2)
 		txreg >>= 4;
+
+	if (channels > 3) {
+		expert_add_info_format(pinfo, tetra_sub_item, PI_MALFORMED, PI_WARN,
+                    "Channel count incorrect, must be <= 3");
+		channels = 3;
+	}
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
