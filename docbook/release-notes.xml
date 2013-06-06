@@ -194,6 +194,25 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-40.html">wnpa-sec-2013-40</ulink>
+          </para>
+          <para>
+	    The Ixia IxVeriWave file parser could overflow the heap. Discovered by Sachin Shinde.
+            <!-- Fixed in trunk: r49739  -->
+            <!-- Fixed in trunk-1.8: r49817 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8760">Bug
+            8760</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
     </para>
 
@@ -269,6 +288,7 @@ EAPOL,
 GMR-1 BCCH,
 GSM CBCH,
 GSM SMS,
+HTTP,
 NBAP,
 PPP,
 R3,
@@ -280,7 +300,7 @@ RDP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-No new or updated capture file support.
+Ixia IxVeriWave.
 
     </para>
     </section>
