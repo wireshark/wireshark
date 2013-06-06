@@ -65,6 +65,7 @@ static int hf_sgsap_ue_emm_mode = -1;
 static int hf_sgsap_eci	= -1;
 static int hf_sgsap_cn_id = -1;
 static int hf_sgsap_imsi_det_eps = -1;
+static int hf_sgsap_imsi_det_non_eps = -1;
 static int hf_sgsap_lcs_indic = -1;
 static int hf_sgsap_mme_name = -1;
 static int hf_sgsap_vlr_name = -1;
@@ -256,7 +257,7 @@ de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_sgsap_imsi_det_eps, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sgsap_imsi_det_non_eps, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+=1;
 
 	return(curr_offset-offset);
@@ -1492,6 +1493,11 @@ void proto_register_sgsap(void) {
     { &hf_sgsap_imsi_det_eps,
         { "IMSI detach from EPS service type",    "sgsap.imsi_det_eps",
         FT_UINT8, BASE_DEC, VALS(sgsap_imsi_det_from_eps_serv_type_values),0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_imsi_det_non_eps,
+        { "IMSI detach from non-EPS service type",    "sgsap.imsi_det_non_eps",
+        FT_UINT8, BASE_DEC, VALS(sgsap_imsi_det_from_non_eps_serv_type_values), 0x0,
         NULL, HFILL }
     },
     { &hf_sgsap_lcs_indic,

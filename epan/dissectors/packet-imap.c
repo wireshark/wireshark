@@ -134,7 +134,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									tvb, offset, linelen, ENC_ASCII|ENC_NA);
 			}
 
-			offset += linelen+2; /* Skip over last line and \r\n at the end of it */
+			offset = next_offset; /* Skip over last line and \r\n at the end of it */
 
 		}
 	}

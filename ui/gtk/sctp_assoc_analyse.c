@@ -348,7 +348,6 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 static void
 sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 {
-	gchar *f_string = NULL;
 	GList *srclist, *dstlist;
 	gchar *str=NULL;
 	GString *gstring=NULL;
@@ -356,10 +355,14 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 	struct sockaddr_in *infodst=NULL;
 	sctp_assoc_info_t *selected_stream;
 	gchar *filter_string = NULL;
-	selected_stream=u_data->assoc;
 
-	if (selected_stream->check_address==FALSE)
+	selected_stream = u_data->assoc;
+	if (selected_stream == NULL)
+		return;
+
+	if (selected_stream->check_address == FALSE)
 	{
+		gchar *f_string;
 		f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
 						"(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
 						"(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"

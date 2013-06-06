@@ -68,7 +68,7 @@ Wireshark Info
             8726</ulink>
 	    )
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -90,7 +90,7 @@ Wireshark Info
             8727</ulink>
 	    )
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -109,7 +109,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8697">Bug
             8697</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -128,7 +128,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8729">Bug
             8729</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -147,7 +147,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8730">Bug
             8730</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -166,7 +166,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8764">Bug
             8764</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -182,11 +182,11 @@ Wireshark Info
 	    The HTTP dissector could overrun the stack.
             <!-- Fixed in trunk: r49623  -->
             <!-- Fixed in trunk-1.8: r49815 -->
-            <!-- Fixed in trunk-1.6: r???? -->
+            <!-- Fixed in trunk-1.6: r49821 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8733">Bug
             8733</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8, 1.6.0 to 1.6.15.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7, 1.6.0 to 1.6.15.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -205,7 +205,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8760">Bug
             8760</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -220,12 +220,13 @@ Wireshark Info
           <para>
 	    The DCP ETSI dissector could crash.
             <!-- Fixed in trunk: r49802  -->
-            <!-- Fixed in trunk-1.8: r????? -->
+            <!-- Fixed in trunk-1.10: r49819 -->
             <!-- Fixed in trunk-1.8: r49818 -->
+            <!-- Fixed in trunk-1.6: r49822 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8717">Bug
             8717</ulink>)
           </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.7, 1.6.0 to 1.6.15.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -276,6 +277,42 @@ Wireshark Info
           8680</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          wireshark is crashing while attempting to use 'SCTP' -&gt; 'Prepare Filter for this Association'.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8731">Bug
+          8731</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash analyzing VoIP Calls (T38).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8736">Bug
+          8736</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IMAP Dissector, Missing byte.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8739">Bug
+          8739</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          C12.22 Invocation Id shows negative sometimes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8744">Bug
+          8744</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          gsm_a_dtap dissector (SMS): under certain conditions fillbits may be displayed for an alphanumeric TP-Originating-Address.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8756">Bug
+          8756</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          TETRA dissector assertion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8768">Bug
+          8768</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -303,6 +340,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 Bittorrent DHT,
+C12.22,
 CAPWAP,
 DCP ETSI,
 EAPOL,
@@ -310,10 +348,14 @@ GMR-1 BCCH,
 GSM CBCH,
 GSM SMS,
 HTTP,
+IMAP,
 NBAP,
 PPP,
 R3,
-RDP
+RDP,
+SGsAP,
+T.38,
+TETRA
 
     </para>
     </section>
