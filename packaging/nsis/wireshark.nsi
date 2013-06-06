@@ -248,14 +248,8 @@ prep_uninstaller:
   StrCpy $1 "$TEMP\${PROGRAM_NAME}_uninstaller.exe"
   StrCpy $2 1
   System::Call 'kernel32::CopyFile(t r0, t r1, b r2) 1'
-  IfSilent silent_uninstall
-  ExecWait "$TMP_UNINSTALLER _?=$OLD_INSTDIR"
-  Goto cleanup
-
-silent_uninstall:
   ExecWait "$TMP_UNINSTALLER /S _?=$OLD_INSTDIR"
 
-cleanup:
   Delete "$TMP_UNINSTALLER"
 
 done:
