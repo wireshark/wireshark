@@ -155,6 +155,45 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-38.html">wnpa-sec-2013-38</ulink>
+          </para>
+          <para>
+	    The Assa Abloy R3 dissector could consume excessive memory and CPU.
+            <!-- Fixed in trunk: r49744  -->
+            <!-- Fixed in trunk-1.8: r49747 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8764">Bug
+            8764</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-39.html">wnpa-sec-2013-39</ulink>
+          </para>
+          <para>
+	    The HTTP dissector could overrun the stack.
+            <!-- Fixed in trunk: r49623  -->
+            <!-- Fixed in trunk-1.8: r49814 -->
+            <!-- Fixed in trunk-1.6: r???? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8733">Bug
+            8733</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.8, 1.6.0 to 1.6.15.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
     </para>
 
@@ -178,6 +217,24 @@ Wireshark Info
           TRY_TO_FAKE_THIS_ITEM disables bounds errors.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290">Bug
           3290</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Multiple expert info in a packet does not cause the most &quot;severe&quot; to be displayed in expert column.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7733">Bug
+          7733</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          tshark -z io,stat reports bad byte counts if filter doesn't match anything.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8066">Bug
+          8066</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Add decryption for WPA eapol 4-way handshake.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8680">Bug
+          8680</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -206,7 +263,16 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+Bittorrent DHT,
 CAPWAP,
+EAPOL,
+GMR-1 BCCH,
+GSM CBCH,
+GSM SMS,
+NBAP,
+PPP,
+R3,
+RDP,
 
     </para>
     </section>
