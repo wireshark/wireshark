@@ -81,9 +81,9 @@ Wireshark Info
           <para>
 	    The DCP ETSI dissector could crash.
             <!-- Fixed in trunk: r49802  -->
-            <!-- Fixed in trunk-1.10: r????? -->
+            <!-- Fixed in trunk-1.10: r49819 -->
             <!-- Fixed in trunk-1.8: r49818 -->
-            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.6: r49822 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8717">Bug
             8717</ulink>)
           </para>
