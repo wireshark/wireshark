@@ -17,13 +17,13 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-39[]
+* ws-salink:2013-38[]
 +
-The XXXXX dissector could crash.
-// Fixed in trunk: r?????
-// Fixed in trunk-1.10: r?????
-// Fixed in trunk-1.8: r?????
-(ws-buglink:????[])
+The DCP ETSI dissector could crash.
+// Fixed in trunk: r49802
+// Fixed in trunk-1.10: r49819
+// Fixed in trunk-1.8: r49818
+(ws-buglink:8717[])
 +
 Versions affected: 1.10.0, 1.8.0 to 1.8.7
 // cve-idlink:GENERIC-MAP-NOMATCH[]
@@ -45,7 +45,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+DCP ETSI
 
 --sort-and-group--
 

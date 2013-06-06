@@ -518,9 +518,10 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       if(li)
         proto_item_append_text(li, " (length error (%d))", real_len);
     }
-    if (real_len)
+    else {
       next_tvb = dissect_pft_fragmented(tvb, pinfo, pft_tree, findex, fcount,
                                         seq, offset, real_len, fec, rsk, rsz);
+    }
     pinfo->fragmented = save_fragmented;
   } else {
     next_tvb = tvb_new_subset_remaining (tvb, offset);
