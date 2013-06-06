@@ -213,6 +213,26 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-41.html">wnpa-sec-2013-41</ulink>
+          </para>
+          <para>
+	    The DCP ETSI dissector could crash.
+            <!-- Fixed in trunk: r49802  -->
+            <!-- Fixed in trunk-1.8: r????? -->
+            <!-- Fixed in trunk-1.8: r49818 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8717">Bug
+            8717</ulink>)
+          </para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+	  <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
     </para>
 
@@ -284,6 +304,7 @@ There are no new protocols in this release.
 
 Bittorrent DHT,
 CAPWAP,
+DCP ETSI,
 EAPOL,
 GMR-1 BCCH,
 GSM CBCH,
@@ -292,7 +313,7 @@ HTTP,
 NBAP,
 PPP,
 R3,
-RDP,
+RDP
 
     </para>
     </section>
