@@ -4152,9 +4152,9 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
                   AECP_OFFSET_COUNTERS_DESCRIPTOR_INDEX, 2, ENC_BIG_ENDIAN);
             if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
 
-               flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
+               /*flags_ti = */ proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
                      AECP_OFFSET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
-               flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
+               /*flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);*/
 
                /* begin counters_valid flags field */
                switch (tvb_get_ntohs(tvb, AECP_OFFSET_COUNTERS_DESCRIPTOR_TYPE)) {
