@@ -61,6 +61,11 @@ UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
     Pop $R1
     Pop $R0
 
+; Force the icon cache to refresh
+; http://superuser.com/questions/499078/refresh-icon-cache-without-rebooting
+IfFileExists "$SYSDIR\ie4uinit.exe" 0 +2
+Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
+
 !macroend
 
 ; ============================================================================
