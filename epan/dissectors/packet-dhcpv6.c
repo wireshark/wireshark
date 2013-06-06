@@ -206,7 +206,6 @@ static expert_field ei_dhcpv6_no_suboption_len = EI_INIT;
 static expert_field ei_dhcpv6_invalid_byte = EI_INIT;
 static expert_field ei_dhcpv6_invalid_time_value = EI_INIT;
 static expert_field ei_dhcpv6_invalid_type = EI_INIT;
-static expert_field ei_dhcpv6_bad_length3_6 = EI_INIT;
 static expert_field ei_dhcpv6_malformed_dns = EI_INIT;
 
 
@@ -987,7 +986,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 } else if (tlv_len == 6) {
                     proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
                 } else {
-                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bad_length3_6, "Suboption %d: suboption length isn't 3 or 6", type);
+                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bogus_length, "Suboption %d: suboption length isn't 3 or 6", type);
                 }
                 break;
 
@@ -2253,7 +2252,6 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_invalid_byte, { "dhcpv6.invalid_byte", PI_PROTOCOL, PI_WARN, "Invalid at byte", EXPFILL }},
         { &ei_dhcpv6_invalid_time_value, { "dhcpv6.invalid_time_value", PI_PROTOCOL, PI_WARN, "Invalid time value", EXPFILL }},
         { &ei_dhcpv6_invalid_type, { "dhcpv6.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
-        { &ei_dhcpv6_bad_length3_6, { "dhcpv6.bad_length3or6", PI_MALFORMED, PI_ERROR, "suboption length isn't 3 or 6", EXPFILL }},
         { &ei_dhcpv6_malformed_dns, { "dhcpv6.malformed_dns", PI_PROTOCOL, PI_WARN, "Malformed DNS name record (MS Vista client?)", EXPFILL }},
     };
 
