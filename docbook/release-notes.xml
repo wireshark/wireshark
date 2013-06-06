@@ -181,7 +181,7 @@ Wireshark Info
           <para>
 	    The HTTP dissector could overrun the stack.
             <!-- Fixed in trunk: r49623  -->
-            <!-- Fixed in trunk-1.8: r49814 -->
+            <!-- Fixed in trunk-1.8: r49815 -->
             <!-- Fixed in trunk-1.6: r???? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8733">Bug
             8733</ulink>)
