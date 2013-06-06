@@ -180,6 +180,8 @@ static const value_string subsystem[] = {
 	{ 270, "IGSSN" },
 	{ 271, "ICXGBE" },
 	{ 275, "IEXGBE" },
+	{ 277, "IOCXGBE" },
+	{ 278, "IQXGBE" },
 	{ 513, "KL_VM" },
 	{ 514, "KL_PKM" },
 	{ 515, "KL_DLKM" },
