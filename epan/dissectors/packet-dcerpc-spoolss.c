@@ -4504,7 +4504,7 @@ SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case 1: {
 			int struct_start = buffer_offset;
 
-			buffer_offset = dissect_FORM_REL(
+			/*buffer_offset = */dissect_FORM_REL(
 				buffer.tvb, buffer_offset, pinfo, tree, drep,
 				struct_start);
 			break;
@@ -4948,7 +4948,7 @@ SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		switch(level) {
 		case 1:
-			buffer_offset = dissect_spoolss_JOB_INFO_1(
+			/*buffer_offset = */dissect_spoolss_JOB_INFO_1(
 				buffer.tvb, buffer_offset, pinfo,
 				buffer.tree, drep);
 			break;
@@ -5731,7 +5731,7 @@ SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 				buffer.tree, drep);
 			break;
 		case 101:
-			buffer_offset = dissect_DRIVER_INFO_101(
+			/*buffer_offset =*/ dissect_DRIVER_INFO_101(
 				buffer.tvb, buffer_offset, pinfo,
 				buffer.tree, drep);
 			/*break;*/
@@ -6798,7 +6798,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 			tvb, offset2, pinfo, subtree, drep,
 			hf_enumprinterdataex_val_dword_low, &low);
 
-		offset2 = dissect_ndr_uint16(
+		/*offset2 = */dissect_ndr_uint16(
 			tvb, offset2, pinfo, subtree, drep,
 			hf_enumprinterdataex_val_dword_high, &high);
 
