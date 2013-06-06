@@ -91,6 +91,8 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, guint8 *pd, int length,
     int *err, gchar **err_info);
+static gboolean snoop_process_record_header(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, guint32 *rec_sizep, int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
@@ -453,21 +455,104 @@ typedef struct {
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
+	guint	padbytes;
+	int	bytes_read;
+	char	padbuf[4];
+	int	bytes_to_read;
+
+	*data_offset = file_tell(wth->fh);
+
+	if (!snoop_process_record_header(wth, wth->fh, &wth->phdr,
+	    &padbytes, err, err_info))
+		return FALSE;
+
+	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    wth->phdr.caplen, err, err_info))
+		return FALSE;	/* Read error */
+
+	/*
+	 * If this is ATM LANE traffic, try to guess what type of LANE
+	 * traffic it is based on the packet contents.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
+	    wth->phdr.pseudo_header.atm.type == TRAF_LANE) {
+		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
+		    wth->phdr.caplen, &wth->phdr.pseudo_header);
+	}
+
+	/*
+	 * Skip over the padding (don't "fseek()", as the standard
+	 * I/O library on some platforms discards buffered data if
+	 * you do that, which means it does a lot more reads).
+	 *
+	 * XXX - is that still true?
+	 *
+	 * There's probably not much padding (it's probably padded only
+	 * to a 4-byte boundary), so we probably need only do one read.
+	 */
+	while (padbytes != 0) {
+		bytes_to_read = padbytes;
+		if ((unsigned)bytes_to_read > sizeof padbuf)
+			bytes_to_read = sizeof padbuf;
+		errno = WTAP_ERR_CANT_READ;
+		bytes_read = file_read(padbuf, bytes_to_read, wth->fh);
+		if (bytes_read != bytes_to_read) {
+			*err = file_error(wth->fh, err_info);
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return FALSE;
+		}
+		padbytes -= bytes_read;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+snoop_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    int *err, gchar **err_info)
+{
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	if (!snoop_process_record_header(wth, wth->random_fh, phdr, NULL,
+	    err, err_info))
+		return FALSE;
+
+	/*
+	 * Read the packet data.
+	 */
+	if (!snoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
+		return FALSE;	/* failed */
+
+	/*
+	 * If this is ATM LANE traffic, try to guess what type of LANE
+	 * traffic it is based on the packet contents.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
+	    phdr->pseudo_header.atm.type == TRAF_LANE)
+		atm_guess_lane_type(pd, length, &phdr->pseudo_header);
+	return TRUE;
+}
+
+static gboolean
+snoop_process_record_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    guint32 *padbytesp, int *err, gchar **err_info)
+{
+	struct snooprec_hdr hdr;
+	int	bytes_read;
 	guint32 rec_size;
 	guint32	packet_size;
 	guint32 orig_size;
-	int	bytes_read;
-	struct snooprec_hdr hdr;
-	char	padbuf[4];
-	guint	padbytes;
-	int	bytes_to_read;
 	int header_size;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -506,17 +591,15 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	*data_offset = file_tell(wth->fh);
-
-	/*
-	 * If this is an ATM packet, the first four bytes are the
-	 * direction of the packet (transmit/receive), the VPI, and
-	 * the VCI; read them and generate the pseudo-header from
-	 * them.
-	 */
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
+		/*
+		 * This is an ATM packet, so the first four bytes are
+		 * the direction of the packet (transmit/receive), the
+		 * VPI, and the VCI; read them and generate the
+		 * pseudo-header from them.
+		 */
 		if (packet_size < sizeof (struct snoop_atm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -527,7 +610,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			    packet_size);
 			return FALSE;
 		}
-		if (!snoop_read_atm_pseudoheader(wth->fh, &wth->phdr.pseudo_header,
+		if (!snoop_read_atm_pseudoheader(fh, &phdr->pseudo_header,
 		    err, err_info))
 			return FALSE;	/* Read error */
 
@@ -546,9 +629,9 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		 * is.  (XXX - or should we treat it a "maybe"?)
 		 */
 		if (wth->file_type == WTAP_FILE_SHOMITI)
-			wth->phdr.pseudo_header.eth.fcs_len = 4;
+			phdr->pseudo_header.eth.fcs_len = 4;
 		else
-			wth->phdr.pseudo_header.eth.fcs_len = 0;
+			phdr->pseudo_header.eth.fcs_len = 0;
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
@@ -562,8 +645,8 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			    packet_size);
 			return FALSE;
 		}
-		if (!snoop_read_shomiti_wireless_pseudoheader(wth->fh,
-		    &wth->phdr.pseudo_header, err, err_info, &header_size))
+		if (!snoop_read_shomiti_wireless_pseudoheader(fh,
+		    &phdr->pseudo_header, err, err_info, &header_size))
 			return FALSE;	/* Read error */
 
 		/*
@@ -575,34 +658,12 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		break;
 	}
 
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err, err_info))
-		return FALSE;	/* Read error */
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->ts.secs = g_ntohl(hdr.ts_sec);
+	phdr->ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
+	phdr->caplen = packet_size;
+	phdr->len = orig_size;
 
-	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	wth->phdr.ts.secs = g_ntohl(hdr.ts_sec);
-	wth->phdr.ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
-	wth->phdr.caplen = packet_size;
-	wth->phdr.len = orig_size;
-
-	/*
-	 * If this is ATM LANE traffic, try to guess what type of LANE
-	 * traffic it is based on the packet contents.
-	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
-	    wth->phdr.pseudo_header.atm.type == TRAF_LANE) {
-		atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
-		    wth->phdr.caplen, &wth->phdr.pseudo_header);
-	}
-
-	/*
-	 * Skip over the padding (don't "fseek()", as the standard
-	 * I/O library on some platforms discards buffered data if
-	 * you do that, which means it does a lot more reads).
-	 * There's probably not much padding (it's probably padded only
-	 * to a 4-byte boundary), so we probably need only do one read.
-	 */
 	if (rec_size < (sizeof hdr + packet_size)) {
 		/*
 		 * What, *negative* padding?  Bogus.
@@ -612,78 +673,8 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		    rec_size, packet_size);
 		return FALSE;
 	}
-	padbytes = rec_size - ((guint)sizeof hdr + packet_size);
-	while (padbytes != 0) {
-		bytes_to_read = padbytes;
-		if ((unsigned)bytes_to_read > sizeof padbuf)
-			bytes_to_read = sizeof padbuf;
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(padbuf, bytes_to_read, wth->fh);
-		if (bytes_read != bytes_to_read) {
-			*err = file_error(wth->fh, err_info);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
-			return FALSE;
-		}
-		padbytes -= bytes_read;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-snoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
-    int *err, gchar **err_info)
-{
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
-
-	switch (wth->file_encap) {
-
-	case WTAP_ENCAP_ATM_PDUS:
-		if (!snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    err, err_info)) {
-			/* Read error */
-			return FALSE;
-		}
-		break;
-
-	case WTAP_ENCAP_ETHERNET:
-		/*
-		 * If this is a snoop file, we assume there's no FCS in
-		 * this frame; if this is a Shomit file, we assume there
-		 * is.  (XXX - or should we treat it a "maybe"?)
-		 */
-		if (wth->file_type == WTAP_FILE_SHOMITI)
-			pseudo_header->eth.fcs_len = 4;
-		else
-			pseudo_header->eth.fcs_len = 0;
-		break;
-
-	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-		if (!snoop_read_shomiti_wireless_pseudoheader(wth->random_fh,
-		    pseudo_header, err, err_info, NULL)) {
-			/* Read error */
-			return FALSE;
-		}
-		break;
-	}
-
-	/*
-	 * Read the packet data.
-	 */
-	if (!snoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
-		return FALSE;	/* failed */
-
-	/*
-	 * If this is ATM LANE traffic, try to guess what type of LANE
-	 * traffic it is based on the packet contents.
-	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
-	    pseudo_header->atm.type == TRAF_LANE)
-		atm_guess_lane_type(pd, length, pseudo_header);
+	if (padbytesp != NULL)
+		*padbytesp = rec_size - ((guint)sizeof hdr + packet_size);
 	return TRUE;
 }
 
@@ -829,10 +820,9 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	pseudo_header->ieee_802_11.signal_level = whdr.signal;
 
 	/* add back the header and don't forget the pad as well */
-	if(header_size != NULL)
-	    *header_size = rsize + 8 + 4;
+	*header_size = rsize + 8 + 4;
 
-    return TRUE;
+	return TRUE;
 }
 
 static gboolean
