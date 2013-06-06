@@ -85,7 +85,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (type) {
       case 0xc0:
-        offset = display_unicode_string(tvb, msnlb_tree, offset, hf_msnlb_host_name, NULL);
+        /*offset =*/ display_unicode_string(tvb, msnlb_tree, offset, hf_msnlb_host_name, NULL);
         break;
 
       case 0xbf:
@@ -117,11 +117,12 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 4;
 
         proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
-        offset += 4;
+        /*offset += 4;*/
+        break;
 
       default:
         proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
-        offset += 4;
+        /*offset += 4;*/
     }
   }
 }
