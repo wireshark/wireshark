@@ -673,7 +673,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
       offset = dissect_hash_data(tvb, offset, wccp_tree);
       proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
                           4, ENC_BIG_ENDIAN);
-      offset += 4;
+      /*offset += 4;*/
       break;
 
     case WCCP_I_SEE_YOU:
@@ -1362,7 +1362,6 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
                         offset +1 , 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(info_tree, hf_service_info_priority, tvb,
                         offset+2, 1, ENC_BIG_ENDIAN);
-    protocol = tvb_get_guint8(tvb, offset+3);
     proto_tree_add_item(info_tree, hf_service_info_protocol, tvb,
                         offset+3, 1, ENC_BIG_ENDIAN);
     break;
@@ -1437,7 +1436,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
     if (offset + 8 * 2 <= max_offset)  {
       proto_tree_add_text(info_tree, tvb, offset, 8*2,
                           "Ports fields not used");
-      offset += 8*2;
+      /*offset += 8*2;*/
     }
   }
 
@@ -2740,12 +2739,12 @@ dissect_timer_scale_capability(tvbuff_t *tvb, int curr_offset,
       proto_tree_add_item(method_tree, hf_capability_timer_scale_ra_timer_scale,
                           tvb, curr_offset+3, 1, ENC_BIG_ENDIAN);
     } else {
-      tm = proto_tree_add_text(element_tree, tvb, curr_offset, 1,
+      proto_tree_add_text(element_tree, tvb, curr_offset, 1,
                                "Error A is 0, but C is not");
     }
   } else {
     if ( c == 0) {
-      tm = proto_tree_add_text(element_tree, tvb, curr_offset, 1,
+      proto_tree_add_text(element_tree, tvb, curr_offset, 1,
                                "Error C is 0, but A is not");
     } else {
       tm = proto_tree_add_text(element_tree, tvb, curr_offset, 2,
