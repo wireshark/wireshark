@@ -121,6 +121,30 @@ Wireshark Info
           3290</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Multiple expert info in a packet does not cause the most &quot;severe&quot; to be displayed in expert column.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7733">Bug
+          7733</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IMAP Dissector, Missing byte.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8739">Bug
+          8739</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          gsm_a_dtap dissector (SMS): under certain conditions fillbits may be displayed for an alphanumeric TP-Originating-Address.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8756">Bug
+          8756</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          TETRA dissector assertion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8768">Bug
+          8768</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -149,8 +173,12 @@ There are no new protocols in this release.
 
 CAPWAP,
 DCP ETSI,
+GSM SMS,
 HTTP,
-RPC
+IMAP,
+RPC,
+SGsAP,
+TETRA
 
     </para>
     </section>
