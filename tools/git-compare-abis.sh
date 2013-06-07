@@ -27,13 +27,13 @@ cd `git rev-parse --show-toplevel`
 # we are at top level
 
 # Stable branches with releases
-#LAST_TAG=`git describe --tags --abbrev=0`
-#LAST_TAG_DIR=$LAST_TAG
+LAST_TAG=`git describe --tags --abbrev=0`
+LAST_TAG_DIR=$LAST_TAG
 
 # Unstable branches, e.g. master don't have usable tags. Use a commit instead.
 # git rev-list --first-parent --max-count=1 master-1.10
-LAST_TAG=75d3bda29c72f9673fa08dcc53159833b95a7dcc
-LAST_TAG_DIR=master-1.10
+#LAST_TAG=75d3bda29c72f9673fa08dcc53159833b95a7dcc
+#LAST_TAG_DIR=master-1.10
 
 rm -rf $LAST_TAG_DIR
 mkdir $LAST_TAG_DIR
