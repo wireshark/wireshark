@@ -617,7 +617,11 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = (char *)g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_try_malloc(opt_cont_buf_len);
+        if (opt_cont_buf_len != 0 && option_content == NULL) {
+		*err = ENOMEM;	/* we assume we're out of memory */
+		return -1;
+	}
         pcapng_debug1("pcapng_read_section_header_block: Options %u bytes", to_read);
         while (to_read != 0) {
                 /* read option */
@@ -786,7 +790,11 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = (char *)g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_try_malloc(opt_cont_buf_len);
+        if (opt_cont_buf_len != 0 && option_content == NULL) {
+		*err = ENOMEM;	/* we assume we're out of memory */
+		return -1;
+	}
 
         while (to_read != 0) {
                 /* read option */
@@ -902,7 +910,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                                 pcapng_debug1("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
                         }
                         break;
-                        case(12): /* if_os */
+                    case(12): /* if_os */
                         /*
                          * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed.
                          * This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory)))
@@ -1214,7 +1222,11 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = (char *)g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_try_malloc(opt_cont_buf_len);
+        if (opt_cont_buf_len != 0 && option_content == NULL) {
+		*err = ENOMEM;	/* we assume we're out of memory */
+		return -1;
+	}
 
         while (to_read != 0) {
                 /* read option */
@@ -1808,7 +1820,11 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = (char *)g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_try_malloc(opt_cont_buf_len);
+        if (opt_cont_buf_len != 0 && option_content == NULL) {
+		*err = ENOMEM;	/* we assume we're out of memory */
+		return -1;
+	}
 
         while (to_read != 0) {
                 /* read option */
