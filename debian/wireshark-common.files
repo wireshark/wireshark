@@ -7,9 +7,9 @@
 /usr/bin/randpkt
 /usr/bin/rawshark
 /usr/lib/wireshark/libwireshark.so.1
-/usr/lib/wireshark/libwireshark.so.1.1.16
+/usr/lib/wireshark/libwireshark.so.1.1.17
 /usr/lib/wireshark/libwiretap.so.1
-/usr/lib/wireshark/libwiretap.so.1.0.16
+/usr/lib/wireshark/libwiretap.so.1.0.17
 /usr/lib/wireshark/libwsutil.so.1
 /usr/lib/wireshark/libwsutil.so.1.0.0
 /usr/lib/wireshark/plugins/*
