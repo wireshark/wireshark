@@ -21,7 +21,7 @@ if [ -z "$BUILD_COMMAND" ]; then
 fi
 
 # build current version
-bash -c "$1"
+bash -c "$BUILD_COMMAND"
 
 cd `git rev-parse --show-toplevel`
 # we are at top level
