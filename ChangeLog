@@ -1,6 +1,283 @@
 ------------------------------------------------------------------------
 r49393 | gerald | 2013-05-17 15:12:34 -0700 (Fri, 17 May 2013) | 2 lines
+Changed paths:
+   M /trunk-1.6/ChangeLog
+   M /trunk-1.6/config.nmake
+   M /trunk-1.6/configure.in
+   M /trunk-1.6/debian/changelog
+   M /trunk-1.6/debian/wireshark-common.files
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/Makefile.am
+   M /trunk-1.6/make-version.pl
+   M /trunk-1.6/wiretap/Makefile.am
 
 1.6.15 → 1.6.16.
+
+------------------------------------------------------------------------
+r49394 | gerald | 2013-05-17 15:12:54 -0700 (Fri, 17 May 2013) | 2 lines
+Changed paths:
+   M /trunk-1.6/ChangeLog
+
+Prep for 1.6.16.
+
+------------------------------------------------------------------------
+r49395 | gerald | 2013-05-17 15:14:45 -0700 (Fri, 17 May 2013) | 2 lines
+Changed paths:
+   M /trunk-1.6/version.conf
+
+Switch back to interim releases.
+
+------------------------------------------------------------------------
+r49430 | gerald | 2013-05-19 20:16:22 -0700 (Sun, 19 May 2013) | 1 line
+Changed paths:
+   M /trunk-1.6/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2013-05-19]
+------------------------------------------------------------------------
+r49433 | gerald | 2013-05-19 20:51:49 -0700 (Sun, 19 May 2013) | 1 line
+Changed paths:
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-05-19]
+------------------------------------------------------------------------
+r49588 | gerald | 2013-05-26 07:50:10 -0700 (Sun, 26 May 2013) | 1 line
+Changed paths:
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-05-26]
+------------------------------------------------------------------------
+r49613 | morriss | 2013-05-29 07:47:45 -0700 (Wed, 29 May 2013) | 13 lines
+Changed paths:
+   M /trunk-1.6
+   M /trunk-1.6/epan/dissectors/packet-capwap.c
+
+Copy over from the trunk in order to fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8725 :
+
+  ------------------------------------------------------------------------
+  r43716 | cmaynard | 2012-07-14 15:52:18 -0400 (Sat, 14 Jul 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-capwap.c
+
+  Don't pass the return value of tvb_length_remaining() to fragment_add_check(), as it might have been -1.
+  Fixes Coverity CID 280510: Improper use of negative value.
+
+  ------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r49615 | gerald | 2013-05-29 08:17:36 -0700 (Wed, 29 May 2013) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+
+Add Bug 8725 (CAPWAP crash).
+
+------------------------------------------------------------------------
+r49693 | gerald | 2013-06-02 07:50:08 -0700 (Sun, 02 Jun 2013) | 1 line
+Changed paths:
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2013-06-02]
+------------------------------------------------------------------------
+r49740 | gerald | 2013-06-03 17:51:30 -0700 (Mon, 03 Jun 2013) | 49 lines
+Changed paths:
+   M /trunk-1.6
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-rpc.c
+   M /trunk-1.6/epan/proto.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r49652 | eapache | 2013-05-31 06:08:03 -0700 (Fri, 31 May 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Fix the integer overflow case Jakub caught in
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290#c26
+
+  Also use indentation consistent with the rest of the file.
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r49645 | morriss | 2013-05-30 18:46:40 -0700 (Thu, 30 May 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rpc.c
+
+  Get rid of most of the if(tree) checks: the proto_tree_add_*() functions
+  don't need them any more and, as shown in
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290#c16
+  we really want to check if we're looking at something beyond the end of the TVB
+  (in order to break out of very long loops).
+  ------------------------------------------------------------------------
+  r49644 | morriss | 2013-05-30 18:46:28 -0700 (Thu, 30 May 2013) | 14 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  (Finally!) check in part of Didier's patch to fix
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290
+  (TRY_TO_FAKE_THIS_ITEM disables bounds errors):
+
+  Before calling TRY_TO_FAKE_THIS_ITEM() check if the length given (or, in
+  the case of FT_UINT_{STRING,BYTES}, the length we retrieve from the TVB)
+  exceeds what's left in the TVB.
+
+  Do this only for proto_tree_add_item() for now (it's the most commonly used
+  and thus the biggest trouble maker in this area).
+
+  Similar changes for other APIs will come later (if nothing blows up).  Despite
+  the fuzz failures this bug has caused I'm not sure about back-porting it...
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49821 | gerald | 2013-06-06 14:02:13 -0700 (Thu, 06 Jun 2013) | 20 lines
+Changed paths:
+   M /trunk-1.6
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-http.c
+
+Copy over r49623 from the trunk:
+
+  ------------------------------------------------------------------------
+  r49623 | morriss | 2013-05-29 15:43:20 -0700 (Wed, 29 May 2013) | 10 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-http.c
+
+  Fix the infinite recursion problem reported in
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8733 :
+
+  We can't solely rely on the port in the URI to determine whether we will be
+  recursively called by decode_tcp_ports().  Instead also check the conversation
+  entry too: if we find that we are the subdissector for this conversation
+  (which we might be--without the port being in our list of ports--if we
+  heuristically picked up the conversation or the user did Decode-As),
+  just bail out and dissect the payload as data.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49822 | gerald | 2013-06-06 14:04:41 -0700 (Thu, 06 Jun 2013) | 15 lines
+Changed paths:
+   M /trunk-1.6
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-dcp-etsi.c
+
+Copy over r49802 from the trunk:
+
+  ------------------------------------------------------------------------
+  r49802 | eapache | 2013-06-05 19:53:36 -0700 (Wed, 05 Jun 2013) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dcp-etsi.c
+
+  From myself and Julian Cable via (and fixing)
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8717
+
+  Don't add a DCP-ETSI fragment for reassembly if the length is wrong.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r49824 | gerald | 2013-06-06 14:46:46 -0700 (Thu, 06 Jun 2013) | 82 lines
+Changed paths:
+   M /trunk-1.6
+   M /trunk-1.6/asn1/tetra/packet-tetra-template.c
+   M /trunk-1.6/doc/randpkt.pod
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-gsm_sms.c
+   M /trunk-1.6/epan/dissectors/packet-imap.c
+   M /trunk-1.6/epan/dissectors/packet-sgsap.c
+   M /trunk-1.6/epan/dissectors/packet-tetra.c
+   M /trunk-1.6/epan/expert.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r49513 | cmaynard | 2013-05-22 08:42:34 -0700 (Wed, 22 May 2013) | 2 lines
+  Changed paths:
+     M /trunk/doc/randpkt.pod
+
+  Fix presentation of types.
+  ------------------------------------------------------------------------
+  r49565 | mmann | 2013-05-24 12:23:36 -0700 (Fri, 24 May 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/expert.c
+
+  Ensure most severe is displayed in expert column.  Bug 7733 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7733)
+
+  #BACKPORT
+  ------------------------------------------------------------------------
+  r49722 | pascal | 2013-06-03 10:55:20 -0700 (Mon, 03 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-imap.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8739 :
+  Move offset to end of line without assuming that we always have \r\n at the end of it
+  ------------------------------------------------------------------------
+  r49644 | morriss | 2013-05-30 18:46:28 -0700 (Thu, 30 May 2013) | 14 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  (Finally!) check in part of Didier's patch to fix
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290
+  (TRY_TO_FAKE_THIS_ITEM disables bounds errors):
+
+  Before calling TRY_TO_FAKE_THIS_ITEM() check if the length given (or, in
+  the case of FT_UINT_{STRING,BYTES}, the length we retrieve from the TVB)
+  exceeds what's left in the TVB.
+
+  Do this only for proto_tree_add_item() for now (it's the most commonly used
+  and thus the biggest trouble maker in this area).
+
+  Similar changes for other APIs will come later (if nothing blows up).  Despite
+  the fuzz failures this bug has caused I'm not sure about back-porting it...
+  ------------------------------------------------------------------------
+  r49652 | eapache | 2013-05-31 06:08:03 -0700 (Fri, 31 May 2013) | 5 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Fix the integer overflow case Jakub caught in
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3290#c26
+
+  Also use indentation consistent with the rest of the file.
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r48789 | etxrab | 2013-04-08 09:44:15 -0700 (Mon, 08 Apr 2013) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-sgsap.c
+
+  Fix dissection of IMSI detach from non-EPS service type.
+  ------------------------------------------------------------------------
+  r49698 | pascal | 2013-06-02 13:57:48 -0700 (Sun, 02 Jun 2013) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_sms.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8756 :
+  Compute the number of septets needed for an alphanumeric address
+  ------------------------------------------------------------------------
+  r49787 | gerald | 2013-06-05 09:38:20 -0700 (Wed, 05 Jun 2013) | 4 lines
+  Changed paths:
+     M /trunk/asn1/tetra/packet-tetra-template.c
+     M /trunk/epan/dissectors/packet-tetra.c
+
+  Quick fix for bug 8768. For now assume that only three logical channels
+  are valid. If we run into more add expert item and cap the channel
+  count.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
 
 ------------------------------------------------------------------------
