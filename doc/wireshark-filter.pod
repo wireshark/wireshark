@@ -41,7 +41,7 @@ operator.
 =head2 Comparison operators
 
 Fields can also be compared against values.  The comparison operators
-can be expressed either through English-like abbreviations or through 
+can be expressed either through English-like abbreviations or through
 C-like symbols:
 
     eq, ==    Equal
@@ -121,7 +121,7 @@ Each protocol field is typed. The types are:
     Time offset
     Unsigned integer, 1, 2, 3, 4, or 8 bytes
 
-An integer may be expressed in decimal, octal, or hexadecimal notation. 
+An integer may be expressed in decimal, octal, or hexadecimal notation.
 The following three display filters are equivalent:
 
     frame.pkt_len > 10
@@ -208,7 +208,7 @@ looks for \\SERVER\SHARE in "smb.path".
 =head2 The slice operator
 
 You can take a slice of a field if the field is a text string or a
-byte array. 
+byte array.
 For example, you can filter on
 the vendor portion of an ethernet address (the first three bytes) like
 this:
@@ -307,7 +307,7 @@ have the same number of bytes as the slice itself, as in:
 
 =head2 Logical expressions
 
-Tests can be combined using logical expressions. 
+Tests can be combined using logical expressions.
 These too are expressible in C-like syntax or with English-like
 abbreviations:
 
@@ -386,19 +386,19 @@ can find references and examples at the following locations:
 
 =over 4
 
-=item
+=item *
 
 The online Display Filter Reference: L<http://www.wireshark.org/docs/dfref/>
 
-=item
+=item *
 
 I<Help:Supported Protocols> in Wireshark
 
-=item
+=item *
 
 C<tshark -G fields> on the command line
 
-=item
+=item *
 
 The Wireshark wiki: L<http://wiki.wireshark.org/DisplayFilters>
 
