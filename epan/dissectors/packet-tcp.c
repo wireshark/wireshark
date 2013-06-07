@@ -1060,14 +1060,15 @@ finished_fwd:
 
 
     /* RETRANSMISSION/FAST RETRANSMISSION/OUT-OF-ORDER
-     * If the segments contains data and if it does not advance
-     * sequence number it must be either of these three.
+     * If the segments contains data (or is a SYN or a FIN) and 
+     * if it does not advance sequence number it must be either 
+     * of these three.
      * Only test for this if we know what the seq number should be
      * (tcpd->fwd->nextseq)
      *
      * Note that a simple KeepAlive is not a retransmission
      */
-    if( seglen>0
+    if( (seglen>0 || flags&(TH_SYN|TH_FIN))
     &&  tcpd->fwd->nextseq
     &&  (LT_SEQ(seq, tcpd->fwd->nextseq)) ) {
         guint64 t;
