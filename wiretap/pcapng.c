@@ -104,6 +104,18 @@ typedef struct pcapng_block_header_s {
  */
 #define MIN_BLOCK_SIZE  ((guint32)(sizeof(pcapng_block_header_t) + sizeof(guint32)))
 
+/*
+ * In order to keep from trying to allocate large chunks of memory,
+ * which could either fail or, even if it succeeds, chew up so much
+ * address space or memory+backing store as not to leave room for
+ * anything else, we impose an upper limit on the size of blocks
+ * we're willing to handle.
+ *
+ * For now, we pick an arbitrary limit of 16MB (OK, fine, 16MiB, but
+ * don't try saying that on Wikipedia :-) :-) :-)).
+ */
+#define MAX_BLOCK_SIZE	(16*1024*1024)
+
 /* pcapng: section header block */
 typedef struct pcapng_section_header_block_s {
         /* pcapng_block_header_t */
@@ -393,27 +405,41 @@ typedef struct {
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
-                   char *content, int len, int *err, gchar **err_info)
+                   char *content, guint len, guint to_read,
+                   int *err, gchar **err_info)
 {
         int     bytes_read;
         int     block_read;
         guint64 file_offset64;
 
+        /* sanity check: don't run past the end of the block */
+        if (to_read < sizeof (*oh)) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup("pcapng_read_option: option goes past the end of the block");
+                return -1;
+        }
 
         /* read option header */
         errno = WTAP_ERR_CANT_READ;
         bytes_read = file_read(oh, sizeof (*oh), fh);
         if (bytes_read != sizeof (*oh)) {
-            pcapng_debug0("pcapng_read_option: failed to read option");
-            *err = file_error(fh, err_info);
-            if (*err != 0)
-                    return -1;
-            return 0;
+                pcapng_debug0("pcapng_read_option: failed to read option");
+                *err = file_error(fh, err_info);
+                if (*err != 0)
+                        return -1;
+                return 0;
         }
         block_read = sizeof (*oh);
         if (pn->byte_swapped) {
                 oh->option_code      = BSWAP16(oh->option_code);
                 oh->option_length    = BSWAP16(oh->option_length);
+        }
+
+        /* sanity check: don't run past the end of the block */
+        if (to_read < sizeof (*oh) + oh->option_length) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup("pcapng_read_option: option goes past the end of the block");
+                return -1;
         }
 
         /* sanity check: option length */
@@ -457,8 +483,8 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                                  gchar **err_info)
 {
         int     bytes_read;
-        int     block_read;
-        int to_read, opt_cont_buf_len;
+        guint   block_read;
+        guint to_read, opt_cont_buf_len;
         pcapng_section_header_block_t shb;
         pcapng_option_header_t oh;
         char *option_content = NULL; /* Allocate as large as the options block */
@@ -539,7 +565,23 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 return 0;
         }
 
-        /* OK, at this point we assume it's a pcap-ng file. */
+        /* OK, at this point we assume it's a pcap-ng file.
+
+           Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
+           We check for this *after* checking the SHB for its byte
+           order magic number, so that non-pcap-ng files are less
+           likely to be treated as bad pcap-ng files. */
+        if (bh->block_total_length > MAX_BLOCK_SIZE) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+                              bh->block_total_length, MAX_BLOCK_SIZE);
+                return -1;
+        }
+
         /* We currently only suport one SHB */
         if (pn->shb_read == TRUE) {
                 *err = WTAP_ERR_UNSUPPORTED;
@@ -572,14 +614,15 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         /* Options */
         errno = WTAP_ERR_CANT_READ;
         to_read = bh->block_total_length - MIN_SHB_SIZE;
+
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
         option_content = (char *)g_malloc(opt_cont_buf_len);
         pcapng_debug1("pcapng_read_section_header_block: Options %u bytes", to_read);
-        while (to_read > 0) {
+        while (to_read != 0) {
                 /* read option */
                 pcapng_debug1("pcapng_read_section_header_block: Options %u bytes remaining", to_read);
-                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
+                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
                 if (bytes_read <= 0) {
                         pcapng_debug0("pcapng_read_section_header_block: failed to read option");
                         return bytes_read;
@@ -646,8 +689,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 {
         guint64 time_units_per_second = 1000000; /* default */
         int     bytes_read;
-        int     block_read;
-        int to_read, opt_cont_buf_len;
+        guint   block_read;
+        guint to_read, opt_cont_buf_len;
         pcapng_interface_description_block_t idb;
         pcapng_option_header_t oh;
         char *option_content = NULL; /* Allocate as large as the options block */
@@ -662,6 +705,21 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_if_descr_block: total block length %u of an IDB is less than the minimum IDB size %u",
                               bh->block_total_length, MIN_IDB_SIZE);
+                return -1;
+        }
+
+        /* Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
+           We check for this *after* checking the SHB for its byte
+           order magic number, so that non-pcap-ng files are less
+           likely to be treated as bad pcap-ng files. */
+        if (bh->block_total_length > MAX_BLOCK_SIZE) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+                              bh->block_total_length, MAX_BLOCK_SIZE);
                 return -1;
         }
 
@@ -730,9 +788,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
         opt_cont_buf_len = to_read;
         option_content = (char *)g_malloc(opt_cont_buf_len);
 
-        while (to_read > 0) {
+        while (to_read != 0) {
                 /* read option */
-                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
+                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
                 if (bytes_read <= 0) {
                         pcapng_debug0("pcapng_read_if_descr_block: failed to read option");
                         return bytes_read;
@@ -897,8 +955,8 @@ static int
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info, gboolean enhanced)
 {
         int bytes_read;
-        int block_read;
-        int to_read, opt_cont_buf_len;
+        guint block_read;
+        guint to_read, opt_cont_buf_len;
         guint64 file_offset64;
         pcapng_enhanced_packet_block_t epb;
         pcapng_packet_block_t pb;
@@ -910,6 +968,21 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         int pseudo_header_len;
         char *option_content = NULL; /* Allocate as large as the options block */
         int fcslen;
+
+        /* Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
+           We check for this *after* checking the SHB for its byte
+           order magic number, so that non-pcap-ng files are less
+           likely to be treated as bad pcap-ng files. */
+        if (bh->block_total_length > MAX_BLOCK_SIZE) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+                              bh->block_total_length, MAX_BLOCK_SIZE);
+                return -1;
+        }
 
         /* "(Enhanced) Packet Block" read fixed part */
         errno = WTAP_ERR_CANT_READ;
@@ -1143,9 +1216,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         opt_cont_buf_len = to_read;
         option_content = (char *)g_malloc(opt_cont_buf_len);
 
-        while (to_read > 0) {
+        while (to_read != 0) {
                 /* read option */
-                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
+                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
                 if (bytes_read <= 0) {
                         pcapng_debug0("pcapng_read_packet_block: failed to read option");
                         return bytes_read;
@@ -1245,6 +1318,21 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u of an SPB is less than the minimum SPB size %u",
                               bh->block_total_length, MIN_SPB_SIZE);
+                return -1;
+        }
+
+        /* Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
+           We check for this *after* checking the SHB for its byte
+           order magic number, so that non-pcap-ng files are less
+           likely to be treated as bad pcap-ng files. */
+        if (bh->block_total_length > MAX_BLOCK_SIZE) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+                              bh->block_total_length, MAX_BLOCK_SIZE);
                 return -1;
         }
 
@@ -1428,6 +1516,21 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u of an NRB is less than the minimum NRB size %u",
                               bh->block_total_length, MIN_NRB_SIZE);
+                return -1;
+        }
+
+        /* Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
+           We check for this *after* checking the SHB for its byte
+           order magic number, so that non-pcap-ng files are less
+           likely to be treated as bad pcap-ng files. */
+        if (bh->block_total_length > MAX_BLOCK_SIZE) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+                              bh->block_total_length, MAX_BLOCK_SIZE);
                 return -1;
         }
 
@@ -1635,8 +1738,8 @@ static int
 pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info)
 {
         int bytes_read;
-        int block_read;
-        int to_read, opt_cont_buf_len;
+        guint block_read;
+        guint to_read, opt_cont_buf_len;
         pcapng_interface_statistics_block_t isb;
         pcapng_option_header_t oh;
         char *option_content = NULL; /* Allocate as large as the options block */
@@ -1651,6 +1754,21 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too small (< %u)",
                               bh->block_total_length, MIN_ISB_SIZE);
+                return -1;
+        }
+
+        /* Don't try to allocate memory for a huge number of options, as
+           that might fail and, even if it succeeds, it might not leave
+           any address space or memory+backing store for anything else.
+
+           We do that by imposing a maximum block size of MAX_BLOCK_SIZE.
+           We check for this *after* checking the SHB for its byte
+           order magic number, so that non-pcap-ng files are less
+           likely to be treated as bad pcap-ng files. */
+        if (bh->block_total_length > MAX_BLOCK_SIZE) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+                              bh->block_total_length, MAX_BLOCK_SIZE);
                 return -1;
         }
 
@@ -1692,9 +1810,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         opt_cont_buf_len = to_read;
         option_content = (char *)g_malloc(opt_cont_buf_len);
 
-        while (to_read > 0) {
+        while (to_read != 0) {
                 /* read option */
-                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
+                bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
                 if (bytes_read <= 0) {
                         pcapng_debug0("pcapng_read_interface_statistics_block: failed to read option");
                         return bytes_read;
