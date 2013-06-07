@@ -313,6 +313,10 @@ Wireshark Info
           8768</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Mark retransmitted SYN and FIN packets as retransmissions.
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
