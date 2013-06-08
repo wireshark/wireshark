@@ -28,6 +28,7 @@
 
 typedef enum _echld_msg_type_t {
 	ECHLD_ERROR, /* Child <-> Parent */
+	ECHLD_HELLO,
 
 	ECHLD_CLOSE_CHILD, /* Parent -> Child  */
 	ECHLD_CLOSING, /* Child -> Parent */
@@ -40,9 +41,6 @@ typedef enum _echld_msg_type_t {
 
 	ECHLD_OPEN_FILE, /* Parent -> Child  */
 	ECHLD_FILE_OPENED, /* Child -> Parent */
-
-	ECHLD_CLOSE_FILE, /* Parent -> Child  */
-	ECHLD_FILE_CLOSED, /* Child -> Parent */
 
 	ECHLD_LIST_INTERFACES, /* Parent -> Child  */
 	ECHLD_INTERFACE_INFO, /* Child -> Parent */
@@ -63,14 +61,19 @@ typedef enum _echld_msg_type_t {
 	ECHLD_BUFFER, /* Child -> Parent */
 
 	ECHLD_ADD_NOTE, /* Parent -> Child  */
+	ECHLD_NOTE_ADDED, /* Child -> Parent */
 	
 	ECHLD_SET_FILTER, /* Parent -> Child  */
 	ECHLD_PACKET_LIST, /* Child -> Parent */
 	
 	ECHLD_SAVE_FILE, /* Parent -> Child  */
+	ECHLD_FILE_SAVED, /* Parent -> Child  */
 
-	ECHLD_NOTE_ADDED, /* Child -> Parent */
-	ECHLD_GENERIC_MSG
+	ECHLD_EOF, /* Child -> Parent  */
+
+	ECHLD_PING, /* Parent <-> Child  */
+	ECHLD_PONG, /* Parent <-> Child  */
+
 } echld_msg_type_t;
 
 typedef enum _echld_state_t {	
@@ -132,8 +135,6 @@ int echld_enc_chdir(guint8*, size_t, const char* new_dir);
 int echld_enc_cwd(guint8*, size_t, const char* cur_dir);
 int echld_enc_list_files(guint8*, size_t, const char* glob);
 int echld_enc_open_file(guint8*, size_t, const gchar* filename);
-/* echld_close_file */
-/* echld_file_closed */
 /* echld_list_interfaces */
 int echld_enc_interface_info(guint8*, size_t, const char* intf_name, ...); /* params ??? */
 int echld_enc_open_interface(guint8*, size_t, const char* intf_name, ...); /* params ??? */ 
@@ -145,14 +146,16 @@ int echld_enc_open_interface(guint8*, size_t, const char* intf_name, ...); /* pa
 int echld_packet_summary(guint8*, size_t, column_info* );
 int echld_enc_get_packets_range(guint8*, size_t, int from, int to);
 int echld_enc_get_packets_list(guint8*, size_t, const int* packet_numbers); /* zero terminated */
-int echld_enc_add_note(guint8*, size_t, int packet_number, gchar* note);
-int echld_enc_file(guint8*, size_t, gchar* note);
-int echld_enc_file_not_opened(guint8*, size_t, int err, gchar* text);
-int echld_enc_resp_intf_info(guint8*, size_t, ...);
-int echld_enc_resp_packet_sum(guint8*, size_t, * packet_sum);
 int echld_enc_tree(guint8*, size_t, proto_tree* tree);
 int echld_enc_buffer(guint8*, size_t, tvb_t*, char* name);
-int echld_enc_packet_list(guint8*, size_t , int* packet_numbers); /* NULL term */
+int echld_enc_add_note(guint8*, size_t, int packet_number, gchar* note);
+/* echld_note_added */
+int echld_enc_file(guint8*, size_t, gchar* note);
+int echld_enc_file_not_opened(guint8*, size_t, int err, gchar* text);
+int echld_enc_apply_filter(guint8*, size_t, const char* filter);
+int echld_enc_packet_list(guint8*, size_t , const char* name, int* packet_numbers); /* NULL term */
+int echld_enc_save_file(guint8*, size_t , const char* filename, ....); /* opts ??? */
+/* echld_file_saved */
 
 
 /* message decoders */
@@ -163,8 +166,6 @@ int echld_dec_chdir(guint8*, size_t, Gstring* new_dir);
 int echld_dec_cwd(guint8*, size_t, Gstring* cur_dir);
 int echld_enc_list_files(guint8*, size_t, Gstring* glob);
 int echld_dec_open_file(guint8*, size_t, GString* filename);
-/* echld_close_file */
-/* echld_file_closed */
 /* echld_list_interfaces */
 int echld_dec_cwd(guint8*, size_t buflen, GString* cwd);
 int echld_dec_file_info(guint8*, size_t buflen, GString* file_info);
