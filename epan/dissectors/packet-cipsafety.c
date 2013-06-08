@@ -287,6 +287,34 @@ static gint ett_svalidator_rrsc           = -1;
 static gint ett_svalidator_cmd_data       = -1;
 static gint ett_svalidator_type           = -1;
 
+static expert_field ei_cipsafety_tbd2_not_complemented = EI_INIT;
+static expert_field ei_cipsafety_tbd_not_copied = EI_INIT;
+static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
+static expert_field ei_mal_io = EI_INIT;
+static expert_field ei_mal_sercosiii_link_error_count_p1p2 = EI_INIT;
+static expert_field ei_mal_tcpip_ssn = EI_INIT;
+
+static expert_field ei_mal_ssupervisor_exception_detail_alarm_ced = EI_INIT;
+static expert_field ei_mal_ssupervisor_exception_detail_alarm_ded = EI_INIT;
+static expert_field ei_mal_ssupervisor_exception_detail_alarm_med = EI_INIT;
+static expert_field ei_mal_ssupervisor_detail_warning_ced = EI_INIT;
+static expert_field ei_mal_ssupervisor_detail_warning_ded = EI_INIT;
+static expert_field ei_mal_ssupervisor_detail_warning_med = EI_INIT;
+static expert_field ei_mal_ssupervisor_configuration_unid = EI_INIT;
+static expert_field ei_mal_ssupervisor_safety_configuration_id = EI_INIT;
+static expert_field ei_mal_ssupervisor_target_unid = EI_INIT;
+static expert_field ei_mal_ssupervisor_cp_owners = EI_INIT;
+static expert_field ei_mal_ssupervisor_cp_owners_entry = EI_INIT;
+static expert_field ei_mal_ssupervisor_cp_owners_app_path_size = EI_INIT;
+static expert_field ei_mal_ssupervisor_proposed_tunid = EI_INIT;
+
+static expert_field ei_mal_svalidator_type = EI_INIT;
+static expert_field ei_mal_svalidator_time_coord_msg_min_mult = EI_INIT;
+static expert_field ei_mal_svalidator_network_time_multiplier = EI_INIT;
+static expert_field ei_mal_svalidator_timeout_multiplier = EI_INIT;
+static expert_field ei_mal_svalidator_coordination_conn_inst = EI_INIT;
+static expert_field ei_mal_svalidator_prod_cons_fault_count = EI_INIT;
+
 const value_string cipsafety_ssn_date_vals[8] = {
 
    { 0,     "NULL SSN" },
@@ -744,8 +772,7 @@ static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto
                hf_cip_ssupervisor_exception_detail_alarm_ced_detail);
    if (size == 0)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-               "Malformed Safety Supervisor Attribute 13 (Common Exception Detail)");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_alarm_ced);
       return total_len;
    }
    total_size += size;
@@ -757,8 +784,7 @@ static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto
                hf_cip_ssupervisor_exception_detail_alarm_ded_detail);
    if (size == 0)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-               "Malformed Safety Supervisor Attribute 13 (Device Exception Detail)");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_alarm_ded);
       return total_len;
    }
    total_size += size;
@@ -770,8 +796,7 @@ static int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto
                hf_cip_ssupervisor_exception_detail_alarm_med_detail);
    if (size == 0)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-               "Malformed Safety Supervisor Attribute 13 (Manufacturer Exception Detail)");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_exception_detail_alarm_med);
       return total_len;
    }
    total_size += size;
@@ -793,8 +818,7 @@ static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, pro
                hf_cip_ssupervisor_exception_detail_warning_ced_detail);
    if (size == 0)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-               "Malformed Safety Supervisor Attribute 14 (Common Exception Detail)");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_detail_warning_ced);
       return total_len;
    }
    total_size += size;
@@ -806,8 +830,7 @@ static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, pro
                hf_cip_ssupervisor_exception_detail_warning_ded_detail);
    if (size == 0)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-               "Malformed Safety Supervisor Attribute 14 (Device Exception Detail)");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_detail_warning_ded);
       return total_len;
    }
    total_size += size;
@@ -819,8 +842,7 @@ static int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, pro
                hf_cip_ssupervisor_exception_detail_warning_med_detail);
    if (size == 0)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-               "Malformed Safety Supervisor Attribute 14 (Manufacturer Exception Detail)");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_detail_warning_med);
       return total_len;
    }
    total_size += size;
@@ -833,8 +855,7 @@ static int dissect_s_supervisor_configuration_unid(packet_info *pinfo, proto_tre
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Malformed Safety Supervisor Attribute 25");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_configuration_unid);
       return total_len;
    }
 
@@ -853,8 +874,7 @@ static int dissect_s_supervisor_safety_configuration_id(packet_info *pinfo, prot
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                  "Malformed Safety Supervisor Attribute 26");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_safety_configuration_id);
       return total_len;
    }
 
@@ -873,8 +893,7 @@ static int dissect_s_supervisor_target_unid(packet_info *pinfo, proto_tree *tree
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                  "Malformed Safety Supervisor Attribute 27");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_target_unid);
       return total_len;
    }
 
@@ -898,8 +917,7 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
 
    if (total_len < 2)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                         "Malformed Safety Supervisor Attribute 28");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_cp_owners);
       return total_len;
    }
 
@@ -916,7 +934,7 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
       {
          if (total_len < attr_len+11)
          {
-            expert_add_info_format(pinfo, entry_item, PI_MALFORMED, PI_ERROR, "Malformed Safety Supervisor Attribute 28 (UNID)");
+            expert_add_info(pinfo, item, &ei_mal_ssupervisor_cp_owners_entry);
             return total_len;
          }
 
@@ -936,8 +954,7 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
 
          if (total_len < attr_len+app_path_size)
          {
-            expert_add_info_format(pinfo, entry_item, PI_MALFORMED, PI_ERROR,
-                         "Malformed Safety Supervisor Attribute 28 (EPATH)");
+            expert_add_info(pinfo, item, &ei_mal_ssupervisor_cp_owners_app_path_size);
             return total_len;
          }
 
@@ -956,8 +973,7 @@ static int dissect_s_supervisor_proposed_tunid(packet_info *pinfo, proto_tree *t
 {
    if (total_len < 10)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                  "Malformed Safety Supervisor Attribute 29");
+      expert_add_info(pinfo, item, &ei_mal_ssupervisor_proposed_tunid);
       return total_len;
    }
 
@@ -984,8 +1000,7 @@ static int dissect_s_validator_type(packet_info *pinfo, proto_tree *tree, proto_
 
    if (total_len < 1)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                         "Malformed Safety Validator Attribute 2");
+      expert_add_info(pinfo, item, &ei_mal_svalidator_type);
       return total_len;
    }
 
@@ -1007,8 +1022,7 @@ static int dissect_s_validator_time_coord_msg_min_mult(packet_info *pinfo, proto
 
    if (total_len < size+1)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                         "Malformed Safety Validator Attribute 4");
+      expert_add_info(pinfo, item, &ei_mal_svalidator_time_coord_msg_min_mult);
       return total_len;
    }
 
@@ -1032,8 +1046,7 @@ static int dissect_s_validator_network_time_multiplier(packet_info *pinfo, proto
 
    if (total_len < size+1)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Malformed Safety Validator Attribute 5");
+      expert_add_info(pinfo, item, &ei_mal_svalidator_network_time_multiplier);
       return total_len;
    }
 
@@ -1057,8 +1070,7 @@ static int dissect_s_validator_timeout_multiplier(packet_info *pinfo, proto_tree
 
    if (total_len < size+1)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                         "Malformed Safety Validator Attribute 6");
+      expert_add_info(pinfo, item, &ei_mal_svalidator_timeout_multiplier);
       return total_len;
    }
 
@@ -1082,8 +1094,7 @@ static int dissect_s_validator_coordination_conn_inst(packet_info *pinfo, proto_
 
    if (total_len < size+1)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                             "Malformed Safety Validator Attribute 9");
+      expert_add_info(pinfo, item, &ei_mal_svalidator_coordination_conn_inst);
       return total_len;
    }
 
@@ -1114,8 +1125,7 @@ static int dissect_s_validator_prod_cons_fault_count(packet_info *pinfo, proto_t
 
    if (total_len < size+1)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                         "Malformed Safety Validator Attribute 15");
+      expert_add_info(pinfo, item, &ei_mal_svalidator_prod_cons_fault_count);
       return total_len;
    }
 
@@ -1389,15 +1399,15 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
    /* verify Mode Byte bits */
    /* TBD */
    if ((((mode_byte & 0x20) >> 5) & 0x01) == (((mode_byte & 0x04) >> 2) & 0x01))
-      expert_add_info_format(pinfo, tbd_item, PI_PROTOCOL, PI_WARN, "TBD_2_bit not complemented");
+      expert_add_info(pinfo, tbd_item, &ei_cipsafety_tbd2_not_complemented);
 
    /* TBD 2 */
    if ((((mode_byte & 0x40) >> 6) & 0x01) != (((mode_byte & 0x08) >> 3) & 0x01))
-      expert_add_info_format(pinfo, tbd2_item, PI_PROTOCOL, PI_WARN, "TBD bit not copied");
+      expert_add_info(pinfo, tbd2_item, &ei_cipsafety_tbd_not_copied);
 
    /* Run/Idle */
    if ((((mode_byte & 0x80) >> 7) & 0x01) == (((mode_byte & 0x10) >> 4) & 0x01))
-      expert_add_info_format(pinfo, run_idle_item, PI_PROTOCOL, PI_WARN, "Run/Idle bit not complemented");
+      expert_add_info(pinfo, run_idle_item, &ei_cipsafety_run_idle_not_complemented);
 }
 
 static void
@@ -1521,8 +1531,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             if (item_length%2 == 1)
             {
                /* Malformed packet */
-               expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-                                      "Malformed CIP Safety I/O packet");
+               expert_add_info(pinfo, item, &ei_mal_io);
                return;
             }
 
@@ -1572,7 +1581,7 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
             if (item_length%2 == 1)
             {
                /* Malformed packet */
-               expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet");
+               expert_add_info(pinfo, item, &ei_mal_io);
                return;
             }
 
@@ -1625,7 +1634,7 @@ static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tre
 {
    if (total_len < 4)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed SERCOS III Attribute 5");
+      expert_add_info(pinfo, item, &ei_mal_sercosiii_link_error_count_p1p2);
       return total_len;
    }
 
@@ -1639,7 +1648,7 @@ static int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *i
 {
    if (total_len < 6)
    {
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Attribute 7");
+      expert_add_info(pinfo, item, &ei_mal_tcpip_ssn);
       return total_len;
    }
 
@@ -2520,10 +2529,69 @@ proto_register_cipsafety(void)
       &ett_svalidator_type
    };
 
+   static ei_register_info ei[] = {
+      { &ei_cipsafety_tbd2_not_complemented, { "cipsafety.tbd2_not_complemented", PI_PROTOCOL, PI_WARN, "TBD_2_bit not complemented", EXPFILL }},
+      { &ei_cipsafety_tbd_not_copied, { "cipsafety.tbd_not_copied", PI_PROTOCOL, PI_WARN, "TBD bit not copied", EXPFILL }},
+      { &ei_cipsafety_run_idle_not_complemented, { "cipsafety.run_idle_not_complemented", PI_PROTOCOL, PI_WARN, "Run/Idle bit not complemented", EXPFILL }},
+      { &ei_mal_io, { "cipsafety.malformed.io", PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet", EXPFILL }},
+      { &ei_mal_sercosiii_link_error_count_p1p2, { "cipsafety.malformed.sercosiii_link.error_count_p1p2", PI_MALFORMED, PI_ERROR, "Malformed SERCOS III Attribute 5", EXPFILL }},
+      { &ei_mal_tcpip_ssn, { "cip.malformed.tcpip.ssn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
+      };
+
+   static ei_register_info ei_ssupervisor[] = {
+      { &ei_mal_ssupervisor_exception_detail_alarm_ced, { "cipsafety.ssupervisor.malformed.exception_detail_alarm.ced", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail Alarm (Common Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_exception_detail_alarm_ded, { "cipsafety.ssupervisor.malformed.exception_detail_alarm.ded", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail Alarm (Device Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_exception_detail_alarm_med, { "cipsafety.ssupervisor.malformed.exception_detail_alarm.med", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail Alarm (Manufacturer Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_detail_warning_ced, { "cipsafety.ssupervisor.malformed.detail_warning.ced", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail Warning (Common Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_detail_warning_ded, { "cipsafety.ssupervisor.malformed.detail_warning.ded", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail Warning (Device Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_detail_warning_med, { "cipsafety.ssupervisor.malformed.detail_warning.med", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Exception Detail Warning (Manufacturer Exception Detail)", EXPFILL }},
+      { &ei_mal_ssupervisor_configuration_unid, { "cipsafety.ssupervisor.malformed.configuration_unid", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Configuration UNID", EXPFILL }},
+      { &ei_mal_ssupervisor_safety_configuration_id, { "cipsafety.ssupervisor.malformed.safety_configuration_id", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Safety Configuration Identifier", EXPFILL }},
+      { &ei_mal_ssupervisor_target_unid, { "cipsafety.ssupervisor.malformed.target_unid", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Target UNID", EXPFILL }},
+      { &ei_mal_ssupervisor_cp_owners, { "cipsafety.ssupervisor.malformed.cp_owners", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Output Connection Point Owners", EXPFILL }},
+      { &ei_mal_ssupervisor_cp_owners_entry, { "cipsafety.ssupervisor.malformed.cp_owners.entry", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Output Connection Point Owners (UNID)", EXPFILL }},
+      { &ei_mal_ssupervisor_cp_owners_app_path_size, { "cipsafety.ssupervisor.malformed.cp_owners.app_path_size", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Output Connection Point Owners (EPATH)", EXPFILL }},
+      { &ei_mal_ssupervisor_proposed_tunid, { "cipsafety.ssupervisor.malformed.proposed_tunid", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Supervisor Proposed TUNID", EXPFILL }},
+   };
+
+   static ei_register_info ei_svalidator[] = {
+      { &ei_mal_svalidator_type, { "cipsafety.ssupervisor.malformed.svalidator.type", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Validator Type", EXPFILL }},
+      { &ei_mal_svalidator_time_coord_msg_min_mult, { "cipsafety.ssupervisor.malformed.svalidator.time_coord_msg_min_mult", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Validator Time Coord Msg Min Multiplier", EXPFILL }},
+      { &ei_mal_svalidator_network_time_multiplier, { "cipsafety.ssupervisor.malformed.svalidator.network_time_multiplier", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Validator Network Time Expectation Multiplier", EXPFILL }},
+      { &ei_mal_svalidator_timeout_multiplier, { "cipsafety.ssupervisor.malformed.svalidator.timeout_multiplier", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Validator Timeout Multiplier", EXPFILL }},
+      { &ei_mal_svalidator_coordination_conn_inst, { "cipsafety.ssupervisor.malformed.svalidator.coordination_conn_inst", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Validator Coordination Connection Instance", EXPFILL }},
+      { &ei_mal_svalidator_prod_cons_fault_count, { "cipsafety.ssupervisor.malformed.svalidator.prod_cons_fault_count", PI_MALFORMED, PI_ERROR,
+                        "Malformed Safety Validator Produce/Consume Fault Counters", EXPFILL }},
+   };
+
+   expert_module_t* expert_cip_safety;
+   expert_module_t* expert_cip_class_s_supervisor;
+   expert_module_t* expert_cip_class_s_validator;
+
    /* Create a CIP Safety protocol handle */
    proto_cipsafety = proto_register_protocol("Common Industrial Protocol, Safety", "CIP Safety", "cipsafety");
    proto_register_field_array(proto_cipsafety, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+   expert_cip_safety = expert_register_protocol(proto_cipsafety);
+   expert_register_field_array(expert_cip_safety, ei, array_length(ei));
 
    register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
@@ -2532,11 +2600,15 @@ proto_register_cipsafety(void)
        "CIPSSupervisor", "cipssupervisor");
    proto_register_field_array(proto_cip_class_s_supervisor, hf_ssupervisor, array_length(hf_ssupervisor));
    proto_register_subtree_array(ett_ssupervisor, array_length(ett_ssupervisor));
+   expert_cip_class_s_supervisor = expert_register_protocol(proto_cip_class_s_supervisor);
+   expert_register_field_array(expert_cip_class_s_supervisor, ei_ssupervisor, array_length(ei_ssupervisor));
 
    proto_cip_class_s_validator = proto_register_protocol("CIP Safety Validator",
        "CIPSValidator", "cipsvalidator");
    proto_register_field_array(proto_cip_class_s_validator, hf_svalidator, array_length(hf_svalidator));
    proto_register_subtree_array(ett_svalidator, array_length(ett_svalidator));
+   expert_cip_class_s_validator = expert_register_protocol(proto_cip_class_s_validator);
+   expert_register_field_array(expert_cip_class_s_validator, ei_svalidator, array_length(ei_svalidator));
 }
 
 /*

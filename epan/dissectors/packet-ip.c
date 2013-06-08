@@ -226,6 +226,20 @@ static gint ett_ip_checksum = -1;
 static gint ett_ip_opt_type = -1;
 static gint ett_ip_opt_sec_prot_auth_flags = -1;
 
+static expert_field ei_ip_opt_len_invalid = EI_INIT;
+static expert_field ei_ip_opt_sec_prot_auth_fti = EI_INIT;
+static expert_field ei_ip_extraneous_data = EI_INIT;
+static expert_field ei_ip_opt_ptr_before_address = EI_INIT;
+static expert_field ei_ip_opt_ptr_middle_address = EI_INIT;
+static expert_field ei_ip_subopt_too_long = EI_INIT;
+static expert_field ei_ip_nop = EI_INIT;
+static expert_field ei_ip_bogus_ip_length = EI_INIT;
+static expert_field ei_ip_evil_packet = EI_INIT;
+static expert_field ei_ip_checksum_bad = EI_INIT;
+static expert_field ei_ip_ttl_lncb = EI_INIT;
+static expert_field ei_ip_ttl_too_small = EI_INIT;
+
+
 #ifdef HAVE_GEOIP
 static gint ett_geoip_info = -1;
 #endif /* HAVE_GEOIP */
@@ -747,8 +761,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   curr_offset++;
   tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf_sub, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf_sub, &ei_ip_opt_len_invalid);
   curr_offset++;
 
   if (optlen == 11) {
@@ -785,8 +798,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   curr_offset++;
   while (val & 0x01) {
     if ((val & 0x01) && ((curr_offset - offset) == optlen)) {
-      expert_add_info_format(pinfo, tf_sub, PI_PROTOCOL, PI_WARN,
-                             "Field Termination Indicator set to 1 for last byte of option");
+      expert_add_info(pinfo, tf_sub, &ei_ip_opt_sec_prot_auth_fti);
       break;
     }
     val = tvb_get_guint8(tvb, curr_offset);
@@ -796,8 +808,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     curr_offset++;
   }
   if ((curr_offset - offset) < optlen) {
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Extraneous data in option");
+    expert_add_info(pinfo, tf, &ei_ip_extraneous_data);
   }
 }
 
@@ -819,8 +830,7 @@ dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   curr_offset++;
   tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf_sub, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf_sub, &ei_ip_opt_len_invalid);
   curr_offset++;
   proto_tree_add_item(field_tree, hf_ip_opt_ext_sec_add_sec_info_format_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
   curr_offset++;
@@ -857,8 +867,7 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
 
   offset += 2;
 
@@ -1119,18 +1128,15 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   ptr = tvb_get_guint8(tvb, offset + 2);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA);
   if ((ptr < (optp->optlen + 1)) || (ptr & 3)) {
     if (ptr < (optp->optlen + 1)) {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "Pointer points before first address");
+      expert_add_info(pinfo, tf, &ei_ip_opt_ptr_before_address);
     }
     else {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "Pointer points to middle of address");
+      expert_add_info(pinfo, tf, &ei_ip_opt_ptr_middle_address);
     }
     return;
   }
@@ -1139,8 +1145,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   optoffset = 3;    /* skip past type, length and pointer */
   for (optlen -= 3; optlen > 0; optlen -= 4, optoffset += 4) {
     if (optlen < 4) {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "Suboption would go past end of option");
+      expert_add_info(pinfo, tf, &ei_ip_subopt_too_long);
       break;
     }
 
@@ -1203,19 +1208,16 @@ dissect_ipopt_record_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   ptr = tvb_get_guint8(tvb, offset + 2);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_ptr, tvb, offset + 2, 1, ENC_NA);
 
   if ((ptr < (optp->optlen + 1)) || (ptr & 3)) {
     if (ptr < (optp->optlen + 1)) {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "Pointer points before first address");
+      expert_add_info(pinfo, tf, &ei_ip_opt_ptr_before_address);
     }
     else {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "Pointer points to middle of address");
+      expert_add_info(pinfo, tf, &ei_ip_opt_ptr_middle_address);
     }
     return;
   }
@@ -1224,8 +1226,7 @@ dissect_ipopt_record_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   optoffset = 3;    /* skip past type, length and pointer */
   for (optlen -= 3; optlen > 0; optlen -= 4, optoffset += 4) {
     if (optlen < 4) {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "Suboption would go past end of option");
+      expert_add_info(pinfo, tf, &ei_ip_subopt_too_long);
       break;
     }
 
@@ -1266,8 +1267,7 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   proto_tree_add_item(field_tree, hf_ip_opt_sid, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
@@ -1286,8 +1286,7 @@ dissect_ipopt_mtu(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   proto_tree_add_item(field_tree, hf_ip_opt_mtu, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
@@ -1306,8 +1305,7 @@ dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
 
   proto_tree_add_item(field_tree, hf_ip_opt_id_number, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(field_tree, hf_ip_opt_ohc, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
@@ -1339,8 +1337,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   optoffset += 2;   /* skip past type and length */
   optlen -= 2;      /* subtract size of type and length */
 
@@ -1417,8 +1414,7 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   proto_tree_add_item(field_tree, hf_ip_opt_ra, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
@@ -1437,8 +1433,7 @@ dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   for (offset += 2, optlen -= 2; optlen >= 4; offset += 4, optlen -= 4)
     proto_tree_add_item(field_tree, hf_ip_opt_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
@@ -1495,8 +1490,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   dissect_ipopt_type(tvb, offset, field_tree);
   ti = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                           "Invalid length for option");
+    expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   proto_tree_add_item(field_tree, hf_ip_opt_qs_func, tvb, offset + 2, 1, ENC_NA);
 
   if (function == QS_RATE_REQUEST) {
@@ -1724,9 +1718,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       offset += 1;
 
       if (nop_count == 4 && strcmp (name, "No-Operation (NOP)") == 0) {
-        expert_add_info_format(pinfo, opt_item, PI_PROTOCOL, PI_WARN,
-                               "4 NOP in a row - a router may have removed "
-                               "some options");
+        expert_add_info(pinfo, opt_item, &ei_ip_nop);
       }
     }
     if (opt == eol)
@@ -2064,7 +2056,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
           "Total length: %u bytes (bogus, less than header length %u)",
           iph->ip_len, hlen);
       }
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR, "Bogus IP length");
+      expert_add_info(pinfo, tf, &ei_ip_bogus_ip_length);
       /* Can't dissect any further */
       return;
     }
@@ -2098,8 +2090,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                                     bit_offset + 0, 1, ENC_BIG_ENDIAN);
       if (iph->ip_off & IP_RF) {
         proto_item_append_text(tf, " (Evil packet!)");
-        expert_add_info_format(pinfo, sf, PI_SECURITY, PI_WARN,
-                               "This is an Evil packet (RFC 3514)");
+        expert_add_info(pinfo, sf, &ei_ip_evil_packet);
       }
     } else {
       proto_tree_add_bits_item(field_tree, hf_ip_flags_rf, tvb, bit_offset + 0,
@@ -2175,8 +2166,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
          if (tree == NULL) then item will be NULL
          else item should be from the
          add_boolean(..., hf_ip_checksum_bad, ...) above */
-      expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
-                             "Bad checksum");
+      expert_add_info(pinfo, item, &ei_ip_checksum_bad);
     }
   } else {
     ipsum = 0;
@@ -2260,15 +2250,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (is_a_local_network_control_block_addr(dst32)) {
     ttl = local_network_control_block_addr_valid_ttl(dst32);
     if (ttl != iph->ip_ttl && ttl != IPLOCAL_NETWRK_CTRL_BLK_ANY_TTL) {
-      expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
-                             "\"Time To Live\" != %d for a packet sent to the "
+      expert_add_info_format_text(pinfo, ttl_item, &ei_ip_ttl_lncb, "\"Time To Live\" != %d for a packet sent to the "
                              "Local Network Control Block (see RFC 3171)",
                              ttl);
     }
   } else if (!is_a_multicast_addr(dst32) && iph->ip_ttl < 5 &&
             (iph->ip_p != IP_PROTO_PIM)) {
-    expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
-                           "\"Time To Live\" only %u", iph->ip_ttl);
+    expert_add_info_format_text(pinfo, ttl_item, &ei_ip_ttl_too_small, "\"Time To Live\" only %u", iph->ip_ttl);
   }
 
   if (tree) {
@@ -2979,11 +2967,29 @@ proto_register_ip(void)
     &ett_geoip_info
 #endif
   };
+  static ei_register_info ei[] = {
+     { &ei_ip_opt_len_invalid, { "ip.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+     { &ei_ip_opt_sec_prot_auth_fti, { "ip.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Field Termination Indicator set to 1 for last byte of option", EXPFILL }},
+     { &ei_ip_extraneous_data, { "ip.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Extraneous data in option", EXPFILL }},
+     { &ei_ip_opt_ptr_before_address, { "ip.opt.ptr.before_address", PI_PROTOCOL, PI_WARN, "Pointer points before first address", EXPFILL }},
+     { &ei_ip_opt_ptr_middle_address, { "ip.opt.ptr.middle_address", PI_PROTOCOL, PI_WARN, "Pointer points to middle of address", EXPFILL }},
+     { &ei_ip_subopt_too_long, { "ip.subopt_too_long", PI_PROTOCOL, PI_WARN, "Suboption would go past end of option", EXPFILL }},
+     { &ei_ip_nop, { "ip.nop", PI_PROTOCOL, PI_WARN, "4 NOP in a row - a router may have removed some options", EXPFILL }},
+     { &ei_ip_bogus_ip_length, { "ip.bogus_ip_length", PI_PROTOCOL, PI_ERROR, "Bogus IP length", EXPFILL }},
+     { &ei_ip_evil_packet, { "ip.evil_packet", PI_PROTOCOL, PI_WARN, "Suboption would go past end of option", EXPFILL }},
+     { &ei_ip_checksum_bad, { "ip.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+     { &ei_ip_ttl_lncb, { "ip.ttl.lncb", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
+     { &ei_ip_ttl_too_small, { "ip.ttl.too_small", PI_SEQUENCE, PI_NOTE, "Time To Live", EXPFILL }},
+  };
+
   module_t *ip_module;
+  expert_module_t* expert_ip;
 
   proto_ip = proto_register_protocol("Internet Protocol Version 4", "IPv4", "ip");
   proto_register_field_array(proto_ip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_ip = expert_register_protocol(proto_ip);
+  expert_register_field_array(expert_ip, ei, array_length(ei));
 
   /* subdissector code */
   ip_dissector_table = register_dissector_table("ip.proto", "IPv4 protocol",

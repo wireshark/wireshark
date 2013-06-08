@@ -101,6 +101,10 @@ static gint ett_dhcpfo = -1;
 static gint ett_fo_payload = -1;
 static gint ett_fo_option = -1;
 
+static expert_field ei_dhcpfo_bad_length = EI_INIT;
+static expert_field ei_dhcpfo_message_digest_type_not_allowed = EI_INIT;
+
+
 /* Length of fixed-length portion of header */
 #define DHCPFO_FL_HDR_LEN	12
 
@@ -524,7 +528,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_ASSIGNED_IP_ADDRESS:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "assigned ip address is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "assigned ip address is not 4 bytes long");
 				break;
 			}
 			proto_item_append_text(oi, ", %s ", tvb_ip_to_str(tvb, offset));
@@ -536,7 +540,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "sending server ip address is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "sending server ip address is not 4 bytes long");
 				break;
 			}
 
@@ -549,7 +553,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_ADDRESSES_TRANSFERED:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "addresses transferred is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "addresses transferred is not 4 bytes long");
 				break;
 			}
 
@@ -574,7 +578,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS:
 			if (option_length < 2) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "hardware address is too short");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "hardware address is too short");
 				break;
 			}
 			htype = tvb_get_guint8(tvb, offset);
@@ -597,7 +601,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_REJECT_REASON:
 			if (option_length != 1) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Reject reason is not 1 byte long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Reject reason is not 1 byte long");
 				break;
 			}
 			reject_reason = tvb_get_guint8(tvb, offset);
@@ -619,7 +623,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_MCLT:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "MCLT is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "MCLT is not 4 bytes long");
 				break;
 			}
 			mclt = tvb_get_ntohl(tvb, offset);
@@ -640,7 +644,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Lease expiration time is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Lease expiration time is not 4 bytes long");
 				break;
 			}
 			lease_expiration_time =
@@ -661,7 +665,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_POTENTIAL_EXPIRATION_TIME:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Potential expiration time is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Potential expiration time is not 4 bytes long");
 				break;
 			}
 			potential_expiration_time =
@@ -683,7 +687,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_GRACE_EXPIRATION_TIME:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Grace expiration time is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Grace expiration time is not 4 bytes long");
 				break;
 			}
 			grace_expiration_time =
@@ -705,7 +709,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_CLIENT_LAST_TRANSACTION_TIME:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Last transaction time is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Last transaction time is not 4 bytes long");
 				break;
 			}
 			client_last_transaction_time =
@@ -726,7 +730,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_START_TIME_OF_STATE:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Start time of state is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Start time of state is not 4 bytes long");
 				break;
 			}
 			start_time_of_state =
@@ -747,7 +751,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_SERVERSTATE:
 			if (option_length != 1) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "server status is not 1 byte long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "server status is not 1 byte long");
 				break;
 			}
 			server_state = tvb_get_guint8(tvb, offset);
@@ -764,7 +768,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_SERVERFLAG:
 			if (option_length != 1) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Serverflag is not 1 byte long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Serverflag is not 1 byte long");
 				break;
 			}
 			serverflag = tvb_get_guint8(tvb, offset);
@@ -782,7 +786,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_MAX_UNACKED_BNDUPD:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Max unacked BNDUPD is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Max unacked BNDUPD is not 4 bytes long");
 				break;
 			}
 			max_unacked_bndupd = tvb_get_ntohl(tvb, offset);
@@ -795,7 +799,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_RECEIVE_TIMER:
 			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Receive timer is not 4 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Receive timer is not 4 bytes long");
 				break;
 			}
 			receive_timer = tvb_get_ntohl(tvb, offset);
@@ -817,7 +821,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_MESSAGE_DIGEST:
 			if (option_length < 2) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Message digest is too short");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Message digest is too short");
 				break;
 			}
 
@@ -828,7 +832,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_append_text(oi, ", HMAC-MD5");
 			} else {
 				proto_item_append_text(oi, ", type not allowed");
-				expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Message digest type: %u, not allowed", message_digest_type);
+				expert_add_info_format_text(pinfo, ti, &ei_dhcpfo_message_digest_type_not_allowed, "Message digest type: %u, not allowed", message_digest_type);
 			}
 
 			proto_tree_add_item(option_tree,
@@ -838,7 +842,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_PROTOCOL_VERSION:
 			if (option_length != 1) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "Protocol version is not 1 byte long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "Protocol version is not 1 byte long");
 				break;
 			}
 			proto_item_append_text(oi, ", version: %u", tvb_get_guint8(tvb, offset));
@@ -847,7 +851,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_TLS_REQUEST:
 			if (option_length != 2) {
-				expert_add_info_format(pinfo, oi, PI_PROTOCOL, PI_WARN, "TLS request is not 2 bytes long");
+				expert_add_info_format_text(pinfo, oi, &ei_dhcpfo_bad_length, "TLS request is not 2 bytes long");
 				break;
 			}
 			tls_request = tvb_get_ntohs(tvb, offset);
@@ -1117,7 +1121,13 @@ proto_register_dhcpfo(void)
 		&ett_fo_option,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_dhcpfo_bad_length, { "dhcpfo.bad_length", PI_PROTOCOL, PI_WARN, "Bad length", EXPFILL }},
+		{ &ei_dhcpfo_message_digest_type_not_allowed, { "dhcpfo.message_digest_type_not_allowed", PI_PROTOCOL, PI_WARN, "Message digest type not allowed", EXPFILL }},
+	};
+
 	module_t *dhcpfo_module;
+	expert_module_t* expert_dhcpfo;
 
 /* Register the protocol name and description */
 	proto_dhcpfo = proto_register_protocol("DHCP Failover", "DHCPFO",
@@ -1126,6 +1136,8 @@ proto_register_dhcpfo(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_dhcpfo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_dhcpfo = expert_register_protocol(proto_dhcpfo);
+	expert_register_field_array(expert_dhcpfo, ei, array_length(ei));
 
 	dhcpfo_module = prefs_register_protocol(proto_dhcpfo, proto_reg_handoff_dhcpfo);
 	prefs_register_uint_preference(dhcpfo_module, "tcp_port",

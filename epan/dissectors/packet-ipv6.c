@@ -277,6 +277,20 @@ static gint ett_ipv6_traffic_class      = -1;
 static gint ett_geoip_info              = -1;
 #endif /* HAVE_GEOIP_V6 */
 
+static expert_field ei_ipv6_dst_addr_not_multicast = EI_INIT;
+static expert_field ei_ipv6_src_route_list_mult_inst_same_addr = EI_INIT;
+static expert_field ei_ipv6_src_route_list_src_addr = EI_INIT;
+static expert_field ei_ipv6_src_route_list_dst_addr = EI_INIT;
+static expert_field ei_ipv6_src_route_list_multicast_addr = EI_INIT;
+static expert_field ei_ipv6_cmpri_cmpre_pad = EI_INIT;
+static expert_field ei_ipv6_routing_hdr_rpl_reserved = EI_INIT;
+static expert_field ei_ipv6_opt_tel_invalid_len = EI_INIT;
+static expert_field ei_ipv6_opt_jumbo_invalid_len = EI_INIT;
+static expert_field ei_ipv6_opt_rtalert_invalid_len = EI_INIT;
+static expert_field ei_ipv6_mipv6_home_address_invalid_len = EI_INIT;
+static expert_field ei_ipv6_shim6_opt_elemlen_invalid = EI_INIT;
+static expert_field ei_ipv6_shim6_checksum_bad = EI_INIT;
+static expert_field ei_ipv6_routing_hdr_rpl_segments_ge0 = EI_INIT;
 
 static const fragment_items ipv6_frag_items = {
         &ett_ipv6_fragment,
@@ -587,7 +601,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     len = (rt.ip6r_len + 1) << 3;
 
     /* Assigning seg_left and the if (seg_left) {} blocks of code that follow,
-     * along with any expert_add_info_format() calls, all need to execute when
+     * along with any expert_add_info() calls, all need to execute when
      * appropriate, regardless of whether the tree is NULL or not. */
     if (1) {
         /* !!! specify length */
@@ -657,7 +671,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 
             /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
             if(g_ipv6_rpl_srh_strict_rfc_checking && E_IN6_IS_ADDR_MULTICAST(&dstAddr)){
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Destination address must not be a multicast address ");
+                expert_add_info(pinfo, ti, &ei_ipv6_dst_addr_not_multicast);
             }
 
             proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -674,14 +688,14 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 
             /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
             if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
+                expert_add_info_format_text(pinfo, ti, &ei_ipv6_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
             }
 
             proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
             reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
 
             if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
-                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Reserved field must equal 0 but instead was %d", reserved);
+                expert_add_info_format_text(pinfo, ti, &ei_ipv6_routing_hdr_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
             }
 
             /* from RFC6554:
@@ -692,7 +706,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 
             if (segments < 0) {
                 /* This error should always be reported */
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was %d", segments);
+                expert_add_info_format_text(pinfo, ti, &ei_ipv6_routing_hdr_rpl_segments_ge0, "Calculated total segments must be greater than or equal to 0, instead was %d", segments);
             } else {
 
                 offset += 4;
@@ -725,7 +739,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                             /* Compare the addresses */
                             if (memcmp(addr.bytes, tempAddr.bytes, 16) == 0) {
                                 /* Found a later address that is the same */
-                                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multiple instances of the same address must not appear in the source route list");
+                                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                                 break;
                             }
                             tempOffset += (16-cmprI);
@@ -739,21 +753,21 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                             /* Compare the addresses */
                             if (memcmp(addr.bytes, tempAddr.bytes, 16) == 0) {
                                 /* Found a later address that is the same */
-                                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multiple instances of the same address must not appear in the source route list");
+                                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                             }
                         }
                         /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
                         if (memcmp(addr.bytes, srcAddr.bytes, 16) == 0) {
-                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Source address must not appear in the source route list");
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
                         }
 
                         if (memcmp(addr.bytes, dstAddr.bytes, 16) == 0) {
-                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Destination address must not appear in the source route list");
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
                         }
 
                         /* Multicast addresses MUST NOT appear in the in SRH */
                         if(E_IN6_IS_ADDR_MULTICAST(&addr)){
-                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multicast addresses must not appear in the source route list");
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                         }
                     }
                 }
@@ -773,16 +787,16 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                     if(g_ipv6_rpl_srh_strict_rfc_checking){
                         /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
                         if (memcmp(addr.bytes, srcAddr.bytes, 16) == 0) {
-                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Source address must not appear in the source route list");
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
                         }
 
                         if (memcmp(addr.bytes, dstAddr.bytes, 16) == 0) {
-                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Destination address must not appear in the source route list");
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
                         }
 
                         /* Multicast addresses MUST NOT appear in the in SRH */
                         if(E_IN6_IS_ADDR_MULTICAST(&addr)){
-                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multicast addresses must not appear in the source route list");
+                            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                         }
                     }
                 }
@@ -938,7 +952,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 break;
             case IP6OPT_TEL:
                 if (opt_len != 1) {
-                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_opt_tel_invalid_len,
                         "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb,
@@ -947,7 +961,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 break;
             case IP6OPT_JUMBO:
                 if (opt_len != 4) {
-                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_opt_jumbo_invalid_len,
                         "Jumbo payload: Invalid length (%u bytes)", opt_len);
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
@@ -957,7 +971,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             case IP6OPT_RTALERT:
               {
                 if (opt_len != 2) {
-                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_opt_rtalert_invalid_len,
                             "Router alert: Invalid Length (%u bytes)",
                             opt_len + 2);
                 }
@@ -968,7 +982,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
               }
             case IP6OPT_HOME_ADDRESS:
                 if (opt_len != 16) {
-                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ti_opt_len, &ei_ipv6_mipv6_home_address_invalid_len,
                         "Home Address: Invalid length (%u bytes)", opt_len);
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_mipv6_home_address, tvb,
@@ -1228,7 +1242,7 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
   if (optlen < 1 || optlen > 3) {
     it = proto_tree_add_text(opt_tree, tvb, p, 1,
       "Invalid element length: %u",  optlen);
-    expert_add_info_format(pinfo, it, PI_MALFORMED, PI_ERROR,
+    expert_add_info_format_text(pinfo, it, &ei_ipv6_shim6_opt_elemlen_invalid,
       "Invalid element length: %u", optlen);
     return;
   }
@@ -1554,7 +1568,7 @@ static void ipv6_shim6_checkum_additional_info(tvbuff_t * tvb, packet_info * pin
            offset, 2, !is_cksum_correct);
         PROTO_ITEM_SET_GENERATED(item);
         if (!is_cksum_correct) {
-          expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+          expert_add_info(pinfo, item, &ei_ipv6_shim6_checksum_bad);
           col_append_str(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
         }
 }
@@ -2798,11 +2812,31 @@ proto_register_ipv6(void)
     &ett_geoip_info
 #endif /* HAVE_GEOIP_V6 */
   };
+  static ei_register_info ei[] = {
+     { &ei_ipv6_dst_addr_not_multicast, { "ipv6.dst_addr.not_multicast", PI_PROTOCOL, PI_WARN, "Destination address must not be a multicast address", EXPFILL }},
+     { &ei_ipv6_src_route_list_mult_inst_same_addr, { "ipv6.src_route_list.mult_inst_same_addr", PI_PROTOCOL, PI_ERROR, "Multiple instances of the same address must not appear in the source route list", EXPFILL }},
+     { &ei_ipv6_src_route_list_src_addr, { "ipv6.src_route_list.src_addr", PI_PROTOCOL, PI_ERROR, "Source address must not appear in the source route list", EXPFILL }},
+     { &ei_ipv6_src_route_list_dst_addr, { "ipv6.src_route_list.dst_addr", PI_PROTOCOL, PI_ERROR, "Destination address must not appear in the source route list", EXPFILL }},
+     { &ei_ipv6_src_route_list_multicast_addr, { "ipv6.src_route_list.multicast_addr", PI_PROTOCOL, PI_ERROR, "Multicast addresses must not appear in the source route list", EXPFILL }},
+     { &ei_ipv6_cmpri_cmpre_pad, { "ipv6.routing_hdr.rpl.cmprI.cmprE.pad", PI_PROTOCOL, PI_WARN, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was X", EXPFILL }},
+     { &ei_ipv6_routing_hdr_rpl_reserved, { "ipv6.routing_hdr.rpl.reserved.not0", PI_PROTOCOL, PI_WARN, "Reserved field must equal 0 but instead was X", EXPFILL }},
+     { &ei_ipv6_opt_tel_invalid_len, { "ipv6.opt.tel.invalid_len", PI_MALFORMED, PI_ERROR, "Tunnel Encapsulation Limit: Invalid length", EXPFILL }},
+     { &ei_ipv6_opt_jumbo_invalid_len, { "ipv6.opt.jumbo.invalid_len", PI_MALFORMED, PI_ERROR, "Jumbo payload: Invalid length", EXPFILL }},
+     { &ei_ipv6_opt_rtalert_invalid_len, { "ipv6.opt.router_alert.invalid_len", PI_MALFORMED, PI_ERROR, "Router alert: Invalid Length", EXPFILL }},
+     { &ei_ipv6_mipv6_home_address_invalid_len, { "ipv6.mipv6_home_address.invalid_len", PI_MALFORMED, PI_ERROR, "Home Address: Invalid length", EXPFILL }},
+     { &ei_ipv6_shim6_opt_elemlen_invalid, { "ipv6.shim6.opt.elemlen.invalid", PI_MALFORMED, PI_ERROR, "Invalid element length", EXPFILL }},
+     { &ei_ipv6_shim6_checksum_bad, { "ipv6.shim6.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+     { &ei_ipv6_routing_hdr_rpl_segments_ge0, { "ipv6.routing_hdr.rpl.segments.ge0", PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was X", EXPFILL }},
+  };
+  
   module_t *ipv6_module;
+  expert_module_t* expert_ipv6;
 
   proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "IPv6", "ipv6");
   proto_register_field_array(proto_ipv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_ipv6 = expert_register_protocol(proto_ipv6);
+  expert_register_field_array(expert_ipv6, ei, array_length(ei));
 
   /* Register configuration options */
   ipv6_module = prefs_register_protocol(proto_ipv6, NULL);

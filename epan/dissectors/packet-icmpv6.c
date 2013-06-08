@@ -506,6 +506,16 @@ static gint ett_icmpv6_flag_rpl_cc = -1;
 static gint ett_icmpv6_opt_name = -1;
 static gint ett_icmpv6_cga_param_name = -1;
 
+static expert_field ei_icmpv6_invalid_option_length = EI_INIT;
+static expert_field ei_icmpv6_undecoded_option = EI_INIT;
+static expert_field ei_icmpv6_unknown_data = EI_INIT;
+static expert_field ei_icmpv6_undecoded_rpl_option = EI_INIT;
+static expert_field ei_icmpv6_undecoded_type = EI_INIT;
+static expert_field ei_icmpv6_rr_pco_mp_matchlen = EI_INIT;
+static expert_field ei_icmpv6_rr_pco_mp_matchedlen = EI_INIT;
+static expert_field ei_icmpv6_checksum = EI_INIT;
+
+
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 
@@ -1317,7 +1327,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         proto_item_append_text(ti_opt_len, " (%i bytes)", opt_len);
 
         if(opt_len == 0){
-            expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid option length (Zero)");
+            expert_add_info_format_text(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "Invalid option length (Zero)");
             return opt_offset;
         }
 
@@ -1856,7 +1866,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         opt_offset += 16;
                         break;
                     default:
-                        expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
+                        expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
                         break;
                 }
                 break;
@@ -2154,7 +2164,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         opt_offset += 16;
                         break;
                     default:
-                        expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
+                        expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
                         break;
                 }
                 /* Update the 6LoWPAN dissectors with new context information. */
@@ -2193,7 +2203,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             break;
 
             default :
-                expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
+                expert_add_info_format_text(pinfo, ti, &ei_icmpv6_undecoded_option,
                                        "Dissector for ICMPv6 Option (%d)"
                                        " code not implemented, Contact Wireshark developers"
                                        " if you want this supported", opt_type);
@@ -2207,7 +2217,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
         if(offset > opt_offset){
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_unknown_data, tvb, opt_offset, offset - opt_offset, ENC_NA);
-            expert_add_info_format(pinfo, ti_opt, PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)");
+            expert_add_info(pinfo, ti_opt, &ei_icmpv6_unknown_data);
         }
         /* Close the ) to option root label */
         proto_item_append_text(ti, ")");
@@ -2314,7 +2324,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         opt_offset += 16;
                         break;
                     default:
-                        expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
+                        expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
                         break;
                 }
                 break;
@@ -2399,7 +2409,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         opt_offset += 16;
                         break;
                     default:
-                        expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
+                        expert_add_info(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length);
                         break;
                 }
                 break;
@@ -2522,7 +2532,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 break;
             }
             default :
-                expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
+                expert_add_info_format_text(pinfo, ti, &ei_icmpv6_undecoded_rpl_option,
                                        "Dissector for ICMPv6 RPL Option"
                                        " (%d) code not implemented, Contact"
                                        " Wireshark developers if you want this supported", opt_type);
@@ -2535,7 +2545,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
         if(offset > opt_offset){
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_unknown_data, tvb, opt_offset, offset - opt_offset, ENC_NA);
-            expert_add_info_format(pinfo, ti_opt, PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)");
+            expert_add_info(pinfo, ti_opt, &ei_icmpv6_unknown_data);
         }
 
         /* Close the ) to option root label */
@@ -2960,8 +2970,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_matchlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
         matchlen = tvb_get_guint8(tvb, rr_offset);
         if (matchlen > 128) {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                "MatchLen is greater than 128");
+            expert_add_info(pinfo, ti, &ei_icmpv6_rr_pco_mp_matchlen);
         }
         rr_offset += 1;
 
@@ -3082,8 +3091,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         ti = proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_matchedlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
         matchlen = tvb_get_guint8(tvb, rr_offset);
         if (matchlen > 128) {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                "MatchedLen is greater than 128");
+            expert_add_info(pinfo, ti, &ei_icmpv6_rr_pco_mp_matchedlen);
         }
         rr_offset +=1;
 
@@ -3279,7 +3287,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, TRUE);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
-                expert_add_info_format(pinfo, checksum_item, PI_CHECKSUM, PI_WARN,
+                expert_add_info_format_text(pinfo, checksum_item, &ei_icmpv6_checksum,
                                        "ICMPv6 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
             }
         }
@@ -3798,7 +3806,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 break;
             }
             default:
-                expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
+                expert_add_info_format_text(pinfo, ti, &ei_icmpv6_undecoded_type,
                                        "Dissector for ICMPv6 Type (%d)"
                                        " code not implemented, Contact Wireshark"
                                        " developers if you want this supported", icmp6_type);
@@ -4910,10 +4918,25 @@ proto_register_icmpv6(void)
         &ett_icmpv6_cga_param_name
     };
 
+    static ei_register_info ei[] = {
+        { &ei_icmpv6_invalid_option_length, { "icmpv6.invalid_option_length", PI_MALFORMED, PI_ERROR, "Invalid Option Length", EXPFILL }},
+        { &ei_icmpv6_undecoded_option, { "icmpv6.undecoded.option", PI_UNDECODED, PI_NOTE, "Undecoded option", EXPFILL }},
+        { &ei_icmpv6_unknown_data, { "icmpv6.unknown_data.expert", PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)", EXPFILL }},
+        { &ei_icmpv6_undecoded_rpl_option, { "icmpv6.undecoded.rpl_option", PI_UNDECODED, PI_NOTE, "Undecoded RPL Option", EXPFILL }},
+        { &ei_icmpv6_undecoded_type, { "icmpv6.undecoded.type", PI_UNDECODED, PI_NOTE, "Undecoded type", EXPFILL }},
+        { &ei_icmpv6_rr_pco_mp_matchlen, { "icmpv6.rr.pco.mp.matchlen.gt128", PI_PROTOCOL, PI_WARN, "MatchLen is greater than 128", EXPFILL }},
+        { &ei_icmpv6_rr_pco_mp_matchedlen, { "icmpv6.rr.pco.mp.matchedlen.gt128", PI_PROTOCOL, PI_WARN, "MatchedLen is greater than 128", EXPFILL }},
+        { &ei_icmpv6_checksum, { "icmpv6.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_icmpv6;
+
     proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
                                            "ICMPv6", "icmpv6");
     proto_register_field_array(proto_icmpv6, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_icmpv6 = expert_register_protocol(proto_icmpv6);
+    expert_register_field_array(expert_icmpv6, ei, array_length(ei));
 
     new_register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
     icmpv6_tap = register_tap("icmpv6");
