@@ -1643,13 +1643,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                                                         buffer_free(&nrb_rec);
                                                         return -1;      /* fail */
                                                 }
-
-                                                /*
-                                                 * Silently ignore zero-length
-                                                 * names.
-                                                 */
-                                                if (namelen != 1)
-                                                        pn->add_new_ipv4(v4_addr, namep);
+                                                pn->add_new_ipv4(v4_addr, namep);
                                         }
                                 }
 
@@ -1713,15 +1707,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                                                         buffer_free(&nrb_rec);
                                                         return -1;      /* fail */
                                                 }
-
-                                                /*
-                                                 * Silently ignore zero-length
-                                                 * names.
-                                                 */
-                                                if (namelen != 1) {
-                                                        pn->add_new_ipv6(buffer_start_ptr(&nrb_rec),
-                                                            namep);
-                                                }
+                                                pn->add_new_ipv6(buffer_start_ptr(&nrb_rec),
+                                                    namep);
                                         }
                                 }
 
