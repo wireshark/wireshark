@@ -1066,6 +1066,9 @@ static gint ett_dnp3_al_obj_quality = -1;
 static gint ett_dnp3_al_obj_point = -1;
 static gint ett_dnp3_al_obj_point_perms = -1;
 
+static expert_field ei_dnp_num_items_neg = EI_INIT;
+static expert_field ei_dnp_invalid_length = EI_INIT;
+
 /* Tables for reassembly of fragments. */
 static reassembly_table al_reassembly_table;
 static GHashTable *dl_conversation_table = NULL;
@@ -1629,7 +1632,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   if (num_items < 0) {
     proto_item_append_text(range_item, " (bogus)");
-    expert_add_info_format(pinfo, range_item, PI_MALFORMED, PI_ERROR, "Negative number of items");
+    expert_add_info(pinfo, range_item, &ei_dnp_num_items_neg);
     return tvb_length(tvb);
   }
 
@@ -2531,7 +2534,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
         al_ptaddr++;
       }
       if (start_offset > offset) {
-        expert_add_info_format(pinfo, point_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+        expert_add_info(pinfo, point_item, &ei_dnp_invalid_length);
         offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
       }
     }
@@ -4106,7 +4109,12 @@ proto_register_dnp3(void)
     &ett_dnp3_fragment,
     &ett_dnp3_fragments
   };
+  static ei_register_info ei[] = {
+     { &ei_dnp_num_items_neg, { "dnp3.num_items_neg", PI_MALFORMED, PI_ERROR, "Negative number of items", EXPFILL }},
+     { &ei_dnp_invalid_length, { "dnp3.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+  };
   module_t *dnp3_module;
+  expert_module_t* expert_dnp3;
 
 /* Register protocol init routine */
   register_init_routine(&dnp3_init);
@@ -4121,6 +4129,8 @@ proto_register_dnp3(void)
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_dnp3, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dnp3 = expert_register_protocol(proto_dnp3);
+  expert_register_field_array(expert_dnp3, ei, array_length(ei));
 
   dnp3_module = prefs_register_protocol(proto_dnp3, NULL);
   prefs_register_bool_preference(dnp3_module, "heuristics",

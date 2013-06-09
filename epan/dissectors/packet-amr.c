@@ -77,6 +77,11 @@ static int hf_amr_wb_if2_ft = -1;
 static int ett_amr = -1;
 static int ett_amr_toc = -1;
 
+static expert_field ei_amr_spare_bit_not0 = EI_INIT;
+static expert_field ei_amr_not_enough_data_for_frames = EI_INIT;
+static expert_field ei_amr_superfluous_data = EI_INIT;
+static expert_field ei_amr_padding_bits_not0 = EI_INIT;
+
 /* The dynamic payload type which will be dissected as AMR */
 
 static guint temp_dynamic_payload_type = 0;
@@ -222,7 +227,7 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (octet == AMR_NB_SID) {
         ti = proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         if (tvb_get_guint8(tvb,offset+1) & 0x1f)
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0");
+            expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
         proto_tree_add_text(tree, tvb, offset+2, 5, "Speech data");
         proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_amr_nb_if1_sti_mode_ind, tvb, offset+7, 1, ENC_BIG_ENDIAN);
@@ -233,7 +238,7 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     offset += 1;
     ti = proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (tvb_get_guint8(tvb,offset) & 0x1f)
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0");
+        expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
     offset += 1;
     proto_tree_add_text(tree, tvb, offset, -1, "Speech data");
 }
@@ -248,7 +253,7 @@ dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (tvb_get_guint8(tvb,offset) & 0x03)
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0");
+        expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
     octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
     if (octet == AMR_WB_SID) {
         proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -394,7 +399,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
         proto_item_append_text(item, " %d Bytes available, %d would be needed!",
                        tvb_reported_length_remaining(tvb, bitcount/8),
                        bytes_needed_for_frames);
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Not enough data for the frames according to TOC");
+        expert_add_info(pinfo, item, &ei_amr_not_enough_data_for_frames);
     }
     else {
         item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, "Frame Data");
@@ -406,7 +411,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
     if (tvb_reported_length_remaining(tvb, (bitcount+8)/8) > 0) {
         item = proto_tree_add_text(tree, tvb, bitcount/8, tvb_reported_length_remaining(tvb, bitcount/8), "Error:");
         proto_item_append_text(item, " %d Bytes remaining - should be 0!",tvb_reported_length_remaining(tvb, (bitcount+8)/8));
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Superfluous data remaining");
+        expert_add_info(pinfo, item, &ei_amr_superfluous_data);
 
         /* Now check the paddings */
         if (bitcount%8 != 0) {
@@ -414,7 +419,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
                 proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits correct");
             else {
                 item = proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits error");
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Padding bits error - MUST be 0");
+                expert_add_info(pinfo, item, &ei_amr_padding_bits_not0);
             }
         }
     }
@@ -609,6 +614,7 @@ void
 proto_register_amr(void)
 {
     module_t *amr_module;
+    expert_module_t* expert_amr;
 
     static hf_register_info hf[] = {
         { &hf_amr_nb_cmr,
@@ -728,6 +734,14 @@ proto_register_amr(void)
         &ett_amr,
         &ett_amr_toc,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_amr_spare_bit_not0, { "amr.spare_bit_not0", PI_PROTOCOL, PI_WARN, "Error:Spare bits not 0", EXPFILL }},
+        { &ei_amr_not_enough_data_for_frames, { "amr.not_enough_data_for_frames", PI_MALFORMED, PI_ERROR, "Not enough data for the frames according to TOC", EXPFILL }},
+        { &ei_amr_superfluous_data, { "amr.superfluous_data", PI_MALFORMED, PI_ERROR, "Superfluous data remaining", EXPFILL }},
+        { &ei_amr_padding_bits_not0, { "amr.padding_bits_not0", PI_MALFORMED, PI_ERROR, "Padding bits error - MUST be 0", EXPFILL }},
+    };
+
     static const enum_val_t encoding_types[] = {
         {"RFC 3267 Byte aligned", "RFC 3267 octet aligned", 0},
         {"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", 1},
@@ -748,6 +762,8 @@ proto_register_amr(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_amr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_amr = expert_register_protocol(proto_amr);
+    expert_register_field_array(expert_amr, ei, array_length(ei));
     /* Register a configuration option for port */
 
     amr_module = prefs_register_protocol(proto_amr, proto_reg_handoff_amr);

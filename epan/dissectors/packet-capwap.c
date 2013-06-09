@@ -264,6 +264,9 @@ static gint ett_capwap = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
+static expert_field ei_capwap_header_length_bad = EI_INIT;
+
+
 /* ************************************************************************* */
 /*                  Fragment items                                           */
 /* ************************************************************************* */
@@ -1326,7 +1329,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
     }
     if ((plen != hlen) && global_capwap_draft_8_cisco == 0)
     {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_WARN, "Wrong calculate length (%d) =! header length (%d) ! (May be try to use Cisco Wireless Controller Support Preference ?)", plen, hlen);
+        expert_add_info_format_text(pinfo, ti_len, &ei_capwap_header_length_bad, "Wrong calculate length (%d) =! header length (%d) ! (May be try to use Cisco Wireless Controller Support Preference ?)", plen, hlen);
     }
     return hlen;
 }
@@ -2218,6 +2221,12 @@ proto_register_capwap_control(void)
         &ett_msg_fragments
     };
 
+    static ei_register_info ei[] = {
+        { &ei_capwap_header_length_bad, { "capwap.header.length.bad", PI_MALFORMED, PI_WARN, "Wrong calculate length =! header length", EXPFILL }},
+    };
+
+    expert_module_t* expert_capwap;
+
     /* Register the protocol name and description */
     proto_capwap = proto_register_protocol("Control And Provisioning of Wireless Access Points", "CAPWAP", "capwap");
 
@@ -2225,6 +2234,9 @@ proto_register_capwap_control(void)
     proto_register_field_array(proto_capwap, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_capwap = expert_register_protocol(proto_capwap);
+    expert_register_field_array(expert_capwap, ei, array_length(ei));
 
     register_init_routine(&capwap_reassemble_init);
 

@@ -769,6 +769,12 @@ static gint ett_bgp_tunnel_tlv_subtree = -1;
 static gint ett_bgp_tunnel_subtlv = -1;
 static gint ett_bgp_tunnel_subtlv_subtree = -1;
 
+static expert_field ei_bgp_cap_len_bad = EI_INIT;
+static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
+static expert_field ei_bgp_notify_minor_unknown = EI_INIT;
+static expert_field ei_bgp_route_refresh_orf_type_unknown = EI_INIT;
+static expert_field ei_bgp_length_invalid = EI_INIT;
+
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
 
@@ -2095,14 +2101,14 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     switch (ctype) {
         case BGP_CAPABILITY_RESERVED:
             if (clen != 0) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u wrong, must be = 0", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u wrong, must be = 0", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
             }
             offset += clen;
             break;
         case BGP_CAPABILITY_MULTIPROTOCOL:
             if (clen != 4) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u is wrong, must be = 4", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be = 4", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
                 offset += clen;
             }
@@ -2123,7 +2129,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
         case BGP_CAPABILITY_GRACEFUL_RESTART:
             if ((clen < 6) && (clen != 2)) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u too short, must be greater than 6", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u too short, must be greater than 6", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
                 offset += clen;
             }
@@ -2132,7 +2138,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 proto_tree *sub_tree;
 
                 if (clen == 2){
-                    expert_add_info_format(pinfo, ti_len, PI_REQUEST_CODE, PI_CHAT, "Graceful Restart Capability supported in Helper mode only");
+                    expert_add_info(pinfo, ti_len, &ei_bgp_cap_gr_helper_mode_only);
                 }
 
                 /* Timers */
@@ -2165,7 +2171,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
         case BGP_CAPABILITY_4_OCTET_AS_NUMBER:
             if (clen != 4) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u is wrong, must be = 4", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be = 4", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
                 offset += clen;
             }
@@ -2186,7 +2192,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
         case BGP_CAPABILITY_ADDITIONAL_PATHS:
             if (clen != 4) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u is wrong, must be = 4", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be = 4", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
                 offset += clen;
             }
@@ -2210,7 +2216,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
         case BGP_CAPABILITY_ROUTE_REFRESH:
             if (clen != 0) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u wrong, must be = 0", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u wrong, must be = 0", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
             }
             offset += clen;
@@ -2218,7 +2224,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         case BGP_CAPABILITY_ORF_CISCO:
         case BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING:
             if (clen < 6) {
-                expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Capability length %u too short, must be greater than 6", clen);
+                expert_add_info_format_text(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u too short, must be greater than 6", clen);
                 proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, clen, ENC_NA);
                 offset += clen;
             }
@@ -3563,7 +3569,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
         break;
         default:
             ti = proto_tree_add_item(tree, hf_bgp_notify_minor_unknown, tvb, offset, 1, ENC_NA);
-            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Unknown notification error (%d)",major_error);
+            expert_add_info_format_text(pinfo, ti, &ei_bgp_notify_minor_unknown, "Unknown notification error (%d)",major_error);
         break;
     }
     offset += 1;
@@ -3649,7 +3655,7 @@ example 2
         p += 2;
 
         if (orftype != BGP_ORF_PREFIX_CISCO) {
-            expert_add_info_format(pinfo, ti1, PI_CHAT, PI_ERROR, "ORFEntry-Unknown (type %u)", orftype);
+            expert_add_info_format_text(pinfo, ti1, &ei_bgp_route_refresh_orf_type_unknown, "ORFEntry-Unknown (type %u)", orftype);
             p += orflen;
             continue;
         }
@@ -3761,7 +3767,7 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Length is invalid %u", bgp_len);
+        expert_add_info_format_text(pinfo, ti_len, &ei_bgp_length_invalid, "Length is invalid %u", bgp_len);
         return;
     }
 
@@ -4427,7 +4433,17 @@ proto_register_bgp(void)
       &ett_bgp_tunnel_subtlv,
       &ett_bgp_tunnel_subtlv_subtree,
     };
+    static ei_register_info ei[] = {
+        { &ei_bgp_cap_len_bad, { "bgp.cap.length.bad", PI_MALFORMED, PI_ERROR, "Capability length is wrong", EXPFILL }},
+        { &ei_bgp_cap_gr_helper_mode_only, { "bgp.cap.gr.helper_mode_only", PI_REQUEST_CODE, PI_CHAT, "Graceful Restart Capability supported in Helper mode only", EXPFILL }},
+        { &ei_bgp_notify_minor_unknown, { "bgp.notify.minor_error.unknown", PI_UNDECODED, PI_NOTE, "Unknown notification error", EXPFILL }},
+        { &ei_bgp_route_refresh_orf_type_unknown, { "bgp.route_refresh.orf.type.unknown", PI_CHAT, PI_ERROR, "ORFEntry-Unknown", EXPFILL }},
+        { &ei_bgp_length_invalid, { "bgp.length.invalid", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
+    };
+
     module_t *bgp_module;
+    expert_module_t* expert_bgp;
+
     static const enum_val_t asn_len[] = {
         {"auto-detect", "Auto-detect", 0},
         {"2", "2 octet", 2},
@@ -4439,6 +4455,8 @@ proto_register_bgp(void)
                                         "BGP", "bgp");
     proto_register_field_array(proto_bgp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_bgp = expert_register_protocol(proto_bgp);
+    expert_register_field_array(expert_bgp, ei, array_length(ei));
 
     bgp_module = prefs_register_protocol(proto_bgp, NULL);
     prefs_register_bool_preference(bgp_module, "desegment",

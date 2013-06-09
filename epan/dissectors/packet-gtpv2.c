@@ -433,6 +433,10 @@ static gint ett_gtpv2_access_rest_data = -1;
 static gint ett_gtpv2_qua = -1;
 static gint ett_gtpv2_qui = -1;
 
+static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
+static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
+static expert_field ei_gtpv2_source_type_unknown = EI_INIT;
+static expert_field ei_gtpv2_fq_csid_type_bad = EI_INIT;
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK          0x01
@@ -839,7 +843,7 @@ dissect_gtpv2_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 
 }
@@ -2205,7 +2209,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
     default:
         /* Error */
         expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length %u, should be 4 or 16", m);
-        expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong length %u, should be 4 or 16", m);
+        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_ie_len_invalid, "Wrong length %u, should be 4 or 16", m);
         PROTO_ITEM_SET_GENERATED(expert_item);
         return;
     }
@@ -2262,7 +2266,7 @@ dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     default:
         /* Error */
         expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length %u, should be 4 or 16", m);
-        expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong length %u, should be 4 or 16", m);
+        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_ie_len_invalid, "Wrong length %u, should be 4 or 16", m);
         PROTO_ITEM_SET_GENERATED(expert_item);
         return;
     }
@@ -2360,7 +2364,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     if (length != 1) {
         proto_item *expert_item;
         expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_ie_len_invalid, "Wrong length indicated. Expected 1, got %u", length);
         PROTO_ITEM_SET_GENERATED(expert_item);
         return;
     }
@@ -4216,7 +4220,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         break;
     default:
         expert_item = proto_tree_add_text(tree, tvb, offset-1, 1, "Unknown source type");
-        expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Unknown source type");
+        expert_add_info(pinfo, expert_item, &ei_gtpv2_source_type_unknown);
         PROTO_ITEM_SET_GENERATED(expert_item);
         break;
     }
@@ -4330,7 +4334,7 @@ dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
         break;
     default:
         expert_item = proto_tree_add_text(tree, tvb, offset-1, 1, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)", node_id_type);
-        expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)", node_id_type);
+        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_fq_csid_type_bad, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)", node_id_type);
         PROTO_ITEM_SET_GENERATED(expert_item);
         return;
     }
@@ -4663,7 +4667,7 @@ dissect_gtpv2_uci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4674,7 +4678,7 @@ dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4695,7 +4699,7 @@ dissect_gtpv2_csg_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4706,7 +4710,7 @@ dissect_gtpv2_cmi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4717,7 +4721,7 @@ dissect_gtpv2_service_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4728,7 +4732,7 @@ dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4739,7 +4743,7 @@ dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4750,7 +4754,7 @@ dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4781,7 +4785,7 @@ dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -4937,7 +4941,7 @@ dissect_gtpv2_mdt_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
@@ -6983,9 +6987,21 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_qui,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_gtpv2_ie_data_not_dissected, { "gtpv2.ie_data_not_dissected", PI_PROTOCOL, PI_NOTE, "IE data not dissected yet", EXPFILL }},
+        { &ei_gtpv2_ie_len_invalid, { "gtpv2.ie_len_invalid", PI_PROTOCOL, PI_ERROR, "Wrong length", EXPFILL }},
+        { &ei_gtpv2_source_type_unknown, { "gtpv2.source_type.unknown",  PI_PROTOCOL, PI_ERROR, "Unknown source type", EXPFILL }},
+        { &ei_gtpv2_fq_csid_type_bad, { "gtpv2.fq_csid_type.unknown", PI_PROTOCOL, PI_ERROR, "Wrong Node-ID Type", EXPFILL }},
+    };
+
+    expert_module_t* expert_gtpv2;
+
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
     proto_register_field_array(proto_gtpv2, hf_gtpv2, array_length(hf_gtpv2));
     proto_register_subtree_array(ett_gtpv2_array, array_length(ett_gtpv2_array));
+    expert_gtpv2 = expert_register_protocol(proto_gtpv2);
+    expert_register_field_array(expert_gtpv2, ei, array_length(ei));
+
     /* AVP Code: 22 3GPP-User-Location-Info */
     dissector_add_uint("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
 

@@ -224,7 +224,10 @@ static int hf_dcom_vt_bstr = -1;
 static int hf_dcom_vt_byref = -1;
 static int hf_dcom_vt_dispatch = -1;
 
-
+static expert_field ei_dcom_dissetion_incomplete = EI_INIT;
+static expert_field ei_dcom_no_spec = EI_INIT;
+static expert_field ei_dcom_hresult_expert = EI_INIT;
+static expert_field ei_dcom_dualstringarray_mult_ip = EI_INIT;
 
 /* this/that extension UUIDs */
 static e_uuid_t uuid_debug_ext =    { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
@@ -958,7 +961,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 	item = proto_tree_add_item(tree, hf_dcom_tobedone, tvb, offset, length, ENC_NA);
 	PROTO_ITEM_SET_GENERATED(item);
-	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Dissection incomplete");
+	expert_add_info(pinfo, item, &ei_dcom_dissetion_incomplete);
 
 	offset += length;
 
@@ -977,7 +980,7 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 
 	item = proto_tree_add_item(tree, hf_dcom_nospec, tvb, offset, length, ENC_NA);
 	PROTO_ITEM_SET_GENERATED(item);
-	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible");
+	expert_add_info(pinfo, item, &ei_dcom_no_spec);
 
 	offset += length;
 
@@ -1090,7 +1093,7 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* expert info only if severity is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
-		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "Hresult: %s",
+		expert_add_info_format_text(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
 	if (pu32HResult)
@@ -1124,7 +1127,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* expert info only if severity flag is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
-		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "Hresult: %s",
+		expert_add_info_format_text(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
 	if (pu32HResult)
@@ -1822,7 +1825,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					first_ip = curr_ip;
 				} else {
 					if(first_ip != curr_ip) {
-						expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE,
+						expert_add_info_format_text(pinfo, pi, &ei_dcom_dualstringarray_mult_ip,
 								       "DUALSTRINGARRAY: multiple IP's %s %s",
 								       ip_to_str( (guint8 *) &first_ip), ip_to_str( (guint8 *) &curr_ip));
 					}
@@ -2440,7 +2443,15 @@ proto_register_dcom (void)
 		&ett_dcom_sa_features,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_dcom_dissetion_incomplete, { "dcom.dissetion_incomplete", PI_UNDECODED, PI_WARN, "Dissection incomplete", EXPFILL }},
+		{ &ei_dcom_no_spec, { "dcom.no_spec", PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible", EXPFILL }},
+		{ &ei_dcom_hresult_expert, { "dcom.hresult.expert", PI_RESPONSE_CODE, PI_NOTE, "Hresult", EXPFILL }},
+		{ &ei_dcom_dualstringarray_mult_ip, { "dcom.dualstringarray.mult_ip", PI_UNDECODED, PI_NOTE, "DUALSTRINGARRAY Multiple IP", EXPFILL }},
+	};
+
 	module_t *dcom_module;
+	expert_module_t* expert_dcom;
 
 	/* currently, the DCOM protocol "itself" has no real protocol dissector */
 	/* we only need this, to register some generic elements */
@@ -2457,6 +2468,9 @@ proto_register_dcom (void)
 	proto_register_field_array(proto_dcom, hf_dcom_vt_array, array_length(hf_dcom_vt_array));
 	proto_register_field_array(proto_dcom, hf_dcom_sa_array, array_length(hf_dcom_sa_array));
 	proto_register_subtree_array (ett_dcom, array_length (ett_dcom));
+
+    expert_dcom = expert_register_protocol(proto_dcom);
+	expert_register_field_array(expert_dcom, ei, array_length(ei));
 
 	/* preferences */
 	dcom_module = prefs_register_protocol(proto_dcom, NULL);

@@ -114,6 +114,11 @@ static int ett_mime_header = -1;
 static int ett_header = -1;
 static int ett_trailer = -1;
 
+static expert_field ei_beep_more = EI_INIT;
+static expert_field ei_beep_cr_terminator = EI_INIT;
+static expert_field ei_beep_lf_terminator = EI_INIT;
+static expert_field ei_beep_invalid_terminator = EI_INIT;
+
 /* Get the state of the more flag ... */
 
 #define BEEP_VIOL         0
@@ -229,7 +234,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
      ret = 1;
      break;
   default:
-    expert_add_info_format(pinfo, hidden_item, PI_PROTOCOL, PI_WARN, "Expected More Flag (* or .)");
+    expert_add_info(pinfo, hidden_item, &ei_beep_more);
     ret = -1;
     break;
   }
@@ -289,7 +294,7 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
   if ((tvb_get_guint8(tvb, offset) == 0x0d) && !global_beep_strict_term) {
 
     ti = proto_tree_add_text(tree, tvb, offset, 1, "Terminator: CR");
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Nonstandard Terminator: CR");
+    expert_add_info(pinfo, ti, &ei_beep_cr_terminator);
     return 1;
 
   }
@@ -297,12 +302,12 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
   if ((tvb_get_guint8(tvb, offset) == 0x0a) && !global_beep_strict_term) {
 
     ti = proto_tree_add_text(tree, tvb, offset, 1, "Terminator: LF");
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Nonstandard Terminator: LF");
+    expert_add_info(pinfo, ti, &ei_beep_lf_terminator);
     return 1;
   }
 
   ti = proto_tree_add_text(tree, tvb, offset, 1, "Terminator: %s", tvb_format_text(tvb, offset, 2));
-  expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
+  expert_add_info_format_text(pinfo, ti, &ei_beep_invalid_terminator, "Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
   return -1;
 }
 
@@ -974,13 +979,23 @@ proto_register_beep(void)
     &ett_header,
     &ett_trailer,
   };
+  static ei_register_info ei[] = {
+     { &ei_beep_more, { "beep.more.expected", PI_PROTOCOL, PI_WARN, "Expected More Flag (* or .)", EXPFILL }},
+     { &ei_beep_cr_terminator, { "beep.cr_terminator", PI_PROTOCOL, PI_WARN, "Nonstandard Terminator: CR", EXPFILL }},
+     { &ei_beep_lf_terminator, { "beep.lf_terminator", PI_PROTOCOL, PI_WARN, "Nonstandard Terminator: LF", EXPFILL }},
+     { &ei_beep_invalid_terminator, { "beep.invalid_terminator", PI_PROTOCOL, PI_WARN, "Invalid Terminator", EXPFILL }},
+  };
+
   module_t *beep_module;
+  expert_module_t* expert_beep;
 
   proto_beep = proto_register_protocol("Blocks Extensible Exchange Protocol",
                                        "BEEP", "beep");
 
   proto_register_field_array(proto_beep, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_beep = expert_register_protocol(proto_beep);
+  expert_register_field_array(expert_beep, ei, array_length(ei));
   register_init_routine(&beep_init_protocol);
 
   /* Register our configuration options for BEEP, particularly our port */

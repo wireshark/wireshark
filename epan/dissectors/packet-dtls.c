@@ -201,6 +201,10 @@ static gint ett_dtls_dnames            = -1;
 static gint ett_dtls_fragment          = -1;
 static gint ett_dtls_fragments         = -1;
 
+static expert_field ei_dtls_handshake_fragment_length_too_long = EI_INIT;
+static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
+static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
+
 static GHashTable         *dtls_session_hash         = NULL;
 static GHashTable         *dtls_key_hash             = NULL;
 static reassembly_table    dtls_reassembly_table;
@@ -1302,16 +1306,12 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         {
           if (fragment_offset == 0)
             {
-              expert_add_info_format(pinfo, fragment_length_item, PI_PROTOCOL,
-                                     PI_ERROR,
-                                     "Fragment length is larger than message length");
+              expert_add_info(pinfo, fragment_length_item, &ei_dtls_handshake_fragment_length_too_long);
             }
           else
             {
               fragmented = TRUE;
-              expert_add_info_format(pinfo, fragment_length_item, PI_PROTOCOL,
-                                     PI_ERROR,
-                                     "Fragment runs past the end of the message");
+              expert_add_info(pinfo, fragment_length_item, &ei_dtls_handshake_fragment_past_end_msg);
             }
         }
       else if (fragment_length < length)
@@ -1368,9 +1368,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                      report an error. */
                   if (reassembled_length != length)
                     {
-                      expert_add_info_format(pinfo, length_item, PI_PROTOCOL,
-                                             PI_ERROR,
-                                             "Message length differs from value in earlier fragment");
+                      expert_add_info(pinfo, length_item, &ei_dtls_msg_len_diff_fragment);
 		    }
                 }
 
@@ -3343,6 +3341,14 @@ proto_register_dtls(void)
     &ett_dtls_fragments,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_dtls_handshake_fragment_length_too_long, { "dtls.handshake.fragment_length.too_long", PI_PROTOCOL, PI_ERROR, "Fragment length is larger than message length", EXPFILL }},
+     { &ei_dtls_handshake_fragment_past_end_msg, { "dtls.handshake.fragment_past_end_msg", PI_PROTOCOL, PI_ERROR, "Fragment runs past the end of the message", EXPFILL }},
+     { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
+  };
+
+  expert_module_t* expert_dtls;
+
   /* Register the protocol name and description */
   proto_dtls = proto_register_protocol("Datagram Transport Layer Security",
                                        "DTLS", "dtls");
@@ -3351,6 +3357,8 @@ proto_register_dtls(void)
    * subtrees used */
   proto_register_field_array(proto_dtls, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dtls = expert_register_protocol(proto_dtls);
+  expert_register_field_array(expert_dtls, ei, array_length(ei));
 
 #ifdef HAVE_LIBGNUTLS
   {

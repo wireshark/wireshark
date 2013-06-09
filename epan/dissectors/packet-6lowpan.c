@@ -302,6 +302,10 @@ static gint ett_6lowpan_mesh_flags = -1;
 static gint ett_6lowpan_frag = -1;
 static gint ett_6lopwan_traffic_class = -1;
 
+static expert_field ei_6lowpan_hc1_more_bits = EI_INIT;
+static expert_field ei_6lowpan_illegal_dest_addr_mode = EI_INIT;
+static expert_field ei_6lowpan_bad_ipv6_header_length = EI_INIT;
+
 /* Subdissector handles. */
 static dissector_handle_t       data_handle;
 static dissector_handle_t       ipv6_handle;
@@ -1065,7 +1069,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         }
         else {
             /* HC1 states there are more bits, but an illegal next header was defined. */
-            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "HC1 more bits expected for illegal next header type.");
+            expert_add_info(pinfo, NULL, &ei_6lowpan_hc1_more_bits);
             return NULL;
         }
     }
@@ -1608,7 +1612,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         }
         else {
             /* Illegal destination address compression mode. */
-            expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
+            expert_add_info(pinfo, ti_dam, &ei_6lowpan_illegal_dest_addr_mode);
             return NULL;
         }
     }
@@ -1633,7 +1637,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         }
         else {
             /* Illegal destination address compression mode. */
-            expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
+            expert_add_info(pinfo, ti_dam, &ei_6lowpan_illegal_dest_addr_mode);
             return NULL;
         }
     }
@@ -1646,7 +1650,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         /* (DAC=1 && DAM=00) -> reserved value. */
         if ((iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE)) {
             /* Illegal destination address compression mode. */
-            expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
+            expert_add_info(pinfo, ti_dam, &ei_6lowpan_illegal_dest_addr_mode);
             return NULL;
         }
         /* The IID is derived from the link-layer source. */
@@ -2293,18 +2297,16 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
         /* Check if the datagram size is sane. */
         if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
-            expert_add_info_format(pinfo, length_item, PI_MALFORMED,
-                PI_ERROR, "Length is less than IPv6 header length %u",
-                (guint)sizeof(struct ip6_hdr));
+            expert_add_info_format_text(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
+                "Length is less than IPv6 header length %u", (guint)sizeof(struct ip6_hdr));
         }
         frag_tvb = dissect_6lowpan_hc1(frag_tvb, pinfo, tree, dgram_size, siid, diid);
     }
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
         /* Check if the datagram size is sane. */
         if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
-            expert_add_info_format(pinfo, length_item, PI_MALFORMED,
-                PI_ERROR, "Length is less than IPv6 header length %u",
-                (guint)sizeof(struct ip6_hdr));
+            expert_add_info_format_text(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
+                "Length is less than IPv6 header length %u", (guint)sizeof(struct ip6_hdr));
         }
         frag_tvb = dissect_6lowpan_iphc(frag_tvb, pinfo, tree, dgram_size, siid, diid);
     }
@@ -2732,12 +2734,21 @@ proto_register_6lowpan(void)
         &ett_6lowpan_fragments
     };
 
+    static ei_register_info ei[] = {
+        { &ei_6lowpan_hc1_more_bits, { "6lowpan.hc1_more_bits", PI_MALFORMED, PI_ERROR, "HC1 more bits expected for illegal next header type.", EXPFILL }},
+        { &ei_6lowpan_illegal_dest_addr_mode, { "6lowpan.illegal_dest_addr_mode", PI_MALFORMED, PI_ERROR, "Illegal destination address mode", EXPFILL }},
+        { &ei_6lowpan_bad_ipv6_header_length, { "6lowpan.bad_ipv6_header_length", PI_MALFORMED, PI_ERROR, "Length is less than IPv6 header length", EXPFILL }},
+    };
+
     int         i;
     module_t    *prefs_module;
+    expert_module_t* expert_6lowpan;
 
     proto_6lowpan = proto_register_protocol("IPv6 over IEEE 802.15.4", "6LoWPAN", "6lowpan");
     proto_register_field_array(proto_6lowpan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_6lowpan = expert_register_protocol(proto_6lowpan);
+    expert_register_field_array(expert_6lowpan, ei, array_length(ei));
 
     /* Register the dissector with wireshark. */
     register_dissector("6lowpan", dissect_6lowpan, proto_6lowpan);

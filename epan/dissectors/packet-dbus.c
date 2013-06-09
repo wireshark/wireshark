@@ -62,6 +62,11 @@ static int ett_dbus_hdr = -1;
 static int ett_dbus_body = -1;
 static int ett_dbus_field = -1;
 
+static expert_field ei_dbus_value_bool_invalid = EI_INIT;
+static expert_field ei_dbus_value_str_invalid = EI_INIT;
+static expert_field ei_dbus_invalid_object_path = EI_INIT;
+static expert_field ei_dbus_invalid_signature = EI_INIT;
+
 static int proto_dbus = -1;
 
 #define DBUS_MESSAGE_TYPE_INVALID 0
@@ -182,7 +187,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 
 			ti = proto_tree_add_boolean_format(tree, hf_dbus_value_bool, tvb, org_offset, offset - org_offset, val, "BOOLEAN: %s", val ? "True" : "False");
 			if (val != 0 && val != 1) {
-				expert_add_info_format(dinfo->pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid boolean value (must be 0 or 1 is: %u)", val);
+				expert_add_info_format_text(dinfo->pinfo, ti, &ei_dbus_value_bool_invalid, "Invalid boolean value (must be 0 or 1 is: %u)", val);
 				return -1;
 			}
 			ret->uint = val;
@@ -268,13 +273,13 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			if (sig == 's') {
 				ti = proto_tree_add_string_format(tree, hf_dbus_value_str, tvb, org_offset, offset - org_offset, val, "STRING: %s", val);
 				if (!g_utf8_validate(val, -1, NULL)) {
-					expert_add_info_format(dinfo->pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid string (not UTF-8)");
+					expert_add_info(dinfo->pinfo, ti, &ei_dbus_value_str_invalid);
 					return -1;
 				}
 			} else {
 				ti = proto_tree_add_string_format(tree, hf_dbus_value_str, tvb, org_offset, offset - org_offset, val, "OBJECT_PATH: %s", val);
 				if (!dbus_validate_object_path(val)) {
-					expert_add_info_format(dinfo->pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid object_path");
+					expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_object_path);
 					return -1;
 				}
 			}
@@ -295,7 +300,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 
 			ti = proto_tree_add_string_format(tree, hf_dbus_value_str, tvb, org_offset, offset - org_offset, val, "SIGNATURE: %s", val);
 			if (!dbus_validate_signature(val)) {
-				expert_add_info_format(dinfo->pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid signature");
+				expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_signature);
 				return -1;
 			}
 			ret->str = val;
@@ -326,7 +331,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 
 	ti = proto_tree_add_string(tree, hf_dbus_type_signature, tvb, org_offset, offset - org_offset, sig);
 	if (!dbus_validate_signature(sig)) {
-		expert_add_info_format(dinfo->pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid signature");
+		expert_add_info(dinfo->pinfo, ti, &ei_dbus_invalid_signature);
 		return -1;
 	}
 
@@ -648,10 +653,21 @@ proto_register_dbus(void)
 		&ett_dbus_field
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_dbus_value_bool_invalid, { "dbus.value.bool.invalid", PI_PROTOCOL, PI_WARN, "Invalid boolean value", EXPFILL }},
+		{ &ei_dbus_value_str_invalid, { "dbus.value.str.invalid", PI_PROTOCOL, PI_WARN, "Invalid string (not UTF-8)", EXPFILL }},
+		{ &ei_dbus_invalid_object_path, { "dbus.invalid_object_path", PI_PROTOCOL, PI_WARN, "Invalid object_path", EXPFILL }},
+		{ &ei_dbus_invalid_signature, { "dbus.invalid_signature", PI_PROTOCOL, PI_WARN, "Invalid signature", EXPFILL }},
+	};
+
+	expert_module_t* expert_dbus;
+
 	proto_dbus = proto_register_protocol("D-Bus", "D-BUS", "dbus");
 
 	proto_register_field_array(proto_dbus, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_dbus = expert_register_protocol(proto_dbus);
+	expert_register_field_array(expert_dbus, ei, array_length(ei));
 }
 
 void
