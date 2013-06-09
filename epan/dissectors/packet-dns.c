@@ -1181,7 +1181,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
     offset += name_len;
 
-    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, 2, strlen(name));
+    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, 2, (guint32)strlen(name));
     PROTO_ITEM_SET_GENERATED(tq);
 
     /* Count how many '.' are in the string, plus 1, in order to count the number
