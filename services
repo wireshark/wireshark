@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-05-31
+# 2013-06-05
 # 
 # Expert(s)
 # 
@@ -16150,6 +16150,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # beamer                                Beamer Data Sharing Protocol [Frank_Szczerba]                                   [Frank_Szczerba]                                                                                                                         Defined TXT keys: None
 # beatpack                              BeatPack Synchronization     [Mathieu_Garcia]                                   [Mathieu_Garcia]                                                                                                                         Defined TXT keys: None
 # Server for BeatMaker
+# Beats Direct allows for the
+# beatsdirect                    tcp    discovery and control of     [Beats_Electronics_LLC]                            [Eddie_Borjas]                                            2013-06-03                                                                     Defined TXT keys: None
+# devices
 # beep                                  Xgrid Technology Preview     [David_Kramer_2]                                   [David_Kramer_2]                                                                                                                         Defined TXT keys: None
 # bfagent                               BuildForge Agent             [Joe_Senner_2]                                     [Joe_Senner_2]                                                                                                                           Defined TXT keys: None
 # bigbangchess                          Big Bang Chess               [Freeverse_Software]                               [Freeverse_Software]                                                                                                                     Defined TXT keys: None
@@ -16307,6 +16310,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # esp                            tcp    Extensis Server Protocol     [Loren_Barr]                                       [Loren_Barr]                                              2006-12                                                                        Defined TXT keys: none
 # eucalyptus                            Eucalyptus Discovery         [Support_Team]                                     [Support_Team]                                                                                                                           Defined TXT keys: Eucalyptus-DNS-SD
 # eventserver                           Now Up-to-Date                                                                                                                                                                                                           Defined TXT keys: None
+# evp                            tcp    EvP - Generic EVENT protocol [Quentin_Glidic]                                                                                             2013-06-05                                                                     Defined TXT keys: None
 # evs-notif                             EVS Notification Center      [Eric_Gillet]                                      [Eric_Gillet]                                                                                                                            Defined TXT keys: ID, Address
 # Protocol
 # ewalletsync                           Synchronization Protocol for [Dan_Amstutz]                                      [Dan_Amstutz]                                                                                                                            Defined TXT keys: name=<friendly device name>
@@ -17630,6 +17634,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bart_Schaefer]                                           Bart Schaefer                                   mailto:bart&suburbansoftware.com                              2005-08
 # [Basil_Lee]                                               Basil Lee                                       mailto:basil.lee&gnnettest.com
 # [Baskaran_Subramaniam]                                    Baskaran Subramaniam                            mailto:baskaran&apple.com
+# [Beats_Electronics_LLC]                                                             Beats Electronics     mailto:eddie&beatsbydre.com                                   2013-06-03
+# LLC.
 # [Ben]                                                     Ben                                             mailto:ben&acaciatreesoftware.com
 # [Ben_Guild]                                               Ben Guild                                       mailto:smash&smashsworld.com
 # [Ben_Higgins]                                             Ben Higgins                                     mailto:bhiggins&netcom.ca
@@ -18554,6 +18560,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ed_Odjaghian]                                            Ed Odjaghian                                    mailto:edo&datacap.com
 # [Ed_Ranney]                                               Ed Ranney                                       mailto:eranney&crestron.com                                   2003-01
 # [Ed_Vincent]                                              Ed Vincent                                      mailto:edv&concomp.com
+# [Eddie_Borjas]                                            Eddie Borjas              Beats Electronics     mailto:eddie&beatsbydre.com                                   2013-06-03
+# LLC.
 # [Eddie_Kohler]                                            Eddie Kohler              IETF dccp WG          mailto:kohler&cs.ucla.edu
 # [Eden_Sherry]                                             Eden Sherry                                     mailto:eden&pair.com
 # [Edgar_Alan_Tu]                                           Edgar Alan Tu                                   mailto:Edgar_Tu&playstation.sony.com                          2003-01
@@ -20841,6 +20849,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Center, Inc.
 # [Quang_Thoi]                                              Quang Thoi                                      mailto:quang_thoi&symantec.com                                2006-11
 # [Quentin_Brown]                                           Quentin Brown                                   mailto:ndldev&ndl.co.uk                                       2002-03
+# [Quentin_Glidic]                                          Quentin Glidic                                  mailto:sardemff7&eventd.org                                   2013-06-05
 # [Quest_Software]                                                                    Quest Software        mailto:iana.quest-disc&quest.com                              2012-04-09
 # [Quest_Software_2]                                                                  Quest Software        mailto:Greg.Cottman&quest.com                                 2013-04-19
 # [Quinton_Tormanen]                                        Quinton Tormanen                                mailto:quinton&deltacompsys.com
