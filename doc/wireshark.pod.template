@@ -1,3 +1,9 @@
+=begin man
+
+=encoding utf8
+
+=end man
+
 =head1 NAME
 
 wireshark - Interactively dump and analyze network traffic
