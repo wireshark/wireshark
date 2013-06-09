@@ -805,7 +805,7 @@ host_lookup(const guint addr, gboolean *found)
     if (gbl_resolv_flags.concurrent_dns &&
         name_resolve_concurrency > 0 &&
         async_dns_initialized) {
-        add_async_dns_ipv4(AF_INET, addr);
+      add_async_dns_ipv4(AF_INET, addr);
       /* XXX found is set to TRUE, which seems a bit odd, but I'm not
        * going to risk changing the semantics.
        */
@@ -827,7 +827,7 @@ host_lookup(const guint addr, gboolean *found)
 
       hostp = gethostbyaddr((const char *)&addr, 4, AF_INET);
 
-      if (hostp != NULL) {
+      if (hostp != NULL && hostp->h_name[0] != '\0') {
         g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
         tp->is_dummy_entry = FALSE;
         return tp;
@@ -926,7 +926,7 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
   /* Quick hack to avoid DNS/YP timeout */
   hostp = gethostbyaddr((const char *)addr, sizeof(*addr), AF_INET6);
 
-  if (hostp != NULL) {
+  if (hostp != NULL && hostp->h_name[0] != '\0') {
     g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
     tp->is_dummy_entry = FALSE;
     return tp;
@@ -2790,6 +2790,13 @@ add_ipv4_name(const guint addr, const gchar *name)
   struct addrinfo *ai;
   struct sockaddr_in *sa4;
 
+  /*
+   * Don't add zero-length names; apparently, some resolvers will return
+   * them if they get them from DNS.
+   */
+  if (name[0] == '\0')
+    return;
+
   hash_idx = HASH_IPV4_ADDRESS(addr);
 
   tp = ipv4_table[hash_idx];
@@ -2847,6 +2854,13 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
   hashipv6_t *tp;
   struct addrinfo *ai;
   struct sockaddr_in6 *sa6;
+
+  /*
+   * Don't add zero-length names; apparently, some resolvers will return
+   * them if they get them from DNS.
+   */
+  if (name[0] == '\0')
+    return;
 
   hash_idx = HASH_IPV6_ADDRESS(*addrp);
 
