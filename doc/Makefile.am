@@ -123,7 +123,6 @@ POD_CSS_URL ?= $(top_srcdir)/docbook/ws.css
 	$(AM_V_POD2MAN)$(POD2MAN)                       \
 	--center="The Wireshark Network Analyzer"       \
 	--release=$(VERSION)                            \
-	--utf8                                          \
 	$< > $@
 
 .pod.html: ../config.h $(top_srcdir)/docbook/ws.css

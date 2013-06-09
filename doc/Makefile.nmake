@@ -59,7 +59,6 @@ wireshark.1: wireshark.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Wireshark Network Analyzer" \
 	--release=$(VERSION)			 \
-	--utf8 \
 	wireshark.pod > wireshark.1
 
 wireshark.html: wireshark.pod ../config.h ws.css
