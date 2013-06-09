@@ -135,6 +135,18 @@ void *
 wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
 G_GNUC_MALLOC;
 
+/** Copies a block of memory.
+ *
+ * @param allocator The allocator object to use to allocate memory to copy into.
+ * @param source The pointer to the memory block to copy.
+ * @param size The amount of memory to copy.
+ * @return The location of the memory copy.
+ */
+WS_DLL_PUBLIC
+void *
+wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
+G_GNUC_MALLOC;
+
 /** Frees all the memory allocated in a pool. Depending on the allocator
  * implementation used this can be significantly cheaper than calling
  * wmem_free() on all the individual blocks. It also doesn't require you to have

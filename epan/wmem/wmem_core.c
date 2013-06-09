@@ -99,6 +99,17 @@ wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
     return allocator->realloc(allocator->private_data, ptr, size);
 }
 
+void *
+wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
+{
+    void *dest;
+
+    dest = wmem_alloc(allocator, size);
+    memcpy(dest, source, size);
+
+    return dest;
+}
+
 static void
 wmem_free_all_real(wmem_allocator_t *allocator, gboolean final)
 {
