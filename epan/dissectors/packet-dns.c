@@ -78,6 +78,8 @@ static int hf_dns_count_updates = -1;
 static int hf_dns_count_auth_rr = -1;
 static int hf_dns_count_add_rr = -1;
 static int hf_dns_qry_name = -1;
+static int hf_dns_qry_name_len = -1;
+static int hf_dns_count_labels = -1;
 static int hf_dns_qry_type = -1;
 static int hf_dns_qry_class = -1;
 static int hf_dns_qry_class_mdns = -1;
@@ -649,7 +651,7 @@ static const value_string dns_types[] = {
   { T_ANY,        "ANY"        },
 
   { T_DLV,        "DLV"        }, /* RFC 4431 */
-  
+
   { T_WINS,       "WINS"       },
   { T_WINS_R,     "WINS-R"     },
 
@@ -1135,8 +1137,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int           type;
   int           dns_class;
   int           qu;
+  unsigned      i;
   const char   *type_name;
   int           data_start;
+  guint16       labels;
   proto_tree   *q_tree;
   proto_item   *tq;
 
@@ -1176,6 +1180,20 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
     offset += name_len;
+
+    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, 2, strlen(name));
+    PROTO_ITEM_SET_GENERATED(tq);
+
+    /* Count how many '.' are in the string, plus 1, in order to count the number
+       of labels */
+    labels = 0;
+    for (i = 0; i < strlen(name); i++) {
+      if (name[i] == '.')
+        labels++;
+    }
+    labels++;
+    tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, 2, labels);
+    PROTO_ITEM_SET_GENERATED(tq);
 
     proto_tree_add_uint_format(q_tree, hf_dns_qry_type, tvb, offset, 2, type,
                                "Type: %s", dns_type_description(type));
@@ -1920,7 +1938,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
-    case T_KEY: /* Public Key (25) */ 
+    case T_KEY: /* Public Key (25) */
     {
       int         rr_len = data_len;
       guint16     flags;
@@ -3812,7 +3830,7 @@ proto_reg_handoff_dns(void)
     g_free(dns_tcp_port_range);
     g_free(dns_udp_port_range);
   }
-    
+
   dns_tcp_port_range = range_copy(global_dns_tcp_port_range);
   dns_udp_port_range = range_copy(global_dns_udp_port_range);
   range_foreach(dns_tcp_port_range, tcp_range_add_callback);
@@ -3947,6 +3965,16 @@ proto_register_dns(void)
       { "Name", "dns.qry.name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Query Name", HFILL }},
+
+    { &hf_dns_qry_name_len,
+      { "Name Length", "dns.qry.name.len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Query Name Len", HFILL }},
+
+    { &hf_dns_count_labels,
+      { "Label Count", "dns.count.labels",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Query Label Count", HFILL }},
 
     { &hf_dns_rr_type,
       { "Type", "dns.resp.type",
