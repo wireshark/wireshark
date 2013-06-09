@@ -1,7 +1,7 @@
 EPAN CHILDREN
 
   $ Id: $
-  
+
   This document is a work in progress.
 
   This document describes a potential interface between a master process and one or more working children.
@@ -245,9 +245,9 @@ A.17 applying a filter
                           SAME_STATE
 
 
-A.17 applying a filter
+A.18 setting a filter
                              IDLE
-          |---APPLY_FILTER---->| (dfilter_str)
+          |-----SET_FILTER---->| (dfilter_str)
           |<---FILTER_SET------|
                              IDLE
 

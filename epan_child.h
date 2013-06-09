@@ -1,5 +1,5 @@
 /* echld_child.h
- *  epan working child API internals
+ *  epan working child API
  *
  * $Id$
  *
@@ -25,165 +25,111 @@
 #ifndef __ECHLD_H
 #define __ECHLD_H
 
-
 typedef enum _echld_msg_type_t {
-	ECHLD_ERROR, /* Child <-> Parent */
-	ECHLD_HELLO,
+	ECHLD_ERROR = 'E', /* Child <-> Parent */
+	ECHLD_HELLO '0',
 
-	ECHLD_CLOSE_CHILD, /* Parent -> Child  */
-	ECHLD_CLOSING, /* Child -> Parent */
+	ECHLD_CLOSE_CHILD = 'Q', /* Parent -> Child  */
+	ECHLD_CLOSING = 'q', /* Child -> Parent */
 
-	ECHLD_CHDIR,  /* Parent -> Child  : change dir */
-	ECHLD_CWD, /* Child -> Parent */
+	ECHLD_CHDIR = 'D',  /* Parent -> Child  : change dir */
+	ECHLD_CWD = 'd', /* Child -> Parent */
 	
-	ECHLD_LIST_FILES, /* Parent -> Child  */
-	ECHLD_FILE_INFO, /* Parent -> Child  */
+	ECHLD_LIST_FILES = 'L', /* Parent -> Child  */
+	ECHLD_FILE_INFO = 'f', /* Parent -> Child  */
 
-	ECHLD_OPEN_FILE, /* Parent -> Child  */
-	ECHLD_FILE_OPENED, /* Child -> Parent */
+	ECHLD_OPEN_FILE = 'O', /* Parent -> Child  */
+	ECHLD_FILE_OPENED = 'o', /* Child -> Parent */
 
-	ECHLD_LIST_INTERFACES, /* Parent -> Child  */
-	ECHLD_INTERFACE_INFO, /* Child -> Parent */
+	ECHLD_LIST_INTERFACES = 'I', /* Parent -> Child  */
+	ECHLD_INTERFACE_INFO = 'i', /* Child -> Parent */
 
-	ECHLD_OPEN_INTERFACE,  /* Parent -> Child  */
-	ECHLD_INTERFACE_OPENED, /* Child -> Parent */
+	ECHLD_OPEN_INTERFACE = 'C',  /* Parent -> Child  */
+	ECHLD_INTERFACE_OPENED = 'c', /* Child -> Parent */
 
-	ECHLD_START_CAPTURE,  /* Parent -> Child  */
-	ECHLD_CAPTURE_STARTED,  /* Child -> Parent */
+	ECHLD_SET_FILTER = 'F', /* Parent -> Child  */
+	ECHLD_FILTER_SET = 'y',  /* Child -> Parent */
 
-	ECHLD_STOP_CAPTURE,  /* Parent -> Child  */
-	ECHLD_CAPTURE_STOPPED,  /* Child -> Parent */
+	ECHLD_START_CAPTURE = 'G',  /* Parent -> Child  */
+	ECHLD_CAPTURE_STARTED = 'g',  /* Child -> Parent */
 
-	ECHLD_PACKET_SUM, /* Child -> Parent */
+	ECHLD_STOP_CAPTURE = 'X',  /* Parent -> Child  */
+	ECHLD_CAPTURE_STOPPED = 'x',  /* Child -> Parent */
 
-	ECHLD_GET_PACKETS, /* Parent -> Child  */
-	ECHLD_PACKET, /* Child -> Parent */
-	ECHLD_BUFFER, /* Child -> Parent */
+	ECHLD_PACKET_SUM = 's', /* Child -> Parent */
 
-	ECHLD_ADD_NOTE, /* Parent -> Child  */
-	ECHLD_NOTE_ADDED, /* Child -> Parent */
+	ECHLD_GET_PACKETS = 'G', /* Parent -> Child  */
+	ECHLD_PACKET = 'p', /* Child -> Parent */
+	ECHLD_BUFFER = 'b', /* Child -> Parent */
+
+	ECHLD_ADD_NOTE = 'N', /* Parent -> Child  */
+	ECHLD_NOTE_ADDED = 'n', /* Child -> Parent */
 	
-	ECHLD_SET_FILTER, /* Parent -> Child  */
-	ECHLD_PACKET_LIST, /* Child -> Parent */
+
+	ECHLD_APPLY_FILTER = 'A', /* Parent -> Child  */
+	ECHLD_PACKET_LIST = 'l', /* Child -> Parent */
 	
-	ECHLD_SAVE_FILE, /* Parent -> Child  */
-	ECHLD_FILE_SAVED, /* Parent -> Child  */
+	ECHLD_SAVE_FILE = 'W', /* Parent -> Child  */
+	ECHLD_FILE_SAVED = 'w', /* Parent -> Child  */
 
-	ECHLD_EOF, /* Child -> Parent  */
+	ECHLD_EOF = 'z', /* Child -> Parent  */
 
-	ECHLD_PING, /* Parent <-> Child  */
-	ECHLD_PONG, /* Parent <-> Child  */
-
+	ECHLD_PING = '1', /* Parent <-> Child  */
+	ECHLD_PONG = '2', /* Parent <-> Child  */
 } echld_msg_type_t;
 
-typedef enum _echld_state_t {	
-	ECHLD_OK,
-	ECHLD_KO
-} echld_state_t;
-
-echld_state_t (echld_msg_cb_t*)(echld_msg_type_t type, guchar*, size_t len, void* data);
-echld_state_t (echld_iter_cb_t*)(echld_t* c, void* data);
-
-typedef struct echld_resp_actions_t {
-	echld_resp_type_t type,
-	echld_cb_t action,
-};
+int (*echld_msg_cb_t)(echld_msg_type_t type, GByteArray*, void* data);
+int (*echld_iter_cb_t)(echld_t* c, void* data);
 
 typedef struct _echld_child echld_t;
+typedef struct _echld_external_codec echld_external_codec_t;
 
-typedef enum _echld_encoding {
-	ECHLD_CHLD_ENC_PSML,
-	ECHLD_CHLD_ENC_TXT,
-	ECHLD_CHLD_ENC_JSON
-} echld_encoding_t;
+typedef int echld_msg_id_t;
+typedef int echld_state_t;
+
+/* gets a codec set by name */
+echld_external_codec_t* echld_find_codec(const char* name);
+#define ECHLD_CODEC_TEXT "text"
+#define ECHLD_CODEC_XML "xml"
 
 /* will initialize epan registering protocols and taps */
-int echld_initialize(echld_encoding_t enc);
+echld_state_t echld_initialize(echld_external_codec_t*);
 
 /* cleans up (?) echld and exits */
-int echld_terminate(void);
+echld_state_t echld_terminate(void);
 
 /* new worker process */
 echld_t* echld_new(void* child_data);
 void* echld_get_data(echld_t* c);
-void echld_set_data(echld_t* c, void* data);
+echld_state_t echld_set_data(echld_t* c, void* data);
 
-void echld_send_msg(echld_t* c, echld_msg_type_t snd_type, guchar* snd_buf, size_t snd_buf_len, echld_cb_t resp_cb, void* cb_data);
+/* send a message */
+/* optional response handler */
+/* */
+echld_state_t echld_send_msg(echld_t* c, echld_msg_type_t, GByteArray*, echld_msg_cb_t resp_cb, void* cb_data);
 
-int echld_msg_hdl_attach(echld_t* c, echld_msg_type_t, echld_msg_cb_t resp_cb, void* msg_data);
-int echld_get_attached_msg_hdl(echld_t* c, int id, echld_msg_type_t*, echld_msg_cb_t*, void**);
-void* echld_get_attached_msg_hdl_data(echld_t* c, int id);
-echld_msg_cb_t echld_get_attached_msg_hdl_cb(echld_t* c, int id);
-echld_msg_type_t echld_get_attached_msg_hdl_type(echld_t* c, int id);
+/* start receiving a message type */
+echld_msg_id_t echld_msg_attach(echld_t* c, echld_msg_type_t, echld_msg_cb_t resp_cb, void* msg_data);
 
-int echld_msg_hdl_detach(echld_t* c, int id); 
+/* stop receiving it */
+echld_state_t echld_msg_detach(echld_t* c, echld_msg_id_t); 
 
-int echld_parent_msg_attach(echld_t* c, echld_msg_type_t, echld_msg_cb_t resp_cb, void* resp_data);
-int echld_parent_msg_detach(echld_t* c, int id);
+/* manage the receiver's info */
+void* echld_get_attached_msg_hdl_data(echld_t* c, echld_msg_id_t);
+echld_msg_cb_t echld_get_attached_msg_hdl_cb(echld_t* c, echld_msg_id_t);
+echld_msg_type_t echld_get_attached_msg_hdl_type(echld_t* c, echld_msg_id_t);
+gboolean echld_get_attached_msg_hdl(echld_t* c, echld_msg_id_t, echld_msg_type_t*, echld_msg_cb_t*);
 
+/* iterate between childred */
+echld_t** echld_parent_get_all_children();
+echld_t* echld_parent_get_child(int id);
+#define echld_foreach(C, cb, data) do {echld_t** c = (C); for(;*c;c++) (cb)(*c,(data));  } while(0)
+#define echld_foreach_child(cb,data) echld_foreach(echld_parent_get_children(),(cb),(data))
 
-const echld_t** echld_parent_get_children();
-#define echld_foreach(C, cb, data) do {echld_t** c = C; for(;*c;c++) cb(*c,data);  } while(0)
-#define echld_foreach_child(cb,data) echld_foreach(echld_parent_get_children(),cb,data)
-
-
-/* message encoders */
-int echld_enc_error(guint8*, size_t , int err, const char* text);
-int echld_enc_close_child(guint8*, size_t, int mode);
-/* echld_closing */
-int echld_enc_chdir(guint8*, size_t, const char* new_dir);
-int echld_enc_cwd(guint8*, size_t, const char* cur_dir);
-int echld_enc_list_files(guint8*, size_t, const char* glob);
-int echld_enc_open_file(guint8*, size_t, const gchar* filename);
-/* echld_list_interfaces */
-int echld_enc_interface_info(guint8*, size_t, const char* intf_name, ...); /* params ??? */
-int echld_enc_open_interface(guint8*, size_t, const char* intf_name, ...); /* params ??? */ 
-/* echld_interface_opened */
-/* echld_start_capture */
-/* echld_capture_started */
-/* echld_stop_capture */
-/* echld_capture_stopped */
-int echld_packet_summary(guint8*, size_t, column_info* );
-int echld_enc_get_packets_range(guint8*, size_t, int from, int to);
-int echld_enc_get_packets_list(guint8*, size_t, const int* packet_numbers); /* zero terminated */
-int echld_enc_tree(guint8*, size_t, proto_tree* tree);
-int echld_enc_buffer(guint8*, size_t, tvb_t*, char* name);
-int echld_enc_add_note(guint8*, size_t, int packet_number, gchar* note);
-/* echld_note_added */
-int echld_enc_file(guint8*, size_t, gchar* note);
-int echld_enc_file_not_opened(guint8*, size_t, int err, gchar* text);
-int echld_enc_apply_filter(guint8*, size_t, const char* filter);
-int echld_enc_packet_list(guint8*, size_t , const char* name, int* packet_numbers); /* NULL term */
-int echld_enc_save_file(guint8*, size_t , const char* filename, ....); /* opts ??? */
-/* echld_file_saved */
-
-
-/* message decoders */
-int echld_dec_error(guint8*, size_t , int err, Gstring* text);
-int echld_dec_close_child(guint8*, size_t buflen, int* mode);
-/* echld_closing */
-int echld_dec_chdir(guint8*, size_t, Gstring* new_dir);
-int echld_dec_cwd(guint8*, size_t, Gstring* cur_dir);
-int echld_enc_list_files(guint8*, size_t, Gstring* glob);
-int echld_dec_open_file(guint8*, size_t, GString* filename);
-/* echld_list_interfaces */
-int echld_dec_cwd(guint8*, size_t buflen, GString* cwd);
-int echld_dec_file_info(guint8*, size_t buflen, GString* file_info);
-int echld_dec_open_interface(guint8*, size_t buflen, GString* interface_name, GString* params);
-/* echld_interface_opened */
-/* echld_start_capture */
-/* echld_capture_started */
-/* echld_stop_capture */
-/* echld_capture_stopped */
-int echld_packet_summary(guint8*, size_t, GString* );
-
-int echld_dec_get_packets(guint8*, size_t, GArray* list);
-int echld_dec_add_note(guint8*, size_t , int packet_number, Gstring* note);
-int echld_dec_file(guint8*, size_t , Gstring* note);
-int echld_dec_intf_info(guint8*, size_t , ...); /* params ??? */ 
-int echld_dec_packet_sum(guint8*, size_t , gchar* packet_sum);
-int echld_dec_tree(guint8*, size_t , GString* tree);
-int echld_dec_resp_packet_list(guint8*, size_t , int* packet_numbers); /* NULL term */
-int echld_dec_resp_buffer(guint8*, size_t , guint8* bbuf, size_t bbuflen);
+/*
+   to be used in place of select() in the main loop of the parent code
+   it will serve the children pipes and return as if select() was called.
+*/
+int echld_select(int nfds, int* rfds, int* wfds, int* efds, struct timeval* timeout);
 
 #endif
