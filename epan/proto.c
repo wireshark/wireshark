@@ -1737,7 +1737,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
  * start (pos/neg). Throws an exception if they aren't.
  */
 static void
-test_length(header_field_info *hfinfo, proto_tree *tree, tvbuff_t *tvb,
+test_length(header_field_info *hfinfo, proto_tree *tree _U_, tvbuff_t *tvb,
 	    gint start, gint length, gboolean little_endian)
 {
 	gint size = length;
