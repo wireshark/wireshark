@@ -47,9 +47,17 @@ Before compiling you need the Qt SDK and Qt Creator.
 
 1.1.1 OS X
 
-Download the latest Qt SDK (currently 1.1.4) from
-http://qt.nokia.com/downloads/ and install it. Build the top-level
-directory using CMake.
+Download the latest Qt Library + Qt Creator (currently 5.0.2) from
+http://qt-project.org/downloads/ and install it. For a more native
+look and feel you should also install Qt Mac Extras:
+
+    git clone http://qt.gitorious.org/qt/qtmacextras
+    cd qtmacextras
+    /path/to/qt5/qmake qtmacextras.pro
+    make
+    make -n install
+    # Make sure install output looks sensible
+    make install
 
 1.1.2 Windows
 
