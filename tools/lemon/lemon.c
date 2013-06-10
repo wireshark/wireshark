@@ -1646,7 +1646,7 @@ int main(int argc _U_, char **argv)
 **   changed.
 */
 static char *merge( char *a, char *b, int (*cmp)(const char*,const char*),
-  int offset
+  unsigned long offset
 ){
   char *ptr, *head;
 
