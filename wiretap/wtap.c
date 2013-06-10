@@ -707,6 +707,7 @@ static const char *wtap_errlist[] = {
 	"The standard input cannot be opened for random access",
 	"That file format doesn't support compression",
 	NULL,
+	NULL,
 	"Uncompression error",
 	"Internal error"
 };
