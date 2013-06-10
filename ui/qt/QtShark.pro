@@ -293,9 +293,15 @@ unix {
         message( "Assuming CMake library path" )
         LIBS += -L../../lib -Wl,-rpath ../../lib
     }
+
+    LIBS += -lwireshark -lwiretap -lwsutil -lui \
+    -lpcap
+
+    exists(../libui_dirty.a) {
+        LIBS += -lui_dirty
+    }
 }
-unix:LIBS += -lwireshark -lwiretap -lwsutil -lui \
-    -lpcap -lui_dirty
+
 macx:LIBS += -Wl,-macosx_version_min,10.6 -liconv -lz
 
 # XXX Copy this only if we're linking with Lua.
