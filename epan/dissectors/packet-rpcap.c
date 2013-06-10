@@ -220,6 +220,11 @@ static gint ett_findalldevs_ifaddr = -1;
 static gint ett_ifaddr = -1;
 static gint ett_sampling_request = -1;
 
+static expert_field ei_error = EI_INIT;
+static expert_field ei_if_unknown = EI_INIT;
+static expert_field ei_no_more_data = EI_INIT;
+static expert_field ei_caplen_too_big = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 /* User definable values */
@@ -386,13 +391,11 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   if (len <= 0)
     return;
 
-  if (check_col (pinfo->cinfo, COL_INFO)) {
-    col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
+  col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
 		     tvb_format_text_wsp (tvb, offset, len));
-  }
 
   ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII|ENC_NA);
-  expert_add_info_format (pinfo, ti, PI_SEQUENCE, PI_NOTE,
+  expert_add_info_format_text(pinfo, ti, &ei_error,
 			  "Error: %s", tvb_format_text_wsp (tvb, offset, len));
 }
 
@@ -433,7 +436,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
   } else {
     ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, ENC_NA);
     if (af != AF_UNSPEC) {
-      expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_CHAT,
+      expert_add_info_format_text(pinfo, ti, &ei_if_unknown,
 			      "Unknown address family: %d", af);
     }
     offset += 126;
@@ -510,7 +513,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
     offset = dissect_rpcap_findalldevs_ifaddr (tvb, pinfo, tree, offset);
     if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
-      expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR, "No more data in packet");
+      expert_add_info(pinfo, ti, &ei_no_more_data);
       break;
     }
   }
@@ -536,7 +539,7 @@ dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
     offset = dissect_rpcap_findalldevs_if (tvb, pinfo, tree, offset);
     if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
-      expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR, "No more data in packet");
+      expert_add_info(pinfo, ti, &ei_no_more_data);
       break;
     }
   }
@@ -625,7 +628,7 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
     offset = dissect_rpcap_filterbpf_insn (tvb, pinfo, tree, offset);
     if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
-      expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR, "No more data in packet");
+      expert_add_info(pinfo, ti, &ei_no_more_data);
       break;
     }
   }
@@ -878,8 +881,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
    */
   reported_length_remaining = tvb_length_remaining (tvb, offset);
   if (caplen > (guint)reported_length_remaining) {
-    expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR,
-			  "Caplen is bigger than the remaining message length");
+    expert_add_info(pinfo, ti, &ei_caplen_too_big);
     return;
   }
 
@@ -1430,10 +1432,20 @@ proto_register_rpcap (void)
     &ett_sampling_request
   };
 
+  static ei_register_info ei[] = {
+     { &ei_error, { "rpcap.error.expert", PI_SEQUENCE, PI_NOTE, "Error", EXPFILL }},
+     { &ei_if_unknown, { "rpcap.if_unknown", PI_SEQUENCE, PI_NOTE, "Unknown address family", EXPFILL }},
+     { &ei_no_more_data, { "rpcap.no_more_data", PI_MALFORMED, PI_ERROR, "No more data in packet", EXPFILL }},
+     { &ei_caplen_too_big, { "rpcap.caplen_too_big", PI_MALFORMED, PI_ERROR, "Caplen is bigger than the remaining message length", EXPFILL }},
+  };
+
   module_t *rpcap_module;
+  expert_module_t* expert_rpcap;
 
   proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
   register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
+  expert_rpcap = expert_register_protocol(proto_rpcap);
+  expert_register_field_array(expert_rpcap, ei, array_length(ei));
 
   proto_register_field_array (proto_rpcap, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

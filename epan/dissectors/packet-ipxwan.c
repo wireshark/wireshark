@@ -63,6 +63,8 @@ static int hf_ipxwan_option_value = -1;
 static gint ett_ipxwan = -1;
 static gint ett_ipxwan_option = -1;
 
+static expert_field ei_ipxwan_option_data_len = EI_INIT;
+
 static const value_string ipxwan_packet_type_vals[] = {
 	{ 0,    "Timer Request" },
 	{ 1,    "Timer Response" },
@@ -196,7 +198,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_ROUTING_TYPE:
 				if (option_data_len != 1) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 1", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -207,7 +209,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_RIP_SAP_INFO_EXCHANGE:
 				if (option_data_len != 54) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 54", option_data_len);
 				} else {
 					wan_link_delay = tvb_get_ntohs(tvb,
@@ -228,7 +230,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NLSP_INFORMATION:
 				if (option_data_len != 8) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					delay = tvb_get_ntohl(tvb, offset);
@@ -247,7 +249,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NLSP_RAW_THROUGHPUT_DATA:
 				if (option_data_len != 8) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 8", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -264,7 +266,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_EXTENDED_NODE_ID:
 				if (option_data_len != 4) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 4", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -275,7 +277,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_NODE_NUMBER:
 				if (option_data_len != 6) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be 6", option_data_len);
 				} else {
 					proto_tree_add_item(option_tree,
@@ -286,7 +288,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case OPT_COMPRESSION:
 				if (option_data_len < 1) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+					expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 						"Bogus length: %u, should be >= 1", option_data_len);
 				} else {
 					compression_type = tvb_get_guint8(tvb,
@@ -298,7 +300,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					case COMP_TYPE_TELEBIT:
 						if (option_data_len < 3) {
-							expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, 
+							expert_add_info_format_text(pinfo, ti, &ei_ipxwan_option_data_len,
 								"Bogus length: %u, should be >= 3", option_data_len);
 						} else {
 							proto_tree_add_item(option_tree, hf_ipxwan_compression_options, 
@@ -441,10 +443,17 @@ proto_register_ipxwan(void)
 		&ett_ipxwan,
 		&ett_ipxwan_option,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_ipxwan_option_data_len, { "ipxwan.option_data_len.invalid", PI_MALFORMED, PI_ERROR, "Wrong length", EXPFILL }},
+	};
+
+	expert_module_t* expert_ipxwan;
 
 	proto_ipxwan = proto_register_protocol("IPX WAN", "IPX WAN", "ipxwan");
 	proto_register_field_array(proto_ipxwan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ipxwan = expert_register_protocol(proto_ipxwan);
+	expert_register_field_array(expert_ipxwan, ei, array_length(ei));
 }
 
 void

@@ -185,6 +185,11 @@ static gint ett_ff                      = -1;
 
 static gint ett_address			= -1;
 
+static expert_field ei_lon_tpdu_tpdu_type_unknown = EI_INIT;
+static expert_field ei_lon_tpdu_spdu_type_unknown = EI_INIT;
+static expert_field ei_lon_tpdu_authpdu_type_unknown = EI_INIT;
+static expert_field ei_lon_tpdu_apdu_dest_type = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 static gint dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
@@ -339,7 +344,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 		} else {
-			expert_add_info_format(pinfo, lon_tree, PI_MALFORMED, PI_WARN, "Unexpected TPDU type %i", pdutype);
+			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_tpdu_type_unknown, "Unexpected TPDU type %i", pdutype);
 		}
 	} else if (pdu_fmt == 1) { /* SPDU */
 		static const gint *spdu_fields[] = {
@@ -371,7 +376,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 		} else {
-			expert_add_info_format(pinfo, lon_tree, PI_MALFORMED, PI_WARN, "Unexpected SPDU type %i", pdutype);
+			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_spdu_type_unknown, "Unexpected SPDU type %i", pdutype);
 		}
 	} else if (pdu_fmt == 2) { /* AuthPDU */
 		static const gint *authpdu_fields[] = {
@@ -390,8 +395,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		} else if (pdutype == 2) { /* REPLY */
 			offset += 9;
 		} else {
-			expert_add_info_format(pinfo, lon_tree,
-                                               PI_MALFORMED, PI_WARN, "Unexpected AuthPDU type %i", pdutype);
+			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_authpdu_type_unknown, "Unexpected AuthPDU type %i", pdutype);
 		}
 	} else if (pdu_fmt == 3) { /* APDU */
 		offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
@@ -460,7 +464,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 					ett_ff, ff_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else { /* Shouldn't get here */
-		expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN, "Malformed APDU destin&type %i", dest_type);
+		expert_add_info_format_text(pinfo, tree, &ei_lon_tpdu_apdu_dest_type, "Malformed APDU destin&type %i", dest_type);
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -704,11 +708,22 @@ proto_register_lon(void)
 		&ett_ff
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_lon_tpdu_tpdu_type_unknown, { "lon.tpdu_type.unknown", PI_PROTOCOL, PI_WARN, "Unexpected TPDU type", EXPFILL }},
+		{ &ei_lon_tpdu_spdu_type_unknown, { "lon.spdu_type.unknown", PI_PROTOCOL, PI_WARN, "Unexpected SPDU type", EXPFILL }},
+		{ &ei_lon_tpdu_authpdu_type_unknown, { "lon.authpdu_type.unknown", PI_PROTOCOL, PI_WARN, "Unexpected AuthPDU type", EXPFILL }},
+		{ &ei_lon_tpdu_apdu_dest_type, { "lon.authpdu_dest_type.unknown", PI_PROTOCOL, PI_WARN, "Malformed APDU destin&type", EXPFILL }},
+	};
+
+	expert_module_t* expert_lon;
+
 	proto_lon = proto_register_protocol("Local Operating Network",
 			"LON", "lon");
 
 	proto_register_field_array (proto_lon, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
+	expert_lon = expert_register_protocol(proto_lon);
+	expert_register_field_array(expert_lon, ei, array_length(ei));
 }
 
 

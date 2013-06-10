@@ -110,6 +110,10 @@ static gint ett_mpa_rep = -1;
 static gint ett_mpa_fpdu = -1;
 static gint ett_mpa_marker = -1;
 
+static expert_field ei_mpa_res_field_not_set0 = EI_INIT;
+static expert_field ei_mpa_rev_field_not_set1 = EI_INIT;
+static expert_field ei_mpa_reject_bit_responder = EI_INIT;
+
 /* handles of our subdissectors */
 static dissector_handle_t ddp_rdmap_handle = NULL;
 
@@ -359,12 +363,10 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 
 		/* update expert info */
 		if (mcrres & MPA_RESERVED_FLAG)
-			expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_WARN,
-					"Res field is NOT set to zero as required by RFC 5044");
+			expert_add_info(pinfo, NULL, &ei_mpa_res_field_not_set0);
 
 		if (state->revision != 1)
-			expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_WARN,
-					"Rev field is NOT set to one as required by RFC 5044");
+			expert_add_info(pinfo, NULL, &ei_mpa_rev_field_not_set1);
 	}
 	return TRUE;
 }
@@ -406,8 +408,7 @@ is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 		if (!(mcrres & MPA_REJECT_FLAG))
 			state->full_operation = TRUE;
 		else
-			expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_NOTE,
-				"Reject bit set by Responder");
+			expert_add_info(pinfo, NULL, &ei_mpa_reject_bit_responder);
 	}
 	return TRUE;
 }
@@ -960,6 +961,14 @@ void proto_register_mpa(void)
 			&ett_mpa_marker
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_mpa_res_field_not_set0, { "iwarp_mpa.res.not_set0", PI_REQUEST_CODE, PI_WARN, "Res field is NOT set to zero as required by RFC 5044", EXPFILL }},
+		{ &ei_mpa_rev_field_not_set1, { "iwarp_mpa.rev.not_set1", PI_REQUEST_CODE, PI_WARN, "Rev field is NOT set to one as required by RFC 5044", EXPFILL }},
+		{ &ei_mpa_reject_bit_responder, { "iwarp_mpa.reject_bit_responder", PI_RESPONSE_CODE, PI_NOTE, "Reject bit set by Responder", EXPFILL }},
+	};
+
+	expert_module_t* expert_iwarp_mpa;
+
 	/* register the protocol name and description */
 	proto_iwarp_mpa = proto_register_protocol(
 		"iWARP Marker Protocol data unit Aligned framing",
@@ -968,7 +977,8 @@ void proto_register_mpa(void)
 	/* required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_iwarp_mpa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
+	expert_iwarp_mpa = expert_register_protocol(proto_iwarp_mpa);
+	expert_register_field_array(expert_iwarp_mpa, ei, array_length(ei));
 }
 
 void

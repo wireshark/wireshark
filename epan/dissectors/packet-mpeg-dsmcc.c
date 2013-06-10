@@ -165,6 +165,9 @@ static gint ett_dsmcc_compat = -1;
 static gint ett_dsmcc_compat_sub_desc = -1;
 static gint ett_dsmcc_dii_module = -1;
 
+static expert_field ei_dsmcc_invalid_value = EI_INIT;
+static expert_field ei_dsmcc_crc_invalid = EI_INIT;
+
 #define DSMCC_TID_LLCSNAP         0x3a
 #define DSMCC_TID_UN_MSG          0x3b
 #define DSMCC_TID_DD_MSG          0x3c
@@ -243,7 +246,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             offset, 1, ENC_BIG_ENDIAN);
         if (0xff != tmp) {
             PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                         "Invalid value - should be 0xff");
         }
         offset +=1;
@@ -267,7 +270,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             offset, 1, ENC_BIG_ENDIAN);
         if (0xff != tmp) {
             PROTO_ITEM_SET_GENERATED(pi);
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                         "Invalid value - should be 0xff");
         }
         offset +=1;
@@ -303,7 +306,7 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
                  offset, 1, ENC_BIG_ENDIAN);
     if (0x11 != prot_disc) {
         PROTO_ITEM_SET_GENERATED(pi);
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0x11");
     }
     offset +=1;
@@ -327,7 +330,7 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         offset, 1, ENC_BIG_ENDIAN);
     if (0xff != reserved) {
         PROTO_ITEM_SET_GENERATED(pi);
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0xff");
     }
     offset +=1;
@@ -416,8 +419,7 @@ dissect_dsmcc_dii_compat_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
 
         if( 1000 == offset ) {
-            expert_add_info_format( pinfo, NULL, PI_MALFORMED,
-                        PI_ERROR, "Invalid CRC" );
+            expert_add_info( pinfo, NULL, &ei_dsmcc_crc_invalid);
         }
     }
 
@@ -509,7 +511,7 @@ dissect_dsmcc_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset, 1, ENC_BIG_ENDIAN);
     if (0xff != reserved) {
         PROTO_ITEM_SET_GENERATED(pi);
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0xff");
     }
     offset +=1;
@@ -676,15 +678,14 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
             proto_tree_add_uint_format( tree, hf_dsmcc_crc, tvb,
                 crc_len, 4, crc, "CRC: 0x%08x [%s]", crc, label);
         } else {
-            proto_item *msg_error = NULL;
+            proto_item *msg_error;
 
             msg_error = proto_tree_add_uint_format( tree, hf_dsmcc_crc, tvb,
                                 crc_len, 4, crc,
                                 "CRC: 0x%08x [Failed Verification (Calculated: 0x%08x)]",
                                 crc, calculated_crc );
             PROTO_ITEM_SET_GENERATED(msg_error);
-            expert_add_info_format( pinfo, msg_error, PI_MALFORMED,
-                        PI_ERROR, "Invalid CRC" );
+            expert_add_info( pinfo, msg_error, &ei_dsmcc_crc_invalid);
         }
     } else {
         /* TODO: actually check the checksum */
@@ -1027,12 +1028,20 @@ proto_register_dsmcc(void)
         &ett_dsmcc_compat_sub_desc,
         &ett_dsmcc_dii_module
     };
+    static ei_register_info ei[] = {
+        { &ei_dsmcc_invalid_value, { "dsmcc.invalid_value", PI_PROTOCOL, PI_WARN, "Invalid value", EXPFILL }},
+        { &ei_dsmcc_crc_invalid, { "mpeg_sect.crc.invalid", PI_CHECKSUM, PI_WARN, "Invalid CRC", EXPFILL }},
+    };
+
     module_t *dsmcc_module;
+    expert_module_t* expert_dsmcc;
 
     proto_dsmcc = proto_register_protocol("MPEG DSM-CC", "MPEG DSM-CC", "mpeg_dsmcc");
 
     proto_register_field_array(proto_dsmcc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dsmcc = expert_register_protocol(proto_dsmcc);
+    expert_register_field_array(expert_dsmcc, ei, array_length(ei));
     new_register_dissector("mp2t-dsmcc", dissect_dsmcc_ts, proto_dsmcc);
 
     dsmcc_module = prefs_register_protocol(proto_dsmcc, NULL);

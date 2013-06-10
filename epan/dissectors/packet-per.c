@@ -80,6 +80,13 @@ static gint ett_per_sequence_of_item = -1;
 static gint ett_per_External = -1;
 static gint ett_per_External_encoding = -1;
 
+static expert_field ei_per_size_constraint_value = EI_INIT;
+static expert_field ei_per_size_constraint_too_few = EI_INIT;
+static expert_field ei_per_size_constraint_too_many = EI_INIT;
+static expert_field ei_per_choice_extension_unknown = EI_INIT;
+static expert_field ei_per_sequence_extension_unknown = EI_INIT;
+static expert_field ei_per_encoding_error = EI_INIT;
+
 /*
 #define DEBUG_ENTRY(x) \
 printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->fd->num,x,(int)tvb);
@@ -121,27 +128,27 @@ static const true_false_string tfs_optional_field_bit = {
 static void per_check_value(guint32 value, guint32 min_len, guint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean is_signed)
 {
 	if ((is_signed == FALSE) && (value > max_len)) {
-		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %u (%u .. %u)", value, min_len, max_len);
+		expert_add_info_format_text(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %u (%u .. %u)", value, min_len, max_len);
 	} else if ((is_signed == TRUE) && ((gint32)value > (gint32)max_len)) {
-		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %d (%d .. %d)", (gint32)value, (gint32)min_len, (gint32)max_len);
+		expert_add_info_format_text(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %d (%d .. %d)", (gint32)value, (gint32)min_len, (gint32)max_len);
 	}
 }
 
 static void per_check_value64(guint64 value, guint64 min_len, guint64 max_len, asn1_ctx_t *actx, proto_item *item, gboolean is_signed)
 {
 	if ((is_signed == FALSE) && (value > max_len)) {
-		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u .. %" G_GINT64_MODIFIER "u)", value, min_len, max_len);
+		expert_add_info_format_text(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u .. %" G_GINT64_MODIFIER "u)", value, min_len, max_len);
 	} else if ((is_signed == TRUE) && ((gint64)value > (gint64)max_len)) {
-		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)", (gint64)value, (gint64)min_len, (gint64)max_len);
+		expert_add_info_format_text(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)", (gint64)value, (gint64)min_len, (gint64)max_len);
 	}
 }
 
 static void per_check_items(guint32 cnt, int min_len, int max_len, asn1_ctx_t *actx, proto_item *item)
 {
 	if (min_len != NO_BOUND && cnt < (guint32)min_len) {
-		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: too few items: %d (%d .. %d)", cnt, min_len, max_len);
+		expert_add_info_format_text(actx->pinfo, item, &ei_per_size_constraint_too_few, "Size constraint: too few items: %d (%d .. %d)", cnt, min_len, max_len);
 	} else if (max_len != NO_BOUND && cnt > (guint32)max_len) {
-		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: too many items: %d (%d .. %d)", cnt, min_len, max_len);
+		expert_add_info_format_text(actx->pinfo, item, &ei_per_size_constraint_too_many, "Size constraint: too many items: %d (%d .. %d)", cnt, min_len, max_len);
 	}
 }
 
@@ -1651,7 +1658,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		} else {
 			offset += ext_length * 8;
 			proto_tree_add_text(tree, tvb, old_offset>>3, BLEN(old_offset, offset), "Choice no. %d in extension", choice_index);
-			expert_add_info_format(actx->pinfo, choice_item, PI_UNDECODED, PI_NOTE, "unknown choice extension");
+			expert_add_info(actx->pinfo, choice_item, &ei_per_choice_extension_unknown);
 		}
 	}
 
@@ -1865,7 +1872,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(i>=num_known_extensions){
 				/* we don't know how to decode this extension */
 				offset+=length*8;
-				expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_NOTE, "unknown sequence extension");
+				expert_add_info(actx->pinfo, item, &ei_per_sequence_extension_unknown);
 				continue;
 			}
 
@@ -1889,8 +1896,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				if ((length > 1) && (difference > 7)) {
 					cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3,
 						"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
-					proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-					expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+					expert_add_info_format_text(actx->pinfo, cause, &ei_per_encoding_error,
 						"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
 				}
 			} else {
@@ -2569,11 +2575,23 @@ proto_register_per(void)
 		&ett_per_External,
 		&ett_per_External_encoding,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_per_size_constraint_value, { "per.size_constraint.value", PI_PROTOCOL, PI_WARN, "Size constraint: value too big", EXPFILL }},
+		{ &ei_per_size_constraint_too_few, { "per.size_constraint.too_few", PI_PROTOCOL, PI_WARN, "Size constraint: too few items", EXPFILL }},
+		{ &ei_per_size_constraint_too_many, { "per.size_constraint.too_many", PI_PROTOCOL, PI_WARN, "Size constraint: too many items", EXPFILL }},
+		{ &ei_per_choice_extension_unknown, { "per.choice_extension_unknown", PI_UNDECODED, PI_NOTE, "unknown choice extension", EXPFILL }},
+		{ &ei_per_sequence_extension_unknown, { "per.sequence_extension_unknown", PI_UNDECODED, PI_NOTE, "unknown sequence extension", EXPFILL }},
+		{ &ei_per_encoding_error, { "per.encoding_error", PI_MALFORMED, PI_WARN, "Encoding error", EXPFILL }},
+	};
+
 	module_t *per_module;
+	expert_module_t* expert_per;
 
 	proto_per = proto_register_protocol("Packed Encoding Rules (ASN.1 X.691)", "PER", "per");
 	proto_register_field_array(proto_per, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_per = expert_register_protocol(proto_per);
+	expert_register_field_array(expert_per, ei, array_length(ei));
 
 	proto_set_cant_toggle(proto_per);
 

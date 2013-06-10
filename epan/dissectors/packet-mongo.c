@@ -215,6 +215,10 @@ static gint ett_mongo_code = -1;
 static gint ett_mongo_fcn = -1;
 static gint ett_mongo_flags = -1;
 
+static expert_field ei_mongo_document_recursion_exceeded = EI_INIT;
+static expert_field ei_mongo_document_length_bad = EI_INIT;
+static expert_field ei_mongo_unknown = EI_INIT;
+
 static int
 dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
@@ -257,17 +261,17 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
   proto_tree_add_item(doc_tree, hf_mongo_document_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   if (nest_level > BSON_MAX_NESTING) {
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "BSON document recursion exceeds %u", BSON_MAX_NESTING);
+      expert_add_info_format_text(pinfo, ti, &ei_mongo_document_recursion_exceeded, "BSON document recursion exceeds %u", BSON_MAX_NESTING);
       THROW(ReportedBoundsError);
   }
 
   if (document_length < 5) {
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "BSON document length too short: %u", document_length);
+      expert_add_info_format_text(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too short: %u", document_length);
       THROW(ReportedBoundsError);
   }
 
   if (document_length > BSON_MAX_DOC_SIZE) {
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "BSON document length too long: %u", document_length);
+      expert_add_info_format_text(pinfo, ti, &ei_mongo_document_length_bad, "BSON document length too long: %u", document_length);
       THROW(ReportedBoundsError);
   }
 
@@ -644,7 +648,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(offset < tvb_reported_length(tvb))
     {
       ti = proto_tree_add_item(mongo_tree, hf_mongo_unknown, tvb, offset, -1, ENC_NA);
-      expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
+      expert_add_info(pinfo, ti, &ei_mongo_unknown);
     }
   }
 
@@ -672,6 +676,7 @@ void
 proto_register_mongo(void)
 {
   module_t *mongo_module;
+  expert_module_t* expert_mongo;
 
   static hf_register_info hf[] = {
     { &hf_mongo_message_length,
@@ -1021,10 +1026,18 @@ proto_register_mongo(void)
     &ett_mongo_flags
   };
 
+  static ei_register_info ei[] = {
+     { &ei_mongo_document_recursion_exceeded, { "mongo.document.recursion_exceeded", PI_MALFORMED, PI_ERROR, "BSON document recursion exceeds", EXPFILL }},
+     { &ei_mongo_document_length_bad, { "mongo.document.length.bad",  PI_MALFORMED, PI_ERROR, "BSON document length bad", EXPFILL }},
+     { &ei_mongo_unknown, { "mongo.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
+  };
+
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
 
   proto_register_field_array(proto_mongo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_mongo = expert_register_protocol(proto_mongo);
+  expert_register_field_array(expert_mongo, ei, array_length(ei));
 
   mongo_module = prefs_register_protocol(proto_mongo,
       proto_reg_handoff_mongo);

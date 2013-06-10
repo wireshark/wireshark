@@ -368,6 +368,11 @@ static gint ett_isakmp_decrypted_data = -1;
 static gint ett_isakmp_decrypted_payloads = -1;
 #endif /* HAVE_LIBGCRYPT */
 
+static expert_field ei_isakmp_enc_iv = EI_INIT;
+static expert_field ei_isakmp_ikev2_integrity_checksum = EI_INIT;
+static expert_field ei_isakmp_enc_data_length_mult_block_size = EI_INIT;
+static expert_field ei_isakmp_enc_pad_length_big = EI_INIT;
+
 static dissector_handle_t eap_handle = NULL;
 
 static reassembly_table isakmp_reassembly_table;
@@ -4602,7 +4607,7 @@ dissect_enc(tvbuff_t *tvb,
      */
     if (encr_data_len <= 0) {
       item = proto_tree_add_text(tree, tvb, offset, length, "Not enough data for IV, Encrypted data and ICD.");
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Not enough data in IKEv2 Encrypted payload");
+      expert_add_info(pinfo, item, &ei_isakmp_enc_iv);
       PROTO_ITEM_SET_GENERATED(item);
       return;
     }
@@ -4664,7 +4669,7 @@ dissect_enc(tvbuff_t *tvb,
           proto_item_append_text(icd_item, "[correct]");
         } else {
           proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_str(md, icd_len));
-          expert_add_info_format(pinfo, icd_item, PI_CHECKSUM, PI_WARN, "IKEv2 Integrity Checksum Data is incorrect");
+          expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
         }
         gcry_md_close(md_hd);
       } else {
@@ -4678,7 +4683,7 @@ dissect_enc(tvbuff_t *tvb,
     if (encr_data_len % key_info->encr_spec->block_len != 0) {
       proto_item_append_text(encr_data_item, "[Invalid length, should be a multiple of block size (%u)]",
         key_info->encr_spec->block_len);
-      expert_add_info_format(pinfo, encr_data_item, PI_MALFORMED, PI_WARN, "Encrypted data length isn't a multiple of block size");
+      expert_add_info(pinfo, encr_data_item, &ei_isakmp_enc_data_length_mult_block_size);
       return;
     }
 
@@ -4747,7 +4752,7 @@ dissect_enc(tvbuff_t *tvb,
     if (pad_len > 0) {
       if (payloads_len < 0) {
         proto_item_append_text(padlen_item, " [too long]");
-        expert_add_info_format(pinfo, padlen_item, PI_MALFORMED, PI_WARN, "Pad length is too big");
+        expert_add_info(pinfo, padlen_item, &ei_isakmp_enc_pad_length_big);
       } else {
         item = proto_tree_add_item(decr_tree, hf_isakmp_enc_padding, decr_tvb, payloads_len, pad_len, ENC_NA);
         proto_item_append_text(item, " (%d byte%s)", pad_len, plurality(pad_len, "", "s"));
@@ -6086,6 +6091,16 @@ proto_register_isakmp(void)
     &ett_isakmp_decrypted_payloads
 #endif /* HAVE_LIBGCRYPT */
   };
+
+  static ei_register_info ei[] = {
+     { &ei_isakmp_enc_iv, { "isakmp.enc.iv.not_enough_data", PI_MALFORMED, PI_WARN, "Not enough data in IKEv2 Encrypted payload", EXPFILL }},
+     { &ei_isakmp_ikev2_integrity_checksum, { "isakmp.ikev2.integrity_checksum", PI_CHECKSUM, PI_WARN, "IKEv2 Integrity Checksum Data is incorrect", EXPFILL }},
+     { &ei_isakmp_enc_data_length_mult_block_size, { "isakmp.enc_data_length_mult_block_size", PI_MALFORMED, PI_WARN, "Encrypted data length isn't a multiple of block size", EXPFILL }},
+     { &ei_isakmp_enc_pad_length_big, { "isakmp.enc.pad_length.big", PI_MALFORMED, PI_WARN, "Pad length is too big", EXPFILL }},
+  };
+
+  expert_module_t* expert_isakmp;
+
 #ifdef HAVE_LIBGCRYPT
   static uat_field_t ikev1_uat_flds[] = {
     UAT_FLD_BUFFER(ikev1_users, icookie, "Initiator's COOKIE", "Initiator's COOKIE"),
@@ -6109,6 +6124,8 @@ proto_register_isakmp(void)
 					       "ISAKMP", "isakmp");
   proto_register_field_array(proto_isakmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_isakmp = expert_register_protocol(proto_isakmp);
+  expert_register_field_array(expert_isakmp, ei, array_length(ei));
   register_init_routine(&isakmp_init_protocol);
 
   register_dissector("isakmp", dissect_isakmp, proto_isakmp);
