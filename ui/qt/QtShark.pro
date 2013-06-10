@@ -94,6 +94,13 @@ unix {
             PKGCONFIG += zlib
         }
     }
+
+    macx {
+        packagesExist(Qt5MacExtras) {
+            message( "Found Qt5MacExtras" )
+            QT += macextras
+        }
+    }
 }
 
 win32 {

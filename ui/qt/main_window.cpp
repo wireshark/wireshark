@@ -59,6 +59,12 @@
 #include <QMetaObject>
 #include <QMessageBox>
 
+#ifdef QT_MACEXTRAS_LIB
+#include <QtMacExtras/QMacNativeToolBar>
+#endif
+
+#include <QDebug>
+
 //menu_recent_file_write_all
 
 // If we ever add support for multiple windows this will need to be replaced.
@@ -136,6 +142,10 @@ MainWindow::MainWindow(QWidget *parent) :
             main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
 #if defined(Q_OS_MAC)
+#ifdef QT_MACEXTRAS_LIB
+    QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
+#endif // HAVE_QT5_MAC_EXTRAS
+
     foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
         foreach (QAction *act, menu->actions()) {
             act->setIconVisibleInMenu(false);
@@ -144,7 +154,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);
-#endif
+
+#endif // Q_OS_MAC
 
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
@@ -272,7 +283,6 @@ MainWindow::~MainWindow()
     delete main_ui_;
 }
 
-#include <QDebug>
 void MainWindow::setPipeInputHandler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
     pipe_source_        = source;
