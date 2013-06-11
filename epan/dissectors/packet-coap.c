@@ -50,6 +50,7 @@ static int hf_coap_token_len		= -1;
 static int hf_coap_token		= -1;
 static int hf_coap_code			= -1;
 static int hf_coap_mid			= -1;
+static int hf_coap_payload		= -1;
 static int hf_coap_payload_desc		= -1;
 static int hf_coap_opt_name		= -1;
 static int hf_coap_opt_desc		= -1;
@@ -854,6 +855,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_item *payload_item = NULL;
 		tvbuff_t *payload_tvb;
 		guint payload_length = coap_length - offset;
+		const char *coap_ctype_str_dis;
 		char str_payload[80];
 
 		/*
@@ -869,15 +871,26 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			coap_ctype_str = "text/plain; charset=utf-8";
 
 		g_snprintf(str_payload, sizeof(str_payload), 
-		    "Payload Content-Format: %s%s, Length: %u, offset: %u",
+		    "Payload Content-Format: %s%s, Length: %u",
 		    coap_ctype_str, coap_ctype_value == DEFAULT_COAP_CTYPE_VALUE ?
-		    " (no Content-Format)" : "", payload_length, offset);
-		proto_tree_add_string(coap_tree, hf_coap_payload_desc,
-		    tvb, offset, -1, coap_ctype_str);
+		    " (no Content-Format)" : "", payload_length);
+
+		payload_item = proto_tree_add_string(coap_tree, hf_coap_payload,
+						     tvb, offset, payload_length,
+						     str_payload);
 		payload_tree = proto_item_add_subtree(payload_item, ett_coap_payload);
+
+		proto_tree_add_string(payload_tree, hf_coap_payload_desc, tvb, offset, -1, coap_ctype_str);
 		payload_tvb = tvb_new_subset(tvb, offset, payload_length, payload_length);
 
-		dissector_try_string(media_type_dissector_table, coap_ctype_str, payload_tvb, pinfo, payload_tree);
+		if (coap_ctype_value == DEFAULT_COAP_CTYPE_VALUE || coap_ctype_value == 0) {
+			coap_ctype_str_dis = "text/plain";
+		} else {
+			coap_ctype_str_dis = coap_ctype_str;
+		}
+
+		dissector_try_string(media_type_dissector_table, coap_ctype_str_dis,
+				     payload_tvb, pinfo, payload_tree);
 	}
 }
 
@@ -917,6 +930,11 @@ proto_register_coap(void)
                   { "Message ID", "coap.mid",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
                     "CoAP Message ID", HFILL }
+                },
+		{ &hf_coap_payload,
+                  { "Payload", "coap.payload",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "CoAP Payload", HFILL }
                 },
 		{ &hf_coap_payload_desc,
                   { "Payload Desc", "coap.opt.payload_desc",
