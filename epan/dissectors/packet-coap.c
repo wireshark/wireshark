@@ -53,9 +53,11 @@ static int hf_coap_mid			= -1;
 static int hf_coap_payload_desc		= -1;
 static int hf_coap_opt_name		= -1;
 static int hf_coap_opt_desc		= -1;
-static int hf_coap_opt_jump		= -1;
 static int hf_coap_opt_delta		= -1;
+static int hf_coap_opt_delta_ext	= -1;
 static int hf_coap_opt_length		= -1;
+static int hf_coap_opt_length_ext	= -1;
+static int hf_coap_opt_end_marker	= -1;
 static int hf_coap_opt_ctype		= -1;
 static int hf_coap_opt_max_age		= -1;
 static int hf_coap_opt_proxy_uri	= -1;
@@ -292,53 +294,44 @@ coap_opt_check(packet_info *pinfo, proto_tree *subtree, guint opt_num, gint opt_
 }
 
 static void
-dissect_coap_opt_hex_string(tvbuff_t *tvb, proto_item *item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length, int hf)
+dissect_coap_opt_hex_string(tvbuff_t *tvb, proto_item *item, proto_tree *subtree, gint offset, gint opt_length, int hf)
 {
 	const guint8 *str;
-	gint dp = offset + opt_hlen;
 
 	if (opt_length == 0)
 		str = nullstr;
 	else
-		str = tvb_bytes_to_str_punct(tvb, dp, opt_length, ' ');
+		str = tvb_bytes_to_str_punct(tvb, offset, opt_length, ' ');
 
-	proto_tree_add_string(subtree, hf, tvb, dp, opt_length, str);
+	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(item, ": %s", str);
 }
 
 static void
-dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length, int hf)
+dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
 {
 	guint i = 0;
-	gint dp, len;
 
-	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
-		i = 0;
-	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		i = coap_get_opt_uint(tvb, dp, len);
+	if (opt_length != 0) {
+		i = coap_get_opt_uint(tvb, offset, opt_length);
 	}
 
-	proto_tree_add_uint(subtree, hf, tvb, dp, len, i);
+	proto_tree_add_uint(subtree, hf, tvb, offset, opt_length, i);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %d", i);
 }
 
 static void
-dissect_coap_opt_uri_host(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_uri_host(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	guint8 *str = NULL;
-	gint dp = offset + opt_hlen;
 
-	str = tvb_get_ephemeral_string(tvb, dp, opt_length);
+	str = tvb_get_ephemeral_string(tvb, offset, opt_length);
 
-	proto_tree_add_string(subtree, hf_coap_opt_uri_host, tvb, dp, opt_length, str);
+	proto_tree_add_string(subtree, hf_coap_opt_uri_host, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
@@ -358,35 +351,29 @@ dissect_coap_opt_uri_host(tvbuff_t *tvb, proto_item *head_item, proto_tree *subt
 }
 
 static void
-dissect_coap_opt_uri_path(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_uri_path(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	const guint8 *str = NULL;
-	gint dp, len;
 
 	g_strlcat(coap_uri_str, "/", sizeof(coap_uri_str));
 
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		str = nullstr;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		str = tvb_get_ephemeral_string(tvb, dp, len);
+		str = tvb_get_ephemeral_string(tvb, offset, opt_length);
 		g_strlcat(coap_uri_str, str, sizeof(coap_uri_str));
 	}
 
-	proto_tree_add_string(subtree, hf_coap_opt_uri_path, tvb, dp, len, str);
+	proto_tree_add_string(subtree, hf_coap_opt_uri_path, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
 }
 
 static void
-dissect_coap_opt_uri_query(tvbuff_t *tvb, proto_item *head_item,proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_uri_query(tvbuff_t *tvb, proto_item *head_item,proto_tree *subtree, gint offset, gint opt_length)
 {
 	const guint8 *str = NULL;
-	gint dp, len;
 
 	if (coap_uri_query[0] == '\0')
 		g_strlcat(coap_uri_query, "?", sizeof(coap_uri_str));
@@ -394,147 +381,114 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, proto_item *head_item,proto_tree *subt
 		g_strlcat(coap_uri_query, "&", sizeof(coap_uri_str));
 
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		str = nullstr;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		str = tvb_get_ephemeral_string(tvb, dp, len);
+		str = tvb_get_ephemeral_string(tvb, offset, opt_length);
 		g_strlcat(coap_uri_str, str, sizeof(coap_uri_str));
 	}
 
-	proto_tree_add_string(subtree, hf_coap_opt_uri_query, tvb, dp, len, str);
+	proto_tree_add_string(subtree, hf_coap_opt_uri_query, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
 }
 
 static void
-dissect_coap_opt_location_path(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_location_path(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	const guint8 *str = NULL;
-	gint dp, len;
 
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		str = nullstr;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		str = tvb_get_ephemeral_string(tvb, dp, len);
+		str = tvb_get_ephemeral_string(tvb, offset, opt_length);
 	}
 
-	proto_tree_add_string(subtree, hf_coap_opt_location_path, tvb, dp, len, str);
+	proto_tree_add_string(subtree, hf_coap_opt_location_path, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
 }
 
 static void
-dissect_coap_opt_location_query(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_location_query(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	const guint8 *str = NULL;
-	gint dp, len;
 
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		str = nullstr;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		str = tvb_get_ephemeral_string(tvb, dp, len);
+		str = tvb_get_ephemeral_string(tvb, offset, opt_length);
 	}
 
-	proto_tree_add_string(subtree, hf_coap_opt_location_query, tvb, dp, len, str);
+	proto_tree_add_string(subtree, hf_coap_opt_location_query, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
 }
 
 static void
-dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	const guint8 *str = NULL;
-	gint dp, len;
 
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		str = nullstr;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		str = tvb_get_ephemeral_string(tvb, dp, len);
+		str = tvb_get_ephemeral_string(tvb, offset, opt_length);
 	}
 
-	proto_tree_add_string(subtree, hf_coap_opt_proxy_uri, tvb, dp, len, str);
+	proto_tree_add_string(subtree, hf_coap_opt_proxy_uri, tvb, offset, opt_length, str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", str);
 }
 
 static void
-dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length, int hf)
+dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
 {
-	gint dp, len;
-
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		coap_ctype_value = 0;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		coap_ctype_value = coap_get_opt_uint(tvb, dp, len);
+		coap_ctype_value = coap_get_opt_uint(tvb, offset, opt_length);
 	}
 
 	coap_ctype_str = val_to_str(coap_ctype_value, vals_ctype, "Unknown Type %d");
 
-	proto_tree_add_string(subtree, hf, tvb, dp, len, coap_ctype_str);
+	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, coap_ctype_str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", coap_ctype_str);
 }
 
 static void
-dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	guint8      val                = 0;
 	guint       encoded_block_size = 0;
 	guint       block_esize;
-	gint dp, len;
-	gint dp2;
 
 	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
 		coap_block_number = 0;
 		val = 0;
-		dp2 = dp;
 	} else {
-		dp = offset + opt_hlen;
-		len = opt_length;
-		coap_block_number = coap_get_opt_uint(tvb, dp, len) >> 4;
+		coap_block_number = coap_get_opt_uint(tvb, offset, opt_length) >> 4;
 		val = tvb_get_guint8(tvb, offset + opt_length - 1) & 0x0f;
-		dp2 = dp + opt_length - 1;
 	}
 
 	proto_tree_add_uint(subtree, hf_coap_opt_block_number,
-	    tvb, dp, len, coap_block_number);
+	    tvb, offset, opt_length, coap_block_number);
 
 	/* More flag in the end of the option */
 	coap_block_mflag = val & 0x08;
 	proto_tree_add_uint(subtree, hf_coap_opt_block_mflag,
-	    tvb, dp2, 1, coap_block_mflag);
+	    tvb, offset + opt_length - 1, 1, coap_block_mflag);
 
 	/* block size */
 	encoded_block_size = val & 0x07;
 	block_esize = 1 << (encoded_block_size + 4);
 	proto_tree_add_uint_format(subtree, hf_coap_opt_block_size,
-	    tvb, dp2, 1, encoded_block_size, "Block Size: %d (%d encoded)", block_esize, encoded_block_size);
+	    tvb, offset + opt_length - 1, 1, encoded_block_size, "Block Size: %d (%d encoded)", block_esize, encoded_block_size);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": NUM:%d, M:%d, SZX:%d",
@@ -542,25 +496,18 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 }
 
 static void
-dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
+dissect_coap_opt_uri_port(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length)
 {
 	guint port = 0;
 	char portstr[6];
-	gint dp, len;
 
 	memset(portstr, '\0', sizeof(portstr));
 
-	if (opt_length == 0) {
-		dp = offset;
-		len = opt_hlen;
-		port = 0;
-	} else {
-		dp = offset;
-		len = opt_hlen;
-		port = coap_get_opt_uint(tvb, dp, len);
+	if (opt_length != 0) {
+		port = coap_get_opt_uint(tvb, offset, opt_length);
 	}
 
-	proto_tree_add_uint(subtree, hf_coap_opt_uri_port, tvb, dp, len, port);
+	proto_tree_add_uint(subtree, hf_coap_opt_uri_port, tvb, offset, opt_length, port);
 
 	proto_item_append_text(head_item, ": %d", port);
 
@@ -578,200 +525,216 @@ static int
 dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, guint8 opt_count, guint *opt_num, gint coap_length)
 {
 	guint8      opt_jump;
-	gint        opt_length, tmp_length, jump_length;
+	gint        opt_length, opt_length_ext, opt_delta, opt_delta_ext;
+	gint        opt_length_ext_off = 0;
+	gint8       opt_length_ext_len = 0;
+	gint        opt_delta_ext_off = 0;
+	gint8       opt_delta_ext_len = 0;
+	gint        orig_offset = offset;
 	proto_tree *subtree    = NULL;
 	proto_item *item       = NULL;
-	gint        opt_hlen, max_hlen;
-	tvbuff_t   *tvb_lenbuf = NULL;
 	char strbuf[56];
 
 	opt_jump = tvb_get_guint8(tvb, offset);
+	offset++;
 
-	/* option jump */
 	/*
-	 * seciton 3.2 in coap-12:
-	 * If the Option Count field in the CoAP header is 15 and the Option
-	 * Header byte is 0xf0 (the Option Delta is 15 and the Option Length is
-	 * 0), the option is interpreted as the end-of-options marker instead of
-	 * the option with the resulting Option Number.  (In other words, the
-	 * end-of-options marker always is just a single byte valued 0xf0.)
+	 * seciton 3.1 in coap-17:
+	 * Option Delta:  4-bit unsigned integer.  A value between 0 and 12
+	 * indicates the Option Delta.  Three values are reserved for special
+	 * constructs:
 	 *
-	 * section 3.3 in coap-12:
-	 * An Option Jump MUST be followed by an actual Option, i.e., it MUST
-	 * NOT be followed by another Option Jump or an end-of-options
-	 * indicator.  A message violating this MUST be treated as an encoding
-	 * error.
-	 * Option Jumps do NOT count as Options in the Option Count field of the
-	 * header (i.e., they cannot by themselves end the Option sequence).
+	 * 13:  An 8-bit unsigned integer follows the initial byte and
+	 *      indicates the Option Delta minus 13.
+	 *
+	 * 14:  A 16-bit unsigned integer in network byte order follows the
+	 *      initial byte and indicates the Option Delta minus 269.
+	 *
+	 * 15:  Reserved for the Payload Marker.  If the field is set to this
+	 *      value but the entire byte is not the payload marker, this MUST
+	 *      be processed as a message format error.
 	 */
-	switch (opt_jump) {
-	case 0xf0:
-		if (opt_count != 15) {
-			expert_add_info_format(pinfo, subtree,
-			    PI_MALFORMED, PI_WARN,
-			    "end-of-options marker found, but OC isn't 15");
-			return -1;
-		}
-		proto_tree_add_string(coap_tree, hf_coap_opt_jump,
-		    tvb, offset, 1, "end-of-options marker");
-		return ++offset;
-	case 0xf1:
-		jump_length = 15;
-		proto_tree_add_uint_format(coap_tree, hf_coap_opt_jump,
-		    tvb, offset, 1, jump_length, "Option Jump (0xf1): %d", jump_length);
-		*opt_num += jump_length;
+	switch (opt_jump & 0xf0) {
+	case 0xd0:
+		opt_delta_ext = tvb_get_guint8(tvb, offset);
+		opt_delta_ext_off = offset;
+		opt_delta_ext_len = 1;
 		offset++;
-		opt_jump = tvb_get_guint8(tvb, offset);
+
+		opt_delta = 13;
+		opt_delta += opt_delta_ext;
 		break;
-	case 0xf2:
-		jump_length = (tvb_get_guint8(tvb, offset + 1) + 2) * 8;
-		proto_tree_add_uint_format(coap_tree, hf_coap_opt_jump,
-		    tvb, offset, 2, jump_length, "Option Jump (0xf2): %d", jump_length);
-		*opt_num += jump_length;
+	case 0xe0:
+		opt_delta_ext = coap_get_opt_uint(tvb, offset, 2);
+		opt_delta_ext_off = offset;
+		opt_delta_ext_len = 2;
 		offset += 2;
-		opt_jump = tvb_get_guint8(tvb, offset);
+
+		opt_delta = 269;
+		opt_delta += opt_delta_ext;
 		break;
-	case 0xf3:
-		jump_length = (tvb_get_ntohs(tvb, offset + 1) + 258) * 8;
-		proto_tree_add_uint_format(coap_tree, hf_coap_opt_jump,
-		    tvb, offset, 3, jump_length, "Option Jump (0xf3): %d", jump_length);
-		*opt_num += jump_length;
-		offset += 3;
-		opt_jump = tvb_get_guint8(tvb, offset);
+	case 0xf0:
+		expert_add_info_format(pinfo, coap_tree,
+		    PI_MALFORMED, PI_WARN,
+		    "end-of-options marker found, but option length isn't 15");
+		return -1;
+	default:
+		opt_delta = ((opt_jump & 0xf0) >> 4);
 		break;
 	}
+	*opt_num += opt_delta;
 
 	/*
-	 * Length:
-	 *   Normally Length is a 4-bit unsigned integer allowing values of
-	 *   0-14 octets.  The Length field can be extended for options with
-	 *   values longer than 14 bytes by adding extension bytes.
-	 *   The maximum length for an option is 1034 bytes.
+	 * seciton 3.1 in coap-17:
+	 * Option Length:  4-bit unsigned integer.  A value between 0 and 12
+	 * indicates the length of the Option Value, in bytes.  Three values
+	 * are reserved for special constructs:
+	 *
+	 * 13:  An 8-bit unsigned integer precedes the Option Value and
+	 *      indicates the Option Length minus 13.
+	 *
+	 * 14:  A 16-bit unsigned integer in network byte order precedes the
+	 *      Option Value and indicates the Option Length minus 269.
+	 * 
+	 * 15:  Reserved for future use.  If the field is set to this value,
+	 *      it MUST be processed as a message format error.
 	 */
-	max_hlen = 4;
-	opt_hlen = 1;
-	opt_length = opt_jump & 0x0f;
-	if (opt_length == 0x0f) {
-		do {
-			tmp_length = tvb_get_guint8(tvb, offset + opt_hlen);
-			opt_length += tmp_length;
-			opt_hlen++;
-		} while (!(opt_hlen == max_hlen || tmp_length != 0xff));
-	}
-	if (max_hlen < opt_hlen) {
-		expert_add_info_format(pinfo, subtree, PI_MALFORMED, PI_WARN,
-		    "Invalid Option Length: all %d bits are set, which is not"
-		    " allowed by the spec 12", max_hlen * 8 - 4);
+	switch (opt_jump & 0x0f) {
+	case 0x0d:
+		opt_length_ext = tvb_get_guint8(tvb, offset);
+		opt_length_ext_off = offset;
+		opt_length_ext_len = 1;
+		offset++;
+
+		opt_length = 13;
+		opt_length += opt_length_ext;
+		break;
+	case 0x0e:
+		opt_length_ext = coap_get_opt_uint(tvb, offset, 2);
+		opt_length_ext_off = offset;
+		opt_length_ext_len = 2;
+		offset += 2;
+
+		opt_length = 269;
+		opt_length += opt_length_ext;
+		break;
+	case 0x0f:
+		expert_add_info_format(pinfo, coap_tree,
+		    PI_MALFORMED, PI_WARN,
+		    "end-of-options marker found, but option delta isn't 15");
 		return -1;
+	default:
+		opt_length = (opt_jump & 0x0f);
+		break;
 	}
-	if (coap_length < offset) {
-		expert_add_info_format(pinfo, subtree, PI_MALFORMED, PI_WARN,
-		    "Invalid length: coap payload length(%d) < offset(%d)",
-		    coap_length, offset);
+	if (offset + opt_length > coap_length) {
+		expert_add_info_format(pinfo, coap_tree,
+		    PI_MALFORMED, PI_WARN,
+		    "option longer than the package");
 		return -1;
 	}
 
-	*opt_num += ((opt_jump & 0xf0) >> 4);
-
-	coap_opt_check(pinfo, subtree, *opt_num, opt_length);
+	coap_opt_check(pinfo, coap_tree, *opt_num, opt_length);
 
 	g_snprintf(strbuf, sizeof(strbuf), 
 	    "#%u: %s", opt_count, val_to_str_const(*opt_num, vals_opt_type,
 	    *opt_num % 14 == 0 ? "No-Op" : "Unknown Option"));
 	item = proto_tree_add_string(coap_tree, hf_coap_opt_name,
-	    tvb, offset, opt_hlen + opt_length, strbuf);
-
+	    tvb, orig_offset, offset - orig_offset + opt_length, strbuf);
 	subtree = proto_item_add_subtree(item, ett_coap_option);
+
 	g_snprintf(strbuf, sizeof(strbuf), 
 	    "Type %u, %s, %s%s", *opt_num,
 	    (*opt_num & 1) ? "Critical" : "Elective",
 	    (*opt_num & 2) ? "Unsafe" : "Safe",
 	    ((*opt_num & 0x1e) == 0x1c) ? ", NoCacheKey" : "");
 	proto_tree_add_string(subtree, hf_coap_opt_desc,
-	    tvb, offset, opt_hlen + opt_length, strbuf);
-	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, offset, 1,
-	    ENC_BIG_ENDIAN);
+	    tvb, orig_offset, offset - orig_offset + opt_length, strbuf);
 
-	tvb_lenbuf = tvb_new_subset(tvb, offset, opt_hlen, opt_hlen);
-	proto_tree_add_uint_bits_format_value(subtree, hf_coap_opt_length,
-	    tvb_lenbuf, 4, 4 + ((opt_hlen - 1) * 8), opt_length, "%d",
-	    opt_length);
+	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, orig_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_coap_opt_length, tvb, orig_offset, 1, ENC_BIG_ENDIAN);
+
+	if (opt_delta_ext_off && opt_delta_ext_len)
+		proto_tree_add_item(subtree, hf_coap_opt_delta_ext, tvb, opt_delta_ext_off, opt_delta_ext_len, ENC_BIG_ENDIAN);
+
+	if (opt_length_ext_off && opt_length_ext_len)
+		proto_tree_add_item(subtree, hf_coap_opt_length_ext, tvb, opt_length_ext_off, opt_length_ext_len, ENC_BIG_ENDIAN);
 
 	/* offset points the next to its option header */
 	switch (*opt_num) {
 	case COAP_OPT_CONTENT_TYPE:
 		dissect_coap_opt_ctype(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_ctype);
+		    opt_length, hf_coap_opt_ctype);
 		break;
 	case COAP_OPT_MAX_AGE:
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_max_age);
+		    opt_length, hf_coap_opt_max_age);
 		break;
 	case COAP_OPT_PROXY_URI:
 		dissect_coap_opt_proxy_uri(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_ETAG:
 		dissect_coap_opt_hex_string(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_etag);
+		    opt_length, hf_coap_opt_etag);
 		break;
 	case COAP_OPT_URI_HOST:
 		dissect_coap_opt_uri_host(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_LOCATION_PATH:
 		dissect_coap_opt_location_path(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_URI_PORT:
 		dissect_coap_opt_uri_port(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_LOCATION_QUERY:
 		dissect_coap_opt_location_query(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_URI_PATH:
 		dissect_coap_opt_uri_path(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_OBSERVE:
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_observe);
+		    opt_length, hf_coap_opt_observe);
 		break;
 	case COAP_OPT_ACCEPT:
 		dissect_coap_opt_ctype(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_accept);
+		    opt_length, hf_coap_opt_accept);
 		break;
 	case COAP_OPT_IF_MATCH:
 		dissect_coap_opt_hex_string(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_if_match);
+		    opt_length, hf_coap_opt_if_match);
 		break;
 	case COAP_OPT_URI_QUERY:
 		dissect_coap_opt_uri_query(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_BLOCK2:
 		dissect_coap_opt_block(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_BLOCK1:
 		dissect_coap_opt_block(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
+		    opt_length);
 		break;
 	case COAP_OPT_IF_NONE_MATCH:
 		break;
 	case COAP_OPT_BLOCK_SIZE:
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_block_size);
+		    opt_length, hf_coap_opt_block_size);
 		break;
 	default:
 		dissect_coap_opt_hex_string(tvb, item, subtree, offset,
-		    opt_hlen, opt_length, hf_coap_opt_unknown);
+		    opt_length, hf_coap_opt_unknown);
 		break;
 	}
 
-	return offset + opt_hlen + opt_length;
+	return offset + opt_length;
 }
 
 /*
@@ -796,6 +759,7 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 			break;
 		endmarker = tvb_get_guint8(tvb, offset);
 		if (endmarker == 0xff) {
+			proto_tree_add_item(coap_tree, hf_coap_opt_end_marker, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			break;
 		}
@@ -969,20 +933,30 @@ proto_register_coap(void)
                     FT_STRING, BASE_NONE, NULL, 0x0,
                     "CoAP Option Description", HFILL }
                 },
-		{ &hf_coap_opt_jump,
-                  { "Opt Jump", "coap.opt.jump",
-                    FT_UINT8, BASE_DEC, NULL, 0xf0,
-                    "CoAP Option Jump", HFILL }
-                },
 		{ &hf_coap_opt_delta,
                   { "Opt Delta", "coap.opt.delta",
                     FT_UINT8, BASE_DEC, NULL, 0xf0,
                     "CoAP Option Delta", HFILL }
                 },
+		{ &hf_coap_opt_delta_ext,
+                  { "Opt Delta extended", "coap.opt.delta_ext",
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    "CoAP Option Delta extended", HFILL }
+                },
 		{ &hf_coap_opt_length,
                   { "Opt Length", "coap.opt.length",
-                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    FT_UINT8, BASE_DEC, NULL, 0x0f,
                     "CoAP Option Length", HFILL }
+                },
+		{ &hf_coap_opt_length_ext,
+                  { "Opt Length extended", "coap.opt.length_ext",
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    "CoAP Option Length extended", HFILL }
+                },
+		{ &hf_coap_opt_end_marker,
+                  { "End of options marker", "coap.opt.end_marker",
+                    FT_UINT8, BASE_DEC, NULL, 0x00,
+                    "CoAP End of options marker", HFILL }
                 },
 		{ &hf_coap_opt_ctype,
                   { "Content-type", "coap.opt.ctype",
@@ -1031,7 +1005,7 @@ proto_register_coap(void)
                 },
 		{ &hf_coap_opt_observe,
                   { "Lifetime", "coap.opt.subscr_lifetime",
-                    FT_INT32, BASE_DEC, NULL, 0x0,
+                    FT_UINT32, BASE_DEC, NULL, 0x0,
                     "CoAP Option Observe", HFILL }
                 },
 		{ &hf_coap_opt_accept,
