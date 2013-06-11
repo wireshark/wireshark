@@ -178,24 +178,33 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 AC_SYS_LARGEFILE
 
 # GnuTLS
-# Version 3.0 switched from LGPLv2.1+ to LGPLv3+.
+# Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
+# LGPLv2.1+ in version 3.1.10
 tls_message="no"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
 		  [use GnuTLS library @<:@default=yes@:>@]),
   with_gnutls="$withval", with_gnutls="yes")
 if test "x$with_gnutls" = "xyes"; then
-  PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0 gnutls < 3],
-        [
-                echo "GnuTLS found, enabling SSL decryption"
-                AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use GnuTLS library])
-                tls_message="yes"
-        ]
-        , [
-                echo "GnuTLS not found, disabling SSL decryption"
-                tls_message="no"
-        ]
+  have_license_compatible_gnutls="no"
+  PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 3.1.10 ],
+    [ have_license_compatible_gnutls="yes" ], [ echo "GnuTLS >= 3.1.10 not found " ]
   )
+
+  if test "x$have_license_compatible_gnutls" != "xyes"; then
+    PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0 gnutls < 3],
+      [ have_license_compatible_gnutls="yes" ] , [ echo "GnuTLS >= 1.2.0, < 3.0 not found " ]
+    )
+  fi
+
+  if test "x$have_license_compatible_gnutls" = "xyes"; then
+    echo "GnuTLS found, enabling SSL decryption"
+    AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use GnuTLS library])
+    tls_message="yes"
+  else
+    echo "GnuTLS with compatible license not found, disabling SSL decryption"
+    tls_message="no"
+  fi
 fi
 
 # libgrypt
