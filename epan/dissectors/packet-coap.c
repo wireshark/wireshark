@@ -6,6 +6,9 @@
  * draft-ietf-core-link-format-06.txt
  * Shoichi Sakane <sakane@tanu.org>
  *
+ * Changes for draft-ietf-core-coap-17.txt
+ * Hauke Mehrtens <hauke@hauke-m.de>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -777,17 +780,25 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
  * or the end of the data.
  */
 static int
-dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint coap_length, guint8 opt_count)
+dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint coap_length)
 {
 	guint      opt_num = 0;
 	int         i;
+	guint8     endmarker;
 
 	/* loop for dissecting options */
-	for (i = 1; i <= opt_count; i++) {
+	for (i = 1; offset < coap_length; i++) {
 		offset = dissect_coap_options_main(tvb, pinfo, coap_tree,
 		    offset, i, &opt_num, coap_length);
 		if (offset == -1)
 			return -1;
+		if (offset >= coap_length)
+			break;
+		endmarker = tvb_get_guint8(tvb, offset);
+		if (endmarker == 0xff) {
+			offset++;
+			break;
+		}
 	}
 
 	return offset;
@@ -854,7 +865,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* process options */
-	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length, 0);
+	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length);
 	if (offset == -1)
 		return;
 
