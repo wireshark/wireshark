@@ -304,7 +304,7 @@ static const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"TimeStamp",SMI_BASETYPE_UNKNOWN,&timeticks_type},
 		{"DisplayString",SMI_BASETYPE_UNKNOWN,&string_type},
 		{"SnmpAdminString",SMI_BASETYPE_UNKNOWN,&string_type},
-		{"DateAndTime",SMI_BASETYPE_UNKNOWN,&string_type},
+		{"DateAndTime",SMI_BASETYPE_UNKNOWN,&bytes_type},
 		{"Counter",SMI_BASETYPE_UNKNOWN,&counter32_type},
 		{"Counter32",SMI_BASETYPE_UNKNOWN,&counter32_type},
 		{"Unsigned32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},

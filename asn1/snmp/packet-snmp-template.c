@@ -835,7 +835,11 @@ indexing_done:
 				goto already_added;
 			}
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
-				hfid = hf_snmp_octetstring_value;
+				if((oid_info->value_type->keytype == OID_KEY_TYPE_STRING)&& (oid_info->value_hfid> -1)){
+					hfid = oid_info->value_hfid;
+				}else{
+					hfid = hf_snmp_octetstring_value;
+				}
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OID<<4):
 				max_len = -1; min_len = 1;

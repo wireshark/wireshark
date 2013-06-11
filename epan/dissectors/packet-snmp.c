@@ -937,7 +937,11 @@ indexing_done:
 				goto already_added;
 			}
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
-				hfid = hf_snmp_octetstring_value;
+				if((oid_info->value_type->keytype == OID_KEY_TYPE_STRING)&& (oid_info->value_hfid> -1)){
+					hfid = oid_info->value_hfid;
+				}else{
+					hfid = hf_snmp_octetstring_value;
+				}
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OID<<4):
 				max_len = -1; min_len = 1;
@@ -2890,7 +2894,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1674 "../../asn1/snmp/packet-snmp-template.c"
+#line 1678 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3816,7 +3820,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2335 "../../asn1/snmp/packet-snmp-template.c"
+#line 2339 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3856,7 +3860,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2351 "../../asn1/snmp/packet-snmp-template.c"
+#line 2355 "../../asn1/snmp/packet-snmp-template.c"
   };
   static ei_register_info ei[] = {
      { &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},
