@@ -772,6 +772,7 @@ static const value_string mf_dfs[] = {
 	{ 0x7f20, "DF.GSM" },
 	{ 0x7f22, "DF.IS-41" },
 	{ 0x7f23, "DF.FP-CTS" },
+	{ 0x7f31, "DF.iDEN" },
 	{ 0x7fff, "ADF" },
 #if 0
 	{ 0, NULL }
