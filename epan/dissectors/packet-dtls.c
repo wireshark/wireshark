@@ -60,6 +60,7 @@
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
+#include "packet-x509if.h"
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
@@ -155,6 +156,11 @@ static gint hf_dtls_handshake_server_keyex_hint_len  = -1;
 static gint hf_dtls_handshake_server_keyex_hint      = -1;
 static gint hf_dtls_handshake_client_keyex_identity_len = -1;
 static gint hf_dtls_handshake_client_keyex_identity  = -1;
+static gint hf_dtls_handshake_sig_hash_alg_len = -1;
+static gint hf_dtls_handshake_sig_hash_algs    = -1;
+static gint hf_dtls_handshake_sig_hash_alg     = -1;
+static gint hf_dtls_handshake_sig_hash_hash    = -1;
+static gint hf_dtls_handshake_sig_hash_sig     = -1;
 static gint hf_dtls_handshake_finished          = -1;
 /* static gint hf_dtls_handshake_md5_hash          = -1; */
 /* static gint hf_dtls_handshake_sha_hash          = -1; */
@@ -196,6 +202,8 @@ static gint ett_dtls_new_ses_ticket    = -1;
 static gint ett_dtls_keyex_params      = -1;
 static gint ett_dtls_certs             = -1;
 static gint ett_dtls_cert_types        = -1;
+static gint ett_dtls_sig_hash_algs     = -1;
+static gint ett_dtls_sig_hash_alg      = -1;
 static gint ett_dtls_dnames            = -1;
 
 static gint ett_dtls_fragment          = -1;
@@ -386,7 +394,9 @@ static void dissect_dtls_hnd_cert(tvbuff_t *tvb,
 
 static void dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
-                                      guint32 offset);
+                                      guint32 offset,
+                                      packet_info *pinfo,
+                                      const guint *conv_version);
 
 static void dissect_dtls_hnd_srv_keyex_ecdh(tvbuff_t *tvb,
                                           proto_tree *tree,
@@ -1494,7 +1504,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CERT_REQUEST:
-            dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, 0);
+            dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, 0, pinfo, conv_version);
             break;
 
           case SSL_HND_SVR_HELLO_DONE:
@@ -2186,7 +2196,8 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
 
 static void
 dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset)
+                          proto_tree *tree, guint32 offset, packet_info *pinfo,
+                          const guint *conv_version)
 {
   /*
    *    enum {
@@ -2201,12 +2212,52 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
    *        DistinguishedName certificate_authorities<3..2^16-1>;
    *    } CertificateRequest;
    *
+   *
+   * As per TLSv1.2 (RFC 5246) the format has changed to:
+   *
+   *    enum {
+   *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
+   *        rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
+   *        fortezza_dms_RESERVED(20), (255)
+   *    } ClientCertificateType;
+   *
+   *    enum {
+   *        none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
+   *        sha512(6), (255)
+   *    } HashAlgorithm;
+   *
+   *    enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
+   *      SignatureAlgorithm;
+   *
+   *    struct {
+   *          HashAlgorithm hash;
+   *          SignatureAlgorithm signature;
+   *    } SignatureAndHashAlgorithm;
+   *
+   *    SignatureAndHashAlgorithm
+   *      supported_signature_algorithms<2..2^16-2>;
+   *
+   *    opaque DistinguishedName<1..2^16-1>;
+   *
+   *    struct {
+   *        ClientCertificateType certificate_types<1..2^8-1>;
+   *        SignatureAndHashAlgorithm
+   *          supported_signature_algorithms<2^16-1>;
+   *        DistinguishedName certificate_authorities<0..2^16-1>;
+   *    } CertificateRequest;
+   *
    */
 
   proto_tree *ti;
   proto_tree *subtree;
+  proto_tree *saved_subtree;
   guint8      cert_types_count;
+  gint        sh_alg_length;
+  guint16     sig_hash_alg;
   gint        dnames_length;
+  asn1_ctx_t  asn1_ctx;
+
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   if (tree)
     {
@@ -2238,6 +2289,67 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
             }
         }
 
+      switch (*conv_version) {
+      case SSL_VER_DTLS1DOT2:
+          sh_alg_length = tvb_get_ntohs(tvb, offset);
+          proto_tree_add_uint(tree, hf_dtls_handshake_sig_hash_alg_len,
+                              tvb, offset, 2, sh_alg_length);
+          offset += 2;
+
+          if (sh_alg_length > 0)
+            {
+              ti = proto_tree_add_none_format(tree,
+                                              hf_dtls_handshake_sig_hash_algs,
+                                              tvb, offset, sh_alg_length,
+                                              "Signature Hash Algorithms (%u algorithm%s)",
+                                              sh_alg_length/2,
+                                              plurality(sh_alg_length/2, "", "s"));
+              subtree = proto_item_add_subtree(ti, ett_dtls_sig_hash_algs);
+              if (!subtree)
+                {
+                  subtree = tree;
+                }
+
+              if (sh_alg_length % 2) {
+                  proto_tree_add_text(tree, tvb, offset, 2,
+                      "Invalid Signature Hash Algorithm length: %d", sh_alg_length);
+                  expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                      "Signature Hash Algorithm length (%d) must be a multiple of 2",
+                      sh_alg_length);
+                  return;
+                }
+
+
+              while (sh_alg_length > 0)
+                {
+                  saved_subtree = subtree;
+
+                  sig_hash_alg = tvb_get_ntohs(tvb, offset);
+                  ti = proto_tree_add_uint(subtree, hf_dtls_handshake_sig_hash_alg,
+                                      tvb, offset, 2, sig_hash_alg);
+                  subtree = proto_item_add_subtree(ti, ett_dtls_sig_hash_alg);
+                  if (!subtree)
+                  {
+                      subtree = saved_subtree;
+                  }
+
+                  proto_tree_add_item(subtree, hf_dtls_handshake_sig_hash_hash,
+                                  tvb, offset, 1, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(subtree, hf_dtls_handshake_sig_hash_sig,
+                                  tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+                  subtree = saved_subtree;
+
+                  offset += 2;
+                  sh_alg_length -= 2;
+                }
+            }
+          break;
+
+      default:
+          break;
+        }
+
       dnames_length = tvb_get_ntohs(tvb, offset);
       proto_tree_add_uint(tree, hf_dtls_handshake_dnames_len,
                           tvb, offset, 2, dnames_length);
@@ -2261,19 +2373,18 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
           while (dnames_length > 0)
             {
               /* get the length of the current certificate */
-              guint16 name_length = tvb_get_ntohs(tvb, offset);
+              guint16 name_length;
+              name_length = tvb_get_ntohs(tvb, offset);
               dnames_length -= 2 + name_length;
 
               proto_tree_add_item(subtree, hf_dtls_handshake_dname_len,
                                   tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
 
-              proto_tree_add_bytes_format(subtree,
-                                          hf_dtls_handshake_dname,
-                                          tvb, offset, name_length, NULL,
-                                          "Distinguished Name (%u byte%s)",
-                                          name_length,
-                                          plurality(name_length, "", "s"));
+              tvb_ensure_bytes_exist(tvb, offset, name_length);
+
+              (void)dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_dname);
+
               offset += name_length;
             }
         }
@@ -3208,6 +3319,31 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "PSK Identity", HFILL }
     },
+    { &hf_dtls_handshake_sig_hash_alg_len,
+      { "Signature Hash Algorithms Length", "dtls.handshake.sig_hash_alg_len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of Signature Hash Algorithms", HFILL }
+    },
+    { &hf_dtls_handshake_sig_hash_algs,
+      { "Signature Hash Algorithms", "dtls.handshake.sig_hash_algs",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "List of Signature Hash Algorithms", HFILL }
+    },
+    { &hf_dtls_handshake_sig_hash_alg,
+      { "Signature Hash Algorithm", "dtls.handshake.sig_hash_alg",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_dtls_handshake_sig_hash_hash,
+      { "Signature Hash Algorithm Hash", "dtls.handshake.sig_hash_hash",
+        FT_UINT8, BASE_DEC, VALS(tls_hash_algorithm), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_dtls_handshake_sig_hash_sig,
+      { "Signature Hash Algorithm Signature", "dtls.handshake.sig_hash_sig",
+        FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,
+        NULL, HFILL }
+     },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3336,6 +3472,8 @@ proto_register_dtls(void)
     &ett_dtls_keyex_params,
     &ett_dtls_certs,
     &ett_dtls_cert_types,
+    &ett_dtls_sig_hash_algs,
+    &ett_dtls_sig_hash_alg,
     &ett_dtls_dnames,
     &ett_dtls_fragment,
     &ett_dtls_fragments,
