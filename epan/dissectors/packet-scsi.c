@@ -189,6 +189,8 @@ static int hf_scsi_ascq                         = -1;
 static int hf_scsi_fru                          = -1;
 static int hf_scsi_sksv                         = -1;
 static int hf_scsi_sks_info                     = -1;
+static int hf_scsi_sns_desc_type                = -1;
+static int hf_scsi_sns_desc_length              = -1;
 static int hf_scsi_inq_reladrflags              = -1;
 static int hf_scsi_inq_reladr                   = -1;
 static int hf_scsi_inq_linked                   = -1;
@@ -373,6 +375,7 @@ static gint ett_scsi_lun = -1;
 static gint ett_scsi_prevent_allow = -1;
 static gint ett_command_descriptor = -1;
 static gint ett_timeout_descriptor = -1;
+static gint ett_sense_descriptor = -1;
 
 static int scsi_tap = -1;
 
@@ -1551,7 +1554,7 @@ static const value_string scsi_verdesc_val[] = {
     {0x1360, "SSA-PH2 (no version claimed)"},
     {0x137B, "SSA-PH2 T10.1/1145-D revision 09c"},
     {0x137C, "SSA-PH2 ANSI INCITS 293-1996"},
-    {0x1380, "SSA-PH3 (no version claimed"},
+    {0x1380, "SSA-PH3 (no version claimed)"},
     {0x139B, "SSA-PH3 T10.1/1146-D revision 05b"},
     {0x139C, "SSA-PH3 ANSI INCITS 307-1998"},
     {0x14A0, "IEEE 1394 (no version claimed)"},
@@ -1831,6 +1834,23 @@ static const value_string scsi_sensekey_val[] = {
     {0xD, "Overflow Command"},
     {0xE, "Miscompare"},
     {0xF, "Reserved"},
+    {0, NULL},
+};
+
+static const value_string scsi_sense_desc_type_val[] = {
+    {0x00, "Information"},
+    {0x01, "Command specific information"},
+    {0x02, "Sense key specific"},
+    {0x03, "Field replaceable unit"},
+    {0x04, "Stream commands"},
+    {0x05, "Block commands"},
+    {0x06, "OSD object identification"},
+    {0x07, "OSD response integrity check value"},
+    {0x08, "OSD attribute identification"},
+    {0x09, "ATA Status"},
+    {0x0A, "Another progress indication"},
+    {0x0B, "User data segment referral"},
+    {0x0C, "Forwarded sense data"},
     {0, NULL},
 };
 
@@ -4707,6 +4727,9 @@ dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     proto_item *hidden_item;
     guint8      flags;
 
+    proto_tree_add_text(sns_tree, tvb, offset, 1, "Valid: %u",
+          (tvb_get_guint8(tvb, offset) & 0x80) >> 7);
+
     flags = tvb_get_guint8(tvb, offset+2);
     proto_tree_add_text(sns_tree, tvb, offset+2, 1,
                         "Filemark: %u, EOM: %u, ILI: %u",
@@ -4731,21 +4754,49 @@ dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 static void
 dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
+    guint8  additional_length;
+    guint   end;
+
     proto_tree_add_item(sns_tree, hf_scsi_snskey, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sns_tree, hf_scsi_ascascq, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sns_tree, hf_scsi_addlsnslen, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+    additional_length = tvb_get_guint8(tvb, offset+7);
+    end = offset+7+additional_length;
+    offset+=8;
+
+    while (offset<end-2) {
+       guint8      desc_type, desc_length;
+       proto_item *item;
+       proto_tree *desc_tree;
+
+       desc_type   = tvb_get_guint8(tvb, offset);
+       desc_length = tvb_get_guint8(tvb, offset+1);
+       item = proto_tree_add_text(sns_tree, tvb, offset, desc_length, "%s",
+                  val_to_str_const(desc_type, scsi_sense_desc_type_val, "unknown"));
+       desc_tree = proto_item_add_subtree(item, ett_sense_descriptor);
+       proto_tree_add_item(desc_tree, hf_scsi_sns_desc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+       proto_tree_add_item(desc_tree, hf_scsi_sns_desc_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+       switch (desc_type) {
+          case 2:
+             /*sense key specific*/
+             if (desc_length==6) {
+                proto_tree_add_item(desc_tree, hf_scsi_sksv, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(desc_tree, hf_scsi_sks_info, tvb, offset+4, 3, ENC_BIG_ENDIAN);
+             }
+             break;
+          default:
+             break;
+       }
+       offset += desc_length+2;
+    }
 }
 
 static void
 dissect_scsi_sense(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
     guint8 sense_type;
-    guint8 flags;
 
-    flags = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(sns_tree, tvb, offset, 1, "Valid: %u",
-                        (flags & 0x80) >> 7);
     proto_tree_add_item(sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     sense_type = tvb_get_guint8(tvb, offset) & 0x7f;
 
     switch (sense_type) {
@@ -5938,8 +5989,12 @@ proto_register_scsi(void)
         { &hf_scsi_sksv,
           {"SKSV", "scsi.sns.sksv", FT_BOOLEAN, 8, NULL, 0x80, NULL,
            HFILL}},
-		{ &hf_scsi_sks_info,
-		  {"Sense Key Specific", "scsi.sns.sks_info", FT_UINT24, BASE_HEX, NULL, 0x7FFFFF, NULL, HFILL}},   
+        { &hf_scsi_sks_info,
+          {"Sense Key Specific", "scsi.sns.sks_info", FT_UINT24, BASE_HEX, NULL, 0x7FFFFF, NULL, HFILL}},   
+        { &hf_scsi_sns_desc_type,
+          {"Sense data descriptor type", "scsi.sns.desc.type", FT_UINT8, BASE_HEX, VALS(scsi_sense_desc_type_val), 0, NULL, HFILL}},
+        { &hf_scsi_sns_desc_length,
+          {"Sense data descriptor length", "scsi.sns.desc.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_scsi_persresv_key,
           {"Reservation Key", "scsi.spc.resv.key", FT_BYTES, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
@@ -6417,7 +6472,8 @@ proto_register_scsi(void)
         &ett_scsi_lun,
         &ett_scsi_prevent_allow,
         &ett_command_descriptor,
-        &ett_timeout_descriptor
+        &ett_timeout_descriptor,
+        &ett_sense_descriptor
     };
     module_t *scsi_module;
 
