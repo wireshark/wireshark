@@ -904,62 +904,62 @@ proto_register_coap(void)
 		{ &hf_coap_version,
                   { "Version", "coap.version",
                     FT_UINT8, BASE_DEC, NULL, 0xc0,
-                    "CoAP Version", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_ttype,
                   { "Type", "coap.type",
                     FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30,
-                    "CoAP Transaction Type", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_token_len,
                   { "Token Length", "coap.token_len",
                     FT_UINT8, BASE_DEC, NULL, 0x0f,
-                    "CoAP Token Length", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_token,
                   { "Token", "coap.token",
                     FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "CoAP Token", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_code,
                   { "Code", "coap.code",
                     FT_UINT8, BASE_DEC, VALS(vals_code), 0x0,
-                    "CoAP Method or Response Code", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_mid,
                   { "Message ID", "coap.mid",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "CoAP Message ID", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_payload,
                   { "Payload", "coap.payload",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Payload", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_payload_desc,
                   { "Payload Desc", "coap.opt.payload_desc",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Payload Description", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_name,
                   { "Opt Name", "coap.opt.name",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Name", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_desc,
                   { "Opt Desc", "coap.opt.desc",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Description", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_delta,
                   { "Opt Delta", "coap.opt.delta",
                     FT_UINT8, BASE_DEC, NULL, 0xf0,
-                    "CoAP Option Delta", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_delta_ext,
                   { "Opt Delta extended", "coap.opt.delta_ext",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "CoAP Option Delta extended", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_length,
                   { "Opt Length", "coap.opt.length",
@@ -969,27 +969,27 @@ proto_register_coap(void)
 		{ &hf_coap_opt_length_ext,
                   { "Opt Length extended", "coap.opt.length_ext",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "CoAP Option Length extended", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_end_marker,
                   { "End of options marker", "coap.opt.end_marker",
                     FT_UINT8, BASE_DEC, NULL, 0x00,
-                    "CoAP End of options marker", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_ctype,
                   { "Content-type", "coap.opt.ctype",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Content Type", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_max_age,
                   { "Max-age", "coap.opt.max_age",
                     FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "CoAP Option Max-age", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_proxy_uri,
                   { "Proxy-Uri", "coap.opt.proxy_uri",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Proxy-Uri", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_etag,
                   { "Etag", "coap.opt.etag",
@@ -999,67 +999,67 @@ proto_register_coap(void)
 		{ &hf_coap_opt_uri_host,
                   { "Uri-Host", "coap.opt.uri_host",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Uri-Host", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_location_path,
                   { "Location-Path", "coap.opt.location_path",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Uri-Path", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_uri_port,
                   { "Uri-Port", "coap.opt.uri_port",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "CoAP Option Uri-Port", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_location_query,
                   { "Location-Query", "coap.opt.location_query",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Uri-Query", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_uri_path,
                   { "Uri-Path", "coap.opt.uri_path",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Uri-Path", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_observe,
                   { "Lifetime", "coap.opt.subscr_lifetime",
                     FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "CoAP Option Observe", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_accept,
                   { "Accept", "coap.opt.accept",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Acceptable Content Type", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_if_match,
                   { "If-Match", "coap.opt.if_match",
                     FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "CoAP Option If-Match", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_block_number,
                   { "Block Number", "coap.opt.block_number",
                     FT_UINT32, BASE_DEC, NULL, 0x0,
-                    "CoAP Option Block Number", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_block_mflag,
                   { "More Flag", "coap.opt.block_mflag",
                     FT_UINT8, BASE_DEC, NULL, 0x08,
-                    "CoAP Option Block More Size", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_block_size,
                   { "Encoded Block Size", "coap.opt.block_size",
                     FT_UINT8, BASE_DEC, NULL, 0x07,
-                    "CoAP Option Encoded Block Size", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_uri_query,
                   { "Uri-Query", "coap.opt.uri_query",
                     FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Uri-Query", HFILL }
+                    NULL, HFILL }
                 },
 		{ &hf_coap_opt_unknown,
                   { "Unknown", "coap.opt.unknown",
                     FT_BYTES, BASE_NONE, NULL, 0x0,
-                    "Coap Unknown Option", HFILL }
+                    NULL, HFILL }
                 },
 	};
 
