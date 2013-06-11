@@ -34,6 +34,8 @@ typedef struct _btrfcomm_data_t {
     guint16 chandle;  /* only low 12 bits used */
     guint16 cid;
     guint8  dlci;
+    guint32 remote_bd_addr_oui;
+    guint32 remote_bd_addr_id;
 } btrfcomm_data_t;
 
 #endif

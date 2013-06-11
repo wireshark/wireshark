@@ -733,11 +733,13 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next_tvb = tvb_new_subset(tvb, offset, frame_len, frame_len);
 
         rfcomm_data = (btrfcomm_data_t *) wmem_new(wmem_packet_scope(), btrfcomm_data_t);
-        rfcomm_data->interface_id = l2cap_data->interface_id;
-        rfcomm_data->adapter_id   = l2cap_data->adapter_id;
-        rfcomm_data->chandle      = l2cap_data->chandle;
-        rfcomm_data->cid          = l2cap_data->cid;
-        rfcomm_data->dlci         = dlci;
+        rfcomm_data->interface_id       = l2cap_data->interface_id;
+        rfcomm_data->adapter_id         = l2cap_data->adapter_id;
+        rfcomm_data->chandle            = l2cap_data->chandle;
+        rfcomm_data->cid                = l2cap_data->cid;
+        rfcomm_data->dlci               = dlci;
+        rfcomm_data->remote_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
+        rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;
         pinfo->private_data = rfcomm_data;
 
         if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
