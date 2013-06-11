@@ -46,7 +46,7 @@ static int hf_coap_ttype		= -1;
 static int hf_coap_token_len		= -1;
 static int hf_coap_token		= -1;
 static int hf_coap_code			= -1;
-static int hf_coap_tid			= -1;
+static int hf_coap_mid			= -1;
 static int hf_coap_payload_desc		= -1;
 static int hf_coap_opt_name		= -1;
 static int hf_coap_opt_desc		= -1;
@@ -802,7 +802,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint8      ttype       = 0;
 	guint8      token_len   = 0;
 	guint8      code        = 0;
-	guint16     tid         = 0;
+	guint16     mid         = 0;
 	gint        coap_length = 0;
 
 	/* initialize the CoAP length and the content-Format */
@@ -831,12 +831,12 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	code = tvb_get_guint8(tvb, offset);
 	offset += 1;
 
-	proto_tree_add_item(coap_tree, hf_coap_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
-	tid = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(coap_tree, hf_coap_mid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	mid = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
 	/* append the header information */
-	proto_item_append_text(coap_tree, ", %s, %s, TID:%u", val_to_str(ttype, vals_ttype, "Unkown %d"), val_to_str(code, vals_code, "Unknown %d"), tid);
+	proto_item_append_text(coap_tree, ", %s, %s, MID:%u", val_to_str(ttype, vals_ttype, "Unkown %d"), val_to_str(code, vals_code, "Unknown %d"), mid);
 
 	/* initialize the external value */
 	coap_block_number = DEFAULT_COAP_BLOCK_NUMBER;
@@ -862,7 +862,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CoAP");
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(ttype, vals_ttype_short, "Unknown %d"));
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:%u", tid);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", MID:%u", mid);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(code, vals_code, "Unknown %d"));
 	if (coap_token_str[0] != '\0')
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
@@ -938,10 +938,10 @@ proto_register_coap(void)
                     FT_UINT8, BASE_DEC, VALS(vals_code), 0x0,
                     "CoAP Method or Response Code", HFILL }
                 },
-		{ &hf_coap_tid,
-                  { "Transaction ID", "coap.tid",
+		{ &hf_coap_mid,
+                  { "Message ID", "coap.mid",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "CoAP Transaction ID", HFILL }
+                    "CoAP Message ID", HFILL }
                 },
 		{ &hf_coap_payload_desc,
                   { "Payload Desc", "coap.opt.payload_desc",
