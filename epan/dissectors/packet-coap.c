@@ -43,7 +43,8 @@ static int proto_coap = -1;
 
 static int hf_coap_version		= -1;
 static int hf_coap_ttype		= -1;
-static int hf_coap_opt_count		= -1;
+static int hf_coap_token_len		= -1;
+static int hf_coap_token		= -1;
 static int hf_coap_code			= -1;
 static int hf_coap_tid			= -1;
 static int hf_coap_payload_desc		= -1;
@@ -62,7 +63,6 @@ static int hf_coap_opt_uri_port		= -1;
 static int hf_coap_opt_location_query	= -1;
 static int hf_coap_opt_uri_path		= -1;
 static int hf_coap_opt_observe		= -1;
-static int hf_coap_opt_token		= -1;
 static int hf_coap_opt_accept		= -1;
 static int hf_coap_opt_if_match		= -1;
 static int hf_coap_opt_block_number	= -1;
@@ -166,7 +166,6 @@ static const value_string vals_code[] = {
 #define COAP_OPT_MAX_AGE	14
 #define COAP_OPT_URI_QUERY	15
 #define COAP_OPT_ACCEPT		16
-#define COAP_OPT_TOKEN		19
 #define COAP_OPT_LOCATION_QUERY	20
 #define COAP_OPT_BLOCK2		23	/* core-block-10 */
 #define COAP_OPT_BLOCK_SIZE	28	/* core-block-10 */
@@ -185,7 +184,6 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_MAX_AGE,        "Max-age" },
 	{ COAP_OPT_URI_QUERY,      "Uri-Query" },
 	{ COAP_OPT_ACCEPT,         "Accept" },
-	{ COAP_OPT_TOKEN,          "Token" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
 	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
 	{ COAP_OPT_OBSERVE,        "Observe" },
@@ -211,7 +209,6 @@ struct coap_option_range_t {
     { COAP_OPT_MAX_AGE,        0,   4 },
     { COAP_OPT_URI_QUERY,      1, 255 },
     { COAP_OPT_ACCEPT,         0,   2 },
-    { COAP_OPT_TOKEN,          1,   8 },
     { COAP_OPT_LOCATION_QUERY, 0, 255 },
     { COAP_OPT_PROXY_URI,      1,1034 },
     { COAP_OPT_OBSERVE,        0,   2 },
@@ -477,20 +474,6 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, proto_item *head_item, proto_tree *sub
 }
 
 static void
-dissect_coap_opt_token(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length)
-{
-	gint dp = offset + opt_hlen;
-
-	/* forming a token */
-	g_strlcat(coap_token_str, tvb_bytes_to_str_punct(tvb, dp, opt_length, ' '), sizeof(coap_token_str));
-
-	proto_tree_add_string(subtree, hf_coap_opt_token, tvb, dp, opt_length, coap_token_str);
-
-	/* add info to the head of the packet detail */
-	proto_item_append_text(head_item, ": %s", coap_token_str);
-}
-
-static void
 dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_hlen, gint opt_length, int hf)
 {
 	gint dp, len;
@@ -753,10 +736,6 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
 		    opt_hlen, opt_length, hf_coap_opt_observe);
 		break;
-	case COAP_OPT_TOKEN:
-		dissect_coap_opt_token(tvb, item, subtree, offset,
-		    opt_hlen, opt_length);
-		break;
 	case COAP_OPT_ACCEPT:
 		dissect_coap_opt_ctype(tvb, item, subtree, offset,
 		    opt_hlen, opt_length, hf_coap_opt_accept);
@@ -821,7 +800,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *coap_root   = NULL;
 	proto_tree *coap_tree   = NULL;
 	guint8      ttype       = 0;
-	guint8      opt_count   = 0;
+	guint8      token_len   = 0;
 	guint8      code        = 0;
 	guint16     tid         = 0;
 	gint        coap_length = 0;
@@ -844,8 +823,8 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	ttype = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
 
-	proto_tree_add_item(coap_tree, hf_coap_opt_count, tvb, offset, 1, ENC_BIG_ENDIAN);
-	opt_count = tvb_get_guint8(tvb, offset) & 0x0f;
+	proto_tree_add_item(coap_tree, hf_coap_token_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	token_len = tvb_get_guint8(tvb, offset) & 0x0f;
 	offset += 1;
 
 	proto_tree_add_item(coap_tree, hf_coap_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -866,8 +845,16 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	coap_uri_query[0] = '\0';
 	coap_token_str[0] = '\0';
 
+	if (token_len > 0)
+	{
+		g_strlcat(coap_token_str, tvb_bytes_to_str_punct(tvb, offset, token_len, ' '), sizeof(coap_token_str));
+		proto_tree_add_item(coap_tree, hf_coap_token,
+				    tvb, offset, token_len, ENC_NA);
+		offset += token_len;
+	}
+
 	/* process options */
-	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length, opt_count);
+	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length, 0);
 	if (offset == -1)
 		return;
 
@@ -936,10 +923,15 @@ proto_register_coap(void)
                     FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30,
                     "CoAP Transaction Type", HFILL }
                 },
-		{ &hf_coap_opt_count,
-                  { "Opt Count", "coap.ocount",
+		{ &hf_coap_token_len,
+                  { "Token Length", "coap.token_len",
                     FT_UINT8, BASE_DEC, NULL, 0x0f,
-                    "CoAP Option Count", HFILL }
+                    "CoAP Token Length", HFILL }
+                },
+		{ &hf_coap_token,
+                  { "Token", "coap.token",
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
+                    "CoAP Token", HFILL }
                 },
 		{ &hf_coap_code,
                   { "Code", "coap.code",
@@ -1030,11 +1022,6 @@ proto_register_coap(void)
                   { "Lifetime", "coap.opt.subscr_lifetime",
                     FT_INT32, BASE_DEC, NULL, 0x0,
                     "CoAP Option Observe", HFILL }
-                },
-		{ &hf_coap_opt_token,
-                  { "Token", "coap.opt.token",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
-                    "CoAP Option Token", HFILL }
                 },
 		{ &hf_coap_opt_accept,
                   { "Accept", "coap.opt.accept",
