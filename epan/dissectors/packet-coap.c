@@ -303,7 +303,7 @@ dissect_coap_opt_hex_string(tvbuff_t *tvb, proto_item *item, proto_tree *subtree
 	else
 		str = tvb_bytes_to_str_punct(tvb, offset, opt_length, ' ');
 
-	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_NA);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(item, ": %s", str);
@@ -1040,7 +1040,7 @@ proto_register_coap(void)
                 },
 		{ &hf_coap_opt_unknown,
                   { "Unknown", "coap.opt.unknown",
-                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
                     "Coap Unknown Option", HFILL }
                 },
 	};
