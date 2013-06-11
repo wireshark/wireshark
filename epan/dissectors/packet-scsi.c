@@ -2370,27 +2370,27 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             break;
         case SCSI_EVPD_BLKDEVCHAR:
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_mrr, tvb,
-				offset, 2, ENC_BIG_ENDIAN);
+                offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_pt, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
+                offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_wabereq, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
+                offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_wacereq, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
+                offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_nff, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
+                offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_fuab, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
+                offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_vbuls, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
+                offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-	    break;
+        break;
         case SCSI_EVPD_BLKLIMITS:
             proto_tree_add_item(evpd_tree, hf_scsi_block_limits_wsnz, tvb, offset, 1, ENC_NA);
             offset += 1;
@@ -2715,11 +2715,11 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(tree, hf_scsi_inquiry_evpd_page, tvb_v, offset_v+1,
                                 1, ENC_BIG_ENDIAN);
 
-	    col_add_fstr(pinfo->cinfo, COL_INFO, " %s",
-			 val_to_str(tvb_get_guint8(tvb_v, offset_v+1),
-				    scsi_evpd_pagecode_val,
-				    "Unknown VPD 0x%02x"));
-	} else if (flags & 0x2) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, " %s",
+             val_to_str(tvb_get_guint8(tvb_v, offset_v+1),
+                    scsi_evpd_pagecode_val,
+                    "Unknown VPD 0x%02x"));
+        } else if (flags & 0x2) {
             proto_tree_add_item(tree, hf_scsi_inquiry_cmdt_page, tvb_v, offset_v+1,
                                 1, ENC_BIG_ENDIAN);
         }
@@ -4549,67 +4549,67 @@ const value_string report_opcodes_options_vals[] = {
 
 void
 dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
-			     proto_tree *tree, guint offset,
-			     gboolean isreq, gboolean iscdb,
-			     guint payload_len _U_,
-			     scsi_task_data_t *cdata _U_)
+                 proto_tree *tree, guint offset,
+                 gboolean isreq, gboolean iscdb,
+                 guint payload_len _U_,
+                 scsi_task_data_t *cdata _U_)
 {
     tvbuff_t *volatile tvb_v    = tvb;
     volatile guint     offset_v = offset;
-    guint8 service_action;
+    guint8             service_action;
 
     if (isreq && iscdb) {
-	service_action = tvb_get_guint8 (tvb_v, offset_v) & 0x1F;
-	if (cdata) {
-		cdata->itlq->flags=service_action;
-	}	
-        col_append_str(pinfo->cinfo, COL_INFO,
-		val_to_str(service_action, mpi_action_vals, "Unknown"));
+        service_action = tvb_get_guint8 (tvb_v, offset_v) & 0x1F;
+    if (cdata) {
+        cdata->itlq->flags=service_action;
+    }    
+    col_append_str(pinfo->cinfo, COL_INFO,
+            val_to_str(service_action, mpi_action_vals, "Unknown"));
 
-	proto_tree_add_item(tree, hf_scsi_mpi_service_action, tvb_v,
-		offset_v, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_mpi_service_action, tvb_v,
+            offset_v, 1, ENC_BIG_ENDIAN);
 
-        switch(service_action){
-	case MPI_REPORT_SUPPORTED_OPERATION_CODES:
-		proto_tree_add_item(tree, hf_scsi_report_opcodes_rctd,
-			tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_scsi_report_opcodes_options,
-			tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
-		if (cdata && (tvb_get_guint8(tvb_v, offset_v+1) & 0x07)) {
-			/* Need the one-command parameter format */
-		        cdata->itlq->flags|=0x80;
-		}
+    switch(service_action){
+        case MPI_REPORT_SUPPORTED_OPERATION_CODES:
+            proto_tree_add_item(tree, hf_scsi_report_opcodes_rctd,
+                    tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_report_opcodes_options,
+                    tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+            if (cdata && (tvb_get_guint8(tvb_v, offset_v+1) & 0x07)) {
+                /* Need the one-command parameter format */
+                cdata->itlq->flags|=0x80;
+            }
 
-		proto_tree_add_item(tree, hf_scsi_report_opcodes_requested_o,
-			tvb_v, offset_v+2, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_scsi_report_opcodes_requested_sa,
-			tvb_v, offset_v+3, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_report_opcodes_requested_o,
+                    tvb_v, offset_v+2, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_report_opcodes_requested_sa,
+                    tvb_v, offset_v+3, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_scsi_alloclen32, tvb_v,
-			offset_v+5, 4, ENC_BIG_ENDIAN);
-		if (cdata) {
-			cdata->itlq->alloc_len = tvb_get_ntohl(tvb_v, offset_v+5);
-		}
-		break;
-	default:
-		proto_tree_add_text(tree, tvb_v, offset_v+1, 8,
-			"No dissection for this service action yet");
-	}
+            proto_tree_add_item(tree, hf_scsi_alloclen32, tvb_v,
+                    offset_v+5, 4, ENC_BIG_ENDIAN);
+            if (cdata) {
+                cdata->itlq->alloc_len = tvb_get_ntohl(tvb_v, offset_v+5);
+            }
+            break;
+        default:
+            proto_tree_add_text(tree, tvb_v, offset_v+1, 8,
+                    "No dissection for this service action yet");
+    }
 
-	proto_tree_add_bitmask(tree, tvb_v, offset_v+10, hf_scsi_control,
-		ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb_v, offset_v+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
 
     } else if (!isreq) {
         proto_item *it;
-	int length;
-	cmdset_t *csdata;
-	int ctdp;
+        int length;
+        cmdset_t *csdata;
+        int ctdp;
 
         if (!cdata || !cdata->itlq || !cdata->itl) {
             return;
         }
 
-	csdata = get_cmdset_data(cdata->itlq, cdata->itl);
+        csdata = get_cmdset_data(cdata->itlq, cdata->itl);
 
         it = proto_tree_add_uint(tree, hf_scsi_mpi_service_action, tvb_v, 0, 0, cdata->itlq->flags & 0x7f);
         PROTO_ITEM_SET_GENERATED(it);
@@ -4617,105 +4617,105 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
         TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
 
         switch (cdata->itlq->flags & 0x7f) {
-	case MPI_REPORT_SUPPORTED_OPERATION_CODES:
-		if (cdata->itlq->flags & 0x80) {
-			/* one-command format */
-			proto_tree_add_item(tree, hf_scsi_report_opcodes_ctdp_one,
-					tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
-			ctdp = tvb_get_guint8(tvb_v, offset_v+1) & 0x80;
+            case MPI_REPORT_SUPPORTED_OPERATION_CODES:
+                if (cdata->itlq->flags & 0x80) {
+                    /* one-command format */
+                    proto_tree_add_item(tree, hf_scsi_report_opcodes_ctdp_one,
+                            tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+                    ctdp = tvb_get_guint8(tvb_v, offset_v+1) & 0x80;
 
-			proto_tree_add_item(tree, hf_scsi_report_opcodes_support,
-				tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_scsi_report_opcodes_support,
+                            tvb_v, offset_v+1, 1, ENC_BIG_ENDIAN);
 
-			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_length,
-				tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
-			length = tvb_get_ntohs(tvb_v, offset_v+2);
+                    proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_length,
+                            tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
+                    length = tvb_get_ntohs(tvb_v, offset_v+2);
 
-			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_usage_data,
-				tvb_v, offset_v+4, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_usage_data,
+                            tvb_v, offset_v+4, length, ENC_BIG_ENDIAN);
 
-			if (ctdp) {
-				proto_tree *tr;
+                    if (ctdp) {
+                        proto_tree *tr;
 
-				it = proto_tree_add_text(tree, tvb_v, offset_v,
-					 12, "Timeout Descriptor: ");
+                        it = proto_tree_add_text(tree, tvb_v, offset_v,
+                                12, "Timeout Descriptor: ");
 
-				tr = proto_item_add_subtree(it,
-					ett_timeout_descriptor);
+                        tr = proto_item_add_subtree(it,
+                                ett_timeout_descriptor);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
-					tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
+                                tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_npt,
-					tvb_v, offset_v + 4, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_npt,
+                                tvb_v, offset_v + 4, 4, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_rct,
-					tvb_v, offset_v + 8, 4, ENC_BIG_ENDIAN);
-			}
-		} else {
-			/* all commands format */
-			proto_tree_add_item(tree, hf_scsi_report_opcodes_cdl,
-				tvb_v, offset_v+0, 4, ENC_BIG_ENDIAN);
-			length = tvb_get_ntohl(tvb_v, offset_v);
-			offset_v += 4;
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_rct,
+                                tvb_v, offset_v + 8, 4, ENC_BIG_ENDIAN);
+                    }
+                } else {
+                    /* all commands format */
+                    proto_tree_add_item(tree, hf_scsi_report_opcodes_cdl,
+                            tvb_v, offset_v+0, 4, ENC_BIG_ENDIAN);
+                    length = tvb_get_ntohl(tvb_v, offset_v);
+                    offset_v += 4;
 
-			while (length >= 20) {
-				proto_tree *tr;
+                    while (length >= 20) {
+                        proto_tree *tr;
 
-				it = proto_tree_add_text(tree, tvb_v, offset_v,
-					20, "Command Descriptor: %s",
-					val_to_str(tvb_get_guint8(tvb_v, offset_v+0), csdata->cdb_vals, "Unknown"));
-				tr = proto_item_add_subtree(it,
-					ett_command_descriptor);
+                        it = proto_tree_add_text(tree, tvb_v, offset_v,
+                                20, "Command Descriptor: %s",
+                                val_to_str(tvb_get_guint8(tvb_v, offset_v+0), csdata->cdb_vals, "Unknown"));
+                        tr = proto_item_add_subtree(it,
+                                ett_command_descriptor);
 
-				proto_tree_add_item(tr, csdata->hf_opcode,
-					tvb_v, offset_v+0, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, csdata->hf_opcode,
+                                tvb_v, offset_v+0, 1, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_sa,
-					tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_sa,
+                                tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_ctdp,
-					tvb_v, offset_v+5, 1, ENC_BIG_ENDIAN);
-				ctdp = tvb_get_guint8(tvb_v, offset_v+5) & 0x02;
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_ctdp,
+                                tvb_v, offset_v+5, 1, ENC_BIG_ENDIAN);
+                        ctdp = tvb_get_guint8(tvb_v, offset_v+5) & 0x02;
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_servactv,
-					tvb_v, offset_v+5, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_servactv,
+                                tvb_v, offset_v+5, 1, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_cdb_length,
-					tvb_v, offset_v+6, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_cdb_length,
+                                tvb_v, offset_v+6, 2, ENC_BIG_ENDIAN);
 
-				offset_v += 8;
-				length -= 8;
+                        offset_v += 8;
+                        length -= 8;
 
-				if (!ctdp) {
-					continue;
-				}
+                        if (!ctdp) {
+                            continue;
+                        }
 
-				it = proto_tree_add_text(tree, tvb_v, offset_v,
-					 12, "Timeout Descriptor: ");
+                        it = proto_tree_add_text(tree, tvb_v, offset_v,
+                                12, "Timeout Descriptor: ");
 
-				tr = proto_item_add_subtree(it,
-					ett_timeout_descriptor);
+                        tr = proto_item_add_subtree(it,
+                                ett_timeout_descriptor);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
-					tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_tdl,
+                                tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_npt,
-					tvb_v, offset_v + 4, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_npt,
+                                tvb_v, offset_v + 4, 4, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(tr, hf_scsi_report_opcodes_rct,
-					tvb_v, offset_v + 8, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tr, hf_scsi_report_opcodes_rct,
+                                tvb_v, offset_v + 8, 4, ENC_BIG_ENDIAN);
 
-				offset_v += 12;
-				length -= 12;
+                        offset_v += 12;
+                        length -= 12;
 
-			}
-		}
-		break;
-	default:
-		proto_tree_add_text(tree, tvb_v, offset_v+1, 8,
-			"No dissection for this service action yet");
-	}
+                    }
+                }
+                break;
+            default:
+                proto_tree_add_text(tree, tvb_v, offset_v+1, 8,
+                        "No dissection for this service action yet");
+        }
 
         END_TRY_SCSI_CDB_ALLOC_LEN;
     }
@@ -6417,37 +6417,37 @@ proto_register_scsi(void)
             NULL, 0x07, NULL, HFILL}},
         { &hf_scsi_report_opcodes_cdb_usage_data,
           {"CDB Usage Data", "scsi.report_opcodes.cdb_usage_data", FT_BYTES, BASE_NONE,
-	   NULL, 0, NULL, HFILL}},
+       NULL, 0, NULL, HFILL}},
         { &hf_scsi_report_opcodes_tdl,
           { "Timeout Descriptor Length", "scsi.report_opcodes.timeout_descriptor_length", FT_UINT16, BASE_DEC,
             NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_report_opcodes_npt,
-          { "Nominal Command Processing Timeout", "scsi.report_opcodes.ncpt", FT_UINT32, BASE_DEC,
-            NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_report_opcodes_rct,
-          { "Recommended Command Timeout", "scsi.report_opcodes.rct", FT_UINT32, BASE_DEC,
-            NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_mrr,
-          { "Medium Rotation Rate", "scsi.inquiry.bdc.mrr", FT_UINT16, BASE_DEC,
-            NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_pt,
-          { "Product Type", "scsi.inquiry.bdc.pt", FT_UINT8, BASE_DEC,
-            NULL, 0, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_wabereq,
-          { "WABEREQ", "scsi.inquiry.bdc.wabereq", FT_UINT8, BASE_DEC,
-            NULL, 0xc0, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_wacereq,
-          { "WACEREQ", "scsi.inquiry.bdc.wacereq", FT_UINT8, BASE_DEC,
-            NULL, 0x30, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_nff,
+        { &hf_scsi_report_opcodes_npt,
+            { "Nominal Command Processing Timeout", "scsi.report_opcodes.ncpt", FT_UINT32, BASE_DEC,
+                NULL, 0, NULL, HFILL}},
+        { &hf_scsi_report_opcodes_rct,
+            { "Recommended Command Timeout", "scsi.report_opcodes.rct", FT_UINT32, BASE_DEC,
+                NULL, 0, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_mrr,
+            { "Medium Rotation Rate", "scsi.inquiry.bdc.mrr", FT_UINT16, BASE_DEC,
+                NULL, 0, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_pt,
+            { "Product Type", "scsi.inquiry.bdc.pt", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_wabereq,
+            { "WABEREQ", "scsi.inquiry.bdc.wabereq", FT_UINT8, BASE_DEC,
+                NULL, 0xc0, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_wacereq,
+            { "WACEREQ", "scsi.inquiry.bdc.wacereq", FT_UINT8, BASE_DEC,
+                NULL, 0x30, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_nff,
           { "Nominal Form factor", "scsi.inquiry.bdc.nff", FT_UINT8, BASE_DEC,
-            NULL, 0x0f, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_fuab,
-          { "FUAB", "scsi.inquiry.bdc.fuab", FT_BOOLEAN, 8,
-            NULL, 0x02, NULL, HFILL}},
-	{ &hf_scsi_inquiry_bdc_vbuls,
-          { "VBULS", "scsi.inquiry.bdc.vbuls", FT_BOOLEAN, 8,
-            NULL, 0x01, NULL, HFILL}},
+              NULL, 0x0f, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_fuab,
+            { "FUAB", "scsi.inquiry.bdc.fuab", FT_BOOLEAN, 8,
+                NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_inquiry_bdc_vbuls,
+            { "VBULS", "scsi.inquiry.bdc.vbuls", FT_BOOLEAN, 8,
+                NULL, 0x01, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -6506,3 +6506,17 @@ proto_reg_handoff_scsi(void)
     scsi_tap    = register_tap("scsi");
     data_handle = find_dissector("data");
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
