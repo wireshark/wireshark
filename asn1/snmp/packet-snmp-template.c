@@ -365,6 +365,91 @@ dissect_snmp_variable_string(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 /*
+DateAndTime ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
+    STATUS       current
+    DESCRIPTION
+            "A date-time specification.
+
+            field  octets  contents                  range
+            -----  ------  --------                  -----
+              1      1-2   year*                     0..65536
+              2       3    month                     1..12
+              3       4    day                       1..31
+              4       5    hour                      0..23
+              5       6    minutes                   0..59
+              6       7    seconds                   0..60
+                           (use 60 for leap-second)
+              7       8    deci-seconds              0..9
+              8       9    direction from UTC        '+' / '-'
+              9      10    hours from UTC*           0..13
+             10      11    minutes from UTC          0..59
+
+            * Notes:
+            - the value of year is in network-byte order
+            - daylight saving time in New Zealand is +13
+
+            For example, Tuesday May 26, 1992 at 1:30:15 PM EDT would be
+            displayed as:
+
+                             1992-5-26,13:30:15.0,-4:0
+
+            Note that if only local time is known, then timezone
+            information (fields 8-10) is not present."
+    SYNTAX       OCTET STRING (SIZE (8 | 11))
+	*/
+static proto_item *
+dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, int offset, int length)
+{
+    guint16 year;
+    guint8 month;
+    guint8 day;
+    guint8 hour;
+    guint8 minutes;
+    guint8 seconds;
+    guint8 deci_seconds;
+    guint8 hour_from_utc;
+    guint8 min_from_utc;
+    gchar *str;
+
+    year			= tvb_get_ntohs(tvb,offset);
+    month			= tvb_get_guint8(tvb,offset+2);
+    day				= tvb_get_guint8(tvb,offset+3);
+    hour			= tvb_get_guint8(tvb,offset+4);
+    minutes			= tvb_get_guint8(tvb,offset+5);
+    seconds			= tvb_get_guint8(tvb,offset+6);
+    deci_seconds	= tvb_get_guint8(tvb,offset+7);
+    if(length > 8){
+        hour_from_utc	= tvb_get_guint8(tvb,offset+9);
+        min_from_utc	= tvb_get_guint8(tvb,offset+10);
+
+		str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
+             year,
+             month,
+             day,
+             hour,
+             minutes,
+             seconds,
+             deci_seconds,
+             tvb_get_ephemeral_string(tvb,offset+8,1),
+             hour_from_utc,
+             min_from_utc);
+    }else{
+         str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u",
+             year,
+             month,
+             day,
+             hour,
+             minutes,
+             seconds,
+             deci_seconds);
+    }
+
+    return proto_tree_add_string(tree, hfid, tvb, offset, length, str);
+
+}
+
+/*
  *  dissect_snmp_VarBind
  *  this routine dissects variable bindings, looking for the oid information in our oid reporsitory
  *  to format and add the value adequatelly.
@@ -835,7 +920,7 @@ indexing_done:
 				goto already_added;
 			}
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
-				if((oid_info->value_hfid> -1)&& (oid_info->value_type->keytype == OID_KEY_TYPE_STRING)){
+				if(oid_info->value_hfid> -1){
 					hfid = oid_info->value_hfid;
 				}else{
 					hfid = hf_snmp_octetstring_value;
@@ -926,7 +1011,12 @@ indexing_done:
 				goto already_added;
 			}
 		}
-		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
+		/* Special case DATE AND TIME */
+		if((oid_info->value_type)&&(oid_info->value_type->keytype == OID_KEY_TYPE_DATE_AND_TIME)&&(value_len > 7)){
+			pi_value = dissect_snmp_variable_date_and_time(pt_varbind, hfid, tvb, value_offset, value_len);
+		}else{
+		    pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
+		}
 		if (format_error != BER_NO_ERROR) {
 			expert_add_info(actx->pinfo, pi_value, &ei_snmp_missing_mib);
 		}
