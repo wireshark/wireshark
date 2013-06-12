@@ -48,3 +48,6 @@ extern int gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length,
  */
 
 extern gchar *gsm_sms_chars_to_utf8(const unsigned char* src, int len);
+
+void dis_field_udh(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, guint32 *length,
+                   guint8 *udl, gboolean uncomp_7bits, guint8 *fill_bits);
