@@ -252,7 +252,7 @@ PARTICULAR PURPOSE.]]>
       <para>
         The official Wireshark 1.8.x and 1.10.x releases are compiled using
         Microsoft Visual C++ 2010 SP1.
-        The official 1.2, 1.4, and 1.6 releases are and were compiled using
+        The official 1.2, 1.4, and 1.6 releases were compiled using
         Microsoft Visual C++ 2008 SP1.
         Other past releases, including the 1.0 branch,
         were compiled using Microsoft Visual C++ 6.0. Using the release
@@ -290,18 +290,18 @@ PARTICULAR PURPOSE.]]>
         </varlistentry>
 
         <varlistentry>
-        <term>config.nmake MSVC_VARIANT</term>
+        <term><filename>config.nmake</filename> MSVC_VARIANT</term>
         <listitem><para>MSVC2010EE</para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>32-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86</command></para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>64-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64</command></para></listitem>
         </varlistentry>
 
         <varlistentry>
@@ -333,18 +333,18 @@ PARTICULAR PURPOSE.]]>
         </varlistentry>
 
         <varlistentry>
-        <term>config.nmake MSVC_VARIANT</term>
+        <term><filename>config.nmake</filename> MSVC_VARIANT</term>
         <listitem><para>MSVC2010</para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>32-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86</command></para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>64-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64</command></para></listitem>
         </varlistentry>
 
         <varlistentry>
@@ -377,14 +377,13 @@ PARTICULAR PURPOSE.]]>
         </varlistentry>
 
         <varlistentry>
-        <term>config.nmake MSVC_VARIANT</term>
+        <term><filename>config.nmake</filename> MSVC_VARIANT</term>
         <listitem><para>MSVC2008EE</para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>32-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio
-                9.0\VC\bin\vcvars32.bat</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</command></para></listitem>
         </varlistentry>
 
         <!--
@@ -422,13 +421,13 @@ PARTICULAR PURPOSE.]]>
         </varlistentry>
 
         <varlistentry>
-        <term>config.nmake MSVC_VARIANT</term>
+        <term><filename>config.nmake</filename> MSVC_VARIANT</term>
         <listitem><para>MSVC2008</para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>32-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</command></para></listitem>
         </varlistentry>
 
         <!--
@@ -466,13 +465,13 @@ PARTICULAR PURPOSE.]]>
         </varlistentry>
 
         <varlistentry>
-        <term>config.nmake MSVC_VARIANT</term>
+        <term><filename>config.nmake</filename> MSVC_VARIANT</term>
         <listitem><para>MSVC2005EE</para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>32-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 8\VC\bin\vcvars32.bat</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 8\VC\bin\vcvars32.bat</command></para></listitem>
         </varlistentry>
 
         <!--
@@ -510,13 +509,13 @@ PARTICULAR PURPOSE.]]>
         </varlistentry>
 
         <varlistentry>
-        <term>config.nmake MSVC_VARIANT</term>
+        <term><filename>config.nmake</filename> MSVC_VARIANT</term>
         <listitem><para>MSVC2005</para></listitem>
         </varlistentry>
 
         <varlistentry>
         <term>32-bit environment setup</term>
-        <listitem><para><command>Microsoft Visual Studio 8\VC\bin\vcvars32.bat</command></para></listitem>
+        <listitem><para><command>%PROGRAMFILES%\Microsoft Visual Studio 8\VC\bin\vcvars32.bat</command></para></listitem>
         </varlistentry>
 
         <!--
@@ -582,16 +581,18 @@ PARTICULAR PURPOSE.]]>
           GPL FAQ</ulink> explicitly addresses this issue.</para>
         </listitem>
       </orderedlist>Similar applies to Visual Studio 2005 and
-      alike.</para>
+      later.</para>
       <para>So in effect it should be perfectly legal to compile
       Wireshark and distribute / run it if it was compiled with any
       MSVC version &gt; V6!</para>
     </section>
     <section>
       <title>cl.exe (C Compiler)</title>
-      <para>The following table gives an overview of the possible
-      Microsoft toolchain variants and their specific C compiler
-      versions "ordered by release date":</para>
+      <para>
+        The following table gives an overview of the possible
+        Microsoft toolchain variants and their specific C compiler
+        versions ordered by release date. 
+      </para>
       <informaltable frame="all">
         <tgroup cols="4">
           <colspec colname="c1" colwidth="55*" />

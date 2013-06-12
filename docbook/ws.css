@@ -107,7 +107,7 @@ body pre {
   color: 333;
 }
 
-pre, tt, code {
+pre, tt, code, .command {
   font-family: Menlo, Consolas, "Bitstream Vera Sans Mono", "Liberation Mono", monospace;
   font-size: 0.9em;
 }
@@ -219,6 +219,7 @@ div.informaltable table
     margin-left: 0;
     margin-right: 5%;
     margin-bottom: 0.8em;
+    border-collapse: collapse;
 }
 div.informaltable table
 {
@@ -231,14 +232,33 @@ div.informaltable thead,
 div.informaltable tfoot,
 div.informaltable tbody
 {
-    /* No effect in IE6. */
-    border-top: 2px solid #527bbd;
-    border-bottom: 2px solid #527bbd;
+    border-top: 2px solid #004698;
+    border-bottom: 2px solid #004698;
 }
 div.table thead, div.table tfoot,
 div.informaltable thead, div.informaltable tfoot
 {
     font-weight: bold;
+}
+
+th {
+  text-align: left;
+}
+
+div.table thead > tr > th,
+div.table tbody > tr > th,
+div.table thead > tr > td,
+div.table tbody > tr > td,
+div.informaltable thead > tr > th,
+div.informaltable tbody > tr > th,
+div.informaltable thead > tr > td,
+div.informaltable tbody > tr > td {
+  padding: 0.4em;
+  vertical-align: top;
+}
+
+div.table thead > tr > th, div.informaltable thead > tr > th {
+  vertical-align: bottom;
 }
 
 div.mediaobject img {
