@@ -426,7 +426,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* Reassemble the packet if it's fragmented */
 	new_tvb = NULL;
-	if(frag->fragmented)
+	if(frag && frag->fragmented)
 	{
 		save_fragmented = pinfo->fragmented;
 		frag_msg = NULL;
