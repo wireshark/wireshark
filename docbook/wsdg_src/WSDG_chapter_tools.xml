@@ -250,7 +250,7 @@ PARTICULAR PURPOSE.]]>
     <section>
       <title>Toolchain Package Alternatives</title>
       <para>
-        The official Wireshark 1.8.x releases are compiled using
+        The official Wireshark 1.8.x and 1.10.x releases are compiled using
         Microsoft Visual C++ 2010 SP1.
         The official 1.2, 1.4, and 1.6 releases are and were compiled using
         Microsoft Visual C++ 2008 SP1.
@@ -270,314 +270,274 @@ PARTICULAR PURPOSE.]]>
         installed. It should be possible to use any of the following with the considerations listed:
       </para>
 
-      <informaltable frame="all">
-        <tgroup cols="8">
-          <colspec colname="compiler_package" colwidth="12*" />
-          <colspec colname="ide_debugger" colwidth="12*" />
-          <colspec colname="publicly_available" colwidth="12*" />
-          <colspec colname="sdk_required" colwidth="12*" />
-          <colspec colname="msvc_variant" colwidth="12*" />
-          <colspec colname="bitwidth" colwidth="12*" />
-          <colspec colname="vcvars_bat" colwidth="12*" />
-          <colspec colname="remarks" colwidth="12*" />
-          <tbody>
-            <row>
-              <entry>
-                <para>Compiler Package</para>
-              </entry>
-              <entry>
-                <para>IDE / Debugger?</para>
-              </entry>
-              <entry>
-                <para>Publicly available?</para>
-              </entry>
-              <entry>
-                <para>SDK required?</para>
-              </entry>
-              <entry>
-                <para>config.nmake:</para>
-                <para>MSVC_VARIANT</para>
-              </entry>
-              <entry>
-                <para>32-bit/64-bit</para>
-              </entry>
-              <entry>
-                <para>set compiler PATH and alike settings
-                with:</para>
-              </entry>
-              <entry>
-                <para>Remarks</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio 2005</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>Commercial
-                <superscript>1</superscript></para>
-              </entry>
-              <entry>
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry>
-                <para>MSVC2005</para>
-              </entry>
-              <entry>
-                <para>32-bit only</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                8\VC\bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>-</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual C++ 2005 Express Edition</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>
-                Free Download (link disappeared)
-                </para>
-              </entry>
-              <entry>
-                <para>
-                Free Download (link disappeared)
-                </para>
-              </entry>
-              <entry>
-                <para>MSVC2005EE</para>
-              </entry>
-              <entry>
-                <para>32-bit only</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                8\VC\bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>
-                  <filename>vcredist_x86.exe</filename>
-                  <superscript>4</superscript>
-                </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio 2008</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>Commercial</para>
-              </entry>
-              <entry>
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry>
-                <para>MSVC2008</para>
-              </entry>
-              <entry>
-                <para>32-bit only?</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                9.0\VC\bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>-</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual C++ 2008 Express Edition SP1</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>
-                <ulink url="http://www.microsoft.com/download/details.aspx?id=14597">
-                Free Download</ulink></para>
-              </entry>
-              <entry>
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry>
-                <para>MSVC2008EE</para>
-              </entry>
-              <entry>
-                <para>32-bit only?</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                9.0\VC\bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>
-                  <filename>vcredist_x86.exe</filename>
-                  <superscript>4</superscript>
-                </para>
-              </entry>
-            </row>
-            <row>
-              <entry morerows="1" valign="middle">
-                <para>Visual Studio 2010</para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>Yes</para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>Commercial</para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>MSVC2010</para>
-              </entry>
-              <entry>
-                <para>32-bit</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                10.0\VC\vcvarsall.bat x86</para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>-</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>64-bit</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                10.0\VC\vcvarsall.bat x64</para>
-              </entry>
-            </row>
-            <row>
-              <entry morerows="1" valign="middle">
-                <para>Visual C++ 2010 Express Edition</para>
-                <para>(recommended)</para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>Yes</para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>
-                <ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads">
-                Free Download</ulink></para>
-              </entry>
-              <entry>
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry morerows="1" valign="middle">
-                <para>MSVC2010EE</para>
-              </entry>
-              <entry>
-                <para>32-bit</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                10.0\VC\vcvarsall.bat x86</para>
-              </entry>
-              <entry>
-                <para>
-                  <filename>vcredist_x86.exe</filename>
-                  <superscript>4</superscript>
-                </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Yes
-                <superscript>3</superscript></para>
-              </entry>
-              <entry>
-                <para>64-bit</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                10.0\VC\vcvarsall.bat x64</para>
-              </entry>
-              <entry>
-                <para>
-                  <filename>vcredist_x64.exe</filename>
-                  <superscript>4</superscript>
-                </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>.NET Framework 2.0 SDK
-                <superscript>5</superscript></para>
-              </entry>
-              <entry>
-                <para>No</para>
-              </entry>
-              <entry>
-                <para>
-                Free Download (link disappeared)
-                </para>
-              </entry>
-              <entry>
-                <para>
-                Free Download (link disappeared)
-                </para>
-              </entry>
-              <entry>
-                <para>DOTNET20</para>
-              </entry>
-              <entry>
-                <para>32-bit only?</para>
-              </entry>
-              <entry>
-                <para>Microsoft.NET\SDK\v2.0\Bin\sdkvars.bat</para>
-              </entry>
-              <entry>
-                <para>
-                  <filename>vcredist_x86.exe</filename>
-                  <superscript>4</superscript>
-                </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </informaltable>
+      <para><variablelist>
+        <title>Visual C++ 2010 Express Edition (recommended)</title>
+
+        <varlistentry>
+        <term>IDE + Debugger?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Purchase required?</term>
+        <listitem><para><ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads">
+                Free Download</ulink></para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>SDK required for 64-bit builds?</term>
+        <listitem><para>Yes.</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>config.nmake MSVC_VARIANT</term>
+        <listitem><para>MSVC2010EE</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>32-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86</command></para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>64-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64</command></para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Remarks</term>
+        <listitem><para>Installers created using express editions require a C++ redistributable
+        (<filename>vcredist_x86.exe</filename> or
+        <filename>vcredist_x86.exe</filename>)<superscript>1</superscript></para></listitem>
+        </varlistentry>
+        <!-- Visual C++ 2010 Express Edition -->
+
+      </variablelist></para>
+
+      <para><variablelist>
+        <title>Visual Studio 2010</title>
+
+        <varlistentry>
+        <term>IDE + Debugger?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Purchase required?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>SDK required for 64-bit builds?</term>
+        <listitem><para>No</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>config.nmake MSVC_VARIANT</term>
+        <listitem><para>MSVC2010</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>32-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86</command></para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>64-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64</command></para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Remarks</term>
+        <listitem><para>Default compiler in <filename>config.nmake</filename>. Building a 64-bit installer
+        requires a a C++ redistributable
+        (<filename>vcredist_x86.exe</filename>)<superscript>1</superscript></para></listitem>
+        </varlistentry>
+        <!-- Visual Studio 2010 -->
+
+      </variablelist></para>
+
+      <para><variablelist>
+        <title>Visual C++ 2008 Express Edition SP1</title>
+
+        <varlistentry>
+        <term>IDE + Debugger?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Purchase required?</term>
+        <listitem><para><ulink url="http://www.microsoft.com/download/details.aspx?id=14597">
+                Free Download</ulink></para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>SDK required for 64-bit builds?</term>
+        <listitem><para>64-bit build not supported</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>config.nmake MSVC_VARIANT</term>
+        <listitem><para>MSVC2008EE</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>32-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio
+                9.0\VC\bin\vcvars32.bat</command></para></listitem>
+        </varlistentry>
+
+        <!--
+        <varlistentry>
+        <term>64-bit environment setup</term>
+        <listitem><para><command></command></para></listitem>
+        </varlistentry>
+        -->
+
+        <varlistentry>
+        <term>Remarks</term>
+        <listitem><para>Installers created using express editions require a C++ redistributable
+        (<filename>vcredist_x86.exe</filename>)<superscript>1</superscript></para></listitem>
+        </varlistentry>
+        <!-- Visual C++ 2008 Express Edition SP1 -->
+
+      </variablelist></para>
+
+      <para><variablelist>
+        <title>Visual Studio 2008</title>
+
+        <varlistentry>
+        <term>IDE + Debugger?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Purchase required?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>SDK required for 64-bit builds?</term>
+        <listitem><para>64-bit build not supported</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>config.nmake MSVC_VARIANT</term>
+        <listitem><para>MSVC2008</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>32-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</command></para></listitem>
+        </varlistentry>
+
+        <!--
+        <varlistentry>
+        <term>64-bit environment setup</term>
+        <listitem><para><command></command></para></listitem>
+        </varlistentry>
+        -->
+
+        <!--
+        <varlistentry>
+        <term>Remarks</term>
+        <listitem><para></para></listitem>
+        </varlistentry>
+        -->
+
+      </variablelist></para>
+
+      <para><variablelist>
+        <title>Visual C++ 2005 Express Edition</title>
+
+        <varlistentry>
+        <term>IDE + Debugger?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Purchase required?</term>
+        <listitem><para>Free Download (link disappeared)</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>SDK required for 64-bit builds?</term>
+        <listitem><para>64-bit build not supported</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>config.nmake MSVC_VARIANT</term>
+        <listitem><para>MSVC2005EE</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>32-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 8\VC\bin\vcvars32.bat</command></para></listitem>
+        </varlistentry>
+
+        <!--
+        <varlistentry>
+        <term>64-bit environment setup</term>
+        <listitem><para><command></command></para></listitem>
+        </varlistentry>
+        -->
+
+        <varlistentry>
+        <term>Remarks</term>
+        <listitem><para>Installers created using express editions require a C++ redistributable
+        (<filename>vcredist_x86.exe</filename>)<superscript>1</superscript></para></listitem>
+        </varlistentry>
+        <!-- Visual C++ 2005 Express Edition -->
+
+      </variablelist></para>
+
+      <para><variablelist>
+        <title>Visual Studio 2005</title>
+
+        <varlistentry>
+        <term>IDE + Debugger?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Purchase required?</term>
+        <listitem><para>Yes</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>SDK required for 64-bit builds?</term>
+        <listitem><para>64-bit build not supported</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>config.nmake MSVC_VARIANT</term>
+        <listitem><para>MSVC2005</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>32-bit environment setup</term>
+        <listitem><para><command>Microsoft Visual Studio 8\VC\bin\vcvars32.bat</command></para></listitem>
+        </varlistentry>
+
+        <!--
+        <varlistentry>
+        <term>64-bit environment setup</term>
+        <listitem><para><command></command></para></listitem>
+        </varlistentry>
+        -->
+
+        <!--
+        <varlistentry>
+        <term>Remarks</term>
+        <listitem><para></para></listitem>
+        </varlistentry>
+        -->
+        <!-- Visual Studio 2005 -->
+
+      </variablelist></para>
+
       <para>
-      <superscript>1</superscript>no longer officially available,
-      might still be available through the MSDN
-      subscriptions
-      </para>
-      <para>
-      <superscript>2</superscript>as the SDK is already
-      integrated in the package, you obviously don't need to
-      install it and don't even need to call a separate environment
-      setting batch file for the SDK!
-      </para>
-      <para>
-      <superscript>3</superscript>the Express Edition does not include
-      compilers or assemblers that can generate 64-bit code; those are
-      only included in the SDK
-      </para>
-      <para>
-      <superscript>4</superscript><filename>vcredist_x86.exe</filename>
+      <superscript>1</superscript><filename>vcredist_x86.exe</filename>
       (3MB free download) is required to build
       <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>,
       and <filename>vcredist_x64.exe</filename> is required to build
@@ -587,13 +547,7 @@ PARTICULAR PURPOSE.]]>
       match the version for your compiler, including any service packs
       installed for the compiler.
       </para>
-      <para>
-      <superscript>5</superscript>MSDN remarks that the
-      corresponding .NET runtime is required. It's currently
-      unclear if the runtime needs to be installed for the C
-      compiler to work - or is this only needed to compile / run
-      .NET programs?!?
-      </para>
+
     </section>
     <section>
       <title>Legal issues with MSVC &gt; V6?</title>
