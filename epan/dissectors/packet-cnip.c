@@ -142,20 +142,16 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    proto_item_set_len(ti, offset);
 
-   if (type != DATA_PACKET) {
-      expert_add_info_format_text(pinfo, cnip_tree, &ei_cnip_type_unknown,
-            "This dissector doesn't yet decode packets of type %s (0x%x)",
-            val_to_str_const(type, type_tuple, "Unknown"), type);
-   }
-
    next_tvb = tvb_new_subset_remaining(tvb, offset);
-
-   /* Try subdissectors only for data packets*/
    if (type == DATA_PACKET) {
       if (dissector_try_uint(cnip_dissector_table, pf_pcode, next_tvb, pinfo, tree))
          return;
    }
-
+   else {
+      expert_add_info_format_text(pinfo, cnip_tree, &ei_cnip_type_unknown,
+            "This dissector doesn't yet decode packets of type %s (0x%x)",
+            val_to_str_const(type, type_tuple, "Unknown"), type);
+   }
    call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
