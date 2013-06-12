@@ -872,7 +872,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item      *pitem;
     proto_tree      *command_item;
     proto_item      *command_tree;
-    guint8          *col_str;
+    guint8          *col_str = NULL;
     guint8          *at_stream;
     guint8          *at_command = NULL;
     guint            i_char = 0;
