@@ -453,7 +453,6 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     gchar *buf;
     tvbuff_t * tvb_out = NULL;
 
-    /*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/
     gchar *utf8_text = NULL;
     GIConv cd;
     GError *l_conv_error = NULL;
@@ -478,11 +477,11 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	break;
     case 0x02: str = "7-bit ASCII"; break;
     case 0x03: str = "IA5"; break;
-    case 0x04: str = "UNICODE"; break;
+    case 0x04: str = "UCS-2"; break;
     case 0x05: str = "Shift-JIS"; break;
     case 0x06: str = "Korean"; break;
     case 0x07: str = "Latin/Hebrew"; break;
-    case 0x08: str = "Latin"; break;
+    case 0x08: str = "ISO 8859-1"; break;
     case 0x09: str = "GSM 7-bit default alphabet"; break;
     default: str = "Reserved"; break;
     }
@@ -652,7 +651,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
                                       offset - saved_offset, ia5_637_bigbuf);
 
     }
-    else if (encoding == 0x04)/* UCS */
+    else if (encoding == 0x04)/* UCS-2 (not UTF-16?) */
     {
         saved_offset = offset - 1;
         required_octs = 2*num_fields;
@@ -724,7 +723,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             g_iconv_close(cd);
         }
     }
-    else if (encoding == 0x08) /* Latin */
+    else if (encoding == 0x08) /* ISO 8859-1 (a/k/a ISO Latin 1) */
     {
         saved_offset = offset - 1;
         buf = (gchar*)ep_alloc(num_fields);
