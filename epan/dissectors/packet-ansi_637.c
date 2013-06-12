@@ -652,9 +652,42 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
                                       offset - saved_offset, ia5_637_bigbuf);
 
     }
-    /*TODO UCS else if (encoding == 0x04)
-      {
-      }*/
+    else if (encoding == 0x04)/* UCS */
+    {
+        saved_offset = offset - 1;
+        required_octs = 2*num_fields;
+        buf = (gchar*)ep_alloc(required_octs);
+        for (i=0; i < required_octs; i++)
+        {
+            oct = tvb_get_guint8(tvb, saved_offset);
+            oct2 = tvb_get_guint8(tvb, saved_offset + 1);
+            buf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
+            saved_offset++;
+        }
+        tvb_out = tvb_new_child_real_data(tvb, buf, required_octs, required_octs);
+        add_new_data_source(g_pinfo, tvb_out, "Characters");
+        offset = 0;
+        if (g_pinfo->private_data && (GPOINTER_TO_UINT(g_pinfo->private_data) == TRUE)) {
+            dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, FALSE, &bit);
+        }
+
+        if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
+        {
+            utf8_text = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, required_octs), required_octs , cd , NULL , NULL , &l_conv_error);
+            if(!l_conv_error)
+            {
+                proto_tree_add_unicode_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
+                                              required_octs, utf8_text);
+            }
+            else
+            {
+                proto_tree_add_text(tree, tvb_out, offset, required_octs, "%s", "Failed on UCS-2BE contact Wireshark developers");
+            }
+            if(utf8_text)
+                g_free(utf8_text);
+            g_iconv_close(cd);
+        }
+    }
     else if (encoding == 0x07)/* Latin/Hebrew */
     {
         saved_offset = offset - 1;
