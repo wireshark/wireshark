@@ -86,6 +86,12 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ti;
 	proto_tree *cnip_tree;
 
+   static const gint *pf_fields[] = {
+      &hf_cnip_pf_sec,
+      &hf_cnip_pf_pcode,
+      NULL
+   };
+ 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CN/IP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -97,62 +103,50 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	exth_len = tvb_get_guint8(tvb, 4);
 	pf_pcode = tvb_get_guint8(tvb, 5) & 0x1F;
 
-	if (tree) {
-		offset = 0;
+   offset = 0;
 
-		/* Take whole packet for now, we'll adjust it later */
-		ti = proto_tree_add_item(tree, proto_cnip, tvb, offset, -1, ENC_NA);
-		cnip_tree = proto_item_add_subtree(ti, ett_cnip);
+   /* Take whole packet for now, we'll adjust it later */
+   ti = proto_tree_add_item(tree, proto_cnip, tvb, offset, -1, ENC_NA);
+   cnip_tree = proto_item_add_subtree(ti, ett_cnip);
 
-		proto_tree_add_item(cnip_tree, hf_cnip_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+   proto_tree_add_item(cnip_tree, hf_cnip_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+   offset += 2;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+   proto_tree_add_item(cnip_tree, hf_cnip_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+   offset += 1;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+   proto_tree_add_item(cnip_tree, hf_cnip_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+   offset += 1;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_exth, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+   proto_tree_add_item(cnip_tree, hf_cnip_exth, tvb, offset, 1, ENC_BIG_ENDIAN);
+   offset += 1;
 
-		{
-			static const gint *pf_fields[] = {
-				&hf_cnip_pf_sec,
-				&hf_cnip_pf_pcode,
-				NULL
-			};
-			proto_tree_add_bitmask(cnip_tree, tvb, offset, hf_cnip_pf,
-						ett_pf, pf_fields, ENC_BIG_ENDIAN);
-		}
-		offset += 1;
+   proto_tree_add_bitmask(cnip_tree, tvb, offset,
+         hf_cnip_pf, ett_pf, pf_fields, ENC_BIG_ENDIAN);
+   offset += 1;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_vcode, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+   proto_tree_add_item(cnip_tree, hf_cnip_vcode, tvb, offset, 2, ENC_BIG_ENDIAN);
+   offset += 2;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_sessid, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
+   proto_tree_add_item(cnip_tree, hf_cnip_sessid, tvb, offset, 4, ENC_BIG_ENDIAN);
+   offset += 4;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_seqno, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
+   proto_tree_add_item(cnip_tree, hf_cnip_seqno, tvb, offset, 4, ENC_BIG_ENDIAN);
+   offset += 4;
 
-		proto_tree_add_item(cnip_tree, hf_cnip_tstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
+   proto_tree_add_item(cnip_tree, hf_cnip_tstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
+   offset += 4;
 
-		/* Jump over any unknown header extensions */
-		offset += 4 * exth_len;
+   /* Jump over any unknown header extensions */
+   offset += 4 * exth_len;
 
-		proto_item_set_len(ti, offset);
+   proto_item_set_len(ti, offset);
 
-		if (type != DATA_PACKET) {
-			expert_add_info_format_text(pinfo, cnip_tree, &ei_cnip_type_unknown,
-					       "This dissector doesn't yet decode packets of type %s (0x%x)",
-					       val_to_str_const(type, type_tuple, "Unknown"), type);
-		}
-
-	} else {
-		offset = 20 + 4*exth_len;
-	}
+   if (type != DATA_PACKET) {
+      expert_add_info_format_text(pinfo, cnip_tree, &ei_cnip_type_unknown,
+            "This dissector doesn't yet decode packets of type %s (0x%x)",
+            val_to_str_const(type, type_tuple, "Unknown"), type);
+   }
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -163,9 +157,6 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	call_dissector(data_handle, next_tvb, pinfo, tree);
-
-	return;
-
 }
 
 void proto_register_cnip(void)
