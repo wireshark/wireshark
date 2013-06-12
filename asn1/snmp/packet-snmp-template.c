@@ -835,7 +835,7 @@ indexing_done:
 				goto already_added;
 			}
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
-				if((oid_info->value_type->keytype == OID_KEY_TYPE_STRING)&& (oid_info->value_hfid> -1)){
+				if((oid_info->value_hfid> -1)&& (oid_info->value_type->keytype == OID_KEY_TYPE_STRING)){
 					hfid = oid_info->value_hfid;
 				}else{
 					hfid = hf_snmp_octetstring_value;
