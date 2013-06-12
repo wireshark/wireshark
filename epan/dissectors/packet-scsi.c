@@ -189,6 +189,10 @@ static int hf_scsi_ascq                         = -1;
 static int hf_scsi_fru                          = -1;
 static int hf_scsi_sksv                         = -1;
 static int hf_scsi_sks_info                     = -1;
+static int hf_scsi_sks_fp_cd                    = -1;
+static int hf_scsi_sks_fp_bpv                   = -1;
+static int hf_scsi_sks_fp_bit                   = -1;
+static int hf_scsi_sks_fp_field                 = -1;
 static int hf_scsi_sns_desc_type                = -1;
 static int hf_scsi_sns_desc_length              = -1;
 static int hf_scsi_inq_reladrflags              = -1;
@@ -1851,6 +1855,12 @@ static const value_string scsi_sense_desc_type_val[] = {
     {0x0A, "Another progress indication"},
     {0x0B, "User data segment referral"},
     {0x0C, "Forwarded sense data"},
+    {0, NULL},
+};
+
+static const value_string scsi_sense_sks_fp_cd_val[] = {
+    {0, "illegal parameter in the Data-Out buffer"},
+    {1, "illegal parameter in the CDB"},
     {0, NULL},
 };
 
@@ -4722,8 +4732,22 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
-{
+dissect_scsi_sns_specific_info(tvbuff_t *tvb, proto_tree *sns_tree, guint offset, guint8 sense_key) {
+ guint8 valid = tvb_get_guint8(tvb, offset)&0x80;
+ proto_tree_add_item(sns_tree, hf_scsi_sksv, tvb, offset, 1, ENC_BIG_ENDIAN);
+ proto_tree_add_item(sns_tree, hf_scsi_sks_info, tvb, offset, 3, ENC_BIG_ENDIAN);
+
+ if (sense_key==5&&valid) {
+    /*illegal request*/
+    proto_tree_add_item(sns_tree, hf_scsi_sks_fp_cd, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sns_tree, hf_scsi_sks_fp_bpv, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sns_tree, hf_scsi_sks_fp_bit, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sns_tree, hf_scsi_sks_fp_field,  tvb, offset, 3, ENC_BIG_ENDIAN);
+ }
+}
+
+static void
+dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset) {
     proto_item *hidden_item;
     guint8      flags;
 
@@ -4747,19 +4771,19 @@ dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     hidden_item = proto_tree_add_item(sns_tree, hf_scsi_ascq, tvb, offset+13, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(sns_tree, hf_scsi_fru, tvb, offset+14, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sns_tree, hf_scsi_sksv, tvb, offset+15, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sns_tree, hf_scsi_sks_info, tvb, offset+15, 3, ENC_BIG_ENDIAN);
+    dissect_scsi_sns_specific_info(tvb,sns_tree,offset+15,flags&0x0F);
 }
 
 static void
 dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
-    guint8  additional_length;
+    guint8  additional_length, sense_key;
     guint   end;
 
     proto_tree_add_item(sns_tree, hf_scsi_snskey, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sns_tree, hf_scsi_ascascq, tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(sns_tree, hf_scsi_addlsnslen, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+    sense_key = tvb_get_guint8(tvb, offset+1)&0xF;
     additional_length = tvb_get_guint8(tvb, offset+7);
     end = offset+7+additional_length;
     offset+=8;
@@ -4780,8 +4804,7 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
           case 2:
              /*sense key specific*/
              if (desc_length==6) {
-                proto_tree_add_item(desc_tree, hf_scsi_sksv, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(desc_tree, hf_scsi_sks_info, tvb, offset+4, 3, ENC_BIG_ENDIAN);
+                    dissect_scsi_sns_specific_info(tvb,desc_tree,offset+4,sense_key);
              }
              break;
           default:
@@ -5991,6 +6014,14 @@ proto_register_scsi(void)
            HFILL}},
         { &hf_scsi_sks_info,
           {"Sense Key Specific", "scsi.sns.sks_info", FT_UINT24, BASE_HEX, NULL, 0x7FFFFF, NULL, HFILL}},   
+        { &hf_scsi_sks_fp_cd,
+          {"Command/Data", "scsi.sns.sks.fp.cd", FT_UINT24, BASE_HEX, VALS(scsi_sense_sks_fp_cd_val), 0x400000, NULL, HFILL}},
+        { &hf_scsi_sks_fp_bpv,
+          {"Bit pointer valid", "scsi.sns.sks.fp.bpv", FT_BOOLEAN, 24, NULL, 0x080000, NULL, HFILL}},
+        { &hf_scsi_sks_fp_bit,
+          {"Bit pointer", "scsi.sns.sks.fp.bit", FT_UINT24, BASE_DEC, NULL, 0x070000, NULL, HFILL}},
+        { &hf_scsi_sks_fp_field,
+          {"Field pointer", "scsi.sns.sks.fp.field", FT_UINT24, BASE_DEC, NULL, 0x00FFFF, NULL, HFILL}},
         { &hf_scsi_sns_desc_type,
           {"Sense data descriptor type", "scsi.sns.desc.type", FT_UINT8, BASE_HEX, VALS(scsi_sense_desc_type_val), 0, NULL, HFILL}},
         { &hf_scsi_sns_desc_length,
