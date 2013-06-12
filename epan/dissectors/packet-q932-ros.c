@@ -95,6 +95,8 @@ static gint ett_q932_ros_InvokeId = -1;
 /*--- End of included file: packet-q932-ros-ett.c ---*/
 #line 45 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
+static expert_field ei_ros_undecoded = EI_INIT;
+
 /* Preferences */
 
 /* Subdissectors */
@@ -309,7 +311,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
   if (!arg_handle) {
-    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 
   return offset;
@@ -403,7 +405,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
     if (!res_handle) {
-      expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+      expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
     }
   }
 
@@ -482,7 +484,7 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
   if (!err_handle) {
-    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 
   return offset;
@@ -674,7 +676,7 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 
 /*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 60 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 62 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
@@ -789,7 +791,7 @@ void proto_register_q932_ros(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 74 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 76 "../../asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -809,8 +811,14 @@ void proto_register_q932_ros(void) {
     &ett_q932_ros_InvokeId,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 79 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 81 "../../asn1/q932-ros/packet-q932-ros-template.c"
   };
+
+  static ei_register_info ei[] = {
+     { &ei_ros_undecoded, { "q932.ros.undecoded", PI_UNDECODED, PI_WARN, "Undecoded", EXPFILL }},
+  };
+
+  expert_module_t* expert_q932_ros;
 
   /* Register protocol and dissector */
   proto_q932_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -819,6 +827,8 @@ void proto_register_q932_ros(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_q932_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_q932_ros = expert_register_protocol(proto_q932_ros);
+  expert_register_field_array(expert_q932_ros, ei, array_length(ei));
 
   new_register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
 }

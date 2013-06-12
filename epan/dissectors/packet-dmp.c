@@ -479,6 +479,9 @@ static gint ett_checksum = -1;
 
 static gint ett_analysis = -1;
 
+static expert_field ei_reserved_value = EI_INIT;
+static expert_field ei_message_sic_illegal = EI_INIT;
+
 static dissector_handle_t dmp_handle;
 
 typedef struct _dmp_id_key {
@@ -1737,7 +1740,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
                                        "SIC: %s [A-Z0-9 only]%s", sic,
                                        failure ? " (invalid)": "");
     if (failure) {
-      expert_add_info_format (pinfo, sf, PI_UNDECODED, PI_NOTE, "Illegal SIC");
+      expert_add_info(pinfo, sf, &ei_message_sic_illegal);
     }
     offset += 2;
 
@@ -1752,7 +1755,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
                                        "SIC: %s [any character]%s", sic,
                                        failure ? " (invalid)": "");
     if (failure) {
-      expert_add_info_format (pinfo, sf, PI_UNDECODED, PI_NOTE, "Illegal SIC");
+      expert_add_info(pinfo, sf, &ei_message_sic_illegal);
     }
     offset += 3;
 
@@ -1792,8 +1795,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
                                          "SIC %d: %s%s", i + 1, sic,
                                          failure ? " (invalid)": "");
       if (failure) {
-        expert_add_info_format (pinfo, bf, PI_UNDECODED, PI_NOTE,
-                                "Illegal SIC");
+        expert_add_info(pinfo, bf, &ei_message_sic_illegal);
       }
       offset += bytes;
     }
@@ -1907,8 +1909,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
         }
       }
       if (failure) {
-        expert_add_info_format (pinfo, bf, PI_UNDECODED, PI_NOTE,
-                                "Illegal SIC");
+        expert_add_info(pinfo, bf, &ei_message_sic_illegal);
       }
       offset += bytes;
     }
@@ -1973,8 +1974,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item (addr_tree, hf_addr_dir_addr_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
     en = proto_tree_add_item (addr_tree, hf_reserved_0x40, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (value & 0x40) {
-      expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                              "Reserved value");
+      expert_add_info(pinfo, en, &ei_reserved_value);
     }
     proto_tree_add_item (addr_tree, hf_addr_dir_address2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1991,8 +1991,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
       addr_tree = proto_item_add_subtree (en, ett_address_direct);
       en = proto_tree_add_item (addr_tree, hf_reserved_0xC0, tvb, offset, 1, ENC_BIG_ENDIAN);
       if (value & 0xC0) {
-        expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                                "Reserved value");
+        expert_add_info(pinfo, en, &ei_reserved_value);
       }
       proto_tree_add_item (addr_tree, hf_addr_dir_address3, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
@@ -2174,8 +2173,7 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
 
     en = proto_tree_add_item (rec_tree, hf_reserved_0x1F, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (value & 0x1F) {
-      expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                              "Reserved value");
+      expert_add_info(pinfo, en, &ei_reserved_value);
     }
     offset += 1;
 
@@ -2376,8 +2374,7 @@ static gint dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item (rec_tree, hf_addr_dir_rep_req3, tvb, offset, 1, ENC_BIG_ENDIAN);
       en = proto_tree_add_item (rec_tree, hf_reserved_0x20, tvb, offset, 1, ENC_BIG_ENDIAN);
       if (value & 0x20) {
-        expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                                "Reserved value");
+        expert_add_info(pinfo, en, &ei_reserved_value);
       }
       proto_tree_add_item (rec_tree, hf_addr_dir_rec_no3, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
@@ -2930,7 +2927,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
       } else {
         tf = proto_tree_add_item (field_tree, hf_reserved_0x0F, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (envelope & 0x0F) {
-          expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN, "Reserved value");
+          expert_add_info(pinfo, tf, &ei_reserved_value);
         }
         offset += 1;
       }
@@ -3035,8 +3032,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     field_tree = proto_item_add_subtree (tf, ett_envelope_ext_recipients);
     en = proto_tree_add_item (field_tree, hf_reserved_0x8000, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (value16 & 0x8000) {
-      expert_add_info_format (pinfo, en, PI_UNDECODED, PI_WARN,
-                              "Reserved value");
+      expert_add_info(pinfo, en, &ei_reserved_value);
     }
     proto_tree_add_item (field_tree, hf_envelope_ext_recipients, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -3169,8 +3165,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
                                        "Reserved: %d",  message & 0x07);
       field_tree = proto_item_add_subtree (tf, ett_message_body_reserved);
       tf = proto_tree_add_item (field_tree, hf_reserved_0x07, tvb, offset, 1, ENC_BIG_ENDIAN);
-      expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-                              "Reserved value");
+      expert_add_info(pinfo, tf, &ei_reserved_value);
     }
     offset += 1;
   }
@@ -3287,8 +3282,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
                                        "Reserved: %d", report & 0x1F);
       field_tree = proto_item_add_subtree (tf, ett_report_reserved);
       tf = proto_tree_add_item (field_tree, hf_reserved_0x1F, tvb, offset, 1, ENC_BIG_ENDIAN);
-      expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-                              "Reserved value");
+      expert_add_info(pinfo, tf, &ei_reserved_value);
 
     }
     offset += 1;
@@ -3516,11 +3510,11 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
 
     tr = proto_tree_add_item (field_tree, hf_reserved_0x08, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (message & 0x08) {
-      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
+      expert_add_info(pinfo, tr, &ei_reserved_value);
     }
     tr = proto_tree_add_item (field_tree, hf_reserved_0x04, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (message & 0x04) {
-      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
+      expert_add_info(pinfo, tr, &ei_reserved_value);
     }
 
     if (message & 0xF0) {
@@ -3545,7 +3539,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, ": rel-to-%s", get_nat_pol_id_short (message >> 2));
       *label_string = ep_strdup_printf("%s,rel-to-%s", *label_string, get_nat_pol_id_short (message >> 2));
       if ((message >> 2) == 0) {
-        expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
+        expert_add_info(pinfo, tr, &ei_reserved_value);
       }
     }
     break;
@@ -3564,16 +3558,16 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.version == 1) {
     tr = proto_tree_add_item (field_tree, hf_reserved_0x02, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (message & 0x02) {
-      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
+      expert_add_info(pinfo, tr, &ei_reserved_value);
     }
     tr = proto_tree_add_item (field_tree, hf_reserved_0x01, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (message & 0x01) {
-      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
+      expert_add_info(pinfo, tr, &ei_reserved_value);
     }
   } else {
     tr = proto_tree_add_item (field_tree, hf_message_sec_cat_extended, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((message & 0x01) && (message & 0x02)) {
-      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
+      expert_add_info(pinfo, tr, &ei_reserved_value);
     } else if (message & 0x01 || message & 0x02) {
       proto_item_append_text (tf, " (extended)");
       offset = dissect_dmp_security_category (tvb, pinfo, tree, label_string, offset+1, message & 0x03);
@@ -3643,8 +3637,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
                                          "Reserved: %d", (message & 0x20)>>5);
         field_tree = proto_item_add_subtree (tf, ett_message_reserved);
         tf = proto_tree_add_item (field_tree, hf_reserved_0x20, tvb, offset, 1, ENC_BIG_ENDIAN);
-        expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-                                "Reserved value");
+        expert_add_info(pinfo, tf, &ei_reserved_value);
       }
 
       /* Precedence */
@@ -3665,8 +3658,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
                                          "Reserved: %d", (message & 0xE0)>>5);
         field_tree = proto_item_add_subtree (tf, ett_message_reserved);
         tf = proto_tree_add_item (field_tree, hf_reserved_0xE0, tvb, offset, 1, ENC_BIG_ENDIAN);
-        expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-                                "Reserved value");
+        expert_add_info(pinfo, tf, &ei_reserved_value);
       }
 
       /* Importance */
@@ -3767,8 +3759,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
                                      "Reserved: %d", message & 0x02);
     field_tree = proto_item_add_subtree (tf, ett_message_reserved);
     tf = proto_tree_add_item (field_tree, hf_reserved_0x02, tvb, offset, 1, ENC_BIG_ENDIAN);
-    expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-                            "Reserved value");
+    expert_add_info(pinfo, tf, &ei_reserved_value);
   }
   offset += 1;
 
@@ -4959,6 +4950,11 @@ void proto_register_dmp (void)
     &ett_analysis
   };
 
+  static ei_register_info ei[] = {
+     { &ei_reserved_value, { "dmp.reserved.expert", PI_UNDECODED, PI_WARN, "Reserved value", EXPFILL }},
+     { &ei_message_sic_illegal, { "dmp.sic.illegal", PI_UNDECODED, PI_NOTE, "Illegal SIC", EXPFILL }},
+  };
+
   static uat_field_t attributes_flds[] = {
     UAT_FLD_VS(dmp_security_class,nation, "Nation", nat_pol_id, 0),
     UAT_FLD_DEC(dmp_security_class,sec_class, "Classification", "Security Classification"),
@@ -4981,12 +4977,15 @@ void proto_register_dmp (void)
                                   attributes_flds);
 
   module_t *dmp_module;
+  expert_module_t* expert_dmp;
 
   proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   register_dissector(PFNAME, dissect_dmp, proto_dmp);
 
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_dmp = expert_register_protocol(proto_dmp);
+  expert_register_field_array(expert_dmp, ei, array_length(ei));
   register_init_routine (&dmp_init_routine);
 
   /* Set default UDP ports */

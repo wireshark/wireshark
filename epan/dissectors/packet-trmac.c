@@ -56,6 +56,8 @@ static gint ett_tr_sv = -1;
 static gint ett_tr_ierr_cnt = -1;
 static gint ett_tr_nerr_cnt = -1;
 
+static expert_field ei_trmac_sv_len = EI_INIT;
+
 /* Major Vector */
 static const value_string major_vector_vs[] = {
 		{ 0x00, "Response" },
@@ -152,7 +154,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 		    "Invalid subvector: length < 2");
 		sv_tree = proto_item_add_subtree(ti, ett_tr_sv);
 		len_item = proto_tree_add_uint(sv_tree, hf_trmac_sv_len, tvb, svoff+0, 1, sv_length);
-		expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 		    "Subvector length is zero");
 		return 0;	/* tells our caller to give up */
 	}
@@ -168,7 +170,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 	switch(sv_id) {
 		case 0x01: /* Beacon Type */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -188,7 +190,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x02: /* Upstream Neighbor's Address */
 			if (sv_length != 8) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -199,7 +201,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x03: /* Local Ring Number */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -212,7 +214,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x04: /* Assign Physical Drop Number */
 			if (sv_length != 6) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6");
 				break;
 			}
@@ -224,7 +226,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x05: /* Error Report Timer Value */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -236,7 +238,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x06: /* Authorized Function Classes */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -248,7 +250,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x07: /* Authorized Access Priority */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -260,7 +262,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x09: /* Correlator */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -272,7 +274,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x0A: /* SA of Last AMP or SMP Frame */
 			if (sv_length != 8) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -286,7 +288,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x0B: /* Physical Drop Number */
 			if (sv_length != 6) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6");
 				break;
 			}
@@ -298,7 +300,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x20: /* Response Code */
 			if (sv_length != 4 && sv_length != 6) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4 and != 6");
 				break;
 			}
@@ -329,7 +331,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x21: /* Individual Address Count */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -361,7 +363,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x28: /* Station Identifier */
 			if (sv_length != 8) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -380,7 +382,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2A: /* Transmit Status Code */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -392,7 +394,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2B: /* Group Address */
 			if (sv_length != 6 && sv_length != 8) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6 and != 8");
 				break;
 			}
@@ -413,7 +415,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2C: /* Functional Addresses */
 			if (sv_length != 6) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 6");
 				break;
 			}
@@ -425,7 +427,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2D: /* Isolating Error Counts */
 			if (sv_length != 8) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -444,7 +446,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x2E: /* Non-Isolating Error Counts */
 			if (sv_length != 8) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 8");
 				break;
 			}
@@ -462,7 +464,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 
 		case 0x30: /* Error Code */
 			if (sv_length != 4) {
-				expert_add_info_format(pinfo, len_item, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, len_item, &ei_trmac_sv_len,
 				    "Subvector length is != 4");
 				break;
 			}
@@ -611,10 +613,17 @@ proto_register_trmac(void)
 		&ett_tr_nerr_cnt,
 	};
 
-        proto_trmac = proto_register_protocol("Token-Ring Media Access Control",
-	    "TR MAC", "trmac");
+	static ei_register_info ei[] = {
+		{ &ei_trmac_sv_len, { "trmac.svec.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+	};
+
+	expert_module_t* expert_trmac;
+
+	proto_trmac = proto_register_protocol("Token-Ring Media Access Control", "TR MAC", "trmac");
 	proto_register_field_array(proto_trmac, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_trmac = expert_register_protocol(proto_trmac);
+	expert_register_field_array(expert_trmac, ei, array_length(ei));
 
 	register_dissector("trmac", dissect_trmac, proto_trmac);
 }

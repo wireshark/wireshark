@@ -75,6 +75,12 @@ static gint ett_udp = -1;
 static gint ett_udp_checksum = -1;
 static gint ett_udp_process_info = -1;
 
+static expert_field ei_udp_possible_traceroute = EI_INIT;
+static expert_field ei_udp_length = EI_INIT;
+static expert_field ei_udplite_checksum_coverage = EI_INIT;
+static expert_field ei_udp_checksum_zero = EI_INIT;
+static expert_field ei_udp_checksum_bad = EI_INIT;
+
 /* Preferences */
 
 /* Place UDP summary in proto tree */
@@ -339,7 +345,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
      * further assumes that 3 attempts are made per hop */
     if(udph->uh_sport > 32768 + 666 && udph->uh_sport <= 32768 + 666 + 30)
-	    expert_add_info_format(pinfo, port_item, PI_SEQUENCE, PI_CHAT, "Possible traceroute: hop #%u, attempt #%u",
+	    expert_add_info_format_text(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
 				   ((udph->uh_sport - 32768 - 666 - 1) / 3) + 1,
 				   ((udph->uh_sport - 32768 - 666 - 1) % 3) + 1
 				   );
@@ -347,7 +353,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     port_item = proto_tree_add_uint_format(udp_tree, hf_udp_dstport, tvb, offset + 2, 2, udph->uh_dport,
 	"Destination port: %s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
     if(udph->uh_dport > 32768 + 666 && udph->uh_dport <= 32768 + 666 + 30)
-	    expert_add_info_format(pinfo, port_item, PI_SEQUENCE, PI_CHAT, "Possible traceroute: hop #%u, attempt #%u",
+	    expert_add_info_format_text(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
 				   ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,
 				   ((udph->uh_dport - 32768 - 666 - 1) % 3) + 1
 				   );
@@ -365,7 +371,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       /* XXX - should handle IPv6 UDP jumbograms (RFC 2675), where the length is zero */
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u < 8", udph->uh_ulen);
+      expert_add_info_format_text(pinfo, item, &ei_udp_length, "Bad length value %u < 8", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
@@ -373,7 +379,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       /* Bogus length - it goes past the end of the IP payload */
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u > IP payload length", udph->uh_ulen);
+      expert_add_info_format_text(pinfo, item, &ei_udp_length, "Bad length value %u > IP payload length", udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
     } else {
       if (tree) {
@@ -398,7 +404,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2,
           udph->uh_sum_cov, "Checksum coverage: %u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
           udph->uh_sum_cov, udph->uh_ulen);
-      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value %u < 8 or > %u",
+      expert_add_info_format_text(pinfo, item, &ei_udplite_checksum_coverage, "Bad checksum coverage length value %u < 8 or > %u",
                              udph->uh_sum_cov, udph->uh_ulen);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD LIGHTWEIGHT UDP CHECKSUM COVERAGE LENGTH %u < 8 or > %u]",
                         udph->uh_sum_cov, udph->uh_ulen);
@@ -433,7 +439,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     } else {
       item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0,
         "Checksum: 0x%04x (Illegal)", 0);
-      expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)");
+      expert_add_info(pinfo, item, &ei_udp_checksum_zero);
       col_append_fstr(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
@@ -511,7 +517,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
                                       offset + 6, 2, TRUE);
         PROTO_ITEM_SET_GENERATED(item);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+        expert_add_info(pinfo, item, &ei_udp_checksum_bad);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " [UDP CHECKSUM INCORRECT]");
       }
@@ -614,6 +620,7 @@ proto_register_udp(void)
 {
 	module_t *udp_module;
 	module_t *udplite_module;
+	expert_module_t* expert_udp;
 
 	static hf_register_info hf[] = {
 		{ &hf_udp_srcport,
@@ -693,6 +700,14 @@ proto_register_udp(void)
 		&ett_udp_process_info
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_udp_possible_traceroute, { "udp.possible_traceroute", PI_SEQUENCE, PI_CHAT, "Possible traceroute", EXPFILL }},
+		{ &ei_udp_length, { "udp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length value", EXPFILL }},
+		{ &ei_udplite_checksum_coverage, { "udp.checksum_coverage.expert", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
+		{ &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)", EXPFILL }},
+		{ &ei_udp_checksum_bad, { "udp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+	};
+
 	proto_udp = proto_register_protocol("User Datagram Protocol",
 	    "UDP", "udp");
 	register_dissector("udp", dissect_udp, proto_udp);
@@ -701,6 +716,8 @@ proto_register_udp(void)
 	proto_register_field_array(proto_udp, hf, array_length(hf));
 	proto_register_field_array(proto_udplite, hf_lite, array_length(hf_lite));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_udp = expert_register_protocol(proto_udp);
+	expert_register_field_array(expert_udp, ei, array_length(ei));
 
 /* subdissector code */
 	udp_dissector_table = register_dissector_table("udp.port",

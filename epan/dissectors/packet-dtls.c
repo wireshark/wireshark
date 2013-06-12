@@ -212,6 +212,7 @@ static gint ett_dtls_fragments         = -1;
 static expert_field ei_dtls_handshake_fragment_length_too_long = EI_INIT;
 static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
+static expert_field ei_dtls_handshake_sig_hash_alg_len_bad = EI_INIT;
 
 static GHashTable         *dtls_session_hash         = NULL;
 static GHashTable         *dtls_key_hash             = NULL;
@@ -2248,7 +2249,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
    *
    */
 
-  proto_tree *ti;
+  proto_tree *ti, *ti2;
   proto_tree *subtree;
   proto_tree *saved_subtree;
   guint8      cert_types_count;
@@ -2292,7 +2293,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
       switch (*conv_version) {
       case SSL_VER_DTLS1DOT2:
           sh_alg_length = tvb_get_ntohs(tvb, offset);
-          proto_tree_add_uint(tree, hf_dtls_handshake_sig_hash_alg_len,
+          ti2 = proto_tree_add_uint(tree, hf_dtls_handshake_sig_hash_alg_len,
                               tvb, offset, 2, sh_alg_length);
           offset += 2;
 
@@ -2311,9 +2312,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                 }
 
               if (sh_alg_length % 2) {
-                  proto_tree_add_text(tree, tvb, offset, 2,
-                      "Invalid Signature Hash Algorithm length: %d", sh_alg_length);
-                  expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                  expert_add_info_format_text(pinfo, ti2, &ei_dtls_handshake_sig_hash_alg_len_bad,
                       "Signature Hash Algorithm length (%d) must be a multiple of 2",
                       sh_alg_length);
                   return;
@@ -3483,6 +3482,7 @@ proto_register_dtls(void)
      { &ei_dtls_handshake_fragment_length_too_long, { "dtls.handshake.fragment_length.too_long", PI_PROTOCOL, PI_ERROR, "Fragment length is larger than message length", EXPFILL }},
      { &ei_dtls_handshake_fragment_past_end_msg, { "dtls.handshake.fragment_past_end_msg", PI_PROTOCOL, PI_ERROR, "Fragment runs past the end of the message", EXPFILL }},
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
+     { &ei_dtls_handshake_sig_hash_alg_len_bad, { "dtls.handshake.sig_hash_alg_len.bad", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
   };
 
   expert_module_t* expert_dtls;

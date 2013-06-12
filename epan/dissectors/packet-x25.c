@@ -911,7 +911,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
 					char *tmpbuf;
 
 					if (byte1 < 1) {
-						expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus length");
+						expert_add_info(pinfo, ti, &ei_x25_facility_length);
 						return;
 					}
 					byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;

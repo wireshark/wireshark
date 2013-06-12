@@ -43,6 +43,8 @@ static int proto_q932_ros = -1;
 /* Initialize the subtree pointers */
 #include "packet-q932-ros-ett.c" 
 
+static expert_field ei_ros_undecoded = EI_INIT;
+
 /* Preferences */
 
 /* Subdissectors */
@@ -78,6 +80,12 @@ void proto_register_q932_ros(void) {
 #include "packet-q932-ros-ettarr.c" 
   };
 
+  static ei_register_info ei[] = {
+     { &ei_ros_undecoded, { "q932.ros.undecoded", PI_UNDECODED, PI_WARN, "Undecoded", EXPFILL }},
+  };
+
+  expert_module_t* expert_q932_ros;
+
   /* Register protocol and dissector */
   proto_q932_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
   proto_set_cant_toggle(proto_q932_ros);
@@ -85,6 +93,8 @@ void proto_register_q932_ros(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_q932_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_q932_ros = expert_register_protocol(proto_q932_ros);
+  expert_register_field_array(expert_q932_ros, ei, array_length(ei));
 
   new_register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
 }

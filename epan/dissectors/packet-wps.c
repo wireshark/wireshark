@@ -52,6 +52,10 @@ static int  hf_eapwps_msglen     = -1;
 static gint ett_eap_wps_attr     = -1;
 static gint ett_eap_wps_flags    = -1;
 
+static expert_field ei_eapwps_packet_too_short = EI_INIT;
+static expert_field ei_eapwps_fmt_warn_too_long = EI_INIT;
+static expert_field ei_eapwps_fmt_length_warn = EI_INIT;
+
 /* OPCodes */
 #define OPC_WSC_START    0x01   /* WPS OPCODE WSC_Start */
 #define OPC_WSC_ACK      0x02   /* WPS OPCODE WSC_ACK */
@@ -879,7 +883,7 @@ void
 dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
                 gint size, packet_info *pinfo)
 {
-  static const char *fmt_warn_too_long = "Value to long (max. %d)";
+  static const char *fmt_warn_too_long = "Value too long (max. %d)";
   static const char *fmt_length_warn   = "Value length not %d";
 
   guint   tlv_len;
@@ -896,7 +900,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     /* incomplete tlv-entry case */
     if (size < 4) {
       if ((tmp_item != NULL) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, "Packet too short");
+        expert_add_info(pinfo, tmp_item, &ei_eapwps_packet_too_short);
       break;
     }
 
@@ -983,16 +987,16 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_CONFIRMATION_URL4: /* max len is 64 */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url4, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_confirmation_url4;
-      if ((tlv_len > 64) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+      if (tlv_len > 64)
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
     case WPS_TLV_TYPE_CONFIRMATION_URL6: /* max len is 76 */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url6, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_confirmation_url6;
-      if ((tlv_len > 76) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+      if (tlv_len > 76)
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1021,7 +1025,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_device_name, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_device_name;
       if ((tlv_len > 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1036,7 +1040,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_hash1, tvb, offset+4, 32, ENC_NA);
       hfindex = hf_eapwps_tlv_e_hash1;
       if ((tlv_len != 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 32);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_length_warn, fmt_length_warn, 32);
 
       break;
 
@@ -1045,7 +1049,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_hash2, tvb, offset+4, 32, ENC_NA);
       hfindex = hf_eapwps_tlv_e_hash2;
       if ((tlv_len != 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 32);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_length_warn, fmt_length_warn, 32);
 
       break;
 
@@ -1054,7 +1058,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_snonce1, tvb, offset+4, 16, ENC_NA);
       hfindex = hf_eapwps_tlv_e_snonce1;
       if ((tlv_len != 16) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_length_warn, fmt_length_warn, 16);
 
       break;
 
@@ -1062,7 +1066,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_snonce2, tvb, offset+4, 16, ENC_NA);
       hfindex = hf_eapwps_tlv_e_snonce2;
       if ((tlv_len != 16) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_length_warn, fmt_length_warn, 16);
 
       break;
 
@@ -1094,7 +1098,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_enrollee_nonce, tvb, offset+4, 16, ENC_NA);
       hfindex = hf_eapwps_tlv_enrollee_nonce;
       if ((tlv_len != 16) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_length_warn, fmt_length_warn, 16);
 
       break;
 
@@ -1109,7 +1113,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_identity, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_identity;
       if ((tlv_len > 80) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1142,7 +1146,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_manufacturer, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_manufacturer;
       if ((tlv_len > 64) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1160,7 +1164,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_name, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_model_name;
       if ((tlv_len > 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1169,7 +1173,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_number, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_model_number;
       if ((tlv_len > 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1184,7 +1188,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_network_key, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_network_key;
       if ((tlv_len > 64) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1199,7 +1203,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_new_device_name, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_new_device_name;
       if ((tlv_len > 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1208,7 +1212,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_new_password, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_new_password;
       if ((tlv_len > 64) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1217,7 +1221,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_oob_device_password, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_oob_device_password;
       if ((tlv_len > 56) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1250,7 +1254,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_public_key, tvb, offset+4, 192, ENC_NA);
       hfindex = hf_eapwps_tlv_public_key;
       if ((tlv_len != 192) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 192);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_length_warn, fmt_length_warn, 192);
 
       break;
 
@@ -1352,7 +1356,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_serial_number, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_serial_number;
       if ((tlv_len > 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1367,7 +1371,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ssid, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
       hfindex = hf_eapwps_tlv_ssid;
       if ((tlv_len > 32) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1381,7 +1385,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_e, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_uuid_e;
       if ((tlv_len > 16) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1389,7 +1393,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_r, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_uuid_r;
       if ((tlv_len > 16) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1422,7 +1426,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_eap_identity, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_eap_identity;
       if ((tlv_len > 64) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1508,7 +1512,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_secondary_device_type_list, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_secondary_device_type_list;
       if ((tlv_len > 128) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1529,7 +1533,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_application_extension, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_application_extension;
       if ((tlv_len > 512) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1538,7 +1542,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_eap_type, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_eap_type;
       if ((tlv_len > 8) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1565,7 +1569,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_appsessionkey, tvb, offset+4, tlv_len, ENC_NA);
       hfindex = hf_eapwps_tlv_appsessionkey;
       if ((tlv_len > 128) && pinfo)
-        expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
+        expert_add_info_format_text(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -2479,11 +2483,20 @@ proto_register_wps(void)
     &ett_wps_wfa_ext,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_eapwps_packet_too_short, { "wps.packet_too_short", PI_MALFORMED, PI_ERROR, "Packet too short", EXPFILL }},
+     { &ei_eapwps_fmt_warn_too_long, { "wps.length.value_too_long", PI_MALFORMED, PI_ERROR, "Value too long", EXPFILL }},
+     { &ei_eapwps_fmt_length_warn, { "wps.length.too_long", PI_MALFORMED, PI_ERROR, "Value length not X", EXPFILL }},
+  };
+
+  expert_module_t* expert_wps;
+
   proto_wps = proto_register_protocol("Wifi Protected Setup",
                                       "WPS", "wps");
   proto_register_field_array(proto_wps, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
+  expert_wps = expert_register_protocol(proto_wps);
+  expert_register_field_array(expert_wps, ei, array_length(ei));
 }
 
 /*

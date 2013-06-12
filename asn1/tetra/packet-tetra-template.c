@@ -94,6 +94,8 @@ static gint ett_tetra_text = -1;
 
 #include "packet-tetra-ett.c"
 
+static expert_field ei_tetra_channels_incorrect = EI_INIT;
+
 #include "packet-tetra-fn.c"
 
 static const value_string channeltypenames[] = {
@@ -342,8 +344,7 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 	tetra_sub_item = proto_tree_add_uint( tetra_tree, hf_tetra_channels, tvb, offset, 4, channels );
 	tetra_header_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
 	if (channels > 3) {
-		expert_add_info_format(pinfo, tetra_sub_item, PI_MALFORMED, PI_WARN,
-                    "Channel count incorrect, must be <= 3");
+		expert_add_info(pinfo, tetra_sub_item, &ei_tetra_channels_incorrect);
 		channels = 3;
 	}
 
@@ -403,8 +404,7 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		txreg >>= 4;
 
 	if (channels > 3) {
-		expert_add_info_format(pinfo, tetra_sub_item, PI_MALFORMED, PI_WARN,
-                    "Channel count incorrect, must be <= 3");
+		expert_add_info(pinfo, tetra_sub_item, &ei_tetra_channels_incorrect);
 		channels = 3;
 	}
 
@@ -562,7 +562,8 @@ void proto_reg_handoff_tetra(void)
 
 void proto_register_tetra (void)
 {
-	module_t *per_module;
+	module_t *tetra_module;
+	expert_module_t* expert_tetra;
 
 	/*
 	 * A header field is something you can search/filter on.
@@ -634,17 +635,19 @@ void proto_register_tetra (void)
 #include "packet-tetra-ettarr.c"
 	};
 
-	/* execute protocol initialization only once */
-  	if (proto_tetra != -1)
-		return;
+	static ei_register_info ei[] = {
+		{ &ei_tetra_channels_incorrect, { "tetra.channels.incorrect", PI_MALFORMED, PI_WARN, "Channel count incorrect, must be <= 3", EXPFILL }},
+	};
 
 	proto_tetra = proto_register_protocol("TETRA Protocol", "tetra", "tetra");
 	proto_register_field_array (proto_tetra, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 	register_dissector("tetra", dissect_tetra, proto_tetra);
+	expert_tetra = expert_register_protocol(proto_tetra);
+	expert_register_field_array(expert_tetra, ei, array_length(ei));
 
-	per_module = prefs_register_protocol(proto_tetra, NULL);
-	prefs_register_bool_preference(per_module, "include_carrier_number",
+	tetra_module = prefs_register_protocol(proto_tetra, NULL);
+	prefs_register_bool_preference(tetra_module, "include_carrier_number",
 			"The data include carrier numbers",
 			"Whether the captured data include carrier number",
 			&include_carrier_number);

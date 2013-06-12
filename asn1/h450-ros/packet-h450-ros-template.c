@@ -43,6 +43,8 @@ static int proto_h450_ros = -1;
 /* Initialize the subtree pointers */
 #include "packet-h450-ros-ett.c" 
 
+static expert_field ei_ros_undecoded = EI_INIT;
+
 /* Preferences */
 
 /* Subdissectors */
@@ -83,6 +85,12 @@ void proto_register_h450_ros(void) {
 #include "packet-h450-ros-ettarr.c" 
   };
 
+  static ei_register_info ei[] = {
+     { &ei_ros_undecoded, { "h450.ros.undecoded", PI_UNDECODED, PI_WARN, "Undecoded", EXPFILL }},
+  };
+
+  expert_module_t* expert_h450_ros;
+
   /* Register protocol and dissector */
   proto_h450_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
   proto_set_cant_toggle(proto_h450_ros);
@@ -90,6 +98,8 @@ void proto_register_h450_ros(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_h450_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_h450_ros = expert_register_protocol(proto_h450_ros);
+  expert_register_field_array(expert_h450_ros, ei, array_length(ei));
 }
 
 /*--- proto_reg_handoff_h450_ros --------------------------------------------*/

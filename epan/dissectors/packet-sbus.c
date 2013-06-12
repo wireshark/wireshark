@@ -242,7 +242,6 @@ static int hf_sbus_date = -1;
 static int hf_sbus_time = -1;
 static int hf_sbus_crc = -1;
 static int hf_sbus_crc_bad = -1;
-static int hf_sbus_retry = -1;
 static int hf_sbus_flags_accu = -1;
 static int hf_sbus_flags_error = -1;
 static int hf_sbus_flags_negative = -1;
@@ -272,6 +271,10 @@ static int hf_sbus_request_in = -1;
 static gint ett_sbus = -1;
 static gint ett_sbus_ether = -1;
 static gint ett_sbus_data = -1;
+
+static expert_field ei_sbus_retry = EI_INIT;
+static expert_field ei_sbus_telegram_not_acked = EI_INIT;
+static expert_field ei_sbus_crc_bad = EI_INIT;
 
 /* True/False strings*/
 static const true_false_string tfs_sbus_flags= {
@@ -922,11 +925,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                          hf_sbus_command, tvb, offset, 1, ENC_BIG_ENDIAN);
                      offset += 1;
                      if (request_val && request_val->retry_count > 0) {/*this is a retry telegram*/
-                            hi = proto_tree_add_boolean(sbus_tree,
-                                                        hf_sbus_retry, tvb, 0, 0, TRUE);
-                            PROTO_ITEM_SET_GENERATED(hi);
-                            expert_add_info_format(pinfo, hi, PI_SEQUENCE, PI_NOTE,
-                                                   "Repeated telegram (due to timeout?)");
+                            expert_add_info(pinfo, sbus_tree, &ei_sbus_retry);
                             nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
                             proto_tree_add_time(sbus_tree, hf_sbus_timeout,
                                                 tvb, 0, 0, &ns);
@@ -1755,8 +1754,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                             1, ENC_BIG_ENDIAN);
                                    if ((tvb_get_guint8(tvb, offset) >= SBUS_RD_WR_NAK)&&
                                        (tvb_get_guint8(tvb, offset) <= SBUS_RD_WR_NAK_INVALID_SIZE)) {
-                                          expert_add_info_format(pinfo, hi, PI_RESPONSE_CODE, PI_CHAT,
-                                                                 "Telegram not acknowledged by PCD");
+                                          expert_add_info(pinfo, hi, &ei_sbus_telegram_not_acked);
                                    }
                                    offset += 1;
                                    switch(sbus_rdwr_block_tlg) {
@@ -1862,8 +1860,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      hi = proto_tree_add_item(sbus_tree,
                          hf_sbus_acknackcode, tvb, offset, 2, ENC_BIG_ENDIAN);
                      if (tvb_get_guint8(tvb, (offset+1)) > 0) {
-                            expert_add_info_format(pinfo, hi, PI_RESPONSE_CODE, PI_CHAT,
-                                                   "Telegram not acknowledged by PCD");
+                            expert_add_info(pinfo, hi, &ei_sbus_telegram_not_acked);
                      }
                      offset += 2;
               }
@@ -1882,8 +1879,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      cs = proto_tree_add_uint_format(sbus_tree,
                                                      hf_sbus_crc, tvb, offset, 2, sbus_helper,
                                                      "Checksum: 0x%04x (NOT correct)", sbus_helper);
-                     expert_add_info_format(pinfo, cs, PI_CHECKSUM, PI_ERROR,
-                                            "Bad checksum");
+                     expert_add_info(pinfo, cs, &ei_sbus_crc_bad);
                      hi = proto_tree_add_boolean(sbus_tree,
                                                  hf_sbus_crc_bad, tvb, offset, 2, TRUE);
                      PROTO_ITEM_SET_HIDDEN(hi);
@@ -2254,10 +2250,6 @@ proto_register_sbus(void)
                      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                      "A bad checksum in the telegram", HFILL }},
 
-              { &hf_sbus_retry,
-                     { "Retry",      "sbus.retry", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                     "Repeated request telegram (due to wrong or missing answer)", HFILL }},
-
               { &hf_sbus_flags_accu,
                      { "ACCU", "sbus.flags.accu",
                      FT_BOOLEAN, 8, TFS(&tfs_sbus_flags), F_ACCU,
@@ -2321,12 +2313,22 @@ proto_register_sbus(void)
               &ett_sbus_data
        };
 
+       static ei_register_info ei[] = {
+              { &ei_sbus_retry, { "sbus.retry", PI_SEQUENCE, PI_NOTE, "Repeated telegram (due to timeout?)", EXPFILL }},
+              { &ei_sbus_telegram_not_acked, { "sbus.telegram_not_acked", PI_RESPONSE_CODE, PI_CHAT, "Telegram not acknowledged by PCD", EXPFILL }},
+              { &ei_sbus_crc_bad, { "sbus.crc_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+       };
+
+       expert_module_t* expert_sbus;
+
 /* Register the protocol name and description */
        proto_sbus = proto_register_protocol("SAIA S-Bus", "SBUS", "sbus");
 
 /* Required function calls to register the header fields and subtrees used */
        proto_register_field_array(proto_sbus, hf, array_length(hf));
        proto_register_subtree_array(ett, array_length(ett));
+       expert_sbus = expert_register_protocol(proto_sbus);
+       expert_register_field_array(expert_sbus, ei, array_length(ei));
        register_init_routine(&sbus_init_protocol);
 }
 

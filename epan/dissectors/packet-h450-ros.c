@@ -89,6 +89,8 @@ static gint ett_h450_ros_T_problem = -1;
 /*--- End of included file: packet-h450-ros-ett.c ---*/
 #line 45 "../../asn1/h450-ros/packet-h450-ros-template.c"
 
+static expert_field ei_ros_undecoded = EI_INIT;
+
 /* Preferences */
 
 /* Subdissectors */
@@ -244,7 +246,7 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
   if (!arg_handle) {
-    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 
   return offset;
@@ -328,7 +330,7 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
     if (!res_handle) {
-      expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+      expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
     }
   }
 
@@ -397,7 +399,7 @@ dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
   if (!err_handle) {
-    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+    expert_add_info_format_text(actx->pinfo, tree, &ei_ros_undecoded, "Undecoded %s", descr);
   }
 
   return offset;
@@ -578,7 +580,7 @@ dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 /*--- End of included file: packet-h450-ros-fn.c ---*/
-#line 72 "../../asn1/h450-ros/packet-h450-ros-template.c"
+#line 74 "../../asn1/h450-ros/packet-h450-ros-template.c"
 
 /*--- proto_register_h450_ros -----------------------------------------------*/
 void proto_register_h450_ros(void) {
@@ -670,7 +672,7 @@ void proto_register_h450_ros(void) {
         "ReturnErrorProblem", HFILL }},
 
 /*--- End of included file: packet-h450-ros-hfarr.c ---*/
-#line 79 "../../asn1/h450-ros/packet-h450-ros-template.c"
+#line 81 "../../asn1/h450-ros/packet-h450-ros-template.c"
   };
 
   /* List of subtrees */
@@ -688,8 +690,14 @@ void proto_register_h450_ros(void) {
     &ett_h450_ros_T_problem,
 
 /*--- End of included file: packet-h450-ros-ettarr.c ---*/
-#line 84 "../../asn1/h450-ros/packet-h450-ros-template.c"
+#line 86 "../../asn1/h450-ros/packet-h450-ros-template.c"
   };
+
+  static ei_register_info ei[] = {
+     { &ei_ros_undecoded, { "h450.ros.undecoded", PI_UNDECODED, PI_WARN, "Undecoded", EXPFILL }},
+  };
+
+  expert_module_t* expert_h450_ros;
 
   /* Register protocol and dissector */
   proto_h450_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -698,6 +706,8 @@ void proto_register_h450_ros(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_h450_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_h450_ros = expert_register_protocol(proto_h450_ros);
+  expert_register_field_array(expert_h450_ros, ei, array_length(ei));
 }
 
 /*--- proto_reg_handoff_h450_ros --------------------------------------------*/
