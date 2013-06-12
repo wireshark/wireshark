@@ -914,23 +914,20 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
     }
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-      if (version == DTLSV1DOT0_VERSION)
-        {
-          col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                      val_to_str_const(SSL_VER_DTLS, ssl_version_short_names, "SSL"));
-        }
-      else if (version == DTLSV1DOT2_VERSION)
-        {
-          col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                      val_to_str_const(SSL_VER_DTLS1DOT2, ssl_version_short_names, "SSL"));
-        }
-      else
-        {
-          col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
-        }
-    }
+  if (version == DTLSV1DOT0_VERSION)
+  {
+     col_set_str(pinfo->cinfo, COL_PROTOCOL,
+           val_to_str_const(SSL_VER_DTLS, ssl_version_short_names, "SSL"));
+  }
+  else if (version == DTLSV1DOT2_VERSION)
+  {
+     col_set_str(pinfo->cinfo, COL_PROTOCOL,
+           val_to_str_const(SSL_VER_DTLS1DOT2, ssl_version_short_names, "SSL"));
+  }
+  else
+  {
+     col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
+  }
 
   /*
    * now dissect the next layer
@@ -1148,10 +1145,9 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   /* now set the text in the record layer line */
   if (level && desc)
     {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "Alert (Level: %s, Description: %s)",
-                        level, desc);
+       col_append_fstr(pinfo->cinfo, COL_INFO,
+             "Alert (Level: %s, Description: %s)",
+             level, desc);
     }
   else
     {
@@ -1276,9 +1272,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       /*
        * Update our info string
        */
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
-                        ? msg_type_str : "Encrypted Handshake Message");
+      col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
+            ? msg_type_str : "Encrypted Handshake Message");
 
       if (ssl_hand_tree)
         proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_type,
@@ -1398,8 +1393,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                   frag_str = " (Fragment)";
                 }
 
-              if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_str(pinfo->cinfo, COL_INFO, frag_str);
+              col_append_str(pinfo->cinfo, COL_INFO, frag_str);
             }
         }
 
