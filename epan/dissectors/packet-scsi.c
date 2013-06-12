@@ -195,6 +195,18 @@ static int hf_scsi_sks_fp_bit                   = -1;
 static int hf_scsi_sks_fp_field                 = -1;
 static int hf_scsi_sns_desc_type                = -1;
 static int hf_scsi_sns_desc_length              = -1;
+static int hf_scsi_sns_osd_object_not_initiated = -1;
+static int hf_scsi_sns_osd_object_completed     = -1;
+static int hf_scsi_sns_osd_object_validation    = -1;
+static int hf_scsi_sns_osd_object_cmd_cap_v     = -1;
+static int hf_scsi_sns_osd_object_command       = -1;
+static int hf_scsi_sns_osd_object_imp_st_att    = -1;
+static int hf_scsi_sns_osd_object_sa_cap_v      = -1;
+static int hf_scsi_sns_osd_object_set_att       = -1;
+static int hf_scsi_sns_osd_object_ga_cap_v      = -1;
+static int hf_scsi_sns_osd_object_get_att       = -1;
+static int hf_scsi_sns_osd_partition_id         = -1;
+static int hf_scsi_sns_osd_object_id            = -1;
 static int hf_scsi_inq_reladrflags              = -1;
 static int hf_scsi_inq_reladr                   = -1;
 static int hf_scsi_inq_linked                   = -1;
@@ -380,6 +392,8 @@ static gint ett_scsi_prevent_allow = -1;
 static gint ett_command_descriptor = -1;
 static gint ett_timeout_descriptor = -1;
 static gint ett_sense_descriptor = -1;
+static gint ett_sense_osd_not_initiated = -1;
+static gint ett_sense_osd_completed = -1;
 
 static int scsi_tap = -1;
 
@@ -4787,7 +4801,6 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
     additional_length = tvb_get_guint8(tvb, offset+7);
     end = offset+7+additional_length;
     offset+=8;
-
     while (offset<end-2) {
        guint8      desc_type, desc_length;
        proto_item *item;
@@ -4805,6 +4818,26 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
              /*sense key specific*/
              if (desc_length==6) {
                     dissect_scsi_sns_specific_info(tvb,desc_tree,offset+4,sense_key);
+             }
+             break;
+          case 6:
+             /*OSD object identification*/
+             if (desc_length==0x1e) {
+                 static const int *command_functions[] = {
+                     &hf_scsi_sns_osd_object_validation,
+                     &hf_scsi_sns_osd_object_cmd_cap_v,
+                     &hf_scsi_sns_osd_object_command,
+                     &hf_scsi_sns_osd_object_imp_st_att,
+                     &hf_scsi_sns_osd_object_sa_cap_v,
+                     &hf_scsi_sns_osd_object_set_att,
+                     &hf_scsi_sns_osd_object_ga_cap_v,
+                     &hf_scsi_sns_osd_object_get_att,
+                     NULL
+                 };
+                 proto_tree_add_bitmask(desc_tree, tvb, offset+8, hf_scsi_sns_osd_object_not_initiated, ett_sense_osd_not_initiated, command_functions, ENC_BIG_ENDIAN);
+                 proto_tree_add_bitmask(desc_tree, tvb, offset+12, hf_scsi_sns_osd_object_completed, ett_sense_osd_not_initiated, command_functions, ENC_BIG_ENDIAN);
+                 proto_tree_add_item(desc_tree, hf_scsi_sns_osd_partition_id, tvb, offset+16, 8, ENC_BIG_ENDIAN);
+                 proto_tree_add_item(desc_tree, hf_scsi_sns_osd_object_id, tvb, offset+24, 8, ENC_BIG_ENDIAN);
              }
              break;
           default:
@@ -6025,9 +6058,33 @@ proto_register_scsi(void)
         { &hf_scsi_sns_desc_type,
           {"Sense data descriptor type", "scsi.sns.desc.type", FT_UINT8, BASE_HEX, VALS(scsi_sense_desc_type_val), 0, NULL, HFILL}},
         { &hf_scsi_sns_desc_length,
-          {"Sense data descriptor length", "scsi.sns.desc.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
+            {"Sense data descriptor length", "scsi.sns.desc.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_not_initiated,
+            {"Not initiated", "scsi.sns.desc.osd_object.not_initiated", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_completed,
+            {"Completed", "scsi.sns.desc.osd_object.completed", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_validation,
+            {"VALIDATION", "scsi.sns.desc.osd_object.validation", FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_cmd_cap_v,
+            {"CMD_CAP_V", "scsi.sns.desc.osd_object.cmd_cap_v",   FT_BOOLEAN, 32, NULL, 0x20000000, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_command,
+            {"COMMAND", "scsi.sns.desc.osd_object.command",       FT_BOOLEAN, 32, NULL, 0x10000000, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_imp_st_att,
+            {"IMP_ST_ATT", "scsi.sns.desc.osd_object.imp_st_att", FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_sa_cap_v,
+            {"SA_CAP_V", "scsi.sns.desc.osd_object.sa_cap_v",     FT_BOOLEAN, 32, NULL, 0x00002000, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_set_att,
+            {"SET_ATT", "scsi.sns.desc.osd_object.set_att",       FT_BOOLEAN, 32, NULL, 0x00001000, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_ga_cap_v,
+            {"GA_CAP_V", "scsi.sns.desc.osd_object.ga_cap_v",     FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_get_att,
+            {"GET_ATT", "scsi.sns.desc.osd_object.get_att",       FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL}},
+        { &hf_scsi_sns_osd_partition_id,
+            {"Partition ID", "scsi.sns.desc.osd_object.partition_id", FT_UINT64, BASE_HEX,  NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sns_osd_object_id,
+            {"Object ID", "scsi.sns.desc.osd_object.object_id",  FT_UINT64, BASE_HEX,  NULL, 0, NULL, HFILL}},
         { &hf_scsi_persresv_key,
-          {"Reservation Key", "scsi.spc.resv.key", FT_BYTES, BASE_NONE, NULL,
+            {"Reservation Key", "scsi.spc.resv.key", FT_BYTES, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
         { &hf_scsi_persresv_scopeaddr,
           {"Scope Address", "scsi.spc.resv.scopeaddr", FT_BYTES, BASE_NONE, NULL,
@@ -6504,7 +6561,9 @@ proto_register_scsi(void)
         &ett_scsi_prevent_allow,
         &ett_command_descriptor,
         &ett_timeout_descriptor,
-        &ett_sense_descriptor
+        &ett_sense_descriptor,
+        &ett_sense_osd_not_initiated,
+        &ett_sense_osd_completed,
     };
     module_t *scsi_module;
 
