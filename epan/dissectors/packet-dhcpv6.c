@@ -1865,7 +1865,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_item(subtree, hf_pd_exclude_pref_len, tvb, off, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_pd_exclude_subnet_id , tvb, off+1, optlen-2, ENC_NA);
+        proto_tree_add_item(subtree, hf_pd_exclude_subnet_id , tvb, off+1, optlen-1, ENC_NA);
         break;
     }
 
