@@ -143,7 +143,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #if defined(Q_OS_MAC)
 #ifdef QT_MACEXTRAS_LIB
-    QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
+    QMacNativeToolBar *ntb = QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
+    ntb->setIconSize(QSize(24, 24));
 #endif // HAVE_QT5_MAC_EXTRAS
 
     foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
