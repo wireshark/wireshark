@@ -4586,7 +4586,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
         service_action = tvb_get_guint8 (tvb_v, offset_v) & 0x1F;
     if (cdata) {
         cdata->itlq->flags=service_action;
-    }    
+    }
     col_append_str(pinfo->cinfo, COL_INFO,
             val_to_str(service_action, mpi_action_vals, "Unknown"));
 
@@ -4808,8 +4808,8 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offse
 
        desc_type   = tvb_get_guint8(tvb, offset);
        desc_length = tvb_get_guint8(tvb, offset+1);
-       item = proto_tree_add_text(sns_tree, tvb, offset, desc_length, "%s",
-                  val_to_str_const(desc_type, scsi_sense_desc_type_val, "unknown"));
+       item = proto_tree_add_text(sns_tree, tvb, offset, desc_length+2, "%s",
+                  val_to_str(desc_type, scsi_sense_desc_type_val, "Unknown (0x%02x)"));
        desc_tree = proto_item_add_subtree(item, ett_sense_descriptor);
        proto_tree_add_item(desc_tree, hf_scsi_sns_desc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
        proto_tree_add_item(desc_tree, hf_scsi_sns_desc_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -6046,7 +6046,7 @@ proto_register_scsi(void)
           {"SKSV", "scsi.sns.sksv", FT_BOOLEAN, 8, NULL, 0x80, NULL,
            HFILL}},
         { &hf_scsi_sks_info,
-          {"Sense Key Specific", "scsi.sns.sks_info", FT_UINT24, BASE_HEX, NULL, 0x7FFFFF, NULL, HFILL}},   
+          {"Sense Key Specific", "scsi.sns.sks_info", FT_UINT24, BASE_HEX, NULL, 0x7FFFFF, NULL, HFILL}},
         { &hf_scsi_sks_fp_cd,
           {"Command/Data", "scsi.sns.sks.fp.cd", FT_UINT24, BASE_HEX, VALS(scsi_sense_sks_fp_cd_val), 0x400000, NULL, HFILL}},
         { &hf_scsi_sks_fp_bpv,
