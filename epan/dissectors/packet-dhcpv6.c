@@ -25,6 +25,7 @@
  * RFC5460.txt (DHCPv6 Bulk Leasequery)
  * RFC5908.txt (Network Time Protocol (NTP) Server Option)
  * RFC6334.txt (Dual-Stack Lite Option)
+ * RFC6603.txt (Prefix Exclude Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
  * CL-SP-CANN-DHCP-Reg-I06-110210.doc
@@ -144,6 +145,8 @@ static int hf_iaprefix_pref_addr = -1;
 static int hf_mip6_ha = -1;
 static int hf_mip6_hoa = -1;
 static int hf_nai = -1;
+static int hf_pd_exclude_pref_len = -1;
+static int hf_pd_exclude_subnet_id = -1;
 static int hf_dhcpv6_hopcount = -1;
 static int hf_dhcpv6_xid = -1;
 static int hf_dhcpv6_peeraddr = -1;
@@ -295,6 +298,7 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define OPTION_RELAYID          53
 #define OPTION_NTP_SERVER       56
 #define OPTION_AFTR_NAME        64
+#define OPTION_PD_EXCLUDE       67
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA          165
@@ -377,6 +381,7 @@ static const value_string opttype_vals[] = {
     { OPTION_LQ_CLIENT_LINK,   "Leasequery Client Link Address List" },
     { OPTION_CAPWAP_AC_V6,     "CAPWAP Access Controllers" },
     { OPTION_AFTR_NAME,        "Dual-Stack Lite AFTR Name" },
+    { OPTION_PD_EXCLUDE,       "Prefix Exclude" },
     { OPTION_MIP6_HA,          "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,         "Mobile IPv6 Home Address" },
     { OPTION_NAI,              "Network Access Identifier" },
@@ -1854,6 +1859,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         proto_tree_add_item(subtree, hf_nai, tvb, off, optlen - 2, ENC_ASCII|ENC_NA);
         break;
+    case OPTION_PD_EXCLUDE:
+        if ((optlen < 2) || (optlen > 17)) {
+            expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "PD_EXCLUDE: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_pd_exclude_pref_len, tvb, off, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_pd_exclude_subnet_id , tvb, off+1, optlen-2, ENC_NA);
+        break;
     }
 
     return 4 + optlen;
@@ -2146,6 +2159,10 @@ proto_register_dhcpv6(void)
           { "Home Address", "dhcpv6.mip6_home_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_nai,
           { "NAI", "dhcpv6.nai", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_pd_exclude_pref_len,
+          { "Prefix length", "dhcpv6.pd_exclude.pref_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_pd_exclude_subnet_id,
+          { "IPv6 subnet ID", "dhcpv6.pd_exclude.subnet_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_option_ntpserver_type,
           { "Suboption", "dhcpv6.ntpserver.option.type", FT_UINT16, BASE_DEC, VALS(ntp_server_opttype_vals), 0x0, NULL, HFILL}},
         { &hf_option_ntpserver_length,
