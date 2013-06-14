@@ -332,18 +332,16 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			switch(nbd_trans->type){
-			case NBD_CMD_WRITE:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Write Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
-				break;
-			case NBD_CMD_READ:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
-				break;
-			case NBD_CMD_DISC:
-				col_set_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
-				break;
-			}
+		switch(nbd_trans->type){
+		case NBD_CMD_WRITE:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Write Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
+			break;
+		case NBD_CMD_READ:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
+			break;
+		case NBD_CMD_DISC:
+			col_set_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
+			break;
 		}
 
 		if(nbd_trans->type==NBD_CMD_WRITE){
@@ -361,9 +359,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
 
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  Error:%d", (nbd_trans->type==NBD_CMD_WRITE)?"Write":"Read", error);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response  Error:%d", (nbd_trans->type==NBD_CMD_WRITE)?"Write":"Read", error);
 
 		if(nbd_trans->type==NBD_CMD_READ){
 			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, ENC_NA);

@@ -324,11 +324,9 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	packet_detail = val_to_str_const(messageDetail, ldss_inferred_info, "unknown");
 
 	/* Set the info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "LDSS Broadcast (%s%s)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "LDSS Broadcast (%s%s)",
 			     packet_type,
 			     packet_detail);
-	}
 
 	/* If we have a non-null tree (ie we are building the proto_tree
 	 * instead of just filling out the columns), then give more detail. */
@@ -680,12 +678,10 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		transfer_info->resp_num = pinfo->fd->num;
 		transfer_info->resp_ts = pinfo->fd->abs_ts;
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Sending file - %s)",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Sending file - %s)",
 				     transfer_info->broadcast->message_id == MESSAGE_ID_WILLSEND
 				     ? "pull"
 				     : "push");
-		}
 
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ldss,

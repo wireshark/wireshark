@@ -1129,14 +1129,11 @@ dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint int_rep
 
             if (iSizeGMO != 0 && tvb_length_remaining(tvb, offset) >= iSizeGMO)
             {
-                if (check_col(pinfo->cinfo, COL_INFO))
+                guint8* sQueue;
+                sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 24, 48, string_rep);
+                if (strip_trailing_blanks(sQueue, 48) != 0)
                 {
-                    guint8* sQueue;
-                    sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 24, 48, string_rep);
-                    if (strip_trailing_blanks(sQueue, 48) != 0)
-                    {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
-                    }
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
                 }
 
                 if (tree)
@@ -1199,20 +1196,17 @@ dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint int_rep
             {
                 gint iNbrRecords = 0;
                 guint32 iRecFlags = 0;
+                guint8* sQueue;
                 if (iVersionPMO >= 2)
                 {
                     iNbrRecords = tvb_get_guint32_endian(tvb, offset + 128, int_rep);
                     iRecFlags = tvb_get_guint32_endian(tvb, offset + 132, int_rep);
                 }
 
-                if (check_col(pinfo->cinfo, COL_INFO))
+                sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 32, 48, string_rep);
+                if (strip_trailing_blanks(sQueue, 48) != 0)
                 {
-                    guint8* sQueue;
-                    sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 32, 48, string_rep);
-                    if (strip_trailing_blanks(sQueue, 48) != 0)
-                    {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
-                    }
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
                 }
 
                 if (tree)
@@ -1345,12 +1339,9 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             int_rep = (tvb_get_guint8(tvb, offset + iSizeMultiplexFields + 8) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
             iControlFlags = tvb_get_guint8(tvb, offset + iSizeMultiplexFields + 10);
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_clear(pinfo->cinfo, COL_INFO);
-                col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(opcode, &mq_opcode_vals_ext, "Unknown (0x%02x)"));
-                col_set_fence(pinfo->cinfo, COL_INFO);
-            }
+            col_clear(pinfo->cinfo, COL_INFO);
+            col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(opcode, &mq_opcode_vals_ext, "Unknown (0x%02x)"));
+            col_set_fence(pinfo->cinfo, COL_INFO);
 
             if (tree)
             {
@@ -1412,11 +1403,8 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         guint32 iReturnCode = 0;
                         iReturnCode = tvb_get_guint32_endian(tvb, offset + 8, int_rep);
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                        {
-                            if (iReturnCode != 0)
-                                col_append_fstr(pinfo->cinfo, COL_INFO, " [RC=%d]", iReturnCode);
-                        }
+                        if (iReturnCode != 0)
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " [RC=%d]", iReturnCode);
 
                         if (tree)
                         {
@@ -1459,11 +1447,9 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         if (tvb_length_remaining(tvb, offset) >= iStatusLength)
                         {
-                            if (check_col(pinfo->cinfo, COL_INFO))
-                            {
-                                if (iStatus != 0)
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, ": Code=%s", val_to_str(iStatus, mq_status_vals, "Unknown (0x%08x)"));
-                            }
+                            if (iStatus != 0)
+                                col_append_fstr(pinfo->cinfo, COL_INFO, ": Code=%s", val_to_str(iStatus, mq_status_vals, "Unknown (0x%08x)"));
+
                             if (tree)
                             {
                                 ti = proto_tree_add_text(mqroot_tree, tvb, offset, 8, MQ_TEXT_STAT);
@@ -1514,22 +1500,18 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         if (iSizeCONN != 0 && tvb_length_remaining(tvb, offset) >= iSizeCONN)
                         {
-                            if (check_col(pinfo->cinfo, COL_INFO))
+                            guint8* sApplicationName;
+                            guint8* sQueueManager;
+                            sApplicationName = tvb_get_ephemeral_string_enc(tvb, offset + 48, 28, string_rep);
+                            if (strip_trailing_blanks(sApplicationName, 28) != 0)
                             {
-                                guint8* sApplicationName;
-                                guint8* sQueueManager;
-                                sApplicationName = tvb_get_ephemeral_string_enc(tvb, offset + 48, 28, string_rep);
-                                if (strip_trailing_blanks(sApplicationName, 28) != 0)
-                                {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
-                                }
-                                sQueueManager = tvb_get_ephemeral_string_enc(tvb, offset, 48, string_rep);
-                                if (strip_trailing_blanks(sQueueManager, 48) != 0)
-                                {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
-                                }
+                                col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
                             }
-
+                            sQueueManager = tvb_get_ephemeral_string_enc(tvb, offset, 48, string_rep);
+                            if (strip_trailing_blanks(sQueueManager, 48) != 0)
+                            {
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
+                            }
 
                             if (tree)
                             {
@@ -1616,10 +1598,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         guint32 iSpiVerb = 0;
 
                         iSpiVerb = tvb_get_guint32_endian(tvb, offset, int_rep);
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                        {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(iSpiVerb, mq_spi_verbs_vals, "Unknown (0x%08x)"));
-                        }
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(iSpiVerb, mq_spi_verbs_vals, "Unknown (0x%08x)"));
 
                         if (tree)
                         {
@@ -1865,14 +1844,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         if (iSizeID != 0 && tvb_length_remaining(tvb, offset) >= iSizeID)
                         {
-                            if (check_col(pinfo->cinfo, COL_INFO))
+                            guint8* sChannel;
+                            sChannel = tvb_get_ephemeral_string_enc(tvb, offset + 24, 20, string_rep);
+                            if (strip_trailing_blanks(sChannel, 20) != 0)
                             {
-                                guint8* sChannel;
-                                sChannel = tvb_get_ephemeral_string_enc(tvb, offset + 24, 20, string_rep);
-                                if (strip_trailing_blanks(sChannel, 20) != 0)
-                                {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, ": CHL=%s", sChannel);
-                                }
+                                col_append_fstr(pinfo->cinfo, COL_INFO, ": CHL=%s", sChannel);
                             }
 
                             if (tree)
@@ -1931,14 +1907,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                             if (iVersionID >= 4)
                             {
-                                if (check_col(pinfo->cinfo, COL_INFO))
+                                guint8* sQueueManager;
+                                sQueueManager = tvb_get_ephemeral_string_enc(tvb, offset + 48, 48, string_rep);
+                                if (strip_trailing_blanks(sQueueManager,48) != 0)
                                 {
-                                    guint8* sQueueManager;
-                                    sQueueManager = tvb_get_ephemeral_string_enc(tvb, offset + 48, 48, string_rep);
-                                    if (strip_trailing_blanks(sQueueManager,48) != 0)
-                                    {
-                                        col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
-                                    }
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
                                 }
 
                                 if (tree)
@@ -1965,14 +1938,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         if (iSizeUID != 0 && tvb_length_remaining(tvb, offset) >= iSizeUID)
                         {
-                            if (check_col(pinfo->cinfo, COL_INFO))
+                            guint8* sUserId;
+                            sUserId = tvb_get_ephemeral_string_enc(tvb, offset + 4, 12, string_rep);
+                            if (strip_trailing_blanks(sUserId, 12) != 0)
                             {
-                                guint8* sUserId;
-                                sUserId = tvb_get_ephemeral_string_enc(tvb, offset + 4, 12, string_rep);
-                                if (strip_trailing_blanks(sUserId, 12) != 0)
-                                {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
-                                }
+                                col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
                             }
 
                             if (tree)
@@ -2013,17 +1983,14 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (iSizeOD != 0 && tvb_length_remaining(tvb, offset) >= iSizeOD)
                         {
                             gint iNbrRecords = 0;
+                            guint8* sQueue;
                             if (iVersionOD >= 2)
                                 iNbrRecords = tvb_get_guint32_endian(tvb, offset + 168, int_rep);
 
-                            if (check_col(pinfo->cinfo, COL_INFO))
+                            sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 12, 48, string_rep);
+                            if (strip_trailing_blanks(sQueue,48) != 0)
                             {
-                                guint8* sQueue;
-                                sQueue = tvb_get_ephemeral_string_enc(tvb, offset + 12, 48, string_rep);
-                                if (strip_trailing_blanks(sQueue,48) != 0)
-                                {
-                                    col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
-                                }
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
                             }
 
                             if (tree)
@@ -2122,8 +2089,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                     if (iDistributionListSize > 0)
                     {
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " (Distribution List, Size=%d)", iDistributionListSize);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (Distribution List, Size=%d)", iDistributionListSize);
                     }
                     if (bPayload == TRUE)
                     {
@@ -2333,10 +2299,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     PROTO_ITEM_SET_HIDDEN(hidden_item);
                                 }
                             }
-                            if (check_col(pinfo->cinfo, COL_INFO))
-                            {
-                                col_append_fstr(pinfo->cinfo, COL_INFO, " (%d bytes)", iSizePayload - iHeadersLength);
-                            }
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " (%d bytes)", iSizePayload - iHeadersLength);
 
                             {
                                 /* Call subdissector for the payload */
@@ -2449,8 +2412,7 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         /* Reassembly in progress */
                         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                            col_add_fstr(pinfo->cinfo, COL_INFO, "%s [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
                         if (tree)
                         {
                             proto_item* ti = NULL;

@@ -114,14 +114,12 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                       0x00, 0x00, 0x00, 0x00, 0x00 };
 
     functype = tvb_get_guint8(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
-                        (functype == 0x01) ? "CV" :
-                        (functype == 0x02) ? "FDI" :
-                        (functype == 0x03) ? "BDI" :
-                        (functype == 0x07) ? "FDD" :
-                        "reserved/unknown");
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
+                    (functype == 0x01) ? "CV" :
+                    (functype == 0x02) ? "FDI" :
+                    (functype == 0x03) ? "BDI" :
+                    (functype == 0x07) ? "FDD" :
+                    "reserved/unknown");
 
     /* sanity checks */
     if (tvb_reported_length(tvb) < 44) {

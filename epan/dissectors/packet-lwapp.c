@@ -279,10 +279,8 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo,
      */
     header.length = g_ntohs(header.length);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str_ext(header.type, &control_msg_vals_ext, "Bad Type: 0x%02x"));
-    }
+    col_append_str(pinfo->cinfo, COL_INFO,
+        val_to_str_ext(header.type, &control_msg_vals_ext, "Bad Type: 0x%02x"));
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
@@ -396,14 +394,12 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     version = (header.flags & 0xc0) >> 6;
     slotId = (header.flags & 0x38) >> 3;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if ((header.flags & LWAPP_FLAGS_T) != 0)
-            col_append_str(pinfo->cinfo, COL_INFO,
-                           " Control Packet");
-        else
-            col_append_str(pinfo->cinfo, COL_INFO,
-                           " 802.11 Packet");
-    }
+    if ((header.flags & LWAPP_FLAGS_T) != 0)
+        col_append_str(pinfo->cinfo, COL_INFO,
+                        " Control Packet");
+    else
+        col_append_str(pinfo->cinfo, COL_INFO,
+                        " 802.11 Packet");
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */

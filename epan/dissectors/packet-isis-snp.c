@@ -294,32 +294,25 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			"Source-ID:    %s",
 				print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
-	}
+
 	offset += id_length + 1;
 
-	if (tree) {
-		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2,
-			"Start LSP-ID: %s",
-                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );                
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
+	proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2, "Start LSP-ID: %s",
+                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-	}
+
 	offset += id_length + 2;
 
-	if (tree) {
-		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2,
-			"End LSP-ID: %s",
-                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );  
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
+	proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2, "End LSP-ID: %s",
+                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-	}
+
 	offset += id_length + 2;
 
 	len = pdu_length - header_length;
@@ -378,15 +371,12 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	}
 	offset += 2;
 
-	if (tree) {
-		proto_tree_add_text(psnp_tree, tvb, offset, id_length + 1,
-			"Source-ID: %s",
+	proto_tree_add_text(psnp_tree, tvb, offset, id_length + 1, "Source-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length + 1 ) );
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+1), id_length+1 ) );
-	}
+
 	offset += id_length + 1;
 
 	len = pdu_length - header_length;

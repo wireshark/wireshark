@@ -160,8 +160,7 @@ dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 
   message_type  = tvb_get_ntohs(header_tvb, V2_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v2_message_type_values, "reserved"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v2_message_type_values, "reserved"));
 
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, ENC_BIG_ENDIAN);
@@ -178,8 +177,7 @@ dissect_v8_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 
   message_type  = tvb_get_guint8(header_tvb, V8_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v8_message_type_values, "Unknown"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v8_message_type_values, "Unknown"));
 
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, ENC_BIG_ENDIAN);
@@ -201,8 +199,7 @@ dissect_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 
   message_type  = tvb_get_guint8(header_tvb, V8_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v8_message_type_values, "Unknown"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_type, v8_message_type_values, "Unknown"));
 
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version,  header_tvb, VERSION_OFFSET,       VERSION_LENGTH,  ENC_BIG_ENDIAN);
@@ -318,10 +315,8 @@ static const value_string v2_link_status_values[] = {
 static void
 dissect_v2_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v2_link_status_values, "Unknown"));
-  if (m2pa_tree)
-    proto_tree_add_item(m2pa_tree, hf_v2_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, ENC_BIG_ENDIAN);
+  col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v2_link_status_values, "Unknown"));
+  proto_tree_add_item(m2pa_tree, hf_v2_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, ENC_BIG_ENDIAN);
 }
 
 static const value_string v8_link_status_values[] = {
@@ -341,8 +336,7 @@ dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
 {
   guint16 filler_length;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v8_link_status_values, "Unknown"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v8_link_status_values, "Unknown"));
 
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
 
@@ -368,8 +362,7 @@ dissect_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, prot
 {
   guint16 filler_length;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), link_status_values, "Unknown"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str_const(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), link_status_values, "Unknown"));
 
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
 
@@ -518,26 +511,20 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *m2pa_item;
   proto_tree *m2pa_tree;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    switch(m2pa_version) {
-    case M2PA_V02:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 02)");
-      break;
-    case M2PA_V08:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 08)");
-      break;
-    case M2PA_RFC4165:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA");
-      break;
-    };
+  switch(m2pa_version) {
+  case M2PA_V02:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 02)");
+    break;
+  case M2PA_V08:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 08)");
+    break;
+  case M2PA_RFC4165:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA");
+    break;
+  };
 
-  if (tree) {
-    m2pa_item = proto_tree_add_item(tree, proto_m2pa, tvb, 0, -1, ENC_NA);
-    m2pa_tree = proto_item_add_subtree(m2pa_item, ett_m2pa);
-  } else {
-    m2pa_item = NULL;
-    m2pa_tree = NULL;
-  }
+  m2pa_item = proto_tree_add_item(tree, proto_m2pa, tvb, 0, -1, ENC_NA);
+  m2pa_tree = proto_item_add_subtree(m2pa_item, ett_m2pa);
 
   switch(m2pa_version) {
     case M2PA_V02:

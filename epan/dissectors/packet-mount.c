@@ -142,12 +142,10 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		break;
 		default:
 			/* void */
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(
+			col_append_fstr(
 					pinfo->cinfo, COL_INFO, " Error:%s",
 					val_to_str(status, mount3_mountstat3,
 					    "Unknown (0x%08X)"));
-			}
 		break;
 	}
 
@@ -189,10 +187,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	offset = dissect_rpc_string(tvb,tree,hf_mount_path,offset,&mountpoint);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO," %s", mountpoint);
-	}
-
+	col_append_fstr(pinfo->cinfo, COL_INFO," %s", mountpoint);
 
 	return offset;
 }
@@ -530,12 +525,10 @@ dissect_mountstat3(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offs
 
 	mountstat3 = tvb_get_ntohl(tvb, offset);
 	if(mountstat3){
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(
+		col_append_fstr(
 				pinfo->cinfo, COL_INFO, " Error:%s",
 				val_to_str(mountstat3, mount3_mountstat3,
 				    "Unknown (0x%08X)"));
-		}
 	}
 
 	offset = dissect_rpc_uint32(tvb,tree,hfindex,offset);

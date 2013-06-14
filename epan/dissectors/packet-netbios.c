@@ -1099,28 +1099,24 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* limit command so no table overflows */
 	command = MIN( command, sizeof( dissect_netb)/ sizeof(void *));
 
-        if (check_col( pinfo->cinfo, COL_INFO)) {              /* print command name */
-		command_name = val_to_str(command, cmd_vals, "Unknown (0x%02x)");
-                switch ( command ) {
-                case NB_NAME_QUERY:
-                        name_type = get_netbios_name( tvb, offset + 12, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
-                        col_add_fstr( pinfo->cinfo, COL_INFO, "%s for %s<%02x>",
-                            command_name, name, name_type);
-                        break;
+		/* print command name */
+	command_name = val_to_str(command, cmd_vals, "Unknown (0x%02x)");
+	switch ( command ) {
+		case NB_NAME_QUERY:
+			name_type = get_netbios_name( tvb, offset + 12, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
+			col_add_fstr( pinfo->cinfo, COL_INFO, "%s for %s<%02x>", command_name, name, name_type);
+			break;
 
-                case NB_NAME_RESP:
-                case NB_ADD_NAME:
-                case NB_ADD_GROUP:
-                        name_type = get_netbios_name( tvb, offset + 28, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
-                        col_add_fstr( pinfo->cinfo, COL_INFO, "%s - %s<%02x>",
-                            command_name, name, name_type);
-                        break;
+		case NB_NAME_RESP:
+		case NB_ADD_NAME:
+		case NB_ADD_GROUP:
+			name_type = get_netbios_name( tvb, offset + 28, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
+			col_add_fstr( pinfo->cinfo, COL_INFO, "%s - %s<%02x>", command_name, name, name_type);
+		break;
 
 		default:
-			col_add_str( pinfo->cinfo, COL_INFO,
-			    command_name);
+			col_add_str( pinfo->cinfo, COL_INFO, command_name);
 			break;
-		}
 	}
 
 	if ( tree) {

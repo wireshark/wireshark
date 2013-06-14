@@ -390,8 +390,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	ptype = tvb_get_guint8(tvb, 0);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(ptype, vines_llc_ptype_vals,
 		      "Unknown protocol 0x%02x"));
 	if (tree) {
@@ -488,11 +487,9 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vip_tctl = tvb_get_guint8(tvb, offset+3);
 	vip_proto = tvb_get_guint8(tvb, offset+4);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
 			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"), 
 			vip_tctl);
-	}
 
 	src_addr = tvb_get_ptr(tvb, offset+12, VINES_ADDR_LEN);
 	SET_ADDRESS(&pinfo->net_src, AT_VINES, VINES_ADDR_LEN, src_addr);
@@ -758,19 +755,18 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vipc_err_len = g_ntohs(viph.vipc_err_len);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IPC");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		switch (viph.vipc_pkttype) {
+	switch (viph.vipc_pkttype) {
 
-		case PKTTYPE_DGRAM:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	case PKTTYPE_DGRAM:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "%s D=%04x S=%04x",
 				     val_to_str(viph.vipc_pkttype, pkttype_vals,
 				         "Unknown packet type (0x%02x)"),
 				     viph.vipc_dport, viph.vipc_sport);
-			break;
+		break;
 
-		case PKTTYPE_ERR:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	case PKTTYPE_ERR:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "%s NS=%u NR=%u Err=%s RID=%04x LID=%04x D=%04x S=%04x",
 				     val_to_str(viph.vipc_pkttype, pkttype_vals,
 				         "Unknown packet type (0x%02x)"),
@@ -779,10 +775,10 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				         vipc_err_vals, "Unknown (%u)"),
 				     viph.vipc_rmtid, viph.vipc_lclid,
 				     viph.vipc_dport, viph.vipc_sport);
-			break;
+		break;
 
-		default:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "%s NS=%u NR=%u Len=%u RID=%04x LID=%04x D=%04x S=%04x",
 				     val_to_str(viph.vipc_pkttype, pkttype_vals,
 				         "Unknown packet type (0x%02x)"),
@@ -790,8 +786,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				     viph.vipc_err_len, viph.vipc_rmtid,
 				     viph.vipc_lclid, viph.vipc_dport,
 				     viph.vipc_sport);
-			break;
-		}
+		break;
 	}
 
 	ti = proto_tree_add_item(tree, proto_vines_ipc, tvb, offset,
@@ -975,8 +970,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vspp_win = g_ntohs(viph.vspp_win);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "%s NS=%u NR=%u Window=%u RID=%04x LID=%04x D=%04x S=%04x",
 			     val_to_str(viph.vspp_pkttype, pkttype_vals,
 			         "Unknown packet type (0x%02x)"),
@@ -1182,31 +1176,25 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SARP");
 		packet_type = tvb_get_guint8(tvb, 1);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(packet_type, vines_arp_packet_type_vals,
 			      "Unknown (0x%02x)"));
-		}
-		if (tree) {
-			proto_tree_add_text(vines_arp_tree, tvb, 1, 1,
+
+		proto_tree_add_text(vines_arp_tree, tvb, 1, 1,
 					    "Packet Type: %s (0x%02x)",
 					    val_to_str_const(packet_type,
 					      vines_arp_packet_type_vals,
 					      "Unknown"),
 					    packet_type);
-		}
+
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
 					    tvb_vines_addr_to_str(tvb, 2));
-			}
-			if (tree) {
-				proto_tree_add_text(vines_arp_tree, tvb, 2,
+			proto_tree_add_text(vines_arp_tree, tvb, 2,
 						    VINES_ADDR_LEN,
 						    "Address: %s",
 						    tvb_vines_addr_to_str(tvb, 2));
-			}
 		}
 		if (tree) {
 			proto_tree_add_text(vines_arp_tree, tvb,
@@ -1224,31 +1212,25 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Non-sequenced ARP.
 		 */
 		packet_type = (guint8) tvb_get_ntohs(tvb, 0);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(packet_type, vines_arp_packet_type_vals,
 			      "Unknown (0x%02x)"));
-		}
-		if (tree) {
-			proto_tree_add_text(vines_arp_tree, tvb, 0, 2,
+		proto_tree_add_text(vines_arp_tree, tvb, 0, 2,
 					    "Packet Type: %s (0x%04x)",
 					    val_to_str_const(packet_type,
 					      vines_arp_packet_type_vals,
 					      "Unknown"),
 					    packet_type);
-		}
+
 		if (packet_type == VARP_ASSIGNMENT_RESP) {
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 					    ", Address = %s",
 					    tvb_vines_addr_to_str(tvb, 2));
-			}
-			if (tree) {
-				proto_tree_add_text(vines_arp_tree, tvb, 2,
+
+			proto_tree_add_text(vines_arp_tree, tvb, 2,
 						    VINES_ADDR_LEN,
 						    "Address: %s",
 						    tvb_vines_addr_to_str(tvb, 2));
-			}
 		}
 	}
 }
@@ -1356,11 +1338,10 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Non-sequenced RTP.
 		 */
 		operation_type = tvb_get_guint8(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(operation_type, vines_rtp_operation_type_vals,
 			      "Unknown (0x%02x)"));
-		}
+
 		if (tree) {
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Operation Type: %s (0x%02x)",
@@ -1450,11 +1431,10 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset += 2;
 		operation_type = tvb_get_guint8(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(operation_type, vines_rtp_operation_type_vals,
 			      "Unknown (0x%02x)"));
-		}
+
 		if (tree) {
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
 					    "Operation Type: %s (0x%02x)",
@@ -1894,50 +1874,39 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	packet_type = tvb_get_ntohs(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, vines_icp_packet_type_vals,
 		      "Unknown (0x%02x)"));
-	}
-	if (tree) {
-		proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
+
+	proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
 				    "Packet Type: %s (0x%04x)",
 				    val_to_str_const(packet_type,
 				      vines_icp_packet_type_vals,
 				      "Unknown"),
 				    packet_type);
-	}
 	offset += 2;
 
 	switch (packet_type) {
 
 	case VICP_EXCEPTION_NOTIFICATION:
 		exception_code = tvb_get_ntohs(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 			    val_to_str(exception_code, vipc_err_vals,
 			        "Unknown exception code (%u)"));
-		}
-		if (tree) {
-			proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
+		proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
 					    "Exception Code: %s (%u)",
 					    val_to_str_const(exception_code,
 					      vipc_err_vals,
 					      "Unknown"),
 					    exception_code);
-		}
 		break;
 
 	case VICP_METRIC_NOTIFICATION:
 		metric = tvb_get_ntohs(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", metric %u",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", metric %u",
 			    metric);
-		}
-		if (tree) {
-			proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
+		proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
 					    "Metric: %u", metric);
-		}
 		break;
 	}
 	offset += 2;

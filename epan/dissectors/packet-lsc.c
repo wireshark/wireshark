@@ -196,16 +196,14 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
   /* Display the op code in the summary */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, session %.8u",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s, session %.8u",
                  val_to_str(op_code, op_code_vals, "Unknown op code (0x%x)"),
                  stream);
 
-    if (tvb_length(tvb) < expected_len)
-      col_append_str(pinfo->cinfo, COL_INFO, " [Too short]");
-    else if (tvb_length(tvb) > expected_len)
-      col_append_str(pinfo->cinfo, COL_INFO, " [Too long]");
-  }
+  if (tvb_length(tvb) < expected_len)
+    col_append_str(pinfo->cinfo, COL_INFO, " [Too short]");
+  else if (tvb_length(tvb) > expected_len)
+    col_append_str(pinfo->cinfo, COL_INFO, " [Too long]");
 
   if (tree) {
     /* Create display subtree for the protocol */

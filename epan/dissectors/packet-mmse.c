@@ -666,10 +666,8 @@ dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMSE");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "MMS %s", message_type);
-    }
 
     dissect_mmse(tvb, pinfo, tree, pdut, message_type);
 }
@@ -687,10 +685,8 @@ dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_type = val_to_str(pdut, vals_message_type, "Unknown type %u");
 
     /* Make entries in Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(MMS %s)",
 		message_type);
-    }
 
     dissect_mmse(tvb, pinfo, tree, pdut, message_type);
 }

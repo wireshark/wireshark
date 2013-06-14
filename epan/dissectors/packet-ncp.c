@@ -460,10 +460,8 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
-    }
+    col_add_str(pinfo->cinfo, COL_INFO,
+        val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
 
     /*
      * Process the packet-type-specific header.
@@ -643,13 +641,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 4;
             data_len -= 4;
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                    "%s %d bytes starting at offset %d in file 0x%08x",
-                    val_to_str(ncp_burst_command,
-                      burst_command, "Unknown (0x%08x)"),
-                     burst_len, burst_off, burst_file);
-            }
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                "%s %d bytes starting at offset %d in file 0x%08x",
+                val_to_str(ncp_burst_command,
+                    burst_command, "Unknown (0x%08x)"),
+                    burst_len, burst_off, burst_file);
             break;
         } else {
             if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {

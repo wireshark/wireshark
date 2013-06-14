@@ -214,8 +214,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 			(( redirect_info->proto == PT_TCP) ? "TCP stream" :
 			 "UDP packets"));
 
@@ -1075,7 +1074,7 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
-	proto_tree      *msproxy_tree = NULL;
+	proto_tree      *msproxy_tree;
 	proto_item      *ti;
 	unsigned int	cmd;
 
@@ -1095,25 +1094,17 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hash_info);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
+	cmd = tvb_get_ntohs( tvb, 36);
 
-		cmd = tvb_get_ntohs( tvb, 36);
+	if ( pinfo->srcport == UDP_PORT_MSPROXY)
+		col_add_fstr( pinfo->cinfo, COL_INFO, "Server message: %s",
+			get_msproxy_cmd_name( cmd, FROM_SERVER));
+	else
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Client message: %s",
+			get_msproxy_cmd_name( cmd, FROM_CLIENT));
 
-		if ( pinfo->srcport == UDP_PORT_MSPROXY)
-			col_add_fstr( pinfo->cinfo, COL_INFO, "Server message: %s",
-				get_msproxy_cmd_name( cmd, FROM_SERVER));
-		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Client message: %s",
-				get_msproxy_cmd_name( cmd, FROM_CLIENT));
-
-	}
-
-	if (tree) {				/* if proto tree, decode data */
-    		ti = proto_tree_add_item( tree, proto_msproxy, tvb, 0, -1,
-    				ENC_NA );
-
-		msproxy_tree = proto_item_add_subtree(ti, ett_msproxy);
-	}
+	ti = proto_tree_add_item( tree, proto_msproxy, tvb, 0, -1, ENC_NA );
+	msproxy_tree = proto_item_add_subtree(ti, ett_msproxy);
 
 	if ( pinfo->srcport == UDP_PORT_MSPROXY)
 		dissect_msproxy_response( tvb, pinfo, msproxy_tree, hash_info);

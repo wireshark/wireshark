@@ -269,8 +269,7 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
   message_length = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, m2tp_message_class_type_acro_values, "reserved"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, m2tp_message_class_type_acro_values, "reserved"));
 
   if (m2tp_tree) {
     /* add the components of the common header to the protocol tree */

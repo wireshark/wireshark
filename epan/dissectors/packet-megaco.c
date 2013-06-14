@@ -580,8 +580,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (!first) {
               col_append_str(pinfo->cinfo, COL_INFO, " ");
             }
-            if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
                 tvb_format_text(tvb,tvb_previous_offset,len));
 
             if(tree)
@@ -614,8 +613,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (!first) {
               col_append_str(pinfo->cinfo, COL_INFO, " ");
             }
-            if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
                 tvb_format_text(tvb,tvb_offset,len));
 
             if(tree)
@@ -642,8 +640,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_LBRKT-1);
             len = tvb_current_offset - tvb_offset;
 
-            if (check_col(pinfo->cinfo, COL_INFO) )
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply  ",
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply  ",
                   tvb_format_text(tvb,tvb_offset,len));
             trx_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
 
@@ -679,8 +676,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (!first) {
               col_append_str(pinfo->cinfo, COL_INFO, " ");
             }
-            if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request",
                   tvb_format_text(tvb,tvb_offset,len));
             trx_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
             if(tree)
@@ -768,8 +764,7 @@ nextcontext:
                 tokenlen));
             ctx_id = (guint)strtoul(tvb_format_text(tvb, tvb_previous_offset, tokenlen),NULL,10);
 
-            if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s",tvb_format_text(tvb, tvb_previous_offset,tokenlen));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s",tvb_format_text(tvb, tvb_previous_offset,tokenlen));
         }
 
         ctx = gcp_ctx(msg,trx,ctx_id,keep_persistent_data);
@@ -1218,8 +1213,7 @@ nextcontext:
                             tvb_command_start_offset, tokenlen,
                             tvb_format_text(tvb, tvb_command_start_offset,
                             tokenlen));
-                            if (check_col(pinfo->cinfo, COL_INFO) )
-                                col_append_fstr(pinfo->cinfo, COL_INFO, " %s",command);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",command);
                     }
 
                     if (cmd_type == GCP_CMD_NONE && trx_type == GCP_TRX_REPLY) {
@@ -1312,8 +1306,7 @@ nextcontext:
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
 
-                            if (check_col(pinfo->cinfo, COL_INFO) )
-                                col_append_fstr(pinfo->cinfo, COL_INFO, "=%s",tvb_format_text(tvb, tvb_offset,tokenlen));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "=%s",tvb_format_text(tvb, tvb_offset,tokenlen));
                         break;
                     }
 
@@ -2101,8 +2094,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
     tvb_current_offset = tvb_LBRKT;
     tvb_next_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset+1);
-    if (check_col(pinfo->cinfo, COL_INFO) )
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Signal:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen-tvb_current_offset+tvb_previous_offset));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (Signal:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen-tvb_current_offset+tvb_previous_offset));
 
 
     if ( tvb_current_offset < tvb_signals_end_offset && tvb_current_offset != -1 && tvb_next_offset != tvb_signals_end_offset){
@@ -3146,8 +3138,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
                 tvb_current_offset, tokenlen,
                 tvb_format_text(tvb, tvb_current_offset,
                 tokenlen));
-            if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Mode:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Mode:%s)",tvb_format_text(tvb, tvb_current_offset,tokenlen));
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
 

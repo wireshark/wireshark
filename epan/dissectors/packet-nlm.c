@@ -381,17 +381,13 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
 	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 
 	svid = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_svid, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " svid:%d", svid);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " svid:%d", svid);
 
 	if (version == 4) {
 		start_offset = tvb_get_ntohl(tvb, offset);
@@ -406,9 +402,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_len, offset);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%d-%d", start_offset, end_offset);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%d-%d", start_offset, end_offset);
 
 	return offset;
 }
@@ -644,9 +638,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_nlm_lock_caller_name, offset, NULL);
 
 	offset = dissect_nfs3_fh(tvb, offset, pinfo, lock_tree, "fh", &fh_hash);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " FH:0x%08x", fh_hash);
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 
@@ -666,7 +658,7 @@ dissect_nlm_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 	nlm_stat = tvb_get_ntohl(tvb, offset);
-	if (nlm_stat && check_col(pinfo->cinfo, COL_INFO)) {
+	if (nlm_stat) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 		    val_to_str(nlm_stat, names_nlm_stats, "Unknown Status (%u)"));
 	}
@@ -685,7 +677,7 @@ dissect_nlm_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			hf_nlm_share_name, offset, NULL);
 
 	nlm_stat = tvb_get_ntohl(tvb, offset);
-	if (nlm_stat && check_col(pinfo->cinfo, COL_INFO)) {
+	if (nlm_stat) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 		    val_to_str(nlm_stat, names_nlm_stats, "Unknown Status (%u)"));
 	}
@@ -727,7 +719,7 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 
 	nlm_stat = tvb_get_ntohl(tvb, offset);
-	if (nlm_stat && check_col(pinfo->cinfo, COL_INFO)) {
+	if (nlm_stat) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 		    val_to_str(nlm_stat, names_nlm_stats, "Unknown Status (%u)"));
 	}

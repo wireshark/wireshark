@@ -824,8 +824,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		return -1;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Chassis Id = %s ", strPtr);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Chassis Id = %s ", strPtr);
 
 	if (tree)
 	{
@@ -950,8 +949,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s ", strPtr);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s ", strPtr);
 
 	if (tree)
 	{
@@ -1024,8 +1022,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	tempLen = TLV_INFO_LEN(tempShort);
 	tempShort = tvb_get_ntohs(tvb, (offset+2));
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
 
 	if (tree)
 	{
@@ -1134,8 +1131,7 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		/* Set system name tree */
 		if (tempType == SYSTEM_NAME_TLV_TYPE) {
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Name = %s", strPtr);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
 		} else
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Description = %s", strPtr);
 		system_name_tree = proto_item_add_subtree(tf, ett_system_name);

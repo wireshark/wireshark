@@ -2033,11 +2033,9 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (cookie_len == -1)
         cookie_len = L2TPv3_COOKIE_DEFAULT;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo,COL_INFO,
-                     "%s            (session id=%u)",
-                     data_msg, sid);
-    }
+    col_add_fstr(pinfo->cinfo,COL_INFO,
+                    "%s            (session id=%u)",
+                    data_msg, sid);
 
     if (tree) {
         proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, ENC_BIG_ENDIAN);
@@ -2270,42 +2268,40 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     ccid = tvb_get_ntohl(tvb, idx);
     idx += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        tmp_idx = idx;
+    tmp_idx = idx;
 
-        if ((LENGTH_BIT(control))&&(length==12))                /* ZLB Message */
+    if ((LENGTH_BIT(control))&&(length==12))                /* ZLB Message */
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "%s - ZLB      (tunnel id=%u)",
+                        control_msg , ccid);
+    else
+    {
+        if (SEQUENCE_BIT(control)) {
+            tmp_idx += 4;
+        }
+
+        tmp_idx+=4;
+
+        avp_type = tvb_get_ntohs(tvb, tmp_idx);
+        tmp_idx += 2;
+
+        if (avp_type == CONTROL_MESSAGE) {
+            /* We print message type */
+            msg_type = tvb_get_ntohs(tvb, tmp_idx);
             col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "%s - ZLB      (tunnel id=%u)",
-                         control_msg , ccid);
-        else
-        {
-            if (SEQUENCE_BIT(control)) {
-                tmp_idx += 4;
-            }
-
-            tmp_idx+=4;
-
-            avp_type = tvb_get_ntohs(tvb, tmp_idx);
-            tmp_idx += 2;
-
-            if (avp_type == CONTROL_MESSAGE) {
-                /* We print message type */
-                msg_type = tvb_get_ntohs(tvb, tmp_idx);
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                             "%s - %s (tunnel id=%u)",
-                             control_msg ,
-                             val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
-                             ccid);
-            }
-            else {
-                /*
-                 * This is not a control message.
-                 * We never pass here except in case of bad l2tp packet!
-                 */
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                             "%s (tunnel id=%u)",
-                             control_msg,  ccid);
-            }
+                            "%s - %s (tunnel id=%u)",
+                            control_msg ,
+                            val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
+                            ccid);
+        }
+        else {
+            /*
+                * This is not a control message.
+                * We never pass here except in case of bad l2tp packet!
+                */
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                            "%s (tunnel id=%u)",
+                            control_msg,  ccid);
         }
     }
 
@@ -2492,53 +2488,51 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     idx += 2;
     cid = tvb_get_ntohs(tvb, idx);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (CONTROL_BIT(control)) {
-            /* CONTROL MESSAGE */
-            tmp_idx = idx;
+    if (CONTROL_BIT(control)) {
+        /* CONTROL MESSAGE */
+        tmp_idx = idx;
 
-            if ((LENGTH_BIT(control))&&(length==12))        /* ZLB Message */
+        if ((LENGTH_BIT(control))&&(length==12))        /* ZLB Message */
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                            "%s - ZLB      (tunnel id=%d, session id=%u)",
+                            control_msg, tid, cid);
+        else
+        {
+            if (SEQUENCE_BIT(control)) {
+                tmp_idx += 4;
+            }
+
+            tmp_idx+=4;
+
+            avp_type = tvb_get_ntohs(tvb, (tmp_idx+=2));
+
+            if (avp_type == CONTROL_MESSAGE) {
+                /* We print message type */
+                msg_type = tvb_get_ntohs(tvb, tmp_idx+2);
                 col_add_fstr(pinfo->cinfo, COL_INFO,
-                             "%s - ZLB      (tunnel id=%d, session id=%u)",
-                             control_msg, tid, cid);
+                                "%s - %s (tunnel id=%u, session id=%u)",
+                                control_msg,
+                                val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
+                                tid, cid);
+            }
             else
             {
-                if (SEQUENCE_BIT(control)) {
-                    tmp_idx += 4;
-                }
+                /*
+                    * This is not a control message.
+                    * We never pass here except in case of bad l2tp packet!
+                    */
+                col_add_fstr(pinfo->cinfo, COL_INFO,
+                                "%s (tunnel id=%u, session id=%u)",
+                                control_msg, tid, cid);
 
-                tmp_idx+=4;
-
-                avp_type = tvb_get_ntohs(tvb, (tmp_idx+=2));
-
-                if (avp_type == CONTROL_MESSAGE) {
-                    /* We print message type */
-                    msg_type = tvb_get_ntohs(tvb, tmp_idx+2);
-                    col_add_fstr(pinfo->cinfo, COL_INFO,
-                                 "%s - %s (tunnel id=%u, session id=%u)",
-                                 control_msg,
-                                 val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
-                                 tid, cid);
-                }
-                else
-                {
-                    /*
-                     * This is not a control message.
-                     * We never pass here except in case of bad l2tp packet!
-                     */
-                    col_add_fstr(pinfo->cinfo, COL_INFO,
-                                 "%s (tunnel id=%u, session id=%u)",
-                                 control_msg, tid, cid);
-
-                }
             }
         }
-        else {
-            /* DATA Message */
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "%s            (tunnel id=%u, session id=%u)",
-                         data_msg, tid, cid);
-        }
+    }
+    else {
+        /* DATA Message */
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "%s            (tunnel id=%u, session id=%u)",
+                        data_msg, tid, cid);
     }
 
     if (LENGTH_BIT(control)) {

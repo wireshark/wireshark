@@ -258,26 +258,20 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 
 	if (set_version == V11){
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_11);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_11);
 		/* display mode */
 		if (pref_user_mode == FALSE){
-			if (check_col( pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str_const(mode, modetypenames, "user mode"));
-		}
-		if (pref_user_mode == TRUE){
-			if ( check_col( pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s","user mode");
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str_const(mode, modetypenames, "user mode"));
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s","user mode");
 		}
 		user_mode = pref_user_mode;
 	}
 	if (set_version == V20){
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_20);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_20);
 		user_mode = TRUE;
 		/* display mode */
-		if (check_col( pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s","user mode");
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s","user mode");
 	}
 	/* select correct AU values depending on version & selected mode in preferences menu if not in user_mode */
 	if (user_mode == TRUE){ /* use values set in preference menu */
@@ -573,10 +567,9 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_iv, tvb, poffset->offset_bytes, iv_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes",iv_length); /* add IV info */
-		if ( check_col( pinfo->cinfo, COL_INFO) ) {
-			col_append_fstr( pinfo->cinfo, COL_INFO,
+		col_append_fstr( pinfo->cinfo, COL_INFO,
 			", IV=0x%s", tvb_bytes_to_str_punct(tvb, poffset->offset_bytes, iv_length,' '));
-		}
+
 		poffset->offset_bytes+=iv_length; /* add IV length to offset_bytes */
 	}
 	/*Delta  IV */
@@ -585,10 +578,8 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_delta_iv,
 						    tvb, poffset->offset_bytes, delta_iv_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes",delta_iv_length); /* add delta IV info */
-		if ( check_col( pinfo->cinfo, COL_INFO) ) {
-			col_append_fstr( pinfo->cinfo, COL_INFO,
+		col_append_fstr( pinfo->cinfo, COL_INFO,
 			", Delta IV=0x%s", tvb_bytes_to_str_punct(tvb, poffset->offset_bytes, delta_iv_length,' '));
-		}
 		poffset->offset_bytes+=iv_length; /* add IV length to offset_bytes */
 	}
 	/* Key Indicator */
@@ -598,10 +589,8 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_key_indicator,
 						    tvb, poffset->offset_bytes, key_indicator_length, ENC_NA);
 		proto_item_append_text(ismacryp_item,": Length=%d bytes",key_indicator_length); /* add KI info */
-		if ( check_col( pinfo->cinfo, COL_INFO) ) {
-			col_append_fstr( pinfo->cinfo, COL_INFO,
+		col_append_fstr( pinfo->cinfo, COL_INFO,
 					 ", KI=0x%s", tvb_bytes_to_str_punct(tvb, poffset->offset_bytes, key_indicator_length,' '));
-		}
 		poffset->offset_bytes+=key_indicator_length; /* add KI length to offset_bytes */
 	}
 	/* AU size */

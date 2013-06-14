@@ -59,8 +59,8 @@ static void
 dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti=NULL;
-	proto_tree *llt_tree=NULL;
+	proto_item *ti;
+	proto_tree *llt_tree;
 	guint8 message_type;
 
 	/* Make entries in Protocol column and Info column on summary display */
@@ -68,14 +68,10 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	message_type = tvb_get_guint8(tvb, 3);
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
-		llt_tree = proto_item_add_subtree(ti, ett_llt);
-	}
+	ti = proto_tree_add_item(tree, proto_llt, tvb, 0, -1, ENC_NA);
+	llt_tree = proto_item_add_subtree(ti, ett_llt);
 
 	proto_tree_add_item(llt_tree, hf_llt_cluster_num, tvb, 2, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(llt_tree, hf_llt_message_type, tvb, 3, 1, ENC_BIG_ENDIAN);

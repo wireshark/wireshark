@@ -1674,7 +1674,7 @@ static int
 dissect_krb5_error_code(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
     offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_error_code, &krb5_errorcode);
-    if(krb5_errorcode && check_col(actx->pinfo->cinfo, COL_INFO)) {
+    if(krb5_errorcode) {
         col_add_fstr(actx->pinfo->cinfo, COL_INFO,
                      "KRB Error: %s",
                      val_to_str(krb5_errorcode, krb5_error_codes,
@@ -1916,7 +1916,7 @@ dissect_krb5_msg_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
 
     offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_msg_type, &msgtype);
 
-    if (gbl_do_col_info & check_col(actx->pinfo->cinfo, COL_INFO)) {
+    if (gbl_do_col_info) {
         col_add_str(actx->pinfo->cinfo, COL_INFO,
                     val_to_str(msgtype, krb5_msg_types,
                                "Unknown msg type %#x"));
@@ -2295,7 +2295,7 @@ dissect_krb5_PW_SALT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
      */
     proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     nt_status=tvb_get_letohl(tvb, offset);
-    if(nt_status && check_col(actx->pinfo->cinfo, COL_INFO)) {
+    if(nt_status) {
         col_append_fstr(actx->pinfo->cinfo, COL_INFO,
                         " NT Status: %s",
                         val_to_str(nt_status, NT_errors,

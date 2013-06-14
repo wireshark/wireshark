@@ -172,8 +172,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* cv = find_or_create_conversation(pinfo); */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
                     (pinfo->match_uint == pinfo->destport) ?
                      ">" : "<");
 

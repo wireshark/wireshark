@@ -440,20 +440,17 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(xid_tree, hf_llc_xid_types, tvb, 1,
 			1, types & TYPES_MASK);
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; %s", val_to_str(types & TYPES_MASK, type_vals, "0x%02x")
 		);
-	}
+
 	wsize = tvb_get_guint8(tvb, 2);
 	if (tree) {
 		proto_tree_add_uint(xid_tree, hf_llc_xid_wsize, tvb, 2,
 			1, (wsize & 0xFE) >> 1);
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; Window Size %d", (wsize & 0xFE) >> 1);
-	}
 }
 
 static void
@@ -515,8 +512,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    hf_llc_oui, hf_llc_type, hf_llc_pid, 2);
 	}
 	else {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "; DSAP %s %s, SSAP %s %s",
 			    val_to_str(dsap & SAP_MASK, sap_vals, "0x%02x"),
 			    dsap & DSAP_GI_BIT ?
@@ -525,7 +521,6 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    ssap & SSAP_CR_BIT ?
 			      "Response" : "Command"
 			);
-		}
 
 		if (tvb_length_remaining(tvb, llc_header_len) > 0) {
 			next_tvb = tvb_new_subset_remaining(tvb, llc_header_len);
@@ -591,14 +586,11 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	oui =	tvb_get_ntoh24(tvb, offset);
 	etype = tvb_get_ntohs(tvb, offset+3);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
 		    oui, val_to_str_const(oui, oui_vals, "Unknown"), etype);
-	}
-	if (tree) {
-		proto_tree_add_uint(snap_tree, hf_oui, tvb, offset, 3, oui);
-	}
+
+	proto_tree_add_uint(snap_tree, hf_oui, tvb, offset, 3, oui);
 
 	switch (oui) {
 

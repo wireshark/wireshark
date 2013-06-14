@@ -435,8 +435,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	sapi = (addr & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
 	lapd_header_len = 2;	/* addr */
 
-	if (check_col(pinfo->cinfo, COL_TEI))
-		col_add_fstr(pinfo->cinfo, COL_TEI, "%u", tei);
+	col_add_fstr(pinfo->cinfo, COL_TEI, "%u", tei);
 
 	/* Append TEI to info field */
 	col_append_fstr(pinfo->cinfo, COL_INFO, "TEI:%02u ", tei);

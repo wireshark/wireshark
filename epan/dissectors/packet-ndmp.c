@@ -661,7 +661,7 @@ dissect_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* error */
 	err=tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
-	if(err && check_col(pinfo->cinfo, COL_INFO)) {
+	if(err) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" NDMP Error:%s ",
 			val_to_str(err, error_vals,
@@ -2387,17 +2387,13 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 		/* file */
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_file_name, offset, &name);
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 		break;
 	case NDMP_FS_NT:
 		/* nt file */
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_nt_file_name, offset, &name);
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 
 		/* dos file */
 		offset = dissect_rpc_string(tvb, tree,
@@ -2407,15 +2403,11 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 		/* file */
 		offset = dissect_rpc_string(tvb, tree,
 				hf_ndmp_file_name, offset, &name);
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
 			val_to_str_const(type, file_fs_type_vals, "Unknown type") );
-	}
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -3031,12 +3023,10 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	/* error */
 	offset=dissect_error(tvb, offset, pinfo, tree, nh->seq);
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ",
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ",
 			val_to_str(nh->msg, msg_vals, "Unknown Message (0x%02x)"),
 			val_to_str(nh->type, msg_type_vals, "Unknown Type (0x%02x)")
 			);
-	}
 
 	return offset;
 }
@@ -3266,10 +3256,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_clear(pinfo->cinfo, COL_INFO);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "[NDMP fragment] ");
-			}
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[NDMP fragment] ");
 
 			/*
 			 * Add the record marker information to the tree

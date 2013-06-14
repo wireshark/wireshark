@@ -462,10 +462,9 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    "Sending Router System ID: %s",
 		    tvb_ether_to_str(tvb, offset));
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", System ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", System ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
+
 	offset += 6;
 
 	if (tree) {
@@ -1023,47 +1022,38 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	offset += 2;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
+
+	proto_tree_add_text(tree, tvb, offset, 6,
 		    "LSP ID system ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
+
 	offset += 6;
 	/* XXX - append the pseudonode ID */
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "LSP ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
+
 	offset += 1;
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "LSP ID LSP number: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
 	offset += 1;
 
 	sequence_number = tvb_get_ntohl(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    ", Sequence: 0x%08x, Lifetime: %us",
 		    sequence_number, remaining_lifetime);
-	}
-	if (tree) {
-		proto_tree_add_uint(tree, hf_nlsp_lsp_sequence_number, tvb,
+
+	proto_tree_add_uint(tree, hf_nlsp_lsp_sequence_number, tvb,
 			offset, 4, sequence_number);
-	}
 	offset += 4;
 
-	if (tree) {
-		/* XXX -> we could validate the cksum here! */
-		proto_tree_add_item(tree, hf_nlsp_lsp_checksum, tvb,
-			offset, 2, ENC_BIG_ENDIAN );
-	}
+	/* XXX -> we could validate the cksum here! */
+	proto_tree_add_item(tree, hf_nlsp_lsp_checksum, tvb,
+		offset, 2, ENC_BIG_ENDIAN );
+
 	offset += 2;
 
 	if (tree) {
@@ -1258,70 +1248,49 @@ nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	offset += 2;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
+	proto_tree_add_text(tree, tvb, offset, 6,
 		    "Source ID system ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
 	offset += 6;
 	/* XXX - add the pseudonode ID */
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "Source ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
 	offset += 1;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
+	proto_tree_add_text(tree, tvb, offset, 6,
 		    "Start LSP ID source ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
 	offset += 6;
 	/* XXX - append the pseudonode ID */
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "Start LSP ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
-	offset += 1;
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Start LSP ID LSP number: %u",
-		    tvb_get_guint8(tvb, offset));
-	}
 	offset += 1;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP ID: %s",
+	proto_tree_add_text(tree, tvb, offset, 1,
+		    "Start LSP ID LSP number: %u",
+		    tvb_get_guint8(tvb, offset));
+	offset += 1;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
+	proto_tree_add_text(tree, tvb, offset, 6,
 		    "End LSP ID source ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
 	offset += 6;
 	/* XXX - append the pseudonode ID */
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "End LSP ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
 	offset += 1;
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "End LSP ID LSP number: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
 	offset += 1;
 
 	len = packet_length - header_length;
@@ -1373,28 +1342,20 @@ nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 
 	packet_length = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb,
+	proto_tree_add_uint(tree, hf_nlsp_packet_length, tvb,
 			offset, 2, packet_length);
-	}
 	offset += 2;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 6,
+	proto_tree_add_text(tree, tvb, offset, 6,
 		    "Source ID system ID: %s",
 		    tvb_ether_to_str(tvb, offset));
-	}
 	offset += 6;
 	/* XXX - add the pseudonode ID */
-	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1,
 		    "Source ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset));
-	}
 	offset += 1;
 
 	len = packet_length - header_length;
@@ -1425,7 +1386,7 @@ static void
 dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *nlsp_tree = NULL;
+	proto_tree *nlsp_tree;
 	int offset = 0;
 	guint8 nlsp_major_version;
 	guint8 nlsp_header_length;
@@ -1437,63 +1398,48 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	nlsp_major_version = tvb_get_guint8(tvb, 5);
 	if (nlsp_major_version != 1){
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Unknown NLSP version (%u vs 1)",
 				nlsp_major_version);
-		}
+
 		nlsp_dissect_unknown(tvb, tree, 0,
 			"Unknown NLSP version (%d vs 1)",
 			nlsp_major_version, 1);
 		return;
 	}
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nlsp, tvb, 0, -1, ENC_NA);
-		nlsp_tree = proto_item_add_subtree(ti, ett_nlsp);
-	}
+	ti = proto_tree_add_item(tree, proto_nlsp, tvb, 0, -1, ENC_NA);
+	nlsp_tree = proto_item_add_subtree(ti, ett_nlsp);
 
-	if (tree) {
-		proto_tree_add_item(nlsp_tree, hf_nlsp_irpd, tvb, offset, 1,
+	proto_tree_add_item(nlsp_tree, hf_nlsp_irpd, tvb, offset, 1,
 			ENC_BIG_ENDIAN );
-	}
 	offset += 1;
 
 	nlsp_header_length = tvb_get_guint8(tvb, 1);
-	if (tree) {
-		proto_tree_add_uint(nlsp_tree, hf_nlsp_header_length, tvb,
+	proto_tree_add_uint(nlsp_tree, hf_nlsp_header_length, tvb,
 			offset, 1, nlsp_header_length );
-	}
 	offset += 1;
 
-	if (tree) {
-		proto_tree_add_item(nlsp_tree, hf_nlsp_minor_version, tvb,
+	proto_tree_add_item(nlsp_tree, hf_nlsp_minor_version, tvb,
 			offset, 1, ENC_BIG_ENDIAN );
-	}
 	offset += 1;
 
 	offset += 1;	/* Reserved */
 
 	packet_type_flags = tvb_get_guint8(tvb, offset);
 	packet_type = packet_type_flags & PACKET_TYPE_MASK;
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, nlsp_packet_type_vals, "Unknown (%u)"));
-	}
-	if (tree) {
-		if (packet_type == NLSP_TYPE_L1_LSP) {
-			proto_tree_add_boolean(nlsp_tree, hf_nlsp_nr, tvb, offset, 1,
+	if (packet_type == NLSP_TYPE_L1_LSP) {
+		proto_tree_add_boolean(nlsp_tree, hf_nlsp_nr, tvb, offset, 1,
 			    packet_type_flags );
-		}
-		proto_tree_add_uint(nlsp_tree, hf_nlsp_type, tvb, offset, 1,
-		    packet_type_flags );
 	}
+	proto_tree_add_uint(nlsp_tree, hf_nlsp_type, tvb, offset, 1,
+		    packet_type_flags );
 	offset += 1;
 
-	if (tree) {
-		proto_tree_add_item(nlsp_tree, hf_nlsp_major_version, tvb,
+	proto_tree_add_item(nlsp_tree, hf_nlsp_major_version, tvb,
 			offset, 1, ENC_BIG_ENDIAN );
-	}
 	offset += 1;
 
 	offset += 2;	/* Reserved */

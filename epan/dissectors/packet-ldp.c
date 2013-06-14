@@ -2581,17 +2581,15 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
     rem -= 4;
     length = MIN(length, rem);  /* Don't go haywire if a problem ... */
 
-    if( check_col(pinfo->cinfo, COL_INFO) ){
-        switch (type) {
-        case LDP_VENDOR_PRIVATE_START:
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor-Private Message (0x%04X) ", typebak);
-            break;
-        case LDP_EXPERIMENTAL_MESSAGE_START:
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Experimental Message (0x%04X) ", typebak);
-            break;
-        default:
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, ldp_message_types, "Unknown Message (0x%04X)"));
-        }
+    switch (type) {
+    case LDP_VENDOR_PRIVATE_START:
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor-Private Message (0x%04X) ", typebak);
+        break;
+    case LDP_EXPERIMENTAL_MESSAGE_START:
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Experimental Message (0x%04X) ", typebak);
+        break;
+    default:
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, ldp_message_types, "Unknown Message (0x%04X)"));
     }
 
     if (tree) {

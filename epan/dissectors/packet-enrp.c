@@ -942,7 +942,7 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_enrp_message is called via dissect_error_cause */
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
+  if (pinfo)
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown ENRP Type"));
 
   if (enrp_tree) {

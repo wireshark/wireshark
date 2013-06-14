@@ -78,12 +78,10 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   do {
     function = tvb_get_letohs(tvb, offset);
     if (offset == skip_offset) {
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
+      col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(function, function_vals, "Unknown function (%u)"));
-      }
-      if (tree)
-        proto_tree_add_text(loop_tree, tvb, offset, 2, "Relevant function:");
+
+      proto_tree_add_text(loop_tree, tvb, offset, 2, "Relevant function:");
       set_info = FALSE;
     }
     if (tree)

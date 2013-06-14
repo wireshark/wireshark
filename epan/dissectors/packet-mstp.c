@@ -175,10 +175,9 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_set_str(pinfo->cinfo, COL_INFO, "BACnet MS/TP");
 	mstp_frame_type = tvb_get_guint8(tvb, offset);
 	mstp_frame_pdu_len = tvb_get_ntohs(tvb, offset+3);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 			mstp_frame_type_text(mstp_frame_type));
-	}
+
 	/* Add the items to the tree */
 	proto_tree_add_item(subtree, hf_mstp_frame_type, tvb,
 			offset, 1, ENC_LITTLE_ENDIAN);

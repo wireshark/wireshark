@@ -300,11 +300,10 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_NAME_IN_USE:
 	case NBIPX_DEREGISTER_NAME:
 		name_type = get_netbios_name(tvb, offset+2, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s<%02x>",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s<%02x>",
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"),
 				name, name_type);
-		}
+
 		if (nbipx_tree) {
 			tf = proto_tree_add_item(nbipx_tree, hf_nbipx_name_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			name_type_flag_tree = proto_item_add_subtree(tf, ett_nbipx_name_type_flags);
@@ -333,10 +332,9 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_SESSION_DATA:
 	case NBIPX_SESSION_END:
 	case NBIPX_SESSION_END_ACK:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
-		}
+
 		dissect_conn_control(tvb, offset, nbipx_tree);
 		offset += 1;
 
@@ -374,10 +372,9 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	case NBIPX_DIRECTED_DATAGRAM:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
-		}
+
 		dissect_conn_control(tvb, offset, nbipx_tree);
 		offset += 1;
 
@@ -401,10 +398,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str_const(packet_type, nbipx_data_stream_type_vals, "Unknown"));
-		}
 
 		/*
 		 * We don't know what the first byte is.
@@ -739,55 +734,53 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	name_type = get_netbios_name(tvb, offset+4, name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 	/*node_name_type = */get_netbios_name(tvb, offset+20, node_name, (NETBIOS_NAME_LEN - 1)*4 + 1);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		switch (opcode) {
+	switch (opcode) {
 
-		case INAME_CLAIM:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Claim name %s<%02x>",
+	case INAME_CLAIM:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Claim name %s<%02x>",
 					name, name_type);
-			break;
+		break;
 
-		case INAME_DELETE:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Delete name %s<%02x>",
+	case INAME_DELETE:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Delete name %s<%02x>",
 					name, name_type);
-			break;
+		break;
 
-		case INAME_QUERY:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Query name %s<%02x>",
+	case INAME_QUERY:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Query name %s<%02x>",
 					name, name_type);
-			break;
+		break;
 
-		case INAME_FOUND:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Name %s<%02x> found",
+	case INAME_FOUND:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Name %s<%02x> found",
 					name, name_type);
-			break;
+		break;
 
-		case IMSG_HANGUP:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	case IMSG_HANGUP:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Messenger hangup on %s<%02x>", name, name_type);
-			break;
+		break;
 
-		case IMSLOT_SEND:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	case IMSLOT_SEND:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Mailslot write to %s<%02x>", name, name_type);
-			break;
+		break;
 
-		case IMSLOT_FIND:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	case IMSLOT_FIND:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Find mailslot name %s<%02x>", name, name_type);
-			break;
+		break;
 
-		case IMSLOT_NAME:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	case IMSLOT_NAME:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Mailslot name %s<%02x> found", name, name_type);
-			break;
+		break;
 
-		default:
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Unknown NMPI op 0x%02x: name %s<%02x>",
 			    opcode, name, name_type);
-			break;
-		}
+		break;
 	}
 
 	if (tree) {

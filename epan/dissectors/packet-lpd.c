@@ -88,16 +88,14 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		lpr_packet_type = unknown;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (lpr_packet_type == request && code !=0) {
-			col_add_str(pinfo->cinfo, COL_INFO, val_to_str(code, lpd_client_code, "Unknown client code: %u"));
-		}
-		else if (lpr_packet_type == response) {
-			col_set_str(pinfo->cinfo, COL_INFO, "LPD response");
-		}
-		else {
-			col_set_str(pinfo->cinfo, COL_INFO, "LPD continuation");
-		}
+	if (lpr_packet_type == request && code !=0) {
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(code, lpd_client_code, "Unknown client code: %u"));
+	}
+	else if (lpr_packet_type == response) {
+		col_set_str(pinfo->cinfo, COL_INFO, "LPD response");
+	}
+	else {
+		col_set_str(pinfo->cinfo, COL_INFO, "LPD continuation");
 	}
 
 	if (tree) {

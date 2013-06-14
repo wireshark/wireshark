@@ -907,26 +907,24 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     message_type = (flags & LWRES_LWPACKETFLAG_RESPONSE) ? 2 : 1;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
-        if(flags & LWRES_LWPACKETFLAG_RESPONSE)
-        {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                    "%s, opcode=%s, serial=0x%x, result=%s",
-                        val_to_str_const((guint32)message_type,message_types_values,"unknown"),
-                        val_to_str_const(opcode, opcode_values, "unknown"),
-                        serial,
-                        val_to_str_const(result,result_values,"unknown"));
-            }
-        else
-        {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                        "%s, opcode=%s, serial=0x%x",
-                        val_to_str_const((guint32)message_type,message_types_values,"unknown"),
-                        val_to_str_const(opcode, opcode_values, "unknown"),
-                serial);
-        }
+    if(flags & LWRES_LWPACKETFLAG_RESPONSE)
+    {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+            "%s, opcode=%s, serial=0x%x, result=%s",
+                val_to_str_const((guint32)message_type,message_types_values,"unknown"),
+                val_to_str_const(opcode, opcode_values, "unknown"),
+                serial,
+                val_to_str_const(result,result_values,"unknown"));
+    }
+    else
+    {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                "%s, opcode=%s, serial=0x%x",
+                val_to_str_const((guint32)message_type,message_types_values,"unknown"),
+                val_to_str_const(opcode, opcode_values, "unknown"),
+        serial);
     }
 
     if(tree)

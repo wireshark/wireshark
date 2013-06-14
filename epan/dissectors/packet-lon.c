@@ -206,22 +206,19 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	proto_tree *ti;
 	proto_item *pi;
 	proto_tree *lon_tree;
+	gint npdu, type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LON");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		gint npdu, type;
-		npdu = tvb_get_guint8(tvb, 0);
-		type = tvb_get_guint8(tvb, 1);
-		type = (type&0x30)>>4;
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	npdu = tvb_get_guint8(tvb, 0);
+	type = tvb_get_guint8(tvb, 1);
+	type = (type&0x30)>>4;
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "%sDelta_BL: %i Type: %s",
 			     npdu&0x80?"Priority ":"",
 			     npdu&0x3F,
 			     val_to_str_const(type, pdu_fmt_vs, "Unknown"));
-	}
-
 
 	ti = proto_tree_add_item(tree, proto_lon, tvb, offset, -1, ENC_NA);
 	lon_tree = proto_item_add_subtree(ti, ett_lon);

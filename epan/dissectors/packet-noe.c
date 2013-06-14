@@ -1075,8 +1075,7 @@ static void decode_evt(proto_tree  *tree,
     proto_tree_add_item(tree, hf_noe_event, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
         val_to_str_ext_const(event, &val_str_event_ext, "Unknown"));
     /* update text of the main proto item */
     proto_item_append_text(tree, ", %s",
@@ -1120,9 +1119,7 @@ static void decode_evt(proto_tree  *tree,
             g_snprintf(key_name, 30, "\"%s\"", decode_key_name((int)unicode_value));
 
             /* add text to the frame "INFO" column */
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                key_name);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", key_name);
             /* update text of the main proto item */
             proto_item_append_text(tree, ", %s",
                 key_name);
@@ -1212,8 +1209,7 @@ static void decode_mtd(proto_tree  *tree,
     proto_tree_add_item(tree, hf_noe_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
         val_to_str_ext_const(noe_class, &val_str_class_ext, "Unknown"));
     /* update text of the main proto item */
     proto_item_append_text(tree, ", %s",
@@ -1291,8 +1287,7 @@ static void dissect_noe(tvbuff_t    *tvb,
     server = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " - NOE Protocol (%s)",
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - NOE Protocol (%s)",
         val_to_str_const(server, servers_short_vals, "Unknown"));
 
     proto_tree_add_uint(noe_tree,
@@ -1326,8 +1321,7 @@ static void dissect_noe(tvbuff_t    *tvb,
         return;
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
         val_to_str_const(method, methods_vals, "Unknown"));
 
     /* update text of the main proto item */

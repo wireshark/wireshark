@@ -1664,25 +1664,23 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * set something interesting in the display now that we have info
      */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (ver == 9) {
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "total: %u (v%u) record%s", pdus, ver,
-                         plurality(pdus, "", "s"));
-        } else if (ver == 10) {
-            gint remaining = tvb_reported_length_remaining(tvb, offset)+4;
+    if (ver == 9) {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "total: %u (v%u) record%s", pdus, ver,
+                        plurality(pdus, "", "s"));
+    } else if (ver == 10) {
+        gint remaining = tvb_reported_length_remaining(tvb, offset)+4;
 
-            if(remaining == flow_len)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "IPFIX flow (%d bytes)", flow_len);
-            else
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                             "IPFIX partial flow (%u/%u bytes)",
-                             remaining, flow_len);
-        } else {
+        if(remaining == flow_len)
+            col_add_fstr(pinfo->cinfo, COL_INFO, "IPFIX flow (%d bytes)", flow_len);
+        else
             col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "total: %u (v%u) flow%s", pdus, ver,
-                         plurality(pdus, "", "s"));
-        }
+                            "IPFIX partial flow (%u/%u bytes)",
+                            remaining, flow_len);
+    } else {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "total: %u (v%u) flow%s", pdus, ver,
+                        plurality(pdus, "", "s"));
     }
 
     /*

@@ -157,10 +157,8 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int  linelen;
     gint next_offset;
     int  offset = 0;
-    gint col_info;
     gint counter = 0;
 
-    col_info = check_col(pinfo->cinfo, COL_INFO);
     while (tvb_offset_exists(tvb, offset)) {
       /* there's only a \n no \r */
       linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, nasdaq_soup_desegment && pinfo->can_desegment);
@@ -180,21 +178,18 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       nasdaq_soup_type = tvb_get_guint8(tvb, offset);
       if (counter == 0) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-SOUP");
-        if (col_info)
-            col_clear(pinfo->cinfo, COL_INFO);
+        col_clear(pinfo->cinfo, COL_INFO);
       }
-      if (col_info ) {
-        if (counter) {
-          col_append_str(pinfo->cinfo, COL_INFO, "; ");
-          col_set_fence(pinfo->cinfo, COL_INFO);
-        }
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(nasdaq_soup_type, message_types_val, "Unknown packet type (0x%02x)"));
+      if (counter) {
+        col_append_str(pinfo->cinfo, COL_INFO, "; ");
+        col_set_fence(pinfo->cinfo, COL_INFO);
       }
+      col_append_str(pinfo->cinfo, COL_INFO, val_to_str(nasdaq_soup_type, message_types_val, "Unknown packet type (0x%02x)"));
+
       counter++;
-      if (tree) {
-          ti = proto_tree_add_item(tree, proto_nasdaq_soup, tvb, offset, linelen +1, ENC_NA);
-          nasdaq_soup_tree = proto_item_add_subtree(ti, ett_nasdaq_soup);
-      }
+      ti = proto_tree_add_item(tree, proto_nasdaq_soup, tvb, offset, linelen +1, ENC_NA);
+      nasdaq_soup_tree = proto_item_add_subtree(ti, ett_nasdaq_soup);
+
       dissect_nasdaq_soup_packet(tvb, pinfo, tree, nasdaq_soup_tree, offset, linelen);
       offset = next_offset;
     }

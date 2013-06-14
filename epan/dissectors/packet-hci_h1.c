@@ -95,19 +95,17 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  "Unknown 0x%02x"));
 	}
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		if(pinfo->p2p_dir == P2P_DIR_SENT ||
-		   pinfo->p2p_dir == P2P_DIR_RECV)
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-				     val_to_str(pinfo->p2p_dir,
-						hci_h1_direction_vals, "Unknown: %d"),
+	if(pinfo->p2p_dir == P2P_DIR_SENT ||
+	   pinfo->p2p_dir == P2P_DIR_RECV)
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+			     val_to_str(pinfo->p2p_dir,
+					hci_h1_direction_vals, "Unknown: %d"),
 				     val_to_str(type, hci_h1_type_vals,
-						"Unknown 0x%02x"));
-		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-				     val_to_str(type, hci_h1_type_vals,
-						"Unknown 0x%02x"));
-	}
+					"Unknown 0x%02x"));
+	else
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+			     val_to_str(type, hci_h1_type_vals,
+					"Unknown 0x%02x"));
 
 	pd_save = pinfo->private_data;
 	hci_data = wmem_new(wmem_packet_scope(),hci_data_t);

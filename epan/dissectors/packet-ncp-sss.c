@@ -540,9 +540,8 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
 
     /* Fill in the PROTOCOL & INFO  columns. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-       col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
+
     switch (subfunc) {
     case 1:
         aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Packet Type: %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
@@ -563,9 +562,8 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             foffset += 4;
             foffset += 12; /* Blank Context */
             subverb = tvb_get_letohl(tvb, foffset);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
+
             aitem = proto_tree_add_item(ncp_tree, hf_verb, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             atree = proto_item_add_subtree(aitem, ett_sss);
             if (request_value) {
@@ -642,10 +640,9 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         }
         else
         {
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-               col_set_str(pinfo->cinfo, COL_INFO, "C SecretStore - fragment");
-               proto_tree_add_text(ncp_tree, tvb, foffset, 4, "Fragment");
-            }
+            col_set_str(pinfo->cinfo, COL_INFO, "C SecretStore - fragment");
+            proto_tree_add_text(ncp_tree, tvb, foffset, 4, "Fragment");
+
             /* Fragments don't really carry a subverb so store 0xff as the subverb number */
             if (request_value) {
                 request_value->req_nds_flags=255;

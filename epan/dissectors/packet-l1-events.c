@@ -71,17 +71,13 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Layer1");
-	if (check_col(pinfo->cinfo, COL_DEF_SRC))
-		col_set_str(pinfo->cinfo, COL_DEF_SRC,
+	col_set_str(pinfo->cinfo, COL_DEF_SRC,
 			    pinfo->pseudo_header->l1event.uton? "TE" : "NT");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	        len = tvb_find_line_end(tvb, 0,
-					tvb_ensure_length_remaining(tvb, 0),
+	len = tvb_find_line_end(tvb, 0, tvb_ensure_length_remaining(tvb, 0),
 					&next_offset, FALSE);
-	        if(len>0)
-		        col_add_str(pinfo->cinfo, COL_INFO,
-				    tvb_format_text(tvb, 0, len));
-	}
+	if(len>0)
+		col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, 0, len));
+
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_l1_events,
 				tvb, 0, -1, ENC_NA);

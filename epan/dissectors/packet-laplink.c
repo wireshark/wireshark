@@ -93,8 +93,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 /* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, udp_ident_string);
+	col_add_str(pinfo->cinfo, COL_INFO, udp_ident_string);
 
 	if (tree){
 		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, ENC_NA);
@@ -122,10 +121,8 @@ dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
 
 	tcp_ident = tvb_get_ntohl(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(tcp_ident, laplink_tcp_magic, "TCP TBA (%u)"));
-	}
 
 	if (tree){
 		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, ENC_NA);

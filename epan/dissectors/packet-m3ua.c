@@ -338,8 +338,7 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, v5_message_class_type_acro_values, "reserved"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type, v5_message_class_type_acro_values, "reserved"));
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -361,8 +360,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", val_to_str_const(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
+  col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", val_to_str_const(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -2008,8 +2006,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    switch(version) {
+  switch(version) {
       case M3UA_V5:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (ID 05)");
         break;
@@ -2022,21 +2019,14 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
       case M3UA_RFC:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (RFC 4666)");
         break;
-      };
-
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the m3ua protocol tree */
-    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, ENC_NA);
-    m3ua_tree = proto_item_add_subtree(m3ua_item, ett_m3ua);
-  } else {
-    m3ua_tree = NULL;
   };
+
+  /* create the m3ua protocol tree */
+  m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, ENC_NA);
+  m3ua_tree = proto_item_add_subtree(m3ua_item, ett_m3ua);
 
   /* dissect the message */
   dissect_message(message_tvb, pinfo, tree, m3ua_tree);
-
 }
 
 /* Register the protocol with Wireshark */

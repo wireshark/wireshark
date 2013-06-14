@@ -1902,10 +1902,8 @@ dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     usb_trans_info->u.get_descriptor.type = tvb_get_guint8(tvb, offset);
     offset += 1;
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-            val_to_str_ext(usb_trans_info->u.get_descriptor.type, &descriptor_type_vals_ext, "Unknown type %u"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+        val_to_str_ext(usb_trans_info->u.get_descriptor.type, &descriptor_type_vals_ext, "Unknown type %u"));
 
     /* language id */
     proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1926,10 +1924,9 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
                                           guint bus_id, guint device_address)
 {
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-            val_to_str_ext(usb_trans_info->u.get_descriptor.type, &descriptor_type_vals_ext, "Unknown type %u"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+        val_to_str_ext(usb_trans_info->u.get_descriptor.type, &descriptor_type_vals_ext, "Unknown type %u"));
+
     switch(usb_trans_info->u.get_descriptor.type) {
     case USB_DT_DEVICE:
         offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, bus_id, device_address);
@@ -2400,13 +2397,11 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         isprint(type) ? type : '.');
     proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_BIG_ENDIAN);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        transfer_type   = tvb_get_guint8(tvb, 9);
-        endpoint_number = tvb_get_guint8(tvb, 10);
-        transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_number & 0x80);
-        col_append_str(pinfo->cinfo, COL_INFO,
-                       val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
-    }
+    transfer_type   = tvb_get_guint8(tvb, 9);
+    endpoint_number = tvb_get_guint8(tvb, 10);
+    transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_number & 0x80);
+    col_append_str(pinfo->cinfo, COL_INFO,
+                    val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
     proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_BIG_ENDIAN);
@@ -2828,10 +2823,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
 
-                    if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
-                             val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"));
-                    }
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+                            val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"));
 
                     dissector = NULL;
                     for(tmp = setup_request_dissectors;tmp->dissector;tmp++) {
@@ -3010,11 +3003,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                      * This is a standard response which is managed by this
                      * dissector
                      */
-                    if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-                            val_to_str(usb_conv_info->usb_trans_info->setup.request,
-                                setup_request_names_vals, "Unknown type %x"));
-                    }
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
+                        val_to_str(usb_conv_info->usb_trans_info->setup.request,
+                            setup_request_names_vals, "Unknown type %x"));
 
                     dissector = NULL;
                     for(tmp = setup_response_dissectors;tmp->dissector;tmp++) {

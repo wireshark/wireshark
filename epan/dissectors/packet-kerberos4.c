@@ -263,8 +263,7 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 
 	/* m_type */
 	proto_tree_add_item(tree, hf_krb4_m_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
 	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"",
 	    val_to_str(auth_msg_type>>1, m_type_vals, "Unknown (0x%04x)"));
 	proto_item_append_text(item, " %s%s",

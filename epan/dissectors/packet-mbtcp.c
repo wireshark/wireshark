@@ -393,52 +393,49 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* "Request" or "Response" */
     packet_type = classify_mbtcp_packet(pinfo);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        switch ( packet_type ) {
-            case QUERY_PACKET :
-                pkt_type_str="Query";
-                break;
-            case RESPONSE_PACKET :
-                pkt_type_str="Response";
-                break;
-            case CANNOT_CLASSIFY :
-                err_str="Unable to classify as query or response.";
-                pkt_type_str="unknown";
-                break;
-            default :
-                break;
-        }
-        if ( exception_code != 0 )
-            err_str="Exception returned ";
+    switch ( packet_type ) {
+        case QUERY_PACKET :
+            pkt_type_str="Query";
+            break;
+        case RESPONSE_PACKET :
+            pkt_type_str="Response";
+            break;
+        case CANNOT_CLASSIFY :
+            err_str="Unable to classify as query or response.";
+            pkt_type_str="unknown";
+            break;
+        default :
+            break;
+    }
+    if ( exception_code != 0 )
+        err_str="Exception returned ";
 
-        if (subfunction_code == 0) {
-            if (strlen(err_str) > 0) {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Trans: %5u; Unit: %3u, Func: %3u: %s. %s",
-                      pkt_type_str, transaction_id, unit_id,
-                      function_code, func_string, err_str);
-            }
-            else {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Trans: %5u; Unit: %3u, Func: %3u: %s",
-                      pkt_type_str, transaction_id, unit_id,
-                      function_code, func_string);
-            }
+    if (subfunction_code == 0) {
+        if (strlen(err_str) > 0) {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Trans: %5u; Unit: %3u, Func: %3u: %s. %s",
+                    pkt_type_str, transaction_id, unit_id,
+                    function_code, func_string, err_str);
         }
         else {
-            if (strlen(err_str) > 0) {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Trans: %5u; Unit: %3u, Func: %3u/%3u: %s. %s",
-                      pkt_type_str, transaction_id, unit_id,
-                      function_code, subfunction_code, func_string, err_str);
-            }
-            else {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Trans: %5u; Unit: %3u, Func: %3u/%3u: %s",
-                      pkt_type_str, transaction_id, unit_id,
-                      function_code, subfunction_code, func_string);
-            }
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Trans: %5u; Unit: %3u, Func: %3u: %s",
+                    pkt_type_str, transaction_id, unit_id,
+                    function_code, func_string);
+        }
+    }
+    else {
+        if (strlen(err_str) > 0) {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Trans: %5u; Unit: %3u, Func: %3u/%3u: %s. %s",
+                    pkt_type_str, transaction_id, unit_id,
+                    function_code, subfunction_code, func_string, err_str);
+        }
+        else {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Trans: %5u; Unit: %3u, Func: %3u/%3u: %s",
+                    pkt_type_str, transaction_id, unit_id,
+                    function_code, subfunction_code, func_string);
         }
     }
 
@@ -528,52 +525,49 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* "Request" or "Response" */
     packet_type = classify_mbrtu_packet(pinfo);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        switch ( packet_type ) {
-            case QUERY_PACKET :
-                pkt_type_str="Query";
-                break;
-            case RESPONSE_PACKET :
-                pkt_type_str="Response";
-                break;
-            case CANNOT_CLASSIFY :
-                err_str="Unable to classify as query or response.";
-                pkt_type_str="unknown";
-                break;
-            default :
-                break;
-        }
-        if ( exception_code != 0 )
-            err_str="Exception returned ";
+    switch ( packet_type ) {
+        case QUERY_PACKET :
+            pkt_type_str="Query";
+            break;
+        case RESPONSE_PACKET :
+            pkt_type_str="Response";
+            break;
+        case CANNOT_CLASSIFY :
+            err_str="Unable to classify as query or response.";
+            pkt_type_str="unknown";
+            break;
+        default :
+            break;
+    }
+    if ( exception_code != 0 )
+        err_str="Exception returned ";
 
-        if (subfunction_code == 0) {
-            if (strlen(err_str) > 0) {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Unit: %3u, Func: %3u: %s. %s",
-                      pkt_type_str, unit_id,
-                      function_code, func_string, err_str);
-            }
-            else {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Unit: %3u, Func: %3u: %s",
-                      pkt_type_str, unit_id,
-                      function_code, func_string);
-            }
+    if (subfunction_code == 0) {
+        if (strlen(err_str) > 0) {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Unit: %3u, Func: %3u: %s. %s",
+                    pkt_type_str, unit_id,
+                    function_code, func_string, err_str);
         }
         else {
-            if (strlen(err_str) > 0) {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Unit: %3u, Func: %3u/%3u: %s. %s",
-                      pkt_type_str, unit_id,
-                      function_code, subfunction_code, func_string, err_str);
-            }
-            else {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "%8s: Unit: %3u, Func: %3u/%3u: %s",
-                      pkt_type_str, unit_id,
-                      function_code, subfunction_code, func_string);
-            }
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Unit: %3u, Func: %3u: %s",
+                    pkt_type_str, unit_id,
+                    function_code, func_string);
+        }
+    }
+    else {
+        if (strlen(err_str) > 0) {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Unit: %3u, Func: %3u/%3u: %s. %s",
+                    pkt_type_str, unit_id,
+                    function_code, subfunction_code, func_string, err_str);
+        }
+        else {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "%8s: Unit: %3u, Func: %3u/%3u: %s",
+                    pkt_type_str, unit_id,
+                    function_code, subfunction_code, func_string);
         }
     }
 

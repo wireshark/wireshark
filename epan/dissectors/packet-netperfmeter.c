@@ -379,9 +379,7 @@ dissect_npmp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npmp
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, offset_message_type);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown NetPerfMeterProtocol type"));
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown NetPerfMeterProtocol type"));
 
   ADD_FIELD_UINT(npmp_tree, message_type);
   ADD_FIELD_UINT(npmp_tree, message_flags);

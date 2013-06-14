@@ -1419,8 +1419,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/MIKEY");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Mikey: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Mikey: %s",
 				val_to_str_ext_const(mikey->type, &data_type_vals_ext, "Unknown"));
 
 	/* Return the amount of data this dissector was able to dissect */

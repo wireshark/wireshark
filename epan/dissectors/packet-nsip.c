@@ -307,11 +307,10 @@ decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
                                "Cause: %s (%#02x)",
                                val_to_str_const(cause, tab_nsip_cause_values,
                                                 "Unknown"), cause);
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-        col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
-            "Cause: %s",
-            val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
-    }
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+        "Cause: %s",
+        val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
+
     proto_item_append_text(bi->ti, ", Cause: %s",
             val_to_str(cause, tab_nsip_cause_values, "Unknown (0x%02x)"));
   }
@@ -329,10 +328,8 @@ decode_iei_ns_vci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
                                bi->tvb, ie_start_offset, ie->total_length,
                                ns_vci,
                                "NS VCI: %#04x", ns_vci);
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-        col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
-            "NS VCI: %#04x", ns_vci);
-    }
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+        "NS VCI: %#04x", ns_vci);
     proto_item_append_text(bi->ti, ", NS VCI: %#04x", ns_vci);
   }
   bi->offset += ie->value_length;
@@ -366,10 +363,9 @@ decode_iei_nsei(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += ie->value_length;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
                         "NSEI %u", nsei);
-  }
+
   proto_item_append_text(bi->ti, ", NSEI %u", nsei);
 }
 
@@ -383,10 +379,8 @@ decode_iei_bvci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += ie->value_length;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
                         "BVCI %u", bvci);
-  }
   proto_item_append_text(bi->ti, ", BVCI %u", bvci);
 }
 
@@ -536,10 +530,8 @@ decode_iei_reset_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
                            bi->offset, 1,
                            flag & NSIP_MASK_RESET_FLAG);
      if (flag & NSIP_MASK_RESET_FLAG) {
-         if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-           col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+         col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
                    "Reset");
-         }
          proto_item_append_text(bi->ti, ", Reset");
      }
      proto_tree_add_uint(field_tree, hf_nsip_reset_flag_spare,
@@ -590,10 +582,8 @@ decode_iei_transaction_id(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) 
     id = tvb_get_guint8(bi->tvb, bi->offset);
     proto_tree_add_uint(bi->nsip_tree, hf_nsip_transaction_id,
                         bi->tvb, ie_start_offset, ie->total_length, id);
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
               "Transaction Id: %d", id);
-    }
   }
  bi->offset += 1;
 }
@@ -651,16 +641,14 @@ decode_iei_control_bits(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset++;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    if (control_bits & NSIP_MASK_CONTROL_BITS_R) {
-      col_append_sep_str(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Req CF");
-      proto_item_append_text(bi->ti, ", Request Change Flow");
-    }
+  if (control_bits & NSIP_MASK_CONTROL_BITS_R) {
+    col_append_sep_str(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Req CF");
+    proto_item_append_text(bi->ti, ", Request Change Flow");
+  }
 
-    if (control_bits & NSIP_MASK_CONTROL_BITS_C) {
-      col_append_sep_str(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Conf CF");
-      proto_item_append_text(bi->ti, ", Confirm Change Flow");
-    }
+  if (control_bits & NSIP_MASK_CONTROL_BITS_C) {
+    col_append_sep_str(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Conf CF");
+    proto_item_append_text(bi->ti, ", Confirm Change Flow");
   }
 }
 

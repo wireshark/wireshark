@@ -300,10 +300,9 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
 
     /* Fill in the INFO column. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMAS");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-       col_add_fstr(pinfo->cinfo, COL_INFO, "C NMAS - %s",
-                    val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "C NMAS - %s",
+                val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
+
     aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Packet Type: %s",
                                 val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
     atree = proto_item_add_subtree(aitem, ett_nmas);
@@ -334,10 +333,8 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
         }
         foffset += 4;
         msg_length -= 4;
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                            val_to_str(subverb, nmas_subverb_enum, "Unknown subverb (%u)"));
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                        val_to_str(subverb, nmas_subverb_enum, "Unknown subverb (%u)"));
         switch (subverb) {
         case 0:             /* Fragmented Ping */
             proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
@@ -362,10 +359,9 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             }
             proto_tree_add_item(atree, hf_lsm_verb, tvb, foffset, 1, ENC_LITTLE_ENDIAN);
             foffset += 4;
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                                 val_to_str(msgverb, nmas_lsmverb_enum, "Unknown (%u)"));
-            }
+
             switch (msgverb)
             {
             case 1:
@@ -404,10 +400,9 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             proto_tree_add_item(atree, hf_msg_verb, tvb, foffset, 1, ENC_BIG_ENDIAN);
             foffset += 1;
             msg_length -= 12;
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                                val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                            val_to_str(msgverb, nmas_msgverb_enum, "Unknown (%u)"));
+
             switch(msgverb)
             {
             case 1:
@@ -634,9 +629,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
             {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
                 expert_add_info_format_text(pinfo, expert_item, &ei_return_error, "NMAS Error: 0x%08x is unknown", return_code);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                   col_add_fstr(pinfo->cinfo, COL_INFO, "R Unknown NMAS Error - 0x%08x", return_code);
-                }
+                col_add_fstr(pinfo->cinfo, COL_INFO, "R Unknown NMAS Error - 0x%08x", return_code);
             }
         }
 

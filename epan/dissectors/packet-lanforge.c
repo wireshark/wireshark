@@ -89,9 +89,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LANforge");
 
-    if(check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Seq: %u", tvb_get_ntohl(tvb, 16));
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Seq: %u", tvb_get_ntohl(tvb, 16));
 
     if(tree) {
 

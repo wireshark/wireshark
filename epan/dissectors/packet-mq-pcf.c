@@ -221,10 +221,7 @@ dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		gint iSizeMQCFH = 36;
 		guint32 iCommand = tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, mqpcf_opcode_vals, "Unknown (0x%02x)"));
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, mqpcf_opcode_vals, "Unknown (0x%02x)"));
 
 		if (tree)
 		{

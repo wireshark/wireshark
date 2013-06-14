@@ -153,10 +153,6 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    at the list of packets can tell what type of packet it is. See section 1.5
    for more information.
 
-   Before changing the contents of a column you should make sure the column is
-   active by calling "check_col(pinfo->cinfo, COL_*)". If it is not active
-   don't bother setting it.
-
    If you are setting the column to a constant string, use "col_set_str()",
    as it's more efficient than the other "col_set_XXX()" calls.
 
@@ -178,18 +174,15 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
    */
 
-    if ( check_col(pinfo->cinfo, COL_INFO) )
-    {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "MagicPacket for %s (%s)",
-            get_ether_name(mac), ether_to_str(mac));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "MagicPacket for %s (%s)",
+        get_ether_name(mac), ether_to_str(mac));
 
-        /* NOTE: ether-wake uses a dotted-decimal format for specifying a
-         * 4-byte password or an Ethernet mac address format for specifying
-         * a 6-byte password, so display them in that format, even if the
-         * password isn't really an IP or MAC address. */
-        if ( passwd )
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", password %s", passwd);
-    }
+    /* NOTE: ether-wake uses a dotted-decimal format for specifying a
+        * 4-byte password or an Ethernet mac address format for specifying
+        * a 6-byte password, so display them in that format, even if the
+        * password isn't really an IP or MAC address. */
+    if ( passwd )
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", password %s", passwd);
 
 /* A protocol dissector can be called in 2 different ways:
 

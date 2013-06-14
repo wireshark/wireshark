@@ -840,23 +840,19 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	conn_data->state= LOGIN;
 
-	if (tree) {
-		tf = proto_tree_add_item(tree, hf_mysql_server_greeting, tvb, offset, -1, ENC_NA);
-		greeting_tree = proto_item_add_subtree(tf, ett_server_greeting);
-	}
+	tf = proto_tree_add_item(tree, hf_mysql_server_greeting, tvb, offset, -1, ENC_NA);
+	greeting_tree = proto_item_add_subtree(tf, ett_server_greeting);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " proto=%d", protocol) ;
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " proto=%d", protocol) ;
+
 	proto_tree_add_item(greeting_tree, hf_mysql_protocol, tvb, offset, 1, ENC_NA);
 
 	offset += 1;
 
 	/* version string */
 	lenstr = tvb_strsize(tvb,offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s", tvb_get_ephemeral_string(tvb, offset, lenstr));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s", tvb_get_ephemeral_string(tvb, offset, lenstr));
+
 	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 	conn_data->major_version = 0;
 	for (ver_offset = 0; ver_offset < lenstr; ver_offset++) {
@@ -942,9 +938,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	/* User name */
 	lenstr = my_tvb_strsize(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s", tvb_get_ephemeral_string(tvb, offset, lenstr));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s", tvb_get_ephemeral_string(tvb, offset, lenstr));
 	proto_tree_add_item(login_tree, hf_mysql_user, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 	offset += lenstr;
 
@@ -971,9 +965,8 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			return offset;
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " db=%s", tvb_get_ephemeral_string(tvb, offset, lenstr));
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " db=%s", tvb_get_ephemeral_string(tvb, offset, lenstr));
+
 		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
 	}
@@ -1182,9 +1175,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	}
 
 	opcode = tvb_get_guint8(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
+
 	proto_tree_add_item(req_tree, hf_mysql_command, tvb, offset, 1, ENC_NA);
 	proto_item_append_text(tf, " %s", val_to_str(opcode, mysql_command_vals, "Unknown (%u)"));
 	offset += 1;
@@ -1221,8 +1213,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		if (mysql_showquery) {
-		        if (check_col(pinfo->cinfo, COL_INFO))
-		                col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ", tvb_get_ephemeral_string(tvb, offset, lenstr));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ", tvb_get_ephemeral_string(tvb, offset, lenstr));
 		}
 		offset += lenstr;
 		conn_data->state = RESPONSE_TABULAR;
@@ -1546,9 +1537,8 @@ static int
 mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 			   int offset, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Error %d", tvb_get_letohs(tvb, offset));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Error %d", tvb_get_letohs(tvb, offset));
+
 	proto_tree_add_item(tree, hf_mysql_error_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 

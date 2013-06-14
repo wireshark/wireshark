@@ -151,10 +151,9 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, ENC_BIG_ENDIAN);
 	}
 	msg_type = tvb_get_guint8( tvb, 1);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(msg_type, msg_type_str, "Unknown message type (0x%02x)"));
-	}
+
 	if (tree) {
 		proto_tree_add_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, msg_type);
 

@@ -381,8 +381,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	frame_type = (trh->fc & 192) >> 6;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Token-Ring %s", fc[frame_type]);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Token-Ring %s", fc[frame_type]);
 
 	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
 
