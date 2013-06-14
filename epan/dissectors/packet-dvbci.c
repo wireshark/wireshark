@@ -2679,7 +2679,7 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
     }
     else if (tag==T_DATE_TIME) {
         if (len_field!=5 && len_field!=7) {
-            tag_str = try_val_to_str(tag, dvbci_apdu_tag);
+            tag_str = val_to_str_const(tag, dvbci_apdu_tag, "unknown");
             pi = proto_tree_add_text(tree, tvb, APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
                     "Invalid APDU length field");
             expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
