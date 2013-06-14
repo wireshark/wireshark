@@ -150,6 +150,12 @@
 		16777214 Experimental code [RFC3588]
 		16777215 Experimental code [RFC3588]
 		-->
+		<command name="3GPP-Device-Action"		code="8388639" vendor-id="None"/>	<!--[3GPP TS 29.368][RFC5719] -->
+		<command name="3GPP-Device-Notification"	code="8388640" vendor-id="None"/>	<!--[3GPP TS 29.368][RFC5719] -->
+		<command name="3GPP-Subscriber-Information"	code="8388641" vendor-id="None"/>	<!-- 3GPP TS 29.336 -->
+
+		<command name="3GPP-Device-Trigger"		code="8388643" vendor-id="None"/>	<!-- 3GPP TS 29.337 -->
+		<command name="3GPP-Delivery-Report"		code="8388644" vendor-id="None"/>	<!-- 3GPP TS 29.337 -->
 		<!-- ************************************************************** -->
 		<!-- ********************** End Commands ************************** -->
 		<!-- ************************************************************** -->
@@ -166,9 +172,9 @@
 		<vendor vendor-id="NokiaSiemensNetworks" code="28458" name="Nokia Siemens Networks"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
-    <vendor vendor-id="ALU" code="637" name="ALU Network"/>
-    <vendor vendor-id="Lucent" code="1751" name="Lucent Technologies"/>
-    <vendor vendor-id="Huawei" code="2011" name="Huawei"/>
+		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
+		<vendor vendor-id="Lucent" code="1751" name="Lucent Technologies"/>
+		<vendor vendor-id="Huawei" code="2011" name="Huawei"/>
 		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
 		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
@@ -1704,6 +1710,9 @@
 			<!--
 			16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]
 			-->
+			<enum name="3GPP Tsp" code="16777309"/>
+			<enum name="3GPP S6m" code="16777310"/>
+			<enum name="3GPP T4" code="16777311"/>
 			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -2130,6 +2139,11 @@
 			<enum name="DIAMETER_ERROR_RAT_TYPE_NOT_ALLOWED" code="5452"/>
 			<enum name="DIAMETER_ERROR_SUBSESSION" code="5470"/>
 			<enum name="DIAMETER_ERROR_UNAUTHORIZED_REQUESTING_NETWORK" code="5490"/>
+			<enum name="DIAMETER_ERROR_UNAUTHORIZED_REQUESTING_ENTITY" code="5510"/>
+			<enum name="DIAMETER_ERROR_UNAUTHORIZED_SERVICE" code="5511"/>
+			<enum name="DIAMETER_ERROR_INVALID_SME_ADDRESS" code="5530"/>
+			<enum name="DIAMETER_ERROR_SC_CONGESTION" code="5531"/>
+			<enum name="DIAMETER_ERROR_SM_PROTOCOL" code="5532"/>
 		</avp>
 		<!-- RFC3588 AVP -->
 		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
@@ -2369,16 +2383,17 @@
 		433 Redirect-Address-Type [RFC4006]
 		434 Redirect-Server [RFC4006]
 		435 Redirect-Server-Address [RFC4006]
-    -->
-    <avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-      <type type-name="Enumerated"/>
-      <enum name="DIRECT_DEBITING" code="0"/>
-      <enum name="REFUND_ACCOUNT" code="1"/>
-      <enum name="CHECK_BALANCE" code="2"/>
-      <enum name="PRICE_ENQUIRY" code="3"/>
-    </avp>
+		-->
 
-    <!--
+		<avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Enumerated"/>
+			<enum name="DIRECT_DEBITING" code="0"/>
+			<enum name="REFUND_ACCOUNT" code="1"/>
+			<enum name="CHECK_BALANCE" code="2"/>
+			<enum name="PRICE_ENQUIRY" code="3"/>
+		</avp>
+
+		<!--
 		437 Requested-Service-Unit [RFC4006]
 		438 Restriction-Filter-Rule [RFC4006]
 		439 Service-Identifier [RFC4006]
@@ -2608,37 +2623,37 @@
 		584 Key-Lifetime [RFC-ietf-dime-local-keytran-14]
 		585 Key-SPI [RFC-ietf-dime-local-keytran-14]
 		586 Key-Name [RFC-ietf-dime-local-keytran-14]
-		587 IKEv2-Nonces [RFC6738] 
-		588 Ni [RFC6738] 
-		589 Nr [RFC6738] 
-		590 IKEv2-Identity [RFC6738] 
-		591 Initiator-Identity [RFC6738] 
-		592 ID-Type [RFC6738] 
-		593 Identification-Data [RFC6738] 
-		594 Responder-Identity [RFC6738] 
-		595 NC-Request-Type [RFC6736] 
-		596 NAT-Control-Install [RFC6736] 
-		597 NAT-Control-Remove [RFC6736] 
-		598 NAT-Control-Definition [RFC6736] 
-		599 NAT-Internal-Address [RFC6736] 
-		600 NAT-External-Address [RFC6736] 
-		601 Max-NAT-Bindings [RFC6736] 
-		602 NAT-Control-Binding-Template [RFC6736] 
-		603 Duplicate-Session-Id [RFC6736] 
-		604 NAT-External-Port-Style [RFC6736] 
-		605 NAT-Control-Record [RFC6736] 
-		606 NAT-Control-Binding-Status [RFC6736] 
-		607 Current-NAT-Bindings [RFC6736] 
-		608 Dual-Priority [RFC6735] 
-		609 Preemption-Priority [RFC6735] 
-		610 Defending-Priority [RFC6735] 
-		611 Admission-Priority [RFC6735] 
-		612 SIP-Resource-Priority [RFC6735] 
-		613 SIP-Resource-Priority-Namespace [RFC6735] 
-		614 SIP-Resource-Priority-Value [RFC6735] 
-		615 Application-Level-Resource-Priority [RFC6735] 
-		616 ALRP-Namespace [RFC6735] 
-		617 ALRP-Value [RFC6735] 
+		587 IKEv2-Nonces [RFC6738]
+		588 Ni [RFC6738]
+		589 Nr [RFC6738]
+		590 IKEv2-Identity [RFC6738]
+		591 Initiator-Identity [RFC6738]
+		592 ID-Type [RFC6738]
+		593 Identification-Data [RFC6738]
+		594 Responder-Identity [RFC6738]
+		595 NC-Request-Type [RFC6736]
+		596 NAT-Control-Install [RFC6736]
+		597 NAT-Control-Remove [RFC6736]
+		598 NAT-Control-Definition [RFC6736]
+		599 NAT-Internal-Address [RFC6736]
+		600 NAT-External-Address [RFC6736]
+		601 Max-NAT-Bindings [RFC6736]
+		602 NAT-Control-Binding-Template [RFC6736]
+		603 Duplicate-Session-Id [RFC6736]
+		604 NAT-External-Port-Style [RFC6736]
+		605 NAT-Control-Record [RFC6736]
+		606 NAT-Control-Binding-Status [RFC6736]
+		607 Current-NAT-Bindings [RFC6736]
+		608 Dual-Priority [RFC6735]
+		609 Preemption-Priority [RFC6735]
+		610 Defending-Priority [RFC6735]
+		611 Admission-Priority [RFC6735]
+		612 SIP-Resource-Priority [RFC6735]
+		613 SIP-Resource-Priority-Namespace [RFC6735]
+		614 SIP-Resource-Priority-Value [RFC6735]
+		615 Application-Level-Resource-Priority [RFC6735]
+		616 ALRP-Namespace [RFC6735]
+		617 ALRP-Value [RFC6735]
 		618-0xffffff Unassigned  -->
 
 		<!-- **************************************************************************** -->
@@ -6017,6 +6032,8 @@
 				<gavp name="MME-Name"/>
 				<gavp name="MME-Realm"/>
 				<gavp name="MSC-Number"/>
+				<gavp name="IP-SM-GW-Number"/>
+				<gavp name="IP-SM-GW-Name"/>
 				<gavp name="3GPP-AAA-Server-Name"/>
 				<gavp name="LCS-Capabilities-Sets"/>
 				<gavp name="GMLC-Address"/>
@@ -6028,8 +6045,16 @@
 		<avp name="MSC-Number" code="2403" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="LCS-Capabilities-Sets" code="2304" vendor-bit="must" vendor-id="TGPP">
+		<avp name="LCS-Capabilities-Sets" code="2404" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Additional-Serving-Node" code="2406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SGSN-Number"/>
+				<gavp name="MME-Name"/>
+				<gavp name="MME-Realm"/>
+				<gavp name="MSC-Number"/>
+			</grouped>
 		</avp>
 		<avp name="MME-Realm" code="2408" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="DiameterIdentity"/>
@@ -6082,11 +6107,11 @@
 			<enum name="VELOCITY_IS_NOT_REQUESTED" code="0"/>
 			<enum name="BEST VELOCITY_IS_REQUESTED" code="1"/>
 		</avp>
-    <avp name="Response-Time" code="2509" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="LOW_DELAY" code="0"/>
-      <enum name="DELAY_TOLERANT" code="1"/>
-    </avp>
+		<avp name="Response-Time" code="2509" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="LOW_DELAY" code="0"/>
+			<enum name="DELAY_TOLERANT" code="1"/>
+		</avp>
 		<avp name="Supported-GAD-Shapes" code="2510" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -6120,15 +6145,15 @@
 		<avp name="ECGI" code="2517" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-    <avp name="Location-Event" code="2518" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="EMERGENCY_CALL_ORIGINATION" code="0"/>
-      <enum name="EMERGENCY_CALL_RELEASE" code="1"/>
-      <enum name="MO_LR" code="2"/>
-      <enum name="EMERGENCY_CALL_HANDOVER" code="3"/>
-    </avp>
-    
-    <!-- 2519	Pseudonym-Indicator	Enumerated -->
+		<avp name="Location-Event" code="2518" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="EMERGENCY_CALL_ORIGINATION" code="0"/>
+			<enum name="EMERGENCY_CALL_RELEASE" code="1"/>
+			<enum name="MO_LR" code="2"/>
+			<enum name="EMERGENCY_CALL_HANDOVER" code="3"/>
+		</avp>
+
+		<!-- 2519	Pseudonym-Indicator	Enumerated -->
 
 		<avp name="LCS-Service-Type-ID" code="2520" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -6203,6 +6228,146 @@
 			<type type-name="Enumerated"/>
 			<enum name="INITIAL_REQUEST"        code="0"/>
 			<enum name="INTERMEDIATE_REQUEST"   code="1"/>
+		</avp>
+
+		<avp name="Device-Action" code="3001" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="External-Identifier"/>
+				<gavp name="MSISDN"/>
+				<gavp name="SCS-Identity"/>
+				<gavp name="Reference-Number"/>
+				<gavp name="Action-Type"/>
+				<gavp name="Trigger-Data"/>
+				<gavp name="Validity-Time"/>
+			</grouped>
+		</avp>
+		<avp name="Device-Notification" code="3002" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="External-Identifier"/>
+				<gavp name="MSISDN"/>
+				<gavp name="SCS-Identity"/>
+				<gavp name="Reference-Number"/>
+				<gavp name="Action-Type"/>
+				<gavp name="Request-Status"/>
+				<gavp name="Delivery-Outcome"/>
+			</grouped>
+		</avp>
+		<avp name="Trigger-Data" code="3003" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Payload"/>
+				<gavp name="Priority-Indication"/>
+				<gavp name="Application-Port-Identifier"/>
+			</grouped>
+		</avp>
+		<avp name="Payload" code="3004" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Action-Type" code="3005" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Device Trigger Request" code="1"/>
+			<enum name="Delivery Report" code="2"/>
+		</avp>
+		<avp name="Priority-Indication" code="3006" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Non-Priority" code="0"/>
+			<enum name="Priority" code="1"/>
+		</avp>
+		<avp name="Reference-Number" code="3007" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Request-Status" code="3008" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SUCCESS" code="0"/>
+			<enum name="TEMPORARYERROR" code="201"/>
+			<enum name="INVPAYLOAD" code="101"/>
+			<enum name="INVEXTID" code="102"/>
+			<enum name="INVSCSID" code="103"/>
+			<enum name="INVPERIOD" code="104"/>
+			<enum name="NOTAUTHORIZED" code="105"/>
+			<enum name="SERVICEUNAVAILABLE" code="106"/>
+			<enum name="PERMANENTERROR" code="107"/>
+			<enum name="QUOTAEXCEEDED" code="108"/>
+			<enum name="RATEEXCEEDED" code="109"/>
+		</avp>
+		<avp name="Delivery-Outcome" code="3009" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SUCCESS" code="0"/>
+			<enum name="EXPIRED" code="1"/>
+			<enum name="TEMPORARYERROR" code="2"/>
+			<enum name="UNDELIVERABLE" code="3"/>
+		</avp>
+		<avp name="Application-Port-Identifier" code="3010" mandatory="must" vendor-bit="must" protected="may" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+
+		<avp name="IP-SM-GW-Number" code="3100" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="IP-SM-GW-Name" code="3101" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="User-Identifier" code="3102" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="User-Name"/>
+				<gavp name="MSISDN"/>
+				<gavp name="External-Identifier"/>
+				<gavp name="LMSI"/>
+			</grouped>
+		</avp>
+		<avp name="Service-ID" code="3103" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="DEVICE_TRIGGER" code="0"/>
+		</avp>
+		<avp name="SCS-Identity" code="3104" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Service-Parameters" code="3105" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="T4-Parameters"/>
+			</grouped>
+		</avp>
+		<avp name="T4-Parameters" code="3106" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Priority-Indication"/>
+				<gavp name="SM-RP-SMEA"/>
+			</grouped>
+		</avp>
+		<avp name="Service-Data" code="3107" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="T4-Data"/>
+			</grouped>
+		</avp>
+		<avp name="T4-Data" code="3108" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="HSS-Cause"/>
+				<gavp name="Serving-Node"/>
+				<gavp name="Additional-Serving-Node"/>
+			</grouped>
+		</avp>
+		<avp name="HSS-Cause" code="3109" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SIR-Flags" code="3110" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="External-Identifier" code="3111" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="SM-Delivery-Outcome-T4" code="3200" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ABSENT_SUBSCRIBER" code="0"/>
+			<enum name="UE_MEMORTY_CAPACITY_EXCEEDED" code="1"/>
+			<enum name="SUCCESSFUL_TRANSFER" code="2"/>
+		</avp>
+		<avp name="Absent-Subscriber-Diagnostic-T4" code="3201" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NO_PAGING_RESPONSE" code="0"/>
+			<enum name="UE_DETACHED" code="1"/>
+			<enum name="UE_DEREGISTERED" code="2"/>
+			<enum name="UE_PURGED" code="3"/>
+			<enum name="ROAMING_RESTRICTION" code="4"/>
+			<enum name="UNIDENTIFIED_SUBSCRIBER" code="5"/>
 		</avp>
 
 		<!--- TGPP2 AVP's X.S0013-014-0
@@ -6303,10 +6468,10 @@
 		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
-    <avp name="3GPP2-BSID" code="9010" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
-      <type type-name="UTF8String"/>
-    </avp>
-  </base>
+		<avp name="3GPP2-BSID" code="9010" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP2">
+			<type type-name="UTF8String"/>
+		</avp>
+	</base>
 
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
