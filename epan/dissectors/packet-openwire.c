@@ -1323,12 +1323,9 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         iCommand = tvb_get_guint8(tvb, offset + 4);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_sep_str(pinfo->cinfo, COL_INFO, " | ",
-                               val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
-        }
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " | ",
+                            val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
+        col_set_fence(pinfo->cinfo, COL_INFO);
 
         detect_protocol_options(tvb, pinfo, offset, iCommand);
 

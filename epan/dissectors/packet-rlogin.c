@@ -225,11 +225,8 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		proto_tree_add_item(rlogin_tree, hf_control_message, tvb,
 		                    urgent_offset, 1, ENC_BIG_ENDIAN);
 		control_byte = tvb_get_guint8(tvb, urgent_offset);
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			               " (%s)", val_to_str_const(control_byte, control_message_vals, "Unknown"));
-		}
 
 		offset = urgent_offset + 1; /* adjust offset */
 	}
@@ -366,11 +363,8 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		offset += 2;
 
 		/* Show setting highlights in info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (rows=%u, cols=%u)",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (rows=%u, cols=%u)",
 			                rows, columns);
-		}
 	}
 
 	if (tvb_offset_exists(tvb, offset))
@@ -414,63 +408,60 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
+	/* Show user-name if available */
+	if (hash_info->user_name[0])
 	{
-		/* Show user-name if available */
-		if (hash_info->user_name[0])
-		{
-			col_add_fstr(pinfo->cinfo, COL_INFO,
-			              "User name: %s, ", hash_info->user_name);
-		}
-		else
-		{
-			col_clear(pinfo->cinfo, COL_INFO);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+		              "User name: %s, ", hash_info->user_name);
+	}
+	else
+	{
+		col_clear(pinfo->cinfo, COL_INFO);
+	}
 
-		/* Work out packet content summary for display */
-		length = tvb_length(tvb);
-		if (length != 0)
+	/* Work out packet content summary for display */
+	length = tvb_length(tvb);
+	if (length != 0)
+	{
+		/* Initial NULL byte represents part of connection handshake */
+		if (tvb_get_guint8(tvb, 0) == '\0')
 		{
-			/* Initial NULL byte represents part of connection handshake */
-			if (tvb_get_guint8(tvb, 0) == '\0')
-			{
-				col_append_str(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 				               (pinfo->destport == RLOGIN_PORT) ?
 				                   "Start Handshake" :
 				                   "Startup info received");
+		}
+		else
+		if (tcpinfo->urgent && length >= tcpinfo->urgent_pointer)
+		{
+			/* Urgent pointer inside current data represents a control message */
+			col_append_str(pinfo->cinfo, COL_INFO, "Control Message");
+		}
+		else
+		{
+			/* Search for 2 consecutive ff bytes
+			  (signifies window change control message) */
+			ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
+			if (ti_offset != -1 &&
+			    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
+			    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+			{
+				col_append_str(pinfo->cinfo, COL_INFO, "Terminal Info");
 			}
 			else
-			if (tcpinfo->urgent && length >= tcpinfo->urgent_pointer)
 			{
-				/* Urgent pointer inside current data represents a control message */
-				col_append_str(pinfo->cinfo, COL_INFO, "Control Message");
-			}
-			else
-			{
-				/* Search for 2 consecutive ff bytes
-				  (signifies window change control message) */
-				ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
-				if (ti_offset != -1 &&
-				    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-				    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
+				/* Show any text data in the frame */
+				int bytes_to_copy = tvb_length(tvb);
+				if (bytes_to_copy > 128)
 				{
-					col_append_str(pinfo->cinfo, COL_INFO, "Terminal Info");
+					/* Truncate to 128 bytes for display */
+					bytes_to_copy = 128;
 				}
-				else
-				{
-					/* Show any text data in the frame */
-					int bytes_to_copy = tvb_length(tvb);
-					if (bytes_to_copy > 128)
-					{
-						/* Truncate to 128 bytes for display */
-						bytes_to_copy = 128;
-					}
 
-					/* Add data into info column */
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-					                "Data: %s",
-					                 tvb_format_text(tvb, 0, bytes_to_copy));
-				}
+				/* Add data into info column */
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+				                "Data: %s",
+				                 tvb_format_text(tvb, 0, bytes_to_copy));
 			}
 		}
 	}

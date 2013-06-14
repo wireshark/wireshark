@@ -66,12 +66,10 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti, *rte_ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIPng");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_add_fstr(pinfo->cinfo, COL_INFO," Command %s, Version %u",
 		     val_to_str(tvb_get_guint8(tvb, offset), cmdvals, "Unknown (%u)"),
 		     tvb_get_guint8(tvb, offset +1));
-    }
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, tvb, offset, -1, ENC_NA);

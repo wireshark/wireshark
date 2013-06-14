@@ -1080,9 +1080,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
   case Ack_PDU:
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-      message_id_list = ep_strbuf_new_label("");
-    }
+    message_id_list = ep_strbuf_new_label("");
+
     for (i = 0; i < count; i++) {
       /* Ack Info Entry */
       len = tvb_get_ntohs (tvb, offset);
@@ -1124,12 +1123,10 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       offset += 4;
 
-      if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (i == 0) {
-          ep_strbuf_printf (message_id_list, "%u", message_id);
-        } else {
-          ep_strbuf_append_printf (message_id_list, ",%u", message_id);
-        }
+      if (i == 0) {
+        ep_strbuf_printf (message_id_list, "%u", message_id);
+      } else {
+        ep_strbuf_append_printf (message_id_list, ",%u", message_id);
       }
 
       if (len > 10) {
@@ -1254,37 +1251,35 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  message_id, seq_no, tot_no_missing);
   }
 
-  if (check_col (pinfo->cinfo, COL_INFO)) {
-    /* Check if printing Ack-Ack */
-    if (pdu_type == Address_PDU && no_dest == 0) {
-      col_append_str (pinfo->cinfo, COL_INFO, get_type (Ack_Ack_PDU));
-    } else {
-      col_append_str (pinfo->cinfo, COL_INFO, get_type (pdu_type));
+  /* Check if printing Ack-Ack */
+  if (pdu_type == Address_PDU && no_dest == 0) {
+    col_append_str (pinfo->cinfo, COL_INFO, get_type (Ack_Ack_PDU));
+  } else {
+    col_append_str (pinfo->cinfo, COL_INFO, get_type (pdu_type));
+  }
+  if (pdu_type == Address_PDU || pdu_type == Extra_Address_PDU ||
+      pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, ", No PDUs: %u", no_pdus);
+  } else if (pdu_type == Data_PDU) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
+  }
+  if (pdu_type == Address_PDU || pdu_type == Extra_Address_PDU ||
+      pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
+    if (no_dest > 0) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Dest: %u", no_dest);
     }
-    if (pdu_type == Address_PDU || pdu_type == Extra_Address_PDU ||
-        pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", No PDUs: %u", no_pdus);
-    } else if (pdu_type == Data_PDU) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
+  } else if (pdu_type == Ack_PDU) {
+    if (tot_no_missing) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
+                       tot_no_missing);
     }
-    if (pdu_type == Address_PDU || pdu_type == Extra_Address_PDU ||
-        pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
-      if (no_dest > 0) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Dest: %u", no_dest);
-      }
-    } else if (pdu_type == Ack_PDU) {
-      if (tot_no_missing) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
-                         tot_no_missing);
-      }
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Ack: %u", count);
-    }
-    if (pdu_type != Ack_PDU) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
-    } else {
-      if (message_id_list && message_id_list->len > 0) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", message_id_list->str);
-      }
+    col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Ack: %u", count);
+  }
+  if (pdu_type != Ack_PDU) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
+  } else {
+    if (message_id_list && message_id_list->len > 0) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", message_id_list->str);
     }
   }
 

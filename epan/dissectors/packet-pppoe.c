@@ -481,11 +481,8 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_name, tvb,
 					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
 					/* Show AC-Name in info column */
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'",
+					col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'",
 						               tvb_get_ephemeral_string(tvb, tagstart+4, poe_tag_length));
-					}
 					break;
 				case PPPOE_TAG_HOST_UNIQ:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_host_uniq, tvb,
@@ -706,10 +703,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Start Decoding Here. */
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(pppoe_code, code_vals, "Unknown"));
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(pppoe_code, code_vals, "Unknown"));
 
 	/* Read length of payload */
 	reported_payload_length = tvb_get_ntohs(tvb, 4);
@@ -1069,11 +1063,8 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Start Decoding Here. */
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->cinfo,COL_INFO))
-	{
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		             val_to_str_const(pppoe_code, code_vals, "Unknown"));
-	}
 
 	reported_payload_length = tvb_get_ntohs(tvb, 4);
 	actual_payload_length = tvb_reported_length_remaining(tvb, 6);

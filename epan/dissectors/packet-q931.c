@@ -2626,15 +2626,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(have_valid_q931_pi) {
 		q931_pi->message_type = message_type;
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
-	}
-	if (q931_tree != NULL){
-		if (prot_discr == NLPID_DMS)
-			proto_tree_add_item(q931_tree, hf_q931_maintenance_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		else
-			proto_tree_add_item(q931_tree, hf_q931_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	}
+	col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
+
+	if (prot_discr == NLPID_DMS)
+		proto_tree_add_item(q931_tree, hf_q931_maintenance_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	else
+		proto_tree_add_item(q931_tree, hf_q931_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 	offset += 1;
 
 	/*
@@ -2662,10 +2660,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	first_frag = (tvb_get_guint8(tvb, offset + 2) & 0x80) != 0;
 	more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
 	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
 		    val_to_str_ext(segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
-	}
+
 	offset += 1 + 1 + info_element_len;
 	/* Reassembly */
 	frag_len = tvb_reported_length_remaining(tvb, offset);
@@ -2689,10 +2686,10 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			} else {  /* only 1 segment */
 				next_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s [reassembled]",
+
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s [reassembled]",
 				    val_to_str_ext(segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
-			}
+
 		} else {
 			if (tree) proto_tree_add_uint(q931_tree, hf_q931_reassembled_in, tvb, offset, frag_len, fd_head->reassembled_in);
 		}
@@ -2938,10 +2935,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
 			if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {
 				dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
+				col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
 					    val_to_str_ext(tvb_get_guint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
-				}
+
 				if (tvb_get_guint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
 					first_segment = TRUE;
 				} else {  /* not the 1st segment */

@@ -2056,11 +2056,10 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(message_type, q2931_message_type_vals,
 		      "Unknown message type (0x%02X)"));
-	}
+
 	if (q2931_tree != NULL)
 		proto_tree_add_uint(q2931_tree, hf_q2931_message_type, tvb, offset, 1, message_type);
 	offset += 1;

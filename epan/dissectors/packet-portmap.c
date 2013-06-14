@@ -95,20 +95,17 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
 		offset, 4, prog, "Program: %s (%u)",
 		prog_name, prog);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,  " %s(%u)", prog_name, prog);
+	col_append_fstr(pinfo->cinfo, COL_INFO,  " %s(%u)", prog_name, prog);
 
-	}
 	proto_item_append_text(tree, " GETPORT Call %s(%u)", prog_name, prog);
 
 	/* version */
 	version = tvb_get_ntohl(tvb, offset+4);
 	proto_tree_add_item(tree, hf_portmap_version, tvb,
 		offset+4, 4, ENC_BIG_ENDIAN);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,  " V:%d", version);
+	col_append_fstr(pinfo->cinfo, COL_INFO,  " V:%d", version);
 
-	}
+
 	proto_item_append_text(tree, " Version:%d", version);
 
 
@@ -117,10 +114,8 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_name = ipprotostr(proto);
 	proto_tree_add_uint_format(tree, hf_portmap_proto, tvb,
 		offset+8, 4, proto, "Proto: %s (%u)", proto_name, proto);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,  " %s", proto_name);
+	col_append_fstr(pinfo->cinfo, COL_INFO,  " %s", proto_name);
 
-	}
 	proto_item_append_text(tree, " %s", proto_name);
 
 	/* port */
@@ -159,9 +154,7 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    offset);
 	proto_item_append_text(tree, " GETPORT Reply Port:%d", portx);
 	if(portx){
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,  " Port:%d", portx);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO,  " Port:%d", portx);
 		proto_item_append_text(tree, " Port:%d", portx);
 	} else {
 		col_append_str(pinfo->cinfo, COL_INFO,  " PROGRAM_NOT_AVAILABLE");

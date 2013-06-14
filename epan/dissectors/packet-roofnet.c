@@ -199,8 +199,8 @@ static void dissect_roofnet_data(proto_tree *tree, tvbuff_t *tvb, packet_info * 
  */
 static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item * it= NULL;
-  proto_tree * roofnet_tree= NULL;
+  proto_item * it;
+  proto_tree * roofnet_tree;
   guint offset= 0;
 
   guint8 roofnet_msg_type= 0;
@@ -211,15 +211,11 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   roofnet_msg_type = tvb_get_guint8(tvb, ROOFNET_OFFSET_TYPE);
   /* Clear out stuff in the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s",
 	val_to_str(roofnet_msg_type, roofnet_pt_vals, "Unknown (%d)"));
-  }
 
-  if (tree) {
-    it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
-    roofnet_tree = proto_item_add_subtree(it, ett_roofnet);
-  }
+  it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
+  roofnet_tree = proto_item_add_subtree(it, ett_roofnet);
 
   dissect_roofnet_header(roofnet_tree, tvb, &offset);
 

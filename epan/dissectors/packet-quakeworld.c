@@ -532,11 +532,9 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", command);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", command);
 
-	if (text_tree && !command_finished) {
+	if (!command_finished) {
 		proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
 			tvb, offset, command_len, command);
 	}
@@ -676,8 +674,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			DIR_C2S : DIR_S2C;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKEWORLD");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
 			names_direction, "%u"));
 
 	if (tree) {

@@ -221,29 +221,26 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 
 	/* fill up columns*/
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
-	if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (properties & PWC_ANYOF_CW_BAD)
 	{
-		col_clear(pinfo->cinfo, COL_INFO);
-		if (properties & PWC_ANYOF_CW_BAD)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "CW:Bad, ");
-		}
-		else if (properties & PWC_ANYOF_CW_SUSPECT)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "CW:Suspect, ");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "CW:Bad, ");
+	}
+	else if (properties & PWC_ANYOF_CW_SUSPECT)
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, "CW:Suspect, ");
+	}
 
-		if (properties & PWC_PAY_SIZE_BAD)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "Payload size:Bad, ");
-		}
+	if (properties & PWC_PAY_SIZE_BAD)
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, "Payload size:Bad, ");
+	}
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "TDM octets:%d", (int)payload_size);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "TDM octets:%d", (int)payload_size);
 
-		if (padding_size != 0)
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Padding:%d", (int)padding_size);
-		}
+	if (padding_size != 0)
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Padding:%d", (int)padding_size);
 	}
 
 	{

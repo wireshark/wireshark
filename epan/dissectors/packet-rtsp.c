@@ -343,8 +343,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO,
+    col_add_fstr(pinfo->cinfo, COL_INFO,
             "Interleaved channel 0x%02x, %u bytes",
             rf_chan, rf_len);
 
@@ -795,32 +794,29 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        /*
-         * Put the first line from the buffer into the summary
-         * if it's an RTSP request or reply (but leave out the
-         * line terminator).
-         * Otherwise, just call it a continuation.
-         *
-         * Note that "tvb_find_line_end()" will return a value that
-         * is not longer than what's in the buffer, so the
-         * "tvb_get_ptr()" call won't throw an exception.
-         */
-        if (is_request_or_reply)
-            if ( rtsp_type == RTSP_REPLY ) {
-                col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
-                col_append_str(pinfo->cinfo, COL_INFO,
-                    format_text(line, first_linelen));
-            }
-            else {
-                col_add_str(pinfo->cinfo, COL_INFO,
-                    format_text(line, first_linelen));
-            }
+    /*
+        * Put the first line from the buffer into the summary
+        * if it's an RTSP request or reply (but leave out the
+        * line terminator).
+        * Otherwise, just call it a continuation.
+        *
+        * Note that "tvb_find_line_end()" will return a value that
+        * is not longer than what's in the buffer, so the
+        * "tvb_get_ptr()" call won't throw an exception.
+        */
+    if (is_request_or_reply)
+        if ( rtsp_type == RTSP_REPLY ) {
+            col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
+            col_append_str(pinfo->cinfo, COL_INFO,
+                format_text(line, first_linelen));
+        }
+        else {
+            col_add_str(pinfo->cinfo, COL_INFO,
+                format_text(line, first_linelen));
+        }
 
-        else
-            col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-
-    }
+    else
+        col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
     orig_offset = offset;
     if (tree) {

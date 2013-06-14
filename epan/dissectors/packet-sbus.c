@@ -750,138 +750,136 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        col_clear(pinfo->cinfo, COL_INFO);
        offset = 0;
 
-       if (check_col(pinfo->cinfo, COL_INFO)) {
-              switch (sbus_attribut){
-                     case SBUS_REQUEST:
-                            sbus_cmd_code = tvb_get_guint8(tvb,10);
-                            switch (sbus_cmd_code){
-                                   case SBUS_WEB_SERVER_SERIAL_COMM:
-                                          /* Special treatment of web server request
-                                           * as is is very helpful to see more information in the packetlist */
-                                          sbus_web_aid = tvb_get_guint8(tvb,12);
-                                          sbus_web_seq = tvb_get_guint8(tvb,13);
-                                          col_add_fstr(pinfo->cinfo, COL_INFO,
-                                                       "Web Server Request: %s (Seq No: %d)",
-                                                       val_to_str_const(sbus_web_aid,
-                                                                        webserver_aid_vals, "Unknown Request!"),
-                                                       sbus_web_seq);
-                                          break;
-                                   case SBUS_RD_WR_PCD_BLOCK:
-                                          sbus_rdwr_type = tvb_get_guint8(tvb, 12);
-                                          col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                        "Request:  %s", val_to_str_const( sbus_rdwr_type, rdwrblock_vals,
-                                                                                          "This RD/WR block telegram is not implemented"));
-                                          /* Add name of file to be written in case of start of file stream */
-                                          if (sbus_rdwr_type == SBUS_WR_START_OF_STREAM) {
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
-                                                 if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) ||
-                                                     (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
-                                                        sbus_quint8_helper0=0;
-                                                        for (i=19; i<43; i++) { /*max length is 24 chars*/
-                                                               /*find zero-termination of string*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
-                                                                      break;
-                                                               }
-                                                               sbus_quint8_helper0 += 1;
+       switch (sbus_attribut){
+                case SBUS_REQUEST:
+                    sbus_cmd_code = tvb_get_guint8(tvb,10);
+                    switch (sbus_cmd_code){
+                            case SBUS_WEB_SERVER_SERIAL_COMM:
+                                    /* Special treatment of web server request
+                                    * as is is very helpful to see more information in the packetlist */
+                                    sbus_web_aid = tvb_get_guint8(tvb,12);
+                                    sbus_web_seq = tvb_get_guint8(tvb,13);
+                                    col_add_fstr(pinfo->cinfo, COL_INFO,
+                                                "Web Server Request: %s (Seq No: %d)",
+                                                val_to_str_const(sbus_web_aid,
+                                                                webserver_aid_vals, "Unknown Request!"),
+                                                sbus_web_seq);
+                                    break;
+                            case SBUS_RD_WR_PCD_BLOCK:
+                                    sbus_rdwr_type = tvb_get_guint8(tvb, 12);
+                                    col_add_fstr( pinfo->cinfo, COL_INFO,
+                                                "Request:  %s", val_to_str_const( sbus_rdwr_type, rdwrblock_vals,
+                                                                                    "This RD/WR block telegram is not implemented"));
+                                    /* Add name of file to be written in case of start of file stream */
+                                    if (sbus_rdwr_type == SBUS_WR_START_OF_STREAM) {
+                                            sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                            if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) ||
+                                                (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                                sbus_quint8_helper0=0;
+                                                for (i=19; i<43; i++) { /*max length is 24 chars*/
+                                                        /*find zero-termination of string*/
+                                                        if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                                break;
                                                         }
-                                                        tmp_string = tvb_get_ephemeral_string(tvb , 19,
-                                                                                              sbus_quint8_helper0);
-                                                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                                                                        ": (File: %s)", tmp_string);
-                                                 }
-                                          } else if (sbus_rdwr_type == SBUS_RD_BLOCK_START_OF_STREAM) {
-                                                 sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
-                                                 if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) ||
-                                                     (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
-                                                        sbus_quint8_helper0=0;
-                                                        for (i=15; i<39; i++) { /*max length is 24 chars*/
-                                                               /*find zero-termination of string*/
-                                                               if ((tvb_get_guint8(tvb, i)) == 0x00) {
-                                                                      break;
-                                                               }
-                                                               sbus_quint8_helper0 += 1;
+                                                        sbus_quint8_helper0 += 1;
+                                                }
+                                                tmp_string = tvb_get_ephemeral_string(tvb , 19,
+                                                                                        sbus_quint8_helper0);
+                                                col_append_fstr(pinfo->cinfo, COL_INFO,
+                                                                ": (File: %s)", tmp_string);
+                                            }
+                                    } else if (sbus_rdwr_type == SBUS_RD_BLOCK_START_OF_STREAM) {
+                                            sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
+                                            if ((sbus_rdwr_block_type == SBUS_RD_WR_CONFIGURATION_FILE) ||
+                                                (sbus_rdwr_block_type == SBUS_RD_WR_PROGRAM_BLOCK_FILE)) {
+                                                sbus_quint8_helper0=0;
+                                                for (i=15; i<39; i++) { /*max length is 24 chars*/
+                                                        /*find zero-termination of string*/
+                                                        if ((tvb_get_guint8(tvb, i)) == 0x00) {
+                                                                break;
                                                         }
-                                                        tmp_string = tvb_get_ephemeral_string(tvb , 15,
-                                                                                              sbus_quint8_helper0);
-                                                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                                                                        ": (File: %s)", tmp_string);
-                                                 }
-                                          }
+                                                        sbus_quint8_helper0 += 1;
+                                                }
+                                                tmp_string = tvb_get_ephemeral_string(tvb , 15,
+                                                                                        sbus_quint8_helper0);
+                                                col_append_fstr(pinfo->cinfo, COL_INFO,
+                                                                ": (File: %s)", tmp_string);
+                                            }
+                                    }
 
-                                          break;
+                                    break;
 
 
-                                   default:
-                                          /* All other requests */
-                                          col_add_fstr(pinfo->cinfo, COL_INFO,
-                                                       "Request: %s", val_to_str_const(sbus_cmd_code,
-                                                                                       sbus_command_vals, "Unknown Command!"));
-                                          break;
-                            }
-                            /*mark retries*/
-                            if (request_val->retry_count>0) {
-                                   col_append_str(pinfo->cinfo, COL_INFO,
-                                   " (Retry)");
-                            } /*no retry number as it is not always correctly calculated*/
-                            break;
+                            default:
+                                    /* All other requests */
+                                    col_add_fstr(pinfo->cinfo, COL_INFO,
+                                                "Request: %s", val_to_str_const(sbus_cmd_code,
+                                                                                sbus_command_vals, "Unknown Command!"));
+                                    break;
+                    }
+                    /*mark retries*/
+                    if (request_val->retry_count>0) {
+                            col_append_str(pinfo->cinfo, COL_INFO,
+                            " (Retry)");
+                    } /*no retry number as it is not always correctly calculated*/
+                    break;
 
-                     case SBUS_RESPONSE:
-                            /* Special treatment of web server request
-                             * as is is very helpful to see more information in the packetlist */
-                            if (request_val && ((request_val->cmd_code) == SBUS_WEB_SERVER_SERIAL_COMM)) {
-                                   sbus_web_size = tvb_get_guint8(tvb,9);
-                                   sbus_web_aid = tvb_get_guint8(tvb,10);
-                                   col_add_fstr(pinfo->cinfo, COL_INFO,
-                                          "Response: %s",
-                                          val_to_str_const(sbus_web_aid,
-                                                           webserver_aid_vals, "Unknown Request!"));
-                                   if (sbus_web_size > 1) {
-                                          sbus_web_seq = tvb_get_guint8(tvb,11);
-                                          col_append_fstr(pinfo->cinfo, COL_INFO,
-                                              " (Seq No: %d)",
-                                              sbus_web_seq);
-                                   }
-                            } else if (request_val && ((request_val->cmd_code) == SBUS_RD_WR_PCD_BLOCK)) {
-                                   /* Treat the ACK/NAK telgrams in a special way*/
-                                   switch (request_val->block_tlg) {
-                                          case SBUS_WR_START_OF_STREAM:
-                                          case SBUS_WR_BLOCK_DATA_STREAM:
-                                          case SBUS_WR_BLOCK_END_OF_STREAM:
-                                          case SBUS_WR_ABORT_BLOCK_STREAM:
-                                          case SBUS_WR_BLOCK_DATA_BYTES:
-                                          case SBUS_DELETE_BLOCK:
-                                          case SBUS_RD_ABORT_BLOCK_STREAM:
-                                                 sbus_rdwr_ack_nak = tvb_get_guint8(tvb, 10);
-                                                 col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                               "Response: %s", val_to_str_const(sbus_rdwr_ack_nak,
-                                                                                                rdwrblock_sts, "Unknown response!"));
-                                                 break;
-                                          default:
-                                                 sbus_rdwr_type = tvb_get_guint8(tvb, 9);
-                                                 col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                               "Response: (%d byte)", sbus_rdwr_type);
-                                                 break;
-                                   }
-
-                            } else {
-                                   col_set_str(pinfo->cinfo, COL_INFO, "Response");
-                            }
-                            break;
-
-                     case SBUS_ACKNAK:
-                            sbus_ack_code = tvb_get_ntohs(tvb,9);
+                case SBUS_RESPONSE:
+                    /* Special treatment of web server request
+                        * as is is very helpful to see more information in the packetlist */
+                    if (request_val && ((request_val->cmd_code) == SBUS_WEB_SERVER_SERIAL_COMM)) {
+                            sbus_web_size = tvb_get_guint8(tvb,9);
+                            sbus_web_aid = tvb_get_guint8(tvb,10);
                             col_add_fstr(pinfo->cinfo, COL_INFO,
-                                         "%s", val_to_str_const(sbus_ack_code,
-                                                                sbus_ack_nak_vals,
-                                                                "Unknown NAK response code!"));
-                            break;
+                                    "Response: %s",
+                                    val_to_str_const(sbus_web_aid,
+                                                    webserver_aid_vals, "Unknown Request!"));
+                            if (sbus_web_size > 1) {
+                                    sbus_web_seq = tvb_get_guint8(tvb,11);
+                                    col_append_fstr(pinfo->cinfo, COL_INFO,
+                                        " (Seq No: %d)",
+                                        sbus_web_seq);
+                            }
+                    } else if (request_val && ((request_val->cmd_code) == SBUS_RD_WR_PCD_BLOCK)) {
+                            /* Treat the ACK/NAK telgrams in a special way*/
+                            switch (request_val->block_tlg) {
+                                    case SBUS_WR_START_OF_STREAM:
+                                    case SBUS_WR_BLOCK_DATA_STREAM:
+                                    case SBUS_WR_BLOCK_END_OF_STREAM:
+                                    case SBUS_WR_ABORT_BLOCK_STREAM:
+                                    case SBUS_WR_BLOCK_DATA_BYTES:
+                                    case SBUS_DELETE_BLOCK:
+                                    case SBUS_RD_ABORT_BLOCK_STREAM:
+                                            sbus_rdwr_ack_nak = tvb_get_guint8(tvb, 10);
+                                            col_add_fstr( pinfo->cinfo, COL_INFO,
+                                                        "Response: %s", val_to_str_const(sbus_rdwr_ack_nak,
+                                                                                        rdwrblock_sts, "Unknown response!"));
+                                            break;
+                                    default:
+                                            sbus_rdwr_type = tvb_get_guint8(tvb, 9);
+                                            col_add_fstr( pinfo->cinfo, COL_INFO,
+                                                        "Response: (%d byte)", sbus_rdwr_type);
+                                            break;
+                            }
 
-                     default:
-                            col_set_str(pinfo->cinfo, COL_INFO, "Unknown attribute");
-                            break;
-              }
+                    } else {
+                            col_set_str(pinfo->cinfo, COL_INFO, "Response");
+                    }
+                    break;
 
+                case SBUS_ACKNAK:
+                    sbus_ack_code = tvb_get_ntohs(tvb,9);
+                    col_add_fstr(pinfo->cinfo, COL_INFO,
+                                    "%s", val_to_str_const(sbus_ack_code,
+                                                        sbus_ack_nak_vals,
+                                                        "Unknown NAK response code!"));
+                    break;
+
+                default:
+                    col_set_str(pinfo->cinfo, COL_INFO, "Unknown attribute");
+                    break;
        }
+
 /* create display subtree for the protocol */
        if (tree) {
 

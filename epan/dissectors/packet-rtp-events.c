@@ -106,12 +106,9 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		rtp_event_info.info_setup_frame_num = 0;
 
 
-	if ( check_col( pinfo->cinfo, COL_INFO) )
-	{
-		col_add_fstr( pinfo->cinfo, COL_INFO,
-		    "Payload type=RTP Event, %s",
-		    val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
-	}
+	col_add_fstr( pinfo->cinfo, COL_INFO,
+		"Payload type=RTP Event, %s",
+		val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
 
 	ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, ENC_NA );
 	rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );

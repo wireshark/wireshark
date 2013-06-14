@@ -163,19 +163,16 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");
-	if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (packet_quality & PQ_CW_BAD)
 	{
-		col_clear(pinfo->cinfo, COL_INFO);
-		if (packet_quality & PQ_CW_BAD)
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "CW:Malformed, ");
-		}
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%d payload octets", (int)payload_size);
+		col_append_str(pinfo->cinfo, COL_INFO, "CW:Malformed, ");
+	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%d payload octets", (int)payload_size);
 
-		if (payload_padding != 0)
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %d padding", (int)payload_padding);
-		}
+	if (payload_padding != 0)
+	{
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %d padding", (int)payload_padding);
 	}
 
 	{

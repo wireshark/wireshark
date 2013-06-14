@@ -501,8 +501,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					val_to_str(direction,
 						names_direction, "%u"));
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
 			names_direction, "%u"));
 }
 

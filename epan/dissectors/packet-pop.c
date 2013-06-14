@@ -194,22 +194,20 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is_continuation = response_is_continuation(line);
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    /*
-     * Put the first line from the buffer into the summary
-     * if it's a POP request or reply (but leave out the
-     * line terminator).
-     * Otherwise, just call it a continuation.
-     */
-    if (is_continuation) {
-      length_remaining = tvb_length_remaining(tvb, offset);
-      col_add_fstr(pinfo->cinfo, COL_INFO, "S: DATA fragment, %d byte%s",
+  /*
+   * Put the first line from the buffer into the summary
+   * if it's a POP request or reply (but leave out the
+   * line terminator).
+   * Otherwise, just call it a continuation.
+   */
+  if (is_continuation) {
+    length_remaining = tvb_length_remaining(tvb, offset);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "S: DATA fragment, %d byte%s",
                    length_remaining, plurality (length_remaining, "", "s"));
-    }
-    else
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "C" : "S",
-                   format_text(line, linelen));
   }
+  else
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "C" : "S",
+                   format_text(line, linelen));
 
   ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, ENC_NA);
   pop_tree = proto_item_add_subtree(ti, ett_pop);

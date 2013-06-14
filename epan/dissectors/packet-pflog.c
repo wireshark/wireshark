@@ -299,12 +299,10 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%s %s/%u] ",
+  col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%s %s/%u] ",
         val_to_str(action, pflog_action_vals, "unknown (%u)"),
         ifname,
         rulenr);
-  }
 }
 
 void
@@ -489,12 +487,11 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%s %s/#%d] ",
+  col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%s %s/#%d] ",
         val_to_str(action, pflog_action_vals, "unknown (%u)"),
         ifname,
         rnr);
-  }
+
   return offset;
 }
 

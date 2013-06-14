@@ -130,8 +130,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tpcph.cport     = g_ntohs(tpcph.cport);
 	tpcph.signature = g_ntohl(tpcph.signature);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
 		val_to_str_const(tpcph.type, type_vals, "Unknown"),
 		tpcph.id,
 		get_udp_port(tpcph.cport),

@@ -136,10 +136,8 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ptvcursor_add(cursor, hf_omapi_version, 4, ENC_BIG_ENDIAN);
     ptvcursor_add(cursor, hf_omapi_hlength, 4, ENC_BIG_ENDIAN);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-      col_append_str(pinfo->cinfo, COL_INFO, "Status message");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "Status message");
+
     proto_item_append_text(ti, ", Status message");
   }
 
@@ -147,11 +145,9 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   authlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_omapi_auth_len, 4, ENC_BIG_ENDIAN);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+  col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
       val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
-  }
+
   proto_item_append_text(ti, ", Opcode: %s",
     val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
 

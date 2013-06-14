@@ -80,9 +80,7 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   cccid = tvb_get_ntohl(tvb,0);
 
   /* Set the info column */
-  if(check_col(pinfo->cinfo,COL_INFO)){
-    col_add_fstr(pinfo->cinfo, COL_INFO, "CCCID: %u",cccid);
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "CCCID: %u",cccid);
 
   /*
    *If we have a non-null tree (ie we are building the proto_tree

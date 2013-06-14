@@ -487,8 +487,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     proto_tree_add_uint(tree, hf_pktc_mtafqdn_msgtype, tvb, offset, 1, msgtype);
     offset+=1;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO,
+    col_add_str(pinfo->cinfo, COL_INFO,
                    val_to_str(msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
 
     /* enterprise */
@@ -556,11 +555,8 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pktc_mtafqdn_tree = proto_item_add_subtree(item, ett_pktc_mtafqdn);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "MTA FQDN %s",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "MTA FQDN %s",
                     pinfo->srcport == pinfo->match_uint ? "Reply":"Request");
-    }
-
 
     /* KRB_AP_RE[QP] */
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -609,12 +605,10 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset+=1;
 
     /* fill COL_INFO */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
+    col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(kmmid, kmmid_types, "Unknown KMMID %#x"));
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
 		        val_to_str(doi, doi_types, "Unknown DOI %#x"));
-    }
 
     switch(kmmid){
     case KMMID_WAKEUP:

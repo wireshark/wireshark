@@ -972,8 +972,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length  = tvb_get_letohs(tvb, offset+2);
 
     /* Setup basic column info */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PPI_Vector Capture v%u, Length %u",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PPI_Vector Capture v%u, Length %u",
                      version, length);
 
     /* Create the basic dissection tree*/

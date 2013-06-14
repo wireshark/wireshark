@@ -559,19 +559,17 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			if (tvb_length(tvb) < CODE_OFFSET+1) {
-				col_set_str(pinfo->cinfo, COL_INFO, "Open Policy Service Interface");
-			}
-			else {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Open Policy Service Interface, %s",
-					val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
-				     "<Unknown opcode %d>"));
-			}
+		col_clear(pinfo->cinfo, COL_INFO);
+		if (tvb_length(tvb) < CODE_OFFSET+1) {
+			col_set_str(pinfo->cinfo, COL_INFO, "Open Policy Service Interface");
+		}
+		else {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Open Policy Service Interface, %s",
+				val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
+			     "<Unknown opcode %d>"));
 		}
 	}
-	else if (check_col(pinfo->cinfo, COL_INFO) && (tvb_length(tvb) > CODE_OFFSET)) {
+	else if (tvb_length(tvb) > CODE_OFFSET) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 			  val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
 				     "<Unknown opcode %d>"));

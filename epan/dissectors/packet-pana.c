@@ -518,11 +518,9 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        seq_num    = tvb_get_ntohl(tvb, 12);
        avp_length = msg_length - 16;
 
-       if (check_col(pinfo->cinfo, COL_INFO)) {
-               col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s-%s",
+       col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s-%s",
                             val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
                             val_to_str(flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"));
-       }
 
        /* Make the protocol tree */
        if (tree) {

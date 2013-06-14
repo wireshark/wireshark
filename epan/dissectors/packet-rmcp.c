@@ -109,8 +109,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		return 0;	/* unknown class value */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Class: %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Class: %s",
 		     val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
 		     class_str);
 

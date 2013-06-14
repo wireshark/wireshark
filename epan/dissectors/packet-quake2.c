@@ -685,8 +685,7 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			DIR_C2S : DIR_S2C;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE2");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
 			names_direction, "%u"));
 
 	if (tree) {

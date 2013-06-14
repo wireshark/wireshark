@@ -204,24 +204,22 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSH");
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		/* First, clear the info column */
-		col_clear(pinfo->cinfo, COL_INFO);
+	/* First, clear the info column */
+	col_clear(pinfo->cinfo, COL_INFO);
 
-		/* Client username */
-		if(hash_info->client_username && preference_info_show_client_username == TRUE){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Client username:%s ", hash_info->client_username);
-		}
+	/* Client username */
+	if(hash_info->client_username && preference_info_show_client_username == TRUE){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Client username:%s ", hash_info->client_username);
+	}
 
-		/* Server username */
-		if(hash_info->server_username && preference_info_show_server_username == TRUE){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Server username:%s ", hash_info->server_username);
-		}
+	/* Server username */
+	if(hash_info->server_username && preference_info_show_server_username == TRUE){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Server username:%s ", hash_info->server_username);
+	}
 
-		/* Command */
-		if(hash_info->command && preference_info_show_command == TRUE){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
-		}
+	/* Command */
+	if(hash_info->command && preference_info_show_command == TRUE){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
 	}
 
 	/* create display subtree for the protocol */

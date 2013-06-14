@@ -196,8 +196,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 1;
 
     pim_type = tvb_get_guint8(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO,
+    col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(pim_type, type1vals, "Unknown (%u)"));
 
     proto_tree_add_uint(pim_tree, hf_pim_code, tvb, offset, 1, pim_type);
@@ -708,12 +707,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         break;
     }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "PIMv%d",
+    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "PIMv%d",
                      PIM_VER(pim_typever));
-    }
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO, typestr);
+    col_add_str(pinfo->cinfo, COL_INFO, typestr);
 
     ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, ENC_NA);
     pim_tree = proto_item_add_subtree(ti, ett_pim);

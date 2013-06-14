@@ -132,7 +132,6 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     rmitype = get_rmi_type(tvb, offset, datalen);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	switch(rmitype) {
 	case RMI_OUTPUTSTREAM:
 	    version = tvb_get_ntohs(tvb,4);
@@ -169,7 +168,6 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	    break;
 	}
-    }
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_rmi, tvb, 0, -1, ENC_NA);

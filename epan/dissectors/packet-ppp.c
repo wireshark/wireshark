@@ -4183,11 +4183,9 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     mac_type = tvb_get_guint8(tvb, offset);
     if (!(flags & BCP_IS_BCONTROL)) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_str(pinfo->cinfo, COL_INFO,
+        col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(mac_type, bcp_mac_type_vals,
                 "Unknown MAC type %u"));
-        }
     }
     if (tree) {
         proto_tree_add_uint(bcp_tree, hf_bcp_mac_type, tvb, offset, 1,

@@ -486,9 +486,8 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     default:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO");
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
-      }
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
+
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
   }

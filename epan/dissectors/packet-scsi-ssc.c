@@ -108,9 +108,8 @@ dissect_ssc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -134,9 +133,8 @@ dissect_ssc_recoverbuffereddata (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -160,9 +158,8 @@ dissect_ssc_reportdensitysupport (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if(!tree)
@@ -192,9 +189,8 @@ dissect_ssc_readreverse6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -218,9 +214,8 @@ dissect_ssc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -247,9 +242,8 @@ dissect_ssc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -276,9 +270,8 @@ dissect_ssc_writefilemarks16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -305,9 +298,8 @@ dissect_ssc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -334,9 +326,8 @@ dissect_ssc_verify6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -361,9 +352,8 @@ dissect_ssc_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -388,9 +378,8 @@ dissect_ssc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -413,9 +402,8 @@ dissect_ssc_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     };
 
     if (isreq) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
-                             tvb_get_ntoh24 (tvb, offset+1));
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                            tvb_get_ntoh24 (tvb, offset+1));
     }
 
     if (tree && isreq && iscdb) {
@@ -445,9 +433,8 @@ dissect_ssc_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Immed: %u)",
-                             tvb_get_guint8 (tvb, offset) & 0x01);
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Immed: %u)",
+                            tvb_get_guint8 (tvb, offset) & 0x01);
     }
 
     if (!tree)
@@ -505,9 +492,8 @@ dissect_ssc_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         return;
 
     if (isreq && iscdb) {
-        if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(Immed: %u)",
-                             tvb_get_guint8 (tvb, offset) & 0x01);
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(Immed: %u)",
+                            tvb_get_guint8 (tvb, offset) & 0x01);
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, rewind_fields, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,

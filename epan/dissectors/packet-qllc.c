@@ -140,15 +140,12 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else {
         /* Non-ambiguous control field value */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_str(pinfo->cinfo, COL_INFO,
+        col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(ctrl, qllc_control_vals,
                         "Control Field: 0x%02x (unknown)"));
-        }
-        if (tree) {
-            proto_tree_add_uint(qllc_tree, hf_qllc_control, tvb,
+
+        proto_tree_add_uint(qllc_tree, hf_qllc_control, tvb,
                     1, 1, ctrl);
-        }
     }
 
     /* Do we have an I field ? */

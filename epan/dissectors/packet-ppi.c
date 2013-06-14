@@ -504,18 +504,14 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
                                     rate_kbps / 1000.0);
     if (rate_kbps == 0)
         proto_item_append_text(ti, " [invalid]");
-    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-        col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f Mbps", rate_kbps / 1000.0);
-    }
+    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f Mbps", rate_kbps / 1000.0);
     ptvcursor_advance(csr, 2);
 
     common_frequency = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     chan_str = ieee80211_mhz_to_str(common_frequency);
     proto_tree_add_uint_format(ptvcursor_tree(csr), hf_80211_common_chan_freq, ptvcursor_tvbuff(csr),
                                ptvcursor_current_offset(csr), 2, common_frequency, "Channel frequency: %s", chan_str);
-    if (check_col(pinfo->cinfo, COL_FREQ_CHAN)) {
-        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
-    }
+    col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
     g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
@@ -535,10 +531,9 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     ptvcursor_add(csr, hf_80211_common_fhss_hopset, 1, ENC_LITTLE_ENDIAN);
     ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, ENC_LITTLE_ENDIAN);
 
-    if (check_col(pinfo->cinfo, COL_RSSI)) {
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm",
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm",
             (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr)));
-    }
+
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antsignal, 1, 0x80); /* -128 */
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antnoise, 1, 0x80);
 

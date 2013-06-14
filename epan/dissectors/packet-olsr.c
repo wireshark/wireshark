@@ -531,17 +531,13 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   /* Does this packet have a valid message type at the beginning? */
   if (tvb_length(tvb) < 4) {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR Packet,  Length: %u Bytes (not enough data in packet)",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR Packet,  Length: %u Bytes (not enough data in packet)",
           tvb_length(tvb));
-    }
     return 0; /* not enough bytes for the packet length */
   }
   packet_len = tvb_get_ntohs(tvb, 0);
   if (packet_len > tvb_length(tvb)) {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR Packet,  Length: %u Bytes (not enough data in packet)", packet_len);
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR Packet,  Length: %u Bytes (not enough data in packet)", packet_len);
     return 0;
   }
   /*-------------Setting the Protocol and Info Columns in the Wireshark Display----------*/
@@ -549,14 +545,12 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   col_clear(pinfo->cinfo, COL_INFO);
 
   if ((pinfo->src.type != AT_IPv4) && (pinfo->src.type != AT_IPv6)) {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR (unknown address type) Packet,  Length: %u Bytes", packet_len);
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR (unknown address type) Packet,  Length: %u Bytes", packet_len);
     return 0;
   }
-  if (check_col(pinfo->cinfo, COL_INFO) && (pinfo->src.type == AT_IPv4)) {
+  if (pinfo->src.type == AT_IPv4) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR (IPv4) Packet,  Length: %u Bytes", packet_len);
-  } else if (check_col(pinfo->cinfo, COL_INFO) && (pinfo->src.type == AT_IPv6)) {
+  } else if (pinfo->src.type == AT_IPv6) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "OLSR (IPv6) Packet,  Length: %u Bytes", packet_len);
   }
 

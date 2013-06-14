@@ -876,8 +876,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     default:      return -1;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO,
+  col_append_fstr(pinfo->cinfo, COL_INFO,
 		"DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref, dst_ref);
 
@@ -1099,15 +1098,13 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   pinfo->clnp_dstref = dst_ref;
 
   pinfo->fragmented = fragment;
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (is_class_234) {
+  if (is_class_234) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr,
 		 dst_ref);
     } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u)", tpdu_nr);
     }
-  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
@@ -1157,13 +1154,11 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   fragment_length = tvb_length(next_tvb);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-      if (fragment) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]",
-            fragment_length, plurality(fragment_length, "", "s"));
-      } else {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " EOT");
-      }
+  if (fragment) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]",
+        fragment_length, plurality(fragment_length, "", "s"));
+  } else {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " EOT");
   }
 
   if (cotp_reassemble) {
@@ -1381,8 +1376,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x",
+  col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1486,8 +1480,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x",
+  col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1551,8 +1544,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   pinfo->clnp_srcref = src_ref;
   pinfo->clnp_dstref = dst_ref;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO,
+  col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 (tpdu == CR_TPDU) ? "CR" : "CC",
 		 src_ref,
@@ -1675,8 +1667,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   pinfo->clnp_dstref = dst_ref;
   pinfo->clnp_dstref = src_ref;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO,
+  col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref,
 		 dst_ref);
@@ -1744,8 +1735,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
     pinfo->clnp_dstref = dst_ref;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
 		   tpdu_nr, dst_ref);
 
     if (tree) {
@@ -1786,8 +1776,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     cdt_in_ak = tvb_get_ntohs(tvb, offset + P_CDT_IN_AK);
     pinfo->clnp_dstref = dst_ref;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x Credit: %u",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x Credit: %u",
 		   tpdu_nr, dst_ref, cdt_in_ak);
 
     if (tree) {
@@ -1968,8 +1957,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO,
+  col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
@@ -2055,8 +2043,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
+  col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
@@ -2157,8 +2144,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "");
+  col_set_str(pinfo->cinfo, COL_INFO, "");
 
   while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {
@@ -2217,7 +2203,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
         is_cltp = TRUE;
         break;
       default      :
-        if (first_tpdu && check_col(pinfo->cinfo, COL_INFO))
+        if (first_tpdu)
           col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
         new_offset = -1;	/* bad PDU type */
         break;
@@ -2233,7 +2219,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     if (first_tpdu) {
       /* Well, we found at least one valid COTP or CLTP PDU, so I guess this
          is either COTP or CLTP. */
-      if (!subdissector_found && check_col(pinfo->cinfo, COL_PROTOCOL))
+      if (!subdissector_found)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
       found_ositp = TRUE;
     }

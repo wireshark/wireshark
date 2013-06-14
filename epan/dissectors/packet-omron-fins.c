@@ -1125,16 +1125,12 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     icf_flags = tvb_get_guint8(tvb, offset);
     if (icf_flags & 0x40) {
         is_response = TRUE;
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Response : %s", cmd_str);
-        }
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Response : %s", cmd_str);
     }
     else
     {
         is_command = TRUE;
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);
-        }
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);
     }
 
     if (tree) { /* we are being asked for details */

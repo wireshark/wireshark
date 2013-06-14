@@ -137,8 +137,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     present = tvb_get_letohl(tvb, offset+4);
 
     /* Setup basic column info */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PPI Antenna info v%u, Length %u",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PPI Antenna info v%u, Length %u",
                      version, length);
 
 

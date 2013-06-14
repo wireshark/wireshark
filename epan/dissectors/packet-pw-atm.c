@@ -600,11 +600,8 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 		/* sub-dissectors _may_ overwrite columns in aal5_pdu mode */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_pw_info(pinfo, payload_size, cells, 0);
-		}
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_append_pw_info(pinfo, payload_size, cells, 0);
 	}
 
 	{
@@ -679,11 +676,8 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 		/* overwrite everything written by sub-dissectors in 1:1 modes*/
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_pw_info(pinfo, payload_size, cells, 0);
-		}
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_append_pw_info(pinfo, payload_size, cells, 0);
 	}
 
 	pinfo->private_data = pd_save;
@@ -829,20 +823,14 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	/* fill columns in Packet List */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
+	if (PWATM_SUBMODE_ADMIN_CELL == pd.submode)
 	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-		if (PWATM_SUBMODE_ADMIN_CELL == pd.submode)
-		{
-			col_append_str(pinfo->cinfo, COL_PROTOCOL, ", OAM cell");
-		}
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, ", OAM cell");
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_pw_info(pinfo, payload_size, cells, padding_size);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_append_pw_info(pinfo, payload_size, cells, padding_size);
 
 	{
 		proto_item* item;
@@ -1060,11 +1048,8 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/* overwrite everything written by sub-dissectors */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_pw_info(pinfo, payload_size, cells, padding_size);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_append_pw_info(pinfo, payload_size, cells, padding_size);
 
 	pinfo->private_data = pd_save;
 	return;
@@ -1132,11 +1117,8 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/* overwrite everything written by sub-dissectors */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_pw_info(pinfo, payload_size, cells, 0);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_append_pw_info(pinfo, payload_size, cells, 0);
 
 	pinfo->private_data = pd_save;
 	return;

@@ -825,13 +825,11 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		if (tvb_reported_length_remaining(tvb, 0) < 18) {
-			col_set_str(pinfo->cinfo, COL_INFO,
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tvb_reported_length_remaining(tvb, 0) < 18) {
+		col_set_str(pinfo->cinfo, COL_INFO,
 				"Packet too small");
-			return;
-		}
+		return;
 	}
 
 	pinfo->srcport = pgmhdr_sport = tvb_get_ntohs(tvb, 0);
@@ -853,29 +851,24 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case PGM_NCF_PCKT:
 	case PGM_POLR_PCKT:
 	case PGM_ACK_PCKT:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%-5s sqn 0x%x gsi %s", pktname, sqn, gsi);
-		}
 		break;
 	case PGM_RDATA_PCKT:
 	case PGM_ODATA_PCKT:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "%-5s sqn 0x%x gsi %s tsdulen %d", pktname, sqn, gsi,
 			    pgmhdr_tsdulen);
-		}
+
 		isdata = TRUE;
 		break;
 	case PGM_POLL_PCKT: {
 		guint16 poll_stype = tvb_get_ntohs(tvb, 22);
 		pollstname = val_to_str(poll_stype, poll_subtype_vals, "Unknown (0x%02x)");
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%-5s sqn 0x%x gsi %s subtype %s",
 					pktname, sqn, gsi, pollstname);
-		}
 		}
 		break;
 	default:

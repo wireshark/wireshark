@@ -196,8 +196,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	guint32 version, tl;
 	int old_offset=offset;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"RESPONSE  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -208,7 +207,6 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			get_udp_port(pinfo->srcport),
 			get_udp_port(pinfo->destport)
 		);
-	}
 
 	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_response);
@@ -251,8 +249,7 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	proto_item *item;
 	int old_offset=offset;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"ABORT  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -263,7 +260,6 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			get_udp_port(pinfo->srcport),
 			get_udp_port(pinfo->destport)
 		);
-	}
 
 	item = proto_tree_add_item(parent_tree, hf_rx_abort, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_abort);
@@ -285,8 +281,7 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	guint32 version;
 	int old_offset=offset;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"CHALLENGE  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -297,7 +292,6 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			get_udp_port(pinfo->srcport),
 			get_udp_port(pinfo->destport)
 		);
-	}
 
 	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_challenge);
@@ -327,8 +321,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	guint8 num;
 	int old_offset = offset;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"ACK  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -339,7 +332,6 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 			get_udp_port(pinfo->srcport),
 			get_udp_port(pinfo->destport)
 		);
-	}
 
 	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_ack);
@@ -550,8 +542,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 		break;
 	case RX_PACKET_TYPE_ACKALL:
 		/* does not contain any payload */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"ACKALL  "
 				"Seq: %lu  "
 				"Call: %lu  "
@@ -562,7 +553,6 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 				get_udp_port(pinfo->srcport),
 				get_udp_port(pinfo->destport)
 			);
-		}
 		break;
 	case RX_PACKET_TYPE_CHALLENGE:
 		dissect_rx_challenge(tvb, pinfo, tree, offset, seq, callnumber);

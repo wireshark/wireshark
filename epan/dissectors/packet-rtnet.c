@@ -398,10 +398,8 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMA-V1");
 
   /* set the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
       val_to_str(msg, tdma_v1_msg_vals, "Unknown (0x%04x)"));
-  }
 
   if (root) {
     ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, ENC_NA);
@@ -515,10 +513,8 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMA");
 
   /* Set the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                  val_to_str(msg, tdma_msg_vals, "Unknown (0x%04x)"));
-  }
 
   if (root) {
     ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, ENC_NA);
@@ -590,10 +586,8 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTmac");
 
   /* set the info column */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo,COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown (0x%04x)",type);
-  }
+  col_clear(pinfo->cinfo,COL_INFO);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown (0x%04x)",type);
 
   if (rtmac_tree) {
     if (ver == 1) {
@@ -682,10 +676,8 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   vers_id = tvb_get_guint8(tvb, offset);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
            val_to_str(vers_id, rtcfg_msg_vals, "Unknown (0x%04x)"));
-  }
 
   if( rtcfg_tree )
   {
