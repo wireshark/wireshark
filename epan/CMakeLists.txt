@@ -890,6 +890,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mongo.c
 	dissectors/packet-mount.c
 	dissectors/packet-mp2t.c
+	dissectors/packet-mp4.c
 	dissectors/packet-mp4ves.c
 	dissectors/packet-mpeg-ca.c
 	dissectors/packet-mpeg-descriptor.c

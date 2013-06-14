@@ -812,6 +812,7 @@ DISSECTOR_SRC = \
 	packet-mongo.c		\
 	packet-mount.c		\
 	packet-mp2t.c		\
+	packet-mp4.c		\
 	packet-mp4ves.c		\
 	packet-mpeg-ca.c	\
 	packet-mpeg-descriptor.c \
