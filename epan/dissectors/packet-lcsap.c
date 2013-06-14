@@ -446,7 +446,6 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 #line 100 "../../asn1/lcsap/lcsap.cnf"
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
 	{
 		guint8 tmp = tvb_get_guint8(tvb, 0);
 
@@ -747,7 +746,7 @@ dissect_lcsap_Correlation_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_lcsap_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 213 "../../asn1/lcsap/lcsap.cnf"
+#line 212 "../../asn1/lcsap/lcsap.cnf"
   guint32 degrees;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -764,7 +763,7 @@ dissect_lcsap_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 221 "../../asn1/lcsap/lcsap.cnf"
+#line 220 "../../asn1/lcsap/lcsap.cnf"
   guint32 degrees;
 
     offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -782,7 +781,7 @@ dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 167 "../../asn1/lcsap/lcsap.cnf"
+#line 166 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
@@ -850,7 +849,7 @@ dissect_lcsap_Geographical_Coordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_lcsap_Uncertainty_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 205 "../../asn1/lcsap/lcsap.cnf"
+#line 204 "../../asn1/lcsap/lcsap.cnf"
   guint32 uncertainty_code;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -1144,7 +1143,7 @@ dissect_lcsap_Global_eNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lcsap_GNSS_Positioning_Method_And_Usage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 191 "../../asn1/lcsap/lcsap.cnf"
+#line 190 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1633,7 +1632,7 @@ dissect_lcsap_Payload_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_lcsap_Positioning_Method_And_Usage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "../../asn1/lcsap/lcsap.cnf"
+#line 178 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2256,8 +2255,7 @@ dissect_lcsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*lcsap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LCSAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LCSAP");
 
 	/* create the lcsap protocol tree */
 	lcsap_item = proto_tree_add_item(tree, proto_lcsap, tvb, 0, -1, ENC_NA);
@@ -2320,7 +2318,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 258 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 257 "../../asn1/lcsap/packet-lcsap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2802,7 +2800,7 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 303 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 302 "../../asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -2858,7 +2856,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 309 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 308 "../../asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;

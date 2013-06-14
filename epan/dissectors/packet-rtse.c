@@ -1001,7 +1001,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 354 "../../asn1/rtse/packet-rtse-template.c"
+#line 353 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1023,7 +1023,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 363 "../../asn1/rtse/packet-rtse-template.c"
+#line 362 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {

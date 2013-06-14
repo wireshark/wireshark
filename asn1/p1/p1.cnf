@@ -689,7 +689,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	} else {
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO) && mtaname) {
+	if (mtaname) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
 	}
 
@@ -1093,7 +1093,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	if(*oraddress) {
 		proto_item_append_text(address_item, " (%%s/", oraddress);
 
-		if(doing_subjectid  && check_col(actx->pinfo->cinfo, COL_INFO)) {
+		if(doing_subjectid) {
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s/", oraddress);
 		}
 	}
@@ -1111,7 +1111,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	  if(doing_address) 
 		  proto_item_append_text(address_item, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
 
-          if(doing_subjectid  && check_col(actx->pinfo->cinfo, COL_INFO)) 
+          if(doing_subjectid) 
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
 	}
 
@@ -1206,7 +1206,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY MTABindError
   int error = -1;
   %(DEFAULT_BODY)s
-  if((error != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+  if((error != -1))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(error, p1_MTABindError_vals, "error(%%d)"));
 
 #.FN_PARS TokenTypeIdentifier
@@ -1226,9 +1226,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   %(DEFAULT_BODY)s
 
   if( (credentials!=-1) && p1_Credentials_vals[credentials].strptr ){
-    if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-      col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", p1_Credentials_vals[credentials].strptr);
-    }
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", p1_Credentials_vals[credentials].strptr);
   }
 
 #.FN_PARS TokenDataType
@@ -1274,7 +1272,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   	%(DEFAULT_BODY)s
 	
 	if( (apdu!=-1) && p1_MTS_APDU_vals[apdu].strptr ){
-		if(check_col(actx->pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
+		if(apdu != 0) { /* we don't show "message" - sub-dissectors have better idea */
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", p1_MTS_APDU_vals[apdu].strptr);
 		}
 	}
@@ -1288,9 +1286,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   	%(DEFAULT_BODY)s
 	
         if( (report!=-1) && p1_ReportType_vals[report].strptr ){
-		if(check_col(actx->pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", p1_ReportType_vals[report].strptr);
-		}
 	}
 
 #.FN_BODY MessageSubmissionArgument

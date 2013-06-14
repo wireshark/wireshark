@@ -652,7 +652,7 @@ dissect_p772_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
 
-  if((precedence != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(precedence != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%s)", val_to_str(precedence, p772_PrimaryPrecedence_vals, "precedence(%d)"));
 
 
@@ -682,7 +682,7 @@ dissect_p772_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
 
-  if((precedence != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(precedence != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%s)", val_to_str(precedence, p772_CopyPrecedence_vals, "precedence(%d)"));
 
 

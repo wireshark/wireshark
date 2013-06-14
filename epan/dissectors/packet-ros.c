@@ -247,11 +247,9 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 
 			opname = val_to_str(opcode_lcl, lookup, "Unknown opcode (%d)");
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, opname);
-				if(suffix)
-					col_append_str(pinfo->cinfo, COL_INFO, suffix);
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, opname);
+			if(suffix)
+				col_append_str(pinfo->cinfo, COL_INFO, suffix);
 
 			(*opdissector)(tvb, pinfo, ros_tree, NULL);
 
@@ -651,16 +649,14 @@ static const value_string ros_GeneralProblem_vals[] = {
 
 static int
 dissect_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "../../asn1/ros/ros.cnf"
+#line 168 "../../asn1/ros/ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_GeneralProblem_vals, "GeneralProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_GeneralProblem_vals, "GeneralProblem(%d)"));
 
 
 
@@ -683,16 +679,14 @@ static const value_string ros_InvokeProblem_vals[] = {
 
 static int
 dissect_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 181 "../../asn1/ros/ros.cnf"
+#line 178 "../../asn1/ros/ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_InvokeProblem_vals, "InvokeProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_InvokeProblem_vals, "InvokeProblem(%d)"));
 
 
 
@@ -710,16 +704,14 @@ static const value_string ros_ReturnResultProblem_vals[] = {
 
 static int
 dissect_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 193 "../../asn1/ros/ros.cnf"
+#line 188 "../../asn1/ros/ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_ReturnResultProblem_vals, "ReturnResultProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_ReturnResultProblem_vals, "ReturnResultProblem(%d)"));
 
 
 
@@ -739,16 +731,14 @@ static const value_string ros_ReturnErrorProblem_vals[] = {
 
 static int
 dissect_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 205 "../../asn1/ros/ros.cnf"
+#line 198 "../../asn1/ros/ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_ReturnErrorProblem_vals, "ReturnErrorProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, ros_ReturnErrorProblem_vals, "ReturnErrorProblem(%d)"));
 
 
 
@@ -801,8 +791,7 @@ dissect_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_ros_T_reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 161 "../../asn1/ros/ros.cnf"
-	if(check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Reject");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Reject");
 	  offset = dissect_ros_Reject(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 
@@ -1016,7 +1005,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 375 "../../asn1/ros/packet-ros-template.c"
+#line 373 "../../asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1247,7 +1236,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 493 "../../asn1/ros/packet-ros-template.c"
+#line 491 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1268,7 +1257,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 500 "../../asn1/ros/packet-ros-template.c"
+#line 498 "../../asn1/ros/packet-ros-template.c"
   };
 
   static ei_register_info ei[] = {

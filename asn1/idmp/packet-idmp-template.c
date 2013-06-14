@@ -189,8 +189,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 
         pinfo->fragmented = !idmp_final;
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%sIDMP fragment, %u byte%s]",
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [%sIDMP fragment, %u byte%s]",
                             idmp_final ? "Final " : "" ,
                             idmp_length, plurality(idmp_length, "", "s"));
 
@@ -218,8 +217,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     } else {
         if(!idmp_final) {
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, " [IDMP fragment, %u byte%s, IDMP reassembly not enabled]",
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [IDMP fragment, %u byte%s, IDMP reassembly not enabled]",
                                 idmp_length, plurality(idmp_length, "", "s"));
 
             proto_tree_add_text(tree, tvb, offset, (idmp_length) ? -1 : 0,

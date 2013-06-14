@@ -506,7 +506,7 @@ static const ber_sequence_t Attribute_sequence[] = {
 
 int
 dissect_x509if_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 418 "../../asn1/x509if/x509if.cnf"
+#line 417 "../../asn1/x509if/x509if.cnf"
 	doing_attr = TRUE;
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
@@ -663,7 +663,7 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 408 "../../asn1/x509if/x509if.cnf"
+#line 407 "../../asn1/x509if/x509if.cnf"
 
 	ava_hf_index = hf_index;
 	last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
@@ -944,7 +944,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 397 "../../asn1/x509if/x509if.cnf"
+#line 396 "../../asn1/x509if/x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -985,8 +985,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   proto_item_append_text(top_of_dn, " (%s)", last_dn);
 
  /* see if we should append this to the col info */
-  if(check_col(actx->pinfo->cinfo, COL_INFO) &&
-     (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+  if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s%s", fmt, last_dn);
   }

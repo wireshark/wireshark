@@ -386,8 +386,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   proto_item_append_text(top_of_dn, " (%%s)", last_dn);
 
  /* see if we should append this to the col info */
-  if(check_col(actx->pinfo->cinfo, COL_INFO) &&
-     (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+  if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
   }

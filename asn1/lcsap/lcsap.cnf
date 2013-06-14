@@ -98,7 +98,6 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
 	{
 		guint8 tmp = tvb_get_guint8(tvb, 0);
 

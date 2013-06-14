@@ -3489,7 +3489,7 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "../../asn1/ulp/ulp.cnf"
+#line 65 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3502,7 +3502,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "../../asn1/ulp/ulp.cnf"
+#line 70 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3515,7 +3515,7 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "../../asn1/ulp/ulp.cnf"
+#line 75 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
@@ -4463,7 +4463,7 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "../../asn1/ulp/ulp.cnf"
+#line 46 "../../asn1/ulp/ulp.cnf"
  tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4483,7 +4483,7 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "../../asn1/ulp/ulp.cnf"
+#line 55 "../../asn1/ulp/ulp.cnf"
  tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6229,10 +6229,8 @@ guint32 UlpMessage;
                                  &UlpMessage);
 
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-	{
-	    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
-	}
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+
 
 
   return offset;

@@ -370,7 +370,7 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 	
 	%(DEFAULT_BODY)s
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO) && (ora = p1_get_last_oraddress())) {
+	if (ora = p1_get_last_oraddress()) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (initiator=%%s)", ora);
 	}
 	
@@ -382,14 +382,10 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 	col_append_str(actx->pinfo->cinfo, COL_INFO, ")");
 
 #.FN_FTR	NumberRange/from
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
 
 #.FN_FTR	NumberRange/to
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
 	
 #.FN_PARS	SummarizeResult/count	VAL_PTR = &count
 
@@ -398,9 +394,7 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 	%(DEFAULT_BODY)s
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
 
 #.FN_BODY	MSMessageSubmissionArgument
 	p1_initialize_content_globals (tree, TRUE);

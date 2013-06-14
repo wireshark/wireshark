@@ -218,8 +218,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  return;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
+	col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;

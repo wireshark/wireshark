@@ -694,7 +694,7 @@ void proto_register_smrse(void) {
         "SMS_Address", HFILL }},
 
 /*--- End of included file: packet-smrse-hfarr.c ---*/
-#line 162 "../../asn1/smrse/packet-smrse-template.c"
+#line 161 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* List of subtrees */
@@ -716,7 +716,7 @@ void proto_register_smrse(void) {
     &ett_smrse_RPAlertSC,
 
 /*--- End of included file: packet-smrse-ettarr.c ---*/
-#line 168 "../../asn1/smrse/packet-smrse-template.c"
+#line 167 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* Register protocol */

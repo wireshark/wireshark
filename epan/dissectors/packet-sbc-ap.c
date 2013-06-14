@@ -261,8 +261,7 @@ dissect_sbc_ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                                             0U, 255U, &ProcedureCode, FALSE);
 
 #line 64 "../../asn1/sbc-ap/sbc-ap.cnf"
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
                               "unknown message"));
 
@@ -554,7 +553,7 @@ dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 101 "../../asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1172,12 +1171,11 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static void
 dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        proto_item      *sbc_ap_item = NULL;
-        proto_tree      *sbc_ap_tree = NULL;
+    proto_item      *sbc_ap_item = NULL;
+    proto_tree      *sbc_ap_tree = NULL;
 
-        /* make entry in the Protocol column on summary display */
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    /* make entry in the Protocol column on summary display */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 
     /* create the sbc_ap protocol tree */
     if (tree) {
@@ -1418,7 +1416,7 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 155 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 154 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -1452,7 +1450,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 161 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 160 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1510,7 +1508,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 194 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 193 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);

@@ -268,8 +268,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			fragment_length = tvb_length_remaining (tvb, offset);
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE fragment, %u byte%s]",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE fragment, %u byte%s]",
 					fragment_length, plurality(fragment_length, "", "s"));
 	} else if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
 		if (next_tvb) {

@@ -947,7 +947,7 @@ dissect_p7_T_initiator_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	  offset = dissect_p1_ORAddressAndOrDirectoryName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO) && (ora = p1_get_last_oraddress())) {
+	if (ora = p1_get_last_oraddress()) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (initiator=%s)", ora);
 	}
 	
@@ -1321,9 +1321,7 @@ static int
 dissect_p7_T_from_number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
 
   return offset;
 }
@@ -1334,9 +1332,7 @@ static int
 dissect_p7_T_to_number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
 	
   return offset;
 }
@@ -1865,9 +1861,7 @@ dissect_p7_T_count(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                                                             0U, ub_messages, hf_index, &count);
 
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%d)", count);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%d)", count);
 
 
   return offset;

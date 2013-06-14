@@ -250,7 +250,7 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
 
   %(DEFAULT_BODY)s
 
-  if(subject && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(subject)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", tvb_format_text(subject, 0, tvb_length(subject)));
 
 #.FN_PARS CharacterSetRegistration

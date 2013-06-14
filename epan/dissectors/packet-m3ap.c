@@ -2062,8 +2062,7 @@ dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree      *m3ap_tree = NULL;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 
   /* create the m3ap protocol tree */
   if (tree) {
@@ -2478,7 +2477,7 @@ void proto_register_m3ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-m3ap-hfarr.c ---*/
-#line 158 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 157 "../../asn1/m3ap/packet-m3ap-template.c"
   };
 
   /* List of subtrees */
@@ -2534,7 +2533,7 @@ void proto_register_m3ap(void) {
     &ett_m3ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-m3ap-ettarr.c ---*/
-#line 164 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 163 "../../asn1/m3ap/packet-m3ap-template.c"
   };
 
 
@@ -2609,7 +2608,7 @@ proto_reg_handoff_m3ap(void)
 
 
 /*--- End of included file: packet-m3ap-dis-tab.c ---*/
-#line 194 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 193 "../../asn1/m3ap/packet-m3ap-template.c"
     dissector_add_uint("m3ap.extension", 17, new_create_dissector_handle(dissect_AllocationAndRetentionPriority_PDU, proto_m3ap));
   }
   else {
