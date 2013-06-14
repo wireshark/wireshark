@@ -832,9 +832,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     version = tvb_get_guint8(tvb, offset);
     function = tvb_get_guint8(tvb, offset + 1);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
+    col_add_str(pinfo->cinfo, COL_INFO,
+        val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
 
     ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, ENC_NA);
     srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
@@ -872,8 +871,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
                             tvb_get_ntohs(tvb, offset + 10));
         /* added echo of XID to info colomn by Greg Morris 0ct 14, 2005 */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
 
         offset += 12;
 
@@ -1085,8 +1083,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             next_ext_off);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_xid, tvb, offset + 10, 2,
                             tvb_get_ntohs(tvb, offset + 10));
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
         lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2, lang_tag_len);
         proto_tree_add_item(srvloc_tree, hf_srvloc_langtag, tvb, offset + 14, lang_tag_len, ENC_ASCII|ENC_NA);

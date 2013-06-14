@@ -120,8 +120,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	byte0 = tvb_get_guint8(tvb, 0);
 
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "0x%02X", byte0);
+	col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "0x%02X", byte0);
 
 	byte1 = tvb_get_guint8(tvb, 1);
 

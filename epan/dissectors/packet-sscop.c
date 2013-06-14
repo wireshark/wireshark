@@ -191,8 +191,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
   sscop_info.type = sscop_pdu_type & SSCOP_TYPE_MASK;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCOP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(sscop_info.type, sscop_type_vals,
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(sscop_info.type, sscop_type_vals,
 					"Unknown PDU type (0x%02x)"));
 
   /*

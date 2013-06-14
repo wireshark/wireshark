@@ -92,7 +92,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (data_name && check_col(pinfo->cinfo, COL_INFO))
+	if (data_name)
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)",
 				data_name);
 

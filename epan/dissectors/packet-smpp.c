@@ -2496,27 +2496,25 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Make entries in the Info column on the summary display
          */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            if (first == TRUE) {
-                /*
-                 * First PDU - We already computed the fixed header
-                 */
-                col_clear(pinfo->cinfo, COL_INFO);
-                col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s", command_str);
-                first = FALSE;
-            } else {
-                /*
-                 * Subsequent PDUs
-                 */
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", command_str);
-            }
+        if (first == TRUE) {
             /*
-             * Display command status of responses in Info column
-             */
-            if (command_id & 0x80000000) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"",
-                        command_status_str);
-            }
+                * First PDU - We already computed the fixed header
+                */
+            col_clear(pinfo->cinfo, COL_INFO);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s", command_str);
+            first = FALSE;
+        } else {
+            /*
+                * Subsequent PDUs
+                */
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", command_str);
+        }
+        /*
+            * Display command status of responses in Info column
+            */
+        if (command_id & 0x80000000) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"",
+                    command_status_str);
         }
 
         /*

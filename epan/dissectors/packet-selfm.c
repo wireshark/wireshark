@@ -1290,19 +1290,13 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
         proto_tree_add_item(fastop_tree, hf_selfm_fastop_rb_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Append Column Info w/ Control Code Code */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(opcode, selfm_fo_rb_vals, "Unknown Control Code"));
-        }
-
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(opcode, selfm_fo_rb_vals, "Unknown Control Code"));
     }
     else if (msg_type == CMD_FASTOP_BR_CTRL) {
         proto_tree_add_item(fastop_tree, hf_selfm_fastop_br_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Append Column Info w/ Control Code Code */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(opcode, selfm_fo_br_vals, "Unknown Control Code"));
-        }
-
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(opcode, selfm_fo_br_vals, "Unknown Control Code"));
     }
     offset += 1;
 
@@ -1354,9 +1348,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_tree_add_item(fastser_tree, hf_selfm_fastser_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Append Column Info w/ Function Code */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(funccode, selfm_fastser_func_code_vals, "Unknown Function Code"));
-    }
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(funccode, selfm_fastser_func_code_vals, "Unknown Function Code"));
 
     offset += 1;
 
@@ -1468,10 +1460,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
              fc_enable = tvb_get_guint8(tvb, offset);
              proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_en_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            /* Append Column Info w/ "Enable" Function Code */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Function to Enable (%#x)", fc_enable);
-            }
+             /* Append Column Info w/ "Enable" Function Code */
+             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Function to Enable (%#x)", fc_enable);
 
              /* 3-byte Function Code data */
              proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_en_fc_data, tvb, offset+1, 3, ENC_NA);
@@ -1486,10 +1476,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
              fc_enable = tvb_get_guint8(tvb, offset);
              proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_dis_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            /* Append Column Info w/ "Disable" Function Code */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Function to Disable (%#x)", fc_enable);
-            }
+             /* Append Column Info w/ "Disable" Function Code */
+             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Function to Disable (%#x)", fc_enable);
 
              /* 1-byte Function Code data */
              proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_dis_fc_data, tvb, offset+1, 1, ENC_NA);
@@ -1506,9 +1494,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             base_addr = tvb_get_ntohs(tvb, offset); /* unknown - 16-bit field with base address to read? */
 
             /* Append Column Info w/ Base Address */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
 
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_read_baseaddr, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_read_numaddr, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -1523,9 +1509,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             num_addr = tvb_get_ntohs(tvb, offset+2); /* unknown - 16-bit field with number of 16-bit addresses to read? */
 
             /* Append Column Info w/ Base Address */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
 
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_read_baseaddr, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_read_numaddr, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -1616,9 +1600,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             num_reg = tvb_get_ntohs(tvb, offset+4);
 
             /* Append Column Info w/ Address Information */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x, %#x", addr1, addr2);
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x, %#x", addr1, addr2);
 
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_addr1, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_addr2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
@@ -1686,9 +1668,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 2;
 
             /* Append Column Info w/ Base Address */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
 
             break;
 
@@ -1703,9 +1683,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 2;
 
             /* Append Column Info w/ Base Address */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
 
             /* unknown - 16-bit field with number of tags to follow? */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_datafmt_resp_num_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1738,9 +1716,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 2;
 
             /* Append Column Info w/ Base Address */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
-            }
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
             break;
 
         case FAST_SER_BITLABEL_RESP: /* 0xB3 - Bit Label Response - unknown full structure */
@@ -1832,10 +1808,8 @@ dissect_selfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         selfm_item = proto_tree_add_protocol_format(tree, proto_selfm, selfm_tvb, 0, len, "SEL Fast Message");
         selfm_tree = proto_item_add_subtree(selfm_item, ett_selfm);
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(msg_type, selfm_msgtype_vals, "Unknown Message Type"));
-        }
+        col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(msg_type, selfm_msgtype_vals, "Unknown Message Type"));
 
         /* Add Message Type to Protocol Tree */
         proto_tree_add_item(selfm_tree, hf_selfm_msgtype, selfm_tvb, offset, 2, ENC_BIG_ENDIAN);

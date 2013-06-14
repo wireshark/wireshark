@@ -2685,9 +2685,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	if (smb_info->request) { /* this is a request */
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_ext(cmd, &commands_ext, "Unknown Command (%u)"));
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_ext(cmd, &commands_ext, "Unknown Command (%u)"));
+
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, offset, 2,
 		    cmd);
 		offset += 2;
@@ -2825,19 +2824,17 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		if( ( (p_tvb==NULL) || (tvb_reported_length(p_tvb)==0) )
 		&&  ( (d_tvb==NULL) || (tvb_reported_length(d_tvb)==0) ) ){
 			/* command */
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
 					     val_to_str_ext(trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
-			}
+
 			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, trp->lanman_cmd);
 			return TRUE;
 		}
 
 		/* command */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
 				     val_to_str_ext(trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
-		}
+
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0,
 		    trp->lanman_cmd);
 
@@ -3540,10 +3537,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	 * Set the columns.
 	 */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Pipe");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 		    smb_info->request ? "Request" : "Response");
-	}
 
 	if (smb_info->sip != NULL && smb_info->sip->extra_info_type == SMB_EI_TRI)
 		tri = (smb_transact_info_t *)smb_info->sip->extra_info;
@@ -3576,11 +3571,10 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		proto_tree_add_uint(pipe_tree, hf_pipe_function, s_tvb,
 		    offset, 2, function);
 		offset += 2;
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			    val_to_str(function, functions, "Unknown function (0x%04x)"),
 			    smb_info->request ? "Request" : "Response");
-		}
+
 		if (tri != NULL)
 			tri->function = function;
 
@@ -3635,11 +3629,10 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			function = tri->function;
 			proto_tree_add_uint(pipe_tree, hf_pipe_function, NULL,
 			    0, 0, function);
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 				    val_to_str(function, functions, "Unknown function (0x%04x)"),
 				    smb_info->request ? "Request" : "Response");
-			}
+
 			fid = tri->fid;
 			if (fid != -1)
 				dissect_smb_fid(d_tvb, pinfo, pipe_tree, 0, 0, (guint16) fid, FALSE, FALSE, TRUE);

@@ -1295,14 +1295,14 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 			ioctl_name = NULL;
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO) && ioctl_name != NULL) {
+		if (ioctl_name != NULL) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s", ioctl_name);
 		}
 
 		/* device */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_device, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		if (check_col(pinfo->cinfo, COL_INFO) && ioctl_name == NULL) {
+		if (ioctl_name == NULL) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s",
 				val_to_str((ioctl_function>>16)&0xffff, smb2_ioctl_device_vals,
@@ -1314,7 +1314,7 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 
 		/* function */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_function, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		if (check_col(pinfo->cinfo, COL_INFO) && ioctl_name == NULL) {
+		if (ioctl_name == NULL) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " Function:0x%04x",
 				(ioctl_function>>2)&0x0fff);
@@ -1407,9 +1407,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			if (hnd_item) {
 				proto_item_append_text(hnd_item, " %s", fid_name);
 			}
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
 		}
 
 		/* look for the eo_file_info */
@@ -2004,10 +2002,7 @@ dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 				offset, length, name);
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s",
-			name);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s", name);
 	}
 	offset += length;
 
@@ -2578,10 +2573,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s", buf);
-	}
-
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s", buf);
 
 	return offset;
 }
@@ -2847,11 +2839,9 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
 			val_to_str(il, smb2_find_info_levels, "(Level:0x%02x)"),
 			buf);
-	}
 
 	return offset;
 }
@@ -3355,11 +3345,9 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	}
 
 	if (!pinfo->fd->flags.visited && si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
 				val_to_str(si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
 				(const char *)si->saved->extra_info);
-		}
 
 		g_free(si->saved->extra_info);
 		si->saved->extra_info_type = SMB2_EI_NONE;
@@ -3593,11 +3581,9 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		 * display ab bit too much if we do it for replies
 		 * as well.
 		 */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s",
 				val_to_str(cl, smb2_class_vals, "(Class:0x%02x)"),
 				val_to_str(il, vs, "(Level:0x%02x)"));
-		}
 	}
 
 	return offset;
@@ -4056,9 +4042,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" G_GINT64_MODIFIER "u", length, off);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" G_GINT64_MODIFIER "u", length, off);
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -4843,9 +4827,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" G_GINT64_MODIFIER "u", len, off);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" G_GINT64_MODIFIER "u", len, off);
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -5568,9 +5550,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* filename string */
 	fname = dissect_smb2_olb_string(pinfo, tree, tvb, &f_olb, OLB_TYPE_UNICODE_STRING);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s", fname);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s", fname);
 
 	/* save the name if it looks sane */
 	if (!pinfo->fd->flags.visited) {
@@ -6828,13 +6808,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	sti->conv = si->conv;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (first_in_chain) {
-			/* first packet */
-			col_clear(pinfo->cinfo, COL_INFO);
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, ";");
-		}
+	if (first_in_chain) {
+		/* first packet */
+		col_clear(pinfo->cinfo, COL_INFO);
+	} else {
+		col_append_str(pinfo->cinfo, COL_INFO, ";");
 	}
 
 	if (parent_tree) {
@@ -6932,16 +6910,14 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		proto_item_set_len(header_item, offset);
 
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 				decode_smb2_name(si->opcode),
 				(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
-			if (si->status) {
-				col_append_fstr(
+		if (si->status) {
+			col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
 					val_to_str(si->status, NT_errors,
 					"Unknown (0x%08X)"));
-			}
 		}
 
 

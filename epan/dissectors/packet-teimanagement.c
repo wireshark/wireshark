@@ -84,7 +84,6 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     message = tvb_get_guint8(tvb, 3);
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(message, tei_msg_vals, "Unknown message type (0x%04x)"));
     if (tree) {

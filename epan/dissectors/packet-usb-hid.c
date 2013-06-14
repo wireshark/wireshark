@@ -784,11 +784,9 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
-			is_request ? "Request" : "Response");
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+	val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
+		is_request ? "Request" : "Response");
 
 	if (is_request) {
 		proto_tree_add_item(tree, hf_usb_hid_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);

@@ -260,7 +260,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   mtp3_tvb = mtp3_msu_present(tvb, pinfo, fac, lev, msg_str,
 			      (reported_msg_len - msg_len));
 
-  if (mtp3_tvb == NULL && check_col(pinfo->cinfo, COL_INFO)) {
+  if (mtp3_tvb == NULL) {
     if (pri >= 0) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s",
         val_to_str_const(fac, short_fac, "UNKNOWN"),

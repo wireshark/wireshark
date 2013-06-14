@@ -333,10 +333,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   col_set_str(pinfo->cinfo, COL_INFO, "SoulSeek Message");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", message_type);
-  }
-
+  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", message_type);
 
   if (tree) {
 

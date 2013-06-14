@@ -331,17 +331,14 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *wtls_rec_tree;
 	proto_tree *wtls_msg_type_tree;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	switch ( pinfo->match_uint )
 	{
-		switch ( pinfo->match_uint )
-		{
-			case UDP_PORT_WTLS_WSP:
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WSP" );
-				break;
-			case UDP_PORT_WTLS_WTP_WSP:
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP" );
-				break;
-		}
+		case UDP_PORT_WTLS_WSP:
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WSP" );
+			break;
+		case UDP_PORT_WTLS_WTP_WSP:
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP" );
+			break;
 	}
 
 	/* Develop the string to put in the Info column */

@@ -581,8 +581,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
             val_to_str_ext_const(command, &str_command_ext, "Unknown"));
 
     if (!ua3g_body_item)
@@ -1793,8 +1792,7 @@ decode_led_command(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
             val_to_str_ext_const(command, &str_command_ext, "Unknown"));
 
     if (!ua3g_body_item)
@@ -1867,8 +1865,7 @@ decode_lcd_line_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     column_n    = tvb_get_guint8(tvb, offset + 1);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s %d",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s %d",
             val_to_str_const(command, str_command, "Unknown"),
             column_n);
 
@@ -1963,8 +1960,7 @@ decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     mode  = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
             val_to_str_ext_const(mode, &str_voice_mode_ext, "Unknown"));
 
     if (!ua3g_body_item)
@@ -2159,8 +2155,7 @@ decode_set_clck(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command  = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
             val_to_str_const(command, str_command, "Unknown"));
 
     if (!ua3g_body_item)
@@ -2312,8 +2307,7 @@ decode_external_ringing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
             val_to_str_const(command, str_ext_ring_cmd, "Unknown"));
 
     if (!ua3g_body_item)
@@ -2346,9 +2340,8 @@ decode_lcd_cursor(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     str_on_off_val = tvb_get_guint8(tvb, offset + 1) & 0x02;
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                        STR_ON_OFF(str_on_off_val));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+                    STR_ON_OFF(str_on_off_val));
 
     if (!ua3g_body_item)
         return;
@@ -2500,9 +2493,8 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         command = tvb_get_guint8(tvb, offset);
 
         /* add text to the frame "INFO" column */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                val_to_str_const(command, str_command, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+            val_to_str_const(command, str_command, "Unknown"));
 
         if (!ua3g_body_item)
             return;
@@ -2652,8 +2644,7 @@ decode_beep(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     } else { /* Classical Beep */
         /* add text to the frame "INFO" column */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": Classical Beep");
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": Classical Beep");
 
         if (!ua3g_body_item)
             return;
@@ -2680,9 +2671,8 @@ decode_sidetone(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        STR_ON_OFF(command));
 
     if (!ua3g_body_item)
         return;
@@ -2759,9 +2749,8 @@ decode_mute(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_const(command, str_mute, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        val_to_str_const(command, str_mute, "Unknown"));
 
     if (!ua3g_body_item)
         return;
@@ -2793,9 +2782,8 @@ decode_feedback(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        STR_ON_OFF(command));
 
     if (!ua3g_body_item)
         return;
@@ -2928,9 +2916,8 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
 
     if (!ua3g_body_item)
         return;
@@ -3159,9 +3146,8 @@ decode_on_off_level(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        STR_ON_OFF(command));
 
     if (!ua3g_body_item)
         return;
@@ -3215,9 +3201,8 @@ decode_ring(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            STR_ON_OFF(command));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        STR_ON_OFF(command));
 
     if (!ua3g_body_item)
         return;
@@ -3288,9 +3273,8 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        val_to_str_ext_const(command, &str_command_ext, "Unknown"));
 
     if (!ua3g_body_item)
         return;
@@ -3602,9 +3586,8 @@ decode_cs_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb,
     command = tvb_get_guint8(tvb, offset);
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-            val_to_str_const(command, str_command, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+        val_to_str_const(command, str_command, "Unknown"));
 
     if (!ua3g_body_item)
         return;
@@ -4295,9 +4278,8 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
     if (opcode != 0x21) {
         /* add text to the frame "INFO" column */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                val_to_str_ext_const(command, &str_command_ext, "Unknown"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+            val_to_str_ext_const(command, &str_command_ext, "Unknown"));
 
         if (!ua3g_body_item)
             return;
@@ -4796,9 +4778,8 @@ dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length--;
 
     /* add text to the frame "INFO" column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-            val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+        val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"));
 
     proto_item_append_text(ua3g_item, ", %s", val_to_str_ext_const(opcode, opcodes_vals_ext_p, "Unknown"));
 

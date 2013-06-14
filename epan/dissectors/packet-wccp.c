@@ -650,10 +650,8 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   col_clear(pinfo->cinfo, COL_INFO);
 
 
-  if(check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(wccp_message_type,
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(wccp_message_type,
                                                    wccp_type_vals, "Unknown WCCP message (%u)"));
-  }
 
   if(tree != NULL) {
     wccp_tree_item = proto_tree_add_item(tree, proto_wccp, tvb, offset,

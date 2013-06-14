@@ -86,8 +86,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	/* Seems to be a decent TURN channel message */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TURN CHANNEL");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Channel Id 0x%x", channel_id);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Channel Id 0x%x", channel_id);
 
 	ti = proto_tree_add_item(tree, proto_turnchannel, tvb, 0, -1, ENC_NA);
 

@@ -93,11 +93,9 @@ static void
 set_addr(packet_info *pinfo _U_ , int field, gchar rid, gchar sid, gchar did)
 {
 	if (field == SRC) {
-		if (check_col(pinfo->cinfo, COL_DEF_SRC))
-			col_append_fstr(pinfo->cinfo, COL_DEF_SRC, " %2.2X:%2.2X:%2.2X", rid, sid, did);
+		col_append_fstr(pinfo->cinfo, COL_DEF_SRC, " %2.2X:%2.2X:%2.2X", rid, sid, did);
 	} else {
-		if (check_col(pinfo->cinfo, COL_DEF_DST))
-			col_append_fstr(pinfo->cinfo, COL_DEF_DST, " %2.2X:%2.2X:%2.2X", rid, sid, did);
+		col_append_fstr(pinfo->cinfo, COL_DEF_DST, " %2.2X:%2.2X:%2.2X", rid, sid, did);
 	}
 }
 

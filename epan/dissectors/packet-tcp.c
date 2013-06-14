@@ -3422,7 +3422,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
             proto_item_append_text(pitem, ", CSH IP: %s", ip_to_str((guint8 *)&ip));
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
+            {
                 /* Small look-ahead hack to distinguish S+ from S+* */
 #define PROBE_V1_QUERY_LEN    10
                 const guint8 qinfo_hdr[] = { 0x4c, 0x04, 0x0c };
@@ -3518,7 +3518,6 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                                     4, ENC_BIG_ENDIAN);
 
             if (type != PROBE_QUERY_INFO_SID &&
-                check_col(pinfo->cinfo, COL_INFO) &&
                 (tvb_get_guint8(tvb, 13) & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK) &&
                 (flags & RVBD_FLAGS_PROBE_LAST)) {
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "SA++, ");
@@ -4339,7 +4338,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else
         tcph->th_have_seglen = FALSE;
 
-    if (check_col(pinfo->cinfo, COL_INFO) || tree) {
+    if (tree) {
         gboolean first_flag = TRUE;
         for (i = 0; i < 9; i++) {
             bpos = 1 << i;

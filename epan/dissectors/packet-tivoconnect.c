@@ -167,8 +167,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         /* Adjust "Info" column and top of tree into more useful info */
         if (packet_machine) {
             proto_item_append_text(ti, ", %s", packet_machine);
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                                             proto_name, packet_machine);
         }
         if (packet_identity) {
@@ -176,13 +175,11 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         packet_machine ? " (%s)" : ", ID:%s",
                         packet_identity);
             if (packet_machine) {
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%s)",
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%s)",
                                  proto_name, packet_machine, packet_identity);
             }
             else {
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ID:%s",
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s ID:%s",
                                  proto_name, packet_identity);
             }
         }

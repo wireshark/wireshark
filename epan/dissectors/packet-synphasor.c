@@ -512,15 +512,12 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/* write the protocol name to the info column */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTOCOL_SHORT_NAME);
 
 	frame_type = tvb_get_guint8(tvb, 1) >> 4;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
-	}
+	col_clear(pinfo->cinfo, COL_INFO); /* clear out stuff in the info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(frame_type, typenames, "invalid packet type"));
 
 	/* CFG-2 and DATA frames need special treatment during the first run:
 	 * For CFG-2 frames, a 'config_frame' struct is created to hold the
@@ -863,17 +860,17 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 {
 	proto_tree *command_tree  = NULL;
 	guint	    tvbsize	  = tvb_length(tvb);
+	const char *s;
 
 	proto_item_set_text(command_item, "Command data");
 	command_tree = proto_item_add_subtree(command_item, ett_command);
 
 	/* CMD */
 	proto_tree_add_item(command_tree, hf_command, tvb, 0, 2, ENC_BIG_ENDIAN);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *s = val_to_str_const(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
-		col_append_str(pinfo->cinfo, COL_INFO, ", ");
-		col_append_str(pinfo->cinfo, COL_INFO, s);
-	}
+
+	s = val_to_str_const(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
+	col_append_str(pinfo->cinfo, COL_INFO, ", ");
+	col_append_str(pinfo->cinfo, COL_INFO, s);
 
 	if (tvbsize > 2) {
 		if (tvb_get_ntohs(tvb, 0) == 0x0008) {

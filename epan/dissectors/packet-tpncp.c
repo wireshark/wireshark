@@ -266,18 +266,16 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPNCP");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) {
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "EvID=%s(%d), SeqNo=%d, ChID=%d, Len=%d, Ver=%d",
-                         val_to_str_const(id, tpncp_events_id_vals, "Unknown"),
-                         id, seq_number, cid, len, ver);
-        } else {
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "CmdID=%s(%d), SeqNo=%d, Len=%d, Ver=%d",
-                         val_to_str_const(id, tpncp_commands_id_vals, "Unknown"),
-                         id, seq_number, len, ver);
-        }
+    if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "EvID=%s(%d), SeqNo=%d, ChID=%d, Len=%d, Ver=%d",
+                        val_to_str_const(id, tpncp_events_id_vals, "Unknown"),
+                        id, seq_number, cid, len, ver);
+    } else {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                        "CmdID=%s(%d), SeqNo=%d, Len=%d, Ver=%d",
+                        val_to_str_const(id, tpncp_commands_id_vals, "Unknown"),
+                        id, seq_number, len, ver);
     }
 
     if (tree) {

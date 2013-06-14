@@ -153,8 +153,7 @@ static void uadecode(e_ua_direction  direction,
     default:
         {
             /* add text to the frame "INFO" column */
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - UA3G Message ERR: Opcode Unknown");
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - UA3G Message ERR: Opcode Unknown");
 
             proto_tree_add_text(tree,
                 tvb,

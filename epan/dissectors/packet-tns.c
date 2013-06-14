@@ -290,23 +290,17 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 2;
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
+	if ( is_sns )
 	{
-		if ( is_sns )
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, ", SNS");
-		}
-		else
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, ", Data");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, ", SNS");
+	}
+	else
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, ", Data");
 	}
 
-	if ( data_tree )
-	{
-		call_dissector(data_handle,
+	call_dissector(data_handle,
 		    tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
-	}
 
 	return;
 }
@@ -736,16 +730,13 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
+	if ( is_attention )
 	{
-		if ( is_attention )
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, ", Marker");
-		}
-		else
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, ", Attention");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, ", Marker");
+	}
+	else
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, ", Attention");
 	}
 
 	if ( marker_tree )
@@ -884,11 +875,8 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TNS");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_set_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 			(pinfo->match_uint == pinfo->destport) ? "Request" : "Response");
-	}
 
 	if (tree)
 	{
@@ -931,11 +919,8 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 1;
 
-	if ( check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s (%u)",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s (%u)",
 			val_to_str_const(type, tns_type_vals, "Unknown"), type);
-	}
 
 	if ( tree )
 	{

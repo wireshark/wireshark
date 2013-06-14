@@ -505,13 +505,11 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (infoflag) {
 		/* Append the type(s) of the system to the COL_INFO line ... */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			for (i = 0; i < 32; i++) {
-				if (flags & (1<<i)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str(i, server_types,
-						"Unknown server type:%d"));
-				}
+		for (i = 0; i < 32; i++) {
+			if (flags & (1<<i)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+					val_to_str(i, server_types,
+					"Unknown server type:%d"));
 			}
 		}
 	}
@@ -593,17 +591,12 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	cmd = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/* Put in something, and replace it later */
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
-	}
+	/* Put in something, and replace it later */
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
-
-		tree = proto_item_add_subtree(item, ett_browse);
-	}
+	item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_browse);
 
 	/* command */
 	proto_tree_add_uint(tree, hf_command, tvb, offset, 1, cmd);
@@ -631,9 +624,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			"UTF-8", "CP437", NULL, NULL, NULL);
 		if (utf8_host_name == NULL)
 			utf8_host_name = host_name;
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", utf8_host_name);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", utf8_host_name);
 		proto_tree_add_string_format(tree, hf_server_name,
 			tvb, offset, 16,
 			utf8_host_name,
@@ -713,9 +704,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		computer_name = tvb_get_ephemeral_stringz(tvb, offset, &namelen);
 		proto_tree_add_string(tree, hf_response_computer_name,
 			tvb, offset, namelen, computer_name);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(
-				pinfo->cinfo, COL_INFO, " %s", computer_name);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", computer_name);
 		break;
 	}
 
@@ -844,10 +833,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	cmd = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/* Put in something, and replace it later */
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
-	}
+	/* Put in something, and replace it later */
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 
 
 	if (parent_tree) {
@@ -900,9 +887,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server name */
 		host_name = tvb_get_const_stringz(tvb, offset, &namelen);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
+
 		proto_tree_add_item(tree, hf_server_name,
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;

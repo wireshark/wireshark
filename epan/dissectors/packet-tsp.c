@@ -118,8 +118,7 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	tsp_type = tvb_get_guint8(tvb, 0);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(tsp_type, names_tsp_type, "Unknown message type (%u)"));
 
 	if (tree) {

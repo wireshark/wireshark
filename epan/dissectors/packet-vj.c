@@ -273,10 +273,8 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
 
   /* Check IP header length */
   if(ihl < IP_HDR_LEN) {
-    if(check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (IP header length (%u) < %u)",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (IP header length (%u) < %u)",
                    ihl, IP_HDR_LEN);
-    }
     if(cs != NULL)
       cs->flags |= SLF_TOSS;
     return;
@@ -325,10 +323,8 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
 
       /* Check TCP header length */
       if(thl < TCP_HDR_LEN) {
-        if(check_col(pinfo->cinfo, COL_INFO)) {
-          col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (TCP header length (%u) < %u)",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (TCP header length (%u) < %u)",
                        thl, TCP_HDR_LEN);
-        }
         if(cs != NULL)
           cs->flags |= SLF_TOSS;
         cs = NULL;  /* disable state updates */

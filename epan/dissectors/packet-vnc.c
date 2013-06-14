@@ -823,8 +823,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 		per_conversation_info->server_port = pinfo->srcport;
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "Server protocol version: %s",
 				     tvb_format_text(tvb, 4, 7));
 
@@ -840,8 +839,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		per_conversation_info->client_proto_ver =
 			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "Client protocol version: %s",
 				     tvb_format_text(tvb, 4, 7));
 

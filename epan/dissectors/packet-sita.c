@@ -125,16 +125,13 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     errors2 = pinfo->pseudo_header->sita.sita_errors2;
     proto   = pinfo->pseudo_header->sita.sita_proto;
 
-    if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
-        if ((flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
-            col_set_str(pinfo->cinfo, COL_DEF_SRC, IOP);  /* set the source (direction) column accordingly */
-        } else {
-            col_set_str(pinfo->cinfo, COL_DEF_SRC, REMOTE);
-        }
+    if ((flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
+        col_set_str(pinfo->cinfo, COL_DEF_SRC, IOP);  /* set the source (direction) column accordingly */
+    } else {
+        col_set_str(pinfo->cinfo, COL_DEF_SRC, REMOTE);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "");
+    col_set_str(pinfo->cinfo, COL_INFO, "");
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_sita, tvb, 0, 0, "Link Layer");
@@ -195,10 +192,10 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* try to find and run an applicable dissector */
     if (!dissector_try_uint(sita_dissector_table, pinfo->pseudo_header->sita.sita_proto, tvb, pinfo, tree)) {
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))              /* if one can't be found... tell them we don't */
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN"); /* know how to decode this protocol */
-        if (check_col(pinfo->cinfo, COL_INFO))                  /* and give them the details then */
-            col_add_fstr(pinfo->cinfo, COL_INFO, "IOP protocol number: %u", pinfo->pseudo_header->sita.sita_proto);
+        /* if one can't be found... tell them we don't know how to decode this protocol
+           and give them the details then */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "IOP protocol number: %u", pinfo->pseudo_header->sita.sita_proto);
         call_dissector(data_handle, tvb, pinfo, tree);          /* call the generic (hex display) decoder instead */
     }
 }

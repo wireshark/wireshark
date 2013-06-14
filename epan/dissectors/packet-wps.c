@@ -1153,7 +1153,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_MESSAGE_TYPE:
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_message_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
       hfindex = hf_eapwps_tlv_message_type;
-      if ((pinfo != NULL) && check_col(pinfo->cinfo, COL_INFO))
+      if ((pinfo != NULL))
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(tvb_get_guint8(tvb, offset+4),
                                                                    eapwps_tlv_message_type_vals,
                                                                    "Unknown (0x%02x)"));
@@ -1674,7 +1674,7 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   pi = proto_item_get_parent(pi);
   if (pi != NULL)
     proto_item_append_text(pi, " (Wifi Alliance, WifiProtectedSetup)");
-  if ((pinfo != NULL) && (check_col(pinfo->cinfo, COL_INFO)))
+  if (pinfo != NULL)
     col_append_fstr(pinfo->cinfo, COL_INFO, ", WPS");
 
 

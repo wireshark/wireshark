@@ -334,8 +334,7 @@ dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 	/* computer name */
 	offset = display_ms_string(tvb, tree, offset, hf_computer_name, &name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", name);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", name);
 
 	/* mailslot name */
 	offset = display_ms_string(tvb, tree, offset, hf_mailslot_name, NULL);
@@ -389,7 +388,7 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	  /* pdc name */
 	  offset = display_unicode_string(tvb, tree, offset, hf_unicode_pdc_name, &name);
 
-	  if (name && check_col(pinfo->cinfo, COL_INFO)) {
+	  if (name) {
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ": host %s", name);
 		  name = NULL;
 	  }
@@ -399,7 +398,7 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	  /* domain name */
 	  offset = display_unicode_string(tvb, tree, offset, hf_domain_name, &name);
 
-	  if (name && check_col(pinfo->cinfo, COL_INFO)) {
+	  if (name) {
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", domain %s", name);
 		  name = NULL;
 	  }
@@ -926,10 +925,9 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* get the Command field */
    	cmd = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown Command:%02x") );
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown Command:%02x") );
 
-    	if (tree) {
+   	if (tree) {
 		item = proto_tree_add_item(tree, proto_smb_logon, tvb,
 			offset,	-1, ENC_NA);
 

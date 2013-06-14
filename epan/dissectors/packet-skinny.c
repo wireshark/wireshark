@@ -1488,14 +1488,10 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(skinny_tree, hf_skinny_hdr_version, tvb, offset+4, 4, hdr_version);
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
-    col_set_fence(pinfo->cinfo, COL_INFO);
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
+  col_set_fence(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    proto_tree_add_uint(skinny_tree, hf_skinny_messageid, tvb,offset+8, 4, data_messageid );
-  }
+  proto_tree_add_uint(skinny_tree, hf_skinny_messageid, tvb,offset+8, 4, data_messageid );
 
   {
     switch(data_messageid) {

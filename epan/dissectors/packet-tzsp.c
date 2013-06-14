@@ -375,8 +375,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				next_tvb, pinfo, tree))) {
 
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
 				    encapsulation);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}

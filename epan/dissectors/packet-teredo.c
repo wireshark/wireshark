@@ -85,8 +85,7 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	guint idlen, aulen;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",
+	col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",
 					"Authentication header");
 
 	teredoh->th_indtyp = 1;
@@ -150,8 +149,7 @@ parse_teredo_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_item *ti = NULL;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",
+	col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",
 					"Origin indication");
 
 	if (tree) {

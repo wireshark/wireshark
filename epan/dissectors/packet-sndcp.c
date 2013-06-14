@@ -275,8 +275,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (!unack) {
       npdu = npdu_field1 = tvb_get_guint8(tvb,offset);
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "SN-DATA N-PDU %d", npdu_field1);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "SN-DATA N-PDU %d", npdu_field1);
       if (tree) {
         npdu_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Acknowledged mode, N-PDU %d", npdu_field1 );
         npdu_field_tree = proto_item_add_subtree(npdu_field_item, ett_sndcp_npdu_field);
@@ -292,8 +291,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     npdu_field2     = tvb_get_ntohs(tvb, offset);
     segment         = (npdu_field2 & 0xF000) >> 12;
     npdu            = (npdu_field2 & 0x0FFF);
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "SN-UNITDATA N-PDU %d (segment %d)", npdu, segment);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "SN-UNITDATA N-PDU %d (segment %d)", npdu, segment);
     if (tree) {
       npdu_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,2, "Unacknowledged mode, N-PDU %d (segment %d)", npdu, segment );
       npdu_field_tree = proto_item_add_subtree(npdu_field_item, ett_sndcp_npdu_field);
@@ -352,11 +350,9 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else {
         /* Not reassembled in this packet
          */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_append_fstr(pinfo->cinfo, COL_INFO,
+        col_append_fstr(pinfo->cinfo, COL_INFO,
                           " (N-PDU payload reassembled in packet %u)",
                           fd_npdu->reassembled_in);
-        }
         if (tree) {
           proto_tree_add_text(sndcp_tree, tvb, offset, -1, "Payload");
         }
@@ -364,12 +360,11 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
       /* Not reassembled yet, or not reassembled at all
        */
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (unack)
-          col_append_fstr(pinfo->cinfo, COL_INFO, " (Unreassembled fragment %u)", segment);
-        else
-          col_append_str(pinfo->cinfo, COL_INFO, " (Unreassembled fragment)");
-      }
+      if (unack)
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Unreassembled fragment %u)", segment);
+      else
+        col_append_str(pinfo->cinfo, COL_INFO, " (Unreassembled fragment)");
+
       if (tree) {
         proto_tree_add_text(sndcp_tree, tvb, offset, -1, "Payload");
       }

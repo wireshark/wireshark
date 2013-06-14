@@ -440,7 +440,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         }
         else
         { /* Not last packet of reassembled Short Message */
-            if (check_col(pinfo->cinfo, COL_INFO))col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", frag->frag_num);
+            col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", frag->frag_num);
         }
         if (new_tvb)
             next_tvb = new_tvb;

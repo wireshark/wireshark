@@ -152,10 +152,8 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		/* do the opcode field */
 		opcode = tvb_get_letohs(setup_tvb, offset);
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 				    val_to_str(opcode, opcode_vals, "Unknown opcode: 0x%04x"));
-		}
 
 
 		/* These are in the setup words; use "setup_tvb". */

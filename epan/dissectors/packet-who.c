@@ -158,8 +158,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4;
 
 	/* Summary information */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %.02f %.02f %.02f",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %.02f %.02f %.02f",
 				server_name, loadav_5, loadav_10, loadav_15);
 
 	if (tree) {

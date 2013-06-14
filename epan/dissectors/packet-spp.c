@@ -126,8 +126,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conn_ctrl = tvb_get_guint8(tvb, 0);
 	spp_msg_string = spp_conn_ctrl(conn_ctrl);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spp_msg_string);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spp_msg_string);
 	if (tree) {
 		ti = proto_tree_add_uint_format(spp_tree, hf_spp_connection_control, tvb,
 						0, 1, conn_ctrl,
@@ -147,9 +146,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	datastream_type = tvb_get_guint8(tvb, 1);
 	datastream_type_string = spp_datastream(datastream_type);
 	if (datastream_type_string != NULL) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-			    datastream_type_string);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", datastream_type_string);
 	}
 	if (tree) {
 		if (datastream_type_string != NULL) {

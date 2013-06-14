@@ -129,10 +129,7 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     ua_tap_info.expseq = 0;
     ua_tap_info.sntseq = 0;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(opcode, &uaudp_opcode_str_ext, "unknown (0x%02x)"));
 
     uasip_item = proto_tree_add_protocol_format(tree, proto_uasip, tvb, 0, 5,
                                                 "SIP/NOE Protocol, %s",
@@ -252,19 +249,13 @@ static void _dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             {
                 if (datalen > 0)
                 {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                    {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "DATA exp:%d", ua_tap_info.expseq);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " snt:%d", ua_tap_info.sntseq);
-                    }
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "DATA exp:%d", ua_tap_info.expseq);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " snt:%d", ua_tap_info.sntseq);
                 }
                 else
                 {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                    {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "ACK  exp:%d", ua_tap_info.expseq);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " snt:%d", ua_tap_info.sntseq);
-                    }
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "ACK  exp:%d", ua_tap_info.expseq);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " snt:%d", ua_tap_info.sntseq);
                 }
             }
         }
