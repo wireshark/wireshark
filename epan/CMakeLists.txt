@@ -426,6 +426,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-calcappprotocol.c
 	dissectors/packet-canopen.c
 	dissectors/packet-capwap.c
+	dissectors/packet-carp.c
 	dissectors/packet-cast.c
 	dissectors/packet-catapult-dct2000.c
 	dissectors/packet-ccsds.c

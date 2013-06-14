@@ -346,6 +346,7 @@ DISSECTOR_SRC = \
 	packet-calcappprotocol.c  \
 	packet-canopen.c	\
 	packet-capwap.c		\
+	packet-carp.c		\
 	packet-cast.c		\
 	packet-catapult-dct2000.c \
 	packet-ccsds.c		\
