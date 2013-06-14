@@ -41,11 +41,11 @@ SignatureStatus
 #.END
 
 # Ros OPERATION
-#.CLASS ABSTRACT-OPERATION 
-&ArgumentType          
+#.CLASS ABSTRACT-OPERATION
+&ArgumentType
 &argumentTypeOptional  BooleanType
 &returnResult          BooleanType
-&ResultType            
+&ResultType
 &resultTypeOptional    BooleanType
 &Errors                ClassReference ERROR
 &Linked                ClassReference OPERATION
@@ -57,8 +57,8 @@ SignatureStatus
 #.END
 
 # ros ERROR
-#.CLASS ABSTRACT-ERROR 
-&ParameterType          
+#.CLASS ABSTRACT-ERROR
+&ParameterType
 &parameterTypeOptional  BooleanType
 &ErrorPriority          _FixedTypeValueSetFieldSpec
 &errorCode              TypeReference Code
@@ -66,7 +66,7 @@ SignatureStatus
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
-&AssertionType         
+&AssertionType
 &uniqueMatchIndicator  ClassReference ATTRIBUTE
 &id                    ObjectIdentifierType
 #.END
@@ -177,7 +177,7 @@ const value_string p7_opr_code_string_vals[] = {
 /* P7 ERRORS */
 static const value_string p7_err_code_string_vals[] = {
 #.TABLE_BODY ERROR
-	{ %(&errorCode)s, "%(_ident)s" },  
+	{ %(&errorCode)s, "%(_ident)s" },
 #.TABLE_FTR
 	  { 0, NULL }
 };
@@ -187,8 +187,8 @@ static const value_string p7_err_code_string_vals[] = {
 #.TABLE11_HDR
 static const ros_opr_t p7_opr_tab[] = {
 #.TABLE11_BODY OPERATION
-  /* %(_name)s */ 
-  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s }, 
+  /* %(_name)s */
+  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s },
 #.TABLE11_FTR
   { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
 };
@@ -197,7 +197,7 @@ static const ros_opr_t p7_opr_tab[] = {
 #.TABLE21_HDR
 static const ros_err_t p7_err_tab[] = {
 #.TABLE21_BODY ERROR
-  /* %(_name)s*/ 
+  /* %(_name)s*/
   { %(&errorCode)s,	%(_parameter_pdu)s },
 #.TABLE21_FTR
   { 0,	(new_dissector_t)(-1) },
@@ -300,46 +300,46 @@ ChangeCredentialsAlgorithms			B	"2.6.4.9.5"	"id-ext-protected-change-credentials
 OriginatorToken						B	"2.6.4.9.3"	"id-ext-originator-token"
 ProtectedChangeCredentials			B	"2.6.4.9.4"	"id-ext-protected-change-credentials"
 
-RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse" 
+RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 #.FN_PARS	AttributeType	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY 	Attribute/attribute-values/_item
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	AttributeValueAssertion/attribute-value
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/initial
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/any
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/final
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	MatchingRuleAssertion/match-value
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	Summary/present/_item/value
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	OrderedAttribute/attribute-values/_item/value
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS	AutoActionType	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY	AutoActionRegistration/registration-parameter
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -357,23 +357,23 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 #.END
 
 #.FN_BODY	AutoActionError/error-parameter
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY	PAR-attribute-error/problems/_item/value
-	if(object_identifier_id) 
+	if(object_identifier_id)
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
 #.FN_BODY	MSBindArgument/initiator-name
 	char *ora = NULL;
-	
+
 	%(DEFAULT_BODY)s
 
-	if (ora = p1_get_last_oraddress()) {
+	if ((ora = p1_get_last_oraddress())) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (initiator=%%s)", ora);
 	}
-	
+
 #.FN_PARS	SequenceNumber	VAL_PTR = &seqno
 
 #.FN_BODY	NumberRange
@@ -386,7 +386,7 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 #.FN_FTR	NumberRange/to
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
-	
+
 #.FN_PARS	SummarizeResult/count	VAL_PTR = &count
 
 #.FN_BODY	SummarizeResult/count
