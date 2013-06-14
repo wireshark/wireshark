@@ -382,6 +382,9 @@ static int hf_gtpv2_change_report_flags_tzcr = -1;
 static int hf_gtpv2_action_indication_val = -1;
 static int hf_gtpv2_mbms_session_duration_days = -1;
 static int hf_gtpv2_mbms_session_duration_secs = -1;
+static int hf_gtpv2_node_features_prn = -1;
+static int hf_gtpv2_node_features_mabr =-1;
+static int hf_gtpv2_node_features_ntsr = -1;
 static int hf_gtpv2_time_to_data_xfer = -1;
 static int hf_gtpv2_arp_pvi = -1;
 static int hf_gtpv2_arp_pl = -1;
@@ -692,7 +695,7 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_MDT_CONFIG             162
 #define GTPV2_IE_APCO                   163
 #define GTPV2_IE_ABS_MBMS_DATA_TF_TIME  164
-#define GTPV2_IE_HENB_INFO_REPORT  165 
+#define GTPV2_IE_HENB_INFO_REPORT  165
 #define GTPV2_IE_IP4CP 166
 #define GTPV2_IE_CHANGE_TO_REPORT_FLAGS 167
 #define GTPV2_IE_ACTION_INDICATION 168
@@ -3550,31 +3553,31 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* Dissect octet j to r */
     offset = dissect_gtpv2_mm_context_common_data(tvb, pinfo, tree, offset, samb_ri, uamb_ri);
 
-	if (offset >= (guint32)length) {
-		return;
-	}
+    if (offset >= (guint32)length) {
+        return;
+    }
     /* r+1 Spare HNNA ENA INA GANA GENA UNA */
     offset = dissect_gtpv2_access_restriction_data(tvb, tree, offset);
 
-	if (offset >= (guint32)length) {
-		return;
-	}
+    if (offset >= (guint32)length) {
+        return;
+    }
 
-	/* The Voice Domain Preference and UE's Usage Setting coding is specified in clause 10.5.5.28 of 3GPP TS 24.008 [5]. If
+    /* The Voice Domain Preference and UE's Usage Setting coding is specified in clause 10.5.5.28 of 3GPP TS 24.008 [5]. If
      * Length of Voice Domain Preference and UE's Usage Setting is zero, then the Voice Domain Preference and UE's Usage
      * Setting parameter shall not be present.
      */
-	vdp_length = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_gtpv2_vdp_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+    vdp_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_vdp_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-	if(vdp_length !=0){
-		offset += de_gmm_voice_domain_pref(tvb, tree, pinfo, offset, vdp_length, NULL, 0);
-	}
+    if(vdp_length !=0){
+        offset += de_gmm_voice_domain_pref(tvb, tree, pinfo, offset, vdp_length, NULL, 0);
+    }
 
-	if (offset < (guint32)length) {
-		proto_tree_add_text(tree, tvb, offset, -1, "The rest of the IE not dissected yet");
-	}
+    if (offset < (guint32)length) {
+        proto_tree_add_text(tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+    }
 
 }
 
@@ -4751,11 +4754,13 @@ dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 static void
 dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    int offset = 0;
+    proto_tree_add_item(tree, hf_gtpv2_node_features_prn, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_node_features_mabr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_node_features_ntsr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
+    if (length > 1)
+        proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-1));
 }
 
 /* 8.84
@@ -5014,7 +5019,7 @@ dissect_gtpv2_ip4cp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 }
 
 /* 8.98 Change to Report Flags */
-static void 
+static void
 dissect_gtpv2_change_report_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
@@ -5050,7 +5055,7 @@ dissect_gtpv2_action_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset += 1;
 
     if (length > 1)
-        proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-1));   
+        proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-1));
 }
 
 typedef struct _gtpv2_ie {
@@ -6474,7 +6479,7 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
 
-		{ &hf_gtpv2_mm_context_ue_net_cap_len,
+        { &hf_gtpv2_mm_context_ue_net_cap_len,
           {"Length of UE Network Capability", "gtpv2.mm_context_ue_net_cap_len",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
@@ -6883,6 +6888,21 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_mbms_session_duration_secs,
           {"MBMS Session Duration (seconds)", "gtpv2.mbms_session_duration_secs",
           FT_UINT24, BASE_DEC, NULL, 0xFFFF80,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_prn,
+          {"PGW Restart Notification (PRN)", "gtpv2.node_features_prn",
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_mabr,
+          {"Modify Access Bearers Request (MABR)", "gtpv2.node_features_mabr",
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x02,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_node_features_ntsr,
+          {"Network Triggered Service Restoration (NTSR)", "gtpv2.node_features_ntsr",
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x04,
           NULL, HFILL}
         },
         { &hf_gtpv2_time_to_data_xfer,
