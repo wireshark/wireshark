@@ -179,3 +179,16 @@ proto_register_ipars(void)
 
     register_dissector("ipars", dissect_ipars, proto_ipars);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
