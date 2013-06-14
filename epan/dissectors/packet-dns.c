@@ -3457,7 +3457,6 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   int                offset   = is_tcp ? 2 : 0;
   int                dns_data_offset;
-  column_info       *cinfo;
   proto_tree        *dns_tree = NULL, *field_tree;
   proto_item        *ti, *tf;
   guint16            id, flags, opcode, rcode, quest, ans, auth, add;
@@ -3478,25 +3477,17 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
   rcode  = (guint16)  (flags & F_RCODE);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s 0x%04x ",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s 0x%04x ",
                 val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
                 (flags&F_RESPONSE)?" response":"", id);
 
-    if (flags & F_RESPONSE) {
-      if (rcode != RCODE_NOERROR) {
-        col_append_str(pinfo-> cinfo,COL_INFO,
-                val_to_str(rcode, rcode_vals, "Unknown error (%u)"));
-      }
+  if (flags & F_RESPONSE) {
+    if (rcode != RCODE_NOERROR) {
+      col_append_str(pinfo-> cinfo,COL_INFO,
+              val_to_str(rcode, rcode_vals, "Unknown error (%u)"));
     }
-    cinfo = pinfo->cinfo;
-  } else {
-    /* Set "cinfo" to NULL; we pass a NULL "cinfo" to the query and answer
-       dissectors, as a way of saying that they shouldn't add stuff
-       to the COL_INFO column (a call to "check_col(cinfo, COL_INFO)"
-       is more expensive than a check that a pointer isn't NULL). */
-    cinfo = NULL;
   }
+ 
   if (opcode == OPCODE_UPDATE) {
     isupdate = TRUE;
   } else {
@@ -3689,7 +3680,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If this is a response, don't add information about the queries
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(tvb, cur_off, dns_data_offset, quest,
-                                     (!(flags & F_RESPONSE) ? cinfo : NULL),
+                                     (!(flags & F_RESPONSE) ? pinfo->cinfo : NULL),
                                      dns_tree, isupdate, is_mdns);
   }
 
@@ -3697,7 +3688,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If this is a request, don't add information about the answers
        to the summary, just add information about the queries. */
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, ans,
-                                      ((flags & F_RESPONSE) ? cinfo : NULL),
+                                      ((flags & F_RESPONSE) ? pinfo->cinfo : NULL),
                                       dns_tree, (isupdate ?
                                                  "Prerequisites" : "Answers"),
                                       pinfo, is_mdns);

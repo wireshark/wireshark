@@ -1917,10 +1917,9 @@ dissect_pcap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, pcap_ProcedureCode_vals,
-                              "unknown message"));
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                val_to_str(ProcedureCode, pcap_ProcedureCode_vals,
+                            "unknown message"));
   return offset;
 }
 

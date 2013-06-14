@@ -1265,8 +1265,7 @@ static const value_string zero_is_none_vals[] = {
       next_tvb = tvb_new_subset(tvb, offset, length_remaining, plen); \
                                                                       \
       if (sep == NULL) {                                              \
-            if (check_col(pinfo->cinfo, COL_INFO))                    \
-                  col_set_str(pinfo->cinfo, COL_INFO, str);           \
+            col_set_str(pinfo->cinfo, COL_INFO, str);                 \
             sep = ":";                                                \
       }                                                               \
                                                                       \
@@ -3162,10 +3161,9 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       OPCODE();
 
-      if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
-                            val_to_str(opcode, state->opcode_vals,
-                                       "<Unknown opcode %d>"));
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
+                    val_to_str(opcode, state->opcode_vals,
+                                "<Unknown opcode %d>"));
 
       proto_item_append_text(ti, ", Request, opcode: %d (%s)",
                              opcode, val_to_str(opcode, state->opcode_vals,
@@ -4794,16 +4792,14 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
 
       if (opcode == UNKNOWN_OPCODE) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                  col_append_fstr(pinfo->cinfo, COL_INFO,
-                                  "%s to unknown request", sep);
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "%s to unknown request", sep);
             proto_item_append_text(ti, ", Reply to unknown request");
       } else {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                                  sep,
-                                  val_to_str(opcode & 0xFF, state->opcode_vals,
-                                             "<Unknown opcode %d>"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                            sep,
+                            val_to_str(opcode & 0xFF, state->opcode_vals,
+                                        "<Unknown opcode %d>"));
 
             if (opcode > 0xFF)
                   proto_item_append_text(ti, ", Reply, opcode: %d.%d (%s)",
@@ -5158,11 +5154,10 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       eventcode = tvb_get_guint8(tvb, 0);
       sent = (eventcode & 0x80) ? "Sent-" : "";
 
-      if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s%s",
-                            sep, sent,
-                            val_to_str(eventcode & 0x7F, state->eventcode_vals,
-                                       "<Unknown eventcode %u>"));
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s%s",
+                    sep, sent,
+                    val_to_str(eventcode & 0x7F, state->eventcode_vals,
+                                "<Unknown eventcode %u>"));
 
       proto_item_append_text(ti, ", Event, eventcode: %d (%s%s)",
                              eventcode, sent,
@@ -5503,9 +5498,8 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       CARD8(error);
 
       errorcode = tvb_get_guint8(tvb, offset);
-      if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                            sep, val_to_str(errorcode, state->errorcode_vals, "<Unknown errorcode %u>"));
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                    sep, val_to_str(errorcode, state->errorcode_vals, "<Unknown errorcode %u>"));
 
       proto_tree_add_uint_format(t, hf_x11_errorcode, tvb, offset, 1,
                                  errorcode,

@@ -207,11 +207,9 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	proto_tree_add_item(tree, hf_x224_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
 			val_to_str(code>>4, code_vals, "Unknown code :%x"),
 			code);
-	}
 
 
 

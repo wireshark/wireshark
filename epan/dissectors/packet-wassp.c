@@ -774,8 +774,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tvbuff_t *snmp_tvb;
 
 	/* Don't add SNMP stuff to the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 
 	snmp_tvb = tvb_new_subset(tvb, offset, length, length);
 
@@ -786,8 +785,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 		show_exception(snmp_tvb, pinfo, wassp_tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_writable(pinfo->cinfo, TRUE);
+	col_set_writable(pinfo->cinfo, TRUE);
 
 	offset += length;
 
@@ -801,8 +799,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tvbuff_t *ieee80211_tvb;
 
 	/* Don't add IEEE 802.11 stuff to the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_writable(pinfo->cinfo, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 
 	ieee80211_tvb = tvb_new_subset(tvb, offset, length, length);
 
@@ -813,8 +810,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 		show_exception(ieee80211_tvb, pinfo, wassp_tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_writable(pinfo->cinfo, TRUE);
+	col_set_writable(pinfo->cinfo, TRUE);
 
 	offset += length;
 
@@ -895,10 +891,8 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 subtype;
 
 	packet_type = tvb_get_guint8(tvb, 1);
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
 			wassp_tunnel_pdu_type, "Type 0x%02x"));
 
 	if (tree) {

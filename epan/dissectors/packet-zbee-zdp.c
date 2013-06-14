@@ -1110,12 +1110,8 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Update info. */
-    if (tree) {
-        proto_item_append_text(zdp_tree, ", %s", val_to_str_const(cluster, zbee_zdp_cluster_names, "Unknown Cluster"));
-    }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cluster, zbee_zdp_cluster_names, "Unknown Cluster"));
-    }
+    proto_item_append_text(zdp_tree, ", %s", val_to_str_const(cluster, zbee_zdp_cluster_names, "Unknown Cluster"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cluster, zbee_zdp_cluster_names, "Unknown Cluster"));
 
     /* Create a new tvb for the zdp message. */
     zdp_tvb = tvb_new_subset_remaining(tvb, offset);

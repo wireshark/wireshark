@@ -170,16 +170,14 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*  Enter name info protocol field */
-    if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, (zep_data.version==1)?"ZEP":"ZEPv2");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, (zep_data.version==1)?"ZEP":"ZEPv2");
 
     /*  Enter name info protocol field */
-    if(check_col(pinfo->cinfo, COL_INFO)){
-        col_clear(pinfo->cinfo, COL_INFO);
-        if (!((zep_data.version>=2) && (zep_data.type==ZEP_V2_TYPE_ACK))) col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated ZigBee Packet [Channel]=%i [Length]=%i", zep_data.channel_id, ieee_packet_len);
-        else col_add_fstr(pinfo->cinfo, COL_INFO, "Ack, Sequence Number: %i", zep_data.seqno);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
+    if (!((zep_data.version>=2) && (zep_data.type==ZEP_V2_TYPE_ACK)))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated ZigBee Packet [Channel]=%i [Length]=%i", zep_data.channel_id, ieee_packet_len);
+    else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Ack, Sequence Number: %i", zep_data.seqno);
 
     if(tree){
         /*  Create subtree for the ZEP Header */

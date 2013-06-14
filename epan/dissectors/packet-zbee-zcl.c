@@ -823,20 +823,14 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             call_dissector(cluster_handle, payload_tvb, pinfo, zcl_tree);        
         }
         else {
-            if ( tree ) {
-                proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u",
-                    packet.cmd_id, packet.tran_seqno);
-            }
+            proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u",
+                packet.cmd_id, packet.tran_seqno);
 
-            if ( check_col(pinfo->cinfo, COL_INFO) ) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Command: 0x%02x, Seq: %u",
-                    packet.cmd_id, packet.tran_seqno);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Command: 0x%02x, Seq: %u",
+                packet.cmd_id, packet.tran_seqno);
 
-            if ( zcl_tree ) {
-                proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, (int)sizeof(guint8),
-                                packet.cmd_id);
-            }
+            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, (int)sizeof(guint8),
+                            packet.cmd_id);
             offset += (int)sizeof(guint8);
 
             /* Don't decode cluster-specific commands */

@@ -89,11 +89,10 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		server_port = tvb_get_ntohs(tvb, offset+2);
 		return_port = tvb_get_ntohs(tvb, offset+4);
 		reserved = tvb_get_ntohs(tvb, offset+6);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-		  col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			  "Registration Request: %d Return: %d",
 			  server_port, return_port);
-		}
+
 		if (tree) {
 		  proto_tree_add_uint(xyplex_tree, hf_xyplex_type, tvb,
 				    offset, 1, prototype);
@@ -126,10 +125,9 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		prototype = tvb_get_guint8(tvb, offset);
 		padding = tvb_get_guint8(tvb, offset+1);
 		reply = tvb_get_ntohs(tvb, offset+2);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "Registration Reply: %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Registration Reply: %s",
 			val_to_str(reply, xyplex_reg_vals, "Unknown (0x%02x)"));
-		}
+
 		if (tree) {
 		  proto_tree_add_uint(xyplex_tree, hf_xyplex_type, tvb,
 				    offset, 1, prototype);
@@ -147,14 +145,12 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	 * the raw data being transfered from the remote server
 	 * and the Xyplex serial port.
 	 */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Data",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Data",
 		  pinfo->srcport, pinfo->destport);
-	}
-	if (tree) {
-	  proto_tree_add_text(xyplex_tree, tvb, offset, -1,
+
+	proto_tree_add_text(xyplex_tree, tvb, offset, -1,
 		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
-	}
+
 	return tvb_reported_length_remaining(tvb, offset);
 }
 

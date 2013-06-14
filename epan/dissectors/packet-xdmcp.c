@@ -231,16 +231,13 @@ static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         offset, 2, opcode);
   }
   offset += 2;
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
+
+  col_add_str(pinfo->cinfo, COL_INFO,
                  val_to_str(opcode, opcode_vals, "Unknown (0x%04x)"));
 
-  }
-
-  if (tree) {
-    proto_tree_add_item(xdmcp_tree, hf_xdmcp_length, tvb,
+  proto_tree_add_item(xdmcp_tree, hf_xdmcp_length, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
-  }
+
   offset += 2;
 
   switch (opcode) {

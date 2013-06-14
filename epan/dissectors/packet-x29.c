@@ -100,11 +100,10 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Q bit set - this is a PAD message.
 		 */
 		msg_code = tvb_get_guint8(tvb, offset);
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s PAD message",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s PAD message",
 			    val_to_str(msg_code, message_code_vals,
 			        "Unknown (0x%02x)"));
-		}
+
 		proto_tree_add_uint(x29_tree, hf_msg_code, tvb,
 		    offset, 1, msg_code);
 		offset++;

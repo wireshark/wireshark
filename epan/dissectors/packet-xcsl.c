@@ -204,8 +204,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 } else {
                     proto_tree_add_item(xcsl_tree, hf_xcsl_information, tvb, offset, len, ENC_ASCII|ENC_NA);
                 }
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",str);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",str);
                 break;
 
                 /* Starting with non-digit -> Command, if it starts with a digit -> reply */
@@ -224,7 +223,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     xcsl_item = proto_tree_add_item(xcsl_tree, hf_xcsl_result, tvb, offset, len, ENC_ASCII|ENC_NA);
                     proto_item_append_text(xcsl_item, " (%s)", code);
 
-                    if (result != 0 && check_col(pinfo->cinfo, COL_INFO))
+                    if (result != 0)
                         col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", code);
 
                 } else {
@@ -232,8 +231,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     request = TRUE;
                     proto_tree_add_item(xcsl_tree, hf_xcsl_command, tvb, offset, len, ENC_ASCII|ENC_NA);
 
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
                 }
                 break;
@@ -242,15 +240,13 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             default:
                 proto_tree_add_item(xcsl_tree, hf_xcsl_parameter, tvb, offset, len, ENC_ASCII|ENC_NA);
 
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    if ( request == TRUE ) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ",str);
+                if ( request == TRUE ) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ",str);
+                } else {
+                    if (par == 0) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "reply: %s ",str);
                     } else {
-                        if (par == 0) {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, "reply: %s ",str);
-                        } else {
-                            col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ",str);
-                        }
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ",str);
                     }
                 }
 

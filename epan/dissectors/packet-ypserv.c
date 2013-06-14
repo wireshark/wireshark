@@ -106,9 +106,8 @@ dissect_ypserv_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 	if(status<0){
 		err=val_to_str(status, ypstat, "Unknown error:%u");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO," %s", err);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO," %s", err);
+
 		proto_item_append_text(tree, " Error:%s", err);
 	}
 
@@ -193,23 +192,17 @@ dissect_match_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 
 	/*domain*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_domain, offset, &str);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO," %s/", str);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO," %s/", str);
 	proto_item_append_text(tree, " %s/", str);
 
 	/*map*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, &str);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,"%s/", str);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO,"%s/", str);
 	proto_item_append_text(tree, "%s/", str);
 
 	/*key*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_key, offset, &str);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,"%s", str);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO,"%s", str);
 	proto_item_append_text(tree, "%s", str);
 
 	return offset;
@@ -229,9 +222,7 @@ dissect_match_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 		if(status>=0){
 			offset = dissect_rpc_string(tvb, tree, hf_ypserv_value,offset, &str);
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO," %s", str);
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO," %s", str);
 			proto_item_append_text(tree, " %s", str);
 
 		} else {
@@ -398,16 +389,12 @@ dissect_order_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 
 	/*domain*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_domain, offset, &str);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO," %s/", str);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO," %s/", str);
 	proto_item_append_text(tree, " %s/", str);
 
 	/*map*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, &str);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, str);
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, str);
 	proto_item_append_text(tree, "%s", str);
 
 	return offset;
@@ -484,9 +471,7 @@ dissect_order_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	/*order number*/
 	num=tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_ypserv_ordernum, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO," 0x%08x", num);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO," 0x%08x", num);
 	proto_item_append_text(tree, " 0x%08x", num);
 
 	return offset;

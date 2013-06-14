@@ -4792,11 +4792,9 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *subtree;
     proto_item *ti;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    { /* Append status code to INFO column */
-        col_append_str(pinfo->cinfo, COL_INFO,
-                ": WAP Session Initiation Request");
-    }
+    /* Append status code to INFO column */
+    col_append_str(pinfo->cinfo, COL_INFO,
+            ": WAP Session Initiation Request");
 
     /* The remainder of the code adds items to the protocol tree */
     if (! tree)
@@ -4935,12 +4933,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pdut = tvb_get_guint8 (tvb, offset);
 
     /* Develop the string to put in the Info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s (0x%02x)",
-                val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown PDU type (0x%02x)"),
-                pdut);
-    };
+    col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s (0x%02x)",
+            val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown PDU type (0x%02x)"),
+            pdut);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items. */
@@ -5187,12 +5182,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             reply_status_str, reply_status);
                 }
                 stat_info->status_code = (gint) reply_status;
-                if (check_col(pinfo->cinfo, COL_INFO))
-                { /* Append status code to INFO column */
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
+                /* Append status code to INFO column */
+                col_append_fstr(pinfo->cinfo, COL_INFO,
                             ": %s (0x%02x)",
                             reply_status_str, reply_status);
-                }
             }
             nextOffset = offset + 1 + count;
             if (tree)
@@ -5408,24 +5401,21 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 {
     guint  count  = 0;
     guint  uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
-    gchar *str    = NULL;
+    gchar *str;
 
-    if (tree)
-        proto_tree_add_uint (tree, hf_wsp_header_uri_len,
-                tvb, URILenOffset, count, uriLen);
+    proto_tree_add_uint (tree, hf_wsp_header_uri_len,
+            tvb, URILenOffset, count, uriLen);
 
     tvb_ensure_bytes_exist(tvb, URIOffset, uriLen);
-    if (tree)
-        proto_tree_add_item (tree, hf_wsp_header_uri,
-                tvb, URIOffset, uriLen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_wsp_header_uri,
+            tvb, URIOffset, uriLen, ENC_ASCII|ENC_NA);
 
     str = tvb_format_text (tvb, URIOffset, uriLen);
     /* XXX - tvb_format_text() returns a pointer to a static text string
      * so please DO NOT attempt at g_free()ing it!
      */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", str);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", str);
+
     if (proto_ti)
         proto_item_append_text(proto_ti, ", URI: %s", str);
 }

@@ -427,8 +427,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
      * Many message methods may include this attribute,
      * but it's only interesting when Registering at first
      */
-    if (xmcp_msg_type_method == XMCP_METHOD_REGISTER &&
-        check_col(pinfo->cinfo, COL_INFO)) {
+    if (xmcp_msg_type_method == XMCP_METHOD_REGISTER) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", user \"%s\"",
                       tvb_get_ephemeral_string(tvb, offset, attr_length));
     }
@@ -471,10 +470,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                                                          "Unknown"));
         PROTO_ITEM_SET_GENERATED(it);
         proto_item_append_text(attr_tree, ": %d", error_code);
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", error %d (%s)", error_code,
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", error %d (%s)", error_code,
                           val_to_str_const(error_code, error_codes, "Unknown"));
-        }
 
         /*
          * All error responses default to a PI_NOTE severity.
@@ -531,10 +528,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_ephemeral_string(tvb, offset, attr_length));
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", name \"%s\"",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", name \"%s\"",
                       tvb_get_ephemeral_string(tvb, offset, attr_length));
-    }
     break;
   case XMCP_CLIENT_HANDLE:
     if (attr_length < 4)
@@ -542,10 +537,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_client_handle, tvb, offset,
                         4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", handle %u",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", handle %u",
                       tvb_get_ntohl(tvb, offset));
-    }
     /*
      * A Register request containing a Client-Handle is considered
      * to be a Keepalive.
@@ -578,10 +571,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                         attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_ephemeral_string(tvb, offset, attr_length));
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", label \"%s\"",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", label \"%s\"",
                       tvb_get_ephemeral_string(tvb, offset, attr_length));
-    }
     break;
   case XMCP_KEEPALIVE:
     if (attr_length < 4)
@@ -610,11 +601,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       proto_item_append_text(attr_tree, ": %u:%u:%s",
                              tvb_get_ntohs(tvb, offset),
                              tvb_get_ntohs(tvb, (offset+2)), buf);
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", service %u:%u:%s",
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", service %u:%u:%s",
                         tvb_get_ntohs(tvb, offset),
                         tvb_get_ntohs(tvb, (offset+2)), buf);
-      }
     }
     break;
   case XMCP_SERVICE_TRANSPORT:
@@ -797,10 +786,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_subscription_id, tvb, offset,
                         4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", subscription %u",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", subscription %u",
                       tvb_get_ntohl(tvb, offset));
-    }
     break;
   case XMCP_SERVICE_REMOVED_REASON:
     if (attr_length < 4)
@@ -873,11 +860,9 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* As in STUN, the first 2 bytes contain the message class and method */
   xmcp_msg_type_class = ((msg_type & XMCP_TYPE_CLASS) >> 4);
   xmcp_msg_type_method = (msg_type & XMCP_TYPE_METHOD);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                 val_to_str_const(xmcp_msg_type_method, methods, "Unknown"),
                 val_to_str_const(xmcp_msg_type_class, classes, "Unknown"));
-  }
 
   /* Get the transaction ID */
   transaction_id[0] = tvb_get_ntohl(tvb, 8);
@@ -1061,8 +1046,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_none_format(xmcp_tree, hf_xmcp_msg_is_keepalive, tvb,
                                     0, 0, "This is a Keepalive message");
     PROTO_ITEM_SET_GENERATED(ti);
-    if ((xmcp_msg_type_method != XMCP_METHOD_KEEPALIVE) &&
-        check_col(pinfo->cinfo, COL_INFO)) {
+    if (xmcp_msg_type_method != XMCP_METHOD_KEEPALIVE) {
       col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Keepalive] ");
     }
     if (xmcp_msg_type_class == XMCP_CLASS_REQUEST) {

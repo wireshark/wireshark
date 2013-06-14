@@ -213,7 +213,6 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guchar type;
     const char *typestr;
     guint length;
-    gboolean info = check_col(pinfo->cinfo, COL_INFO);
     gboolean fe = (pinfo->match_uint == pinfo->destport);
 
     n = 0;
@@ -247,14 +246,12 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         typestr = val_to_str_const(type, be_messages, "Unknown");
     }
 
-    if (info) {
-        /* This is a terrible hack. It makes the "Info" column reflect
-           the contents of every message in a TCP packet. Could it be
-           done any better? */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s%c",
-                        ( first_message ? "" : "/" ), type);
-        first_message = FALSE;
-    }
+    /* This is a terrible hack. It makes the "Info" column reflect
+        the contents of every message in a TCP packet. Could it be
+        done any better? */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%c",
+                    ( first_message ? "" : "/" ), type);
+    first_message = FALSE;
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, ENC_NA);

@@ -198,10 +198,9 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
      version = tvb_get_ntohs(tvb, offset + 0);
      plen = tvb_get_ntohs(tvb, offset + 2);
-     if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
-                     version, plen);
-     if (check_col(pinfo->cinfo, COL_INFO) && offset == 0 &&
+     col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
+                    version, plen);
+     if (offset == 0 &&
          tvb_length_remaining(tvb, offset) > XOT_HEADER_LENGTH + plen )
         col_append_fstr(pinfo->cinfo, COL_INFO, " TotX25: %d",
                         tvb_length_remaining(tvb, offset));

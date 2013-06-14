@@ -442,10 +442,9 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	left = tvb_reported_length(tvb);
 	offset = 0;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
 			request? "ZEBRA Request" : "ZEBRA Reply");
-	}
+
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_zebra, tvb, offset, -1,
 			ENC_NA);

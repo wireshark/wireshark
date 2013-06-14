@@ -1064,7 +1064,6 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int		 offset    = 0;
     int		 nbns_data_offset;
-    column_info	*cinfo;
     proto_tree	*nbns_tree = NULL;
     proto_item	*ti;
     guint16	 id, flags, opcode, quest, ans, auth, add;
@@ -1080,19 +1079,9 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flags  = tvb_get_ntohs(tvb, offset + NBNS_FLAGS);
     opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-                     val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
-                     (flags & F_RESPONSE) ? " response" : "");
-        cinfo = pinfo->cinfo;
-    } else {
-        /* Set "cinfo" to NULL; we pass a NULL "cinfo" to the query
-           and answer dissectors, as a way of saying that they
-           shouldn't add stuff to the COL_INFO column (a call to
-           "check_col(cinfo, COL_INFO)" is more expensive than
-           a check that a pointer isn't NULL). */
-        cinfo = NULL;
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
+                    val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
+                    (flags & F_RESPONSE) ? " response" : "");
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_nbns, tvb, offset, -1,
@@ -1135,7 +1124,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            answers. */
         cur_off += dissect_query_records(tvb, cur_off,
                                          nbns_data_offset, quest,
-                                         (!(flags & F_RESPONSE) ? cinfo : NULL), nbns_tree);
+                                         (!(flags & F_RESPONSE) ? pinfo->cinfo : NULL), nbns_tree);
     }
 
     if (ans > 0) {
@@ -1144,7 +1133,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            queries. */
         cur_off += dissect_answer_records(tvb, cur_off,
                                           nbns_data_offset, ans,
-                                          ((flags & F_RESPONSE) ? cinfo : NULL), nbns_tree,
+                                          ((flags & F_RESPONSE) ? pinfo->cinfo : NULL), nbns_tree,
                                           opcode, "Answers");
     }
 

@@ -479,12 +479,11 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tcntl->xkey += tvb_get_ntohl(tvb, offset+4);
 
 	/** add summary **/
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Recv-Seq=%" G_GINT64_MODIFIER "u", tcntl->rseq);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Alloc=%" G_GINT64_MODIFIER "u", tcntl->alloc);
-	}
+
 	proto_item_append_text(top_ti,
 			", Recv-Seq: %" G_GINT64_MODIFIER "u", tcntl->rseq);
 
@@ -690,12 +689,11 @@ dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	cntl->echo = tvb_get_ntohl(tvb, offset);
 
 	/** add summary **/
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Recv-Seq=%" G_GINT64_MODIFIER "u", cntl->rseq);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Alloc=%" G_GINT64_MODIFIER "u", cntl->alloc);
-	}
+
 	proto_item_append_text(top_ti,
 			", Recv-Seq: %" G_GINT64_MODIFIER "u", cntl->rseq);
 
@@ -782,12 +780,11 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/** add summary **/
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Recv-Seq=%" G_GINT64_MODIFIER "u", ecntl->rseq);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Alloc=%" G_GINT64_MODIFIER "u", ecntl->alloc);
-	}
+
 	proto_item_append_text(top_ti,
 				", Recv-Seq: %" G_GINT64_MODIFIER "u", ecntl->rseq);
 
@@ -971,15 +968,13 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(xtph->cmd_ptype_pformat,
 					pformat_vals, "Unknown pformat (%u)"));
-		col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", options);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", options);
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 				" Seq=%" G_GINT64_MODIFIER "u", xtph->seq);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", xtph->dlen);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", xtph->dlen);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_xtp, tvb, 0, -1, ENC_NA);

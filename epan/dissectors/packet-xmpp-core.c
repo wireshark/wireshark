@@ -520,8 +520,7 @@ xmpp_auth(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *p
         {"http://www.google.com/talk/protocol/auth", {"client-uses-full-bind-result", -1, TRUE, TRUE, NULL, NULL}},
     };
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "AUTH");
+    col_set_str(pinfo->cinfo, COL_INFO, "AUTH");
 
     auth_item = proto_tree_add_item(tree, hf_xmpp_auth, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     auth_tree = proto_item_add_subtree(auth_item, ett_xmpp_auth);
@@ -544,8 +543,7 @@ xmpp_challenge_response_success(proto_tree *tree, tvbuff_t *tvb,
         {"xmlns", hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}
     };
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, col_info);
+    col_set_str(pinfo->cinfo, COL_INFO, col_info);
 
     item = proto_tree_add_item(tree, hf, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     subtree = proto_item_add_subtree(item, ett);

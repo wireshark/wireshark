@@ -390,15 +390,13 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YMSG");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s (status=%s)   ",
 			val_to_str(tvb_get_ntohs(tvb, offset + 10),
 				 ymsg_service_vals, "Unknown Service: %u"),
 			val_to_str(tvb_get_ntohl(tvb, offset + 12),
 				 ymsg_status_vals, "Unknown Status: %u")
 		);
-	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ymsg, tvb, offset, -1, ENC_NA);

@@ -1252,28 +1252,26 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      was padding. */
   tvb_set_reported_length(tvb, tot_len);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    switch (ar_op) {
+  switch (ar_op) {
 
-    case ARPOP_REQUEST:
-      if (global_arp_detect_request_storm)
-        request_seen(pinfo);
+  case ARPOP_REQUEST:
+    if (global_arp_detect_request_storm)
+      request_seen(pinfo);
       /* fall-through */
-    case ARPOP_REPLY:
-    default:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
-      break;
+  case ARPOP_REPLY:
+  default:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+    break;
 
-    case ARPOP_RREQUEST:
-    case ARPOP_RREPLY:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
-      break;
+  case ARPOP_RREQUEST:
+  case ARPOP_RREPLY:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
+    break;
 
-    case ARPOP_IREQUEST:
-    case ARPOP_IREPLY:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
-      break;
-    }
+  case ARPOP_IREQUEST:
+  case ARPOP_IREPLY:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
+    break;
   }
 
   /* Get the offsets of the addresses. */
@@ -1285,12 +1283,6 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tha_offset = spa_offset + ar_pln;
   /* Target Protocol Address */
   tpa_offset = tha_offset + ar_hln;
-
-  if (!tree && !check_col(pinfo->cinfo, COL_INFO)) {
-    /* We're not building a protocol tree and we're not setting the Info
-       column, so we don't have any more work to do. */
-    return;
-  }
 
   /* sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln); */
   spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
@@ -1309,51 +1301,49 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
     is_gratuitous = FALSE;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (ar_op) {
-      case ARPOP_REQUEST:
-	if (is_gratuitous)
+  switch (ar_op) {
+    case ARPOP_REQUEST:
+	  if (is_gratuitous)
           col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
                        arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
-	else
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
-                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
-                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
-        break;
-      case ARPOP_REPLY:
-        if (is_gratuitous)
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
-                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
-        else
-          col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                       arpproaddr_to_str(spa_val, ar_pln, ar_pro),
-/*                     arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
-                       tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
-        break;
-      case ARPOP_RREQUEST:
-      case ARPOP_IREQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
-/*                   arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
-                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+	  else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+      break;
+    case ARPOP_REPLY:
+      if (is_gratuitous)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
+                      arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+      else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro),
 /*                   arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
                      tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
-        break;
-      case ARPOP_RREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-/*                   arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
-                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
-        break;
-      case ARPOP_IREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-/*                   arphrdaddr_to_str(sha_val, ar_hln, ar_hrd), */
-                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
-        break;
-      default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
-        break;
-    }
+      break;
+    case ARPOP_RREQUEST:
+    case ARPOP_IREQUEST:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
+/*                 arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
+                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+/*                 arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
+                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+      break;
+    case ARPOP_RREPLY:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+/*                 arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
+                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+                   arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+      break;
+    case ARPOP_IREPLY:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+/*                 arphrdaddr_to_str(sha_val, ar_hln, ar_hrd), */
+                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
+                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+      break;
+    default:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
+      break;
   }
 
   if (tree) {
