@@ -77,6 +77,9 @@ static gboolean ip_check_checksum = TRUE;
 /* Assume TSO and correct zero-length IP packets */
 static gboolean ip_tso_supported = TRUE;
 
+/* Use heuristics to determine subdissector */
+static gboolean try_heuristic_first = FALSE;
+
 #ifdef HAVE_GEOIP
 /* Look up addresses in GeoIP */
 static gboolean ip_use_geoip = TRUE;
@@ -260,6 +263,8 @@ static const fragment_items ip_frag_items = {
   &hf_ip_reassembled_data,
   "IPv4 fragments"
 };
+
+static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_table_t ip_dissector_table;
 
@@ -2403,14 +2408,18 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
+  } else if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))) {
+    /* We're good */
   } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo,
                                  parent_tree)) {
-    /* Unknown protocol */
-    if (update_col_info) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
+    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL))) {
+      /* Unknown protocol */
+      if (update_col_info) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
                    ipprotostr(iph->ip_p), iph->ip_p);
+      }
+      call_dissector(data_handle,next_tvb, pinfo, parent_tree);
     }
-    call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
   pinfo->fragmented = save_fragmented;
 }
@@ -2994,6 +3003,7 @@ proto_register_ip(void)
   /* subdissector code */
   ip_dissector_table = register_dissector_table("ip.proto", "IPv4 protocol",
                                                 FT_UINT8, BASE_DEC);
+  register_heur_dissector_list("ip", &heur_subdissector_list);
 
   /* Register configuration options */
   ip_module = prefs_register_protocol(proto_ip, NULL);
@@ -3025,6 +3035,10 @@ proto_register_ip(void)
     "Interpret Reserved flag as Security flag (RFC 3514)",
     "Whether to interpret the originally reserved flag as security flag",
     &ip_security_flag);
+  prefs_register_bool_preference(ip_module, "try_heuristic_first",
+    "Try heuristic sub-dissectors first",
+    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
+    &try_heuristic_first);
 
   register_dissector("ip", dissect_ip, proto_ip);
   register_init_routine(ip_defragment_init);
