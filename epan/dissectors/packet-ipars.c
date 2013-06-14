@@ -77,35 +77,28 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
     if (ia == 0x83 || ia == 0x43 || ia == GA) { /* if it's an FPGA or 'corresponsdance code' 'go ahead'... */
         if (tvb_length_remaining(tvb, offset) > 2) { /* if the msg is long, it must have been a 'poll' */
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Poll IA: %2.2X", ta);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Poll IA: %2.2X", ta);
         } else { /* if it's short, then it was a 'no traffic' response */
             if (tvb_length_remaining(tvb, offset) >= 2 ) {
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "GoAhead NextIA (0x%2.2X)", ta);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "GoAhead NextIA (0x%2.2X)", ta);
             } else {
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_set_str(pinfo->cinfo, COL_INFO, "GoAhead NextIA");
+                col_set_str(pinfo->cinfo, COL_INFO, "GoAhead NextIA");
             }
         }
     } else { /* if it's not a 'go ahead'... it must be some kind of data message */
         ia &= 0x3f;
         ta &= 0x3f;
         if (ta == 0x20) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Reset IA: %2.2X", ia); /* the TA character was the 'reset' command */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Reset IA: %2.2X", ia); /* the TA character was the 'reset' command */
         }
         if (tvb_length_remaining(tvb, offset) >= 3) cmd = tvb_get_guint8(tvb, offset + 2) & 0x3f;   /* get the first two bytes of the data message */
         if (tvb_length_remaining(tvb, offset) >= 4) la  = tvb_get_guint8(tvb, offset + 3) & 0x3f;
         if (cmd == 0x1f && la == 0x38) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Please Resend - IA: %2.2X TA: %2.2X", ia, ta); /* light the resend indicator */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Please Resend - IA: %2.2X TA: %2.2X", ia, ta); /* light the resend indicator */
         } else if (cmd == 0x2a && la == 0x05) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Unsolicited Msg Indicator - IA: %2.2X TA: %2.2X", ia, ta);    /* light the unsolicited msg indicator */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Unsolicited Msg Indicator - IA: %2.2X TA: %2.2X", ia, ta);    /* light the unsolicited msg indicator */
         } else {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Data Msg - IA: %2.2X TA: %2.2X", ia, ta); /* it was a data message (display or printer */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Data Msg - IA: %2.2X TA: %2.2X", ia, ta); /* it was a data message (display or printer */
         }
     }
 
@@ -119,8 +112,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
             if (ia == 0x03) {
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "GoAhead Next IA");
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_set_str(pinfo->cinfo, COL_INFO, "GoAhead");
+                col_set_str(pinfo->cinfo, COL_INFO, "GoAhead");
                 return;
             } else if (ia != S1) {
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
