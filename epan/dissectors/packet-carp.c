@@ -56,7 +56,7 @@ static const value_string carp_type_vals[] = {
 };
 
 static gboolean
-test_carp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
     guint8 ver_type, version, auth_length;
 
