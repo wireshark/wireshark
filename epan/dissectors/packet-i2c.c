@@ -203,33 +203,25 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->ptype = PT_I2C;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		if (is_event)
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
-		else
-			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C %s",
-					(flags & I2C_FLAG_RD) ? "Read" : "Write");
-	}
+	if (is_event)
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
+	else
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C %s",
+				(flags & I2C_FLAG_RD) ? "Read" : "Write");
 
-	if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
-		col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "I2C-%d", bus);
-	}
+	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "I2C-%d", bus);
 
-	if (check_col(pinfo->cinfo, COL_DEF_DST)) {
-		if (is_event)
-			col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
-		else
-			col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
-	}
+	if (is_event)
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
+	else
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (is_event)
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-					i2c_get_event_desc(flags));
-		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "I2C %s, %d bytes",
+	if (is_event)
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+				i2c_get_event_desc(flags));
+	else
+		col_add_fstr(pinfo->cinfo, COL_INFO, "I2C %s, %d bytes",
 					(flags & I2C_FLAG_RD) ? "Read" : "Write", len);
-	}
 
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,

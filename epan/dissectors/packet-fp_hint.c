@@ -491,8 +491,7 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *fph_tree = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP Hint");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP Hint");
 
 	hdrlen = tvb_get_letohs(tvb, 0);
 	frame_type = tvb_get_guint8(tvb, 2);

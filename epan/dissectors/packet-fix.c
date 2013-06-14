@@ -230,6 +230,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char          *value;
     char          *tag_str;
     fix_parameter *tag;
+    const char *msg_type;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIX");
@@ -268,13 +269,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        const char *msg_type;
-
-        value = tvb_get_ephemeral_string(tvb, tag->value_offset, tag->value_len);
-        msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
-        col_add_str(pinfo->cinfo, COL_INFO, msg_type);
-    }
+    value = tvb_get_ephemeral_string(tvb, tag->value_offset, tag->value_len);
+    msg_type = str_to_str(value, messages_val, "FIX Message (%s)");
+    col_add_str(pinfo->cinfo, COL_INFO, msg_type);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.

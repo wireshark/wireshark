@@ -163,20 +163,18 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cthdr.opcode = g_ntohs (cthdr.opcode);
     cthdr.maxres_size = g_ntohs (cthdr.maxres_size);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (cthdr.opcode < FCCT_MSG_REQ_MAX) {
-            col_append_str (pinfo->cinfo, COL_INFO, " Request");
-        }
-        else if (cthdr.opcode == FCCT_MSG_ACC) {
-            col_append_str (pinfo->cinfo, COL_INFO, " Accept");
-        }
-        else if (cthdr.opcode == FCCT_MSG_RJT) {
-            col_append_fstr (pinfo->cinfo, COL_INFO, " Reject (%s)",
-                             val_to_str (cthdr.rjt_code, fc_ct_rjt_code_vals, "0x%x"));
-        }
-        else {
-            col_append_str (pinfo->cinfo, COL_INFO, " Reserved");
-        }
+    if (cthdr.opcode < FCCT_MSG_REQ_MAX) {
+        col_append_str (pinfo->cinfo, COL_INFO, " Request");
+    }
+    else if (cthdr.opcode == FCCT_MSG_ACC) {
+        col_append_str (pinfo->cinfo, COL_INFO, " Accept");
+    }
+    else if (cthdr.opcode == FCCT_MSG_RJT) {
+        col_append_fstr (pinfo->cinfo, COL_INFO, " Reject (%s)",
+                            val_to_str (cthdr.rjt_code, fc_ct_rjt_code_vals, "0x%x"));
+    }
+    else {
+        col_append_str (pinfo->cinfo, COL_INFO, " Reserved");
     }
 
     in_id = cthdr.in_id;

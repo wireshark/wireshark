@@ -3212,10 +3212,8 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       dissect_homeplug_av_mmhdr(cursor, &homeplug_av_mmver, &homeplug_av_mmtype);
 
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+      col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
                             val_to_str_ext(homeplug_av_mmtype, &homeplug_av_mmtype_vals_ext, "Unknown 0x%x"));
-      }
 
       dissect_homeplug_av_mme(cursor, homeplug_av_mmver, homeplug_av_mmtype);
    }

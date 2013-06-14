@@ -425,12 +425,10 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, ": ");
-		col_append_str(pinfo->cinfo, COL_INFO,
+	col_append_str(pinfo->cinfo, COL_INFO, ": ");
+	col_append_str(pinfo->cinfo, COL_INFO,
 			tvb_format_text(tvb, 20,
 				tvb_get_ntohl(tvb, 16)));
-	}
 	if (tree) {
 		offset = 4;
 		proto_tree_add_item(tree, hf_gdsdb_connect_operation, tvb,
@@ -538,13 +536,13 @@ gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, ": ");
-		col_append_str(pinfo->cinfo, COL_INFO,
+
+    col_append_str(pinfo->cinfo, COL_INFO, ": ");
+	col_append_str(pinfo->cinfo, COL_INFO,
 			tvb_format_text(tvb, 12,
 				tvb_get_ntohl(tvb, 8)));
-	}
-	if (tree) {
+
+    if (tree) {
 		offset = 4;
 		proto_tree_add_item(tree, hf_gdsdb_attach_database, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
@@ -1020,13 +1018,12 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if (tvb_length(tvb) < 32) {
 		return 0;
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, ": ");
-		col_append_str(pinfo->cinfo, COL_INFO,
+	col_append_str(pinfo->cinfo, COL_INFO, ": ");
+	col_append_str(pinfo->cinfo, COL_INFO,
 			tvb_format_text(tvb, 20,
 				tvb_get_ntohl(tvb, 16)));
-	}
-	if(tree) {
+
+    if(tree) {
 		offset = 4;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_transaction, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
@@ -1261,8 +1258,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GDS DB");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str(opcode, gdsdb_opcode, "Unknown opcode %u"));
 
 	if (tree) {

@@ -827,59 +827,57 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     }
 
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 
-        if (opcode != ISCSI_OPCODE_SCSI_COMMAND) {
+    if (opcode != ISCSI_OPCODE_SCSI_COMMAND) {
 
-            col_append_str(pinfo->cinfo, COL_INFO, opcode_str);
+        col_append_str(pinfo->cinfo, COL_INFO, opcode_str);
 
-            if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
-                (opcode == ISCSI_OPCODE_SCSI_DATA_IN &&
-                 (tvb_get_guint8(tvb, offset + 1) & ISCSI_SCSI_DATA_FLAG_S))) {
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (scsi_status, scsi_status_val, "0x%x"));
+        if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
+            (opcode == ISCSI_OPCODE_SCSI_DATA_IN &&
+                (tvb_get_guint8(tvb, offset + 1) & ISCSI_SCSI_DATA_FLAG_S))) {
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (scsi_status, scsi_status_val, "0x%x"));
+        }
+        else if (opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
+            guint16 login_status = tvb_get_ntohs(tvb, offset+36);
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (login_status, iscsi_login_status, "0x%x"));
+        }
+        else if (opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
+            guint8 logoutReason;
+            if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
+                logoutReason = tvb_get_guint8(tvb, offset+11);
+            } else if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+                logoutReason = tvb_get_guint8(tvb, offset+1) & 0x7f;
             }
-            else if (opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
-                guint16 login_status = tvb_get_ntohs(tvb, offset+36);
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (login_status, iscsi_login_status, "0x%x"));
+            else {
+                logoutReason = tvb_get_guint8(tvb, offset+23);
             }
-            else if (opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
-                guint8 logoutReason;
-                if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
-                    logoutReason = tvb_get_guint8(tvb, offset+11);
-                } else if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
-                    logoutReason = tvb_get_guint8(tvb, offset+1) & 0x7f;
-                }
-                else {
-                    logoutReason = tvb_get_guint8(tvb, offset+23);
-                }
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
-            }
-            else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
-                guint8 tmf = tvb_get_guint8(tvb, offset + 1) & 0x7f;
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (tmf, iscsi_task_management_functions, "0x%x"));
-            }
-            else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
-                guint8 resp = tvb_get_guint8(tvb, offset + 2);
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (resp, iscsi_task_management_responses, "0x%x"));
-            }
-            else if (opcode == ISCSI_OPCODE_REJECT) {
-                guint8 reason = tvb_get_guint8(tvb, offset + 2);
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (reason, iscsi_reject_reasons, "0x%x"));
-            }
-            else if (opcode == ISCSI_OPCODE_ASYNC_MESSAGE) {
-                guint8 asyncEvent = tvb_get_guint8(tvb, offset + 36);
-                col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                                 val_to_str (asyncEvent, iscsi_asyncevents, "0x%x"));
-            }
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
+        }
+        else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION) {
+            guint8 tmf = tvb_get_guint8(tvb, offset + 1) & 0x7f;
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (tmf, iscsi_task_management_functions, "0x%x"));
+        }
+        else if (opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
+            guint8 resp = tvb_get_guint8(tvb, offset + 2);
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (resp, iscsi_task_management_responses, "0x%x"));
+        }
+        else if (opcode == ISCSI_OPCODE_REJECT) {
+            guint8 reason = tvb_get_guint8(tvb, offset + 2);
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (reason, iscsi_reject_reasons, "0x%x"));
+        }
+        else if (opcode == ISCSI_OPCODE_ASYNC_MESSAGE) {
+            guint8 asyncEvent = tvb_get_guint8(tvb, offset + 36);
+            col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+                                val_to_str (asyncEvent, iscsi_asyncevents, "0x%x"));
         }
     }
-
+ 
     /* In the interest of speed, if "tree" is NULL, don't do any
        work not necessary to generate protocol tree items. */
     if (tree) {
@@ -1618,9 +1616,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         }
         dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, &cdata->itlq, itl);
         /* we dont want the immediata below to overwrite our CDB info */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_fence(pinfo->cinfo, COL_INFO);
-        }
+        col_set_fence(pinfo->cinfo, COL_INFO);
+
         /* where there any ImmediateData ? */
         if(immediate_data_length){
             /* Immediate Data TVB */
@@ -2423,12 +2420,10 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             }
         }
 
-        if(check_col(pinfo->cinfo, COL_INFO)) {
-            if(iSCSIPdusDissected == 0)
-                col_set_str(pinfo->cinfo, COL_INFO, "");
-            else
-                col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        }
+        if(iSCSIPdusDissected == 0)
+            col_set_str(pinfo->cinfo, COL_INFO, "");
+        else
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
 
         dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, iscsi_session, conversation);
         if(pduLen > available_bytes)

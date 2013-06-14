@@ -67,8 +67,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	/* set "Info" column text */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 			     is_request ? "Request" : "Response",
 			     format_text(line, linelen));
 

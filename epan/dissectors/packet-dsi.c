@@ -512,13 +512,10 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		dsi_length;
 	guint32		dsi_reserved;
 	struct		aspinfo aspinfo;
-	gint            col_info;
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
-	col_info = check_col(pinfo->cinfo, COL_INFO);
-	if (col_info)
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	dsi_flags = tvb_get_guint8(tvb, 0);
 	dsi_command = tvb_get_guint8(tvb, 1);
@@ -527,15 +524,12 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dsi_length = tvb_get_ntohl(tvb, 8);
 	dsi_reserved = tvb_get_ntohl(tvb, 12);
 
-	if (col_info) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
 			val_to_str(dsi_flags, flag_vals,
 				   "Unknown flag (0x%02x)"),
 			val_to_str_ext(dsi_command, &func_vals_ext,
 				   "Unknown function (0x%02x)"),
 			dsi_requestid);
-	}
-
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, ENC_NA);

@@ -852,16 +852,14 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-         col_add_str (pinfo->cinfo, COL_INFO, val_to_str (ftype, fc_ftype_vals,
-                                                          "Unknown Type (0x%x)"));
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str (ftype, fc_ftype_vals,
+                                                        "Unknown Type (0x%x)"));
 
-        if (ftype == FC_FTYPE_LINKCTL)
-            col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
-                             val_to_str ((fchdr.r_ctl & 0x0F),
-                                          fc_lctl_proto_val,
-                                          "LCTL 0x%x"));
-    }
+    if (ftype == FC_FTYPE_LINKCTL)
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
+                            val_to_str ((fchdr.r_ctl & 0x0F),
+                                        fc_lctl_proto_val,
+                                        "LCTL 0x%x"));
 
     if (vft_offset >= 0) {
         dissect_fc_vft(fc_tree, tvb, vft_offset);

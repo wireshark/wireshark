@@ -199,19 +199,17 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EXEC");
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		/* First, clear the info column */
-		col_clear(pinfo->cinfo, COL_INFO);
+	/* First, clear the info column */
+	col_clear(pinfo->cinfo, COL_INFO);
 
-		/*username */
-		if(hash_info->username && preference_info_show_username == TRUE){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Username:%s ", hash_info->username);
-		}
+	/*username */
+	if(hash_info->username && preference_info_show_username == TRUE){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Username:%s ", hash_info->username);
+	}
 
-		/* Command */
-		if(hash_info->command && preference_info_show_command == TRUE){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
-		}
+	/* Command */
+	if(hash_info->command && preference_info_show_command == TRUE){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
 	}
 
 	/* create display subtree for the protocol */

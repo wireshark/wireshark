@@ -97,12 +97,9 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGD");
 
   /* Clear out stuff in the info column */
-  if (check_col(pinfo->cinfo,COL_INFO))
-  {
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Data Msg: ExchangeID=0x%08X, RequestID=%05u",
+  col_clear(pinfo->cinfo, COL_INFO);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Data Msg: ExchangeID=0x%08X, RequestID=%05u",
                  tvb_get_letohl(tvb, 8), tvb_get_letohs(tvb, 2));
-  }
 
   if (tree)
   {

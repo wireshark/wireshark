@@ -72,27 +72,24 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICAP");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/*
-		 * Put the first line from the buffer into the summary
-		 * if it's an ICAP header (but leave out the
-		 * line terminator).
-		 * Otherwise, just call it a continuation.
-		 *
-		 * Note that "tvb_find_line_end()" will return a value that
-		 * is not longer than what's in the buffer, so the
-		 * "tvb_get_ptr()" call won't throw an exception.
-		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
-		    FALSE);
-		line = tvb_get_ptr(tvb, offset, linelen);
-		icap_type = ICAP_OTHER;	/* type not known yet */
-		if (is_icap_message(line, linelen, &icap_type))
-			col_add_str(pinfo->cinfo, COL_INFO,
-			    format_text(line, linelen));
-		else
-			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-	}
+	/*
+	 * Put the first line from the buffer into the summary
+	 * if it's an ICAP header (but leave out the
+	 * line terminator).
+	 * Otherwise, just call it a continuation.
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that
+	 * is not longer than what's in the buffer, so the
+	 * "tvb_get_ptr()" call won't throw an exception.
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	line = tvb_get_ptr(tvb, offset, linelen);
+	icap_type = ICAP_OTHER;	/* type not known yet */
+	if (is_icap_message(line, linelen, &icap_type))
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    format_text(line, linelen));
+	else
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_icap, tvb, offset, -1,

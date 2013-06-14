@@ -166,8 +166,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     DISSECTOR_ASSERT(version);
 
     /* Add summary to INFO column if it is enabled */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", str);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", str);
 
     /* In order to speed up dissection, do not add items to the protocol tree
      * if it is not visible. However, compute the values that are needed for

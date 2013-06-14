@@ -361,11 +361,9 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    * here.  First, dump the name into info column, and THEN
    * dispatch the sub-type.
    */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
+  col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str( ehdr.esis_type&OSI_PDU_TYPE_MASK, esis_vals,
                             "Unknown (0x%x)" ) );
-  }
 
   variable_len = ehdr.esis_length - ESIS_HDR_FIXED_LENGTH;
 

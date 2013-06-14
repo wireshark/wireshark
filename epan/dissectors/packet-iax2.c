@@ -1005,8 +1005,7 @@ static void  iax2_populate_pinfo_from_packet_data(packet_info *pinfo, const iax_
     pinfo -> circuit_id = (guint32)p->call_data->forward_circuit_ids[0];
     pinfo -> p2p_dir = p->reversed?P2P_DIR_RECV:P2P_DIR_SENT;
 
-    if (check_col(pinfo->cinfo, COL_IF_DIR))
-      col_set_str(pinfo->cinfo, COL_IF_DIR, p->reversed ? "rev" : "fwd");
+    col_set_str(pinfo->cinfo, COL_IF_DIR, p->reversed ? "rev" : "fwd");
   }
 }
 
@@ -1482,8 +1481,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   ti = proto_tree_add_uint(tree, hf_iax2_iax_csub, tvb, offset, 1, csub);
   offset++;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                      val_to_str_ext(csub, &iax_iax_subclasses_ext, "unknown (0x%02x)"));
 
   if (offset >= tvb_reported_length(tvb))
@@ -1642,11 +1640,10 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
 
 
   /* add frame type to info line */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, source call# %d, timestamp %ums",
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s, source call# %d, timestamp %ums",
                  val_to_str_ext(type, &iax_frame_types_ext, "Unknown (0x%02x)"),
                  scallno, ts);
-  }
+
   iax2_info->messageName = val_to_str_ext(type, &iax_frame_types_ext, "Unknown (0x%02x)");
 
   switch (type) {
@@ -1661,8 +1658,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
     proto_tree_add_item(packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, ENC_ASCII|ENC_NA);
     offset += 10;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " digit %c", csub);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " digit %c", csub);
     break;
 
   case AST_FRAME_CONTROL:
@@ -1671,8 +1667,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
                          offset+9, 1, csub);
     offset += 10;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                       val_to_str_ext(csub, &iax_cmd_subclasses_ext, "unknown (0x%02x)"));
     iax2_info->messageName = val_to_str_ext (csub, &iax_cmd_subclasses_ext, "unknown (0x%02x)");
     if (csub < NUM_TAP_CMD_VOIP_STATES) iax2_info->callState = tap_cmd_voip_state[csub];
@@ -1736,8 +1731,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
     proto_tree_add_item(packet_type_tree, hf_iax2_modem_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
     offset += 10;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                       val_to_str(csub, iax_modem_subclasses, "unknown (0x%02x)"));
     break;
 
@@ -1748,8 +1742,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
                         1, csub);
     offset += 10;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " subclass %d", csub);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " subclass %d", csub);
     break;
   }
 
@@ -1825,8 +1818,7 @@ static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
 
   offset += 2;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO,
+  col_add_fstr(pinfo->cinfo, COL_INFO,
                    "Mini video packet, source call# %d, timestamp %ums%s",
                    scallno, ts, rtp_marker?", Mark":"");
 
@@ -1868,8 +1860,7 @@ static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno
 
   offset += 2;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO,
+  col_add_fstr(pinfo->cinfo, COL_INFO,
                     "Mini packet, source call# %d, timestamp %ums",
                     scallno, ts);
 
@@ -2303,8 +2294,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 
   /* XXX shouldn't pass through out-of-order packets. */
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (!video && iax_call && iax_call -> dataformat != 0) {
+  if (!video && iax_call && iax_call -> dataformat != 0) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", data, format %s",
                       val_to_str(iax_call -> dataformat,
                                  iax_dataformats, "unknown (0x%02x)"));
@@ -2312,10 +2302,9 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
       if (out_of_order)
         col_append_str(pinfo->cinfo, COL_INFO, " (out-of-order packet)");
 #endif
-    } else {
+  } else {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                       val_to_str_ext(codec, &codec_types_ext, "unknown (0x%02x)"));
-    }
   }
 
   nbytes = tvb_reported_length(sub_tvb);

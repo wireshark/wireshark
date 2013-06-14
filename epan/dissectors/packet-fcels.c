@@ -2109,19 +2109,17 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (isreq == FC_ELS_REQ) {
-            col_add_str (pinfo->cinfo, COL_INFO,
-                         val_to_str (opcode, fc_els_proto_val, "0x%x"));
-        }
-        else if (opcode == FC_ELS_LSRJT) {
-            col_add_fstr (pinfo->cinfo, COL_INFO, "LS_RJT (%s)",
-                          val_to_str (failed_opcode, fc_els_proto_val, "0x%x"));
-        }
-        else {
-            col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
-                          val_to_str (opcode, fc_els_proto_val, "0x%x"));
-        }
+    if (isreq == FC_ELS_REQ) {
+        col_add_str (pinfo->cinfo, COL_INFO,
+                        val_to_str (opcode, fc_els_proto_val, "0x%x"));
+    }
+    else if (opcode == FC_ELS_LSRJT) {
+        col_add_fstr (pinfo->cinfo, COL_INFO, "LS_RJT (%s)",
+                        val_to_str (failed_opcode, fc_els_proto_val, "0x%x"));
+    }
+    else {
+        col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
+                        val_to_str (opcode, fc_els_proto_val, "0x%x"));
     }
 
     switch (opcode) {

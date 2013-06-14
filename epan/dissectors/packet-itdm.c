@@ -194,25 +194,22 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ackbit = (chcmd & 0x20) ? 1 : 0;
   chcmd  = chcmd & 0x0f;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-    col_add_fstr(pinfo->cinfo, COL_INFO,
+  col_add_fstr(pinfo->cinfo, COL_INFO,
       "Flow %d Chan %d ACT %d ACK %d %s",
       flowid, chanid, actbit, ackbit,
       val_to_str_const(chcmd, chcmd_vals, "Reserved"));
-    if (chcmd == ITDM_CMD_NEW_CHAN ||
-        chcmd == ITDM_CMD_CLOSE_CHAN ||
-        chcmd == ITDM_CMD_CYCLIC_REAF)
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO,
+  if (chcmd == ITDM_CMD_NEW_CHAN ||
+      chcmd == ITDM_CMD_CLOSE_CHAN ||
+      chcmd == ITDM_CMD_CYCLIC_REAF)
+  {
+    col_append_fstr(pinfo->cinfo, COL_INFO,
         " Loc1 %d", chloc1);
-    }
-    else if (chcmd == ITDM_CMD_RELOC_CHAN)
-    {
-      chloc2 = tvb_get_ntohs(tvb, ITDM_CHLOC2_OFFSET);
-      col_append_fstr(pinfo->cinfo, COL_INFO,
-        " Loc1 %d Loc2 %d", chloc1, chloc2);
-    }
+  }
+  else if (chcmd == ITDM_CMD_RELOC_CHAN)
+  {
+    chloc2 = tvb_get_ntohs(tvb, ITDM_CHLOC2_OFFSET);
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+      " Loc1 %d Loc2 %d", chloc1, chloc2);
   }
 
   offset = 0;
@@ -289,25 +286,22 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   trans_id = tvb_get_ntohl(tvb, ITDM_CTL_TRANSID_OFFSET);
   paired_trans_id = tvb_get_ntohl(tvb, ITDM_CTL_PAIRED_TRANSID_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-    col_add_fstr(pinfo->cinfo, COL_INFO,
+  col_add_fstr(pinfo->cinfo, COL_INFO,
       "Flow %d Command %s ",
       flowid, val_to_str_const(command, itdm_ctl_command_vals, "Reserved"));
 
-    if (command != ITDM_CTL_CMD_AFI_REQ )
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO,
+  if (command != ITDM_CTL_CMD_AFI_REQ )
+  {
+    col_append_fstr(pinfo->cinfo, COL_INFO,
         " Alloc'd FlowID %d", allocd_flowid);
-    }
+  }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " TransID 0x%x ", trans_id);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " TransID 0x%x ", trans_id);
 
-    if (command != ITDM_CTL_CMD_AFI_REQ )
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO,
+  if (command != ITDM_CTL_CMD_AFI_REQ )
+  {
+    col_append_fstr(pinfo->cinfo, COL_INFO,
         " Paired TransID 0x%x", paired_trans_id);
-    }
   }
 
   offset = 0;

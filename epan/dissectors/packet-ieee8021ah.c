@@ -122,11 +122,9 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 
     tci = tvb_get_ntohs( tvb, 0 );
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "PRI: %d  DROP: %d ID: %d",
 		     (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
-    }
 
     /* create the protocol tree */
     ieee8021ad_tree = NULL;
@@ -227,12 +225,10 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
     tci = tvb_get_ntohl( tvb, 0 );
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "PRI: %d  Drop: %d  NCA: %d  Res1: %d  Res2: %d  I-SID: %d",
 		     (tci >> 29), ((tci >> 28) & 1), ((tci >> 27) & 1),
 		     ((tci >> 26) & 1), ((tci >> 24) & 3), tci & IEEE8021AH_ISIDMASK);
-    }
 
     /* create the protocol tree */
     ptree = NULL;
@@ -313,12 +309,10 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
 
     tci = tvb_get_ntohl( tvb, 0 );
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "PRI: %d  Drop: %d  NCA: %d  Res1: %d  Res2: %d  I-SID: %d",
 		     (tci >> 29), ((tci >> 28) & 1), ((tci >> 27) & 1),
 		     ((tci >> 26) & 1), ((tci >> 24) & 3), (tci & 0x00FFFFFF));
-    }
 
     /* create the protocol tree */
     ieee8021ah_tree = NULL;

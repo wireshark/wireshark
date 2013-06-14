@@ -665,10 +665,9 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             g_hash_table_insert(fcfzs_req_hash, req_key, cdata);
         }
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, fc_fzs_opcode_val,
+
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, fc_fzs_opcode_val,
                                                            "0x%x"));
-        }
     }
     else {
         /* Opcode is ACC or RJT */
@@ -677,12 +676,10 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          pinfo->rxid, NO_PORT2);
         isreq = FALSE;
         if (!conversation) {
-            if (tree && (opcode == FCCT_MSG_ACC)) {
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_add_str(pinfo->cinfo, COL_INFO,
+            if (opcode == FCCT_MSG_ACC) {
+                col_add_str(pinfo->cinfo, COL_INFO,
                                 val_to_str(opcode, fc_fzs_opcode_val,
                                            "0x%x"));
-                }
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
                                     "No record of Exchg. Unable to decode MSG_ACC");
@@ -701,26 +698,22 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     failed_opcode = cdata->opcode;
             }
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                if (opcode != FCCT_MSG_RJT) {
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "MSG_ACC (%s)",
-                                 val_to_str(opcode,
-                                            fc_fzs_opcode_val, "0x%x"));
-                }
-                else {
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "MSG_RJT (%s)",
-                                 val_to_str(failed_opcode,
-                                            fc_fzs_opcode_val, "0x%x"));
-                }
+            if (opcode != FCCT_MSG_RJT) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "MSG_ACC (%s)",
+                                val_to_str(opcode,
+                                        fc_fzs_opcode_val, "0x%x"));
+            }
+            else {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "MSG_RJT (%s)",
+                                val_to_str(failed_opcode,
+                                        fc_fzs_opcode_val, "0x%x"));
             }
 
-            if (tree) {
-                if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
-                    /* No record of what this accept is for. Can't decode */
-                    proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
-                                        "No record of Exchg. Unable to decode MSG_ACC/RJT");
-                    return;
-                }
+            if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
+                /* No record of what this accept is for. Can't decode */
+                proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
+                                    "No record of Exchg. Unable to decode MSG_ACC/RJT");
+                return;
             }
         }
     }

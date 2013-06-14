@@ -429,14 +429,14 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         is_request = (pinfo->match_port == pinfo->destport);
         elcom_len  = tvb_get_ntohs(tvb, 0);
         length_ok  = (tvb_reported_length(tvb) == (elcom_len+2));
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s Len=%d%s",
+
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Len=%d%s",
                              is_request ? "Request" : "Response",
                              elcom_len,
                              length_ok ? "" : " (incorrect)");
 
-                elcom_msg_type = tvb_get_guint8(tvb, 2);
-                switch (elcom_msg_type) {
+        elcom_msg_type = tvb_get_guint8(tvb, 2);
+        switch (elcom_msg_type) {
                 case P_CONRQ:
                 case P_CONRS:
 
@@ -474,7 +474,6 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case P_RELRS:
                         col_append_str(pinfo->cinfo, COL_INFO, " Response");
                         break;
-                }
         }
 
         if (!tree)

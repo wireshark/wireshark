@@ -1173,8 +1173,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(tree, hf_dpnss_LbL_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str(octet, dpnss_LbL_msg_short_type_vals, "Unknown (%d)" ));
     if (tree) {
         switch (octet) {
@@ -1269,8 +1268,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(tree, hf_dpnss_e2e_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str(octet, dpnss_e2e_msg_short_type_vals, "Unknown (%d)" ));
     if (tree) {
         switch (octet) {
@@ -1366,8 +1364,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(tree, hf_dpnss_cc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str(octet, dpnss_cc_msg_short_type_vals, "Unknown (%d)" ));
 
     if (tree) {

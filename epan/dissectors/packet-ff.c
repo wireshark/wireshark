@@ -11660,8 +11660,7 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
             break;
 
         default:
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_add_fstr(pinfo->cinfo, COL_INFO,
+            col_add_fstr(pinfo->cinfo, COL_INFO,
                 "Unknown Service (Protocol Id: %u, Confirmed Msg Type: %u) "
                 "(%s Service Id = %u)",
                 (ProtocolAndType & PROTOCOL_MASK) >> 2,
@@ -11669,7 +11668,6 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
                 (Service & SERVICE_CONFIRMED_FLAG_MASK)?
                     "Confirmed": "Unconfirmed",
                 Service & SERVICE_SERVICE_ID_MASK);
-            }
 
             if (length) {
                 proto_tree_add_text(tree, tvb, offset, length,

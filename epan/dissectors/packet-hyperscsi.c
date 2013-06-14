@@ -137,10 +137,8 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   hs_cmd &= OPCODE_MASK;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO,
+  col_append_str(pinfo->cinfo, COL_INFO,
                    val_to_str(hs_cmd, hscsi_opcodes, "Unknown HyperSCSI Request or Response (%u)"));
-  }
 
   if (tree) {
     ti = proto_tree_add_text(hs_tree, tvb, 3, -1, "HyperSCSI PDU");

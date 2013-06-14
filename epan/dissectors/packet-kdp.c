@@ -229,10 +229,9 @@ static void dissect_kdp(tvbuff_t *tvb,
   }
   /* Now that we know sequence number and optional ack number, we can
      print more detailed summary info */
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (version != 2) {
+  if (version != 2) {
       col_set_str(pinfo->cinfo, COL_INFO, "SDDP message");
-    } else {
+  } else {
       char ack_string[BUFFER_SIZE];
       char seq_num_string[BUFFER_SIZE];
       char src_flowid_string[BUFFER_SIZE];
@@ -262,7 +261,6 @@ static void dissect_kdp(tvbuff_t *tvb,
 		   seq_num_string,
 		   src_flowid_string,
 		   packet_errors);
-    }
   }
 }
 

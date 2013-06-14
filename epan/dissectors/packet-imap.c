@@ -94,18 +94,16 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		is_request = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/*
-		 * Put the first line from the buffer into the summary
-		 * (but leave out the line terminator).
-		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-		line = tvb_get_ptr(tvb, offset, linelen);
+	/*
+	 * Put the first line from the buffer into the summary
+	 * (but leave out the line terminator).
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	line = tvb_get_ptr(tvb, offset, linelen);
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 			     is_request ? "Request" : "Response",
 			     format_text(line, linelen));
-	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1, ENC_NA);

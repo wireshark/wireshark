@@ -347,22 +347,17 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
 
                 opcode = tvb_get_guint8(tvb, 1);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_add_str(pinfo->cinfo, COL_INFO,
+                col_add_str(pinfo->cinfo, COL_INFO,
                                      val_to_str_const(opcode, hsrp_opcode_vals, "Unknown"));
-                }
+
                 if (opcode < 3) {
                         state = tvb_get_guint8(tvb, 2);
-                        if (check_col(pinfo->cinfo, COL_INFO)) {
-                                col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                                      val_to_str_const(state, hsrp_state_vals, "Unknown"));
-                        }
                 } else if (opcode == 3) {
                         state = tvb_get_guint8(tvb, 6);
-                        if (check_col(pinfo->cinfo, COL_INFO)) {
-                                col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                                         val_to_str_const(state, hsrp_adv_state_vals, "Unknown"));
-                        }
                 }
 
                 if (tree) {
@@ -463,16 +458,12 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 offset+=2;
 
                                 opcode = tvb_get_guint8(tvb, offset+1);
-                                if (check_col(pinfo->cinfo, COL_INFO)) {
-                                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+                                col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                                                      val_to_str_const(opcode, hsrp2_opcode_vals, "Unknown"));
-                                }
 
                                 state = tvb_get_guint8(tvb, offset+2);
-                                if (check_col(pinfo->cinfo, COL_INFO)) {
-                                        col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                                                 val_to_str_const(state, hsrp2_state_vals, "Unknown"));
-                                }
 
                                 if (tree) {
                                         /* Making Group State TLV subtree. */
@@ -525,9 +516,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 active = tvb_get_ntohs(tvb, offset+2);
                                 passive = tvb_get_ntohs(tvb, offset+4);
 
-                                if (check_col(pinfo->cinfo, COL_INFO)) {
-                                        col_add_fstr(pinfo->cinfo, COL_INFO, "Interface State TLV (Act=%d Pass=%d)",active,passive);
-                                }
+                                col_add_fstr(pinfo->cinfo, COL_INFO, "Interface State TLV (Act=%d Pass=%d)",active,passive);
 
                                 if (tree) {
                                         proto_tree *interface_state_tlv;

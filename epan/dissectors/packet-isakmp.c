@@ -3832,8 +3832,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
     if (defrag_isakmp_tvb) { /* take it all */
       dissect_isakmp(defrag_isakmp_tvb, pinfo, ptree);
     }
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO,
+    col_append_fstr(pinfo->cinfo, COL_INFO,
                       " (%sMessage fragment %u%s)",
                       (frag_msg ? "Reassembled + " : ""),
                       seq, (last ? " - last" : ""));

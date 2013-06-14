@@ -157,20 +157,16 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	}
 
 	/* Later it will be overridden with sub-dissector, if any */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		if (authtype == IPMI_AUTH_RMCPP) {
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCP+");
-		} else {
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI");
-		}
+	if (authtype == IPMI_AUTH_RMCPP) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCP+");
+	} else {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI");
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Session ID 0x%x", session_id);
-		if (authtype == IPMI_AUTH_RMCPP) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", payload type: %s",
-					val_to_str_const(payloadtype, ipmi_payload_vals, "Unknown"));
-		}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Session ID 0x%x", session_id);
+	if (authtype == IPMI_AUTH_RMCPP) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", payload type: %s",
+				val_to_str_const(payloadtype, ipmi_payload_vals, "Unknown"));
 	}
 
 	if (tree) {

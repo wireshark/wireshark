@@ -715,48 +715,44 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     epl_src = tvb_get_guint8(tvb, EPL_SRC_OFFSET);
     src_str = decode_epl_address(epl_src);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /* Choose the right string for "Info" column (message type) */
+    switch (epl_mtyp)
     {
-        col_clear(pinfo->cinfo, COL_INFO);
+        case EPL_SOC:
+            /* source and destination NodeID are fixed according to the spec */
+            col_set_str(pinfo->cinfo, COL_INFO, "SoC    ");
+            break;
 
-        /* Choose the right string for "Info" column (message type) */
-        switch (epl_mtyp)
-        {
-            case EPL_SOC:
-                /* source and destination NodeID are fixed according to the spec */
-                col_set_str(pinfo->cinfo, COL_INFO, "SoC    ");
-                break;
+        case EPL_PREQ:
+            /* show only destination NodeID, because source is always 240 (MN) */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PReq   dst = %3d   ", epl_dest);
+            break;
 
-            case EPL_PREQ:
-                /* show only destination NodeID, because source is always 240 (MN) */
-                col_add_fstr(pinfo->cinfo, COL_INFO, "PReq   dst = %3d   ", epl_dest);
-                break;
+        case EPL_PRES:
+            /* show only source NodeID, because destination is always 255 (broadcast) */
+            col_add_fstr(pinfo->cinfo, COL_INFO, "PRes   src = %3d   ", epl_src);
+            break;
 
-            case EPL_PRES:
-                /* show only source NodeID, because destination is always 255 (broadcast) */
-                col_add_fstr(pinfo->cinfo, COL_INFO, "PRes   src = %3d   ", epl_src);
-                break;
+        case EPL_SOA:
+            /* source and destination NodeID are fixed according to the spec */
+            col_set_str(pinfo->cinfo, COL_INFO, "SoA    ");
+            break;
 
-            case EPL_SOA:
-                /* source and destination NodeID are fixed according to the spec */
-                col_set_str(pinfo->cinfo, COL_INFO, "SoA    ");
-                break;
+        case EPL_ASND:
+            if (udpencap)
+            {
+                col_set_str(pinfo->cinfo, COL_INFO, "ASnd   ");
+            }
+            else
+            {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "ASnd   src = %3d   dst = %3d   ", epl_src, epl_dest);
+            }
+            break;
 
-            case EPL_ASND:
-                if (udpencap)
-                {
-                    col_set_str(pinfo->cinfo, COL_INFO, "ASnd   ");
-                }
-                else
-                {
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "ASnd   src = %3d   dst = %3d   ", epl_src, epl_dest);
-                }
-                break;
-
-            default:    /* no valid EPL packet */
-                return FALSE;
-
-        }
+        default:    /* no valid EPL packet */
+            return FALSE;
 
     }
 
@@ -858,7 +854,7 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
     }
     offset += 2;
 
-    if (show_soc_flags && check_col(pinfo->cinfo, COL_INFO))
+    if (show_soc_flags)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "MC = %d   PS = %d",
                         ((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
@@ -920,11 +916,8 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
     }
     offset += len;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "RD = %d   size = %d   ver = %d.%d",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "RD = %d   size = %d   ver = %d.%d",
                         (EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
-    }
 
     return offset;
 }
@@ -989,11 +982,8 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     }
     offset += len;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "RD = %d   size = %d   ver = %d.%d",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "RD = %d   size = %d   ver = %d.%d",
                         (EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
-    }
 
     return offset;
 }
@@ -1040,7 +1030,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
     }
     offset += 1;
 
-    if (svid != EPL_SOA_NOSERVICE && check_col(pinfo->cinfo, COL_INFO))
+    if (svid != EPL_SOA_NOSERVICE)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "tgt = %3d   %s",
                         target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
@@ -1073,11 +1063,8 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 
     offset += 1;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ",
                         val_to_str(svid, asnd_svid_vals, "Unknown (%d)"));
-    }
 
     switch (svid)
     {
@@ -1125,11 +1112,8 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     offset += 2;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO,
+    col_append_str(pinfo->cinfo, COL_INFO,
                         val_to_str_ext(rcid, &asnd_cid_vals_ext, "Unknown (%d)"));
-    }
 
     return offset;
 }
@@ -1166,11 +1150,8 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_cdat, tvb, offset, -1, ENC_NA);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO,
+    col_append_str(pinfo->cinfo, COL_INFO,
                         val_to_str_ext(epl_asnd_nmtcommand_cid, &asnd_cid_vals_ext, "Unknown (%d)"));
-    }
 
     return offset;
 }
@@ -1296,10 +1277,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex2, tvb, offset, 48, ENC_NA);
     offset += 48;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(profile, epl_device_profiles, "Device Profile %d"));
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(profile, epl_device_profiles, "Device Profile %d"));
 
     return offset;
 }
@@ -1330,10 +1308,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     }
 
     nmt_state = tvb_get_guint8(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", val_to_str(nmt_state, epl_nmt_cs_vals, "Unknown (%d)"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", val_to_str(nmt_state, epl_nmt_cs_vals, "Unknown (%d)"));
 
     if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
     {
@@ -1451,19 +1426,16 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
     }
     offset += 3;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    seq_recv &= EPL_ASND_SDO_SEQ_CON_MASK;
+    seq_send &= EPL_ASND_SDO_SEQ_CON_MASK;
+    if ((seq_recv == 0x00) && (seq_send == 0x00))
+    {   /* Sequence layer will be closed */
+        col_append_str(pinfo->cinfo, COL_INFO, "Close  ");
+    }
+    else if ((seq_recv < 0x02) || (seq_send < 0x02))
     {
-        seq_recv &= EPL_ASND_SDO_SEQ_CON_MASK;
-        seq_send &= EPL_ASND_SDO_SEQ_CON_MASK;
-        if ((seq_recv == 0x00) && (seq_send == 0x00))
-        {   /* Sequence layer will be closed */
-            col_append_str(pinfo->cinfo, COL_INFO, "Close  ");
-        }
-        else if ((seq_recv < 0x02) || (seq_send < 0x02))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Init=%d%d  ",
-                            seq_recv, seq_send);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Init=%d%d  ",
+                        seq_recv, seq_send);
     }
 
     return offset;
@@ -1536,10 +1508,8 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             {
                 proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_abort_code, tvb, offset, 4, abort_code);
             }
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Abort = 0x%08X", abort_code);
-            }
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Abort = 0x%08X", abort_code);
         }
         else
         {
@@ -1590,16 +1560,11 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
             }
             offset += 2;
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/%d", indx, subindx);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/%d", indx, subindx);
         }
-        else if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Requ. %s",
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Requ. %s",
                             val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
-        }
 
         size = tvb_reported_length_remaining(tvb, offset);
         item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_data, tvb, offset, size, ENC_NA);
@@ -1657,19 +1622,13 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
         }
         offset += 1;
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/%d", indx, subindx);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/%d", indx, subindx);
 
     }
     else
     {   /* response */
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Resp. %s",
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Resp. %s",
                             val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
-        }
 
         size = tvb_reported_length_remaining(tvb, offset);
         item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_data, tvb, offset, size, ENC_NA);

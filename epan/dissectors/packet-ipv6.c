@@ -821,12 +821,11 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     frag.ip6f_ident = g_ntohl(frag.ip6f_ident);
     *offlg = frag.ip6f_offlg;
     *ident = frag.ip6f_ident;
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
+    col_add_fstr(pinfo->cinfo, COL_INFO,
             "IPv6 fragment (nxt=%s (%u) off=%u id=0x%x)",
             ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
             (frag.ip6f_offlg & IP6F_OFF_MASK) >> IP6F_OFF_SHIFT, frag.ip6f_ident);
-    }
+
     if (tree) {
            ti = proto_tree_add_text(tree, tvb, offset, len,
                            "Fragmentation Header");
@@ -2076,7 +2075,6 @@ again:
     /* Unknown protocol.
        Handle "no next header" specially. */
     if (nxt == IP_PROTO_NONE) {
-      if (check_col(pinfo->cinfo, COL_INFO)) {
         /* If we had an Authentication Header, the AH dissector already
            put something in the Info column; leave it there. */
         if (!ah) {
@@ -2106,9 +2104,7 @@ again:
           } else
             col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
         }
-      }
     } else {
-      if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)", ipprotostr(nxt), nxt);
     }
     call_dissector(data_handle, next_tvb, pinfo, tree);

@@ -1462,12 +1462,10 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cthdr.maxres_size = g_ntohs (cthdr.maxres_size);
 
     /* Determine the type of server the request/response is for */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        if (cthdr.gstype == FCCT_GSTYPE_DIRSVC)
-            col_set_str (pinfo->cinfo, COL_PROTOCOL, "dNS");
-        else
-            col_set_str (pinfo->cinfo, COL_PROTOCOL, "Unzoned NS");
-    }
+    if (cthdr.gstype == FCCT_GSTYPE_DIRSVC)
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, "dNS");
+    else
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, "Unzoned NS");
 
     if (tree) {
         if (cthdr.gstype == FCCT_GSTYPE_DIRSVC) {
@@ -1514,10 +1512,8 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             g_hash_table_insert (fcdns_req_hash, req_key, cdata);
         }
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, fc_dns_opcode_val,
+        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, fc_dns_opcode_val,
                                                           "0x%x"));
-        }
     }
     else {
         /* Opcode is ACC or RJT */
@@ -1526,12 +1522,10 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           pinfo->rxid, NO_PORT2);
         isreq = 0;
         if (!conversation) {
-            if (tree && (opcode == FCCT_MSG_ACC)) {
-                if (check_col (pinfo->cinfo, COL_INFO)) {
-                    col_add_str (pinfo->cinfo, COL_INFO,
+            if (opcode == FCCT_MSG_ACC) {
+                col_add_str (pinfo->cinfo, COL_INFO,
                                  val_to_str (opcode, fc_dns_opcode_val,
                                              "0x%x"));
-                }
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_text (fcdns_tree, tvb, 0, -1,
                                      "No record of Exchg. Unable to decode MSG_ACC/RJT");
@@ -1551,18 +1545,16 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     failed_opcode = cdata->opcode;
             }
 
-            if (check_col (pinfo->cinfo, COL_INFO)) {
-                if (opcode != FCCT_MSG_RJT) {
-                    col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
-                                  val_to_str (opcode, fc_dns_opcode_val,
-                                              "0x%x"));
-                }
-                else {
-                    col_add_fstr (pinfo->cinfo, COL_INFO, "RJT (%s)",
-                                  val_to_str (failed_opcode,
-                                              fc_dns_opcode_val,
-                                              "0x%x"));
-                }
+            if (opcode != FCCT_MSG_RJT) {
+                col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
+                                val_to_str (opcode, fc_dns_opcode_val,
+                                            "0x%x"));
+            }
+            else {
+                col_add_fstr (pinfo->cinfo, COL_INFO, "RJT (%s)",
+                                val_to_str (failed_opcode,
+                                            fc_dns_opcode_val,
+                                            "0x%x"));
             }
 
             if (tree) {

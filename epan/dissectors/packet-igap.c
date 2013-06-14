@@ -148,10 +148,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     col_clear(pinfo->cinfo, COL_INFO);
 
     type = tvb_get_guint8(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_str(pinfo->cinfo, COL_INFO,
 		     val_to_str(type, igap_types, "Unknown Type: 0x%02x"));
-    }
     proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
     offset += 1;
 

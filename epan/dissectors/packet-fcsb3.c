@@ -732,10 +732,8 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Decode the basic SB3 and IU header and determine type of frame */
     type = get_fc_sbccs_iu_type (tvb, offset);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
                                                          "0x%x"));
-    }
 
     if (tree) {
         /* Dissect SB3 header first */
@@ -780,12 +778,10 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8 flags;
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO,
+    col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s", val_to_str (tvb_get_guint8 (tvb, offset),
                                              fc_sbccs_dib_cmd_val,
                                              "0x%x"));
-    }
 
     if (tree) {
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -858,13 +854,12 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
     guint8 ctlfn;
 
     ctlfn = tvb_get_guint8 (tvb, offset);
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO,
+    col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
                          val_to_str (ctlfn,
                                      fc_sbccs_dib_ctl_fn_val,
                                      "0x%x"));
-    }
+
     if (tree) {
         proto_tree_add_item (tree, hf_sbccs_dib_ctlfn, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -906,13 +901,11 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
     guint16 ctl_info;
     guint   link_payload_len, i;
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO,
+    col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
                          val_to_str (tvb_get_guint8 (tvb, offset+1),
                                      fc_sbccs_dib_link_ctl_fn_val,
                                      "0x%x"));
-    }
 
     if (tree) {
         link_ctl = tvb_get_guint8 (tvb, offset+1);
@@ -988,10 +981,8 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     type = get_fc_sbccs_iu_type (tvb, offset);
     get_fc_sbccs_conv_data (tvb, offset, &ch_cu_id, &dev_addr, &ccw);
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
                                                          "0x%x"));
-    }
 
     /* Retrieve conversation state to determine expected payload */
     conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,

@@ -310,8 +310,7 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                       ENC_BIG_ENDIAN);
   offset++;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", sender: 0x%x",
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", sender: 0x%x",
                     tvb_get_ntohl(tvb, offset));
 
   proto_tree_add_item(clique_rm_tree, hf_clique_rm_sender, tvb, offset,
@@ -319,8 +318,7 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   offset += 4;
 
   if (IS_RELIABLE(type)) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", id: 0x%x",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", id: 0x%x",
                       tvb_get_ntohl(tvb, offset));
 
     dissect_reliable_packet(clique_rm_tree,   type, tvb, offset);

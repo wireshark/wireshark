@@ -411,8 +411,8 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     packet->src_addr_mode   = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
 
     /* Display the frame type. */
-    if (tree) proto_item_append_text(tree, " %s", val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
-    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
+    proto_item_append_text(tree, " %s", val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
 
     /* Add the FCF to the protocol tree. */
     if (tree) {
@@ -470,10 +470,8 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
     /* Add the packet length. */
-    if(check_col(pinfo->cinfo, COL_PACKET_LENGTH)){
-        col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
-        col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
-    }
+    col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
+    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
 
     preamble=tvb_get_letohl(tvb,offset);
     sfd=tvb_get_guint8(tvb,offset+4);
@@ -645,10 +643,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
     /* Add the packet length. */
-    if(check_col(pinfo->cinfo, COL_PACKET_LENGTH)){
-        col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
-        col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
-    }
+    col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
+    col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
 
     /* Add the packet length to the filter field */
     hidden_item = proto_tree_add_uint(tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
@@ -723,9 +719,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
         offset += 2;
     }
     else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
@@ -748,9 +742,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", get_eui64_name(packet->dst64));
         }
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", get_eui64_name(packet->dst64));
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", get_eui64_name(packet->dst64));
         offset += 8;
     }
     else if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) {
@@ -835,9 +827,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_addr);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_addr);
+
         offset += 2;
     }
     else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
@@ -861,9 +852,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_item_append_text(proto_root, ", Src: %s", get_eui64_name(packet->src64));
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", get_eui64_name(packet->src64));
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", get_eui64_name(packet->src64));
         offset += 8;
     }
     else if (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) {
@@ -976,9 +965,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset++;
 
         /* Display the command identifier in the info column. */
-        if(check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
-        }
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
     }
     /* No other frame types have nonpayload fields. */
 
@@ -1534,20 +1521,18 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     offset += 1;
 
     /* Update the info column. */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (status == IEEE802154_CMD_ASRSP_AS_SUCCESS) {
-            /* Association was successful. */
-            if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", PAN: 0x%04x", packet->dst_pan);
-            }
-            if (short_addr != IEEE802154_NO_ADDR16) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Addr: 0x%04x", short_addr);
-            }
+    if (status == IEEE802154_CMD_ASRSP_AS_SUCCESS) {
+        /* Association was successful. */
+        if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", PAN: 0x%04x", packet->dst_pan);
         }
-        else {
-            /* Association was unsuccessful. */
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Unsuccessful");
+        if (short_addr != IEEE802154_NO_ADDR16) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Addr: 0x%04x", short_addr);
         }
+    }
+    else {
+        /* Association was unsuccessful. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Unsuccessful");
     }
 
     /* Update the address table. */
@@ -1657,27 +1642,26 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Get and display the command PAN ID. */
     pan_id = tvb_get_letohs(tvb, offset);
-    if (tree) proto_tree_add_uint(subtree, hf_ieee802154_realign_pan, tvb, offset, 2, pan_id);
-    if (check_col(pinfo->cinfo, COL_INFO)) col_append_fstr(pinfo->cinfo, COL_INFO, ", PAN: 0x%04x", pan_id);
+    proto_tree_add_uint(subtree, hf_ieee802154_realign_pan, tvb, offset, 2, pan_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PAN: 0x%04x", pan_id);
     offset += 2;
 
     /* Get and display the coordinator address. */
     coord_addr = tvb_get_letohs(tvb, offset);
-    if (tree) proto_tree_add_uint(subtree, hf_ieee802154_realign_caddr, tvb, offset, 2, coord_addr);
-    if (check_col(pinfo->cinfo, COL_INFO)) col_append_fstr(pinfo->cinfo, COL_INFO, ", Coordinator: 0x%04x", coord_addr);
+    proto_tree_add_uint(subtree, hf_ieee802154_realign_caddr, tvb, offset, 2, coord_addr);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Coordinator: 0x%04x", coord_addr);
     offset += 2;
 
     /* Get and display the channel. */
     channel = tvb_get_guint8(tvb, offset);
-    if (tree) proto_tree_add_uint(subtree, hf_ieee802154_realign_channel, tvb, offset, 1, channel);
-    if (check_col(pinfo->cinfo, COL_INFO)) col_append_fstr(pinfo->cinfo, COL_INFO, ", Channel: %u", channel);
+    proto_tree_add_uint(subtree, hf_ieee802154_realign_channel, tvb, offset, 1, channel);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Channel: %u", channel);
     offset += 1;
 
     /* Get and display the short address. */
     short_addr = tvb_get_letohs(tvb, offset);
     if (tree) proto_tree_add_uint(subtree, hf_ieee802154_realign_addr, tvb, offset, 2, short_addr);
-    if (   (check_col(pinfo->cinfo, COL_INFO))
-        && (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)
+    if ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)
         && (short_addr != IEEE802154_NO_ADDR16)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Addr: 0x%04x", short_addr);
     }

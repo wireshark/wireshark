@@ -188,8 +188,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (check_col(pinfo->cinfo, COL_IF_DIR))
-    col_add_str(pinfo->cinfo, COL_IF_DIR, header->str + sizeof(fw1_header) + 1);
+  col_add_str(pinfo->cinfo, COL_IF_DIR, header->str + sizeof(fw1_header) + 1);
 
   if (tree) {
     if (!fw1_summary_in_tree)

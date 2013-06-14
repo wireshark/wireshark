@@ -1021,8 +1021,7 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor, packet_info * pinfo)
   proto_item * ti;
 
   /* Append Basic/Extender specifier to info column */
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, extended ? " Extended" : " Basic");
+  col_append_str(pinfo->cinfo, COL_INFO, extended ? " Extended" : " Basic");
 
   if (!ptvcursor_tree(cursor))
     return;
@@ -1171,8 +1170,7 @@ static void dissect_homeplug_bc(ptvcursor_t * cursor, packet_info * pinfo)
           & HOMEPLUG_BC_NETWORK;
 
   /* Append Network/Local specifier to info column */
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, network ? " Network" : " Local");
+  col_append_str(pinfo->cinfo, COL_INFO, network ? " Network" : " Local");
 
   /* Call specific dissector */
   if (network)
@@ -1221,10 +1219,8 @@ static void dissect_homeplug_unknown(ptvcursor_t * cursor)
 
 static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+  col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
         val_to_str(homeplug_metype, homeplug_metype_vals, "Unknown 0x%x"));
-  }
 
   switch(homeplug_metype) {
     case HOMEPLUG_MME_RCE:

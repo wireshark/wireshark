@@ -270,11 +270,9 @@ ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 		ddp_fragment_state = "[more DDP segments]";
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d %s %s", pinfo->srcport,
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d %s %s", pinfo->srcport,
 				pinfo->destport, val_to_str(rdma_msg_opcode, rdmap_messages,
 						"Unknown %d"), ddp_fragment_state);
-	}
 }
 
 /* dissects RDMA Read Request and Terminate message header */

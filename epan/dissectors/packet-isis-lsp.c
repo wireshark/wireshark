@@ -2708,21 +2708,18 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 			value, "LSP-ID: %s", value);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
-	}
+
 	offset += id_length + 2;
 
-	if (tree) {
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number,
+	proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number,
 			tvb, offset, 4, ENC_BIG_ENDIAN);
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: 0x%08x, Lifetime: %5us",
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: 0x%08x, Lifetime: %5us",
 			tvb_get_ntohl(tvb, offset),
 			tvb_get_ntohs(tvb, offset - (id_length+2+2)));
-	}
+
 	offset += 4;
 
 	if (tree) {

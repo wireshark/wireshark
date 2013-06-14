@@ -772,14 +772,11 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;
 
     /* Add summary to INFO column if it is enabled */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(JPEG JFIF image)");
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(JPEG JFIF image)");
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_jfif,
-                tvb, 0, -1, ENC_NA);
-        subtree = proto_item_add_subtree(ti, ett_jfif);
-    }
+    ti = proto_tree_add_item(tree, proto_jfif,
+            tvb, 0, -1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_jfif);
 
     for (; ; ) {
         const char *str;

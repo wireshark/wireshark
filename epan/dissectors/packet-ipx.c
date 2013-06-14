@@ -282,8 +282,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
 	SET_ADDRESS(&ipxh->ipx_dst,	AT_IPX, 10, dst_net_node);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%04x)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%04x)",
 				socket_text(ipxh->ipx_dsocket), ipxh->ipx_dsocket);
 
 	if (tree) {
@@ -592,8 +591,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conn_ctrl = tvb_get_guint8(tvb, 0);
 	spx_msg_string = spx_conn_ctrl(conn_ctrl);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
 		ti = proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
 						0, 1, conn_ctrl,
@@ -613,8 +611,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	datastream_type = tvb_get_guint8(tvb, 1);
 	datastream_type_string = spx_datastream(datastream_type);
 	if (datastream_type_string != NULL) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
 			    datastream_type_string);
 	}
 	if (tree) {
@@ -751,11 +748,10 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * subdissector.
 	 */
 	if (spx_rexmit_info_p != NULL) {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "[Retransmission] Original Packet %u",
 			    spx_rexmit_info_p->num);
-		}
+
 		if (tree) {
 			proto_tree_add_uint_format(spx_tree, hf_spx_rexmt_frame,
 			    tvb, 0, 0, spx_rexmit_info_p->num,
@@ -837,11 +833,9 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conn_number = tvb_get_guint8(tvb, 0);
 	sig_char = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s, Connection %d",
 			val_to_str_const(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
-	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, -1, ENC_NA);
@@ -873,10 +867,8 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	operation = tvb_get_ntohs(tvb, 0) - 1;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/* rip_types 0 and 1 are valid, anything else becomes 2 or "Unknown" */
-		col_set_str(pinfo->cinfo, COL_INFO, rip_type[MIN(operation, 2)]);
-	}
+	/* rip_types 0 and 1 are valid, anything else becomes 2 or "Unknown" */
+	col_set_str(pinfo->cinfo, COL_INFO, rip_type[MIN(operation, 2)]);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipxrip, tvb, 0, -1, ENC_NA);
@@ -945,15 +937,11 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ser_tree = proto_item_add_subtree(ti, ett_serialization);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Serial number %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Serial number %s",
 		    tvb_bytes_to_str(tvb, 0, 6));
-	}
 
-	if (tree) {
-		proto_tree_add_text(ser_tree, tvb, 0, 6,
+	proto_tree_add_text(ser_tree, tvb, 0, 6,
 		      "Serial number: %s", tvb_bytes_to_str(tvb, 0, 6));
-	}
 }
 
 /*
@@ -1215,13 +1203,11 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	query.query_type = tvb_get_ntohs(tvb, 0);
 	query.server_type = tvb_get_ntohs(tvb, 2);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (query.query_type >= 1 && query.query_type <= 4) {
-			col_set_str(pinfo->cinfo, COL_INFO, sap_type[query.query_type - 1]);
-		}
-		else {
-			col_set_str(pinfo->cinfo, COL_INFO, "Unknown Packet Type");
-		}
+	if (query.query_type >= 1 && query.query_type <= 4) {
+		col_set_str(pinfo->cinfo, COL_INFO, sap_type[query.query_type - 1]);
+	}
+	else {
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown Packet Type");
 	}
 
 	if (tree) {

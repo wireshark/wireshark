@@ -770,7 +770,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
         item = proto_tree_add_item(tree, hf_id, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
       }
-      if(f_info->add_to_col_info && check_col(pinfo->cinfo, COL_INFO)) {
+      if(f_info->add_to_col_info) {
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s, ", f_info->name,
                         tvb_format_text(tvb, value_offset, end_offset - value_offset - 2));

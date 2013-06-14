@@ -99,15 +99,12 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	oui =	tvb_get_ntoh24(tvb, 0);
 	pid = tvb_get_ntohs(tvb, 3);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "OUI 0x%06X (%s), PID 0x%04X",
 		    oui, val_to_str_const(oui, oui_vals, "Unknown"), pid);
-	}
-	if (tree) {
-		proto_tree_add_uint(ieee802a_tree, hf_ieee802a_oui,
+
+	proto_tree_add_uint(ieee802a_tree, hf_ieee802a_oui,
 		    tvb, 0, 3, oui);
-	}
 
 	/*
 	 * Do we have information for this OUI?

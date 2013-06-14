@@ -1852,19 +1852,17 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (isreq == FC_SWILS_REQ) {
-            col_add_str(pinfo->cinfo, COL_INFO,
+    if (isreq == FC_SWILS_REQ) {
+        col_add_str(pinfo->cinfo, COL_INFO,
+                    val_to_str(opcode, fc_swils_opcode_key_val, "0x%x"));
+    }
+    else if (opcode == FC_SWILS_SWRJT) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "SW_RJT (%s)",
+                        val_to_str(failed_opcode, fc_swils_opcode_key_val, "0x%x"));
+    }
+    else {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "SW_ACC (%s)",
                         val_to_str(opcode, fc_swils_opcode_key_val, "0x%x"));
-        }
-        else if (opcode == FC_SWILS_SWRJT) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "SW_RJT (%s)",
-                         val_to_str(failed_opcode, fc_swils_opcode_key_val, "0x%x"));
-        }
-        else {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "SW_ACC (%s)",
-                         val_to_str(opcode, fc_swils_opcode_key_val, "0x%x"));
-        }
     }
 
     if (tree) {

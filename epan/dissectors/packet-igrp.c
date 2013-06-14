@@ -65,17 +65,15 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ver_and_opcode = tvb_get_guint8(tvb,0);
 
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (ver_and_opcode) {
-    case 0x11:
+  switch (ver_and_opcode) {
+  case 0x11:
 	col_set_str(pinfo->cinfo, COL_INFO, "Response" );
 	break;
-    case 0x12:
-    	col_set_str(pinfo->cinfo, COL_INFO, "Request" );
-        break;
-    default:
-        col_set_str(pinfo->cinfo, COL_INFO, "Unknown version or opcode");
-    }
+  case 0x12:
+	col_set_str(pinfo->cinfo, COL_INFO, "Request" );
+	break;
+  default:
+	col_set_str(pinfo->cinfo, COL_INFO, "Unknown version or opcode");
   }
 
 

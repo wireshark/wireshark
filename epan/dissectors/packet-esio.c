@@ -145,34 +145,33 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIO");
        col_clear(pinfo->cinfo, COL_INFO);
        esio_telegram_type = tvb_get_guint8(tvb,5);
-       if (check_col(pinfo->cinfo, COL_INFO)) {
-              switch (esio_telegram_type) {
-              case ESIO_TRANSFER:
-                     esio_src_id = tvb_get_ntohl(tvb,16);
-                     esio_nbr_data_transfers = tvb_get_guint8(tvb, 20);
-                     esio_dst_id = tvb_get_ntohl(tvb,26);
-                     col_add_fstr( pinfo->cinfo, COL_INFO,
-                                   "Data transfer: Src ID: %d, Dst ID(s): %d",
-                                   esio_src_id, esio_dst_id);
-                     if (esio_nbr_data_transfers > 1) {
-                            col_append_fstr( pinfo->cinfo, COL_INFO,
-                                             " ...");
-                     }
-                     break;
-              case ESIO_STATUS:
-                     esio_src_id = tvb_get_ntohl(tvb,16);
-                     col_add_fstr( pinfo->cinfo, COL_INFO,
-                                   "Status/diag telegram: Src ID: %d",
-                                   esio_src_id);
-                     break;
-              default:
-                     /* All other telegrams */
-                     col_set_str( pinfo->cinfo, COL_INFO,
-                                  "Unknown telegram");
-                     break;
-              }
-
+       
+       switch (esio_telegram_type) {
+       case ESIO_TRANSFER:
+                esio_src_id = tvb_get_ntohl(tvb,16);
+                esio_nbr_data_transfers = tvb_get_guint8(tvb, 20);
+                esio_dst_id = tvb_get_ntohl(tvb,26);
+                col_add_fstr( pinfo->cinfo, COL_INFO,
+                            "Data transfer: Src ID: %d, Dst ID(s): %d",
+                            esio_src_id, esio_dst_id);
+                if (esio_nbr_data_transfers > 1) {
+                    col_append_fstr( pinfo->cinfo, COL_INFO,
+                                        " ...");
+                }
+                break;
+       case ESIO_STATUS:
+                esio_src_id = tvb_get_ntohl(tvb,16);
+                col_add_fstr( pinfo->cinfo, COL_INFO,
+                            "Status/diag telegram: Src ID: %d",
+                            esio_src_id);
+                break;
+       default:
+                /* All other telegrams */
+                col_set_str( pinfo->cinfo, COL_INFO,
+                            "Unknown telegram");
+                break;
        }
+
 /* create display subtree for the protocol */
        offset = 0;
        ti = proto_tree_add_item(tree, proto_esio, tvb, offset, -1, ENC_NA);

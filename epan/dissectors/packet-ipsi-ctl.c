@@ -181,15 +181,13 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (haspdus)
   {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      if (last_sequence==-1)
-      {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PDUS=%d, Seq=0x%04x",
-          pdu,first_sequence);
-      }else{
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PDUS=%d, Seq=0x%04x-0x%04x",
-          pdu,first_sequence,last_sequence);
-      }
+    if (last_sequence==-1)
+    {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "PDUS=%d, Seq=0x%04x",
+        pdu,first_sequence);
+    }else{
+      col_add_fstr(pinfo->cinfo, COL_INFO, "PDUS=%d, Seq=0x%04x-0x%04x",
+        pdu,first_sequence,last_sequence);
     }
   }else{
     col_set_str(pinfo->cinfo, COL_INFO, "Initialization");

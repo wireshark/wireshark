@@ -550,9 +550,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->ctype = CT_DLCI;
     pinfo->circuit_id = addr;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
   }
 
   switch (fr_encap) {

@@ -149,12 +149,10 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				     offset + position + 2, 1,
 				     tvb_get_guint8(tvb,offset + position + 2));
 	      }
-	    if (check_col (pinfo->cinfo, COL_INFO))
-	      {
+
 		col_append_str (pinfo->cinfo, COL_INFO,
 				val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 					    opcode_vals,"Unknown Opcode (0x%2.2x)"));
-	      }
 	    break;
 	  case REQUEST_BLOCK:
 	    if (h1_tree)
@@ -180,8 +178,6 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				    offset + position + 6, 2,
 				    tvb_get_ntohs(tvb,offset+position+6));
 	      }
-	    if (check_col (pinfo->cinfo, COL_INFO))
-	      {
 		col_append_fstr (pinfo->cinfo, COL_INFO, " %s %d",
 				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 					     org_vals,"Unknown Type (0x%2.2x)"),
@@ -190,7 +186,6 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				 tvb_get_ntohs(tvb,offset+position+4));
 		col_append_fstr (pinfo->cinfo, COL_INFO, " Count %d",
 				 tvb_get_ntohs(tvb,offset+position+6));
-	      }
 	    break;
 	  case RESPONSE_BLOCK:
 	    if (h1_tree)
@@ -207,12 +202,9 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				     offset + position + 2, 1,
 				     tvb_get_guint8(tvb,offset + position+2));
 	      }
-	    if (check_col (pinfo->cinfo, COL_INFO))
-	      {
 		col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
 				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 					     returncode_vals,"Unknown Returncode (0x%2.2x"));
-	      }
 	    break;
 	  case EMPTY_BLOCK:
 	    if (h1_tree)

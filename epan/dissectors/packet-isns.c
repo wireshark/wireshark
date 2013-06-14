@@ -558,7 +558,6 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     function_id =  tvb_get_ntohs(tvb, offset + 2);
 
     /* Add the function name in the info col */
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
 	            val_to_str_ext(function_id, &isns_function_ids_ext,
 	                       "Unknown function ID 0x%04x"));

@@ -1037,10 +1037,9 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			            "System-ID {Sender of PDU} : %s",
 			            print_system_id( source_id, id_length ) );
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ) );
-	}
+
 	offset += id_length;
 
 	if (tree) {

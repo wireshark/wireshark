@@ -748,14 +748,11 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/* clear info column and display send/receive sequence numbers */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (new_packet == TRUE) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			new_packet = FALSE;
-		}
-		col_append_fstr(pinfo->cinfo, COL_INFO, "r=%u s=%u ",
-		nr, ns);
+	if (new_packet == TRUE) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		new_packet = FALSE;
 	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "r=%u s=%u ", nr, ns);
 
 	if (payload_len == 4) {
 		if (!tree)
@@ -777,8 +774,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	message_code = tvb_get_ntohs(tvb,6+trans_id_size);
 	offset = 6 + trans_id_size + 2; /* past message_code */
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 				"TID=%x %s ",
 				trans_id,
 				val_to_str_const(message_code, message_code_vals,

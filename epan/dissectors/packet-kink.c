@@ -211,14 +211,11 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KINK");
 
   /* It shows kink type by the type value. */
-  if(check_col(pinfo->cinfo, COL_INFO)){
-    col_add_str(pinfo->cinfo, COL_INFO,  val_to_str_const(type, kink_type_vals, "unknown"));
-  }
+  col_add_str(pinfo->cinfo, COL_INFO,  val_to_str_const(type, kink_type_vals, "unknown"));
+
   /* Make the kink tree */
-  if(tree){
-    ti = proto_tree_add_item(tree, proto_kink, tvb, offset, -1, ENC_NA);
-    kink_tree = proto_item_add_subtree(ti, ett_kink);
-  }
+  ti = proto_tree_add_item(tree, proto_kink, tvb, offset, -1, ENC_NA);
+  kink_tree = proto_item_add_subtree(ti, ett_kink);
 
   proto_tree_add_uint(kink_tree, hf_kink_type, tvb, offset, 1, type);
   offset++;

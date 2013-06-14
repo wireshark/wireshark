@@ -415,11 +415,8 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ia_version = (int)ih.ia_version;
         ia_type = (int)ih.ia_type;
 	codestrval = val_to_str_const(ia_type, iapp_vals,  "Unknown Packet");
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (version=%d)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (version=%d)",
 		             codestrval, ia_type, ia_version);
-	}
 
 	if (tree)
 	{

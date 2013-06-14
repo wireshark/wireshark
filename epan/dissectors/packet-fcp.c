@@ -522,10 +522,8 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
     status = tvb_get_guint8(tvb, offset+11);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, ":%s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ":%s",
                          val_to_str(status, scsi_status_val, "0x%x"));
-    }
 
     /* Save the response frame */
     if (request_data != NULL)
@@ -685,20 +683,16 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     els = (r_ctl & 0xf0) == FC_RCTL_LINK_DATA;
     r_ctl &= 0xF;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
+    col_add_str(pinfo->cinfo, COL_INFO,
                      val_to_str(r_ctl, els ? fcp_els_iu_val : fcp_iu_val,
                                  "0x%x"));
-    }
 
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_fcp, tvb, 0, -1,
+    ti = proto_tree_add_protocol_format(tree, proto_fcp, tvb, 0, -1,
                                             "FCP: %s",
                                             val_to_str(r_ctl,
                                             els ? fcp_els_iu_val :
                                             fcp_iu_val, "Unknown 0x%02x"));
-        fcp_tree = proto_item_add_subtree(ti, ett_fcp);
-    }
+    fcp_tree = proto_item_add_subtree(ti, ett_fcp);
 
     fc_conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                      pinfo->ptype, pinfo->srcport,

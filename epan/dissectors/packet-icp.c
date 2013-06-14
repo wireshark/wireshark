@@ -155,12 +155,9 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   message_length=tvb_get_ntohs(tvb, 2);
   request_number=tvb_get_ntohl(tvb, 4);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-        col_add_fstr(pinfo->cinfo,COL_INFO,"Opcode: %s (%u), Req Nr: %u",
-		val_to_str_const(opcode, opcode_vals, "Unknown"), opcode,
-		request_number);
-  }
+  col_add_fstr(pinfo->cinfo,COL_INFO,"Opcode: %s (%u), Req Nr: %u",
+  val_to_str_const(opcode, opcode_vals, "Unknown"), opcode,
+  request_number);
 
   if (tree)
   {

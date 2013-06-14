@@ -147,8 +147,7 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case TYPE_DEVICE_ID:
             /* Device ID */
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                                     "Device ID: %s",
                                     tvb_format_stringzpad(tvb, offset + 4,
                                                           length - 4));
@@ -181,8 +180,7 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 real_length = length + 3;
             }
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                                     "Port ID: %s",
                                     tvb_format_stringzpad(tvb, offset + 4, real_length - 4));
 

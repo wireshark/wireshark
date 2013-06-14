@@ -74,8 +74,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			2, sxsap);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; HPEXT; DXSAP %s, SXSAP %s",
 		    val_to_str(dxsap, xsap_vals, "%04x"),
 		    val_to_str(sxsap, xsap_vals, "%04x"));

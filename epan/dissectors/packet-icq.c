@@ -1493,8 +1493,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     cmd = tvb_get_letohs(decr_tvb, ICQ5_CL_CMD);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_icq, tvb, 0, -1,
@@ -1590,7 +1589,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 cmd;
 
     cmd = tvb_get_letohs(tvb, offset + ICQ5_SRV_CMD);
-    if (changeCol && check_col(pinfo->cinfo, COL_INFO))
+    if (changeCol)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
     if (pktsize == -1)

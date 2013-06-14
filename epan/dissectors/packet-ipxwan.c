@@ -154,12 +154,11 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 4;
 	packet_type = tvb_get_guint8(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, ipxwan_packet_type_vals,
 		        "Unknown packet type %u"));
-	}
-	if (tree) {
+
+    if (tree) {
 		proto_tree_add_uint(ipxwan_tree, hf_ipxwan_packet_type, tvb,
 			offset, 1, packet_type);
 		offset += 1;
