@@ -53,6 +53,7 @@ MACRO(pod2manhtml _sourcefile _manext)
 			--section=${_manext}
 			--center="The Wireshark Network Analyzer"
 			--release=${CPACK_PACKAGE_VERSION}
+			--utf8
 			${_sourcefile}.pod
 			> ${_outman}
 		COMMAND
@@ -65,7 +66,6 @@ MACRO(pod2manhtml _sourcefile _manext)
 		DEPENDS
 			${_sourcefile}.pod
 			${CMAKE_SOURCE_DIR}/docbook/ws.css
-			
 	)
 ENDMACRO(pod2manhtml)
 
