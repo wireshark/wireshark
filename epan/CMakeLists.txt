@@ -1387,6 +1387,7 @@ set(WMEM_FILES
 	wmem/wmem_stack.c
 	wmem/wmem_strbuf.c
 	wmem/wmem_strutl.c
+	wmem/wmem_tree.c
 	wmem/wmem_user_cb.c
 )
 

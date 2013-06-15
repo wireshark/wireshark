@@ -71,11 +71,13 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
     return allocator;
 }
 
-/* Some helpers for properly testing the user callback functionality */
+/* Some helpers for properly testing callback functionality */
 wmem_allocator_t *expected_allocator;
 void             *expected_user_data;
 gboolean          expected_final;
 int               cb_called_count;
+int               cb_continue_count;
+gboolean          value_seen[CONTAINER_ITERS];
 
 static void
 wmem_test_cb(wmem_allocator_t *allocator, gboolean final, void *user_data)
@@ -85,6 +87,20 @@ wmem_test_cb(wmem_allocator_t *allocator, gboolean final, void *user_data)
     g_assert(user_data == expected_user_data);
 
     cb_called_count++;
+}
+
+static gboolean
+wmem_test_foreach_cb(void *value, void *user_data)
+{
+    g_assert(user_data == expected_user_data);
+
+    g_assert(! value_seen[GPOINTER_TO_INT(value)]);
+    value_seen[GPOINTER_TO_INT(value)] = TRUE;
+
+    cb_called_count++;
+    cb_continue_count--;
+
+    return (cb_continue_count == 0);
 }
 
 /* ALLOCATOR TESTING FUNCTIONS (/wmem/allocator/) */
@@ -549,6 +565,93 @@ wmem_test_strbuf(void)
     wmem_destroy_allocator(allocator);
 }
 
+static void
+wmem_test_tree(void)
+{
+    wmem_allocator_t   *allocator, *extra_allocator;
+    wmem_tree_t        *tree;
+    guint32             i;
+    int                 seen_values = 0;
+
+    allocator       = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+    extra_allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    tree = wmem_tree_new(allocator);
+    g_assert(tree);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_tree_lookup32(tree, i) == NULL);
+        if (i > 0) {
+            g_assert(wmem_tree_lookup32_le(tree, i) == GINT_TO_POINTER(i-1));
+        }
+        wmem_tree_insert32(tree, i, GINT_TO_POINTER(i));
+        g_assert(wmem_tree_lookup32(tree, i) == GINT_TO_POINTER(i));
+    }
+    wmem_free_all(allocator);
+
+    tree = wmem_tree_new(allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        guint32 rand = g_test_rand_int();
+        wmem_tree_insert32(tree, rand, GINT_TO_POINTER(i));
+        g_assert(wmem_tree_lookup32(tree, rand) == GINT_TO_POINTER(i));
+    }
+    wmem_free_all(allocator);
+
+    tree = wmem_tree_new_autoreset(allocator, extra_allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_tree_lookup32(tree, i) == NULL);
+        wmem_tree_insert32(tree, i, GINT_TO_POINTER(i));
+        g_assert(wmem_tree_lookup32(tree, i) == GINT_TO_POINTER(i));
+    }
+    wmem_free_all(extra_allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_tree_lookup32(tree, i) == NULL);
+        g_assert(wmem_tree_lookup32_le(tree, i) == NULL);
+    }
+    wmem_free_all(allocator);
+
+    /* TODO:
+     * - test string functions
+     * - test array functions
+     */
+
+    tree = wmem_tree_new(allocator);
+    expected_user_data = GINT_TO_POINTER(g_test_rand_int());
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        value_seen[i] = FALSE;
+        wmem_tree_insert32(tree, g_test_rand_int(), GINT_TO_POINTER(i));
+    }
+
+    cb_called_count    = 0;
+    cb_continue_count  = CONTAINER_ITERS;
+    wmem_tree_foreach(tree, wmem_test_foreach_cb, expected_user_data);
+    g_assert(cb_called_count   == CONTAINER_ITERS);
+    g_assert(cb_continue_count == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(value_seen[i]);
+        value_seen[i] = FALSE;
+    }
+
+    cb_called_count    = 0;
+    cb_continue_count  = 10;
+    wmem_tree_foreach(tree, wmem_test_foreach_cb, expected_user_data);
+    g_assert(cb_called_count   == 10);
+    g_assert(cb_continue_count == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        if (value_seen[i]) {
+            seen_values++;
+        }
+    }
+    g_assert(seen_values == 10);
+
+    wmem_free_all(allocator);
+
+    wmem_destroy_allocator(extra_allocator);
+    wmem_destroy_allocator(allocator);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -566,6 +669,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/datastruct/slist",  wmem_test_slist);
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
+    g_test_add_func("/wmem/datastruct/tree",   wmem_test_tree);
 
     return g_test_run();
 }

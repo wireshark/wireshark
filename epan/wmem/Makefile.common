@@ -33,6 +33,7 @@ LIBWMEM_SRC =				\
 	wmem_stack.c			\
 	wmem_strbuf.c			\
 	wmem_strutl.c			\
+	wmem_tree.c			\
 	wmem_user_cb.c
 
 LIBWMEM_INCLUDES =			\
@@ -47,6 +48,7 @@ LIBWMEM_INCLUDES =			\
 	wmem_stack.h			\
 	wmem_strbuf.h			\
 	wmem_strutl.h			\
+	wmem_tree.h			\
 	wmem_user_cb.h			\
 	wmem_user_cb_int.h
 

@@ -32,6 +32,7 @@
 #include "wmem_stack.h"
 #include "wmem_strbuf.h"
 #include "wmem_strutl.h"
+#include "wmem_tree.h"
 #include "wmem_user_cb.h"
 
 #endif /* __WMEM_H__ */
