@@ -77,8 +77,9 @@ static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
 static int parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	char *cap_int, gboolean *cap_dir, char *cap_dst,
 	int *err, gchar **err_info);
-static int parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
-	int *err, gchar **err_info);
+static gboolean parse_netscreen_hex_dump(FILE_T fh, int pkt_len,
+	const char *cap_int, const char *cap_dst, struct wtap_pkthdr *phdr,
+	guint8* buf, int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
@@ -196,12 +197,11 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 {
 	gint64		offset;
 	guint8		*buf;
-	int		pkt_len, caplen;
+	int		pkt_len;
 	char		line[NETSCREEN_LINE_LENGTH];
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
 	gboolean	cap_dir;
 	char		cap_dst[13];
-	gchar		dststr[13];
 
 	/* Find the next packet */
 	offset = netscreen_seek_next_packet(wth, err, err_info, line);
@@ -218,37 +218,11 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, NETSCREEN_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	/* Convert the ASCII hex dump to binary data */
-	if ((caplen = parse_netscreen_hex_dump(wth->fh, pkt_len, buf, err,
-	    err_info)) == -1) {
+	/* Convert the ASCII hex dump to binary data, and fill in some
+	   struct wtap_pkthdr fields */
+	if (!parse_netscreen_hex_dump(wth->fh, pkt_len, cap_int,
+	    cap_dst, &wth->phdr, buf, err, err_info))
 		return FALSE;
-	}
-
-	/*
-	 * Determine the encapsulation type, based on the
-	 * first 4 characters of the interface name
-	 *
-	 * XXX  convert this to a 'case' structure when adding more
-	 *      (non-ethernet) interfacetypes
-	 */
-	if (strncmp(cap_int, "adsl", 4) == 0) {
-                /* The ADSL interface can be bridged with or without
-                 * PPP encapsulation. Check whether the first six bytes
-                 * of the hex data are the same as the destination mac
-                 * address in the header. If they are, assume ethernet
-                 * LinkLayer or else PPP
-                 */
-                g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
-                   buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
-                if (strncmp(dststr, cap_dst, 12) == 0) 
-		        wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
-                else
-		        wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
-                }
-	else if (strncmp(cap_int, "seri", 4) == 0)
-		wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
-	else
-		wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
 
 	/*
 	 * If the per-file encapsulation isn't known, set it to this
@@ -265,7 +239,6 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	wth->phdr.caplen = caplen;
 	*data_offset = offset;
 	return TRUE;
 }
@@ -280,7 +253,6 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
 	gboolean	cap_dir;
 	char		cap_dst[13];
-	int             caplen;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
@@ -299,10 +271,9 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	caplen = parse_netscreen_hex_dump(wth->random_fh, len, pd, err, err_info);
-	if (caplen == -1)
+	if (!parse_netscreen_hex_dump(wth->random_fh, len, cap_int, cap_dst,
+	    phdr, pd, err, err_info))
 		return FALSE;
-	phdr->caplen = caplen;
 	return TRUE;
 }
 
@@ -350,14 +321,17 @@ parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line, char *cap_in
 	return pkt_len;
 }
 
-/* Converts ASCII hex dump to binary data. Returns the capture length.
-   If any error is encountered, -1 is returned. */
-static int
-parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **err_info)
+/* Converts ASCII hex dump to binary data, and fills in some struct
+   wtap_pkthdr fields.  Returns TRUE on success and FALSE on any error. */
+static gboolean
+parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
+    const char *cap_dst, struct wtap_pkthdr *phdr, guint8* buf,
+    int *err, gchar **err_info)
 {
 	gchar	line[NETSCREEN_LINE_LENGTH];
 	gchar	*p;
 	int	n, i = 0, offset = 0;
+	gchar	dststr[13];
 
 	while(1) {
 
@@ -395,7 +369,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 			} else {
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netscreen: cannot parse hex-data");
-				return -1;
+				return FALSE;
 			}
 		}
 
@@ -405,7 +379,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		if(n == -1) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("netscreen: cannot parse hex-data");
-			return -1;
+			return FALSE;
 		}
 
 		/* Adjust the offset to the data that was just added to the buffer */
@@ -417,10 +391,39 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		if(offset > pkt_len) {
 			*err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("netscreen: too much hex-data");
-                        return -1;
+                        return FALSE;
 		}
 	}
-	return offset;
+
+	/*
+	 * Determine the encapsulation type, based on the
+	 * first 4 characters of the interface name
+	 *
+	 * XXX  convert this to a 'case' structure when adding more
+	 *      (non-ethernet) interfacetypes
+	 */
+	if (strncmp(cap_int, "adsl", 4) == 0) {
+                /* The ADSL interface can be bridged with or without
+                 * PPP encapsulation. Check whether the first six bytes
+                 * of the hex data are the same as the destination mac
+                 * address in the header. If they are, assume ethernet
+                 * LinkLayer or else PPP
+                 */
+                g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
+                   buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+                if (strncmp(dststr, cap_dst, 12) == 0) 
+		        phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
+                else
+		        phdr->pkt_encap = WTAP_ENCAP_PPP;
+                }
+	else if (strncmp(cap_int, "seri", 4) == 0)
+		phdr->pkt_encap = WTAP_ENCAP_PPP;
+	else
+		phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
+
+	phdr->caplen = offset;
+
+	return TRUE;
 }
 
 /* Take a string representing one line from a hex dump, with leading white
