@@ -317,6 +317,18 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
+/* Set part of the struct wtap_pkthdr. */
+static void
+pppdump_set_phdr(struct wtap_pkthdr *phdr, int num_bytes,
+    direction_enum direction)
+{
+	phdr->len = num_bytes;
+	phdr->caplen = num_bytes;
+	phdr->pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
+
+	phdr->pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);
+}
+
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean
 pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
@@ -361,13 +373,9 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	state->pkt_cnt++;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS;
-	wth->phdr.len		= num_bytes;
-	wth->phdr.caplen	= num_bytes;
 	wth->phdr.ts.secs	= state->timestamp;
 	wth->phdr.ts.nsecs	= state->tenths * 100000000;
-	wth->phdr.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
-
-	wth->phdr.pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);
+	pppdump_set_phdr(&wth->phdr, num_bytes, direction);
 
 	return TRUE;
 }
@@ -719,7 +727,6 @@ pppdump_seek_read(wtap *wth,
 		 int *err,
 		 gchar **err_info)
 {
-	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int		num_bytes;
 	direction_enum	direction;
 	pppdump_t	*state;
@@ -767,7 +774,7 @@ pppdump_seek_read(wtap *wth,
 		return FALSE;
 	}
 
-	pseudo_header->p2p.sent = (pid->dir == DIRECTION_SENT ? TRUE : FALSE);
+	pppdump_set_phdr(phdr, num_bytes, pid->dir);
 
 	return TRUE;
 }
