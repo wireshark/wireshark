@@ -7,6 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * Copyright (c) 2013 by Luis Ontanon <luis@ontanon.org>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -24,6 +26,13 @@
 
 #ifndef __ECHLD_H
 #define __ECHLD_H
+
+#define ECHLD_VERSION "0.0"
+#define ECHLD_MAJOR_VERSION 0 /* increases when existing things change */
+ 							  /* if this changes an old client may or may not work */
+
+#define ECHLD_MINOR_VERSION 0 /* increases when new things are added */
+ 							  /* if just this one changes an old client will still work */
 
 /*
  * You should take a look to doc/README.epan_child before reading this
@@ -59,10 +68,7 @@ typedef enum _echld_encoding {
 
 typedef int echld_bool_t;
 
-/* typedef for a GByteArray so that glib.h is not required in the client */
-typedef struct GByteArray bytearray_t;
-
-/* typedef for a GByteArray so that sys/time.h is not required in the client */
+/* typedef for a timeval so that sys/time.h is not required in the client */
 typedef struct timeval tv_t;
 
 /* will initialize epan registering protocols and taps */
@@ -109,32 +115,49 @@ void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
  * 
  * returns TRUE if other potential handlers are to be run, false otherwise
  */
-typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, bytearray_t* msg_buff, void* cb_data);
+typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, enc_msg_t* msg_buff, void* cb_data);
+
+
+
+/* encoding and decoding */
+
+/* enc_msg_t is an obscure object for an encoded message */
+typedef struct GByteArray enc_msg_t;
 
 /*
- * encoders
- * the returned bytearray will be destroyed internally by the req handler
- * the resulting bytearray can be used just once in a reqh.
+ * encoder
+ * the enc_msg_t will be destroyed internally by the req handler
+ * the resulting enc_msg_t can be used in a reqh just once.
  */
+ 
+typedef struct _parent_out {
+	enc_msg_t* (*error)(, int err, const char* text);
+	enc_msg_t* (*set_param)(const char* param,  const char* value);
+	enc_msg_t* (*close_child)(int mode);
+	enc_msg_t* (*list_files)(const char* glob);
+	enc_msg_t* (*open_file)(const char* filename);
+	enc_msg_t* (*open_interface)(const char* intf_name, const char* params);
+	enc_msg_t* (*get_summaries)(const char* range);
+	enc_msg_t* (*get_packets)(const char* range);
+	enc_msg_t* (*add_note)(int packet_number, const char* note);
+	enc_msg_t* (*apply_filter)(const char* filter);
+	enc_msg_t* (*set_filter)(const char* filter);
+	enc_msg_t* (*chk_filter)(const char* filter);
+	enc_msg_t* (*save_file)(const char* filename, const char* params);
+} echld_parent_encoder_t;
 
-bytearray_t* echld_encode_close_child(int mode);
-bytearray_t* echld_encode_set_param(const char* param, const char* value);
-bytearray_t* echld_encode_chdir(char* new_dir);
-bytearray_t* echld_encode_list_files(const char* glob);
-bytearray_t* echld_encode_open_file(const char* filename);
-bytearray_t* echld_encode_open_interface(const char* intf_name, const char* params);
-bytearray_t* echld_encode_get_packets(const char* range);
-bytearray_t* echld_encode_add_note(int packet_number, const char* note);
-bytearray_t* echld_encode_apply_filter(const char* filter);
-bytearray_t* echld_encode_set_filter(const char* filter);
-bytearray_t* echld_encode_save_file(const char* filename, const char* params);
+echld_parent_encoder_t* echld_get_encoder();
 
 /*
  * decoder
  * it returns an allocated string with the decoded response of the message, you free it.
- * it destroys the bytearray_t as well.
+ * it destroys the enc_msg_t as well.
  */
-char* echld_decode(echld_msg_type_t, bytearray_t*);
+char* echld_decode(echld_msg_type_t, enc_msg_t*);
+
+
+/* all strings are returned via ptr and have to be freed,
+   they'll be NULL on error */
 
 /*
  *  Request Handlers
@@ -143,14 +166,20 @@ char* echld_decode(echld_msg_type_t, bytearray_t*);
 
 /* send a request with an optional response handler 
  *
- * ba is a bytearray_t that contains the encoded message
+ * ba is a enc_msg_t that contains the encoded message
  * resp_cb is the callback and cb_data the data it is going to be passed if executed
  * 
  * returns the reqh id */
-echld_reqh_id_t echld_reqh(echld_chld_id_t, echld_msg_type_t, bytearray_t*, echld_msg_cb_t, void*);
+echld_reqh_id_t echld_reqh(echld_chld_id_t, echld_msg_type_t, int usecs_timeout, enc_msg_t*, echld_msg_cb_t, void*);
 
 /* get callback data for a live request */
 void* echld_reqh_get_data(echld_chld_id_t, echld_reqh_id_t);
+
+/* get the total timeout time for a live request, -1 is err */
+int echld_reqh_get_to(echld_chld_id_t, echld_reqh_id_t);
+
+/* get the remaining timeout time for a live request, -1 is err */
+int echld_reqh_get_remaining_to(echld_chld_id_t, echld_reqh_id_t);
 
 /* get the callback for a live request */
 echld_msg_cb_t echld_reqh_get_cb(echld_chld_id_t, echld_reqh_id_t);
@@ -237,6 +266,9 @@ echld_state_t echld_get_packets_range(int child_id, const char* range, echild_ge
  */
 echld_state_t echld_wait(tv_t* timeout);
 
+#define ECHLD_WAIT() do { struct timeval tv; int rfds,  efds; \
+	echld_select(echld_fdset(&rfds, &efds),&rfds, NULL, &efds, NULL) \
+	&& echld_fd_read(&rfds, &efds); } while(0)
 
 /*
    to be used in place of select() in the main loop of the parent code
@@ -255,72 +287,112 @@ int echld_fd_read(int* rfds, int* efds);
 #define ECHLD_MAX_CHILDREN 32
 
 enum _echld_msg_type_t {
-	ECHLD_ERROR = 'E', /* Child <-> Parent */
-	ECHLD_TIMED_OUT='T', /* -> Parent Note the D in timeD out */
+	/*  in = child to parent */
+	/* out = parent to child */
 
-	ECHLD_NEW_CHILD = '*', /* Parent -> Child  */
-	ECHLD_HELLO = '@', /* Child -> Parent */
-	ECHLD_CHILD_DEAD = '#', /* Child -> Parent */
+	ECHLD_ERROR = '!', /* in: an error has occurred,
+						*	this can be a response to most messages
+						*   some errors are sent asyncronously (some are handled internally, some are then passed)
+						*/
+	ECHLD_TIMED_OUT='/', /* in: A reqh has timed out (TO from now on)
+						*	this can be a response to some messages
+						*   some TOs are sent asyncronously (some are handled internally, some are then passed)
+						*/
 
-	ECHLD_NOTIFY = '%', /* Parent <-> Child  */
-
-	ECHLD_SET_PARAM = 'P', /* Parent -> Child  */
-	ECHLD_PARAM_SET = 'p', /* Parent <- Child  */
-
-	ECHLD_PING = '>', /* Parent <-> Child  */
-	ECHLD_PONG = '<', /* Parent <-> Child  */
-
-	ECHLD_CLOSE_CHILD = 'Q', /* Parent -> Child  */
-	ECHLD_CLOSING = 'q', /* Child -> Parent */
-
-	ECHLD_PWD = 'P',  /* Parent -> Child  : show dir */
-	ECHLD_CHDIR = 'D',  /* Parent -> Child  : change dir */
-	ECHLD_CWD = 'd', /* Child -> Parent */
+	ECHLD_NEW_CHILD = '*', /* out: creates a new working child  (handled internally)  */
+	ECHLD_HELLO = '@', /* in: the working child has being created (handled internally, then passed to msgh) */
 	
-	ECHLD_LIST_FILES = 'L', /* Parent -> Child  */
-	ECHLD_FILE_INFO = 'f', /* Parent -> Child  */
+	ECHLD_CHILD_DEAD = '#', /* in: a child has dead (handled internally, then passed to msgh) */
 
-	ECHLD_CHK_FILTER = 'K',	
-	ECHLD_FILTER_CKD = 'k',
+	ECHLD_CLOSE_CHILD = 'Q', /* out: close the child  */
+	ECHLD_CLOSING = 'q', /* in: the child is closing, error otherwise  */
+						 /* this handled internally as msgh, if your reqh_cb uses it make sure to return TRUE */
 
-	ECHLD_OPEN_FILE = 'O', /* Parent -> Child  */
-	ECHLD_FILE_OPENED = 'o', /* Child -> Parent */
+	ECHLD_SET_PARAM = '>', /* out: set a parameter of a child  */
+	ECHLD_GET_PARAM = '<', /* out: set a parameter of a child  */
+	ECHLD_PARAM = 'p', /* in: the parameter's new/current value, error otherwise  */
 
-	ECHLD_LIST_INTERFACES = 'I', /* Parent -> Child  */
-	ECHLD_INTERFACE_INFO = 'i', /* Child -> Parent */
+						/* capture_filter string RO: set at open_capture */
+						/* monitor_mode string RW: use monitor mode if possible, error otherwise */
+						/* inc_pkt_ntfy_timeout number_string RW: timeout in usec after which notification is sent if no maxpackets have arrived yet */
+						/* inc_pkt_ntfy_maxpackets number_string RW: number of packets after which send a notification */
+						/* auto_sum RW: get summaries automatically (without a reqh, as msgh) */
+						/* auto_tree RW: get trees automatically (without a reqh, as msgh)   */
+						/* auto_buffer RW: get buffers automatically (without a reqh, as msgh) */
+						/* cwd RW: the current working directory */ 
+						/* dfilter:  other*
+						/* ... */
+						/* cwd should be one,  */
 
-	ECHLD_OPEN_INTERFACE = 'C',  /* Parent -> Child  */
-	ECHLD_INTERFACE_OPENED = 'c', /* Child -> Parent */
+	ECHLD_PING = '>', /* out: ping the child  */
+	ECHLD_PONG = '<', /* out: ping's response, error or TO otherwise */
 
-	ECHLD_SET_FILTER = 'F', /* Parent -> Child  */
-	ECHLD_FILTER_SET = 'y',  /* Child -> Parent */
+	/* XXX should be a parameter */
+	ECHLD_PWD = 'P',  /* out: get the current dir */
+	ECHLD_CHDIR = 'D',  /* out: set the cwd */
+	ECHLD_CWD = 'd', /* in: the current working directory, error otherwise */
+	
+	ECHLD_LIST_FILES = 'L', /* out: request a file listing of the current directory */
+	ECHLD_FILE_INFO = 'f', /* in: a file listing of a directory */
 
-	ECHLD_START_CAPTURE = 'G',  /* Parent -> Child  */
-	ECHLD_CAPTURE_STARTED = 'g',  /* Child -> Parent */
+	ECHLD_CHK_FILTER = 'K',	/* out: verify if a (display) filter works */
+	ECHLD_FILTER_CKD = 'k', /* in: yes this filter works, error or TO? otherwise */
 
-	ECHLD_STOP_CAPTURE = 'X',  /* Parent -> Child  */
-	ECHLD_CAPTURE_STOPPED = 'x',  /* Child -> Parent */
+	ECHLD_SET_FILTER = 'F', /* out: set the (display) filter for the incoming file or capture */
+	ECHLD_FILTER_SET = 'y',  /* in: the filter is set, error or TO? otherwise  */
+							/* (there's no get_filter so save it if you need it) */
+	ECHLD_OPEN_FILE = 'O', /* out: open a file  */
+	ECHLD_FILE_OPENED = 'o', /* in: the file has being open, error otherwise */
 
-	ECHLD_PACKET_SUM = 's', /* Child -> Parent */
+	ECHLD_LIST_INTERFACES = 'I', /* out: request an interface listing (dispatcher's work, chld_id = 0)  */
+	ECHLD_INTERFACE_INFO = 'i', /* in: an interface listing, error otherwise */
 
-	ECHLD_GET_PACKETS = 'G', /* Parent -> Child  */
+	ECHLD_OPEN_INTERFACE = 'C',  /* out: request an interface to be open (get ready for capture)  */
+	ECHLD_INTERFACE_OPENED = 'c', /* in: ready to start_capture, error otherwise */
+
+	ECHLD_START_CAPTURE = 'G',  /* out: start capturing */
+	ECHLD_CAPTURE_STARTED = 'g',  /* in: the capture has started, error otherwise */
+
+	ECHLD_NOTIFY = '%', /* in: many things can be notified by the child:
+	  						 	number of packets captured/read
+								other events in the future (?)
+	  						 	*/
+
+	ECHLD_GET_SUM = 'S', /* out: get the summaries of a range of packets (even before they are notify'd) */
+	ECHLD_PACKET_SUM = 's', /* in: a packet's summary (when it arrives for a reqh) (in msgh if auto_sum )*/
+								/* no timeout, the request hangs until the packets in the range are available */
+								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
+
+	ECHLD_GET_PACKETS = 'G', /* out: get the decoded version of the packet  */
 	ECHLD_PACKET = 't', /* Child -> Parent */
-	ECHLD_BUFFER = 'b', /* Child -> Parent */
+								/* no timeout, the request hangs until the packets in the range are available */
+								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
 
-	ECHLD_ADD_NOTE = 'N', /* Parent -> Child  */
-	ECHLD_NOTE_ADDED = 'n', /* Child -> Parent */
+
+	ECHLD_GET_PACKETS = 'G', /* out: get the decoded version of the packet  */
+	ECHLD_BUFFER = 'b', /* in: get a buffer (or what we have of it... or the next part... same reqh_id) */
+								/* no timeout, the request hangs until the packets in the range are available */
+								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
+
+	ECHLD_EOF = 'z', /* in: will be delivered when a file has being read and all pendin ntfy,sums,trees and buffs have being passed
+	 						or after capture has stopped and all pending stuff is done */
+
+	ECHLD_STOP_CAPTURE = 'X',  /* out: stop capturing  */
+	ECHLD_CAPTURE_STOPPED = 'x',  /* in: capture has stopped, error otherwise */
+
+	ECHLD_ADD_NOTE = 'N', /* out: add a note to the capture  */
+	ECHLD_NOTE_ADDED = 'n', /* in: a note has being added */
 	
-
-	ECHLD_APPLY_FILTER = 'A', /* Parent -> Child  */
-	ECHLD_PACKET_LIST = 'l', /* Child -> Parent */
+	ECHLD_APPLY_FILTER = 'A', /* in: apply a filter on the open file/capture */
+	ECHLD_PACKET_LIST = 'l', /* out: a packet list, or error or timeout */
+							/*(or what we have of it... or the next part... same reqh_id) */
 	
-	ECHLD_SAVE_FILE = 'W', /* Parent -> Child  */
-	ECHLD_FILE_SAVED = 'w', /* Parent -> Child  */
+	ECHLD_SAVE_FILE = 'W', /* out: save the open file/capture  */
+	ECHLD_FILE_SAVED = 'w', /* in: the file was saved */
 
-	ECHLD_EOF = 'z', /* Child -> Parent  */
 
-	EC_ACTUAL_ERROR
-
+	EC_ACTUAL_ERROR = 0 /* this is not used in the protocol,
+	                        it is returned for an error in calls returning a message type  */
 };
 
 enum _echld_error {
