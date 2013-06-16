@@ -60,33 +60,62 @@ static int hf_mp4_mfhd_seq_num = -1;
 
 #define BOX_TYPE_NONE  0x0 /* used for parent_box_type of a top-level box */
 #define BOX_TYPE_FTYP  MAKE_TYPE_VAL('f', 't', 'y', 'p')
-#define BOX_TYPE_MFHD  MAKE_TYPE_VAL('m', 'f', 'h', 'd')
-#define BOX_TYPE_MVHD  MAKE_TYPE_VAL('m', 'v', 'h', 'd')
 #define BOX_TYPE_MOOV  MAKE_TYPE_VAL('m', 'o', 'o', 'v')
-#define BOX_TYPE_MOOF  MAKE_TYPE_VAL('m', 'o', 'o', 'f')
-#define BOX_TYPE_STBL  MAKE_TYPE_VAL('s', 't', 'b', 'l')
-#define BOX_TYPE_MDIA  MAKE_TYPE_VAL('m', 'd', 'i', 'a')
+#define BOX_TYPE_MVHD  MAKE_TYPE_VAL('m', 'v', 'h', 'd')
 #define BOX_TYPE_TRAK  MAKE_TYPE_VAL('t', 'r', 'a', 'k')
-#define BOX_TYPE_TRAF  MAKE_TYPE_VAL('t', 'r', 'a', 'f')
+#define BOX_TYPE_TKHD  MAKE_TYPE_VAL('t', 'k', 'h', 'd')
+#define BOX_TYPE_MDIA  MAKE_TYPE_VAL('m', 'd', 'i', 'a')
+#define BOX_TYPE_MDHD  MAKE_TYPE_VAL('m', 'd', 'h', 'd')
+#define BOX_TYPE_HDLR  MAKE_TYPE_VAL('h', 'd', 'l', 'r')
 #define BOX_TYPE_MINF  MAKE_TYPE_VAL('m', 'i', 'n', 'f')
+#define BOX_TYPE_VMHD  MAKE_TYPE_VAL('v', 'm', 'h', 'd')
+#define BOX_TYPE_DINF  MAKE_TYPE_VAL('d', 'i', 'n', 'f')
+#define BOX_TYPE_DREF  MAKE_TYPE_VAL('d', 'r', 'e', 'f')
+#define BOX_TYPE_STBL  MAKE_TYPE_VAL('s', 't', 'b', 'l')
+#define BOX_TYPE_STTS  MAKE_TYPE_VAL('s', 't', 't', 's')
+#define BOX_TYPE_STSD  MAKE_TYPE_VAL('s', 't', 's', 'd')
+#define BOX_TYPE_STSZ  MAKE_TYPE_VAL('s', 't', 's', 'z')
+#define BOX_TYPE_STSC  MAKE_TYPE_VAL('s', 't', 's', 'c')
+#define BOX_TYPE_STCO  MAKE_TYPE_VAL('s', 't', 'c', 'o')
 #define BOX_TYPE_MVEX  MAKE_TYPE_VAL('m', 'v', 'e', 'x')
+#define BOX_TYPE_MOOF  MAKE_TYPE_VAL('m', 'o', 'o', 'f')
 #define BOX_TYPE_MEHD  MAKE_TYPE_VAL('m', 'e', 'h', 'd')
 #define BOX_TYPE_TREX  MAKE_TYPE_VAL('t', 'r', 'e', 'x')
+#define BOX_TYPE_MFHD  MAKE_TYPE_VAL('m', 'f', 'h', 'd')
+#define BOX_TYPE_TRAF  MAKE_TYPE_VAL('t', 'r', 'a', 'f')
+#define BOX_TYPE_TFHD  MAKE_TYPE_VAL('t', 'f', 'h', 'd')
+#define BOX_TYPE_TRUN  MAKE_TYPE_VAL('t', 'r', 'u', 'n')
+#define BOX_TYPE_MDAT  MAKE_TYPE_VAL('m', 'd', 'a', 't')
+
 
 static const value_string box_types[] = {
     { BOX_TYPE_FTYP, "File Type Box" },
-    { BOX_TYPE_MFHD, "Movie Fragment Header Box" },
-    { BOX_TYPE_MVHD, "Movie Header Box" },
     { BOX_TYPE_MOOV, "Movie Box" },
-    { BOX_TYPE_MOOF, "Movie Fragment Box" },
-    { BOX_TYPE_STBL, "Sample to Group Box" },
-    { BOX_TYPE_MDIA, "Media Box" },
+    { BOX_TYPE_MVHD, "Movie Header Box" },
     { BOX_TYPE_TRAK, "Track Box" },
-    { BOX_TYPE_TRAF, "Track Fragment Box" },
+    { BOX_TYPE_TKHD, "Track Header Box" },
+    { BOX_TYPE_MDIA, "Media Box" },
+    { BOX_TYPE_MDHD, "Media Header Box" },
+    { BOX_TYPE_HDLR, "Handler Reference Box" },
     { BOX_TYPE_MINF, "Media Information Box" },
+    { BOX_TYPE_VMHD, "Video Media Header Box" },
+    { BOX_TYPE_DINF, "Data Information Box" },
+    { BOX_TYPE_DREF, "Data Reference Box" },
+    { BOX_TYPE_STBL, "Sample to Group Box" },
+    { BOX_TYPE_STTS, "Decoding Time To Sample Box" },
+    { BOX_TYPE_STSD, "Sample Description Box" },
+    { BOX_TYPE_STSZ, "Sample Size Box" },
+    { BOX_TYPE_STSC, "Sample To Chunk Box" },
+    { BOX_TYPE_STCO, "Chunk Offset Box" },
     { BOX_TYPE_MVEX, "Movie Extends Box" },
+    { BOX_TYPE_MOOF, "Movie Fragment Box" },
     { BOX_TYPE_MEHD, "Movie Extends Header Box" },
     { BOX_TYPE_TREX, "Track Extends Box" },
+    { BOX_TYPE_MFHD, "Movie Fragment Header Box" },
+    { BOX_TYPE_TRAF, "Track Fragment Box" },
+    { BOX_TYPE_TFHD, "Track Fragment Header Box" },
+    { BOX_TYPE_TRUN, "Track Fragment Run Box" },
+    { BOX_TYPE_MDAT, "Media Data Box" },
     { 0, NULL }
 };
 
@@ -205,6 +234,7 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         case BOX_TYPE_TRAF:
         case BOX_TYPE_MINF:
         case BOX_TYPE_MVEX:
+        case BOX_TYPE_DINF:
             while (offset-offset_start<box_len) {
                 ret = dissect_mp4_box(box_type, tvb, offset, pinfo, box_tree);
                 if (ret<=0)
