@@ -141,6 +141,22 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>       /* needed to define AF_ values on Windows */
+#endif
+
+#ifdef NEED_INET_ATON_H
+# include "wsutil/inet_aton.h"
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "wsutil/inet_v6defs.h"
+#endif
+
 /*--- Options --------------------------------------------------------------------*/
 
 /* File format */
@@ -157,7 +173,15 @@ static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static int hdr_ip = FALSE;
+static int hdr_ipv6 = FALSE;
 static long hdr_ip_proto = 0;
+
+/* Destination and source addresses for IP header */
+static unsigned long hdr_ip_dest_addr = 0;
+static unsigned long hdr_ip_src_addr = 0;
+static guint8 hdr_ipv6_dest_addr[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static guint8 hdr_ipv6_src_addr[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static guint8 NO_IPv6_ADDRESS[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* Dummy UDP header */
 static int hdr_udp = FALSE;
@@ -299,6 +323,44 @@ static struct {         /* pseudo header for checksum calculation */
     guint8  protocol;
     guint16 length;
 } pseudoh;
+
+
+/* headers taken from glibc */
+
+/* IPv6 address */
+struct hdr_in6_addr
+{
+    union
+    {
+       guint8  __u6_addr8[16];
+       guint16 __u6_addr16[8];
+       guint32 __u6_addr32[4];
+    } __in6_u;
+};
+
+typedef struct {
+        union  {
+                struct ip6_hdrctl {
+                        guint32 ip6_un1_flow;   /* 24 bits of flow-ID */
+                        guint16 ip6_un1_plen;   /* payload length */
+                        guint8  ip6_un1_nxt;    /* next header */
+                        guint8  ip6_un1_hlim;   /* hop limit */
+                } ip6_un1;
+                guint8 ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
+        } ip6_ctlun;
+        struct hdr_in6_addr ip6_src;      /* source address */
+        struct hdr_in6_addr ip6_dst;      /* destination address */
+} hdr_ipv6_t;
+
+static hdr_ipv6_t HDR_IPv6;
+
+static struct {                 /* pseudo header ipv6 for checksum calculation */
+        struct  hdr_in6_addr src_addr6;
+        struct  hdr_in6_addr dst_addr6;
+        guint32 protocol;
+        guint32 zero;
+} pseudoh6;
+
 
 typedef struct {
     guint16 source_port;
@@ -590,6 +652,12 @@ write_current_packet(gboolean cont)
     if (curr_offset > header_length) {
         /* Write the packet */
 
+        /* if defined IPv6 we should rewrite hdr_ethernet_proto anyways */
+        if(hdr_ipv6) {
+            hdr_ethernet_proto = 0x86DD;
+            hdr_ip = FALSE;
+        }
+
         /* Compute packet length */
         length = curr_offset;
         if (hdr_sctp) {
@@ -608,11 +676,42 @@ write_current_packet(gboolean cont)
 
         /* Write IP header */
         if (hdr_ip) {
+            if(hdr_ip_src_addr) HDR_IP.src_addr = hdr_ip_src_addr;
+            if(hdr_ip_dest_addr) HDR_IP.dest_addr = hdr_ip_dest_addr;
+
             HDR_IP.packet_length = g_htons(length - ip_offset + padding_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
             write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
+        } else if (hdr_ipv6) {
+            if(memcmp(hdr_ipv6_src_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_src, &hdr_ipv6_src_addr, sizeof(struct hdr_in6_addr));
+            if(memcmp(hdr_ipv6_dest_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_dst, &hdr_ipv6_dest_addr, sizeof(struct hdr_in6_addr));
+
+            HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
+            HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen = g_htons(length - ip_offset + padding_length);
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_nxt  = (guint8) hdr_ip_proto;
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = 32;
+            write_bytes((const char *)&HDR_IPv6, sizeof(HDR_IPv6));
+
+            /* initialize pseudo ipv6 header for checksum calculation */
+            pseudoh6.src_addr6  = HDR_IPv6.ip6_src;
+            pseudoh6.dst_addr6  = HDR_IPv6.ip6_dst;
+            pseudoh6.zero       = 0;
+            pseudoh6.protocol   = (guint8) hdr_ip_proto;
+            pseudoh.length      = g_htons(length - g_ntohs(HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen) + sizeof(HDR_UDP));
+        }
+
+        if(!hdr_ipv6) {
+            /* initialize pseudo header for checksum calculation */
+            pseudoh.src_addr    = HDR_IP.src_addr;
+            pseudoh.dest_addr   = HDR_IP.dest_addr;
+            pseudoh.zero        = 0;
+            pseudoh.protocol    = (guint8) hdr_ip_proto;
+            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
         }
 
         /* Write UDP header */
@@ -620,19 +719,13 @@ write_current_packet(gboolean cont)
             guint16 x16;
             guint32 u;
 
-            /* initialize pseudo header for checksum calculation */
-            pseudoh.src_addr    = HDR_IP.src_addr;
-            pseudoh.dest_addr   = HDR_IP.dest_addr;
-            pseudoh.zero        = 0;
-            pseudoh.protocol    = (guint8) hdr_ip_proto;
-            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
             /* initialize the UDP header */
             HDR_UDP.source_port = g_htons(hdr_src_port);
             HDR_UDP.dest_port = g_htons(hdr_dest_port);
-            HDR_UDP.length = g_htons(length - header_length + sizeof(HDR_UDP));
+            HDR_UDP.length      = pseudoh.length;
             HDR_UDP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-            x16  = in_checksum(&pseudoh, sizeof(pseudoh));
+            x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
             u    = g_ntohs(x16);
             x16  = in_checksum(&HDR_UDP, sizeof(HDR_UDP));
             u   += g_ntohs(x16);
@@ -1330,6 +1423,12 @@ usage (void)
             "                         (in DECIMAL).\n"
             "                         Automatically prepends Ethernet header as well.\n"
             "                         Example: -i 46\n"
+            "  -4 <srcip>,<destip>    prepend dummy IPv4 header with specified\n"
+            "                         dest and source address.\n"
+            "                         Example: -4 10.0.0.1,10.0.0.2\n"
+            "  -6 <srcip>,<destip>    replace IPv6 header with specified\n"
+            "                         dest and source address.\n"
+            "                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334\n"
             "  -u <srcp>,<destp>      prepend dummy UDP header with specified\n"
             "                         source and destination ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"
@@ -1375,7 +1474,7 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:no:u:s:S:t:T:a")) != -1) {
+    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:no:u:s:S:t:T:a:4:6:")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
@@ -1555,6 +1654,60 @@ parse_options (int argc, char *argv[])
             identify_ascii = TRUE;
             break;
 
+        case '4':
+        case '6':
+            p = strchr(optarg, ',');
+
+            if (!p) {
+                fprintf(stderr, "Bad source param addr for '-%c'\n", c);
+                usage();
+            }
+
+            *p = '\0';
+            if(c == '6')
+            {
+                hdr_ipv6 = TRUE;
+                hdr_ethernet_proto = 0x86DD;
+            }
+            else
+            {
+                hdr_ip = TRUE;
+                hdr_ethernet_proto = 0x800;
+            }
+            hdr_ethernet = TRUE;
+
+            if (hdr_ipv6 == TRUE) {
+                if(inet_pton( AF_INET6, optarg, hdr_ipv6_src_addr) <= 0) {
+                        fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
+                        usage();
+                }
+            } else {
+                if(inet_pton( AF_INET, optarg, &hdr_ip_src_addr) <= 0) {
+                        fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
+                        usage();
+                }
+            }
+
+            p++;
+            if (*p == '\0') {
+                fprintf(stderr, "No dest addr specified for '-%c'\n", c);
+                usage();
+            }
+
+            if (hdr_ipv6 == TRUE) {
+                if(inet_pton( AF_INET6, p, hdr_ipv6_dest_addr) <= 0) {
+                        fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
+                        usage();
+                }
+            } else {
+                if(inet_pton( AF_INET, p, &hdr_ip_dest_addr) <= 0) {
+                        fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
+                        usage();
+                }
+            }
+            break;
+
+
         default:
             usage();
         }
@@ -1649,6 +1802,9 @@ main(int argc, char *argv[])
     if (hdr_ip) {
         ip_offset = header_length;
         header_length += (int)sizeof(HDR_IP);
+    } else if (hdr_ipv6) {
+        ip_offset = header_length;
+        header_length += (int)sizeof(HDR_IPv6);
     }
     if (hdr_sctp) {
         header_length += (int)sizeof(HDR_SCTP);

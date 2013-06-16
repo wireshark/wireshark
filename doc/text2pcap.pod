@@ -218,6 +218,21 @@ IP or Ethernet headers. Note that appropriate Ethernet and IP headers
 are automatically also included with each packet.
 Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
 
+=item -4 E<lt>srcipE<gt>,E<lt>destipE<gt>
+
+Prepend dummy IP header with specified IPv4 dest and source address.
+This option should be accompanied by one of the following options: -i, -s, -S, -T, -u
+Use this option to apply "custom" IP addresses.
+Example: I<-4 10.0.0.1,10.0.0.2> to use 10.0.0.1 and 10.0.0.2 for all IP packets.
+
+=item -6 E<lt>srcipE<gt>,E<lt>destipE<gt>
+
+Prepend dummy IP header with specified IPv6 dest and source address.
+This option should be accompanied by one of the following options: -i, -s, -S, -T, -u
+Use this option to apply "custom" IP addresses.
+Example: I<-6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334> to 
+use fe80:0:0:0:202:b3ff:fe1e:8329 and 2001:0db8:85a3:0000:0000:8a2e:0370:7334 for all IP packets.
+
 =back
 
 =head1 SEE ALSO
