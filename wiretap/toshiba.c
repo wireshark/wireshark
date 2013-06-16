@@ -110,11 +110,11 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
-static gboolean parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
+static gboolean parse_toshiba_hex_dump(FILE_T fh, int pkt_len, Buffer *buf,
 	int *err, gchar **err_info);
 static int parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
     int *err, gchar **err_info);
@@ -223,7 +223,6 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
-	guint8	*buf;
 	int	pkt_len;
 
 	/* Find the next packet */
@@ -236,12 +235,9 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	if (pkt_len == -1)
 		return FALSE;
 
-	/* Make sure we have enough room for the packet */
-	buffer_assure_space(wth->frame_buffer, TOSHIBA_MAX_PACKET_LEN);
-	buf = buffer_start_ptr(wth->frame_buffer);
-
 	/* Convert the ASCII hex dump to binary data */
-	if (!parse_toshiba_hex_dump(wth->fh, pkt_len, buf, err, err_info))
+	if (!parse_toshiba_hex_dump(wth->fh, pkt_len, wth->frame_buffer,
+	    err, err_info))
 		return FALSE;
 
 	*data_offset = offset;
@@ -250,8 +246,8 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-toshiba_seek_read (wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+toshiba_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info)
 {
 	int	pkt_len;
@@ -270,7 +266,7 @@ toshiba_seek_read (wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	return parse_toshiba_hex_dump(wth->random_fh, pkt_len, pd, err, err_info);
+	return parse_toshiba_hex_dump(wth->random_fh, pkt_len, buf, err, err_info);
 }
 
 /* Parses a packet record header. */
@@ -370,11 +366,16 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 
 /* Converts ASCII hex dump to binary data */
 static gboolean
-parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
+parse_toshiba_hex_dump(FILE_T fh, int pkt_len, Buffer *buf, int *err,
     gchar **err_info)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	i, hex_lines;
+	guint8	*pd;
+
+	/* Make sure we have enough room for the packet */
+	buffer_assure_space(buf, TOSHIBA_MAX_PACKET_LEN);
+	pd = buffer_start_ptr(buf);
 
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */
@@ -388,7 +389,7 @@ parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 			}
 			return FALSE;
 		}
-		if (!parse_single_hex_dump_line(line, buf, i * 16)) {
+		if (!parse_single_hex_dump_line(line, pd, i * 16)) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("toshiba: hex dump not valid");
 			return FALSE;

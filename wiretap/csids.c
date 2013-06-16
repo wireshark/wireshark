@@ -49,12 +49,12 @@ typedef struct {
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info);
 static gboolean csids_read_packet_header(FILE_T fh, struct wtap_pkthdr *phdr,
 	int *err, gchar **err_info);
 static gboolean csids_read_packet_data(FILE_T fh, csids_t *csids, int len,
-	guint8 *pd, int *err, gchar **err_info);
+	Buffer *buf, int *err, gchar **err_info);
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */
@@ -153,22 +153,14 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
   csids_t *csids = (csids_t *)wth->priv;
-  guint8 *buf;
 
   *data_offset = file_tell(wth->fh);
 
   if( !csids_read_packet_header(wth->fh, &wth->phdr, err, err_info ) )
     return FALSE;
 
-  /* Make sure we have enough room for the packet */
-  buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-  buf = buffer_start_ptr(wth->frame_buffer);
-
-  if( !csids_read_packet_data( wth->fh, csids, wth->phdr.caplen, buf,
-                               err, err_info ) )
-    return FALSE;
-
-  return TRUE;
+  return csids_read_packet_data( wth->fh, csids, wth->phdr.caplen,
+                                 wth->frame_buffer, err, err_info );
 }
 
 /* Used to read packets in random-access fashion */
@@ -176,7 +168,7 @@ static gboolean
 csids_seek_read (wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
-		 guint8 *pd,
+		 Buffer *buf,
 		 int len,
 		 int *err,
 		 gchar **err_info)
@@ -196,7 +188,7 @@ csids_seek_read (wtap *wth,
     return FALSE;
   }
 
-  return csids_read_packet_data( wth->random_fh, csids, phdr->caplen, pd,
+  return csids_read_packet_data( wth->random_fh, csids, phdr->caplen, buf,
                                  err, err_info );
 }
 
@@ -226,19 +218,15 @@ csids_read_packet_header(FILE_T fh, struct wtap_pkthdr *phdr, int *err,
 }
 
 static gboolean
-csids_read_packet_data(FILE_T fh, csids_t *csids, int len, guint8 *pd,
+csids_read_packet_data(FILE_T fh, csids_t *csids, int len, Buffer *buf,
                        int *err, gchar **err_info)
 {
-  int bytesRead;
+  guint8 *pd;
 
-  bytesRead = file_read( pd, len, fh );
-  if( bytesRead != len ) {
-    *err = file_error( fh, err_info );
-    if (*err == 0)
-      *err = WTAP_ERR_SHORT_READ;
+  if( !wtap_read_packet_bytes( fh, buf, len, err, err_info ) )
     return FALSE;
-  }
 
+  pd = buffer_start_ptr( buf );
   if( csids->byteswapped ) {
     if( len >= 2 ) {
       PBSWAP16(pd);   /* the ip len */

@@ -180,12 +180,12 @@ typedef struct {
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 		gint64 *data_offset);
 static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
-		struct wtap_pkthdr *phdr, guint8 *pd,
+		struct wtap_pkthdr *phdr, Buffer *buf,
 		int length, int *err, gchar **err_info);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr,
 		int *err, gchar **err_info, gboolean *fddihack);
-static gboolean nettl_read_rec_data(FILE_T fh, guint8 *pd, int length,
+static gboolean nettl_read_rec_data(FILE_T fh, Buffer *buf, int length,
 		int *err, gchar **err_info, gboolean fddihack);
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
@@ -337,7 +337,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
      * Read the packet data.
      */
     buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    if (!nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+    if (!nettl_read_rec_data(wth->fh, wth->frame_buffer,
 		wth->phdr.caplen, err, err_info, fddihack))
 	return FALSE;	/* Read error */
     return TRUE;
@@ -345,7 +345,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-		guint8 *pd, int length, int *err, gchar **err_info)
+		Buffer *buf, int length, int *err, gchar **err_info)
 {
     int ret;
     gboolean fddihack=FALSE;
@@ -368,7 +368,7 @@ nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     /*
      * Read the packet data.
      */
-    return nettl_read_rec_data(wth->random_fh, pd, length, err, err_info,
+    return nettl_read_rec_data(wth->random_fh, buf, length, err, err_info,
         fddihack);
 }
 
@@ -650,12 +650,16 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-nettl_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
+nettl_read_rec_data(FILE_T fh, Buffer *buf, int length, int *err,
 	gchar **err_info, gboolean fddihack)
 {
     int bytes_to_read, bytes_read;
+    guint8 *pd;
     guint8 dummy[3];
 
+    buffer_assure_space(buf, length);
+    pd = buffer_start_ptr(buf);
+    errno = WTAP_ERR_CANT_READ;
     if (fddihack) {
         /* read in FC, dest, src, DSAP and SSAP */
         bytes_to_read = 15;
@@ -669,8 +673,8 @@ nettl_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
         }
         length -= bytes_read;
         if (length == 0) {
-        	/* There's nothing past the FC, dest, src, DSAP and SSAP */
-        	return TRUE;
+            /* There's nothing past the FC, dest, src, DSAP and SSAP */
+            return TRUE;
         }
         if (pd[13] == 0xAA) {
             /* it's SNAP, have to eat 3 bytes??? */

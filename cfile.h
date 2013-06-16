@@ -108,7 +108,7 @@ typedef struct _capture_file {
   gboolean     search_in_progress; /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
   /* packet data */
   struct wtap_pkthdr phdr;                /* Packet header */
-  guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
+  Buffer       buf;             /* Packet data */
   /* frames */
   frame_data_sequence *frames;  /* Sequence of frames, if we're keeping that information */
   guint32      first_displayed; /* Frame number of first frame displayed */

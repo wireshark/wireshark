@@ -311,12 +311,13 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 camins_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *pkthdr, guint8 *pd, int length,
+    struct wtap_pkthdr *pkthdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
     guint8    dat_trans_type;
     guint16   dat_len;
     gboolean  ret;
+    guint8     *p;
     gint      offset, bytes_read;
 
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
@@ -327,19 +328,21 @@ camins_seek_read(wtap *wth, gint64 seek_off,
     if (!ret)
         return FALSE;
 
+    buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
+    p = buffer_start_ptr(buf);
     /* in the pseudo-header, we always store the length that we obtained
        from parsing the file
        (there's error conditions where this length field does not match
        the number of data bytes present in the file, we'll leave this to
        the dissector) */
-    offset = create_pseudo_hdr(pd, dat_trans_type, dat_len);
+    offset = create_pseudo_hdr(p, dat_trans_type, dat_len);
     if (offset<0)
         return FALSE;
 
     /* we only read the number of bytes requested by wtap in order to
        ensure we're not overflowing the buffer */
     bytes_read = read_packet_data(wth->random_fh, dat_trans_type,
-            &pd[offset], length, err, err_info);
+            &p[offset], length, err, err_info);
     /* see comment in camins_read() */
     if (bytes_read < 0)
         return FALSE;

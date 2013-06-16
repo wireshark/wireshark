@@ -74,12 +74,10 @@ static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* of
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static gboolean btsnoop_read_record_header(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
-static gboolean btsnoop_read_rec_data(FILE_T fh, guint8 *pd, int length,
-    int *err, gchar **err_info);
 
 int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -164,17 +162,12 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Read packet data. */
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	if (!btsnoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    wth->phdr.caplen, err, err_info)) {
-		return FALSE;	/* Read error */
-	}
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -185,10 +178,8 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 		return FALSE;
 
 	/* Read packet data. */
-	if (!btsnoop_read_rec_data(wth->random_fh, pd, length, err, err_info))
-		return FALSE;	/* failed */
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, length, err,
+	    err_info);
 }
 
 static gboolean btsnoop_read_record_header(wtap *wth, FILE_T fh,
@@ -254,23 +245,6 @@ static gboolean btsnoop_read_record_header(wtap *wth, FILE_T fh,
 		{
 			phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
 		}
-	}
-	return TRUE;
-}
-
-static gboolean btsnoop_read_rec_data(FILE_T fh, guint8 *pd, int length,
-    int *err, gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, length, fh);
-
-	if (bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
 	}
 	return TRUE;
 }

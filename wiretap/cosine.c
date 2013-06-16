@@ -171,12 +171,12 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info);
 static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd,
+	struct wtap_pkthdr *phdr, Buffer *buf,
 	int len, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	int *err, gchar **err_info);
 static gboolean parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr,
-	int pkt_len, guint8* buf, int *err, gchar **err_info);
+	int pkt_len, Buffer* buf, int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
@@ -293,7 +293,6 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
-	guint8	*buf;
 	int	pkt_len;
 	char	line[COSINE_LINE_LENGTH];
 
@@ -301,29 +300,22 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 	offset = cosine_seek_next_packet(wth, err, err_info, line);
 	if (offset < 0)
 		return FALSE;
+	*data_offset = offset;
 
 	/* Parse the header */
 	pkt_len = parse_cosine_rec_hdr(&wth->phdr, line, err, err_info);
 	if (pkt_len == -1)
 		return FALSE;
 
-	/* Make sure we have enough room for the packet */
-	buffer_assure_space(wth->frame_buffer, COSINE_MAX_PACKET_LEN);
-	buf = buffer_start_ptr(wth->frame_buffer);
-
 	/* Convert the ASCII hex dump to binary data */
-	if (!parse_cosine_hex_dump(wth->fh, &wth->phdr, pkt_len, buf, err,
-	    err_info))
-		return FALSE;
-
-	*data_offset = offset;
-	return TRUE;
+	return parse_cosine_hex_dump(wth->fh, &wth->phdr, pkt_len,
+	    wth->frame_buffer, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
 cosine_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-	guint8 *pd, int len, int *err, gchar **err_info)
+	Buffer *buf, int len, int *err, gchar **err_info)
 {
 	char	line[COSINE_LINE_LENGTH];
 
@@ -341,7 +333,9 @@ cosine_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	if (parse_cosine_rec_hdr(phdr, line, err, err_info) == -1)
 		return FALSE;
 
-	return parse_cosine_hex_dump(wth->random_fh, phdr, len, pd, err, err_info);
+	/* Convert the ASCII hex dump to binary data */
+	return parse_cosine_hex_dump(wth->random_fh, phdr, len, buf, err,
+	    err_info);
 }
 
 /* Parses a packet record header. There are two possible formats:
@@ -442,13 +436,18 @@ parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 }
 
 /* Converts ASCII hex dump to binary data. Returns TRUE on success,
-   FALSE iIf any error is encountered. */
+   FALSE if any error is encountered. */
 static gboolean
 parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr, int pkt_len,
-    guint8* buf, int *err, gchar **err_info)
+    Buffer* buf, int *err, gchar **err_info)
 {
+	guint8 *pd;
 	gchar	line[COSINE_LINE_LENGTH];
 	int	i, hex_lines, n, caplen = 0;
+
+	/* Make sure we have enough room for the packet */
+	buffer_assure_space(buf, COSINE_MAX_PACKET_LEN);
+	pd = buffer_start_ptr(buf);
 
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */
@@ -465,7 +464,7 @@ parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr, int pkt_len,
 		if (empty_line(line)) {
 			break;
 		}
-		if ((n = parse_single_hex_dump_line(line, buf, i*16)) == -1) {
+		if ((n = parse_single_hex_dump_line(line, pd, i*16)) == -1) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("cosine: hex dump line doesn't have 16 numbers");
 			return FALSE;

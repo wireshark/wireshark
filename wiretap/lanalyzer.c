@@ -275,7 +275,7 @@ typedef struct {
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
@@ -565,8 +565,6 @@ static gboolean lanalyzer_read_trace_record_header(wtap *wth, FILE_T fh,
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	int		bytes_read;
-
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the record header and packet descriptor */
@@ -575,27 +573,14 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Read the packet data */
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
-		wth->phdr.caplen, wth->fh);
-
-	if (bytes_read != (int)wth->phdr.caplen) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length, int *err,
     gchar **err_info)
 {
-	int bytes_read;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
@@ -607,15 +592,8 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	bytes_read = file_read(pd, length, wth->random_fh);
-	if (bytes_read != length) {
-		*err = file_error(wth->random_fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf,
+	    length, err, err_info);
 }
 
 /*---------------------------------------------------

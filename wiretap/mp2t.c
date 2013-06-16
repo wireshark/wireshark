@@ -88,11 +88,13 @@ mp2t_fill_in_pkthdr(mp2t_filetype_t *mp2t, gint64 offset, struct wtap_pkthdr *ph
 }
 
 static gboolean
-mp2t_read_data(guint8 *dest, int length, int *err, gchar **err_info, FILE_T fh)
+mp2t_read_data(Buffer *buf, int length, int *err, gchar **err_info, FILE_T fh)
 {
     int bytes_read;
 
-    bytes_read = file_read(dest, length, fh);
+    buffer_assure_space(buf, length);
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(buffer_start_ptr(buf), length, fh);
     if (length != bytes_read) {
         *err = file_error(fh, err_info);
         /* bytes_read==0 is end of file, not a short read */
@@ -115,8 +117,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     *data_offset = file_tell(wth->fh);
 
     /* read only the actual mpeg2 ts packet, not including a trailer */
-    buffer_assure_space(wth->frame_buffer, MP2T_SIZE);
-    if (FALSE == mp2t_read_data(buffer_start_ptr(wth->frame_buffer),
+    if (FALSE == mp2t_read_data(wth->frame_buffer,
                                 MP2T_SIZE, err, err_info, wth->fh))
     {
         return FALSE;
@@ -135,7 +136,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-        guint8 *pd, int length, int *err, gchar **err_info)
+        Buffer *buf, int length, int *err, gchar **err_info)
 {
     mp2t_filetype_t *mp2t;
 
@@ -147,7 +148,7 @@ mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 
     mp2t_fill_in_pkthdr(mp2t, seek_off, phdr);
 
-    return mp2t_read_data(pd, length, err, err_info, wth->random_fh);
+    return mp2t_read_data(buf, length, err, err_info, wth->random_fh);
 }
 
 int

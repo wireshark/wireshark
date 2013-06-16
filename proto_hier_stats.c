@@ -141,18 +141,19 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
 	epan_dissect_t			edt;
 	struct wtap_pkthdr              phdr;
-	guint8				pd[WTAP_MAX_PACKET_SIZE];
+	Buffer				buf;
 	double				cur_time;
 
 	/* Load the frame from the capture file */
-	if (!cf_read_frame_r(&cfile, frame, &phdr, pd))
+	buffer_init(&buf, 1500);
+	if (!cf_read_frame_r(&cfile, frame, &phdr, &buf))
 		return FALSE;	/* failure */
 
 	/* Dissect the frame   tree  not visible */
 	epan_dissect_init(&edt, TRUE, FALSE);
 	/* Don't fake protocols. We need them for the protocol hierarchy */
 	epan_dissect_fake_protocols(&edt, FALSE);
-	epan_dissect_run(&edt, &phdr, pd, frame, cinfo);
+	epan_dissect_run(&edt, &phdr, buffer_start_ptr(&buf), frame, cinfo);
 
 	/* Get stats from this protocol tree */
 	process_tree(edt.tree, ps, frame->pkt_len);
@@ -168,6 +169,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Free our memory. */
 	epan_dissect_cleanup(&edt);
+	buffer_free(&buf);
 
 	return TRUE;	/* success */
 }

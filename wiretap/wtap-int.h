@@ -44,7 +44,7 @@ int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
-                                           struct wtap_pkthdr *, guint8*,
+                                           struct wtap_pkthdr *, Buffer *buf,
                                            int, int *, char **);
 /**
  * Struct holding data of the currently read file.
@@ -365,6 +365,19 @@ extern gint wtap_num_file_types;
 
 /*** get GSList of all compressed file extensions ***/
 GSList *wtap_get_compressed_file_extensions(void);
+
+/*
+ * Read packet data into a Buffer, growing the buffer as necessary.
+ *
+ * This returns an error on a short read, even if the short read hit
+ * the EOF immediately.  (The assumption is that each packet has a
+ * header followed by raw packet data, and that we've already read the
+ * header, so if we get an EOF trying to read the packet data, the file
+ * has been cut short, even if the read didn't read any data at all.)
+ */
+gboolean
+wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
+    gchar **err_info);
 
 #endif /* __WTAP_INT_H__ */
 

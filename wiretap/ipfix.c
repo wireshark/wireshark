@@ -92,7 +92,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static void
 ipfix_close(wtap *wth);
@@ -295,17 +295,15 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     }
 
-    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-                   wth->phdr.caplen, wth->fh, err, err_info);
-    return TRUE;
+    return wtap_read_packet_bytes(wth->fh, wth->frame_buffer, wth->phdr.caplen,
+                                  err, err_info);
 }
 
 
 /* classic wtap: seek to file position and read packet */
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
     /* seek to the right file position */
@@ -330,9 +328,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
     }
 
-    wtap_file_read_expected_bytes(pd, length, wth->random_fh, err, err_info);
-
-    return TRUE;
+    return wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info);
 }
 
 

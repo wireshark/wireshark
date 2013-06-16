@@ -398,8 +398,14 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
 }
 
 static void
-fill_in_pkthdr(guint8 *buffer, struct wtap_pkthdr *phdr) {
+process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
+                    gint len, k12_t *k12)
+{
     guint64 ts;
+    guint32 length;
+    guint32 extra_len;
+    guint32 src_id;
+    k12_src_desc_t* src_desc;
 
     phdr->presence_flags = WTAP_HAS_TS;
 
@@ -408,18 +414,11 @@ fill_in_pkthdr(guint8 *buffer, struct wtap_pkthdr *phdr) {
     phdr->ts.secs = (guint32) ((ts / 2000000) + 631152000);
     phdr->ts.nsecs = (guint32) ( (ts % 2000000) * 500 );
 
-    phdr->len = phdr->caplen = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
-}
+    length = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
+    phdr->len = phdr->caplen = length;
 
-static void
-process_packet_data(struct wtap_pkthdr *phdr, guint8 *target, guint8 *buffer,
-                    guint32 length, gint len, k12_t *k12)
-{
-    guint32 extra_len;
-    guint32 src_id;
-    k12_src_desc_t* src_desc;
-
-    memcpy(target, buffer + K12_PACKET_FRAME, length);
+    buffer_assure_space(target, length);
+    memcpy(buffer_start_ptr(target), buffer + K12_PACKET_FRAME, length);
 
     /* extra information need by some protocols */
     extra_len = len - K12_PACKET_FRAME - length;
@@ -430,7 +429,7 @@ process_packet_data(struct wtap_pkthdr *phdr, guint8 *target, guint8 *buffer,
     phdr->pseudo_header.k12.extra_length = extra_len;
 
     src_id = pntohl(buffer + K12_RECORD_SRC_ID);
-    K12_DBG(5,("k12_seek_read: src_id=%.8x",src_id));
+    K12_DBG(5,("process_packet_data: src_id=%.8x",src_id));
     phdr->pseudo_header.k12.input = src_id;
 
     if ( ! (src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
@@ -445,7 +444,7 @@ process_packet_data(struct wtap_pkthdr *phdr, guint8 *target, guint8 *buffer,
     }
 
     if (src_desc) {
-        K12_DBG(5,("k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
+        K12_DBG(5,("process_packet_data: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
         phdr->pseudo_header.k12.input_name = src_desc->input_name;
         phdr->pseudo_header.k12.stack_file = src_desc->stack_file;
         phdr->pseudo_header.k12.input_type = src_desc->input_type;
@@ -464,7 +463,7 @@ process_packet_data(struct wtap_pkthdr *phdr, guint8 *target, guint8 *buffer,
                 break;
         }
     } else {
-        K12_DBG(5,("k12_seek_read: NO SRC_RECORD FOUND"));
+        K12_DBG(5,("process_packet_data: NO SRC_RECORD FOUND"));
 
         memset(&(phdr->pseudo_header.k12),0,sizeof(phdr->pseudo_header.k12));
         phdr->pseudo_header.k12.input_name = "unknown port";
@@ -522,18 +521,13 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET) || !src_id || !src_desc );
 
-    fill_in_pkthdr(buffer, &wth->phdr);
-    K12_DBG(3,("k12_read: PACKET RECORD type=%x src_id=%x secs=%u nsecs=%u",type,src_id, wth->phdr.ts.secs,wth->phdr.ts.nsecs));
-
-    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    process_packet_data(&wth->phdr, buffer_start_ptr(wth->frame_buffer),
-                        buffer, wth->phdr.caplen, len, k12);
+    process_packet_data(&wth->phdr, wth->frame_buffer, buffer, len, k12);
 
     return TRUE;
 }
 
 
-static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err _U_, gchar **err_info) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length _U_, int *err, gchar **err_info) {
     k12_t *k12 = (k12_t *)wth->priv;
     guint8* buffer;
     gint len;
@@ -556,8 +550,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *ph
         return FALSE;
     }
 
-    fill_in_pkthdr(buffer, phdr);
-    process_packet_data(phdr, pd, buffer, length, len, k12);
+    process_packet_data(phdr, buf, buffer, len, k12);
 
     K12_DBG(5,("k12_seek_read: DONE OK"));
 

@@ -322,14 +322,12 @@ typedef struct {
 static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err, gchar **err_info);
-static void netxray_set_phdr(wtap *wth, const guint8 *pd, int len,
+static void netxray_set_phdr(wtap *wth, Buffer *buf, int len,
     struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr);
-static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
-    guint32 packet_size, int *err, gchar **err_info);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
@@ -915,7 +913,6 @@ static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
 	guint32	packet_size;
 	union netxrayrec_hdr hdr;
 	int	hdr_size;
-	guint8  *pd;
 
 reread:
 	/*
@@ -989,25 +986,23 @@ reread:
 		packet_size = pletohs(&hdr.old_hdr.len);
 	else
 		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	pd = buffer_start_ptr(wth->frame_buffer);
-	if (!netxray_read_rec_data(wth->fh, pd, packet_size, err, err_info))
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
+	    err, err_info))
 		return FALSE;
 
 	/*
 	 * Fill in the struct wtap_pkthdr.
 	 */
-	netxray_set_phdr(wth, pd, packet_size, &wth->phdr, &hdr);
+	netxray_set_phdr(wth, wth->frame_buffer, packet_size, &wth->phdr, &hdr);
 	return TRUE;
 }
 
 static gboolean
 netxray_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
 	union netxrayrec_hdr hdr;
-	gboolean ret;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -1028,14 +1023,13 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	ret = netxray_read_rec_data(wth->random_fh, pd, length, err, err_info);
-	if (!ret)
+	if (!wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info))
 		return FALSE;
 
 	/*
 	 * Fill in the struct wtap_pkthdr.
 	 */
-	netxray_set_phdr(wth, pd, length, phdr, &hdr);
+	netxray_set_phdr(wth, buf, length, phdr, &hdr);
 	return TRUE;
 }
 
@@ -1083,13 +1077,14 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 }
 
 static void
-netxray_set_phdr(wtap *wth, const guint8 *pd, int len,
+netxray_set_phdr(wtap *wth, Buffer *buf, int len,
     struct wtap_pkthdr *phdr, union netxrayrec_hdr *hdr)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	double	t;
 	guint32	packet_size;
 	guint padding = 0;
+	const guint8 *pd;
 
 	/*
 	 * If this is Ethernet, 802.11, ISDN, X.25, or ATM, set the
@@ -1321,6 +1316,7 @@ netxray_set_phdr(wtap *wth, const guint8 *pd, int len,
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+			pd = buffer_start_ptr(buf);
 			phdr->pseudo_header.atm.flags = 0;
 			/*
 			 * XXX - is 0x08 an "OAM cell" flag?
@@ -1440,24 +1436,6 @@ netxray_set_phdr(wtap *wth, const guint8 *pd, int len,
 		phdr->caplen = packet_size - padding;
 		phdr->len = pletohs(&hdr->hdr_1_x.orig_len) - padding;
 	}
-}
-
-static gboolean
-netxray_read_rec_data(FILE_T fh, guint8 *data_ptr, guint32 packet_size,
-    int *err, gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(data_ptr, packet_size, fh);
-
-	if (bytes_read <= 0 || (guint32)bytes_read != packet_size) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
 }
 
 typedef struct {

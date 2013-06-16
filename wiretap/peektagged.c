@@ -118,7 +118,7 @@ typedef struct {
 static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
@@ -592,16 +592,15 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
     *data_offset = file_tell(wth->fh);
 
-    /* Process the packet header. */
+    /* Process the packet record header. */
     skip_len = peektagged_process_header(wth, wth->fh, &wth->phdr, err, err_info);
     if (skip_len == -1)
 	return FALSE;
 
-    /* read the frame data */
-    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-				  wth->phdr.caplen, wth->fh, err,
-				  err_info);
+    /* Read the packet data. */
+    if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, wth->phdr.caplen,
+                                err, err_info))
+        return FALSE;
 
     if (skip_len != 0) {
 	/* Skip extra junk at the end of the packet data. */
@@ -614,20 +613,17 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
-    /* Process the packet header. */
+    /* Process the packet record header. */
     if (peektagged_process_header(wth, wth->random_fh, phdr, err, err_info) == -1)
 	return FALSE;
 
-    /*
-     * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
-     */
-    errno = WTAP_ERR_CANT_READ;
-    wtap_file_read_expected_bytes(pd, length, wth->random_fh, err, err_info);
-    return TRUE;
+    /* Read the packet data. */
+    return wtap_read_packet_bytes(wth->random_fh, buf, length,
+                                  err, err_info);
 }

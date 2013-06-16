@@ -137,20 +137,17 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, guint8 *pd, int length, int *err, gchar **err_info)
+mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int length, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		*err_info = NULL;
 		return FALSE;
 	}
 
-	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err, err_info);
-
 	mime_set_pkthdr(phdr, length);
 
-	*err = 0;
-	*err_info = NULL;
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, length, err,
+	    err_info);
 }
 
 int

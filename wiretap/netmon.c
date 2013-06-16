@@ -180,12 +180,10 @@ static const int netmon_encap[] = {
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-static gboolean netmon_read_rec_data(FILE_T fh, guint8 *pd, int length,
-    int *err, gchar **err_info);
 static int netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err,
     gchar **err_info);
 static void netmon_sequential_close(wtap *wth);
@@ -447,8 +445,10 @@ netmon_trailer_size(netmon_t *netmon)
 
 static void
 netmon_set_pseudo_header_info(int pkt_encap,
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length)
+    union wtap_pseudo_header *pseudo_header, Buffer *buf, int length)
 {
+	guint8 *pd = buffer_start_ptr(buf);
+
 	switch (pkt_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
@@ -685,7 +685,6 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
 	gint64	rec_offset;
-	guint8	*data_ptr;
 
 again:
 	/* Have we reached the end of the packet data? */
@@ -721,10 +720,8 @@ again:
 	    err, err_info))
 		return FALSE;
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	data_ptr = buffer_start_ptr(wth->frame_buffer);
-	if (!netmon_read_rec_data(wth->fh, data_ptr, wth->phdr.caplen, err,
-	    err_info))
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info))
 		return FALSE;	/* Read error */
 
 	/*
@@ -745,13 +742,13 @@ again:
 	}
 
 	netmon_set_pseudo_header_info(wth->phdr.pkt_encap,
-	    &wth->phdr.pseudo_header, data_ptr, wth->phdr.caplen);
+	    &wth->phdr.pseudo_header, wth->frame_buffer, wth->phdr.caplen);
 	return TRUE;
 }
 
 static gboolean
 netmon_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
@@ -766,7 +763,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	if (!netmon_read_rec_data(wth->random_fh, pd, length, err, err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info))
 		return FALSE;
 
 	/*
@@ -792,7 +789,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 	}
 
 	netmon_set_pseudo_header_info(phdr->pkt_encap,
-	    &phdr->pseudo_header, pd, phdr->caplen);
+	    &phdr->pseudo_header, buf, phdr->caplen);
 
 	return TRUE;
 }
@@ -828,24 +825,6 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
 
-	return TRUE;
-}
-
-static gboolean
-netmon_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-    gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, length, fh);
-
-	if (bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
 	return TRUE;
 }
 

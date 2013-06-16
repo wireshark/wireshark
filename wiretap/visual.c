@@ -163,13 +163,13 @@ struct visual_write_info
 static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int packet_size,
+    struct wtap_pkthdr *phdr, Buffer *buf, int packet_size,
     int *err, gchar **err_info);
 static gboolean visual_process_packet_header(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, struct visual_pkt_hdr *vpkt_hdrp,
     int *err, gchar **err_info);
 static void visual_fill_in_chdlc_encapsulation(struct wtap_pkthdr *phdr,
-            guint8 encap_hint, guint8 *buf);
+            guint8 encap_hint, Buffer *buf);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
@@ -291,7 +291,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
-    int bytes_read;
     struct visual_pkt_hdr vpkt_hdr;
 
     /* Check for the end of the packet data.  Note that a check for file EOF
@@ -310,34 +309,24 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
             err, err_info))
         return FALSE;
 
-    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
-            wth->phdr.caplen, wth->fh);
-
-    if (bytes_read < 0 || (guint32)bytes_read != wth->phdr.caplen)
-    {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, wth->phdr.caplen,
+            err, err_info))
         return FALSE;
-    }
 
     if (wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
     {
         visual_fill_in_chdlc_encapsulation(&wth->phdr, vpkt_hdr.encap_hint,
-                    buffer_start_ptr(wth->frame_buffer));
+                    wth->frame_buffer);
     }
     return TRUE;
 }
 
 /* Read packet header and data for random access. */
 static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int len,
+    struct wtap_pkthdr *phdr, Buffer *buf, int len,
     int *err, gchar **err_info)
 {
     struct visual_pkt_hdr vpkt_hdr;
-    int bytes_read;
 
     /* Seek to the packet header */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -349,17 +338,12 @@ static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
 
     /* Read the packet data. */
-    errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(pd, len, wth->random_fh);
-    if (bytes_read != len) {
-    	if (*err == 0)
-    	    *err = WTAP_ERR_SHORT_READ;
+    if (!wtap_read_packet_bytes(wth->random_fh, buf, len, err, err_info))
         return FALSE;
-    }
 
     if (wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
     {
-        visual_fill_in_chdlc_encapsulation(phdr, vpkt_hdr.encap_hint, pd);
+        visual_fill_in_chdlc_encapsulation(phdr, vpkt_hdr.encap_hint, buf);
     }
 
     return TRUE;
@@ -604,8 +588,10 @@ visual_process_packet_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static void visual_fill_in_chdlc_encapsulation(struct wtap_pkthdr *phdr,
-            guint8 encap_hint, guint8 *buf)
+            guint8 encap_hint, Buffer *buf)
 {
+    guint8 *pd;
+
     /* Fill in the encapsulation.  Visual files have a media type in the
        file header and an encapsulation type in each packet header.  Files
        with a media type of HDLC can be either Cisco EtherType or PPP.
@@ -622,13 +608,15 @@ static void visual_fill_in_chdlc_encapsulation(struct wtap_pkthdr *phdr,
        be configured for auto-detect, in which case the encapsulation
        hint is 13, and the encapsulation must be guessed from the
        packet contents.  Auto-detect is the default. */
+    pd = buffer_start_ptr(buf);
+
     /* If PPP is specified in the encap hint, then use that */
     if (encap_hint == 14)
     {
         /* But first we need to examine the first three octets to
            try to determine the proper encapsulation, see RFC 2364. */
         if (phdr->caplen >= 3 &&
-            (0xfe == buf[0]) && (0xfe == buf[1]) && (0x03 == buf[2]))
+            (0xfe == pd[0]) && (0xfe == pd[1]) && (0x03 == pd[2]))
         {
             /* It is actually LLC encapsulated PPP */
             phdr->pkt_encap = WTAP_ENCAP_ATM_RFC1483;
@@ -643,7 +631,7 @@ static void visual_fill_in_chdlc_encapsulation(struct wtap_pkthdr *phdr,
     {
         /* Otherwise, we need to examine the first two octets to
            try to determine the encapsulation. */
-        if (phdr->caplen >= 2 && (0xff == buf[0]) && (0x03 == buf[1]))
+        if (phdr->caplen >= 2 && (0xff == pd[0]) && (0x03 == pd[1]))
         {
             /* It is actually PPP */
             phdr->pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;

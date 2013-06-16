@@ -68,15 +68,16 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err);
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static gboolean libpcap_process_header(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
-static gboolean libpcap_read_rec_data(FILE_T fh, guint8 *pd, int length,
-    int *err, gchar **err_info);
+static gboolean libpcap_process_packet_bytes(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length, int *err,
+    gchar **err_info);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
 
@@ -598,47 +599,27 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	libpcap_t *libpcap;
-
 	*data_offset = file_tell(wth->fh);
 
 	if (!libpcap_process_header(wth, wth->fh, &wth->phdr, err, err_info))
 		return FALSE;
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	if (!libpcap_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    wth->phdr.caplen, err, err_info))
-		return FALSE;	/* Read error */
-
-	libpcap = (libpcap_t *)wth->priv;
-	pcap_read_post_process(wth->file_type, wth->file_encap,
-	    &wth->phdr.pseudo_header, buffer_start_ptr(wth->frame_buffer),
-	    wth->phdr.caplen, libpcap->byte_swapped, -1);
-	return TRUE;
+	return libpcap_process_packet_bytes(wth, wth->fh, &wth->phdr,
+	    wth->frame_buffer, wth->phdr.caplen, err, err_info);
 }
 
 static gboolean
 libpcap_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    guint8 *pd, int length, int *err, gchar **err_info)
+    Buffer *buf, int length, int *err, gchar **err_info)
 {
-	libpcap_t *libpcap;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	if (!libpcap_process_header(wth, wth->random_fh, phdr, err, err_info))
 		return FALSE;
 
-	/*
-	 * Read the packet data.
-	 */
-	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err, err_info))
-		return FALSE;	/* failed */
-
-	libpcap = (libpcap_t *)wth->priv;
-	pcap_read_post_process(wth->file_type, wth->file_encap,
-	    &phdr->pseudo_header, pd, length, libpcap->byte_swapped, -1);
-	return TRUE;
+	return libpcap_process_packet_bytes(wth, wth->random_fh, phdr, buf,
+	    length, err, err_info);
 }
 
 static gboolean
@@ -649,7 +630,6 @@ libpcap_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	guint packet_size;
 	guint orig_size;
 	int bytes_read;
-	guint8 fddi_padding[3];
 	int phdr_len;
 
 	bytes_read = libpcap_read_header(wth, fh, err, err_info, &hdr);
@@ -678,11 +658,10 @@ libpcap_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		orig_size -= 3;
 
 		/*
-		 * Read the padding.
+		 * Skip the padding.
 		 */
-		if (!libpcap_read_rec_data(fh, fddi_padding, 3, err,
-		    err_info))
-			return FALSE;	/* Read error */
+		if (!file_skip(fh, 3, err))
+			return FALSE;
 	}
 
 	phdr_len = pcap_process_pseudo_header(fh, wth->file_type,
@@ -839,20 +818,21 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 }
 
 static gboolean
-libpcap_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-    gchar **err_info)
+libpcap_process_packet_bytes(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+    Buffer *buf, int length, int *err, gchar **err_info)
 {
-	int	bytes_read;
+	libpcap_t *libpcap;
 
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, length, fh);
+	/*
+	 * Read the packet data.
+	 */
+	if (!wtap_read_packet_bytes(fh, buf, length, err, err_info))
+		return FALSE;	/* failed */
 
-	if (bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
+	libpcap = (libpcap_t *)wth->priv;
+	pcap_read_post_process(wth->file_type, wth->file_encap,
+	    &phdr->pseudo_header, buffer_start_ptr(buf), length,
+	    libpcap->byte_swapped, -1);
 	return TRUE;
 }
 

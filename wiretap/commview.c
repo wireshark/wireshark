@@ -84,7 +84,7 @@ static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
 			      gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   struct wtap_pkthdr *phdr,
-				   guint8 *pd, int length, int *err,
+				   Buffer *buf, int length, int *err,
 				   gchar **err_info);
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				     int *err, gchar **err_info);
@@ -188,22 +188,6 @@ commview_read_and_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-commview_read_record_data(FILE_T fh, guint8 *buf, guint len, int *err,
-			  gchar **err_info)
-{
-	int bytes_read;
-
-	bytes_read = file_read(buf, len, fh);
-	if(bytes_read != (int)len) {
-		*err = file_error(fh, err_info);
-		if(*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
-}
-
-static gboolean
 commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -212,17 +196,13 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	    err_info))
 		return FALSE;
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	if(!commview_read_record_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    wth->phdr.caplen, err, err_info))
-		return FALSE;
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-		   guint8 *pd, int length, int *err, gchar **err_info)
+		   Buffer *buf, int length, int *err, gchar **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -240,11 +220,8 @@ commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
-	if(!commview_read_record_data(wth->random_fh, pd, phdr->caplen,
-	    err, err_info))
-		return FALSE;
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
+	    err, err_info);
 }
 
 static gboolean

@@ -104,12 +104,10 @@ typedef struct
 static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
-static gboolean _5views_read_rec_data(FILE_T fh, guint8 *pd, int length,
-    int *err, gchar **err_info);
 
 static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err);
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
@@ -239,17 +237,13 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	if (!_5views_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    wth->phdr.caplen, err, err_info))
-		return FALSE;	/* Read error */
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean
 _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    guint8 *pd, int length, int *err, gchar **err_info)
+    Buffer *buf, int length, int *err, gchar **err_info)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 
@@ -266,10 +260,8 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	/*
 	 * Read the packet data.
 	 */
-	if (!_5views_read_rec_data(wth->random_fh, pd, length, err, err_info))
-		return FALSE;
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, length,
+	    err, err_info);
 }
 
 /* Read the header of the next packet.  Return TRUE on success, FALSE
@@ -319,24 +311,6 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 		break;
 	}
 
-	return TRUE;
-}
-
-static gboolean
-_5views_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-   gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, length, fh);
-
-	if (bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
 	return TRUE;
 }
 

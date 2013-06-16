@@ -608,10 +608,14 @@ static guint8       get_cck_rate(guint8 *plcp);
 static void         setup_defaults(vwr_t *, guint16);
 
 static gboolean     vwr_read(wtap *, int *, gchar **, gint64 *);
-static gboolean     vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr, guchar *,
-                                  int, int *, gchar **);
+static gboolean     vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr,
+                                  Buffer *, int, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
+static gboolean     vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size,
+                                         struct wtap_pkthdr *phdr, Buffer *buf,
+                                         vwr_t *vwr, int IS_TX, int *err,
+                                         gchar **err_info);
 static void         vwr_read_rec_data(wtap *, struct wtap_pkthdr *, guint8 *, guint8 *, int);
 
 static int          vwr_get_fpga_version(wtap *, int *, gchar **);
@@ -691,10 +695,7 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
 static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     vwr_t       *vwr = (vwr_t *)wth->priv;
-    guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
     int         rec_size = 0, IS_TX;
-    guint8      *data_ptr;
-    guint16     pkt_len;                            /* length of radiotap headers */
 
     /* read the next frame record header in the capture file; if no more frames, return */
     if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info))
@@ -702,49 +703,10 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     *data_offset = (file_tell(wth->fh) - 16);           /* set offset for random seek @PLCP */
 
-    /* got a frame record; read over entire record (frame + trailer) into a local buffer */
-    /* if we don't get it all, then declare an error, we can't process the frame */
-    if (file_read(rec, rec_size, wth->fh) != rec_size) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
-        return(FALSE);
-    }
-
-    if (rec_size < (int)vwr->STATS_LEN) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-            *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
-            *err = WTAP_ERR_BAD_FILE;
-        return(FALSE);
-    }
-
-    /* before writing anything out, make sure the buffer has enough space for everything */
-    if ((vwr->FPGA_VERSION == vVW510021_W_FPGA) || (vwr->FPGA_VERSION == vVW510006_W_FPGA) )
-    /* frames are always 802.11 with an extended radiotap header */
-        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN);
-    else
-        /* frames are always ethernet with an extended ethernettap header */
-        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN);
-    buffer_assure_space(wth->frame_buffer, pkt_len);
-    data_ptr = buffer_start_ptr(wth->frame_buffer);
-
-    /* now format up the frame data */
-    switch (vwr->FPGA_VERSION)
-    {
-        case vVW510006_W_FPGA:
-            vwr_read_rec_data(wth, &wth->phdr, data_ptr, rec, rec_size);
-            break;
-        case vVW510021_W_FPGA:
-            vwr_read_rec_data_vVW510021(wth, &wth->phdr, data_ptr, rec, rec_size, IS_TX);
-            break;
-        case vVW510012_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, &wth->phdr, data_ptr, rec, rec_size, IS_TX);
-            break;
-        case vVW510024_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, &wth->phdr, data_ptr, rec, rec_size, IS_TX);
-            break;
-    }
+    /* got a frame record; read and process it */
+    if (!vwr_process_rec_data(wth, wth->fh, rec_size, &wth->phdr,
+                              wth->frame_buffer, vwr, IS_TX, err, err_info))
+       return(FALSE);
 
     /* If the per-file encapsulation isn't known, set it to this packet's encapsulation */
     /* If it *is* known, and it isn't this packet's encapsulation, set it to */
@@ -763,11 +725,10 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 /* read a random frame in the middle of a file; the start of the PLCP frame is @ seek_off */
 
 static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guchar *pd, int pkt_size _U_,
+    struct wtap_pkthdr *phdr, Buffer *buf, int pkt_size _U_,
     int *err, gchar **err_info)
 {
     vwr_t       *vwr = (vwr_t *)wth->priv;
-    guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
     int         rec_size, IS_TX;
 
     /* first seek to the indicated record header */
@@ -778,32 +739,8 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
     if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, err, err_info))
         return(FALSE);                                  /* Read error or EOF */
 
-    /* read over the entire record (frame + trailer) into a local buffer */
-    /* if we don't get it all, then declare an error, we can't process the frame */
-    if (file_read(rec, rec_size, wth->random_fh) != rec_size) {
-        *err = file_error(wth->random_fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
-        return(FALSE);
-    }
-
-    /* now format up the frame data into the passed buffer, according to the FPGA type */
-    switch (vwr->FPGA_VERSION) {
-        case vVW510006_W_FPGA:
-            vwr_read_rec_data(wth, phdr, pd, rec, rec_size);
-            break;
-        case vVW510021_W_FPGA:
-            vwr_read_rec_data_vVW510021(wth, phdr, pd, rec, rec_size, IS_TX);
-            break;
-        case vVW510012_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, phdr, pd, rec, rec_size, IS_TX);
-            break;
-        case vVW510024_E_FPGA:
-            vwr_read_rec_data_ethernet(wth, phdr, pd, rec, rec_size, IS_TX);
-            break;
-    }
-
-    return(TRUE);
+    return vwr_process_rec_data(wth, wth->random_fh, rec_size, phdr, buf,
+                                vwr, IS_TX, err, err_info);
 }
 
 /* scan down in the input capture file to find the next frame header */
@@ -993,6 +930,59 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
         return(-1);
     return(UNKNOWN_FPGA); /* short read - not a vwr file */
+}
+
+static gboolean
+vwr_process_rec_data(wtap *wth, FILE_T fh, int rec_size,
+                     struct wtap_pkthdr *phdr, Buffer *buf, vwr_t *vwr,
+                     int IS_TX, int *err, gchar **err_info)
+{
+    guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
+    guint16     pkt_len;                            /* length of radiotap headers */
+    guint8      *data_ptr;
+
+    /* read over the entire record (frame + trailer) into a local buffer */
+    /* if we don't get it all, then declare an error, we can't process the frame */
+    if (file_read(rec, rec_size, fh) != rec_size) {
+        *err = file_error(fh, err_info);
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        return(FALSE);
+    }
+
+    if (rec_size < (int)vwr->STATS_LEN) {
+        *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
+        *err = WTAP_ERR_BAD_FILE;
+        return(FALSE);
+    }
+
+    /* before writing anything out, make sure the buffer has enough space for everything */
+    if ((vwr->FPGA_VERSION == vVW510021_W_FPGA) || (vwr->FPGA_VERSION == vVW510006_W_FPGA) )
+    /* frames are always 802.11 with an extended radiotap header */
+        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN);
+    else
+        /* frames are always ethernet with an extended ethernettap header */
+        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN);
+    buffer_assure_space(buf, pkt_len);
+    data_ptr = buffer_start_ptr(buf);
+
+    /* now format up the frame data into the passed buffer, according to the FPGA type */
+    switch (vwr->FPGA_VERSION)
+    {
+        case vVW510006_W_FPGA:
+            vwr_read_rec_data(wth, phdr, data_ptr, rec, rec_size);
+            break;
+        case vVW510021_W_FPGA:
+            vwr_read_rec_data_vVW510021(wth, phdr, data_ptr, rec, rec_size, IS_TX);
+            break;
+        case vVW510012_E_FPGA:
+            vwr_read_rec_data_ethernet(wth, phdr, data_ptr, rec, rec_size, IS_TX);
+            break;
+        case vVW510024_E_FPGA:
+            vwr_read_rec_data_ethernet(wth, phdr, data_ptr, rec, rec_size, IS_TX);
+            break;
+    }
+    return(TRUE);
 }
 
 /* copy the actual packet data from the capture file into the target data block */

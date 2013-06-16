@@ -79,7 +79,7 @@ static const ascend_magic_string ascend_magic[] = {
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -162,7 +162,6 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 {
   gint64 offset;
   ws_statb64 statbuf;
-  guint8 buf[ASCEND_MAX_PKT_LEN];
   ascend_t *ascend;
 
   /* We haven't yet allocated a data structure for our private stuff;
@@ -179,7 +178,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
   init_parse_ascend();
-  if (parse_ascend(NULL, wth->fh, &wth->phdr, buf) != PARSED_RECORD) {
+  if (!check_ascend(wth->fh, &wth->phdr)) {
     return 0;
   }
 
@@ -245,9 +244,8 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   offset = ascend_seek(wth, err, err_info);
   if (offset == -1)
     return FALSE;
-  buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
-  if (parse_ascend(ascend, wth->fh, &wth->phdr,
-                   buffer_start_ptr(wth->frame_buffer)) != PARSED_RECORD) {
+  if (parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
+                   wth->snapshot_length) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
@@ -258,14 +256,15 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len _U_,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len _U_,
 	int *err, gchar **err_info)
 {
   ascend_t *ascend = (ascend_t *)wth->priv;
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (parse_ascend(ascend, wth->random_fh, phdr, pd) != PARSED_RECORD) {
+  if (parse_ascend(ascend, wth->random_fh, phdr, buf,
+                   wth->snapshot_length) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;

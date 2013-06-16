@@ -76,48 +76,27 @@ static gboolean hcidump_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
 static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	guint8 *buf;
-	int bytes_read;
-
 	*data_offset = file_tell(wth->fh);
 
 	if (!hcidump_process_header(wth->fh, &wth->phdr, err, err_info))
 		return FALSE;
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	buf = buffer_start_ptr(wth->frame_buffer);
-
-	bytes_read = file_read(buf, wth->phdr.caplen, wth->fh);
-	if (bytes_read == -1 || (guint32)bytes_read != wth->phdr.caplen) {
-		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
-	int bytes_read;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	if (!hcidump_process_header(wth->random_fh, phdr, err, err_info))
 		return FALSE;
 
-	bytes_read = file_read(pd, length, wth->random_fh);
-	if (bytes_read != length) {
-		*err = file_error(wth->random_fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, length,
+	    err, err_info);
 }
 
 int hcidump_open(wtap *wth, int *err, gchar **err_info)

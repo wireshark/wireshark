@@ -117,12 +117,10 @@ typedef struct {
 static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
-static gboolean aethra_read_rec_data(FILE_T fh, guint8 *pd, int length,
-    int *err, gchar **err_info);
 
 int aethra_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -208,8 +206,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		 * growing the buffer to handle it.
 		 */
 		if (wth->phdr.caplen != 0) {
-			buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-			if (!aethra_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+			if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
 			    wth->phdr.caplen, err, err_info))
 				return FALSE;	/* Read error */
 		}
@@ -281,7 +278,7 @@ found:
 
 static gboolean
 aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    guint8 *pd, int length, int *err, gchar **err_info)
+    Buffer *buf, int length, int *err, gchar **err_info)
 {
 	struct aethrarec_hdr hdr;
 
@@ -294,7 +291,7 @@ aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	/*
 	 * Read the packet data.
 	 */
-	if (!aethra_read_rec_data(wth->random_fh, pd, length, err, err_info))
+	if (!wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info))
 		return FALSE;	/* failed */
 
 	return TRUE;
@@ -341,23 +338,5 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 	phdr->pseudo_header.isdn.uton = (hdr->flags & AETHRA_U_TO_N);
 	phdr->pseudo_header.isdn.channel = 0;	/* XXX - D channel */
 
-	return TRUE;
-}
-
-static gboolean
-aethra_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-    gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, length, fh);
-
-	if (bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
 	return TRUE;
 }

@@ -100,7 +100,7 @@ typedef enum {
 static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info);
 
 /*
@@ -339,9 +339,6 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	pppdump_t	*state;
 	pkt_id		*pid;
 
-	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
-	buf = buffer_start_ptr(wth->frame_buffer);
-
 	state = (pppdump_t *)wth->priv;
 
 	/* If we have a random stream open, allocate a structure to hold
@@ -355,6 +352,9 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		pid->offset = 0;
 	} else
 		pid = NULL;	/* sequential only */
+
+	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
+	buf = buffer_start_ptr(wth->frame_buffer);
 
 	if (!collate(state, wth->fh, err, err_info, buf, &num_bytes, &direction,
 	    pid, 0)) {
@@ -722,12 +722,13 @@ static gboolean
 pppdump_seek_read(wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
-		 guint8 *pd,
+		 Buffer *buf,
 		 int len,
 		 int *err,
 		 gchar **err_info)
 {
 	int		num_bytes;
+	guint8		*pd;
 	direction_enum	direction;
 	pppdump_t	*state;
 	pkt_id		*pid;
@@ -747,6 +748,9 @@ pppdump_seek_read(wtap *wth,
 
 	init_state(state->seek_state);
 	state->seek_state->offset = pid->offset;
+
+	buffer_assure_space(buf, PPPD_BUF_SIZE);
+	pd = buffer_start_ptr(buf);
 
 	/*
 	 * We'll start reading at the first record containing data from

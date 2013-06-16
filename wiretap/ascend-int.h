@@ -53,12 +53,13 @@ int ascendlex(void);
 
 void init_parse_ascend(void);
 void ascend_init_lexer(FILE_T fh);
+gboolean check_ascend(FILE_T fh, struct wtap_pkthdr *phdr);
 typedef enum {
     PARSED_RECORD,
     PARSED_NONRECORD,
     PARSE_FAILED
 } parse_t;
 parse_t parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr,
-		guint8 *pd);
+		Buffer *buf, guint length);
 
 #endif /* ! __ASCEND_INT_H__ */

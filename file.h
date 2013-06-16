@@ -145,15 +145,15 @@ cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
  * @param fdata the frame_data structure for the packet in question
  * @param phdr pointer to a wtap_pkthdr structure to contain the
  * packet's pseudo-header and other metadata
- * @param pd a guin8 array into which to read the packet's raw data
+ * @param buf a Buffer into which to read the packet's raw data
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
 gboolean cf_read_frame_r(capture_file *cf, frame_data *fdata,
-                         struct wtap_pkthdr *phdr, guint8 *pd);
+                         struct wtap_pkthdr *phdr, Buffer *buf);
 
 /**
  * Read the pseudo-header and raw data for a packet into a
- * capture_file structure's pseudo_header and pd members.
+ * capture_file structure's pseudo_header and buf members.
  * It will pop up an alert box if there's an error.
  *
  * @param cf the capture file from which to read the packet

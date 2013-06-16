@@ -85,7 +85,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static void
 pcapng_close(wtap *wth);
@@ -381,7 +381,7 @@ typedef struct wtapng_block_s {
          * in fact, they sometimes point to const values.
          */
         struct wtap_pkthdr *packet_header;
-        const guint8 *frame_buffer;
+        Buffer *frame_buffer;
         int *file_encap;
 } wtapng_block_t;
 
@@ -1178,16 +1178,10 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         /* "(Enhanced) Packet Block" read capture data */
         errno = WTAP_ERR_CANT_READ;
-        bytes_read = file_read((guint8 *) (wblock->frame_buffer), wblock->data.packet.cap_len - pseudo_header_len, fh);
-        if (bytes_read != (int) (wblock->data.packet.cap_len - pseudo_header_len)) {
-                *err = file_error(fh, err_info);
-                pcapng_debug1("pcapng_read_packet_block: couldn't read %u bytes of captured data",
-                              wblock->data.packet.cap_len - pseudo_header_len);
-                if (*err == 0)
-                        *err = WTAP_ERR_SHORT_READ;
-                return 0;
-        }
-        block_read += bytes_read;
+	if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
+	    wblock->data.packet.cap_len - pseudo_header_len, err, err_info))
+		return FALSE;
+        block_read += wblock->data.packet.cap_len - pseudo_header_len;
 
         /* jump over potential padding bytes at end of the packet data */
         if (padding != 0) {
@@ -1303,7 +1297,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
         pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)&wblock->packet_header->pseudo_header,
-            (guint8 *) (wblock->frame_buffer),
+            buffer_start_ptr(wblock->frame_buffer),
             (int) (wblock->data.packet.cap_len - pseudo_header_len),
             pn->byte_swapped, fcslen);
         return block_read;
@@ -1423,16 +1417,10 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
         /* "Simple Packet Block" read capture data */
         errno = WTAP_ERR_CANT_READ;
-        bytes_read = file_read((guint8 *) (wblock->frame_buffer), wblock->data.simple_packet.cap_len, fh);
-        if (bytes_read != (int) wblock->data.simple_packet.cap_len) {
-                *err = file_error(fh, err_info);
-                pcapng_debug1("pcapng_read_simple_packet_block: couldn't read %u bytes of captured data",
-                              wblock->data.simple_packet.cap_len);
-                if (*err == 0)
-                        *err = WTAP_ERR_SHORT_READ;
-                return 0;
-        }
-        block_read += bytes_read;
+	if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
+	    wblock->data.simple_packet.cap_len, err, err_info))
+		return FALSE;
+        block_read += wblock->data.simple_packet.cap_len;
 
         /* jump over potential padding bytes at end of the packet data */
         if ((wblock->data.simple_packet.cap_len % 4) != 0) {
@@ -1447,7 +1435,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
         pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)&wblock->packet_header->pseudo_header,
-            (guint8 *) (wblock->frame_buffer),
+            buffer_start_ptr(wblock->frame_buffer),
             (int) wblock->data.simple_packet.cap_len,
             pn->byte_swapped, pn->if_fcslen);
         return block_read;
@@ -2283,16 +2271,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         *data_offset = file_tell(wth->fh);
         pcapng_debug1("pcapng_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
-        /* XXX - This should be done in the packet block reading function and
-         * should make use of the caplen of the packet.
-         */
-        if (wth->snapshot_length > 0) {
-                buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
-        } else {
-                buffer_assure_space(wth->frame_buffer, WTAP_MAX_PACKET_SIZE);
-        }
-
-        wblock.frame_buffer  = buffer_start_ptr(wth->frame_buffer);
+        wblock.frame_buffer  = wth->frame_buffer;
         wblock.packet_header = &wth->phdr;
         wblock.file_encap    = &wth->file_encap;
 
@@ -2400,7 +2379,7 @@ got_packet:
 /* classic wtap: seek to file position and read packet */
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length _U_,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
         pcapng_t *pcapng = (pcapng_t *)wth->priv;
@@ -2416,14 +2395,13 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         }
         pcapng_debug1("pcapng_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
 
-        wblock.frame_buffer = pd;
+        wblock.frame_buffer = buf;
         wblock.packet_header = phdr;
         wblock.file_encap = &wth->file_encap;
 
         /* read the block */
         bytes_read = pcapng_read_block(wth->random_fh, FALSE, pcapng, &wblock, err, err_info);
         if (bytes_read <= 0) {
-                *err = file_error(wth->random_fh, err_info);
                 pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
                               *err, errno, bytes_read);
                 return FALSE;

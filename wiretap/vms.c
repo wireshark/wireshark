@@ -144,11 +144,11 @@ to handle them.
 static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int len,
+    struct wtap_pkthdr *phdr, Buffer *buf, int len,
     int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
-static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
+static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, Buffer *buf,
     int *err, gchar **err_info);
 static gboolean parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
     int *err, gchar **err_info);
@@ -264,7 +264,6 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     gint64   offset = 0;
-    guint8    *buf;
 
     /* Find the next packet */
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
@@ -281,12 +280,8 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     if (!parse_vms_rec_hdr(wth->fh, &wth->phdr, err, err_info))
 	return FALSE;
 
-    /* Make sure we have enough room for the packet */
-    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    buf = buffer_start_ptr(wth->frame_buffer);
-
     /* Convert the ASCII hex dump to binary data */
-    if (!parse_vms_hex_dump(wth->fh, wth->phdr.caplen, buf, err, err_info))
+    if (!parse_vms_hex_dump(wth->fh, wth->phdr.caplen, wth->frame_buffer, err, err_info))
         return FALSE;
 
     *data_offset = offset;
@@ -295,8 +290,8 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-vms_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    guint8 *pd, int len, int *err, gchar **err_info)
+vms_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+    Buffer *buf, int len, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
@@ -311,7 +306,7 @@ vms_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
         return FALSE;
     }
 
-    return parse_vms_hex_dump(wth->random_fh, phdr->caplen, pd, err, err_info);
+    return parse_vms_hex_dump(wth->random_fh, phdr->caplen, buf, err, err_info);
 }
 
 /* isdumpline assumes that dump lines start with some non-alphanumerics
@@ -430,13 +425,19 @@ parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_inf
 
 /* Converts ASCII hex dump to binary data */
 static gboolean
-parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
+parse_vms_hex_dump(FILE_T fh, int pkt_len, Buffer *buf, int *err,
     gchar **err_info)
 {
     gchar line[VMS_LINE_LENGTH + 1];
     int    i;
     int    offset = 0;
+    guint8 *pd;
 
+    /* Make sure we have enough room for the packet */
+    buffer_assure_space(buf, pkt_len);
+    pd = buffer_start_ptr(buf);
+
+    /* Convert the ASCII hex dump to binary data */
     for (i = 0; i < pkt_len; i += 16) {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
             *err = file_error(fh, err_info);
@@ -460,7 +461,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
             while (line[offset] && !isxdigit((guchar)line[offset]))
                 offset++;
 	}
-	if (!parse_single_hex_dump_line(line, buf, i,
+	if (!parse_single_hex_dump_line(line, pd, i,
 					offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_FILE;
 	    *err_info = g_strdup_printf("vms: hex dump not valid");

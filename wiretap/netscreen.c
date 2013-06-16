@@ -72,14 +72,14 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err,
 static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd,
+	struct wtap_pkthdr *phdr, Buffer *buf,
 	int len, int *err, gchar **err_info);
 static int parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	char *cap_int, gboolean *cap_dir, char *cap_dst,
 	int *err, gchar **err_info);
 static gboolean parse_netscreen_hex_dump(FILE_T fh, int pkt_len,
 	const char *cap_int, const char *cap_dst, struct wtap_pkthdr *phdr,
-	guint8* buf, int *err, gchar **err_info);
+	Buffer* buf, int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
@@ -196,7 +196,6 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64		offset;
-	guint8		*buf;
 	int		pkt_len;
 	char		line[NETSCREEN_LINE_LENGTH];
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
@@ -214,14 +213,10 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	if (pkt_len == -1)
 		return FALSE;
 
-	/* Make sure we have enough room for the packet */
-	buffer_assure_space(wth->frame_buffer, NETSCREEN_MAX_PACKET_LEN);
-	buf = buffer_start_ptr(wth->frame_buffer);
-
 	/* Convert the ASCII hex dump to binary data, and fill in some
 	   struct wtap_pkthdr fields */
 	if (!parse_netscreen_hex_dump(wth->fh, pkt_len, cap_int,
-	    cap_dst, &wth->phdr, buf, err, err_info))
+	    cap_dst, &wth->phdr, wth->frame_buffer, err, err_info))
 		return FALSE;
 
 	/*
@@ -245,8 +240,8 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-netscreen_seek_read (wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, guint8 *pd, int len,
+netscreen_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info)
 {
 	char		line[NETSCREEN_LINE_LENGTH];
@@ -272,7 +267,7 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 	}
 
 	if (!parse_netscreen_hex_dump(wth->random_fh, len, cap_int, cap_dst,
-	    phdr, pd, err, err_info))
+	    phdr, buf, err, err_info))
 		return FALSE;
 	return TRUE;
 }
@@ -325,13 +320,18 @@ parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line, char *cap_in
    wtap_pkthdr fields.  Returns TRUE on success and FALSE on any error. */
 static gboolean
 parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
-    const char *cap_dst, struct wtap_pkthdr *phdr, guint8* buf,
+    const char *cap_dst, struct wtap_pkthdr *phdr, Buffer* buf,
     int *err, gchar **err_info)
 {
+	guint8	*pd;
 	gchar	line[NETSCREEN_LINE_LENGTH];
 	gchar	*p;
 	int	n, i = 0, offset = 0;
 	gchar	dststr[13];
+
+	/* Make sure we have enough room for the packet */
+	buffer_assure_space(buf, NETSCREEN_MAX_PACKET_LEN);
+	pd = buffer_start_ptr(buf);
 
 	while(1) {
 
@@ -355,7 +355,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 			break;
 		}
 		
-		n = parse_single_hex_dump_line(p, buf, offset);
+		n = parse_single_hex_dump_line(p, pd, offset);
 
 		/* the smallest packet has a length of 6 bytes, if
 		 * the first hex-data is less then check whether 
@@ -410,7 +410,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
                  * LinkLayer or else PPP
                  */
                 g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
-                   buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+                   pd[0], pd[1], pd[2], pd[3], pd[4], pd[5]);
                 if (strncmp(dststr, cap_dst, 12) == 0) 
 		        phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
                 else

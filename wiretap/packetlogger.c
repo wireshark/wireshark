@@ -50,7 +50,7 @@ static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
 				  gint64 *data_offset);
 static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
 				       struct wtap_pkthdr *phdr,
-				       guint8 *pd, int length, int *err,
+				       Buffer *buf, int length, int *err,
 				       gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
 					 FILE_T fh, int *err, gchar **err_info);
@@ -98,34 +98,19 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 static gboolean
 packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	guint bytes_read;
-
 	*data_offset = file_tell(wth->fh);
 
 	if(!packetlogger_process_header(wth->fh, &wth->phdr, err, err_info))
 		return FALSE;
 
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
-			       wth->phdr.caplen,
-			       wth->fh);
-	if(bytes_read != wth->phdr.caplen) {
-		*err = file_error(wth->fh, err_info);
-		if(*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-
-		return FALSE;
-	}
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean
 packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-		       guint8 *pd, int length, int *err, gchar **err_info)
+		       Buffer *buf, int length, int *err, gchar **err_info)
 {
-	guint bytes_read;
-
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
@@ -142,16 +127,8 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
-	bytes_read = file_read(pd, phdr->caplen, wth->random_fh);
-	if(bytes_read != phdr->caplen) {
-		*err = file_error(wth->random_fh, err_info);
-		if(*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-
-		return FALSE;
-	}
-
-	return TRUE;
+	return wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
+	    err, err_info);
 }
 
 static gboolean

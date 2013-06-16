@@ -68,7 +68,7 @@ static int erf_read_header(FILE_T fh,
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-                              struct wtap_pkthdr *phdr, guint8 *pd,
+                              struct wtap_pkthdr *phdr, Buffer *buf,
                               int length, int *err, gchar **err_info);
 
 static const struct {
@@ -297,10 +297,9 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
       return FALSE;
     }
 
-    buffer_assure_space(wth->frame_buffer, packet_size);
-
-    wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-                                  (gint32)(packet_size), wth->fh, err, err_info);
+    if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
+                                err, err_info))
+      return FALSE;
 
   } while ( erf_header.type == ERF_TYPE_PAD );
 
@@ -308,7 +307,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-                              struct wtap_pkthdr *phdr, guint8 *pd,
+                              struct wtap_pkthdr *phdr, Buffer *buf,
                               int length _U_, int *err, gchar **err_info)
 {
   erf_header_t erf_header;
@@ -323,10 +322,8 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
       return FALSE;
   } while ( erf_header.type == ERF_TYPE_PAD );
 
-  wtap_file_read_expected_bytes(pd, (int)packet_size, wth->random_fh, err,
-                                err_info);
-
-  return TRUE;
+  return wtap_read_packet_bytes(wth->random_fh, buf, packet_size,
+                                err, err_info);
 }
 
 static int erf_read_header(FILE_T fh,

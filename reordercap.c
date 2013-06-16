@@ -82,16 +82,16 @@ typedef struct FrameRecord_t {
 
 
 static void
-frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
+frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf)
 {
     int    err;
     gchar  *errinfo;
     struct wtap_pkthdr phdr;
-    guint8 buf[65535];
 
     DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u, length=%u)\n", 
                 frame->offset, frame->length);
 
+    
     /* Re-read the first frame from the stored location */
     wtap_seek_read(wth,
                    frame->offset,
@@ -107,7 +107,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh)
     phdr.ts = frame->time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, &phdr, buf, &err)) {
+    if (!wtap_dump(pdh, &phdr, buffer_start_ptr(buf), &err)) {
         printf("Error (%s) writing frame to outfile\n", wtap_strerror(err));
         exit(1);
     }
@@ -155,6 +155,7 @@ int main(int argc, char *argv[])
 {
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
+    Buffer buf;
     int err;
     gchar *err_info;
     gint64 data_offset;
@@ -239,15 +240,17 @@ int main(int argc, char *argv[])
     }
 
     /* Write out each sorted frame in turn */
+    buffer_init(&buf, 1500);
     for (i = 0; i < frames->len; i++) {
         FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
         /* Avoid writing if already sorted and configured to */
         if (write_output_regardless || (wrong_order_count > 0)) {
-            frame_write(frame, wth, pdh);
+            frame_write(frame, wth, pdh, &buf);
         }
         g_slice_free(FrameRecord_t, frame);
     }
+    buffer_free(&buf);
 
     if (!write_output_regardless && (wrong_order_count == 0)) {
         printf("Not writing output file because input file is already in order!\n");

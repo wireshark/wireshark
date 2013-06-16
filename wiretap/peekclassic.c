@@ -143,14 +143,14 @@ typedef struct {
 static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static gboolean peekclassic_process_record_header_v7(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, guint *sliceLengthp, int *err, gchar **err_info);
 static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info);
 static gboolean peekclassic_process_record_header_v56(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
@@ -369,15 +369,15 @@ static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = file_tell(wth->fh);
 
-	/* process the packet header */
+	/* process the packet record header */
 	if (!peekclassic_process_record_header_v7(wth, wth->fh, &wth->phdr,
 	    &sliceLength, err, err_info))
 		return FALSE;
 
-	/* read the frame data */
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-	                              wth->phdr.caplen, wth->fh, err, err_info);
+	/* read the packet data */
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info))
+		return FALSE;
 
 	/* Skip extra ignored data at the end of the packet. */
 	if (sliceLength > wth->phdr.caplen) {
@@ -396,24 +396,20 @@ static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	/* process the packet header */
+	/* process the packet record header */
 	if (!peekclassic_process_record_header_v7(wth, wth->random_fh, phdr,
 	    NULL, err, err_info))
 		return FALSE;
 
-	/*
-	 * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
-	 */
-	errno = WTAP_ERR_CANT_READ;
-	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err,
-	    err_info);
-	return TRUE;
+	/* read the packet data */
+	return wtap_read_packet_bytes(wth->random_fh, buf, length,
+	    err, err_info);
 }
 
 static gboolean peekclassic_process_record_header_v7(wtap *wth, FILE_T fh,
@@ -503,15 +499,15 @@ static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
 {
 	*data_offset = file_tell(wth->fh);
 
-	/* process the packet header */
+	/* process the packet record header */
 	if (!peekclassic_process_record_header_v56(wth, wth->fh, &wth->phdr,
 	    err, err_info))
 		return FALSE;
 
-	/* read the frame data */
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
-	                              wth->phdr.caplen, wth->fh, err, err_info);
+	/* read the packet data */
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info))
+		return FALSE;
 
 	/*
 	 * XXX - is the captured packet data padded to a multiple
@@ -521,24 +517,20 @@ static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	/* process the packet header */
+	/* process the packet record header */
 	if (!peekclassic_process_record_header_v56(wth, wth->random_fh, phdr,
 	    err, err_info))
 		return FALSE;
 
-	/*
-	 * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
-	 */
-	errno = WTAP_ERR_CANT_READ;
-	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err,
-	    err_info);
-	return TRUE;
+	/* read the packet data */
+	return wtap_read_packet_bytes(wth->random_fh, buf, length,
+	    err, err_info);
 }
 
 static gboolean peekclassic_process_record_header_v56(wtap *wth, FILE_T fh,

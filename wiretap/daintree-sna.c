@@ -83,15 +83,14 @@ static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr _U_,
-	guint8 *pd, int len, int *err,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len, int *err,
 	gchar **err_info);
 
 static gboolean daintree_sna_scan_header(struct wtap_pkthdr *phdr,
 	char *readLine, char *readData, int *err, gchar **err_info);
 
 static gboolean daintree_sna_process_hex_data(struct wtap_pkthdr *phdr,
-	guchar *str, int *err, gchar **err_info);
+	Buffer *buf, char *readData, int *err, gchar **err_info);
 
 /* Open a file and determine if it's a Daintree file */
 int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
@@ -161,19 +160,15 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 
 	/* process packet data */
-	if (!daintree_sna_process_hex_data(&wth->phdr, readData, err, err_info))
-		return FALSE;
-	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	memcpy(buffer_start_ptr(wth->frame_buffer), readData, wth->phdr.caplen);
-	return TRUE;
+	return daintree_sna_process_hex_data(&wth->phdr, wth->frame_buffer,
+	    readData, err, err_info);
 }
 
 /* Read the capture file randomly 
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
 daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-	guint8 *pd, int len, int *err,
-	gchar **err_info)
+	Buffer *buf, int len, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	char readData[READDATA_BUF_SIZE];
@@ -195,14 +190,13 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		return FALSE;
 
 	/* process packet data */
-	if (!daintree_sna_process_hex_data(phdr, readData, err, err_info))
+	if (!daintree_sna_process_hex_data(phdr, buf, readData, err, err_info))
 		return FALSE;
 	if (phdr->caplen != (guint32)len) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree-sna: corrupted frame");
 		return FALSE;
 	}
-	memcpy(pd, readData, phdr->caplen);
 	return TRUE;
 }
 
@@ -239,11 +233,13 @@ daintree_sna_scan_header(struct wtap_pkthdr *phdr, char *readLine,
 }
 
 /* Convert packet data from ASCII hex string to binary in place,
- * sanity-check its length against what we assume is the packet length field */
+ * sanity-check its length against what we assume is the packet length field,
+ * and copy it into a Buffer */
 static gboolean
-daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, guchar *str, int *err,
-    gchar **err_info)
+daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, Buffer *buf,
+    char *readData, int *err, gchar **err_info)
 {
+	guchar *str = (guchar *)readData;
 	guint bytes;
 	guint8 *p;
 
@@ -298,5 +294,8 @@ daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, guchar *str, int *err,
 	}
 
 	phdr->caplen = bytes;
+
+	buffer_assure_space(buf, bytes);
+	memcpy(buffer_start_ptr(buf), readData, bytes);
 	return TRUE;
 }

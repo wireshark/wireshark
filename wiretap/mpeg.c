@@ -91,24 +91,6 @@ mpeg_read_header(wtap *wth, int *err, gchar **err_info, guint32 *n)
 	return bytes_read;
 }
 
-static gboolean
-mpeg_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
-		gchar **err_info)
-{
-	int	bytes_read;
-
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(pd, length, fh);
-
-	if (bytes_read != length) {
-		*err = file_error(fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
-}
-
 #define SCRHZ 27000000
 
 static gboolean 
@@ -225,8 +207,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	}
 	*data_offset = file_tell(wth->fh);
 
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	if (!mpeg_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
 				packet_size, err, err_info))
 		return FALSE;
 	/* XXX - relative, not absolute, time stamps */
@@ -239,12 +220,12 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 mpeg_seek_read(wtap *wth, gint64 seek_off,
-		struct wtap_pkthdr *phdr _U_, guint8 *pd, int length,
+		struct wtap_pkthdr *phdr _U_, Buffer *buf, int length,
 		int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	return mpeg_read_rec_data(wth->random_fh, pd, length, err, err_info);
+	return wtap_read_packet_bytes(wth->random_fh, buf, length, err, err_info);
 }
 
 struct _mpeg_magic {

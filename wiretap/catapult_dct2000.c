@@ -109,7 +109,7 @@ static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                                       gint64 *data_offset);
 static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                            struct wtap_pkthdr *phdr,
-                                           guint8 *pd, int length,
+                                           Buffer *buf, int length,
                                            int *err, gchar **err_info);
 static void catapult_dct2000_close(wtap *wth);
 
@@ -136,7 +136,7 @@ static gboolean parse_line(char *linebuff, gint line_length,
 static void process_parsed_line(wtap *wth,
                                 dct2000_file_externals_t *file_externals,
                                 struct wtap_pkthdr *phdr,
-                                guint8 *frame_buffer, gint64 file_offset,
+                                Buffer *buf, gint64 file_offset,
                                 char *linebuff, long dollar_offset,
                                 int seconds, int useconds, gchar *timestamp_string,
                                 packet_direction_t direction, int encap,
@@ -385,7 +385,6 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                        aal_header_chars,
                        context_name, &context_port,
                        protocol_name, variant_name, outhdr_name)) {
-            guint8 *frame_buffer;
             line_prefix_info_t *line_prefix_info;
             char timestamp_string[MAX_TIMESTAMP_LEN+1];
             gint64 *pkey = NULL;
@@ -397,22 +396,9 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             */
             *data_offset = this_offset;
 
-            /* Get buffer pointer ready */
-            buffer_assure_space(wth->frame_buffer,
-                                strlen(context_name)+1 +     /* Context name */
-                                1 +                          /* port */
-                                strlen(timestamp_string)+1 + /* timestamp */
-                                strlen(variant_name)+1 +     /* variant */
-                                strlen(outhdr_name)+1 +      /* outhdr */
-                                strlen(protocol_name)+1 +    /* Protocol name */
-                                1 +                          /* direction */
-                                1 +                          /* encap */
-                                (is_comment ? data_chars : (data_chars/2)));
-            frame_buffer = buffer_start_ptr(wth->frame_buffer);
-
             process_parsed_line(wth, file_externals,
                                 &wth->phdr,
-                                frame_buffer, this_offset,
+                                wth->frame_buffer, this_offset,
                                 linebuff, dollar_offset,
                                 seconds, useconds, timestamp_string,
                                 direction, encap,
@@ -464,7 +450,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
 /**************************************************/
 static gboolean
 catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
-                           struct wtap_pkthdr *phdr, guint8 *pd,
+                           struct wtap_pkthdr *phdr, Buffer *buf,
                            int length, int *err, gchar **err_info)
 {
     gint64 offset = 0;
@@ -513,7 +499,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
         write_timestamp_string(timestamp_string, seconds, useconds/100);
 
         process_parsed_line(wth, file_externals,
-                            phdr, pd, seek_off,
+                            phdr, buf, seek_off,
                             linebuff, dollar_offset,
                             seconds, useconds, timestamp_string,
                             direction, encap,
@@ -1277,7 +1263,7 @@ parse_line(gchar *linebuff, gint line_length,
 static void
 process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
                     struct wtap_pkthdr *phdr,
-                    guint8 *frame_buffer, gint64 file_offset,
+                    Buffer *buf, gint64 file_offset,
                     char *linebuff, long dollar_offset,
                     int seconds, int useconds, gchar *timestamp_string,
                     packet_direction_t direction, int encap,
@@ -1289,6 +1275,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
     int n;
     int stub_offset = 0;
     gsize length;
+    guint8 *frame_buffer;
 
     phdr->presence_flags = WTAP_HAS_TS;
 
@@ -1302,6 +1289,20 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
     }
     phdr->ts.nsecs =
         ((file_externals->start_usecs + useconds) % 1000000) *1000;
+
+    /*****************************/
+    /* Get the data buffer ready */
+    buffer_assure_space(buf,
+                        strlen(context_name)+1 +     /* Context name */
+                        1 +                          /* port */
+                        strlen(timestamp_string)+1 + /* timestamp */
+                        strlen(variant_name)+1 +     /* variant */
+                        strlen(outhdr_name)+1 +      /* outhdr */
+                        strlen(protocol_name)+1 +    /* Protocol name */
+                        1 +                          /* direction */
+                        1 +                          /* encap */
+                        (is_comment ? data_chars : (data_chars/2)));
+    frame_buffer = buffer_start_ptr(buf);
 
     /******************************************/
     /* Write the stub info to the data buffer */

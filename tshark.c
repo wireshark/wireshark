@@ -2741,7 +2741,7 @@ process_packet_first_pass(capture_file *cf,
 
 static gboolean
 process_packet_second_pass(capture_file *cf, frame_data *fdata,
-               struct wtap_pkthdr *phdr, const guchar *pd,
+               struct wtap_pkthdr *phdr, Buffer *buf,
                gboolean filtering_tap_listeners, guint tap_flags)
 {
   gboolean        create_proto_tree;
@@ -2793,7 +2793,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     else
       cinfo = NULL;
 
-    epan_dissect_run_with_taps(&edt, phdr, pd, fdata, cinfo);
+    epan_dissect_run_with_taps(&edt, phdr, buffer_start_ptr(buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
     if (cf->dfcode)
@@ -2863,6 +2863,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   wtapng_section_t            *shb_hdr;
   wtapng_iface_descriptions_t *idb_inf;
   char         appname[100];
+  Buffer       buf;
 
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
@@ -2987,18 +2988,18 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     max_packet_count = old_max_packet_count;
 
+    buffer_init(&buf, 1500);
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->phdr,
-          cf->pd, fdata->cap_len, &err, &err_info)) {
-        if (process_packet_second_pass(cf, fdata,
-                           &cf->phdr, cf->pd,
-                           filtering_tap_listeners, tap_flags)) {
+          &buf, fdata->cap_len, &err, &err_info)) {
+        if (process_packet_second_pass(cf, fdata, &cf->phdr, &buf,
+                                       filtering_tap_listeners, tap_flags)) {
           /* Either there's no read filtering or this packet passed the
              filter, so, if we're writing to a capture file, write
              this packet out. */
           if (pdh != NULL) {
-            if (!wtap_dump(pdh, &cf->phdr, cf->pd, &err)) {
+            if (!wtap_dump(pdh, &cf->phdr, buffer_start_ptr(&cf->buf), &err)) {
               /* Error writing to a capture file */
               switch (err) {
 
@@ -3037,6 +3038,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
       }
     }
+    buffer_free(&buf);
   }
   else {
     framenum = 0;

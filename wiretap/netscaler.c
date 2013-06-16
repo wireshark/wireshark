@@ -564,11 +564,11 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
                                  gint64 *data_offset);
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
                                       struct wtap_pkthdr *phdr,
-                                      guint8 *pd, int length,
+                                      Buffer *buf, int length,
                                       int *err, gchar **err_info);
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
                                       struct wtap_pkthdr *phdr,
-                                      guint8 *pd, int length,
+                                      Buffer *buf, int length,
                                       int *err, gchar **err_info);
 static void nstrace_close(wtap *wth);
 
@@ -1126,9 +1126,10 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 #undef PACKET_DESCRIBE
 
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
+    guint8 *pd;
     int bytes_read;
     nspr_pktracefull_v10_t *fp;
     nspr_pktracepart_v10_t *pp;
@@ -1141,6 +1142,8 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     /*
     ** Read the packet data.
     */
+    buffer_assure_space(buf, length);
+    pd = buffer_start_ptr(buf);
     bytes_read = file_read(pd, length, wth->random_fh);
     if (bytes_read != length) {
         *err = file_error(wth->random_fh, err_info);
@@ -1189,9 +1192,10 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     }while(0)
 
 static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, guint8 *pd, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length,
     int *err, gchar **err_info)
 {
+    guint8 *pd;
     int bytes_read;
 
     *err = 0;
@@ -1202,6 +1206,8 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     /*
     ** Read the packet data.
     */
+    buffer_assure_space(buf, length);
+    pd = buffer_start_ptr(buf);
     bytes_read = file_read(pd, length, wth->random_fh);
     if (bytes_read != length) {
         *err = file_error(wth->random_fh, err_info);
