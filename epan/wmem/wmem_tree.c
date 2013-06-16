@@ -230,13 +230,15 @@ wmem_tree_new(wmem_allocator_t *allocator)
     return tree;
 }
 
-static void
-wmem_tree_reset(wmem_allocator_t *allocator _U_, gboolean final _U_,
+static gboolean
+wmem_tree_reset(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data)
 {
     wmem_tree_t *tree = (wmem_tree_t *)user_data;
 
     tree->root = NULL;
+
+    return TRUE;
 }
 
 wmem_tree_t *
@@ -249,7 +251,7 @@ wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
     tree->allocator = slave;
     tree->root      = NULL;
 
-    wmem_register_cleanup_callback(slave, TRUE, wmem_tree_reset, tree);
+    wmem_register_cleanup_callback(slave, wmem_tree_reset, tree);
 
     return tree;
 }

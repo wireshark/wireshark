@@ -33,13 +33,13 @@ typedef struct _wmem_user_cb_container_t {
     wmem_user_cb_t                    cb;
     void                             *user_data;
     struct _wmem_user_cb_container_t *next;
-    gboolean                          recurring;
 } wmem_user_cb_container_t;
 
 void
-wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, gboolean final)
+wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
 {
     wmem_user_cb_container_t **prev, *cur;
+    gboolean again;
 
     prev = &(allocator->callbacks);
     cur  = allocator->callbacks;
@@ -47,11 +47,11 @@ wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, gboolean final)
     while (cur) {
 
         /* call it */
-        cur->cb(allocator, final, cur->user_data);
+        again = cur->cb(allocator, event, cur->user_data);
 
-        /* if it was a one-time callback, or this is being triggered by
-         * the final destruction of the allocator, remove the callback */
-        if (! cur->recurring || final) {
+        /* if the callback requested deregistration, or this is being triggered
+         * by the final destruction of the allocator, remove the callback */
+        if (! again || event == WMEM_CB_DESTROY_EVENT) {
             *prev = cur->next;
             g_slice_free(wmem_user_cb_container_t, cur);
             cur = *prev;
@@ -64,7 +64,7 @@ wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, gboolean final)
 }
 
 void
-wmem_register_cleanup_callback(wmem_allocator_t *allocator, gboolean recurring,
+wmem_register_cleanup_callback(wmem_allocator_t *allocator,
         wmem_user_cb_t callback, void *user_data)
 {
     wmem_user_cb_container_t *container;
@@ -73,7 +73,6 @@ wmem_register_cleanup_callback(wmem_allocator_t *allocator, gboolean recurring,
 
     container->cb        = callback;
     container->user_data = user_data;
-    container->recurring = recurring;
     container->next      = allocator->callbacks;
 
     allocator->callbacks = container;

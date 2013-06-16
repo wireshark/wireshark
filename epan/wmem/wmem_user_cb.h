@@ -41,15 +41,21 @@ extern "C" {
  *    @{
  */
 
+/** The events that can trigger a callback. */
+typedef enum _wmem_cb_event_t {
+    WMEM_CB_FREE_EVENT,    /**< wmem_free_all() */
+    WMEM_CB_DESTROY_EVENT  /**< wmem_destroy_allocator() */
+} wmem_cb_event_t;
+
 /** Function signature for registered user callbacks.
  *
  * @param allocator The allocator that triggered this callback.
- * @param final Whether this is was triggered due to the allocator being
- *              destroyed (TRUE) or simply a call to wmem_free_all() (FALSE).
+ * @param event     The event type that triggered this callback.
  * @param user_data Whatever user_data was originally passed to the call to
- *              wmem_register_cleanup_callback().
+ *                  wmem_register_cleanup_callback().
+ * @return          FALSE to unregister the callback, TRUE otherwise.
  */
-typedef void (*wmem_user_cb_t) (wmem_allocator_t *, gboolean, void *);
+typedef gboolean (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
 
 /** Register a callback function with the given allocator pool.
  *
@@ -67,7 +73,7 @@ typedef void (*wmem_user_cb_t) (wmem_allocator_t *, gboolean, void *);
  */
 WS_DLL_PUBLIC
 void
-wmem_register_cleanup_callback(wmem_allocator_t *allocator, gboolean recurring,
+wmem_register_cleanup_callback(wmem_allocator_t *allocator,
         wmem_user_cb_t callback, void *user_data);
 
 /**   @}
