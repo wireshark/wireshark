@@ -2693,7 +2693,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
         g_object_set_data(G_OBJECT(graph_a_b_bt), CONV_PTR_KEY, conversations);
         g_signal_connect(graph_a_b_bt, "clicked", G_CALLBACK(graph_cb), (gpointer)FALSE);
 
-        /* Graph B->A */
+        /* Graph A<-B */
         graph_b_a_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_GRAPH_B_A);
         gtk_widget_set_tooltip_text(graph_b_a_bt, "Graph traffic from address B to address A.");
         g_object_set_data(G_OBJECT(graph_b_a_bt), E_DFILTER_TE_KEY, main_display_filter_widget);
