@@ -27,6 +27,10 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define SOME_FUNCTIONS_ARE_DEFINES
 
 typedef struct Buffer {
@@ -62,5 +66,9 @@ void buffer_remove_start(Buffer* buffer, gsize bytes);
  guint8* buffer_end_ptr(Buffer* buffer);
  void buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
 #endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif

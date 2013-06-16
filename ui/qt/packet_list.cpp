@@ -570,7 +570,7 @@ QString &PacketList::getFilterFromRowAndColumn()
         epan_dissect_init(&edt, have_custom_cols(&cap_file_->cinfo), FALSE);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
-        epan_dissect_run(&edt, &cap_file_->phdr, cap_file_->pd, fdata, &cap_file_->cinfo);
+        epan_dissect_run(&edt, &cap_file_->phdr, buffer_start_ptr(&cap_file_->buf), fdata, &cap_file_->cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
         if ((cap_file_->cinfo.col_custom_occurrence[ctx_column_]) ||

@@ -176,7 +176,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     column_info *cinfo;
     gboolean create_proto_tree;
     struct wtap_pkthdr phdr; /* Packet header */
-    guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
+    Buffer buf;  /* Packet data */
     gboolean dissect_columns = TRUE; // XXX - Currently only a placeholder
 
     if (dissect_columns && cap_file_)
@@ -184,7 +184,8 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     else
         cinfo = NULL;
 
-    if (!cap_file_ || !cf_read_frame_r(cap_file_, fdata, &phdr, pd)) {
+    buffer_init(&buf, 1500);
+    if (!cap_file_ || !cf_read_frame_r(cap_file_, fdata, &phdr, &buf)) {
         /*
          * Error reading the frame.
          *
@@ -209,6 +210,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
             fdata->color_filter = NULL;
             //            record->colorized = TRUE;
         }
+        buffer_free(&buf);
         return QVariant();	/* error reading the frame */
     }
 
@@ -224,7 +226,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     if (dissect_columns)
         col_custom_prime_edt(&edt, cinfo);
 
-    epan_dissect_run(&edt, &phdr, pd, fdata, cinfo);
+    epan_dissect_run(&edt, &phdr, buffer_start_ptr(&buf), fdata, cinfo);
 
     if (enable_color_)
         fdata->color_filter = color_filters_colorize_packet(&edt);
@@ -247,6 +249,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     //            record->colorized = TRUE;
 
     epan_dissect_cleanup(&edt);
+    buffer_free(&buf);
 
     return record->data(col_num, cinfo);
 }
