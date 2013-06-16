@@ -31,7 +31,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <glib.h>
-#include <wmem_user_cb.h>
+#include "wmem_user_cb.h"
 
 WS_DLL_LOCAL
 void
