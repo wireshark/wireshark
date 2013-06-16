@@ -102,6 +102,9 @@ wmem_slist.h
 wmem_stack.h
  - A stack implementation (push, pop, etc).
 
+wmem_tree.h
+ - A red-black tree implementation.
+
 2.3 Callbacks
 
 WARNING: You probably don't actually need these; use them only when you're
@@ -329,7 +332,6 @@ intimately familiar with Glib's testing framework, but it does the job.
 The following is an incomplete list of things that emem provides but wmem has
 not yet implemented:
 
- - red-black tree
  - tvb_memdup
 
 The following is a list of things that emem doesn't provide but that it might
