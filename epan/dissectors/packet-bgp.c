@@ -1384,7 +1384,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     guint     tot_flow_len;       /* total lenght of the flow spec NLRI */
     guint     offset_len;         /* offset of the flow spec NLRI itself could be 1 or 2 bytes */
     guint     cursor_fspec;       /* cursor to move into flow spec nlri */
-    guint     filter_len;
+    gint      filter_len;
     guint16   len_16;
     proto_item *item;
     proto_tree *nlri_tree;
@@ -1431,69 +1431,61 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
             cursor_fspec++;
             filter_len = decode_prefix4(nlri_tree, hf_bgp_flowspec_nlri_dst_pref_ipv4, tvb, offset+cursor_fspec,
                                           0, "Destination IP filter");
-                cursor_fspec= cursor_fspec + filter_len;
             break;
         case BGPNLRI_FSPEC_SRC_PFIX:
             cursor_fspec++;
             filter_len = decode_prefix4(nlri_tree, hf_bgp_flowspec_nlri_src_pref_ipv4, tvb, offset+cursor_fspec,
                                                              0, "Source IP filter");
-            cursor_fspec = cursor_fspec + filter_len;
             break;
         case BGPNLRI_FSPEC_IP_PROTO:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"IP proto");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_PORT:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Port");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_DST_PORT:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Destination port");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_SRC_PORT:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Source port");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_ICMP_TP:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"ICMP type");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_ICMP_CD:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"ICMP code");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_TCP_FLAGS:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_tcpf_value(nlri_tree, tvb, offset+cursor_fspec,"TCP flags");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_PCK_LEN:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Packet length");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_DSCP:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_dscp_value(nlri_tree, tvb, offset+cursor_fspec);
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         case BGPNLRI_FSPEC_FRAGMENT:
             cursor_fspec++;
             filter_len = decode_bgp_nlri_op_fflag_value(nlri_tree, tvb, offset+cursor_fspec,"Fragment flags");
-            cursor_fspec = cursor_fspec+ filter_len;
             break;
         default:
             proto_tree_add_text(nlri_tree, tvb, offset+cursor_fspec,1,
                                 "NLRI Type unknown (%u)",tvb_get_guint8(tvb,offset+cursor_fspec));
             return -1;
       }
+      if (filter_len>0)
+          cursor_fspec += filter_len;
+      else
+          break;
     }
     return(tot_flow_len);
 }
