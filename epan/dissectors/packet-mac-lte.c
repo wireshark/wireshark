@@ -1991,7 +1991,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         guint8 transport_block = p_mac_lte_info->detailed_phy_info.dl_info.transport_block;
 
         /* Check harq-id bounds, give up if invalid */
-        if ((harq_id >= 15) || (transport_block+1 > 2)) {
+        if ((harq_id >= 15) || (transport_block > 1)) {
             return;
         }
 

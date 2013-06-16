@@ -94,7 +94,7 @@ typedef enum mac_lte_carrier_id {
     carrier_id_secondary_1,
     carrier_id_secondary_2,
     carrier_id_secondary_3,
-    carrier_id_secondary_4,
+    carrier_id_secondary_4
 } mac_lte_carrier_id;
 
 /* Context info attached to each LTE MAC frame */
@@ -164,7 +164,7 @@ typedef struct mac_lte_info
             mac_lte_crc_status crc_status;
             guint8 harq_id;
             gboolean ndi;
-            guint8   transport_block;  /* 1..2 */
+            guint8   transport_block;  /* 0..1 */
         } dl_info;
     } detailed_phy_info;
 
