@@ -33,10 +33,11 @@ typedef struct _wmem_user_cb_container_t {
     wmem_user_cb_t                    cb;
     void                             *user_data;
     struct _wmem_user_cb_container_t *next;
+    guint                             id;
 } wmem_user_cb_container_t;
 
 void
-wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
+wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
 {
     wmem_user_cb_container_t **prev, *cur;
     gboolean again;
@@ -63,19 +64,44 @@ wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
     }
 }
 
-void
-wmem_register_cleanup_callback(wmem_allocator_t *allocator,
+guint
+wmem_register_callback(wmem_allocator_t *allocator,
         wmem_user_cb_t callback, void *user_data)
 {
     wmem_user_cb_container_t *container;
+    static guint next_id = 0;
 
     container = g_slice_new(wmem_user_cb_container_t);
 
     container->cb        = callback;
     container->user_data = user_data;
     container->next      = allocator->callbacks;
+    container->id        = next_id++;
 
     allocator->callbacks = container;
+
+    return container->id;
+}
+
+void
+wmem_unregister_callback(wmem_allocator_t *allocator, guint id)
+{
+    wmem_user_cb_container_t **prev, *cur;
+
+    prev = &(allocator->callbacks);
+    cur  = allocator->callbacks;
+
+    while (cur) {
+
+        if (cur->id == id) {
+            *prev = cur->next;
+            g_slice_free(wmem_user_cb_container_t, cur);
+            return;
+        }
+
+        prev = &(cur->next);
+        cur  = cur->next;
+    }
 }
 
 /*

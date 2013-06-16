@@ -113,7 +113,7 @@ wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
 static void
 wmem_free_all_real(wmem_allocator_t *allocator, gboolean final)
 {
-    wmem_call_cleanup_callbacks(allocator,
+    wmem_call_callbacks(allocator,
             final ? WMEM_CB_DESTROY_EVENT : WMEM_CB_FREE_EVENT);
     allocator->free_all(allocator->private_data);
 }

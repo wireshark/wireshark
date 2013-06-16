@@ -251,7 +251,7 @@ wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
     tree->allocator = slave;
     tree->root      = NULL;
 
-    wmem_register_cleanup_callback(slave, wmem_tree_reset, tree);
+    wmem_register_callback(slave, wmem_tree_reset, tree);
 
     return tree;
 }

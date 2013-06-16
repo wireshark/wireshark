@@ -35,7 +35,7 @@ extern "C" {
 
 WS_DLL_LOCAL
 void
-wmem_call_cleanup_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event);
+wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event);
 
 #ifdef __cplusplus
 }

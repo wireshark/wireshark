@@ -113,21 +113,17 @@ wmem_test_allocator_callbacks(void)
     wmem_allocator_t *allocator;
     gboolean t = TRUE;
     gboolean f = FALSE;
+    guint    cb_id;
 
     allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
 
     expected_allocator = allocator;
 
-#define REG_TEST_CB(UDATA)  do { \
-    wmem_register_cleanup_callback(expected_allocator, \
-            &wmem_test_cb, (UDATA)); \
-    } while (0);
-
-    REG_TEST_CB(&f);
-    REG_TEST_CB(&f);
-    REG_TEST_CB(&t);
-    REG_TEST_CB(&t);
-    REG_TEST_CB(&f);
+    wmem_register_callback(expected_allocator, &wmem_test_cb, &f);
+    wmem_register_callback(expected_allocator, &wmem_test_cb, &f);
+    cb_id = wmem_register_callback(expected_allocator, &wmem_test_cb, &t);
+    wmem_register_callback(expected_allocator, &wmem_test_cb, &t);
+    wmem_register_callback(expected_allocator, &wmem_test_cb, &f);
 
     expected_event = WMEM_CB_FREE_EVENT;
 
@@ -143,23 +139,29 @@ wmem_test_allocator_callbacks(void)
     wmem_free_all(allocator);
     g_assert(cb_called_count == 2);
 
-    REG_TEST_CB(&f);
-    REG_TEST_CB(&t);
-
+    wmem_unregister_callback(allocator, cb_id);
     cb_called_count = 0;
     wmem_free_all(allocator);
-    g_assert(cb_called_count == 4);
+    g_assert(cb_called_count == 1);
+
+    cb_id = wmem_register_callback(expected_allocator, &wmem_test_cb, &f);
+    wmem_register_callback(expected_allocator, &wmem_test_cb, &t);
 
     cb_called_count = 0;
     wmem_free_all(allocator);
     g_assert(cb_called_count == 3);
 
-    REG_TEST_CB(&t);
+    wmem_unregister_callback(allocator, cb_id);
+    cb_called_count = 0;
+    wmem_free_all(allocator);
+    g_assert(cb_called_count == 2);
+
+    wmem_register_callback(expected_allocator, &wmem_test_cb, &t);
 
     expected_event = WMEM_CB_DESTROY_EVENT;
     cb_called_count = 0;
     wmem_destroy_allocator(allocator);
-    g_assert(cb_called_count == 4);
+    g_assert(cb_called_count == 3);
 }
 
 static void

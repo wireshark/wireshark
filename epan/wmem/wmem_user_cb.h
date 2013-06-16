@@ -70,11 +70,22 @@ typedef gboolean (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
  *                  that this pointer is not freed when a callback is finished,
  *                  you have to do that yourself in the callback, or just
  *                  allocate it in the appropriate wmem pool.
+ * @return          ID of this callback that can be passed back to
+ *                  wmem_unregister_callback().
+ */
+WS_DLL_PUBLIC
+guint
+wmem_register_callback(wmem_allocator_t *allocator, wmem_user_cb_t callback,
+        void *user_data);
+
+/** Unregister the callback function with the given ID.
+ *
+ * @param allocator The allocator from which to unregister the callback.
+ * @param id        The callback id as returned from wmem_register_callback().
  */
 WS_DLL_PUBLIC
 void
-wmem_register_cleanup_callback(wmem_allocator_t *allocator,
-        wmem_user_cb_t callback, void *user_data);
+wmem_unregister_callback(wmem_allocator_t *allocator, guint id);
 
 /**   @}
  *  @} */
