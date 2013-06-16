@@ -612,6 +612,7 @@ static gchar
     initialize_services();
   }
 
+  /* Set which table we should look up port in */
   switch(proto) {
   case PT_UDP:
     table = udp_port_table;
@@ -635,26 +636,32 @@ static gchar
     /*NOTREACHED*/
   } /* proto */
 
+  /* Look for port in table */
   hash_idx = HASH_PORT(port);
   tp = table[hash_idx];
 
   if( tp == NULL ) {
+    /* Not found so allocate new entry */
     tp = table[hash_idx] = se_new(hashport_t);
   } else {
+    /* Hash matched, but need to loop around entries looking for matching port */
     while(1) {
       if( tp->port == port ) {
+        /* Found matching entry, return name! */
         return tp->name;
       }
       if (tp->next == NULL) {
+        /* Reached end of current list without match. Allocate and add to end of list */
         tp->next = se_new(hashport_t);
         tp = tp->next;
         break;
       }
+      /* Try next entry */
       tp = tp->next;
     }
   }
 
-  /* fill in a new entry */
+  /* Fill in a new entry (which must be at the end of its list) */
   tp->port = port;
   tp->next = NULL;
 
