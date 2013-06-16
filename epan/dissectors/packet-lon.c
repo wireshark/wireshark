@@ -251,21 +251,25 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		offset++;
 	}
 	/* Address part */
-	if (addr_fmt == 0) { /* Broadcast */
+	switch(addr_fmt)
+	{
+	case 0: /* Broadcast */
 		pi = proto_tree_add_text(lon_tree, tvb, offset, 3, "Address type 0 (broadcast)");
 		ti = proto_item_add_subtree(pi, ett_address);
 		proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_dstsub, tvb, offset+2, 1, ENC_NA);
 		offset += 3;
-	} else if (addr_fmt == 1) { /* Multicast */
+		break;
+	case 1: /* Multicast */
 		pi = proto_tree_add_text(lon_tree, tvb, offset, 3, "Address type 1 (multicast)");
 		ti = proto_item_add_subtree(pi, ett_address);
 		proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_srcnode, tvb, offset+1, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_dstgrp, tvb, offset+2, 1, ENC_NA);
 		offset += 3;
-	} else if (addr_fmt == 2) { /* Unicast/Multicast */
+		break;
+	case 2: /* Unicast/Multicast */
 		addr_a = tvb_get_guint8(tvb, offset+1) >> 7;
 		if (addr_a) { /* Type 2a */
 			pi = proto_tree_add_text(lon_tree, tvb, offset, 4, "Address type 2a (unicast)");
@@ -286,7 +290,8 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			proto_tree_add_item(ti, hf_lon_addr_grpmem, tvb, offset+5, 1, ENC_NA);
 			offset += 6;
 		}
-	} else if (addr_fmt == 3) { /* UID */
+		break;
+	case 3: /* UID */
 		pi = proto_tree_add_text(lon_tree, tvb, offset, 9, "Address type 3 (UID)");
 		ti = proto_item_add_subtree(pi, ett_address);
 		proto_tree_add_item(ti, hf_lon_addr_srcsub, tvb, offset, 1, ENC_NA);
@@ -294,24 +299,34 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		proto_tree_add_item(ti, hf_lon_addr_dstsub, tvb, offset+2, 1, ENC_NA);
 		proto_tree_add_item(ti, hf_lon_addr_uid, tvb, offset+3, 6, ENC_NA);
 		offset += 9;
+		break;
 	}
 	/* END Address part */
 	/* Domain */
-	if (dom_len == 0) { /* Domain-wide */
+	switch(dom_len)
+	{
+	case 0: /* Domain-wide */
 		proto_tree_add_text(lon_tree, tvb, offset, 0, "Domain wide addressing");
-	} else if (dom_len == 1) {
+		break;
+	case 1:
 		proto_tree_add_item(lon_tree, hf_lon_domain, tvb, offset, 1, ENC_NA);
 		offset++;
-	} else if (dom_len == 2) {
+		break;
+	case 2:
 		proto_tree_add_item(lon_tree, hf_lon_domain, tvb, offset, 3, ENC_NA);
 		offset += 3;
-	} else if (dom_len == 3) {
+		break;
+	case 3:
 		proto_tree_add_item(lon_tree, hf_lon_domain, tvb, offset, 6, ENC_NA);
 		offset += 6;
+		break;
 	}
 	/* END Domain */
 	/* *PDU */
-	if (pdu_fmt == 0) {        /* TPDU */
+	switch(pdu_fmt)
+	{
+	case 0:        /* TPDU */
+		{
 		static const gint *tpdu_fields[] = {
 			&hf_lon_auth,
 			&hf_lon_tpdu_tpdu_type,
@@ -323,16 +338,22 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 		pdutype = (tvb_get_guint8(tvb, offset)>>4)& 0x07;
 		offset++;
-		if ((pdutype == 0) || (pdutype == 1)) { /* ACKD and UnACKD_RPT */
+		switch(pdutype)
+		{
+		case 0:
+		case 1: /* ACKD and UnACKD_RPT */
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
-		} else if (pdutype == 2) { /* ACK */
-		} else if (pdutype == 4) { /* REMINDER */
+			break;
+		case 2: /* ACK */
+			break;
+		case 4: /* REMINDER */
 			length = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_NA);
 			offset++;
 			proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
-		} else if (pdutype == 5) { /* REM/MSG */
+			break;
+		case 5: /* REM/MSG */
 			length = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_NA);
 			offset++;
@@ -340,10 +361,15 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
-		} else {
+			break;
+		default:
 			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_tpdu_type_unknown, "Unexpected TPDU type %i", pdutype);
+			break;
 		}
-	} else if (pdu_fmt == 1) { /* SPDU */
+		}
+		break;
+	case 1: /* SPDU */
+		{
 		static const gint *spdu_fields[] = {
 			&hf_lon_auth,
 			&hf_lon_spdu_spdu_type,
@@ -354,17 +380,22 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 					ett_spdu, spdu_fields, ENC_BIG_ENDIAN);
 		pdutype = (tvb_get_guint8(tvb, offset)>>4)& 0x07;
 		offset++;
-		if (pdutype == 0) { /* REQUEST */
+		switch(pdutype)
+		{
+		case 0: /* REQUEST */
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
-		} else if (pdutype == 2) { /* RESPONSE */
+			break;
+		case 2: /* RESPONSE */
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
-		} else if (pdutype == 4) { /* REMINDER */
+			break;
+		case 4: /* REMINDER */
 			length = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_NA);
 			offset++;
 			proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
-		} else if (pdutype == 5) { /* REM/MSG */
+			break;
+		case 5: /* REM/MSG */
 			length = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_NA);
 			offset++;
@@ -372,10 +403,15 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
-		} else {
+			break;
+		default:
 			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_spdu_type_unknown, "Unexpected SPDU type %i", pdutype);
+			break;
 		}
-	} else if (pdu_fmt == 2) { /* AuthPDU */
+		}
+		break;
+	case 2: /* AuthPDU */
+		{
 		static const gint *authpdu_fields[] = {
 			&hf_lon_authpdu_fmt,
 			&hf_lon_authpdu_authpdu_type,
@@ -387,15 +423,20 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 		pdutype = (tvb_get_guint8(tvb, offset)>>4)& 0x03;
 		offset++;
-		if (pdutype == 0) { /* CHALLENGE */
+		switch(pdutype)
+		{
+		case 0: /* CHALLENGE */
+		case 2: /* REPLY */
 			offset += 9;
-		} else if (pdutype == 2) { /* REPLY */
-			offset += 9;
-		} else {
+			break;
+		default:
 			expert_add_info_format_text(pinfo, lon_tree, &ei_lon_tpdu_authpdu_type_unknown, "Unexpected AuthPDU type %i", pdutype);
+			break;
 		}
-	} else if (pdu_fmt == 3) { /* APDU */
+		}
+	case 3: /* APDU */
 		offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
+		break;
 	}
 	/* END *PDU */
 
