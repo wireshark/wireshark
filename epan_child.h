@@ -104,6 +104,9 @@ echld_state_t echld_set_data(echld_chld_id_t, void* child_data);
 typedef echld_bool_t (*echld_iter_cb_t)(echld_chld_id_t, void* child_data, void* cb_data);
 void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
 
+/* enc_msg_t is an obscure object for an encoded message */
+typedef struct GByteArray enc_msg_t;
+
 
 /*
  * prototype of message callbacks passed to echld_reqh() and echld_msgh()
@@ -121,8 +124,6 @@ typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, enc_msg_t* msg_buf
 
 /* encoding and decoding */
 
-/* enc_msg_t is an obscure object for an encoded message */
-typedef struct GByteArray enc_msg_t;
 
 /*
  * encoder
@@ -131,7 +132,7 @@ typedef struct GByteArray enc_msg_t;
  */
  
 typedef struct _parent_out {
-	enc_msg_t* (*error)(, int err, const char* text);
+	enc_msg_t* (*error)(int err, const char* text);
 	enc_msg_t* (*set_param)(const char* param,  const char* value);
 	enc_msg_t* (*close_child)(int mode);
 	enc_msg_t* (*list_files)(const char* glob);
@@ -369,7 +370,7 @@ enum _echld_msg_type_t {
 								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
 
 
-	ECHLD_GET_PACKETS = 'G', /* out: get the decoded version of the packet  */
+	ECHLD_GET_BUFFER = 'B', /* out: get the decoded version of the packet  */
 	ECHLD_BUFFER = 'b', /* in: get a buffer (or what we have of it... or the next part... same reqh_id) */
 								/* no timeout, the request hangs until the packets in the range are available */
 								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
