@@ -55,6 +55,12 @@ G_GNUC_MALLOC;
  * master scope, however the data lives in the slave scope. Every time free_all
  * occurs in the slave scope the tree is transparently emptied without affecting
  * the location of the structure.
+ *
+ * WARNING: The slave scope must be destroyed with wmem_destroy_allocator()
+ * before the master scope is emptied with wmem_free_all() or
+ * wmem_destroy_allocator().
+ * TODO: Is this a valid limitation? It doesn't affect the common case where
+ * master is epan_scope and slave is file_scope, but...
  */
 WS_DLL_PUBLIC
 wmem_tree_t *
