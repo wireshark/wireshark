@@ -156,10 +156,6 @@ echld_parent_encoder_t* echld_get_encoder();
  */
 char* echld_decode(echld_msg_type_t, enc_msg_t*);
 
-
-/* all strings are returned via ptr and have to be freed,
-   they'll be NULL on error */
-
 /*
  *  Request Handlers
  *
