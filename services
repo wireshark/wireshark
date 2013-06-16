@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-06-05
+# 2013-06-11
 # 
 # Expert(s)
 # 
@@ -16416,6 +16416,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # ID, dmb, Version, OSsi, hG, hC, Machine ID
 # homeauto                              iDo Technology Home          [Tony_de_Rijk]                                     [Tony_de_Rijk]                                                                                                                           Defined TXT keys: None
 # Automation Protocol
+# homeconnect                    tcp    Home Connect Protocol        [BSH_Bosch_und_Siemens_Hausgeraete_GmbH]           [Jens_Clauss]                                             2013-06-11                                                                     Defined TXT keys: txtvers + Proprietary
 # honeywell-vid                  udp    Honeywell Video Systems      [Shankar_Prasad]                                   [Shankar_Prasad]                                                                                                                         Defined TXT keys: None
 # hotwayd                               Hotwayd                                                                                                                                                                                                                  Defined TXT keys: None
 # howdy                                 Howdy messaging and          [Ozate_Inc]                                        [Joseph_Sickel]                                                        2011-10-12                                                        Defined TXT keys: None
@@ -17855,6 +17856,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # America (PEWLA)
 # [Bryce_Beeston]                                           Bryce Beeston                                   mailto:bryce.beeston&emerson.com                              2011-06-23
 # [Bryce_Bhatnagar]                                         Bryce Bhatnagar                                 mailto:BRYCEBH&attachmate.com
+# [BSH_Bosch_und_Siemens_Hausgeraete_GmbH]                                            BSH Bosch und Siemens mailto:juergen.riesmeyer&bshg.com                             2013-06-11
+# Hausgeraete GmbH
 # [buddycloud]                                                                        buddycloud            mailto:simon&buddycloud.com                                   2013-05-20
 # [Buck_Caldwell]                                           Buck Caldwell                                   mailto:buck_c&polygon.com
 # [Bulent_Kasman]                                           Bulent Kasman                                   mailto:BKasman&symantec.com
@@ -19328,6 +19331,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Inc.
 # [Jennifer_Grace]                                          Jennifer Grace                                  mailto:Jennifer_Grace&3com.com
 # [Jens_Alfke]                                              Jens Alfke                                      mailto:jens&apple.com
+# [Jens_Clauss]                                             Jens Clauss               BSH Bosch und Siemens mailto:jens.clauss&bshg.com                                   2013-06-11
+# Hausgeraete GmbH
 # [Jens_Edlund]                                             Jens Edlund                                     mailto:edlund&speech.kth.se                                   2005-08
 # [Jens_Kilian]                                             Jens Kilian                                     mailto:jensk&hpbeo82.bbn.hp.com
 # [Jens_Klose]                                              Jens Klose                                      mailto:jklose&intercope.com
