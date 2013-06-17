@@ -258,34 +258,20 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
 }
 
  
-static void
-fill_in_phdr(struct wtap_pkthdr *phdr, gint offset)
-{
-    phdr->pkt_encap = WTAP_ENCAP_DVBCI;
-    /* timestamps aren't supported for now */
-    phdr->caplen = offset;
-    phdr->len = offset;
-}
-
-
-static gboolean
-camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+gboolean
+camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+    int *err, gchar **err_info)
 {
     guint8      dat_trans_type;
     guint16     dat_len;
-    gboolean    ret;
     guint8     *p;
     gint        offset, bytes_read;
 
-    *data_offset = file_tell(wth->fh);
-
-    ret = find_next_pkt_dat_type_len(
-            wth->fh, &dat_trans_type, &dat_len, err, err_info);
-    if (!ret) 
+    if (!find_next_pkt_dat_type_len(fh, &dat_trans_type, &dat_len, err, err_info))
         return FALSE;
 
-    buffer_assure_space(wth->frame_buffer, DVB_CI_PSEUDO_HDR_LEN+dat_len);
-    p = buffer_start_ptr(wth->frame_buffer);
+    buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
+    p = buffer_start_ptr(buf);
     /* NULL check for p is done in create_pseudo_hdr() */
     offset = create_pseudo_hdr(p, dat_trans_type, dat_len);
     if (offset<0) {
@@ -295,7 +281,7 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     }
 
-    bytes_read = read_packet_data(wth->fh, dat_trans_type,
+    bytes_read = read_packet_data(fh, dat_trans_type,
             &p[offset], dat_len, err, err_info);
     /* 0<=bytes_read<=dat_len is very likely a corrupted packet
        we let the dissector handle this */
@@ -303,54 +289,34 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     offset += bytes_read;
 
-    fill_in_phdr(&wth->phdr, offset);
+    phdr->pkt_encap = WTAP_ENCAP_DVBCI;
+    /* timestamps aren't supported for now */
+    phdr->caplen = offset;
+    phdr->len = offset;
 
     return TRUE;
 }
 
 
 static gboolean
+camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+{
+    *data_offset = file_tell(wth->fh);
+
+    return camins_read_packet(wth->fh, &wth->phdr, wth->frame_buffer, err,
+        err_info);
+}
+
+
+static gboolean
 camins_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *pkthdr, Buffer *buf, int length,
+    struct wtap_pkthdr *pkthdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
-    guint8    dat_trans_type;
-    guint16   dat_len;
-    gboolean  ret;
-    guint8     *p;
-    gint      offset, bytes_read;
-
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return FALSE;
 
-    ret = find_next_pkt_dat_type_len(wth->random_fh, &dat_trans_type,
-            &dat_len, err, err_info);
-    if (!ret)
-        return FALSE;
-
-    buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
-    p = buffer_start_ptr(buf);
-    /* in the pseudo-header, we always store the length that we obtained
-       from parsing the file
-       (there's error conditions where this length field does not match
-       the number of data bytes present in the file, we'll leave this to
-       the dissector) */
-    offset = create_pseudo_hdr(p, dat_trans_type, dat_len);
-    if (offset<0)
-        return FALSE;
-
-    /* we only read the number of bytes requested by wtap in order to
-       ensure we're not overflowing the buffer */
-    bytes_read = read_packet_data(wth->random_fh, dat_trans_type,
-            &p[offset], length, err, err_info);
-    /* see comment in camins_read() */
-    if (bytes_read < 0)
-        return FALSE;
-    offset += bytes_read;
-
-    fill_in_phdr(pkthdr, offset);
-
-    return TRUE;
+    return camins_read_packet(wth->random_fh, pkthdr, buf, err, err_info);
 }
 
 

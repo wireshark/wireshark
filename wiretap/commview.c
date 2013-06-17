@@ -132,7 +132,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 }
 
 static int
-commview_read_and_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
+commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
 	commview_header_t cv_hdr;
@@ -184,7 +184,7 @@ commview_read_and_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
 	phdr->ts.secs = mktime(&tm);
 	phdr->ts.nsecs = cv_hdr.usecs * 1000;
 
-	return TRUE;
+	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
 }
 
 static gboolean
@@ -192,36 +192,18 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	if(!commview_read_and_process_header(wth->fh, &wth->phdr, err,
-	    err_info))
-		return FALSE;
-
-	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
-	    wth->phdr.caplen, err, err_info);
+	return commview_read_packet(wth->fh, &wth->phdr, wth->frame_buffer, err,
+	    err_info);
 }
 
 static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-		   Buffer *buf, int length, int *err, gchar **err_info)
+		   Buffer *buf, int length _U_, int *err, gchar **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if(!commview_read_and_process_header(wth->random_fh, phdr, err,
-	    err_info)) {
-		if(*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	if(length != (int)phdr->caplen) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("commview: record length %u doesn't match requested length %d", phdr->caplen, length);
-		return FALSE;
-	}
-
-	return wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
-	    err, err_info);
+	return commview_read_packet(wth->random_fh, phdr, buf, err, err_info);
 }
 
 static gboolean

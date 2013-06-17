@@ -51,10 +51,8 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int len,
 	int *err, gchar **err_info);
-static gboolean csids_read_packet_header(FILE_T fh, struct wtap_pkthdr *phdr,
-	int *err, gchar **err_info);
-static gboolean csids_read_packet_data(FILE_T fh, csids_t *csids, int len,
-	Buffer *buf, int *err, gchar **err_info);
+static gboolean csids_read_packet(FILE_T fh, csids_t *csids,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */
@@ -156,11 +154,8 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 
   *data_offset = file_tell(wth->fh);
 
-  if( !csids_read_packet_header(wth->fh, &wth->phdr, err, err_info ) )
-    return FALSE;
-
-  return csids_read_packet_data( wth->fh, csids, wth->phdr.caplen,
-                                 wth->frame_buffer, err, err_info );
+  return csids_read_packet( wth->fh, csids, &wth->phdr, wth->frame_buffer,
+                            err, err_info );
 }
 
 /* Used to read packets in random-access fashion */
@@ -169,7 +164,7 @@ csids_seek_read (wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
 		 Buffer *buf,
-		 int len,
+		 int len _U_,
 		 int *err,
 		 gchar **err_info)
 {
@@ -178,26 +173,21 @@ csids_seek_read (wtap *wth,
   if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
     return FALSE;
 
-  if( !csids_read_packet_header( wth->random_fh, phdr, err, err_info ) )
-    return FALSE;
-
-  if( (guint32)len != phdr->caplen ) {
-    *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup_printf("csids: record length %u doesn't match requested length %d",
-                                 phdr->caplen, len);
+  if( !csids_read_packet( wth->random_fh, csids, phdr, buf, err, err_info ) ) {
+    if( *err == 0 )
+      *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
-
-  return csids_read_packet_data( wth->random_fh, csids, phdr->caplen, buf,
-                                 err, err_info );
+  return TRUE;
 }
 
 static gboolean
-csids_read_packet_header(FILE_T fh, struct wtap_pkthdr *phdr, int *err,
-                         gchar **err_info)
+csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
+                  Buffer *buf, int *err, gchar **err_info)
 {
   struct csids_header hdr;
   int bytesRead = 0;
+  guint8 *pd;
 
   bytesRead = file_read( &hdr, sizeof( struct csids_header), fh );
   if( bytesRead != sizeof( struct csids_header) ) {
@@ -214,25 +204,17 @@ csids_read_packet_header(FILE_T fh, struct wtap_pkthdr *phdr, int *err,
   phdr->caplen = hdr.caplen;
   phdr->ts.secs = hdr.seconds;
   phdr->ts.nsecs = 0;
-  return TRUE;
-}
 
-static gboolean
-csids_read_packet_data(FILE_T fh, csids_t *csids, int len, Buffer *buf,
-                       int *err, gchar **err_info)
-{
-  guint8 *pd;
-
-  if( !wtap_read_packet_bytes( fh, buf, len, err, err_info ) )
+  if( !wtap_read_packet_bytes( fh, buf, phdr->caplen, err, err_info ) )
     return FALSE;
 
   pd = buffer_start_ptr( buf );
   if( csids->byteswapped ) {
-    if( len >= 2 ) {
+    if( phdr->caplen >= 2 ) {
       PBSWAP16(pd);   /* the ip len */
-      if( len >= 4 ) {
+      if( phdr->caplen >= 4 ) {
         PBSWAP16(pd+2); /* ip id */
-        if( len >= 6 )
+        if( phdr->caplen >= 6 )
           PBSWAP16(pd+4); /* ip flags and fragoff */
       }
     }

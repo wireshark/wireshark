@@ -378,7 +378,7 @@ typedef struct {
 #define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
 
 /*
- * Process the packet header.
+ * Read the packet.
  *
  * XXX - we should supply the additional radio information;
  * the pseudo-header should probably be supplied in a fashion
@@ -387,8 +387,8 @@ typedef struct {
  * are present.
  */
 static int
-peektagged_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-    int *err, gchar **err_info)
+peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+                       Buffer *buf, int *err, gchar **err_info)
 {
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
     hdr_info_t hdr_info;
@@ -582,6 +582,10 @@ peektagged_process_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	break;
     }
 
+    /* Read the packet data. */
+    if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
+        return -1;
+
     return skip_len;
 }
 
@@ -592,15 +596,11 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
     *data_offset = file_tell(wth->fh);
 
-    /* Process the packet record header. */
-    skip_len = peektagged_process_header(wth, wth->fh, &wth->phdr, err, err_info);
+    /* Read the packet. */
+    skip_len = peektagged_read_packet(wth, wth->fh, &wth->phdr,
+                                      wth->frame_buffer, err, err_info);
     if (skip_len == -1)
 	return FALSE;
-
-    /* Read the packet data. */
-    if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, wth->phdr.caplen,
-                                err, err_info))
-        return FALSE;
 
     if (skip_len != 0) {
 	/* Skip extra junk at the end of the packet data. */
@@ -613,17 +613,17 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
-    /* Process the packet record header. */
-    if (peektagged_process_header(wth, wth->random_fh, phdr, err, err_info) == -1)
+    /* Read the packet. */
+    if (peektagged_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
 	return FALSE;
-
-    /* Read the packet data. */
-    return wtap_read_packet_bytes(wth->random_fh, buf, length,
-                                  err, err_info);
+    }
+    return TRUE;
 }

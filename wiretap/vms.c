@@ -119,7 +119,7 @@ Format 2:
 
  ... packet seq # = nn at DD-MMM-YYYY hh:mm:ss.ss
 
-If there are other formats then code will have to be written in parse_vms_rec_hdr()
+If there are other formats then code will have to be written in parse_vms_packet()
 to handle them.
 
 --------------------------------------------------------------------------------
@@ -148,10 +148,8 @@ static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
-static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, Buffer *buf,
-    int *err, gchar **err_info);
-static gboolean parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
-    int *err, gchar **err_info);
+static gboolean parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+    Buffer *buf, int *err, gchar **err_info);
 
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
 /* Seeks to the beginning of the next packet, and returns the
@@ -275,38 +273,26 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
         *err = file_error(wth->fh, err_info);
         return FALSE;
     }
-
-    /* Parse the header */
-    if (!parse_vms_rec_hdr(wth->fh, &wth->phdr, err, err_info))
-	return FALSE;
-
-    /* Convert the ASCII hex dump to binary data */
-    if (!parse_vms_hex_dump(wth->fh, wth->phdr.caplen, wth->frame_buffer, err, err_info))
-        return FALSE;
-
     *data_offset = offset;
-    return TRUE;
+
+    /* Parse the packet */
+    return parse_vms_packet(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
 vms_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-    Buffer *buf, int len, int *err, gchar **err_info)
+    Buffer *buf, int len _U_, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
 
-    if (!parse_vms_rec_hdr(wth->random_fh, phdr, err, err_info))
-        return FALSE;
-
-    if (phdr->caplen != (guint32)len) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("vms: requested length %d doesn't match length %d",
-            len, phdr->caplen);
+    if (!parse_vms_packet(wth->random_fh, phdr, buf, err, err_info)) {
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
-
-    return parse_vms_hex_dump(wth->random_fh, phdr->caplen, buf, err, err_info);
+    return TRUE;
 }
 
 /* isdumpline assumes that dump lines start with some non-alphanumerics
@@ -334,9 +320,9 @@ isdumpline( gchar *line )
     return isspace((guchar)*line);
 }
 
-/* Parses a packet record header. */
+/* Parses a packet record. */
 static gboolean
-parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_info)
+parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     char   line[VMS_LINE_LENGTH + 1];
     int    num_items_scanned;
@@ -347,6 +333,9 @@ parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_inf
     char mon[4] = {'J', 'A', 'N', 0};
     gchar *p;
     static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
+    int    i;
+    int    offset = 0;
+    guint8 *pd;
 
     tm.tm_year = 1970;
     tm.tm_mon = 0;
@@ -419,19 +408,6 @@ parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_inf
     phdr->ts.nsecs = csec * 10000000;
     phdr->caplen = pkt_len;
     phdr->len = pkt_len;
-
-    return TRUE;
-}
-
-/* Converts ASCII hex dump to binary data */
-static gboolean
-parse_vms_hex_dump(FILE_T fh, int pkt_len, Buffer *buf, int *err,
-    gchar **err_info)
-{
-    gchar line[VMS_LINE_LENGTH + 1];
-    int    i;
-    int    offset = 0;
-    guint8 *pd;
 
     /* Make sure we have enough room for the packet */
     buffer_assure_space(buf, pkt_len);

@@ -384,15 +384,13 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
   offset = iseries_seek_next_packet (wth, err, err_info);
   if (offset < 0)
     return FALSE;
+  *data_offset     = offset;
 
   /*
    * Parse the packet and extract the various fields
    */
-  if (!iseries_parse_packet (wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info))
-    return FALSE;
-
-  *data_offset     = offset;
-  return TRUE;
+  return iseries_parse_packet (wth, wth->fh, &wth->phdr, wth->frame_buffer,
+                               err, err_info);
 }
 
 /*
@@ -423,7 +421,7 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
         if (iseries->format == ISERIES_FORMAT_UNICODE)
           {
             /* buflen is #bytes to 1st 0x0A */
-           buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
+            buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
           }
         else
           {
@@ -464,7 +462,7 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
  */
 static gboolean
 iseries_seek_read (wtap * wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-                   Buffer * buf, int len, int *err, gchar ** err_info)
+                   Buffer * buf, int len _U_, int *err, gchar ** err_info)
 {
 
   /* seek to packet location */
@@ -474,19 +472,8 @@ iseries_seek_read (wtap * wth, gint64 seek_off, struct wtap_pkthdr *phdr,
   /*
    * Parse the packet and extract the various fields
    */
-  if (!iseries_parse_packet (wth, wth->random_fh, phdr, buf,
-                             err, err_info))
-    return FALSE;
-
-  if (phdr->caplen != (guint32)len)
-    {
-      *err = WTAP_ERR_BAD_FILE;
-      *err_info =
-        g_strdup_printf ("iseries: requested length %d doesn't match record length %d",
-                         len, phdr->caplen);
-      return FALSE;
-    }
-  return TRUE;
+  return iseries_parse_packet (wth, wth->random_fh, phdr, buf,
+                               err, err_info);
 }
 
 static int

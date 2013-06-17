@@ -36,8 +36,8 @@ struct dump_hdr {
 
 #define DUMP_HDR_SIZE (sizeof(struct dump_hdr))
 
-static gboolean hcidump_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
-    int *err, gchar **err_info)
+static gboolean hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+    Buffer *buf, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
 	int bytes_read, packet_size;
@@ -70,7 +70,7 @@ static gboolean hcidump_process_header(FILE_T fh, struct wtap_pkthdr *phdr,
 
 	phdr->pseudo_header.p2p.sent = (dh.in ? FALSE : TRUE);
 
-	return TRUE;
+	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
 static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
@@ -78,25 +78,18 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 {
 	*data_offset = file_tell(wth->fh);
 
-	if (!hcidump_process_header(wth->fh, &wth->phdr, err, err_info))
-		return FALSE;
-
-	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
-	    wth->phdr.caplen, err, err_info);
+	return hcidump_process_packet(wth->fh, &wth->phdr, wth->frame_buffer,
+	    err, err_info);
 }
 
 static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int length,
+    struct wtap_pkthdr *phdr, Buffer *buf, int length _U_,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!hcidump_process_header(wth->random_fh, phdr, err, err_info))
-		return FALSE;
-
-	return wtap_read_packet_bytes(wth->random_fh, buf, length,
-	    err, err_info);
+	return hcidump_process_packet(wth->random_fh, phdr, buf, err, err_info);
 }
 
 int hcidump_open(wtap *wth, int *err, gchar **err_info)

@@ -168,7 +168,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
 daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-	Buffer *buf, int len, int *err, gchar **err_info)
+	Buffer *buf, int len _U_, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	char readData[READDATA_BUF_SIZE];
@@ -190,14 +190,8 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		return FALSE;
 
 	/* process packet data */
-	if (!daintree_sna_process_hex_data(phdr, buf, readData, err, err_info))
-		return FALSE;
-	if (phdr->caplen != (guint32)len) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("daintree-sna: corrupted frame");
-		return FALSE;
-	}
-	return TRUE;
+	return daintree_sna_process_hex_data(phdr, buf, readData, err,
+	    err_info);
 }
 
 /* Scan a header line and fill in a struct wtap_pkthdr */

@@ -182,11 +182,8 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
 		struct wtap_pkthdr *phdr, Buffer *buf,
 		int length, int *err, gchar **err_info);
-static int nettl_read_rec_header(wtap *wth, FILE_T fh,
-		struct wtap_pkthdr *phdr,
-		int *err, gchar **err_info, gboolean *fddihack);
-static gboolean nettl_read_rec_data(FILE_T fh, Buffer *buf, int length,
-		int *err, gchar **err_info, gboolean fddihack);
+static gboolean nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+		Buffer *buf, int *err, gchar **err_info);
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
 
@@ -295,26 +292,11 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    int ret;
-    gboolean fddihack=FALSE;
-
     /* Read record header. */
     *data_offset = file_tell(wth->fh);
-    ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr,
-        err, err_info, &fddihack);
-    if (ret <= 0) {
+    if (!nettl_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+        err, err_info)) {
 	/* Read error or EOF */
-	return FALSE;
-    }
-
-    if (wth->phdr.caplen > WTAP_MAX_PACKET_SIZE) {
-	/*
-	 * Probably a corrupt capture file; don't blow up trying
-	 * to allocate space for an immensely-large packet.
-	 */
-	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
-	    wth->phdr.caplen, WTAP_MAX_PACKET_SIZE);
 	return FALSE;
     }
 
@@ -333,94 +315,74 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 	    wth->file_encap = WTAP_ENCAP_PER_PACKET;
     }
 
-    /*
-     * Read the packet data.
-     */
-    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    if (!nettl_read_rec_data(wth->fh, wth->frame_buffer,
-		wth->phdr.caplen, err, err_info, fddihack))
-	return FALSE;	/* Read error */
     return TRUE;
 }
 
 static gboolean
 nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-		Buffer *buf, int length, int *err, gchar **err_info)
+		Buffer *buf, int length _U_, int *err, gchar **err_info)
 {
-    int ret;
-    gboolean fddihack=FALSE;
-
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
     /* Read record header. */
-    ret = nettl_read_rec_header(wth, wth->random_fh, phdr, err, err_info,
-                                &fddihack);
-    if (ret <= 0) {
+    if (!nettl_read_rec(wth, wth->random_fh, phdr, buf, err, err_info)) {
 	/* Read error or EOF */
-	if (ret == 0) {
+	if (*err == 0) {
 	    /* EOF means "short read" in random-access mode */
 	    *err = WTAP_ERR_SHORT_READ;
 	}
 	return FALSE;
     }
-
-    /*
-     * Read the packet data.
-     */
-    return nettl_read_rec_data(wth->random_fh, buf, length, err, err_info,
-        fddihack);
+    return TRUE;
 }
 
-static int
-nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-		int *err, gchar **err_info, gboolean *fddihack)
+static gboolean
+nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+		int *err, gchar **err_info)
 {
     union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     nettl_t *nettl = (nettl_t *)wth->priv;
+    gboolean fddihack = FALSE;
     int bytes_read;
     struct nettlrec_hdr rec_hdr;
     guint16 hdr_len;
     struct nettlrec_ns_ls_drv_eth_hdr drv_eth_hdr;
-    guint16 length, caplen;
-    int offset = 0;
+    guint32 length, caplen;
     int subsys;
-    int padlen;
+    guint padlen;
+    int datalen;
     guint8 dummyc[16];
+    int bytes_to_read;
+    guint8 *pd;
+    guint8 dummy[3];
 
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(&rec_hdr.hdr_len, sizeof rec_hdr.hdr_len, fh);
     if (bytes_read != sizeof rec_hdr.hdr_len) {
 	*err = file_error(fh, err_info);
-	if (*err != 0)
-	    return -1;
-	if (bytes_read != 0) {
+	if (*err == 0 && bytes_read != 0)
 	    *err = WTAP_ERR_SHORT_READ;
-	    return -1;
-	}
-	return 0;
+	return FALSE;
     }
-    offset += 2;
     hdr_len = g_ntohs(rec_hdr.hdr_len);
     if (hdr_len < NETTL_REC_HDR_LEN) {
     	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: record header length %u too short",
 	    hdr_len);
-	return -1;
+	return FALSE;
     }
     bytes_read = file_read(&rec_hdr.subsys, NETTL_REC_HDR_LEN - 2, fh);
     if (bytes_read != NETTL_REC_HDR_LEN - 2) {
 	*err = file_error(fh, err_info);
 	if (*err == 0)
 	    *err = WTAP_ERR_SHORT_READ;
-	return -1;
+	return FALSE;
     }
-    offset += NETTL_REC_HDR_LEN - 2;
     subsys = g_ntohs(rec_hdr.subsys);
     hdr_len -= NETTL_REC_HDR_LEN;
     if (file_seek(fh, hdr_len, SEEK_CUR, err) == -1)
-	return -1;
-    offset += hdr_len;
+	return FALSE;
 
     if ( (pntohl(&rec_hdr.kind) & NETTL_HDR_PDU_MASK) == 0 ) {
         /* not actually a data packet (PDU) trace record */
@@ -500,7 +462,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                        there are an extra 3 bytes after the DSAP and SSAP
                        for SNAP frames ???
                     */
-                    *fddihack=TRUE;
+                    fddihack=TRUE;
                     padlen = 0;
                 } else {
 	            /* outbound appears to have variable padding */
@@ -509,29 +471,26 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			*err = file_error(fh, err_info);
 			if (*err == 0)
 			    *err = WTAP_ERR_SHORT_READ;
-			return -1;
+			return FALSE;
 		    }
                     /* padding is usually either a total 11 or 16 bytes??? */
 		    padlen = (int)dummyc[8];
 		    if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
-			return -1;
+			return FALSE;
 		    padlen += 9;
-		    offset += padlen;
 		}
 	    } else if ( (subsys == NETTL_SUBSYS_PCI_FDDI)
 	             || (subsys == NETTL_SUBSYS_EISA_FDDI)
 	             || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
 	        /* other flavor FDDI cards have an extra 3 bytes of padding */
                 if (file_seek(fh, 3, SEEK_CUR, err) == -1)
-                    return -1;
+                    return FALSE;
                 padlen = 3;
-		offset += padlen;
 	    } else if (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK) {
 	        /* LOOPBACK has an extra 26 bytes of padding */
                 if (file_seek(fh, 26, SEEK_CUR, err) == -1)
-                    return -1;
+                    return FALSE;
                 padlen = 26;
-		offset += padlen;
             } else if (subsys == NETTL_SUBSYS_NS_LS_SCTP) {
                 /*
                  * SCTP 8 byte header that we will ignore...
@@ -544,9 +503,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                  *   2 = Outbound
                  */
                 if (file_seek(fh, 8, SEEK_CUR, err) == -1)
-                    return -1;
+                    return FALSE;
                 padlen = 8;
-                offset += padlen;   
 	    } else {
 	    	padlen = 0;
 	    }
@@ -562,9 +520,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = file_error(fh, err_info);
 		if (*err == 0)
 		    *err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	    }
-	    offset += NS_LS_DRV_ETH_HDR_LEN;
 
 	    length = pntohs(&drv_eth_hdr.length); 
 	    caplen = pntohs(&drv_eth_hdr.caplen);
@@ -576,8 +533,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	     * And what are the extra two bytes?
 	     */
             if (nettl->is_hpux_11) {
-                if (file_seek(fh, 2, SEEK_CUR, err) == -1) return -1;
-	        offset += 2;
+                if (file_seek(fh, 2, SEEK_CUR, err) == -1) return FALSE;
             }
 	    padlen = 0;
 	    break;
@@ -607,8 +563,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    caplen = pntohl(&rec_hdr.caplen);
 	    padlen = 24;	/* sizeof (struct nettlrec_sx25l2_hdr) - NETTL_REC_HDR_LEN + 4 */
 	    if (file_seek(fh, padlen, SEEK_CUR, err) == -1)
-		return -1;
-            offset += padlen;
+		return FALSE;
 	    break;
 
 	default:
@@ -626,7 +581,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: packet length %u in record header too short, less than %u",
 	    length, padlen);
-	return -1;
+	return FALSE;
     }
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->len = length - padlen;
@@ -634,9 +589,10 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: captured length %u in record header too short, less than %u",
 	    caplen, padlen);
-	return -1;
+	return FALSE;
     }
-    phdr->caplen = caplen - padlen;
+    datalen = caplen - padlen;
+    phdr->caplen = datalen;
     phdr->ts.secs = pntohl(&rec_hdr.sec);
     phdr->ts.nsecs = pntohl(&rec_hdr.usec) * 1000;
 
@@ -646,58 +602,61 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     pseudo_header->nettl.pid      = pntohl(&rec_hdr.pid);
     pseudo_header->nettl.uid      = pntohs(&rec_hdr.uid);
 
-    return offset;
-}
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+	/*
+	 * Probably a corrupt capture file; don't blow up trying
+	 * to allocate space for an immensely-large packet.
+	 */
+	*err = WTAP_ERR_BAD_FILE;
+	*err_info = g_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
+	    phdr->caplen, WTAP_MAX_PACKET_SIZE);
+	return FALSE;
+    }
 
-static gboolean
-nettl_read_rec_data(FILE_T fh, Buffer *buf, int length, int *err,
-	gchar **err_info, gboolean fddihack)
-{
-    int bytes_to_read, bytes_read;
-    guint8 *pd;
-    guint8 dummy[3];
-
-    buffer_assure_space(buf, length);
+    /*
+     * Read the packet data.
+     */
+    buffer_assure_space(buf, datalen);
     pd = buffer_start_ptr(buf);
     errno = WTAP_ERR_CANT_READ;
     if (fddihack) {
         /* read in FC, dest, src, DSAP and SSAP */
         bytes_to_read = 15;
-        if (bytes_to_read > length)
-            bytes_to_read = length;
+        if (bytes_to_read > datalen)
+            bytes_to_read = datalen;
         bytes_read = file_read(pd, bytes_to_read, fh);
         if (bytes_read != bytes_to_read) {
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
         }
-        length -= bytes_read;
-        if (length == 0) {
+        datalen -= bytes_read;
+        if (datalen == 0) {
             /* There's nothing past the FC, dest, src, DSAP and SSAP */
             return TRUE;
         }
         if (pd[13] == 0xAA) {
             /* it's SNAP, have to eat 3 bytes??? */
             bytes_to_read = 3;
-            if (bytes_to_read > length)
-                bytes_to_read = length;
+            if (bytes_to_read > datalen)
+                bytes_to_read = datalen;
             bytes_read = file_read(dummy, bytes_to_read, fh);
             if (bytes_read != bytes_to_read) {
                 if (*err == 0)
                     *err = WTAP_ERR_SHORT_READ;
                 return FALSE;
             }
-            length -= bytes_read;
-            if (length == 0) {
+            datalen -= bytes_read;
+            if (datalen == 0) {
                 /* There's nothing past the FC, dest, src, DSAP, SSAP, and 3 bytes to eat */
 		return TRUE;
 	    }
         }
-        bytes_read = file_read(pd + 15, length, fh);
+        bytes_read = file_read(pd + 15, datalen, fh);
     } else
-        bytes_read = file_read(pd, length, fh);
+        bytes_read = file_read(pd, datalen, fh);
 
-    if (bytes_read != length) {
+    if (bytes_read != datalen) {
 	*err = file_error(fh, err_info);
 	if (*err == 0)
 	    *err = WTAP_ERR_SHORT_READ;
@@ -705,7 +664,6 @@ nettl_read_rec_data(FILE_T fh, Buffer *buf, int length, int *err,
     }
     return TRUE;
 }
-
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise.  nettl files are WTAP_ENCAP_UNKNOWN

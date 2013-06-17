@@ -114,10 +114,8 @@ static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
 	int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
-static gboolean parse_toshiba_hex_dump(FILE_T fh, int pkt_len, Buffer *buf,
-	int *err, gchar **err_info);
-static int parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
-    int *err, gchar **err_info);
+static gboolean parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+	Buffer *buf, int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
@@ -223,55 +221,38 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
-	int	pkt_len;
 
 	/* Find the next packet */
 	offset = toshiba_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
 		return FALSE;
-
-	/* Parse the header */
-	pkt_len = parse_toshiba_rec_hdr(&wth->phdr, wth->fh, err, err_info);
-	if (pkt_len == -1)
-		return FALSE;
-
-	/* Convert the ASCII hex dump to binary data */
-	if (!parse_toshiba_hex_dump(wth->fh, pkt_len, wth->frame_buffer,
-	    err, err_info))
-		return FALSE;
-
 	*data_offset = offset;
-	return TRUE;
+
+	/* Parse the packet */
+	return parse_toshiba_packet(wth->fh, &wth->phdr, wth->frame_buffer,
+	    err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
 toshiba_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int len,
+	struct wtap_pkthdr *phdr, Buffer *buf, int len _U_,
 	int *err, gchar **err_info)
 {
-	int	pkt_len;
-
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
 
-	pkt_len = parse_toshiba_rec_hdr(phdr, wth->random_fh, err, err_info);
-
-	if (pkt_len != len) {
-		if (pkt_len != -1) {
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("toshiba: requested length %d doesn't match record length %d",
-			    len, pkt_len);
-		}
+	if (!parse_toshiba_packet(wth->random_fh, phdr, buf, err, err_info)) {
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-
-	return parse_toshiba_hex_dump(wth->random_fh, pkt_len, buf, err, err_info);
+	return TRUE;
 }
 
-/* Parses a packet record header. */
-static int
-parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
+/* Parses a packet. */
+static gboolean
+parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
 	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
@@ -279,6 +260,8 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 	int	num_items_scanned;
 	int	pkt_len, pktnum, hr, min, sec, csec;
 	char	channel[10], direction[10];
+	int	i, hex_lines;
+	guint8	*pd;
 
 	/* Our file pointer should be on the line containing the
 	 * summary information for a packet. Read in that line and
@@ -289,7 +272,7 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return -1;
+		return FALSE;
 	}
 
 	/* Find text in line after "[No.". Limit the length of the
@@ -301,7 +284,7 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 	if (num_items_scanned != 7) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("toshiba: record header isn't valid");
-		return -1;
+		return FALSE;
 	}
 
 	/* Scan lines until we find the OFFSET line. In a "telnet" trace,
@@ -319,7 +302,7 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
-			return -1;
+			return FALSE;
 		}
 
 		/* Check for "OFFSET 0001-0203" at beginning of line */
@@ -331,16 +314,15 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 	if (num_items_scanned != 1) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("toshiba: OFFSET line doesn't have valid LEN item");
-		return -1;
+		return FALSE;
 	}
 
-	{
-		phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-		phdr->ts.secs = hr * 3600 + min * 60 + sec;
-		phdr->ts.nsecs = csec * 10000000;
-		phdr->caplen = pkt_len;
-		phdr->len = pkt_len;
-	}
+	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->ts.secs = hr * 3600 + min * 60 + sec;
+	phdr->ts.nsecs = csec * 10000000;
+	phdr->caplen = pkt_len;
+	phdr->len = pkt_len;
+
 	switch (channel[0]) {
 		case 'B':
 			phdr->pkt_encap = WTAP_ENCAP_ISDN;
@@ -361,17 +343,6 @@ parse_toshiba_rec_hdr(struct wtap_pkthdr *phdr, FILE_T fh,
 			pseudo_header->eth.fcs_len = -1;
 			break;
 	}
-	return pkt_len;
-}
-
-/* Converts ASCII hex dump to binary data */
-static gboolean
-parse_toshiba_hex_dump(FILE_T fh, int pkt_len, Buffer *buf, int *err,
-    gchar **err_info)
-{
-	char	line[TOSHIBA_LINE_LENGTH];
-	int	i, hex_lines;
-	guint8	*pd;
 
 	/* Make sure we have enough room for the packet */
 	buffer_assure_space(buf, TOSHIBA_MAX_PACKET_LEN);
