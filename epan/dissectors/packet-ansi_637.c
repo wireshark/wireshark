@@ -586,6 +586,9 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	}
 
 	saved_offset = offset;
+	bit = bit ? bit : 8;
+	oct = tvb_get_guint8(tvb_out, offset);
+	offset++;
 
 	decode_7_bits(tvb_out, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
 
@@ -644,6 +647,9 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
             dis_field_udh(tvb_out, tree, &offset, &required_octs, &num_fields, TRUE, &bit);
         }
         saved_offset = offset;
+        bit = bit ? bit : 8;
+        oct = tvb_get_guint8(tvb_out, offset);
+        offset++;
         out_len = decode_7_bits(tvb_out, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
         IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
 
