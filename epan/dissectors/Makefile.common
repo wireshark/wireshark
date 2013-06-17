@@ -656,6 +656,7 @@ DISSECTOR_SRC = \
 	packet-hsr.c		\
 	packet-hsrp.c		\
 	packet-http.c		\
+	packet-http-urlencoded.c \
 	packet-hyperscsi.c	\
 	packet-i2c.c		\
 	packet-iana-oui.c	\

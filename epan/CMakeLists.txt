@@ -734,6 +734,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hsr.c
 	dissectors/packet-hsrp.c
 	dissectors/packet-http.c
+	dissecotrs/packet-http-urlencoded.c
 	dissectors/packet-hyperscsi.c
 	dissectors/packet-i2c.c
 	dissectors/packet-iana-oui.c

@@ -167,7 +167,6 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "application/x-javascript", text_lines_handle);
 	dissector_add_string("media_type", "application/x-tia-p25-issi", text_lines_handle);
 	dissector_add_string("media_type", "application/x-tia-p25-sndcp", text_lines_handle);
-	dissector_add_string("media_type", "application/x-www-form-urlencoded", text_lines_handle);
 	dissector_add_string("media_type", "application/x-ns-proxy-autoconfig", text_lines_handle);
 
 	dissector_add_string("media_type", "text/vnd.sun.j2me.app-descriptor", text_lines_handle);
