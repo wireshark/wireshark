@@ -100,7 +100,12 @@ fi
 # export CXXFLAGS="$CXXFLAGS -arch i386"
 # export LDFLAGS="$LDFLAGS -arch i386"
 #
-# 
+
+# if you have many CPU cores, you can increase this number for more
+# parallel compilation.
+MAKE_BUILD_OPTS="-j 3"
+
+#
 # Versions to download and install.
 #
 # The following libraries and tools are required.
@@ -159,6 +164,11 @@ PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 GEOIP_VERSION=1.4.8
 
+# GNU auto tools
+AUTOCONF_VERSION=2.69
+AUTOMAKE_VERSION=1.13.3
+LIBTOOL_VERSION=2.4.2
+
 #
 # You need Xcode installed to get the compilers.
 #
@@ -208,25 +218,67 @@ cd macosx-support-libs
 
 # Start with xz: It is the sole download format of glib later than 2.31.2
 #
-echo "Downloading, building, and installing xz:"
-curl -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
-tar xf xz-$XZ_VERSION.tar.bz2 || exit 1
-cd xz-$XZ_VERSION
-CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
+if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
+    echo "Downloading, building, and installing xz:"
+    [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
+    bzcat xz-$XZ_VERSION.tar.bz2 | tar xf - || exit 1
+    cd xz-$XZ_VERSION
+    CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch xz-$XZ_VERSION-done
+fi
 
-if [ -n "$CMAKE" ]; then
+if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
+    echo "Downloading, building and installing GNU autoconf..."
+    [ -f autoconf-$AUTOCONF_VERSION.tar.xz ] || curl -O ftp://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.xz || exit 1
+    xzcat autoconf-$AUTOCONF_VERSION.tar.xz | tar xf - || exit 1
+    cd autoconf-$AUTOCONF_VERSION
+    ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch autoconf-$AUTOCONF_VERSION-done
+fi
+
+if [ "$AUTOMAKE_VERSION" -a ! -f automake-$AUTOMAKE_VERSION-done ] ; then
+    echo "Downloading, building and installing GNU automake..."
+    [ -f automake-$AUTOMAKE_VERSION.tar.xz ] || curl -O ftp://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.xz || exit 1
+    xzcat automake-$AUTOMAKE_VERSION.tar.xz | tar xf - || exit 1
+    cd automake-$AUTOMAKE_VERSION
+    ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch automake-$AUTOMAKE_VERSION-done
+fi
+
+if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
+    echo "Downloading, building and installing GNU libtool..."
+    [ -f libtool-$LIBTOOL_VERSION.tar.xz ] || curl -O ftp://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.xz || exit 1
+    xzcat libtool-$LIBTOOL_VERSION.tar.xz | tar xf - || exit 1
+    cd libtool-$LIBTOOL_VERSION
+    ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    mv /usr/local/bin/libtool /usr/local/bin/glibtool
+    mv /usr/local/bin/libtoolize /usr/local/bin/glibtoolize
+    cd ..
+    touch libtool-$LIBTOOL_VERSION-done
+fi
+
+if [ -n "$CMAKE" -a ! -f cmake-$CMAKE_VERSION-done ]; then
   echo "Downloading, building, and installing CMAKE:"
   cmake_dir=`expr $CMAKE_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-  curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION.tar.gz || exit 1
+  [ -f cmake-$CMAKE_VERSION.tar.gz ] || curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION.tar.gz || exit 1
   gzcat cmake-$CMAKE_VERSION.tar.gz | tar xf - || exit 1
   cd cmake-$CMAKE_VERSION
   ./bootstrap || exit 1
-  make -j 3 || exit 1
+  make $MAKE_BUILD_OPTS || exit 1
   $DO_MAKE_INSTALL || exit 1
   cd ..
+  touch cmake-$CMAKE_VERSION-done
 fi
 
 #
@@ -240,55 +292,63 @@ fi
 # with the result being a huge train wreck.  Define _FORTIFY_SOURCE
 # as 0 in an attempt to keep the trains on separate tracks.
 #
-echo "Downloading, building, and installing GNU gettext:"
-curl -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
-tar xf gettext-$GETTEXT_VERSION.tar.gz || exit 1
-cd gettext-$GETTEXT_VERSION
-CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
+if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
+    echo "Downloading, building, and installing GNU gettext:"
+    [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
+    gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf - || exit 1
+    cd gettext-$GETTEXT_VERSION
+    CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch gettext-$GETTEXT_VERSION-done
+fi
 
-echo "Downloading, building, and installing GLib:"
-glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
-xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
-cd glib-$GLIB_VERSION
-#
-# OS X ships with libffi, but doesn't provide its pkg-config file;
-# explicitly specify LIBFFI_CFLAGS and LIBFFI_LIBS, so the configure
-# script doesn't try to use pkg-config to get the appropriate
-# CFLAGS and LIBS.
-#
-# And, what's worse, at least with the version of Xcode that comes
-# with Leopard, /usr/include/ffi/fficonfig.h doesn't define MACOSX,
-# which causes the build of GLib to fail.  If we don't find
-# "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explictly
-# define it.
-#
-if grep -qs '#define.*MACOSX' /usr/include/ffi/fficonfig.h
-then
+if [ ! -f glib-$GLIB_VERSION-done ] ; then
+    echo "Downloading, building, and installing GLib:"
+    glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+    [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+    xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
+    cd glib-$GLIB_VERSION
+    #
+    # OS X ships with libffi, but doesn't provide its pkg-config file;
+    # explicitly specify LIBFFI_CFLAGS and LIBFFI_LIBS, so the configure
+    # script doesn't try to use pkg-config to get the appropriate
+    # CFLAGS and LIBS.
+    #
+    # And, what's worse, at least with the version of Xcode that comes
+    # with Leopard, /usr/include/ffi/fficonfig.h doesn't define MACOSX,
+    # which causes the build of GLib to fail.  If we don't find
+    # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explictly
+    # define it.
+    #
+    if grep -qs '#define.*MACOSX' /usr/include/ffi/fficonfig.h
+    then
 	# It's defined, nothing to do
 	LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
-else
+    else
 	CFLAGS="$CFLAGS -DMACOSX" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
+    fi
+    make $MAKE_BUILD_OPTS || exit 1
+    # Apply patch: we depend on libffi, but pkg-config doesn't get told.
+    patch -p0 <../../macosx-support-lib-patches/glib-pkgconfig.patch || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch glib-$GLIB_VERSION-done
 fi
-make -j 3 || exit 1
-# Apply patch: we depend on libffi, but pkg-config doesn't get told.
-patch -p0 <../../macosx-support-lib-patches/glib-pkgconfig.patch || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
 
-echo "Downloading, building, and installing pkg-config:"
-curl -O http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
-tar xf pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
-cd pkg-config-$PKG_CONFIG_VERSION
-# Avoid another pkgconfig call
-GLIB_CFLAGS="$CFLAGS -I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include" GLIB_LIBS="$LDFLAGS -L/usr/local/lib -lglib-2.0 -lintl" ./configure || exit 1
-# ./configure || exit 1
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
+if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
+    echo "Downloading, building, and installing pkg-config:"
+    [ -f pkg-config-$PKG_CONFIG_VERSION.tar.gz ] || curl -O http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
+    gzcat pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar xf - || exit 1
+    cd pkg-config-$PKG_CONFIG_VERSION
+    # Avoid another pkgconfig call
+    GLIB_CFLAGS="$CFLAGS -I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include" GLIB_LIBS="$LDFLAGS -L/usr/local/lib -lglib-2.0 -lintl" ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch pkg-config-$PKG_CONFIG_VERSION-done
+fi
 
 #
 # Now we have reached a point where we can build everything but
@@ -312,133 +372,152 @@ if [[ -n "$GTK3" || $DARWIN_MAJOR_VERSION = "9" ]]; then
   # which causes other packages not to be able to find its
   # headers.
   #
-  echo "Downloading, building, and installing libpng:"
-  curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
-  xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
-  cd libpng-$PNG_VERSION
-  ./configure || exit 1
-  make -j 3 || exit 1
-  $DO_MAKE_INSTALL || exit 1
-  cd ..
+  if [ ! -f libpng-$PNG_VERSION-done ] ; then
+      echo "Downloading, building, and installing libpng:"
+      [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
+      xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
+      cd libpng-$PNG_VERSION
+      ./configure || exit 1
+      make $MAKE_BUILD_OPTS || exit 1
+      $DO_MAKE_INSTALL || exit 1
+      cd ..
+	touch libpng-$PNG_VERSION-done
+    fi
 
   #
   # The libpixman that comes with the X11 for Leopard is too old
   # to support Cairo's image surface backend feature (which requires
   # pixman-1 >= 0.22.0).
   #
-  echo "Downloading, building, and installing pixman:"
-  curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
-  gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
-  cd pixman-$PIXMAN_VERSION
-  ./configure || exit 1
-  make -j 3 || exit 1
-  $DO_MAKE_INSTALL || exit 1
-  cd ..
+  if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
+      echo "Downloading, building, and installing pixman:"
+      [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+      gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
+      cd pixman-$PIXMAN_VERSION
+      ./configure || exit 1
+      make $MAKE_BUILD_OPTS || exit 1
+      $DO_MAKE_INSTALL || exit 1
+      cd ..
+      touch pixman-$PIXMAN_VERSION-done
+  fi
 
   #
   # And now Cairo itself.
   #
-  echo "Downloading, building, and installing Cairo:"
-  CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
-  CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-  CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-  if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
-        $CAIRO_MINOR_VERSION -gt 12 ||
-        ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
-  then
+  if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
+      echo "Downloading, building, and installing Cairo:"
+      CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
+      CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+      CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+      if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
+            $CAIRO_MINOR_VERSION -gt 12 ||
+           ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
+      then
 	#
 	# Starting with Cairo 1.12.2, the tarballs are compressed with
 	# xz rather than gzip.
 	#
-	curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
-	xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
-  else
-	curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
-	tar xf cairo-$CAIRO_VERSION.tar.gz || exit 1
+	  [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+	  xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
+      else
+	  [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+	  gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
+      fi
+      cd cairo-$CAIRO_VERSION
+      #./configure --enable-quartz=no || exit 1
+      # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
+      ./configure --enable-quartz=yes || exit 1
+      #
+      # We must avoid the version of libpng that comes with X11; the
+      # only way I've found to force that is to forcibly set INCLUDES
+      # when we do the build, so that this comes before CAIRO_CFLAGS,
+      # which has -I/usr/X11/include added to it before anything
+      # connected to libpng is.
+      #
+      INCLUDES="-I/usr/local/include/libpng15" make $MAKE_BUILD_OPTS || exit 1
+      $DO_MAKE_INSTALL || exit 1
+      cd ..
+      touch cairo-$CAIRO_VERSION-done
   fi
-  cd cairo-$CAIRO_VERSION
-  #./configure --enable-quartz=no || exit 1
-  # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
-  ./configure --enable-quartz=yes || exit 1
-  #
-  # We must avoid the version of libpng that comes with X11; the
-  # only way I've found to force that is to forcibly set INCLUDES
-  # when we do the build, so that this comes before CAIRO_CFLAGS,
-  # which has -I/usr/X11/include added to it before anything
-  # connected to libpng is.
-  #
-  INCLUDES="-I/usr/local/include/libpng15" make -j 3 || exit 1
-  $DO_MAKE_INSTALL || exit 1
-  cd ..
 fi
 
-echo "Downloading, building, and installing ATK:"
-atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
-xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
-cd atk-$ATK_VERSION
-./configure || exit 1
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
+if [ ! -f atk-$ATK_VERSION-done ] ; then
+    echo "Downloading, building, and installing ATK:"
+    atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+    [ -f atk-$ATK_VERSION.tar.xz ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
+    xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
+    cd atk-$ATK_VERSION
+    ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch atk-$ATK_VERSION-done
+fi
 
-echo "Downloading, building, and installing Pango:"
-pango_dir=`expr $PANGO_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-PANGO_MAJOR_VERSION="`expr $PANGO_VERSION : '\([0-9][0-9]*\).*'`"
-PANGO_MINOR_VERSION="`expr $PANGO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-if [[ $PANGO_MAJOR_VERSION -gt 1 ||
-      $PANGO_MINOR_VERSION -ge 29 ]]
-then
+if [ ! -f pango-$PANGO_VERSION-done ] ; then
+    echo "Downloading, building, and installing Pango:"
+    pango_dir=`expr $PANGO_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+    PANGO_MAJOR_VERSION="`expr $PANGO_VERSION : '\([0-9][0-9]*\).*'`"
+    PANGO_MINOR_VERSION="`expr $PANGO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    if [[ $PANGO_MAJOR_VERSION -gt 1 ||
+	  $PANGO_MINOR_VERSION -ge 29 ]]
+    then
 	#
 	# Starting with Pango 1.29, the tarballs are compressed with
 	# xz rather than bzip2.
 	#
-	curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz
+	[ -f pango-$PANGO_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz || exit 1
 	xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
-else
-	curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2
-	tar xf pango-$PANGO_VERSION.tar.bz2 || exit 1
+    else
+	[ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
+	gzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
+    fi
+    cd pango-$PANGO_VERSION
+    ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch pango-$PANGO_VERSION-done
 fi
-cd pango-$PANGO_VERSION
-./configure || exit 1
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
 
-echo "Downloading, building, and installing gdk-pixbuf:"
-gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
-xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
-cd gdk-pixbuf-$GDK_PIXBUF_VERSION
-./configure --without-libtiff --without-libjpeg || exit 1
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
+if [ ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
+    echo "Downloading, building, and installing gdk-pixbuf:"
+    gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+    [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
+    xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
+    cd gdk-pixbuf-$GDK_PIXBUF_VERSION
+    ./configure --without-libtiff --without-libjpeg || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch gdk-pixbuf-$GDK_PIXBUF_VERSION-done
+fi
 
-echo "Downloading, building, and installing GTK+:"
-gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
-GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-if [[ $GTK_MAJOR_VERSION -gt 2 ||
-      $GTK_MINOR_VERSION -gt 24 ||
-      ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
-then
+if [ ! -f gtk+-$GTK_VERSION-done ] ; then
+    echo "Downloading, building, and installing GTK+:"
+    gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+    GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
+    GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    if [[ $GTK_MAJOR_VERSION -gt 2 ||
+          $GTK_MINOR_VERSION -gt 24 ||
+         ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
+    then
 	#
 	# Starting with GTK+ 2.24.5, the tarballs are compressed with
 	# xz rather than gzip, in addition to bzip2; use xz, as we've
 	# built and installed it, and as xz compresses better than
 	# bzip2 so the tarballs take less time to download.
 	#
-	curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz
+	[ -f gtk+-$GTK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz || exit 1
 	xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
-else
-	curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2
-	tar xf gtk+-$GTK_VERSION.tar.bz2 || exit 1
-fi
-cd gtk+-$GTK_VERSION
-if [ $DARWIN_MAJOR_VERSION -ge "12" ]
-then
+    else
+	[ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
+	gzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
+    fi
+    cd gtk+-$GTK_VERSION
+    if [ $DARWIN_MAJOR_VERSION -ge "12" ]
+    then
 	#
 	# GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
 	# CUPS printing backend - either the CUPS API changed incompatibly
@@ -448,12 +527,14 @@ then
 	# (12 is the Darwin major version number in Mountain Lion.)
 	#
 	./configure --disable-cups || exit 1
-else
+    else
 	./configure || exit 1
+    fi
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch gtk+-$GTK_VERSION-done
 fi
-make -j 3 || exit 1
-$DO_MAKE_INSTALL || exit 1
-cd ..
 
 #
 # Now we have reached a point where we can build everything including
@@ -465,32 +546,31 @@ cd ..
 # the default is to download them all.
 #
 
-if [ ! -z $LIBSMI_VERSION ]
-then
+if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
 	echo "Downloading, building, and installing libsmi:"
-	curl -L -O ftp://ftp.ibr.cs.tu-bs.de/pub/local/libsmi/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
-	tar xf libsmi-$LIBSMI_VERSION.tar.gz || exit 1
+	[ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl -L -O ftp://ftp.ibr.cs.tu-bs.de/pub/local/libsmi/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
+	gzcat libsmi-$LIBSMI_VERSION.tar.gz | tar xf - || exit 1
 	cd libsmi-$LIBSMI_VERSION
 	./configure || exit 1
-	make -j 3 || exit 1
+	make $MAKE_BUILD_OPTS || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch libsmi-$LIBSMI_VERSION-done
 fi
 
-if [ ! -z $LIBGPG_ERROR_VERSION ]
-then
+if [ "$LIBGPG_ERROR_VERSION" -a ! -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
 	echo "Downloading, building, and installing libgpg-error:"
-	curl -L -O ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 || exit 1
+	[ -f libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 || exit 1
 	bzcat libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 | tar xf - || exit 1
 	cd libgpg-error-$LIBGPG_ERROR_VERSION
 	./configure || exit 1
-	make -j 3 || exit 1
+	make $MAKE_BUILD_OPTS || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch libgpg-error-$LIBGPG_ERROR_VERSION-done
 fi
 
-if [ ! -z $LIBGCRYPT_VERSION ]
-then
+if [ "$LIBGCRYPT_VERSION" -a ! -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
 	#
 	# libgpg-error is required for libgcrypt.
 	#
@@ -501,21 +581,21 @@ then
 	fi
 
 	echo "Downloading, building, and installing libgcrypt:"
-	curl -L -O ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-$LIBGCRYPT_VERSION.tar.gz || exit 1
-	tar xf libgcrypt-$LIBGCRYPT_VERSION.tar.gz || exit 1
+	[ -f libgcrypt-$LIBGCRYPT_VERSION.tar.gz ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-$LIBGCRYPT_VERSION.tar.gz || exit 1
+	gzcat libgcrypt-$LIBGCRYPT_VERSION.tar.gz | tar xf - || exit 1
 	cd libgcrypt-$LIBGCRYPT_VERSION
 	#
 	# The assembler language code is not compatible with the OS X
 	# x86 assembler (or is it an x86-64 vs. x86-32 issue?).
 	#
 	./configure --disable-asm || exit 1
-	make -j 3 || exit 1
+	make $MAKE_BUILD_OPTS || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch libgcrypt-$LIBGCRYPT_VERSION-done
 fi
 
-if [ ! -z $GNUTLS_VERSION ]
-then
+if [ "$GNUTLS_VERSION" -a ! -f gnutls-$GNUTLS_VERSION-done ] ; then
 	#
 	# GnuTLS requires libgcrypt (or nettle, in newer versions).
 	#
@@ -526,7 +606,7 @@ then
 	fi
 
 	echo "Downloading, building, and installing GnuTLS:"
-	curl -L -O http://ftp.gnu.org/gnu/gnutls/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
+	[ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnu.org/gnu/gnutls/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
 	bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
 	cd gnutls-$GNUTLS_VERSION
 	#
@@ -535,7 +615,7 @@ then
 	# Wireshark directly use libgcrypt routines?
 	#
 	./configure --with-libgcrypt --without-p11-kit || exit 1
-	make -j 3 || exit 1
+	make $MAKE_BUILD_OPTS || exit 1
 	#
 	# The pkgconfig file for GnuTLS says "requires zlib", but OS X,
 	# while it supplies zlib, doesn't supply a pkgconfig file for
@@ -549,24 +629,24 @@ then
 	patch -p0 lib/gnutls.pc.in <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch gnutls-$GNUTLS_VERSION-done
 fi
 
-if [ ! -z $LUA_VERSION ]
-then
+if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
 	echo "Downloading, building, and installing Lua:"
-	curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
-	tar xf lua-$LUA_VERSION.tar.gz || exit 1
+	[ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
+	gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
 	cd lua-$LUA_VERSION
-	make -j 3 macosx || exit 1
+	make $MAKE_BUILD_OPTS macosx || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch lua-$LUA_VERSION-done
 fi
 
-if [ ! -z $PORTAUDIO_VERSION ]
-then
+if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-done ] ; then
 	echo "Downloading, building, and installing PortAudio:"
-	curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
-	tar xf $PORTAUDIO_VERSION.tgz || exit 1
+	[ -f $PORTAUDIO_VERSION.tgz ] || curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
+	gzcat $PORTAUDIO_VERSION.tgz | tar xf - || exit 1
 	cd portaudio
 	#
 	# Un-comment an include that's required on Lion.
@@ -583,16 +663,17 @@ then
 	# deprecation warnings.
 	#
 	CFLAGS="$CFLAGS -mmacosx-version-min=10.4" ./configure --disable-mac-universal || exit 1
-	make -j 3 || exit 1
+	make $MAKE_BUILD_OPTS || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch portaudio-done
 fi
 
-if [ ! -z $GEOIP_VERSION ]
+if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ]
 then
 	echo "Downloading, building, and installing GeoIP API:"
-	curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
-	tar xf GeoIP-$GEOIP_VERSION.tar.gz || exit 1
+	[ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
+	gzcat GeoIP-$GEOIP_VERSION.tar.gz | tar xf - || exit 1
 	cd GeoIP-$GEOIP_VERSION
 	./configure || exit 1
 	#
@@ -610,9 +691,10 @@ then
 		iconv -f iso8859-1 -t utf-8 man/"$i" >man/"$i".tmp &&
 		    mv man/"$i".tmp man/"$i"
 	done
-	make -j 3 || exit 1
+	make $MAKE_BUILD_OPTS || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
+	touch geoip-$GEOIP_VERSION-done
 fi
 
 echo ""
@@ -631,7 +713,7 @@ echo "./autogen.sh"
 echo "mkdir build; cd build"
 echo "../configure"
 echo ""
-echo "make -j 3"
+echo "make $MAKE_BUILD_OPTS"
 echo "make install"
 
 echo ""
