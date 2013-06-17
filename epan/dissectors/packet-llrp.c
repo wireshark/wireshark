@@ -1887,7 +1887,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_ACCESS_SPEC:
                 PARAM_TREE_ADD(accessspec_id, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(antenna_id, 2, ENC_BIG_ENDIAN);
-                PARAM_TREE_ADD(protocol_id, 2, ENC_BIG_ENDIAN);
+                PARAM_TREE_ADD(protocol_id, 1, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(access_cur_state, 1, ENC_NA);
                 PARAM_TREE_ADD(rospec_id, 4, ENC_BIG_ENDIAN);
                 suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
@@ -2799,7 +2799,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_protocol_id,
-        { "Protocol ID", "llrp.param.protocol_id", FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(protocol_id), 0,
+        { "Protocol ID", "llrp.param.protocol_id", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(protocol_id), 0,
           NULL, HFILL }},
 
         { &hf_llrp_can_do_survey,
