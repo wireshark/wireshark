@@ -30,7 +30,7 @@
 
 /**
  * Define different common tap names to extract PDU:s at different layers, otherwise one packet may
- * be exported several times at diferent layers if all taps are run.
+ * be exported several times at different layers if all taps are run.
  * NOTE if a new tap is added here it needs to be added to export_pdu_dlg.c and packet-exported_pdu.c
  * TODO: Use an enum_val_t instead?
  */
@@ -72,22 +72,23 @@
                                           * of the short protocol name used by Wireshark e.g "sip"
                                           * Will be used to call the next dissector.
                                           */
-/* Add protocol type related tags here NOTE Only one protocol typ tag may be present in a packet, the first one found will be used*/
+/* Add protocol type related tags here NOTE Only one protocol type tag may be present in a packet, the first one found will be used*/
 /* 13 - 19 reserved */
 #define EXP_PDU_TAG_IPV4_SRC        20
 #define EXP_PDU_TAG_IPV4_DST        21
 #define EXP_PDU_TAG_IPV6_SRC        22
 #define EXP_PDU_TAG_IPV6_DST        23
 
-#define EXP_PDU_TAG_SRC_PORT        24
-#define EXP_PDU_TAG_DST_PORT        25
+#define EXP_PDU_TAG_PORT_TYPE       24
+#define EXP_PDU_TAG_SRC_PORT        25
+#define EXP_PDU_TAG_DST_PORT        26
 
-#define EXP_PDU_TAG_SCTP_PPID       26
+#define EXP_PDU_TAG_SCTP_PPID       27
 
-#define EXP_PDU_TAG_SS7_OPC         27
-#define EXP_PDU_TAG_SS7_DPC         28
+#define EXP_PDU_TAG_SS7_OPC         28
+#define EXP_PDU_TAG_SS7_DPC         29
 
-#define EXP_PDU_TAG_ORIG_FNO        29
+#define EXP_PDU_TAG_ORIG_FNO        30
 
 
 typedef struct _exp_pdu_data_t {
@@ -115,13 +116,14 @@ typedef struct _exp_pdu_data_t {
 #define EXP_PDU_TAG_IPV6_SRC_LEN        16
 #define EXP_PDU_TAG_IPV6_DST_LEN        16
 
+#define EXP_PDU_TAG_PORT_TYPE_LEN       4
 #define EXP_PDU_TAG_SRC_PORT_LEN        4
 #define EXP_PDU_TAG_DST_PORT_LEN        4
 
-#define EXP_PDU_TAG_SCTP_PPID_LEN       2
+#define EXP_PDU_TAG_SCTP_PPID_LEN       4
 
-#define EXP_PDU_TAG_SS7_OPC_LEN         2
-#define EXP_PDU_TAG_SS7_DPC_LEN         2
+#define EXP_PDU_TAG_SS7_OPC_LEN         4
+#define EXP_PDU_TAG_SS7_DPC_LEN         4
 
 #define EXP_PDU_TAG_ORIG_FNO_LEN        4
 

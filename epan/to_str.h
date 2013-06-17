@@ -101,4 +101,6 @@ WS_DLL_PUBLIC const char *decode_boolean_bitfield(const guint32 val, const guint
 WS_DLL_PUBLIC const char *decode_numeric_bitfield(const guint32 val, const guint32 mask, const int width,
   const char *fmt);
 
+WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
+
 #endif /* __TO_STR_H__  */

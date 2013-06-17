@@ -30,25 +30,9 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/uat-int.h>
+#include <epan/to_str.h>
 
 #include "pinfo_stats_tree.h"
-
-/* XXX: this belongs to to_str.c */
-static const gchar* port_type_to_str (port_type type) {
-	switch (type) {
-		case PT_NONE:   return "NONE";
-		case PT_SCTP:   return "SCTP";
-		case PT_TCP:	return "TCP";
-		case PT_UDP:	return "UDP";
-		case PT_IPX:	return "IPX";
-		case PT_NCP:	return "NCP";
-		case PT_EXCHG:	return "FC EXCHG";
-		case PT_DDP:	return "DDP";
-		case PT_SBCCS:	return "FICON SBCCS";
-		case PT_IDP:	return "IDP";
-		default:	return "[Unknown]";
-	}
-}
 
 /*-------------------------------------
  * UAT for Packet Lengths

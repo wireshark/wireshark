@@ -41,7 +41,8 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	int tag_buf_size = 0;
 	int str_len = 0;
 	int tag_str_len = 0;
-	int i = 0;
+	int i = 0, j;
+	gboolean port_type_defined = FALSE;
 
 	exp_pdu_data = (exp_pdu_data_t *)g_malloc(sizeof(exp_pdu_data_t));
 
@@ -76,11 +77,28 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_SRC_PORT_BIT) == EXP_PDU_TAG_SRC_PORT_BIT){
+		if (!port_type_defined) {
+			tag_buf_size= tag_buf_size + EXP_PDU_TAG_PORT_TYPE_LEN + 4;
+			port_type_defined = TRUE;
+		}
 		tag_buf_size= tag_buf_size + EXP_PDU_TAG_SRC_PORT_LEN + 4;
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_DST_PORT_BIT) == EXP_PDU_TAG_DST_PORT_BIT){
+		if (!port_type_defined) {
+			tag_buf_size= tag_buf_size + EXP_PDU_TAG_PORT_TYPE_LEN + 4;
+		}
 		tag_buf_size= tag_buf_size + EXP_PDU_TAG_DST_PORT_LEN + 4;
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_SCTP_PPID_BIT) == EXP_PDU_TAG_SCTP_PPID_BIT){
+		for(j = 0; j < MAX_NUMBER_OF_PPIDS; j++) {
+			if (pinfo->ppids[j] != LAST_PPID) {
+				tag_buf_size= tag_buf_size + EXP_PDU_TAG_SCTP_PPID_LEN + 4;
+			} else {
+				break;
+			}
+		}
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_BIT) == EXP_PDU_TAG_ORIG_FNO_BIT){
@@ -92,6 +110,7 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 
 	exp_pdu_data->tlv_buffer = (guint8 *)g_malloc0(tag_buf_size);
 	exp_pdu_data->tlv_buffer_len = tag_buf_size;
+	port_type_defined = FALSE;
 
 	if(proto_name){
 		exp_pdu_data->tlv_buffer[i] = 0;
@@ -158,51 +177,104 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_SRC_PORT_BIT) == EXP_PDU_TAG_SRC_PORT_BIT){
+		if (!port_type_defined) {
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
-			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SRC_PORT;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_PORT_TYPE;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
-			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SRC_PORT_LEN; /* tag length */
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_PORT_TYPE_LEN; /* tag length */
 			i++;
-			exp_pdu_data->tlv_buffer[i]   = (pinfo->srcport & 0xff000000) >> 24;
-			exp_pdu_data->tlv_buffer[i+1] = (pinfo->srcport & 0x00ff0000) >> 16;
-			exp_pdu_data->tlv_buffer[i+2] = (pinfo->srcport & 0x0000ff00) >> 8;
-			exp_pdu_data->tlv_buffer[i+3] = (pinfo->srcport & 0x000000ff);
-			i = i +EXP_PDU_TAG_SRC_PORT_LEN;
+			exp_pdu_data->tlv_buffer[i]   = (pinfo->ptype & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (pinfo->ptype & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (pinfo->ptype & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (pinfo->ptype & 0x000000ff);
+			i = i +EXP_PDU_TAG_PORT_TYPE_LEN;
+			port_type_defined = TRUE;
+		}
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SRC_PORT;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SRC_PORT_LEN; /* tag length */
+		i++;
+		exp_pdu_data->tlv_buffer[i]   = (pinfo->srcport & 0xff000000) >> 24;
+		exp_pdu_data->tlv_buffer[i+1] = (pinfo->srcport & 0x00ff0000) >> 16;
+		exp_pdu_data->tlv_buffer[i+2] = (pinfo->srcport & 0x0000ff00) >> 8;
+		exp_pdu_data->tlv_buffer[i+3] = (pinfo->srcport & 0x000000ff);
+		i = i +EXP_PDU_TAG_SRC_PORT_LEN;
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_DST_PORT_BIT) == EXP_PDU_TAG_DST_PORT_BIT){
+		if (!port_type_defined) {
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
-			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DST_PORT;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_PORT_TYPE;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
-			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DST_PORT_LEN; /* tag length */
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_PORT_TYPE_LEN; /* tag length */
 			i++;
-			exp_pdu_data->tlv_buffer[i]   = (pinfo->destport & 0xff000000) >> 24;
-			exp_pdu_data->tlv_buffer[i+1] = (pinfo->destport & 0x00ff0000) >> 16;
-			exp_pdu_data->tlv_buffer[i+2] = (pinfo->destport & 0x0000ff00) >> 8;
-			exp_pdu_data->tlv_buffer[i+3] = (pinfo->destport & 0x000000ff);
-			i = i +EXP_PDU_TAG_DST_PORT_LEN;
+			exp_pdu_data->tlv_buffer[i]   = (pinfo->ptype & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (pinfo->ptype & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (pinfo->ptype & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (pinfo->ptype & 0x000000ff);
+			i = i +EXP_PDU_TAG_PORT_TYPE_LEN;
+		}
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DST_PORT;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_DST_PORT_LEN; /* tag length */
+		i++;
+		exp_pdu_data->tlv_buffer[i]   = (pinfo->destport & 0xff000000) >> 24;
+		exp_pdu_data->tlv_buffer[i+1] = (pinfo->destport & 0x00ff0000) >> 16;
+		exp_pdu_data->tlv_buffer[i+2] = (pinfo->destport & 0x0000ff00) >> 8;
+		exp_pdu_data->tlv_buffer[i+3] = (pinfo->destport & 0x000000ff);
+		i = i +EXP_PDU_TAG_DST_PORT_LEN;
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_SCTP_PPID_BIT) == EXP_PDU_TAG_SCTP_PPID_BIT){
+		for(j = 0; j < MAX_NUMBER_OF_PPIDS; j++) {
+			if (pinfo->ppids[j] != LAST_PPID) {
+				exp_pdu_data->tlv_buffer[i] = 0;
+				i++;
+				exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SCTP_PPID;
+				i++;
+				exp_pdu_data->tlv_buffer[i] = 0;
+				i++;
+				exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SCTP_PPID_LEN; /* tag length */
+				i++;
+				exp_pdu_data->tlv_buffer[i]   = (pinfo->ppids[j] & 0xff000000) >> 24;
+				exp_pdu_data->tlv_buffer[i+1] = (pinfo->ppids[j] & 0x00ff0000) >> 16;
+				exp_pdu_data->tlv_buffer[i+2] = (pinfo->ppids[j] & 0x0000ff00) >> 8;
+				exp_pdu_data->tlv_buffer[i+3] = (pinfo->ppids[j] & 0x000000ff);
+				i = i +EXP_PDU_TAG_SCTP_PPID_LEN;
+			} else {
+				break;
+			}
+		}
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_ORIG_FNO_BIT) == EXP_PDU_TAG_ORIG_FNO_BIT){
-			exp_pdu_data->tlv_buffer[i] = 0;
-			i++;
-			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO;
-			i++;
-			exp_pdu_data->tlv_buffer[i] = 0;
-			i++;
-			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO_LEN; /* tag length */
-			i++;
-			exp_pdu_data->tlv_buffer[i]   = (pinfo->fd->num & 0xff000000) >> 24;
-			exp_pdu_data->tlv_buffer[i+1] = (pinfo->fd->num & 0x00ff0000) >> 16;
-			exp_pdu_data->tlv_buffer[i+2] = (pinfo->fd->num & 0x0000ff00) >> 8;
-			exp_pdu_data->tlv_buffer[i+3] = (pinfo->fd->num & 0x000000ff);
-			/*i = i +EXP_PDU_TAG_ORIG_FNO_LEN;*/
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = 0;
+		i++;
+		exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO_LEN; /* tag length */
+		i++;
+		exp_pdu_data->tlv_buffer[i]   = (pinfo->fd->num & 0xff000000) >> 24;
+		exp_pdu_data->tlv_buffer[i+1] = (pinfo->fd->num & 0x00ff0000) >> 16;
+		exp_pdu_data->tlv_buffer[i+2] = (pinfo->fd->num & 0x0000ff00) >> 8;
+		exp_pdu_data->tlv_buffer[i+3] = (pinfo->fd->num & 0x000000ff);
+		/*i = i +EXP_PDU_TAG_ORIG_FNO_LEN;*/
 	}
 
 	return exp_pdu_data;

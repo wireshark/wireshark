@@ -43,8 +43,10 @@ static int hf_exported_pdu_ipv4_src = -1;
 static int hf_exported_pdu_ipv4_dst = -1;
 static int hf_exported_pdu_ipv6_src = -1;
 static int hf_exported_pdu_ipv6_dst = -1;
+static int hf_exported_pdu_port_type = -1;
 static int hf_exported_pdu_src_port = -1;
 static int hf_exported_pdu_dst_port = -1;
+static int hf_exported_pdu_sctp_ppid = -1;
 static int hf_exported_pdu_orig_fno = -1;
 
 
@@ -66,6 +68,7 @@ static const value_string exported_pdu_tag_vals[] = {
    { EXP_PDU_TAG_IPV6_SRC,         "IPv6 Source Address" },
    { EXP_PDU_TAG_IPV6_DST,         "IPv6 Destination Address" },
 
+   { EXP_PDU_TAG_PORT_TYPE,        "Port Type" },
    { EXP_PDU_TAG_SRC_PORT,         "Source Port" },
    { EXP_PDU_TAG_DST_PORT,         "Destination Port" },
 
@@ -87,6 +90,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
+    guint number_of_ppids = 0;
     guint16 tag;
     int tag_len;
     int next_proto_type = -1;
@@ -139,6 +143,11 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 SET_ADDRESS(&pinfo->net_dst, AT_IPv6, 16, dst_addr);
                 SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, dst_addr);
                 break;
+            case EXP_PDU_TAG_PORT_TYPE:
+                pinfo->ptype = (port_type)tvb_get_ntohl(tvb,offset);
+                proto_tree_add_uint_format_value(tag_tree, hf_exported_pdu_port_type, tvb, offset, 4, pinfo->ptype,
+                                                 "%s (%u)", port_type_to_str(pinfo->ptype), pinfo->ptype);
+                break;
             case EXP_PDU_TAG_SRC_PORT:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                 pinfo->srcport = tvb_get_ntohl(tvb,offset);
@@ -147,7 +156,13 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                 pinfo->destport = tvb_get_ntohl(tvb,offset);
                 break;
-			case EXP_PDU_TAG_ORIG_FNO:
+            case EXP_PDU_TAG_SCTP_PPID:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_sctp_ppid, tvb, offset, 4, ENC_BIG_ENDIAN);
+                if (number_of_ppids < MAX_NUMBER_OF_PPIDS) {
+                    pinfo->ppids[number_of_ppids++] = tvb_get_ntohl(tvb,offset);
+                }
+                break;
+            case EXP_PDU_TAG_ORIG_FNO:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
             default:
@@ -223,19 +238,29 @@ proto_register_exported_pdu(void)
                FT_IPv6, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_exported_pdu_port_type,
+            { "Port Type", "exported_pdu.port_type",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_exported_pdu_src_port,
             { "Src Port", "exported_pdu.src_port",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_dst_port,
             { "Dst Port", "exported_pdu.dst_port",
-               FT_UINT16, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_sctp_ppid,
+            { "Original SCTP PPID", "exported_pdu.sctp_ppid",
+               FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_exported_pdu_orig_fno,
             { "Original Frame Number", "exported_pdu.orig_fno",
-               FT_INT32, BASE_DEC, NULL, 0,
+               FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
     };
