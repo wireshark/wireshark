@@ -1994,7 +1994,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                     bits = tvb_get_bits8(tvb, bit_offset, 8);
                     for (l=0, j=0; l<8; l++) {
                         if ((bits << l) & 0x80) {
-                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%04u,", (unsigned)(sn+(8*i)+l)&0xfff);
+                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%4u,", (unsigned)(sn+(8*i)+l)&0xfff);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " %u", (unsigned)(sn+(8*i)+l)&0xfff);
                             number_of_bitmap_entries++;
                         } else {
