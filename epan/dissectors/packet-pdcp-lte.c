@@ -90,8 +90,6 @@ static int hf_pdcp_lte_fms = -1;
 static int hf_pdcp_lte_reserved4 = -1;
 static int hf_pdcp_lte_fms2 = -1;
 static int hf_pdcp_lte_bitmap = -1;
-static int hf_pdcp_lte_bitmap_received = -1;
-static int hf_pdcp_lte_bitmap_not_received = -1;
 
 
 /* Sequence Analysis */
@@ -1172,11 +1170,16 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 switch (control_pdu_type) {
                     case 0:    /* PDCP status report */
                         {
+                            guint8  bits;
                             guint16 fms;
                             guint16 modulo;
-                            guint   sn;
+                            guint   not_received = 0;
+                            guint   sn, i, j, l;
+                            guint32 len, bit_offset;
                             proto_tree *bitmap_tree;
                             proto_item *bitmap_ti = NULL;
+                            gchar  *buff = NULL;
+                            #define BUFF_SIZE 49
 
                             if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_12_BITS) {
                                 /* First-Missing-Sequence SN */
@@ -1211,81 +1214,36 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 modulo = 32768;
                             }
 
-                            /* Any remaining bytes are the bitmap */
+                            /* Bitmap tree */
                             if (tvb_length_remaining(tvb, offset) > 0) {
-
-                                gint  bitmap_start_offset = offset;
-                                guint bitmap_start_sn = sn;
-                                guint last_seen_sn = 0;
-                                gboolean last_seen_sn_set = FALSE;
-                                gboolean last_seen_sn_added = FALSE;
-                                guint   not_received = 0;
-
-                                /* Create bitmap subtree */
                                 bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
                                                                 offset, -1, ENC_NA);
                                 bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
-                                /* We are only bits describing SNs
-                                   *before* the last received one, so need to scan first
-                                   to find the last received one.
-                                   There *should* be at least one bit set, otherwise
-                                   no point in encoding the optional bitmap! */
-
+                                 buff = (gchar *)ep_alloc(BUFF_SIZE);
+                                 len = tvb_length_remaining(tvb, offset);
+                                 bit_offset = offset<<3;
                                 /* For each byte... */
-                                for ( ; tvb_length_remaining(tvb, offset); offset++) {
-                                    guint bit_offset = 0;
-                                    /* .. look for bits set, in order */
-                                    for ( ; bit_offset < 8; bit_offset++) {
-                                        if ((tvb_get_guint8(tvb, offset) >> (7-bit_offset) & 0x1) == 1) {
-                                            /* (over)write any stored seen value */
-                                            last_seen_sn = sn;
-                                            last_seen_sn_set = TRUE;
-                                            break;
-                                        }
-                                        sn = (sn + 1) % modulo;
-                                    }
-                                }
-
-                                if (!last_seen_sn_set) {
-                                    /* TODO: new-style exert info complaining that no bits were set! */
-                                    return;
-                                }
-
-                                /* Now go through bits again, stopping after last received SN */
-                                sn = bitmap_start_sn;
-                                offset = bitmap_start_offset;
-                                for ( ; !last_seen_sn_added && tvb_length_remaining(tvb, offset); offset++) {
-                                    guint bit_offset = 0;
-                                    /* Show each bit until last received one is done */
-                                    for ( ; bit_offset < 8; bit_offset++) {
-                                        if ((tvb_get_guint8(tvb, offset) >> (7-bit_offset) & 0x1) == 0) {
-                                            proto_tree_add_boolean_bits_format_value(bitmap_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset*8 + bit_offset,
-                                                                                     1, 0, " (SN=%u)", sn);
+                                for (i=0; i<len; i++) {
+                                    bits = tvb_get_bits8(tvb, bit_offset, 8);
+                                    for (l=0, j=0; l<8; l++) {
+                                        if ((bits << l) & 0x80) {
+                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%5u,", (unsigned)(sn+(8*i)+l)%modulo);
+                                        } else {
+                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "     ,");
                                             not_received++;
                                         }
-                                        else {
-                                            proto_tree_add_boolean_bits_format_value(bitmap_tree, hf_pdcp_lte_bitmap_received, tvb, offset*8 + bit_offset,
-                                                                                     1, 0, " (SN=%u)", sn);
-                                            if (sn == last_seen_sn) {
-                                                last_seen_sn_added= TRUE;
-                                                break;
-                                            }
-                                        }
-                                        sn = (sn + 1) % modulo;
                                     }
+                                    proto_tree_add_text(bitmap_tree, tvb, bit_offset/8, 1, "%s", buff);
+                                    bit_offset += 8;
                                 }
-
-                                proto_item_append_text(bitmap_ti, " (%u SNs missing before last seen SN %u)",
-                                                       not_received, last_seen_sn);
-
-                                /* Missing PDUs are fms + extra ones seen in bitmap before last seen SN */
-                                write_pdu_label_and_info(root_ti, pinfo, " Status Report (fms=%u, last-seen-sn=%u, %u missing)",
-                                                         fms, last_seen_sn, 1+not_received);
                             }
-                            else {
-                                write_pdu_label_and_info(root_ti, pinfo, " Status Report (fms=%u)", fms);
+
+                            if (bitmap_ti != NULL) {
+                                proto_item_append_text(bitmap_ti, " (%u SNs not received)", not_received);
                             }
+                            write_pdu_label_and_info(root_ti, pinfo, " Status Report (fms=%u) not-received=%u",
+                                                    fms, not_received);
                         }
                         return;
 
@@ -1657,18 +1615,6 @@ void proto_register_pdcp(void)
             { "Bitmap",
               "pdcp-lte.bitmap", FT_NONE, BASE_NONE, NULL, 0x0,
               "Status report bitmap (0=error, 1=OK)", HFILL
-            }
-        },
-        { &hf_pdcp_lte_bitmap_received,
-            { "Received",
-              "pdcp-lte.bitmap.ok", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              "Status report received SN", HFILL
-            }
-        },
-        { &hf_pdcp_lte_bitmap_not_received,
-            { "Not Received",
-              "pdcp-lte.bitmap.error", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-              "Status report missing SN", HFILL
             }
         },
 
