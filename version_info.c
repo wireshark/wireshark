@@ -272,8 +272,10 @@ get_os_x_version_info(GString *str)
 	    version_plist_stream, 0, kCFPropertyListImmutable,
 	    NULL, NULL);
 #endif
-	if (version_dict == NULL)
+	if (version_dict == NULL) {
+		CFRelease(version_plist_stream);
 		return FALSE;
+	}
 	if (CFGetTypeID(version_dict) != CFDictionaryGetTypeID()) {
 		/* This is *supposed* to be a dictionary.  Punt. */
 		CFRelease(version_dict);
