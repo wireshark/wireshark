@@ -11072,8 +11072,8 @@ proto_register_nfs(void)
 			&names_nfs4_operation_ext, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_main_opcode, {
-			"Main Opcode", "nfs.main_opcode", FT_UINT32, BASE_DEC,
-			NULL, 0, "Main Operation number", HFILL }},
+			"Main Opcode", "nfs.main_opcode", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfs4_operation_ext, 0, "Main Operation number", HFILL }},
 
 		{ &hf_nfs4_linktext, {
 			"Name", "nfs.symlink.linktext", FT_STRING, BASE_NONE,
