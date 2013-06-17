@@ -161,17 +161,17 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sub = proto_item_add_subtree(ti, ett_form_urlencoded);
 
 		next_offset = get_form_key_value(tvb, &key, offset, '=');
-		proto_tree_add_string(sub, hf_form_key, tvb, offset, next_offset - offset, key);
 		if (next_offset == -1)
 			break;
+		proto_tree_add_string(sub, hf_form_key, tvb, offset, next_offset - offset, key);
 		proto_item_append_text(sub, ": \"%s\"", key);
 
 		offset = next_offset+1;
 
 		next_offset = get_form_key_value(tvb, &value, offset, '&');
-		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value);
 		if (next_offset == -1)
 			break;
+		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value);
 		proto_item_append_text(sub, " = \"%s\"", value);
 
 		offset = next_offset+1;
