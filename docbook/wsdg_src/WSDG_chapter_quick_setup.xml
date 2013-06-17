@@ -139,6 +139,9 @@
           <para>Interpreters/perl</para>
         </listitem>
         <listitem>
+          <para>Utils/dos2unix</para>
+        </listitem>
+        <listitem>
           <para>Utils/patch</para>
         </listitem>
         <listitem>
