@@ -51,16 +51,13 @@ wmem_tree_t *
 wmem_tree_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;
 
-/** Creates a tree with two allocator scope. The base structure lives in the
+/** Creates a tree with two allocator scopes. The base structure lives in the
  * master scope, however the data lives in the slave scope. Every time free_all
  * occurs in the slave scope the tree is transparently emptied without affecting
- * the location of the structure.
+ * the location of the master structure.
  *
- * WARNING: The slave scope must be destroyed with wmem_destroy_allocator()
- * before the master scope is emptied with wmem_free_all() or
- * wmem_destroy_allocator().
- * TODO: Is this a valid limitation? It doesn't affect the common case where
- * master is epan_scope and slave is file_scope, but...
+ * WARNING: None of the tree (even the part in the master scope) can be used
+ * after the slave scope has been destroyed.
  */
 WS_DLL_PUBLIC
 wmem_tree_t *

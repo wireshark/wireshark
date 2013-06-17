@@ -55,6 +55,8 @@ struct _wmem_tree_t {
     wmem_allocator_t *master;
     wmem_allocator_t *allocator;
     wmem_tree_node_t *root;
+    guint             master_cb_id;
+    guint             slave_cb_id;
 };
 
 static wmem_tree_node_t *
@@ -231,14 +233,30 @@ wmem_tree_new(wmem_allocator_t *allocator)
 }
 
 static gboolean
-wmem_tree_reset(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+wmem_tree_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
         void *user_data)
 {
     wmem_tree_t *tree = (wmem_tree_t *)user_data;
 
     tree->root = NULL;
 
+    if (event == WMEM_CB_DESTROY_EVENT) {
+        wmem_unregister_callback(tree->master, tree->master_cb_id);
+        wmem_free(tree->master, tree);
+    }
+
     return TRUE;
+}
+
+static gboolean
+wmem_tree_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+        void *user_data)
+{
+    wmem_tree_t *tree = (wmem_tree_t *)user_data;
+
+    wmem_unregister_callback(tree->allocator, tree->slave_cb_id);
+
+    return FALSE;
 }
 
 wmem_tree_t *
@@ -251,7 +269,10 @@ wmem_tree_new_autoreset(wmem_allocator_t *master, wmem_allocator_t *slave)
     tree->allocator = slave;
     tree->root      = NULL;
 
-    wmem_register_callback(slave, wmem_tree_reset, tree);
+    tree->master_cb_id = wmem_register_callback(master, wmem_tree_destroy_cb,
+            tree);
+    tree->slave_cb_id  = wmem_register_callback(slave, wmem_tree_reset_cb,
+            tree);
 
     return tree;
 }
