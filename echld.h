@@ -138,8 +138,9 @@ typedef struct _parent_out {
 	enc_msg_t* (*list_files)(const char* glob);
 	enc_msg_t* (*open_file)(const char* filename);
 	enc_msg_t* (*open_interface)(const char* intf_name, const char* params);
-	enc_msg_t* (*get_summaries)(const char* range);
-	enc_msg_t* (*get_packets)(const char* range);
+	enc_msg_t* (*get_sum)(const char* range);
+	enc_msg_t* (*get_tree)(const char* range);
+	enc_msg_t* (*get_bufer)(const char* name);
 	enc_msg_t* (*add_note)(int packet_number, const char* note);
 	enc_msg_t* (*apply_filter)(const char* filter);
 	enc_msg_t* (*set_filter)(const char* filter);
@@ -321,13 +322,8 @@ enum _echld_msg_type_t {
 						/* ... */
 						/* cwd should be one,  */
 
-	ECHLD_PING = '>', /* out: ping the child  */
-	ECHLD_PONG = '<', /* out: ping's response, error or TO otherwise */
-
-	/* XXX should be a parameter */
-	ECHLD_PWD = 'P',  /* out: get the current dir */
-	ECHLD_CHDIR = 'D',  /* out: set the cwd */
-	ECHLD_CWD = 'd', /* in: the current working directory, error otherwise */
+	ECHLD_PING = '}', /* out: ping the child  */
+	ECHLD_PONG = '{', /* out: ping's response, error or TO otherwise */
 	
 	ECHLD_LIST_FILES = 'L', /* out: request a file listing of the current directory */
 	ECHLD_FILE_INFO = 'f', /* in: a file listing of a directory */
@@ -347,8 +343,8 @@ enum _echld_msg_type_t {
 	ECHLD_OPEN_INTERFACE = 'C',  /* out: request an interface to be open (get ready for capture)  */
 	ECHLD_INTERFACE_OPENED = 'c', /* in: ready to start_capture, error otherwise */
 
-	ECHLD_START_CAPTURE = 'G',  /* out: start capturing */
-	ECHLD_CAPTURE_STARTED = 'g',  /* in: the capture has started, error otherwise */
+	ECHLD_START_CAPTURE = 'R',  /* out: start capturing */
+	ECHLD_CAPTURE_STARTED = 'r',  /* in: the capture has started, error otherwise */
 
 	ECHLD_NOTIFY = '%', /* in: many things can be notified by the child:
 	  						 	number of packets captured/read
@@ -360,8 +356,8 @@ enum _echld_msg_type_t {
 								/* no timeout, the request hangs until the packets in the range are available */
 								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
 
-	ECHLD_GET_PACKETS = 'G', /* out: get the decoded version of the packet  */
-	ECHLD_PACKET = 't', /* Child -> Parent */
+	ECHLD_GET_TREE = 'G', /* out: get the decoded version of the packet  */
+	ECHLD_TREE = 't', /* Child -> Parent */
 								/* no timeout, the request hangs until the packets in the range are available */
 								/* error at EOF or CAPTURE_STOPPED if the request is still hanging */
 
