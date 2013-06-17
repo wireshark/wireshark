@@ -28,6 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/wmem/wmem.h>
 
 static gint proto_urlencoded = -1;
 
@@ -83,7 +84,7 @@ get_form_key_value(tvbuff_t *tvb, char **ptr, int offset, char stop)
 		offset++;
 	}
 
-	*ptr = tmp = ep_alloc(len + 1);
+	*ptr = tmp = (char*)wmem_alloc(wmem_packet_scope(), len + 1);
 	tmp[len] = '\0';
 
 	len = 0;
@@ -217,3 +218,16 @@ proto_reg_handoff_http_urlencoded(void)
 
 	dissector_add_string("media_type", "application/x-www-form-urlencoded", form_urlencoded_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
