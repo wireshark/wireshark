@@ -608,7 +608,7 @@ wmem_test_tree(void)
         wmem_tree_insert32(tree, i, GINT_TO_POINTER(i));
         g_assert(wmem_tree_lookup32(tree, i) == GINT_TO_POINTER(i));
     }
-    wmem_destroy_allocator(extra_allocator);
+    wmem_free_all(extra_allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
         g_assert(wmem_tree_lookup32(tree, i) == NULL);
         g_assert(wmem_tree_lookup32_le(tree, i) == NULL);
@@ -651,6 +651,7 @@ wmem_test_tree(void)
     }
     g_assert(seen_values == 10);
 
+    wmem_destroy_allocator(extra_allocator);
     wmem_destroy_allocator(allocator);
 }
 
