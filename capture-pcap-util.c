@@ -181,6 +181,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
 	}
 
 	CFRelease(interfaces);
+	CFRelease(name_CFString);
 }
 #elif defined(__linux__)
 /*
