@@ -61,10 +61,25 @@ typedef struct {
     guint8  trailer_len;
 } mp2t_filetype_t;
 
-static void
-mp2t_fill_in_pkthdr(mp2t_filetype_t *mp2t, gint64 offset, struct wtap_pkthdr *phdr)
+static gboolean
+mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset, 
+                 struct wtap_pkthdr *phdr, Buffer *buf, int *err,
+                 gchar **err_info)
 {
     guint64 tmp;
+    int bytes_read;
+
+    buffer_assure_space(buf, MP2T_SIZE);
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(buffer_start_ptr(buf), MP2T_SIZE, fh);
+    if (MP2T_SIZE != bytes_read) {
+        *err = file_error(fh, err_info);
+        /* bytes_read==0 is end of file, not a short read */
+        if (bytes_read>0 && *err == 0) {
+            *err = WTAP_ERR_SHORT_READ;
+        }
+        return FALSE;
+    }
 
     /* XXX - relative, not absolute, time stamps */
     phdr->presence_flags = WTAP_HAS_TS;
@@ -85,24 +100,6 @@ mp2t_fill_in_pkthdr(mp2t_filetype_t *mp2t, gint64 offset, struct wtap_pkthdr *ph
 
     phdr->caplen = MP2T_SIZE;
     phdr->len = MP2T_SIZE;
-}
-
-static gboolean
-mp2t_read_data(Buffer *buf, int length, int *err, gchar **err_info, FILE_T fh)
-{
-    int bytes_read;
-
-    buffer_assure_space(buf, length);
-    errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(buffer_start_ptr(buf), length, fh);
-    if (length != bytes_read) {
-        *err = file_error(fh, err_info);
-        /* bytes_read==0 is end of file, not a short read */
-        if (bytes_read>0 && *err == 0) {
-            *err = WTAP_ERR_SHORT_READ;
-        }
-        return FALSE;
-    }
 
     return TRUE;
 }
@@ -116,27 +113,24 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     *data_offset = file_tell(wth->fh);
 
-    /* read only the actual mpeg2 ts packet, not including a trailer */
-    if (FALSE == mp2t_read_data(wth->frame_buffer,
-                                MP2T_SIZE, err, err_info, wth->fh))
-    {
+    if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, &wth->phdr,
+                          wth->frame_buffer, err, err_info)) {
         return FALSE;
     }
 
     /* if there's a trailer, skip it and go to the start of the next packet */
-    if (mp2t->trailer_len!=0 &&
-        (-1 == file_seek(wth->fh, mp2t->trailer_len, SEEK_CUR, err))) {
-        return FALSE;
+    if (mp2t->trailer_len!=0) {
+        if (-1 == file_seek(wth->fh, mp2t->trailer_len, SEEK_CUR, err)) {
+            return FALSE;
+        }
     }
-
-    mp2t_fill_in_pkthdr(mp2t, *data_offset, &wth->phdr);
 
     return TRUE;
 }
 
 static gboolean
 mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
-        Buffer *buf, int length, int *err, gchar **err_info)
+        Buffer *buf, int length _U_, int *err, gchar **err_info)
 {
     mp2t_filetype_t *mp2t;
 
@@ -146,9 +140,13 @@ mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 
     mp2t = (mp2t_filetype_t*) wth->priv;
 
-    mp2t_fill_in_pkthdr(mp2t, seek_off, phdr);
-
-    return mp2t_read_data(buf, length, err, err_info, wth->random_fh);
+    if (!mp2t_read_packet(mp2t, wth->random_fh, seek_off, phdr, buf,
+                          err, err_info)) {
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        return FALSE;
+    }
+    return TRUE;
 }
 
 int
