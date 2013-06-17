@@ -32,13 +32,17 @@
 #include <unistd.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include "capture_ifinfo.h"
+
 
 #include "echld.h"
 
 /* XXX these shouldn't be needed */
-typedef struct GList glist_t;
-typedef struct GByteArray bytearray_t;
 typedef struct _column_info column_info;
 typedef struct _proto_node proto_tree;
 typedef struct tvbuff tvb_t;
@@ -65,6 +69,18 @@ typedef union _hdr_t {
 	T=HDR_TYPE(H); L=HDR_LEN(H); C=H->h.chld_id; R=H->h.req_id; } while(0)
 
 
+typedef enum _cst {
+	FREE=0,
+	CREATING,
+	IDLE,
+	READY,
+	READING,
+	CAPTURING,
+	DONE,
+	ERORED=-1
+} child_state_t;
+
+
 /* these manage the de-framing machine in the receiver side */
 typedef struct _echld_reader {
 	guint8* rp; /* the read pointer*/
@@ -75,7 +91,6 @@ typedef struct _echld_reader {
 
 	guint8* data; /* the allocated read buffer */
 	size_t  actual_len; /* the actual len of the allocated buffer */
-
 } echld_reader_t;
 
 
@@ -88,6 +103,12 @@ typedef struct _echld_reader {
 #define READER_FD_CLEAR(R,fdset_p) READER_FD_CLEAR(R.fd,&(fdset_p))
 
 
+typedef struct _param {
+	char* name;
+	char* (*get)(char** err );
+	echld_bool_t (*set)(char* val , char** err);	
+} param_t;
+
 /* the call_back used by read_frame() */
 typedef int (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, echld_reqh_id_t, void*);
 
@@ -95,6 +116,7 @@ typedef int (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, ech
 typedef struct _child_in {
 	echld_bool_t (*error)			(guint8*, size_t, int* , char**);
 	echld_bool_t (*set_param)		(guint8*, size_t, char** param,  char** value);
+	echld_bool_t (*get_param)		(guint8*, size_t, char** param);
 	echld_bool_t (*close_child)		(guint8*, size_t, int* mode);
 	echld_bool_t (*chdir)			(guint8*, size_t, char** dir);
 	echld_bool_t (*list_files)		(guint8*, size_t, char** glob);
@@ -104,7 +126,6 @@ typedef struct _child_in {
 	echld_bool_t (*get_tree)		(guint8*, size_t, char** range);
 	echld_bool_t (*add_note)		(guint8*, size_t, int* packet_number, char** note);
 	echld_bool_t (*apply_filter)	(guint8*, size_t, char** filter);
-	echld_bool_t (*set_filter)		(guint8*, size_t, char** filter);
 	echld_bool_t (*save_file)		(guint8*, size_t, char** filename, char** params);
 } child_decoder_t;
 
@@ -114,7 +135,6 @@ typedef struct _child_out {
 	enc_msg_t* (*param) 		(const char*, const char*);
 	enc_msg_t* (*file_info) 	(const char*); // pre-encoded
 	enc_msg_t* (*filter_chk) 	(int , const char*);
-	enc_msg_t* (*filter_set) 	(const char*);
 	enc_msg_t* (*intf_info) 	(const char*); // pre-encoded
 	enc_msg_t* (*notify) 		(const char*); // pre-encoded
 	enc_msg_t* (*packet_sum) 	(int, const char*); // framenum, sum(pre-encoded)
@@ -130,7 +150,6 @@ typedef struct _parent_in {
 	echld_bool_t (*param) 		(enc_msg_t*, char**, char**);
 	echld_bool_t (*file_info) 	(enc_msg_t*, char**); // pre-encoded
 	echld_bool_t (*filter_chk) 	(enc_msg_t*, int* , char**);
-	echld_bool_t (*filter_set) 	(enc_msg_t*, char**);
 	echld_bool_t (*intf_info) 	(enc_msg_t*, char**); // pre-encoded
 	echld_bool_t (*notify) 		(enc_msg_t*, char**); // pre-encoded
 	echld_bool_t (*packet_sum) 	(enc_msg_t*, int*, char**); // framenum, sum(pre-encoded)
@@ -141,6 +160,21 @@ typedef struct _parent_in {
 
 void echld_get_all_codecs(child_encoder_t**, child_decoder_t**, echld_parent_encoder_t**, parent_decoder_t**);
 
+void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
+void free_reader(echld_reader_t* r);
+
+int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
+int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
+
+
 extern void dummy_switch(echld_msg_type_t type); 
+
+#define DEBUG_CHILD 5
+#define DEBUG_DISPATCHER 5
+#define DEBUG_PARENT 5
+
+#define BROKEN_PARENT_PIPE 3333
+#define BROKEN_DUMPCAP_PIPE 4444
+#define BROKEN_READFILE 5555
 
 #endif

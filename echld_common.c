@@ -26,8 +26,6 @@
 
 #include "echld-int.h"
 
-#include <arpa/inet.h>
-#include "capture_ifinfo.h"
 
 
 /**
@@ -72,7 +70,7 @@ static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
 
 
 
-static void init_reader(echld_reader_t* r, int fd, size_t initial) {
+void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
 	r->fd = fd;
 	fcntl(fd, F_SETFL, O_NONBLOCK);
 
@@ -85,7 +83,7 @@ static void init_reader(echld_reader_t* r, int fd, size_t initial) {
 	}
 }
 
-static void free_reader(echld_reader_t* r) {
+void free_reader(echld_reader_t* r) {
 	free(r->data);
 }
 
@@ -110,7 +108,7 @@ static int reader_readv(echld_reader_t* r, size_t len) {
 };
 
 
-static int read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
+int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
     // it will use shared memory instead of inband communication
 	do {
@@ -183,7 +181,7 @@ static int read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
 
 
-static int write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data) {
+int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data) {
 	static guint8* write_buf = NULL;
 	static size_t wb_len = 4096;
 	hdr_t* h;
@@ -390,7 +388,6 @@ static echld_parent_encoder_t parent_encoder = {
 	int_str_enc,
 	str_enc,
 	str_enc,
-	str_enc,
 	x2str_enc
 };
 
@@ -401,6 +398,7 @@ echld_parent_encoder_t* echld_get_encoder() {
 static child_decoder_t child_decoder = {
 	int_str_dec,
 	x2str_dec,
+	str_dec,
 	int_dec,
 	str_dec,
 	str_dec,
@@ -409,7 +407,6 @@ static child_decoder_t child_decoder = {
 	str_dec,
 	str_dec,
 	int_str_dec,
-	str_dec,
 	str_dec,
 	x2str_dec 
 };
@@ -420,7 +417,6 @@ static child_encoder_t  child_encoder = {
 	x2str_enc,
 	str_enc,
 	int_str_enc,
-	str_enc,
 	str_enc,
 	str_enc,
 	int_str_enc,
@@ -435,7 +431,6 @@ static parent_decoder_t parent_decoder = {
 	x2str_deca,
 	str_deca,
 	int_str_deca,
-	str_deca,
 	str_deca,
 	str_deca,
 	int_str_deca,
@@ -455,83 +450,6 @@ void echld_get_all_codecs( child_encoder_t **e, child_decoder_t **d, echld_paren
 
 /* output encoders, used in the switch */
 
-
-static char* encode_intf_info_json(GList* if_list) {
-	/* blatantly stolen from print_machine_readable_interfaces in dumpcap.c */
-#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
-
-    int         i;
-    GList       *if_entry;
-    if_info_t   *if_info;
-    GSList      *addr;
-    if_addr_t   *if_addr;
-    char        addr_str[ADDRSTRLEN];
-    GString     *str = g_string_new("={ ");
-    char* s;
-
-    i = 1;  /* Interface id number */
-    for (if_entry = g_list_first(if_list); if_entry != NULL;
-         if_entry = g_list_next(if_entry)) {
-        if_info = (if_info_t *)if_entry->data;
-        g_string_append_printf(str,"%d={ intf='%s',", i++, if_info->name);
-
-        /*
-         * Print the contents of the if_entry struct in a parseable format.
-         * Each if_entry element is tab-separated.  Addresses are comma-
-         * separated.
-         */
-        /* XXX - Make sure our description doesn't contain a tab */
-        if (if_info->vendor_description != NULL)
-            g_string_append_printf(str," vnd_desc='%s',", if_info->vendor_description);
-
-        /* XXX - Make sure our friendly name doesn't contain a tab */
-        if (if_info->friendly_name != NULL)
-            g_string_append_printf(str," name='%s', addrs=[ ", if_info->friendly_name);
-
-        for (addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
-                    addr = g_slist_next(addr)) {
-
-            if_addr = (if_addr_t *)addr->data;
-            switch(if_addr->ifat_type) {
-            case IF_AT_IPv4:
-                if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
-                              ADDRSTRLEN)) {
-                    g_string_append_printf(str,"%s", addr_str);
-                } else {
-                    g_string_append(str,"<unknown IPv4>");
-                }
-                break;
-            case IF_AT_IPv6:
-                if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
-                              addr_str, ADDRSTRLEN)) {
-                    g_string_append_printf(str,"%s", addr_str);
-                } else {
-                    g_string_append(str,"<unknown IPv6>");
-                }
-                break;
-            default:
-                g_string_append_printf(str,"<type unknown %u>", if_addr->ifat_type);
-            }
-        }
-
-        g_string_append(str," ]"); /* addrs */
-
-
-        if (if_info->loopback)
-            g_string_append(str,", loopback=1");
-        else
-            g_string_append(str,", loopback=0");
-
-        g_string_append(str,"}, ");
-    }
-
-    g_string_truncate(str,str->len - 2); /* the comma and space */
-    g_string_append(str,"}");
-
-    s=str->str;
-    g_string_free(str,FALSE);
-    return s;
-}
 
 static char* packet_summary_json(GByteArray* ba) {
 	/* dummy */
@@ -739,7 +657,7 @@ static char* save_file_json(GByteArray* ba) {
 
 
 /* this to be used only at the parent */
-char* echld_decode_json(echld_msg_type_t type, enc_msg_t* m) {
+static char* decode_json(echld_msg_type_t type, enc_msg_t* m) {
   	GByteArray* ba = (GByteArray*)m;
 
 	switch(type) {
@@ -759,8 +677,6 @@ char* echld_decode_json(echld_msg_type_t type, enc_msg_t* m) {
 		case ECHLD_FILE_INFO: return file_info_json(ba);
 		case ECHLD_CHK_FILTER: return chk_filter_json(ba);
 		case ECHLD_FILTER_CKD: return filter_ckd_json(ba);
-		case ECHLD_SET_FILTER: return set_filter_json(ba);
-		case ECHLD_FILTER_SET: return filter_set_json(ba);
 		case ECHLD_OPEN_FILE: return open_file_json(ba);
 		case ECHLD_FILE_OPENED: return file_opened_json(ba);
 		case ECHLD_LIST_INTERFACES: return g_strdup("{type='list_interfaces'}");
@@ -791,6 +707,11 @@ char* echld_decode_json(echld_msg_type_t type, enc_msg_t* m) {
 
 	return NULL;
 }
+char* echld_decode(echld_msg_type_t t, enc_msg_t* m ) {
+	return decode_json(t,m);
+}
+
+
 
 extern void dummy_switch(echld_msg_type_t type) {
 	switch(type) {
@@ -810,8 +731,6 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case ECHLD_FILE_INFO: break;  //SS info (pre-encoded)
 		case ECHLD_CHK_FILTER: break;
 		case ECHLD_FILTER_CKD: break; //IS ok,filter
-		case ECHLD_SET_FILTER: break;
-		case ECHLD_FILTER_SET: break; //S filter
 		case ECHLD_OPEN_FILE: break; 
 		case ECHLD_FILE_OPENED: break; //
 		case ECHLD_LIST_INTERFACES: break;

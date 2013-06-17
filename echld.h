@@ -143,7 +143,6 @@ typedef struct _parent_out {
 	enc_msg_t* (*get_bufer)(const char* name);
 	enc_msg_t* (*add_note)(int packet_number, const char* note);
 	enc_msg_t* (*apply_filter)(const char* filter);
-	enc_msg_t* (*set_filter)(const char* filter);
 	enc_msg_t* (*chk_filter)(const char* filter);
 	enc_msg_t* (*save_file)(const char* filename, const char* params);
 } echld_parent_encoder_t;
@@ -320,7 +319,6 @@ enum _echld_msg_type_t {
 						/* cwd RW: the current working directory */ 
 						/* dfilter:  other*
 						/* ... */
-						/* cwd should be one,  */
 
 	ECHLD_PING = '}', /* out: ping the child  */
 	ECHLD_PONG = '{', /* out: ping's response, error or TO otherwise */
@@ -331,9 +329,6 @@ enum _echld_msg_type_t {
 	ECHLD_CHK_FILTER = 'K',	/* out: verify if a (display) filter works */
 	ECHLD_FILTER_CKD = 'k', /* in: yes this filter works, error or TO? otherwise */
 
-	ECHLD_SET_FILTER = 'F', /* out: set the (display) filter for the incoming file or capture */
-	ECHLD_FILTER_SET = 'y',  /* in: the filter is set, error or TO? otherwise  */
-							/* (there's no get_filter so save it if you need it) */
 	ECHLD_OPEN_FILE = 'O', /* out: open a file  */
 	ECHLD_FILE_OPENED = 'o', /* in: the file has being open, error otherwise */
 
@@ -395,12 +390,13 @@ enum _echld_error {
 	ECHLD_ERR_NO_SUCH_CHILD,
 	ECHLD_ERR_UNKNOWN_PID,
 	ECHLD_ERR_CANNOT_FORK,
-	ECHLD_ERR_CANNOT_CHDIR,
 	ECHLD_ERR_SET_FILTER,
 	ECHLD_ERR_CANNOT_OPEN_FILE,
 	ECHLD_ERR_CANNOT_OPEN_INTERFACE,
 	ECHLD_ERR_CANNOT_START_CAPTURE,
 	ECHLD_ERR_CANNOT_LIST_INTERFACES,
+	ECHLD_CANNOT_SET_PARAM,
+	ECHLD_CANNOT_GET_PARAM,
 	ECHLD_ERR_CRASHED_CHILD,
 	ECHLD_ERR_OTHER
 };
