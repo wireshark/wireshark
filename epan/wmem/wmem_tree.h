@@ -157,6 +157,9 @@ gboolean
 wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data);
 
+void
+wmem_print_tree(wmem_tree_t *tree);
+
 /**   @}
  *  @} */
 

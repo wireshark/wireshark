@@ -71,7 +71,6 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
     return allocator;
 }
 
-#if 0
 /* A helper for generating pseudo-random strings. Just uses glib's random number
  * functions to generate 'numbers' in the printable character range. */
 static gchar *
@@ -93,7 +92,6 @@ wmem_test_rand_string(wmem_allocator_t *allocator, gint minlen, gint maxlen)
 
     return str;
 }
-#endif
 
 /* Some helpers for properly testing callback functionality */
 wmem_allocator_t *expected_allocator;
@@ -601,13 +599,11 @@ wmem_test_tree(void)
     wmem_tree_t        *tree;
     guint32             i;
     int                 seen_values = 0;
-#if 0
     int                 j;
     gchar              *str_key;
-#define WMEM_TREE_MAX_KEY_COUNT 8
+#define WMEM_TREE_MAX_KEY_COUNT 2
     int                 key_count;
-    wmem_tree_key_t     keys[WMEM_TREE_MAX_KEY_COUNT];
-#endif
+    wmem_tree_key_t     keys[WMEM_TREE_MAX_KEY_COUNT+1];
 
     allocator       = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
     extra_allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
@@ -648,18 +644,16 @@ wmem_test_tree(void)
     }
     wmem_free_all(allocator);
 
-#if 0
     /* test array key functionality */
     tree = wmem_tree_new(allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
-        key_count = g_random_int_range(1, WMEM_TREE_MAX_KEY_COUNT-1);
+        key_count = g_random_int_range(1, WMEM_TREE_MAX_KEY_COUNT);
         keys[key_count].length = 0;
         for (j=0; j<key_count; j++) {
-            keys[j].key    = (guint32*)wmem_test_rand_string(allocator, 32, 33);
-            keys[j].length = 8;
+            keys[j].key    = (guint32*)wmem_test_rand_string(allocator, 8, 9);
+            keys[j].length = 2;
         }
         g_assert(wmem_tree_lookup32_array(tree, keys) == NULL);
-        g_assert(wmem_tree_lookup32_array_le(tree, keys) == NULL);
         wmem_tree_insert32_array(tree, keys, GINT_TO_POINTER(i));
         g_assert(wmem_tree_lookup32_array(tree, keys) == GINT_TO_POINTER(i));
     }
@@ -669,7 +663,6 @@ wmem_test_tree(void)
     tree = wmem_tree_new(allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
         str_key = wmem_test_rand_string(allocator, 1, 64);
-        g_assert(wmem_tree_lookup_string(tree, str_key, 0) == NULL);
         wmem_tree_insert_string(tree, str_key, GINT_TO_POINTER(i), 0);
         g_assert(wmem_tree_lookup_string(tree, str_key, 0) ==
                 GINT_TO_POINTER(i));
@@ -679,15 +672,12 @@ wmem_test_tree(void)
     tree = wmem_tree_new(allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
         str_key = wmem_test_rand_string(allocator, 1, 64);
-        g_assert(wmem_tree_lookup_string(tree, str_key,
-                    WMEM_TREE_STRING_NOCASE) == NULL);
         wmem_tree_insert_string(tree, str_key, GINT_TO_POINTER(i),
                 WMEM_TREE_STRING_NOCASE);
         g_assert(wmem_tree_lookup_string(tree, str_key,
                     WMEM_TREE_STRING_NOCASE) == GINT_TO_POINTER(i));
     }
     wmem_free_all(allocator);
-#endif
 
     /* test for-each functionality */
     tree = wmem_tree_new(allocator);
