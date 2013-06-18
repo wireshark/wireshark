@@ -1245,8 +1245,12 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   guint32 value;
 %(DEFAULT_BODY)s
   if (actx->private_data != NULL) {
-    /* TODO: can't this also be 15 bits? */
     ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = (value==0) ? 7 : 12;
     ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
   }
 
+#.FN_FTR PDCP-Config/eag_2/pdcp-SN-Size-v1130
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 15;
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+  }

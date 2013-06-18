@@ -12283,7 +12283,6 @@ dissect_lte_rrc_T_pdcp_SN_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      2, &value, FALSE, 0, NULL);
 
   if (actx->private_data != NULL) {
-    /* TODO: can't this also be 15 bits? */
     ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = (value==0) ? 7 : 12;
     ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
   }
@@ -12415,6 +12414,10 @@ dissect_lte_rrc_T_pdcp_SN_Size_v1130(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 15;
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+  }
   return offset;
 }
 
