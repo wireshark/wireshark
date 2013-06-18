@@ -905,7 +905,8 @@ typedef struct dynamic_lcid_drb_mapping_t {
 } dynamic_lcid_drb_mapping_t;
 
 typedef struct ue_dynamic_drb_mappings_t {
-    dynamic_lcid_drb_mapping_t mapping[11];
+    dynamic_lcid_drb_mapping_t mapping[11];  /* Index is LCID */
+    guint8 drb_to_lcid_mappings[32];         /* Also map drbid -> lcid */
 } ue_dynamic_drb_mappings_t;
 
 static GHashTable *mac_lte_ue_channels_hash = NULL;
@@ -4716,50 +4717,69 @@ static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _
 
 
 /* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar). */
-void set_mac_lte_channel_mapping(guint16 ueid, guint8 lcid,
-                                 guint8  srbid, guint8 drbid,
-                                 guint8  rlcMode, guint8 um_sn_length,
-                                 guint8  ul_priority)
+void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping)
 {
     ue_dynamic_drb_mappings_t *ue_mappings;
+    guint8 lcid = 0;
 
-    /* Don't bother setting srb details - we just assume AM */
-    if (srbid != 0) {
-        return;
-    }
+    /* Check lcid range */
+    if (drb_mapping->lcid_present) {
+        lcid = drb_mapping->lcid;
 
-    /* Ignore if LCID is out of range */
-    if ((lcid < 3) || (lcid > 10)) {
-        return;
+        /* Ignore if LCID is out of range */
+        if ((lcid < 3) || (lcid > 10)) {
+            return;
+        }
     }
 
     /* Look for existing UE entry */
-    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
+    ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_lte_ue_channels_hash,
+                                                                   GUINT_TO_POINTER((guint)drb_mapping->ueid));
     if (!ue_mappings) {
+        /* If not found, create & add to table */
         ue_mappings = se_new0(ue_dynamic_drb_mappings_t);
-        g_hash_table_insert(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid), ue_mappings);
+        g_hash_table_insert(mac_lte_ue_channels_hash,
+                            GUINT_TO_POINTER((guint)drb_mapping->ueid),
+                            ue_mappings);
+    }
+
+    /* If lcid wasn't supplied, need to try to look up from drbid */
+    if ((lcid == 0) && (drb_mapping->drbid < 32)) {
+        lcid = ue_mappings->drb_to_lcid_mappings[drb_mapping->drbid];
+    }
+    if (lcid == 0) {
+        /* Still no lcid - give up */
+        return;
     }
 
     /* Set array entry */
     ue_mappings->mapping[lcid].valid = TRUE;
-    ue_mappings->mapping[lcid].drbid = drbid;
-    ue_mappings->mapping[lcid].ul_priority = ul_priority;
+    ue_mappings->mapping[lcid].drbid = drb_mapping->drbid;
+    ue_mappings->drb_to_lcid_mappings[drb_mapping->drbid] = lcid;
+    if (drb_mapping->ul_priority_present) {
+        ue_mappings->mapping[lcid].ul_priority = drb_mapping->ul_priority;
+    }
 
-    switch (rlcMode) {
-        case RLC_AM_MODE:
-            ue_mappings->mapping[lcid].channel_type = rlcAM;
-            break;
-        case RLC_UM_MODE:
-            if (um_sn_length == 5) {
-                ue_mappings->mapping[lcid].channel_type = rlcUM5;
-            }
-            else {
-                ue_mappings->mapping[lcid].channel_type = rlcUM10;
-            }
-            break;
+    /* Fill in available RLC info */
+    if (drb_mapping->rlcMode_present) {
+        switch (drb_mapping->rlcMode) {
+            case RLC_AM_MODE:
+                ue_mappings->mapping[lcid].channel_type = rlcAM;
+                break;
+            case RLC_UM_MODE:
+                if (drb_mapping->um_sn_length_present) {
+                    if (drb_mapping->um_sn_length == 5) {
+                        ue_mappings->mapping[lcid].channel_type = rlcUM5;
+                    }
+                    else {
+                        ue_mappings->mapping[lcid].channel_type = rlcUM10;
+                    }
+                    break;
+                }
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
 }
 

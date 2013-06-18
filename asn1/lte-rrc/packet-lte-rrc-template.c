@@ -40,6 +40,8 @@
 #include "packet-lpp.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include "packet-mac-lte.h"
+#include "packet-rlc-lte.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -61,6 +63,10 @@ static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 static GHashTable *lte_rrc_system_info_value_changed_hash = NULL;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
+
+
+extern int proto_mac_lte;
+
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -1965,12 +1971,10 @@ dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_DCCH");
   col_clear(pinfo->cinfo, COL_INFO);
-  
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 

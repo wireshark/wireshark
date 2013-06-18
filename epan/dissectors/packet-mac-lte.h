@@ -270,12 +270,26 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 #define MAC_LTE_PAYLOAD_TAG 0x01
 
 
+/* Type to store parameters for configuring LCID->RLC channel settings for DRB */
+/* Some are optional, and may not be seen (e.g. on reestablishment) */
+typedef struct drb_mapping_t
+{
+    guint16    ueid;              /* Mandatory */
+    guint8     drbid;             /* Mandatory */
+    gboolean   lcid_present;
+    guint8     lcid;              /* Part of LogicalChannelConfig - optional */
+    gboolean   rlcMode_present;
+    guint8     rlcMode;           /* Part of RLC config - optional */
+    gboolean   um_sn_length_present;
+    guint8     um_sn_length;      /* Part of RLC config - optional */
+    gboolean   ul_priority_present;
+    guint8     ul_priority;       /* Part of LogicalChannelConfig - optional */
+} drb_mapping_t;
+
+
 /* Set details of an LCID -> drb channel mapping.  To be called from
    configuration protocol (e.g. RRC) */
-void set_mac_lte_channel_mapping(guint16 ueid, guint8 lcid,
-                                 guint8  srbid, guint8 drbid,
-                                 guint8  rlcMode, guint8 um_sn_length,
-                                 guint8  ul_priority);
+void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping);
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */

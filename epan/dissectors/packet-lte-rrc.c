@@ -48,6 +48,8 @@
 #include "packet-lpp.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include "packet-mac-lte.h"
+#include "packet-rlc-lte.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -69,6 +71,10 @@ static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 static GHashTable *lte_rrc_system_info_value_changed_hash = NULL;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
+
+
+extern int proto_mac_lte;
+
 
 /* Include constants */
 
@@ -168,7 +174,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 67 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 73 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1265,7 +1271,7 @@ static int hf_lte_rrc_dmrs_ScramblingSequenceInt_r11 = -1;  /* INTEGER_0_503 */
 static int hf_lte_rrc_pucch_ResourceStartOffset_r11 = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_re_MappingQCL_ConfigListId_r11 = -1;  /* PDSCH_RE_MappingQCL_ConfigId_r11 */
 static int hf_lte_rrc_ul_SpecificParameters = -1;  /* T_ul_SpecificParameters */
-static int hf_lte_rrc_priority = -1;              /* INTEGER_1_16 */
+static int hf_lte_rrc_priority = -1;              /* T_priority */
 static int hf_lte_rrc_prioritisedBitRate = -1;    /* T_prioritisedBitRate */
 static int hf_lte_rrc_bucketSizeDuration = -1;    /* T_bucketSizeDuration */
 static int hf_lte_rrc_logicalChannelGroup = -1;   /* INTEGER_0_3 */
@@ -1559,7 +1565,7 @@ static int hf_lte_rrc_DRB_ToAddModList_item = -1;  /* DRB_ToAddMod */
 static int hf_lte_rrc_eps_BearerIdentity = -1;    /* INTEGER_0_15 */
 static int hf_lte_rrc_pdcp_Config = -1;           /* PDCP_Config */
 static int hf_lte_rrc_rlc_Config_01 = -1;         /* RLC_Config */
-static int hf_lte_rrc_logicalChannelIdentity = -1;  /* INTEGER_3_10 */
+static int hf_lte_rrc_logicalChannelIdentity = -1;  /* T_logicalChannelIdentity */
 static int hf_lte_rrc_logicalChannelConfig_01 = -1;  /* LogicalChannelConfig */
 static int hf_lte_rrc_DRB_ToReleaseList_item = -1;  /* DRB_Identity */
 static int hf_lte_rrc_setup_24 = -1;              /* MeasSubframePattern_r10 */
@@ -2302,7 +2308,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 72 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 78 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -3497,7 +3503,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 182 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 188 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -11359,6 +11365,7 @@ dissect_lte_rrc_T_cmas_Indication_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (CMAS)");
   expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_commercial_mobile_alert_sys);
 
+
   return offset;
 }
 
@@ -11883,8 +11890,15 @@ static const value_string lte_rrc_SN_FieldLength_vals[] = {
 
 static int
 dissect_lte_rrc_SN_FieldLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &value, FALSE, 0, NULL);
+
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->um_sn_length = (value==0) ? 5 : 10;
+    ((drb_mapping_t*)actx->private_data)->um_sn_length_present = TRUE;
+  }
+
 
   return offset;
 }
@@ -11980,9 +11994,16 @@ static const per_choice_t RLC_Config_choice[] = {
 
 static int
 dissect_lte_rrc_RLC_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lte_rrc_RLC_Config, RLC_Config_choice,
-                                 NULL);
+                                 &value);
+
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
+    ((drb_mapping_t*)actx->private_data)->rlcMode_present = TRUE;
+  }
+
 
   return offset;
 }
@@ -12005,6 +12026,23 @@ dissect_lte_rrc_T_rlc_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lte_rrc_T_rlc_Config, T_rlc_Config_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_priority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 16U, &value, FALSE);
+
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->ul_priority = value;
+    ((drb_mapping_t*)actx->private_data)->ul_priority_present = TRUE;
+  }
+
 
   return offset;
 }
@@ -12063,7 +12101,7 @@ dissect_lte_rrc_T_bucketSizeDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t T_ul_SpecificParameters_sequence[] = {
-  { &hf_lte_rrc_priority    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_1_16 },
+  { &hf_lte_rrc_priority    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_priority },
   { &hf_lte_rrc_prioritisedBitRate, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_prioritisedBitRate },
   { &hf_lte_rrc_bucketSizeDuration, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_bucketSizeDuration },
   { &hf_lte_rrc_logicalChannelGroup, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_0_3 },
@@ -12177,8 +12215,14 @@ dissect_lte_rrc_SRB_ToAddModList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lte_rrc_DRB_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 32U, NULL, FALSE);
+                                                            1U, 32U, &value, FALSE);
+
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->drbid = (guint8)value;
+  }
+
 
   return offset;
 }
@@ -12396,9 +12440,16 @@ dissect_lte_rrc_PDCP_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
-dissect_lte_rrc_INTEGER_3_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_logicalChannelIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            3U, 10U, NULL, FALSE);
+                                                            3U, 10U, &value, FALSE);
+
+  if (actx->private_data != NULL) {
+    ((drb_mapping_t*)actx->private_data)->lcid = (guint8)value;
+    ((drb_mapping_t*)actx->private_data)->lcid_present = TRUE;
+  }
+
 
   return offset;
 }
@@ -12409,15 +12460,35 @@ static const per_sequence_t DRB_ToAddMod_sequence[] = {
   { &hf_lte_rrc_drb_Identity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_DRB_Identity },
   { &hf_lte_rrc_pdcp_Config , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PDCP_Config },
   { &hf_lte_rrc_rlc_Config_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_RLC_Config },
-  { &hf_lte_rrc_logicalChannelIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_3_10 },
+  { &hf_lte_rrc_logicalChannelIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_logicalChannelIdentity },
   { &hf_lte_rrc_logicalChannelConfig_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_LogicalChannelConfig },
   { NULL, 0, 0, NULL }
 };
 
 static int
 dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  struct mac_lte_info  *p_mac_lte_info;
+  /* Clear out the struct */
+  static drb_mapping_t drb_mapping;
+  memset(&drb_mapping, 0, sizeof(drb_mapping));
+  actx->private_data = (void*)&drb_mapping;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_DRB_ToAddMod, DRB_ToAddMod_sequence);
+
+  /* Need UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(actx->pinfo->fd, proto_mac_lte, 0);
+  if (p_mac_lte_info == NULL) {
+    return offset;
+  }
+  else {
+    drb_mapping.ueid = p_mac_lte_info->ueid;
+  }
+  /* Tell MAC about this mapping */
+  set_mac_lte_channel_mapping(&drb_mapping);
+  /* Clear out struct again, just in case */
+  memset(&drb_mapping, 0, sizeof(drb_mapping));
+
+
 
   return offset;
 }
@@ -33970,7 +34041,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1943 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1949 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -33996,12 +34067,10 @@ dissect_lte_rrc_DL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_DCCH");
   col_clear(pinfo->cinfo, COL_INFO);
-  
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
-    lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-    dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
-  }
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_DL_DCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
 }
 
 
@@ -38483,7 +38552,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_priority,
       { "priority", "lte-rrc.priority",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_16", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_prioritisedBitRate,
       { "prioritisedBitRate", "lte-rrc.prioritisedBitRate",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_prioritisedBitRate_vals), 0,
@@ -39659,7 +39728,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_logicalChannelIdentity,
       { "logicalChannelIdentity", "lte-rrc.logicalChannelIdentity",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_3_10", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_logicalChannelConfig_01,
       { "logicalChannelConfig", "lte-rrc.logicalChannelConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42618,7 +42687,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2094 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2098 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44126,7 +44195,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2517 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2521 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -44191,7 +44260,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2566 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2570 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
