@@ -647,6 +647,7 @@ write_current_packet(gboolean cont)
     guint32 length = 0;
     guint16 padding_length = 0;
     int err;
+    guint16 ihatemacros;
     gboolean success;
 
     if (curr_offset > header_length) {
@@ -702,7 +703,8 @@ write_current_packet(gboolean cont)
             pseudoh6.dst_addr6  = HDR_IPv6.ip6_dst;
             pseudoh6.zero       = 0;
             pseudoh6.protocol   = (guint8) hdr_ip_proto;
-            pseudoh.length      = g_htons(length - g_ntohs(HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen) + sizeof(HDR_UDP));
+            ihatemacros         = g_ntohs(HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen);
+            pseudoh.length      = g_htons(length - ihatemacros + sizeof(HDR_UDP));
         }
 
         if(!hdr_ipv6) {
