@@ -21,6 +21,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Ref 3GPP TS 25.446
  */
 
 #include "config.h"
@@ -65,7 +67,7 @@ static const value_string sync_type_vals[] = {
 static int
 dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti;
+    proto_item *ti, *item;
     proto_tree *sync_tree;
     guint8      type, spare;
     guint16     packet_nr, packet_len1, packet_len2;
@@ -131,11 +133,12 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         /* Octet 2 - Time Stamp */
         timestamp = tvb_get_ntohs(tvb, offset) * 10;
-        proto_tree_add_string_format(sync_tree, hf_sync_timestamp, tvb, offset, 2, "", "Timestamp: %u ms", timestamp);
+		item = proto_tree_add_uint(sync_tree, hf_sync_timestamp, tvb, offset, 2, timestamp);
+		proto_item_append_text(item, " ms");
         offset += 2;
 
         /* Octet 4 - Packet Number */
-        proto_tree_add_string_format(sync_tree, hf_sync_packet_nr, tvb, offset, 2, "", "Packet Number: %u", packet_nr+1);
+		proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr+1);
         offset += 2;
 
         /* Octet 6 - Elapsed Octet Counter */
@@ -232,12 +235,12 @@ proto_register_sync(void)
         },
         { &hf_sync_timestamp,
             { "Timestamp", "sync.timestamp",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "Relative time value for the starting time of a synchronisation sequence within the synchronisation period.", HFILL }
         },
         { &hf_sync_packet_nr,
             { "Packet Number", "sync.packet_nr",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "Number of elapsed SYNC PDUs cumulatively within the synchronisation sequence.", HFILL }
         },
         { &hf_sync_elapsed_octet_ctr,
