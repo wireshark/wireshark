@@ -357,30 +357,6 @@ wmem_test_allocator_strict(void)
 /* UTILITY TESTING FUNCTIONS (/wmem/utils/) */
 
 static void
-wmem_test_miscutls(void)
-{
-    wmem_allocator_t   *allocator;
-    const char         *source = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    char               *ret;
-
-    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
-
-    ret = (char*) wmem_memdup(allocator, source, 5);
-    ret[4] = '\0';
-    g_assert_cmpstr(ret, ==, "ABCD");
-
-    ret = (char*) wmem_memdup(allocator, source, 1);
-    g_assert(ret[0] == 'A');
-    wmem_strict_check_canaries(allocator);
-
-    ret = (char*) wmem_memdup(allocator, source, 10);
-    ret[9] = '\0';
-    g_assert_cmpstr(ret, ==, "ABCDEFGHI");
-
-    wmem_destroy_allocator(allocator);
-}
-
-static void
 wmem_test_strutls(void)
 {
     wmem_allocator_t   *allocator;
@@ -752,7 +728,6 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/allocator/times",     wmem_time_allocators);
     g_test_add_func("/wmem/allocator/callbacks", wmem_test_allocator_callbacks);
 
-    g_test_add_func("/wmem/utils/misc",    wmem_test_miscutls);
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
     g_test_add_func("/wmem/datastruct/slist",  wmem_test_slist);
