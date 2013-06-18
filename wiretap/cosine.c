@@ -314,7 +314,7 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-cosine_seek_read (wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+cosine_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	Buffer *buf, int len _U_, int *err, gchar **err_info)
 {
 	int	pkt_len;

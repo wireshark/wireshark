@@ -160,7 +160,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-csids_seek_read (wtap *wth,
+csids_seek_read(wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
 		 Buffer *buf,
