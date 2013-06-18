@@ -37,6 +37,14 @@
 #define NSPR_SIGSTR_V21 "NetScaler V21 Performance Data"
 #define NSPR_SIGSTR_V22 "NetScaler V22 Performance Data"
 
+/*
+ * NetScaler trace files are divided into 8K pages, with each page
+ * containing one or more records.  The last page of the file
+ * might be less than 8K bytes.
+ *
+ * Records are not split across page boundaries.  A page might have
+ * an "unused space" record at the end.
+ */
 #define NSPR_PAGESIZE   8192
 
 /* The different record types
@@ -64,10 +72,10 @@
 
 /* The high resolution relative time format.
 ** The MS 2 bits of the high resoltion time is defined as follows:
-** 00 : time value is in second
-** 01 : time value is in mili second
-** 10 : time value is in micro second
-** 11 : time value is in nano second
+** 00 : time value is in seconds
+** 01 : time value is in milliseconds
+** 10 : time value is in microseconds
+** 11 : time value is in nanoseconds
 */
 #define NSPR_HRTIME_MASKTM      0x3FFFFFFF /* mask to get time value */
 #define NSPR_HRTIME_MASKFMT     0xC0000000 /* time value format mask */
@@ -581,6 +589,10 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                              const guint8 *pd, int *err);
 
 
+/*
+ * Minimum of the page size and the amount of data left in the file;
+ * the last page of a file can be short.
+ */
 #define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
 
 
