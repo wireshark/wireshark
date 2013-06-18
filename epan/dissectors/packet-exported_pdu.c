@@ -33,8 +33,6 @@
 
 void proto_reg_handoff_exported_pdu(void);
 
-static gint exported_pdu_tap = -1;
-
 static int proto_exported_pdu = -1;
 static int hf_exported_pdu_tag = -1;
 static int hf_exported_pdu_tag_len = -1;
@@ -299,7 +297,8 @@ proto_register_exported_pdu(void)
      * The tap is registered here but it is to be used by dissectors that
      * want to export their PDU:s, see packet-sip.c
      */
-    exported_pdu_tap = register_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
+    register_tap(EXPORT_PDU_TAP_NAME_LAYER_3);
+    register_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
 
 }
 

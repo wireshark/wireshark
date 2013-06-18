@@ -34,7 +34,9 @@
  * NOTE if a new tap is added here it needs to be added to export_pdu_dlg.c and packet-exported_pdu.c
  * TODO: Use an enum_val_t instead?
  */
-#define EXPORT_PDU_TAP_NAME_LAYER_7 "export_pdu_layer_7_tap"
+#define EXPORT_PDU_TAP_NAME_LAYER_3 "OSI layer 3"
+#define EXPORT_PDU_TAP_NAME_LAYER_7 "OSI layer 7"
+
 /**
  * This struct is used as the data part of tap_queue_packet() and contains a
  * buffer with metadata of the protocol PDU included in the tvb in the struct.

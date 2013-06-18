@@ -296,7 +296,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   exp_pdu_tap_data = (exp_pdu_t *)g_malloc(sizeof(exp_pdu_t));
   exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_USER10); 
 
-  export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark:Export PDU:s to pcap-ng file");
+  export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDU:s to pcap-ng file");
 
   g_signal_connect(export_pdu_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(export_pdu_dlg, "destroy", G_CALLBACK(export_pdu_destroy_cb), NULL);
@@ -344,6 +344,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Combo box */
   exp_pdu_tap_data->tap_name_widget = gtk_combo_box_text_new();
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_7);
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_tap_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_3);
   gtk_combo_box_set_active(GTK_COMBO_BOX(exp_pdu_tap_data->tap_name_widget), 0);
 
   ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_tap_data->tap_name_widget, 0, row, 1, 1);

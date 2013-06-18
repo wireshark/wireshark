@@ -82,6 +82,8 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
+#include <epan/exported_pdu.h>
 
 #include <ctype.h>
 
@@ -112,6 +114,8 @@ static gint ett_ah = -1;
 static gint ett_esp = -1;
 static gint ett_esp_icv = -1;
 static gint ett_ipcomp = -1;
+
+static gint exported_pdu_tap = -1;
 
 static dissector_handle_t data_handle;
 
@@ -854,12 +858,31 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
 #endif
 
 static void
+export_ipsec_pdu(dissector_handle_t dissector_handle, packet_info *pinfo, tvbuff_t *tvb)
+{
+  if (have_tap_listener(exported_pdu_tap)) {
+    exp_pdu_data_t *exp_pdu_data;
+
+    exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(dissector_handle), -1,
+                                        (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                                         EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
+
+    exp_pdu_data->tvb_length = tvb_length(tvb); 
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+  }
+}
+
+static void
 dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *next_tree;
   guint8 nxt;
   tvbuff_t *next_tvb;
   int advance;
+  dissector_handle_t dissector_handle;
+  guint32 saved_match_uint;
 
   advance = dissect_ah_header(tvb, pinfo, tree, &nxt, &next_tree);
   next_tvb = tvb_new_subset_remaining(tvb, advance);
@@ -869,9 +892,16 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
-    call_dissector(data_handle,next_tvb, pinfo, next_tree);
+  saved_match_uint  = pinfo->match_uint;
+  dissector_handle = dissector_get_uint_handle(ip_dissector_table, nxt);
+  if (dissector_handle) {
+    pinfo->match_uint = nxt;
+  } else {
+    dissector_handle = data_handle;
   }
+  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
+  call_dissector(dissector_handle, next_tvb, pinfo, next_tree);
+  pinfo->match_uint = saved_match_uint;
 }
 
 int
@@ -1029,6 +1059,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     guint encapsulated_protocol = 0;
     gboolean decrypt_dissect_ok = FALSE;
+    tvbuff_t *next_tvb;
+    dissector_handle_t dissector_handle;
+    guint32 saved_match_uint;
 
 #ifdef HAVE_LIBGCRYPT
     gboolean get_address_ok = FALSE;
@@ -1793,15 +1826,17 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 /* Get the encapsulated protocol */
                                 encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
 
-                                if(dissector_try_uint(ip_dissector_table,
-                                    encapsulated_protocol,
-                                    tvb_new_subset(tvb_decrypted, 0,
-                                    decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
-                                    decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2),
-                                    pinfo,
-                                    tree))
-                                {
-                                    decrypt_dissect_ok = TRUE;
+                                dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
+                                if (dissector_handle) {
+                                  saved_match_uint  = pinfo->match_uint;
+                                  pinfo->match_uint = encapsulated_protocol;
+                                  next_tvb = tvb_new_subset(tvb_decrypted, 0,
+                                                            decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
+                                                            decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2);
+                                  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
+                                  call_dissector(dissector_handle, next_tvb, pinfo, tree);
+                                  pinfo->match_uint = saved_match_uint;
+                                  decrypt_dissect_ok = TRUE;
                                 }
                             }
                         }
@@ -1838,11 +1873,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         }
                         else
                         {
-                            call_dissector(data_handle,
-                                tvb_new_subset(tvb_decrypted, 0,
+                            next_tvb = tvb_new_subset(tvb_decrypted, 0,
                                 decrypted_len - esp_iv_len - esp_auth_len,
-                                decrypted_len - esp_iv_len - esp_auth_len),
-                                pinfo, esp_tree);
+                                decrypted_len - esp_iv_len - esp_auth_len);
+                            export_ipsec_pdu(data_handle, pinfo, next_tvb);
+                            call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 
                             if(esp_tree)
                                 dissect_esp_authentication(esp_tree,
@@ -1872,9 +1907,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     */
     if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
     {
-        call_dissector(data_handle,
-            tvb_new_subset(tvb, (int)sizeof(struct newesp), len - (int)sizeof(struct newesp) - esp_auth_len, -1),
-            pinfo, esp_tree);
+        next_tvb = tvb_new_subset(tvb, (int)sizeof(struct newesp), len - (int)sizeof(struct newesp) - esp_auth_len, -1);
+        export_ipsec_pdu(data_handle, pinfo, next_tvb);
+        call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 
         if(esp_tree)
             dissect_esp_authentication(esp_tree, tvb, len ,
@@ -1898,16 +1933,16 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 esp_pad_len = tvb_get_guint8(tvb, len - 14);
                 encapsulated_protocol = tvb_get_guint8(tvb, len - 13);
-                if(dissector_try_uint(ip_dissector_table,
-                    encapsulated_protocol,
-                    tvb_new_subset(tvb,
-                    (int)sizeof(struct newesp),
-                    -1,
-                    len - (int)sizeof(struct newesp) - 14 - esp_pad_len),
-                    pinfo,
-                    tree))
-                {
-                    decrypt_dissect_ok = TRUE;
+                dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
+                if (dissector_handle) {
+                  saved_match_uint  = pinfo->match_uint;
+                  pinfo->match_uint = encapsulated_protocol;
+                  next_tvb = tvb_new_subset(tvb, (int)sizeof(struct newesp), -1,
+                                            len - (int)sizeof(struct newesp) - 14 - esp_pad_len);
+                  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
+                  call_dissector(dissector_handle, next_tvb, pinfo, tree);
+                  pinfo->match_uint = saved_match_uint;
+                  decrypt_dissect_ok = TRUE;
                 }
             }
         }
@@ -1952,6 +1987,8 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   struct ipcomp ipcomp;
   const char *p;
+  dissector_handle_t dissector_handle;
+  guint32 saved_match_uint;
 
   /*
    * load the top pane info. This should be overwritten by
@@ -1991,6 +2028,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			g_ntohs(ipcomp.comp_cpi));
 
     data = tvb_new_subset_remaining(tvb, sizeof(struct ipcomp));
+    export_ipsec_pdu(data_handle, pinfo, data);
     call_dissector(data_handle, data, pinfo, ipcomp_tree);
 
     /*
@@ -2001,8 +2039,16 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     decomp = tvb_child_uncompress(data, data, 0, tvb_length(data));
     if (decomp) {
         add_new_data_source(pinfo, decomp, "IPcomp inflated data");
-        if (!dissector_try_uint(ip_dissector_table, ipcomp.comp_nxt, decomp, pinfo, tree))
-            call_dissector(data_handle, decomp, pinfo, tree);
+        saved_match_uint  = pinfo->match_uint;
+        dissector_handle = dissector_get_uint_handle(ip_dissector_table, ipcomp.comp_nxt);
+        if (dissector_handle) {
+          pinfo->match_uint = ipcomp.comp_nxt;
+        } else {
+          dissector_handle = data_handle;
+        }
+        export_ipsec_pdu(dissector_handle, pinfo, decomp);
+        call_dissector(dissector_handle, decomp, pinfo, tree);
+        pinfo->match_uint = saved_match_uint;
     }
   }
 }
@@ -2199,7 +2245,6 @@ proto_reg_handoff_ipsec(void)
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
+
+  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_3);
 }
-
-
-
