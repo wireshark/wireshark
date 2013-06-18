@@ -300,16 +300,18 @@ create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, guint32 key,
     return node;
 }
 
+#define CREATE_DATA(TRANSFORM, DATA) ((TRANSFORM) ? (TRANSFORM)(DATA) : (DATA))
 static void *
-lookup_or_insert32(wmem_tree_t *tree, guint32 key, void*(*func)(void*),void* ud, gboolean is_subtree)
+lookup_or_insert32(wmem_tree_t *tree, guint32 key,
+        void*(*func)(void*), void* data, gboolean is_subtree, gboolean replace)
 {
     wmem_tree_node_t *node     = tree->root;
     wmem_tree_node_t *new_node = NULL;
     
     /* is this the first node ?*/
     if (!node) {
-        new_node = create_node(tree->allocator, NULL, key, func(ud),
-                WMEM_NODE_COLOR_BLACK, is_subtree);
+        new_node = create_node(tree->allocator, NULL, key,
+                CREATE_DATA(func, data), WMEM_NODE_COLOR_BLACK, is_subtree);
         tree->root = new_node;
         return new_node->data;
     }
@@ -320,6 +322,9 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key, void*(*func)(void*),void* ud,
     while (!new_node) {
         /* this node already exists, so just return the data pointer*/
         if (key == node->key32) {
+            if (replace) {
+                node->data = CREATE_DATA(func, data);
+            }
             return node->data;
         }
         else if (key < node->key32) {
@@ -328,8 +333,9 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key, void*(*func)(void*),void* ud,
             }
             else {
                 /* new node to the left */
-                new_node = create_node(tree->allocator, node, key, func(ud),
-                        WMEM_NODE_COLOR_RED, is_subtree);
+                new_node = create_node(tree->allocator, node, key,
+                        CREATE_DATA(func, data), WMEM_NODE_COLOR_RED,
+                        is_subtree);
                 node->left = new_node;
             }
         }
@@ -339,8 +345,9 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key, void*(*func)(void*),void* ud,
             }
             else {
                 /* new node to the left */
-                new_node = create_node(tree->allocator, node, key, func(ud),
-                        WMEM_NODE_COLOR_RED, is_subtree);
+                new_node = create_node(tree->allocator, node, key,
+                        CREATE_DATA(func, data), WMEM_NODE_COLOR_RED,
+                        is_subtree);
                 node->right = new_node;
             }
         }
@@ -355,57 +362,7 @@ lookup_or_insert32(wmem_tree_t *tree, guint32 key, void*(*func)(void*),void* ud,
 void
 wmem_tree_insert32(wmem_tree_t *tree, guint32 key, void *data)
 {
-    wmem_tree_node_t *node;
-
-    node=tree->root;
-
-    /* is this the first node ?*/
-    if (!node) {
-        node = create_node(tree->allocator, NULL, key, data,
-                WMEM_NODE_COLOR_BLACK, FALSE);
-        tree->root=node;
-        return;
-    }
-
-    /* it was not the new root so walk the tree until we find where to
-     * insert this new leaf.
-     */
-    while(1){
-        /* this node already exists, so just replace the data pointer*/
-        if(key==node->key32){
-            node->data=data;
-            return;
-        }
-        if(key<node->key32) {
-            if(!node->left){
-                /* new node to the left */
-                wmem_tree_node_t *new_node;
-                new_node = create_node(tree->allocator, node, key, data,
-                        WMEM_NODE_COLOR_RED, FALSE);
-                node->left=new_node;
-                node=new_node;
-                break;
-            }
-            node=node->left;
-            continue;
-        }
-        if(key>node->key32) {
-            if(!node->right){
-                /* new node to the right */
-                wmem_tree_node_t *new_node;
-                new_node = create_node(tree->allocator, node, key, data,
-                        WMEM_NODE_COLOR_RED, FALSE);
-                node->right=new_node;
-                node=new_node;
-                break;
-            }
-            node=node->right;
-            continue;
-        }
-    }
-
-    /* node will now point to the newly created node */
-    rb_insert_case1(tree, node);
+    lookup_or_insert32(tree, key, NULL, data, FALSE, TRUE);
 }
 
 void *
@@ -604,7 +561,8 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data)
             if (!insert_tree) {
                 insert_tree = tree;
             } else {
-                insert_tree = (wmem_tree_t *)lookup_or_insert32(insert_tree, insert_key32, create_sub_tree, tree, TRUE);
+                insert_tree = (wmem_tree_t *)lookup_or_insert32(insert_tree,
+                        insert_key32, create_sub_tree, tree, TRUE, FALSE);
             }
             insert_key32 = cur_key->key[i];
         }
