@@ -2,19 +2,15 @@ $Id$
 
 1. Introduction
 
-NB: Wmem still does not provide all of the functionality of emem
-    (see README.malloc), although it should provide most of it. New code
-    may still need to use emem for the time being.
-
 The 'emem' memory manager (described in README.malloc) has been a part of
 Wireshark since 2005 and has served us well, but is starting to show its age.
 The framework has become increasingly difficult to maintain, and limitations
 in the API have blocked progress on other long-term goals such as multi-
 threading, and opening multiple files at once.
 
-The 'wmem' memory manager is an attempt to write a new memory management
-framework to replace emem. It provides a significantly updated API, a more
-modular design, and it isn't all jammed into one 2500-line file.
+The 'wmem' memory manager is a new memory management framework that replaces
+emem. It provides a significantly updated API, a more modular design, and it
+isn't all jammed into one 2500-line file.
 
 Wmem was originally conceived in this email to the wireshark-dev mailing list:
 https://www.wireshark.org/lists/wireshark-dev/201210/msg00178.html
@@ -104,6 +100,11 @@ wmem_stack.h
 
 wmem_tree.h
  - A red-black tree implementation.
+
+2.2.4 Miscellanious Utilities
+
+wmem_miscutl.h
+ - Misc. utility functions like memdup.
 
 2.3 Callbacks
 
@@ -329,13 +330,8 @@ intimately familiar with Glib's testing framework, but it does the job.
 
 5. TODO List
 
-The following is an incomplete list of things that emem provides but wmem has
-not yet implemented:
-
- - tvb_memdup
-
-The following is a list of things that emem doesn't provide but that it might
-be nice if wmem did provide them:
+The following is a list of things that emem didn't provide but that it might
+be nice if wmem did:
 
  - radix tree
  - dynamic array
