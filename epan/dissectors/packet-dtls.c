@@ -65,6 +65,7 @@
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
 #include <epan/sctpppids.h>
+#include <epan/exported_pdu.h>
 
 void proto_register_dtls(void);
 
@@ -85,6 +86,7 @@ static proto_tree *top_tree;
 
 /* Initialize the protocol and registered fields */
 static gint dtls_tap                            = -1;
+static gint exported_pdu_tap                    = -1;
 static gint proto_dtls                          = -1;
 static gint hf_dtls_record                      = -1;
 static gint hf_dtls_record_content_type         = -1;
@@ -998,9 +1000,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     /* show on info column what we are decoding */
     col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
-    if (!dtls_record_tree)
-      break;
-
     /* we need dissector information when the selected packet is shown.
      * ssl session pointer is NULL at that time, so we can't access
      * info cached there*/
@@ -1035,6 +1034,19 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         if (association && association->handle) {
           ssl_debug_printf("dissect_dtls_record found association %p\n", (void *)association);
           ssl_print_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
+
+          if (have_tap_listener(exported_pdu_tap)) {
+            exp_pdu_data_t *exp_pdu_data;
+
+            exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(association->handle), -1,
+                                                (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                                                 EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
+
+            exp_pdu_data->tvb_length = tvb_length(next_tvb); 
+            exp_pdu_data->pdu_tvb = next_tvb;
+
+            tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+          }
 
           dissected = call_dissector_only(association->handle, next_tvb, pinfo, top_tree, NULL);
         }
@@ -3564,6 +3576,7 @@ proto_reg_handoff_dtls(void)
   /* add now dissector to default ports.*/
   dtls_parse_uat();
   dtls_parse_old_keys();
+  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
   if (initialized == FALSE) {
     heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);

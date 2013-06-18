@@ -1972,6 +1972,16 @@ find_dissector(const char *name)
 	return (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
 }
 
+/* Get a dissector name from handle. */
+const char *
+dissector_handle_get_dissector_name(const dissector_handle_t handle)
+{
+	if (handle == NULL) {
+		return NULL;
+	}
+	return handle->name;
+}
+
 /* Create an anonymous handle for a dissector. */
 dissector_handle_t
 create_dissector_handle(dissector_t dissector, const int proto)

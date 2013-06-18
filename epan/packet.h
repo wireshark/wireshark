@@ -321,6 +321,9 @@ WS_DLL_PUBLIC int dissector_handle_get_protocol_index(const dissector_handle_t h
 /* Find a dissector by name. */
 WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);
 
+/* Get a dissector name from handle. */
+WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
+
 /* Create an anonymous handle for a dissector. */
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);

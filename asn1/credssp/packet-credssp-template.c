@@ -28,6 +28,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/tap.h>
+#include <epan/exported_pdu.h>
 
 #include "packet-ber.h"
 #include "packet-credssp.h"
@@ -40,6 +42,8 @@
 #define TS_PASSWORD_CREDS   1
 #define TS_SMARTCARD_CREDS  2
 static gint creds_type;
+
+static gint exported_pdu_tap = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_credssp = -1;
@@ -97,15 +101,27 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       offset = get_ber_length(tvb, offset, NULL, NULL);
       offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
       if((ber_class == BER_CLASS_CON) && (tag == 0)) {
-	offset = get_ber_length(tvb, offset, NULL, NULL);
-	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
-	if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_INTEGER)) {
-	  offset = get_ber_length(tvb, offset, &length, NULL);
-	  if((length == 1) && (tvb_get_guint8(tvb, offset) == 2)) {
-	    dissect_credssp(tvb, pinfo, parent_tree);
-	    return TRUE;
-	  }
-	}
+        offset = get_ber_length(tvb, offset, NULL, NULL);
+        offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+        if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_INTEGER)) {
+          offset = get_ber_length(tvb, offset, &length, NULL);
+          if((length == 1) && (tvb_get_guint8(tvb, offset) == 2)) {
+            if (have_tap_listener(exported_pdu_tap)) {
+              exp_pdu_data_t *exp_pdu_data;
+
+              exp_pdu_data = load_export_pdu_tags(pinfo, "credssp", -1,
+                                                  (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                                                   EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
+
+              exp_pdu_data->tvb_length = tvb_length(tvb); 
+              exp_pdu_data->pdu_tvb = tvb;
+
+              tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+            }
+            dissect_credssp(tvb, pinfo, parent_tree);
+            return TRUE;
+          }
+        }
       }
     }
   }
@@ -159,6 +175,6 @@ void proto_register_credssp(void) {
 void proto_reg_handoff_credssp(void) {
 
   heur_dissector_add("ssl", dissect_credssp_heur, proto_credssp);
-
+  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 

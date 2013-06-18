@@ -110,6 +110,7 @@
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
+#include <epan/exported_pdu.h>
 
 static ssldecrypt_assoc_t *sslkeylist_uats = NULL;
 static guint nssldecrypt = 0;
@@ -128,6 +129,7 @@ gboolean ssl_ignore_mac_failed = FALSE;
 
 /* Initialize the protocol and registered fields */
 static gint ssl_tap                           = -1;
+static gint exported_pdu_tap                  = -1;
 static gint proto_ssl                         = -1;
 static gint hf_ssl_record                     = -1;
 static gint hf_ssl_record_content_type        = -1;
@@ -1387,6 +1389,18 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
                                     pinfo, proto_tree_get_root(tree), NULL)) {
         } else {
+            if (have_tap_listener(exported_pdu_tap)) {
+                exp_pdu_data_t *exp_pdu_data;
+
+                exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(association->handle), -1,
+                                                    (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                                                     EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
+
+                exp_pdu_data->tvb_length = tvb_length(next_tvb); 
+                exp_pdu_data->pdu_tvb = next_tvb;
+
+                tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+            }
             call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
         }
     }
@@ -6000,6 +6014,7 @@ proto_reg_handoff_ssl(void)
     /* parse key list */
     ssl_parse_uat();
     ssl_parse_old_keys();
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 
 void

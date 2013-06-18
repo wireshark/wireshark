@@ -31,6 +31,8 @@
 
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/tap.h>
+#include <epan/exported_pdu.h>
 #include <packet-tcp.h>
 
 /* Initialize the protocol and registered fields */
@@ -50,6 +52,8 @@ static int hf_reload_framing_response_to = -1;
 static int hf_reload_framing_time = -1;
 
 static dissector_handle_t reload_handle;
+
+static gint exported_pdu_tap = -1;
 
 /* Structure containing transaction specific information */
 typedef struct _reload_frame_t {
@@ -106,7 +110,7 @@ get_reload_framing_message_length(packet_info *pinfo _U_, tvbuff_t *tvb, int off
 
 
 static int
-dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean from_dtls)
 {
   proto_item         *ti;
   proto_tree         *reload_framing_tree;
@@ -165,6 +169,19 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     break;
   default:
     return 0;
+  }
+
+  if (from_dtls && have_tap_listener(exported_pdu_tap)) {
+    exp_pdu_data_t *exp_pdu_data;
+
+    exp_pdu_data = load_export_pdu_tags(pinfo, "reload-framing", -1,
+                                        (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
+                                         EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
+
+    exp_pdu_data->tvb_length = effective_length; 
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
   }
 
   /* The message seems to be a valid RELOAD framing message! */
@@ -430,13 +447,13 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_reload_framing_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return dissect_reload_framing_message(tvb, pinfo, tree);
+  return dissect_reload_framing_message(tvb, pinfo, tree, FALSE);
 }
 
 static void
 dissect_reload_framing_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_reload_framing_message(tvb, pinfo, tree);
+  dissect_reload_framing_message(tvb, pinfo, tree, FALSE);
 }
 
 static void
@@ -455,7 +472,20 @@ dissect_reload_framing_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_reload_framing_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (dissect_reload_framing_message(tvb, pinfo, tree) == 0) {
+  if (dissect_reload_framing_message(tvb, pinfo, tree, FALSE) == 0) {
+    /*
+     * It wasn't a valid RELOAD message, and wasn't
+     * dissected as such.
+     */
+    return FALSE;
+  }
+  return TRUE;
+}
+
+static gboolean
+dissect_reload_framing_heur_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  if (dissect_reload_framing_message(tvb, pinfo, tree, TRUE) == 0) {
     /*
      * It wasn't a valid RELOAD message, and wasn't
      * dissected as such.
@@ -575,7 +605,9 @@ proto_reg_handoff_reload_framing(void)
 
   heur_dissector_add("udp",  dissect_reload_framing_heur, proto_reload_framing);
   heur_dissector_add("tcp",  dissect_reload_framing_heur, proto_reload_framing);
-  heur_dissector_add("dtls", dissect_reload_framing_heur, proto_reload_framing);
+  heur_dissector_add("dtls", dissect_reload_framing_heur_dtls, proto_reload_framing);
+
+  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 
 /*
