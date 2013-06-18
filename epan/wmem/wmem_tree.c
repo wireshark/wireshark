@@ -598,25 +598,10 @@ wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
     return ret;
 }
 
-static wmem_tree_t *
-wmem_tree_create_subtree(wmem_tree_t *parent_tree)
-{
-    wmem_tree_t *tree;
-    
-    tree = wmem_new(parent_tree->allocator, wmem_tree_t);
-
-    tree->master = parent_tree->master;
-    tree->allocator = parent_tree->allocator;
-    tree->root=NULL;
-
-    return tree;
-}
-
 static void *
 create_sub_tree(void* d)
 {
-    wmem_tree_t *tree = (wmem_tree_t *)d;
-    return wmem_tree_create_subtree(tree);
+    return wmem_tree_new(((wmem_tree_t *)d)->allocator);
 }
 
 void
