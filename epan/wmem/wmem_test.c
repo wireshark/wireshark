@@ -655,9 +655,29 @@ wmem_test_tree(void)
             keys[j].key    = (guint32*)wmem_test_rand_string(allocator,
                     (keys[j].length*4), (keys[j].length*4)+1);
         }
-        g_assert(wmem_tree_lookup32_array(tree, keys) == NULL);
         wmem_tree_insert32_array(tree, keys, GINT_TO_POINTER(i));
         g_assert(wmem_tree_lookup32_array(tree, keys) == GINT_TO_POINTER(i));
+    }
+    wmem_free_all(allocator);
+
+    tree = wmem_tree_new(allocator);
+    keys[0].length = 1;
+    keys[0].key    = wmem_new(allocator, guint32);
+    *(keys[0].key) = 0;
+    keys[1].length = 0;
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_tree_insert32_array(tree, keys, GINT_TO_POINTER(i));
+        *(keys[0].key) += 4;
+    }
+    *(keys[0].key) = 0;
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_tree_lookup32_array(tree, keys) == GINT_TO_POINTER(i));
+        for (j=0; j<3; j++) {
+            (*(keys[0].key)) += 1;
+            g_assert(wmem_tree_lookup32_array_le(tree, keys) ==
+                    GINT_TO_POINTER(i));
+        }
+        *(keys[0].key) += 1;
     }
     wmem_free_all(allocator);
 
@@ -685,8 +705,12 @@ wmem_test_tree(void)
     tree = wmem_tree_new(allocator);
     expected_user_data = GINT_TO_POINTER(g_test_rand_int());
     for (i=0; i<CONTAINER_ITERS; i++) {
+        gint tmp;
+        do {
+            tmp = g_test_rand_int();
+        } while (wmem_tree_lookup32(tree, tmp));
         value_seen[i] = FALSE;
-        wmem_tree_insert32(tree, g_test_rand_int(), GINT_TO_POINTER(i));
+        wmem_tree_insert32(tree, tmp, GINT_TO_POINTER(i));
     }
 
     cb_called_count    = 0;
