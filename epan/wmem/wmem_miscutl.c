@@ -1,6 +1,6 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
- * Copyright 2012, Evan Huus <eapache@gmail.com>
+/* wmem_miscutl.c
+ * Wireshark Memory Manager Misc Utilities
+ * Copyright 2013, Evan Huus <eapache@gmail.com>
  *
  * $Id$
  *
@@ -23,20 +23,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#include <string.h>
+#include <glib.h>
 
 #include "wmem_core.h"
 #include "wmem_miscutl.h"
-#include "wmem_scopes.h"
-#include "wmem_slist.h"
-#include "wmem_stack.h"
-#include "wmem_strbuf.h"
-#include "wmem_strutl.h"
-#include "wmem_tree.h"
-#include "wmem_user_cb.h"
 
-#endif /* __WMEM_H__ */
+void *
+wmem_memdup(wmem_allocator_t *allocator, const void *source, const size_t size)
+{
+    void *dest;
+
+    dest = wmem_alloc(allocator, size);
+    memcpy(dest, source, size);
+
+    return dest;
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
