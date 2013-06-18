@@ -12002,6 +12002,11 @@ dissect_lte_rrc_RLC_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   if (actx->private_data != NULL) {
     ((drb_mapping_t*)actx->private_data)->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
     ((drb_mapping_t*)actx->private_data)->rlcMode_present = TRUE;
+
+    if (((drb_mapping_t*)actx->private_data)->rlcMode == RLC_AM_MODE) {
+        ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 12;
+        ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+    }
   }
 
 
@@ -12273,8 +12278,16 @@ static const value_string lte_rrc_T_pdcp_SN_Size_vals[] = {
 
 static int
 dissect_lte_rrc_T_pdcp_SN_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &value, FALSE, 0, NULL);
+
+  if (actx->private_data != NULL) {
+    /* TODO: can't this also be 15 bits? */
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = (value==0) ? 7 : 12;
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+  }
+
 
   return offset;
 }
@@ -12483,9 +12496,19 @@ dissect_lte_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   else {
     drb_mapping.ueid = p_mac_lte_info->ueid;
   }
+
   /* Tell MAC about this mapping */
   set_mac_lte_channel_mapping(&drb_mapping);
   /* Clear out struct again, just in case */
+
+  /* Also tell RLC how many PDCP sequence number bits */
+  if (drb_mapping.pdcp_sn_size_present) {
+    set_rlc_lte_drb_pdcp_seqnum_length(drb_mapping.ueid,
+                                       drb_mapping.drbid,
+                                       drb_mapping.pdcp_sn_size);
+  }
+
+  /* Clear out the struct again */
   memset(&drb_mapping, 0, sizeof(drb_mapping));
 
 

@@ -1181,9 +1181,19 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   else {
     drb_mapping.ueid = p_mac_lte_info->ueid;
   }
+
   /* Tell MAC about this mapping */
   set_mac_lte_channel_mapping(&drb_mapping);
   /* Clear out struct again, just in case */
+
+  /* Also tell RLC how many PDCP sequence number bits */
+  if (drb_mapping.pdcp_sn_size_present) {
+    set_rlc_lte_drb_pdcp_seqnum_length(drb_mapping.ueid,
+                                       drb_mapping.drbid,
+                                       drb_mapping.pdcp_sn_size);
+  }
+
+  /* Clear out the struct again */
   memset(&drb_mapping, 0, sizeof(drb_mapping));
 
 
@@ -1200,6 +1210,11 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   if (actx->private_data != NULL) {
     ((drb_mapping_t*)actx->private_data)->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
     ((drb_mapping_t*)actx->private_data)->rlcMode_present = TRUE;
+
+    if (((drb_mapping_t*)actx->private_data)->rlcMode == RLC_AM_MODE) {
+        ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = 12;
+        ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
+    }
   }
 
 #.FN_BODY DRB-ToAddMod/logicalChannelIdentity VAL_PTR=&value
@@ -1224,5 +1239,14 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   if (actx->private_data != NULL) {
     ((drb_mapping_t*)actx->private_data)->ul_priority = value;
     ((drb_mapping_t*)actx->private_data)->ul_priority_present = TRUE;
+  }
+
+#.FN_BODY PDCP-Config/rlc-UM/pdcp-SN-Size VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  if (actx->private_data != NULL) {
+    /* TODO: can't this also be 15 bits? */
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size = (value==0) ? 7 : 12;
+    ((drb_mapping_t*)actx->private_data)->pdcp_sn_size_present = TRUE;
   }
 

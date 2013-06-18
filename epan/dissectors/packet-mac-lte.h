@@ -284,6 +284,8 @@ typedef struct drb_mapping_t
     guint8     um_sn_length;      /* Part of RLC config - optional */
     gboolean   ul_priority_present;
     guint8     ul_priority;       /* Part of LogicalChannelConfig - optional */
+    gboolean   pdcp_sn_size_present;
+    guint8     pdcp_sn_size;      /* Part of pdcp-Config - optional */
 } drb_mapping_t;
 
 
