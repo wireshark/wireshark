@@ -147,7 +147,7 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
 {
 	guint8 het;
 	guint i, count = 0;
-	guint length, 
+	guint length,
 		  tmp_offset = offset,
 		  start_offset = offset;
 	proto_item* ti;
@@ -228,10 +228,10 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
 			break;
 
 		case 128: /* EXT_RATE */
-			proto_tree_add_double(ext_tree, hf_send_rate, tvb, offset+2, 2, 
+			proto_tree_add_double(ext_tree, hf_send_rate, tvb, offset+2, 2,
 					rmt_decode_send_rate(tvb_get_ntohs(tvb, offset+2)));
 			break;
-		
+
 		case 192: /* EXT_FDT */
 			if ((data_exchange != NULL) && (data_exchange->ext_192 == LCT_PREFS_EXT_192_FLUTE))
 			{
@@ -269,6 +269,33 @@ int lct_ext_decode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint of
  * tree - tree where to add LCT header subtree
  * offset - ptr to offset to use and update
  */
+
+/*
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |   V   | C | r |S| O |H|T|R|A|B|   HDR_LEN     | Codepoint (CP)|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Congestion Control Information (CCI, length = 32*(C+1) bits)  |
+    |                          ...                                  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  Transport Session Identifier (TSI, length = 32*S+16*H bits)  |
+    |                          ...                                  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |   Transport Object Identifier (TOI, length = 32*O+16*H bits)  |
+    |                          ...                                  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |               Sender Current Time (SCT, if T = 1)             |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |              Expected Residual Time (ERT, if R = 1)           |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                Header Extensions (if applicable)              |
+    |                          ...                                  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                   Figure 1 - Default LCT header format
+
+*/
 static int
 dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -313,7 +340,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		/* Fill the LCT subtree */
 		proto_tree_add_item(lct_tree, hf_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-		ti = proto_tree_add_item(lct_tree, hf_fsize_header, tvb, offset, 1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(lct_tree, hf_fsize_header, tvb, offset, 2, ENC_BIG_ENDIAN);
 		lct_fsize_tree = proto_item_add_subtree(ti, ett_fsize);
 
 		/* Fill the LCT fsize subtree */
