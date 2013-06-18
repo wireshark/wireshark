@@ -601,7 +601,8 @@ wmem_test_tree(void)
     int                 seen_values = 0;
     int                 j;
     gchar              *str_key;
-#define WMEM_TREE_MAX_KEY_COUNT 2
+#define WMEM_TREE_MAX_KEY_COUNT 8
+#define WMEM_TREE_MAX_KEY_LEN   4
     int                 key_count;
     wmem_tree_key_t     keys[WMEM_TREE_MAX_KEY_COUNT+1];
 
@@ -650,8 +651,9 @@ wmem_test_tree(void)
         key_count = g_random_int_range(1, WMEM_TREE_MAX_KEY_COUNT);
         keys[key_count].length = 0;
         for (j=0; j<key_count; j++) {
-            keys[j].key    = (guint32*)wmem_test_rand_string(allocator, 8, 9);
-            keys[j].length = 2;
+            keys[j].length = g_random_int_range(1, WMEM_TREE_MAX_KEY_LEN);
+            keys[j].key    = (guint32*)wmem_test_rand_string(allocator,
+                    (keys[j].length*4), (keys[j].length*4)+1);
         }
         g_assert(wmem_tree_lookup32_array(tree, keys) == NULL);
         wmem_tree_insert32_array(tree, keys, GINT_TO_POINTER(i));
