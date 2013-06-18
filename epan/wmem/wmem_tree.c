@@ -639,13 +639,12 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data)
 }
 
 void *
-wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key)
+wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
+        void*(*helper)(wmem_tree_t*, guint32))
 {
     wmem_tree_t *lookup_tree = NULL;
     wmem_tree_key_t *cur_key;
     guint32 i, lookup_key32 = 0;
-
-    if(!tree || !key) return NULL; /* prevent searching on NULL pointer */
 
     for (cur_key = key; cur_key->length > 0; cur_key++) {
         if(cur_key->length > 100) {
@@ -657,7 +656,8 @@ wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key)
             if (!lookup_tree) {
                 lookup_tree = tree;
             } else {
-                lookup_tree = (wmem_tree_t *)wmem_tree_lookup32(lookup_tree, lookup_key32);
+                lookup_tree =
+                    (wmem_tree_t *)(*helper)(lookup_tree, lookup_key32);
                 if (!lookup_tree) {
                     return NULL;
                 }
@@ -671,46 +671,20 @@ wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key)
         g_assert_not_reached();
     }
 
-    return wmem_tree_lookup32(lookup_tree, lookup_key32);
+    return (*helper)(lookup_tree, lookup_key32);
+}
+
+void *
+wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key)
+{
+    return wmem_tree_lookup32_array_helper(tree, key, wmem_tree_lookup32);
 }
 
 void *
 wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key)
 {
-    wmem_tree_t *lookup_tree = NULL;
-    wmem_tree_key_t *cur_key;
-    guint32 i, lookup_key32 = 0;
-
-    if(!tree || !key) return NULL; /* prevent searching on NULL pointer */
-
-    for (cur_key = key; cur_key->length > 0; cur_key++) {
-        if(cur_key->length > 100) {
-            g_assert_not_reached();
-        }
-
-        for (i = 0; i < cur_key->length; i++) {
-            /* Lookup using the previous key32 */
-            if (!lookup_tree) {
-                lookup_tree = tree;
-            } else {
-                lookup_tree = (wmem_tree_t *)wmem_tree_lookup32_le(lookup_tree, lookup_key32);
-                if (!lookup_tree) {
-                    return NULL;
-                }
-            }
-            lookup_key32 = cur_key->key[i];
-        }
-    }
-
-    if(!lookup_tree) {
-        /* We didn't get a valid key. Should we return NULL instead? */
-        g_assert_not_reached();
-    }
-
-    return wmem_tree_lookup32_le(lookup_tree, lookup_key32);
-
+    return wmem_tree_lookup32_array_helper(tree, key, wmem_tree_lookup32_le);
 }
-
 
 static gboolean
 wmem_tree_foreach_nodes(wmem_tree_node_t* node, wmem_foreach_func callback,
