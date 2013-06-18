@@ -98,6 +98,115 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
     return dst;
 }
 
+gchar *
+wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
+{
+    gsize   len;
+    va_list args;
+    gchar   *s;
+    gchar   *concat;
+    gchar   *ptr;
+
+    if (!first)
+        return NULL;
+
+    len = 1 + strlen(first);
+    va_start(args, first);
+    while ((s = va_arg(args, gchar*))) {
+        len += strlen(s);
+    }
+    va_end(args);
+
+    ptr = concat = (gchar *)wmem_alloc(allocator, len);
+
+    ptr = g_stpcpy(ptr, first);
+    va_start(args, first);
+    while ((s = va_arg(args, gchar*))) {
+        ptr = g_stpcpy(ptr, s);
+    }
+    va_end(args);
+
+    return concat;
+}
+
+gchar **
+wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
+        const gchar *delimiter, int max_tokens)
+{
+    gchar* splitted;
+    gchar* s;
+    guint tokens;
+    guint str_len;
+    guint sep_len;
+    guint i;
+    gchar** vec;
+    enum { AT_START, IN_PAD, IN_TOKEN } state;
+    guint curr_tok = 0;
+
+    if (    ! src
+            || ! delimiter
+            || ! delimiter[0])
+        return NULL;
+
+    s = splitted = wmem_strdup(allocator, src);
+    str_len = (guint) strlen(splitted);
+    sep_len = (guint) strlen(delimiter);
+
+    if (max_tokens < 1) max_tokens = INT_MAX;
+
+    tokens = 1;
+
+
+    while (tokens <= (guint)max_tokens && ( s = strstr(s,delimiter) )) {
+        tokens++;
+
+        for(i=0; i < sep_len; i++ )
+            s[i] = '\0';
+
+        s += sep_len;
+
+    }
+
+    vec = wmem_alloc_array(allocator, gchar*,tokens+1);
+    state = AT_START;
+
+    for (i=0; i< str_len; i++) {
+        switch(state) {
+            case AT_START:
+                switch(splitted[i]) {
+                    case '\0':
+                        state = IN_PAD;
+                        continue;
+                    default:
+                        vec[curr_tok] = &(splitted[i]);
+                        curr_tok++;
+                        state = IN_TOKEN;
+                        continue;
+                }
+            case IN_TOKEN:
+                switch(splitted[i]) {
+                    case '\0':
+                        state = IN_PAD;
+                    default:
+                        continue;
+                }
+            case IN_PAD:
+                switch(splitted[i]) {
+                    default:
+                        vec[curr_tok] = &(splitted[i]);
+                        curr_tok++;
+                        state = IN_TOKEN;
+                    case '\0':
+                        continue;
+                }
+        }
+    }
+
+    vec[curr_tok] = NULL;
+
+    return vec;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

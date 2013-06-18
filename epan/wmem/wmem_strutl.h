@@ -63,6 +63,21 @@ gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 G_GNUC_MALLOC;
 
+WS_DLL_PUBLIC
+gchar *
+wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
+G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
+
+/**
+ * Splits a string into a maximum of max_tokens pieces, using the given
+ * delimiter. If max_tokens is reached, the remainder of string is appended
+ * to the last token. Consecutive delimiters are treated as a single delimiter.
+ */
+WS_DLL_PUBLIC
+gchar **
+wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
+        const gchar *delimiter, int max_tokens);
+
 /**   @}
  *  @} */
 

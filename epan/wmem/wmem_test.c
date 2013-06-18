@@ -187,6 +187,36 @@ wmem_test_allocator_callbacks(void)
 }
 
 static void
+wmem_test_allocator_det(wmem_allocator_t *allocator, wmem_verify_func verify,
+        guint len)
+{
+    int i;
+    char *ptrs[MAX_SIMULTANEOUS_ALLOCS];
+
+    /* we use wmem_alloc0 in part because it tests slightly more code, but
+     * primarily so that if the allocator doesn't give us enough memory or
+     * gives us memory that includes its own metadata, we write to it and
+     * things go wrong, causing the tests to fail */
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+        ptrs[i] = (char *)wmem_alloc0(allocator, len);
+    }
+    for (i=MAX_SIMULTANEOUS_ALLOCS-1; i>=0; i--) {
+        /* no wmem_realloc0 so just use memset manually */
+        ptrs[i] = (char *)wmem_realloc(allocator, ptrs[i], 4*len);
+        memset(ptrs[i], 0, 4*len);
+    }
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+        wmem_free(allocator, ptrs[i]);
+    }
+
+    if (verify) (*verify)(allocator);
+    wmem_free_all(allocator);
+    wmem_gc(allocator);
+    if (verify) (*verify)(allocator);
+
+}
+
+static void
 wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
 {
     int i;
@@ -199,44 +229,14 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
 
     /* start with some fairly simple deterministic tests */
 
-    /* we use wmem_alloc0 in part because it tests slightly more code, but
-     * primarily so that if the allocator doesn't give us enough memory or
-     * gives us memory that includes its own metadata, we write to it and
-     * things go wrong, causing the tests to fail */
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        ptrs[i] = (char *)wmem_alloc0(allocator, 8);
-    }
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        wmem_free(allocator, ptrs[i]);
-    }
+    wmem_test_allocator_det(allocator, verify, 8);
 
-    if (verify) (*verify)(allocator);
-    wmem_free_all(allocator);
-    wmem_gc(allocator);
-    if (verify) (*verify)(allocator);
+    wmem_test_allocator_det(allocator, verify, 64);
+
+    wmem_test_allocator_det(allocator, verify, 512);
 
     for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        ptrs[i] = (char *)wmem_alloc0(allocator, 64);
-    }
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        wmem_free(allocator, ptrs[i]);
-    }
-
-    if (verify) (*verify)(allocator);
-    wmem_free_all(allocator);
-    wmem_gc(allocator);
-    if (verify) (*verify)(allocator);
-
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        ptrs[i] = (char *)wmem_alloc0(allocator, 512);
-    }
-    for (i=MAX_SIMULTANEOUS_ALLOCS-1; i>=0; i--) {
-        /* no wmem_realloc0 so just use memset manually */
-        ptrs[i] = (char *)wmem_realloc(allocator, ptrs[i], MAX_ALLOC_SIZE);
-        memset(ptrs[i], 0, MAX_ALLOC_SIZE);
-    }
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
-        wmem_free(allocator, ptrs[i]);
+        ptrs[i] = wmem_alloc0_array(allocator, char, 32);
     }
 
     if (verify) (*verify)(allocator);
@@ -362,6 +362,7 @@ wmem_test_strutls(void)
     wmem_allocator_t   *allocator;
     const char         *orig_str;
     char               *new_str;
+    char              **split_str;
 
     allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
 
@@ -383,6 +384,28 @@ wmem_test_strutls(void)
     new_str = wmem_strdup_printf(allocator, "abc %s %% %d", "boo", 23);
     g_assert_cmpstr(new_str, ==, "abc boo % 23");
     wmem_strict_check_canaries(allocator);
+
+    new_str = wmem_strconcat(allocator, "ABC", NULL);
+    g_assert_cmpstr(new_str, ==, "ABC");
+    new_str = wmem_strconcat(allocator, "ABC", "DEF", NULL);
+    g_assert_cmpstr(new_str, ==, "ABCDEF");
+    wmem_strict_check_canaries(allocator);
+    new_str = wmem_strconcat(allocator, "", "", "ABCDEF", "", "GH", NULL);
+    g_assert_cmpstr(new_str, ==, "ABCDEFGH");
+    wmem_strict_check_canaries(allocator);
+
+    split_str = wmem_strsplit(allocator, "A-C", "-", 2);
+    g_assert_cmpstr(split_str[0], ==, "A");
+    g_assert_cmpstr(split_str[1], ==, "C");
+    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 10);
+    g_assert_cmpstr(split_str[0], ==, "aslkf");
+    g_assert_cmpstr(split_str[1], ==, "asio");
+    g_assert_cmpstr(split_str[2], ==, "asfj");
+    g_assert_cmpstr(split_str[3], ==, "as");
+    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 4);
+    g_assert_cmpstr(split_str[0], ==, "aslkf");
+    g_assert_cmpstr(split_str[1], ==, "asio");
+    g_assert_cmpstr(split_str[2], ==, "-asfj-as--");
 
     wmem_destroy_allocator(allocator);
 }

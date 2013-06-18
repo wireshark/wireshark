@@ -85,6 +85,16 @@ G_GNUC_MALLOC;
 #define wmem_new(allocator, type) \
     ((type*)wmem_alloc((allocator), sizeof(type)))
 
+/** Allocate memory sufficient to hold n objects of the given type.
+ *
+ * @param allocator The allocator object to use to allocate the memory.
+ * @param type The type that the newly allocated memory will hold.
+ * @param num  The number of objects that the newly allocated memory will hold.
+ * @return A void pointer to the newly allocated memory.
+ */
+#define wmem_alloc_array(allocator, type, num) \
+    ((type*)wmem_alloc((allocator), sizeof(type) * (num)))
+
 /** Allocate the requested amount of memory in the given pool. Initializes the
  * allocated memory with zeroes.
  *
@@ -106,6 +116,17 @@ G_GNUC_MALLOC;
  */
 #define wmem_new0(allocator, type) \
     ((type*)wmem_alloc0((allocator), sizeof(type)))
+
+/** Allocate memory sufficient to hold n objects of the given type.
+ * Initializes the allocated memory with zeroes.
+ *
+ * @param allocator The allocator object to use to allocate the memory.
+ * @param type The type that the newly allocated memory will hold.
+ * @param num  The number of objects that the newly allocated memory will hold.
+ * @return A void pointer to the newly allocated and zeroed memory.
+ */
+#define wmem_alloc0_array(allocator, type, num) \
+    ((type*)wmem_alloc0((allocator), sizeof(type) * (num)))
 
 /** Returns the allocated memory to the allocator. This function should only
  * be called directly by allocators when the allocated block is sufficiently
