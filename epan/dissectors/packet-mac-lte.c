@@ -842,6 +842,9 @@ enum layer_to_show {
 /* Which layer's details to show in Info column */
 static gint     global_mac_lte_layer_to_show = (gint)ShowRLCLayer;
 
+/* Whether to decode Contention Resolution body as UL CCCH */
+static gboolean global_mac_lte_decode_cr_body = FALSE;
+
 /* When showing RLC info, count PDUs so can append info column properly */
 static guint8   s_number_of_rlc_pdus_shown = 0;
 
@@ -3069,9 +3072,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              "Contention Resolution");
                         cr_tree = proto_item_add_subtree(cr_ti, ett_mac_lte_contention_resolution);
 
-
+                        /* Contention resolution body */
                         proto_tree_add_item(cr_tree, hf_mac_lte_control_ue_contention_resolution_identity,
                                             tvb, offset, 6, ENC_NA);
+                        if (global_mac_lte_decode_cr_body) {
+                            tvbuff_t *cr_body_tvb = tvb_new_subset(tvb, offset, 6, 6);
+                            dissector_handle_t ul_ccch_handle = find_dissector("lte_rrc.ul_ccch");
+                            if (ul_ccch_handle != 0) {
+                                call_with_catch_all(ul_ccch_handle, cr_body_tvb, pinfo, cr_tree);
+                            }
+                        }
 
                         /* Get pointer to result struct for this frame */
                         crResult =  (ContentionResolutionResult *)g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
@@ -5956,6 +5966,11 @@ void proto_register_mac_lte(void)
         "Which layer info to show in Info column",
         "Can show PHY, MAC or RLC layer info in Info column",
         &global_mac_lte_layer_to_show, show_info_col_vals, FALSE);
+
+    prefs_register_bool_preference(mac_lte_module, "decode_cr_body",
+        "Decode CR body as UL CCCH",
+        "Attempt to decode 6 bytes of Contention Resolution body as an UL CCCH PDU",
+        &global_mac_lte_decode_cr_body);
 
     register_init_routine(&mac_lte_init_protocol);
 }
