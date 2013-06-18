@@ -303,58 +303,53 @@ create_node(wmem_allocator_t *allocator, wmem_tree_node_t *parent, guint32 key,
 static void *
 lookup_or_insert32(wmem_tree_t *tree, guint32 key, void*(*func)(void*),void* ud, gboolean is_subtree)
 {
-    wmem_tree_node_t *node;
-
-    node=tree->root;
-
+    wmem_tree_node_t *node     = tree->root;
+    wmem_tree_node_t *new_node = NULL;
+    
     /* is this the first node ?*/
-    if(!node){
-        node = create_node(tree->allocator, NULL, key, func(ud),
+    if (!node) {
+        new_node = create_node(tree->allocator, NULL, key, func(ud),
                 WMEM_NODE_COLOR_BLACK, is_subtree);
-        tree->root = node;
-        return node->data;
+        tree->root = new_node;
+        return new_node->data;
     }
 
     /* it was not the new root so walk the tree until we find where to
      * insert this new leaf.
      */
-    while(1){
+    while (!new_node) {
         /* this node already exists, so just return the data pointer*/
-        if(key==node->key32){
+        if (key == node->key32) {
             return node->data;
         }
-        if(key<node->key32) {
-            if(!node->left){
+        else if (key < node->key32) {
+            if (node->left) {
+                node = node->left;
+            }
+            else {
                 /* new node to the left */
-                wmem_tree_node_t *new_node;
                 new_node = create_node(tree->allocator, node, key, func(ud),
                         WMEM_NODE_COLOR_RED, is_subtree);
-                node->left=new_node;
-                node=new_node;
-                break;
+                node->left = new_node;
             }
-            node=node->left;
-            continue;
         }
-        if(key>node->key32) {
-            if(!node->right){
-                /* new node to the right */
-                wmem_tree_node_t *new_node;
+        else if (key > node->key32) {
+            if (node->right) {
+                node = node->right;
+            }
+            else {
+                /* new node to the left */
                 new_node = create_node(tree->allocator, node, key, func(ud),
                         WMEM_NODE_COLOR_RED, is_subtree);
-                node->right=new_node;
-                node=new_node;
-                break;
+                node->right = new_node;
             }
-            node=node->right;
-            continue;
         }
     }
 
     /* node will now point to the newly created node */
-    rb_insert_case1(tree, node);
+    rb_insert_case1(tree, new_node);
 
-    return node->data;
+    return new_node->data;
 }
 
 void
