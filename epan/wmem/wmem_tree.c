@@ -515,26 +515,26 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key)
    After the uint32's containing the string, there is one final terminator
    uint32 with the value 0x00000001
 */
-void
-wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flags)
+static guint32 *
+pack_string(const gchar *key, guint32 *divx, guint32 flags)
 {
-    wmem_tree_key_t key[2];
-    guint32 *aligned=NULL;
-    guint32 len = (guint32) strlen(k);
-    guint32 divx = (len+3)/4+1;
+    guint32 *aligned = NULL;
+    guint32 len = (guint32) strlen(key);
     guint32 i;
     guint32 tmp;
 
-    aligned = (guint32 *)g_malloc(divx * sizeof (guint32));
+    *divx = (len+3)/4 + 1;
+
+    aligned = (guint32 *)g_malloc(*divx * sizeof (guint32));
 
     /* pack the bytes one one by one into guint32s */
     tmp = 0;
     for (i = 0;i < len;i++) {
         unsigned char ch;
 
-        ch = (unsigned char)k[i];
+        ch = (unsigned char)key[i];
         if (flags & WMEM_TREE_STRING_NOCASE) {
-            if(isupper(ch)) {
+            if (isupper(ch)) {
                 ch = tolower(ch);
             }
         }
@@ -555,13 +555,24 @@ wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flag
     }
 
     /* add the terminator */
-    aligned[divx-1] = 0x00000001;
+    aligned[*divx-1] = 0x00000001;
+
+    return aligned;
+}
+
+void
+wmem_tree_insert_string(wmem_tree_t* tree, const gchar* k, void* v, guint32 flags)
+{
+    wmem_tree_key_t key[2];
+    guint32 *aligned;
+    guint32 divx;
+
+    aligned = pack_string(k, &divx, flags);
 
     key[0].length = divx;
     key[0].key = aligned;
     key[1].length = 0;
     key[1].key = NULL;
-
 
     wmem_tree_insert32_array(tree, key, v);
     g_free(aligned);
@@ -571,50 +582,16 @@ void *
 wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* k, guint32 flags)
 {
     wmem_tree_key_t key[2];
-    guint32 *aligned=NULL;
-    guint32 len = (guint) strlen(k);
-    guint32 divx = (len+3)/4+1;
-    guint32 i;
-    guint32 tmp;
+    guint32 *aligned;
+    guint32 divx;
     void *ret;
 
-    aligned = (guint32 *)g_malloc(divx * sizeof (guint32));
-
-    /* pack the bytes one one by one into guint32s */
-    tmp = 0;
-    for (i = 0;i < len;i++) {
-        unsigned char ch;
-
-        ch = (unsigned char)k[i];
-        if (flags & WMEM_TREE_STRING_NOCASE) {
-            if(isupper(ch)) {
-                ch = tolower(ch);
-            }
-        }
-        tmp <<= 8;
-        tmp |= ch;
-        if (i%4 == 3) {
-            aligned[i/4] = tmp;
-            tmp = 0;
-        }
-    }
-    /* add required padding to the last uint32 */
-    if (i%4 != 0) {
-        while (i%4 != 0) {
-            i++;
-            tmp <<= 8;
-        }
-        aligned[i/4-1] = tmp;
-    }
-
-    /* add the terminator */
-    aligned[divx-1] = 0x00000001;
+    aligned = pack_string(k, &divx, flags);
 
     key[0].length = divx;
     key[0].key = aligned;
     key[1].length = 0;
     key[1].key = NULL;
-
 
     ret = wmem_tree_lookup32_array(tree, key);
     g_free(aligned);
