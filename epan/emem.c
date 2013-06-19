@@ -846,9 +846,9 @@ emem_alloc(size_t size, emem_pool_t *mem)
 	
 #if 0
 	/* For testing wmem, effectively redirects most emem memory to wmem.
-	 * You will also have to comment out several assertions in
-	 * wmem_packet_scope() and wmem_file_scope() since they are much
-	 * stricter about when they are permitted to be called. */
+	 * You will also have to comment out several assertions in wmem_core.c,
+	 * specifically anything g_assert(allocator->in_scope), since it is much
+	 * stricter about when it is permitted to be called. */
 	if (mem == &ep_packet_mem) {
 		return wmem_alloc(wmem_packet_scope(), size);
 	}

@@ -55,6 +55,7 @@ struct _wmem_allocator_t {
     /* Implementation details */
     void                        *private_data;
     enum _wmem_allocator_type_t  type;
+    gboolean                     in_scope;
 };
 
 #ifdef __cplusplus

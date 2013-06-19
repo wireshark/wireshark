@@ -27,6 +27,7 @@
 
 #include "wmem_core.h"
 #include "wmem_scopes.h"
+#include "wmem_allocator.h"
 
 /* One of the supposed benefits of wmem over the old emem was going to be that
  * the scoping of the various memory pools would be obvious, since they would
@@ -53,16 +54,12 @@ static wmem_allocator_t *packet_scope = NULL;
 static wmem_allocator_t *file_scope   = NULL;
 static wmem_allocator_t *epan_scope   = NULL;
 
-static gboolean in_packet_scope = FALSE;
-static gboolean in_file_scope   = FALSE;
-
 /* Packet Scope */
 
 wmem_allocator_t *
 wmem_packet_scope(void)
 {
     g_assert(packet_scope);
-    g_assert(in_packet_scope);
 
     return packet_scope;
 }
@@ -71,20 +68,20 @@ void
 wmem_enter_packet_scope(void)
 {
     g_assert(packet_scope);
-    g_assert(in_file_scope);
-    g_assert(!in_packet_scope);
+    g_assert(file_scope->in_scope);
+    g_assert(!packet_scope->in_scope);
 
-    in_packet_scope = TRUE;
+    packet_scope->in_scope = TRUE;
 }
 
 void
 wmem_leave_packet_scope(void)
 {
     g_assert(packet_scope);
-    g_assert(in_packet_scope);
+    g_assert(packet_scope->in_scope);
 
     wmem_free_all(packet_scope);
-    in_packet_scope = FALSE;
+    packet_scope->in_scope = FALSE;
 }
 
 /* File Scope */
@@ -93,7 +90,6 @@ wmem_allocator_t *
 wmem_file_scope(void)
 {
     g_assert(file_scope);
-    g_assert(in_file_scope);
 
     return file_scope;
 }
@@ -102,9 +98,9 @@ void
 wmem_enter_file_scope(void)
 {
     g_assert(file_scope);
-    g_assert(!in_file_scope);
+    g_assert(!file_scope->in_scope);
 
-    in_file_scope = TRUE;
+    file_scope->in_scope = TRUE;
 }
 
 void
@@ -112,20 +108,20 @@ wmem_leave_file_scope(void)
 {
     /* XXX: cleanup_dissection (the current caller of this function) is
      * itself sometimes called when no file exists to be cleaned up. It's not
-     * a huge problem really, but it means that we can't assert in_file_scope
-     * here because it's not always true.
+     * a huge problem really, but it means that we can't assert
+     * file_scope->in_scope here because it's not always true.
      * 
      * At some point the code should be fixed so that cleanup_dissection is
      * only ever called when it's really needed.
      *
-     * g_assert(in_file_scope);
+     * g_assert(file_scope->in_scope);
      */
 
     g_assert(file_scope);
-    g_assert(!in_packet_scope);
+    g_assert(!packet_scope->in_scope);
 
     wmem_free_all(file_scope);
-    in_file_scope = FALSE;
+    file_scope->in_scope = FALSE;
 
     /* this seems like a good time to do garbage collection */
     wmem_gc(file_scope);
@@ -151,12 +147,13 @@ wmem_init_scopes(void)
     g_assert(file_scope   == NULL);
     g_assert(epan_scope   == NULL);
 
-    g_assert(in_packet_scope == FALSE);
-    g_assert(in_file_scope   == FALSE);
-
     packet_scope = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
     file_scope   = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
     epan_scope   = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
+
+    /* Scopes are initialized to TRUE by default on creation */
+    packet_scope->in_scope = FALSE;
+    file_scope->in_scope   = FALSE;
 }
 
 void
@@ -166,8 +163,8 @@ wmem_cleanup_scopes(void)
     g_assert(file_scope);
     g_assert(epan_scope);
 
-    g_assert(in_packet_scope == FALSE);
-    g_assert(in_file_scope   == FALSE);
+    g_assert(packet_scope->in_scope == FALSE);
+    g_assert(file_scope->in_scope   == FALSE);
 
     wmem_destroy_allocator(packet_scope);
     wmem_destroy_allocator(file_scope);

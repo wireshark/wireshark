@@ -42,6 +42,8 @@ wmem_alloc(wmem_allocator_t *allocator, const size_t size)
         return g_malloc(size);
     }
 
+    g_assert(allocator->in_scope);
+
     if (size == 0) {
         return NULL;
     }
@@ -54,13 +56,11 @@ wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
 {
     void *buf;
 
-    if (size == 0) {
-        return NULL;
-    }
-    
     buf = wmem_alloc(allocator, size);
 
-    memset(buf, 0, size);
+    if (buf) {
+        memset(buf, 0, size);
+    }
 
     return buf;
 }
@@ -72,6 +72,8 @@ wmem_free(wmem_allocator_t *allocator, void *ptr)
         g_free(ptr);
         return;
     }
+
+    g_assert(allocator->in_scope);
 
     if (ptr == NULL) {
         return;
@@ -95,6 +97,8 @@ wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
         wmem_free(allocator, ptr);
         return NULL;
     }
+
+    g_assert(allocator->in_scope);
 
     return allocator->realloc(allocator->private_data, ptr, size);
 }
@@ -159,8 +163,9 @@ wmem_allocator_new(const wmem_allocator_type_t type)
     }
 
     allocator = g_slice_new(wmem_allocator_t);
-    allocator->type = real_type;
+    allocator->type      = real_type;
     allocator->callbacks = NULL;
+    allocator->in_scope  = TRUE;
 
     switch (real_type) {
         case WMEM_ALLOCATOR_SIMPLE:
