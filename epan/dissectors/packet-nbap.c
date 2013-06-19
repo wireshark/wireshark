@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-nbap.c                                                              */
-/* ../../tools/asn2wrs.py -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . -O ../../epan/dissectors NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
+/* /home/jmayer/work/wireshark/svn/trunk/tools/asn2wrs.py -p nbap -c /home/jmayer/work/wireshark/svn/trunk/asn1/nbap/nbap.cnf -s /home/jmayer/work/wireshark/svn/trunk/asn1/nbap/packet-nbap-template -D /home/jmayer/work/wireshark/svn/trunk/asn1/nbap -O /home/jmayer/work/wireshark/svn/trunk/epan/dissectors NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
 /* Input file: packet-nbap-template.c */
 
@@ -10036,7 +10036,7 @@ dissect_nbap_AddorDeleteIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_nbap_CFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2138 "../../asn1/nbap/nbap.cnf"
+#line 2139 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &cfn, FALSE);
 
@@ -10312,6 +10312,7 @@ int i;
                                nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
             if(conversation != NULL){
                 umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(conversation, proto_fp);
+                DISSECTOR_ASSERT(umts_fp_conversation_info != NULL);
                 umts_fp_conversation_info->hrnti = hrnti;
             }
          }
@@ -41063,7 +41064,7 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationCommit ");
 actx->pinfo->link_dir=P2P_DIR_DL;
 
 
-#line 2130 "../../asn1/nbap/nbap.cnf"
+#line 2131 "../../asn1/nbap/nbap.cnf"
 /*
  * Here we need to signal the CFN value, down to FP so
  * that lowert layers know when a reconfiguration becomes active

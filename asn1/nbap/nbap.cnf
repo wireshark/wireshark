@@ -2121,6 +2121,7 @@ int i;
                                nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
             if(conversation != NULL){
                 umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(conversation, proto_fp);
+                DISSECTOR_ASSERT(umts_fp_conversation_info != NULL);
                 umts_fp_conversation_info->hrnti = hrnti;
             }
          }
