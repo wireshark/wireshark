@@ -434,6 +434,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			break;
 		}
 		}
+		break;
 	case 3: /* APDU */
 		offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 		break;
