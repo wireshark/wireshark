@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-nbap.h                                                              */
-/* /home/jmayer/work/wireshark/svn/trunk/tools/asn2wrs.py -p nbap -c /home/jmayer/work/wireshark/svn/trunk/asn1/nbap/nbap.cnf -s /home/jmayer/work/wireshark/svn/trunk/asn1/nbap/packet-nbap-template -D /home/jmayer/work/wireshark/svn/trunk/asn1/nbap -O /home/jmayer/work/wireshark/svn/trunk/epan/dissectors NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . -O ../../epan/dissectors NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
 /* Input file: packet-nbap-template.h */
 
