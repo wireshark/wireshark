@@ -45,7 +45,6 @@ static gint ett_mp4_box = -1;
 
 static int hf_mp4_box_size = -1;
 static int hf_mp4_box_type_str = -1;
-static int hf_mp4_box_largesize = -1;
 static int hf_mp4_full_box_ver = -1;
 static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
@@ -53,9 +52,7 @@ static int hf_mp4_ftyp_add_brand = -1;
 static int hf_mp4_mfhd_seq_num = -1;
 
 /* a box must at least have a 32bit len field and a 32bit type */
-#define MIN_BOX_SIZE 8
-/* an extended box has the first length field set to 1 */
-#define BOX_SIZE_EXTENDED 1
+#define MIN_BOX_LEN 8
 
 /* the box type is stored as four text characters
    it is in network byte order and contains only printable characters
@@ -89,7 +86,6 @@ static int hf_mp4_mfhd_seq_num = -1;
 #define BOX_TYPE_TFHD  MAKE_TYPE_VAL('t', 'f', 'h', 'd')
 #define BOX_TYPE_TRUN  MAKE_TYPE_VAL('t', 'r', 'u', 'n')
 #define BOX_TYPE_MDAT  MAKE_TYPE_VAL('m', 'd', 'a', 't')
-#define BOX_TYPE_UDTA  MAKE_TYPE_VAL('u', 'd', 't', 'a')
 
 
 static const value_string box_types[] = {
@@ -120,15 +116,14 @@ static const value_string box_types[] = {
     { BOX_TYPE_TFHD, "Track Fragment Header Box" },
     { BOX_TYPE_TRUN, "Track Fragment Run Box" },
     { BOX_TYPE_MDAT, "Media Data Box" },
-    { BOX_TYPE_UDTA, "User Data Box" },
     { 0, NULL }
 };
 
-static guint64
-dissect_mp4_mvhd_body(tvbuff_t *tvb, guint64 offset, guint64 len _U_,
+static int
+dissect_mp4_mvhd_body(tvbuff_t *tvb, guint offset, guint len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint64 offset_start;
+    guint offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
@@ -139,11 +134,11 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, guint64 offset, guint64 len _U_,
     return offset-offset_start;
 }
 
-static guint64
-dissect_mp4_mfhd_body(tvbuff_t *tvb, guint64 offset, guint64  len _U_,
+static int
+dissect_mp4_mfhd_body(tvbuff_t *tvb, guint offset, guint len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint64 offset_start;
+    guint offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
@@ -159,11 +154,11 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, guint64 offset, guint64  len _U_,
 }
 
 
-static guint64
-dissect_mp4_ftyp_body(tvbuff_t *tvb, guint64 offset, guint64 len,
+static int
+dissect_mp4_ftyp_body(tvbuff_t *tvb, guint offset, guint len,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint64 offset_start;
+    guint offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_ftyp_brand,
@@ -182,68 +177,54 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, guint64 offset, guint64 len,
     return offset-offset_start;
 }
 
-/* dissect a box, return its (standard or extended) length or 0 for error */
-static guint64
+static gint
 dissect_mp4_box(guint32 parent_box_type _U_,
-        tvbuff_t *tvb, guint64 offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint64     offset_start;
-    guint64     box_size;
+    guint       offset_start;
+    guint       box_len;
     guint32     box_type;
     guint8     *box_type_str;
-    proto_item *type_pi, *size_pi;
+    proto_item *pi;
     proto_tree *box_tree;
-    guint64     ret;
-    guint64     body_size;
+    gint        ret;
 
 
     offset_start = offset;
 
     /* the following mechanisms are not supported for now
+       - extended size (size==1, largesize parameter)
        - size==0, indicating that the box extends to the end of the file
        - extended box types */
 
-    box_size = (guint64)tvb_get_ntohl(tvb, offset);
-    if (box_size!=BOX_SIZE_EXTENDED && box_size<MIN_BOX_SIZE)
-        return 0;
+    box_len = tvb_get_ntohl(tvb, offset);
+    if (box_len<MIN_BOX_LEN)
+        return -1;
 
     box_type = tvb_get_ntohl(tvb, offset+4);
     box_type_str = tvb_get_ephemeral_string(tvb, offset+4, 4);
 
-    type_pi = proto_tree_add_text(tree, tvb, offset, -1, "%s (%s)",
+    pi = proto_tree_add_text(tree, tvb, offset, box_len, "%s (%s)",
             val_to_str_const(box_type, box_types, "unknown"), box_type_str);
-    box_tree = proto_item_add_subtree(type_pi, ett_mp4_box);
+    box_tree = proto_item_add_subtree(pi, ett_mp4_box);
 
-    size_pi = proto_tree_add_item(box_tree, hf_mp4_box_size,
+    proto_tree_add_item(box_tree, hf_mp4_box_size,
             tvb, offset, 4, ENC_BIG_ENDIAN);
-    if (box_size==BOX_SIZE_EXTENDED)
-        proto_item_append_text(size_pi, " (actual size is in largesize)");
-
     offset += 4;
     proto_tree_add_item(box_tree, hf_mp4_box_type_str,
             tvb, offset, 4, ENC_ASCII|ENC_NA);
     offset += 4;
 
-    if (box_size==BOX_SIZE_EXTENDED) {
-        box_size = tvb_get_ntoh64(tvb, offset);
-        proto_tree_add_item(box_tree, hf_mp4_box_largesize,
-                tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
-    }
-
-    proto_item_set_len(type_pi, (gint)box_size);
-    body_size = box_size - (offset-offset_start);
-
     /* XXX - check parent box if supplied */
     switch (box_type) {
         case BOX_TYPE_FTYP:
-            dissect_mp4_ftyp_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_ftyp_body(tvb, offset, box_len-8, pinfo, box_tree);
             break;
         case BOX_TYPE_MVHD:
-            dissect_mp4_mvhd_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_mvhd_body(tvb, offset, box_len-8, pinfo, box_tree);
             break;
         case BOX_TYPE_MFHD:
-            dissect_mp4_mfhd_body(tvb, offset, body_size, pinfo, box_tree);
+            dissect_mp4_mfhd_body(tvb, offset, box_len-8, pinfo, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
@@ -254,10 +235,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         case BOX_TYPE_MINF:
         case BOX_TYPE_MVEX:
         case BOX_TYPE_DINF:
-        case BOX_TYPE_UDTA:
-            while (offset-offset_start<box_size) {
+            while (offset-offset_start<box_len) {
                 ret = dissect_mp4_box(box_type, tvb, offset, pinfo, box_tree);
-                if (ret==0)
+                if (ret<=0)
                     break;
                 offset += ret;
             }
@@ -266,26 +246,25 @@ dissect_mp4_box(guint32 parent_box_type _U_,
             break;
     }
 
-    return box_size;
+    return box_len;
 }
 
 
 static int
 dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint64     offset = 0;
+    guint       offset = 0;
     guint32     box_type;
     proto_item *pi;
     proto_tree *mp4_tree;
-    guint64     ret;
+    gint        ret;
 
     /* to make sure that we have an mp4 file, we check that it starts with
         a box of a known type
-       please note that we do not allow the first box to be an extended box
-       this detection should be safe as long as the dissector is only called for
+       this should be safe as long as the dissector is only called for
         the video/mp4 mime type
        when we read mp4 files directly, we might need stricter checks here */
-    if (tvb_reported_length(tvb)<MIN_BOX_SIZE)
+    if (tvb_reported_length(tvb)<MIN_BOX_LEN)
         return 0;
     box_type = tvb_get_ntohl(tvb, 4);
     if (try_val_to_str(box_type, box_types) == NULL)
@@ -300,12 +279,12 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         ret = dissect_mp4_box(BOX_TYPE_NONE, tvb, offset, pinfo, mp4_tree);
-        if (ret==0)
+        if (ret<=0)
             break;
         offset += ret;
     }
 
-    return (int)offset;
+    return offset;
 }
 
 void
@@ -317,9 +296,6 @@ proto_register_mp4(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_mp4_box_type_str,
             { "Box type", "mp4.box.type_str", FT_STRING, BASE_NONE,
-                NULL, 0, NULL, HFILL } },
-        { &hf_mp4_box_largesize,
-            { "Box size (largesize)", "mp4.box.largesize", FT_UINT64, BASE_DEC,
                 NULL, 0, NULL, HFILL } },
         { &hf_mp4_full_box_ver,
             { "Box version", "mp4.full_box.version", FT_UINT8, BASE_DEC,
