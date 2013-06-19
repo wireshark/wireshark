@@ -173,13 +173,14 @@ case "$1" in
 			err_exit "Can't create '$DEST_PATH/$DEST_SUBDIR'"
 	fi
 	cd "$DEST_PATH" || err_exit "Can't find '$DEST_PATH'"
+	PKG_PATH="$PWD"
 	wget $use_proxy -nc "$DOWNLOAD_PREFIX/$PACKAGE_PATH" || \
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
 	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
-	echo "Extracting '$DEST_PATH/$PACKAGE' into '$DEST_PATH/$DEST_SUBDIR'"
+	echo "Extracting '$PKG_PATH/$PACKAGE' into '$PKG_PATH/$DEST_SUBDIR'"
         if [[ "$PACKAGE" == *.zip ]] ; then
-            unzip -oq "$DEST_PATH/$PACKAGE" ||
-                    err_exit "Couldn't unpack '$DEST_PATH/$PACKAGE'"
+            unzip -oq "$PKG_PATH/$PACKAGE" ||
+                    err_exit "Couldn't unpack '$PKG_PATH/$PACKAGE'"
             echo "Verifying that the DLLs and EXEs in $DEST_SUBDIR are executable."
             # XX: Note that find will check *all* dlls/exes in DEST_SUBDIR and below
             #     which may be more than those just unzipped depending upon DEST_SUBDIR.
