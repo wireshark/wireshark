@@ -89,7 +89,7 @@ static int hf_diameter_3gpp_dsr_flags_bit11 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit12 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit13 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit14 = -1;
-/* static int hf_diameter_3gpp_dsr_flags_bit15 = -1; */
+static int hf_diameter_3gpp_dsr_flags_bit15 = -1;
 static int hf_diameter_3gpp_dsa_flags = -1;
 static int hf_diameter_3gpp_dsa_flags_bit0 = -1;
 static int hf_diameter_3gpp_ida_flags = -1;
@@ -501,7 +501,7 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     bit_offset = 0;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
     bit_offset+=16;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit14, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit15, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit14, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
@@ -986,13 +986,11 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
-#if 0
         { &hf_diameter_3gpp_dsr_flags_bit15,
             { "Subscribed periodic RAU-TAU Timer Withdrawal", "diameter.3gpp.dsr_flags_bit15",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
-#endif
         { &hf_diameter_3gpp_dsa_flags,
             { "DSA Flags", "diameter.3gpp.dsa_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
