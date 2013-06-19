@@ -124,8 +124,8 @@ typedef struct _exp_pdu_data_t {
 
 #define EXP_PDU_TAG_SCTP_PPID_LEN       4
 
-#define EXP_PDU_TAG_SS7_OPC_LEN         4
-#define EXP_PDU_TAG_SS7_DPC_LEN         4
+#define EXP_PDU_TAG_SS7_OPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
+#define EXP_PDU_TAG_SS7_DPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
 
 #define EXP_PDU_TAG_ORIG_FNO_LEN        4
 

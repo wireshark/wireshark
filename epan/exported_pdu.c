@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/exported_pdu.h>
+#include <epan/dissectors/packet-mtp3.h>
 
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
@@ -57,22 +58,18 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_IP_SRC_BIT) == EXP_PDU_TAG_IP_SRC_BIT){
-		/* tag+length */
-		tag_buf_size+=4;
 		if(pinfo->net_src.type == AT_IPv4){
-			tag_buf_size = tag_buf_size + EXP_PDU_TAG_IPV4_SRC_LEN;
-		}else{
-			tag_buf_size = tag_buf_size + EXP_PDU_TAG_IPV6_SRC_LEN;
+			tag_buf_size += 4 + EXP_PDU_TAG_IPV4_SRC_LEN;
+		}else if(pinfo->net_src.type == AT_IPv6){
+			tag_buf_size += 4 + EXP_PDU_TAG_IPV6_SRC_LEN;
 		}
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_IP_DST_BIT) == EXP_PDU_TAG_IP_DST_BIT){
-		/* tag+length */
-		tag_buf_size+=4;
 		if(pinfo->net_dst.type == AT_IPv4){
-			tag_buf_size = tag_buf_size + EXP_PDU_TAG_IPV4_DST_LEN;
-		}else{
-			tag_buf_size = tag_buf_size + EXP_PDU_TAG_IPV6_DST_LEN;
+			tag_buf_size += 4 + EXP_PDU_TAG_IPV4_DST_LEN;
+		}else if(pinfo->net_dst.type == AT_IPv6){
+			tag_buf_size += 4 + EXP_PDU_TAG_IPV6_DST_LEN;
 		}
 	}
 
@@ -98,6 +95,18 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			} else {
 				break;
 			}
+		}
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_SS7_OPC_BIT) == EXP_PDU_TAG_SS7_OPC_BIT){
+		if(pinfo->src.type == AT_SS7PC){
+			tag_buf_size += 4 + EXP_PDU_TAG_SS7_OPC_LEN;
+		}
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_SS7_DPC_BIT) == EXP_PDU_TAG_SS7_DPC_BIT){
+		if(pinfo->dst.type == AT_SS7PC){
+			tag_buf_size += 4 + EXP_PDU_TAG_SS7_DPC_LEN;
 		}
 	}
 
@@ -136,7 +145,9 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_IPV4_SRC_LEN; /* tag length */
 			i++;
-		}else{
+			memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_src.data, EXP_PDU_TAG_IPV4_SRC_LEN);
+			i += EXP_PDU_TAG_IPV4_SRC_LEN;
+		}else if(pinfo->net_src.type == AT_IPv6){
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_IPV6_SRC;
@@ -145,10 +156,9 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_IPV6_SRC_LEN; /* tag length */
 			i++;
+			memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_src.data, EXP_PDU_TAG_IPV6_SRC_LEN);
+			i += EXP_PDU_TAG_IPV6_SRC_LEN;
 		}
-
-		memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_src.data, pinfo->net_src.len);
-		i += (pinfo->net_src.type == AT_IPv4) ? EXP_PDU_TAG_IPV4_SRC_LEN : EXP_PDU_TAG_IPV6_SRC_LEN;
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_IP_DST_BIT) == EXP_PDU_TAG_IP_DST_BIT){
@@ -161,7 +171,9 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_IPV4_DST_LEN; /* tag length */
 			i++;
-		}else{
+			memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_dst.data, EXP_PDU_TAG_IPV4_DST_LEN);
+			i += EXP_PDU_TAG_IPV4_DST_LEN;
+		}else if(pinfo->net_dst.type == AT_IPv6){
 			exp_pdu_data->tlv_buffer[i] = 0;
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_IPV6_DST;
@@ -170,10 +182,9 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_IPV6_DST_LEN; /* tag length */
 			i++;
+			memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_dst.data, EXP_PDU_TAG_IPV6_DST_LEN);
+			i += EXP_PDU_TAG_IPV6_DST_LEN;
 		}
-
-		memcpy(exp_pdu_data->tlv_buffer+i, pinfo->net_dst.data, pinfo->net_dst.len);
-		i += (pinfo->net_dst.type == AT_IPv4) ? EXP_PDU_TAG_IPV4_DST_LEN : EXP_PDU_TAG_IPV6_DST_LEN;
 	}
 
 	if((tags_bit_field & EXP_PDU_TAG_SRC_PORT_BIT) == EXP_PDU_TAG_SRC_PORT_BIT){
@@ -258,6 +269,50 @@ load_export_pdu_tags(packet_info *pinfo, const char* proto_name, int wtap_encap 
 			} else {
 				break;
 			}
+		}
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_SS7_OPC_BIT) == EXP_PDU_TAG_SS7_OPC_BIT){
+		if(pinfo->src.type == AT_SS7PC){
+			mtp3_addr_pc_t *mtp3_addr = (mtp3_addr_pc_t *)(pinfo->src.data);
+			exp_pdu_data->tlv_buffer[i] = 0;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SS7_OPC;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = 0;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SS7_OPC_LEN; /* tag length */
+			i++;
+			exp_pdu_data->tlv_buffer[i]   = (mtp3_addr->pc & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (mtp3_addr->pc & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (mtp3_addr->pc & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (mtp3_addr->pc & 0x000000ff);
+			exp_pdu_data->tlv_buffer[i+4] = (mtp3_addr->type & 0xff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+5] = (mtp3_addr->type & 0x00ff);
+			exp_pdu_data->tlv_buffer[i+6] =  mtp3_addr->ni;
+			i += EXP_PDU_TAG_SS7_OPC_LEN;
+		}
+	}
+
+	if((tags_bit_field & EXP_PDU_TAG_SS7_DPC_BIT) == EXP_PDU_TAG_SS7_DPC_BIT){
+		if(pinfo->dst.type == AT_SS7PC){
+			mtp3_addr_pc_t *mtp3_addr = (mtp3_addr_pc_t *)(pinfo->dst.data);
+			exp_pdu_data->tlv_buffer[i] = 0;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SS7_DPC;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = 0;
+			i++;
+			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_SS7_DPC_LEN; /* tag length */
+			i++;
+			exp_pdu_data->tlv_buffer[i]   = (mtp3_addr->pc & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (mtp3_addr->pc & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (mtp3_addr->pc & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (mtp3_addr->pc & 0x000000ff);
+			exp_pdu_data->tlv_buffer[i+4] = (mtp3_addr->type & 0xff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+5] = (mtp3_addr->type & 0x00ff);
+			exp_pdu_data->tlv_buffer[i+6] =  mtp3_addr->ni;
+			i += EXP_PDU_TAG_SS7_DPC_LEN;
 		}
 	}
 

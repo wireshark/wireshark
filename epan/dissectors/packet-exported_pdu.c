@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
+#include <epan/wmem/wmem.h>
+
+#include "packet-mtp3.h"
 
 void proto_reg_handoff_exported_pdu(void);
 
@@ -45,6 +48,8 @@ static int hf_exported_pdu_port_type = -1;
 static int hf_exported_pdu_src_port = -1;
 static int hf_exported_pdu_dst_port = -1;
 static int hf_exported_pdu_sctp_ppid = -1;
+static int hf_exported_pdu_ss7_opc = -1;
+static int hf_exported_pdu_ss7_dpc = -1;
 static int hf_exported_pdu_orig_fno = -1;
 
 
@@ -95,6 +100,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char *proto_name = NULL;
     const guchar *src_addr, *dst_addr;
     dissector_handle_t proto_handle;
+    mtp3_addr_pc_t *mtp3_addr;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
@@ -131,34 +137,50 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case EXP_PDU_TAG_IPV6_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_src, tvb, offset, 16, ENC_NA);
-                src_addr = tvb_get_ptr(tvb, offset, 4);
+                src_addr = tvb_get_ptr(tvb, offset, 16);
                 SET_ADDRESS(&pinfo->net_src, AT_IPv6, 16, src_addr);
                 SET_ADDRESS(&pinfo->src, AT_IPv6, 16, src_addr);
                 break;
             case EXP_PDU_TAG_IPV6_DST:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_dst, tvb, offset, 16, ENC_NA);
-                dst_addr = tvb_get_ptr(tvb, offset, 4);
+                dst_addr = tvb_get_ptr(tvb, offset, 16);
                 SET_ADDRESS(&pinfo->net_dst, AT_IPv6, 16, dst_addr);
                 SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, dst_addr);
                 break;
             case EXP_PDU_TAG_PORT_TYPE:
-                pinfo->ptype = (port_type)tvb_get_ntohl(tvb,offset);
+                pinfo->ptype = (port_type)tvb_get_ntohl(tvb, offset);
                 proto_tree_add_uint_format_value(tag_tree, hf_exported_pdu_port_type, tvb, offset, 4, pinfo->ptype,
                                                  "%s (%u)", port_type_to_str(pinfo->ptype), pinfo->ptype);
                 break;
             case EXP_PDU_TAG_SRC_PORT:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_src_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-                pinfo->srcport = tvb_get_ntohl(tvb,offset);
+                pinfo->srcport = tvb_get_ntohl(tvb, offset);
                 break;
             case EXP_PDU_TAG_DST_PORT:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_dst_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-                pinfo->destport = tvb_get_ntohl(tvb,offset);
+                pinfo->destport = tvb_get_ntohl(tvb, offset);
                 break;
             case EXP_PDU_TAG_SCTP_PPID:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_sctp_ppid, tvb, offset, 4, ENC_BIG_ENDIAN);
                 if (number_of_ppids < MAX_NUMBER_OF_PPIDS) {
-                    pinfo->ppids[number_of_ppids++] = tvb_get_ntohl(tvb,offset);
+                    pinfo->ppids[number_of_ppids++] = tvb_get_ntohl(tvb, offset);
                 }
+                break;
+            case EXP_PDU_TAG_SS7_OPC:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_opc, tvb, offset, 4, ENC_BIG_ENDIAN);
+                mtp3_addr = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+                mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
+                mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
+                mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
+                SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
+                break;
+            case EXP_PDU_TAG_SS7_DPC:
+                proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
+                mtp3_addr = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+                mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
+                mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
+                mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
+                SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr);
                 break;
             case EXP_PDU_TAG_ORIG_FNO:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_orig_fno, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -212,7 +234,7 @@ proto_register_exported_pdu(void)
               NULL, HFILL }
         },
         { &hf_exported_pdu_prot_name,
-            { "Protocol name", "exported_pdu.prot_name",
+            { "Protocol Name", "exported_pdu.prot_name",
                FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
@@ -252,7 +274,17 @@ proto_register_exported_pdu(void)
               NULL, HFILL }
         },
         { &hf_exported_pdu_sctp_ppid,
-            { "Original SCTP PPID", "exported_pdu.sctp_ppid",
+            { "SCTP PPID", "exported_pdu.sctp_ppid",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_ss7_opc,
+            { "SS7 OPC", "exported_pdu.ss7_opc",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_exported_pdu_ss7_dpc,
+            { "SS7 DPC", "exported_pdu.ss7_dpc",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
