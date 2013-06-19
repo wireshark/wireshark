@@ -907,13 +907,14 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 static void
 print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 {
-  GtkWidget *print_bt, *summary_cb, *details_cb;
+  GtkWidget *print_bt, *summary_cb, *col_headings_cb, *details_cb;
   GtkWidget *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean   print_detail;
 
   print_bt = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_BT_KEY));
   summary_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_SUMMARY_CB_KEY));
-  GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COL_HEADINGS_CB_KEY));
+  col_headings_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COL_HEADINGS_CB_KEY));
+  (void)(col_headings_cb); /* Prevent unused warning */
   details_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_DETAILS_CB_KEY));
   collapse_all_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COLLAPSE_ALL_RB_KEY));
   as_displayed_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_AS_DISPLAYED_RB_KEY));
