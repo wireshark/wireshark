@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <wsutil/crc6.h>
 
 #define TYPE_0_LEN 17
 #define TYPE_1_LEN 11
@@ -133,12 +134,12 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         /* Octet 2 - Time Stamp */
         timestamp = tvb_get_ntohs(tvb, offset) * 10;
-		item = proto_tree_add_uint(sync_tree, hf_sync_timestamp, tvb, offset, 2, timestamp);
-		proto_item_append_text(item, " ms");
+        item = proto_tree_add_uint(sync_tree, hf_sync_timestamp, tvb, offset, 2, timestamp);
+        proto_item_append_text(item, " ms");
         offset += 2;
 
         /* Octet 4 - Packet Number */
-		proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr+1);
+        proto_tree_add_uint(sync_tree, hf_sync_packet_nr, tvb, offset, 2, packet_nr+1);
         offset += 2;
 
         /* Octet 6 - Elapsed Octet Counter */
@@ -158,8 +159,10 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             case 1:
                 /* SYNC PDU Type 1 */
                 /* XXX - Calculate the CRC and check against this value? */
-                proto_tree_add_item(sync_tree, hf_sync_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                item = proto_tree_add_item(sync_tree, hf_sync_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sync_tree, hf_sync_payload_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_item_append_text(item, " [Calculated CRC 0x%x]",
+                                        crc6_compute(tvb_get_ptr(tvb, 0, offset),offset));
                 offset += 2;
 
                 /* XXX - The payload may not always be present? */
