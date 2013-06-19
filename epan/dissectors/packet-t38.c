@@ -69,7 +69,7 @@
 #include <epan/asn1.h>
 #include "packet-per.h"
 #include "packet-tpkt.h"
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
 void proto_register_t38(void);
@@ -308,7 +308,7 @@ void t38_add_address(packet_info *pinfo,
          */
         if ( ! p_conversation_data ) {
                 /* Create conversation data */
-                p_conversation_data = se_new(t38_conv);
+                p_conversation_data = wmem_new(wmem_file_scope(), t38_conv);
 
                 conversation_add_proto_data(p_conversation, proto_t38, p_conversation_data);
         }
@@ -1034,7 +1034,7 @@ init_t38_info_conv(packet_info *pinfo)
 
 		/* create the conversation if it doen't exist */
 		if (!p_t38_conv) {
-			p_t38_conv = se_new(t38_conv);
+			p_t38_conv = wmem_new(wmem_file_scope(), t38_conv);
 			p_t38_conv->setup_method[0] = '\0';
 			p_t38_conv->setup_frame_number = 0;
 
@@ -1062,7 +1062,7 @@ init_t38_info_conv(packet_info *pinfo)
 		}
 
 		/* copy the t38 conversation info to the packet t38 conversation */
-		p_t38_packet_conv = se_new(t38_conv);
+		p_t38_packet_conv = wmem_new(wmem_file_scope(), t38_conv);
 		g_strlcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
 		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 

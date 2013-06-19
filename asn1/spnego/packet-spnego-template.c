@@ -41,7 +41,7 @@
 #include "packet-kerberos.h"
 #include <epan/crypt/rc4.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 
 #include <string.h>
@@ -592,7 +592,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	/* XXX we should only do this for first time, then store somewhere */
 	/* XXX We also need to re-read the keytab when the preference changes */
 
-	cryptocopy=(guint8 *)ep_alloc(length);
+	cryptocopy=(guint8 *)wmem_alloc(wmem_packet_scope(), length);
 	if(output_message_buffer){
 		g_free(output_message_buffer);
 		output_message_buffer=NULL;

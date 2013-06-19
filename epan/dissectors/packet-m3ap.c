@@ -37,7 +37,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
@@ -107,7 +106,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-m3ap-val.h ---*/
-#line 55 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 54 "../../asn1/m3ap/packet-m3ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_m3ap = -1;
@@ -216,7 +215,7 @@ static int hf_m3ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_m3ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-m3ap-hf.c ---*/
-#line 63 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 62 "../../asn1/m3ap/packet-m3ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_m3ap = -1;
@@ -271,7 +270,7 @@ static gint ett_m3ap_SuccessfulOutcome = -1;
 static gint ett_m3ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-m3ap-ett.c ---*/
-#line 68 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 67 "../../asn1/m3ap/packet-m3ap-template.c"
 
 enum{
   INITIATING_MESSAGE,
@@ -2027,7 +2026,7 @@ static int dissect_M3AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-m3ap-fn.c ---*/
-#line 96 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 95 "../../asn1/m3ap/packet-m3ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2477,7 +2476,7 @@ void proto_register_m3ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-m3ap-hfarr.c ---*/
-#line 157 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 156 "../../asn1/m3ap/packet-m3ap-template.c"
   };
 
   /* List of subtrees */
@@ -2533,7 +2532,7 @@ void proto_register_m3ap(void) {
     &ett_m3ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-m3ap-ettarr.c ---*/
-#line 163 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 162 "../../asn1/m3ap/packet-m3ap-template.c"
   };
 
 
@@ -2608,7 +2607,7 @@ proto_reg_handoff_m3ap(void)
 
 
 /*--- End of included file: packet-m3ap-dis-tab.c ---*/
-#line 193 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 192 "../../asn1/m3ap/packet-m3ap-template.c"
     dissector_add_uint("m3ap.extension", 17, new_create_dissector_handle(dissect_AllocationAndRetentionPriority_PDU, proto_m3ap));
   }
   else {

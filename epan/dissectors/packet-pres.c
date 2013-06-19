@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
 
@@ -273,9 +273,9 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 		return;
 	}
 
-	pco=se_new(pres_ctx_oid_t);
+	pco=wmem_new(wmem_file_scope(), pres_ctx_oid_t);
 	pco->ctx_id=idx;
-	pco->oid=se_strdup(oid);
+	pco->oid=wmem_strdup(wmem_file_scope(), oid);
 	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation) {
