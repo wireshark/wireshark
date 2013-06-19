@@ -22,7 +22,7 @@ BulkPDU/request-id bulkPDU_request-id
 
 #.FN_PARS PDUs
 
-	VAL_PTR = &pdu_type 
+	VAL_PTR = &pdu_type
 
 #.FN_BODY PDUs
 gint pdu_type=-1;
@@ -46,7 +46,7 @@ gint pdu_type=-1;
 
 #.FN_BODY Trap-PDU/_untag/specific-trap   VAL_PTR = &specific_trap
   guint specific_trap;
-  
+
 %(DEFAULT_BODY)s
 
   if (generic_trap == 6) { /* enterprise specific */
@@ -107,7 +107,7 @@ gint pdu_type=-1;
 
 #.FN_PARS UsmSecurityParameters/msgUserName
 	VAL_PTR = &usm_p.user_tvb
-	
+
 #.FN_BODY UsmSecurityParameters/msgAuthenticationParameters
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
@@ -124,7 +124,7 @@ gint pdu_type=-1;
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-		
+
 		const gchar* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
@@ -132,12 +132,12 @@ gint pdu_type=-1;
 		if (! cleartext_tvb) {
 			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, crypt_tvb, 0, -1,
 				"Failed to decrypt encryptedPDU: %%s", error);
-			
+
 			expert_add_info_format_text(actx->pinfo, cause, &ei_snmp_failed_decrypted_data_pdu,
 				"Failed to decrypt encryptedPDU: %%s", error);
 
 			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
-				
+
 			return offset;
 		} else {
 			proto_item* decrypted_item;
@@ -146,17 +146,17 @@ gint pdu_type=-1;
 			if (! check_ScopedPdu(cleartext_tvb)) {
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 											"Decrypted data not formatted as expected, wrong key?");
-				
+
 				expert_add_info(actx->pinfo, cause, &ei_snmp_decrypted_data_bad_formatted);
 
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
-				
+
 				return offset;
 			}
 
-			
+
             add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
-			
+
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,ENC_NA);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
@@ -168,7 +168,7 @@ gint pdu_type=-1;
 #.FN_BODY SNMPv3Message/msgSecurityParameters
 
 	switch(MsgSecurityModel){
-		case SNMP_SEC_USM:	/* 3 */		
+		case SNMP_SEC_USM:	/* 3 */
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
@@ -190,7 +190,7 @@ gint pdu_type=-1;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		guint8* calc_auth;
 		guint calc_auth_len;
-		
+
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
@@ -202,7 +202,7 @@ gint pdu_type=-1;
 
 			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, usm_p.authOK);
 			PROTO_ITEM_SET_GENERATED(authen_item);
-			
+
 			if (usm_p.authOK) {
 				expert = &ei_snmp_authentication_ok;
 			} else {
@@ -216,7 +216,7 @@ gint pdu_type=-1;
 	}
 
 #.END
- 
+
 
 
 #.FN_BODY HeaderData/msgFlags  VAL_PTR = &parameter_tvb
@@ -226,18 +226,18 @@ gint pdu_type=-1;
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
 	proto_tree* flags_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_msgFlags);
-	
+
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
-	
+
 	usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
 	usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;
   }
 
 
 #.TYPE_ATTR
-NetworkAddress TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL  
+NetworkAddress TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 Message/community  TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 HeaderData/msgSecurityModel TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(sec_models)
 UsmSecurityParameters/msgUserName TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL

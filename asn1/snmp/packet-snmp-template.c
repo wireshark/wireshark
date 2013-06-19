@@ -1266,7 +1266,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 				    n->user.authKey.data);
 
 	if (n->priv_proto == PRIV_AES128 || n->priv_proto == PRIV_AES192 || n->priv_proto == PRIV_AES256) {
-		guint need_key_len = 
+		guint need_key_len =
 			(n->priv_proto == PRIV_AES128) ? 16 :
 			(n->priv_proto == PRIV_AES192) ? 24 :
 			(n->priv_proto == PRIV_AES256) ? 32 :
@@ -2599,10 +2599,10 @@ void proto_reg_handoff_snmp(void) {
 	data_handle = find_dissector("data");
 
 	/* SNMPv2-MIB sysDescr "1.3.6.1.2.1.1.1.0" */
-	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0", 
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0",
 		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 	/* SNMPv2-MIB::sysName.0 (1.3.6.1.2.1.1.5.0) */
-	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0", 
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0",
 		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 
 	/*

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-snmp.h                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . -O ../../epan/dissectors snmp.asn */
+/* /home/jmayer/work/wireshark/svn/trunk/tools/asn2wrs.py -b -p snmp -c /home/jmayer/work/wireshark/svn/trunk/asn1/snmp/snmp.cnf -s /home/jmayer/work/wireshark/svn/trunk/asn1/snmp/packet-snmp-template -D /home/jmayer/work/wireshark/svn/trunk/asn1/snmp -O /home/jmayer/work/wireshark/svn/trunk/epan/dissectors snmp.asn */
 
 /* Input file: packet-snmp-template.h */
 

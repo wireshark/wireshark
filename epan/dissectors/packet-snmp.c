@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . -O ../../epan/dissectors snmp.asn */
+/* /home/jmayer/work/wireshark/svn/trunk/tools/asn2wrs.py -b -p snmp -c /home/jmayer/work/wireshark/svn/trunk/asn1/snmp/snmp.cnf -s /home/jmayer/work/wireshark/svn/trunk/asn1/snmp/packet-snmp-template -D /home/jmayer/work/wireshark/svn/trunk/asn1/snmp -O /home/jmayer/work/wireshark/svn/trunk/epan/dissectors snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -1368,7 +1368,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 				    n->user.authKey.data);
 
 	if (n->priv_proto == PRIV_AES128 || n->priv_proto == PRIV_AES192 || n->priv_proto == PRIV_AES256) {
-		guint need_key_len = 
+		guint need_key_len =
 			(n->priv_proto == PRIV_AES128) ? 16 :
 			(n->priv_proto == PRIV_AES192) ? 24 :
 			(n->priv_proto == PRIV_AES256) ? 32 :
@@ -2129,7 +2129,7 @@ static int
 dissect_snmp_SpecificTrap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 48 "../../asn1/snmp/snmp.cnf"
   guint specific_trap;
-  
+
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &specific_trap);
 
@@ -2493,11 +2493,11 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
 	proto_tree* flags_tree = proto_item_add_subtree(actx->created_item,ett_msgFlags);
-	
+
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
-	
+
 	usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
 	usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;
   }
@@ -2542,7 +2542,7 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 #line 169 "../../asn1/snmp/snmp.cnf"
 
 	switch(MsgSecurityModel){
-		case SNMP_SEC_USM:	/* 3 */		
+		case SNMP_SEC_USM:	/* 3 */
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
@@ -2588,7 +2588,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-		
+
 		const gchar* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(actx->created_item,ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
@@ -2596,12 +2596,12 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		if (! cleartext_tvb) {
 			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, crypt_tvb, 0, -1,
 				"Failed to decrypt encryptedPDU: %s", error);
-			
+
 			expert_add_info_format_text(actx->pinfo, cause, &ei_snmp_failed_decrypted_data_pdu,
 				"Failed to decrypt encryptedPDU: %s", error);
 
 			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
-				
+
 			return offset;
 		} else {
 			proto_item* decrypted_item;
@@ -2610,17 +2610,17 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 			if (! check_ScopedPdu(cleartext_tvb)) {
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 											"Decrypted data not formatted as expected, wrong key?");
-				
+
 				expert_add_info(actx->pinfo, cause, &ei_snmp_decrypted_data_bad_formatted);
 
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
-				
+
 				return offset;
 			}
 
-			
+
             add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
-			
+
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,ENC_NA);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
@@ -2680,7 +2680,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		guint8* calc_auth;
 		guint calc_auth_len;
-		
+
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
@@ -2692,7 +2692,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, usm_p.authOK);
 			PROTO_ITEM_SET_GENERATED(authen_item);
-			
+
 			if (usm_p.authOK) {
 				expert = &ei_snmp_authentication_ok;
 			} else {
@@ -4108,10 +4108,10 @@ void proto_reg_handoff_snmp(void) {
 	data_handle = find_dissector("data");
 
 	/* SNMPv2-MIB sysDescr "1.3.6.1.2.1.1.1.0" */
-	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0", 
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0",
 		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 	/* SNMPv2-MIB::sysName.0 (1.3.6.1.2.1.1.5.0) */
-	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0", 
+	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0",
 		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 
 	/*
