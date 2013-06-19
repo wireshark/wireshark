@@ -124,11 +124,11 @@ static const value_string box_types[] = {
     { 0, NULL }
 };
 
-static int
-dissect_mp4_mvhd_body(tvbuff_t *tvb, guint offset, guint len _U_,
+static guint64
+dissect_mp4_mvhd_body(tvbuff_t *tvb, guint64 offset, guint64 len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint offset_start;
+    guint64 offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
@@ -139,11 +139,11 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, guint offset, guint len _U_,
     return offset-offset_start;
 }
 
-static int
-dissect_mp4_mfhd_body(tvbuff_t *tvb, guint offset, guint len _U_,
+static guint64
+dissect_mp4_mfhd_body(tvbuff_t *tvb, guint64 offset, guint64  len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint offset_start;
+    guint64 offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
@@ -159,11 +159,11 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, guint offset, guint len _U_,
 }
 
 
-static int
-dissect_mp4_ftyp_body(tvbuff_t *tvb, guint offset, guint len,
+static guint64
+dissect_mp4_ftyp_body(tvbuff_t *tvb, guint64 offset, guint64 len,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint offset_start;
+    guint64 offset_start;
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_ftyp_brand,
@@ -185,16 +185,16 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, guint offset, guint len,
 /* dissect a box, return its (standard or extended) length or 0 for error */
 static guint64
 dissect_mp4_box(guint32 parent_box_type _U_,
-        tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, guint64 offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint       offset_start;
+    guint64     offset_start;
     guint64     box_size;
     guint32     box_type;
     guint8     *box_type_str;
     proto_item *type_pi, *size_pi;
     proto_tree *box_tree;
     guint64     ret;
-    guint       body_size;
+    guint64     body_size;
 
 
     offset_start = offset;
@@ -273,7 +273,7 @@ dissect_mp4_box(guint32 parent_box_type _U_,
 static int
 dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint       offset = 0;
+    guint64     offset = 0;
     guint32     box_type;
     proto_item *pi;
     proto_tree *mp4_tree;
@@ -305,7 +305,7 @@ dissect_mp4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         offset += ret;
     }
 
-    return offset;
+    return (int)offset;
 }
 
 void
