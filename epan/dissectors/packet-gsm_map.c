@@ -58,7 +58,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/expert.h>
 
@@ -2522,7 +2522,7 @@ unpack_digits(tvbuff_t *tvb, int offset) {
 	length = tvb_length(tvb);
 	if (length < offset)
 		return "";
-	digit_str = (char *)ep_alloc((length - offset)*2+1);
+	digit_str = (char *)wmem_alloc(wmem_packet_scope(), (length - offset)*2+1);
 
 	while ( offset < length ){
 

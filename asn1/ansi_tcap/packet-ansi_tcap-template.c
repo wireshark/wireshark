@@ -30,7 +30,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 
@@ -197,13 +197,13 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           /* The hash string needs to contain src and dest to distiguish differnt flows */
           switch(ansi_tcap_response_matching_type){
                         case 0:
-                                buf = ep_strdup(ansi_tcap_private.TransactionID_str);
+                                buf = wmem_strdup(wmem_packet_scope(), ansi_tcap_private.TransactionID_str);
                                 break;
                         case 1:
-                                buf = ep_strdup_printf("%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
+                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
                                 break;
                         default:
-                                buf = ep_strdup_printf("%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
+                                buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
                                 break;
                 }
 
@@ -212,13 +212,13 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           if(ansi_tcap_saved_invokedata)
                   return;
 
-          ansi_tcap_saved_invokedata = se_new(struct ansi_tcap_invokedata_t);
+          ansi_tcap_saved_invokedata = wmem_new(wmem_file_scope(), struct ansi_tcap_invokedata_t);
           ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
           ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
           ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
 
           g_hash_table_insert(TransactionId_table,
-                        se_strdup(buf),
+                        wmem_strdup(wmem_file_scope(), buf),
                         ansi_tcap_saved_invokedata);
           /*
           g_warning("Tcap Invoke Hash string %s",buf);
@@ -238,7 +238,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   }
 
   /* The hash string needs to contain src and dest to distiguish differnt flows */
-  buf = (char *)ep_alloc(MAX_TID_STR_LEN);
+  buf = (char *)wmem_alloc(wmem_packet_scope(), MAX_TID_STR_LEN);
   buf[0] = '\0';
   /* Reverse order to invoke */
   g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",

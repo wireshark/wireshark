@@ -78,7 +78,6 @@
 #include <epan/strutil.h>
 
 #include <epan/conversation.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>

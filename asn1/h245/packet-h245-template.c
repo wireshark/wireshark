@@ -42,7 +42,7 @@
 
 #include <epan/prefs.h>
 #include <epan/t35.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
@@ -322,7 +322,7 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 
 static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr)
 {
-  return ep_strdup_printf("%s/%s/%u", ep_address_to_str(dst_addr), ep_address_to_str(src_addr), lc_num);
+  return wmem_strdup_printf(wmem_packet_scope(), "%s/%s/%u", ep_address_to_str(dst_addr), ep_address_to_str(src_addr), lc_num);
 }
 
 static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_addr)
@@ -354,17 +354,17 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel_lcl->rfc2198 > 0) {
-		encoding_name_and_rate_t *encoding_name_and_rate = se_new(encoding_name_and_rate_t);
+		encoding_name_and_rate_t *encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
 		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
-		encoding_name_and_rate->encoding_name = se_strdup("red");
+		encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), "red");
 		encoding_name_and_rate->sample_rate = 8000;
-		key = se_new(gint);
+		key = wmem_new(wmem_file_scope(), gint);
 		*key = upcoming_channel_lcl->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
 	}
 
 	if (upcoming_channel_lcl->srtp_flag) {
-		dummy_srtp_info = se_new0(struct srtp_info);
+		dummy_srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
 	}
 
 	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel_lcl->media_addr.addr.type, upcoming_channel_lcl->media_addr.port );
@@ -432,7 +432,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* assume that whilst there is more tvb data, there are more h245 commands */
 	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
 		CLEANUP_PUSH(reset_h245_pi, NULL);
-		h245_pi=ep_new(h245_packet_info);
+		h245_pi=wmem_new(wmem_packet_scope(), h245_packet_info);
 		init_h245_packet_info(h245_pi);
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, &asn1_ctx, tr, hf_h245_pdu_type);

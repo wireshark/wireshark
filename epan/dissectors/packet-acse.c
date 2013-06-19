@@ -46,7 +46,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
@@ -286,9 +286,9 @@ static void
 register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 {
 	acse_ctx_oid_t *aco, *tmpaco;
-	aco=se_alloc(sizeof(acse_ctx_oid_t));
+	aco=wmem_new(wmem_file_scope(), acse_ctx_oid_t);
 	aco->ctx_id=idx;
-	aco->oid=se_strdup(oid);
+	aco->oid=wmem_strdup(wmem_file_scope(), oid);
 
 	/* if this ctx already exists, remove the old one first */
 	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, aco);
@@ -1726,7 +1726,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(session->spdu_type == 0 ) {
 			if(parent_tree){
 				REPORT_DISSECTOR_BUG(
-					ep_strdup_printf("Wrong spdu type %x from session dissector.",session->spdu_type));
+					wmem_strdup_printf(wmem_packet_scope(), "Wrong spdu type %x from session dissector.",session->spdu_type));
 				return  ;
 			}
 		}
