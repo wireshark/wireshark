@@ -1959,7 +1959,7 @@
         <entry><command>Dissector tables</command></entry>
         <entry></entry>
         <entry><para>
-            This menu item brings up a dialog box showing the tables 
+            This menu item brings up a dialog box showing the tables
             with subdissector relationships.
           </para></entry>
           </row>
@@ -2022,7 +2022,7 @@
         <entry><command>Website</command></entry>
         <entry></entry>
         <entry><para>
-            This menu item starts a Web browser showing the 
+            This menu item starts a Web browser showing the
             webpage from:
             <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
           </para></entry>
@@ -2038,7 +2038,7 @@
         <entry><command>Downloads</command></entry>
         <entry></entry>
         <entry><para>
-            This menu item starts a Web browser showing the 
+            This menu item starts a Web browser showing the
             downloads from:
             <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
           </para></entry>
@@ -2052,7 +2052,7 @@
         <entry><command>Wiki</command></entry>
         <entry></entry>
         <entry><para>
-            This menu item starts a Web browser showing the 
+            This menu item starts a Web browser showing the
             front page from:
             <ulink url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink>.
           </para></entry>
@@ -2061,7 +2061,7 @@
         <entry><command>Sample Captures</command></entry>
         <entry></entry>
         <entry><para>
-            This menu item starts a Web browser showing the 
+            This menu item starts a Web browser showing the
             sample captures from:
             <ulink url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink>.
           </para></entry>
@@ -2076,7 +2076,7 @@
         <entry></entry>
         <entry><para>
             This menu item brings up an information window that
-            provides various detailed information items on Wireshark, 
+            provides various detailed information items on Wireshark,
             such as how it's build, the plugins loaded, the used folders, ...
           </para></entry>
           </row>
@@ -2390,7 +2390,7 @@
         <entry><command>Coloring Rules...</command></entry>
         <entry>View/Coloring Rules...</entry>
         <entry><para>
-            This item brings up a dialog box that allows you
+            This item brings up a dialog box that allows you to
             color packets in the packet list pane according to
             filter expressions you choose. It can be very useful
             for spotting certain types of packets. More
@@ -2705,8 +2705,8 @@
     <para>
       <command>The colorized bullet</command> on the left shows the highest expert
       info level found in the currently loaded capture file.  Hovering the mouse
-      over this icon will show a textual description of the expert info level, 
-      and clicking the icon will bring up the Expert Infos dialog box. 
+      over this icon will show a textual description of the expert info level,
+      and clicking the icon will bring up the Expert Infos dialog box.
       For a detailed description of expert info, see <xref linkend="ChAdvExpert"/>.
     </para>
       </listitem>
@@ -2718,7 +2718,7 @@
       </listitem>
       <listitem>
     <para>
-      <command>The middle part</command> shows the current number of packets in the capture file. 
+      <command>The middle part</command> shows the current number of packets in the capture file.
       The following values are displayed:
       <itemizedlist mark="bullet">
         <listitem>
@@ -2744,7 +2744,7 @@
       </listitem>
       <listitem>
     <para>
-      <command>The right side</command> shows the selected configuration profile.  
+      <command>The right side</command> shows the selected configuration profile.
       Clicking in this part of the statusbar will bring up a menu with all available
       configuration profiles, and selecting from this list will change the configuration profile.
     </para>
@@ -2755,7 +2755,7 @@
     <title>The Statusbar with a configuration profile menu</title>
     <graphic entityref="WiresharkStatusbarProfile" format="PNG"/>
       </figure>
-      For a detailed description of configuration profiles, see 
+      For a detailed description of configuration profiles, see
       <xref linkend="ChCustConfigProfilesSection"/>.
     </para>
     <para>
