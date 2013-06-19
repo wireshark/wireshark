@@ -32,10 +32,9 @@
  the "epan pipe" protocol 
 **/
 
+typedef void (*reader_realloc_t)(echld_reader_t*, size_t); 
 
-static void child_realloc_buff(echld_reader_t* r, size_t needed)
-
-{
+static void child_realloc_buff(echld_reader_t* r, size_t needed) {
 	size_t a = r->actual_len;
 	size_t s = r->len;
 	int rp_off = r->rp - r->data;
@@ -57,13 +56,12 @@ static void child_realloc_buff(echld_reader_t* r, size_t needed)
 	}
 }
 
-typedef void (*realloc_t)(echld_reader_t*, size_t); 
-static realloc_t reader_realloc_buf = child_realloc_buff;
+static reader_realloc_t reader_realloc_buff = child_realloc_buff;
 
 #ifdef PARENT_THREADS
 static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
 	// parent thread: obtain malloc mutex
-	child_realloc_buff
+	child_realloc_buff(b,needed);
 	// parent thread: release malloc mutex
 }	
 #endif
@@ -71,6 +69,19 @@ static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
 
 
 void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
+	r->fd = fd;
+	if (fd >= 0) fcntl(fd, F_SETFL, O_NONBLOCK);
+
+	if (r->data == NULL) {
+		r->actual_len = initial;
+		r->data = g_malloc0(initial);
+		r->wp = r->data;
+		r->rp = NULL;
+		r->len = 0;
+	}
+}
+
+void echld_reset_reader(echld_reader_t* r, int fd, size_t initial) {
 	r->fd = fd;
 	fcntl(fd, F_SETFL, O_NONBLOCK);
 
@@ -80,6 +91,10 @@ void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
 		r->wp = r->data;
 		r->rp = NULL;
 		r->len = 0;
+	} else {
+		r->wp = r->data;
+		r->rp = NULL;
+		r->len = 0;		
 	}
 }
 
@@ -755,6 +770,53 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case ECHLD_PACKET_LIST: break; //SS name,range
 		case ECHLD_SAVE_FILE: break;
 		case ECHLD_FILE_SAVED: break;
+		case EC_ACTUAL_ERROR: break;
+	}
+
+	switch(type) {
+		case ECHLD_NEW_CHILD: break;
+		case ECHLD_CLOSE_CHILD: break;
+		case ECHLD_SET_PARAM: break; // set_param(p,v)
+		case ECHLD_GET_PARAM: break; // get_param(p)
+		case ECHLD_PING: break;
+		case ECHLD_LIST_FILES: break; // list_files(glob)
+		case ECHLD_CHK_FILTER: break; // chk_filter(df)
+		case ECHLD_OPEN_FILE: break; // open_file(f,mode)
+		case ECHLD_LIST_INTERFACES: break; 
+		case ECHLD_OPEN_INTERFACE: break; // open_interface(if,param)
+		case ECHLD_START_CAPTURE: break;
+		case ECHLD_GET_SUM: break; // get_sum(rng)
+		case ECHLD_GET_TREE: break; // get_tree(rng)
+		case ECHLD_GET_BUFFER: break; // get_buffer(rng)
+		case ECHLD_STOP_CAPTURE: break;
+		case ECHLD_ADD_NOTE: break; // add_note(framenum,note)
+		case ECHLD_APPLY_FILTER: break; // apply_filter(df)
+		case ECHLD_SAVE_FILE: break; // save_file(f,mode)
+
+
+		case ECHLD_ERROR: break; // error(err,reason)
+		case ECHLD_TIMED_OUT: break;
+		case ECHLD_HELLO: break; 
+		case ECHLD_CHILD_DEAD: break; // child_dead(msg)
+		case ECHLD_CLOSING: break;
+		case ECHLD_PARAM: break;
+		case ECHLD_PONG: break;
+		case ECHLD_FILE_INFO: break;  // file_info(pre_encoded)
+		case ECHLD_FILTER_CKD: break; // filter_ckd(ok,df)
+		case ECHLD_FILE_OPENED: break; 
+		case ECHLD_INTERFACE_INFO: break; // intf_info(pre-encoded)
+		case ECHLD_INTERFACE_OPENED: break;
+		case ECHLD_CAPTURE_STARTED: break;
+		case ECHLD_NOTIFY: break; // notify(pre-encoded) 
+		case ECHLD_PACKET_SUM: break; // packet_sum(pre-encoded)
+		case ECHLD_TREE: break; //tree(framenum, tree(pre-encoded) ) 
+		case ECHLD_BUFFER: break; // buffer (name,range,totlen,data)
+		case ECHLD_EOF: break; 
+		case ECHLD_CAPTURE_STOPPED: break; 
+		case ECHLD_NOTE_ADDED: break; 
+		case ECHLD_PACKET_LIST: break; // packet_list(name,filter,range);
+		case ECHLD_FILE_SAVED: break;
+
 		case EC_ACTUAL_ERROR: break;
 	}
 }

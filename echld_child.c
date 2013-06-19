@@ -1,5 +1,5 @@
-/* echld_child-int.h
- *  epan working child API internals
+/* echld_child.c
+ *  epan working child internals
  *  Child process routines and definitions
  *
  * $Id$
@@ -60,9 +60,7 @@ static echld_child_t child;
 #define CHILD_RESP(BYTEARR,TYPE) echld_write_frame(child.fds.pipe_to_parent, BYTEARR, child.chld_id, TYPE, child.reqh_id, NULL)
 
 #ifdef DEBUG_CHILD
-int dbg_level = 0;
-#define DBG_BUFF_LEN 1024
-static char dbg_buff[DBG_BUFF_LEN];
+static int dbg_level = 0;
 
 void child_debug(int level, char* fmt, ...) {
 	va_list ap;
@@ -83,13 +81,13 @@ void child_debug(int level, char* fmt, ...) {
 #define CHILD_DBG(attrs)
 #endif
 
-static void child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id) {
+void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id) {
 	child.state = IDLE;
 	child.pid = getpid();
 	child.ppid = getppid();
 	child.chld_id = 0;
 	child.reqh_id = reqh_id;
-	init_reader( &(child.parent), pipe_from_parent);
+	echld_init_reader( &(child.parent), pipe_from_parent,4096);
 	child.fds.pipe_to_parent = pipe_to_parent;
 	child.fds.pipe_from_dumpcap = -1;
 	child.fds.pipe_to_dumpcap = -1;
@@ -312,7 +310,7 @@ static gboolean child_apply_filter(char* dflt, GString* err) { return FALSE; }
 static gboolean child_add_note(int packet_num, char* note, GString* err) { return FALSE; }
 
 
-static int child_receive(guint8* b, size_t len, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data) {
+static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
 	GByteArray* ba = NULL;
 
 	child.chld_id = chld_id;
@@ -351,11 +349,16 @@ static int child_receive(guint8* b, size_t len, guint16 chld_id, echld_msg_type_
 		case ECHLD_SET_PARAM:{
 			char* param;
 			char* value;
-			if ( child.dec->set_param(b,len,&param,&value) ) {
+			if ( child.dec->set_param && child.dec->set_param(b,len,&param,&value) ) {
 				param_t* p = get_paramset(param);
 				char* err;
 				if (!p) {
 					child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"no such param='%s'",param);					
+					break;
+				}
+
+				if (!p->set) {
+					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='read only'");
 					break;
 				}
 
@@ -375,10 +378,10 @@ static int child_receive(guint8* b, size_t len, guint16 chld_id, echld_msg_type_
 				child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"reason='decoder error'");
 				break;
 			}
-		};
+		}
 		case ECHLD_GET_PARAM: {
 			char* param;
-			if ( child.dec->get_param(b,len,&param) ) {
+			if ( child.dec->get_param && child.dec->get_param(b,len,&param) ) {
 				char* err;
 				char* val;
 
@@ -388,6 +391,12 @@ static int child_receive(guint8* b, size_t len, guint16 chld_id, echld_msg_type_
 					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"no such param='%s'",param);					
 					break;
 				}
+
+				if (!p->get) {
+					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='write only'");					
+					break;
+				}
+
 				if (!(val = p->get(&err))) {
 					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='%s'",err);
 					g_free(err);
@@ -491,10 +500,8 @@ static void child_read_file() {
 				CHILD_DBG((2,"child_read_file"));
 }
 
-void child_loop() {
+int echld_child_loop() {
 	int parent_fd = child.fds.pipe_to_parent;
-	echld_reader_t r;
-	init_reader(&r);
 
 #ifdef DEBUG_CHILD
 	int step = 0;
@@ -531,20 +538,20 @@ void child_loop() {
 
 		if ( FD_ISSET(parent_fd,&efds) ) {
 			CHILD_DBG((0,"Broken Parent Pipe step=%d",step++));
-			return BROKEN_PARENT_PIPE;
+			break;
 		}
 		if (child.fds.pipe_from_dumpcap > 0 &&  FD_ISSET(child.fds.pipe_from_dumpcap,&efds) ) {
 			CHILD_DBG((0,"Broken Dumpcap Pipe step=%d",step++));
-			return BROKEN_DUMPCAP_PIPE;
+			break;
 		}
 		if (child.fds.file_being_read > 0 &&  FD_ISSET(child.fds.file_being_read,&efds) ) {
 			CHILD_DBG((0,"Broken Readfile Pipe step=%d",step++));
-			return BROKEN_READFILE;
+			break;
 		}
 
 		if (FD_ISSET(parent_fd, &rfds)) {
 
-			int st = echld_read_frame(&r, child_receive, &child);
+			int st = echld_read_frame(&(child.parent), child_receive, &child);
 
 			if (st < 0) {
 				CHILD_DBG((0,"Read Frame Failed step=%d",step++));
@@ -561,6 +568,9 @@ void child_loop() {
 		}
 	} while(1);
 
+
+	CHILD_RESP(NULL,ECHLD_CLOSING);
+	CHILD_DBG((3,"Closing"));
 	return 222;
 }
 
