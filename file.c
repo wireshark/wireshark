@@ -2410,6 +2410,8 @@ print_packet(capture_file *cf, frame_data *fdata,
   g_snprintf(bookmark_name, sizeof bookmark_name, "__frame%u__", fdata->num);
 
   if (args->print_args->print_summary) {
+    if (!args->print_args->print_col_headings)
+        args->print_header_line = FALSE;
     if (args->print_header_line) {
       if (!print_line(args->print_args->stream, 0, args->header_line_buf))
         goto fail;
@@ -2479,7 +2481,8 @@ print_packet(capture_file *cf, frame_data *fdata,
     args->print_separator = TRUE;
 
     /* Print a header line if we print any more packet summaries */
-    args->print_header_line = TRUE;
+    if (args->print_args->print_col_headings)
+        args->print_header_line = TRUE;
   }
 
   if (args->print_args->print_hex) {
@@ -2495,7 +2498,8 @@ print_packet(capture_file *cf, frame_data *fdata,
     args->print_separator = TRUE;
 
     /* Print a header line if we print any more packet summaries */
-    args->print_header_line = TRUE;
+    if (args->print_args->print_col_headings)
+        args->print_header_line = TRUE;
   } /* if (args->print_args->print_dissections != print_dissections_none) */
 
   epan_dissect_cleanup(&edt);
@@ -2525,7 +2529,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   fmt_data     *cfmt;
 
   callback_args.print_args = print_args;
-  callback_args.print_header_line = TRUE;
+  callback_args.print_header_line = print_args->print_col_headings;
   callback_args.header_line_buf = NULL;
   callback_args.header_line_buf_len = 256;
   callback_args.print_formfeed = FALSE;

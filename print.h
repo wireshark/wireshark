@@ -95,20 +95,20 @@ typedef enum {
 } print_dissections_e;
 
 typedef struct {
-  print_stream_t *stream;	/* the stream to which we're printing */
-  print_format_e format;	/* plain text or PostScript */
-  gboolean	to_file;	/* TRUE if we're printing to a file */
-  char		*file;		/* file output pathname */
-  char		*cmd;		/* print command string (not win32) */
+  print_stream_t *stream;       /* the stream to which we're printing */
+  print_format_e format;        /* plain text or PostScript */
+  gboolean to_file;             /* TRUE if we're printing to a file */
+  char *file;                   /* file output pathname */
+  char *cmd;                    /* print command string (not win32) */
   packet_range_t range;
 
-  gboolean	print_summary;	/* TRUE if we should just print summary;
-				   FALSE if we should print protocol tree. */
-  print_dissections_e   print_dissections;
-  gboolean	print_hex;	/* TRUE if we should also print hex data;
-				   FALSE if we should print only if not dissected. */
-  gboolean	print_formfeed; /* TRUE if a formfeed should be printed
-                   before each new packet */
+  gboolean print_summary;       /* TRUE if we should print summary line. */
+  gboolean print_col_headings;  /* TRUE if we should print column headings */
+  print_dissections_e print_dissections;
+  gboolean print_hex;           /* TRUE if we should print hex data;
+                                 * FALSE if we should print only if not dissected. */
+  gboolean print_formfeed;      /* TRUE if a formfeed should be printed before
+                                 * each new packet */
 } print_args_t;
 
 /*

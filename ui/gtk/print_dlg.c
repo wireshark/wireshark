@@ -96,6 +96,7 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_SUMMARY_CB_KEY      "printer_summary_check_button"
+#define PRINT_COL_HEADINGS_CB_KEY "printer_include_column_headings_button"
 #define PRINT_DETAILS_CB_KEY      "printer_details_check_button"
 #define PRINT_COLLAPSE_ALL_RB_KEY "printer_collapse_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
@@ -139,6 +140,7 @@ file_print_cmd(gboolean print_selected)
     args->file                = g_strdup(prefs.pr_file);
     args->cmd                 = g_strdup(prefs.pr_cmd);
     args->print_summary       = TRUE;
+    args->print_col_headings  = TRUE;
     args->print_dissections   = print_dissections_as_displayed;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -207,6 +209,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     args->file                = g_strdup("");
     args->cmd                 = g_strdup("");
     args->print_summary       = TRUE;
+    args->print_col_headings  = TRUE;
     args->print_dissections   = print_dissections_as_displayed;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -261,6 +264,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     args->file                = g_strdup("");
     args->cmd                 = g_strdup("");
     args->print_summary       = TRUE;
+    args->print_col_headings  = TRUE;
     args->print_dissections   = print_dissections_as_displayed;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -315,6 +319,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     args->file                = g_strdup("");
     args->cmd                 = g_strdup("");
     args->print_summary       = TRUE;
+    args->print_col_headings  = TRUE;
     args->print_dissections   = print_dissections_as_displayed;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -368,6 +373,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     args->file                = g_strdup("");
     args->cmd                 = g_strdup("");
     args->print_summary       = TRUE;
+    args->print_col_headings  = TRUE;
     args->print_dissections   = print_dissections_as_displayed;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -420,6 +426,7 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     args->file                = g_strdup("");
     args->cmd                 = g_strdup("");
     args->print_summary       = FALSE;
+    args->print_col_headings  = FALSE;
     args->print_dissections   = print_dissections_none;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -472,6 +479,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     args->file                = g_strdup("");
     args->cmd                 = g_strdup("");
     args->print_summary       = FALSE;
+    args->print_col_headings  = FALSE;
     args->print_dissections   = print_dissections_none;
     args->print_hex           = FALSE;
     args->print_formfeed      = FALSE;
@@ -517,6 +525,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   GtkWidget *format_fr, *format_vb;
   GtkWidget *summary_cb;
+  GtkWidget *col_headings_cb;
 
   GtkWidget *details_cb;
   GtkWidget *details_hb, *details_vb;
@@ -709,6 +718,13 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(format_vb), summary_cb, TRUE, TRUE, 0);
   gtk_widget_show(summary_cb);
 
+  /* "Include column headings" check button */
+  col_headings_cb = gtk_check_button_new_with_mnemonic("Include column headings");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_headings_cb), args->print_col_headings);
+  g_signal_connect(col_headings_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
+  gtk_widget_set_tooltip_text(col_headings_cb, "Include column headings when printing the packet summary line");
+  gtk_box_pack_start(GTK_BOX(format_vb), col_headings_cb, TRUE, TRUE, 0);
+  gtk_widget_show(col_headings_cb);
 
   /* "Details" check button */
   details_cb = gtk_check_button_new_with_mnemonic("Packet details:");
@@ -780,6 +796,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   g_object_set_data(G_OBJECT(main_win), PRINT_ARGS_KEY, args);
   g_object_set_data(G_OBJECT(main_win), PRINT_SUMMARY_CB_KEY, summary_cb);
+  g_object_set_data(G_OBJECT(main_win), PRINT_COL_HEADINGS_CB_KEY, col_headings_cb);
   g_object_set_data(G_OBJECT(main_win), PRINT_DETAILS_CB_KEY, details_cb);
   g_object_set_data(G_OBJECT(main_win), PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
   g_object_set_data(G_OBJECT(main_win), PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
@@ -811,6 +828,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(ok_bt), PRINT_ARGS_KEY, args);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_SUMMARY_CB_KEY, summary_cb);
+  g_object_set_data(G_OBJECT(ok_bt), PRINT_COL_HEADINGS_CB_KEY, col_headings_cb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_DETAILS_CB_KEY, details_cb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
@@ -889,11 +907,13 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 static void
 print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 {
-  GtkWidget *print_bt, *summary_cb, *details_cb, *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
+  GtkWidget *print_bt, *summary_cb, *col_headings_cb, *details_cb;
+  GtkWidget *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean   print_detail;
 
   print_bt = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_BT_KEY));
   summary_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_SUMMARY_CB_KEY));
+  col_headings_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COL_HEADINGS_CB_KEY));
   details_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_DETAILS_CB_KEY));
   collapse_all_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COLLAPSE_ALL_RB_KEY));
   as_displayed_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_AS_DISPLAYED_RB_KEY));
@@ -1008,6 +1028,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   button = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), PRINT_SUMMARY_CB_KEY);
   args->print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
+
+  button = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), PRINT_COL_HEADINGS_CB_KEY);
+  args->print_col_headings = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   button = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), PRINT_COLLAPSE_ALL_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {

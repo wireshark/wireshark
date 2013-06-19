@@ -72,7 +72,7 @@ gboolean win32_save_as_file(HWND h_wnd, capture_file *cf,
  * @param file_type Wiretap file type.
  * @param compressed Compress the file with gzip.
  * @param range Range of packets to export.
- * 
+ *
  * @return TRUE if packets were discarded when saving, FALSE otherwise
  */
 gboolean win32_export_specified_packets_file(HWND h_wnd, GString *file_name,
@@ -190,10 +190,11 @@ void file_set_save_marked_sensitive();
 /* These MUST be contiguous */
 #define EWFD_PKT_FORMAT_GB    1050
 #define EWFD_PKT_SUMMARY_CB   1051
-#define EWFD_PKT_DETAIL_CB    1052
-#define EWFD_PKT_DETAIL_COMBO 1053
-#define EWFD_PKT_BYTES_CB     1054
-#define EWFD_PKT_NEW_PAGE_CB  1055
+#define EWFD_COL_HEADINGS_CB  1052
+#define EWFD_PKT_DETAIL_CB    1053
+#define EWFD_PKT_DETAIL_COMBO 1054
+#define EWFD_PKT_BYTES_CB     1055
+#define EWFD_PKT_NEW_PAGE_CB  1056
 
 #ifdef __cplusplus
 }

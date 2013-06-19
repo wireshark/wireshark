@@ -901,8 +901,9 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(timefmt_cb), INPUT_TIMEFMT_LBL_KEY, timefmt_lbl);
 
     timefmt_te = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(timefmt_te), "%F %T.");
     gtk_widget_set_tooltip_text(timefmt_te,
-                                "The format in which to parse timestamps in the text file (eg. %H:%M:%S.)."
+                                "The format in which to parse timestamps in the text file (eg. %F %T.)."
                                 " Format specifiers are based on strptime(3)");
     gtk_box_pack_start(GTK_BOX(timefmt_hb), timefmt_te, FALSE, FALSE, 0);
 
@@ -922,7 +923,7 @@ file_import_dlg_new(void)
                                 " (inbound or outbound) of the packet");
     gtk_box_pack_start(GTK_BOX(dir_hb), dir_cb, FALSE, FALSE, 0);
 
-    g_object_set_data(G_OBJECT(input_frm), INPUT_DIR_CB_KEY, dir_cb); 
+    g_object_set_data(G_OBJECT(input_frm), INPUT_DIR_CB_KEY, dir_cb);
 
     /* Setup the import frame */
 
@@ -1118,7 +1119,7 @@ file_import_dlg_new(void)
 
     framelen_te = gtk_entry_new();
     gtk_widget_set_tooltip_text(framelen_te,
-                                "The maximum size of the frames to write to the import capture file (max 64000)");
+                                "The maximum size of the frames to write to the import capture file (max 65535)");
     gtk_box_pack_start(GTK_BOX(framelen_hb), framelen_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(import_frm), IMPORT_FRAME_LENGTH_TE_KEY, framelen_te);

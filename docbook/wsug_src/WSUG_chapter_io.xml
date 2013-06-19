@@ -39,52 +39,52 @@
 
   <section id="ChIOOpenSection"><title>Open capture files</title>
     <para>
-      Wireshark can read in previously saved capture files. 
+      Wireshark can read in previously saved capture files.
       To read them, simply select the menu or toolbar item: "File/
       <inlinegraphic entityref="WiresharkToolbarOpen" format="PNG"/>
-      <command>Open</command>".  
-      Wireshark will then pop up the File 
-      Open dialog box, which is discussed in more detail in 
-      <xref linkend="ChIOOpen"/>. 
+      <command>Open</command>".
+      Wireshark will then pop up the File
+      Open dialog box, which is discussed in more detail in
+      <xref linkend="ChIOOpen"/>.
     </para>
     <tip><title>It's convenient to use drag-and-drop!</title>
     <para>
-    ... to open a file, by simply dragging the desired file from your file 
-    manager and dropping it onto Wireshark's main window. 
-    However, drag-and-drop is not available/won't work in all desktop 
+    ... to open a file, by simply dragging the desired file from your file
+    manager and dropping it onto Wireshark's main window.
+    However, drag-and-drop is not available/won't work in all desktop
     environments.
     </para>
     </tip>
     <para>
-      If you haven't previously saved the current capture file, you will be asked 
-      to do so, to prevent data loss (this behaviour can be disabled in the 
+      If you haven't previously saved the current capture file, you will be asked
+      to do so, to prevent data loss (this behaviour can be disabled in the
       preferences).
     </para>
     <para>
-      In addition to its native file format (libpcap format, also used by 
-      tcpdump/WinDump and other libpcap/WinPcap-based programs), Wireshark can 
-      read capture files from a large number of other packet capture programs 
-      as well. See <xref linkend="ChIOInputFormatsSection"/> for the list of 
+      In addition to its native file format (libpcap format, also used by
+      tcpdump/WinDump and other libpcap/WinPcap-based programs), Wireshark can
+      read capture files from a large number of other packet capture programs
+      as well. See <xref linkend="ChIOInputFormatsSection"/> for the list of
       capture formats Wireshark understands.
     </para>
-    
+
     <section id="ChIOOpen">
     <title>The "Open Capture File" dialog box</title>
       <para>
-    The "Open Capture File" dialog box allows you to search for a 
-    capture file containing previously captured packets for display in 
-    Wireshark.  <xref linkend="ChIOOpenFileTab"/> shows some examples 
+    The "Open Capture File" dialog box allows you to search for a
+    capture file containing previously captured packets for display in
+    Wireshark.  <xref linkend="ChIOOpenFileTab"/> shows some examples
       of the Wireshark Open File Dialog box.
       </para>
         <note>
           <title>The dialog appearance depends on your system!</title>
           <para>
-          The appearance of this dialog depends on the system and/or GTK+ 
-          toolkit version used. However, the functionality remains basically 
+          The appearance of this dialog depends on the system and/or GTK+
+          toolkit version used. However, the functionality remains basically
           the same on any particular system.
           </para>
         </note>
-        
+
     <para>
     <command>Common dialog behaviour</command> on all systems:
     </para>
@@ -96,36 +96,36 @@
       </listitem>
       <listitem>
         <para>
-          Click the Open/Ok button to accept your selected file and open it. 
+          Click the Open/Ok button to accept your selected file and open it.
         </para>
       </listitem>
       <listitem>
         <para>
-          Click the Cancel button to go back to Wireshark and not load a capture 
+          Click the Cancel button to go back to Wireshark and not load a capture
           file.
         </para>
       </listitem>
     </itemizedlist>
 
       <para>
-    <command>Wireshark extensions</command> to the standard behaviour of 
+    <command>Wireshark extensions</command> to the standard behaviour of
     these dialogs:
       </para>
     <itemizedlist>
       <listitem>
         <para>
-          View file preview information (like the filesize, the number of 
+          View file preview information (like the filesize, the number of
           packets, ...), if you've selected a capture file.
         </para>
       </listitem>
       <listitem>
         <para>
-          Specify a display filter with the "Filter:" button and filter 
-          field. This filter will be used when opening the new file. 
-          The text field background becomes green for a valid filter string 
+          Specify a display filter with the "Filter:" button and filter
+          field. This filter will be used when opening the new file.
+          The text field background becomes green for a valid filter string
           and red for an invalid one.
-          Clicking on the Filter button causes Wireshark to pop up 
-          the Filters dialog box (which is discussed further in 
+          Clicking on the Filter button causes Wireshark to pop up
+          the Filters dialog box (which is discussed further in
           <xref linkend="ChWorkDisplayFilterSection"/>).
         </para>
         <para>
@@ -134,9 +134,9 @@
       </listitem>
       <listitem>
         <para>
-          Specify which type of name resolution is to be performed for all packets by 
-          clicking on one of the "... name resolution" check buttons. 
-          Details about name resolution can be found in 
+          Specify which type of name resolution is to be performed for all packets by
+          clicking on one of the "... name resolution" check buttons.
+          Details about name resolution can be found in
           <xref linkend="ChAdvNameResolutionSection"/>.
         </para>
       </listitem>
@@ -144,14 +144,14 @@
 
     <tip><title>Save a lot of time loading huge capture files!</title>
     <para>
-    You can change the display filter and name resolution settings later 
-    while viewing the packets. 
-    However, loading huge capture files can take a significant amount of 
-    extra time if these settings are changed later, so in such situations it can 
+    You can change the display filter and name resolution settings later
+    while viewing the packets.
+    However, loading huge capture files can take a significant amount of
+    extra time if these settings are changed later, so in such situations it can
     be a good idea to set at least the filter in advance here.
     </para>
     </tip>
-    
+
     <!-- frame="none" -->
     <table id="ChIOOpenFileTab">
     <title>The system specific "Open Capture File" dialog box</title>
@@ -169,7 +169,7 @@
         <entry valign="top">
         <para><command>Microsoft Windows</command></para>
       <para>
-        This is the common Windows file open dialog - 
+        This is the common Windows file open dialog -
         plus some Wireshark extensions.
       </para>
         <para>
@@ -178,7 +178,7 @@
     <itemizedlist>
     <listitem>
         <para>
-          If available, the "Help" button will lead you to this section of 
+          If available, the "Help" button will lead you to this section of
           this "User's Guide".
         </para>
     </listitem>
@@ -202,7 +202,7 @@
       <entry valign="top">
       <para><command>Unix/Linux: GTK version >= 2.4</command></para>
       <para>
-        This is the common Gimp/GNOME file open dialog - 
+        This is the common Gimp/GNOME file open dialog -
         plus some Wireshark extensions.
       </para>
         <para>
@@ -211,21 +211,21 @@
     <itemizedlist>
     <listitem>
         <para>
-        The "+ Add" button allows you to add a directory, selected in the 
-        right-hand pane, to the favorites list on the left. Those changes 
+        The "+ Add" button allows you to add a directory, selected in the
+        right-hand pane, to the favorites list on the left. Those changes
         are persistent.
         </para>
     </listitem>
     <listitem>
         <para>
-        The "- Remove" button allows you to remove a selected directory from 
-        that list again (the items like: "Home", "Desktop", and "Filesystem" 
+        The "- Remove" button allows you to remove a selected directory from
+        that list again (the items like: "Home", "Desktop", and "Filesystem"
         cannot be removed).
         </para>
     </listitem>
     <listitem>
         <para>
-          If Wireshark doesn't recognize the selected file as a capture file, 
+          If Wireshark doesn't recognize the selected file as a capture file,
           it will grey out the "Open" button.
         </para>
     </listitem>
@@ -245,7 +245,7 @@
         <para>
         <command>Unix/Linux: GTK version &lt; 2.4</command></para>
         <para>
-          This is the file open dialog of former Gimp/GNOME versions - 
+          This is the file open dialog of former Gimp/GNOME versions -
           plus some Wireshark extensions.
         </para>
         <para>
@@ -254,7 +254,7 @@
     <itemizedlist>
     <listitem>
         <para>
-          If Wireshark doesn't recognize the selected file as a capture file, 
+          If Wireshark doesn't recognize the selected file as a capture file,
           it will grey out the "Ok" button.
         </para>
     </listitem>
@@ -264,14 +264,14 @@
         </tbody>
       </tgroup>
     </table>
-        
-        
+
+
     </section>
 
   <section id="ChIOInputFormatsSection">
     <title>Input File Formats</title>
     <para>
-    The following file formats from other capture tools can be opened by 
+    The following file formats from other capture tools can be opened by
     <application>Wireshark</application>:
     <itemizedlist>
           <listitem><para>libpcap - captures from <emphasis>Wireshark</emphasis>/<emphasis>TShark</emphasis>/<emphasis>dumpcap</emphasis>, <emphasis>tcpdump</emphasis>, and various other tools using libpcap's/tcpdump's capture format</para></listitem>
@@ -281,13 +281,13 @@
           <listitem><para>Novell <emphasis>LANalyzer</emphasis> captures</para></listitem>
           <listitem><para>Microsoft Network Monitor captures</para></listitem>
           <listitem><para>AIX's iptrace captures</para></listitem>
-          <listitem><para>Cinco Networks NetXray captures</para></listitem>          
+          <listitem><para>Cinco Networks NetXray captures</para></listitem>
           <listitem><para>Network Associates Windows-based Sniffer and Sniffer Pro captures</para></listitem>
           <listitem><para>Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures</para></listitem>
           <listitem><para>AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures</para></listitem>
           <listitem><para>RADCOM's WAN/LAN Analyzer captures</para></listitem>
           <listitem><para>Network Instruments Observer version 9 captures</para></listitem>
-          <listitem><para>Lucent/Ascend router debug output</para></listitem>          
+          <listitem><para>Lucent/Ascend router debug output</para></listitem>
           <listitem><para>HP-UX's nettl</para></listitem>
           <listitem><para>Toshiba's ISDN routers dump output</para></listitem>
           <listitem><para>ISDN4BSD <emphasis>i4btrace</emphasis> utility</para></listitem>
@@ -316,27 +316,27 @@
     </para>
     <note><title>Opening a file may fail due to invalid packet types!</title>
     <para>
-    It may not be possible to read some formats dependent on the packet types 
+    It may not be possible to read some formats dependent on the packet types
     captured. Ethernet captures are usually supported for most file formats but
-    it may not be possible to read other packet types (e.g. token ring packets) 
+    it may not be possible to read other packet types (e.g. token ring packets)
     from all file formats.
     </para>
     </note>
-    
+
   </section>
 
   </section>
-  
+
   <section id="ChIOSaveSection"><title>Saving captured packets</title>
     <para>
-      You can save captured packets simply by using the Save As... menu 
-      item from the File menu under Wireshark. You can choose which 
+      You can save captured packets simply by using the Save As... menu
+      item from the File menu under Wireshark. You can choose which
       packets to save and which file format to be used.
     </para>
     <warning>
       <title>Saving may reduce the available information!</title>
       <para>
-      Saving the captured packets will slightly reduce the amount of 
+      Saving the captured packets will slightly reduce the amount of
       information, e.g. the number of dropped packets will be lost;
       see <xref linkend="ChAppFilesCaptureFilesSection"/> for details.
       </para>
@@ -344,20 +344,20 @@
     <section id="ChIOSaveAs">
       <title>The "Save Capture File As" dialog box</title>
       <para>
-    The "Save Capture File As" dialog box allows you to save 
-    the current capture to a file. 
-    <xref linkend="ChIOSaveFileTab"/> shows some examples of this 
+    The "Save Capture File As" dialog box allows you to save
+    the current capture to a file.
+    <xref linkend="ChIOSaveFileTab"/> shows some examples of this
       dialog box.
       </para>
         <note>
           <title>The dialog appearance depends on your system!</title>
           <para>
-          The appearance of this dialog depends on the system and GTK+ toolkit 
-          version used. However, the functionality remains basically the same 
+          The appearance of this dialog depends on the system and GTK+ toolkit
+          version used. However, the functionality remains basically the same
           on any particular system.
           </para>
         </note>
-        
+
     <table id="ChIOSaveFileTab">
     <title>The system specific "Save Capture File As" dialog box</title>
       <tgroup cols="2">
@@ -374,7 +374,7 @@
         <entry valign="top">
         <para><command>Microsoft Windows</command></para>
       <para>
-        This is the common Windows file save dialog - 
+        This is the common Windows file save dialog -
         plus some Wireshark extensions.
       </para>
         <para>
@@ -383,14 +383,14 @@
     <itemizedlist>
     <listitem>
         <para>
-          If available, the "Help" button will lead you to this section of 
+          If available, the "Help" button will lead you to this section of
           this "User's Guide".
         </para>
     </listitem>
     <listitem>
         <para>
-          If you don't provide a file extension to the filename - e.g. .pcap, 
-          Wireshark will append the standard file extension for that file 
+          If you don't provide a file extension to the filename - e.g. .pcap,
+          Wireshark will append the standard file extension for that file
           format.
         </para>
     </listitem>
@@ -409,7 +409,7 @@
         <entry valign="top">
         <para><command>Unix/Linux: GTK version >= 2.4</command></para>
       <para>
-        This is the common Gimp/GNOME file save dialog - 
+        This is the common Gimp/GNOME file save dialog -
         plus some Wireshark extensions.
       </para>
         <para>
@@ -418,7 +418,7 @@
     <itemizedlist>
     <listitem>
         <para>
-        Clicking on the + at "Browse for other folders" will allow you 
+        Clicking on the + at "Browse for other folders" will allow you
         to browse files and folders in your file system.
         </para>
     </listitem>
@@ -437,7 +437,7 @@
         <entry valign="top">
         <para><command>Unix/Linux: GTK version &lt; 2.4</command></para>
       <para>
-        This is the file save dialog of former Gimp/GNOME versions - 
+        This is the file save dialog of former Gimp/GNOME versions -
         plus some Wireshark extensions.
       </para>
         </entry>
@@ -445,13 +445,13 @@
       </tbody>
       </tgroup>
     </table>
-        
+
       <para>
     With this dialog box, you can perform the following actions:
     <orderedlist>
       <listitem>
         <para>
-          Type in the name of the file you wish to save the captured 
+          Type in the name of the file you wish to save the captured
           packets in, as a standard file name in your file system.
         </para>
       </listitem>
@@ -462,43 +462,43 @@
       </listitem>
       <listitem>
         <para>
-          Select the range of the packets to be saved, see 
+          Select the range of the packets to be saved, see
           <xref linkend="ChIOPacketRangeSection"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Specify the format of the saved capture file by clicking on 
-          the File type drop down box. You can choose from the 
+          Specify the format of the saved capture file by clicking on
+          the File type drop down box. You can choose from the
           types, described in <xref linkend="ChIOOutputFormatsSection"/>.
         </para>
         <note>
           <title>The selection of capture formats may be reduced!</title>
           <para>
-        Some capture formats may not be available, depending on the 
+        Some capture formats may not be available, depending on the
         packet types captured.
           </para>
         </note>
         <tip>
           <title>File formats can be converted!</title>
           <para>
-        You can convert capture files from one format to another 
-        by reading in a capture file and writing it out using a 
+        You can convert capture files from one format to another
+        by reading in a capture file and writing it out using a
         different format.
           </para>
         </tip>
       </listitem>
       <listitem>
         <para>
-          Click on the Save/Ok button to accept your selected file and save to 
-          it. If Wireshark has a problem saving the captured packets to 
-          the file you specified, it will display an error dialog box. 
-          After clicking OK on that error dialog box, you can try again. 
+          Click on the Save/Ok button to accept your selected file and save to
+          it. If Wireshark has a problem saving the captured packets to
+          the file you specified, it will display an error dialog box.
+          After clicking OK on that error dialog box, you can try again.
         </para>
       </listitem>
       <listitem>
         <para>
-          Click on the Cancel button to go back to Wireshark and not save the 
+          Click on the Cancel button to go back to Wireshark and not save the
           captured packets.
         </para>
       </listitem>
@@ -508,13 +508,13 @@
   <section id="ChIOOutputFormatsSection">
     <title>Output File Formats</title>
     <para>
-    Wireshark can save the packet data in its "native" file format (libpcap) 
-    and in the file formats of some other protocol analyzers, so other tools 
+    Wireshark can save the packet data in its "native" file format (libpcap)
+    and in the file formats of some other protocol analyzers, so other tools
     can read the capture data.
     </para>
     <warning><title>File formats have different time stamp accuracies!</title>
     <para>
-    Saving from the currently used file format to a different format may reduce the 
+    Saving from the currently used file format to a different format may reduce the
     time stamp accuracy; see the <xref linkend="ChAdvTimestamps"/> for details.
     </para>
     </warning>
@@ -539,40 +539,40 @@
     </para>
     <note><title>Third party protocol analyzers may require specific file extensions!</title>
     <para>
-    Other protocol analyzers than Wireshark may require that the file has a 
+    Other protocol analyzers than Wireshark may require that the file has a
     certain file extension in order to read the files you generate with Wireshark, e.g.:
     </para>
     <para>
     ".cap" for Network Associates Sniffer - Windows
     </para>
     </note>
-  </section>    
   </section>
-  
+  </section>
+
   <section id="ChIOMergeSection"><title>Merging capture files</title>
     <para>
-    Sometimes you need to merge several capture files into one. For example 
-    this can be useful, if you have captured simultaneously from multiple 
+    Sometimes you need to merge several capture files into one. For example
+    this can be useful, if you have captured simultaneously from multiple
     interfaces at once (e.g. using multiple instances of Wireshark).
     </para>
     <para>
     Merging capture files can be done in three ways:
     <itemizedlist>
         <listitem><para>
-        Use the <command>menu item "Merge"</command> from the "File" menu, 
+        Use the <command>menu item "Merge"</command> from the "File" menu,
         to open the merge dialog, see <xref linkend="ChIOMergeDialog"/>.
         This menu item will be disabled, until you have loaded a capture file.
         </para></listitem>
         <listitem><para>
-          Use <command>drag-and-drop</command> to drop multiple files on the 
-        main window. Wireshark will try to merge the packets in chronological 
-        order from the dropped files into a newly created temporary file. If 
+          Use <command>drag-and-drop</command> to drop multiple files on the
+        main window. Wireshark will try to merge the packets in chronological
+        order from the dropped files into a newly created temporary file. If
         you drop only a single file, it will simply replace a (maybe) existing
         one.
         </para></listitem>
         <listitem><para>
-          Use the <command>mergecap</command> tool, which is a command 
-        line tool to merge capture files. This tool provides the most options 
+          Use the <command>mergecap</command> tool, which is a command
+        line tool to merge capture files. This tool provides the most options
         to merge capture files, see <xref linkend="AppToolsmergecap"/>.
         </para></listitem>
     </itemizedlist>
@@ -580,29 +580,29 @@
     <section id="ChIOMergeDialog">
     <title>The "Merge with Capture File" dialog box</title>
     <para>
-    
-    This dialog box let you select a file to be merged into the currently 
+
+    This dialog box let you select a file to be merged into the currently
     loaded file.
     </para>
     <note><title>You will be prompted for an unsaved file first!</title>
-    <para>If your current data wasn't saved before, you will be asked to save 
+    <para>If your current data wasn't saved before, you will be asked to save
     it first, before this dialog box is shown.</para>
     </note>
-    
+
     <para>
-    Most controls of this dialog will work the same way as described in the 
+    Most controls of this dialog will work the same way as described in the
     "Open Capture File" dialog box, see <xref linkend="ChIOOpen"/>.
     </para>
     <para>
     Specific controls of this merge dialog are:
     </para>
-    
+
     <variablelist>
     <varlistentry>
       <term><command>Prepend packets to existing file</command></term>
       <listitem>
         <para>
-        Prepend the packets from the selected file before the currently loaded 
+        Prepend the packets from the selected file before the currently loaded
         packets.
         </para>
       </listitem>
@@ -611,7 +611,7 @@
       <term><command>Merge packets chronologically</command></term>
       <listitem>
         <para>
-        Merge both the packets from the selected and currently loaded file in 
+        Merge both the packets from the selected and currently loaded file in
         chronological order.
         </para>
       </listitem>
@@ -620,13 +620,13 @@
       <term><command>Append packets to existing file</command></term>
       <listitem>
         <para>
-        Append the packets from the selected file after the currently loaded 
+        Append the packets from the selected file after the currently loaded
         packets.
         </para>
       </listitem>
     </varlistentry>
     </variablelist>
-    
+
     <table id="ChIOMergeFileTab">
     <title>The system specific "Merge Capture File As" dialog box</title>
       <tgroup cols="2">
@@ -643,7 +643,7 @@
         <entry valign="top">
         <para><command>Microsoft Windows</command></para>
       <para>
-        This is the common Windows file open dialog - 
+        This is the common Windows file open dialog -
         plus some Wireshark extensions.
       </para>
         </entry>
@@ -660,7 +660,7 @@
         <entry valign="top">
         <para><command>Unix/Linux: GTK version >= 2.4</command></para>
       <para>
-        This is the common Gimp/GNOME file open dialog - 
+        This is the common Gimp/GNOME file open dialog -
         plus some Wireshark extensions.
       </para>
         </entry>
@@ -677,7 +677,7 @@
         <entry valign="top">
         <para><command>Unix/Linux: GTK version &lt; 2.4</command></para>
       <para>
-        This is the file open dialog of former Gimp/GNOME versions - 
+        This is the file open dialog of former Gimp/GNOME versions -
         plus some Wireshark extensions.
       </para>
         </entry>
@@ -691,15 +691,15 @@
 
   <section id="ChIOImportSection"><title>Import hex dump</title>
     <para>
-    Wireshark can read in an ASCII hex dump and write the data described 
-    into a temporary libpcap capture file. It can read hex dumps with multiple 
-    packets in them, and build a capture file of multiple packets. It is also 
-    capable of generating dummy Ethernet, IP and UDP, TCP, or SCTP headers, 
-    in order to build fully processable packet dumps from hexdumps of 
+    Wireshark can read in an ASCII hex dump and write the data described
+    into a temporary libpcap capture file. It can read hex dumps with multiple
+    packets in them, and build a capture file of multiple packets. It is also
+    capable of generating dummy Ethernet, IP and UDP, TCP, or SCTP headers,
+    in order to build fully processable packet dumps from hexdumps of
     application-level data only.
     </para>
     <para>
-    Wireshark understands a hexdump of the form generated by 
+    Wireshark understands a hexdump of the form generated by
     <command>od -Ax -tx1 -v</command>.
     In other words, each byte is individually displayed and surrounded with a space.
     Each line begins with an offset describing the position in the file. The offset
@@ -719,7 +719,7 @@
     There is no limit on the width or number of bytes per line. Also the text dump at
     the end of the line is ignored. Bytes/hex numbers can be uppercase or lowercase.
     Any text before the offset is ignored, including email forwarding characters '>'.
-    Any lines of text between the bytestring lines is ignored. The offsets are used
+    Any lines of text between the bytestring lines are ignored. The offsets are used
     to track the bytes, so offsets must be correct. Any line which has only bytes
     without a leading offset is ignored. An offset is recognized as being a hex
     number longer than two characters. Any text after the bytes is ignored (e.g. the
@@ -764,7 +764,7 @@
         <variablelist>
         <varlistentry>
         <term>Input</term>
-        <listitem><para>Determine which input file has to be imported and 
+        <listitem><para>Determine which input file has to be imported and
         how it is to be interpreted.
         </para></listitem>
         </varlistentry>
@@ -782,7 +782,7 @@
       <term><command>Filename / Browse</command></term>
       <listitem>
       <para>
-      Enter the name of the text file to import. You can use 
+      Enter the name of the text file to import. You can use
       <command>Browse</command> to browse for a file.
       </para>
       </listitem>
@@ -791,7 +791,7 @@
       <term><command>Offsets</command></term>
       <listitem>
       <para>
-      Select the radix of the offsets given in the text file to import. 
+      Select the radix of the offsets given in the text file to import.
       This is usually hexadecimal, but decimal and octal are also supported.
       </para>
       </listitem>
@@ -800,7 +800,7 @@
       <term><command>Date/Time</command></term>
       <listitem>
       <para>
-      Tick this checkbox if there are timestamps associated with the frames 
+      Tick this checkbox if there are timestamps associated with the frames
       in the text file to import you would like to use. Otherwise the current time
       is used for timestamping the frames.
       </para>
@@ -810,11 +810,11 @@
       <term><command>Format</command></term>
       <listitem>
       <para>
-      This is the format specifier used to parse the timestamps in the text file 
+      This is the format specifier used to parse the timestamps in the text file
       to import. It uses a simple syntax to describe the format of the timestamps,
       using %H for hours, %M for minutes, %S for seconds, etc. The straightforward
-      HH:MM:SS format is covered by %T. For a full definition of the syntax look for 
-      <command>strftime(3)</command>.
+      HH:MM:SS format is covered by %T. For a full definition of the syntax look for
+      <command>strptime(3)</command>.
       </para>
       </listitem>
     </varlistentry>
@@ -828,7 +828,7 @@
       <listitem>
       <para>
       Here you can select which type of frames you are importing. This all depends on
-      from what type of medium the dump to import was taken. It lists all types that 
+      from what type of medium the dump to import was taken. It lists all types that
       Wireshark understands, so as to pass the capture file contents to the right dissector.
       </para>
       </listitem>
@@ -840,7 +840,7 @@
       When Ethernet encapsulation is selected you have to option to prepend dummy
       headers to the frames to import. These headers can provide artificial Ethernet, IP,
       UDP or TCP or SCTP headers and SCTP data chunks. When selecting a type of dummy
-      header the applicable entries are enabled, others are grayed out and default values 
+      header the applicable entries are enabled, others are grayed out and default values
       are used.
       </para>
       </listitem>
@@ -849,9 +849,9 @@
       <term><command>Max. frame length</command></term>
       <listitem>
       <para>
-      You may not be interested in the full frames from the text file, just the first part. 
+      You may not be interested in the full frames from the text file, just the first part.
       Here you can define how much data from the start of the frame you want to import.
-      If you leave this open the maximum is set to 64000 bytes.
+      If you leave this open the maximum is set to 65535 bytes.
       </para>
       </listitem>
     </varlistentry>
@@ -862,12 +862,12 @@
     </para>
     <para>
       <note><title>You will be prompted for an unsaved file first!</title>
-      <para>If your current data wasn't saved before, you will be asked to save 
+      <para>If your current data wasn't saved before, you will be asked to save
     it first, before this dialog box is shown.</para>
     </note>
     </para>
     <para>
-    When completed there will be a new capture file loaded with the frames imported 
+    When completed there will be a new capture file loaded with the frames imported
     from the text file.
     </para>
   </section>
@@ -876,48 +876,48 @@
   <section id="ChIOFileSetSection"><title>File Sets</title>
     <para>
       When using the "Multiple Files" option while doing a capture
-      (see: <xref linkend="ChCapCaptureFiles"/>), 
-      the capture data is spread over several capture files, called a file 
-      set. 
+      (see: <xref linkend="ChCapCaptureFiles"/>),
+      the capture data is spread over several capture files, called a file
+      set.
     </para>
     <para>
-      As it can become tedious to work with a file set by hand, Wireshark 
+      As it can become tedious to work with a file set by hand, Wireshark
       provides some features to handle these file sets in a convenient way.
     </para>
     <sidebar><title>How does Wireshark detect the files of a file set?</title>
     <para>
-      A filename in a file set uses the format Prefix_Number_DateTimeSuffix 
+      A filename in a file set uses the format Prefix_Number_DateTimeSuffix
       which might look like this: "test_00001_20060420183910.pcap".
-      All files of a file set share the same prefix (e.g. "test") and suffix 
+      All files of a file set share the same prefix (e.g. "test") and suffix
       (e.g. ".pcap") and a varying middle part.
     </para>
     <para>
-      To find the files of a file set, Wireshark scans the directory where the 
-      currently loaded file resides and checks for files matching the filename 
-      pattern (prefix and suffix) of the currently loaded file. 
+      To find the files of a file set, Wireshark scans the directory where the
+      currently loaded file resides and checks for files matching the filename
+      pattern (prefix and suffix) of the currently loaded file.
     </para>
     <para>
-      This simple mechanism usually works well, but has its drawbacks. If several 
-      file sets were captured with the same prefix and suffix, Wireshark will detect 
-      them as a single file set. If files were renamed or spread over several 
+      This simple mechanism usually works well, but has its drawbacks. If several
+      file sets were captured with the same prefix and suffix, Wireshark will detect
+      them as a single file set. If files were renamed or spread over several
       directories the mechanism will fail to find all files of a set.
     </para>
     </sidebar>
     <para>
-      The following features in the "File Set" submenu of the "File" menu are 
+      The following features in the "File Set" submenu of the "File" menu are
       available to work with file sets in a convenient way:
     </para>
     <itemizedlist>
         <listitem><para>
-        The <command>List Files</command> dialog box will list the files 
+        The <command>List Files</command> dialog box will list the files
         Wireshark has recognized as being part of the current file set.
         </para></listitem>
         <listitem><para>
-        <command>Next File</command> closes the current and opens the next 
+        <command>Next File</command> closes the current and opens the next
         file in the file set.
         </para></listitem>
         <listitem><para>
-        <command>Previous File</command> closes the current and opens the 
+        <command>Previous File</command> closes the current and opens the
         previous file in the file set.
         </para></listitem>
     </itemizedlist>
@@ -931,9 +931,9 @@
       Each line contains information about a file of the file set:
     <itemizedlist>
         <listitem><para>
-        <command>Filename</command> the name of the file. If you click on 
+        <command>Filename</command> the name of the file. If you click on
         the filename (or the radio button left to it), the current file will
-        be closed and the corresponding capture file will be opened. 
+        be closed and the corresponding capture file will be opened.
         </para></listitem>
         <listitem><para>
         <command>Created</command> the creation time of the file
@@ -949,7 +949,7 @@
       all of the files in the file set can be found.
       </para>
       <para>
-      The content of this dialog box is updated each time a capture file is 
+      The content of this dialog box is updated each time a capture file is
       opened/closed.
       </para>
       <para>
@@ -959,53 +959,84 @@
   </section>
   <section id="ChIOExportSection"><title>Exporting data</title>
     <para>
-      Wireshark provides several ways and formats to export packet data. This 
+      Wireshark provides several ways and formats to export packet data. This
       section describes general ways to export data from Wireshark.
     </para>
     <note><title>Note!</title>
     <para>
-      There are more specialized functions to export specific data, 
-      which will be described at the appropriate places. 
+      There are more specialized functions to export specific data,
+      which will be described at the appropriate places.
     </para>
     </note>
     <para>
-      XXX - add detailed descriptions of the output formats and some sample 
+      XXX - add detailed descriptions of the output formats and some sample
       output, too.
     </para>
     <section id="ChIOExportPlainDialog">
     <title>The "Export as Plain Text File" dialog box</title>
       <para id="ChIOExportPlain">
-        Export packet data into a plain ASCII text file, much like the format 
+        Export packet data into a plain ASCII text file, much like the format
         used to print packets.
+    <tip><title>Tip!</title>
+    <para>
+    If you would like to be able to import any previously exported
+    packets from a plain text file, it is recommended that you:
+    <itemizedlist>
+        <listitem><para>
+          Add the "Absolute date and time" column.
+        </para></listitem>
+        <listitem><para>
+          Temporarily hide all other columns.
+        </para></listitem>
+        <listitem><para>
+          Turn off: Edit/Preferences/Protocols/Data/
+          "Show not dissected data on new Packet Bytes pane".  More detail is
+          provided in <xref linkend="ChCustPreferencesSection"/>
+        </para></listitem>
+        <listitem><para>
+          Include the packet summary line.
+        </para></listitem>
+        <listitem><para>
+          Exclude the column headings.
+        </para></listitem>
+        <listitem><para>
+          Exclude the packet details.
+        </para></listitem>
+        <listitem><para>
+          Include the packet bytes.
+        </para></listitem>
+    </itemizedlist>
+    </para>
+    </tip>
     <figure>
       <title>The "Export as Plain Text File" dialog box</title>
       <graphic entityref="WiresharkExportPlainDialog" format="PNG"/>
     </figure>
     <itemizedlist>
         <listitem><para>
-          <command>Export to file:</command> frame chooses the file to export 
+          <command>Export to file:</command> frame chooses the file to export
         the packet data to.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Range</command> frame is described in <xref 
+          The <command>Packet Range</command> frame is described in <xref
         linkend="ChIOPacketRangeSection"/>.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Details</command> frame is described in <xref 
+          The <command>Packet Details</command> frame is described in <xref
         linkend="ChIOPacketFormatSection"/>.
         </para></listitem>
-    </itemizedlist>    
+    </itemizedlist>
       </para>
     </section>
     <section id="ChIOExportPSDialog">
     <title>The "Export as PostScript File" dialog box</title>
       <para>
-        Export packet data into PostScript, much like the format used 
+        Export packet data into PostScript, much like the format used
         to print packets.
     <tip><title>Tip!</title>
     <para>
     You can easily convert PostScript files to PDF files using ghostscript.
-    For example: export to a file named foo.ps and then call: 
+    For example: export to a file named foo.ps and then call:
     <command>ps2pdf foo.ps</command>
     </para>
     </tip>
@@ -1015,25 +1046,25 @@
     </figure>
     <itemizedlist>
         <listitem><para>
-          <command>Export to file:</command> frame chooses the file to export 
+          <command>Export to file:</command> frame chooses the file to export
         the packet data to.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Range</command> frame is described in <xref 
+          The <command>Packet Range</command> frame is described in <xref
         linkend="ChIOPacketRangeSection"/>.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Details</command> frame is described in <xref 
+          The <command>Packet Details</command> frame is described in <xref
         linkend="ChIOPacketFormatSection"/>.
         </para></listitem>
-    </itemizedlist>    
+    </itemizedlist>
       </para>
     </section>
     <section id="ChIOExportCSVDialog">
     <title>The "Export as CSV (Comma Separated Values) File" dialog box</title>
       <para>XXX - add screenshot</para>
       <para>
-        Export packet summary into CSV, used e.g. by spreadsheet programs to 
+        Export packet summary into CSV, used e.g. by spreadsheet programs to
         im-/export data.
     <!--<figure>
       <title>The "Export as Comma Separated Values File" dialog box</title>
@@ -1041,14 +1072,14 @@
     </figure>-->
     <itemizedlist>
         <listitem><para>
-          <command>Export to file:</command> frame chooses the file to export 
+          <command>Export to file:</command> frame chooses the file to export
         the packet data to.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Range</command> frame is described in <xref 
+          The <command>Packet Range</command> frame is described in <xref
         linkend="ChIOPacketRangeSection"/>.
         </para></listitem>
-    </itemizedlist>    
+    </itemizedlist>
       </para>
     </section>
     <section id="ChIOExportCArraysDialog">
@@ -1065,21 +1096,21 @@
     -->
     <itemizedlist>
       <listitem><para>
-        <command>Export to file:</command> frame chooses the file to export 
+        <command>Export to file:</command> frame chooses the file to export
         the packet data to.
       </para></listitem>
       <listitem><para>
-        The <command>Packet Range</command> frame is described in <xref 
+        The <command>Packet Range</command> frame is described in <xref
         linkend="ChIOPacketRangeSection"/>.
       </para></listitem>
-    </itemizedlist>    
+    </itemizedlist>
       </para>
     </section>
     <section id="ChIOExportPSMLDialog">
     <title>The "Export as PSML File" dialog box</title>
       <para>
-        Export packet data into PSML. This is an XML based format including 
-        only the packet summary. The PSML file specification is available at: 
+        Export packet data into PSML. This is an XML based format including
+        only the packet summary. The PSML file specification is available at:
         <ulink url="http://www.nbee.org/doku.php?id=netpdl:psml_specification"/>.
     <figure>
       <title>The "Export as PSML File" dialog box</title>
@@ -1087,28 +1118,28 @@
     </figure>
     <itemizedlist>
         <listitem><para>
-          <command>Export to file:</command> frame chooses the file to export 
+          <command>Export to file:</command> frame chooses the file to export
         the packet data to.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Range</command> frame is described in <xref 
+          The <command>Packet Range</command> frame is described in <xref
         linkend="ChIOPacketRangeSection"/>.
         </para></listitem>
-    </itemizedlist>    
-    There's no such thing as a packet details frame for PSML export, as the 
+    </itemizedlist>
+    There's no such thing as a packet details frame for PSML export, as the
     packet format is defined by the PSML specification.
       </para>
     </section>
     <section id="ChIOExportPDMLDialog">
     <title>The "Export as PDML File" dialog box</title>
       <para>
-        Export packet data into PDML. This is an XML based format including 
-        the packet details. The PDML file specification is available at: 
+        Export packet data into PDML. This is an XML based format including
+        the packet details. The PDML file specification is available at:
         <ulink url="http://www.nbee.org/doku.php?id=netpdl:pdml_specification"/>.
         <note><title></title>
         <para>
-        The PDML specification is not officially released and Wireshark's 
-        implementation of it is still in an early beta state, so please expect 
+        The PDML specification is not officially released and Wireshark's
+        implementation of it is still in an early beta state, so please expect
         changes in future Wireshark versions.
         </para>
         </note>
@@ -1118,22 +1149,22 @@
     </figure>
     <itemizedlist>
         <listitem><para>
-          <command>Export to file:</command> frame chooses the file to export 
+          <command>Export to file:</command> frame chooses the file to export
         the packet data to.
         </para></listitem>
         <listitem><para>
-          The <command>Packet Range</command> frame is described in <xref 
+          The <command>Packet Range</command> frame is described in <xref
         linkend="ChIOPacketRangeSection"/>.
         </para></listitem>
-    </itemizedlist>    
-    There's no such thing as a packet details frame for PDML export, as the 
+    </itemizedlist>
+    There's no such thing as a packet details frame for PDML export, as the
     packet format is defined by the PDML specification.
       </para>
   </section>
     <section id="ChIOExportSelectedDialog">
     <title>The "Export selected packet bytes" dialog box</title>
       <para>
-        Export the bytes selected in the "Packet Bytes" pane into a raw 
+        Export the bytes selected in the "Packet Bytes" pane into a raw
         binary file.
     <figure>
       <title>The "Export Selected Packet Bytes" dialog box</title>
@@ -1144,14 +1175,14 @@
           <command>Name:</command> the filename to export the packet data to.
         </para></listitem>
         <listitem><para>
-          The <command>Save in folder:</command> field lets you select the 
+          The <command>Save in folder:</command> field lets you select the
         folder to save to (from some predefined folders).
         </para></listitem>
         <listitem><para>
-          <command>Browse for other folders</command> provides a flexible 
+          <command>Browse for other folders</command> provides a flexible
         way to choose a folder.
         </para></listitem>
-    </itemizedlist>    
+    </itemizedlist>
       </para>
   </section>
     <section id="ChIOExportObjectsDialog">
@@ -1167,14 +1198,14 @@
         opened with the proper viewer or executed in the case of
         executables (if it is for the same platform you are
         running Wireshark on) without any further work on your
-        part.  This feature is not available when using GTK2 versions 
+        part.  This feature is not available when using GTK2 versions
         below 2.4.
       </para>
     <figure>
       <title>The "Export Objects" dialog box</title>
       <graphic entityref="WiresharkExportObjectsDialog" format="PNG"/>
     </figure>
-    
+
     <itemizedlist>
       <para>Columns:</para>
         <listitem><para>
@@ -1204,7 +1235,7 @@
         typically indicates that the file was received in response to
         a HTTP POST request.
         </para></listitem>
-    </itemizedlist>    
+    </itemizedlist>
 
     <itemizedlist>
       <para>Buttons:</para>
@@ -1239,8 +1270,8 @@
 
   <section id="ChIOPrintSection"><title>Printing packets</title>
     <para>
-        To print packets, select the "Print..." menu item from the File menu. 
-        When you do this, Wireshark pops up the Print dialog box as shown in 
+        To print packets, select the "Print..." menu item from the File menu.
+        When you do this, Wireshark pops up the Print dialog box as shown in
         <xref linkend="ChIOPrintDialogBox"/>.
     </para>
     <section><title>The "Print" dialog box</title>
@@ -1258,50 +1289,50 @@
           <itemizedlist>
         <listitem>
           <para>
-            <command>Plain Text</command> specifies that 
+            <command>Plain Text</command> specifies that
             the packet print should be in plain text.
           </para>
         </listitem>
         <listitem>
           <para>
-            <command>PostScript</command> specifies that 
-            the packet print process should use PostScript to 
+            <command>PostScript</command> specifies that
+            the packet print process should use PostScript to
             generate a better print output on PostScript aware printers.
           </para>
         </listitem>
         <listitem>
           <para>
-            <command>Output to file:</command> specifies that printing 
-            be done to a file, using the filename entered in the field or selected 
+            <command>Output to file:</command> specifies that printing
+            be done to a file, using the filename entered in the field or selected
             with the browse button.
           </para>
         <para>
-          This field is where you enter the <command>file</command> to 
-          print to if you have selected Print to a file, or you can click the 
-          button to browse the filesystem. It is greyed out if Print to a file 
+          This field is where you enter the <command>file</command> to
+          print to if you have selected Print to a file, or you can click the
+          button to browse the filesystem. It is greyed out if Print to a file
           is not selected.
         </para>
         </listitem>
         <listitem>
           <para>
-            <command>Print command</command> specifies that a 
-            command be used for printing. 
+            <command>Print command</command> specifies that a
+            command be used for printing.
           </para>
         <note><title>Note!</title>
         <para>
-        These <command>Print command</command> fields are not available on 
-        windows platforms. 
+        These <command>Print command</command> fields are not available on
+        windows platforms.
         </para>
         </note>
         <para>
-          This field specifies the command to use for printing. It 
-          is typically <command>lpr</command>. You would change it 
-          to specify a particular queue if you need to print to a 
+          This field specifies the command to use for printing. It
+          is typically <command>lpr</command>. You would change it
+          to specify a particular queue if you need to print to a
           queue other than the default.  An example might be:
           <programlisting>
 lpr -Pmypostscript
           </programlisting>
-          This field is greyed out if <command>Output to file:</command> is 
+          This field is greyed out if <command>Output to file:</command> is
           checked above.
         </para>
         </listitem>
@@ -1313,7 +1344,7 @@ lpr -Pmypostscript
       <term><command>Packet Range</command></term>
       <listitem>
         <para>
-          Select the packets to be printed, see <xref 
+          Select the packets to be printed, see <xref
           linkend="ChIOPacketRangeSection"/>
         </para>
       </listitem>
@@ -1322,8 +1353,8 @@ lpr -Pmypostscript
       <term><command>Packet Format</command></term>
       <listitem>
         <para>
-          Select the output format of the packets to be printed. You can 
-          choose, how each packet is printed, see 
+          Select the output format of the packets to be printed. You can
+          choose, how each packet is printed, see
           <xref linkend="ChIOPacketFormatFrame"/>
         </para>
       </listitem>
@@ -1335,8 +1366,8 @@ lpr -Pmypostscript
 
   <section id="ChIOPacketRangeSection"><title>The Packet Range frame</title>
     <para>
-    The packet range frame is a part of various output related dialog boxes. 
-    It provides options to select which packets should be processed by the 
+    The packet range frame is a part of various output related dialog boxes.
+    It provides options to select which packets should be processed by the
     output function.
     <figure id="ChIOPacketRangeFrame">
       <title>The "Packet Range" frame</title>
@@ -1344,9 +1375,9 @@ lpr -Pmypostscript
     </figure>
     </para>
     <para>
-    If the <command>Captured</command> button is set (default), all packets 
+    If the <command>Captured</command> button is set (default), all packets
     from the selected rule will be processed. If the <command>Displayed
-    </command> button is set, only the currently displayed packets are taken 
+    </command> button is set, only the currently displayed packets are taken
     into account to the selected rule.
     </para>
     <para>
@@ -1358,39 +1389,39 @@ lpr -Pmypostscript
         </listitem>
         <listitem>
           <para>
-          <command>Selected packet only</command> process only the selected 
+          <command>Selected packet only</command> process only the selected
           packet.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>Marked packets only</command> process only the marked 
+          <command>Marked packets only</command> process only the marked
           packets.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>From first to last marked packet</command> process the 
+          <command>From first to last marked packet</command> process the
           packets from the first to the last marked one.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>Specify a packet range</command> process a user specified 
-          range of packets, e.g. specifying <command>5,10-15,20-</command> will 
-          process the packet number five, the packets from packet number ten 
-          to fifteen (inclusive) and every packet from number twenty to the 
+          <command>Specify a packet range</command> process a user specified
+          range of packets, e.g. specifying <command>5,10-15,20-</command> will
+          process the packet number five, the packets from packet number ten
+          to fifteen (inclusive) and every packet from number twenty to the
           end of the capture.
           </para>
         </listitem>
     </itemizedlist>
     </para>
   </section>
-  
+
   <section id="ChIOPacketFormatSection"><title>The Packet Format frame</title>
     <para>
-    The packet format frame is a part of various output related dialog boxes. 
-    It provides options to select which parts of a packet should be used for 
+    The packet format frame is a part of various output related dialog boxes.
+    It provides options to select which parts of a packet should be used for
     the output function.
     <figure id="ChIOPacketFormatFrame">
       <title>The "Packet Format" frame</title>
@@ -1399,31 +1430,31 @@ lpr -Pmypostscript
     <itemizedlist>
         <listitem>
           <para>
-          <command>Packet summary line</command> enable the output of the 
+          <command>Packet summary line</command> enable the output of the
           summary line, just as in the "Packet List" pane.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>Packet details</command> enable the output of the packet 
+          <command>Packet details</command> enable the output of the packet
           details tree.
           </para>
         <itemizedlist>
         <listitem>
           <para>
-          <command>All collapsed</command> the info from the "Packet Details" 
+          <command>All collapsed</command> the info from the "Packet Details"
           pane in "all collapsed" state.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>As displayed</command> the info from the "Packet Details" 
+          <command>As displayed</command> the info from the "Packet Details"
           pane in the current state.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>All expanded</command> the info from the "Packet Details" 
+          <command>All expanded</command> the info from the "Packet Details"
           pane in "all expanded" state.
           </para>
         </listitem>
@@ -1431,21 +1462,21 @@ lpr -Pmypostscript
         </listitem>
         <listitem>
           <para>
-          <command>Packet bytes</command> enable the output of the packet 
+          <command>Packet bytes</command> enable the output of the packet
           bytes, just as in the "Packet Bytes" pane.
           </para>
         </listitem>
         <listitem>
           <para>
-          <command>Each packet on a new page</command> put each packet on a 
-          separate page (e.g. when saving/printing to a text file, this will 
+          <command>Each packet on a new page</command> put each packet on a
+          separate page (e.g. when saving/printing to a text file, this will
           put a form feed character between the packets).
           </para>
         </listitem>
     </itemizedlist>
     </para>
   </section>
-  
+
 </chapter>
 <!-- End of WSUG Chapter IO -->
 

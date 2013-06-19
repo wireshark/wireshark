@@ -655,6 +655,7 @@ win32_export_file(HWND h_wnd, capture_file *cf, export_type_e export_type) {
     print_args.to_file             = TRUE;
     print_args.cmd                 = NULL;
     print_args.print_summary       = TRUE;
+    print_args.print_col_headings  = TRUE;
     print_args.print_dissections   = print_dissections_as_displayed;
     print_args.print_hex           = FALSE;
     print_args.print_formfeed      = FALSE;
@@ -1031,10 +1032,20 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
     HWND cur_ctrl;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
-    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
         args->print_summary = TRUE;
-    else
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_COL_HEADINGS_CB);
+        EnableWindow(cur_ctrl, TRUE);
+        if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+            args->print_col_headings = TRUE;
+        else
+            args->print_col_headings = FALSE;
+    } else {
         args->print_summary = FALSE;
+        args->print_col_headings = FALSE;
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_COL_HEADINGS_CB);
+        EnableWindow(cur_ctrl, FALSE);
+    }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
@@ -1076,9 +1087,11 @@ static void
 format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
     HWND cur_ctrl;
 
-    /* Set the "Packet summary" box */
+    /* Set the "Packet summary" and "Include column headings" boxes */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
     SendMessage(cur_ctrl, BM_SETCHECK, args->print_summary, 0);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_COL_HEADINGS_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_col_headings, 0);
 
     /* Set the "Packet details" box */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
