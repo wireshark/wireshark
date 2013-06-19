@@ -721,6 +721,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "Include column headings" check button */
   col_headings_cb = gtk_check_button_new_with_mnemonic("Include column headings");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_headings_cb), args->print_col_headings);
+  gtk_widget_set_sensitive(col_headings_cb, args->print_summary);
   g_signal_connect(col_headings_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_widget_set_tooltip_text(col_headings_cb, "Include column headings when printing the packet summary line");
   gtk_box_pack_start(GTK_BOX(format_vb), col_headings_cb, TRUE, TRUE, 0);
@@ -907,19 +908,24 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 static void
 print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 {
-  GtkWidget *print_bt, *summary_cb, *details_cb;
+  GtkWidget *print_bt, *summary_cb, *col_headings_cb, *details_cb;
   GtkWidget *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
-  gboolean   print_detail;
+  gboolean   print_detail, print_summary;
 
   print_bt = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_BT_KEY));
   summary_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_SUMMARY_CB_KEY));
+  col_headings_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COL_HEADINGS_CB_KEY));
   details_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_DETAILS_CB_KEY));
   collapse_all_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_COLLAPSE_ALL_RB_KEY));
   as_displayed_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_AS_DISPLAYED_RB_KEY));
   expand_all_rb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_EXPAND_ALL_RB_KEY));
   hex_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_HEX_CB_KEY));
 
-  /* is user disabled details, disable the corresponding buttons */
+  /* If user disabled summary, disable the column headings checkbox too. */
+  print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (summary_cb));
+  gtk_widget_set_sensitive(col_headings_cb, print_summary);
+
+  /* If user disabled details, disable the corresponding buttons */
   print_detail = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb));
   gtk_widget_set_sensitive(collapse_all_rb, print_detail);
   gtk_widget_set_sensitive(as_displayed_rb, print_detail);
