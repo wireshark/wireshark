@@ -52,10 +52,6 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
 static dissector_handle_t rrc_sys_info_cont_handle = NULL;
 static dissector_handle_t gsm_a_dtap_handle = NULL;
 static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
-static guint32 lte_rrc_rat_type_value = -1;
-static guint32 lte_rrc_ho_target_rat_type_value = -1;
-static gint lte_rrc_si_or_psi_geran_val = -1;
-static guint32 lte_rrc_etws_cmas_dcs_key = -1;
 
 static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 
