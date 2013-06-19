@@ -290,10 +290,10 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 		}
 		proto_tree_add_uint_format ( tree, tree_id, tvb, offset, 2,
 			mt_block,
-			"%s Topology (0x%03x)%s%s",
+			"%s Topology (0x%03x), %ssubTLVs present%s",
 				      mt_desc,
 				      mt_block&0xfff,
-				      (mt_block&0x8000) ? "" : ", no sub-TLVs present",
+				      (mt_block&0x8000) ? "" : "no ",
 				      (mt_block&0x4000) ? ", ATT bit set" : "" );
 	    } else {
 		proto_tree_add_text ( tree, tvb, offset, 1,
