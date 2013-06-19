@@ -101,9 +101,11 @@ fi
 # export LDFLAGS="$LDFLAGS -arch i386"
 #
 
-# if you have many CPU cores, you can increase this number for more
-# parallel compilation.
-MAKE_BUILD_OPTS="-j 3"
+# if no make options are present, set default options
+if [ -z "$MAKE_BUILD_OPTS" ] ; then
+    # by default use 1.5x number of cores for parallel build
+    MAKE_BUILD_OPTS="-j $(( $(sysctl -n hw.logicalcpu) * 3 / 2))"
+fi
 
 #
 # Versions to download and install.
