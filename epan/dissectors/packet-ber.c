@@ -584,7 +584,12 @@ printf("dissect_ber_tagged_type(%s) entered\n", name);
     }
 
     if (tag_impl) {
-        next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tmp_len);
+        gint length_remaining;
+
+        length_remaining = tvb_length_remaining(tvb, offset);
+        if (tmp_len > (guint32)length_remaining)
+            tmp_len = length_remaining;
+        next_tvb = tvb_new_subset(tvb, offset, tmp_len, tmp_len);
         type(tag_impl, next_tvb, 0, actx, tree, hf_id);
         offset += tmp_len;
     } else {
@@ -1559,7 +1564,9 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
         }
 
         if (out_tvb) {
-            *out_tvb = tvb_new_subset(tvb, offset, length_remaining, len);
+            if (len > (guint32)length_remaining)
+                len = length_remaining;
+            *out_tvb = tvb_new_subset(tvb, offset, len, len);
         }
     }
     return end_offset;
@@ -2175,13 +2182,13 @@ ber_sequence_try_again:
                 length_remaining = tvb_length_remaining(tvb, hoffset);
                 if (length_remaining > (eoffset - hoffset - (2 * ind_field)))
                     length_remaining = eoffset - hoffset - (2 * ind_field);
-                next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset - hoffset - (2 * ind_field));
+                next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
             }
         } else {
             length_remaining = tvb_length_remaining(tvb, hoffset);
             if (length_remaining > (eoffset - hoffset))
                 length_remaining = eoffset - hoffset;
-            next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset - hoffset);
+            next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
         }
 
 #if 0
@@ -3614,7 +3621,7 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
             else
                 next_tvb = tvb; /* we didn't make selection on this class/tag so pass it on */
 #endif
-            next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length);
+            next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
 
 
 #ifdef DEBUG_BER_CHOICE
@@ -4183,7 +4190,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
         length_remaining = tvb_length_remaining(tvb, hoffset);
         if (length_remaining>eoffset-hoffset)
             length_remaining = eoffset-hoffset;
-        next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+        next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, length_remaining);
 
         imp_tag = FALSE;
         if (seq->flags == BER_FLAGS_IMPLTAG)
