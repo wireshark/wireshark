@@ -37,6 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
 
 #include <string.h>
 

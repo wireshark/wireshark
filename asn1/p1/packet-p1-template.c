@@ -31,6 +31,7 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"

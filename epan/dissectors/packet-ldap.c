@@ -1208,7 +1208,7 @@ dissect_ldap_LDAPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	Filter_string=ldapstring;
      } else if (hf_index == hf_ldap_type) {
 	/* remember attribute type name */
-	attr_type = ep_strdup(ldapstring);
+	attr_type = wmem_strdup(wmem_packet_scope(), ldapstring);
 
 	/* append it to the parent entry */
 	proto_item_append_text(tree, " %s", attr_type);
@@ -1836,7 +1836,7 @@ dissect_ldap_T_and_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 #line 562 "../../asn1/ldap/ldap.cnf"
 	if(and_filter_string){
-		and_filter_string=ep_strdup_printf("(&%s%s)",and_filter_string,Filter_string);
+		and_filter_string=wmem_strdup_printf(wmem_packet_scope(), "(&%s%s)",and_filter_string,Filter_string);
 	} else {
 		and_filter_string=Filter_string;
 	}
@@ -1870,7 +1870,7 @@ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	if(and_filter_string) {
 		proto_item_append_text(it, "%s", and_filter_string);
-		Filter_string=ep_strdup_printf("%s",and_filter_string);
+		Filter_string=wmem_strdup_printf(wmem_packet_scope(), "%s",and_filter_string);
 	}
 	and_filter_string=old_and_filter_string;
 
@@ -1887,7 +1887,7 @@ dissect_ldap_T_or_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 #line 589 "../../asn1/ldap/ldap.cnf"
 	if(or_filter_string){
-		or_filter_string=ep_strdup_printf("(|%s%s)",or_filter_string,Filter_string);
+		or_filter_string=wmem_strdup_printf(wmem_packet_scope(), "(|%s%s)",or_filter_string,Filter_string);
 	} else {
 		or_filter_string=Filter_string;
 	}
@@ -1920,7 +1920,7 @@ dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 	if(or_filter_string) {
 		proto_item_append_text(it, "%s", or_filter_string);
-		Filter_string=ep_strdup_printf("%s",or_filter_string);
+		Filter_string=wmem_strdup_printf(wmem_packet_scope(), "%s",or_filter_string);
 	}
 	or_filter_string=old_or_filter_string;
 
@@ -1936,7 +1936,7 @@ dissect_ldap_T_not(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_ldap_Filter(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 618 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(!%s)",string_or_null(Filter_string));
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(!%s)",string_or_null(Filter_string));
 
 
   return offset;
@@ -1974,7 +1974,7 @@ dissect_ldap_T_equalityMatch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 539 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s=%s)",
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s=%s)",
 				       string_or_null(attributedesc_string),
 				       string_or_null(ldapvalue_string));
 
@@ -2006,15 +2006,15 @@ dissect_ldap_T_substringFilter_substrings_item(gboolean implicit_tag _U_, tvbuff
 
 #line 644 "../../asn1/ldap/ldap.cnf"
 	if (substring_item_final) {
-		substring_value=ep_strdup_printf("%s%s",
+		substring_value=wmem_strdup_printf(wmem_packet_scope(), "%s%s",
 						 (substring_value?substring_value:"*"),
 						 substring_item_final);
 	} else if (substring_item_any) {
-		substring_value=ep_strdup_printf("%s%s*",
+		substring_value=wmem_strdup_printf(wmem_packet_scope(), "%s%s*",
 						 (substring_value?substring_value:"*"),
 						 substring_item_any);
 	} else if (substring_item_init) {
-		substring_value=ep_strdup_printf("%s*",
+		substring_value=wmem_strdup_printf(wmem_packet_scope(), "%s*",
 						 substring_item_init);
 	}
 
@@ -2062,7 +2062,7 @@ dissect_ldap_SubstringFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SubstringFilter_sequence, hf_index, ett_ldap_SubstringFilter);
 
-	Filter_string=ep_strdup_printf("(%s=%s)",
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s=%s)",
 		string_or_null(attr_type),
 		string_or_null(substring_value));
 	proto_item_append_text(it, "%s", Filter_string);
@@ -2080,7 +2080,7 @@ dissect_ldap_T_greaterOrEqual(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   offset = dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 545 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s>=%s)",
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s>=%s)",
 				       string_or_null(attributedesc_string),
 				       string_or_null(ldapvalue_string));
 
@@ -2096,7 +2096,7 @@ dissect_ldap_T_lessOrEqual(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 551 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s<=%s)",
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s<=%s)",
 				       string_or_null(attributedesc_string),
 				       string_or_null(ldapvalue_string));
 
@@ -2112,7 +2112,7 @@ dissect_ldap_T_present(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   offset = dissect_ldap_AttributeDescription(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 615 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s=*)",string_or_null(Filter_string));
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s=*)",string_or_null(Filter_string));
 
 
   return offset;
@@ -2125,7 +2125,7 @@ dissect_ldap_T_approxMatch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 557 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s~=%s)",
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s~=%s)",
 				       string_or_null(attributedesc_string),
 				       string_or_null(ldapvalue_string));
 
@@ -2191,7 +2191,7 @@ dissect_ldap_T_extensibleMatch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ldap_MatchingRuleAssertion(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 636 "../../asn1/ldap/ldap.cnf"
-	Filter_string=ep_strdup_printf("(%s:%s%s%s=%s)",
+	Filter_string=wmem_strdup_printf(wmem_packet_scope(), "(%s:%s%s%s=%s)",
 					(attr_type?attr_type:""),
 					(matching_rule_dnattr?"dn:":""),
 					(matching_rule_string?matching_rule_string:""),

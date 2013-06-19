@@ -312,7 +312,7 @@ AuditReplyV1/auditResult	audit_result
 #.END
 
 #.FN_HDR TerminationID
-    curr_info.term = ep_new0(gcp_term_t);
+    curr_info.term = wmem_new0(wmem_packet_scope(), gcp_term_t);
     wild_term = GCP_WILDCARD_NONE;
 #.END
 
@@ -352,8 +352,8 @@ AuditReplyV1/auditResult	audit_result
 		}
 	} else {
 		curr_info.term->len = 0;
-		curr_info.term->buffer = (guint8*)ep_strdup("");
-		curr_info.term->str = ep_strdup("?");
+		curr_info.term->buffer = (guint8*)wmem_strdup(wmem_packet_scope(), "");
+		curr_info.term->str = wmem_strdup(wmem_packet_scope(), "?");
 	}
 #.END
 

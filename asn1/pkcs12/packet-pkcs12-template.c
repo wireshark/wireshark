@@ -271,14 +271,14 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	}
 
 	/* allocate buffers */
-	key = (char *)ep_alloc(keylen);
+	key = (char *)wmem_alloc(wmem_packet_scope(), keylen);
 
 	if(!generate_key_or_iv(1 /*LEY */, salt, iteration_count, password, keylen, key))
 		return FALSE;
 
 	if(ivlen) {
 
-		iv = (char *)ep_alloc(ivlen);
+		iv = (char *)wmem_alloc(wmem_packet_scope(), ivlen);
 
 		if(!generate_key_or_iv(2 /* IV */, salt, iteration_count, password, ivlen, iv))
 			return FALSE;

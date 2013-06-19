@@ -1252,9 +1252,9 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
             pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 
             if (pkg->signal_names && ( strval = try_val_to_str(name_minor, pkg->signal_names) )) {
-                strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
             } else {
-                strval = ep_strdup_printf("Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Signal ID: %s", strval);
@@ -1509,9 +1509,9 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
             const gchar* strval;
 
             if (pkg->param_names && ( strval = try_val_to_str(name_minor, pkg->param_names) )) {
-                strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
             } else {
-                strval = ep_strdup_printf("Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Parameter: %s", strval);
@@ -1572,9 +1572,9 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
             const gchar* strval;
 
             if (pkg->event_names && ( strval = try_val_to_str(name_minor, pkg->event_names) )) {
-                strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
             } else {
-                strval = ep_strdup_printf("Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Event ID: %s", strval);
@@ -1637,9 +1637,9 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
             const gchar* strval;
 
             if (pkg->signal_names && ( strval = try_val_to_str(name_minor, pkg->signal_names) )) {
-                strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,name_minor);
             } else {
-                strval = ep_strdup_printf("Unknown (%d)",name_minor);
+                strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",name_minor);
             }
 
             proto_item_set_text(pi,"Signal ID: %s", strval);
@@ -1730,9 +1730,9 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
     }
 
     if (curr_info.sig && curr_info.sig->param_names && ( strval = try_val_to_str(param_id, curr_info.sig->param_names) )) {
-        strval = ep_strdup_printf("%s (%d)",strval,param_id);
+        strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,param_id);
     } else {
-        strval = ep_strdup_printf("Unknown (%d)",param_id);
+        strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",param_id);
     }
 
     proto_item_set_text(pi,"Parameter: %s", strval);
@@ -1807,9 +1807,9 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
     }
 
     if (curr_info.evt && curr_info.evt->param_names && ( strval = try_val_to_str(param_id, curr_info.evt->param_names) )) {
-        strval = ep_strdup_printf("%s (%d)",strval,param_id);
+        strval = wmem_strdup_printf(wmem_packet_scope(), "%s (%d)",strval,param_id);
     } else {
-        strval = ep_strdup_printf("Unknown (%d)",param_id);
+        strval = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%d)",param_id);
     }
 
     proto_item_set_text(pi,"Parameter: %s", strval);
@@ -2241,8 +2241,8 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		}
 	} else {
 		curr_info.term->len = 0;
-		curr_info.term->buffer = (guint8*)ep_strdup("");
-		curr_info.term->str = ep_strdup("?");
+		curr_info.term->buffer = (guint8*)wmem_strdup(wmem_packet_scope(), "");
+		curr_info.term->str = wmem_strdup(wmem_packet_scope(), "?");
 	}
 
 
@@ -2259,7 +2259,7 @@ static const ber_sequence_t TerminationID_sequence[] = {
 static int
 dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 315 "../../asn1/h248/h248.cnf"
-    curr_info.term = ep_new0(gcp_term_t);
+    curr_info.term = wmem_new0(wmem_packet_scope(), gcp_term_t);
     wild_term = GCP_WILDCARD_NONE;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,

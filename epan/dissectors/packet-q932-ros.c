@@ -37,6 +37,7 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 
@@ -75,7 +76,7 @@ static int hf_q932_ros_present = -1;              /* INTEGER */
 static int hf_q932_ros_InvokeId_present = -1;     /* InvokeId_present */
 
 /*--- End of included file: packet-q932-ros-hf.c ---*/
-#line 42 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 43 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -93,7 +94,7 @@ static gint ett_q932_ros_T_problem = -1;
 static gint ett_q932_ros_InvokeId = -1;
 
 /*--- End of included file: packet-q932-ros-ett.c ---*/
-#line 45 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 46 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
 static expert_field ei_ros_undecoded = EI_INIT;
 
@@ -291,11 +292,11 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (!arg_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(arg_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = ep_strdup_printf("INV: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(wmem_packet_scope(), "INV: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = ep_strdup_printf("INV: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(wmem_packet_scope(), "INV: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = ep_strdup_printf("INV:");
+    descr = wmem_strdup_printf(wmem_packet_scope(), "INV:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -384,11 +385,11 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (!res_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = ep_strdup_printf("RES: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = ep_strdup_printf("RES: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = ep_strdup_printf("RES:");
+    descr = wmem_strdup_printf(wmem_packet_scope(), "RES:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -464,11 +465,11 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   if (!err_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(err_handle)))) {
     if (actx->rose_ctx->d.code == 0)
-      descr = ep_strdup_printf("ERR: %d", actx->rose_ctx->d.code_local);
+      descr = wmem_strdup_printf(wmem_packet_scope(), "ERR: %d", actx->rose_ctx->d.code_local);
     else if (actx->rose_ctx->d.code == 1)
-      descr = ep_strdup_printf("ERR: %s", actx->rose_ctx->d.code_global);
+      descr = wmem_strdup_printf(wmem_packet_scope(), "ERR: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = ep_strdup_printf("ERR:");
+    descr = wmem_strdup_printf(wmem_packet_scope(), "ERR:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -621,7 +622,7 @@ dissect_q932_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                    Reject_sequence, hf_index, ett_q932_ros_Reject);
 
 #line 11 "../../asn1/ros/ros-rej.cnf"
-  descr = ep_strdup_printf("REJ: %s", problem_str);
+  descr = wmem_strdup_printf(wmem_packet_scope(), "REJ: %s", problem_str);
 
   if (actx->rose_ctx->apdu_depth >= 0)
     proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  %s", descr);
@@ -676,7 +677,7 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 
 /*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 62 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 63 "../../asn1/q932-ros/packet-q932-ros-template.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
@@ -791,7 +792,7 @@ void proto_register_q932_ros(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 76 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 77 "../../asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -811,7 +812,7 @@ void proto_register_q932_ros(void) {
     &ett_q932_ros_InvokeId,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 81 "../../asn1/q932-ros/packet-q932-ros-template.c"
+#line 82 "../../asn1/q932-ros/packet-q932-ros-template.c"
   };
 
   static ei_register_info ei[] = {

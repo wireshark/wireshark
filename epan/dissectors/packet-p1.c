@@ -39,6 +39,7 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -655,7 +656,7 @@ static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-p1-hf.c ---*/
-#line 81 "../../asn1/p1/packet-p1-template.c"
+#line 82 "../../asn1/p1/packet-p1-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p1 = -1;
@@ -852,7 +853,7 @@ static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissio
 static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
 
 /*--- End of included file: packet-p1-ett.c ---*/
-#line 92 "../../asn1/p1/packet-p1-template.c"
+#line 93 "../../asn1/p1/packet-p1-template.c"
 
 static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
@@ -908,7 +909,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 104 "../../asn1/p1/packet-p1-template.c"
+#line 105 "../../asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-fn.c ---*/
@@ -1642,7 +1643,7 @@ static int
 dissect_p1_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1087 "../../asn1/p1/p1.cnf"
 	
-	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = tree;
 
 	  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -2129,7 +2130,7 @@ static const ber_sequence_t BuiltInDomainDefinedAttribute_sequence[] = {
 static int
 dissect_p1_BuiltInDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1050 "../../asn1/p1/p1.cnf"
-        ddatype = (char *)ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+        ddatype = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); ddatype[0] = '\0';
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    BuiltInDomainDefinedAttribute_sequence, hf_index, ett_p1_BuiltInDomainDefinedAttribute);
@@ -2284,7 +2285,7 @@ int
 dissect_p1_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1068 "../../asn1/p1/p1.cnf"
 	
-	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = NULL;
 	doing_address = TRUE;
 
@@ -2502,10 +2503,10 @@ dissect_p1_BuiltInContentType_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   /* convert integer content type to oid for dispatch when the content is found */
   switch(ict) {
 	case 2:
-	content_type_id = ep_strdup("2.6.1.10.0");
+	content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.0");
 	break;
 	case 22:
-	content_type_id = ep_strdup("2.6.1.10.1");
+	content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.1");
 	break;
 	default:
 	content_type_id = NULL;
@@ -5717,7 +5718,7 @@ int
 dissect_p1_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1055 "../../asn1/p1/p1.cnf"
 	
-	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	doing_address = TRUE;
 	address_item = NULL;
 
@@ -7090,7 +7091,7 @@ static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
 static int
 dissect_p1_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 941 "../../asn1/p1/p1.cnf"
-        ddatype = (char *)ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+        ddatype = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); ddatype[0] = '\0';
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TeletexDomainDefinedAttribute_sequence, hf_index, ett_p1_TeletexDomainDefinedAttribute);
@@ -8208,7 +8209,7 @@ static void dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 106 "../../asn1/p1/packet-p1-template.c"
+#line 107 "../../asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
@@ -8240,7 +8241,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 108 "../../asn1/p1/packet-p1-template.c"
+#line 109 "../../asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
 #line 1 "../../asn1/p1/packet-p1-table21.c"
@@ -8285,7 +8286,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 109 "../../asn1/p1/packet-p1-template.c"
+#line 110 "../../asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -10697,7 +10698,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 260 "../../asn1/p1/packet-p1-template.c"
+#line 261 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10896,7 +10897,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 273 "../../asn1/p1/packet-p1-template.c"
+#line 274 "../../asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11099,7 +11100,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 319 "../../asn1/p1/packet-p1-template.c"
+#line 320 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

@@ -91,6 +91,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-ansi_map.h"
@@ -420,13 +421,13 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             /* The hash string needs to contain src and dest to distiguish differnt flows */
             switch(ansi_map_response_matching_type){
                 case ANSI_MAP_TID_ONLY:
-                    buf = ep_strdup(p_private_tcap->TransactionID_str);
+                    buf = wmem_strdup(wmem_packet_scope(), p_private_tcap->TransactionID_str);
                     break;
                 case 1:
-                    buf = ep_strdup_printf("%s%s",p_private_tcap->TransactionID_str,src_str);
+                    buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",p_private_tcap->TransactionID_str,src_str);
                     break;
                 default:
-                    buf = ep_strdup_printf("%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+                    buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
                     break;
             }
             /* If the entry allready exists don't owervrite it */
@@ -4290,7 +4291,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
     guint8 *dst_str;
     char *buf;
 
-    buf=(char *)ep_alloc(1024);
+    buf=(char *)wmem_alloc(wmem_packet_scope(), 1024);
 
     /* Data from the TCAP dissector */
     if (actx->pinfo->private_data != NULL){

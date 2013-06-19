@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-per.h"
 #include "packet-h225.h"
@@ -43,7 +44,7 @@
 gef_ctx_t* gef_ctx_alloc(gef_ctx_t *parent, const gchar *type) {
   gef_ctx_t *gefx;
 
-  gefx = ep_new0(gef_ctx_t);
+  gefx = wmem_new0(wmem_packet_scope(), gef_ctx_t);
   gefx->signature = GEF_CTX_SIGNATURE;
   gefx->parent = parent;
   gefx->type = type;
@@ -75,7 +76,7 @@ void gef_ctx_update_key(gef_ctx_t *gefx) {
 
   if (!gefx) return;
   parent_key = (gefx->parent) ? gefx->parent->key : NULL;
-  gefx->key = ep_strdup_printf(
+  gefx->key = wmem_strdup_printf(wmem_packet_scope(), 
     "%s%s"    /* parent prefix */
     "%s%s%s"  /* type, id */
     "%s%s"    /* subid */,

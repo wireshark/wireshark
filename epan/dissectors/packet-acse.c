@@ -335,7 +335,7 @@ dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
-    object_identifier_id = ep_strdup(oid);
+    object_identifier_id = wmem_strdup(wmem_packet_scope(), oid);
   }
 
   if(session)

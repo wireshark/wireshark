@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-dap.h"
@@ -213,7 +214,7 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 49 "../../asn1/x509if/packet-x509if-template.c"
+#line 50 "../../asn1/x509if/packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -294,7 +295,7 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 52 "../../asn1/x509if/packet-x509if-template.c"
+#line 53 "../../asn1/x509if/packet-x509if-template.c"
 
 static const char *object_identifier_id = NULL;
 static proto_tree *top_of_dn = NULL;
@@ -666,7 +667,7 @@ dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb 
 #line 407 "../../asn1/x509if/x509if.cnf"
 
 	ava_hf_index = hf_index;
-	last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+	last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN); *last_ava = '\0';
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -746,7 +747,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
-      last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+      last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN); *last_ava = '\0';
       register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
@@ -800,7 +801,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
       /* we have a format */
 
       if (!last_ava) {
-        last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN);
+        last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN);
       }
 
       if(!(name = oid_resolved_from_string(object_identifier_id)))
@@ -911,7 +912,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
   rdn_one_value = FALSE;
   top_of_rdn = tree;
-  last_rdn = (char *)ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
+  last_rdn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); *last_rdn = '\0';
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
     offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
@@ -924,7 +925,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
   /* now append this to the DN */
   if (last_dn) {
     if(*last_dn) {
-      temp_dn = (char *)ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
+      temp_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
       g_snprintf(temp_dn, MAX_DN_STR_LEN, "%s,%s", last_rdn, last_dn);
       last_dn[0] = '\0';
       g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
@@ -972,7 +973,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn = (char *)ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
+  last_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
@@ -2097,7 +2098,7 @@ static void dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 90 "../../asn1/x509if/packet-x509if-template.c"
+#line 91 "../../asn1/x509if/packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2763,7 +2764,7 @@ void proto_register_x509if(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 135 "../../asn1/x509if/packet-x509if-template.c"
+#line 136 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2846,7 +2847,7 @@ void proto_register_x509if(void) {
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 140 "../../asn1/x509if/packet-x509if-template.c"
+#line 141 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2904,6 +2905,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 159 "../../asn1/x509if/packet-x509if-template.c"
+#line 160 "../../asn1/x509if/packet-x509if-template.c"
 }
 

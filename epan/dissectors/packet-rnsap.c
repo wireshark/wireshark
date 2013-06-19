@@ -5353,7 +5353,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
 #line 92 "../../asn1/rnsap/rnsap.cnf"
-  ProcedureID = ep_strdup_printf("%s/%s",
+  ProcedureID = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
                                  val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
 

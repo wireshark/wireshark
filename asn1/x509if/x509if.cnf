@@ -212,7 +212,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
-      last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+      last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN); *last_ava = '\0';
       register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
@@ -257,7 +257,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
       /* we have a format */
 
       if (!last_ava) {
-        last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN);
+        last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN);
       }
 
       if(!(name = oid_resolved_from_string(object_identifier_id)))
@@ -334,7 +334,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
   rdn_one_value = FALSE;
   top_of_rdn = tree;
-  last_rdn = (char *)ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
+  last_rdn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); *last_rdn = '\0';
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
   %(DEFAULT_BODY)s
@@ -345,7 +345,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   /* now append this to the DN */
   if (last_dn) {
     if(*last_dn) {
-      temp_dn = (char *)ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
+      temp_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
       g_snprintf(temp_dn, MAX_DN_STR_LEN, "%%s,%%s", last_rdn, last_dn);
       last_dn[0] = '\0';
       g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
@@ -375,7 +375,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn = (char *)ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
+  last_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
@@ -406,7 +406,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 #.FN_BODY AttributeValueAssertion
 
 	ava_hf_index = hf_index;
-	last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+	last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN); *last_ava = '\0';
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	%(DEFAULT_BODY)s

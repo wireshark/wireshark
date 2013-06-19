@@ -112,7 +112,7 @@ guint32 msgtype;
 
 #.FN_BODY PADATA-TYPE
 
-	actx->value_ptr = ep_alloc(sizeof(guint32));
+	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
@@ -187,7 +187,7 @@ guint32 msgtype;
 		addr_type = *((guint32*)actx->value_ptr);
 	}
 
-	address_str=(char*)ep_alloc(ADDRESS_STR_BUFSIZ);
+	address_str=(char*)wmem_alloc(wmem_packet_scope(), ADDRESS_STR_BUFSIZ);
 	address_str[0]=0;
 	switch(addr_type){
 	case KRB5_ADDR_IPv4:
@@ -228,7 +228,7 @@ guint32 msgtype;
 #xxx TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(xx_vals)
 
 #.FN_BODY ENCTYPE
-	actx->value_ptr = ep_alloc(sizeof(guint32));
+	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
@@ -291,7 +291,7 @@ guint32 msgtype;
 
 
 #.FN_BODY CKSUMTYPE
-	actx->value_ptr = ep_alloc(sizeof(guint32));
+	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
@@ -315,7 +315,7 @@ guint32 msgtype;
 	return offset;
 
 #.FN_BODY EncryptionKey/keytype
-	kerberos_key_t* key = (kerberos_key_t*)ep_alloc(sizeof(kerberos_key_t));
+	kerberos_key_t* key = (kerberos_key_t*)wmem_alloc(wmem_packet_scope(), sizeof(kerberos_key_t));
 	actx->value_ptr = key;
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -344,7 +344,7 @@ guint32 msgtype;
 	}
 
 #.FN_BODY AuthorizationData/_item/ad-type
-	actx->value_ptr = ep_alloc(sizeof(guint32));
+	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
@@ -365,7 +365,7 @@ guint32 msgtype;
 	}
 
 #.FN_BODY HostAddress/addr-type
-	actx->value_ptr = ep_alloc(sizeof(guint32));
+	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);

@@ -3648,7 +3648,7 @@ dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                                             0U, 127U, &value_int, FALSE);
 
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = ep_strdup_printf("%d", value_int);
+  if (gefx) gefx->id = wmem_strdup_printf(wmem_packet_scope(), "%d", value_int);
 
 
   return offset;
@@ -3709,7 +3709,7 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = ep_new(guint8);
+    buf = wmem_new(wmem_packet_scope(), guint8);
     buf[0] = value;
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint8), sizeof(guint8));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3736,7 +3736,7 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)ep_new(guint16);
+    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint16);
     phtons(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3763,7 +3763,7 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)ep_new(guint16);
+    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint16);
     phtons(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3790,7 +3790,7 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)ep_new(guint32);
+    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint32);
     phtonl(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -3817,7 +3817,7 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
-    buf = (guint8 *)ep_new(guint32);
+    buf = (guint8 *)wmem_new(wmem_packet_scope(), guint32);
     phtonl(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
@@ -6651,7 +6651,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                                             0U, 127U, &subMessageIdentifer, FALSE);
 
   if (gefx) {
-    gefx->subid = ep_strdup_printf("%u", subMessageIdentifer);
+    gefx->subid = wmem_strdup_printf(wmem_packet_scope(), "%u", subMessageIdentifer);
     gef_ctx_update_key(gef_ctx_get(actx->private_data));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG CapabilityIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
   }
@@ -11050,7 +11050,7 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   const gchar *olc_key;
   olc_info_t *olc_req;
 
-  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? ep_new0(olc_info_t) : NULL;
+  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? wmem_new0(wmem_packet_scope(), olc_info_t) : NULL;
 
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;

@@ -31,6 +31,7 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -89,7 +90,7 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
 {
   char* binding_param;
 
-  binding_param = ep_strdup_printf("%s.%s", base_string, binding_type ? binding_type : "");
+  binding_param = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", base_string, binding_type ? binding_type : "");
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 

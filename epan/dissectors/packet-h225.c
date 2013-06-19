@@ -45,6 +45,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/wmem/wmem.h>
 
 #include <string.h>
 
@@ -885,7 +886,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 106 "../../asn1/h225/packet-h225-template.c"
+#line 107 "../../asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1134,7 +1135,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 110 "../../asn1/h225/packet-h225-template.c"
+#line 111 "../../asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -2882,7 +2883,7 @@ dissect_h225_T_guid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   offset = dissect_h225_GloballyUniqueID(tvb, offset, actx, tree, hf_index);
 
   if (guid_tvb)
-    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = ep_new(e_guid_t));
+    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = wmem_new(wmem_packet_scope(), e_guid_t));
   actx->value_ptr = NULL;
 
 
@@ -3685,7 +3686,7 @@ dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                                             0U, 16383U, &value_int, TRUE);
 
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = ep_strdup_printf("%u", value_int);
+  if (gefx) gefx->id = wmem_strdup_printf(wmem_packet_scope(), "%u", value_int);
 
 
   return offset;
@@ -7534,7 +7535,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 134 "../../asn1/h225/packet-h225-template.c"
+#line 135 "../../asn1/h225/packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -10716,7 +10717,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 231 "../../asn1/h225/packet-h225-template.c"
+#line 232 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10967,7 +10968,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 237 "../../asn1/h225/packet-h225-template.c"
+#line 238 "../../asn1/h225/packet-h225-template.c"
   };
   module_t *h225_module;
 
