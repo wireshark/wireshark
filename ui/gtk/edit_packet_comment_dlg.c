@@ -65,6 +65,7 @@ pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
   packet_list_update_packet_comment(new_packet_comment);
   expert_comp_packet_comment_updated();
+  status_expert_update();
 
   window_destroy(edit_or_add_pkt_comment_dlg);
 
