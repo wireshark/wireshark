@@ -42,8 +42,13 @@
  * containing one or more records.  The last page of the file
  * might be less than 8K bytes.
  *
- * Records are not split across page boundaries.  A page might have
- * an "unused space" record at the end.
+ * Records are not split across page boundaries; if a record doesn't
+ * fit in what remains in a page, the page is padded with null bytes
+ * and the next record is put at the beginning of the next page.
+ * A record type value of 0 means "unused space", so if there are
+ * enough null bytes to constitute a record type value, it will
+ * look as if there's an "unused space" record (which has no fields
+ * other than the type and zero or more additional padding bytes).
  */
 #define NSPR_PAGESIZE   8192
 
