@@ -1093,7 +1093,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
                                   length);
             ti = proto_tree_add_uint(atm_tree, hf_atm_aal5_crc, tvb, length - 4, 4, crc);
-            proto_item_append_text(ti, (calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
+            proto_item_append_text(ti, (calc_crc == 0xC704DD7B) ? " (correct)" : " (incorrect)");
           }
           next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
         }
@@ -1737,7 +1737,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_tree_add_item(aal_tree, hf_atm_aal3_4_length_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(aal_tree, hf_atm_aal3_4_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? "correct" : "incorrect");
+    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? " (correct)" : " (incorrect)");
     break;
 
   case AAL_OAMCELL:
@@ -1783,7 +1783,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 45;
 
     ti = proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? "correct" : "incorrect");
+    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? " (correct)" : " (incorrect)");
     break;
 
   default:
