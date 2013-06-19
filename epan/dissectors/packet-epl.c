@@ -805,8 +805,8 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset = dissect_epl_asnd(epl_tree, tvb, pinfo, epl_src, offset);
             break;
 
-        default:    /* no valid EPL packet */
-            return FALSE;
+        /* Default case can not happen as it is caught by an earlier switch
+           statement */
     }
 
     return offset;
