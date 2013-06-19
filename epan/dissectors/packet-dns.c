@@ -39,7 +39,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include "packet-dns.h"
@@ -263,7 +263,7 @@ typedef struct _dns_transaction_t {
 
 /* Structure containing conversation specific information */
 typedef struct _dns_conv_info_t {
-  emem_tree_t *pdus;
+  wmem_tree_t *pdus;
 } dns_conv_info_t;
 
 /* DNS structs and definitions */
@@ -734,7 +734,7 @@ dns_type_description (guint type)
 
   short_name = dns_type_name(type);
   if (short_name == NULL) {
-    return ep_strdup_printf("Unknown (%u)", type);
+    return wmem_strdup_printf(wmem_packet_scope(), "Unknown (%u)", type);
   }
   if (type < array_length(type_names)) {
     long_name = type_names[type];
@@ -772,9 +772,9 @@ dns_type_description (guint type)
   }
 
   if (long_name != NULL) {
-    return ep_strdup_printf("%s (%s)", short_name, long_name);
+    return wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", short_name, long_name);
   } else {
-    return ep_strdup(short_name);
+    return wmem_strdup(wmem_packet_scope(), short_name);
   }
 }
 
@@ -880,7 +880,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
          * to put the dissector into a loop.  Instead we throw an exception */
 
   maxname=MAXDNAME;
-  np=(guchar *)ep_alloc(maxname);
+  np=(guchar *)wmem_alloc(wmem_packet_scope(), maxname);
   *name=np;
 
   maxname--;   /* reserve space for the trailing '\0' */
@@ -1654,7 +1654,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int            port_num;
       int            i;
       proto_item     *ti_wks;
-      emem_strbuf_t *bitnames = ep_strbuf_new_label(NULL);
+      wmem_strbuf_t *bitnames = wmem_strbuf_new_label(wmem_packet_scope());
 
       if (rr_len < 4) {
         goto bad_rr;
@@ -1681,24 +1681,24 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         bits = tvb_get_guint8(tvb, cur_offset);
         if (bits != 0) {
           mask = 1<<7;
-          ep_strbuf_truncate(bitnames, 0);
+          wmem_strbuf_truncate(bitnames, 0);
           for (i = 0; i < 8; i++) {
             if (bits & mask) {
-              if (bitnames->len > 0) {
-                ep_strbuf_append(bitnames, ", ");
+              if (wmem_strbuf_get_len(bitnames) > 0) {
+                wmem_strbuf_append(bitnames, ", ");
               }
               switch (protocol) {
 
                 case IP_PROTO_TCP:
-                  ep_strbuf_append(bitnames, get_tcp_port(port_num));
+                  wmem_strbuf_append(bitnames, get_tcp_port(port_num));
                   break;
 
                 case IP_PROTO_UDP:
-                  ep_strbuf_append(bitnames, get_udp_port(port_num));
+                  wmem_strbuf_append(bitnames, get_udp_port(port_num));
                   break;
 
                 default:
-                  ep_strbuf_append_printf(bitnames, "%u", port_num);
+                  wmem_strbuf_append_printf(bitnames, "%u", port_num);
                   break;
               }
             }
@@ -1707,7 +1707,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           }
 
           ti_wks = proto_tree_add_item(rr_tree, hf_dns_wks_bits, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-          proto_item_append_text(ti_wks, " (%s)", bitnames->str);
+          proto_item_append_text(ti_wks, " (%s)", wmem_strbuf_get_str(bitnames));
         } else {
           port_num += 8;
         }
@@ -3140,9 +3140,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           goto bad_rr;
         }
         if (afamily == 1 && afdpart_len <= 4) {
-          addr_copy = (guint8 *)se_alloc0(4);
+          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 4);
         } else if (afamily == 2 && afdpart_len <= 16) {
-          addr_copy = (guint8 *)se_alloc0(16);
+          addr_copy = (guint8 *)wmem_alloc0(wmem_file_scope(), 16);
         } else {
           goto bad_rr;
         }
@@ -3518,30 +3518,30 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    dns_info = se_new(dns_conv_info_t);
-    dns_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "dns_pdus");
+    dns_info = wmem_new(wmem_file_scope(), dns_conv_info_t);
+    dns_info->pdus=wmem_tree_new(wmem_file_scope());
     conversation_add_proto_data(conversation, proto_dns, dns_info);
   }
   if (!pinfo->fd->flags.visited) {
     if (!(flags&F_RESPONSE)) {
       /* This is a request */
-      dns_trans=se_new(dns_transaction_t);
+      dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
       dns_trans->req_frame=pinfo->fd->num;
       dns_trans->rep_frame=0;
       dns_trans->req_time=pinfo->fd->abs_ts;
-      se_tree_insert32(dns_info->pdus, id, (void *)dns_trans);
+      wmem_tree_insert32(dns_info->pdus, id, (void *)dns_trans);
     } else {
-      dns_trans=(dns_transaction_t *)se_tree_lookup32(dns_info->pdus, id);
+      dns_trans=(dns_transaction_t *)wmem_tree_lookup32(dns_info->pdus, id);
       if (dns_trans) {
         dns_trans->rep_frame=pinfo->fd->num;
       }
     }
   } else {
-    dns_trans=(dns_transaction_t *)se_tree_lookup32(dns_info->pdus, id);
+    dns_trans=(dns_transaction_t *)wmem_tree_lookup32(dns_info->pdus, id);
   }
   if (!dns_trans) {
     /* create a "fake" pana_trans structure */
-    dns_trans=ep_new(dns_transaction_t);
+    dns_trans=wmem_new(wmem_packet_scope(), dns_transaction_t);
     dns_trans->req_frame=0;
     dns_trans->rep_frame=0;
     dns_trans->req_time=pinfo->fd->abs_ts;
