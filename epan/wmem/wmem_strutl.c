@@ -173,32 +173,27 @@ wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
     for (i=0; i< str_len; i++) {
         switch(state) {
             case AT_START:
-                switch(splitted[i]) {
-                    case '\0':
-                        state = IN_PAD;
-                        continue;
-                    default:
-                        vec[curr_tok] = &(splitted[i]);
-                        curr_tok++;
-                        state = IN_TOKEN;
-                        continue;
+                if (splitted[i] == '\0') {
+                    state = IN_PAD;
                 }
+                else {
+                    vec[curr_tok] = &(splitted[i]);
+                    curr_tok++;
+                    state = IN_TOKEN;
+                }
+                break;
             case IN_TOKEN:
-                switch(splitted[i]) {
-                    case '\0':
-                        state = IN_PAD;
-                    default:
-                        continue;
+                if (splitted[i] == '\0') {
+                    state = IN_PAD;
                 }
+                break;
             case IN_PAD:
-                switch(splitted[i]) {
-                    default:
-                        vec[curr_tok] = &(splitted[i]);
-                        curr_tok++;
-                        state = IN_TOKEN;
-                    case '\0':
-                        continue;
+                if (splitted[i] != '\0') {
+                    vec[curr_tok] = &(splitted[i]);
+                    curr_tok++;
+                    state = IN_TOKEN;
                 }
+                break;
         }
     }
 
