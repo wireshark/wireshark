@@ -82,8 +82,6 @@ enum nas_sys_info_gsm_map {
   RRC_NAS_SYS_INFO_CN_COMMON
 };
 
-static guint32 rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
-
 /* Forward declarations */
 void proto_register_rrc(void);
 void proto_reg_handoff_rrc(void);

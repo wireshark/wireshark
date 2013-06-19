@@ -654,23 +654,25 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnbname_tvb, 0, -1,
                                 tvb_get_ephemeral_string_enc(hnbname_tvb, 0, tvb_length(hnbname_tvb), ENC_UTF_8 | ENC_NA));
 
-#.FN_BODY CN-DomainIdentity VAL_PTR = &rrc_nas_sys_info_gsm_map_type
+#.FN_BODY CN-DomainIdentity VAL_PTR = &nas_sys_info_gsm_map
+  guint32 nas_sys_info_gsm_map;
 %(DEFAULT_BODY)s
+  actx->private_data = GUINT_TO_POINTER(nas_sys_info_gsm_map);
 
 #.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
-  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfo-r6/cn-CommonGSM-MAP-NAS-SysInfo
-  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfoFull/cn-CommonGSM-MAP-NAS-SysInfo
-  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY SysInfoType1/cn-CommonGSM-MAP-NAS-SysInfo
-  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CN_COMMON);
 %(DEFAULT_BODY)s
 
 #.FN_BODY NAS-SystemInformationGSM-MAP VAL_PTR = &nas_sys_info_gsm_map_tvb
@@ -682,7 +684,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
   length = tvb_length(nas_sys_info_gsm_map_tvb);
   if (length) {
-    switch (rrc_nas_sys_info_gsm_map_type) {
+    switch (GPOINTER_TO_UINT(actx->private_data)) {
       case RRC_NAS_SYS_INFO_CN_COMMON:
         item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
         subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
@@ -702,7 +704,6 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         break;
     }
   }
-  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 /*Here we try to figure out which HS-DSCH channels are multiplexed*/
 #.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
@@ -809,7 +810,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
       return offset;
   }
   /*Retrieve the start value for the two ciphering domains*/
-  switch(rrc_nas_sys_info_gsm_map_type){
+  switch(GPOINTER_TO_UINT(actx->private_data)){
     case RRC_NAS_SYS_INFO_CS:
       /*
       g_warning("Not implemented");
@@ -845,8 +846,6 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
             default:
             break;
         }
-        /*is this dangerous?*/
-        rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 #.FN_BODY RB-ActivationTimeInfo
   fp_info       *fpinf;
@@ -887,6 +886,14 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
 #.FN_BODY HandoverToUTRANCommand
+%(DEFAULT_BODY)s
+
+#.FN_BODY UE-SecurityInformation
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_CS);
+%(DEFAULT_BODY)s
+
+#.FN_BODY UE-SecurityInformation2
+  actx->private_data = GUINT_TO_POINTER(RRC_NAS_SYS_INFO_PS);
 %(DEFAULT_BODY)s
 
 #.END
