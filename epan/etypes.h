@@ -26,6 +26,7 @@
 #define __ETYPES_H__
 
 #include "ws_symbol_export.h"
+#include <epan/value_string.h>
 
 /*
  * Maximum length of an IEEE 802.3 frame; Ethernet type/length values
