@@ -603,6 +603,9 @@ UAT_CSTRING_CB_DEF(macro,text,dfilter_macro_t)
 void dfilter_macro_init(void) {
 	static uat_field_t uat_fields[] =  {
 		UAT_FLD_CSTRING_OTHER(macro,name,"Name",macro_name_chk,"The name of the macro."),
+		/* N.B. it would be nice if there was a field type for display filters (with
+		   auto-completion & colouring), but this wouldn't work here as the filter string
+		   will contain $1, etc... */
 		UAT_FLD_CSTRING_ISPRINT(macro,text,"Text","The text this macro resolves to."),
 		UAT_END_FIELDS
 	};
@@ -631,7 +634,7 @@ void dfilter_macro_get_uat(void** p) {
 #ifdef DUMP_DFILTER_MACRO
 /*
  * The dfilter_macro_t has several characteristics that are
- * not immediattly obvious. The dump_dfilter_filter_macro_t()
+ * not immediately obvious. The dump_dfilter_filter_macro_t()
  * function can be used to help "visualize" the contents of
  * a dfilter_macro_t.
  *
