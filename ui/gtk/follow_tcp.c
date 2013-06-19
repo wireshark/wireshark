@@ -109,6 +109,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	tcp_stream_chunk sc;
 	size_t              nchars;
 	gchar           *data_out_filename;
+	char        stream_window_title[256];
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
@@ -198,9 +199,6 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	   same as the previous display filter. */
 	main_filter_packets(&cfile, follow_filter, TRUE);
 
-	/* Free the filter string, as we're done with it. */
-	g_free(follow_filter);
-
 	/* Check whether we got any data written to the file. */
 	if (empty_tcp_stream) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -266,7 +264,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 		hostname1 = get_hostname(ipaddr);
 	}
 
-        follow_info->is_ipv6 = stats.is_ipv6;
+	follow_info->is_ipv6 = stats.is_ipv6;
 
 	port0 = get_tcp_port(stats.port[0]);
 	port1 = get_tcp_port(stats.port[1]);
@@ -304,8 +302,12 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	/* Both Stream Directions */
 	both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", stats.bytes_written[0] + stats.bytes_written[1]);
 
-	follow_stream("Follow TCP Stream", follow_info, both_directions_string,
-		      server_to_client_string, client_to_server_string);
+	g_snprintf(stream_window_title, 256, "Follow TCP Stream (%s)", follow_filter);
+	follow_stream(stream_window_title, follow_info, both_directions_string,
+	              server_to_client_string, client_to_server_string);
+
+	/* Free the filter string, as we're done with it. */
+	g_free(follow_filter);
 
 	g_free(both_directions_string);
 	g_free(server_to_client_string);
