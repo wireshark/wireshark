@@ -77,9 +77,9 @@ struct _BytesView
 	bytes_view_type format;		/* bytes in hex or bytes as bits */
 	guint8 *pd;			/* packet data */
 	int len;			/* length of packet data in bytes */
-/* data-highlight */
-	int start[2];
-	int end[2];
+/* data-highlight (field, appendix, protocol) */
+	int start[3];
+	int end[3];
 
 	int per_line;			/* number of bytes shown per line */
 	int use_digits;			/* number of hex digits of byte offset */
@@ -473,12 +473,12 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 	context = gtk_widget_get_style_context(GTK_WIDGET(bv));
 #endif
 
-	if (bv->state == GTK_STATE_SELECTED) {
+	if (bv->state == GTK_STATE_SELECTED || bv->state == GTK_STATE_INSENSITIVE) {
 		str_width = _pango_runs_width(line_runs);
 
 		/* background */
 #if GTK_CHECK_VERSION(3, 0, 0)
-		gtk_style_context_get_background_color(context, (GtkStateFlags)(GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_SELECTED), &bg_color);
+		gtk_style_context_get_background_color(context, (GtkStateFlags)( (bv->state == GTK_STATE_SELECTED ? GTK_STATE_FLAG_FOCUSED : 0) | GTK_STATE_FLAG_SELECTED), &bg_color);
 		gdk_cairo_set_source_rgba(cr, &bg_color);
 #else
 		gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[bv->state]);
@@ -564,7 +564,7 @@ bytes_view_flush_pos(BytesView *bv, void *data, int x, int search_x, const char 
 static void
 bytes_view_render_state(BytesView *bv, int state)
 {
-	g_assert(state == GTK_STATE_NORMAL || state == GTK_STATE_SELECTED);
+	g_assert(state == GTK_STATE_NORMAL || state == GTK_STATE_SELECTED || state == GTK_STATE_INSENSITIVE);
 
 	if (bv->bold_highlight) {
 		pango_font_description_set_weight(bv->font,
@@ -621,11 +621,19 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 		gboolean byte_highlighted =
 			(off >= bv->start[0] && off < bv->end[0]) ||
 			(off >= bv->start[1] && off < bv->end[1]);
+		gboolean proto_byte_highlighted =
+			(off >= bv->start[2] && off < bv->end[2]);
+
 		int state_cur = (off < len && byte_highlighted) ?
-				GTK_STATE_SELECTED : GTK_STATE_NORMAL;
+				GTK_STATE_SELECTED :
+				(off < len && proto_byte_highlighted) ?
+				GTK_STATE_INSENSITIVE :
+				GTK_STATE_NORMAL;
 
 		if (state_cur != state) {
-			if (state == GTK_STATE_NORMAL && byten) {
+			/* ok, we want to put space, we prefer to put it in STATE_NORMAL, but if it's transition from field-highlight to proto-highlight (common), do it now */
+			/* below shorter version of: ((state != GTK_STATE_NORMAL && state_cur != GTK_STATE_NORMAL) || (state == GTK_STATE_NORMAL)) */
+			if (state_cur != GTK_STATE_NORMAL && byten) {
 				str[cur++] = ' ';
 				/* insert a space every BYTE_VIEW_SEP bytes */
 				if ((off % BYTE_VIEW_SEP) == 0)
@@ -697,11 +705,17 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 		gboolean byte_highlighted =
 			(off >= bv->start[0] && off < bv->end[0]) ||
 			(off >= bv->start[1] && off < bv->end[1]);
+		gboolean proto_byte_highlighted =
+			(off >= bv->start[2] && off < bv->end[2]);
+
 		int state_cur = (off < len && byte_highlighted) ?
-				GTK_STATE_SELECTED : GTK_STATE_NORMAL;
+				GTK_STATE_SELECTED :
+				(off < len && proto_byte_highlighted) ?
+				GTK_STATE_INSENSITIVE :
+				GTK_STATE_NORMAL;
 
 		if (state_cur != state) {
-			if (state == GTK_STATE_NORMAL && byten) {
+			if (state_cur != GTK_STATE_NORMAL && byten) {
 				/* insert a space every BYTE_VIEW_SEP bytes */
 				if ((off % BYTE_VIEW_SEP) == 0)
 					str[cur++] = ' ';
@@ -1442,10 +1456,10 @@ bytes_view_set_highlight(BytesView *bv, int start, int end, guint32 mask _U_, in
 }
 
 void
-bytes_view_set_highlight_appendix(BytesView *bv, int start, int end)
+bytes_view_set_highlight_extra(BytesView *bv, int id, int start, int end)
 {
-	bv->start[1] = start;
-	bv->end[1] = end;
+	bv->start[id] = start;
+	bv->end[id] = end;
 }
 
 void

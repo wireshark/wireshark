@@ -93,6 +93,8 @@
 #define E_BYTE_VIEW_MASKLE_KEY    "byte_view_mask_le"
 #define E_BYTE_VIEW_APP_START_KEY "byte_view_app_start"
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
+#define E_BYTE_VIEW_PROTO_START_KEY "byte_view_proto_start"
+#define E_BYTE_VIEW_PROTO_END_KEY   "byte_view_proto_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
 
 /* Get the current text window for the notebook. */
@@ -807,7 +809,9 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 static void
 packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                   int bend, guint32 bmask, int bmask_le,
-                  int astart, int aend, int encoding)
+                  int astart, int aend,
+                  int pstart, int pend,
+                  int encoding)
 {
 	bytes_view_set_encoding(BYTES_VIEW(bv), encoding);
 	bytes_view_set_format(BYTES_VIEW(bv), recent.gui_bytes_view);
@@ -816,7 +820,8 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	bytes_view_set_highlight_style(BYTES_VIEW(bv), prefs.gui_hex_dump_highlight_style);
 
 	bytes_view_set_highlight(BYTES_VIEW(bv), bstart, bend, bmask, bmask_le);
-	bytes_view_set_highlight_appendix(BYTES_VIEW(bv), astart, aend);
+	bytes_view_set_highlight_extra(BYTES_VIEW(bv), BYTE_VIEW_HIGHLIGHT_APPENDIX, astart, aend);
+	bytes_view_set_highlight_extra(BYTES_VIEW(bv), BYTE_VIEW_HIGHLIGHT_PROTOCOL, pstart, pend);
 
 	if (bstart != -1 && bend != -1)
 		bytes_view_scroll_to_byte(BYTES_VIEW(bv), bstart);
@@ -833,7 +838,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     int bstart = -1, bend = -1, blen = -1;
     guint32 bmask = 0x00; int bmask_le = 0;
     int astart = -1, aend = -1, alen = -1;
-
+    int pstart = -1, pend = -1, plen = -1;
 
     if (finfo != NULL) {
 
@@ -864,6 +869,27 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
         astart = finfo->appendix_start;
         alen = finfo->appendix_length;
 
+        if (finfo->hfinfo->parent != -1) {
+                proto_tree *tree = (proto_tree *)g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TREE_PTR);
+                GPtrArray  *finfo_array;
+                guint i;
+
+                finfo_array = proto_find_finfo(tree, finfo->hfinfo->parent);
+
+                for (i = 0; i < g_ptr_array_len(finfo_array); i++) {
+                        field_info *parent_finfo = (field_info *) finfo_array->pdata[i];
+
+                        if (parent_finfo->ds_tvb == finfo->ds_tvb) {
+                                pstart = parent_finfo->start;
+                                plen = parent_finfo->length;
+                                break;
+                        }
+                }
+
+                g_ptr_array_free(finfo_array, TRUE);
+
+        }
+
         if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN))
             bmask_le = 1;
         else if (FI_GET_FLAG(finfo, FI_BIG_ENDIAN))
@@ -889,12 +915,14 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
         }
     }
 
-    if (bstart >= 0 && blen > 0 && (guint)bstart < len) {
+    if (pstart >= 0 && plen > 0 && (guint)pstart < len)
+        pend = pstart + plen;
+
+    if (bstart >= 0 && blen > 0 && (guint)bstart < len)
         bend = bstart + blen;
-    }
-    if (astart >= 0 && alen > 0 && (guint)astart < len) {
+
+    if (astart >= 0 && alen > 0 && (guint)astart < len)
         aend = astart + alen;
-    }
 
     if (bend == -1 && aend != -1) {
         bstart = astart;
@@ -906,6 +934,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     /* don't exceed the end of available data */
     if (aend != -1 && (guint)aend > len) aend = len;
     if (bend != -1 && (guint)bend > len) bend = len;
+    if (pend != -1 && (guint)pend > len) pend = len;
 
     /* save the information needed to redraw the text */
     /* should we save the fd & finfo pointers instead ?? */
@@ -915,13 +944,15 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_START_KEY, GINT_TO_POINTER(pstart));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_END_KEY, GINT_TO_POINTER(pend));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                       GUINT_TO_POINTER((guint)fd->flags.encoding));
 
     /* stig: it should be done only for bitview... */
     if (recent.gui_bytes_view != BYTES_BITS)
         bmask = 0x00;
-    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
+    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, pstart, pend, fd->flags.encoding);
 }
 
 void
@@ -933,6 +964,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     int bstart = offset, bend = (bstart != -1) ? offset+1 : -1;
     guint32 bmask=0; int bmask_le = 0;
     int astart = -1, aend = -1;
+    int pstart = -1, pend = -1;
 
     switch (recent.gui_bytes_view) {
     case BYTES_HEX:
@@ -957,8 +989,10 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                       GUINT_TO_POINTER((guint)fd->flags.encoding));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_START_KEY, GINT_TO_POINTER(pstart));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_END_KEY, GINT_TO_POINTER(pend));
 
-    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
+    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, pstart, pend, fd->flags.encoding);
 }
 
 /*
@@ -970,6 +1004,7 @@ packet_hex_reprint(GtkWidget *bv)
 {
     int start, end, mask, mask_le, encoding;
     int astart, aend;
+    int pstart, pend;
     const guint8 *data;
     guint len = 0;
 
@@ -979,6 +1014,8 @@ packet_hex_reprint(GtkWidget *bv)
     mask_le = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY));
     astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
     aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));
+    pstart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_START_KEY));
+    pend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_END_KEY));
     data = get_byte_view_data_and_length(bv, &len);
     g_assert(data != NULL);
     encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
@@ -986,7 +1023,7 @@ packet_hex_reprint(GtkWidget *bv)
     /* stig: it should be done only for bitview... */
     if (recent.gui_bytes_view != BYTES_BITS)
         mask = 0x00;
-    packet_hex_update(bv, data, len, start, end, mask, mask_le, astart, aend, encoding);
+    packet_hex_update(bv, data, len, start, end, mask, mask_le, astart, aend, pstart, pend, encoding);
 }
 
 /* List of all protocol tree widgets, so we can globally set the selection

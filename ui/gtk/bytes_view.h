@@ -28,6 +28,9 @@
 #define BYTES_VIEW_TYPE (bytes_view_get_type())
 #define BYTES_VIEW(object)	    (G_TYPE_CHECK_INSTANCE_CAST((object), BYTES_VIEW_TYPE, BytesView))
 
+#define BYTE_VIEW_HIGHLIGHT_APPENDIX 1
+#define BYTE_VIEW_HIGHLIGHT_PROTOCOL 2
+
 typedef struct _BytesView BytesView;
 
 GType bytes_view_get_type(void);
@@ -41,7 +44,7 @@ void bytes_view_set_format(BytesView *bv, int format);
 void bytes_view_set_highlight_style(BytesView *bv, gboolean bold);
 
 void bytes_view_set_highlight(BytesView *bv, int start, int end, guint32 mask, int maskle);
-void bytes_view_set_highlight_appendix(BytesView *bv, int start, int end);
+void bytes_view_set_highlight_extra(BytesView *bv, int id, int start, int end);
 
 void bytes_view_refresh(BytesView *bv);
 int bytes_view_byte_from_xy(BytesView *bv, int x, int y);
