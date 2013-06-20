@@ -123,6 +123,7 @@ void p1_initialize_content_globals (proto_tree *tree, gboolean report_unknown_co
 	top_tree = tree;
 	content_type_id = NULL;
 	report_unknown_content_type = report_unknown_cont_type;
+	address_item = NULL;
 }
 
 char* p1_get_last_oraddress (void) 

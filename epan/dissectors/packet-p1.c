@@ -3984,6 +3984,10 @@ static const ber_sequence_t MTSBindResult_set[] = {
 
 static int
 dissect_p1_MTSBindResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1308 "../../asn1/p1/p1.cnf"
+  /* TODO: there may be other entry points where this global should be initialized... */
+  address_item = NULL;
+
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MTSBindResult_set, hf_index, ett_p1_MTSBindResult);
 
@@ -8303,6 +8307,7 @@ void p1_initialize_content_globals (proto_tree *tree, gboolean report_unknown_co
 	top_tree = tree;
 	content_type_id = NULL;
 	report_unknown_content_type = report_unknown_cont_type;
+	address_item = NULL;
 }
 
 char* p1_get_last_oraddress (void) 
@@ -10698,7 +10703,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 261 "../../asn1/p1/packet-p1-template.c"
+#line 262 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10897,7 +10902,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 274 "../../asn1/p1/packet-p1-template.c"
+#line 275 "../../asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11100,7 +11105,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 320 "../../asn1/p1/packet-p1-template.c"
+#line 321 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

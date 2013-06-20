@@ -1304,5 +1304,8 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   	%(DEFAULT_BODY)s
 	p1_initialize_content_globals(NULL, FALSE);
 
+#.FN_HDR MTSBindResult
+  /* TODO: there may be other entry points where this global should be initialized... */
+  address_item = NULL;
 #.END
 
