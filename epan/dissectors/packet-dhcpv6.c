@@ -952,7 +952,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             } else if (type == 1) {
                 if ((subopt_len % 16) == 0) {
                     for (i = 0; i < subopt_len/16; i++) {
-                        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_NA);
                         suboptoff += 16;
                     }
                 }
@@ -1213,7 +1213,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                        Below, these values are simply displayed as hex.
                     */
                     if (tlv5_cap_len > 2) {
-                            proto_tree_add_item(subtree2, hf_capabilities_encoding_bytes, tvb, tlv5_cap_index, tlv5_cap_len, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(subtree2, hf_capabilities_encoding_bytes, tvb, tlv5_cap_index, tlv5_cap_len, ENC_NA);
                     } else {
                             proto_tree_add_item(subtree2, hf_capabilities_encoding_number, tvb, tlv5_cap_index, tlv5_cap_len, ENC_BIG_ENDIAN);
                     }
