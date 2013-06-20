@@ -863,7 +863,7 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static const ber_sequence_t T_manageDSAITPlaneRef_sequence[] = {
   { &hf_dap_dsaName         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_Name },
-  { &hf_dap_agreementID     , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
+  { &hf_dap_agreementID     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { NULL, 0, 0, 0, NULL }
 };
 
