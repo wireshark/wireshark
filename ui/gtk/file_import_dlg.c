@@ -125,7 +125,7 @@ timefmt_cb_toggle(GtkWidget *widget, gpointer data _U_)
     gtk_widget_set_sensitive(timefmt_te, apply_fmt);
 }
 
-static enum
+enum
 {
     ENCAP_NAME_COLUMN,
     ENCAP_VALUE_COLUMN
