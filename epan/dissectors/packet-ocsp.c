@@ -319,7 +319,7 @@ dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "../../asn1/ocsp/ocsp.cnf"
+#line 43 "../../asn1/ocsp/ocsp.cnf"
   gint8 appclass;
   gboolean pc, ind;
   gint32 tag;
@@ -794,7 +794,7 @@ void proto_register_ocsp(void) {
         "OCTET_STRING", HFILL }},
     { &hf_ocsp_serialNumber,
       { "serialNumber", "ocsp.serialNumber",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_ocsp_responseStatus,
       { "responseStatus", "ocsp.responseStatus",

@@ -1664,6 +1664,7 @@ dissect_ber_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree,
     gint64   val;
     guint32  i;
     gboolean used_too_many_bytes = FALSE;
+    guint8 first;
 #ifdef DEBUG_BER
 {
 const char *name;
@@ -1695,8 +1696,10 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
       len = remaining>0 ? remaining : 0;
     }
 
+    first = tvb_get_guint8(tvb, offset);
     /* we can't handle integers > 64 bits */
-    if (len > 8) {
+    /* take into account the use case of a 64bits unsigned integer: you will have a 9th byte set to 0 */
+    if ((len > 9) || ((len == 9) && (first != 0))) {
         header_field_info *hfinfo;
         proto_item        *pi = NULL;
 
@@ -1718,7 +1721,6 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
     val=0;
     if (len > 0) {
         /* extend sign bit for signed fields */
-        guint8      first = tvb_get_guint8(tvb, offset);
         enum ftenum type  = FT_INT32; /* Default to signed, is this correct? */
         if (hf_id >= 0) {
             type = proto_registrar_get_ftype(hf_id);
@@ -1743,7 +1745,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
 
     if (hf_id >= 0) {
         /*  */
-        if ((len < 1) || (len > 8)) {
+        if ((len < 1) || (len > 9) || ((len == 9) && (first != 0))) {
           proto_item *pi = proto_tree_add_string_format(
               tree, hf_ber_error, tvb, offset-len, len, "invalid length",
               "BER Error: Can't handle integer length: %u",
