@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 
@@ -394,6 +395,7 @@ dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo
     dcerpc_info *di;
     proto_item *sub_item;
     proto_tree *sub_tree;
+    property_guids_t *old_pg = NULL;
 
     guint32    u32TotalSize;
     guint32    u32Res;
@@ -407,16 +409,13 @@ dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo
             hf_sysact_res, &u32Res);
 
     di = (dcerpc_info *)pinfo->private_data;
-    if (di->private_data) {
-        g_free(di->private_data);
-    }
-    di->private_data = g_new(property_guids_t,1);
-    memset(di->private_data, 0, sizeof(property_guids_t));
+    old_pg = (property_guids_t*)di->private_data;
+    di->private_data = wmem_new0(wmem_packet_scope(), property_guids_t);
 
     offset = dissect_dcom_ActivationPropertiesCustomerHdr(tvb, offset, pinfo, sub_tree, drep);
     offset = dissect_dcom_ActivationPropertiesBody(tvb, offset, pinfo, sub_tree, drep);
 
-    g_free(di->private_data);
+    di->private_data = old_pg;
 
     return offset;
 }
