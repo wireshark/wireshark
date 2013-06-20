@@ -61,6 +61,7 @@
 #include <epan/arptypes.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
 #include "packet-dns.h"                         /* for get_dns_name() */
@@ -194,6 +195,11 @@ static int hf_packetcable_cccV6_sec_tcm = -1;
 static int hf_packetcable_cccV6_sec_tcm_provisioning_server = -1;
 static int hf_packetcable_cccV6_sec_tcm_call_manager_server = -1;
 static int hf_cablelabs_opts = -1;
+static int hf_modem_capabilities_encoding_type = -1;
+static int hf_eue_capabilities_encoding_type = -1;
+static int hf_capabilities_encoding_length = -1;
+static int hf_capabilities_encoding_bytes = -1;
+static int hf_capabilities_encoding_number = -1;
 static int hf_cablelabs_ipv6_server = -1;
 
 static gint ett_dhcpv6 = -1;
@@ -202,6 +208,7 @@ static gint ett_dhcpv6_option_vsoption = -1;
 static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
 static gint ett_dhcpv6_netserver_option = -1;
+static gint ett_dhcpv6_tlv5_type = -1;
 
 static expert_field ei_dhcpv6_bogus_length = EI_INIT;
 static expert_field ei_dhcpv6_malformed_option = EI_INIT;
@@ -586,10 +593,112 @@ static const value_string sec_tcm_vals[] = {
     { 0, NULL },
 };
 
+static const value_string modem_capabilities_encoding [] = {
+    { 1,      "Concatenation Support" },
+    { 2,      "DOCSIS Version" },
+    { 3,      "Fragmentation Support" },
+    { 4,      "Payload Header Suppression Support" },
+    { 5,      "IGMP Support" },
+    { 6,      "Privacy Support" },
+    { 7,      "Downstream SAID Support" },
+    { 8,      "Upstream Service Flow Support" },
+    { 9,      "Optional Filtering Support" },
+    { 10,      "Transmit Pre-Equalizer Taps per Modulation Interval" },
+    { 11,      "Number of Transmit Equalizer Taps" },
+    { 12,      "DCC Support" },
+    { 13,      "IP Filters Support" },
+    { 14,      "LLC Filters Support" },
+    { 15,      "Expanded Unicast SID Space" },
+    { 16,      "Ranging Hold-Off Support" },
+    { 17,      "L2VPN Capability" },
+    { 18,      "L2VPN eSAFE Host Capability" },
+    { 19,      "Downstream Unencrypted Traffic (DUT) Filtering" },
+    { 20,      "Upstream Frequency Range Support" },
+    { 21,      "Upstream Symbol Rate Support" },
+    { 22,      "Selectable Active Code Mode 2 Support" },
+    { 23,      "Code Hopping Mode 2 Support" },
+    { 24,      "Multiple Transmit Channel Support" },
+    { 25,      "5.12 Msps UpstreamTransmit Channel Support" },
+    { 26,      "2.56 Msps Upstream Transmit Channel Support" },
+    { 27,      "Total SID Cluster Support" },
+    { 28,      "SID Clusters per Service Flow Support" },
+    { 29,      "Multiple Receive Channel Support" },
+    { 30,      "Total Downstream Service ID (DSID) Support" },
+    { 31,      "Resequencing Downstream Service ID (DSID) Support" },
+    { 32,      "Multicast Downstream Service ID (DSID) Support" },
+    { 33,      "Multicast DSID Forwarding" },
+    { 34,      "Frame Control Type Forwarding Capability" },
+    { 35,      "DPV Capability" },
+    { 36,      "Unsolicited Grant Service/Upstream Service Flow Support" },
+    { 37,      "MAP and UCD Receipt Support" },
+    { 38,      "Upstream Drop Classifier Support" },
+    { 39,      "IPv6 Support" },
+    { 40,      "Extended Upstream Transmit Power Capability" },
+    { 41,      "Optional 802.1ad, 802.1ah, MPLS Classification Support" },
+    { 42,      "D-ONU Capabilities Encoding" },
+    { 43,      "TBD" },
+    { 44,      "Energy Management Capabilities" },
+    { 0, NULL },
+};
+
+static const value_string eue_capabilities_encoding [] = {
+    { 1,       "PacketCable Version" },
+    { 2,       "Number Of Telephony Endpoints" },
+    { 3,       "TGT Support" },
+    { 4,       "HTTP Download File Access Method Support" },
+    { 5,       "MTA-24 Event SYSLOG Notification Support" },
+    { 6,       "NCS Service Flow Support" },
+    { 7,       "Primary Line Support" },
+    { 8,       "Vendor Specific TLV Type(s)" },
+    { 9,       "NVRAM Ticket/Ticket Information Storage Support" },
+    { 10,      "Provisioning Event Reporting Support" },
+    { 11,      "Supported CODEC(s)" },
+    { 12,      "Silence Suppression Support" },
+    { 13,      "Echo Cancellation Support" },
+    { 14,      "RSVP Support" },
+    { 15,      "UGS-AD Support" },
+    { 16,      "MTA's \"ifIndex\" starting number in \"ifTable\"" },
+    { 17,      "Provisioning Flow Logging Support" },
+    { 18,      "Supported Provisioning Flows" },
+    { 19,      "T38 Version Support" },
+    { 20,      "T38 Error Correction Support" },
+    { 21,      "RFC2833 DTMF Support" },
+    { 22,      "Voice Metrics Support" },
+    { 23,      "Device MIB Support" },
+    { 24,      "Multiple Grants Per Interval Support" },
+    { 25,      "V.152 Support" },
+    { 26,      "Certificate Bootstrapping Support" },
+    { 38,      "IP Address Provisioning Capability" },
+    { 0, NULL },
+};
+
 /* May be called recursively */
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                gboolean downstream, int off, int eoff);
+
+static gint
+swap_field_length_with_char(tvbuff_t* tvb, wmem_strbuf_t* strbuf, gint offset, gint subopt_len, gchar replacement)
+{
+    gint len_cnt = 0;
+    gint next_length = 0;
+
+    while (len_cnt < subopt_len) {
+        next_length = tvb_get_guint8(tvb, offset);
+        offset++;
+        len_cnt++;
+
+        wmem_strbuf_append(strbuf, tvb_get_ephemeral_string(tvb, offset, next_length));
+        len_cnt += next_length;
+
+        /* Do not append replacement character to end of string. */
+        if (len_cnt+2 < subopt_len) {
+            wmem_strbuf_append_c(strbuf, replacement);
+        }
+        offset += next_length;
+    }
+    return len_cnt;
+}
 
 static int
 dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_info *pinfo, tvbuff_t *tvb, int optoff,
@@ -607,7 +716,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
     guint8 kr_value;      /* The integer value of the character currently being tested */
     int kr_fail_flag = 0; /* Flag indicating an invalid character was found */
     int kr_pos = 0;       /* The position of the first invalid character */
-    int i = 0;
+    gint i = 0;
 
     subopt = tvb_get_ntohs(tvb, optoff);
     suboptoff += 2;
@@ -622,7 +731,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
     }
     /* g_print("dissect packetcable ccc option subopt_len=%d optend=%d\n\n", subopt_len, optend); */
 
-    vti = proto_tree_add_item(v_tree, hf_packetcable_ccc_suboption, tvb, optoff, subopt_len + 4, ENC_BIG_ENDIAN);
+    vti = proto_tree_add_item(v_tree, hf_packetcable_ccc_suboption, tvb, optoff, 2, ENC_BIG_ENDIAN);
     pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
 
     switch (subopt) {
@@ -669,7 +778,6 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         }
         suboptoff += subopt_len;
         break;
-
     case PKT_CCC_IETF_AS_KRB :
         if (subopt_len == 12) {
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_as_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
@@ -731,7 +839,6 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         }
         suboptoff += subopt_len;
         break;
-
     case PKT_CCC_TGT_FLAG:
         if (subopt_len == 1) {
             proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_tgt_flag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -742,7 +849,6 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         }
         suboptoff += subopt_len;
         break;
-
     case PKT_CCC_PROV_TIMER:
         if (subopt_len == 1) {
             ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -754,7 +860,6 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         }
         suboptoff += subopt_len;
         break;
-
     case PKT_CCC_IETF_SEC_TKT :
         proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
         if (subopt_len == 2) {
@@ -765,8 +870,6 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         }
         suboptoff += subopt_len;
         break;
-
-
     default:
         suboptoff += subopt_len;
         break;
@@ -786,7 +889,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
     guint8 type;
     proto_item *vti, *ti;
     proto_tree *pkt_s_tree;
-    guchar kr_name;         /* A character in the kerberos realm name option */
+    /* guchar kr_name; */        /* A character in the kerberos realm name option */
     guint8 kr_value;        /* The integer value of the character currently being tested */
     int kr_fail_flag = 0;   /* Flag indicating an invalid character was found */
     int kr_pos = 0;         /* The position of the first invalid character */
@@ -804,7 +907,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
         return (optend);
     }
 
-    vti = proto_tree_add_item(v_tree, hf_packetcable_cccV6_suboption, tvb, optoff, subopt_len + 4, ENC_BIG_ENDIAN);
+    vti = proto_tree_add_item(v_tree, hf_packetcable_cccV6_suboption, tvb, optoff, 2, ENC_BIG_ENDIAN);
     pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
 
     switch (subopt) {
@@ -824,18 +927,32 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_IETF_PROV_SRV:
             proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
             type = tvb_get_guint8(tvb, suboptoff);
+
             /** Type 0 is FQDN **/
             if (type == 0) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_fqdn, tvb, suboptoff+1, subopt_len-1, ENC_ASCII|ENC_NA);
+
+                gint len_cnt;
+                wmem_strbuf_t* strbuf = NULL;
+                strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+
+                len_cnt = swap_field_length_with_char(tvb, strbuf, suboptoff+1, subopt_len, '.');
+
+                if (len_cnt < 1) {
+                    proto_tree_add_string(pkt_s_tree, hf_packetcable_cccV6_prov_srv_fqdn, tvb, suboptoff+2, 28,
+                                          "Packet does not contain FQDN");
+                } else {
+                    proto_tree_add_string(pkt_s_tree, hf_packetcable_cccV6_prov_srv_fqdn, tvb,
+                                          suboptoff+2, subopt_len-3, wmem_strbuf_get_str(strbuf));
+                }
+
             /** Type 1 is IPv6 **/
             } else if (type == 1) {
                 if ((subopt_len % 16) == 0) {
                     for (i = 0; i < subopt_len/16; i++) {
-                        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_NA);
+                        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_BIG_ENDIAN);
                         suboptoff += 16;
                     }
                 }
@@ -845,7 +962,6 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_IETF_AS_KRB:
             if (subopt_len == 12) {
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
@@ -856,7 +972,6 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_IETF_AP_KRB:
             if (subopt_len == 12) {
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
@@ -867,33 +982,45 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_KRB_REALM:
             if (subopt_len > 0) {
-                for (i=0; i < subopt_len; i++) {
-                    kr_name = tvb_get_guint8(tvb, suboptoff + i);
-                    kr_value = (int)kr_name;
-                    if ((kr_value >= 65 && kr_value <= 90) ||
-                        kr_value == 34 ||
-                        kr_value == 44 ||
-                        kr_value == 46 ||
-                        kr_value == 47 ||
-                        kr_value == 58 ||
-                        kr_value == 61 ||
-                        kr_value == 92) {
+                gint cnt;
+                gint len_cnt;
+                proto_item* pi_tmp = NULL;
+                wmem_strbuf_t* strbuf = NULL;
+                strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+
+                len_cnt = swap_field_length_with_char(tvb, strbuf, suboptoff, subopt_len, '.');
+
+                if (len_cnt < 1) {
+                    proto_tree_add_string(pkt_s_tree, hf_packetcable_cccV6_prov_srv_fqdn, tvb, suboptoff+2, 34,
+                                          "Packet does not contain KRB Realm");
+                } else {
+                    pi_tmp = proto_tree_add_string(pkt_s_tree, hf_packetcable_cccV6_krb_realm, tvb,
+                                                   suboptoff+1, subopt_len-2, wmem_strbuf_get_str(strbuf));
+                }
+
+                /* Validate KRB Realm name encoding (sort of) and syntax per RFCs 3495, 1510, and 1035 */
+                for (cnt=0; cnt < len_cnt-2; cnt++) {
+                    kr_value = (int) wmem_strbuf_get_str(strbuf)[cnt];
+                    if ((kr_value >= 65 && kr_value <= 90)
+                        || kr_value == 34
+                        || kr_value == 44
+                        || kr_value == 46
+                        || kr_value == 47
+                        || kr_value == 58
+                        || kr_value == 61
+                        || kr_value == 92) {
                     } else if (!kr_fail_flag) {
-                        kr_pos = i;
+                        kr_pos = cnt;
                         kr_fail_flag = 1;
                     }
                 }
-
-                ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_krb_realm, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
                 if (kr_fail_flag)
-                    expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_invalid_byte, "Invalid at byte=%d", kr_pos);
+                    expert_add_info_format_text(pinfo, pi_tmp, &ei_dhcpv6_invalid_byte, "Invalid at byte=%d", kr_pos);
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_TGT_FLAG:
             if (subopt_len == 1) {
                 proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_tgt_flag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -904,7 +1031,6 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_PROV_TIMER:
             if (subopt_len == 1) {
                 ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
@@ -916,7 +1042,6 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         case PKT_CCCV6_IETF_SEC_TKT:
             proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
             if (subopt_len == 2) {
@@ -927,12 +1052,10 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
             }
             suboptoff += subopt_len;
             break;
-
         default:
             suboptoff += subopt_len;
             break;
     }
-
     /** Return the number of bytes processed **/
     return (suboptoff - optoff);
 }
@@ -945,12 +1068,18 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
             opt_len, /* holds the length of the suboption */
             sub_value;
     proto_item *ti;
+    proto_item *ti2;
     proto_tree *subtree;
+    proto_tree *subtree2;
+    gint tlv5_cap_index,
+         tlv5_counter,
+         tlv5_cap_len;
     int off = voff,
         sub_off, /** The offset for the sub-option */
-        i, 
+        i,
         field_len, /* holds the length of one occurrence of a field */
         field_value;
+    gchar* device_type = NULL;
 
     if (len > 4) {
         while (off - voff < len) {
@@ -967,6 +1096,17 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
             switch(type) {
                 /* String types */
             case CL_OPTION_DEVICE_TYPE :
+                opt_len = tlv_len;
+                field_len = tlv_len;
+
+                device_type = tvb_get_ephemeral_string(tvb, sub_off, field_len);
+
+                if (g_strv_length(&device_type) == 0 || device_type == NULL) {
+                    proto_item_append_text(ti, "Packet does not contain Device Type.");
+                } else {
+                    proto_item_append_text(ti, "\"%s\"", device_type);
+                }
+                break;
             case CL_OPTION_DEVICE_SERIAL_NUMBER :
             case CL_OPTION_HARDWARE_VERSION_NUMBER :
             case CL_OPTION_SOFTWARE_VERSION_NUMBER :
@@ -980,7 +1120,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 proto_item_append_text(ti, "\"%s\"",
                                        tvb_format_stringzpad(tvb, sub_off, field_len));
                 break;
-
             case CL_OPTION_VENDOR_OUI :
                 /* CableLabs specs treat 17.8 inconsistently
                  * as either binary (3b) or string (6b) */
@@ -994,7 +1133,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bogus_length, "Suboption %d: suboption length isn't 3 or 6", type);
                 }
                 break;
-
             case CL_OPTION_ORO :
                 field_len = 2;
                 opt_len = tlv_len;
@@ -1006,7 +1144,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     }
                 }
                 break;
-
                 /* List of IPv6 Address */
             case CL_OPTION_TFTP_SERVERS :
             case CL_OPTION_SYSLOG_SERVERS :
@@ -1017,12 +1154,12 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
 
                 if ((tlv_len % field_len) == 0) {
                     for (i = 0; i < tlv_len/field_len; i++) {
-                        proto_tree_add_item(subtree, hf_cablelabs_ipv6_server, tvb, sub_off, 16, ENC_NA);
+                        ti = proto_tree_add_item(subtree, hf_cablelabs_ipv6_server, tvb, sub_off, 16, ENC_NA);
+                        proto_item_prepend_text(ti, " %d ", i + 1);
                         sub_off += field_len;
                     }
                 }
                 break;
-
             case CL_OPTION_DEVICE_ID :
                 opt_len = tlv_len;
                 field_len = tlv_len;
@@ -1034,19 +1171,61 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                                            tvb_bytes_to_str(tvb, sub_off, field_len));
                 }
                 break;
-
             case CL_OPTION_TLV5 :
                 opt_len = tlv_len;
-                field_len = tlv_len;
-                proto_item_append_text(ti, "%s",
-                                       tvb_bytes_to_str(tvb, sub_off, field_len));
-                break;
 
+                if (device_type == NULL)
+                    break;
+
+                tlv5_counter = 0;
+                tlv5_cap_index = sub_off;
+                tlv5_cap_len = 0;
+
+                subtree = proto_item_add_subtree(ti, ett_dhcpv6_tlv5_type);
+
+                while (tlv5_counter < tlv_len) {
+
+                    if (!g_ascii_strncasecmp(device_type, "ecm", 3)) {
+                        ti2 = proto_tree_add_item(subtree, hf_modem_capabilities_encoding_type, tvb, tlv5_cap_index, 1, ENC_BIG_ENDIAN);
+                    } else if (!g_ascii_strncasecmp(device_type, "edva", 3)) {
+                        ti2 = proto_tree_add_item(subtree, hf_eue_capabilities_encoding_type, tvb, tlv5_cap_index, 1, ENC_BIG_ENDIAN);
+                    } else {
+                        break;
+                    }
+
+                    tlv5_cap_index++;
+                    tlv5_counter++;
+
+                    /* Why make another subtree (subtree2) below?
+                       The addition of a subtree is not needed for the display.
+                       However, when parsing the PDML, each Type 'contains' it's Length and Value.
+                    */
+                    subtree2 = proto_item_add_subtree(ti2, ett_dhcpv6_tlv5_type);
+
+                    proto_tree_add_item(subtree2, hf_capabilities_encoding_length, tvb, tlv5_cap_index, 1, ENC_BIG_ENDIAN);
+                    tlv5_cap_len = (guint8) tvb_get_guint8(tvb, tlv5_cap_index);
+
+                    tlv5_cap_index++;
+                    tlv5_counter += tlv5_cap_len;
+
+                    /* In cases where the TLV length is greater than 2, the value fields should be displayed
+                       according to the encoding of the values as described in the CL-SP-CANN-DHCP-Reg specification.
+                       Below, these values are simply displayed as hex.
+                    */
+                    if (tlv5_cap_len > 2) {
+                            proto_tree_add_item(subtree2, hf_capabilities_encoding_bytes, tvb, tlv5_cap_index, tlv5_cap_len, ENC_BIG_ENDIAN);
+                    } else {
+                            proto_tree_add_item(subtree2, hf_capabilities_encoding_number, tvb, tlv5_cap_index, tlv5_cap_len, ENC_BIG_ENDIAN);
+                    }
+
+                    tlv5_cap_index += tlv5_cap_len;
+                    tlv5_counter++;
+                }
+                break;
             case CL_OPTION_TIME_OFFSET :
                 opt_len = tlv_len;
                 proto_item_append_text(ti, "%d", tvb_get_ntohl(tvb, sub_off));
                 break;
-
             case CL_OPTION_IP_PREF :
                 opt_len = tlv_len;
                 field_value = tvb_get_guint8(tvb, sub_off);
@@ -1054,11 +1233,12 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     proto_item_append_text(ti, "%s", "IPv4");
                 } else if (field_value == 2) {
                     proto_item_append_text(ti, "%s", "IPv6");
+                } else if (field_value == 6) {
+                    proto_item_append_text(ti, "%s", "Dual Stack");
                 } else {
-                    proto_item_append_text(ti, "%s", "Unknown");
+                    proto_item_append_text(ti, "%s%d", "Invalid IP Preference value ", field_value);
                 }
                 break;
-
             case CL_OPTION_DOCS_CMTS_CAP :
                 opt_len = tlv_len;
                 field_len = 0;
@@ -1095,7 +1275,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 else
                     proto_tree_add_text(subtree, tvb, sub_off, 0, "empty");
                 break;
-
             case CL_CM_MAC_ADDR :
                 opt_len = tlv_len;
                 if (tlv_len != 6) {
@@ -1107,13 +1286,11 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     /* tvb_bytes_to_str(tvb, sub_off, opt_len)); */
                 }
                 break;
-
             case CL_EROUTER_CONTAINER_OPTION :
                 opt_len = tlv_len;
                 proto_item_append_text(ti, " %s (len=%d)",
                                        tvb_bytes_to_str(tvb, sub_off, opt_len), tlv_len);
                 break;
-
             case CL_OPTION_CCC :
                 opt_len = tlv_len;
                 field_len = 0;
@@ -1126,7 +1303,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     field_len += sub_value;
                 }
                 break;
-
             case CL_OPTION_CCCV6 :
                 opt_len = tlv_len;
                 field_len = 0;
@@ -1139,7 +1315,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     field_len += sub_value;
                 }
                 break;
-
             case CL_OPTION_CORRELATION_ID :
                 opt_len = tlv_len;
                  if (tlv_len != 4) {
@@ -1147,10 +1322,9 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                                            tlv_len);
                 }
                 else {
-                    proto_item_append_text(ti, "%d", tvb_get_ntohl(tvb, sub_off));
+                    proto_item_append_text(ti, "%u", tvb_get_ntohl(tvb, sub_off));
                 }
                 break;
-
             default:
                 opt_len = tlv_len;
                 break;
@@ -1279,7 +1453,6 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             expert_add_info_format_text(pinfo, option_item, &ei_dhcpv6_malformed_option, "DUID: malformed option");
             break;
         }
-
         proto_tree_add_item(subtree, hf_duid_bytes, tvb, off, optlen, ENC_NA);
         duidtype = tvb_get_ntohs(tvb, off);
         proto_tree_add_item(subtree, hf_duid_type, tvb, off, 2, ENC_BIG_ENDIAN);
@@ -1359,7 +1532,6 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
             temp_optlen += subopt_len;
         }
-
         break;
     case OPTION_IA_NA:
     case OPTION_IA_PD:
@@ -1605,14 +1777,16 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
 
-        for (i = 0; i < optlen; i += 16)
-            proto_tree_add_item(subtree, hf_dns_servers, tvb, off + i, 16, ENC_NA);
+        for (i = 0; i < optlen; i += 16) {
+            ti = proto_tree_add_item(subtree, hf_dns_servers, tvb, off + i, 16, ENC_NA);
+            proto_item_prepend_text(ti, " %d ", i/16 + 1);
+        }
         break;
     case OPTION_DOMAIN_LIST:
         if (optlen > 0) {
             ti = proto_tree_add_text(subtree, tvb, off, optlen, "DNS Domain Search List");
             dhcpv6_domain(subtree, ti, pinfo, tvb, off, optlen);
-        }        
+        }
         break;
     case OPTION_NIS_SERVERS:
         if (optlen % 16) {
@@ -1634,13 +1808,13 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         if (optlen > 0) {
             ti = proto_tree_add_text(subtree, tvb, off, optlen, "nis-domain-name");
             dhcpv6_domain(subtree, ti, pinfo, tvb, off, optlen);
-        }        
+        }
         break;
     case OPTION_NISP_DOMAIN_NAME:
         if (optlen > 0) {
             ti = proto_tree_add_text(subtree, tvb, off, optlen, "nisp-domain-name");
             dhcpv6_domain(subtree, ti, pinfo, tvb, off, optlen);
-        }        
+        }
         break;
     case OPTION_SNTP_SERVERS:
         if (optlen % 16) {
@@ -1648,7 +1822,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         for (i = 0; i < optlen; i += 16)
-            proto_tree_add_item(subtree, hf_sntp_servers, tvb, off + i, 16, ENC_NA);
+            ti = proto_tree_add_item(subtree, hf_sntp_servers, tvb, off + i, 16, ENC_NA);
+            proto_item_prepend_text(ti, " %d ", i/16 + 1);
         break;
     case OPTION_LIFETIME:
         if (optlen != 4) {
@@ -1661,7 +1836,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         if (optlen > 0) {
             ti = proto_tree_add_text(subtree, tvb, off, optlen, "BCMCS Servers Domain Search List");
             dhcpv6_domain(subtree, ti, pinfo, tvb, off, optlen);
-        }        
+        }
         break;
     case OPTION_BCMCS_SERVER_A:
         if (optlen % 16) {
@@ -1966,7 +2141,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         (msg_type != LEASEQUERY_REPLY) &&
         (msg_type != LEASEQUERY_DONE) &&
         (msg_type != LEASEQUERY_DATA))
-        expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bulk_leasequery_bad_msg_type, 
+        expert_add_info_format_text(pinfo, ti, &ei_dhcpv6_bulk_leasequery_bad_msg_type,
             "Message Type %d not allowed by DHCPv6 Bulk Leasequery", msg_type);
 
     offset++;
@@ -1991,7 +2166,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, dhcpv6_bulk_leasequery_desegment, 2, 
+    tcp_dissect_pdus(tvb, pinfo, tree, dhcpv6_bulk_leasequery_desegment, 2,
                     get_dhcpv6_bulk_leasequery_pdu_len, dissect_dhcpv6_bulk_leasequery_pdu);
 }
 
@@ -2211,10 +2386,20 @@ proto_register_dhcpv6(void)
           { "Call Manager Servers", "dhcpv6.packetcable.ccc.tgt_flag.call_manager_server", FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x02, NULL, HFILL }},
         { &hf_packetcable_cccV6_suboption,
           { "Sub element", "dhcpv6.packetcable.cccV6.suboption", FT_UINT16, BASE_DEC, VALS(pkt_cccV6_opt_vals), 0, NULL, HFILL }},
+        { &hf_modem_capabilities_encoding_type,
+          { "Type", "dhcpv6.docsis.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC, VALS(modem_capabilities_encoding), 0, NULL, HFILL }},
+        { &hf_eue_capabilities_encoding_type,
+          { "Type", "dhcpv6.packetcable.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC, VALS(eue_capabilities_encoding), 0, NULL, HFILL }},
+        { &hf_capabilities_encoding_length,
+          { "Length", "dhcpv6.cccV6.tlv5.suboption.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_capabilities_encoding_bytes,
+          { "Value", "dhcpv6.cccV6.tlv5.suboption.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_capabilities_encoding_number,
+          { "Value", "dhcpv6.cccV6.tlv5.suboption.value", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_pri_dss,
-          { "Primary DHCP", "dhcpv6.packetcable.cccV6.pri_dss", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
+          { "Primary SSID", "dhcpv6.packetcable.cccV6.pri_dss", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_sec_dss,
-          { "Secondary DHCP", "dhcpv6.packetcable.cccV6.sec_dss", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
+          { "Secondary SSID", "dhcpv6.packetcable.cccV6.sec_dss", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_prov_srv_type,
           { "Type", "dhcpv6.packetcable.cccV6.prov_srv.type", FT_UINT8, BASE_DEC, VALS(pkt_cccV6_prov_srv_type_vals), 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_prov_srv_fqdn,
@@ -2234,7 +2419,7 @@ proto_register_dhcpv6(void)
         { &hf_packetcable_cccV6_ap_krb_max_retry_count,
           { "Maximum Retry Count", "dhcpv6.packetcable.cccV6.ap_krb.max_retry_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_krb_realm,
-          { "KRB Realm", "dhcpv6.packetcable.cccV6.krb_realm", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+          { "KRB Realm", "dhcpv6.packetcable.cccV6.krb_realm", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_tgt_flag,
           { "TGT Flags", "dhcpv6.packetcable.cccV6.tgt_flag", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_tgt_flag_fetch,
@@ -2259,7 +2444,8 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_option_vsoption,
         &ett_dhcpv6_vendor_option,
         &ett_dhcpv6_pkt_option,
-        &ett_dhcpv6_netserver_option
+        &ett_dhcpv6_netserver_option,
+        &ett_dhcpv6_tlv5_type
     };
 
     static ei_register_info ei[] = {
