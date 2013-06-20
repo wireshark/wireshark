@@ -742,50 +742,50 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Display the FCF */
     if ( tree ) {
         /* Create the subtree */
-        ti = proto_tree_add_text(zcl_tree, tvb, offset, sizeof(guint8),
+        ti = proto_tree_add_text(zcl_tree, tvb, offset, 1,
                     "Frame Control Field: %s (0x%02x)",
                     val_to_str_const(packet.frame_type, zbee_zcl_frame_types, "Unknown"), fcf);
         sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_fcf);
 
         /* Add the frame type */
-        proto_tree_add_uint(sub_tree, hf_zbee_zcl_fcf_frame_type, tvb, offset, sizeof(guint8),
+        proto_tree_add_uint(sub_tree, hf_zbee_zcl_fcf_frame_type, tvb, offset, 1,
             fcf & ZBEE_ZCL_FCF_FRAME_TYPE);
 
         /* Add the manufacturer specific, direction, and disable default response flags */
         proto_tree_add_boolean(sub_tree, hf_zbee_zcl_fcf_mfr_spec, tvb, offset,
-                        sizeof(guint8), fcf & ZBEE_ZCL_FCF_MFR_SPEC);
+                        1, fcf & ZBEE_ZCL_FCF_MFR_SPEC);
 
-        proto_tree_add_boolean(sub_tree, hf_zbee_zcl_fcf_dir, tvb, offset, sizeof(guint8),
+        proto_tree_add_boolean(sub_tree, hf_zbee_zcl_fcf_dir, tvb, offset, 1,
             fcf & ZBEE_ZCL_FCF_DIRECTION);
 
         proto_tree_add_boolean(sub_tree, hf_zbee_zcl_fcf_disable_default_resp, tvb, offset,
-                        sizeof(guint8), fcf & ZBEE_ZCL_FCF_DISABLE_DEFAULT_RESP);
+                        1, fcf & ZBEE_ZCL_FCF_DISABLE_DEFAULT_RESP);
     }
-    offset += (int)sizeof(guint8);
+    offset += (int)1;
 
     /* If the manufacturer code is present, get and display it. */
     if (packet.mfr_spec) {
         packet.mfr_code = tvb_get_letohs(tvb, offset);
 
         if ( tree ) {
-            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_mfr_code, tvb, offset, (int)sizeof(guint16),
+            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_mfr_code, tvb, offset, (int)2,
                             packet.mfr_code);
 
             proto_item_append_text(proto_root, ", Mfr: %s (0x%04x)",
                             val_to_str_ext_const(packet.mfr_code, &zbee_mfr_code_names_ext, "Unknown"),
                             packet.mfr_code);
         }
-        offset += (int)sizeof(guint16);
+        offset += (int)2;
     }
 
     /* Add the transaction sequence number to the tree */
     packet.tran_seqno = tvb_get_guint8(tvb, offset);
 
     if ( zcl_tree ) {
-        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_tran_seqno, tvb, offset, (int)sizeof(guint8),
+        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_tran_seqno, tvb, offset, (int)1,
             packet.tran_seqno);
     }
-    offset += (int)sizeof(guint8);
+    offset += (int)1;
 
     /* Display the command and sequence number on the proto root and info column. */
     packet.cmd_id = tvb_get_guint8(tvb, offset);
@@ -808,10 +808,10 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             packet.tran_seqno);
         
         if ( zcl_tree ) {
-            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cmd_id, tvb, offset, (int)sizeof(guint8),
+            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cmd_id, tvb, offset, (int)1,
                             packet.cmd_id);
         }
-        offset += (int)sizeof(guint8);
+        offset += (int)1;
     } 
     else {
         /* Cluster Specific */
@@ -829,9 +829,9 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             col_append_fstr(pinfo->cinfo, COL_INFO, "Command: 0x%02x, Seq: %u",
                 packet.cmd_id, packet.tran_seqno);
 
-            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, (int)sizeof(guint8),
+            proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cs_cmd_id, tvb, offset, (int)1,
                             packet.cmd_id);
-            offset += (int)sizeof(guint8);
+            offset += (int)1;
 
             /* Don't decode cluster-specific commands */
             zcl_dump_data(tvb, offset, pinfo, zcl_tree);
@@ -1303,8 +1303,8 @@ static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* Dissect the command identifier */
     cmd_id = tvb_get_guint8(tvb, *offset);
 
-    proto_tree_add_uint(tree, hf_zbee_zcl_cmd_id, tvb, *offset, (int)sizeof(guint8), cmd_id);
-    *offset += (int)sizeof(guint8);
+    proto_tree_add_uint(tree, hf_zbee_zcl_cmd_id, tvb, *offset, (int)1, cmd_id);
+    *offset += (int)1;
 
     /* Dissect the status */
     dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_status);
@@ -1413,11 +1413,11 @@ static void dissect_zcl_attr_id(tvbuff_t *tvb, proto_tree *tree, guint *offset)
                             hf_zbee_zcl_attr_id, 
                             tvb, 
                             *offset, 
-                            (int)sizeof(guint16),
+                            (int)2,
                             attr_id);
     }
 
-    *offset += (int)sizeof(guint16);
+    *offset += (int)2;
 
     return;
 } /* dissect_zcl_attr_id */
@@ -1529,9 +1529,9 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             proto_item_append_text(tree, ", %s: %u",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint8, tvb, *offset, (int)sizeof(guint8),
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint8, tvb, *offset, (int)1,
                         attr_uint);
-            *offset += (int)sizeof(guint8);
+            *offset += (int)1;
             break;
 
         case ZBEE_ZCL_8_BIT_INT:
@@ -1557,7 +1557,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             proto_tree_add_item(tree, hf_zbee_zcl_attr_boolean, tvb, *offset, 1, ENC_BIG_ENDIAN);
 
-            *offset += (int)sizeof(guint8);
+            *offset += (int)1;
             break;
 
         case ZBEE_ZCL_16_BIT_DATA:
@@ -1574,10 +1574,10 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             proto_item_append_text(tree, ", %s: %u",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint16, tvb, *offset, (int)sizeof(guint16),
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint16, tvb, *offset, (int)2,
                         attr_uint);
 
-            *offset += (int)sizeof(guint16);
+            *offset += (int)2;
             break;
 
         case ZBEE_ZCL_16_BIT_INT:
@@ -1746,10 +1746,10 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_STR_LENGTH) attr_uint = 0;
 
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)sizeof(guint8),
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)1,
                         attr_uint);
 
-            *offset += (int)sizeof(guint8);
+            *offset += (int)1;
 
             attr_string = tvb_bytes_to_str_punct(tvb, *offset, attr_uint, ':');
             proto_item_append_text(tree, ", Octets: %s", attr_string);
@@ -1765,10 +1765,10 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_STR_LENGTH) attr_uint = 0;
 
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)sizeof(guint8),
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)1,
                         attr_uint);
 
-            *offset += (int)sizeof(guint8);
+            *offset += (int)1;
 
             attr_string = tvb_get_ephemeral_string(tvb, *offset, attr_uint);
 
@@ -1783,9 +1783,9 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             /* Display long octet string */
             attr_uint = tvb_get_letohs(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_LONG_STR_LENGTH) attr_uint = 0;
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)sizeof(guint16), attr_uint);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)2, attr_uint);
 
-            *offset += (int)sizeof(guint16);
+            *offset += (int)2;
 
             attr_string = tvb_bytes_to_str_punct(tvb, *offset, attr_uint, ':');
             proto_item_append_text(tree, ", Octets: %s", attr_string);
@@ -1800,9 +1800,9 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             attr_uint = tvb_get_letohs(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_LONG_STR_LENGTH) attr_uint = 0;
 
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)sizeof(guint16), attr_uint);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, (int)2, attr_uint);
 
-            *offset += (int)sizeof(guint16);
+            *offset += (int)2;
 
             attr_string = tvb_get_ephemeral_string(tvb, *offset, attr_uint);
             proto_item_append_text(tree, ", String: %s", attr_string);
@@ -1814,12 +1814,12 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
         case ZBEE_ZCL_ARRAY:
             /* BYTE 0 - Elements type */
             elements_type = tvb_get_guint8(tvb, *offset);
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_array_elements_type, tvb, *offset, (int)sizeof(guint8), elements_type);
-            *offset += (int)sizeof(guint8);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_array_elements_type, tvb, *offset, (int)1, elements_type);
+            *offset += (int)1;
             /* BYTE 1-2 - Element number */
             elements_num = tvb_get_letohs(tvb, *offset);
-            proto_tree_add_uint(tree, hf_zbee_zcl_attr_array_elements_num, tvb, *offset, (int)sizeof(guint16), elements_num);
-            *offset += (int)sizeof(guint16);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_array_elements_num, tvb, *offset, (int)2, elements_num);
+            *offset += (int)2;
             /* BYTE ... - Elements */
             dissect_zcl_array_type(tvb, tree, offset, elements_type, elements_num);
             break;
@@ -1960,7 +1960,7 @@ static guint dissect_zcl_attr_uint8(tvbuff_t *tvb, proto_tree *tree, guint *offs
     guint attr_uint;
 
     attr_uint = tvb_get_guint8(tvb, *offset);
-    proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)sizeof(guint8), attr_uint);
+    proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)1, attr_uint);
     (*offset)++;
 
     return attr_uint;
@@ -1985,8 +1985,8 @@ static guint dissect_zcl_attr_uint16(tvbuff_t *tvb, proto_tree *tree, guint *off
     guint attr_uint;
 
     attr_uint = tvb_get_letohs(tvb, *offset);
-    proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)sizeof(guint16), attr_uint);
-    *offset += (int)sizeof(guint16);
+    proto_tree_add_uint(tree, *hf_zbee_zcl, tvb, *offset, (int)2, attr_uint);
+    *offset += (int)2;
 
     return attr_uint;
 } /* dissect_zcl_attr_uint16 */
@@ -2104,7 +2104,7 @@ static guint64 tvb_get_letohi(tvbuff_t *tvb, guint offset, guint length, gboolea
     /* build big int of length bytes */
     while ( length-- ) {
         result += (guint64)tvb_get_guint8(tvb, offset) << shift;
-        offset += (int)sizeof(guint8);
+        offset += (int)1;
         shift += 8;
     }
 
@@ -2118,6 +2118,23 @@ static guint64 tvb_get_letohi(tvbuff_t *tvb, guint offset, guint length, gboolea
 
     return result;
 } /* tvb_get_letohi */
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_zcl_time_in_seconds
+ *  DESCRIPTION
+ *    this function decodes second time type variable
+ *  PARAMETERS
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+void decode_zcl_time_in_seconds(gchar *s, guint16 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", value);
+    return;
+} /* decode_zcl_time_in_seconds*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2408,7 +2425,7 @@ zbee_zcl_init_cluster(int proto, gint ett, guint16 cluster_id, zbee_zcl_fn_attr_
 {
     zbee_zcl_cluster_desc *cluster_desc;
     cluster_desc  = g_new(zbee_zcl_cluster_desc, 1);
-    
+
     cluster_desc->proto = find_protocol_by_id(proto);
     cluster_desc->name = proto_get_protocol_short_name(cluster_desc->proto);
     cluster_desc->cluster_id = cluster_id;

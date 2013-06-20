@@ -787,6 +787,8 @@
 #define ZBEE_PROTOABBREV_APS                "zbee_aps"
 #define ZBEE_PROTOABBREV_APF                "zbee_apf"
 #define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
+#define ZBEE_PROTOABBREV_ZCL_BASIC          "zbee_zcl_general.basic"
+#define ZBEE_PROTOABBREV_ZCL_IDENTIFY       "zbee_zcl_general.identify"
 #define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_general.onoff"
 
 /* Helper Functions */
