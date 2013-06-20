@@ -652,31 +652,31 @@ do_cpuid(guint32 *CPUInfo, int selector _U_){
 static void get_cpu_info(GString *str _U_)
 {
 #if defined(_MSC_VER)
-    int CPUInfo[4];
+	int CPUInfo[4];
 #else
-    guint32 CPUInfo[4];
+	guint32 CPUInfo[4];
 #endif
 	char CPUBrandString[0x40];
-	unsigned    nExIds;
+	unsigned nExIds;
 
 	/* http://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx */
 
 	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
-    /* gets the number of valid extended IDs.*/
-    do_cpuid(CPUInfo, 0x80000000);
-    nExIds = CPUInfo[0];
+	/* gets the number of valid extended IDs.*/
+	do_cpuid(CPUInfo, 0x80000000);
+	nExIds = CPUInfo[0];
 
 	if( nExIds<0x80000005)
 		return;
-    memset(CPUBrandString, 0, sizeof(CPUBrandString));
+	memset(CPUBrandString, 0, sizeof(CPUBrandString));
 
-    /* Interpret CPU brand string.*/
-    do_cpuid(CPUInfo, 0x80000002);
-    memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-    do_cpuid(CPUInfo, 0x80000003);
-    memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-    do_cpuid(CPUInfo, 0x80000004);
-    memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+	/* Interpret CPU brand string.*/
+	do_cpuid(CPUInfo, 0x80000002);
+	memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+	do_cpuid(CPUInfo, 0x80000003);
+	memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+	do_cpuid(CPUInfo, 0x80000004);
+	memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
 
 	g_string_append_printf(str, "\n%s", CPUBrandString);
 
