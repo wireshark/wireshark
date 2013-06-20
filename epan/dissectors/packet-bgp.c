@@ -261,6 +261,14 @@ void proto_reg_handoff_bgp(void);
 #define BGP_EXT_COM_FSPEC_ACT_S 0x02
 #define BGP_EXT_COM_FSPEC_ACT_T 0x01
 
+/* extended community l2vpn flags */
+
+#define BGP_EXT_COM_L2_FLAG_D     0x80
+#define BGP_EXT_COM_L2_FLAG_Z1    0x40
+#define BGP_EXT_COM_L2_FLAG_F     0x20
+#define BGP_EXT_COM_L2_FLAG_Z345  0x1c
+#define BGP_EXT_COM_L2_FLAG_C     0x02
+#define BGP_EXT_COM_L2_FLAG_S     0x01
 
 /* Extended community QoS Marking technology type */
 #define QOS_TECH_TYPE_DSCP         0x00  /* DiffServ enabled IP (DSCP encoding) */
@@ -542,17 +550,28 @@ static const value_string bgp_ssa_type[] = {
 static const value_string bgp_l2vpn_encaps[] = {
     { 0,  "Reserved"},
     { 1,  "Frame Relay"},
-    { 2,  "ATM AAL5 VCC transport"},
+    { 2,  "ATM AAL5 SDU VCC transport"},
     { 3,  "ATM transparent cell transport"},
-    { 4,  "Ethernet VLAN"},
-    { 5,  "Ethernet"},
+    { 4,  "Ethernet (VLAN) Tagged mode"},
+    { 5,  "Ethernet raw mode"},
     { 6,  "Cisco-HDLC"},
     { 7,  "PPP"},
-    { 8,  "CEM"},
-    { 9,  "ATM VCC cell transport"},
-    { 10, "ATM VPC cell transport"},
-    { 11, "MPLS"},
-    { 12, "VPLS"},
+    { 8,  "SONET/SDH CES"},
+    { 9,  "ATM n-to-one VCC cell transport"},
+    { 10, "ATM n-to-one VPC cell transport"},
+    { 11, "IP layer 2 transport"},
+    { 15, "Frame relay port mode"},
+    { 17, "Structure agnostic E1 over packet"},
+    { 18, "Structure agnostic T1 over packet"},
+    { 19, "VPLS"},
+    { 20, "Structure agnostic T3 over packet"},
+    { 21, "Nx64kbit/s Basic Service using Structure-aware"},
+    { 25, "Frame Relay DLCI"},
+    { 40, "Structure agnostic E3 over packet"},
+    { 41, "Octet-aligned playload for structure-agnostic DS1 circuits"},
+    { 42, "E1 Nx64kbit/s with CAS using Structure-aware"},
+    { 43, "DS1 (ESF) Nx64kbit/s with CAS using Structure-aware"},
+    { 44, "DS1 (SF) Nx64kbit/s with CAS using Structure-aware"},
     { 64, "IP-interworking"},
     { 0, NULL }
 };
@@ -864,7 +883,15 @@ static int hf_bgp_ext_com_act_samp_act = -1; /* RFC 5575 flow spec action sample
 static int hf_bgp_ext_com_flow_redir_as = -1; /* RFC 5575 AS part of the RT for redirect traffic */
 static int hf_bgp_ext_com_flow_redir_an = -1; /* RFC 5575 AN part of the RT for redirect traffic */
 static int hf_bgp_ext_com_flow_redir = -1;
-
+static int hf_bgp_ext_com_l2_encaps = -1;
+static int hf_bgp_ext_com_l2_c_flags = -1;
+static int hf_bgp_ext_com_l2_mtu = -1;
+static int hf_bgp_ext_com_l2_flag_d = -1;
+static int hf_bgp_ext_com_l2_flag_z1 = -1;
+static int hf_bgp_ext_com_l2_flag_f = -1;
+static int hf_bgp_ext_com_l2_flag_z345 = -1;
+static int hf_bgp_ext_com_l2_flag_c = -1;
+static int hf_bgp_ext_com_l2_flag_s = -1;
 
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
@@ -892,6 +919,7 @@ static gint ett_bgp_cap = -1;           /* an cap parameter tree */
 static gint ett_bgp_extended_communities = -1; /* extended communities list tree */
 static gint ett_bgp_extended_com_fspec_redir = -1; /* extended communities BGP flow act redirect */
 static gint ett_bgp_ext_com_flags = -1; /* extended communities flags tree */
+static gint ett_bgp_ext_com_l2_flags = -1; /* extended commuties tree for l2 services flags */
 static gint ett_bgp_ssa = -1;           /* safi specific attribute */
 static gint ett_bgp_ssa_subtree = -1;   /* safi specific attribute Subtrees */
 static gint ett_bgp_orf = -1;           /* orf (outbound route filter) tree */
@@ -2841,6 +2869,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint16         len;                        /* tmp                      */
     int             advance;                    /* tmp                      */
     proto_item      *ti;                        /* tree item                */
+    proto_item      *sub_ti;                    /* tree fir sub item        */
     proto_tree      *subtree;                   /* subtree for attributes   */
     proto_tree      *subtree2;                  /* subtree for attributes   */
     proto_tree      *subtree3;                  /* subtree for attributes   */
@@ -3773,29 +3802,20 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                         break;
                                     case BGP_EXT_COM_L2INFO:
                                         is_extended_type = TRUE;
-                                        ep_strbuf_append_printf(junk_emstr,
-                                                                ": %s, Control Flags: %s%s%s%s%s, MTU: %u byte%s",
-                                                                val_to_str_const(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
-                                                                tvb_get_guint8(tvb,q+3) ? "" : "none",
-                                                                tvb_get_ntohs(tvb,q+3)&0x08 ? "Q" : "",
-                                                                tvb_get_ntohs(tvb,q+3)&0x04 ? "F" : "",
-                                                                tvb_get_ntohs(tvb,q+3)&0x02 ? "C" : "",
-                                                                tvb_get_ntohs(tvb,q+3)&0x01 ? "S" : "",
-                                                                tvb_get_ntohs(tvb,q+4),
-                                                                plurality(tvb_get_ntohs(tvb,q+4), "", "s"));
                                         ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
 
                                         subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
-                                        proto_tree_add_text(subtree4,tvb,q+2,1, "Encapsulation: %s",
-                                                            val_to_str_const(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"));
-                                        proto_tree_add_text(subtree4,tvb,q+3,1, "Control Flags: %s%sControl Word %s required, Sequenced delivery %s required",
-                                                            tvb_get_ntohs(tvb,q+3)&0x08 ? "Q flag (Reserved) set" : "",
-                                                            tvb_get_ntohs(tvb,q+3)&0x04 ? "F flag (reserved) set" : "",
-                                                            tvb_get_ntohs(tvb,q+3)&0x02 ? "is" : "not",
-                                                            tvb_get_ntohs(tvb,q+3)&0x01 ? "is" : "not");
-                                        proto_tree_add_text(subtree4,tvb,q+4,2, "MTU: %u byte%s",
-                                                            tvb_get_ntohs(tvb,q+4),
-                                                            plurality(tvb_get_ntohs(tvb,q+4), "", "s"));
+                                        proto_tree_add_item(subtree4, hf_bgp_ext_com_l2_encaps,tvb,q+2, 1, ENC_BIG_ENDIAN);
+                                        sub_ti = proto_tree_add_item(subtree4, hf_bgp_ext_com_l2_c_flags, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                        subtree5 = proto_item_add_subtree(sub_ti, ett_bgp_ext_com_l2_flags);
+                                        proto_tree_add_item(subtree5, hf_bgp_ext_com_l2_flag_d, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree5, hf_bgp_ext_com_l2_flag_z1, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree5, hf_bgp_ext_com_l2_flag_f, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree5, hf_bgp_ext_com_l2_flag_z345, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree5, hf_bgp_ext_com_l2_flag_c, tvb, q+3, 1, ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree5, hf_bgp_ext_com_l2_flag_s, tvb, q+3, 1, ENC_BIG_ENDIAN);
+
+                                        proto_tree_add_item(subtree4, hf_bgp_ext_com_l2_mtu, tvb, q+4, 2, ENC_BIG_ENDIAN);
                                         break;
                                     case BGP_EXT_COM_FLOW_ACT:
                                         is_extended_type = TRUE;
@@ -5006,7 +5026,34 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_qos_default_to_zero,
         { "Defaults to zero", "bgp.ext_com_qos.default_to_zero", FT_UINT8, BASE_HEX,
           NULL, 0, NULL, HFILL}},
-    };
+      { &hf_bgp_ext_com_l2_encaps,
+        { "Encaps Type", "bgp.ext_com_l2.encaps_type", FT_UINT8, BASE_DEC,
+            VALS(bgp_l2vpn_encaps), 0, NULL, HFILL}},
+      { &hf_bgp_ext_com_l2_c_flags,
+        { "Control Flags", "bgp.ext_com_l2.c_flags", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_ext_com_l2_flag_d,
+        { "Down flag", "bgp.ext_com_l2.flag_d",FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), BGP_EXT_COM_L2_FLAG_D, NULL, HFILL }},
+      { &hf_bgp_ext_com_l2_flag_z1,
+        { "Unassigned", "bgp.ext_com_l2.flag_z1",FT_UINT8, BASE_DEC,
+            NULL, BGP_EXT_COM_L2_FLAG_Z1, "Must be Zero", HFILL }},
+      { &hf_bgp_ext_com_l2_flag_f,
+        { "Flush flag", "bgp.ext_com_l2.flag_f",FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), BGP_EXT_COM_L2_FLAG_F, NULL, HFILL }},
+      { &hf_bgp_ext_com_l2_flag_z345,
+        { "Unassigned", "bgp.ext_com_l2.flag_z345",FT_UINT8, BASE_DEC,
+            NULL, BGP_EXT_COM_L2_FLAG_Z345, "Must be Zero", HFILL }},
+      { &hf_bgp_ext_com_l2_flag_c,
+        { "C flag", "bgp.ext_com_l2.flag_c",FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), BGP_EXT_COM_L2_FLAG_C, NULL, HFILL }},
+      { &hf_bgp_ext_com_l2_flag_s,
+        { "S flag", "bgp.ext_com_l2.flag_s",FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), BGP_EXT_COM_L2_FLAG_S, NULL, HFILL }},
+      { &hf_bgp_ext_com_l2_mtu,
+        { "Layer-2 MTU", "bgp.ext_com_l2.l2_mtu", FT_UINT16, BASE_DEC,
+            NULL, 0x0, NULL, HFILL}},
+};
 
     static gint *ett[] = {
       &ett_bgp,
@@ -5035,6 +5082,7 @@ proto_register_bgp(void)
       &ett_bgp_extended_communities,
       &ett_bgp_extended_com_fspec_redir,
       &ett_bgp_ext_com_flags,
+      &ett_bgp_ext_com_l2_flags,
       &ett_bgp_ssa,
       &ett_bgp_ssa_subtree,
       &ett_bgp_orf,
