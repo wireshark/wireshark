@@ -67,7 +67,7 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
-#include <epan/wmem/wmem.h>
+#include <epan/emem.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
@@ -525,7 +525,7 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
         hour_from_utc	= tvb_get_guint8(tvb,offset+9);
         min_from_utc	= tvb_get_guint8(tvb,offset+10);
 
-		str = wmem_strdup_printf(wmem_packet_scope(), "%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
+		str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u UTC %s%u:%u",
              year,
              month,
              day,
@@ -537,7 +537,7 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
              hour_from_utc,
              min_from_utc);
     }else{
-         str = wmem_strdup_printf(wmem_packet_scope(), "%u-%u-%u, %u:%u:%u.%u",
+         str = ep_strdup_printf("%u-%u-%u, %u:%u:%u.%u",
              year,
              month,
              day,
@@ -912,7 +912,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								buf = (guint8*)wmem_alloc(wmem_packet_scope(), buf_len+1);
+								buf = (guint8*)ep_alloc(buf_len+1);
 								for (i = 0; i < buf_len; i++)
 									buf[i] = (guint8)suboid[i];
 								buf[i] = '\0';
@@ -1141,21 +1141,21 @@ set_label:
 
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
-			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
+			repr  = ep_strdup_printf("%s.%s (%s)", oid_info->name,
 						 oid_subid2string(&(subids[oid_matched]),oid_left),
 						 oid_subid2string(subids,oid_matched+oid_left));
-			info_oid = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", oid_info->name,
+			info_oid = ep_strdup_printf("%s.%s", oid_info->name,
 						    oid_subid2string(&(subids[oid_matched]),oid_left));
 		} else {
-			repr  = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
+			repr  = ep_strdup_printf("%s (%s)", oid_info->name,
 						 oid_subid2string(subids,oid_matched));
 			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {
-		repr  = wmem_strdup(wmem_packet_scope(), oid_string);
+		repr  = ep_strdup(oid_string);
 		info_oid = oid_string;
 	} else {
-		repr  = wmem_strdup(wmem_packet_scope(), "[Bad OID]");
+		repr  = ep_strdup("[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");
@@ -1359,7 +1359,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 static void set_ue_keys(snmp_ue_assoc_t* n ) {
 	guint key_size = n->user.authModel->key_size;
 
-	n->user.authKey.data = (guint8 *)wmem_alloc(wmem_file_scope(), key_size);
+	n->user.authKey.data = (guint8 *)se_alloc(key_size);
 	n->user.authKey.len = key_size;
 	n->user.authModel->pass2key(n->user.authPassword.data,
 				    n->user.authPassword.len,
@@ -1379,7 +1379,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 		while (key_len < need_key_len)
 			key_len += key_size;
 
-		n->user.privKey.data = (guint8 *)wmem_alloc(wmem_file_scope(), key_len);
+		n->user.privKey.data = (guint8 *)se_alloc(key_len);
 		n->user.privKey.len  = need_key_len;
 
 		n->user.authModel->pass2key(n->user.privPassword.data,
@@ -1403,7 +1403,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 		}
 
 	} else {
-		n->user.privKey.data = (guint8 *)wmem_alloc(wmem_file_scope(), key_size);
+		n->user.privKey.data = (guint8 *)se_alloc(key_size);
 		n->user.privKey.len = key_size;
 		n->user.authModel->pass2key(n->user.privPassword.data,
 					    n->user.privPassword.len,
@@ -1416,25 +1416,25 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 static snmp_ue_assoc_t*
 ue_se_dup(snmp_ue_assoc_t* o)
 {
-	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)wmem_memdup(wmem_file_scope(), o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)se_memdup(o,sizeof(snmp_ue_assoc_t));
 
 	d->user.authModel = o->user.authModel;
 
 	d->user.privProtocol = o->user.privProtocol;
 
-	d->user.userName.data = (guint8 *)wmem_memdup(wmem_file_scope(), o->user.userName.data,o->user.userName.len);
+	d->user.userName.data = (guint8 *)se_memdup(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
 
-	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)wmem_memdup(wmem_file_scope(), o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)se_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
 
-	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)wmem_memdup(wmem_file_scope(), o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)se_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
 
 	d->engine.len = o->engine.len;
 
 	if (d->engine.len) {
-		d->engine.data = (guint8 *)wmem_memdup(wmem_file_scope(), o->engine.data,o->engine.len);
+		d->engine.data = (guint8 *)se_memdup(o->engine.data,o->engine.len);
 		set_ue_keys(d);
 	}
 
@@ -1472,9 +1472,9 @@ renew_ue_cache(void)
 static snmp_ue_assoc_t*
 localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len )
 {
-	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)wmem_memdup(wmem_file_scope(), o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)se_memdup(o,sizeof(snmp_ue_assoc_t));
 
-	n->engine.data = (guint8*)wmem_memdup(wmem_file_scope(), engine,engine_len);
+	n->engine.data = (guint8*)se_memdup(engine,engine_len);
 	n->engine.len = engine_len;
 
 	set_ue_keys(n);
@@ -1581,7 +1581,7 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), 16);
+	calc_auth = (guint8*)ep_alloc(16);
 
 	md5_hmac(msg, msg_len, key, key_len, calc_auth);
 
@@ -1645,7 +1645,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		msg[i] = '\0';
 	}
 
-	calc_auth = (guint8*)wmem_alloc(wmem_packet_scope(), 20);
+	calc_auth = (guint8*)ep_alloc(20);
 
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
 
@@ -1699,7 +1699,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = (guint8*)wmem_alloc(wmem_packet_scope(), cryptgrm_len);
+	cleartext = (guint8*)ep_alloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1769,7 +1769,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar co
 	}
 	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = (guint8*)wmem_alloc(wmem_packet_scope(), cryptgrm_len);
+	cleartext = (guint8*)ep_alloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, algo, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -3446,7 +3446,7 @@ static void
 snmp_users_update_cb(void* p _U_, const char** err)
 {
 	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
-	wmem_strbuf_t* es = wmem_strbuf_new(wmem_packet_scope(), "");
+	emem_strbuf_t* es = ep_strbuf_new("");
 	unsigned int i;
 
 	*err = NULL;
@@ -3456,14 +3456,14 @@ snmp_users_update_cb(void* p _U_, const char** err)
 		return;
 
 	if (! ue->user.userName.len)
-		wmem_strbuf_append_printf(es,"no userName\n");
+		ep_strbuf_append_printf(es,"no userName\n");
 
 	for (i=0; i<num_ueas-1; i++) {
 		snmp_ue_assoc_t* u = &(ueas[i]);
 
 		/* RFC 3411 section 5 */
 		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
-			wmem_strbuf_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
+			ep_strbuf_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
 		}
 
 
@@ -3473,21 +3473,21 @@ snmp_users_update_cb(void* p _U_, const char** err)
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					/* XXX: make a string for the engineId */
-					wmem_strbuf_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
+					ep_strbuf_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
 				}
 			}
 
 			if (u->engine.len == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					wmem_strbuf_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+					ep_strbuf_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
 				}
 			}
 		}
 	}
 
-	if (wmem_strbuf_get_len(es)) {
-		wmem_strbuf_truncate(es,wmem_strbuf_get_len(es)-1);
-		*err = wmem_strdup(wmem_packet_scope(), wmem_strbuf_get_str(es));
+	if (es->len) {
+		es = ep_strbuf_truncate(es,es->len-1);
+		*err = ep_strdup(es->str);
 	}
 
 	return;
