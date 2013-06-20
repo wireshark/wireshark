@@ -123,9 +123,9 @@ $AUTOMAKE --add-missing --gnu $am_opt || exit 1
 echo $AUTOCONF
 $AUTOCONF || exit 1
 
-if [ $(uname) = Darwin ] ; then
+if [ `uname -s` = Darwin ] ; then
     echo
-    echo "To configure Wireshark on OsX, you will need to type:"
+    echo "To configure Wireshark on OS X, you will need to type:"
     echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig"
     echo "before you can run configure."
 fi
