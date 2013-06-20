@@ -69,10 +69,10 @@ typedef struct _fragments_t {
     guint32      count;
     guint32      number_of_packets;
     guint32      pid;
-    emem_tree_t  *fragment;
+    wmem_tree_t  *fragment;
 } fragments_t;
 
-static emem_tree_t *reassembling = NULL;
+static wmem_tree_t *reassembling = NULL;
 static fragments_t *fragments    = NULL;
 
 static const value_string packet_type_vals[] = {
@@ -189,7 +189,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     } else {
         fragment_t     *fragment;
-        emem_tree_key_t key[6];
+        wmem_tree_key_t key[6];
         guint32         k_interface_id;
         guint32         k_adapter_id;
         guint32         k_chandle;
@@ -236,18 +236,18 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragments->pid = pid;
 
                 fragments->count = 1;
-                fragments->fragment = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp fragments");
-                se_tree_insert32(fragments->fragment, fragments->count, fragment);
+                fragments->fragment = wmem_tree_new(wmem_file_scope());
+                wmem_tree_insert32(fragments->fragment, fragments->count, fragment);
 
                 fragments->interface_id = interface_id;
                 fragments->adapter_id   = adapter_id;
                 fragments->chandle      = chandle;
                 fragments->psm          = psm;
 
-                se_tree_insert32_array(reassembling, key, fragments);
+                wmem_tree_insert32_array(reassembling, key, fragments);
 
             } else {
-                fragments = (fragments_t *)se_tree_lookup32_array_le(reassembling, key);
+                fragments = (fragments_t *)wmem_tree_lookup32_array_le(reassembling, key);
                 if (!(fragments && fragments->interface_id == interface_id &&
                         fragments->adapter_id == adapter_id &&
                         fragments->chandle == chandle &&
@@ -258,7 +258,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle, next_tvb, pinfo, tree);
 
         } else if (packet_type == PACKET_TYPE_CONTINUE) {
-            fragments = (fragments_t *)se_tree_lookup32_array_le(reassembling, key);
+            fragments = (fragments_t *)wmem_tree_lookup32_array_le(reassembling, key);
             if (!(fragments && fragments->interface_id == interface_id &&
                     fragments->adapter_id == adapter_id &&
                     fragments->chandle == chandle &&
@@ -272,7 +272,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments->count++;
-                se_tree_insert32(fragments->fragment, fragments->count, fragment);
+                wmem_tree_insert32(fragments->fragment, fragments->count, fragment);
 
                 fragments->interface_id = interface_id;
                 fragments->adapter_id   = adapter_id;
@@ -298,7 +298,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[5].length = 0;
                 key[5].key = NULL;
 
-                se_tree_insert32_array(reassembling, key, fragments);
+                wmem_tree_insert32_array(reassembling, key, fragments);
             }
 
             call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -306,7 +306,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } else if (packet_type == PACKET_TYPE_END) {
             guint    i_length = 0;
 
-            fragments = (fragments_t *)se_tree_lookup32_array_le(reassembling, key);
+            fragments = (fragments_t *)wmem_tree_lookup32_array_le(reassembling, key);
             if (!(fragments && fragments->interface_id == interface_id &&
                     fragments->adapter_id == adapter_id &&
                     fragments->chandle == chandle &&
@@ -320,7 +320,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
                 fragments->count++;
-                se_tree_insert32(fragments->fragment, fragments->count, fragment);
+                wmem_tree_insert32(fragments->fragment, fragments->count, fragment);
 
                 fragments->interface_id = interface_id;
                 fragments->adapter_id   = adapter_id;
@@ -346,7 +346,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[5].length = 0;
                 key[5].key = NULL;
 
-                se_tree_insert32_array(reassembling, key, fragments);
+                wmem_tree_insert32_array(reassembling, key, fragments);
             }
 
             length = 0;
@@ -358,14 +358,14 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint8   *reassembled;
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
-                    fragment = (fragment_t *)se_tree_lookup32_le(fragments->fragment, i_frame);
+                    fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
                     length += fragment->length;
                 }
 
                 reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), length);
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
-                    fragment = (fragment_t *)se_tree_lookup32_le(fragments->fragment, i_frame);
+                    fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
                     memcpy(reassembled + i_length,
                             fragment->data,
                             fragment->length);
@@ -436,7 +436,7 @@ proto_register_btavctp(void)
         &ett_btavctp
     };
 
-    reassembling = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp reassembling");
+    reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     avctp_service_dissector_table = register_dissector_table("btavctp.service", "AVCTP Service", FT_UINT16, BASE_HEX);
 

@@ -214,9 +214,9 @@ static gint ett_btobex_hdrs = -1;
 static gint ett_btobex_hdr = -1;
 static gint ett_btobex_application_parameters = -1;
 
-static emem_tree_t *obex_profile = NULL;
-static emem_tree_t *obex_last_opcode = NULL;
-static emem_tree_t *obex_over_l2cap = NULL;
+static wmem_tree_t *obex_profile = NULL;
+static wmem_tree_t *obex_last_opcode = NULL;
+static wmem_tree_t *obex_over_l2cap = NULL;
 
 
 static dissector_handle_t xml_handle;
@@ -1156,7 +1156,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 guint32               adapter_id;
                                 guint32               chandle;
                                 guint32               channel;
-                                emem_tree_key_t       key[6];
+                                wmem_tree_key_t       key[6];
                                 guint32               k_interface_id;
                                 guint32               k_adapter_id;
                                 guint32               k_frame_number;
@@ -1207,7 +1207,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 obex_profile_data->channel = channel;
                                 obex_profile_data->profile = target_to_profile[i];
 
-                                se_tree_insert32_array(obex_profile, key, obex_profile_data);
+                                wmem_tree_insert32_array(obex_profile, key, obex_profile_data);
                             }
                         }
                     }
@@ -1262,7 +1262,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32               adapter_id;
     guint32               chandle;
     guint32               channel;
-    emem_tree_key_t       key[7];
+    wmem_tree_key_t       key[7];
     guint32               k_interface_id;
     guint32               k_adapter_id;
     guint32               k_frame_number;
@@ -1274,9 +1274,9 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     save_fragmented = pinfo->fragmented;
 
     if (!pinfo->fd->flags.visited && pinfo->layer_names && !g_strrstr(pinfo->layer_names->str, "btrfcomm")) {
-        se_tree_insert32(obex_over_l2cap, pinfo->fd->num, (void *) TRUE);
+        wmem_tree_insert32(obex_over_l2cap, pinfo->fd->num, (void *) TRUE);
     } else {
-        is_obex_over_l2cap = se_tree_lookup32(obex_over_l2cap, pinfo->fd->num) ? TRUE : FALSE;
+        is_obex_over_l2cap = wmem_tree_lookup32(obex_over_l2cap, pinfo->fd->num) ? TRUE : FALSE;
     }
 
     if (is_obex_over_l2cap) {
@@ -1316,7 +1316,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[5].length = 0;
     key[5].key = NULL;
 
-    obex_profile_data = (obex_profile_data_t *)se_tree_lookup32_array_le(obex_profile, key);
+    obex_profile_data = (obex_profile_data_t *)wmem_tree_lookup32_array_le(obex_profile, key);
     if (obex_profile_data && obex_profile_data->interface_id == interface_id &&
             obex_profile_data->adapter_id == adapter_id &&
             obex_profile_data->chandle == chandle &&
@@ -1460,7 +1460,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 obex_last_opcode_data->direction = pinfo->p2p_dir;
                 obex_last_opcode_data->code = code;
 
-                se_tree_insert32_array(obex_last_opcode, key, obex_last_opcode_data);
+                wmem_tree_insert32_array(obex_last_opcode, key, obex_last_opcode_data);
             }
         } else {
             proto_tree_add_item(st, hf_response_code, next_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1546,7 +1546,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             key[6].length = 0;
             key[6].key = NULL;
 
-            obex_last_opcode_data = (obex_last_opcode_data_t *)se_tree_lookup32_array_le(obex_last_opcode, key);
+            obex_last_opcode_data = (obex_last_opcode_data_t *)wmem_tree_lookup32_array_le(obex_last_opcode, key);
             if (obex_last_opcode_data && obex_last_opcode_data->interface_id == interface_id &&
                     obex_last_opcode_data->adapter_id == adapter_id &&
                     obex_last_opcode_data->chandle == chandle &&
@@ -2286,9 +2286,9 @@ proto_register_btobex(void)
         &ett_btobex_application_parameters
     };
 
-    obex_profile = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "obex_profile");
-    obex_last_opcode = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "obex_last_opcode");
-    obex_over_l2cap = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "obex_over_l2cap");
+    obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    obex_over_l2cap  = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "BT OBEX", "btobex");
 

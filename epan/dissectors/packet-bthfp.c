@@ -120,8 +120,8 @@ static gint ett_bthfp_command = -1;
 static gint ett_bthfp_brsf_hf = -1;
 static gint ett_bthfp_brsf_ag = -1;
 
-static emem_tree_t *fragments = NULL;
-static emem_tree_t *sdp_service_infos = NULL;
+static wmem_tree_t *fragments = NULL;
+static wmem_tree_t *sdp_service_infos = NULL;
 
 #define ROLE_UNKNOWN  0
 #define ROLE_AG       1
@@ -1133,7 +1133,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item       *pitem;
     gint              offset = 0;
     guint32           role = ROLE_UNKNOWN;
-    emem_tree_key_t   key[10];
+    wmem_tree_key_t   key[10];
     guint32           k_interface_id;
     guint32           k_adapter_id;
     guint32           k_chandle;
@@ -1233,7 +1233,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[9].length = 0;
         key[9].key = NULL;
 
-        service_info = (service_info_t *) se_tree_lookup32_array_le(sdp_service_infos, key);
+        service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
         if (service_info && service_info->interface_id == rfcomm_data->interface_id &&
                 service_info->adapter_id == rfcomm_data->adapter_id &&
                 service_info->sdp_psm == SDP_PSM_DEFAULT &&
@@ -1288,7 +1288,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[6].length = 0;
         key[6].key = NULL;
 
-        previous_fragment = (fragment_t *) se_tree_lookup32_array_le(fragments, key);
+        previous_fragment = (fragment_t *) wmem_tree_lookup32_array_le(fragments, key);
         if (!(previous_fragment && previous_fragment->interface_id == interface_id &&
                 previous_fragment->adapter_id == adapter_id &&
                 previous_fragment->chandle == chandle &&
@@ -1333,7 +1333,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fragment->previous_fragment = previous_fragment;
         tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
-        se_tree_insert32_array(fragments, key, fragment);
+        wmem_tree_insert32_array(fragments, key, fragment);
 
         /* Detect reassemble end character: \r for HS or \n for AG */
         length = tvb_length(tvb);
@@ -1378,7 +1378,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             key[6].length = 0;
             key[6].key = NULL;
 
-            fragment = (fragment_t *) se_tree_lookup32_array_le(fragments, key);
+            fragment = (fragment_t *) wmem_tree_lookup32_array_le(fragments, key);
             if (fragment && fragment->interface_id == interface_id &&
                     fragment->adapter_id == adapter_id &&
                     fragment->chandle == chandle &&
@@ -1444,7 +1444,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[6].length = 0;
     key[6].key = NULL;
 
-    fragment = (fragment_t *) se_tree_lookup32_array_le(fragments, key);
+    fragment = (fragment_t *) wmem_tree_lookup32_array_le(fragments, key);
     if (fragment && fragment->interface_id == interface_id &&
             fragment->adapter_id == adapter_id &&
             fragment->chandle == chandle &&
@@ -2002,7 +2002,7 @@ proto_register_bthfp(void)
         &ett_bthfp_command
     };
 
-    fragments = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "bthfp fragments");
+    fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_bthfp = proto_register_protocol("Bluetooth HFP Profile", "BT HFP", "bthfp");
     register_dissector("bthfp", dissect_bthfp, proto_bthfp);

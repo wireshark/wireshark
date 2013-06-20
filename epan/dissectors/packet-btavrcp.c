@@ -257,8 +257,8 @@ static gint ett_btavrcp_path                                               = -1;
 
 #define STATUS_OK  0x04
 
-static emem_tree_t *reassembling = NULL;
-static emem_tree_t *timing       = NULL;
+static wmem_tree_t *reassembling = NULL;
+static wmem_tree_t *timing       = NULL;
 
 typedef struct _fragment {
     guint        start_frame_number;
@@ -270,7 +270,7 @@ typedef struct _fragment {
     guint32      op;
     guint        state;
     guint32      count;
-    emem_tree_t  *fragments;
+    wmem_tree_t  *fragments;
     } fragment_t;
 
 typedef struct _data_fragment_t {
@@ -994,7 +994,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint            packet_type;
     guint            parameter_length;
     guint            length;
-    emem_tree_key_t  key[7];
+    wmem_tree_key_t  key[7];
     guint32          k_interface_id;
     guint32          k_adapter_id;
     guint32          k_chandle;
@@ -1077,14 +1077,14 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             fragment->state = 0;
 
             fragment->count = 1;
-            fragment->fragments = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp fragments");
+            fragment->fragments = wmem_tree_new(wmem_file_scope());
 
             data_fragment = wmem_new(wmem_file_scope(), data_fragment_t);
             data_fragment->length = length;
             data_fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), data_fragment->length);
             tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
 
-            se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
+            wmem_tree_insert32(fragment->fragments, fragment->count, data_fragment);
 
             key[0].length = 1;
             key[0].key = &k_interface_id;
@@ -1107,7 +1107,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             fragment->psm          = psm;
             fragment->op           = pdu_id | (company_id << 8);
 
-            se_tree_insert32_array(reassembling, key, fragment);
+            wmem_tree_insert32_array(reassembling, key, fragment);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " [start]");
@@ -1136,7 +1136,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             key[6].length = 0;
             key[6].key = NULL;
 
-            fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
+            fragment = (fragment_t *)wmem_tree_lookup32_array_le(reassembling, key);
             if (fragment && fragment->interface_id == interface_id &&
                     fragment->adapter_id == adapter_id &&
                     fragment->chandle == chandle &&
@@ -1150,7 +1150,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 data_fragment->length = length;
                 data_fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
-                se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
+                wmem_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
         }
 
@@ -1184,7 +1184,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         key[6].length = 0;
         key[6].key = NULL;
 
-        fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
+        fragment = (fragment_t *)wmem_tree_lookup32_array_le(reassembling, key);
         if (fragment && fragment->interface_id == interface_id &&
                     fragment->adapter_id == adapter_id &&
                     fragment->chandle == chandle &&
@@ -1201,7 +1201,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 data_fragment->length = length;
                 data_fragment->data = (guint8 *) wmem_alloc(wmem_file_scope(), data_fragment->length);
                 tvb_memcpy(tvb, data_fragment->data, offset, data_fragment->length);
-                se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
+                wmem_tree_insert32(fragment->fragments, fragment->count, data_fragment);
             }
             /* reassembling*/
             length = 0;
@@ -1210,14 +1210,14 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint8     *reassembled;
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
-                    data_fragment = (data_fragment_t *)se_tree_lookup32_le(fragment->fragments, i_frame);
+                    data_fragment = (data_fragment_t *)wmem_tree_lookup32_le(fragment->fragments, i_frame);
                     length += data_fragment->length;
                 }
 
                 reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), length);
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
-                    data_fragment = (data_fragment_t *)se_tree_lookup32_le(fragment->fragments, i_frame);
+                    data_fragment = (data_fragment_t *)wmem_tree_lookup32_le(fragment->fragments, i_frame);
                     memcpy(reassembled + i_length,
                             data_fragment->data,
                             data_fragment->length);
@@ -1680,7 +1680,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     key[6].length = 0;
                     key[6].key = NULL;
 
-                    fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
+                    fragment = (fragment_t *)wmem_tree_lookup32_array_le(reassembling, key);
                     if (fragment && fragment->interface_id == interface_id &&
                             fragment->adapter_id == adapter_id &&
                             fragment->chandle == chandle &&
@@ -1729,7 +1729,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     key[6].length = 0;
                     key[6].key = NULL;
 
-                    fragment = (fragment_t *)se_tree_lookup32_array_le(reassembling, key);
+                    fragment = (fragment_t *)wmem_tree_lookup32_array_le(reassembling, key);
                     if (fragment && fragment->interface_id == interface_id &&
                             fragment->adapter_id == adapter_id &&
                             fragment->chandle == chandle &&
@@ -2072,7 +2072,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint            max_response_time;
     guint            is_command;
     timing_info_t   *timing_info;
-    emem_tree_key_t  key[9];
+    wmem_tree_key_t  key[9];
     guint32          k_interface_id;
     guint32          k_adapter_id;
     guint32          k_chandle;
@@ -2207,9 +2207,9 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 timing_info->op_arg       = op_arg;
                 timing_info->used         = 0;
 
-                se_tree_insert32_array(timing, key, timing_info);
+                wmem_tree_insert32_array(timing, key, timing_info);
             } else {
-                timing_info = (timing_info_t *)se_tree_lookup32_array_le(timing, key);
+                timing_info = (timing_info_t *)wmem_tree_lookup32_array_le(timing, key);
                 if (timing_info && timing_info->interface_id == interface_id &&
                         timing_info->adapter_id == adapter_id &&
                         timing_info->chandle == chandle &&
@@ -2254,7 +2254,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         }
 
-        timing_info = (timing_info_t *)se_tree_lookup32_array_le(timing, key);
+        timing_info = (timing_info_t *)wmem_tree_lookup32_array_le(timing, key);
         if (timing_info && timing_info->interface_id == interface_id &&
                 timing_info->adapter_id == adapter_id &&
                 timing_info->chandle == chandle &&
@@ -3080,8 +3080,8 @@ proto_register_btavrcp(void)
         &ett_btavrcp_path,
     };
 
-    reassembling = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavrcp reassembling");
-    timing       = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavrcp timing");
+    reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    timing       = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "BT AVRCP", "btavrcp");
     register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);

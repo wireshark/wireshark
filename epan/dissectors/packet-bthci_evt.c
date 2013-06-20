@@ -967,7 +967,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
     if (!pinfo->fd->flags.visited && hci_data != NULL && status == 0x00) {
-        emem_tree_key_t  key[5];
+        wmem_tree_key_t  key[5];
         guint32          k_interface_id;
         guint32          k_adapter_id;
         guint32          k_connection_handle;
@@ -996,7 +996,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
         remote_bdaddr->chandle = connection_handle;
         memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
 
-        se_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
+        wmem_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
     }
 
 
@@ -1213,7 +1213,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
     proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
     if (!pinfo->fd->flags.visited && hci_data != NULL) {
 
-        emem_tree_key_t key[4];
+        wmem_tree_key_t key[4];
         guint32         k_bd_addr_oui;
         guint32         k_bd_addr_id;
         guint32         k_frame_number;
@@ -1240,7 +1240,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
         device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
         device_name->name = wmem_strdup(wmem_file_scope(), name);
 
-        se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
+        wmem_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
     }
     offset += 248;
 
@@ -1639,7 +1639,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_device_name, tvb, offset+i+2, length-1, ENC_ASCII|ENC_NA);
                     proto_item_append_text(ti_eir_struct,": %s", tvb_format_text(tvb,offset+i+2,length-1));
                     if (!pinfo->fd->flags.visited && hci_data != NULL &&bd_addr) {
-                        emem_tree_key_t key[4];
+                        wmem_tree_key_t key[4];
                         guint32         k_bd_addr_oui;
                         guint32         k_bd_addr_id;
                         guint32         k_frame_number;
@@ -1666,7 +1666,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
                         device_name->name = wmem_strdup(wmem_file_scope(), name);
 
-                        se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
+                        wmem_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
                     }
                     break;
                 case 0x0A: /* Tx Power Level */
@@ -2201,7 +2201,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
             offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
             if (!pinfo->fd->flags.visited && hci_data != NULL && local_addr) {
-                emem_tree_key_t            key[4];
+                wmem_tree_key_t            key[4];
                 guint32                    k_interface_id;
                 guint32                    k_adapter_id;
                 guint32                    k_frame_number;
@@ -2224,7 +2224,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 localhost_bdaddr_entry->interface_id = k_interface_id;
                 localhost_bdaddr_entry->adapter_id = k_adapter_id;
                 memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
-                se_tree_insert32_array(hci_data->localhost_bdaddr, key, localhost_bdaddr_entry);
+                wmem_tree_insert32_array(hci_data->localhost_bdaddr, key, localhost_bdaddr_entry);
             }
 
             break;
@@ -2399,7 +2399,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
             proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
             if (!pinfo->fd->flags.visited && hci_data != NULL) {
-                emem_tree_key_t         key[4];
+                wmem_tree_key_t         key[4];
                 guint32                 k_interface_id;
                 guint32                 k_adapter_id;
                 guint32                 k_frame_number;
@@ -2426,7 +2426,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 localhost_name_entry->adapter_id = k_adapter_id;
                 localhost_name_entry->name = wmem_strdup(wmem_file_scope(), name);
 
-                se_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
+                wmem_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
             }
             offset += 248;
 

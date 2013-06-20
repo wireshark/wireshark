@@ -306,9 +306,9 @@ static gint ett_btsdp_protocol                            = -1;
 
 static gint btsdp_tap = -1;
 
-static emem_tree_t *tid_requests        = NULL;
-static emem_tree_t *continuation_states = NULL;
-static emem_tree_t *service_infos       = NULL;
+static wmem_tree_t *tid_requests        = NULL;
+static wmem_tree_t *continuation_states = NULL;
+static wmem_tree_t *service_infos       = NULL;
 
 
 static sdp_package_t sdp_package;
@@ -900,7 +900,7 @@ void proto_reg_handoff_btsdp(void);
 static void
 save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protocol_order, service_info_t *parent_service_info)
 {
-    emem_tree_key_t  key[10];
+    wmem_tree_key_t  key[10];
     guint32          k_interface_id;
     guint32          k_adapter_id;
     guint32          k_sdp_psm;
@@ -961,7 +961,7 @@ save_channel(packet_info *pinfo, guint32 protocol, guint32 channel, gint protoco
     key[9].length = 0;
     key[9].key = NULL;
 
-    se_tree_insert32_array(service_infos, key, service_info);
+    wmem_tree_insert32_array(service_infos, key, service_info);
 }
 
 static gint
@@ -1099,7 +1099,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     btl2cap_data_t    *l2cap_data;
     tid_request_t     *tid_request;
     continuation_state_data_t *continuation_state_data;
-    emem_tree_key_t    key[12];
+    wmem_tree_key_t    key[12];
     guint32            k_interface_id;
     guint32            k_adapter_id;
     guint32            k_chandle;
@@ -1174,9 +1174,9 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                 tid_request->continuation_state        = NULL;
                 tid_request->continuation_state_length = 0;
 
-                se_tree_insert32_array(tid_requests, key, tid_request);
+                wmem_tree_insert32_array(tid_requests, key, tid_request);
             } else {
-                tid_request = (tid_request_t *) se_tree_lookup32_array_le(tid_requests, key);
+                tid_request = (tid_request_t *) wmem_tree_lookup32_array_le(tid_requests, key);
                 if (tid_request && tid_request->interface_id == interface_id &&
                         tid_request->adapter_id == adapter_id &&
                         tid_request->chandle == chandle &&
@@ -1226,7 +1226,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         key[11].length = 0;
                         key[11].key    = NULL;
 
-                        continuation_state_data = (continuation_state_data_t *) se_tree_lookup32_array_le(continuation_states, key);
+                        continuation_state_data = (continuation_state_data_t *) wmem_tree_lookup32_array_le(continuation_states, key);
                         if (continuation_state_data && continuation_state_data->interface_id == interface_id &&
                                 continuation_state_data->adapter_id == adapter_id &&
                                 continuation_state_data->chandle == chandle &&
@@ -1276,7 +1276,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
         /* full reassemble */
         if (!is_request) {
-            tid_request = (tid_request_t *) se_tree_lookup32_array_le(tid_requests, key);
+            tid_request = (tid_request_t *) wmem_tree_lookup32_array_le(tid_requests, key);
             if (tid_request && tid_request->interface_id == interface_id &&
                     tid_request->adapter_id == adapter_id &&
                     tid_request->chandle == chandle &&
@@ -1321,9 +1321,9 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                 tid_request->continuation_state        = continuation_state;
                 tid_request->continuation_state_length = continuation_state_length;
 
-                se_tree_insert32_array(tid_requests, key, tid_request);
+                wmem_tree_insert32_array(tid_requests, key, tid_request);
             } else {
-                tid_request = (tid_request_t *) se_tree_lookup32_array_le(tid_requests, key);
+                tid_request = (tid_request_t *) wmem_tree_lookup32_array_le(tid_requests, key);
                 if (tid_request && tid_request->interface_id == interface_id &&
                         tid_request->adapter_id == adapter_id &&
                         tid_request->chandle == chandle &&
@@ -1375,7 +1375,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         key[11].length = 0;
                         key[11].key    = NULL;
 
-                        continuation_state_data = (continuation_state_data_t *) se_tree_lookup32_array_le(continuation_states, key);
+                        continuation_state_data = (continuation_state_data_t *) wmem_tree_lookup32_array_le(continuation_states, key);
                         if (continuation_state_data && continuation_state_data->interface_id == interface_id &&
                                 continuation_state_data->adapter_id == adapter_id &&
                                 continuation_state_data->chandle == chandle &&
@@ -1454,7 +1454,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     continuation_state_data->data = tid_request->data;
                     continuation_state_data->data_length = tid_request->data_length;
 
-                    se_tree_insert32_array(continuation_states, key, continuation_state_data);
+                    wmem_tree_insert32_array(continuation_states, key, continuation_state_data);
                 }
             }
 
@@ -1483,7 +1483,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
         /* partial reassemble */
         if (!is_request) {
-            tid_request = (tid_request_t *) se_tree_lookup32_array_le(tid_requests, key);
+            tid_request = (tid_request_t *) wmem_tree_lookup32_array_le(tid_requests, key);
             if (tid_request && tid_request->interface_id == interface_id &&
                     tid_request->adapter_id == adapter_id &&
                     tid_request->chandle == chandle &&
@@ -3428,7 +3428,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint             new_offset;
     guint16          service_uuid = 0;
     gint             service_offset;
-    emem_tree_key_t  key[10];
+    wmem_tree_key_t  key[10];
     guint32          k_interface_id;
     guint32          k_adapter_id;
     guint32          k_sdp_psm;
@@ -3538,7 +3538,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
         key[9].length = 0;
         key[9].key = NULL;
 
-        se_tree_insert32_array(service_infos, key, service_info);
+        wmem_tree_insert32_array(service_infos, key, service_info);
     }
 
     proto_item_set_len(list_item, offset - start_offset);
@@ -5162,13 +5162,10 @@ proto_register_btsdp(void)
     proto_register_field_array(proto_btsdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    tid_requests = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,
-            "btsdp reassembling by tid");
-    continuation_states = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,
-            "btsdp reassembling by continuation state");
+    tid_requests = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    continuation_states = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    service_infos = se_tree_create(EMEM_TREE_TYPE_RED_BLACK,
-            "btsdp service infos");
+    service_infos = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     sdp_package.service_infos = service_infos;
     btsdp_tap = register_tap("btsdp");
 

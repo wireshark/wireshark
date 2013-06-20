@@ -119,7 +119,7 @@ typedef struct _wmem_tree_key_t {
  * The NFS dissector handles this by providing a guint32 containing the length
  * as the very first item in this vector :
  *
- *			emem_tree_key_t fhkey[3];
+ *			wmem_tree_key_t fhkey[3];
  *
  *			fhlen=nns->fh_length;
  *			fhkey[0].length=1;

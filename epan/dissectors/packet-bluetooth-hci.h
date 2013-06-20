@@ -24,6 +24,8 @@
 #ifndef __PACKET_BLUETOOTH_HCI_H__
 #define __PACKET_BLUETOOTH_HCI__H__
 
+#include <epan/wmem/wmem.h>
+
 #define HCI_H4_TYPE_CMD		0x01
 #define HCI_H4_TYPE_ACL		0x02
 #define HCI_H4_TYPE_SCO		0x03
@@ -83,10 +85,10 @@ extern const value_string bthci_cmd_notification_types[];
 typedef struct _hci_data_t {
     guint32     interface_id;
     guint32     adapter_id;
-    emem_tree_t *chandle_to_bdaddr_table;
-    emem_tree_t *bdaddr_to_name_table;
-    emem_tree_t *localhost_bdaddr;
-    emem_tree_t *localhost_name;
+    wmem_tree_t *chandle_to_bdaddr_table;
+    wmem_tree_t *bdaddr_to_name_table;
+    wmem_tree_t *localhost_bdaddr;
+    wmem_tree_t *localhost_name;
 } hci_data_t;
 
 typedef struct _remote_bdaddr_t {

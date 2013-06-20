@@ -52,11 +52,11 @@ static int hf_msg_fragment_count = -1;
 static int hf_msg_reassembled_in = -1;
 static int hf_msg_reassembled_length = -1;
 
-static emem_tree_t *chandle_to_bdaddr_table = NULL;
-static emem_tree_t *bdaddr_to_name_table    = NULL;
-static emem_tree_t *localhost_name          = NULL;
-static emem_tree_t *localhost_bdaddr        = NULL;
-static emem_tree_t *fragment_info_table     = NULL;
+static wmem_tree_t *chandle_to_bdaddr_table = NULL;
+static wmem_tree_t *bdaddr_to_name_table    = NULL;
+static wmem_tree_t *localhost_name          = NULL;
+static wmem_tree_t *localhost_bdaddr        = NULL;
+static wmem_tree_t *fragment_info_table     = NULL;
 
 static reassembly_table hci_usb_reassembly_table;
 
@@ -154,13 +154,13 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if (!pinfo->fd->flags.visited && usb_data->endpoint <= 0x02) {
         fragment_info_t  *fragment_info;
 
-        fragment_info = (fragment_info_t *) se_tree_lookup32(fragment_info_table, session_id);
+        fragment_info = (fragment_info_t *) wmem_tree_lookup32(fragment_info_table, session_id);
         if (fragment_info == NULL) {
             fragment_info = (fragment_info_t *) wmem_new(wmem_file_scope(), fragment_info_t);
             fragment_info->fragment_id = 0;
             fragment_info->remaining_length = 0;
 
-            se_tree_insert32(fragment_info_table, session_id, fragment_info);
+            wmem_tree_insert32(fragment_info_table, session_id, fragment_info);
         }
 
         if (fragment_info->fragment_id == 0) {
@@ -298,12 +298,12 @@ proto_register_hci_usb(void)
 
     reassembly_table_init(&hci_usb_reassembly_table,
                           &addresses_reassembly_table_functions);
-    fragment_info_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb fragment_info");
+    fragment_info_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    chandle_to_bdaddr_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb adapter/chandle to bdaddr");
-    bdaddr_to_name_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb bdaddr to name");
-    localhost_bdaddr = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb adaper/frame to bdaddr");
-    localhost_name = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci_usb adaper/frame to name");
+    chandle_to_bdaddr_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, chandle: bdaddr */
+    bdaddr_to_name_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* bdaddr: name */
+    localhost_bdaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adaper, frame: bdaddr */
+    localhost_name = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adaper, frame: name */
 
     proto_hci_usb = proto_register_protocol("Bluetooth HCI USB Transport", "HCI_USB", "hci_usb");
     proto_register_field_array(proto_hci_usb, hf, array_length(hf));

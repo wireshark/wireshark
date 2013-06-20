@@ -64,13 +64,13 @@ typedef struct _multi_fragment_pdu_t {
 } multi_fragment_pdu_t;
 
 typedef struct _chandle_data_t {
-    emem_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
+    wmem_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
     guint32      interface_id;
     guint32      adapter_id;
     guint32      chandle;
 } chandle_data_t;
 
-static emem_tree_t *chandle_tree = NULL;
+static wmem_tree_t *chandle_tree = NULL;
 
 static const value_string pb_flag_vals[] = {
     { 0, "First Non-automatically Flushable Packet" },
@@ -105,7 +105,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     chandle_data_t           *chandle_data;
     void                     *pd_save;
     hci_data_t               *hci_data;
-    emem_tree_key_t           key[5];
+    wmem_tree_key_t           key[5];
     guint32                   k_connection_handle;
     guint32                   k_frame_number;
     guint32                   k_interface_id;
@@ -175,7 +175,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[4].key    = NULL;
 
     /* remote bdaddr and name */
-    remote_bdaddr = (remote_bdaddr_t *)se_tree_lookup32_array_le(hci_data->chandle_to_bdaddr_table, key);
+    remote_bdaddr = (remote_bdaddr_t *)wmem_tree_lookup32_array_le(hci_data->chandle_to_bdaddr_table, key);
     if (remote_bdaddr && remote_bdaddr->interface_id == hci_data->interface_id &&
             remote_bdaddr->adapter_id == hci_data->adapter_id &&
             remote_bdaddr->chandle == (flags & 0x0fff)) {
@@ -208,7 +208,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[3].length = 0;
         key[3].key    = NULL;
 
-        device_name = (device_name_t *)se_tree_lookup32_array_le(hci_data->bdaddr_to_name_table, key);
+        device_name = (device_name_t *)wmem_tree_lookup32_array_le(hci_data->bdaddr_to_name_table, key);
         if (device_name && device_name->bd_addr_oui == bd_addr_oui && device_name->bd_addr_id == bd_addr_id)
             remote_name = device_name->name;
         else
@@ -256,14 +256,14 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[3].key    = NULL;
 
 
-    localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)se_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
+    localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == hci_data->interface_id &&
             localhost_bdaddr_entry->adapter_id == hci_data->adapter_id)
         localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
     else
         localhost_ether_addr = "localhost";
 
-    localhost_name_entry = (localhost_name_entry_t *)se_tree_lookup32_array_le(hci_data->localhost_name, key);
+    localhost_name_entry = (localhost_name_entry_t *)wmem_tree_lookup32_array_le(hci_data->localhost_name, key);
     if (localhost_name_entry && localhost_name_entry->interface_id == hci_data->interface_id &&
             localhost_name_entry->adapter_id == hci_data->adapter_id)
         localhost_name = localhost_name_entry->name;
@@ -302,7 +302,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     key[4].length = 0;
     key[4].key = NULL;
 
-    chandle_data = (chandle_data_t *)se_tree_lookup32_array_le(chandle_tree, key);
+    chandle_data = (chandle_data_t *)wmem_tree_lookup32_array_le(chandle_tree, key);
     if (!(chandle_data && chandle_data->interface_id == hci_data->interface_id &&
             chandle_data->adapter_id == hci_data->adapter_id &&
             chandle_data->chandle == (flags & 0x0fff))) {
@@ -323,12 +323,12 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[4].key = NULL;
 
         chandle_data = (chandle_data_t *)se_alloc(sizeof(chandle_data_t));
-        chandle_data->start_fragments = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_acl fragment starts");
+        chandle_data->start_fragments = wmem_tree_new(wmem_file_scope());
         chandle_data->interface_id = hci_data->interface_id;
         chandle_data->adapter_id   = hci_data->adapter_id;
         chandle_data->chandle      = flags & 0x0fff;
 
-        se_tree_insert32_array(chandle_tree, key, chandle_data);
+        wmem_tree_insert32_array(chandle_tree, key, chandle_data);
     }
 
     length = tvb_get_letohs(tvb, offset);
@@ -378,10 +378,10 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (len <= mfp->tot_len) {
                     tvb_memcpy(tvb, (guint8 *) mfp->reassembled, offset, len);
                     mfp->cur_off = len;
-                    se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
+                    wmem_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
                 }
             } else {
-                mfp = (multi_fragment_pdu_t *)se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
+                mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
             }
             if (mfp != NULL && mfp->last_frame) {
                 proto_item *item;
@@ -392,7 +392,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         if (pb_flag == 0x01) { /* continuation fragment */
-            mfp = (multi_fragment_pdu_t *)se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
+            mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
             if (!pinfo->fd->flags.visited) {
                 len = tvb_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame && (mfp->tot_len >= mfp->cur_off + len)) {
@@ -491,7 +491,7 @@ proto_register_bthci_acl(void)
         "Whether the ACL dissector should reassemble fragmented PDUs",
         &acl_reassembly);
 
-    chandle_tree = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "bthci_acl chandles");
+    chandle_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 

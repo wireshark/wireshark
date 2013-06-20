@@ -108,7 +108,7 @@ static gint ett_btdun = -1;
 static gint ett_btspp = -1;
 static gint ett_btgnss = -1;
 
-static emem_tree_t *sdp_service_infos = NULL;
+static wmem_tree_t *sdp_service_infos = NULL;
 
 static dissector_table_t rfcomm_service_dissector_table;
 static dissector_table_t rfcomm_channel_dissector_table;
@@ -572,7 +572,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = dissect_btrfcomm_payload_length(tvb, offset, rfcomm_tree, &frame_len);
 
     if (dlci && (frame_len || (frame_type == 0xef) || (frame_type == 0x2f))) {
-        emem_tree_key_t  key[10];
+        wmem_tree_key_t  key[10];
         guint32          k_interface_id;
         guint32          k_adapter_id;
         guint32          k_sdp_psm;
@@ -619,7 +619,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[9].length = 0;
         key[9].key = NULL;
 
-        service_info = (service_info_t *) se_tree_lookup32_array_le(sdp_service_infos, key);
+        service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
         if (service_info && service_info->interface_id == l2cap_data->interface_id &&
                 service_info->adapter_id == l2cap_data->adapter_id &&
                 service_info->sdp_psm == SDP_PSM_DEFAULT &&
