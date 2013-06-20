@@ -651,7 +651,11 @@ do_cpuid(guint32 *CPUInfo, int selector _U_){
 
 static void get_cpu_info(GString *str _U_)
 {
-	int CPUInfo[4];
+#if defined(_MSC_VER)
+    int CPUInfo[4];
+#else
+    guint32 CPUInfo[4];
+#endif
 	char CPUBrandString[0x40];
 	unsigned    nExIds;
 
