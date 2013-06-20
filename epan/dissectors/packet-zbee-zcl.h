@@ -189,6 +189,11 @@ typedef struct _zbee_zcl_cluster_desc {
     zbee_zcl_fn_attr_data fn_attr_data;
 } zbee_zcl_cluster_desc;
 
+extern const value_string zbee_zcl_short_data_type_names[];
+
+/* Dissector functions */
+extern void dissect_zcl_write_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+extern void dissect_zcl_read_attr_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
 
 /* Helper functions */
 void decode_zcl_time_in_seconds (gchar *s, guint16 value);

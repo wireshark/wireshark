@@ -504,9 +504,14 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC,         "Multistate Output (Basic)"},
     { ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC,          "Multistate Value (Basic)"},
     { ZBEE_ZCL_CID_COMMISSIONING,                   "Commissioning"},
+    { ZBEE_ZCL_CID_PARTITION,                       "Partition"},
+    /* */
+    { ZBEE_ZCL_CID_POWER_PROFILE,                    "Power Profile"},
+    { ZBEE_ZCL_CID_APPLIANCE_CONTROL,                "Appliance Control"},
 
 /* Closures */
     { ZBEE_ZCL_CID_SHADE_CONFIG,                    "Shade Configuration"},
+    { ZBEE_ZCL_CID_DOOR_LOCK,                       "Door Lock"},
 
 /* HVAC */
     { ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL,             "Pump Configuration Control"},
@@ -562,6 +567,12 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_MESSAGE,                         "Message"},
     { ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING,          "Smart Energy Tunneling"},
     { ZBEE_ZCL_CID_PRE_PAYMENT,                     "Pre-Payment"},
+
+/* ZCL Cluster IDs - Home Automation */
+    {ZBEE_ZCL_CID_APPLIANCE_IDENTIFICATION,         "Appliance Identification"},
+    {ZBEE_ZCL_CID_METER_IDENTIFICATION,             "Meter Identification"},
+    {ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT,       "Appliance Events And Alerts"},
+    {ZBEE_ZCL_CID_APPLIANCE_STATISTICS,             "Appliance Statistics"},
 
     { 0, NULL }
 };

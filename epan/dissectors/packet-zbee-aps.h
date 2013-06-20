@@ -147,9 +147,14 @@
 #define ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC        0x0013
 #define ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC         0x0014
 #define ZBEE_ZCL_CID_COMMISSIONING                  0x0015
+#define ZBEE_ZCL_CID_PARTITION                      0x0016
+/* */
+#define ZBEE_ZCL_CID_POWER_PROFILE                  0x001a
+#define ZBEE_ZCL_CID_APPLIANCE_CONTROL              0x001b
 
 /* ZCL Cluster IDs - Closures */
 #define ZBEE_ZCL_CID_SHADE_CONFIG                   0x0100
+#define ZBEE_ZCL_CID_DOOR_LOCK                      0X0101
 
 /* ZCL Cluster IDs - HVAC */
 #define ZBEE_ZCL_CID_PUMP_CONFIG_CONTROL            0x0200
@@ -205,6 +210,12 @@
 #define ZBEE_ZCL_CID_MESSAGE                        0x0703
 #define ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING         0x0704
 #define ZBEE_ZCL_CID_PRE_PAYMENT                    0x0705
+
+/* ZCL Cluster IDs - Home Automation */
+#define ZBEE_ZCL_CID_APPLIANCE_IDENTIFICATION       0x0b00
+#define ZBEE_ZCL_CID_METER_IDENTIFICATION           0x0b01
+#define ZBEE_ZCL_CID_APPLIANCE_EVENTS_AND_ALERT     0x0b02
+#define ZBEE_ZCL_CID_APPLIANCE_STATISTICS           0x0b03
 
 /*  Structure to contain the APS frame information */
 typedef struct{

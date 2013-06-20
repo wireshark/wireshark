@@ -987,3 +987,607 @@ proto_reg_handoff_zbee_zcl_on_off(void)
                             (zbee_zcl_fn_attr_data)dissect_zcl_on_off_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_on_off*/
+
+/* ########################################################################## */
+/* #### (0x0016) PARTITION ################################################## */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_PART_NUM_GENERIC_ETT                   3
+#define ZBEE_ZCL_PART_NUM_NACK_ID_ETT                   16
+#define ZBEE_ZCL_PART_NUM_ATTRS_ID_ETT                  16
+#define ZBEE_ZCL_PART_NUM_ETT                           (ZBEE_ZCL_PART_NUM_GENERIC_ETT + \
+                                                        ZBEE_ZCL_PART_NUM_NACK_ID_ETT + \
+                                                        ZBEE_ZCL_PART_NUM_ATTRS_ID_ETT)
+
+#define ZBEE_ZCL_PART_OPT_1_BLOCK                       0x01
+#define ZBEE_ZCL_PART_OPT_INDIC_LEN                     0x02
+#define ZBEE_ZCL_PART_OPT_RESERVED                      0xc0
+
+#define ZBEE_ZCL_PART_ACK_OPT_NACK_LEN                  0x01
+#define ZBEE_ZCL_PART_ACK_OPT_RESERVED                  0xFE
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_PART_MAX_IN_TRANSF_SIZE        0x0000  /* Maximum Incoming Transfer Size */
+#define ZBEE_ZCL_ATTR_ID_PART_MAX_OUT_TRANSF_SIZE       0x0001  /* Maximum Outgoing Transfer Size */
+#define ZBEE_ZCL_ATTR_ID_PART_PARTIONED_FRAME_SIZE      0x0002  /* Partioned Frame Size */
+#define ZBEE_ZCL_ATTR_ID_PART_LARGE_FRAME_SIZE          0x0003  /* Large Frame Size */
+#define ZBEE_ZCL_ATTR_ID_PART_ACK_FRAME_NUM             0x0004  /* Number of Ack Frame*/
+#define ZBEE_ZCL_ATTR_ID_PART_NACK_TIMEOUT              0x0005  /* Nack Timeout */
+#define ZBEE_ZCL_ATTR_ID_PART_INTERFRAME_DELEAY         0x0006  /* Interframe Delay */
+#define ZBEE_ZCL_ATTR_ID_PART_SEND_RETRIES_NUM          0x0007  /* Number of Send Retries */
+#define ZBEE_ZCL_ATTR_ID_PART_SENDER_TIMEOUT            0x0008  /* Sender Timeout */
+#define ZBEE_ZCL_ATTR_ID_PART_RECEIVER_TIMEOUT          0x0009  /* Receiver Timeout */
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_PART_TRANSF_PART_FRAME          0x00  /* Transfer Partitioned Frame */
+#define ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM         0x01  /* Read Handshake Param */
+#define ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM         0x02  /* Write Handshake Param */
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_PART_MULTI_ACK                  0x00  /* Multiple Ack */
+#define ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM_RSP     0x01  /* Read Handshake Param Response */
+
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+/* Command Dissector Helpers */
+static void dissect_zcl_part_trasfpartframe         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_rdhandshakeparam       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_wrhandshakeparam       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_multiack               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_part_rdhandshakeparamrsp    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset);
+
+/* Private functions prototype */
+static void dissect_zcl_part_attr_id                (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+extern const value_string zbee_aps_cid_names[];
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_part = -1;
+
+static int hf_zbee_zcl_part_attr_id = -1;
+static int hf_zbee_zcl_part_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_part_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_part_opt_first_block = -1;
+static int hf_zbee_zcl_part_opt_indic_len = -1;
+static int hf_zbee_zcl_part_opt_res = -1;
+static int hf_zbee_zcl_part_first_frame_id = -1;
+static int hf_zbee_zcl_part_part_indicator = -1;
+static int hf_zbee_zcl_part_part_frame = -1;
+static int hf_zbee_zcl_part_part_frame_len = -1;
+static int hf_zbee_zcl_part_partitioned_cluster_id = -1;
+static int hf_zbee_zcl_part_ack_opt_nack_id_len = -1;
+static int hf_zbee_zcl_part_ack_opt_res = -1;
+static int hf_zbee_zcl_part_nack_id = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_part = -1;
+static gint ett_zbee_zcl_part_fragm_options = -1;
+static gint ett_zbee_zcl_part_ack_opts = -1;
+static gint ett_zbee_zcl_part_nack_id_list[ZBEE_ZCL_PART_NUM_NACK_ID_ETT];
+static gint ett_zbee_zcl_part_attrs_id_list[ZBEE_ZCL_PART_NUM_ATTRS_ID_ETT];
+
+/* Attributes */
+static const value_string zbee_zcl_part_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_PART_MAX_IN_TRANSF_SIZE,     "Maximum Incoming Transfer Size" },
+    { ZBEE_ZCL_ATTR_ID_PART_MAX_OUT_TRANSF_SIZE,    "Maximum Outgoing Transfer Size" },
+    { ZBEE_ZCL_ATTR_ID_PART_PARTIONED_FRAME_SIZE,   "Partioned Frame Size" },
+    { ZBEE_ZCL_ATTR_ID_PART_LARGE_FRAME_SIZE,       "Large Frame Size" },
+    { ZBEE_ZCL_ATTR_ID_PART_ACK_FRAME_NUM,          "Number of Ack Frame" },
+    { ZBEE_ZCL_ATTR_ID_PART_NACK_TIMEOUT,           "Nack Timeout" },
+    { ZBEE_ZCL_ATTR_ID_PART_INTERFRAME_DELEAY,      "Interframe Delay" },
+    { ZBEE_ZCL_ATTR_ID_PART_SEND_RETRIES_NUM,       "Number of Send Retries" },
+    { ZBEE_ZCL_ATTR_ID_PART_SENDER_TIMEOUT,         "Sender Timeout" },
+    { ZBEE_ZCL_ATTR_ID_PART_RECEIVER_TIMEOUT,       "Receiver Timeout" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_part_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_PART_TRANSF_PART_FRAME,       "Transfer Partitioned Frame" },
+    { ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM,      "Read Handshake Param" },
+    { ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM,      "Write Handshake Param" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_part_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_PART_MULTI_ACK,               "Multiple Ack" },
+    { ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM_RSP,  "Read Handshake Param Response" },
+    { 0, NULL }
+};
+
+/* ID Lenght */
+static const value_string zbee_zcl_part_id_length_names[] = {
+    { 0,        "1-Byte length" },
+    { 1,        "2-Bytes length" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_part
+ *  DESCRIPTION
+ *      ZigBee ZCL Partition cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item  *payload_root = NULL;
+    proto_tree  *payload_tree = NULL;
+    zbee_zcl_packet  *zcl = (zbee_zcl_packet *)pinfo->private_data;
+    guint       offset = 0;
+    guint8      cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        if (tree) {
+            /* Add the command ID. */
+            proto_tree_add_item(tree, hf_zbee_zcl_part_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+            /* Check is this command has a payload, than add the payload tree */
+            if (offset != (tvb_length(tvb) - 1)) {
+                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
+                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_part);
+            }
+        }
+        offset += (int)1;
+
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_part_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Call the appropriate command dissector */
+        switch (cmd_id) {
+
+            case ZBEE_ZCL_CMD_ID_PART_TRANSF_PART_FRAME:
+                dissect_zcl_part_trasfpartframe(tvb, payload_tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM:
+                dissect_zcl_part_rdhandshakeparam(tvb, payload_tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM:
+                dissect_zcl_part_wrhandshakeparam(tvb, pinfo, payload_tree, &offset);
+                break;
+
+            default:
+                break;
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        if (tree) {
+            /* Add the command ID. */
+            proto_tree_add_item(tree, hf_zbee_zcl_part_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+            /* Check is this command has a payload, than add the payload tree */
+            if (offset != (tvb_length(tvb) - 1)) {
+                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
+                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_part);
+            }
+        }
+        offset += (int)1;
+
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_part_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Call the appropriate command dissector */
+        switch (cmd_id) {
+
+            case ZBEE_ZCL_CMD_ID_PART_MULTI_ACK:
+                dissect_zcl_part_multiack(tvb, payload_tree, &offset);
+                break;
+
+            case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM_RSP:
+                dissect_zcl_part_rdhandshakeparamrsp(tvb, pinfo, payload_tree, &offset);
+                break;
+
+            default:
+                break;
+        }
+    }
+} /*dissect_zbee_zcl_part*/
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_trasfpartframe
+ *  DESCRIPTION
+ *      This function manages the Trasfer Partition Frame payload
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      offset              - pointer of buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree *sub_tree = NULL;
+    proto_item *ti;
+
+    guint8    options;
+    guint16   u16len;
+    guint8    frame_len;
+    guint8    *data_frame;
+
+    /* Retrieve "Fragmentation Options" field */
+    options = tvb_get_guint8(tvb, *offset);
+    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Fragmentation Options: 0x%02x", options);
+    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_part_fragm_options);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_part_opt_first_block, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_part_opt_indic_len, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_part_opt_res, tvb, *offset, 1, ENC_NA);
+    *offset += (int)1;
+
+    /* Retrieve "PartitionIndicator" field */
+    if ((options & ZBEE_ZCL_PART_OPT_INDIC_LEN) ==  0)
+    {
+        /* 1-byte length */
+        u16len = (guint16)tvb_get_guint8(tvb, *offset);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 1, (u16len & 0xFF));
+        *offset += (int)1;
+    }
+    else {
+        /* 2-bytes length */
+        u16len = tvb_get_letohs(tvb, *offset);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_part_indicator, tvb, *offset, 2, u16len);
+        *offset += (int)2;
+    }
+
+    /* Retrieve PartitionedFrame length field */
+    frame_len = tvb_get_guint8(tvb, *offset); /* string length */
+    if (frame_len == ZBEE_ZCL_INVALID_STR_LENGTH) frame_len = 0;
+    proto_tree_add_item(tree, hf_zbee_zcl_part_part_frame_len, tvb, *offset, 1, ENC_NA);
+    *offset += (int)1;
+
+    /* Retrieve "PartitionedFrame" field */
+    data_frame = tvb_bytes_to_str_punct(tvb, *offset, frame_len, ':');
+    proto_tree_add_string(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, frame_len, data_frame);
+    *offset += frame_len;
+
+} /*dissect_zcl_part_trasfpartframe*/
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_rdhandshakeparam
+ *  DESCRIPTION
+ *      This function manages the ReadHandshakeParam payload
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      offset              - offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint tvb_len;
+    guint16 attr_id;
+
+    /* Retrieve "Partitioned Cluster ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += (int)2;
+
+    /* Dissect the attribute id list */
+    tvb_len = tvb_length(tvb);
+    while ( *offset < tvb_len ) {
+        /* Dissect the attribute identifier */
+        attr_id = tvb_get_letohs(tvb, *offset);
+        dissect_zcl_part_attr_id(tree, tvb, offset, attr_id);
+        *offset += (int)2;
+    }
+
+    return;
+
+} /*dissect_zcl_part_rdhandshakeparam*/
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_wrhandshakeparam
+ *  DESCRIPTION
+ *      This function manages the WriteAndShakeParam payload
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      offset              - offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_part_wrhandshakeparam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Partitioned Cluster ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += (int)2;
+
+    /* Dissect the attributes list */
+    dissect_zcl_write_attr(tvb, pinfo, tree, offset);
+
+} /*dissect_zcl_part_wrhandshakeparam*/
+
+
+/* Management of Cluster specific commands sent by the server */
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_multiack
+ *  DESCRIPTION
+ *      This function manages the MultipleACK payload
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo, -
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      offset              - offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree *sub_tree = NULL;
+    proto_item *ti;
+
+    guint   tvb_len = tvb_length(tvb);
+    guint   i = 0;
+    guint8  options;
+    guint16 first_frame_id;
+    guint16 nack_id;
+
+    /* Retrieve "Ack Options" field */
+    options = tvb_get_guint8(tvb, *offset);
+    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Ack Options: 0x%02x", options);
+    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_part_ack_opts);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_part_ack_opt_nack_id_len, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_part_ack_opt_res, tvb, *offset, 1, ENC_NA);
+    *offset += (int)1;
+
+    /* Retrieve "First Frame ID" field */
+    if ((options & ZBEE_ZCL_PART_ACK_OPT_NACK_LEN) ==  0)
+    {
+        /* 1-byte length */
+        first_frame_id = (guint16)tvb_get_guint8(tvb, *offset);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_first_frame_id, tvb, *offset, 1, (first_frame_id & 0xFF));
+        *offset += (int)1;
+    }
+    else {
+        /* 2-bytes length */
+        first_frame_id = tvb_get_letohs(tvb, *offset);
+        proto_tree_add_item(tree, hf_zbee_zcl_part_first_frame_id, tvb, *offset, 2, first_frame_id);
+        *offset += (int)2;
+    }
+
+    /* Dissect the nack id list */
+    while ( *offset < tvb_len && i < ZBEE_ZCL_PART_NUM_NACK_ID_ETT )
+    {
+        if ((options & ZBEE_ZCL_PART_ACK_OPT_NACK_LEN) ==  0)
+        {
+            /* 1-byte length */
+            nack_id = (guint16)tvb_get_guint8(tvb, *offset);
+            proto_tree_add_item(tree, hf_zbee_zcl_part_nack_id, tvb, *offset, 1, (nack_id & 0xFF));
+            *offset += (int)1;
+        }
+        else {
+            /* 2-bytes length */
+            nack_id = tvb_get_letohs(tvb, *offset);
+            proto_tree_add_item(tree, hf_zbee_zcl_part_nack_id, tvb, *offset, 2, nack_id);
+            *offset += (int)2;
+        }
+
+        i++;
+    }
+} /*dissect_zcl_part_multiack*/
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_multiack
+ *  DESCRIPTION
+ *      This function manages the ReadHandshakeParamResponse payload
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      offset              - offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_part_rdhandshakeparamrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Partitioned Cluster ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_part_partitioned_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += (int)2;
+
+    /* Dissect the attributes list */
+    dissect_zcl_read_attr_resp(tvb, pinfo, tree, offset);
+} /*dissect_zcl_part_rdhandshakeparamrsp*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_part_attr_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_part_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_part_attr_id, tvb, *offset, 2, attr_id);
+} /*dissect_zcl_part_attr_id*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_part
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void proto_register_zbee_zcl_part(void)
+{
+    guint8  i, j;
+
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_part_attr_id,
+            { "Attribute", "zbee_zcl_general.part.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_part_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_general.part.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_part_srv_tx_cmd_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_general.part.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_part_srv_rx_cmd_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_opt_first_block,
+            { "First Block", "zbee_zcl_general.part.opt.first_block", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PART_OPT_1_BLOCK, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_opt_indic_len,
+            { "Indicator length", "zbee_zcl_general.part.opt.indic_len", FT_UINT8, BASE_DEC, VALS(zbee_zcl_part_id_length_names),
+            ZBEE_ZCL_PART_OPT_INDIC_LEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_opt_res,
+            { "Reserved", "zbee_zcl_general.part.opt.res", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PART_OPT_RESERVED, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_first_frame_id,
+            { "First Frame ID", "zbee_zcl_general.part.first_frame_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_part_indicator,
+            { "Partition Indicator", "zbee_zcl_general.part.part_indicator", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_part_frame_len,
+            { "Partition Frame Length", "zbee_zcl_general.part.part_frame_length", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_part_frame,
+            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_partitioned_cluster_id,
+            { "Partitioned Cluster ID", "zbee_zcl_general.part.part_cluster_id", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_ack_opt_nack_id_len,
+            { "Nack Id Length", "zbee_zcl_general.ack_opt.part.nack_id.len", FT_UINT8, BASE_HEX, VALS(zbee_zcl_part_id_length_names),
+            ZBEE_ZCL_PART_ACK_OPT_NACK_LEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_ack_opt_res,
+            { "Reserved", "zbee_zcl_general.part.ack_opt.reserved", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_PART_ACK_OPT_RESERVED, NULL, HFILL } },
+
+        { &hf_zbee_zcl_part_nack_id,
+            { "Nack Id", "zbee_zcl_general.part.nack_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Partition subtrees */
+    gint *ett[ZBEE_ZCL_PART_NUM_ETT];
+
+    ett[0] = &ett_zbee_zcl_part;
+    ett[1] = &ett_zbee_zcl_part_fragm_options;
+    ett[2] = &ett_zbee_zcl_part_ack_opts;
+
+    /* initialize attribute subtree types */
+    for ( i = 0, j = ZBEE_ZCL_PART_NUM_GENERIC_ETT; i < ZBEE_ZCL_PART_NUM_NACK_ID_ETT; i++, j++) {
+        ett_zbee_zcl_part_nack_id_list[i] = -1;
+        ett[j] = &ett_zbee_zcl_part_nack_id_list[i];
+    }
+
+    for ( i = 0; i < ZBEE_ZCL_PART_NUM_ATTRS_ID_ETT; i++, j++) {
+        ett_zbee_zcl_part_attrs_id_list[i] = -1;
+        ett[j] = &ett_zbee_zcl_part_attrs_id_list[i];
+    }
+
+    /* Register ZigBee ZCL Partition protocol with Wireshark. */
+    proto_zbee_zcl_part = proto_register_protocol("ZigBee ZCL Partition", "ZCL Partition", ZBEE_PROTOABBREV_ZCL_PART);
+    proto_register_field_array(proto_zbee_zcl_part, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Partition dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_PART, dissect_zbee_zcl_part, proto_zbee_zcl_part);
+
+} /* proto_register_zbee_zcl_pwr_prof */
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_part
+ *  DESCRIPTION
+ *      Registers the zigbee ZCL Partition cluster dissector with Wireshark.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void proto_reg_handoff_zbee_zcl_part(void)
+{
+    dissector_handle_t part_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    part_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_PART);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_PARTITION, part_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_part,
+                            ett_zbee_zcl_part,
+                            ZBEE_ZCL_CID_PARTITION,
+                            (zbee_zcl_fn_attr_id)dissect_zcl_part_attr_id,
+                            NULL
+                         );
+
+} /*proto_reg_handoff_zbee_zcl_part*/
+
