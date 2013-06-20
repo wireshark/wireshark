@@ -1409,7 +1409,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 {
     guint16     opttype, hwtype, subopt_type;
     int     temp_optlen = 0, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
-    proto_item *ti, *option_item;
+    proto_item *ti = NULL, *option_item;
     proto_tree *subtree;
     proto_tree *subtree_2;
     int i;
