@@ -1,7 +1,8 @@
-/* packet-zbee-zcl-on-off.c
- * Dissector routines for the ZigBee ZCL On Off cluster
+/* packet-zbee-zcl-general.c
+ * Dissector routines for the ZigBee ZCL General clusters like
+ * Basic, Identify, OnOff ...
  * By Fabio Tarabelloni <fabio.tarabelloni@reloc.it>
- * Copyright 2012 RELOC s.r.l.
+ * Copyright 2013 RELOC s.r.l.
  *
  * $Id$
  *
@@ -24,7 +25,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 /*  Include Files */
 #include "config.h"
 
@@ -35,6 +35,10 @@
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
+
+/* ########################################################################## */
+/* #### (0x0006) ON/OFF CLUSTER ############################################# */
+/* ########################################################################## */
 
 /*************************/
 /* Defines               */
@@ -60,9 +64,9 @@ void proto_reg_handoff_zbee_zcl_on_off(void);
 static void dissect_zcl_on_off_attr_id       (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id);
 static void dissect_zcl_on_off_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
 
-/********************
- * Global Variables *
- ********************/
+/*************************/
+/* Global Variables      */
+/*************************/
 
 /* Initialize the protocol and registered fields */
 static int proto_zbee_zcl_on_off = -1;
@@ -95,6 +99,10 @@ static const value_string zbee_zcl_on_off_onoff_names[] = {
     { 0, NULL }
 };
 
+/*************************/
+/* Function Bodies       */
+/*************************/
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_zcl_onoff
@@ -121,7 +129,7 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Add the command ID. */
             proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, sizeof(guint8), cmd_id);
         }
-        /*offset += (int)sizeof(guint8);*/
+        offset += (int)sizeof(guint8);
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
@@ -134,7 +142,14 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  NAME
  *      dissect_zcl_on_off_attr_id
  *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes identifier.
  *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *
  *  RETURNS
  *      none
  *---------------------------------------------------------------
@@ -150,7 +165,14 @@ dissect_zcl_on_off_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint
  *  NAME
  *      dissect_zcl_on_off_attr_data
  *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
  *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
  *  RETURNS
  *      none
  *---------------------------------------------------------------
@@ -191,15 +213,15 @@ proto_register_zbee_zcl_on_off(void)
     static hf_register_info hf[] = {
 
         { &hf_zbee_zcl_on_off_attr_id,
-            { "Attribute", "zbee.zcl.on_off.attr.id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_on_off_attr_names),
+            { "Attribute", "zbee_zcl_general.onoff.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_on_off_attr_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_attr_onoff,
-            { "Data Value", "zbee.zcl.on_off.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_onoff_names),
+            { "Data Value", "zbee_zcl_general.onoff.attr.onoff", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_onoff_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_on_off_srv_rx_cmd_id,
-            { "Command", "zbee.zcl.on_off.srv_rx.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_srv_rx_cmd_names),
+            { "Command", "zbee_zcl_general.onoff.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_srv_rx_cmd_names),
             0x00, NULL, HFILL } }
 
     };

@@ -787,7 +787,7 @@
 #define ZBEE_PROTOABBREV_APS                "zbee_aps"
 #define ZBEE_PROTOABBREV_APF                "zbee_apf"
 #define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
-#define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_onoff"
+#define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_general.onoff"
 
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
