@@ -145,6 +145,13 @@ expert_get_highest_severity(void)
 	return highest_severity;
 }
 
+void
+expert_update_comment_count(guint64 count)
+{
+   if (count==0 && highest_severity==PI_COMMENT)
+      highest_severity = 0;
+}
+
 expert_module_t *expert_register_protocol(int id)
 {
 	expert_module_t *module;

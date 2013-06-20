@@ -42,6 +42,7 @@
 #endif
 
 #include <epan/epan.h>
+#include <epan/expert.h>
 #include <epan/filesystem.h>
 
 #include "color.h"
@@ -3901,6 +3902,8 @@ cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment)
     fdata->opt_comment = comment;
     cf->packet_comment_count++;
   }
+
+  expert_update_comment_count(cf->packet_comment_count);
 
   /* OK, we have unsaved changes. */
   cf->unsaved_changes = TRUE;

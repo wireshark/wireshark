@@ -126,6 +126,9 @@ expert_packet_cleanup(void);
 WS_DLL_PUBLIC int
 expert_get_highest_severity(void);
 
+WS_DLL_PUBLIC void
+expert_update_comment_count(guint64 count);
+
 /** Add an expert info.
  Add an expert info tree to a protocol item using registered expert info item
  @param pinfo Packet info of the currently processed packet. May be NULL if
