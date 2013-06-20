@@ -100,6 +100,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
             }
         }
     }
+    ti_ui_->encapComboBox->model()->sort(0);
 }
 
 ImportTextDialog::~ImportTextDialog()
