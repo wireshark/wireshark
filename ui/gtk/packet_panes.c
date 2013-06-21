@@ -828,6 +828,37 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	bytes_view_refresh(BYTES_VIEW(bv));
 }
 
+static field_info *
+get_top_finfo(proto_node *node, field_info *finfo)
+{
+        proto_node *child;
+        field_info *top;
+
+        if (PNODE_FINFO(node) == finfo) {
+                top = finfo;
+
+                while (node && node->parent) {
+                        field_info *fi;
+
+                        node = node->parent;
+
+                        fi = PNODE_FINFO(node);
+                        if (fi && fi->ds_tvb == finfo->ds_tvb)
+                                top = fi;
+                }
+
+                return top;
+        }
+
+        for (child = node->first_child; child; child = child->next) {
+                top = get_top_finfo(child, finfo);
+                if (top)
+                        return top;
+        }
+
+        return NULL;
+}
+
 void
 packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
                  field_info *finfo, guint len)
@@ -841,6 +872,8 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     int pstart = -1, pend = -1, plen = -1;
 
     if (finfo != NULL) {
+        proto_tree *tree = (proto_tree *)g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TREE_PTR);
+        field_info *top_finfo;
 
         if (cfile.search_in_progress && (cfile.hex || (cfile.string && cfile.packet_data))) {
             /* In the hex view, only highlight the target bytes or string. The entire
@@ -869,25 +902,11 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
         astart = finfo->appendix_start;
         alen = finfo->appendix_length;
 
-        if (finfo->hfinfo->parent != -1) {
-                proto_tree *tree = (proto_tree *)g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TREE_PTR);
-                GPtrArray  *finfo_array;
-                guint i;
-
-                finfo_array = proto_find_finfo(tree, finfo->hfinfo->parent);
-
-                for (i = 0; i < g_ptr_array_len(finfo_array); i++) {
-                        field_info *parent_finfo = (field_info *) finfo_array->pdata[i];
-
-                        if (parent_finfo->ds_tvb == finfo->ds_tvb) {
-                                pstart = parent_finfo->start;
-                                plen = parent_finfo->length;
-                                break;
-                        }
-                }
-
-                g_ptr_array_free(finfo_array, TRUE);
-
+        top_finfo = get_top_finfo(tree, finfo);
+        /* it's possible to have top_finfo == finfo, no problem right now */
+        if (top_finfo) {
+            pstart = top_finfo->start;
+            plen = top_finfo->length;
         }
 
         if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN))
