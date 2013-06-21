@@ -3514,6 +3514,10 @@ Tomasz Moń		<desowin[AT]gmail.com> {
 	USBPcap support
 }
 
+Uli Heilmeier		<uh[AT]heilmeier.eu> {
+	CARP dissector
+	Improved SMTP Authentication dissection
+}
 
 and by:
 
