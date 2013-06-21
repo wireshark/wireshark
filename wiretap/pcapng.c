@@ -1458,7 +1458,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
  * *err_info appropriately.
  */
 static int
-name_resolution_block_find_name_end(guint8 *p, guint record_len, int *err,
+name_resolution_block_find_name_end(const char *p, guint record_len, int *err,
     gchar **err_info)
 {
         int namelen;
@@ -1496,7 +1496,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
         Buffer nrb_rec;
         guint32 v4_addr;
         guint record_len;
-        guint8 *namep;
+        char *namep;
         int namelen;
 
         /*
@@ -1619,7 +1619,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                                             buffer_start_ptr(&nrb_rec), 4);
                                         if (pn->byte_swapped)
                                                 v4_addr = BSWAP32(v4_addr);
-                                        for (namep = buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
+                                        for (namep = (char *)buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
                                             record_len != 0;
                                             namep += namelen, record_len -= namelen) {
                                                 /*
@@ -1683,7 +1683,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                                 block_read += bytes_read;
 
                                 if (pn->add_new_ipv6) {
-                                        for (namep = buffer_start_ptr(&nrb_rec) + 16, record_len = nrb.record_len - 16;
+                                        for (namep = (char *)buffer_start_ptr(&nrb_rec) + 16, record_len = nrb.record_len - 16;
                                             record_len != 0;
                                             namep += namelen, record_len -= namelen) {
                                                 /*

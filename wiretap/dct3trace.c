@@ -95,7 +95,7 @@ hc2b(unsigned char hex)
 }
 
 static int
-hex2bin(guint8 *out, guint8 *out_end, unsigned char *in)
+hex2bin(guint8 *out, guint8 *out_end, char *in)
 {
 	guint8 *out_start = out;
 	int is_low = 0;
@@ -103,7 +103,7 @@ hex2bin(guint8 *out, guint8 *out_end, unsigned char *in)
 
 	while (*in != '\0')
 	{
-		c = hc2b(*in);
+		c = hc2b(*(unsigned char *)in);
 		if (c < 0)
 		{
 			in++;
@@ -130,13 +130,13 @@ hex2bin(guint8 *out, guint8 *out_end, unsigned char *in)
 }
 
 static int
-xml_get_int(int *val, const unsigned char *str, const unsigned char *pattern)
+xml_get_int(int *val, const char *str, const char *pattern)
 {
 	const char *ptr;
 	char *start, *end;
 	char buf[32];
 
-	ptr = strstr((const char *)str, (const char *)pattern);
+	ptr = strstr(str, pattern);
 	if (ptr == NULL)
 		return -1;
 	start = strchr(ptr, '"');
@@ -191,7 +191,7 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info)
 {
-	unsigned char line[1024];
+	char line[1024];
 	guint8 databuf[MAX_PACKET_LEN], *bufp;
 	gboolean have_data = FALSE;
 	int len = 0;
