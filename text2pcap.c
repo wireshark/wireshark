@@ -153,6 +153,10 @@
 # include "wsutil/inet_aton.h"
 #endif
 
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
 #ifdef NEED_INET_V6DEFS_H
 # include "wsutil/inet_v6defs.h"
 #endif
