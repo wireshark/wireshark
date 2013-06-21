@@ -20,7 +20,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-noinst_LTLIBRARIES = libdirtydissectors.la libdissectors.la
+noinst_LTLIBRARIES = libdirtydissectors.la libfiledissectors.la libdissectors.la
 
 AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/.. \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
@@ -35,6 +35,9 @@ libdirtydissectors_la_SOURCES = \
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
+
+libfiledissectors_la_SOURCES = \
+	$(FILE_DISSECTOR_SRC)
 
 libdissectors_la_SOURCES = \
 	$(DISSECTOR_SRC) \

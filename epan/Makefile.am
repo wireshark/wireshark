@@ -140,7 +140,8 @@ libwireshark_la_LIBADD = \
 	libwireshark_generated.la \
 	libwireshark_asmopt.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
-	dissectors/libdirtydissectors.la wmem/libwmem.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
+	dissectors/libdirtydissectors.la dissectors/libfiledissectors.la \
+	wmem/libwmem.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
 	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
 	${top_builddir}/wiretap/libwiretap.la @GLIB_LIBS@ \

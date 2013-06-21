@@ -210,6 +210,8 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-tcap.c \
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
 
+FILE_DISSECTOR_SRC = \
+	packet-mp4.c
 
 #
 # Dissectors without warnings.
@@ -813,7 +815,6 @@ DISSECTOR_SRC = \
 	packet-mongo.c		\
 	packet-mount.c		\
 	packet-mp2t.c		\
-	packet-mp4.c		\
 	packet-mp4ves.c		\
 	packet-mpeg-ca.c	\
 	packet-mpeg-descriptor.c \
@@ -1635,6 +1636,7 @@ noinst_HEADERS =	\
 
 ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC) \
+	$(FILE_DISSECTOR_SRC) \
 	$(DIRTY_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DIRTY_PIDL_DISSECTOR_SRC) \
