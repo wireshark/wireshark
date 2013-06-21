@@ -632,7 +632,8 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 
 		if (state_cur != state) {
 			/* ok, we want to put space, we prefer to put it in STATE_NORMAL or STATE_INSENSITIVE */
-			int space_now = (state_cur != GTK_STATE_NORMAL && state_cur != GTK_STATE_INSENSITIVE);
+			int space_now = (state_cur != GTK_STATE_NORMAL && state_cur != GTK_STATE_INSENSITIVE)
+				|| state == GTK_STATE_NORMAL;
 
 			if (space_now && byten) {
 				str[cur++] = ' ';
@@ -716,7 +717,8 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 				GTK_STATE_NORMAL;
 
 		if (state_cur != state) {
-			int space_now = (state_cur != GTK_STATE_NORMAL && state_cur != GTK_STATE_INSENSITIVE);
+			int space_now = (state_cur != GTK_STATE_NORMAL && state_cur != GTK_STATE_INSENSITIVE)
+				|| state == GTK_STATE_NORMAL;
 
 			if (space_now && byten) {
 				/* insert a space every BYTE_VIEW_SEP bytes */
