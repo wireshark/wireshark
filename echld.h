@@ -98,7 +98,7 @@ echld_chld_id_t echld_new(void* child_data);
 /* will return NULL on error, if NULL is also ok for you use echld_get_error() */
 void* echld_get_data(echld_chld_id_t);
 
-echld_state_t echld_set_data(echld_chld_id_t, void* child_data);
+echld_state_t echld_set_data(echld_chld_id_t id, void* child_data);
 
 /* for each child call cb(id,child_data,cb_data) */
 typedef echld_bool_t (*echld_iter_cb_t)(echld_chld_id_t, void* child_data, void* cb_data);
@@ -135,7 +135,6 @@ typedef struct _parent_out {
 	enc_msg_t* (*error)(int err, const char* text);
 	enc_msg_t* (*set_param)(const char* param,  const char* value);
 	enc_msg_t* (*close_child)(int mode);
-	enc_msg_t* (*list_files)(const char* glob);
 	enc_msg_t* (*open_file)(const char* filename);
 	enc_msg_t* (*open_interface)(const char* intf_name, const char* params);
 	enc_msg_t* (*get_sum)(const char* range);
@@ -143,7 +142,6 @@ typedef struct _parent_out {
 	enc_msg_t* (*get_bufer)(const char* name);
 	enc_msg_t* (*add_note)(int packet_number, const char* note);
 	enc_msg_t* (*apply_filter)(const char* filter);
-	enc_msg_t* (*chk_filter)(const char* filter);
 	enc_msg_t* (*save_file)(const char* filename, const char* params);
 } echld_parent_encoder_t;
 
@@ -271,14 +269,16 @@ echld_state_t echld_wait(tv_t* timeout);
    to be used in place of select() in the main loop of the parent code
    it will serve the children pipes and return as if select() was called.
 */
-int echld_select(int nfds, int* rfds, int* wfds, int* efds, tv_t* timeout);
+int echld_select(int nfds, fd_set* rfds, fd_set* wfds, fd_set* efds, tv_t* timeout);
 
 /* or fit these two in your select loop */
 
 /* returns nfds set */
-int echld_fdset(int* rfds, int* efds);
+int echld_fdset(fd_set* rfds, fd_set* efds);
 
-int echld_fd_read(int* rfds, int* efds);
+int echld_fd_read(fd_set* rfds, fd_set* efds);
+
+void echld_set_parent_dbg_level(int lvl);
 
 
 #define ECHLD_MAX_CHILDREN 32
@@ -317,23 +317,19 @@ enum _echld_msg_type_t {
 						/* auto_tree RW: get trees automatically (without a reqh, as msgh)   */
 						/* auto_buffer RW: get buffers automatically (without a reqh, as msgh) */
 						/* cwd RW: the current working directory */ 
-						/* dfilter:  other*
+						/* list_files WO: a file listing of the current dir */
+						/* interfaces RO: the interface listing */
+						/* dfilter RW:  initial display filter*
 						/* ... */
 
 	ECHLD_PING = '}', /* out: ping the child  */
 	ECHLD_PONG = '{', /* out: ping's response, error or TO otherwise */
 	
-	ECHLD_LIST_FILES = 'L', /* out: request a file listing of the current directory */
-	ECHLD_FILE_INFO = 'f', /* in: a file listing of a directory */
-
 	ECHLD_CHK_FILTER = 'K',	/* out: verify if a (display) filter works */
 	ECHLD_FILTER_CKD = 'k', /* in: yes this filter works, error or TO? otherwise */
 
 	ECHLD_OPEN_FILE = 'O', /* out: open a file  */
 	ECHLD_FILE_OPENED = 'o', /* in: the file has being open, error otherwise */
-
-	ECHLD_LIST_INTERFACES = 'I', /* out: request an interface listing (dispatcher's work, chld_id = 0)  */
-	ECHLD_INTERFACE_INFO = 'i', /* in: an interface listing, error otherwise */
 
 	ECHLD_OPEN_INTERFACE = 'C',  /* out: request an interface to be open (get ready for capture)  */
 	ECHLD_INTERFACE_OPENED = 'c', /* in: ready to start_capture, error otherwise */

@@ -206,6 +206,7 @@ void dispatcher_reaper(int sig) {
 	guint8* b[len];
 	GByteArray* em;
 
+
 	for(i = 0; i < max_children; i++) {
 		struct dispatcher_child* c = &(cc[i]);
 		if ( c->pid == pid ) {
@@ -213,6 +214,33 @@ void dispatcher_reaper(int sig) {
 				em = (void*)dispatcher->enc.to_parent->child_dead("OK");
 			} else {
 				/* here we do collect crash data !!! */
+				/*
+				WIFEXITED(status)
+             True if the process terminated normally by a call to _exit(2) or exit(3).
+
+     WIFSIGNALED(status)
+             True if the process terminated due to receipt of a signal.
+
+     WIFSTOPPED(status)
+             True if the process has not terminated, but has stopped and can be restarted.  This macro can be true only if the wait call speci-
+             fied the WUNTRACED option or if the child process is being traced (see ptrace(2)).
+
+     Depending on the values of those macros, the following macros produce the remaining status information about the child process:
+
+     WEXITSTATUS(status)
+             If WIFEXITED(status) is true, evaluates to the low-order 8 bits of the argument passed to _exit(2) or exit(3) by the child.
+
+     WTERMSIG(status)
+             If WIFSIGNALED(status) is true, evaluates to the number of the signal that caused the termination of the process.
+
+     WCOREDUMP(status)
+             If WIFSIGNALED(status) is true, evaluates as true if the termination of the process was accompanied by the creation of a core file
+             containing an image of the process when the signal was received.
+
+     WSTOPSIG(status)
+             If WIFSTOPPED(status) is true, evaluates to the number of the signal that caused the process to stop.
+
+*/
 				em = (void*)dispatcher->enc.to_parent->child_dead("Unexpected, probably crashed");
 				dispatcher_err(ECHLD_ERR_CRASHED_CHILD, "Unexpected dead: pid=%d chld_id=%d", pid, c->chld_id);
 			}
@@ -272,10 +300,7 @@ static int dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 		case ECHLD_CLOSING: c->closing = TRUE; c->state = CLOSED; break;
 		case ECHLD_PARAM: break;
 		case ECHLD_PONG: break;
-		case ECHLD_FILE_INFO: break;  // file_info(pre_encoded)
-		case ECHLD_FILTER_CKD: break; // filter_ckd(ok,df)
 		case ECHLD_FILE_OPENED: c->state = READING; break;
-		case ECHLD_INTERFACE_INFO: break; // intf_info(pre-encoded)
 		case ECHLD_INTERFACE_OPENED: c->state = READY; break;
 		case ECHLD_CAPTURE_STARTED: c->state = CAPTURING; break;
 		case ECHLD_NOTIFY: break; // notify(pre-encoded) 
@@ -522,9 +547,6 @@ static int dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ech
 			case ECHLD_SET_PARAM:
 			case ECHLD_GET_PARAM:
 			case ECHLD_PING:
-			case ECHLD_LIST_FILES:
-			case ECHLD_CHK_FILTER:
-			case ECHLD_LIST_INTERFACES:
 			case ECHLD_GET_SUM:
 			case ECHLD_GET_TREE:
 			case ECHLD_GET_BUFFER:

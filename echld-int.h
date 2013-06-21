@@ -121,8 +121,8 @@ typedef struct _child_in {
 	echld_bool_t (*set_param)		(guint8*, size_t, char** param,  char** value);
 	echld_bool_t (*get_param)		(guint8*, size_t, char** param);
 	echld_bool_t (*close_child)		(guint8*, size_t, int* mode);
-	echld_bool_t (*chk_filter)		(guint8*, size_t, char** flt);
-	echld_bool_t (*list_files)		(guint8*, size_t, char** glob);
+
+
 	echld_bool_t (*open_file)		(guint8*, size_t, char** filename);
 	echld_bool_t (*open_interface)	(guint8*, size_t, char** intf_name, char** params);
 	echld_bool_t (*get_sum)			(guint8*, size_t, char** range);
@@ -136,9 +136,6 @@ typedef struct _child_out {
 	enc_msg_t* (*error) 		(int , const char*);
 	enc_msg_t* (*child_dead) 	(const char*);
 	enc_msg_t* (*param) 		(const char*, const char*);
-	enc_msg_t* (*file_info) 	(const char*); // pre-encoded
-	enc_msg_t* (*filter_chk) 	(int , const char*);
-	enc_msg_t* (*intf_info) 	(const char*); // pre-encoded
 	enc_msg_t* (*notify) 		(const char*); // pre-encoded
 	enc_msg_t* (*packet_sum) 	(int, const char*); // framenum, sum(pre-encoded)
 	enc_msg_t* (*tree) 		(int, const char*); // framenum, tree(pre-encoded)
@@ -151,9 +148,6 @@ typedef struct _parent_in {
 	echld_bool_t (*error) 		(enc_msg_t*, int* , char**);
 	echld_bool_t (*child_dead) 	(enc_msg_t*, char**);
 	echld_bool_t (*param) 		(enc_msg_t*, char**, char**);
-	echld_bool_t (*file_info) 	(enc_msg_t*, char**); // pre-encoded
-	echld_bool_t (*filter_chk) 	(enc_msg_t*, int* , char**);
-	echld_bool_t (*intf_info) 	(enc_msg_t*, char**); // pre-encoded
 	echld_bool_t (*notify) 		(enc_msg_t*, char**); // pre-encoded
 	echld_bool_t (*packet_sum) 	(enc_msg_t*, int*, char**); // framenum, sum(pre-encoded)
 	echld_bool_t (*packet) 		(enc_msg_t*, int*, char**); // framenum, tree(pre-encoded)

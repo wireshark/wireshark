@@ -214,14 +214,14 @@ static gboolean child_open_interface(int chld_id, int reqh_id, const char* intf_
 }
 
 
-static void child_list_files() {
-	char* file_info = "{glob='*.cap', file_list={'dummy.cap'={type='pcap-ng', size=20300, npackets=502}}}";
-	// ls
-	// foreach file in cur dir
-		GByteArray* ba = (void*)child.enc->file_info(file_info);
-	    CHILD_RESP(ba,ECHLD_FILE_INFO);
-	    g_byte_array_free(ba,TRUE);
-}
+// static void child_list_files() {
+// 	char* file_info = "{glob='*.cap', file_list={'dummy.cap'={type='pcap-ng', size=20300, npackets=502}}}";
+// 	// ls
+// 	// foreach file in cur dir
+// 		GByteArray* ba = (void*)child.enc->file_info(file_info);
+// 	    CHILD_RESP(ba,ECHLD_FILE_INFO);
+// 	    g_byte_array_free(ba,TRUE);
+// }
 
 
 static char* param_get_cwd(char** err ) {
@@ -421,40 +421,6 @@ static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_m
 			CHILD_DBG((1,"Bye"));
 			exit(0);
 			break;
-		case ECHLD_LIST_FILES:
-			if (child.state != IDLE) goto wrong_state;
-			CHILD_DBG((3,"Listing Files"));
-			child_list_files(); 
-			break;
-		case ECHLD_LIST_INTERFACES:
-		{
-			char* err_str;
-			int err = 0;
-			GList* if_list;
-			if (child.state != IDLE) goto wrong_state;
-
-			CHILD_DBG((1,"List Interfaces"));
-
-			if(( if_list = capture_interface_list(&err, &err_str) )) {
-				char* json_list = intflist2json(if_list);
-
-				ba = (void*)child.enc->intf_info(json_list);
-
-				CHILD_RESP(ba,ECHLD_INTERFACE_INFO);
-				g_byte_array_free(ba,TRUE);
-				CHILD_DBG((1,"List interfaces=%s",json_list));
-				g_free(json_list);
-
-				/* XXX FREE if_list */
-				break;
-			} else {
-				child_err(ECHLD_ERR_CANNOT_LIST_INTERFACES, reqh_id,
-					"reason='%s'", err_str);
-			}
-
-			break;
-		}
-		case ECHLD_CHK_FILTER: // first candidate
 		case ECHLD_OPEN_INTERFACE:
 		case ECHLD_OPEN_FILE:
 		case ECHLD_START_CAPTURE:

@@ -395,13 +395,11 @@ static echld_parent_encoder_t parent_encoder = {
 	x2str_enc,
 	int_enc,
 	str_enc,
-	str_enc,
 	x2str_enc,
 	str_enc,
 	str_enc,
 	str_enc,
 	int_str_enc,
-	str_enc,
 	str_enc,
 	x2str_enc
 };
@@ -415,8 +413,9 @@ static child_decoder_t child_decoder = {
 	x2str_dec,
 	str_dec,
 	int_dec,
-	str_dec,
-	str_dec,
+
+
+
 	str_dec,
 	x2str_dec,
 	str_dec,
@@ -432,9 +431,6 @@ static child_encoder_t  child_encoder = {
 	x2str_enc,
 	str_enc,
 	int_str_enc,
-	str_enc,
-	str_enc,
-	int_str_enc,
 	int_str_enc,
 	int_3str_enc,
 	x3str_enc
@@ -444,9 +440,6 @@ static parent_decoder_t parent_decoder = {
 	int_str_deca,
 	str_deca,
 	x2str_deca,
-	str_deca,
-	int_str_deca,
-	str_deca,
 	str_deca,
 	int_str_deca,
 	int_str_deca,
@@ -688,14 +681,8 @@ static char* decode_json(echld_msg_type_t type, enc_msg_t* m) {
 		case ECHLD_PARAM: return param_set_json(ba);
 		case ECHLD_PING: return g_strdup("{type='ping'}");
 		case ECHLD_PONG: return g_strdup("{type='pong'}");
-		case ECHLD_LIST_FILES: return list_files_json(ba);
-		case ECHLD_FILE_INFO: return file_info_json(ba);
-		case ECHLD_CHK_FILTER: return chk_filter_json(ba);
-		case ECHLD_FILTER_CKD: return filter_ckd_json(ba);
 		case ECHLD_OPEN_FILE: return open_file_json(ba);
 		case ECHLD_FILE_OPENED: return file_opened_json(ba);
-		case ECHLD_LIST_INTERFACES: return g_strdup("{type='list_interfaces'}");
-		case ECHLD_INTERFACE_INFO: return intf_info_json(ba);
 		case ECHLD_OPEN_INTERFACE: return open_interface_json(ba);
 		case ECHLD_INTERFACE_OPENED: return interface_opened_json(ba);
 		case ECHLD_START_CAPTURE: return g_strdup("{type='start_capture'}");
@@ -742,14 +729,8 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case ECHLD_PARAM: break; //SS param,val
 		case ECHLD_PING: break;
 		case ECHLD_PONG: break; //
-		case ECHLD_LIST_FILES: break;
-		case ECHLD_FILE_INFO: break;  //SS info (pre-encoded)
-		case ECHLD_CHK_FILTER: break;
-		case ECHLD_FILTER_CKD: break; //IS ok,filter
 		case ECHLD_OPEN_FILE: break; 
 		case ECHLD_FILE_OPENED: break; //
-		case ECHLD_LIST_INTERFACES: break;
-		case ECHLD_INTERFACE_INFO: break; //S intf_list (pre-encoded)
 		case ECHLD_OPEN_INTERFACE: break;
 		case ECHLD_INTERFACE_OPENED: break; //
 		case ECHLD_START_CAPTURE: break;
@@ -779,10 +760,7 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case ECHLD_SET_PARAM: break; // set_param(p,v)
 		case ECHLD_GET_PARAM: break; // get_param(p)
 		case ECHLD_PING: break;
-		case ECHLD_LIST_FILES: break; // list_files(glob)
-		case ECHLD_CHK_FILTER: break; // chk_filter(df)
 		case ECHLD_OPEN_FILE: break; // open_file(f,mode)
-		case ECHLD_LIST_INTERFACES: break; 
 		case ECHLD_OPEN_INTERFACE: break; // open_interface(if,param)
 		case ECHLD_START_CAPTURE: break;
 		case ECHLD_GET_SUM: break; // get_sum(rng)
@@ -801,10 +779,7 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case ECHLD_CLOSING: break;
 		case ECHLD_PARAM: break;
 		case ECHLD_PONG: break;
-		case ECHLD_FILE_INFO: break;  // file_info(pre_encoded)
-		case ECHLD_FILTER_CKD: break; // filter_ckd(ok,df)
 		case ECHLD_FILE_OPENED: break; 
-		case ECHLD_INTERFACE_INFO: break; // intf_info(pre-encoded)
 		case ECHLD_INTERFACE_OPENED: break;
 		case ECHLD_CAPTURE_STARTED: break;
 		case ECHLD_NOTIFY: break; // notify(pre-encoded) 
