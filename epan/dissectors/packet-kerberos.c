@@ -638,7 +638,7 @@ read_keytab_file(const char *filename)
     }
 
     do{
-        new_key=g_malloc(sizeof(enc_key_t));
+        new_key=(enc_key_t*)g_malloc(sizeof(enc_key_t));
         new_key->next=enc_key_list;
         ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
         if(ret==0){
@@ -658,7 +658,7 @@ read_keytab_file(const char *filename)
             *pos=0;
             new_key->keytype=key.keyblock.keytype;
             new_key->keylength=key.keyblock.keyvalue.length;
-            new_key->keyvalue=g_memdup(key.keyblock.keyvalue.data, key.keyblock.keyvalue.length);
+            new_key->keyvalue=(char*)g_memdup(key.keyblock.keyvalue.data, key.keyblock.keyvalue.length);
             enc_key_list=new_key;
         }
     }while(ret==0);
@@ -709,7 +709,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
         key.keyblock.keytype=ek->keytype;
         key.keyblock.keyvalue.length=ek->keylength;
         key.keyblock.keyvalue.data=ek->keyvalue;
-        ret = krb5_crypto_init(krb5_ctx, &(key.keyblock), 0, &crypto);
+        ret = krb5_crypto_init(krb5_ctx, &(key.keyblock), (krb5_enctype)0, &crypto);
         if(ret){
             return NULL;
         }
@@ -720,7 +720,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
            keys. So just give it a copy of the crypto data instead.
            This has been seen for RC4-HMAC blobs.
         */
-        cryptocopy=g_memdup(cryptotext, length);
+        cryptocopy=(guint8*)g_memdup(cryptotext, length);
         ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
                                 cryptocopy, length,
                                 &data,
@@ -733,7 +733,7 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
             proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
             krb5_crypto_destroy(krb5_ctx, crypto);
             /* return a private g_malloced blob to the caller */
-            user_data=g_memdup(data.data, data.length);
+            user_data=(char*)g_memdup(data.data, data.length);
             if (datalen) {
                 *datalen = data.length;
             }
