@@ -1,4 +1,4 @@
-/* packet-mp4.c
+/* file-mp4.c
  * routines for dissection of MP4 files
  * Copyright 2013, Martin Kaiser <martin@kaiser.cx>
  *
