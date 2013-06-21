@@ -871,15 +871,9 @@ help_menu_wireshark_flt_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
-help_menu_TShark_cb(GtkAction *action _U_, gpointer user_data _U_)
+help_menu_Capinfos_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK));
-}
-
-static void
-help_menu_RawShark_cb(GtkAction *action _U_, gpointer user_data _U_)
-{
-    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));
+    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_CAPINFOS));
 }
 
 static void
@@ -889,21 +883,39 @@ help_menu_Dumpcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
-help_menu_Mergecap_cb(GtkAction *action _U_, gpointer user_data _U_)
-{
-    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));
-}
-
-static void
 help_menu_Editcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));
 }
 
 static void
+help_menu_Mergecap_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));
+}
+
+static void
+help_menu_RawShark_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));
+}
+
+static void
+help_menu_Reorder_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_REORDERCAP));
+}
+
+static void
 help_menu_Text2pcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));
+}
+
+static void
+help_menu_TShark_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK));
 }
 
 static void
@@ -1293,12 +1305,14 @@ static const char *ui_desc_menubar =
 "        <menuitem name='Wireshark' action='/Help/ManualPages/Wireshark'/>\n"
 "        <menuitem name='WiresharkFilter' action='/Help/ManualPages/WiresharkFilter'/>\n"
 "        <separator/>\n"
-"        <menuitem name='TShark' action='/Help/ManualPages/TShark'/>\n"
-"        <menuitem name='RawShark' action='/Help/ManualPages/RawShark'/>\n"
+"        <menuitem name='Capinfos' action='/Help/ManualPages/Capinfos'/>\n"
 "        <menuitem name='Dumpcap' action='/Help/ManualPages/Dumpcap'/>\n"
-"        <menuitem name='Mergecap' action='/Help/ManualPages/Mergecap'/>\n"
 "        <menuitem name='Editcap' action='/Help/ManualPages/Editcap'/>\n"
+"        <menuitem name='Mergecap' action='/Help/ManualPages/Mergecap'/>\n"
+"        <menuitem name='RawShark' action='/Help/ManualPages/RawShark'/>\n"
+"        <menuitem name='Reordercap' action='/Help/ManualPages/Reordercap'/>\n"
 "        <menuitem name='Text2pcap' action='/Help/ManualPages/Text2pcap'/>\n"
+"        <menuitem name='TShark' action='/Help/ManualPages/TShark'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='Website' action='/Help/Website'/>\n"
@@ -1732,12 +1746,14 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Help/ManualPages",           NULL,                           "ManualPages",          NULL,                           NULL,               NULL },
    { "/Help/ManualPages/Wireshark", NULL,                           "Wireshark",            NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_cb) },
    { "/Help/ManualPages/WiresharkFilter", NULL,                     "Wireshark Filter",     NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_flt_cb) },
-   { "/Help/ManualPages/TShark",    NULL,                           "TShark",            NULL,                           NULL,               G_CALLBACK(help_menu_TShark_cb) },
-   { "/Help/ManualPages/RawShark",  NULL,                           "RawShark",             NULL,                           NULL,               G_CALLBACK(help_menu_RawShark_cb) },
+   { "/Help/ManualPages/Capinfos",  NULL,                           "Capinfos",              NULL,                          NULL,               G_CALLBACK(help_menu_Capinfos_cb) },
    { "/Help/ManualPages/Dumpcap",   NULL,                           "Dumpcap",              NULL,                           NULL,               G_CALLBACK(help_menu_Dumpcap_cb) },
-   { "/Help/ManualPages/Mergecap",  NULL,                           "Mergecap",             NULL,                           NULL,               G_CALLBACK(help_menu_Mergecap_cb) },
    { "/Help/ManualPages/Editcap",   NULL,                           "Editcap",              NULL,                           NULL,               G_CALLBACK(help_menu_Editcap_cb) },
+   { "/Help/ManualPages/Mergecap",  NULL,                           "Mergecap",             NULL,                           NULL,               G_CALLBACK(help_menu_Mergecap_cb) },
+   { "/Help/ManualPages/RawShark",  NULL,                           "RawShark",             NULL,                           NULL,               G_CALLBACK(help_menu_RawShark_cb) },
+   { "/Help/ManualPages/Reordercap",  NULL,                         "Reordercap",             NULL,                         NULL,               G_CALLBACK(help_menu_Reorder_cb) },
    { "/Help/ManualPages/Text2pcap", NULL,                           "Text2pcap",            NULL,                           NULL,               G_CALLBACK(help_menu_Text2pcap_cb) },
+   { "/Help/ManualPages/TShark",    NULL,                           "TShark",            NULL,                           NULL,               G_CALLBACK(help_menu_TShark_cb) },
 
    { "/Help/Website",               GTK_STOCK_HOME,                 "Website",              NULL,                           NULL,               G_CALLBACK(help_menu_Website_cb) },
    { "/Help/FAQs",                  NULL,                           "FAQ's",                NULL,                           NULL,               G_CALLBACK(help_menu_faq_cb) },
