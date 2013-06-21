@@ -631,9 +631,10 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 				GTK_STATE_NORMAL;
 
 		if (state_cur != state) {
-			/* ok, we want to put space, we prefer to put it in STATE_NORMAL, but if it's transition from field-highlight to proto-highlight (common), do it now */
-			/* below shorter version of: ((state != GTK_STATE_NORMAL && state_cur != GTK_STATE_NORMAL) || (state == GTK_STATE_NORMAL)) */
-			if (state_cur != GTK_STATE_NORMAL && byten) {
+			/* ok, we want to put space, we prefer to put it in STATE_NORMAL or STATE_INSENSITIVE */
+			int space_now = (state_cur != GTK_STATE_NORMAL && state_cur != GTK_STATE_INSENSITIVE);
+
+			if (space_now && byten) {
 				str[cur++] = ' ';
 				/* insert a space every BYTE_VIEW_SEP bytes */
 				if ((off % BYTE_VIEW_SEP) == 0)
@@ -647,7 +648,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 			bytes_view_render_state(bv, state_cur);
 			state = state_cur;
 
-			if (state == GTK_STATE_NORMAL && byten) {
+			if (!space_now && byten) {
 				str[cur++] = ' ';
 				/* insert a space every BYTE_VIEW_SEP bytes */
 				if ((off % BYTE_VIEW_SEP) == 0)
@@ -715,7 +716,9 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 				GTK_STATE_NORMAL;
 
 		if (state_cur != state) {
-			if (state_cur != GTK_STATE_NORMAL && byten) {
+			int space_now = (state_cur != GTK_STATE_NORMAL && state_cur != GTK_STATE_INSENSITIVE);
+
+			if (space_now && byten) {
 				/* insert a space every BYTE_VIEW_SEP bytes */
 				if ((off % BYTE_VIEW_SEP) == 0)
 					str[cur++] = ' ';
@@ -728,7 +731,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 			bytes_view_render_state(bv, state_cur);
 			state = state_cur;
 
-			if (state == GTK_STATE_NORMAL && byten) {
+			if (!space_now && byten) {
 				/* insert a space every BYTE_VIEW_SEP bytes */
 				if ((off % BYTE_VIEW_SEP) == 0)
 					str[cur++] = ' ';
