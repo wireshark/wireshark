@@ -322,7 +322,7 @@ file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name)
   if (statbuf.st_flags & UF_IMMUTABLE) {
     display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(chooser_w),
-                                        GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        (GtkDialogFlags)(GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT),
                                         GTK_MESSAGE_QUESTION,
                                         GTK_BUTTONS_NONE,
 #ifdef __APPLE__
