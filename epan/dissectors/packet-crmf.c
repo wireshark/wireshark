@@ -226,7 +226,7 @@ dissect_crmf_CertTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_crmf_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_crmf_type_oid, (const char**)&actx->private_data);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_crmf_type_oid, &actx->external.direct_reference);
 
   return offset;
 }
@@ -236,7 +236,7 @@ dissect_crmf_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 74 "../../asn1/crmf/crmf.cnf"
-  offset=call_ber_oid_callback((const char*)actx->private_data, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 

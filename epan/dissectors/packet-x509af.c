@@ -373,13 +373,13 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 #line 88 "../../asn1/x509af/x509af.cnf"
   const char *name;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, (const char**)&actx->private_data);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &actx->external.direct_reference);
 
 
-  if(actx->private_data) {
-    name = oid_resolved_from_string((const char*)actx->private_data);
+  if(actx->external.direct_reference) {
+    name = oid_resolved_from_string(actx->external.direct_reference);
 
-    proto_item_append_text(tree, " (%s)", name ? name : (const char *)actx->private_data);
+    proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
   }
 
 
@@ -408,7 +408,7 @@ dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   /* skip past the T and L  */
   offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback((const char*)actx->private_data, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 
