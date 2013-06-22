@@ -584,16 +584,17 @@ wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
     wmem_tree_key_t *cur_key;
     guint32 i, lookup_key32 = 0;
 
+    g_assert(tree);
+
     for (cur_key = key; cur_key->length > 0; cur_key++) {
-        if (cur_key->length > 100) {
-            g_assert_not_reached();
-        }
+        g_assert(cur_key->length < 100);
 
         for (i = 0; i < cur_key->length; i++) {
             /* Lookup using the previous key32 */
             if (!lookup_tree) {
                 lookup_tree = tree;
-            } else {
+            }
+            else {
                 lookup_tree =
                     (wmem_tree_t *)(*helper)(lookup_tree, lookup_key32);
                 if (!lookup_tree) {
@@ -604,10 +605,8 @@ wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
         }
     }
 
-    if (!lookup_tree) {
-        /* We didn't get a valid key. Should we return NULL instead? */
-        g_assert_not_reached();
-    }
+    /* Assert if we didn't get any valid keys */
+    g_assert(lookup_tree);
 
     return (*helper)(lookup_tree, lookup_key32);
 }
