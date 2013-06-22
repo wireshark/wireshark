@@ -76,7 +76,7 @@ struct _echld_parent {
 
 static int dbg_level = 0;
 
-static void parent_dgb(int level, const char* fmt, ...) {
+static void parent_dbg(int level, const char* fmt, ...) {
 	va_list ap;
 	char str[1024];
 
@@ -88,13 +88,15 @@ static void parent_dgb(int level, const char* fmt, ...) {
 
 	fprintf(stderr,"ParentDebug: level=%d msg='%s'\n",level,str);
 }
+
 #define PARENT_DBG(attrs) parent_dbg attrs
+
 #else 
 #define PARENT_DBG(attrs) 
 #endif
 
 void echld_set_parent_dbg_level(int lvl) {
-	PARENT_DBG((0,"Debug Level Set: %d",dbg_level = lvl));
+	PARENT_DBG((0,"Debug Level Set: %d",(dbg_level = lvl)));
 }
 
 static void parent_fatal(int exit_code, const char* fmt, ...) {
@@ -114,7 +116,7 @@ static void parent_fatal(int exit_code, const char* fmt, ...) {
 	exit(exit_code);
 }
 
-static echld_state_t echld_cleanup(void) {
+static void echld_cleanup(void) {
 	int i;
 	char b[4];
 	GByteArray ba;
@@ -139,14 +141,14 @@ static echld_state_t echld_cleanup(void) {
 
 }
 
-static int parent_child_cleanup(echld_t* c) {
+static void parent_child_cleanup(echld_t* c) {
 
 	PARENT_DBG((2,"cleanup chld_id=%d",c->chld_id));
 	c->chld_id = -1;
 	c->data = NULL;
 	c->state = FREE;
-	g_array_truncate(c->handlers);
-	g_array_truncate(c->reqs);
+	g_array_set_size(c->handlers,0);
+	g_array_set_size(c->reqs,0);
 }
 
 
@@ -178,7 +180,7 @@ void parent_reaper(int sig) {
 }
 
 /* will initialize epan registering protocols and taps */
-echld_state_t echld_initialize(echld_encoding_t enc) {
+void echld_initialize(echld_encoding_t enc) {
 	int from_disp[2];
 	int to_disp[2];
 
@@ -203,7 +205,7 @@ echld_state_t echld_initialize(echld_encoding_t enc) {
 			echld_cleanup();
 
 
-			dispatcher(to_disp,from_disp);
+			echld_dispatcher_start(to_disp,from_disp);
 			PARENT_FATAL((1115,"This shoudln't happen"));
 		}
 
@@ -215,11 +217,11 @@ echld_state_t echld_initialize(echld_encoding_t enc) {
 		PARENT_DBG((3,"Dispatcher forked"));
 
 		echld_get_all_codecs(NULL, NULL, &parent.enc, &parent.dec);
-		parent.children = g_malloc0(ECHLD_MAX_CHILDREN*sizeof(echld_t));
+		parent.children = g_new0(echld_t,ECHLD_MAX_CHILDREN);
 		parent.snd = g_byte_array_new();
 		parent.dispatcher_fd = to_disp[0];
 
-		init_reader(&(parent.reader),from_disp[1]);
+		echld_init_reader(&(parent.reader),from_disp[1],4096);
 
 		for (i=0;i<ECHLD_MAX_CHILDREN;i++) {
 			parent.children[i].chld_id = -1;
@@ -279,7 +281,7 @@ static echld_state_t reqh_snd(echld_t* c, echld_msg_type_t t, GByteArray* ba, ec
 	req.reqh_id = reqh_ids++;
 	req.cb = resp_cb;
 	req.cb_data = cb_data;
-	gettimeofday(&(req.tv));
+	gettimeofday(&(req.tv),NULL);
 
 	g_array_append_val(c->reqs,req);
 
@@ -300,7 +302,8 @@ echld_reqh_id_t echld_reqh(
 		enc_msg_t* ba,
 		echld_msg_cb_t resp_cb,
 		void* cb_data) {
-	return reqh_snd(get_child(child_id),t,(void*)ba,resp_cb,cb_data);
+	usecs_timeout=usecs_timeout;
+	return reqh_snd(get_child(child_id),t,ba,resp_cb,cb_data);
 }
 
 /* get callback data for a live request */
@@ -377,31 +380,35 @@ gboolean echld_reqh_detach(int child_id, int reqh_id) {
 	if (idx < 0) return FALSE;
 
 	g_array_remove_index(c->reqs,idx);
+
+	return TRUE;
 }
 
 
 static echld_bool_t parent_dead_child(echld_msg_type_t type, enc_msg_t* ba, void* data) {
-	echld_t* c = data;
-	char* str;
+	echld_t* c = (echld_t*)data;
+	char* s;
 
 	if (type !=  ECHLD_CHILD_DEAD) {
+		PARENT_DBG((1, "Must Be ECHLD_CHILD_DEAD"));
 		return 1;
 	}
 
-	if ( parent.dec->child_dead((void*)ba,&str) ) {
-		g_string_prepend_printf(str,"Dead Child[%d]: %s",c->chld_id,str);
-		g_free(str);
+	if ( parent.dec->child_dead(ba,&s) ) {
+		PARENT_DBG((1,"Dead Child[%d]: %s",c->chld_id,s));
+		g_free(s);
 	}
 
 	parent_child_cleanup(c);
 	return 0;
 }
 
-static echld_bool_t parent_get_hello(echld_msg_type_t type, enc_msg_t* ba, void* data) {
-	echld_t* c = data;
+static echld_bool_t parent_get_hello(echld_msg_type_t type, enc_msg_t* ba _U_, void* data) {
+	echld_t* c = (echld_t*)data;
 
 	switch (type) {
 		case  ECHLD_HELLO: 
+			PARENT_DBG((1,"Child[%d]: =>IDLE",c->chld_id));
 			c->state = IDLE;
 			return TRUE;
 		case ECHLD_ERROR:
@@ -432,7 +439,9 @@ int echld_new(void* child_data) {
 	c->state = CREATING;
 	c->handlers = g_array_new(TRUE,TRUE,sizeof(hdlr_t));
 
-	g_byte_array_truncate(parent.snd,0);
+	g_byte_array_set_size(parent.snd,0);
+
+	PARENT_DBG((1,"Child[%d]: =>CREATING",c->chld_id));
     
 	msgh_attach(c,ECHLD_CHILD_DEAD, parent_dead_child , c);
     reqh_snd(c, ECHLD_NEW_CHILD, parent.snd, parent_get_hello, c);
@@ -474,8 +483,7 @@ static int msgh_idx(echld_t* c, int msgh_id) {
 /* start a message handler */
 static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data) {
 	hdlr_t h;
-	int hdlr_idx;
-	static int msgh_id;
+	static int msgh_id = 1;
 
 	h.id = msgh_id++;
 	h.type = t;
@@ -486,7 +494,7 @@ static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, v
 	return 0;
 }
 
-static int echld_msgh_attach(int child_id, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data) {
+int echld_msgh(int child_id, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data) {
 	echld_t* c = get_child(child_id);
 
 	if (c) return msgh_attach(c,t,resp_cb,cb_data);
@@ -562,9 +570,9 @@ static echld_state_t msgh_get_all(echld_t* c, int msgh_id, echld_msg_type_t* t, 
 
 	h = &(((hdlr_t*)(c->handlers->data))[idx]);
 
-	t && (*t = h->type);
-	cb && (*cb = h->cb);
-	data && (*data = h->cb_data);
+	if (t) *t = h->type;
+	if (cb) *cb = h->cb;
+	if (data) *data = h->cb_data;
 
 	return 0;
 }
@@ -656,7 +664,6 @@ void echld_foreach_child(echld_iter_cb_t cb, void* cb_data) {
 
 static reqh_t* get_req(echld_t* c, int reqh_id) {
 	int idx = reqh_id_idx(c,reqh_id);
-	reqh_t* r;
 	if(idx < 0) return NULL;
 
 	return ((reqh_t*)(c->reqs->data))+idx;
@@ -673,10 +680,11 @@ static hdlr_t* get_next_hdlr_for_type(echld_t* c, echld_msg_type_t t, int* cooki
 	return NULL;
 }
 
-int parent_read_frame(GByteArray* ba, guint16 chld_id, echld_msg_type_t t, guint16 reqh_id, void* data) {
+static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t t, echld_reqh_id_t reqh_id, void* data _U_) {
 	echld_t* c = get_child(chld_id);
+	GByteArray* ba = g_byte_array_new();
 
-	if (ba == NULL) g_byte_array_new();
+	g_byte_array_append(ba,b, (guint)len);
 
 	if (c) {
 		reqh_t* r = get_req(c, reqh_id);
@@ -685,18 +693,18 @@ int parent_read_frame(GByteArray* ba, guint16 chld_id, echld_msg_type_t t, guint
 		gboolean go_ahead = TRUE;
 
 		if (r) { /* got that reqh_id */
-			go_ahead = r->cb ? r->cb(t,(void*)ba,r->cb_data) : TRUE;
+			go_ahead = r->cb ? r->cb(t,ba,r->cb_data) : TRUE;
 		}
 
 		while(go_ahead && ( h = get_next_hdlr_for_type(c,t,&i))) {
-				go_ahead = h->cb(t,(void*)ba,r->cb_data);
+				go_ahead = h->cb(t,ba,r->cb_data);
 		}
 	} else {
 		/* no such child??? */
 	}
 
-	ba && g_byte_array_free(ba,TRUE);
-
+	g_byte_array_free(ba,TRUE);
+	return 1;
 }
 
 int echld_fdset(fd_set* rfds, fd_set* efds) {
@@ -711,12 +719,12 @@ int echld_fd_read(fd_set* rfds, fd_set* efds) {
 	if (FD_ISSET(parent.reader.fd,efds) || FD_ISSET(parent.dispatcher_fd,efds) ) {
 		/* Handle errored dispatcher */
 		r_nfds--;
-		return;
+		return -1;
 	}
 
 	if (FD_ISSET(parent.reader.fd,rfds)) {
 		r_nfds++;
-		read_frame(&(parent.reader),parent_read_frame,&(parent));
+		echld_read_frame(&(parent.reader),parent_read_frame,&(parent));
 	}
 
 	return r_nfds;
@@ -748,52 +756,13 @@ echld_state_t echld_wait(struct timeval* timeout) {
 }
 
 
+
+
+
 /* Ping the child */
-struct _ping {
-	struct timeval tv;
-	echld_t* child;
-	echld_ping_cb_t cb;
-	void* cb_data;
-};
-
-static long timevaldiff(struct timeval *starttime, struct timeval *finishtime) {
-  long msec;
-  msec=(finishtime->tv_sec-starttime->tv_sec)*1000;
-  msec+=(finishtime->tv_usec-starttime->tv_usec)/1000;
-  return msec;
-}
-
-static gboolean pong(echld_msg_type_t type, GByteArray* ba, void* data) {
-	struct _ping* p = data;
-	struct timeval t;
-	gettimeofday(&t);
-	
-	if (p->cb) p->cb(timevaldiff(&(p->tv),&t), p->cb_data);
-
-	return FALSE;
-}
 
 
-echld_state_t echld_ping(int child_id, echld_ping_cb_t pcb, void* cb_data) {
-	echld_t* c;
-	struct _ping* p;
-	GByteArray* ba;
 
-	if (!(( c = get_child(child_id) )) ) {
-
-		return -1;
-	}
-
-	p = g_malloc0(sizeof(struct _ping));
-	ba = g_byte_array_new();
-
-	p->child = c;
-	p->cb = pcb;
-	p->cb_data = cb_data;
-	gettimeofday(&(p->tv));
-
-	return echld_req(c->chld_id, ECHLD_PING, ba, pong, p);
-}
 
 
 

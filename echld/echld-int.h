@@ -26,17 +26,37 @@
 #ifndef __ECHLD_HDR_INT_
 #define __ECHLD_HDR_INT_
 
+#include "../config.h"
+
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#include <sys/time.h>
 #include <sys/uio.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#include <glib.h>
-#include <glib/gprintf.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <signal.h>
+
 #include <arpa/inet.h>
+
+
+#include <glib.h>
+#include <glib/gprintf.h>
+
+
+
 #include "capture_ifinfo.h"
 
 
@@ -46,7 +66,6 @@
 typedef struct _column_info column_info;
 typedef struct _proto_node proto_tree;
 typedef struct tvbuff tvb_t;
-
 
 struct _hdr {
 	guint32 type_len;
@@ -85,7 +104,7 @@ typedef enum _cst {
 /* these manage the de-framing machine in the receiver side */
 typedef struct _echld_reader {
 	guint8* rp; /* the read pointer*/
-	guint  len;  /* the used size = (.wp - .rp) */
+	size_t  len;  /* the used size = (.wp - .rp) */
 
 	guint8* wp; /* the write pointer */
 	int fd; /* the filedesc is serving */
@@ -107,13 +126,13 @@ void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
 void echld_reset_reader(echld_reader_t* r, int fd, size_t initial);
 
 typedef struct _param {
-	char* name;
+	const char* name;
 	char* (*get)(char** err );
 	echld_bool_t (*set)(char* val , char** err);	
 } param_t;
 
 /* the call_back used by read_frame() */
-typedef int (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, echld_reqh_id_t, void*);
+typedef long (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, echld_reqh_id_t, void*);
 
 
 typedef struct _child_in {
@@ -160,8 +179,8 @@ void echld_get_all_codecs(child_encoder_t**, child_decoder_t**, echld_parent_enc
 void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
 void free_reader(echld_reader_t* r);
 
-int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
-int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
+long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
+long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
 
 
 void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id);

@@ -31,7 +31,7 @@
   **/
 
 struct dispatcher_child {
-	unsigned chld_id;
+	echld_chld_id_t chld_id;
 	child_state_t state;
 	echld_reader_t reader;
 	int write_fd;
@@ -67,7 +67,7 @@ struct dispatcher* dispatcher;
 #ifdef DEBUG_DISPATCHER
 static int dbg_level = 0;
 
-void dispatcher_debug(int level, char* fmt, ...) {
+void dispatcher_debug(int level, const char* fmt, ...) {
 	va_list ap;
 	char* str;
 
@@ -81,13 +81,13 @@ void dispatcher_debug(int level, char* fmt, ...) {
 	g_free(str);
 }
 
-static char* param_get_dbg_level(char** err ) {
+static char* param_get_dbg_level(char** err _U_) {
 	return g_strdup_printf("%d",dbg_level);
 }
 
 static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 	char* p;
-	int lvl = strtol(val, &p, 10);
+	int lvl = (int)strtol(val, &p, 10);
 
 	if (p<=val) {
 		*err = g_strdup("not an integer");
@@ -106,36 +106,129 @@ static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 #define DISP_DBG(attrs)
 #endif
 
+static void dispatcher_err(int errnum, const char* fmt, ...) {
+	size_t len= 1024;
+	gchar err_str[len];
+	va_list ap;
+	static GByteArray* ba;
+
+	va_start(ap, fmt);
+	g_vsnprintf(err_str,len,fmt,ap);
+	va_end(ap);
+
+	DISP_DBG((0,"error=\"%s\"",err_str));
+
+	ba = dispatcher->enc.to_parent->error(errnum, err_str);
+	DISP_RESP(ba,ECHLD_ERROR);
+	g_byte_array_free(ba,TRUE);
+}
 
 /* parameters */
 
-int wait_chldn = 0;
+/* interface listing */
 
-static char* param_get_wait_chldn(char** err ) {
-	return g_strdup_printf("%d",wait_chldn);
+static char* intflist2json(GList* if_list) {
+	/* blatantly stolen from print_machine_readable_interfaces in dumpcap.c */
+#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
+
+    int         i;
+    GList       *if_entry;
+    if_info_t   *if_info;
+    GSList      *addr;
+    if_addr_t   *if_addr;
+    char        addr_str[ADDRSTRLEN];
+    GString     *str = g_string_new("={ ");
+    char* s;
+
+    i = 1;  /* Interface id number */
+    for (if_entry = g_list_first(if_list); if_entry != NULL;
+         if_entry = g_list_next(if_entry)) {
+        if_info = (if_info_t *)if_entry->data;
+        g_string_append_printf(str,"%d={ intf='%s',", i++, if_info->name);
+
+        /*
+         * Print the contents of the if_entry struct in a parseable format.
+         * Each if_entry element is tab-separated.  Addresses are comma-
+         * separated.
+         */
+        /* XXX - Make sure our description doesn't contain a tab */
+        if (if_info->vendor_description != NULL)
+            g_string_append_printf(str," vnd_desc='%s',", if_info->vendor_description);
+
+        /* XXX - Make sure our friendly name doesn't contain a tab */
+        if (if_info->friendly_name != NULL)
+            g_string_append_printf(str," name='%s', addrs=[ ", if_info->friendly_name);
+
+        for (addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
+                    addr = g_slist_next(addr)) {
+
+            if_addr = (if_addr_t *)addr->data;
+            switch(if_addr->ifat_type) {
+            case IF_AT_IPv4:
+                if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
+                              ADDRSTRLEN)) {
+                    g_string_append_printf(str,"%s", addr_str);
+                } else {
+                    g_string_append(str,"<unknown IPv4>");
+                }
+                break;
+            case IF_AT_IPv6:
+                if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
+                              addr_str, ADDRSTRLEN)) {
+                    g_string_append_printf(str,"%s", addr_str);
+                } else {
+                    g_string_append(str,"<unknown IPv6>");
+                }
+                break;
+            default:
+                g_string_append_printf(str,"<type unknown %u>", if_addr->ifat_type);
+            }
+        }
+
+        g_string_append(str," ]"); /* addrs */
+
+
+        if (if_info->loopback)
+            g_string_append(str,", loopback=1");
+        else
+            g_string_append(str,", loopback=0");
+
+        g_string_append(str,"}, ");
+    }
+
+    g_string_truncate(str,str->len - 2); /* the comma and space */
+    g_string_append(str,"}");
+
+    s=str->str;
+    g_string_free(str,FALSE);
+    return s;
 }
 
-static echld_bool_t param_set_wait_chldn(char* val , char** err ) {
-	char* p;
-	int lvl = strtol(val, &p, 10);
+static char* param_get_interfaces(char** err) {
+	int err_no = 0;
+	GList* if_list;
+	char* s;
+	*err = NULL;
+	if_list = capture_interface_list(&err_no, err);
 
-	if (p<=val) {
-		*err = g_strdup("not an integer");
-		return FALSE;
-	} else if (lvl < 0 || lvl > 10) {
-		*err = g_strdup_printf("invalid level=%d (min=0 max=5)",lvl);
-		return FALSE;
+	if (*err) {
+		return NULL;
 	}
 
-	wait_chldn = lvl;
-	return TRUE;
+	s = intflist2json(if_list);
+
+	free_interface_list(if_list);
+
+	return s;
 }
+
+
 
 static param_t disp_params[] = {
 #ifdef DEBUG_DISPATCHER
 	{"dbg_level", param_get_dbg_level, param_set_dbg_level},
 # endif
-	{"wait_chldn",param_get_wait_chldn,param_set_wait_chldn},
+	{"interfaces",param_get_interfaces,NULL},
 	{NULL,NULL,NULL} };
 
 static param_t* get_paramset(char* name) {
@@ -146,24 +239,6 @@ static param_t* get_paramset(char* name) {
 	return NULL;
 } 
 
-void dispatcher_err(int err, const char* fmt, ...) {
-	size_t len= 1024;
-	guint8* b[len];
-	char err_str[len];
-	GByteArray* em;
-	va_list ap;
-
-
-	va_start(ap, fmt);
-	g_vsnprintf(err_str,len,fmt,ap);
-	va_end(ap);
-
-	fprintf(stderr, "%s[%d]: error=%d '%s'\n", "dispatcher", dispatcher->pid, err, err_str);
-
-	em = (void*)dispatcher->enc.to_parent->error(err, err_str);
-	echld_write_frame(dispatcher->parent_out, em, 0, ECHLD_ERROR, dispatcher->reqh_id, NULL);
-	g_ptr_array_free((void*)em,TRUE);
-}
 
 static struct dispatcher_child* dispatcher_get_child(struct dispatcher* d, guint16 chld_id) {
 	int i;
@@ -171,7 +246,7 @@ static struct dispatcher_child* dispatcher_get_child(struct dispatcher* d, guint
 	int max_children = d->max_children;
 
 	for(i = 0; i < max_children; i++) {
-		struct dispatcher_child* c = &(c[i]);
+		struct dispatcher_child* c = &(cc[i]);
 		if (c->chld_id == chld_id) return c;
 	}
 
@@ -187,12 +262,12 @@ static void dispatcher_clear_child(struct dispatcher_child* c) {
 	c->closing = 0;
 }
 
-static void preinit_epan() {
+static void preinit_epan(void) {
   /* Here we do initialization of parts of epan that will be the same for every child we fork */
 }
 
 
-static void dispatcher_clear() {
+static void dispatcher_clear(void) {
 	/* remove unnecessary stuff for the working child */
 }
 
@@ -202,47 +277,43 @@ void dispatcher_reaper(int sig) {
 	struct dispatcher_child* cc = dispatcher->children;
 	int max_children = dispatcher->max_children;
 	int pid =  waitpid(-1, &status, WNOHANG);
-	size_t len= 1024;
-	guint8* b[len];
 	GByteArray* em;
 
+	if (sig != SIGCHLD) {
+		DISP_DBG((1,"Reaper got wrong signal=%d",sig));
+		return;
+	}
+
+	DISP_DBG((2,"Child dead pid=%d",pid));
 
 	for(i = 0; i < max_children; i++) {
 		struct dispatcher_child* c = &(cc[i]);
 		if ( c->pid == pid ) {
 			if (c->closing || dispatcher->closing) {
-				em = (void*)dispatcher->enc.to_parent->child_dead("OK");
+				em = dispatcher->enc.to_parent->child_dead("OK");
 			} else {
-				/* here we do collect crash data !!! */
-				/*
-				WIFEXITED(status)
-             True if the process terminated normally by a call to _exit(2) or exit(3).
+				char* s = NULL;
 
-     WIFSIGNALED(status)
-             True if the process terminated due to receipt of a signal.
+				if (WIFEXITED(status)) {
+				    s = g_strdup_printf(
+				    		"Unexpected dead: reason='exited' pid=%d status=%d",
+				    		pid, WEXITSTATUS(status));
+				} else if ( WIFSIGNALED(status) ) {
+				    s = g_strdup_printf(
+				    	"Unexpected dead: reason='signaled' pid=%d termsig=%d coredump=%s",
+				    	pid, WTERMSIG(status), WCOREDUMP(status) ? "yes":"no");
 
-     WIFSTOPPED(status)
-             True if the process has not terminated, but has stopped and can be restarted.  This macro can be true only if the wait call speci-
-             fied the WUNTRACED option or if the child process is being traced (see ptrace(2)).
+					/*if (WCOREDUMP(status)) { system("analyze_coredump.sh pid=%d") } */
 
-     Depending on the values of those macros, the following macros produce the remaining status information about the child process:
+				} else if (WIFSTOPPED(status)) {
+				    s = g_strdup_printf(
+				    	"Unexpected dead: reason='stopped' pid=%d stopsig=%d",
+				    	pid, WSTOPSIG(status));
+				}
 
-     WEXITSTATUS(status)
-             If WIFEXITED(status) is true, evaluates to the low-order 8 bits of the argument passed to _exit(2) or exit(3) by the child.
-
-     WTERMSIG(status)
-             If WIFSIGNALED(status) is true, evaluates to the number of the signal that caused the termination of the process.
-
-     WCOREDUMP(status)
-             If WIFSIGNALED(status) is true, evaluates as true if the termination of the process was accompanied by the creation of a core file
-             containing an image of the process when the signal was received.
-
-     WSTOPSIG(status)
-             If WIFSTOPPED(status) is true, evaluates to the number of the signal that caused the process to stop.
-
-*/
-				em = (void*)dispatcher->enc.to_parent->child_dead("Unexpected, probably crashed");
-				dispatcher_err(ECHLD_ERR_CRASHED_CHILD, "Unexpected dead: pid=%d chld_id=%d", pid, c->chld_id);
+				em = dispatcher->enc.to_parent->child_dead(s);
+				dispatcher_err(ECHLD_ERR_CRASHED_CHILD, s);
+				if (s) g_free(s);
 			}
 
 			echld_write_frame(dispatcher->parent_out, em, c->chld_id, ECHLD_CHILD_DEAD, 0, NULL);
@@ -257,7 +328,7 @@ void dispatcher_reaper(int sig) {
 
 
 
-static void dispatcher_destroy() {
+static void dispatcher_destroy(void) {
 	int i;
 	int max_children = dispatcher->max_children;
 	struct dispatcher_child* cc = dispatcher->children;
@@ -275,19 +346,21 @@ static void dispatcher_destroy() {
 		}
 	}
 
-	exit(6666);
+	exit(0);
 }
 
 /* stuff coming from child going to parent */
-static int dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
-	struct dispatcher_child* c = data;
-	dispatcher->reqh_id  = reqh_id;
+static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
 	/* TODO: timeouts, clear them */
 	/* TODO: keep stats */
+
 	GByteArray in_ba;
 
+	struct dispatcher_child* c = (struct dispatcher_child*)data;
+	dispatcher->reqh_id  = reqh_id;
+
 	in_ba.data = b;
-	in_ba.len = len;
+	in_ba.len = (guint)len;
 
 	if (chld_id != c->chld_id) {
 		goto misbehabing;
@@ -373,7 +446,7 @@ void dispatch_new_child(struct dispatcher* dd) {
 				int i;
 				int fdt_len = getdtablesize();
 
-				dispatcher_clear(dd);
+				dispatcher_clear();
 
 				for(i=0;i<fdt_len;i++) {
 					if ( i != pipe_from_parent 
@@ -419,13 +492,14 @@ void dispatch_new_child(struct dispatcher* dd) {
 
 
 /* process signals sent from parent */
-static int dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
-	struct dispatcher* disp = data;
-	disp->reqh_id = reqh_id;
+static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
+	struct dispatcher* disp = (struct dispatcher*)data;
 	GByteArray in_ba;
 
+	disp->reqh_id = reqh_id;
+
 	in_ba.data = b;
-	in_ba.len = len;
+	in_ba.len = (guint)len;
 
 	if (chld_id == 0) { /* these are messages to the dispatcher itself */
 		switch(type) {
@@ -462,7 +536,7 @@ static int dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ech
 						return 0;
 					}
 
-					ba = (void*)disp->enc.to_parent->param(param,value);
+					ba = disp->enc.to_parent->param(param,value);
 					DISP_RESP(ba,ECHLD_PARAM);
 					g_byte_array_free(ba,TRUE);
 					DISP_DBG((1,"Set Param: param='%s' value='%s'",param,value));
@@ -498,7 +572,7 @@ static int dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ech
 						return 0;
 					}
 					
-					ba = (void*)disp->enc.to_parent->param(param,val);
+					ba = disp->enc.to_parent->param(param,val);
 					DISP_RESP(ba,ECHLD_PARAM);
 					g_byte_array_free(ba,TRUE);
 					DISP_DBG((2,"Get Param: param='%s' value='%s'",param,val));
@@ -562,7 +636,7 @@ static int dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ech
 }
 
 
-int dispatcher_loop() {
+int dispatcher_loop(void) {
 	int parent_out = dispatcher->parent_out;
 	int parent_in = dispatcher->parent_in.fd;
 
@@ -598,7 +672,7 @@ int dispatcher_loop() {
 		}
 
 		if (FD_ISSET(parent_in, &rfds)) {
-			int st = echld_read_frame(&(dispatcher->parent_in), dispatch_to_child, dispatcher);
+			long st = echld_read_frame(&(dispatcher->parent_in), dispatch_to_child, dispatcher);
 
 			if (st < 0) {
 				/* XXX */
@@ -614,7 +688,7 @@ int dispatcher_loop() {
 				}
 
 				if (FD_ISSET(c->reader.fd,&rfds)) {
-					int st = echld_read_frame(&(c->reader), dispatch_to_parent, c);
+					long st = echld_read_frame(&(c->reader), dispatch_to_parent, c);
 
 					if (st < 0) {
 						/* XXX cleanup child and report */
@@ -643,7 +717,7 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds) {
 
 	echld_init_reader(&(d.parent_in),in_pipe_fds[0],4096);
 	d.parent_out = out_pipe_fds[1];
-	d.children = g_malloc0(ECHLD_MAX_CHILDREN * sizeof(struct dispatcher_child));
+	d.children = g_new0(struct dispatcher_child,ECHLD_MAX_CHILDREN);
 	d.max_children = ECHLD_MAX_CHILDREN;
 	d.nchildren = 0;
 	d.reqh_id = -1;

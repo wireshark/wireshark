@@ -62,7 +62,7 @@ static echld_child_t child;
 #ifdef DEBUG_CHILD
 static int dbg_level = 0;
 
-void child_debug(int level, char* fmt, ...) {
+void child_debug(int level, const char* fmt, ...) {
 	va_list ap;
 	char* str;
 
@@ -105,7 +105,6 @@ void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_i
 
 void child_err(int e, unsigned reqh_id, const char* fmt, ...) {
 	size_t len= 1024;
-	guint8* b[len];
 	gchar err_str[len];
 	va_list ap;
 	static GByteArray* ba;
@@ -116,7 +115,7 @@ void child_err(int e, unsigned reqh_id, const char* fmt, ...) {
 
 	CHILD_DBG((0,"error='%s'",err_str));
 
-	ba = (void*)child.enc->error(e, err_str);
+	ba = child.enc->error(e, err_str);
 	echld_write_frame(child.fds.pipe_to_parent, ba, child.chld_id, ECHLD_ERROR, reqh_id, NULL);
 	g_byte_array_free(ba,TRUE);
 }
@@ -199,29 +198,21 @@ static char* intflist2json(GList* if_list) {
     return s;
 }
 
-static void child_start_interface_listing() {}
+static void child_start_interface_listing(void) {
 
-static gboolean child_open_file(int chld_id, int reqh_id, char* filename, guint8* buff, int buff_len) {
-	char* reason = "Unimplemented"; // this ain't a good reason to fail!
+}
+
+static gboolean child_open_file(int chld_id _U_, int reqh_id _U_, const char* filename, guint8* buff, int buff_len) {
+	const char* reason = "Unimplemented"; // this ain't a good reason to fail!
 	g_snprintf(buff,buff_len,"Cannot open file=%s reason=%s",filename,reason);
 	return FALSE;
 }
 
-static gboolean child_open_interface(int chld_id, int reqh_id, const char* intf_name, const char* params, guint8* err_buf, int errbuff_len) {
-	char* reason = "Unimplemented"; // this ain't a good reason to fail!
+static gboolean child_open_interface(int chld_id _U_, int reqh_id _U_, const char* intf_name, const char* params _U_, guint8* err_buf, int errbuff_len) {
+	const char* reason = "Unimplemented"; // this ain't a good reason to fail!
 	g_snprintf(err_buf,errbuff_len,"Cannot open interface=%s reason=%s",intf_name,reason);
 	return FALSE;
 }
-
-
-// static void child_list_files() {
-// 	char* file_info = "{glob='*.cap', file_list={'dummy.cap'={type='pcap-ng', size=20300, npackets=502}}}";
-// 	// ls
-// 	// foreach file in cur dir
-// 		GByteArray* ba = (void*)child.enc->file_info(file_info);
-// 	    CHILD_RESP(ba,ECHLD_FILE_INFO);
-// 	    g_byte_array_free(ba,TRUE);
-// }
 
 
 static char* param_get_cwd(char** err ) {
@@ -251,9 +242,10 @@ static char* param_get_cookie(char** err ) {
 		return g_strdup(cookie);
 
 	*err = g_strdup("cookie not set");
+	return NULL;
 }
 
-static echld_bool_t param_set_cookie(char* val , char** err ) {
+static echld_bool_t param_set_cookie(char* val , char** err _U_) {
 
 	if (cookie) g_free(cookie);
 
@@ -262,13 +254,13 @@ static echld_bool_t param_set_cookie(char* val , char** err ) {
 }
 
 #ifdef DEBUG_CHILD
-static char* param_get_dbg_level(char** err ) {
+static char* param_get_dbg_level(char** err _U_) {
 	return g_strdup_printf("%d",dbg_level);
 }
 
 static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 	char* p;
-	int lvl = strtol(val, &p, 10);
+	int lvl = (int)strtol(val, &p, 10);
 
 	if (p<=val) {
 		*err = g_strdup("not an integer");
@@ -302,15 +294,8 @@ static param_t* get_paramset(char* name) {
 } 
 
 
-static gboolean child_set_filter(char* dflt, GString* err) { return FALSE; } 
-static gboolean child_start_capture(GString* msg, GString* err) { return FALSE; }
-static gboolean child_stop_capture(GString* msg, GString* err) { return FALSE; }
-static gboolean child_get_packets(GString* msg, GString* err) { return FALSE; }
-static gboolean child_apply_filter(char* dflt, GString* err) { return FALSE; }
-static gboolean child_add_note(int packet_num, char* note, GString* err) { return FALSE; }
 
-
-static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
+static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data _U_) {
 	GByteArray* ba = NULL;
 
 	child.chld_id = chld_id;
@@ -368,15 +353,14 @@ static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_m
 					break;
 				}
 
-				ba = (void*)child.enc->param(param,value);
+				ba = child.enc->param(param,value);
 				CHILD_RESP(ba,ECHLD_PARAM);
 				g_byte_array_free(ba,TRUE);
 				CHILD_DBG((1,"Set Param: param='%s' value='%s'",param,value));
 
 				break;
 			} else {
-				child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"reason='decoder error'");
-				break;
+				goto misencoded;
 			}
 		}
 		case ECHLD_GET_PARAM: {
@@ -403,14 +387,13 @@ static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_m
 					break;
 				}
 				
-				ba = (void*)child.enc->param(param,val);
+				ba = child.enc->param(param,val);
 				CHILD_RESP(ba,ECHLD_PARAM);
 				g_byte_array_free(ba,TRUE);
 				CHILD_DBG((2,"Get Param: param='%s' value='%s'",param,val));
 				break;
 			} else {
-				child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='decoder error'");
-				break;
+				goto misencoded;
 			}
 		}
 		case ECHLD_CLOSE_CHILD:
@@ -423,14 +406,23 @@ static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_m
 			break;
 		case ECHLD_OPEN_INTERFACE:
 		case ECHLD_OPEN_FILE:
+			if (child.state != IDLE) goto wrong_state;
+			goto not_implemented;			
 		case ECHLD_START_CAPTURE:
+			if (child.state != READY) goto wrong_state;
+			goto not_implemented;					
 		case ECHLD_STOP_CAPTURE:
+			if (child.state != IDLE) goto wrong_state;
+			goto not_implemented;			
 		case ECHLD_GET_SUM:
 		case ECHLD_GET_TREE:
 		case ECHLD_GET_BUFFER:
+			if (child.state != READING && child.state != CAPTURING ) goto wrong_state;
+			goto not_implemented;		
 		case ECHLD_ADD_NOTE:
 		case ECHLD_APPLY_FILTER:
 		case ECHLD_SAVE_FILE:
+			if (child.state != DONE ) goto wrong_state;
 			goto not_implemented;
 		default:
 			child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"chld_id=%d msg_type='%c'",chld_id,type);
@@ -454,19 +446,19 @@ static int child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_m
 
 }
 
-static void child_dumpcap_read() {
+static void child_dumpcap_read(void) {
 	// this folk manages the reading of dumpcap's pipe
 	// it has to read interface descriptions when doing so
 	// and managing capture during capture
 				CHILD_DBG((2,"child_dumpcap_read"));
 }
 
-static void child_read_file() {
+static void child_read_file(void) {
 	// this folk manages the reading of the file after open file has opened it
-				CHILD_DBG((2,"child_read_file"));
+	CHILD_DBG((2,"child_read_file"));
 }
 
-int echld_child_loop() {
+int echld_child_loop(void) {
 	int parent_fd = child.fds.pipe_to_parent;
 
 #ifdef DEBUG_CHILD
@@ -480,8 +472,7 @@ int echld_child_loop() {
 		fd_set wfds;
 		fd_set efds;
 		struct timeval timeout;
-		struct dispatcher_child* c;
-		int nfds;
+		int nfds = 0;
 
 
 		FD_ZERO(&rfds);
@@ -492,10 +483,12 @@ int echld_child_loop() {
 
 		if (child.fds.pipe_from_dumpcap > 0) {
 			FD_SET(child.fds.pipe_from_dumpcap,&rfds);
+			nfds++;
 		}
 
 		if (child.fds.file_being_read > 0) {
 			FD_SET(child.fds.file_being_read,&rfds);
+			nfds++;
 		}
 
 		CHILD_DBG((4,"child_loop: before select() step=%d",step++));
@@ -517,11 +510,11 @@ int echld_child_loop() {
 
 		if (FD_ISSET(parent_fd, &rfds)) {
 
-			int st = echld_read_frame(&(child.parent), child_receive, &child);
+			long st = echld_read_frame(&(child.parent), child_receive, &child);
 
 			if (st < 0) {
 				CHILD_DBG((0,"Read Frame Failed step=%d",step++));
-				return st;
+				return (int)st;
 			}
 		}
 

@@ -37,7 +37,7 @@ typedef void (*reader_realloc_t)(echld_reader_t*, size_t);
 static void child_realloc_buff(echld_reader_t* r, size_t needed) {
 	size_t a = r->actual_len;
 	size_t s = r->len;
-	int rp_off = r->rp - r->data;
+	long rp_off = r->rp - r->data;
 
 	if ( a < (s + needed) ) {
 		guint8* data = r->data;
@@ -46,7 +46,7 @@ static void child_realloc_buff(echld_reader_t* r, size_t needed) {
 			a *= 2;
 		} while( a < (s + needed) );
 
-	   data = g_realloc(data,a);
+	   data = (guint8*)g_realloc(data,a);
 
 	   r->actual_len = a;
 	   r->len = s;
@@ -74,7 +74,7 @@ void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
 
 	if (r->data == NULL) {
 		r->actual_len = initial;
-		r->data = g_malloc0(initial);
+		r->data = (guint8*)g_malloc0(initial);
 		r->wp = r->data;
 		r->rp = NULL;
 		r->len = 0;
@@ -87,7 +87,7 @@ void echld_reset_reader(echld_reader_t* r, int fd, size_t initial) {
 
 	if (r->data == NULL) {
 		r->actual_len = initial;
-		r->data = g_malloc0(initial);
+		r->data =(guint8*) g_malloc0(initial);
 		r->wp = r->data;
 		r->rp = NULL;
 		r->len = 0;
@@ -102,9 +102,9 @@ void free_reader(echld_reader_t* r) {
 	free(r->data);
 }
 
-static int reader_readv(echld_reader_t* r, size_t len) {
+static long reader_readv(echld_reader_t* r, size_t len) {
 	struct iovec iov;
-	int nread;
+	long nread;
 
 	if ( (r->actual_len - r->len) < len ) 
 		reader_realloc_buff(r, len);
@@ -112,7 +112,9 @@ static int reader_readv(echld_reader_t* r, size_t len) {
 	iov.iov_base = r->wp;
 	iov.iov_len = len;
 
-	nread = readv(0, &iov, len);
+	nread = readv(0, 
+		&iov,
+		 (guint)len);
 
 	if (nread >= 0) {
 		r->wp += nread;
@@ -123,15 +125,15 @@ static int reader_readv(echld_reader_t* r, size_t len) {
 };
 
 
-int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
+long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
     // it will use shared memory instead of inband communication
 	do {
 		hdr_t* h = (hdr_t*)r->rp;
-		int nread;
+		long nread;
 		size_t fr_len;
 		size_t missing;
-		int off;
+		long off;
 
 		if ( r->len < ECHLD_HDR_LEN) {
 			/* read the header */
@@ -147,7 +149,7 @@ int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 			
 		cb( &(r->rp[sizeof(hdr_t)]), HDR_LEN(h), h->h.chld_id, HDR_TYPE(h), h->h.reqh_id, cb_data);
 
-		if ( r->len >= off ) {
+		if ( ((long)r->len) >= off ) {
 			/* shift the consumed frame */
 			r->len -= off;
 			memcpy(r->rp ,r->rp + off ,r->len);
@@ -165,9 +167,7 @@ int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
 		if (nread < 0) {
 			goto kaput; /*XXX*/
-		} else /* if (nread == 0) {
-			break;
-		} else */ if (nread < missing) {
+		} else if (nread < (long)missing) {
 			goto again;
 		} else {
 			goto incomplete_frame;
@@ -182,7 +182,7 @@ int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
 		if (nread < 0) {
 			goto kaput; /*XXX*/
-		} else if (nread <= missing) {
+		} else if (nread <= (long)missing) {
 			goto again;
 		}
 
@@ -196,12 +196,12 @@ int echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
 
 
-int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data) {
+long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data) {
 	static guint8* write_buf = NULL;
-	static size_t wb_len = 4096;
+	static long wb_len = 4096;
 	hdr_t* h;
 	struct iovec iov;
-	int fr_len = ba->len+ECHLD_HDR_LEN;
+	long fr_len = ba->len+ECHLD_HDR_LEN;
 
 	data = data; //
 
@@ -209,7 +209,7 @@ int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t 
 
 	if (! write_buf) {
 		// lock if needed
-		write_buf = g_malloc0(wb_len);
+		write_buf = (guint8*)g_malloc0(wb_len);
 		// unlock if needed
 	}
 
@@ -219,11 +219,11 @@ int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t 
 		} while (fr_len > wb_len);
 
 		// lock if needed
-		write_buf = g_realloc(write_buf,wb_len);
+		write_buf = (guint8*)g_realloc(write_buf,wb_len);
 		// unlock if needed
 	}
 
-	h = (void*)write_buf;
+	h = (hdr_t*)write_buf;
 	h->h.type_len  = (type<<24) | (((guint32)ba->len) & 0x00ffffff) ;
 	h->h.chld_id = chld_id;
 	h->h.reqh_id = reqh_id;
@@ -233,7 +233,7 @@ int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t 
 	iov.iov_base = write_buf;
 	iov.iov_len = fr_len;
 
-	return (int) writev(fd, &iov, fr_len);
+	return (long) writev(fd, &iov, (unsigned)fr_len);
 }
 
 
@@ -248,7 +248,7 @@ int echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t 
 
 static enc_msg_t* str_enc(const char* s) {
 	GByteArray* ba = g_byte_array_new();
-	g_byte_array_append(ba,s,strlen(s)+1);
+	g_byte_array_append(ba,s,(guint)(strlen(s)+1));
 	return (enc_msg_t*)ba;
 }
 
@@ -260,16 +260,14 @@ static gboolean str_dec(guint8* b, size_t bs, char** text) {
 	return TRUE;
 }
 
-static gboolean str_deca(enc_msg_t* e, char** text) {
-	GByteArray* ba = (void*)e;
+static gboolean str_deca(enc_msg_t* ba, char** text) {
 	return str_dec(ba->data,ba->len,text);
-
 }
 
 static enc_msg_t* int_str_enc(int i, const char* s) {
 	GByteArray* ba = g_byte_array_new();
-	g_array_append(ba,&i,sizeof(int));
-	g_array_append(ba,s,strlen(s)+1);
+	g_byte_array_append(ba,(guint8*)&i,sizeof(int));
+	g_byte_array_append(ba,s,(guint)(strlen(s)+1));
 	return (enc_msg_t*)ba;
 }
 
@@ -286,14 +284,13 @@ static gboolean int_str_dec(guint8* b, size_t bs, int* ip, char** text) {
 	return TRUE;
 }
 
-static gboolean int_str_deca(enc_msg_t* e, int* ip, char** text) {
-	GByteArray* ba = (void*)e;
+static gboolean int_str_deca(enc_msg_t* ba, int* ip, char** text) {
 	return int_str_dec(ba->data,ba->len,ip,text);
 }
 
 static enc_msg_t* int_enc(int i) {
 	GByteArray* ba = g_byte_array_new();
-	g_array_append(ba,&i,sizeof(int));
+	g_byte_array_append(ba,(guint8*)&i,sizeof(int));
 	return (enc_msg_t*)ba;
 }
 
@@ -303,15 +300,14 @@ static gboolean int_dec(guint8* b, size_t bs, int* ip) {
 	return TRUE;
 }
 
-static gboolean int_deca(enc_msg_t* e, int* ip) {
-	GByteArray* ba = (void*)e;
+static gboolean int_deca(enc_msg_t* ba, int* ip) {
 	return int_dec(ba->data,ba->len,ip);
 }
 
 static enc_msg_t* x2str_enc(const char* s1, const char* s2) {
 	GByteArray* ba = g_byte_array_new();
-	g_array_append(ba,s1,strlen(s1)+1);
-	g_array_append(ba,s2,strlen(s2)+1);
+	g_byte_array_append(ba,s1,(guint)(strlen(s1)+1));
+	g_byte_array_append(ba,s2,(guint)(strlen(s2)+1));
 	return (enc_msg_t*)ba;
 }
 
@@ -326,8 +322,7 @@ static gboolean x2str_dec(guint8* b, size_t blen, char** str1, char** str2) {
 	return TRUE;
 }
 
-static gboolean x2str_deca(enc_msg_t* e, char** str1, char** str2) {
-	GByteArray* ba = (void*)e;
+static gboolean x2str_deca(enc_msg_t* ba, char** str1, char** str2) {
 	return x2str_dec(ba->data,ba->len,str1,str2);
 }
 
@@ -350,16 +345,15 @@ static gboolean int_3str_dec (guint8* b, size_t len, int* i, char** s1, char** s
 
 static enc_msg_t* int_3str_enc(int i,  const char* s1, const char* s2, const char* s3) {
 	GByteArray* ba = g_byte_array_new();
-	g_array_append(ba,&i,sizeof(int));
-	g_array_append(ba,s1,strlen(s1)+1);
-	g_array_append(ba,s2,strlen(s2)+1);
-	g_array_append(ba,s3,strlen(s3)+1);
+	g_byte_array_append(ba,(guint8*)&i,sizeof(int));
+	g_byte_array_append(ba,s1,(guint)(strlen(s1)+1));
+	g_byte_array_append(ba,s2,(guint)(strlen(s2)+1));
+	g_byte_array_append(ba,s3,(guint)(strlen(s3)+1));
 	return (enc_msg_t*)ba;
 }
 
 static gboolean int_3str_deca (enc_msg_t* e, int* i, char** s1, char** s2, char** s3) {
-	GByteArray* ba = (void*)e;
-	return int_3str_dec(ba->data,ba->len,i,s1,s2,s3);
+	return int_3str_dec(e->data,e->len,i,s1,s2,s3);
 }
 
 static gboolean x3str_dec (guint8* b, size_t len, char** s1, char** s2, char** s3) {
@@ -377,16 +371,15 @@ static gboolean x3str_dec (guint8* b, size_t len, char** s1, char** s2, char** s
 }
 
 static gboolean x3str_deca (enc_msg_t* e, char** s1, char** s2, char** s3) {
-	GByteArray* ba = (void*)e;
-	return x3str_dec(ba->data,ba->len,s1,s2,s3);
+	return x3str_dec(e->data,e->len,s1,s2,s3);
 }
 
 
 static enc_msg_t* x3str_enc(const char* s1, const char* s2, const char* s3) {
 	GByteArray* ba = g_byte_array_new();
-	g_array_append(ba,s1,strlen(s1)+1);
-	g_array_append(ba,s2,strlen(s2)+1);
-	g_array_append(ba,s3,strlen(s3)+1);
+	g_byte_array_append(ba,s1,(guint)(strlen(s1)+1));
+	g_byte_array_append(ba,s2,(guint)(strlen(s2)+1));
+	g_byte_array_append(ba,s3,(guint)(strlen(s3)+1));
 	return (enc_msg_t*)ba;
 }
 
@@ -404,7 +397,7 @@ static echld_parent_encoder_t parent_encoder = {
 	x2str_enc
 };
 
-echld_parent_encoder_t* echld_get_encoder() {
+echld_parent_encoder_t* echld_get_encoder(void) {
 	return &parent_encoder;
 }
 
@@ -413,9 +406,6 @@ static child_decoder_t child_decoder = {
 	x2str_dec,
 	str_dec,
 	int_dec,
-
-
-
 	str_dec,
 	x2str_dec,
 	str_dec,
@@ -459,17 +449,17 @@ void echld_get_all_codecs( child_encoder_t **e, child_decoder_t **d, echld_paren
 /* output encoders, used in the switch */
 
 
-static char* packet_summary_json(GByteArray* ba) {
+static char* packet_summary_json(GByteArray* ba _U_) {
 	/* dummy */
 	return g_strdup("{type='packet_summary', packet_summary={}");
 }
 
-static char* tree_json(GByteArray* ba) {
+static char* tree_json(GByteArray* ba _U_) {
 	/* dummy */
 	return g_strdup("{type='tree', tree={}");
 }
 
-static char* tvb_json(GByteArray* ba, tvb_t* tvb, const char* name) {
+char* tvb_json(GByteArray* ba  _U_, tvb_t* tvb  _U_, const char* name) {
 	/* dummy */
 	return g_strdup_printf("{type='buffer', buffer={name='%s', range='0-2', data=[0x12,0xff] }",name);
 }
@@ -499,21 +489,6 @@ static char* closing_json(GByteArray* ba) {
 	return s;
 }
 
-static char* cwd_json(GByteArray* ba) {
-	char* s = (char*)(ba->data);
-	s = g_strdup_printf("{type='cwd', cwd={dir='%s'}}",s);
-
-	return s;
-}
-
-static char* file_info_json(GByteArray* ba) {
-	char* s1 = (char*)(ba->data);
-	char* s2 = ((char*)(ba->data)) + strlen(s1);
-
-	s1 = g_strdup_printf("{type='file', file={filename='%s' info='%s'}}",s1,s2);
-
-	return s1;
-}
 
 
 static char* note_added_json(GByteArray* ba) {
@@ -523,7 +498,7 @@ static char* note_added_json(GByteArray* ba) {
 	return s;
 }
 
-static char* packet_list_json(GByteArray* ba) {
+static char* packet_list_json(GByteArray* ba _U_) {
 	return g_strdup("{}");
 }
 
@@ -566,100 +541,52 @@ static char* get_param_json(GByteArray* ba) {
 	return s1;
 }
 
-static char* list_files_json(GByteArray* ba) {
-	char* s1 = (char*)(ba->data);
-
-	s1 = g_strdup_printf("{type='list_files', list_files={glob='%s'}}",s1);
-
-
-	return s1;
-}
-
-
-static char* chk_filter_json(GByteArray* ba) {
-	char* s1 = (char*)(ba->data);
-
-	s1 = g_strdup_printf("{type='chk_filter', chk_filter={filter='%s'}}",s1);
-
-	return s1;
-}
-
-static char* filter_ckd_json(GByteArray* ba) {
-	char* s1 = (char*)(ba->data + sizeof(int));
-	int i = *((int*)ba->data);
-
-	s1 = g_strdup_printf("{type='filter_ckd', filter_ckd={filter='%s',ok=%s}}",ba->data,i?"true":"false");
-
-	return s1;
-}
-
-static char* set_filter_json(GByteArray* ba) {
-	char* s1 = (char*)(ba->data);
-
-	s1 = g_strdup_printf("{type='chk_filter', chk_filter={filter='%s'}}",s1);
-	
-	return s1;
-}
-
-static char* filter_set_json(GByteArray* ba) {
-	char* s1 = (char*)(ba->data);
-
-	s1 = g_strdup_printf("{type='filter_set', filter_set={filter='%s'}}",s1);
-	
-	return s1;
-}
-
-
-static char* file_opened_json(GByteArray* ba) {
+static char* file_opened_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* open_file_json(GByteArray* ba) {
+static char* open_file_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* intf_info_json(GByteArray* ba) {
-	return g_strdup("");
-}
-
-static char* open_interface_json(GByteArray* ba) {
+static char* open_interface_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
 
-static char* interface_opened_json(GByteArray* ba) {
+static char* interface_opened_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* notify_json(GByteArray* ba) {
+static char* notify_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* get_tree_json(GByteArray* ba) {
+static char* get_tree_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* get_sum_json(GByteArray* ba) {
+static char* get_sum_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* get_buffer_json(GByteArray* ba) {
+static char* get_buffer_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* buffer_json(GByteArray* ba) {
+static char* buffer_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* add_note_json(GByteArray* ba) {
+static char* add_note_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* apply_filter_json(GByteArray* ba) {
+static char* apply_filter_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
-static char* save_file_json(GByteArray* ba) {
+static char* save_file_json(GByteArray* ba _U_) {
 	return g_strdup("");
 }
 
@@ -675,7 +602,7 @@ static char* decode_json(echld_msg_type_t type, enc_msg_t* m) {
 		case ECHLD_HELLO: return g_strdup("{type='helo'}");
 		case ECHLD_CHILD_DEAD: return child_dead_json(ba);
 		case ECHLD_CLOSE_CHILD: return g_strdup("{type='close_child'}");
-		case ECHLD_CLOSING: return g_strdup("{type='closing'}");
+		case ECHLD_CLOSING: return closing_json(ba);
 		case ECHLD_SET_PARAM: return set_param_json(ba);
 		case ECHLD_GET_PARAM: return get_param_json(ba);
 		case ECHLD_PARAM: return param_set_json(ba);
@@ -702,7 +629,7 @@ static char* decode_json(echld_msg_type_t type, enc_msg_t* m) {
 		case ECHLD_APPLY_FILTER: return apply_filter_json(ba);
 		case ECHLD_PACKET_LIST: return packet_list_json(ba);
 		case ECHLD_SAVE_FILE: return save_file_json(ba);
-		case ECHLD_FILE_SAVED: return g_strdup("{type='file_saved'}");
+		case ECHLD_FILE_SAVED: return file_saved_json(ba);
 		case EC_ACTUAL_ERROR: return g_strdup("{type='actual_error'}");
 		default: break;
 	}

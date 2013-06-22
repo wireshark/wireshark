@@ -72,7 +72,7 @@ typedef int echld_bool_t;
 typedef struct timeval tv_t;
 
 /* will initialize epan registering protocols and taps */
-echld_state_t echld_initialize(echld_encoding_t);
+void echld_initialize(echld_encoding_t);
 
 /* cleans up (?) echld and kills the server process(es) */
 echld_state_t echld_terminate(void);
@@ -105,7 +105,7 @@ typedef echld_bool_t (*echld_iter_cb_t)(echld_chld_id_t, void* child_data, void*
 void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
 
 /* enc_msg_t is an obscure object for an encoded message */
-typedef struct GByteArray enc_msg_t;
+typedef struct _GByteArray enc_msg_t;
 
 
 /*
@@ -145,7 +145,7 @@ typedef struct _parent_out {
 	enc_msg_t* (*save_file)(const char* filename, const char* params);
 } echld_parent_encoder_t;
 
-echld_parent_encoder_t* echld_get_encoder();
+echld_parent_encoder_t* echld_get_encoder(void);
 
 /*
  * decoder
@@ -225,29 +225,6 @@ echld_state_t echld_msgh_set_type(echld_chld_id_t, int msgh_id, echld_msg_type_t
 echld_state_t echld_msgh_set_all(echld_chld_id_t, int msgh_id, echld_msg_type_t, echld_msg_cb_t, void*);
 
 
-/*
- * "Simple" API
- * these calls require you looping on echld_select() or calling echld_wait() until you get your answer.
- * see bellow
- */
-
-typedef void (*echld_ping_cb_t)(int usec, void* data);
-echld_state_t echld_ping(int child_id, echld_ping_cb_t cb, void* cb_data);
-
-typedef void (*echld_list_interface_cb_t)(char* intf_name, char* params, void* cb_data);
-echld_state_t echld_list_interfaces(int child_id, echld_list_interface_cb_t, void* cb_data);
-
-typedef void (*echild_get_packet_summary_cb_t)(char* summary, void* data);
-echld_state_t echld_open_file(int child_id, const char* filename,echild_get_packet_summary_cb_t,void*);
-
-
-echld_state_t echld_open_interface(int child_id, const char* intf_name, const char* params);
-echld_state_t echld_start_capture(int child_id, echild_get_packet_summary_cb_t);
-echld_state_t echld_stop_capture(int child_id);
-
-typedef void (*echild_get_packets_cb)(char* tree_text,void* data);
-typedef void (*echild_get_buffer_cb)(char* buffer_text, void* data);
-echld_state_t echld_get_packets_range(int child_id, const char* range, echild_get_packets_cb, echild_get_buffer_cb, void* data);
 
 
 /*
@@ -319,15 +296,13 @@ enum _echld_msg_type_t {
 						/* cwd RW: the current working directory */ 
 						/* list_files WO: a file listing of the current dir */
 						/* interfaces RO: the interface listing */
-						/* dfilter RW:  initial display filter*
+						/* dfilter RW:  initial display filter*/
+						/* dfilter_chk WO: check a display filter */
 						/* ... */
 
 	ECHLD_PING = '}', /* out: ping the child  */
 	ECHLD_PONG = '{', /* out: ping's response, error or TO otherwise */
 	
-	ECHLD_CHK_FILTER = 'K',	/* out: verify if a (display) filter works */
-	ECHLD_FILTER_CKD = 'k', /* in: yes this filter works, error or TO? otherwise */
-
 	ECHLD_OPEN_FILE = 'O', /* out: open a file  */
 	ECHLD_FILE_OPENED = 'o', /* in: the file has being open, error otherwise */
 
