@@ -619,7 +619,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[9].length = 0;
         key[9].key = NULL;
 
-        service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
+        if (sdp_service_infos) {
+            service_info = (service_info_t *) wmem_tree_lookup32_array_le(sdp_service_infos, key);
+        }
         if (service_info && service_info->interface_id == l2cap_data->interface_id &&
                 service_info->adapter_id == l2cap_data->adapter_id &&
                 service_info->sdp_psm == SDP_PSM_DEFAULT &&
