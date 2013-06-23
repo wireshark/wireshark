@@ -295,6 +295,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 )
 
 set(DISSECTOR_SRC
+	dissectors/file-mp4.c
 	dissectors/packet-2dparityfec.c
 	dissectors/packet-3com-njack.c
 	dissectors/packet-3com-xns.c
@@ -891,7 +892,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-mongo.c
 	dissectors/packet-mount.c
 	dissectors/packet-mp2t.c
-	dissectors/file-mp4.c
 	dissectors/packet-mp4ves.c
 	dissectors/packet-mpeg-ca.c
 	dissectors/packet-mpeg-descriptor.c
