@@ -664,8 +664,9 @@ enum fixed_field {
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
 #define TAG_MCCAOP_ADVERTISSEMENT_OV 174
-#define TAG_VHT_CAPABILITY           191  /* IEEE Stc 802.11ac/D3.1 */
-#define TAG_VHT_OPERATION            192  /* IEEE Stc 802.11ac/D3.1 */
+#define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
+#define TAG_VHT_OPERATION            192  /* IEEE Std 802.11ac/D3.1 */
+#define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
 #define TAG_VENDOR_SPECIFIC_IE       221
 
 static const value_string tag_num_vals[] = {
@@ -795,8 +796,9 @@ static const value_string tag_num_vals[] = {
   { TAG_CISCO_UNKNOWN_96,                     "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY,                   "Symbol Proprietary" },
   { TAG_MCCAOP_ADVERTISSEMENT_OV,             "MCCAOP Advertissement Overviw" },
-  { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Stc 802.11ac/D3.1)" },
-  { TAG_VHT_OPERATION,                        "VHT Operation (IEEE Stc 802.11ac/D3.1)" },
+  { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Std 802.11ac/D3.1)" },
+  { TAG_VHT_OPERATION,                        "VHT Operation (IEEE Std 802.11ac/D3.1)" },
+  { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope (IEEE Std 802.11ac/D5.0)" },
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
   { 0, NULL }
 };
@@ -2200,6 +2202,10 @@ static const value_string vht_op_channel_width_flag[] = {
   {0x00, NULL}
 };
 
+static const value_string vht_tpe_pwr_units[] = {
+  {0x00, "EIRP"},
+  {0x00, NULL}
+};
 
 
 static const true_false_string ht_delayed_block_ack_flag = {
@@ -3561,8 +3567,16 @@ static int hf_ieee80211_vht_op_max_basic_mcs_for_5_ss = -1;
 static int hf_ieee80211_vht_op_max_basic_mcs_for_6_ss = -1;
 static int hf_ieee80211_vht_op_max_basic_mcs_for_7_ss = -1;
 static int hf_ieee80211_vht_op_max_basic_mcs_for_8_ss = -1;
-
 static int hf_ieee80211_vht_mcsset_tx_highest_long_gi = -1;
+
+static int hf_ieee80211_vht_tpe_pwr_info = -1;
+static int hf_ieee80211_vht_tpe_pwr_info_count = -1;
+static int hf_ieee80211_vht_tpe_pwr_info_unit = -1;
+static int hf_ieee80211_vht_tpe_pwr_info_reserved = -1;
+static int hf_ieee80211_vht_tpe_pwr_constr_20 = -1;
+static int hf_ieee80211_vht_tpe_pwr_constr_40 = -1;
+static int hf_ieee80211_vht_tpe_pwr_constr_80 = -1;
+static int hf_ieee80211_vht_tpe_pwr_constr_160 = -1;
 
 static int hf_ieee80211_tag_neighbor_report_bssid = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
@@ -4116,6 +4130,7 @@ static gint ett_vht_mcsset_tree = -1;
 static gint ett_vht_rx_mcsbit_tree = -1;
 static gint ett_vht_tx_mcsbit_tree = -1;
 static gint ett_vht_basic_mcsbit_tree = -1;
+static gint ett_vht_tpe_info_tree = -1;
 
 static gint ett_vht_op_tree = -1;
 
@@ -8843,6 +8858,61 @@ dissect_vht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   return offset;
 }
 
+static int
+dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+    guint32 tag_len, proto_item *ti_len)
+{
+  proto_item *tx_pwr_item, *ti;
+  proto_tree *tx_pwr_info_tree;
+  guint8 opt_ie_cnt=0;
+  guint8 i;
+
+  if (tag_len < 2 && tag_len <= 5) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "VHT TX PWR Envelope IE length %u wrong, must be >= 2 and <= 5", tag_len);
+    return offset;
+  }
+
+  tx_pwr_item = proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_info, tvb, offset, 1, ENC_NA);
+  tx_pwr_info_tree =  proto_item_add_subtree(tx_pwr_item, ett_vht_tpe_info_tree);
+
+  ti = proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_unit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+  opt_ie_cnt = tvb_get_guint8(tvb, offset) & 0x07;
+
+  offset += 1;
+
+  /* Power Constraint info is mandatory only for 20MHz, others are optional*/
+  for (i = 0; i <= opt_ie_cnt; i++) {
+    switch(i) {
+    case 0:
+      proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_constr_20, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      break;
+    case 1:
+      proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_constr_40, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      break;
+    case 2:
+      proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_constr_80, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      break;
+    case 3:
+      proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_constr_160, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      break;
+    default:
+      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+             "Max Tx Pwr Count is Incorrect, should be 0-7");
+      offset += 1;
+      break;
+    }
+  }
+
+  return offset;
+}
 
 static void
 dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
@@ -12080,6 +12150,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_VHT_OPERATION:
       dissect_vht_operation_ie(tvb, pinfo, tree, offset+2, tag_len, ti_len);
+      break;
+
+    case TAG_VHT_TX_PWR_ENVELOPE:
+      dissect_vht_tx_pwr_envelope(tvb, pinfo, tree, offset+2, tag_len, ti_len);
       break;
 
     case TAG_VENDOR_SPECIFIC_IE: /* 7.3.2.26 Vendor Specific information element (221) */
@@ -17223,7 +17297,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_mcsset_tx_max_spatial_streams,
-     {"Tx Maximum Number of Spatial Streams Supported", "wlan_mgt.ht.mcsset.txmaxss",
+     {"Max Tximum Number of Spatial Streams Supported", "wlan_mgt.ht.mcsset.txmaxss",
       FT_UINT16, BASE_HEX, VALS(mcsset_tx_max_spatial_streams_flags) , 0x000c,
       NULL, HFILL }},
 
@@ -17620,6 +17694,46 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_vht_op_max_basic_mcs_for_8_ss,
      {"Basic 8 SS", "wlan_mgt.vht.op.basicmcsmap.ss8",
       FT_UINT16, BASE_HEX, VALS(vht_supported_mcs_flag), 0xc000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_info,
+     {"Tx Pwr Info", "wlan_mgt.vht.tpe.pwr_info",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_info_count,
+     {"Max Tx Pwr Count", "wlan_mgt.vht.tpe.pwr_info.count",
+      FT_UINT8, BASE_DEC, NULL , 0x07,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_info_unit,
+     {"Max Tx Pwr Unit Interpretation", "wlan_mgt.vht.tpe.pwr_info.unit",
+      FT_UINT8, BASE_DEC, VALS(vht_tpe_pwr_units) , 0x38,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_info_reserved,
+     {"Reserved", "wlan_mgt.vht.tpe.pwr_info.reserved",
+      FT_UINT8, BASE_DEC, NULL , 0xC0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_constr_20,
+     {"Local Max Tx Pwr Constraint 20MHz", "wlan_mgt.vht.tpe.pwr_constr_20",
+      FT_UINT8, BASE_DEC, NULL , 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_constr_40,
+     {"Local Max Tx Pwr Constraint 40MHz", "wlan_mgt.vht.tpe.pwr_constr_40",
+      FT_UINT8, BASE_DEC, NULL , 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_constr_80,
+     {"Local Max Tx Pwr Constraint 80MHz", "wlan_mgt.vht.tpe.pwr_constr_80",
+      FT_UINT8, BASE_DEC, NULL , 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_tpe_pwr_constr_160,
+     {"Local Max Tx Pwr Constraint 160MHz/80+80 MHz", "wlan_mgt.vht.tpe.pwr_constr_160",
+      FT_UINT8, BASE_DEC, NULL , 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_csi_num_bf_ant,
@@ -20582,6 +20696,7 @@ proto_register_ieee80211 (void)
     &ett_vht_tx_mcsbit_tree,
     &ett_vht_basic_mcsbit_tree,
     &ett_vht_op_tree,
+    &ett_vht_tpe_info_tree,
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
