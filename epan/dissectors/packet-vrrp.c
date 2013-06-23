@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include <epan/expert.h>
 
 static gint proto_vrrp = -1;
 static gint ett_vrrp = -1;
@@ -44,12 +45,16 @@ static gint hf_vrrp_type = -1;
 static gint hf_vrrp_virt_rtr_id = -1;
 static gint hf_vrrp_prio = -1;
 static gint hf_vrrp_addr_count = -1;
+static gint hf_vrrp_checksum = -1;
+static gint hf_vrrp_checksum_bad = -1;
 static gint hf_vrrp_auth_type = -1;
 static gint hf_vrrp_adver_int = -1;
 static gint hf_vrrp_reserved_mbz = -1;
 static gint hf_vrrp_short_adver_int = -1;
 static gint hf_vrrp_ip = -1;
 static gint hf_vrrp_ip6 = -1;
+
+static expert_field ei_vrrp_checksum = EI_INIT;
 
 #define VRRP_VERSION_MASK 0xf0
 #define VRRP_TYPE_MASK 0x0f
@@ -92,7 +97,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     vec_t       cksum_vec[4];
     guint32     phdr[2];
     gboolean    is_ipv6;
-    proto_item *ti, *tv;
+    proto_item *ti, *tv, *hidden_item, *checksum_item;
     proto_tree *vrrp_tree, *ver_type_tree;
     guint8      priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
     guint16     cksum, computed_cksum;
@@ -154,6 +159,9 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             break;
     }
 
+
+    checksum_item = proto_tree_add_item(vrrp_tree, hf_vrrp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+
     cksum = tvb_get_ntohs(tvb, offset);
     vrrp_len = (gint)tvb_reported_length(tvb);
     if (!pinfo->fragmented && (gint)tvb_length(tvb) >= vrrp_len) {
@@ -181,19 +189,19 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 computed_cksum = in_cksum(&cksum_vec[0], 1);
                 break;
         }
+
         if (computed_cksum == 0) {
-            proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                    "Checksum: 0x%04x [correct]",
-                    cksum);
+            hidden_item = proto_tree_add_boolean(vrrp_tree, hf_vrrp_checksum_bad, tvb, offset, 2, FALSE);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_append_text(checksum_item, " [correct]");
         } else {
-            proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                    "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-                    cksum,
-                    in_cksum_shouldbe(cksum, computed_cksum));
+            hidden_item = proto_tree_add_boolean(vrrp_tree, hf_vrrp_checksum_bad, tvb, offset, 2, TRUE);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
+            expert_add_info_format_text(pinfo, checksum_item, &ei_vrrp_checksum,
+                                   "VRRP Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
         }
-    } else {
-        proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                "Checksum: 0x%04x", cksum);
+
     }
     offset+=2;
 
@@ -255,6 +263,16 @@ void proto_register_vrrp(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "The number of addresses contained in this VRRP advertisement", HFILL }},
 
+        { &hf_vrrp_checksum,
+            { "Checksum", "vrrp.checksum",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "Used to detect data corruption in the VRRP message", HFILL }},
+
+        { &hf_vrrp_checksum_bad,
+          { "Bad Checksum", "vrrp.checksum_bad",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
         { &hf_vrrp_auth_type,
             {"Auth Type", "vrrp.auth_type",
                 FT_UINT8, BASE_DEC, VALS(vrrp_auth_vals), 0x0,
@@ -291,10 +309,21 @@ void proto_register_vrrp(void)
         &ett_vrrp_ver_type
     };
 
+    static ei_register_info ei[] = {
+        { &ei_vrrp_checksum, { "vrrp.vrrp_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+    };
+
+    expert_module_t* expert_vrrp;
+
+
     proto_vrrp = proto_register_protocol("Virtual Router Redundancy Protocol",
             "VRRP", "vrrp");
     proto_register_field_array(proto_vrrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_vrrp = expert_register_protocol(proto_vrrp);
+    expert_register_field_array(expert_vrrp, ei, array_length(ei));
+
 }
 
 void
