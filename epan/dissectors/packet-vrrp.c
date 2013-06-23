@@ -53,6 +53,7 @@ static gint hf_vrrp_reserved_mbz = -1;
 static gint hf_vrrp_short_adver_int = -1;
 static gint hf_vrrp_ip = -1;
 static gint hf_vrrp_ip6 = -1;
+static gint hf_vrrp_auth_string = -1;
 
 static expert_field ei_vrrp_checksum = EI_INIT;
 
@@ -101,7 +102,6 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree *vrrp_tree, *ver_type_tree;
     guint8      priority, addr_count = 0, auth_type = VRRP_AUTH_TYPE_NONE;
     guint16     cksum, computed_cksum;
-    guint8      auth_buf[VRRP_AUTH_DATA_LEN + 1];
 
     is_ipv6 = (pinfo->src.type == AT_IPv6);
 
@@ -217,12 +217,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     if (auth_type == VRRP_AUTH_TYPE_SIMPLE_TEXT) {
-        tvb_get_nstringz0(tvb, offset, sizeof auth_buf, auth_buf);
-        if (auth_buf[0] != '\0')
-            proto_tree_add_text(vrrp_tree, tvb, offset,
-                    VRRP_AUTH_DATA_LEN,
-                    "Authentication string: `%s'",
-                    auth_buf);
+        proto_tree_add_item(vrrp_tree, hf_vrrp_auth_string, tvb, offset, VRRP_AUTH_DATA_LEN, ENC_ASCII|ENC_NA);
         offset += VRRP_AUTH_DATA_LEN;
     }
 
@@ -302,6 +297,11 @@ void proto_register_vrrp(void)
             {"IPv6 Address", "vrrp.ipv6_addr",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "IPv6 address associated with the virtual router", HFILL }},
+
+        { &hf_vrrp_auth_string,
+            {"Authentification String", "vrrp.auth_string",
+                FT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
     };
 
     static gint *ett[] = {
