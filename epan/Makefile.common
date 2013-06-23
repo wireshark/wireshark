@@ -23,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
-LIBWIRESHARK_SRC = 		\
+LIBWIRESHARK_SRC =		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
 	address_to_str.c	\
@@ -49,17 +49,17 @@ LIBWIRESHARK_SRC = 		\
 	ex-opt.c		\
 	except.c		\
 	expert.c		\
-	exported_pdu.c	\
+	exported_pdu.c		\
 	filesystem.c		\
 	filter_expressions.c	\
 	follow.c		\
 	frame_data.c		\
 	frequency-utils.c	\
-	funnel.c    		\
+	funnel.c		\
 	gcp.c			\
 	geoip_db.c		\
 	golay.c			\
-	guid-utils.c    	\
+	guid-utils.c		\
 	h225-persistentdata.c	\
 	in_cksum.c		\
 	ipproto.c		\
@@ -117,9 +117,9 @@ NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES = \
 #
 LIBWIRESHARK_GENERATED_C_FILES = \
 	diam_dict.c		\
-	dtd_parse.c 		\
-	dtd_preparse.c 		\
-	radius_dict.c 		\
+	dtd_parse.c		\
+	dtd_preparse.c		\
+	radius_dict.c		\
 	uat_load.c
 
 LIBWIRESHARK_GENERATED_HEADER_FILES = \
@@ -129,15 +129,15 @@ LIBWIRESHARK_GENERATED_HEADER_FILES = \
 	radius_dict_lex.h	\
 	uat_load_lex.h
 
-LIBWIRESHARK_GENERATED_SRC = 	\
+LIBWIRESHARK_GENERATED_SRC =	\
 	$(LIBWIRESHARK_GENERATED_C_FILES) \
 	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES)
 
-LIBWIRESHARK_ALL_SRC = \
-	$(LIBWIRESHARK_SRC) 	\
+LIBWIRESHARK_ALL_SRC =		\
+	$(LIBWIRESHARK_SRC)	\
 	$(LIBWIRESHARK_GENERATED_SRC)
 
-LIBWIRESHARK_INCLUDES = 	\
+LIBWIRESHARK_INCLUDES =		\
 	addr_and_mask.h		\
 	addr_resolv.h		\
 	address.h		\
@@ -168,7 +168,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	diam_dict.h		\
 	dissector_filters.h	\
 	dtd.h			\
-	dtd_parse.h 		\
+	dtd_parse.h		\
 	eap.h			\
 	emem.h			\
 	epan.h			\
@@ -178,7 +178,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	except.h		\
 	exceptions.h		\
 	expert.h		\
-	exported_pdu.h	\
+	exported_pdu.h		\
 	filter_expressions.h	\
 	filesystem.h		\
 	follow.h		\
@@ -238,7 +238,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	tap.h			\
 	tap-voip.h		\
 	tcap-persistentdata.h	\
-	timestamp.h    		\
+	timestamp.h		\
 	tfs.h			\
 	time_fmt.h		\
 	to_str.h		\
