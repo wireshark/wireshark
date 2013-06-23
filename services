@@ -14,11 +14,11 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-06-11
+# 2013-06-17
 # 
 # Expert(s)
 # 
-# Joe Touch; Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling, Lars Eggert and Alexey Melnikov
+# Joe Touch; Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling, Lars Eggert, Alexey Melnikov and Wes Eddy
 # 
 # Note
 # 
@@ -573,8 +573,8 @@ namp	167/tcp	# NAMP                         [Marty_Schoffstahl]                 
 namp	167/udp	# NAMP                         [Marty_Schoffstahl]                                [Marty_Schoffstahl]
 rsvd	168/tcp	# RSVD                         [Alan_Sandell]                                     [Alan_Sandell]                                                         2008-05-01
 rsvd	168/udp	# RSVD                         [Alan_Sandell]                                     [Alan_Sandell]                                                         2008-05-01
-send	169/tcp	# SEND                         [William_D_Wisner]                                 [William_D_Wisner]
-send	169/udp	# SEND                         [William_D_Wisner]                                 [William_D_Wisner]
+send	169/tcp	# SEND                         [William_Oldwin]                                   [William_Oldwin]                                                       2013-06-17
+send	169/udp	# SEND                         [William_Oldwin]                                   [William_Oldwin]                                                       2013-06-17
 print-srv	170/tcp	# Network PostScript           [Brian_Reid]                                       [Brian_Reid]
 print-srv	170/udp	# Network PostScript           [Brian_Reid]                                       [Brian_Reid]
 multiplex	171/tcp	# Network Innovations
@@ -11278,7 +11278,9 @@ serverwsd2	5362/udp	# Microsoft Windows Server     [Erhan_Soyer_Osman]          
 # WSD2 Service
 net-projection	5363/tcp	# Windows Network Projection   [Rob_Williams]                                     [Rob_Williams]                                            2009-02-17
 net-projection	5363/udp	# Windows Network Projection   [Rob_Williams]                                     [Rob_Williams]                                            2009-02-17
-# 5364-5396            Unassigned
+kdnet	5364/udp	# Microsoft Kernel Debugger    [Microsoft_Corporation_4]                          [Joe_Ballantyne]                                          2013-06-16
+# 5364        tcp    Reserved
+# 5365-5396            Unassigned
 stresstester	5397/tcp	# StressTester(tm) Injector    [Graham_Parsons]                                   [Graham_Parsons]                                          2005-08
 stresstester	5397/udp	# StressTester(tm) Injector    [Graham_Parsons]                                   [Graham_Parsons]                                          2005-08
 elektron-admin	5398/tcp	# Elektron Administration      [Chris_Hawk]                                       [Chris_Hawk]                                              2005-08
@@ -19426,6 +19428,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Joakim_Johansson]                                        Joakim Johansson                                mailto:joakim.johansson&tbricks.com
 # [Joan_Linck]                                              Joan Linck                                      mailto:jlinck&lanovation.com
 # [Jochen_Hansmeyer]                                        Jochen Hansmeyer                                mailto:cjh&krypton.de
+# [Joe_Ballantyne]                                          Joe Ballantyne            Microsoft Corporation mailto:joeball&microsoft.com                                  2013-06-16
 # [Joe_Devlin]                                              Joe Devlin                                      mailto:Joe.Devlin&rocketsoftware.com                          2002-03
 # [Joe_Elliott]                                             Joe Elliott                                     mailto:joe&inetd.com                                          2002-06
 # [Joe_Graham]                                              Joe Graham                                      mailto:joe&edaconsulting.com
@@ -20329,6 +20332,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Microsoft_Corporation]                                                             Microsoft Corporation mailto:pratshar&microsoft.com                                 2011-08-04
 # [Microsoft_Corporation_2]                                                           Microsoft Corporation mailto:stdsreq&microsoft.com                                  2012-03-15
 # [Microsoft_Corporation_3]                                                           Microsoft Corporation mailto:sachins&microsoft.com                                  2012-06-27
+# [Microsoft_Corporation_4]                                                           Microsoft Corporation mailto:joeball&microsoft.com                                  2013-06-16
 # [Microtec_Informatique]                                                             Microtec Informatique mailto:raph&microtec.fr                                       2012-03-15
 # [MIDI_Manufacturers_Assoc_Inc]                                                      MIDI Manufacturers    mailto:info&midi.org                                          2011-11-14
 # Assoc Inc
@@ -22017,7 +22021,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [William_Bain]                                            William Bain                                    mailto:bbain&microsoft.com
 # [William_Benner]                                          William Benner                                  mailto:William_Benner&msn.com
 # [William_Benner_2]                                        William Benner                                  mailto:bill&pangolin.com                                      2002-03
-# [William_D_Wisner]                                        William D. Wisner                               mailto:wisner&hayes.fai.alaska.edu
 # [William_David]                                           William David                                   mailto:william.david&lmco.com
 # [William_Dillon]                                          William Dillon                                  mailto:wdillon&coas.oregonstate.edu
 # [William_Egge]                                            William Egge                                    mailto:begge&emagisoft.com
@@ -22028,6 +22031,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [William_LePera]                                          William LePera                                  mailto:lepera&us.ibm.com                                      2008-06-18
 # [William_McDonald]                                        William McDonald                                mailto:billmc&atc.boeing.com
 # [William_Mullaney]                                        William Mullaney                                mailto:mullanwi&usa.net
+# [William_Oldwin]                                          William Oldwin                                  mailto:william&oldwin.name                                    2013-06-17
 # [William_Orme]                                            William Orme                                    mailto:bill&repliweb.com
 # [William_Phelps]                                          William Phelps                                  mailto:william&meier-phelps.com                               2010-03-22
 # [William_Polites]                                         William Polites                                 mailto:wpolites&mitre.org
