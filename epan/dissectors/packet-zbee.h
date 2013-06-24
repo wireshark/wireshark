@@ -791,6 +791,10 @@
 #define ZBEE_PROTOABBREV_ZCL_IDENTIFY       "zbee_zcl_general.identify"
 #define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_general.onoff"
 #define ZBEE_PROTOABBREV_ZCL_PART           "zbee_zcl_general.part"
+#define ZBEE_PROTOABBREV_ZCL_ILLUMMEAS      "zbee_zcl_meas_sensing.illummeas"
+#define ZBEE_PROTOABBREV_ZCL_PRESSMEAS      "zbee_zcl_meas_sensing.pressmeas"
+#define ZBEE_PROTOABBREV_ZCL_RELHUMMEAS     "zbee_zcl_meas_sensing.relhummeas"
+#define ZBEE_PROTOABBREV_ZCL_TEMPMEAS       "zbee_zcl_meas_sensing.tempmeas"
 
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
