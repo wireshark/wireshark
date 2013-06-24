@@ -322,9 +322,7 @@ Print the version and exit.
 
 =item -w  E<lt>outfileE<gt>
 
-Write raw packet data to I<outfile>.
-
-NOTE: The usage of "-" for stdout is not allowed here!
+Write raw packet data to I<outfile>. Use "-" for stdout.
 
 =item -y  E<lt>capture link typeE<gt>
 
