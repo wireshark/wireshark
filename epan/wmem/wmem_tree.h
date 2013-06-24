@@ -24,7 +24,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_TREE_H_
+#ifndef __WMEM_TREE_H__
 #define __WMEM_TREE_H__
 
 #include "wmem_core.h"
@@ -167,7 +167,7 @@ wmem_print_tree(wmem_tree_t *tree);
 }
 #endif /* __cplusplus */
 
-#endif /* __WMEM_SLIST_H__ */
+#endif /* __WMEM_TREE_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
