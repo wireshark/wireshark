@@ -352,6 +352,10 @@ void proto_register_ranap(void) {
   prefs_register_uint_preference(ranap_module, "sccp_ssn", "SCCP SSN for RANAP",
 				 "The SCCP SubSystem Number for RANAP (default 142)", 10,
 				 &global_ranap_sccp_ssn);
+  prefs_register_bool_preference(ranap_module, "dissect_rrc_container",
+                                 "Attempt to dissect RRC-Container",
+                                 "Attempt to dissect RRC message embedded in RRC-Container IE",
+                                 &glbl_dissect_container);
 }
 
 
