@@ -746,7 +746,7 @@ proto_register_eth(void)
             "Ethernet Trailer or Checksum", HFILL }},
 
         { &hf_eth_fcs,
-        { "Frame check sequence", "eth.fcs", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Frame check sequence", "eth.fcs", FT_UINT32, BASE_HEX, NULL, 0x0,
             "Ethernet checksum", HFILL }},
 
         { &hf_eth_fcs_good,
