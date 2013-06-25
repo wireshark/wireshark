@@ -1451,32 +1451,6 @@ fi
 AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
 
-
-
-# Enable/disable echld
-
-AC_ARG_WITH(echld,
-  AC_HELP_STRING( [--with-echld],
-                  [support echld]),
-[
-  if test "x$withval" = "xno"; then
-      have_echld="no"
-  else
-      have_echld="$withval"
-  fi
-])
-AM_CONDITIONAL(HAVE_ECHLD, test "x$have_echld" = "xyes")
-if test "x$have_echld" = xyes
-then
-  AC_DEFINE(HAVE_ECHLD, 1, [Define if echld is enabled])
-  echld_test_bin="echld_test\$(EXEEXT)"
-else
-  have_echld="no"
-  echld_test_bin=""
-fi
-AC_SUBST(echld_test_bin)
-
-
 # Enabling/disabling of dumpcap is done later (after we know if we have PCAP
 # or not)
 
@@ -2524,7 +2498,6 @@ AC_OUTPUT(
   tools/lemon/Makefile
   wiretap/Makefile
   wsutil/Makefile
-  echld/Makefile
   _CUSTOM_AC_OUTPUT_
   ,)
 dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
@@ -2644,7 +2617,6 @@ echo "                    Build text2pcap : $enable_text2pcap"
 echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
-echo "                     Build echld : $have_echld"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
 echo "  Install dumpcap with capabilities : $setcap_message"
