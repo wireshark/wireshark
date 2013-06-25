@@ -9,3 +9,4 @@ epan/dissectors/*.h
 epan/ftypes/*.h
 epan/wmem/*.h
 wiretap/*.h
+wsutil/*.h
