@@ -36,7 +36,7 @@ WMEM_TEST_LIBS= wmem.lib
 wmem_test.exe: $(WMEM_TEST_OBJ) $(WMEM_TEST_LIBS)
 	@echo Linking $@
 	link /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                $(WMEM_TEST_LIBS) $(GLIB_LIBS) $(WMEM_TEST_OBJ)
+		$(WMEM_TEST_LIBS) $(GLIB_LIBS) $(WMEM_TEST_OBJ)
 
 wmem_test_install:
 	set copycmd=/y

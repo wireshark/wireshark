@@ -21,7 +21,7 @@ GENERATED_CFLAGS=\
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
-   $(CC) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=\
 	$(NONGENERATED_C_FILES:.c=.obj) \
@@ -73,7 +73,7 @@ grammar.c : $(LEMON)\lemon.exe $(LEMON)\lempar.c grammar.lemon
 
 $(LEMON)\lemon.exe:
 	cd ../../tools
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake lemon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake lemon
 	cd ../epan/dfilter
 
 checkapi:

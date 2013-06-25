@@ -27,7 +27,7 @@ COPY_FLAGS	= /d /y
 WIN32_SETUP_OPT=--download
 !ENDIF
 !IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
-QT_DIR="..\..\wireshark-qt-release" 
+QT_DIR="..\..\wireshark-qt-release"
 !ENDIF
 
 UPX_FLAGS = -q
@@ -54,7 +54,7 @@ nsis-bits:
 
 $(WSMANIFEST):
 	cd ../..
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake wireshark.manifest
 	cd portableapps/win32
 
 distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
@@ -76,13 +76,13 @@ pack:	distribution
 
 appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
-            -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
-            -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
+	    -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
+	    -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
 	< appinfo.tmpl > appinfo.ini
 
 WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(PCAP_VERSION)/$(PCAP_VERSION)/g' \
-            -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
+	    -e 's/$$(TARGET_MACHINE)/$(TARGET_MACHINE)/g' \
 	< WiresharkPortable.tmpl > WiresharkPortable.ini
 
 appinfo: appinfo.ini
@@ -123,14 +123,14 @@ Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
 
 clean:
 	cd ../../
-	$(MAKE) -f makefile.nmake $@
+	$(MAKE) -f Makefile.nmake $@
 	cd portableapps/win32
 	rm -rf $(FILES)
 	rm -rf appinfo.ini
 	rm -rf WiresharkPortable.ini
 	rm -rf distribution.nmake
 	rm -rf WiresharkPortable-$(VERSION).paf.exe
-   	rm -rf *~ *.*~
+	rm -rf *~ *.*~
 
 distclean:	clean
 	rm -rf WiresharkPortable-*.paf.exe

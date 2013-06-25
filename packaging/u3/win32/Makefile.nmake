@@ -33,19 +33,19 @@ all:	package
 
 uuid.sed: $(TOPDIR)\config.nmake
 	cd $(TOOLSDIR)
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..\win32
 	$(TOOLSDIR)\utest.exe "$(VERSION)" > $@
 
 manifest.u3i:	manifest.tmpl uuid.sed
 	sed -e 's/$$(U3_VERSION)/$(U3_VERSION)/g' \
-            -e 's/$$(VERSION)/$(VERSION)/g' \
+	    -e 's/$$(VERSION)/$(VERSION)/g' \
 #ifdef UPX
 	    -e 's/$$(SIZE)/50/g' \
 #else
 	    -e 's/$$(SIZE)/65/g' \
 #endif
-            -f  uuid.sed < manifest.tmpl > manifest.u3i
+	    -f  uuid.sed < manifest.tmpl > manifest.u3i
 
 u3-dirs:
 	if not exist $(HOST) $(MKDIR) $(HOST)
@@ -61,7 +61,7 @@ nsis-bits:
 
 $(WSMANIFEST):
 	cd ../..
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake wireshark.manifest
 	cd u3/win32
 
 distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
@@ -78,7 +78,7 @@ verify-tools:
 !IFDEF UPX
 	@if not exist $(UPX) echo Error: $(UPX) not found. &&\
 echo Either: &&\
-echo a) run 'nmake -f makefile.nmake setup' at the toplevel; or &&\
+echo a) run 'nmake -f Makefile.nmake setup' at the toplevel; or &&\
 echo b) comment out UPX in config.nmake at the top level, to build without compressing the dlls and exes \
 && exit 2
 !endif
@@ -114,10 +114,10 @@ u3util.exe:	u3util.obj ../../../config.nmake
 
 clean:
 	cd ../tools
-	$(MAKE) -f makefile.nmake $@
+	$(MAKE) -f Makefile.nmake $@
 	cd ../win32
 	cd ../../
-	$(MAKE) -f makefile.nmake $@
+	$(MAKE) -f Makefile.nmake $@
 	cd u3/win32
 	rm -rf manifest.u3i
 	rm -rf uuid.sed
@@ -129,7 +129,7 @@ clean:
 	rm -rf u3util.{exe,obj,pdb}
 	rm -rf wireshark-$(VERSION).u3p
 	rm -rf distribution.nmake
-   	rm -rf *~ *.*~
+	rm -rf *~ *.*~
 
 distclean:	clean
 	rm -rf wireshark*.u3p

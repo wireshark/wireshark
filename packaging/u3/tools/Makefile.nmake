@@ -36,7 +36,7 @@ clean:
 	rm -rf libgcrypt-11.dll libgpg-error-0.dll
 	rm -rf state nodeid
 	rm -rf *.pdb
-   	rm -rf *~ *.*~
+	rm -rf *~ *.*~
 
 distclean:	clean
 

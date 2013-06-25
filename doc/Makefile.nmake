@@ -50,7 +50,7 @@ AUTHORS-SHORT: ../AUTHORS make-authors-short.pl
 # the man page
 #
 AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
-    $(PERL) perlnoutf.pl make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
+	$(PERL) perlnoutf.pl make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 ws.css: ../docbook/ws.css
 	copy ..\docbook\ws.css .

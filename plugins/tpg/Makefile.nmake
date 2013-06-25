@@ -62,7 +62,7 @@ mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
 
 $(LEMON)\lemon.exe:
 	cd ../../tools
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake lemon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake lemon
 	cd ../plugins/mate
 
 checkapi:

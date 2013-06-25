@@ -14,7 +14,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
 
 CODEC_OBJECTS= \
-        G711udecode.obj \
+	G711udecode.obj \
 	G711adecode.obj
 
 
@@ -29,7 +29,7 @@ G711udecode.obj: G711u\G711udecode.c G711u\G711udecode.h G711u\G711utable.h
 	$(CC) $(CFLAGS) -Fd.\ -c G711u\G711udecode.c /Fo%|fF.obj
 
 clean:
-        rm -f $(CODEC_OBJECTS) codecs.lib *.pdb *.sbr
+	rm -f $(CODEC_OBJECTS) codecs.lib *.pdb *.sbr
 
 distclean: clean
 

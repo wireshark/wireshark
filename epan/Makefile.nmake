@@ -111,7 +111,7 @@ libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
 libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                 crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
+		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
@@ -122,7 +122,7 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem 
 		$(EXTRA_OBJECTS)
 
 libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                  crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib $(WSLUA_LIB) $(WSPYTHON_LIB) dissectors\dissectors.lib
+		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib $(WSLUA_LIB) $(WSPYTHON_LIB) dissectors\dissectors.lib
 	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
@@ -311,7 +311,7 @@ REASSEMBLE_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 reassemble_test.exe: $(REASSEMBLE_TEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                $(REASSEMBLE_TEST_LIBS) $(GLIB_LIBS) $(ZLIB_LIBS) $(REASSEMBLE_TEST_OBJ)
+		$(REASSEMBLE_TEST_LIBS) $(GLIB_LIBS) $(ZLIB_LIBS) $(REASSEMBLE_TEST_OBJ)
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
