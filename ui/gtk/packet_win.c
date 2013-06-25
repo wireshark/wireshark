@@ -75,7 +75,7 @@
 struct PacketWinData {
 	frame_data *frame;	   /* The frame being displayed */
 	struct wtap_pkthdr phdr;   /* Packet header */
-	Buffer     buf;		   /* Data for packet */
+	guint8     *pd;		   /* Packet data */
 	GtkWidget  *main;
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
@@ -108,7 +108,7 @@ struct FieldinfoWinData {
 
 struct CommonWinData {
 	frame_data *frame;	   /* The frame being displayed */
-	Buffer     *pd;		   /* Data for packet */
+	guint8     *pd;		   /* Data for packet */
 
 	int pd_offset;
 	int pd_bitoffset;
@@ -193,7 +193,7 @@ redissect_packet_window(gpointer object, gpointer user_data _U_)
 	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, buffer_start_ptr(&DataPtr->buf), DataPtr->frame, NULL);
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
 	add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 	proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 
@@ -248,7 +248,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 		if (pos_inside < 0 || pos_inside >= old_finfo->length)
 			pos_inside = -1;
 
-		data = buffer_start_ptr(&DataPtr->buf) + DataPtr->start_offset + old_finfo->start;
+		data = DataPtr->pd + DataPtr->start_offset + old_finfo->start;
 		packet_hex_editor_print(byte_view, data, DataPtr->frame, pos_inside, DataPtr->pd_bitoffset, old_finfo->length);
 	}
 
@@ -258,7 +258,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 		if (pos_inside < 0 || pos_inside >= old_finfo->appendix_length)
 			pos_inside = -1;
 
-		data = buffer_start_ptr(&DataPtr->buf) + DataPtr->start_offset + old_finfo->appendix_start;
+		data = DataPtr->pd + DataPtr->start_offset + old_finfo->appendix_start;
 		packet_hex_editor_print(byte_view, data, DataPtr->frame, pos_inside, DataPtr->pd_bitoffset, old_finfo->appendix_length);
 	}
 
@@ -268,7 +268,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 	if (old_finfo->hfinfo)
 		proto_tree_prime_hfid(edt.tree, old_finfo->hfinfo->id);
 	*/
-	epan_dissect_run(&edt, &DataPtr->phdr, buffer_start_ptr(&DataPtr->buf), DataPtr->frame, NULL);
+	epan_dissect_run(&edt, &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
 
 	/* Try to find finfo which looks like old_finfo.
 	 * We might not found one, if protocol requires specific magic values, etc... */
@@ -295,7 +295,6 @@ finfo_integer_common(struct FieldinfoWinData *DataPtr, guint64 u_val)
 {
 	const field_info *finfo = DataPtr->finfo;
 	const header_field_info *hfinfo = finfo->hfinfo;
-	guint8 *pd = buffer_start_ptr(&DataPtr->buf);
 	/* XXX, appendix? */
 	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;
 	int finfo_length = finfo->length;
@@ -305,8 +304,8 @@ finfo_integer_common(struct FieldinfoWinData *DataPtr, guint64 u_val)
 
 		while (finfo_length--) {
 			guint8 *ptr = (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN)) ?
-					&(pd[finfo_offset++]) :
-					&(pd[finfo_offset + finfo_length]);
+					&(DataPtr->pd[finfo_offset++]) :
+					&(DataPtr->pd[finfo_offset + finfo_length]);
 
 			if (u_mask) {
 				guint8 n_val = *ptr;
@@ -339,7 +338,7 @@ static void
 finfo_string_changed(GtkEditable *editable, gpointer user_data)
 {
 	struct FieldinfoWinData *DataPtr = (struct FieldinfoWinData *) user_data;
-	guint8 *pd = buffer_start_ptr(&DataPtr->buf);
+
 	/* XXX, appendix? */
 	const field_info *finfo = DataPtr->finfo;
 	unsigned int finfo_offset = DataPtr->start_offset + finfo->start;
@@ -351,20 +350,20 @@ finfo_string_changed(GtkEditable *editable, gpointer user_data)
 	if (finfo_offset <= DataPtr->frame->cap_len && finfo_offset + finfo_length <= DataPtr->frame->cap_len) {
 		/* strncpy */
 		while (finfo_length && *val) {
-			pd[finfo_offset++] = *val;
+			DataPtr->pd[finfo_offset++] = *val;
 			finfo_length--;
 			val++;
 		}
 
 		/* When FT_STRINGZ is there free space for NUL? */
 		if (finfo_type == FT_STRINGZ && finfo_length) {
-			pd[finfo_offset++] = '\0';
+			DataPtr->pd[finfo_offset++] = '\0';
 			finfo_length--;
 		}
 
 		/* XXX, string shorter than previous one. Warn user (red background?), for now fill with NULs */
 		while (finfo_length > 0) {
-			pd[finfo_offset++] = '\0';
+			DataPtr->pd[finfo_offset++] = '\0';
 			finfo_length--;
 		}
 	}
@@ -430,7 +429,7 @@ finfo_bv_key_pressed_cb(GtkWidget *bv _U_, GdkEventKey *event, gpointer user_dat
 
 	/* save */
 	data.frame = DataPtr->frame;
-	data.pd = buffer_start_ptr(&DataPtr->buf);
+	data.pd = DataPtr->pd;
 	data.pd_offset = DataPtr->pd_offset;
 	data.pd_bitoffset = DataPtr->pd_bitoffset;
 
@@ -709,14 +708,14 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 		return;
 
 	if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
-			finfo->ds_tvb && finfo->ds_tvb->real_data >= buffer_start_ptr(&DataPtr->buf) && finfo->ds_tvb->real_data <= buffer_start_ptr(&DataPtr->buf) + DataPtr->frame->cap_len)
+			finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
 	{
 		struct FieldinfoWinData data;
 
 		data.frame = DataPtr->frame;
 		data.phdr  = DataPtr->phdr;
-		data.pd = (guint8 *) g_memdup(buffer_start_ptr(&DataPtr->buf), DataPtr->frame->cap_len);
-		data.start_offset = (int) (finfo->ds_tvb->real_data - buffer_start_ptr(&DataPtr->buf));
+		data.pd = (guint8 *) g_memdup(DataPtr->pd, DataPtr->frame->cap_len);
+		data.start_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
 
 		data.finfo = finfo;
 		data.app_bv = data.bv = NULL;
@@ -727,12 +726,12 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 
 		if (new_finfo_window(DataPtr->main, &data) == GTK_RESPONSE_ACCEPT) {
 			/* DataPtr->phdr = data.phdr; */
-			memcpy(buffer_start_ptr(&DataPtr->buf), data.pd, DataPtr->frame->cap_len);
+			memcpy(DataPtr->pd, data.pd, DataPtr->frame->cap_len);
 
 			proto_tree_draw(NULL, DataPtr->tree_view);
 			epan_dissect_cleanup(&(DataPtr->edt));
 			epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-			epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, buffer_start_ptr(&DataPtr->buf), DataPtr->frame, NULL);
+			epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
 			add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 			proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 		}
@@ -826,7 +825,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 
 	/* save */
 	data.frame = DataPtr->frame;
-	data.pd = buffer_start_ptr(&DataPtr->buf);
+	data.pd = DataPtr->pd;
 	data.pd_offset = DataPtr->pd_offset;
 	data.pd_bitoffset = DataPtr->pd_bitoffset;
 
@@ -858,7 +857,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		const struct data_source *src = (const struct data_source *)src_le->data;
 		tvbuff_t *tvb = get_data_source_tvb(src);
 
-		if (tvb && tvb->real_data == buffer_start_ptr(&DataPtr->buf)) {
+		if (tvb && tvb->real_data == DataPtr->pd) {
 			ds_tvb = tvb;
 			break;
 		}
@@ -870,7 +869,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 		set_notebook_page(DataPtr->bv_nb_ptr, ds_tvb);
 		byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
 		if (byte_view)
-			packet_hex_editor_print(byte_view, buffer_start_ptr(&DataPtr->buf), DataPtr->frame, DataPtr->pd_offset, DataPtr->pd_bitoffset, DataPtr->frame->cap_len);
+			packet_hex_editor_print(byte_view, DataPtr->pd, DataPtr->frame, DataPtr->pd_offset, DataPtr->pd_bitoffset, DataPtr->frame->cap_len);
 	}
 	return TRUE;
 }
@@ -878,7 +877,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 static void
 edit_pkt_destroy_new_window(GObject *object _U_, gpointer user_data)
 {
-	/* like destroy_new_window, but without freeding DataPtr->buf */
+	/* like destroy_new_window, but without freeing DataPtr->pd */
 	struct PacketWinData *DataPtr = (struct PacketWinData *)user_data;
 
 	detail_windows = g_list_remove(detail_windows, DataPtr);
@@ -960,11 +959,11 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 
 	DataPtr->frame = fd;
 	DataPtr->phdr  = cfile.phdr;
-	buffer_init(&DataPtr->buf, DataPtr->frame->cap_len);
-	memcpy(buffer_start_ptr(&DataPtr->buf), buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
+	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
+	memcpy(DataPtr->pd, buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, buffer_start_ptr(&DataPtr->buf),
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd,
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 
@@ -1032,7 +1031,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 		/* XXX, there's no Save button here, so lets assume packet is always edited */
 		modified_frame_data *mfd = (modified_frame_data *)g_malloc(sizeof(modified_frame_data));
 
-		mfd->pd = buffer_start_ptr(&DataPtr->buf);
+		mfd->pd = DataPtr->pd;
 		mfd->phdr = DataPtr->phdr;
 
 		if (cfile.edited_frames == NULL)
@@ -1057,7 +1056,7 @@ destroy_new_window(GObject *object _U_, gpointer user_data)
 	detail_windows = g_list_remove(detail_windows, DataPtr);
 	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
-	buffer_free(&DataPtr->buf);
+	g_free(DataPtr->pd);
 	g_free(DataPtr);
 }
 
@@ -1087,7 +1086,7 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
 
 		data = get_byte_view_data_and_length(byte_view, &len);
 		if (data == NULL) {
-			data = buffer_start_ptr(&DataPtr->buf);
+			data = DataPtr->pd;
 			len =  DataPtr->frame->cap_len;
 		}
 
@@ -1098,10 +1097,10 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
 		DataPtr->pd_bitoffset = 0;
 
 		if (!FI_GET_FLAG(finfo, FI_GENERATED) &&
-		    finfo->ds_tvb && finfo->ds_tvb->real_data >= buffer_start_ptr(&DataPtr->buf) && finfo->ds_tvb->real_data <= buffer_start_ptr(&DataPtr->buf) + DataPtr->frame->cap_len)
+		    finfo->ds_tvb && finfo->ds_tvb->real_data >= DataPtr->pd && finfo->ds_tvb->real_data <= DataPtr->pd + DataPtr->frame->cap_len)
 		{
 			/* I haven't really test if TVB subsets works, but why not? :> */
-			int pd_offset = (int) (finfo->ds_tvb->real_data - buffer_start_ptr(&DataPtr->buf));
+			int pd_offset = (int) (finfo->ds_tvb->real_data - DataPtr->pd);
 
 			/* some code from packet_hex_print */
 			int finfo_offset = finfo->start;

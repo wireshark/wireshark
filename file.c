@@ -1704,7 +1704,8 @@ cf_read_frame_r(capture_file *cf, frame_data *fdata,
     }
 
     *phdr = frame->phdr;
-    memcpy(pd, frame->pd, fdata->cap_len);
+    buffer_assure_space(buf, frame->phdr.caplen);
+    memcpy(buffer_start_ptr(buf), frame->pd, frame->phdr.caplen);
     return TRUE;
   }
 #endif
