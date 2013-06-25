@@ -1473,11 +1473,14 @@ if test "x$have_echld" = xyes
 then
   AC_DEFINE(HAVE_ECHLD, 1, [Define if echld is enabled])
   echld_test_bin="echld_test\$(EXEEXT)"
+  echld_dir="echld"
 else
   have_echld="no"
   echld_test_bin=""
+  echld_dir=""
 fi
 AC_SUBST(echld_test_bin)
+AC_SUBST(echld_dir)
 
 
 # Enabling/disabling of dumpcap is done later (after we know if we have PCAP

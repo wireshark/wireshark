@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 	struct timeval tv;
 	int tot_cycles = 0;
 	int npings;
-	GString* str = g_string_new("");
+//	GString* str = g_string_new("");
 	tv.tv_sec = 0;
 	tv.tv_usec = 250000;
 

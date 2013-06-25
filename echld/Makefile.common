@@ -30,10 +30,10 @@
 # _SOURCES variables).
 LIBECHLD_SRC = 	\
 	echld-util.c \
-	echld_dispatcher.c \
-	echld_child.c \
-	echld_parent.c \
-	echld_common.c
+	dispatcher.c \
+	child.c \
+	parent.c \
+	common.c
 
 # Header files that are not generated from other files
 LIBECHLD_INCLUDES = \

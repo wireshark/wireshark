@@ -550,6 +550,10 @@ echld_test_LDADD = \
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@
 
+echld_test_DEPENDENCIES = \
+	echld/libechld.la \
+	epan/libwireshark.la
+
 echld_test_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 
@@ -1027,15 +1031,9 @@ endif
 DIST_SUBDIRS = asn1 codecs doc epan echld ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
-SDIRS = tools wsutil wiretap epan plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
+SUBDIRS = tools wsutil wiretap epan @echld_dir@ plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
 else
-SDIRS = tools wsutil wiretap epan packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
-endif
-
-if HAVE_ECHLD
-SUBDIRS = echld $(SDIRS)
-else
-SUBDIRS = $(SDIRS)
+SUBDIRS = tools wsutil wiretap epan @echld_dir@ packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
 endif
 
 help/faq.txt: $(srcdir)/help/faq.py

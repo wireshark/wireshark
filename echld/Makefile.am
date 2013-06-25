@@ -50,6 +50,9 @@ libechld_la_SOURCES = \
 	$(LIBECHLD_INCLUDES)
 
 libechld_la_DEPENDENCIES= 
+	../epan/libwireshark.la \
+	../wsutil/libwsutil.la
+
 
 libechld_la_LIBADD =		\
 	../epan/libwireshark.la \
