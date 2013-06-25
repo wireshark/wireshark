@@ -45,10 +45,14 @@ bin_PROGRAMS = \
 	@dftest_bin@	\
 	@dumpcap_bin@	\
 	@reordercap_bin@	\
-	@rawshark_bin@
+	@rawshark_bin@ \
+	@echld_test_bin@ 
+
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx
+	randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx echld_test
+
+
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -526,6 +530,20 @@ dftest_LDADD = \
 	@LIBSMI_LDFLAGS@
 dftest_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
+echld_test_LDADD = \
+	epan/libwireshark.la \
+	echld/libechld.la \
+	wsutil/libwsutil.la \
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@			\
+	@SOCKET_LIBS@			\
+	@NSL_LIBS@			\
+	@C_ARES_LIBS@			\
+	@ADNS_LIBS@
+
+echld_test_CFLAGS = $(AM_CLEAN_CFLAGS)
+
+
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	wsutil/libwsutil.la		\
@@ -997,12 +1015,18 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = asn1 codecs doc epan echld ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap epan plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
+SDIRS = tools wsutil wiretap epan plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
 else
-SUBDIRS = tools wsutil wiretap epan packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
+SDIRS = tools wsutil wiretap epan packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
+endif
+
+if HAVE_ECHLD
+SUBDIRS = echld $(SDIRS)
+else
+SUBDIRS = $(SDIRS)
 endif
 
 help/faq.txt: $(srcdir)/help/faq.py
