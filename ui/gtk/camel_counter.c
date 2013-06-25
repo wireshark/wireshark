@@ -38,7 +38,6 @@
 #include <epan/camel-persistentdata.h>
 
 #include "../stat_menu.h"
-#include "../timestats.h"
 
 #include "ui/simple_dialog.h"
 

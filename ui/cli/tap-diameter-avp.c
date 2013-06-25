@@ -46,7 +46,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
-#include "epan/nstime.h"
 #include "epan/ftypes/ftypes.h"
 #include "epan/to_str.h"
 #include "epan/dissectors/packet-diameter.h"

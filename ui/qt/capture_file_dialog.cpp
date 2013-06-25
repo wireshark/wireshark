@@ -37,7 +37,7 @@
 #include "../../epan/addr_resolv.h"
 #include "../../epan/prefs.h"
 #include "../../epan/filesystem.h"
-#include "../../epan/nstime.h"
+#include "../../wsutil/nstime.h"
 
 #include <wireshark_application.h>
 

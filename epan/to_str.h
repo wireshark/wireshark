@@ -27,7 +27,7 @@
 
 #include <glib.h>
 
-#include "nstime.h"
+#include "wsutil/nstime.h"
 #include "time_fmt.h"
 #include <epan/packet_info.h>
 #include "ws_symbol_export.h"

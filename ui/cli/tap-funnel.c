@@ -30,7 +30,6 @@
 
 #include <glib.h>
 #include <wiretap/wtap.h>
-#include <epan/nstime.h>
 #include <epan/proto.h>
 
 #include <epan/funnel.h>

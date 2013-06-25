@@ -45,7 +45,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/column_info.h>
 #include <epan/column.h>
-#include <epan/nstime.h>
 
 #include "color.h"
 #include "color_filters.h"

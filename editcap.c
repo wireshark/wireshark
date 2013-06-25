@@ -89,7 +89,7 @@
 #include "epan/plugins.h"
 #include "epan/report_err.h"
 #include "epan/filesystem.h"
-#include "epan/nstime.h"
+#include "wsutil/nstime.h"
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
 

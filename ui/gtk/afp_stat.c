@@ -35,7 +35,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-afp.h>
 
-#include "../timestats.h"
 #include "../file.h"
 #include "../stat_menu.h"
 

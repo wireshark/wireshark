@@ -35,7 +35,6 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
-#include <epan/nstime.h>
 
 #include "../globals.h"
 

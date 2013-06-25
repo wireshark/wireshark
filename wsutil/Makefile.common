@@ -41,8 +41,10 @@ LIBWSUTIL_SRC = 	\
 	crc32.c		\
 	crcdrm.c	\
 	mpeg-audio.c	\
+	nstime.c	\
 	privileges.c	\
 	str_util.c	\
+	timestats.c	\
 	type_util.c
 
 # Header files that are not generated from other files
@@ -58,6 +60,8 @@ LIBWSUTIL_INCLUDES = 	\
 	crc32.h		\
 	crcdrm.h	\
 	mpeg-audio.h	\
+	nstime.h	\
 	privileges.h	\
 	str_util.h	\
+	timestats.h	\
 	type_util.h

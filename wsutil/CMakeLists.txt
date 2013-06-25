@@ -47,8 +47,10 @@ set(WSUTIL_FILES
   crc11.c
   crcdrm.c
   mpeg-audio.c
+  nstime.c
   privileges.c
   str_util.c
+  timestats.c
   type_util.c
   ${WSUTIL_PLATFORM_FILES}
 )

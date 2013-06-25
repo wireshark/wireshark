@@ -32,7 +32,6 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
-#include <epan/nstime.h>
 #include <epan/dissectors/packet-sv.h>
 
 static int

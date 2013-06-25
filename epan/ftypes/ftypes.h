@@ -165,7 +165,7 @@ ftype_can_matches(enum ftenum ftype);
 #include <epan/guid-utils.h>
 
 #include <epan/tvbuff.h>
-#include <epan/nstime.h>
+#include <wsutil/nstime.h>
 #include <epan/dfilter/drange.h>
 
 typedef struct _fvalue_t {

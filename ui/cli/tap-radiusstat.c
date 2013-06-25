@@ -32,7 +32,7 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-radius.h>
-#include "timestats.h"
+#include "wsutil/timestats.h"
 
 typedef enum _radius_category {
 	RADIUS_CAT_OVERALL = 0,

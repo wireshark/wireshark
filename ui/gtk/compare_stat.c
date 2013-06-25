@@ -51,11 +51,10 @@
 #include <epan/packet.h>
 #include <epan/report_err.h>
 #include <epan/dissectors/packet-ip.h>
-#include <epan/nstime.h>
 #include <epan/in_cksum.h>
 
 #include "../stat_menu.h"
-#include "../timestats.h"
+#include "wsutil/timestats.h"
 
 #include "ui/simple_dialog.h"
 

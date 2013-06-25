@@ -51,7 +51,7 @@
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
-#include <epan/nstime.h>
+#include <wsutil/nstime.h>
 
 #include "declare_wslua.h"
 

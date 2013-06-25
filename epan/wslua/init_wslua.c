@@ -30,7 +30,6 @@
 
 #include "wslua.h"
 #include <epan/dissectors/packet-frame.h>
-#include <epan/nstime.h>
 #include <math.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>

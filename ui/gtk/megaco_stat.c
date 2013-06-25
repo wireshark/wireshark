@@ -38,7 +38,7 @@
 #include "epan/gcp.h"
 #include <epan/prefs-int.h>
 
-#include "../timestats.h"
+#include "wsutil/timestats.h"
 #include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"

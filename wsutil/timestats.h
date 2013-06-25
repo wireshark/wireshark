@@ -28,7 +28,7 @@
 
 #include <glib.h>
 #include "epan/packet_info.h"
-#include "epan/nstime.h"
+#include "nstime.h"
 
  /* Summary of time statistics*/
 typedef struct _timestat_t {
@@ -44,11 +44,11 @@ typedef struct _timestat_t {
 /* functions */
 
 /* Initialize a timestat_t struct */
-extern void time_stat_init(timestat_t *stats);
+WS_DLL_PUBLIC void time_stat_init(timestat_t *stats);
 
 /* Update a timestat_t struct with a new sample */
-extern void time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo);
+WS_DLL_PUBLIC void time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo);
 
-extern gdouble get_average(const nstime_t *sum, guint32 num);
+WS_DLL_PUBLIC gdouble get_average(const nstime_t *sum, guint32 num);
 
 #endif

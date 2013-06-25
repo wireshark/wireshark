@@ -35,7 +35,6 @@
 
 #include <epan/timestamp.h>
 #include <epan/prefs.h>
-#include <epan/nstime.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/column.h>
 #include <epan/packet.h>

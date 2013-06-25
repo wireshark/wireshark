@@ -46,7 +46,7 @@
 #include <glib.h>
 
 #include "ipv4.h"
-#include "nstime.h"
+#include "wsutil/nstime.h"
 #include "time_fmt.h"
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"

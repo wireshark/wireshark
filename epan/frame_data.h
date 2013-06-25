@@ -27,7 +27,7 @@
 
 #include <epan/column_info.h>
 #include <epan/tvbuff.h>
-#include <epan/nstime.h>
+#include <wsutil/nstime.h>
 #include "ws_symbol_export.h"
 
 #define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)

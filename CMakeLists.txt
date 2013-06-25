@@ -659,7 +659,6 @@ set(WIRESHARK_COMMON_SRC
 	ps.c
 	svnversion.h
 	sync_pipe_write.c
-	timestats.c
 	tap-megaco-common.c
 	tap-rtp-common.c
 	version_info.c

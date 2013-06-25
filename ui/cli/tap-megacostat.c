@@ -34,7 +34,7 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include "epan/gcp.h"
-#include "timestats.h"
+#include "wsutil/timestats.h"
 #include <epan/prefs-int.h>
 
 #include "tap-megaco-common.h"

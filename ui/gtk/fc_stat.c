@@ -36,7 +36,6 @@
 #include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
 
-#include "../timestats.h"
 #include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"

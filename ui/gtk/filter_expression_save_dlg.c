@@ -33,7 +33,6 @@
 
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
-#include <epan/nstime.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/filter_expressions.h>

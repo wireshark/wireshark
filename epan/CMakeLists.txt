@@ -1448,7 +1448,6 @@ set(LIBWIRESHARK_FILES
 	ipproto.c
 	ipv4.c
 	next_tvb.c
-	nstime.c
 	oids.c
 	osi-utils.c
 	packet.c

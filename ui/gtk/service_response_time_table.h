@@ -28,8 +28,8 @@
 #define __SERVICE_RESPONSE_TIME_TABLE_H__
 
 #include <gtk/gtk.h>
-#include "epan/nstime.h"
-#include "../timestats.h"
+#include "wsutil/nstime.h"
+#include "wsutil/timestats.h"
 
 /** @file
  *  Helper routines common to all service response time statistics tap.

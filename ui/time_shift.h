@@ -26,7 +26,7 @@
 #define __TIME_SHIFT_H__
 
 #include "cfile.h"
-#include <epan/nstime.h>
+#include <wsutil/nstime.h>
 
 #ifdef __cplusplus
 extern "C" {

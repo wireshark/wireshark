@@ -46,7 +46,6 @@
 #include <epan/prefs.h>
 #include <epan/funnel.h>
 
-#include "../timestats.h"
 #include "../file.h"
 #include "../stat_menu.h"
 #include "ui/progress_dlg.h"

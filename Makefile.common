@@ -56,7 +56,6 @@ SHARK_COMMON_SRC =	\
 	print.c			\
 	ps.c			\
 	sync_pipe_write.c	\
-	timestats.c		\
 	tap-megaco-common.c	\
 	tap-rtp-common.c	\
 	version_info.c
@@ -81,7 +80,6 @@ SHARK_COMMON_INCLUDES =	\
 	ps.h			\
 	register.h		\
 	tempfile.h		\
-	timestats.h		\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\
 	version_info.h		\
@@ -176,7 +174,6 @@ mergecap_SOURCES = \
 editcap_SOURCES = \
 	editcap.c	\
 	epan/crypt/md5.c \
-	epan/nstime.c \
 	$(WTAP_PLUGIN_SOURCES)
 
 # reordercap specifics

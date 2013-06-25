@@ -30,7 +30,6 @@
 #include <epan/asn1.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/nstime.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"

@@ -36,7 +36,6 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-diameter.h>
 
-#include "../timestats.h"
 #include "../file.h"
 #include "../stat_menu.h"
 

@@ -41,7 +41,6 @@
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>
-#include <epan/nstime.h>
 
 #define PNAME  "Certificate Management Protocol"
 #define PSNAME "CMP"

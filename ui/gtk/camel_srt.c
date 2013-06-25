@@ -36,7 +36,6 @@
 #include <epan/asn1.h>
 #include <epan/camel-persistentdata.h>
 
-#include "../timestats.h"
 #include "../file.h"
 #include "../stat_menu.h"
 
