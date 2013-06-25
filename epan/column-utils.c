@@ -51,20 +51,20 @@ col_setup(column_info *cinfo, const gint num_cols)
 {
   int i;
 
-  cinfo->num_cols   = num_cols;
-  cinfo->col_fmt    = g_new(gint, num_cols);
-  cinfo->fmt_matx   = g_new(gboolean*, num_cols);
-  cinfo->col_first  = g_new(int, NUM_COL_FMTS);
-  cinfo->col_last   = g_new(int, NUM_COL_FMTS);
-  cinfo->col_title  = g_new(gchar*, num_cols);
-  cinfo->col_custom_field = g_new(gchar*, num_cols);
+  cinfo->num_cols              = num_cols;
+  cinfo->col_fmt               = g_new(gint, num_cols);
+  cinfo->fmt_matx              = g_new(gboolean*, num_cols);
+  cinfo->col_first             = g_new(int, NUM_COL_FMTS);
+  cinfo->col_last              = g_new(int, NUM_COL_FMTS);
+  cinfo->col_title             = g_new(gchar*, num_cols);
+  cinfo->col_custom_field      = g_new(gchar*, num_cols);
   cinfo->col_custom_occurrence = g_new(gint, num_cols);
-  cinfo->col_custom_field_id = g_new(int, num_cols);
-  cinfo->col_custom_dfilter = g_new(dfilter_t*, num_cols);
-  cinfo->col_data   = (const gchar **)g_new(gchar*, num_cols);
-  cinfo->col_buf    = g_new(gchar*, num_cols);
-  cinfo->col_fence  = g_new(int, num_cols);
-  cinfo->col_expr.col_expr = (const gchar **) g_new(gchar*, num_cols + 1);
+  cinfo->col_custom_field_id   = g_new(int, num_cols);
+  cinfo->col_custom_dfilter    = g_new(dfilter_t*, num_cols);
+  cinfo->col_data              = (const gchar **)g_new(gchar*, num_cols);
+  cinfo->col_buf               = g_new(gchar*, num_cols);
+  cinfo->col_fence             = g_new(int, num_cols);
+  cinfo->col_expr.col_expr     = (const gchar **) g_new(gchar*, num_cols + 1);
   cinfo->col_expr.col_expr_val = g_new(gchar*, num_cols + 1);
 
   for (i = 0; i < NUM_COL_FMTS; i++) {
@@ -126,14 +126,14 @@ col_init(column_info *cinfo)
 gboolean
 col_get_writable(column_info *cinfo)
 {
-    return COL_GET_WRITABLE(cinfo);
+  return COL_GET_WRITABLE(cinfo);
 }
 
 void
 col_set_writable(column_info *cinfo, const gboolean writable)
 {
-    if (cinfo)
-        cinfo->writable = writable;
+  if (cinfo)
+    cinfo->writable = writable;
 }
 
 /* Checks to see if a particular packet information element is needed for the packet list */
@@ -242,7 +242,7 @@ col_clear(column_info *cinfo, const gint el)
   }
 
 #define COL_CHECK_REF_TIME(fd, buf)         \
-  if(fd->flags.ref_time){                   \
+  if (fd->flags.ref_time) {                 \
     g_strlcpy(buf, "*REF*", COL_MAX_LEN );  \
     return;                                 \
   }
@@ -261,7 +261,7 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
 {
   int i;
 
-  if(!HAVE_CUSTOM_COLS(cinfo))
+  if (!HAVE_CUSTOM_COLS(cinfo))
       return;
 
   for (i = cinfo->col_first[COL_CUSTOM];
@@ -284,20 +284,20 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 {
   int i;
 
-  if(!HAVE_CUSTOM_COLS(cinfo))
-      return;
+  if (!HAVE_CUSTOM_COLS(cinfo))
+    return;
 
   for (i = cinfo->col_first[COL_CUSTOM];
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
 
     cinfo->col_custom_field_id[i] = -1;
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
-        cinfo->col_custom_dfilter[i]){
-        epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
-        if (cinfo->col_custom_field) {
-            header_field_info* hfinfo = proto_registrar_get_byname(cinfo->col_custom_field[i]);
-            cinfo->col_custom_field_id[i] = hfinfo ? hfinfo->id : -1;
-        }
+        cinfo->col_custom_dfilter[i]) {
+      epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
+      if (cinfo->col_custom_field) {
+        header_field_info* hfinfo = proto_registrar_get_byname(cinfo->col_custom_field[i]);
+        cinfo->col_custom_field_id[i] = hfinfo ? hfinfo->id : -1;
+      }
     }
   }
 }
@@ -345,7 +345,7 @@ col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
  */
 void
 col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
-		    const gchar *format, ...)
+                    const gchar *format, ...)
 {
   int  i;
   int  len, max_len, sep_len;
@@ -677,81 +677,81 @@ set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
   if (fd->flags.has_ts) {
     then = fd->abs_ts.secs;
     if (local)
-       tmp = localtime(&then);
+      tmp = localtime(&then);
     else
-       tmp = gmtime(&then);
+      tmp = gmtime(&then);
   } else
     tmp = NULL;
   if (tmp != NULL) {
-      switch(timestamp_get_precision()) {
-      case TS_PREC_FIXED_SEC:
-      case TS_PREC_AUTO_SEC:
-          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d",
-             tmp->tm_year + 1900,
-             tmp->tm_mon + 1,
-             tmp->tm_mday,
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec);
-          break;
-      case TS_PREC_FIXED_DSEC:
-      case TS_PREC_AUTO_DSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%01d",
-             tmp->tm_year + 1900,
-             tmp->tm_mon + 1,
-             tmp->tm_mday,
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 100000000);
-          break;
-      case TS_PREC_FIXED_CSEC:
-      case TS_PREC_AUTO_CSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%02d",
-             tmp->tm_year + 1900,
-             tmp->tm_mon + 1,
-             tmp->tm_mday,
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 10000000);
-          break;
-      case TS_PREC_FIXED_MSEC:
-      case TS_PREC_AUTO_MSEC:
-          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
-             tmp->tm_year + 1900,
-             tmp->tm_mon + 1,
-             tmp->tm_mday,
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 1000000);
-          break;
-      case TS_PREC_FIXED_USEC:
-      case TS_PREC_AUTO_USEC:
-          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
-             tmp->tm_year + 1900,
-             tmp->tm_mon + 1,
-             tmp->tm_mday,
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 1000);
-          break;
-      case TS_PREC_FIXED_NSEC:
-      case TS_PREC_AUTO_NSEC:
-          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%09d",
-             tmp->tm_year + 1900,
-             tmp->tm_mon + 1,
-             tmp->tm_mday,
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs);
-          break;
-      default:
-          g_assert_not_reached();
-      }
+    switch (timestamp_get_precision()) {
+    case TS_PREC_FIXED_SEC:
+    case TS_PREC_AUTO_SEC:
+      g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d",
+        tmp->tm_year + 1900,
+        tmp->tm_mon + 1,
+        tmp->tm_mday,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec);
+      break;
+    case TS_PREC_FIXED_DSEC:
+    case TS_PREC_AUTO_DSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%01d",
+        tmp->tm_year + 1900,
+        tmp->tm_mon + 1,
+        tmp->tm_mday,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 100000000);
+      break;
+    case TS_PREC_FIXED_CSEC:
+    case TS_PREC_AUTO_CSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%02d",
+        tmp->tm_year + 1900,
+        tmp->tm_mon + 1,
+        tmp->tm_mday,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 10000000);
+      break;
+    case TS_PREC_FIXED_MSEC:
+    case TS_PREC_AUTO_MSEC:
+      g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+        tmp->tm_year + 1900,
+        tmp->tm_mon + 1,
+        tmp->tm_mday,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 1000000);
+      break;
+    case TS_PREC_FIXED_USEC:
+    case TS_PREC_AUTO_USEC:
+      g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
+        tmp->tm_year + 1900,
+        tmp->tm_mon + 1,
+        tmp->tm_mday,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 1000);
+      break;
+    case TS_PREC_FIXED_NSEC:
+    case TS_PREC_AUTO_NSEC:
+      g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%09d",
+        tmp->tm_year + 1900,
+        tmp->tm_mon + 1,
+        tmp->tm_mday,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs);
+      break;
+    default:
+      g_assert_not_reached();
+    }
   } else {
     buf[0] = '\0';
   }
@@ -780,39 +780,39 @@ col_set_utc_date_time(const frame_data *fd, column_info *cinfo, const int col)
 static void
 set_time_seconds(const nstime_t *ts, gchar *buf)
 {
-  switch(timestamp_get_precision()) {
-      case TS_PREC_FIXED_SEC:
-      case TS_PREC_AUTO_SEC:
-          display_signed_time(buf, COL_MAX_LEN,
-            (gint32) ts->secs, ts->nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
-          break;
-      case TS_PREC_FIXED_DSEC:
-      case TS_PREC_AUTO_DSEC:
-          display_signed_time(buf, COL_MAX_LEN,
-            (gint32) ts->secs, ts->nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
-          break;
-      case TS_PREC_FIXED_CSEC:
-      case TS_PREC_AUTO_CSEC:
-          display_signed_time(buf, COL_MAX_LEN,
-            (gint32) ts->secs, ts->nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
-          break;
-      case TS_PREC_FIXED_MSEC:
-      case TS_PREC_AUTO_MSEC:
-          display_signed_time(buf, COL_MAX_LEN,
-            (gint32) ts->secs, ts->nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
-          break;
-      case TS_PREC_FIXED_USEC:
-      case TS_PREC_AUTO_USEC:
-          display_signed_time(buf, COL_MAX_LEN,
-            (gint32) ts->secs, ts->nsecs / 1000, TO_STR_TIME_RES_T_USECS);
-          break;
-      case TS_PREC_FIXED_NSEC:
-      case TS_PREC_AUTO_NSEC:
-          display_signed_time(buf, COL_MAX_LEN,
-            (gint32) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
-          break;
-      default:
-          g_assert_not_reached();
+  switch (timestamp_get_precision()) {
+  case TS_PREC_FIXED_SEC:
+  case TS_PREC_AUTO_SEC:
+    display_signed_time(buf, COL_MAX_LEN,
+      (gint32) ts->secs, ts->nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
+    break;
+  case TS_PREC_FIXED_DSEC:
+  case TS_PREC_AUTO_DSEC:
+    display_signed_time(buf, COL_MAX_LEN,
+      (gint32) ts->secs, ts->nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
+    break;
+  case TS_PREC_FIXED_CSEC:
+  case TS_PREC_AUTO_CSEC:
+    display_signed_time(buf, COL_MAX_LEN,
+      (gint32) ts->secs, ts->nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
+    break;
+  case TS_PREC_FIXED_MSEC:
+  case TS_PREC_AUTO_MSEC:
+    display_signed_time(buf, COL_MAX_LEN,
+      (gint32) ts->secs, ts->nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
+    break;
+  case TS_PREC_FIXED_USEC:
+  case TS_PREC_AUTO_USEC:
+    display_signed_time(buf, COL_MAX_LEN,
+      (gint32) ts->secs, ts->nsecs / 1000, TO_STR_TIME_RES_T_USECS);
+    break;
+  case TS_PREC_FIXED_NSEC:
+  case TS_PREC_AUTO_NSEC:
+    display_signed_time(buf, COL_MAX_LEN,
+      (gint32) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
+    break;
+  default:
+    g_assert_not_reached();
   }
 }
 
@@ -832,134 +832,134 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
     negative = TRUE;
   }
 
-  switch(timestamp_get_precision()) {
+  switch (timestamp_get_precision()) {
   case TS_PREC_FIXED_SEC:
   case TS_PREC_AUTO_SEC:
     if (secs >= (60*60)) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2ds",
-		 negative ? "- " : "",
-		 (gint32) secs / (60 * 60),
-		 (gint32) (secs / 60) % 60,
-		 (gint32) secs % 60);
+                 negative ? "- " : "",
+                 (gint32) secs / (60 * 60),
+                 (gint32) (secs / 60) % 60,
+                 (gint32) secs % 60);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2ds",
-		 negative ? "- " : "",
-		 (gint32) secs / 60,
-		 (gint32) secs % 60);
+                 negative ? "- " : "",
+                 (gint32) secs / 60,
+                 (gint32) secs % 60);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%ds",
-		 negative ? "- " : "",
-		 (gint32) secs);
+                 negative ? "- " : "",
+                 (gint32) secs);
     }
     break;
   case TS_PREC_FIXED_DSEC:
   case TS_PREC_AUTO_DSEC:
     if (secs >= (60*60)) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d.%01lds",
-		 negative ? "- " : "",
-		 (gint32) secs / (60 * 60),
-		 (gint32) (secs / 60) % 60,
-		 (gint32) secs % 60,
-		 nsecs / 100000000);
+                 negative ? "- " : "",
+                 (gint32) secs / (60 * 60),
+                 (gint32) (secs / 60) % 60,
+                 (gint32) secs % 60,
+                 nsecs / 100000000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%01lds",
-		 negative ? "- " : "",
-		 (gint32) secs / 60,
-		 (gint32) secs % 60,
-		 nsecs / 100000000);
+                 negative ? "- " : "",
+                 (gint32) secs / 60,
+                 (gint32) secs % 60,
+                 nsecs / 100000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%01lds",
-		 negative ? "- " : "",
-		 (gint32) secs,
-		 nsecs / 100000000);
+                 negative ? "- " : "",
+                 (gint32) secs,
+                 nsecs / 100000000);
     }
     break;
   case TS_PREC_FIXED_CSEC:
   case TS_PREC_AUTO_CSEC:
     if (secs >= (60*60)) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d.%02lds",
-		 negative ? "- " : "",
-		 (gint32) secs / (60 * 60),
-		 (gint32) (secs / 60) % 60,
-		 (gint32) secs % 60,
-		 nsecs / 10000000);
+                 negative ? "- " : "",
+                 (gint32) secs / (60 * 60),
+                 (gint32) (secs / 60) % 60,
+                 (gint32) secs % 60,
+                 nsecs / 10000000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%02lds",
-		 negative ? "- " : "",
-		 (gint32) secs / 60,
-		 (gint32) secs % 60,
-		 nsecs / 10000000);
+                 negative ? "- " : "",
+                 (gint32) secs / 60,
+                 (gint32) secs % 60,
+                 nsecs / 10000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%02lds",
-		 negative ? "- " : "",
-		 (gint32) secs,
-		 nsecs / 10000000);
+                 negative ? "- " : "",
+                 (gint32) secs,
+                 nsecs / 10000000);
     }
     break;
   case TS_PREC_FIXED_MSEC:
   case TS_PREC_AUTO_MSEC:
     if (secs >= (60*60)) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d.%03lds",
-		 negative ? "- " : "",
-		 (gint32) secs / (60 * 60),
-		 (gint32) (secs / 60) % 60,
-		 (gint32) secs % 60,
-		 nsecs / 1000000);
+                 negative ? "- " : "",
+                 (gint32) secs / (60 * 60),
+                 (gint32) (secs / 60) % 60,
+                 (gint32) secs % 60,
+                 nsecs / 1000000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%03lds",
-		 negative ? "- " : "",
-		 (gint32) secs / 60,
-		 (gint32) secs % 60,
-		 nsecs / 1000000);
+                 negative ? "- " : "",
+                 (gint32) secs / 60,
+                 (gint32) secs % 60,
+                 nsecs / 1000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%03lds",
-		 negative ? "- " : "",
-		 (gint32) secs,
-		 nsecs / 1000000);
+                 negative ? "- " : "",
+                 (gint32) secs,
+                 nsecs / 1000000);
     }
     break;
   case TS_PREC_FIXED_USEC:
   case TS_PREC_AUTO_USEC:
     if (secs >= (60*60)) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d.%06lds",
-		 negative ? "- " : "",
-		 (gint32) secs / (60 * 60),
-		 (gint32) (secs / 60) % 60,
-		 (gint32) secs % 60,
-		 nsecs / 1000);
+                 negative ? "- " : "",
+                 (gint32) secs / (60 * 60),
+                 (gint32) (secs / 60) % 60,
+                 (gint32) secs % 60,
+                 nsecs / 1000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%06lds",
-		 negative ? "- " : "",
-		 (gint32) secs / 60,
-		 (gint32) secs % 60,
-		 nsecs / 1000);
+                 negative ? "- " : "",
+                 (gint32) secs / 60,
+                 (gint32) secs % 60,
+                 nsecs / 1000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%06lds",
-		 negative ? "- " : "",
-		 (gint32) secs,
-		 nsecs / 1000);
+                 negative ? "- " : "",
+                 (gint32) secs,
+                 nsecs / 1000);
     }
     break;
   case TS_PREC_FIXED_NSEC:
   case TS_PREC_AUTO_NSEC:
     if (secs >= (60*60)) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d.%09lds",
-		 negative ? "- " : "",
-		 (gint32) secs / (60 * 60),
-		 (gint32) (secs / 60) % 60,
-		 (gint32) secs % 60,
-		 nsecs);
+                 negative ? "- " : "",
+                 (gint32) secs / (60 * 60),
+                 (gint32) (secs / 60) % 60,
+                 (gint32) secs % 60,
+                 nsecs);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%09lds",
-		 negative ? "- " : "",
-		 (gint32) secs / 60,
-		 (gint32) secs % 60,
-		 nsecs);
+                 negative ? "- " : "",
+                 (gint32) secs / 60,
+                 (gint32) secs % 60,
+                 nsecs);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%09lds",
-		 negative ? "- " : "",
-		 (gint32) secs,
-		 nsecs);
+                 negative ? "- " : "",
+                 (gint32) secs,
+                 nsecs);
     }
     break;
   default:
@@ -1055,63 +1055,63 @@ set_abs_time(const frame_data *fd, gchar *buf, gboolean local)
   if (fd->flags.has_ts) {
     then = fd->abs_ts.secs;
     if (local)
-       tmp = localtime(&then);
+      tmp = localtime(&then);
     else
-       tmp = gmtime(&then);
+      tmp = gmtime(&then);
   } else
     tmp = NULL;
   if (tmp != NULL) {
-      switch(timestamp_get_precision()) {
-      case TS_PREC_FIXED_SEC:
-      case TS_PREC_AUTO_SEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d",
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec);
-          break;
-      case TS_PREC_FIXED_DSEC:
-      case TS_PREC_AUTO_DSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%01d",
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 100000000);
-          break;
-      case TS_PREC_FIXED_CSEC:
-      case TS_PREC_AUTO_CSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%02d",
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 10000000);
-          break;
-      case TS_PREC_FIXED_MSEC:
-      case TS_PREC_AUTO_MSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%03d",
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 1000000);
-          break;
-      case TS_PREC_FIXED_USEC:
-      case TS_PREC_AUTO_USEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%06d",
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs / 1000);
-          break;
-      case TS_PREC_FIXED_NSEC:
-      case TS_PREC_AUTO_NSEC:
-          g_snprintf(buf, COL_MAX_LEN, "%02d:%02d:%02d.%09d",
-             tmp->tm_hour,
-             tmp->tm_min,
-             tmp->tm_sec,
-             fd->abs_ts.nsecs);
-          break;
-      default:
-          g_assert_not_reached();
-      }
+    switch (timestamp_get_precision()) {
+    case TS_PREC_FIXED_SEC:
+    case TS_PREC_AUTO_SEC:
+      g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec);
+      break;
+    case TS_PREC_FIXED_DSEC:
+    case TS_PREC_AUTO_DSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%01d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 100000000);
+      break;
+    case TS_PREC_FIXED_CSEC:
+    case TS_PREC_AUTO_CSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%02d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 10000000);
+      break;
+    case TS_PREC_FIXED_MSEC:
+    case TS_PREC_AUTO_MSEC:
+      g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%03d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 1000000);
+      break;
+    case TS_PREC_FIXED_USEC:
+    case TS_PREC_AUTO_USEC:
+      g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%06d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs / 1000);
+      break;
+    case TS_PREC_FIXED_NSEC:
+    case TS_PREC_AUTO_NSEC:
+      g_snprintf(buf, COL_MAX_LEN, "%02d:%02d:%02d.%09d",
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        fd->abs_ts.nsecs);
+      break;
+    default:
+      g_assert_not_reached();
+    }
 
   } else {
     *buf = '\0';
@@ -1145,39 +1145,39 @@ set_epoch_time(const frame_data *fd, gchar *buf)
     buf[0] = '\0';
     return FALSE;
   }
-  switch(timestamp_get_precision()) {
-      case TS_PREC_FIXED_SEC:
-      case TS_PREC_AUTO_SEC:
-          display_epoch_time(buf, COL_MAX_LEN,
-            fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
-          break;
-      case TS_PREC_FIXED_DSEC:
-      case TS_PREC_AUTO_DSEC:
-          display_epoch_time(buf, COL_MAX_LEN,
-            fd->abs_ts.secs, fd->abs_ts.nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
-          break;
-      case TS_PREC_FIXED_CSEC:
-      case TS_PREC_AUTO_CSEC:
-          display_epoch_time(buf, COL_MAX_LEN,
-            fd->abs_ts.secs, fd->abs_ts.nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
-          break;
-      case TS_PREC_FIXED_MSEC:
-      case TS_PREC_AUTO_MSEC:
-          display_epoch_time(buf, COL_MAX_LEN,
-            fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
-          break;
-      case TS_PREC_FIXED_USEC:
-      case TS_PREC_AUTO_USEC:
-          display_epoch_time(buf, COL_MAX_LEN,
-            fd->abs_ts.secs, fd->abs_ts.nsecs / 1000, TO_STR_TIME_RES_T_USECS);
-          break;
-      case TS_PREC_FIXED_NSEC:
-      case TS_PREC_AUTO_NSEC:
-          display_epoch_time(buf, COL_MAX_LEN,
-            fd->abs_ts.secs, fd->abs_ts.nsecs, TO_STR_TIME_RES_T_NSECS);
-          break;
-      default:
-          g_assert_not_reached();
+  switch (timestamp_get_precision()) {
+  case TS_PREC_FIXED_SEC:
+  case TS_PREC_AUTO_SEC:
+    display_epoch_time(buf, COL_MAX_LEN,
+      fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
+    break;
+  case TS_PREC_FIXED_DSEC:
+  case TS_PREC_AUTO_DSEC:
+    display_epoch_time(buf, COL_MAX_LEN,
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
+    break;
+  case TS_PREC_FIXED_CSEC:
+  case TS_PREC_AUTO_CSEC:
+    display_epoch_time(buf, COL_MAX_LEN,
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
+    break;
+  case TS_PREC_FIXED_MSEC:
+  case TS_PREC_AUTO_MSEC:
+    display_epoch_time(buf, COL_MAX_LEN,
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
+    break;
+  case TS_PREC_FIXED_USEC:
+  case TS_PREC_AUTO_USEC:
+    display_epoch_time(buf, COL_MAX_LEN,
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000, TO_STR_TIME_RES_T_USECS);
+    break;
+  case TS_PREC_FIXED_NSEC:
+  case TS_PREC_AUTO_NSEC:
+    display_epoch_time(buf, COL_MAX_LEN,
+       fd->abs_ts.secs, fd->abs_ts.nsecs, TO_STR_TIME_RES_T_NSECS);
+    break;
+  default:
+    g_assert_not_reached();
   }
   return TRUE;
 }
@@ -1197,89 +1197,89 @@ set_fd_time(frame_data *fd, gchar *buf)
 {
 
   switch (timestamp_get_type()) {
-    case TS_ABSOLUTE:
-      set_abs_time(fd, buf, TRUE);
-      break;
+  case TS_ABSOLUTE:
+    set_abs_time(fd, buf, TRUE);
+    break;
 
-    case TS_ABSOLUTE_WITH_DATE:
-      set_abs_date_time(fd, buf, TRUE);
-      break;
+  case TS_ABSOLUTE_WITH_DATE:
+    set_abs_date_time(fd, buf, TRUE);
+    break;
 
-    case TS_RELATIVE:
-      if (fd->flags.has_ts) {
-        switch (timestamp_get_seconds_type()) {
-        case TS_SECONDS_DEFAULT:
-          set_time_seconds(&fd->rel_ts, buf);
-          break;
-        case TS_SECONDS_HOUR_MIN_SEC:
-          set_time_seconds(&fd->rel_ts, buf);
-          break;
-        default:
-          g_assert_not_reached();
-        }
-      } else {
-        buf[0] = '\0';
+  case TS_RELATIVE:
+    if (fd->flags.has_ts) {
+      switch (timestamp_get_seconds_type()) {
+      case TS_SECONDS_DEFAULT:
+        set_time_seconds(&fd->rel_ts, buf);
+        break;
+      case TS_SECONDS_HOUR_MIN_SEC:
+        set_time_seconds(&fd->rel_ts, buf);
+        break;
+      default:
+        g_assert_not_reached();
       }
-      break;
+    } else {
+      buf[0] = '\0';
+    }
+    break;
 
-    case TS_DELTA:
-      if (fd->flags.has_ts) {
-        nstime_t del_cap_ts;
+  case TS_DELTA:
+    if (fd->flags.has_ts) {
+      nstime_t del_cap_ts;
 
-        frame_delta_abs_time(fd, fd->prev_cap, &del_cap_ts);
+      frame_delta_abs_time(fd, fd->prev_cap, &del_cap_ts);
 
-        switch (timestamp_get_seconds_type()) {
-        case TS_SECONDS_DEFAULT:
-          set_time_seconds(&del_cap_ts, buf);
-          break;
-        case TS_SECONDS_HOUR_MIN_SEC:
-          set_time_hour_min_sec(&del_cap_ts, buf);
-          break;
-        default:
-          g_assert_not_reached();
-        }
-      } else {
-        buf[0] = '\0';
+      switch (timestamp_get_seconds_type()) {
+      case TS_SECONDS_DEFAULT:
+        set_time_seconds(&del_cap_ts, buf);
+        break;
+      case TS_SECONDS_HOUR_MIN_SEC:
+        set_time_hour_min_sec(&del_cap_ts, buf);
+        break;
+      default:
+        g_assert_not_reached();
       }
-      break;
+    } else {
+      buf[0] = '\0';
+    }
+    break;
 
-    case TS_DELTA_DIS:
-      if (fd->flags.has_ts) {
-        nstime_t del_dis_ts;
+  case TS_DELTA_DIS:
+    if (fd->flags.has_ts) {
+      nstime_t del_dis_ts;
 
-        frame_delta_abs_time(fd, fd->prev_dis, &del_dis_ts);
+      frame_delta_abs_time(fd, fd->prev_dis, &del_dis_ts);
 
-        switch (timestamp_get_seconds_type()) {
-        case TS_SECONDS_DEFAULT:
-          set_time_seconds(&del_dis_ts, buf);
-          break;
-        case TS_SECONDS_HOUR_MIN_SEC:
-          set_time_hour_min_sec(&del_dis_ts, buf);
-          break;
-        default:
-          g_assert_not_reached();
-        }
-      } else {
-        buf[0] = '\0';
+      switch (timestamp_get_seconds_type()) {
+      case TS_SECONDS_DEFAULT:
+        set_time_seconds(&del_dis_ts, buf);
+        break;
+      case TS_SECONDS_HOUR_MIN_SEC:
+        set_time_hour_min_sec(&del_dis_ts, buf);
+        break;
+      default:
+        g_assert_not_reached();
       }
-      break;
+    } else {
+      buf[0] = '\0';
+    }
+    break;
 
-    case TS_EPOCH:
-      set_epoch_time(fd, buf);
-      break;
+  case TS_EPOCH:
+    set_epoch_time(fd, buf);
+    break;
 
-    case TS_UTC:
-      set_abs_time(fd, buf, FALSE);
-      break;
+  case TS_UTC:
+    set_abs_time(fd, buf, FALSE);
+    break;
 
-    case TS_UTC_WITH_DATE:
-      set_abs_date_time(fd, buf, FALSE);
-      break;
+  case TS_UTC_WITH_DATE:
+    set_abs_date_time(fd, buf, FALSE);
+    break;
 
-    case TS_NOT_SET:
-      /* code is missing for this case, but I don't know which [jmayer20051219] */
-      g_assert(FALSE);
-      break;
+  case TS_NOT_SET:
+    /* code is missing for this case, but I don't know which [jmayer20051219] */
+    g_assert(FALSE);
+    break;
   }
 }
 
@@ -1287,42 +1287,42 @@ static void
 col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
 {
   switch (timestamp_get_type()) {
-    case TS_ABSOLUTE:
-      col_set_abs_time(fd, cinfo, col);
-      break;
+  case TS_ABSOLUTE:
+    col_set_abs_time(fd, cinfo, col);
+    break;
 
-    case TS_ABSOLUTE_WITH_DATE:
-      col_set_abs_date_time(fd, cinfo, col);
-      break;
+  case TS_ABSOLUTE_WITH_DATE:
+    col_set_abs_date_time(fd, cinfo, col);
+    break;
 
-    case TS_RELATIVE:
-      col_set_rel_time(fd, cinfo, col);
-      break;
+  case TS_RELATIVE:
+    col_set_rel_time(fd, cinfo, col);
+    break;
 
-    case TS_DELTA:
-      col_set_delta_time(fd, cinfo, col);
-      break;
+  case TS_DELTA:
+    col_set_delta_time(fd, cinfo, col);
+    break;
 
-    case TS_DELTA_DIS:
-      col_set_delta_time_dis(fd, cinfo, col);
-      break;
+  case TS_DELTA_DIS:
+    col_set_delta_time_dis(fd, cinfo, col);
+    break;
 
-    case TS_EPOCH:
-      col_set_epoch_time(fd, cinfo, col);
-      break;
+  case TS_EPOCH:
+    col_set_epoch_time(fd, cinfo, col);
+    break;
 
-    case TS_UTC:
-      col_set_utc_time(fd, cinfo, col);
-      break;
+  case TS_UTC:
+    col_set_utc_time(fd, cinfo, col);
+    break;
 
-    case TS_UTC_WITH_DATE:
-      col_set_utc_date_time(fd, cinfo, col);
-      break;
+  case TS_UTC_WITH_DATE:
+    col_set_utc_date_time(fd, cinfo, col);
+    break;
 
-    case TS_NOT_SET:
-      /* code is missing for this case, but I don't know which [jmayer20051219] */
-      g_assert_not_reached();
-      break;
+  case TS_NOT_SET:
+    /* code is missing for this case, but I don't know which [jmayer20051219] */
+    g_assert_not_reached();
+    break;
   }
 }
 
@@ -1333,41 +1333,41 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
   COL_CHECK_REF_TIME(fd, cinfo->col_buf[col]);
 
   switch (fmt) {
-    case COL_CLS_TIME:
-      col_set_cls_time(fd, cinfo, col);
-      break;
+  case COL_CLS_TIME:
+    col_set_cls_time(fd, cinfo, col);
+    break;
 
-    case COL_ABS_TIME:
-      col_set_abs_time(fd, cinfo, col);
-      break;
+  case COL_ABS_TIME:
+    col_set_abs_time(fd, cinfo, col);
+    break;
 
-    case COL_ABS_DATE_TIME:
-      col_set_abs_date_time(fd, cinfo, col);
-      break;
+  case COL_ABS_DATE_TIME:
+    col_set_abs_date_time(fd, cinfo, col);
+    break;
 
-    case COL_REL_TIME:
-      col_set_rel_time(fd, cinfo, col);
-      break;
+  case COL_REL_TIME:
+    col_set_rel_time(fd, cinfo, col);
+    break;
 
-    case COL_DELTA_TIME:
-      col_set_delta_time(fd, cinfo, col);
-      break;
+  case COL_DELTA_TIME:
+    col_set_delta_time(fd, cinfo, col);
+    break;
 
-    case COL_DELTA_TIME_DIS:
-      col_set_delta_time_dis(fd, cinfo, col);
-      break;
+  case COL_DELTA_TIME_DIS:
+    col_set_delta_time_dis(fd, cinfo, col);
+    break;
 
-    case COL_UTC_TIME:
-      col_set_utc_time(fd, cinfo, col);
-      break;
+  case COL_UTC_TIME:
+    col_set_utc_time(fd, cinfo, col);
+    break;
 
-    case COL_UTC_DATE_TIME:
-      col_set_utc_date_time(fd, cinfo, col);
-      break;
+  case COL_UTC_DATE_TIME:
+    col_set_utc_date_time(fd, cinfo, col);
+    break;
 
-    default:
-      g_assert_not_reached();
-      break;
+  default:
+    g_assert_not_reached();
+    break;
   }
 }
 
@@ -1377,11 +1377,11 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
  * Used by multiple dissectors to set the time in the column
  * COL_DELTA_CONV_TIME
  *
- * @param cinfo		the current packet row
- * @param col		the column to use, e.g. COL_INFO
- * @param ts		the time to set in the column
- * @param fieldname	the fieldname to use for creating a filter (when
- *			  applying/preparing/copying as filter)
+ * @param cinfo         the current packet row
+ * @param el            the column to use, e.g. COL_INFO
+ * @param ts            the time to set in the column
+ * @param fieldname     the fieldname to use for creating a filter (when
+ *                        applying/preparing/copying as filter)
  */
 void
 col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, const char *fieldname)
@@ -1397,39 +1397,39 @@ col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, const char *
 
   for (col = cinfo->col_first[el]; col <= cinfo->col_last[el]; col++) {
     if (cinfo->fmt_matx[col][el]) {
-      switch(timestamp_get_precision()) {
-    case TS_PREC_FIXED_SEC:
-    case TS_PREC_AUTO_SEC:
-      display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-        (gint32) ts->secs, ts->nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
-      break;
-    case TS_PREC_FIXED_DSEC:
-    case TS_PREC_AUTO_DSEC:
-      display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-        (gint32) ts->secs, ts->nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
-      break;
-    case TS_PREC_FIXED_CSEC:
-    case TS_PREC_AUTO_CSEC:
-      display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-        (gint32) ts->secs, ts->nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
-      break;
-    case TS_PREC_FIXED_MSEC:
-    case TS_PREC_AUTO_MSEC:
-      display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-        (gint32) ts->secs, ts->nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
-      break;
-    case TS_PREC_FIXED_USEC:
-    case TS_PREC_AUTO_USEC:
-      display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-        (gint32) ts->secs, ts->nsecs / 1000, TO_STR_TIME_RES_T_USECS);
-      break;
-    case TS_PREC_FIXED_NSEC:
-    case TS_PREC_AUTO_NSEC:
-      display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-        (gint32) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
-      break;
-    default:
-      g_assert_not_reached();
+      switch (timestamp_get_precision()) {
+      case TS_PREC_FIXED_SEC:
+      case TS_PREC_AUTO_SEC:
+        display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+          (gint32) ts->secs, ts->nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
+        break;
+      case TS_PREC_FIXED_DSEC:
+      case TS_PREC_AUTO_DSEC:
+        display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+          (gint32) ts->secs, ts->nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
+        break;
+      case TS_PREC_FIXED_CSEC:
+      case TS_PREC_AUTO_CSEC:
+        display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+          (gint32) ts->secs, ts->nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
+        break;
+      case TS_PREC_FIXED_MSEC:
+      case TS_PREC_AUTO_MSEC:
+        display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+          (gint32) ts->secs, ts->nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
+        break;
+      case TS_PREC_FIXED_USEC:
+      case TS_PREC_AUTO_USEC:
+        display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+          (gint32) ts->secs, ts->nsecs / 1000, TO_STR_TIME_RES_T_USECS);
+        break;
+      case TS_PREC_FIXED_NSEC:
+      case TS_PREC_AUTO_NSEC:
+        display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+          (gint32) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
+        break;
+      default:
+        g_assert_not_reached();
       }
       cinfo->col_data[col] = cinfo->col_buf[col];
       cinfo->col_expr.col_expr[col] = fieldname;
@@ -1456,7 +1456,6 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
     return;
 
   switch (addr->type) {
-
   case AT_AX25:
     if (is_src)
       pinfo->cinfo->col_expr.col_expr[col] = "ax25.src";
@@ -1622,97 +1621,94 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
 gboolean
 col_based_on_frame_data(column_info *cinfo, const gint col)
 {
-    g_assert(cinfo);
-    g_assert(col < cinfo->num_cols);
+  g_assert(cinfo);
+  g_assert(col < cinfo->num_cols);
 
-    switch (cinfo->col_fmt[col]) {
+  switch (cinfo->col_fmt[col]) {
+  case COL_NUMBER:
+  case COL_CLS_TIME:
+  case COL_ABS_TIME:
+  case COL_ABS_DATE_TIME:
+  case COL_UTC_TIME:
+  case COL_UTC_DATE_TIME:
+  case COL_REL_TIME:
+  case COL_DELTA_TIME:
+  case COL_DELTA_TIME_DIS:
+  case COL_PACKET_LENGTH:
+  case COL_CUMULATIVE_BYTES:
+    return TRUE;
 
-    case COL_NUMBER:
-    case COL_CLS_TIME:
-    case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
-    case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME:
-    case COL_REL_TIME:
-    case COL_DELTA_TIME:
-    case COL_DELTA_TIME_DIS:
-    case COL_PACKET_LENGTH:
-    case COL_CUMULATIVE_BYTES:
-      return TRUE;
-
-    default:
-        return FALSE;
-    }
+  default:
+    return FALSE;
+  }
 }
 
 void
 col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col, const gboolean fill_col_exprs)
 {
-    switch (cinfo->col_fmt[col]) {
+  switch (cinfo->col_fmt[col]) {
+  case COL_NUMBER:
+    guint32_to_str_buf(fd->num, cinfo->col_buf[col], COL_MAX_LEN);
+    cinfo->col_data[col] = cinfo->col_buf[col];
+    break;
 
-    case COL_NUMBER:
-      guint32_to_str_buf(fd->num, cinfo->col_buf[col], COL_MAX_LEN);
-      cinfo->col_data[col] = cinfo->col_buf[col];
-      break;
+  case COL_CLS_TIME:
+  case COL_ABS_TIME:
+  case COL_ABS_DATE_TIME:
+  case COL_UTC_TIME:
+  case COL_UTC_DATE_TIME:
+  case COL_REL_TIME:
+  case COL_DELTA_TIME:
+  case COL_DELTA_TIME_DIS:
+    /* TODO: Pass on fill_col_exprs */
+    col_set_fmt_time(fd, cinfo, cinfo->col_fmt[col], col);
+    break;
 
-    case COL_CLS_TIME:
-    case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
-    case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME:
-    case COL_REL_TIME:
-    case COL_DELTA_TIME:
-    case COL_DELTA_TIME_DIS:
-       /* TODO: Pass on fill_col_exprs */
-      col_set_fmt_time(fd, cinfo, cinfo->col_fmt[col], col);
-      break;
+  case COL_PACKET_LENGTH:
+    guint32_to_str_buf(fd->pkt_len, cinfo->col_buf[col], COL_MAX_LEN);
+    cinfo->col_data[col] = cinfo->col_buf[col];
+    break;
 
-    case COL_PACKET_LENGTH:
-      guint32_to_str_buf(fd->pkt_len, cinfo->col_buf[col], COL_MAX_LEN);
-      cinfo->col_data[col] = cinfo->col_buf[col];
-      break;
+  case COL_CUMULATIVE_BYTES:
+    guint32_to_str_buf(fd->cum_bytes, cinfo->col_buf[col], COL_MAX_LEN);
+    cinfo->col_data[col] = cinfo->col_buf[col];
+    break;
 
-    case COL_CUMULATIVE_BYTES:
-      guint32_to_str_buf(fd->cum_bytes, cinfo->col_buf[col], COL_MAX_LEN);
-      cinfo->col_data[col] = cinfo->col_buf[col];
-      break;
+  default:
+    break;
+  }
 
-    default:
-      break;
-    }
+  if (!fill_col_exprs)
+    return;
 
-    if (!fill_col_exprs)
-        return;
+  switch (cinfo->col_fmt[col]) {
+  case COL_NUMBER:
+    cinfo->col_expr.col_expr[col] = "frame.number";
+    g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
+    break;
 
-    switch (cinfo->col_fmt[col]) {
+  case COL_CLS_TIME:
+  case COL_ABS_TIME:
+  case COL_ABS_DATE_TIME:
+  case COL_UTC_TIME:
+  case COL_UTC_DATE_TIME:
+  case COL_REL_TIME:
+  case COL_DELTA_TIME:
+  case COL_DELTA_TIME_DIS:
+    /* Already handled above */
+    break;
 
-    case COL_NUMBER:
-      cinfo->col_expr.col_expr[col] = "frame.number";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
-      break;
+  case COL_PACKET_LENGTH:
+    cinfo->col_expr.col_expr[col] = "frame.len";
+    g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
+    break;
 
-    case COL_CLS_TIME:
-    case COL_ABS_TIME:
-    case COL_ABS_DATE_TIME:
-    case COL_UTC_TIME:
-    case COL_UTC_DATE_TIME:
-    case COL_REL_TIME:
-    case COL_DELTA_TIME:
-    case COL_DELTA_TIME_DIS:
-      /* Already handled above */
-      break;
+  case COL_CUMULATIVE_BYTES:
+    break;
 
-    case COL_PACKET_LENGTH:
-      cinfo->col_expr.col_expr[col] = "frame.len";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
-      break;
-
-    case COL_CUMULATIVE_BYTES:
-      break;
-
-    default:
-      break;
-    }
+  default:
+    break;
+  }
 }
 
 void
@@ -1725,7 +1721,6 @@ col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fi
 
   for (i = 0; i < pinfo->cinfo->num_cols; i++) {
     switch (pinfo->cinfo->col_fmt[i]) {
-
     case COL_NUMBER:
     case COL_CLS_TIME:
     case COL_ABS_TIME:
@@ -1849,7 +1844,6 @@ col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col
 
   for (i = 0; i < cinfo->num_cols; i++) {
     switch (cinfo->col_fmt[i]) {
-
     case COL_NUMBER:
     case COL_CLS_TIME:
     case COL_ABS_TIME:
@@ -2047,119 +2041,132 @@ col_fill_fdata(packet_info *pinfo)
 gchar *
 col_get_text(frame_data *fd, column_info *cinfo, gint col)
 {
-static gchar fmtbuf[3][COL_MAX_LEN];
-static int idx;
-gchar  *buf;
-gchar  *ptr;
+  static gchar fmtbuf[3][COL_MAX_LEN];
+  static int idx;
+  gchar  *buf;
+  gchar  *ptr;
 
-    idx = (idx + 1) % 3;
-    buf = fmtbuf[idx];
-    *buf = 0;
-    ptr = buf;
+  idx = (idx + 1) % 3;
+  buf = fmtbuf[idx];
+  *buf = 0;
+  ptr = buf;
 
-    switch (cinfo->col_fmt[col]) {
-    case COL_NUMBER: /* frame number */
-      guint32_to_str_buf(fd->num, buf, COL_MAX_LEN);
-      break;
+  switch (cinfo->col_fmt[col]) {
+  case COL_NUMBER: /* frame number */
+    guint32_to_str_buf(fd->num, buf, COL_MAX_LEN);
+    break;
 
-    case COL_CLS_TIME:
-      set_cls_time(fd, buf);
-      break;
-    case COL_ABS_TIME:
-      set_abs_time(fd, buf, TRUE);
-      break;
-    case COL_UTC_TIME:
-      set_abs_time(fd, buf, FALSE);
-      break;
-    case COL_ABS_DATE_TIME:
-      set_abs_date_time(fd, buf, TRUE);
-      break;
-    case COL_UTC_DATE_TIME:
-      set_abs_date_time(fd, buf, FALSE);
-      break;
-    case COL_REL_TIME:
-      set_rel_time(fd, buf);
-      break;
-    case COL_DELTA_TIME:
-      set_delta_time(fd, buf);
-      break;
-    case COL_DELTA_TIME_DIS:
-      set_delta_time_dis(fd, buf);
-      break;
+  case COL_CLS_TIME:
+    set_cls_time(fd, buf);
+    break;
+  case COL_ABS_TIME:
+    set_abs_time(fd, buf, TRUE);
+    break;
+  case COL_UTC_TIME:
+    set_abs_time(fd, buf, FALSE);
+    break;
+  case COL_ABS_DATE_TIME:
+    set_abs_date_time(fd, buf, TRUE);
+    break;
+  case COL_UTC_DATE_TIME:
+    set_abs_date_time(fd, buf, FALSE);
+    break;
+  case COL_REL_TIME:
+    set_rel_time(fd, buf);
+    break;
+  case COL_DELTA_TIME:
+    set_delta_time(fd, buf);
+    break;
+  case COL_DELTA_TIME_DIS:
+    set_delta_time_dis(fd, buf);
+    break;
 
-    case COL_PACKET_LENGTH: /* fd->pkt_len */
-      guint32_to_str_buf(fd->pkt_len, buf, COL_MAX_LEN);
-      break;
+  case COL_PACKET_LENGTH: /* fd->pkt_len */
+    guint32_to_str_buf(fd->pkt_len, buf, COL_MAX_LEN);
+    break;
 
-    case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
-      guint32_to_str_buf(fd->cum_bytes, buf, COL_MAX_LEN);
-      break;
+  case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
+    guint32_to_str_buf(fd->cum_bytes, buf, COL_MAX_LEN);
+    break;
 
-    case COL_DEF_SRC:
-    case COL_RES_SRC:   /* network address */
-    case COL_UNRES_SRC:
-    case COL_DEF_DL_SRC:
-    case COL_RES_DL_SRC:
-    case COL_UNRES_DL_SRC:
-    case COL_DEF_NET_SRC:
-    case COL_RES_NET_SRC:
-    case COL_UNRES_NET_SRC:
-    case COL_DEF_DST:
-    case COL_RES_DST:
-    case COL_UNRES_DST:
-    case COL_DEF_DL_DST:
-    case COL_RES_DL_DST:
-    case COL_UNRES_DL_DST:
-    case COL_DEF_NET_DST:
-    case COL_RES_NET_DST:
-    case COL_UNRES_NET_DST:
+  case COL_DEF_SRC:
+  case COL_RES_SRC:   /* network address */
+  case COL_UNRES_SRC:
+  case COL_DEF_DL_SRC:
+  case COL_RES_DL_SRC:
+  case COL_UNRES_DL_SRC:
+  case COL_DEF_NET_SRC:
+  case COL_RES_NET_SRC:
+  case COL_UNRES_NET_SRC:
+  case COL_DEF_DST:
+  case COL_RES_DST:
+  case COL_UNRES_DST:
+  case COL_DEF_DL_DST:
+  case COL_RES_DL_DST:
+  case COL_UNRES_DL_DST:
+  case COL_DEF_NET_DST:
+  case COL_RES_NET_DST:
+  case COL_UNRES_NET_DST:
 
-    case COL_IF_DIR:
-    case COL_CIRCUIT_ID:
-    case COL_PROTOCOL:
-    case COL_INFO:
-    case COL_HPUX_SUBSYS:
-    case COL_HPUX_DEVID:
-    case COL_DCE_CALL:
-    case COL_8021Q_VLAN_ID:
-    case COL_DSCP_VALUE:
-    case COL_COS_VALUE:
-    case COL_FR_DLCI:
-    case COL_BSSGP_TLLI:
-    case COL_EXPERT:
-    case COL_CUSTOM:
-    case COL_FREQ_CHAN:
+  case COL_IF_DIR:
+  case COL_CIRCUIT_ID:
+  case COL_PROTOCOL:
+  case COL_INFO:
+  case COL_HPUX_SUBSYS:
+  case COL_HPUX_DEVID:
+  case COL_DCE_CALL:
+  case COL_8021Q_VLAN_ID:
+  case COL_DSCP_VALUE:
+  case COL_COS_VALUE:
+  case COL_FR_DLCI:
+  case COL_BSSGP_TLLI:
+  case COL_EXPERT:
+  case COL_CUSTOM:
+  case COL_FREQ_CHAN:
+    ptr = fd->col_text[col];
+    break;
+
+  case COL_DEF_SRC_PORT:
+  case COL_RES_SRC_PORT:
+  case COL_UNRES_SRC_PORT:
+  case COL_DEF_DST_PORT:
+  case COL_RES_DST_PORT:
+  case COL_UNRES_DST_PORT:
+    /* hack */
+    if (GPOINTER_TO_UINT(fd->col_text[col]) <= 65536)
+      guint32_to_str_buf(GPOINTER_TO_UINT(fd->col_text[col], buf, COL_MAX_LEN));
+    else
       ptr = fd->col_text[col];
-      break;
+    break;
 
-    case COL_DEF_SRC_PORT:
-    case COL_RES_SRC_PORT:
-    case COL_UNRES_SRC_PORT:
-    case COL_DEF_DST_PORT:
-    case COL_RES_DST_PORT:
-    case COL_UNRES_DST_PORT:
-      /* hack */
-      if (GPOINTER_TO_UINT(fd->col_text[col]) <= 65536)
-          guint32_to_str_buf(GPOINTER_TO_UINT(fd->col_text[col], buf, COL_MAX_LEN));
-      else
-          ptr = fd->col_text[col];
-      break;
+  case COL_OXID:
+  case COL_RXID:
+  case COL_SRCIDX:
+  case COL_DSTIDX:
+    g_snprintf(buf, COL_MAX_LEN, "0x%x", GPOINTER_TO_UINT(fd->col_text[col]));
+    break;
 
-    case COL_OXID:
-    case COL_RXID:
-    case COL_SRCIDX:
-    case COL_DSTIDX:
-      g_snprintf(buf, COL_MAX_LEN, "0x%x", GPOINTER_TO_UINT(fd->col_text[col]));
-      break;
+  case COL_VSAN:
+    guint32_to_str_buf(GPOINTER_TO_UINT(fd->col_text[col]), buf, COL_MAX_LEN);
+    break;
 
-    case COL_VSAN:
-      guint32_to_str_buf(GPOINTER_TO_UINT(fd->col_text[col]), buf, COL_MAX_LEN);
-      break;
-
-    case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
-      g_assert_not_reached();
-      break;
-    }
-    return ptr;
+  case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
+    g_assert_not_reached();
+    break;
+  }
+  return ptr;
 }
 #endif
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
