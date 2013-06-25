@@ -1209,10 +1209,10 @@ fi
 # installed; if they're still doing that in current Fedora releases,
 # perhaps there will also be XXX-qt5 when they pick up Qt 5.
 #
-AC_PATH_PROG(UIC, uic)
+AC_PATH_PROG(UIC, uic-qt4)
 if test "x$UIC" = x
 then
-	AC_PATH_PROG(UIC, uic-qt4)
+	AC_PATH_PROG(UIC, uic)
 	if test "x$UIC" = x
 	then
 		if test "x$with_qt" = "xyes"; then
@@ -1235,10 +1235,10 @@ then
 	fi
 fi
 AC_SUBST(UIC)
-AC_PATH_PROG(MOC, moc)
+AC_PATH_PROG(MOC, moc-qt4)
 if test "x$MOC" = x
 then
-	AC_PATH_PROG(MOC, moc-qt4)
+	AC_PATH_PROG(MOC, moc)
 	if test "x$MOC" = x
 	then
 		if test "x$with_qt" = "xyes"; then
