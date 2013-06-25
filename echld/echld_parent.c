@@ -69,9 +69,6 @@ struct _echld_parent {
 
 #define PARENT_SEND(BYTEARR,CHILDNUM,TYPE) echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, parent.reqh_id++, NULL)
 
-
-#define PARENT_FATAL(attrs) parent_fatal attrs
-
 #ifdef DEBUG_PARENT
 
 static int dbg_level = 0;
@@ -83,10 +80,11 @@ static void parent_dbg(int level, const char* fmt, ...) {
 	if (level > dbg_level) return;
 
 	va_start(ap,fmt);
-	g_snprintf(str,1024,fmt,ap);
+	g_vsnprintf(str,1024,fmt,ap);
 	va_end(ap);
 
 	fprintf(stderr,"ParentDebug: level=%d msg='%s'\n",level,str);
+	fflush(stderr);
 }
 
 #define PARENT_DBG(attrs) parent_dbg attrs
@@ -96,21 +94,25 @@ static void parent_dbg(int level, const char* fmt, ...) {
 #endif
 
 extern void echld_set_parent_dbg_level(int lvl) {
-	PARENT_DBG((0,"Debug Level Set: %d",(dbg_level = lvl)));
+	(dbg_level = lvl);
+	PARENT_DBG((0,"Debug Level Set: %d",lvl));
 }
+
+
+#define PARENT_FATAL(attrs) parent_fatal attrs
 
 static void parent_fatal(int exit_code, const char* fmt, ...) {
 	va_list ap;
 	char str[1024];
 
 	va_start(ap,fmt);
-	g_snprintf(str,1024,fmt,ap);
+	g_vsnprintf(str,1024,fmt,ap);
 	va_end(ap);
 
 #ifdef DEBUG_PARENT
-	PARENT_DBG((0,"Fatal error: %s",str));
+	PARENT_DBG((0,"Fatal error: exit_code=%d str=%s",exit_code,str));
 #else
-	fprintf(stderr,"Fatal error: %s",str);
+	fprintf(stderr,"Fatal error: exit_code=%d str=%s",exit_code,str);
 #endif
 
 	exit(exit_code);
@@ -184,6 +186,8 @@ void echld_initialize(echld_encoding_t enc) {
 	int from_disp[2];
 	int to_disp[2];
 
+	PARENT_DBG((1,"Echld Starting"));
+
 	if (enc != ECHLD_ENCODING_JSON) {
 		PARENT_FATAL((1111,"Only JSON implemented"));
 	}
@@ -195,45 +199,56 @@ void echld_initialize(echld_encoding_t enc) {
 	} else {
 		int pid;
 		int i;
-		if (( pid = fork() < 0)) {
+
+		pid = fork();
+
+		if ( pid < 0 ) {
 			PARENT_FATAL((1114,"Failed to fork() reason='%s'",strerror(errno)));
 		} else if ( pid == 0) {
 #ifdef PARENT_THREADS
 			reader_realloc_buf =  child_realloc_buff;
 #endif
+
+			PARENT_DBG((1,"Dispatcher starting"));
 			/* child code */
-			echld_cleanup();
+			//echld_cleanup();
 
+			PARENT_DBG((2,"Dispatcher starting.."));
 
-			echld_dispatcher_start(to_disp,from_disp);
+			//echld_dispatcher_start(to_disp,from_disp);
 			PARENT_FATAL((1115,"This shoudln't happen"));
+		} else {
+			/* parent code */
+	#ifdef PARENT_THREADS
+			reader_realloc_buf =  parent_realloc_buff;
+	#endif
+
+			PARENT_DBG((3,"Dispatcher forked"));
+
+			echld_get_all_codecs(NULL, NULL, &parent.enc, &parent.dec);
+			parent.children = g_new0(echld_t,ECHLD_MAX_CHILDREN);
+			parent.snd = g_byte_array_new();
+			parent.dispatcher_fd = to_disp[0];
+
+			echld_init_reader(&(parent.reader),from_disp[1],4096);
+
+			parent.children[0].chld_id = 0;
+			parent.children[0].data = NULL;
+			parent.children[0].state = IDLE;
+			parent.children[0].handlers = g_array_new(TRUE,TRUE,sizeof(hdlr_t));
+
+			for (i=1;i<ECHLD_MAX_CHILDREN;i++) {
+				parent.children[i].chld_id = -1;
+				parent.children[i].data = NULL;
+				parent.children[i].state = FREE;
+				parent.children[i].handlers = g_array_new(TRUE,TRUE,sizeof(hdlr_t));
+			}
+
+			signal(SIGCHLD,parent_reaper);
+			close(to_disp[1]);
+			close(from_disp[0]);
+			PARENT_DBG((3,"Ready"));
 		}
-
-		/* parent code */
-#ifdef PARENT_THREADS
-		reader_realloc_buf =  parent_realloc_buff;
-#endif
-
-		PARENT_DBG((3,"Dispatcher forked"));
-
-		echld_get_all_codecs(NULL, NULL, &parent.enc, &parent.dec);
-		parent.children = g_new0(echld_t,ECHLD_MAX_CHILDREN);
-		parent.snd = g_byte_array_new();
-		parent.dispatcher_fd = to_disp[0];
-
-		echld_init_reader(&(parent.reader),from_disp[1],4096);
-
-		for (i=0;i<ECHLD_MAX_CHILDREN;i++) {
-			parent.children[i].chld_id = -1;
-			parent.children[i].data = NULL;
-			parent.children[i].state = FREE;
-			parent.children[i].handlers = g_array_new(TRUE,TRUE,sizeof(hdlr_t));
-		}
-
-		signal(SIGCHLD,parent_reaper);
-		close(to_disp[1]);
-		close(from_disp[0]);
-		PARENT_DBG((3,"Ready"));
 	}
 }
 

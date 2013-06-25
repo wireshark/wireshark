@@ -97,7 +97,8 @@ int main(int argc, char** argv) {
 	do {
 		if (tot_cycles < npings) echld_ping(0,ping_cb,NULL);
 		tot_cycles++;
-	} while( pings < 10 && tot_cycles < 25 && echld_wait(&tv));
+		echld_wait(&tv);
+	} while( (pings < 10) && (tot_cycles < 25));
 
 	fprintf(stderr, "Done: pings=%d errors=%d tot_cycles=%d\n", pings, errors ,tot_cycles );
 
