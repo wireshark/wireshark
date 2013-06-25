@@ -181,8 +181,8 @@ static int hdr_ipv6 = FALSE;
 static long hdr_ip_proto = 0;
 
 /* Destination and source addresses for IP header */
-static unsigned long hdr_ip_dest_addr = 0;
-static unsigned long hdr_ip_src_addr = 0;
+static guint32 hdr_ip_dest_addr = 0;
+static guint32 hdr_ip_src_addr = 0;
 static guint8 hdr_ipv6_dest_addr[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static guint8 hdr_ipv6_src_addr[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static guint8 NO_IPv6_ADDRESS[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
