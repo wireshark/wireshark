@@ -24,30 +24,77 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#include <sys/time.h>
+#include <sys/uio.h>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #include "echld.h"
+#include "echld-util.h"
+
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
-void reaper(int sig) {
+int pings = 0;
+int errors = 0;
 
-};
+void ping_cb(long usec, void* data _U_) {
+	if (usec > 0) {
+		fprintf(stderr, "ping=%d usec=%d\n", pings ,(int)usec );
+		pings++;
+	} else {
+		errors++;
+	}
+}
 
 
 int main(int argc, char** argv) {
-	int pid;
+	struct timeval tv;
+	int tot_cycles = 0;
+	int npings;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 250000;
+
+
+	switch(argc) {
+		case 1:
+			npings = 10;
+			break;
+		case 2:
+			npings = (int)atoi(argv[1]);
+			break;
+		default:
+			fprintf(stderr, "usage: %s [num pings, default=10]\n",argv[0]);
+			return 1;
+	}
 
 	echld_initialize(ECHLD_ENCODING_JSON);
 
 
-	switch((pid = fork())) {
-		case -1:
-			return 222;
-		case 0:
-			exit(echld_loop());
-		case 1:
-			echld_ping(0,)
-			signal(reaper)
-			waitpid();
-	}
-};
+	do {
+		if (tot_cycles < npings) echld_ping(0,ping_cb,NULL);
+		tot_cycles++;
+	} while( pings < 10 && tot_cycles < 25 && echld_wait(&tv));
+
+	fprintf(stderr, "Done: pings=%d errors=%d tot_cycles=%d\n", pings, errors ,tot_cycles );
+
+	echld_terminate();
+	return 0;
+}
+
+

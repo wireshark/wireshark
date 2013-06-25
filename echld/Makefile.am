@@ -36,6 +36,7 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS += -Werror
 endif
 
+
 lib_LTLIBRARIES = libechld.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libechld_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
@@ -65,6 +66,17 @@ CLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
+bin_PROGRAMS =
+	@echld_test_bin@
+
+EXTRA_PROGRAMS = echld_test
+
+echld_test_LDADD = \
+	echld/libechld.la \
+	@GLIB_LIBS@
+
+echld_test_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
