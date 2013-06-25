@@ -188,7 +188,6 @@ SOURCES_WS_C = \
     ../../tap-megaco-common.c     \
     ../../tap-rtp-common.c    \
     ../../tempfile.c      \
-    ../../timestats.c     \
     ../../u3.c \
     ../../version_info.c
 
