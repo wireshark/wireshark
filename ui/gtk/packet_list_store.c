@@ -71,8 +71,6 @@ typedef struct _PacketListRecord {
 	/** position within the visible array */
 	gint visible_pos;
 
-	/** Has this record been columnized? */
-	guint columnized : 1;
 	/** Has this record been colorized? */
 	guint colorized : 1;
 
@@ -131,7 +129,7 @@ static gboolean packet_list_sortable_has_default_sort_func(GtkTreeSortable
 							   *sortable);
 static void packet_list_sortable_init(GtkTreeSortableIface *iface);
 static void packet_list_resort(PacketList *packet_list);
-static void packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color );
+static void packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_color );
 
 static GObjectClass *parent_class = NULL;
 
@@ -418,8 +416,8 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 
 		g_value_init(value, G_TYPE_STRING);
 
-		if (!record->columnized || !record->colorized)
-			packet_list_dissect_and_cache_record(packet_list, record, !record->columnized, !record->colorized);
+		if (record->col_text == NULL || !record->colorized)
+			packet_list_dissect_and_cache_record(packet_list, record, !record->colorized);
 
 		text_column = packet_list->col_to_text[column];
 		if (text_column == -1) { /* column based on frame_data */
@@ -626,10 +624,9 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
 	newrecord = se_new(PacketListRecord);
-	newrecord->columnized   = FALSE;
 	newrecord->colorized    = FALSE;
-	newrecord->col_text_len = (gushort *)se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_text_cols);
-	newrecord->col_text     = (const gchar **)se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_text_cols);
+	newrecord->col_text_len = NULL;
+	newrecord->col_text     = NULL;
 	newrecord->fdata        = fdata;
 #ifdef PACKET_PARANOID_CHECKS
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
@@ -826,7 +823,7 @@ packet_list_dissect_and_cache_all(PacketList *packet_list)
 
 	for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, progbar_loop_var);
-		packet_list_dissect_and_cache_record(packet_list, record, TRUE, FALSE);
+		packet_list_dissect_and_cache_record(packet_list, record, FALSE);
 
 		/* Create the progress bar if necessary.
 		   We check on every iteration of the loop, so that it takes no
@@ -1112,7 +1109,7 @@ packet_list_recreate_visible_rows_list(PacketList *packet_list)
 }
 
 static void
-packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color)
+packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_color)
 {
 	epan_dissect_t edt;
 	frame_data *fdata;
@@ -1121,23 +1118,19 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	gboolean create_proto_tree;
 	struct wtap_pkthdr phdr; /* Packet header */
 	Buffer buf; /* Packet data */
+	gboolean dissect_columns = (record->col_text == NULL);
 
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	g_assert((record->col_text != NULL)&&(record->col_text_len != NULL));
-
-	/* XXX: Does it work to check if the record is already columnized/colorized ?
-	 *      i.e.: test record->columnized and record->colorized and just return
-	 *            if they're both TRUE.
-	 *      Note: Part of the patch submitted with Bug #4273 had code to do this but it
-	 *            was commented out in the patch and was not included in SVN #33011.
-	 */
 	fdata = record->fdata;
 
-	if (dissect_columns)
+	if (dissect_columns) {
 		cinfo = &cfile.cinfo;
-	else
+
+		record->col_text     = (const gchar **)se_alloc0(sizeof(*record->col_text) * packet_list->n_text_cols);
+		record->col_text_len = (gushort *)se_alloc0(sizeof(*record->col_text_len) * packet_list->n_text_cols);
+	} else
 		cinfo = NULL;
 
 	buffer_init(&buf, 1500);
@@ -1157,7 +1150,6 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 
 			for(col = 0; col < cinfo->num_cols; ++col)
 				packet_list_change_record(packet_list, record, col, cinfo);
-			record->columnized = TRUE;
 		}
 		if (dissect_color) {
 			fdata->color_filter = NULL;
@@ -1196,8 +1188,6 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 			packet_list_change_record(packet_list, record, col, cinfo);
 	}
 
-	if (dissect_columns)
-		record->columnized = TRUE;
 	if (dissect_color)
 		record->colorized = TRUE;
 
