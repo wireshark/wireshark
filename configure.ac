@@ -409,7 +409,7 @@ AC_ARG_WITH([qt],
 AC_ARG_WITH([gtk2],
   AC_HELP_STRING( [--with-gtk2=@<:@yes/no@:>@],
                   [use GTK+ 2.0 @<:@default=yes@:>@]),
-  with_gtk2="$withval", with_gtk2="no")
+  with_gtk2="$withval", with_gtk2="yes")
 
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
