@@ -27,6 +27,8 @@
 #ifndef __ECHLD_H
 #define __ECHLD_H
 
+#include "ws_symbol_export.h"
+
 #define ECHLD_VERSION "0.0"
 #define ECHLD_MAJOR_VERSION 0 /* increases when existing things change */
  							  /* if this changes an old client may or may not work */
@@ -72,10 +74,10 @@ typedef int echld_bool_t;
 typedef struct timeval tv_t;
 
 /* will initialize epan registering protocols and taps */
-void echld_initialize(echld_encoding_t);
+WS_DLL_PUBLIC void echld_initialize(echld_encoding_t);
 
 /* cleans up (?) echld and kills the server process(es) */
-echld_state_t echld_terminate(void);
+WS_DLL_PUBLIC echld_state_t echld_terminate(void);
 
 /*
  * returning ECHLD_NO_ERROR means there has being no error
@@ -86,23 +88,23 @@ echld_state_t echld_terminate(void);
  * for managing asyncronous errors use a msgh for ECHLD_ERROR
  * the response cb of reqh might be a ECHLD_ERROR message
  */
-echld_error_t echld_get_error(const char** errstr_ptr);
+WS_DLL_PUBLIC echld_error_t echld_get_error(const char** errstr_ptr);
 
 /*
  *  Children Management Operations
  */
 
 /* create a new worker process */
-echld_chld_id_t echld_new(void* child_data);
+WS_DLL_PUBLIC echld_chld_id_t echld_new(void* child_data);
 
 /* will return NULL on error, if NULL is also ok for you use echld_get_error() */
-void* echld_get_data(echld_chld_id_t);
+WS_DLL_PUBLIC void* echld_get_data(echld_chld_id_t);
 
-echld_state_t echld_set_data(echld_chld_id_t id, void* child_data);
+WS_DLL_PUBLIC echld_state_t echld_set_data(echld_chld_id_t id, void* child_data);
 
 /* for each child call cb(id,child_data,cb_data) */
 typedef echld_bool_t (*echld_iter_cb_t)(echld_chld_id_t, void* child_data, void* cb_data);
-void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
+WS_DLL_PUBLIC void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
 
 /* enc_msg_t is an obscure object for an encoded message */
 typedef struct _GByteArray enc_msg_t;
@@ -145,14 +147,14 @@ typedef struct _parent_out {
 	enc_msg_t* (*save_file)(const char* filename, const char* params);
 } echld_parent_encoder_t;
 
-echld_parent_encoder_t* echld_get_encoder(void);
+WS_DLL_PUBLIC echld_parent_encoder_t* echld_get_encoder(void);
 
 /*
  * decoder
  * it returns an allocated string with the decoded response of the message, you free it.
  * it destroys the enc_msg_t as well.
  */
-char* echld_decode(echld_msg_type_t, enc_msg_t*);
+WS_DLL_PUBLIC char* echld_decode(echld_msg_type_t, enc_msg_t*);
 
 /*
  *  Request Handlers
@@ -165,28 +167,28 @@ char* echld_decode(echld_msg_type_t, enc_msg_t*);
  * resp_cb is the callback and cb_data the data it is going to be passed if executed
  * 
  * returns the reqh id */
-echld_reqh_id_t echld_reqh(echld_chld_id_t, echld_msg_type_t, int usecs_timeout, enc_msg_t*, echld_msg_cb_t, void*);
+WS_DLL_PUBLIC echld_reqh_id_t echld_reqh(echld_chld_id_t, echld_msg_type_t, int usecs_timeout, enc_msg_t*, echld_msg_cb_t, void*);
 
 /* get callback data for a live request */
-void* echld_reqh_get_data(echld_chld_id_t, echld_reqh_id_t);
+WS_DLL_PUBLIC void* echld_reqh_get_data(echld_chld_id_t, echld_reqh_id_t);
 
 /* get the total timeout time for a live request, -1 is err */
-int echld_reqh_get_to(echld_chld_id_t, echld_reqh_id_t);
+WS_DLL_PUBLIC int echld_reqh_get_to(echld_chld_id_t, echld_reqh_id_t);
 
 /* get the remaining timeout time for a live request, -1 is err */
-int echld_reqh_get_remaining_to(echld_chld_id_t, echld_reqh_id_t);
+WS_DLL_PUBLIC int echld_reqh_get_remaining_to(echld_chld_id_t, echld_reqh_id_t);
 
 /* get the callback for a live request */
-echld_msg_cb_t echld_reqh_get_cb(echld_chld_id_t, echld_reqh_id_t);
+WS_DLL_PUBLIC echld_msg_cb_t echld_reqh_get_cb(echld_chld_id_t, echld_reqh_id_t);
 
 /* set callback data for a live request */
-echld_state_t echld_reqh_set_data(echld_chld_id_t, echld_reqh_id_t, void* );
+WS_DLL_PUBLIC echld_state_t echld_reqh_set_data(echld_chld_id_t, echld_reqh_id_t, void* );
 
 /* get the callback for a live request */
-echld_state_t echld_reqh_set_cb(echld_chld_id_t, echld_reqh_id_t, echld_msg_cb_t);
+WS_DLL_PUBLIC echld_state_t echld_reqh_set_cb(echld_chld_id_t, echld_reqh_id_t, echld_msg_cb_t);
 
 /* stop receiving a live request */
-echld_state_t echld_reqh_detach(echld_chld_id_t, echld_reqh_id_t);
+WS_DLL_PUBLIC echld_state_t echld_reqh_detach(echld_chld_id_t, echld_reqh_id_t);
 
 
 /*
@@ -195,34 +197,34 @@ echld_state_t echld_reqh_detach(echld_chld_id_t, echld_reqh_id_t);
  */
 
 /* start a message handler */
-echld_msgh_id_t echld_msgh(echld_chld_id_t, echld_msg_type_t, echld_msg_cb_t resp_cb, void* msg_data);
+WS_DLL_PUBLIC echld_msgh_id_t echld_msgh(echld_chld_id_t, echld_msg_type_t, echld_msg_cb_t resp_cb, void* msg_data);
 
 /* stop it */
-echld_state_t echld_msgh_detach(echld_chld_id_t, echld_msgh_id_t); 
+WS_DLL_PUBLIC echld_state_t echld_msgh_detach(echld_chld_id_t, echld_msgh_id_t); 
 
 /* get a msgh's data */
-void* echld_msgh_get_data(echld_chld_id_t, echld_msgh_id_t);
+WS_DLL_PUBLIC void* echld_msgh_get_data(echld_chld_id_t, echld_msgh_id_t);
 
 /* get a msgh's cb */
-echld_msg_cb_t echld_msgh_get_cb(echld_chld_id_t, echld_msgh_id_t);
+WS_DLL_PUBLIC echld_msg_cb_t echld_msgh_get_cb(echld_chld_id_t, echld_msgh_id_t);
 
 /* get a msgh's type */
-echld_msg_type_t echld_msgh_get_type(echld_chld_id_t, echld_msgh_id_t);
+WS_DLL_PUBLIC echld_msg_type_t echld_msgh_get_type(echld_chld_id_t, echld_msgh_id_t);
 
 /* get it all from a msgh */
-echld_state_t echld_msgh_get_all(echld_chld_id_t, int msgh_id, echld_msg_type_t*, echld_msg_cb_t*, void**);
+WS_DLL_PUBLIC echld_state_t echld_msgh_get_all(echld_chld_id_t, int msgh_id, echld_msg_type_t*, echld_msg_cb_t*, void**);
 
 /* set a msgh's data */
-echld_state_t echld_msgh_set_data(echld_chld_id_t, int msgh_id, void* );
+WS_DLL_PUBLIC echld_state_t echld_msgh_set_data(echld_chld_id_t, int msgh_id, void* );
 
 /* set a msgh's cb */
-echld_state_t echld_msgh_set_cb(echld_chld_id_t, int msgh_id, echld_msg_cb_t);
+WS_DLL_PUBLIC echld_state_t echld_msgh_set_cb(echld_chld_id_t, int msgh_id, echld_msg_cb_t);
 
 /* set a msgh's type */
-echld_state_t echld_msgh_set_type(echld_chld_id_t, int msgh_id, echld_msg_type_t);
+WS_DLL_PUBLIC echld_state_t echld_msgh_set_type(echld_chld_id_t, int msgh_id, echld_msg_type_t);
 
 /* set all elements of a msgh */
-echld_state_t echld_msgh_set_all(echld_chld_id_t, int msgh_id, echld_msg_type_t, echld_msg_cb_t, void*);
+WS_DLL_PUBLIC echld_state_t echld_msgh_set_all(echld_chld_id_t, int msgh_id, echld_msg_type_t, echld_msg_cb_t, void*);
 
 
 
@@ -236,7 +238,7 @@ echld_state_t echld_msgh_set_all(echld_chld_id_t, int msgh_id, echld_msg_type_t,
  *
  * returns ECHLD_TIMEOUT or ECHLD_OK if something was done
  */
-echld_state_t echld_wait(tv_t* timeout);
+WS_DLL_PUBLIC echld_state_t echld_wait(tv_t* timeout);
 
 #define ECHLD_WAIT() do { struct timeval tv; int rfds,  efds; \
 	echld_select(echld_fdset(&rfds, &efds),&rfds, NULL, &efds, NULL) \
@@ -246,16 +248,16 @@ echld_state_t echld_wait(tv_t* timeout);
    to be used in place of select() in the main loop of the parent code
    it will serve the children pipes and return as if select() was called.
 */
-int echld_select(int nfds, fd_set* rfds, fd_set* wfds, fd_set* efds, tv_t* timeout);
+WS_DLL_PUBLIC int echld_select(int nfds, fd_set* rfds, fd_set* wfds, fd_set* efds, tv_t* timeout);
 
 /* or fit these two in your select loop */
 
 /* returns nfds set */
-int echld_fdset(fd_set* rfds, fd_set* efds);
+WS_DLL_PUBLIC int echld_fdset(fd_set* rfds, fd_set* efds);
 
-int echld_fd_read(fd_set* rfds, fd_set* efds);
+WS_DLL_PUBLIC int echld_fd_read(fd_set* rfds, fd_set* efds);
 
-void echld_set_parent_dbg_level(int lvl);
+WS_DLL_PUBLIC void echld_set_parent_dbg_level(int lvl);
 
 
 #define ECHLD_MAX_CHILDREN 32

@@ -122,8 +122,8 @@ typedef struct _echld_reader {
 #define READER_FD_ISSET(R,fdset_p) READER_FD_ISSET(R.fd,&(fdset_p))
 #define READER_FD_CLEAR(R,fdset_p) READER_FD_CLEAR(R.fd,&(fdset_p))
 
-void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
-void echld_reset_reader(echld_reader_t* r, int fd, size_t initial);
+extern void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
+extern void echld_reset_reader(echld_reader_t* r, int fd, size_t initial);
 
 typedef struct _param {
 	const char* name;
@@ -174,23 +174,25 @@ typedef struct _parent_in {
 	echld_bool_t (*packet_list) (enc_msg_t*, char**, char**, char**); // name, filter, range
 } parent_decoder_t;
 
-void echld_get_all_codecs(child_encoder_t**, child_decoder_t**, echld_parent_encoder_t**, parent_decoder_t**);
+extern void echld_get_all_codecs(child_encoder_t**, child_decoder_t**, echld_parent_encoder_t**, parent_decoder_t**);
 
-void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
-void free_reader(echld_reader_t* r);
+extern void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
+extern void free_reader(echld_reader_t* r);
 
-long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
-long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
+extern long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
+extern long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
 
 
-void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id);
-int echld_child_loop(void);
+extern void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id);
+extern int echld_child_loop(void);
 
 /* never returns*/
-void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds);
+extern void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds);
 
 
 extern void dummy_switch(echld_msg_type_t type); 
+extern void echld_unused(void);
+
 
 #define DEBUG_CHILD 5
 #define DEBUG_DISPATCHER 5

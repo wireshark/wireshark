@@ -41,13 +41,18 @@
 #include <unistd.h>
 #endif
 
-#include "echld.h"
-#include "echld-util.h"
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <glib.h>
+#include <glib/gprintf.h>
+
+#include "echld/echld.h"
+#include "echld/echld-util.h"
+
+#include "epan/epan.h"
+#include "wsutil/str_util.h"
 
 int pings = 0;
 int errors = 0;
@@ -66,10 +71,13 @@ int main(int argc, char** argv) {
 	struct timeval tv;
 	int tot_cycles = 0;
 	int npings;
-
+	GString* str = g_string_new("");
 	tv.tv_sec = 0;
 	tv.tv_usec = 250000;
 
+
+
+	echld_set_parent_dbg_level(4);
 
 	switch(argc) {
 		case 1:

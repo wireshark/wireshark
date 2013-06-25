@@ -40,7 +40,3 @@ LIBECHLD_INCLUDES = \
 	echld-int.h \
 	echld-util.h \
 	echld.h
-
-# echld_test specifics
-echld_test_SOURCES = \
-	echld_test.c

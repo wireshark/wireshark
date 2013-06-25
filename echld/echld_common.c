@@ -722,3 +722,9 @@ extern void dummy_switch(echld_msg_type_t type) {
 		case EC_ACTUAL_ERROR: break;
 	}
 }
+
+static void* unused = int_deca;
+
+extern void unused_things(void) {
+	unused = NULL;
+}

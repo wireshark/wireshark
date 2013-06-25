@@ -534,3 +534,10 @@ int echld_child_loop(void) {
 }
 
 
+extern void echld_unused(void) {
+	intflist2json(NULL);
+	child_start_interface_listing();
+	child_open_file(0, 0, NULL, NULL, 0);
+	child_open_interface(0, 0, NULL, NULL, NULL, 0);
+}
+

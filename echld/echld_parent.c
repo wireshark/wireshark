@@ -95,7 +95,7 @@ static void parent_dbg(int level, const char* fmt, ...) {
 #define PARENT_DBG(attrs) 
 #endif
 
-void echld_set_parent_dbg_level(int lvl) {
+extern void echld_set_parent_dbg_level(int lvl) {
 	PARENT_DBG((0,"Debug Level Set: %d",(dbg_level = lvl)));
 }
 
@@ -238,7 +238,7 @@ void echld_initialize(echld_encoding_t enc) {
 }
 
 
-echld_state_t echld_terminate(void) {
+extern echld_state_t echld_terminate(void) {
 	echld_cleanup();
 	return TRUE;
 }
@@ -295,7 +295,7 @@ static echld_state_t reqh_snd(echld_t* c, echld_msg_type_t t, GByteArray* ba, ec
 }
 
 
-echld_reqh_id_t echld_reqh(
+extern echld_reqh_id_t echld_reqh(
 		echld_chld_id_t child_id,
 		echld_msg_type_t t,
 		int usecs_timeout,
@@ -307,7 +307,7 @@ echld_reqh_id_t echld_reqh(
 }
 
 /* get callback data for a live request */
-void* echld_reqh_get_data(int child_id, int reqh_id) {
+extern void* echld_reqh_get_data(int child_id, int reqh_id) {
 	echld_t* c = get_child(child_id);
 	int idx;
 
@@ -322,7 +322,7 @@ void* echld_reqh_get_data(int child_id, int reqh_id) {
 }
 
 /* get the callback for a live request */
-echld_msg_cb_t echld_reqh_get_cb(int child_id, int reqh_id) {
+extern echld_msg_cb_t echld_reqh_get_cb(int child_id, int reqh_id) {
 	echld_t* c = get_child(child_id);
 	int idx;
 
@@ -337,7 +337,7 @@ echld_msg_cb_t echld_reqh_get_cb(int child_id, int reqh_id) {
 }
 
 /* set callback data for a live request */
-gboolean echld_reqh_set_data(int child_id, int reqh_id, void* cb_data) {
+extern gboolean echld_reqh_set_data(int child_id, int reqh_id, void* cb_data) {
 	echld_t* c = get_child(child_id);
 	int idx;
 
@@ -353,7 +353,7 @@ gboolean echld_reqh_set_data(int child_id, int reqh_id, void* cb_data) {
 }
 
 /* get the callback for a live request */
-gboolean echld_reqh_set_cb(int child_id, int reqh_id, echld_msg_cb_t cb){
+extern gboolean echld_reqh_set_cb(int child_id, int reqh_id, echld_msg_cb_t cb){
 	echld_t* c = get_child(child_id);
 	int idx;
 
@@ -369,7 +369,7 @@ gboolean echld_reqh_set_cb(int child_id, int reqh_id, echld_msg_cb_t cb){
  
 
 /* stop receiving a live request */
-gboolean echld_reqh_detach(int child_id, int reqh_id) {
+extern gboolean echld_reqh_detach(int child_id, int reqh_id) {
 	echld_t* c = get_child(child_id);
 	int idx;
 
@@ -428,7 +428,7 @@ int chld_cmp(const void *a, const void *b) {
 
 static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data);
 
-int echld_new(void* child_data) {
+extern int echld_new(void* child_data) {
 	int next_chld_id = 1;
 	echld_t* c = get_child(-1);
 
@@ -454,12 +454,12 @@ int echld_new(void* child_data) {
 
 
 /* XXX these fail silently */
-void* echld_get_data(int child_id) {
+extern void* echld_get_data(int child_id) {
 	echld_t* c = get_child(child_id);
 	return c ? c->data : NULL;
 }
 
-echld_state_t echld_set_data(echld_chld_id_t chld_id, void* data) {
+extern echld_state_t echld_set_data(echld_chld_id_t chld_id, void* data) {
 	echld_t* c = get_child(chld_id);
 	if (c) {
 		c->data = data;
@@ -494,7 +494,7 @@ static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, v
 	return 0;
 }
 
-int echld_msgh(int child_id, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data) {
+extern int echld_msgh(int child_id, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data) {
 	echld_t* c = get_child(child_id);
 
 	if (c) return msgh_attach(c,t,resp_cb,cb_data);
@@ -513,7 +513,7 @@ static echld_state_t msgh_detach(echld_t* c, int msgh_id) {
 	return 1;
 }
 
-echld_state_t echld_msgh_detach(int child_id, int msgh_id) {
+extern echld_state_t echld_msgh_detach(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
 	return msgh_detach(c,msgh_id);
 } 
@@ -528,7 +528,7 @@ static void* msgh_get_data(echld_t* c, int msgh_id) {
 	return ((hdlr_t*)(c->handlers->data))[idx].cb_data;
 }
 
-void* echld_msgh_get_data(int child_id, int msgh_id) {
+extern void* echld_msgh_get_data(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
 	return msgh_get_data(c,msgh_id);
 } 
@@ -542,7 +542,7 @@ static echld_msg_cb_t msgh_get_cb(echld_t* c, int msgh_id) {
 	return ((hdlr_t*)(c->handlers->data))[idx].cb;
 }
 
-echld_msg_cb_t echld_msgh_get_cb(int child_id, int msgh_id) {
+extern echld_msg_cb_t echld_msgh_get_cb(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
 	return msgh_get_cb(c,msgh_id);	
 }
@@ -556,7 +556,7 @@ static echld_msg_type_t msgh_get_type(echld_t* c, int msgh_id) {
 	return ((hdlr_t*)(c->handlers->data))[idx].type;
 }
 
-echld_msg_type_t echld_msgh_get_type(int child_id, int msgh_id) {
+extern echld_msg_type_t echld_msgh_get_type(int child_id, int msgh_id) {
 	echld_t* c = get_child(child_id);
 	return c ? msgh_get_type(c,msgh_id) : EC_ACTUAL_ERROR;	
 }
@@ -577,7 +577,7 @@ static echld_state_t msgh_get_all(echld_t* c, int msgh_id, echld_msg_type_t* t, 
 	return 0;
 }
 
-gboolean echld_msgh_get_all(int child_id, int msgh_id, echld_msg_type_t* t, echld_msg_cb_t* cb, void** data) {
+extern gboolean echld_msgh_get_all(int child_id, int msgh_id, echld_msg_type_t* t, echld_msg_cb_t* cb, void** data) {
 	echld_t* c = get_child(child_id);
 	return c && msgh_get_all(c,msgh_id,t,cb,data);
 }
@@ -597,7 +597,7 @@ static echld_state_t msgh_set_all(echld_t* c, int msgh_id, echld_msg_type_t t, e
 	return 0;
 }
 
-gboolean echld_msgh_set_all(int child_id, int msgh_id, echld_msg_type_t t, echld_msg_cb_t cb, void* data) {
+extern gboolean echld_msgh_set_all(int child_id, int msgh_id, echld_msg_type_t t, echld_msg_cb_t cb, void* data) {
 	echld_t* c = get_child(child_id);
 	return c ? msgh_set_all(c,msgh_id,t,cb,data) : FALSE;
 }
@@ -614,13 +614,13 @@ static gboolean msgh_set_data(echld_t* c, int msgh_id, void* data) {
 
 }
 
-gboolean echld_msgh_set_data(int child_id, int msgh_id, void* data){
+extern gboolean echld_msgh_set_data(int child_id, int msgh_id, void* data){
 	echld_t* c = get_child(child_id);
 	return c ? msgh_set_data(c,msgh_id,data) : FALSE;
 }
 
 /* set a msgh's cb */
-gboolean msgh_set_cb(echld_t* c, int msgh_id, echld_msg_cb_t cb) {
+extern gboolean msgh_set_cb(echld_t* c, int msgh_id, echld_msg_cb_t cb) {
 	int idx = msgh_idx(c,msgh_id);
 
 	if (idx < 0) return FALSE;
@@ -630,7 +630,7 @@ gboolean msgh_set_cb(echld_t* c, int msgh_id, echld_msg_cb_t cb) {
 	return TRUE;
 }
 
-gboolean echld_msgh_set_cb(int child_id, int msgh_id, echld_msg_cb_t cb) {
+extern gboolean echld_msgh_set_cb(int child_id, int msgh_id, echld_msg_cb_t cb) {
 	echld_t* c = get_child(child_id);
 	return c ? msgh_set_cb(c,msgh_id,cb) : FALSE;
 }
@@ -647,14 +647,14 @@ static gboolean msgh_set_type(echld_t* c, int msgh_id, echld_msg_type_t t) {
 	return TRUE;
 }
 
-gboolean echld_msgh_set_type(int child_id, int msgh_id, echld_msg_type_t t) {
+extern gboolean echld_msgh_set_type(int child_id, int msgh_id, echld_msg_type_t t) {
 	echld_t* c = get_child(child_id);
 	return c ? msgh_set_type(c,msgh_id,t) : FALSE;
 }
 
 
 /* call cb(id,child_data,cb_data) for each child*/
-void echld_foreach_child(echld_iter_cb_t cb, void* cb_data) {
+extern void echld_foreach_child(echld_iter_cb_t cb, void* cb_data) {
 	int i;
 	for(i=0;i<ECHLD_MAX_CHILDREN;i++) {
 		echld_t* c = &(parent.children[i]);
@@ -707,14 +707,14 @@ static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 	return 1;
 }
 
-int echld_fdset(fd_set* rfds, fd_set* efds) {
+extern int echld_fdset(fd_set* rfds, fd_set* efds) {
 	FD_SET(parent.reader.fd, rfds);
 	FD_SET(parent.reader.fd, efds);
 	FD_SET(parent.dispatcher_fd, efds);
 	return 2;
 }
 
-int echld_fd_read(fd_set* rfds, fd_set* efds) {
+extern int echld_fd_read(fd_set* rfds, fd_set* efds) {
 	int r_nfds=0;
 	if (FD_ISSET(parent.reader.fd,efds) || FD_ISSET(parent.dispatcher_fd,efds) ) {
 		/* Handle errored dispatcher */
@@ -730,7 +730,7 @@ int echld_fd_read(fd_set* rfds, fd_set* efds) {
 	return r_nfds;
 }
 
-int echld_select(int nfds, fd_set* rfds, fd_set* wfds, fd_set* efds, struct timeval* timeout) {
+extern int echld_select(int nfds, fd_set* rfds, fd_set* wfds, fd_set* efds, struct timeval* timeout) {
 	fd_set my_rfds, my_wfds, my_efds;
 	int r_nfds;
 
@@ -747,22 +747,10 @@ int echld_select(int nfds, fd_set* rfds, fd_set* wfds, fd_set* efds, struct time
 	return r_nfds ;
 }
 
-echld_state_t echld_wait(struct timeval* timeout) {
+extern echld_state_t echld_wait(struct timeval* timeout) {
 	if ( echld_select(0, NULL, NULL, NULL, timeout) < 0) {
 		return -1;
 	} else {
 		return ECHLD_OK;
 	}
 }
-
-
-
-
-
-/* Ping the child */
-
-
-
-
-
-

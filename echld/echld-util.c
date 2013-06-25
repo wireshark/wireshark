@@ -61,7 +61,7 @@ static gboolean pong(echld_msg_type_t type, GByteArray* ba _U_, void* data) {
 }
 
 
-echld_state_t echld_ping(int chld_id, echld_ping_cb_t pcb, void* cb_data) {
+extern echld_state_t echld_ping(int chld_id, echld_ping_cb_t pcb, void* cb_data) {
 	struct _ping* p = g_new0(struct _ping,1);
 
 	p->cb = pcb;
