@@ -491,27 +491,7 @@ static gboolean
 packet_list_iter_children(GtkTreeModel *tree_model, GtkTreeIter *iter,
 			  GtkTreeIter *parent)
 {
-	PacketList *packet_list;
-
-	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
-	packet_list = (PacketList *) tree_model;
-
-	/* This is a list, nodes have no children. */
-	if(parent) {
-		g_return_val_if_fail(parent->stamp == packet_list->stamp, FALSE);
-		g_return_val_if_fail(parent->user_data, FALSE);
-		return FALSE;
-	}
-
-	/* No rows => no first row */
-	if(PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
-		return FALSE;
-
-	/* Set iter to first item in list */
-	iter->stamp = packet_list->stamp;
-	iter->user_data = PACKET_LIST_RECORD_GET(packet_list->visible_rows, 0);
-
-	return TRUE;
+	return packet_list_iter_nth_child(tree_model, iter, parent, 0);
 }
 
 static gboolean
