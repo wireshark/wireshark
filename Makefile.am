@@ -35,24 +35,22 @@ AM_CLEAN_CFLAGS = -Werror
 endif
 
 bin_PROGRAMS = \
-	@wireshark_bin@	\
-	@tshark_bin@	\
-	@text2pcap_bin@	\
-	@mergecap_bin@	\
-	@capinfos_bin@	\
-	@editcap_bin@	\
-	@randpkt_bin@	\
-	@dftest_bin@	\
-	@dumpcap_bin@	\
+	@wireshark_bin@		\
+	@tshark_bin@		\
+	@text2pcap_bin@		\
+	@mergecap_bin@		\
+	@capinfos_bin@		\
+	@editcap_bin@		\
+	@randpkt_bin@		\
+	@dftest_bin@		\
+	@dumpcap_bin@		\
 	@reordercap_bin@	\
-	@rawshark_bin@ \
+	@rawshark_bin@		\
 	@echld_test_bin@ 
 
-
-EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx echld_test
-
-
+EXTRA_PROGRAMS = wireshark wireshark-qt tshark capinfos editcap mergecap \
+	dftest randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx \
+	echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -323,9 +321,19 @@ endif		# HAVE_PLUGINS
 include Makefile.common
 
 if ENABLE_STATIC
+if HAVE_GTK
 wireshark_LDFLAGS = -Wl,-static -all-static
+endif
+if HAVE_Qt
+wireshark_qt_LDFLAGS = -Wl,-static -all-static
+endif
 else
+if HAVE_GTK
 wireshark_LDFLAGS = -export-dynamic
+endif
+if HAVE_Qt
+wireshark_qt_LDFLAGS = -export-dynamic
+endif
 endif
 
 # Libraries and plugin flags with which to link wireshark.
@@ -350,14 +358,7 @@ endif
 # although it's also possible that -lgmodule is in GTK_LIBS but not
 # GLIB_LIBS (that's the case on my machine right now, for example).
 #
-if HAVE_Qt
-wireshark_ui_ldadd = ui/qt/libqtui.a
-else
-wireshark_ui_ldadd = ui/gtk/libgtkui.a
-endif
-
-wireshark_LDADD = \
-	$(wireshark_ui_ldadd)		\
+wireshark_ldadd = \
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
@@ -383,7 +384,21 @@ wireshark_LDADD = \
 	@GLIB_LIBS@			\
 	-lm
 
+if HAVE_Qt
+wireshark_qt_SOURCES = $(WIRESHARK_COMMON_SRC)
+wireshark_qt_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
+wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+wireshark_qt_LDADD =  ui/qt/libqtui.a $(wireshark_ldadd)
+wireshark_qt_LINK = $(CXXLINK)
+endif
+
+if HAVE_GTK
+wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
+wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+wireshark_LDADD = ui/gtk/libgtkui.a $(wireshark_ldadd)
+wireshark_LINK = $(LINK)
+endif
 
 # Ideally we could trigger automatic c++ linking here with
 #   nodist_EXTRA_wireshark_SOURCES = dummy.cpp
@@ -392,12 +407,6 @@ wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 # all times.
 nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
 wireshark_cxx_SOURCES =
-
-if HAVE_WIRESHARK_CXX
-wireshark_LINK = $(CXXLINK)
-else
-wireshark_LINK = $(LINK)
-endif
 
 if ENABLE_STATIC
 tshark_LDFLAGS = -Wl,-static -all-static
@@ -1196,3 +1205,4 @@ if HAVE_DOXYGEN
 	rm -f wsar_html.zip
 	zip -rq wsar_html.zip wsar_html
 endif
+

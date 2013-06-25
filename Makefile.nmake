@@ -60,7 +60,7 @@ WTAP_PLUGIN_SOURCES = \
 
 include Makefile.common
 
-wireshark_OBJECTS = $(wireshark_SOURCES:.c=.obj)
+wireshark_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
 ###text2pcap_OBJECTS = $(text2pcap_SOURCES:.c=.obj)
@@ -1287,7 +1287,7 @@ install-all: install-generated-files
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl -build \
-	$(wireshark_SOURCES) \
+	$(WIRESHARK_COMMON_SRC) \
 	$(TSHARK_TAP_SRC) \
 #	$(EXTRA_wireshark_SOURCES)
 

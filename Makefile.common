@@ -44,7 +44,7 @@ GENERATED_C_FILES = \
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 # sources common for wireshark, tshark, and rawshark
-WIRESHARK_COMMON_SRC =	\
+SHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC)		\
 	capture-pcap-util.c	\
 	cfile.c			\
@@ -62,7 +62,7 @@ WIRESHARK_COMMON_SRC =	\
 	version_info.c
 
 # corresponding headers
-WIRESHARK_COMMON_INCLUDES =	\
+SHARK_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
@@ -102,8 +102,8 @@ SHARK_COMMON_CAPTURE_INCLUDES =	\
 	capture_ui_utils.h
 
 # wireshark specifics
-wireshark_SOURCES =	\
-	$(WIRESHARK_COMMON_SRC)	\
+WIRESHARK_COMMON_SRC =	\
+	$(SHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
 	airpcap_loader.c \
 	capture.c	\
@@ -123,7 +123,7 @@ wireshark_SOURCES =	\
 	ws80211_utils.c
 
 # corresponding headers
-wireshark_INCLUDES =	\
+WIRESHARK_COMMON_INCLUDES =	\
 	airpcap.h	\
 	airpcap_loader.h \
 	capture.h	\
@@ -145,7 +145,7 @@ wireshark_INCLUDES =	\
 
 # tshark specifics
 tshark_SOURCES =	\
-	$(WIRESHARK_COMMON_SRC)	\
+	$(SHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
 	capture_opts.c		\
 	tempfile.c		\
@@ -153,7 +153,7 @@ tshark_SOURCES =	\
 
 # rawshark specifics
 rawshark_SOURCES =	\
-	$(WIRESHARK_COMMON_SRC)	\
+	$(SHARK_COMMON_SRC)	\
 	rawshark.c
 
 # text2pcap specifics
@@ -223,7 +223,7 @@ dumpcap_INCLUDES = \
 
 # this target needed for distribution only
 noinst_HEADERS =	\
-	$(WIRESHARK_COMMON_INCLUDES) \
+	$(SHARK_COMMON_INCLUDES) \
 	$(SHARK_COMMON_CAPTURE_INCLUDES) \
-	$(wireshark_INCLUDES) \
+	$(WIRESHARK_COMMON_INCLUDES) \
 	$(dumpcap_INCLUDES)
