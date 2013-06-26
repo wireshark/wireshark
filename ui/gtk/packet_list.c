@@ -772,6 +772,7 @@ create_view_and_model(void)
 		g_object_set(renderer,
 			     "ypad", 0,
 			     NULL);
+		gtk_tree_view_column_add_attribute(col, renderer, "text", i);
 		gtk_tree_view_column_set_cell_data_func(col, renderer,
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
@@ -1315,23 +1316,13 @@ packet_list_get_row_data(gint row)
 
 static void
 show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
-			GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
+			GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
 {
-	guint col_num = GPOINTER_TO_INT(data);
-	frame_data *fdata;
-	gchar *cell_text;
+	frame_data *fdata = packet_list_get_record(model, iter);
 
 	gboolean color_on;
 	GdkColor fg_gdk;
 	GdkColor bg_gdk;
-
-	gtk_tree_model_get(model, iter,
-			col_num, &cell_text,
-			/* The last column is reserved for frame_data */
-			gtk_tree_model_get_n_columns(model)-1, &fdata,
-			-1);
-
-	g_assert(cell_text);
 
 	if (fdata->flags.ignored) {
 		color_t_to_gdkcolor(&fg_gdk, &prefs.gui_ignored_fg);
@@ -1352,7 +1343,6 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 
 	if (color_on) {
 		g_object_set(renderer,
-			 "text", cell_text,
 			 "foreground-gdk", &fg_gdk,
 			 "foreground-set", TRUE,
 			 "background-gdk", &bg_gdk,
@@ -1360,12 +1350,10 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 			 NULL);
 	} else {
 		g_object_set(renderer,
-			 "text", cell_text,
 			 "foreground-set", FALSE,
 			 "background-set", FALSE,
 			 NULL);
 	}
-	g_free(cell_text);
 }
 
 void
