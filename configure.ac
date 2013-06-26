@@ -508,6 +508,12 @@ fi
 AC_SUBST(HAVE_OSX_PACKAGING)
 
 #
+# Some compilers have to be told to fail on unknown warning errors;
+# make sure we do that.
+#
+AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR
+
+#
 # Try to add some additional gcc checks to CFLAGS
 #
 AC_ARG_ENABLE(extra-gcc-checks,

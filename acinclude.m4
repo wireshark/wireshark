@@ -1580,6 +1580,36 @@ else
 fi
 ])
 
+dnl
+dnl Check whether, if you pass an unknown warning option to the
+dnl compiler, it fails or just prints a warning message and succeeds.
+dnl Set ac_wireshark_unknown_warning_option_error to the appropriate flag
+dnl to force an error if it would otherwise just print a warning message
+dnl and succeed.
+dnl
+AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
+    [
+	AC_MSG_CHECKING([whether the compiler fails when given an unknown warning option])
+	save_CFLAGS="$CFLAGS"
+	CFLAGS="$CFLAGS -Wxyzzy-this-will-never-succeed-xyzzy"
+	AC_TRY_COMPILE(
+	    [],
+	    [return 0],
+	    [
+		AC_MSG_RESULT([no, adding -Werror=unknown-warning-option])
+		#
+		# We're assuming this is clang, where
+		# -Werror=unknown-warning-option is the appropriate
+		# option to force the compiler to fail.
+		# 
+		ac_wireshark_unknown_warning_option_error="-Werror=unknown-warning-option"
+	    ],
+	    [
+		AC_MSG_RESULT([yes])
+	    ])
+	CFLAGS="$save_CFLAGS"
+    ])
+
 #
 # AC_WIRESHARK_GCC_CFLAGS_CHECK
 #
@@ -1599,12 +1629,6 @@ fi
 #
 # We do this because not all such options are necessarily supported by
 # the version of the particular compiler we're using.
-#
-# NOTE: clang, by default, only warns about unknown -W options.
-# If we're using clang, we turn on -Werror=unknown-warning-option
-# so that it fails if we pass it a -W option it doesn't know about
-# but doesn't fail for any other warning that the test program might
-# produce.
 #
 AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
 [GCC_OPTION="$1"
@@ -1626,17 +1650,13 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
   if test "$2" != CXX ; then
     #
     # Not C++-only; if this can be added to the C compiler flags, add them.
+    # Add $ac_wireshark_unknown_warning_option_error to make sure that
+    # we'll get an error if it's an unknown warning option; not all
+    # compilers treat unknown warning options as errors (I'm looking at
+    # you, clang).
     #
     CFLAGS_saved="$CFLAGS"
-    CFLAGS="$CFLAGS $GCC_OPTION"
-    if test "x$CC" = "xclang" ; then
-      #
-      # Force clang to fail on an unknown warning option; by default,
-      # it whines but doesn't fail, so we add unknown options and,
-      # as a result, get a lot of that whining when we compile.
-      #
-      CFLAGS="$CFLAGS -Werror=unknown-warning-option"
-    fi
+    CFLAGS="$CFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
     AC_COMPILE_IFELSE([
       AC_LANG_SOURCE([[
                         int foo;
