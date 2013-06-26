@@ -46,7 +46,7 @@ bin_PROGRAMS = \
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
-	@echld_test_bin@ 
+	@echld_test_bin@
 
 EXTRA_PROGRAMS = wireshark wireshark-qt tshark capinfos editcap mergecap \
 	dftest randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx \
@@ -379,8 +379,6 @@ wireshark_ldadd = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	@PORTAUDIO_LIBS@		\
-	@GTK_LIBS@			\
-	@Qt_LIBS@			\
 	@GLIB_LIBS@			\
 	-lm
 
@@ -388,7 +386,7 @@ if HAVE_Qt
 wireshark_qt_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_qt_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
-wireshark_qt_LDADD =  ui/qt/libqtui.a $(wireshark_ldadd)
+wireshark_qt_LDADD =  ui/qt/libqtui.a $(wireshark_ldadd) @Qt_LIBS@
 wireshark_qt_LINK = $(CXXLINK)
 endif
 
@@ -396,7 +394,7 @@ if HAVE_GTK
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
-wireshark_LDADD = ui/gtk/libgtkui.a $(wireshark_ldadd)
+wireshark_LDADD = ui/gtk/libgtkui.a $(wireshark_ldadd) @GTK_LIBS@
 wireshark_LINK = $(LINK)
 endif
 
