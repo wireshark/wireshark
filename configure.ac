@@ -1084,8 +1084,6 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
-			AC_DEFINE(HAVE_GTK, 1,
-			    [Define to 1 if compiling with GTK])
 		], have_gtk=no)
 	fi
 
@@ -1095,8 +1093,6 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
-			AC_DEFINE(HAVE_GTK, 1,
-			    [Define to 1 if compiling with GTK])
 		], have_gtk=no)
 	fi
 fi
@@ -1412,7 +1408,6 @@ fi
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
-# XXX - is it bad form for HAVE_GTK to be both a define and a conditional?
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 
 
