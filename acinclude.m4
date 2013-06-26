@@ -160,7 +160,7 @@ AC_DEFUN([AC_WIRESHARK_IPV6_STACK],
 	v6lib=none
 
 	AC_MSG_CHECKING([ipv6 stack type])
-	for i in v6d toshiba kame inria zeta linux linux-glibc solaris8; do
+	for i in v6d toshiba kame inria zeta linux linux-glibc solaris; do
 		case $i in
 		v6d)
 			AC_EGREP_CPP(yes, [
@@ -228,11 +228,11 @@ yes
 #endif],
 			[v6type=$i; v6lib=inet6; CPPFLAGS="-DINET6 $CPPFLAGS"])
 			;;
-		solaris8)
-			if test "`uname -s`" = "SunOS" && test "`uname -r`" = "5.8"; then
+		solaris)
+			if test "`uname -s`" = "SunOS"; then
 				v6type=$i
 				v6lib=inet6
-				[CPPFLAGS="-DINET6 -DSOLARIS8_INET6 $CPPFLAGS"]
+				[CPPFLAGS="-DINET6 $CPPFLAGS"]
 			fi
 			;;
 		esac
@@ -803,7 +803,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		AC_MSG_CHECKING(Lua version)
 		for i in 5.0 5.1 5.2
 		do
-			[[ -d "/usr/include/lua$i" ]] && lua_ver=$i 
+			[[ -d "/usr/include/lua$i" ]] && lua_ver=$i
 		done
 		AC_MSG_RESULT(Lua ${lua_ver})
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
