@@ -30,7 +30,7 @@
 #include "wtap.h"
 #include "pcap-encap.h"
 #include "version_info.h"
-#include "tempfile.h"
+#include "wsutil/tempfile.h"
 
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>

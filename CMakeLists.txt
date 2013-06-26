@@ -780,7 +780,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		merge.c
 		proto_hier_stats.c
 		summary.c
-		tempfile.c
 		u3.c
 		ws80211_utils.c
 		${SHARK_COMMON_CAPTURE_SRC}
@@ -848,7 +847,6 @@ if(BUILD_tshark)
 	set(tshark_FILES
 		capture_opts.c
 		capture_sync.c
-		tempfile.c
 		tshark-tap-register.c
 		tshark.c
 		ui/util.c
@@ -1035,7 +1033,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		pcapio.c
 		ringbuffer.c
 		sync_pipe_write.c
-		tempfile.c
 		version_info.c
 		ws80211_utils.c
 		${PLATFORM_SRC}

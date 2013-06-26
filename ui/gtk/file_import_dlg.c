@@ -49,7 +49,7 @@
 
 #include "file.h"
 #include "wsutil/file_util.h"
-#include "tempfile.h"
+#include "wsutil/tempfile.h"
 
 #define INPUT_FRM_KEY                   "input_frame"
 

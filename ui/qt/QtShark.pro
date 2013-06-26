@@ -187,7 +187,6 @@ SOURCES_WS_C = \
     ../../sync_pipe_write.c       \
     ../../tap-megaco-common.c     \
     ../../tap-rtp-common.c    \
-    ../../tempfile.c      \
     ../../u3.c \
     ../../version_info.c
 

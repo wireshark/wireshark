@@ -117,7 +117,7 @@
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 
-#include "tempfile.h"
+#include "wsutil/tempfile.h"
 #include "log.h"
 #include "wsutil/file_util.h"
 

@@ -46,7 +46,7 @@
 #include <epan/tvbuff-int.h>
 
 #include "wsutil/file_util.h"
-#include "tempfile.h"
+#include "wsutil/tempfile.h"
 
 #ifdef SSL_PLUGIN
 #include "packet-ssl-utils.h"

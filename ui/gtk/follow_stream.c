@@ -60,7 +60,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #ifdef _WIN32
-#include "../tempfile.h"
+#include "wsutil/tempfile.h"
 #include "ui/win32/print_win32.h"
 #endif
 

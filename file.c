@@ -55,7 +55,7 @@
 #include "print.h"
 #include "file.h"
 #include "fileset.h"
-#include "tempfile.h"
+#include "wsutil/tempfile.h"
 #include "merge.h"
 
 #include <epan/prefs.h>

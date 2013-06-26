@@ -105,10 +105,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tempfile.c"
-				>
-			</File>
-			<File
 				RelativePath=".\epan\unicode-utils.c"
 				>
 			</File>
@@ -168,10 +164,6 @@
 			</File>
 			<File
 				RelativePath=".\sync_pipe.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tempfile.h"
 				>
 			</File>
 			<File

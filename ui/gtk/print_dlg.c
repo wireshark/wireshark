@@ -53,7 +53,7 @@
 #include <windows.h>
 #include "ui/win32/file_dlg_win32.h"
 #include "ui/win32/print_win32.h"
-#include "tempfile.h"
+#include "wsutil/tempfile.h"
 #endif
 
 /* dialog output action */

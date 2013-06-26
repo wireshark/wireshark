@@ -44,6 +44,7 @@ LIBWSUTIL_SRC = 	\
 	nstime.c	\
 	privileges.c	\
 	str_util.c	\
+	tempfile.c	\
 	type_util.c
 
 # Header files that are not generated from other files
@@ -62,4 +63,5 @@ LIBWSUTIL_INCLUDES = 	\
 	nstime.h	\
 	privileges.h	\
 	str_util.h	\
+	tempfile.h	\
 	type_util.h

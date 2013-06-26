@@ -25,6 +25,8 @@
 #ifndef __TEMPFILE_H__
 #define __TEMPFILE_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -43,7 +45,7 @@ extern "C" {
  * @param pfx A prefix for the temporary file.
  * @return The file descriptor of the new tempfile, from mkstemp().
  */
-int create_tempfile(char **namebuf, const char *pfx);
+WS_DLL_PUBLIC int create_tempfile(char **namebuf, const char *pfx);
 
 /**
  * Create a directory with the given prefix (e.g. "wireshark"). The path
@@ -55,7 +57,7 @@ int create_tempfile(char **namebuf, const char *pfx);
  * @return The temporary directory path on success, or NULL on failure.
  *         Must NOT be freed.
  */
-const char *create_tempdir(char **namebuf, const char *pfx);
+WS_DLL_PUBLIC const char *create_tempdir(char **namebuf, const char *pfx);
 
 #ifdef __cplusplus
 }
