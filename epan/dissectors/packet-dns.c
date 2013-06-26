@@ -1179,9 +1179,8 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
 
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
-    offset += name_len;
 
-    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, 2, (guint32)strlen(name));
+    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, name_len, (guint32)strlen(name));
     PROTO_ITEM_SET_GENERATED(tq);
 
     /* Count how many '.' are in the string, plus 1, in order to count the number
@@ -1192,8 +1191,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
         labels++;
     }
     labels++;
-    tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, 2, labels);
+    tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, name_len, labels);
     PROTO_ITEM_SET_GENERATED(tq);
+
+    offset += name_len;
 
     proto_tree_add_uint_format(q_tree, hf_dns_qry_type, tvb, offset, 2, type,
                                "Type: %s", dns_type_description(type));
@@ -3487,7 +3488,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               val_to_str(rcode, rcode_vals, "Unknown error (%u)"));
     }
   }
- 
+
   if (opcode == OPCODE_UPDATE) {
     isupdate = TRUE;
   } else {
