@@ -45,7 +45,7 @@ GENERATOR_FILES = \
 
 WIRESHARK_UI_SRC = \
 	alert_box.c		\
-	export_object.c	\
+	export_object.c		\
 	export_object_dicom.c	\
 	export_object_http.c	\
 	export_object_smb.c	\
@@ -56,6 +56,8 @@ WIRESHARK_UI_SRC = \
 	recent.c		\
 	software_update.c	\
 	ssl_key_export.c	\
+	tap-megaco-common.c	\
+	tap-rtp-common.c	\
 	text_import.c		\
 	time_shift.c		\
 	util.c
@@ -77,6 +79,8 @@ noinst_HEADERS = \
 	simple_dialog.h		\
 	software_update.h	\
 	ssl_key_export.h	\
+	tap-megaco-common.h	\
+	tap-rtp-common.h	\
 	text_import.h		\
 	text_import_scanner.h	\
 	time_shift.h		\

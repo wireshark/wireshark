@@ -35,6 +35,8 @@ set(COMMON_UI_SRC
 	recent.c
 	ssl_key_export.c
 	software_update.c
+	tap-megaco-common.c
+	tap-rtp-common.c
 	text_import.c
 	time_shift.c
 	util.c

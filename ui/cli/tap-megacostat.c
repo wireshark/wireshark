@@ -37,7 +37,7 @@
 #include "epan/timestats.h"
 #include <epan/prefs-int.h>
 
-#include "tap-megaco-common.h"
+#include "ui/tap-megaco-common.h"
 
 
 

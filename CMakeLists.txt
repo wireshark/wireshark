@@ -659,8 +659,6 @@ set(WIRESHARK_COMMON_SRC
 	ps.c
 	svnversion.h
 	sync_pipe_write.c
-	tap-megaco-common.c
-	tap-rtp-common.c
 	version_info.c
 )
 
@@ -840,6 +838,7 @@ register_tap_files(tshark-tap-register.c
 
 if(BUILD_tshark)
 	set(tshark_LIBS
+		ui
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
@@ -849,7 +848,6 @@ if(BUILD_tshark)
 		capture_sync.c
 		tshark-tap-register.c
 		tshark.c
-		ui/util.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
 	        ${WIRESHARK_COMMON_SRC}

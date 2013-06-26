@@ -43,7 +43,7 @@
 #include "../globals.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
-#include "../tap-rtp-common.h"
+#include "ui/tap-rtp-common.h"
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/rtp_stream.h"

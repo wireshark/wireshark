@@ -56,8 +56,6 @@ SHARK_COMMON_SRC =	\
 	print.c			\
 	ps.c			\
 	sync_pipe_write.c	\
-	tap-megaco-common.c	\
-	tap-rtp-common.c	\
 	version_info.c
 
 # corresponding headers
@@ -79,8 +77,6 @@ SHARK_COMMON_INCLUDES =	\
 	print.h			\
 	ps.h			\
 	register.h		\
-	tap-megaco-common.h	\
-	tap-rtp-common.h	\
 	version_info.h		\
 	ws_symbol_export.h
 

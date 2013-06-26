@@ -49,7 +49,7 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
 
-#include "tap-megaco-common.h"
+#include "ui/tap-megaco-common.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

@@ -185,8 +185,6 @@ SOURCES_WS_C = \
     ../../ps.c    \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
-    ../../tap-megaco-common.c     \
-    ../../tap-rtp-common.c    \
     ../../u3.c \
     ../../version_info.c
 
