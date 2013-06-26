@@ -1457,18 +1457,13 @@ AC_SUBST(editcap_man)
 
 # Enable/disable echld
 
-AC_ARG_WITH(echld,
-  AC_HELP_STRING( [--with-echld],
+AC_ARG_ENABLE(echld,
+  AC_HELP_STRING( [--enable-echld],
                   [support echld]),
-[
-  if test "x$withval" = "xno"; then
-      have_echld="no"
-  else
-      have_echld="$withval"
-  fi
-])
+    have_echld=$enableval,have_echld=no)
+
 AM_CONDITIONAL(HAVE_ECHLD, test "x$have_echld" = "xyes")
-if test "x$have_echld" = xyes
+if test "x$have_echld" = "xyes"
 then
   AC_DEFINE(HAVE_ECHLD, 1, [Define if echld is enabled])
   echld_test_bin="echld_test\$(EXEEXT)"
@@ -2652,7 +2647,7 @@ echo "                    Build text2pcap : $enable_text2pcap"
 echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
-echo "                     Build echld : $have_echld"
+echo "                        Build echld : $have_echld"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
 echo "  Install dumpcap with capabilities : $setcap_message"
