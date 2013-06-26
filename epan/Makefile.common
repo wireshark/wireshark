@@ -89,6 +89,7 @@ LIBWIRESHARK_SRC =		\
 	tap.c			\
 	tcap-persistentdata.c	\
 	timestamp.c		\
+	timestats.c		\
 	tfs.c			\
 	to_str.c		\
 	tvbparse.c		\
@@ -237,6 +238,7 @@ LIBWIRESHARK_INCLUDES =		\
 	tap-voip.h		\
 	tcap-persistentdata.h	\
 	timestamp.h		\
+	timestats.h		\
 	tfs.h			\
 	time_fmt.h		\
 	to_str.h		\

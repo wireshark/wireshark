@@ -35,7 +35,7 @@
 #include "epan/asn1.h"
 #include "epan/dissectors/packet-camel.h"
 #include "epan/camel-persistentdata.h"
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 #include "epan/stat_cmd_args.h"
 
 

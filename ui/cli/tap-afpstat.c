@@ -33,7 +33,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-afp.h>
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _afpstat_t {

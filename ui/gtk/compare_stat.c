@@ -54,7 +54,7 @@
 #include <epan/in_cksum.h>
 
 #include "../stat_menu.h"
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 #include "ui/simple_dialog.h"
 

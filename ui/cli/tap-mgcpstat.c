@@ -32,7 +32,7 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include "epan/dissectors/packet-mgcp.h"
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 #define NUM_TIMESTATS 11
 

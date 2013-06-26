@@ -29,7 +29,7 @@
 
 #include <gtk/gtk.h>
 #include "wsutil/nstime.h"
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 /** @file
  *  Helper routines common to all service response time statistics tap.

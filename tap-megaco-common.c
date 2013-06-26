@@ -35,7 +35,7 @@
 #include <epan/tap.h>
 #include "epan/gcp.h"
 
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"

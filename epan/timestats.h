@@ -28,7 +28,7 @@
 
 #include <glib.h>
 #include "epan/packet_info.h"
-#include "nstime.h"
+#include "wsutil/nstime.h"
 
  /* Summary of time statistics*/
 typedef struct _timestat_t {

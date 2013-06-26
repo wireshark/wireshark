@@ -32,7 +32,7 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-smb.h>
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 #define MICROSECS_PER_SEC   1000000
 #define NANOSECS_PER_SEC    1000000000

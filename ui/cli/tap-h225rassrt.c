@@ -34,7 +34,7 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-h225.h>
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 /* following values represent the size of their valuestring arrays */
 #define NUM_RAS_STATS 7

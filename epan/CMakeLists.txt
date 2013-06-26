@@ -1472,6 +1472,7 @@ set(LIBWIRESHARK_FILES
 	tap.c
 	tcap-persistentdata.c
 	timestamp.c
+	timestats.c
 	tfs.c
 	to_str.c
 	tvbparse.c

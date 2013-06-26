@@ -45,7 +45,7 @@
 #include <epan/timestamp.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-ip.h>
-#include "wsutil/timestats.h"
+#include "epan/timestats.h"
 
 
 /* For checksum */
