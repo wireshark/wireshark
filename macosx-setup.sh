@@ -593,7 +593,12 @@ if [ "$LIBGCRYPT_VERSION" -a ! -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
 	# The assembler language code is not compatible with the OS X
 	# x86 assembler (or is it an x86-64 vs. x86-32 issue?).
 	#
-	./configure --disable-asm || exit 1
+	# libgcrypt expects gnu89, not c99/gnu99, semantics for
+	# "inline".  See, for example:
+	#
+	#	http://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
+	#
+	CFLAGS="$CFLAGS -std=gnu89" ./configure --disable-asm || exit 1
 	make $MAKE_BUILD_OPTS || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
