@@ -324,12 +324,15 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explictly
     # define it.
     #
+    # While we're at it, suppress -Wformat-nonliteral to avoid a clang
+    # bug where it issues bogus warnings.
+    #
     if grep -qs '#define.*MACOSX' /usr/include/ffi/fficonfig.h
     then
 	# It's defined, nothing to do
-	LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
     else
-	CFLAGS="$CFLAGS -DMACOSX" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
     fi
     make $MAKE_BUILD_OPTS || exit 1
     # Apply patch: we depend on libffi, but pkg-config doesn't get told.
