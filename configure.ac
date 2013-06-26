@@ -228,6 +228,24 @@ PKG_PROG_PKG_CONFIG
 #
 AC_SYS_LARGEFILE
 
+#
+# GUI toolkit options
+#
+AC_ARG_WITH([qt],
+  AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
+                  [use Qt @<:@default=no@:>@]),
+  with_qt="$withval", with_qt="no")
+
+AC_ARG_WITH([gtk2],
+  AC_HELP_STRING( [--with-gtk2=@<:@yes/no@:>@],
+                  [use GTK+ 2.0 @<:@default=yes@:>@]),
+  with_gtk2="$withval", with_gtk2="yes")
+
+AC_ARG_WITH([gtk3],
+  AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
+                  [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
+  with_gtk3="$withval", with_gtk3="no")
+
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
 # LGPLv2.1+ in version 3.1.10
@@ -400,21 +418,6 @@ linux*)
 		AC_MSG_WARN([libnl is Linux-specific, ignoring --with-libnl])
 	fi
 esac
-
-AC_ARG_WITH([qt],
-  AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
-                  [use Qt @<:@default=no@:>@]),
-  with_qt="$withval", with_qt="no")
-
-AC_ARG_WITH([gtk2],
-  AC_HELP_STRING( [--with-gtk2=@<:@yes/no@:>@],
-                  [use GTK+ 2.0 @<:@default=yes@:>@]),
-  with_gtk2="$withval", with_gtk2="yes")
-
-AC_ARG_WITH([gtk3],
-  AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
-                  [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
-  with_gtk3="$withval", with_gtk3="no")
 
 # libsmi
 # FIXME: currently the path argument to with-libsmi is being ignored
@@ -1075,7 +1078,8 @@ if test "x$enable_wireshark" = "xyes"; then
 	fi
 
 	if test "x$with_gtk3" = "xyes" -a "x$with_gtk2" = "xyes" ; then
-		AC_MSG_ERROR(--with-gtk2 and --with-gtk3 are mutually exclusive)
+		# If the user gave us --with-gtk3, use gtk3 rather than gtk2
+		with_gtk2="no"
 	fi
 
 	if test "x$with_gtk3" = "xyes"; then
