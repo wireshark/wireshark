@@ -440,6 +440,18 @@ static gint ett_opensafety_sod_mapping = -1;
 static gint ett_opensafety_sender = -1;
 static gint ett_opensafety_receiver = -1;
 
+static expert_field ei_payload_length_not_positive = EI_INIT;
+static expert_field ei_payload_unknown_format = EI_INIT;
+static expert_field ei_crc_slimssdo_instead_of_spdo = EI_INIT;
+static expert_field ei_crc_frame_1_invalid = EI_INIT;
+static expert_field ei_crc_frame_1_valid_frame2_invalid = EI_INIT;
+static expert_field ei_message_unknown_type = EI_INIT;
+static expert_field ei_message_reassembly_size_differs_from_header = EI_INIT;
+static expert_field ei_message_spdo_address_invalid = EI_INIT;
+static expert_field ei_scmudid_autodetected = EI_INIT;
+static expert_field ei_scmudid_invalid_preference = EI_INIT;
+static expert_field ei_scmudid_unknown = EI_INIT;
+
 static int hf_oss_msg = -1;
 static int hf_oss_msg_direction = -1;
 static int hf_oss_msg_category = -1;
@@ -590,21 +602,6 @@ setup_dissector(void)
 void proto_register_opensafety(void);
 void proto_reg_handoff_opensafety(void);
 
-void opensafety_add_expert_note(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
-{
-    va_list ap;
-
-    va_start(ap, format);
-    expert_add_info_format(pinfo, pi, group, severity, format, ap);
-    va_end(ap);
-}
-
-#define opensafety_add_warning(pinf, pi, fmt) opensafety_add_expert_note (pinf, pi, PI_PROTOCOL, PI_WARN, fmt)
-#define opensafety_add_warning1(pinf, pi, fmt, arg1) opensafety_add_expert_note (pinf, pi, PI_PROTOCOL, PI_WARN, fmt, arg1)
-#define opensafety_add_error(pinf, pi, fmt) opensafety_add_expert_note (pinf, pi, PI_MALFORMED, PI_ERROR, fmt)
-#define opensafety_add_error1(pinf, pi, fmt, arg1, arg2, arg3) opensafety_add_expert_note (pinf, pi, PI_MALFORMED, PI_ERROR, fmt, arg1)
-#define opensafety_add_note(pinf, pi, fmt) opensafety_add_expert_note (pinf, pi, PI_UNDECODED, PI_NOTE, fmt)
-
 /* Conversation functions */
 
 /* This is defined by the specification. The Address field is 10 bits long, and the node with the number
@@ -623,10 +620,10 @@ void opensafety_add_expert_note(packet_info *pinfo, proto_item *pi, int group, i
         PROTO_ITEM_SET_GENERATED(psf_item); \
         if ( sdn > 0 ) \
         { \
-        	psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn, "0x%04X", sdn); \
+            psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn, "0x%04X", sdn); \
         } else if ( sdn <= 0 ) { \
             psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn * -1, "0x%04X", sdn * -1); \
-            opensafety_add_note(pinfo, psf_item, "SCM UDID unknown, assuming 00 as first UDID octet" ); \
+            expert_add_info(pinfo, psf_item, &ei_scmudid_unknown ); \
         } \
         PROTO_ITEM_SET_GENERATED(psf_item); \
         }
@@ -642,10 +639,10 @@ void opensafety_add_expert_note(packet_info *pinfo, proto_item *pi, int group, i
         PROTO_ITEM_SET_GENERATED(psf_item); \
         if ( sdn > 0 ) \
         { \
-        	psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn, "0x%04X", sdn); \
+            psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn, "0x%04X", sdn); \
         } else if ( sdn <= 0 ) { \
             psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn * -1, "0x%04X", sdn * -1); \
-            opensafety_add_note(pinfo, psf_item, "SCM UDID unknown, assuming 00 as first UDID octet" ); \
+            expert_add_info(pinfo, psf_item, &ei_scmudid_unknown ); \
         } \
         PROTO_ITEM_SET_GENERATED(psf_item); \
         }
@@ -778,7 +775,7 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                                     crcOffset = 1;
 
                                     if ( crc != 0x00 )
-                                        calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
+                                        calcCrc = crc16_0x755B( bytes, b_Length + 4, 0 );
                                 } else {
                                     if ( crc != 0x00 )
                                         calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
@@ -953,7 +950,7 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
             item = proto_tree_add_item(ext_tree, hf_oss_ssdo_extpar_data, new_tvb, 16, dataLength - 16, ENC_NA );
 
             if ( ( dataLength - sodLength ) != 16 )
-                opensafety_add_error ( pinfo, item, "Reassembled message size differs from size in header!");
+                expert_add_info ( pinfo, item, &ei_message_reassembly_size_differs_from_header );
         }
     }
     else
@@ -1011,7 +1008,7 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
                                                                           sod_idx_names, "Unknown") );
 
                 if ( ssdoIndex < 0x1000 || ssdoIndex > 0xE7FF )
-                    opensafety_add_error ( pinfo, item, "Unknown payload format detected!" );
+                    expert_add_info ( pinfo, item, &ei_payload_unknown_format );
 
                 sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
 
@@ -1295,7 +1292,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                 {
                     proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
-                    opensafety_add_warning1(pinfo, item, "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
+                    expert_add_info_format_text(pinfo, item, &ei_payload_length_not_positive, 
+                                                "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
                 }
             }
             else
@@ -1453,7 +1451,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 {
                     local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
                     g_snprintf(local_scm_udid, 18, "%s", tempString );
-                    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_NOTE, "Auto detected payload as SCM UDID [%s].", tempString);
+                    expert_add_info_format_text(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
                 }
             }
 
@@ -1536,7 +1534,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
 }
 
 static gboolean
-dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree,
+dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
                             guint16 frameStart1, guint16 frameStart2 )
 {
     guint16     frame1_crc, frame2_crc;
@@ -1565,7 +1563,15 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree,
 
     bytes = (guint8*)ep_tvb_memdup(message_tvb, frameStart1, dataLength + 4);
     if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
-        calc1_crc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
+    {
+        calc1_crc = crc16_0x755B(&bytes[frameStart1], dataLength + 4, 0);
+        if ( frame1_crc != calc1_crc )
+        {
+            calc1_crc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
+            if ( frame1_crc == calc1_crc )
+                expert_add_info(pinfo, item, &ei_crc_slimssdo_instead_of_spdo );
+        }
+    }
     else
         calc1_crc = crc8_0x2F(&bytes[frameStart1], dataLength + 4, 0);
 
@@ -1652,7 +1658,7 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 
             item = proto_tree_add_boolean(opensafety_tree, hf_oss_scm_udid_valid, message_tvb, 0, 0, validSCMUDID);
             if ( scmUDID->len != 6 )
-                opensafety_add_warning(pinfo, item, "openSAFETY protocol settings are invalid! SCM UDID first octet will be assumed to be 00" );
+                expert_add_info(pinfo, item, &ei_scmudid_invalid_preference );
             PROTO_ITEM_SET_GENERATED(item);
 
             g_byte_array_free( scmUDID, TRUE);
@@ -1676,16 +1682,16 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
                                    message_tvb, OSS_FRAME_POS_LEN + frameStart1, 1, OSS_FRAME_LENGTH_T(message_tvb, frameStart1));
         if ( messageTypeUnknown )
         {
-            opensafety_add_error(pinfo, item, "Unknown openSAFETY message type" );
+            expert_add_info(pinfo, item, &ei_message_unknown_type );
         }
         else
         {
-            crcValid = dissect_opensafety_checksum ( message_tvb, opensafety_tree, frameStart1, frameStart2 );
+            crcValid = dissect_opensafety_checksum ( message_tvb, pinfo, opensafety_tree, frameStart1, frameStart2 );
         }
 
         if ( ! crcValid )
         {
-            opensafety_add_error(pinfo, opensafety_item, "Frame 1 CRC invalid => possible error in package" );
+            expert_add_info(pinfo, opensafety_item, &ei_crc_frame_1_invalid );
         }
 
         /* with SNMT's we can check if the ID's for the frames match. Rare randomized packages do have
@@ -1694,7 +1700,7 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
         if ( crcValid && type == OPENSAFETY_SNMT_MESSAGE_TYPE )
         {
             if ( OSS_FRAME_ID_T(message_tvb, frameStart1) != OSS_FRAME_ID_T(message_tvb, frameStart2) )
-                opensafety_add_error(pinfo, opensafety_item, "Frame 1 is valid, frame 2 id is invalid => error in openSAFETY frame" );
+                expert_add_info(pinfo, opensafety_item, &ei_crc_frame_1_valid_frame2_invalid );
         }
     }
 
@@ -1943,7 +1949,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             if ( tree && markAsMalformed )
             {
                 if ( OSS_FRAME_ADDR_T(message_tvb, byte_offset + frameStart1) > 1024 )
-                    opensafety_add_error(pinfo, opensafety_item, "SPDO address is invalid" );
+                    expert_add_info(pinfo, opensafety_item, &ei_message_spdo_address_invalid );
             }
             handled = TRUE;
         }
@@ -2141,10 +2147,10 @@ proto_register_opensafety(void)
             { "SCM UDID Configured",    "opensafety.scm_udid",
             FT_STRING,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_scm_udid_auto,
-            { "SCM UDID Auto Detect",    "opensafety.scm_udid_auto",
+            { "SCM UDID Auto Detect",    "opensafety.scm_udid.auto",
             FT_STRING,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_scm_udid_valid,
-            { "SCM UDID Valid",    "opensafety.scm_udid_valid",
+            { "SCM UDID Valid",    "opensafety.scm_udid.valid",
             FT_BOOLEAN,   BASE_NONE, NULL,   0x0, NULL, HFILL } },
 
         { &hf_oss_msg,
@@ -2396,7 +2402,47 @@ proto_register_opensafety(void)
         &ett_opensafety_spdo,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_crc_frame_1_invalid, 
+            { "opensafety.crc.error.frame1_invalid", PI_MALFORMED, PI_ERROR, 
+              "Frame 1 CRC invalid, Possible error in package", EXPFILL } },
+        { &ei_crc_frame_1_valid_frame2_invalid, 
+            { "opensafety.crc.error.frame1_valid_frame2_invalid", PI_MALFORMED, PI_ERROR, 
+              "Frame 1 is valid, frame 2 id is invalid", EXPFILL } },
+        { &ei_crc_slimssdo_instead_of_spdo, 
+            { "opensafety.crc.warning.wrong_crc_for_spdo", PI_PROTOCOL, PI_WARN, 
+              "Frame 1 SPDO CRC is Slim SSDO CRC16 0x5935", EXPFILL } },
+              
+        { &ei_message_reassembly_size_differs_from_header, 
+            { "opensafety.msg.warning.reassembly_size_fail", PI_PROTOCOL, PI_WARN, 
+              "Reassembled message size differs from size in header", EXPFILL } },
+        { &ei_message_unknown_type, 
+            { "opensafety.msg.error.unknown_type", PI_MALFORMED, PI_ERROR, 
+              "Unknown openSAFETY message type", EXPFILL } },
+        { &ei_message_spdo_address_invalid, 
+            { "opensafety.msg.error.spdo_address_invalid", PI_MALFORMED, PI_ERROR, 
+              "SPDO address is invalid", EXPFILL } },
+              
+        { &ei_scmudid_autodetected, 
+            { "opensafety.scm_udid.note.autodetected", PI_PROTOCOL, PI_NOTE, 
+              "Auto detected payload as SCM UDID", EXPFILL } },
+        { &ei_scmudid_invalid_preference, 
+            { "opensafety.scm_udid.note.invalid_preference", PI_PROTOCOL, PI_WARN, 
+              "openSAFETY protocol settings are invalid! SCM UDID first octet will be assumed to be 00", EXPFILL } },
+        { &ei_scmudid_unknown, 
+            { "opensafety.scm_udid.warning.assuming_first_octet", PI_PROTOCOL, PI_WARN, 
+              "SCM UDID unknown, assuming 00 as first UDID octet", EXPFILL } },
+              
+        { &ei_payload_unknown_format, 
+            { "opensafety.msg.warning.unknown_format", PI_PROTOCOL, PI_WARN, 
+              "Unknown payload format detected", EXPFILL } },
+        { &ei_payload_length_not_positive, 
+            { "opensafety.msg.warning.reassembly_length_not_positive", PI_PROTOCOL, PI_NOTE, 
+              "Calculation for payload length yielded non-positive result", EXPFILL } },
+    };
+    
     module_t *opensafety_module;
+    expert_module_t *expert_opensafety;
 
     /* Register the protocol name and description */
     proto_opensafety = proto_register_protocol("openSAFETY", "openSAFETY",  "opensafety");
@@ -2406,6 +2452,9 @@ proto_register_opensafety(void)
     proto_register_field_array(proto_opensafety, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    expert_opensafety = expert_register_protocol ( proto_opensafety );
+    expert_register_field_array ( expert_opensafety, ei, array_length (ei ) );
+    
     /* register user preferences */
     prefs_register_string_preference(opensafety_module, "scm_udid",
                  "SCM UDID (xx:xx:xx:xx:xx:xx)",
