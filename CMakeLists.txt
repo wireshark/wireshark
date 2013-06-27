@@ -124,7 +124,6 @@ set(WIRESHARK_C_FLAGS
 	-Wendif-labels
 	-Wpointer-arith
 	-Warray-bounds
-	-Wcast-align
 	-Wformat-security
 	-Wshorten-64-to-32
 	-Wvla
@@ -161,6 +160,7 @@ set(WIRESHARK_EXTRA_C_FLAGS
 	-fstrict-overflow -Wstrict-overflow=4
 	-Wunreachable-code
 	-Wunsafe-loop-optimizations
+	-Wcast-align
 	-Wcast-qual
 	-Wformat-security
 	-Wredundant-decls

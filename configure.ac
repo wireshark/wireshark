@@ -561,6 +561,11 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
+		#
+		# A bunch of "that might not work on SPARC" code blocks
+		# this one for now.
+		#
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 	fi
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
@@ -570,7 +575,6 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign, C)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
