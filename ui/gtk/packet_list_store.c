@@ -330,9 +330,7 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 			 GtkTreePath *path)
 {
 	PacketList *packet_list;
-	PacketListRecord *record;
 	gint *indices, depth;
-	gint n;
 
 	g_assert(PACKETLIST_IS_LIST(tree_model));
 	packet_list = (PacketList *) tree_model;
@@ -345,23 +343,7 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	/* we do not allow children since it's just a list */
 	g_assert(depth == 1);
 
-	n = indices[0]; /* the n-th top level row */
-
-	if(PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
-		return FALSE;
-
-	if(!PACKET_LIST_RECORD_INDEX_VALID(packet_list->visible_rows, n))
-		return FALSE;
-
-	record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, n);
-
-	g_assert(record->visible_pos == n);
-
-	/* We simply store a pointer to our custom record in the iter */
-	iter->stamp = packet_list->stamp;
-	iter->user_data = record;
-
-	return TRUE;
+	return packet_list_iter_nth_child(tree_model, iter, NULL, indices[0]);
 }
 
 static GtkTreePath *
