@@ -144,12 +144,10 @@ static void fill_label_int(field_info *fi, gchar *label_str);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
 static const char* hfinfo_uint_vals_format(const header_field_info *hfinfo);
-static const char* hfinfo_uint_format(const header_field_info *hfinfo);
-static const char* hfinfo_uint_value_format(const header_field_info *hfinfo);
+static int hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
 static const char* hfinfo_int_vals_format(const header_field_info *hfinfo);
-static const char* hfinfo_int_format(const header_field_info *hfinfo);
-static const char* hfinfo_int_value_format(const header_field_info *hfinfo);
+static int hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value);
 static const char* hfinfo_int64_format(const header_field_info *hfinfo);
 static const char* hfinfo_numeric_value_format(const header_field_info *hfinfo);
 
@@ -3892,12 +3890,12 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 							  val_to_str(u_integer, cVALS(hfinfo->strings), "%u"),
 							  size-offset_r);
 					}
-				} else if (IS_BASE_DUAL(hfinfo->display)) {
-					g_snprintf(result+offset_r, size-offset_r,
-						   hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
 				} else {
-					g_snprintf(result+offset_r, size-offset_r,
-						   hfinfo_uint_value_format(hfinfo), u_integer);
+					char buf[32];
+
+					hfinfo_uint_value_format(hfinfo, buf, u_integer);
+
+					g_strlcpy(result+offset_r, buf, size-offset_r);
 				}
 
 				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
@@ -3961,12 +3959,12 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 							  val_to_str(integer, cVALS(hfinfo->strings), "%d"),
 							  size-offset_r);
 					}
-				} else if (IS_BASE_DUAL(hfinfo->display)) {
-					g_snprintf(result+offset_r, size-offset_r,
-						   hfinfo_int_value_format(hfinfo), integer, integer);
 				} else {
-					g_snprintf(result+offset_r, size-offset_r,
-						   hfinfo_int_value_format(hfinfo), integer);
+					char buf[32];
+
+					hfinfo_int_value_format(hfinfo, buf, integer);
+
+					g_strlcpy(result+offset_r, buf, size-offset_r);
 				}
 
 				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
@@ -5560,14 +5558,12 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 			   hf_try_val_to_str_const(value, hfinfo, "Unknown"), value);
 	}
 	else {
-		format = hfinfo_uint_format(hfinfo);
-		if (IS_BASE_DUAL(hfinfo->display)) {
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				   format,  hfinfo->name, value, value);
-		} else {
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				   format,  hfinfo->name, value);
-		}
+		char buf[32];
+
+		hfinfo_uint_value_format(hfinfo, buf, value);
+
+		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+				   "%s: %s",  hfinfo->name, buf);
 	}
 }
 
@@ -5596,14 +5592,11 @@ fill_label_uint(field_info *fi, gchar *label_str)
 			   hf_try_val_to_str_const(value, hfinfo, "Unknown"), value);
 	}
 	else {
-		format = hfinfo_uint_format(hfinfo);
-		if (IS_BASE_DUAL(hfinfo->display)) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name, value, value);
-		} else {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name, value);
-		}
+		char buf[32];
+
+		hfinfo_uint_value_format(hfinfo, buf, value);
+
+		label_fill(label_str, hfinfo, buf);
 	}
 }
 
@@ -5653,14 +5646,12 @@ fill_label_int(field_info *fi, gchar *label_str)
 			   hf_try_val_to_str_const(value, hfinfo, "Unknown"), value);
 	}
 	else {
-		format = hfinfo_int_format(hfinfo);
-		if (IS_BASE_DUAL(hfinfo->display)) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name, value, value);
-		} else {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name, value);
-		}
+		char buf[32];
+
+		hfinfo_int_value_format(hfinfo, buf, value);
+
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			   "%s: %s",  hfinfo->name, buf);
 	}
 }
 
@@ -5765,172 +5756,90 @@ hfinfo_uint_vals_format(const header_field_info *hfinfo)
 	return format;
 }
 
-static const char *
-hfinfo_uint_format(const header_field_info *hfinfo)
+static int
+hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
-	const char *format = NULL;
-
-	/* Pick the proper format string */
+	/* Properly format value */
 	if (hfinfo->type == FT_FRAMENUM) {
 		/*
 		 * Frame numbers are always displayed in decimal.
 		 */
-		format = "%s: %u";
+		return g_snprintf(buf, 32, "%u", value);
 	} else {
 		switch (hfinfo->display) {
 			case BASE_DEC:
-				format = "%s: %u";
-				break;
+				return g_snprintf(buf, 32, "%u", value);
+
 			case BASE_DEC_HEX:
 				switch (hfinfo->type) {
 					case FT_UINT8:
-						format = "%s: %u (0x%02x)";
-						break;
-					case FT_UINT16:
-						format = "%s: %u (0x%04x)";
-						break;
-					case FT_UINT24:
-						format = "%s: %u (0x%06x)";
-						break;
-					case FT_UINT32:
-						format = "%s: %u (0x%08x)";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			case BASE_OCT: /* I'm lazy */
-				format = "%s: %#o";
-				break;
-			case BASE_HEX:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-						format = "%s: 0x%02x";
-						break;
-					case FT_UINT16:
-						format = "%s: 0x%04x";
-						break;
-					case FT_UINT24:
-						format = "%s: 0x%06x";
-						break;
-					case FT_UINT32:
-						format = "%s: 0x%08x";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			case BASE_HEX_DEC:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-						format = "%s: 0x%02x (%u)";
-						break;
-					case FT_UINT16:
-						format = "%s: 0x%04x (%u)";
-						break;
-					case FT_UINT24:
-						format = "%s: 0x%06x (%u)";
-						break;
-					case FT_UINT32:
-						format = "%s: 0x%08x (%u)";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				;
-		}
-	}
-	return format;
-}
+						return g_snprintf(buf, 32, "%u (0x%02x)", value, value);
 
-static const char *
-hfinfo_uint_value_format(const header_field_info *hfinfo)
-{
-	const char *format = NULL;
-
-	/* Pick the proper format string */
-	if (hfinfo->type == FT_FRAMENUM) {
-		/*
-		 * Frame numbers are always displayed in decimal.
-		 */
-		format = "%u";
-	} else {
-		switch (hfinfo->display) {
-			case BASE_DEC:
-				format = "%u";
-				break;
-			case BASE_DEC_HEX:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-						format = "%u (0x%02x)";
-						break;
 					case FT_UINT16:
-						format = "%u (0x%04x)";
-						break;
+						return g_snprintf(buf, 32, "%u (0x%04x)", value, value);
+
 					case FT_UINT24:
-						format = "%u (0x%06x)";
-						break;
+						return g_snprintf(buf, 32, "%u (0x%06x)", value, value);
+
 					case FT_UINT32:
-						format = "%u (0x%08x)";
-						break;
+						return g_snprintf(buf, 32, "%u (0x%08x)", value, value);
+
 					default:
+						buf[0] = '\0';
 						DISSECTOR_ASSERT_NOT_REACHED();
-						;
 				}
 				break;
+
 			case BASE_OCT:
-				format = "%#o";
-				break;
+				return g_snprintf(buf, 32, "%#o", value);
+
 			case BASE_HEX:
 				switch (hfinfo->type) {
 					case FT_UINT8:
-						format = "0x%02x";
-						break;
+						return g_snprintf(buf, 32, "0x%02x", value);
+
 					case FT_UINT16:
-						format = "0x%04x";
-						break;
+						return g_snprintf(buf, 32, "0x%04x", value);
+
 					case FT_UINT24:
-						format = "0x%06x";
-						break;
+						return g_snprintf(buf, 32, "0x%06x", value);
+
 					case FT_UINT32:
-						format = "0x%08x";
-						break;
+						return g_snprintf(buf, 32, "0x%08x", value);
+
 					default:
+						buf[0] = '\0';
 						DISSECTOR_ASSERT_NOT_REACHED();
-						;
 				}
 				break;
+
 			case BASE_HEX_DEC:
 				switch (hfinfo->type) {
 					case FT_UINT8:
-						format = "0x%02x (%u)";
-						break;
+						return g_snprintf(buf, 32, "0x%02x (%u)", value, value);
+
 					case FT_UINT16:
-						format = "0x%04x (%u)";
-						break;
+						return g_snprintf(buf, 32, "0x%04x (%u)", value, value);
+
 					case FT_UINT24:
-						format = "0x%06x (%u)";
-						break;
+						return g_snprintf(buf, 32, "0x%06x (%u)", value, value);
+
 					case FT_UINT32:
-						format = "0x%08x (%u)";
-						break;
+						return g_snprintf(buf, 32, "0x%08x (%u)", value, value);
+
 					default:
+						buf[0] = '\0';
 						DISSECTOR_ASSERT_NOT_REACHED();
-						;
 				}
 				break;
+
+
 			default:
+				buf[0] = '\0';
 				DISSECTOR_ASSERT_NOT_REACHED();
-				;
 		}
 	}
-	return format;
+	return 0;
 }
 
 static const char *
@@ -6006,158 +5915,82 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 	return format;
 }
 
-static const char *
-hfinfo_int_format(const header_field_info *hfinfo)
+static int
+hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value)
 {
-	const char *format = NULL;
-
-	/* Pick the proper format string */
+	/* Properly format value */
 	switch (hfinfo->display) {
 		case BASE_DEC:
-			format = "%s: %d";
-			break;
+			return g_snprintf(buf, 32, "%d", value);
+
 		case BASE_DEC_HEX:
 			switch (hfinfo->type) {
 				case FT_INT8:
-					format = "%s: %d (0x%02x)";
-					break;
-				case FT_INT16:
-					format = "%s: %d (0x%04x)";
-					break;
-				case FT_INT24:
-					format = "%s: %d (0x%06x)";
-					break;
-				case FT_INT32:
-					format = "%s: %d (0x%08x)";
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-					;
-			}
-			break;
-		case BASE_OCT: /* I'm lazy */
-			format = "%s: %#o";
-			break;
-		case BASE_HEX:
-			switch (hfinfo->type) {
-				case FT_INT8:
-					format = "%s: 0x%02x";
-					break;
-				case FT_INT16:
-					format = "%s: 0x%04x";
-					break;
-				case FT_INT24:
-					format = "%s: 0x%06x";
-					break;
-				case FT_INT32:
-					format = "%s: 0x%08x";
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-					;
-			}
-			break;
-		case BASE_HEX_DEC:
-			switch (hfinfo->type) {
-				case FT_INT8:
-					format = "%s: 0x%02x (%d)";
-					break;
-				case FT_INT16:
-					format = "%s: 0x%04x (%d)";
-					break;
-				case FT_INT24:
-					format = "%s: 0x%06x (%d)";
-					break;
-				case FT_INT32:
-					format = "%s: 0x%08x (%d)";
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-					;
-			}
-			break;
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
-	}
-	return format;
-}
+					return g_snprintf(buf, 32, "%d (0x%02x)", value, value);
 
-static const char *
-hfinfo_int_value_format(const header_field_info *hfinfo)
-{
-	const char *format = NULL;
-
-	/* Pick the proper format string */
-	switch (hfinfo->display) {
-		case BASE_DEC:
-			format = "%d";
-			break;
-		case BASE_DEC_HEX:
-			switch (hfinfo->type) {
-				case FT_INT8:
-					format = "%d (0x%02x)";
-					break;
 				case FT_INT16:
-					format = "%d (0x%04x)";
-					break;
+					return g_snprintf(buf, 32, "%d (0x%04x)", value, value);
+
 				case FT_INT24:
-					format = "%d (0x%06x)";
-					break;
+					return g_snprintf(buf, 32, "%d (0x%06x)", value, value);
+
 				case FT_INT32:
-					format = "%d (0x%08x)";
-					break;
+					return g_snprintf(buf, 32, "%d (0x%08x)", value, value);
+
 				default:
+					buf[0] = '\0';
 					DISSECTOR_ASSERT_NOT_REACHED();
-					;
 			}
 			break;
+
 		case BASE_OCT:
-			format = "%#o";
-			break;
+			return g_snprintf(buf, 32, "%#o", value);
+
 		case BASE_HEX:
 			switch (hfinfo->type) {
 				case FT_INT8:
-					format = "0x%02x";
-					break;
+					return g_snprintf(buf, 32, "0x%02x", value);
+
 				case FT_INT16:
-					format = "0x%04x";
-					break;
+					return g_snprintf(buf, 32, "0x%04x", value);
+
 				case FT_INT24:
-					format = "0x%06x";
-					break;
+					return g_snprintf(buf, 32, "0x%06x", value);
+
 				case FT_INT32:
-					format = "0x%08x";
-					break;
+					return g_snprintf(buf, 32, "0x%08x", value);
+
 				default:
+					buf[0] = '\0';
 					DISSECTOR_ASSERT_NOT_REACHED();
-					;
 			}
 			break;
+
 		case BASE_HEX_DEC:
 			switch (hfinfo->type) {
 				case FT_INT8:
-					format = "0x%02x (%d)";
-					break;
+					return g_snprintf(buf, 32, "0x%02x (%d)", value, value);
+
 				case FT_INT16:
-					format = "0x%04x (%d)";
-					break;
+					return g_snprintf(buf, 32, "0x%04x (%d)", value, value);
+
 				case FT_INT24:
-					format = "0x%06x (%d)";
-					break;
+					return g_snprintf(buf, 32, "0x%06x (%d)", value, value);
+
 				case FT_INT32:
-					format = "0x%08x (%d)";
-					break;
+					return g_snprintf(buf, 32, "0x%08x (%d)", value, value);
+
 				default:
+					buf[0] = '\0';
 					DISSECTOR_ASSERT_NOT_REACHED();
-					;
 			}
 			break;
+
 		default:
+			buf[0] = '\0';
 			DISSECTOR_ASSERT_NOT_REACHED();
-			;
 	}
-	return format;
+	return 0;
 }
 
 static const char *
@@ -7198,7 +7031,6 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	guint32            tmpval;
 	proto_tree        *tree  = NULL;
 	header_field_info *hf;
-	const char        *fmt;
 
 	switch (len) {
 		case 1:
@@ -7269,16 +7101,14 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
+				char buf[32];
+
 				if (!first) {
 					proto_item_append_text(item, ", ");
 				}
 
-				fmt = IS_FT_INT(hf->type) ? hfinfo_int_format(hf) : hfinfo_uint_format(hf);
-				if (IS_BASE_DUAL(hf->display)) {
-					proto_item_append_text(item, fmt, hf->name, tmpval, tmpval);
-				} else {
-					proto_item_append_text(item, fmt, hf->name, tmpval);
-				}
+				IS_FT_INT(hf->type) ? hfinfo_int_value_format(hf, buf, (gint32) tmpval) : hfinfo_uint_value_format(hf, buf, tmpval);
+				proto_item_append_text(item, "%s: %s", hf->name, buf);
 				first = FALSE;
 			}
 
