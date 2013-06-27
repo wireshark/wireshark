@@ -324,8 +324,13 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h, explictly
     # define it.
     #
-    # While we're at it, suppress -Wformat-nonliteral to avoid a clang
-    # bug where it issues bogus warnings.
+    # While we're at it, suppress -Wformat-nonliteral to avoid a case
+    # where clang's stricter rules on when not to complain about
+    # non-literal format arguments cause it to complain about code
+    # that's safe but it wasn't told that.  See my comment #25 in
+    # GNOME bug 691608:
+    #
+    #	https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
     #
     # First, determine where the system include files are.  (It's not
     # necessarily /usr/include.)
