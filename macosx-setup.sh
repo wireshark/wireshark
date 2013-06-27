@@ -327,12 +327,22 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     # While we're at it, suppress -Wformat-nonliteral to avoid a clang
     # bug where it issues bogus warnings.
     #
-    if grep -qs '#define.*MACOSX' /usr/include/ffi/fficonfig.h
+    # First, determine where the system include files are.  (It's not
+    # necessarily /usr/include.)
+    #
+    testfile=/tmp/test$$.c
+    trap "rm -f $testfile" 0
+    echo "#include <ffi/ffi.h>" > $testfile
+    includedir=`gcc -M $testfile | sed -n -e 's;[\\];;' -e 's/^ *//' -e 's/ *$//' -e 's;/ffi/ffi\.h;;p'`
+    rm -f $testfile
+    if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
     then
 	# It's defined, nothing to do
-	CFLAGS="$CFLAGS -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" env | egrep LIBFFI_CFLAGS
     else
-	CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I/usr/include/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
+	CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="LDFLAGS-lffi" env | egrep LIBFFI_CFLAGS
     fi
     make $MAKE_BUILD_OPTS || exit 1
     # Apply patch: we depend on libffi, but pkg-config doesn't get told.
@@ -662,6 +672,11 @@ if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-done ] ; then
 	# Un-comment an include that's required on Lion.
 	#
 	patch -p0 include/pa_mac_core.h <../../macosx-support-lib-patches/portaudio-pa_mac_core.h.patch
+	#
+	# Fix a bug that showed up with clang (but is a bug with any
+	# compiler).
+	#
+	patch -p0 src/hostapi/coreaudio/pa_mac_core.c <../../macosx-support-lib-patches/portaudio-pa_mac_core.c.patch
 	#
 	# Disable fat builds - the configure script doesn't work right
 	# with Xcode 4 if you leave them enabled, and we don't build
