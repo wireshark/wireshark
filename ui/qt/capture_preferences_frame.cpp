@@ -31,6 +31,7 @@
 #include <QSpacerItem>
 
 #include "capture_ui_utils.h"
+#include "ui/ui_util.h"
 
 #include <cstdio>
 #include <epan/prefs-int.h>
@@ -73,7 +74,7 @@ void CapturePreferencesFrame::updateWidgets()
     int err;
 
     ui->defaultInterfaceComboBox->clear();
-    if_list = capture_interface_list(&err, NULL);
+    if_list = capture_interface_list(&err, NULL,main_window_update);
     combo_list = build_capture_combo_list(if_list, FALSE);
     free_interface_list(if_list);
     for (combo_entry = combo_list; combo_entry != NULL && combo_entry->data != NULL; combo_entry = g_list_next(combo_entry)) {

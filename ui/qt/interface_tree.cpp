@@ -26,6 +26,7 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/utf8_entities.h"
+#include "ui/ui_util.h"
 
 #include "sparkline_delegate.h"
 #include "wireshark_application.h"
@@ -117,7 +118,7 @@ void InterfaceTree::getInterfaceList()
 
     clear();
 
-    if_list = capture_interface_list(&err, &err_str);
+    if_list = capture_interface_list(&err, &err_str,main_window_update);
     if_list = g_list_sort(if_list, if_list_comparator_alph);
 
     if (if_list == NULL) {

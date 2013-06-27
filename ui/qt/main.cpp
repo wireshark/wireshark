@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
             break;
         case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-            if_list = capture_interface_list(&err, &err_str);
+            if_list = capture_interface_list(&err, &err_str, main_window_update);
             if (if_list == NULL) {
                 switch (err) {
                 case CANT_GET_INTERFACE_LIST:
@@ -862,7 +862,7 @@ int main(int argc, char *argv[])
 /////////
 
 #ifdef HAVE_LIBPCAP
-    fill_in_local_interfaces();
+    fill_in_local_interfaces(main_window_update);
 //  if (start_capture && list_link_layer_types) {
 //    /* Specifying *both* is bogus. */
 //    cmdarg_err("You can't specify both -L and a live capture.");

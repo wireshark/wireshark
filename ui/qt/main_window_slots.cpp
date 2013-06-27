@@ -57,6 +57,7 @@
 #include "epan/filter_expressions.h"
 
 #include "ui/alert_box.h"
+#include "ui/ui_util.h"
 #include "ui/capture_globals.h"
 #include "ui/help_url.h"
 #include "ui/main_statusbar.h"
@@ -433,7 +434,7 @@ void MainWindow::startCapture() {
     collect_ifaces(&global_capture_opts);
 
     cfile.window = this;
-    if (capture_start(&global_capture_opts, &global_capture_session)) {
+    if (capture_start(&global_capture_opts, &global_capture_session, main_window_update)) {
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
