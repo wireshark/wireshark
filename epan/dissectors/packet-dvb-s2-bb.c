@@ -639,7 +639,8 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
                 if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                     col_append_str(pinfo->cinfo, COL_INFO, "0 ");
             }
-            if (gse_proto < 0x0600) {
+            if (gse_proto < 0x0600 && gse_proto >= 0x100) {
+            	/* Only display optional extension headers */
                 /* TODO: needs to be tested */
 
                 /* TODO: implementation needs to be checked (len of ext-header??) */
