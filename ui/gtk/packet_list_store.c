@@ -329,11 +329,9 @@ static gboolean
 packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 			 GtkTreePath *path)
 {
-	PacketList *packet_list;
 	gint *indices, depth;
 
 	g_assert(PACKETLIST_IS_LIST(tree_model));
-	packet_list = (PacketList *) tree_model;
 
 	g_assert(path != NULL);
 
