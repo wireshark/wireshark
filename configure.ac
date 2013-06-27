@@ -643,15 +643,9 @@ bar(void)
 ## AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)
 
 #
-# Use the faster pre gcc 4.5 floating point precision if available;
-# clang doesn't error out on -f options that it doesn't know about,
-# it just warns and ignores them, so this check doesn't cause us
-# to omit -fexcess-precision=fast, which produces a pile of
-# annoying warnings.
+# Use the faster pre gcc 4.5 floating point precision if available.
 #
-if test "x$CC" != "xclang" ; then
-  AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
-fi
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 
 CFLAGS_before_fvhidden=$CFLAGS
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fvisibility=hidden)

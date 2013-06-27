@@ -1650,13 +1650,27 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
   if test "$2" != CXX ; then
     #
     # Not C++-only; if this can be added to the C compiler flags, add them.
-    # Add $ac_wireshark_unknown_warning_option_error to make sure that
+    #
+    # If the option begins with "-W", add
+    # $ac_wireshark_unknown_warning_option_error to make sure that
     # we'll get an error if it's an unknown warning option; not all
     # compilers treat unknown warning options as errors (I'm looking at
     # you, clang).
     #
+    # If the option begins with "-f", add -Werror to make sure that
+    # we'll get an error if we get "argument unused during compilation"
+    # warnings, as those will either cause a failure for files compiled
+    # with -Werror or annoying noise for files compiled without it.
+    # (Yeah, you, clang.)
+    #
     CFLAGS_saved="$CFLAGS"
-    CFLAGS="$CFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
+    if expr "$GCC_OPTION" : "-W.*" >/dev/null
+    then
+      CFLAGS="$CFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
+    elif expr "$GCC_OPTION" : "-f.*" >/dev/null
+    then
+      CFLAGS="$CFLAGS -Werror $GCC_OPTION"
+    fi
     AC_COMPILE_IFELSE([
       AC_LANG_SOURCE([[
                         int foo;
@@ -1729,9 +1743,12 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     # C++-only; if this can be added to the C++ compiler flags, add them.
     #
     CXXFLAGS_saved="$CXXFLAGS"
-    CXXFLAGS="$CXXFLAGS $GCC_OPTION"
-    if test "x$CC" = "xclang" ; then
-      CXXFLAGS="$CXXFLAGS -Werror=unknown-warning-option"
+    if expr "$GCC_OPTION" : "-W.*" >/dev/null
+    then
+      CXXFLAGS="$CXXFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
+    elif expr "$GCC_OPTION" : "-f.*" >/dev/null
+    then
+      CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
     fi
     AC_LANG_PUSH([C++])
     AC_COMPILE_IFELSE([
