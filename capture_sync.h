@@ -47,7 +47,7 @@
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean
-sync_pipe_start(capture_options *capture_opts, capture_session *cap_session);
+sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void));
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void
@@ -61,22 +61,22 @@ sync_pipe_kill(int fork_child);
 extern int
 sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
                               gchar **data, gchar **primary_msg,
-                              gchar **secondary_msg);
+                              gchar **secondary_msg, void (*update_cb)(void));
 
 /** Get an interface list using dumpcap */
 extern int
 sync_interface_list_open(gchar **data, gchar **primary_msg,
-                         gchar **secondary_msg);
+                         gchar **secondary_msg, void (*update_cb)(void));
 
 /** Get interface capabilities using dumpcap */
 extern int
 sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
                           gchar **data, gchar **primary_msg,
-                          gchar **secondary_msg);
+                          gchar **secondary_msg, void (*update_cb)(void));
 
 /** Start getting interface statistics using dumpcap. */
 extern int
-sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg);
+sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg, void (*update_cb)(void));
 
 /** Stop gathering statistics. */
 extern int

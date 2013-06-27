@@ -1245,7 +1245,7 @@ main(int argc, char *argv[])
 #endif
     case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-      if_list = capture_interface_list(&err, &err_str);
+      if_list = capture_interface_list(&err, &err_str,NULL);
       if (if_list == NULL) {
         switch (err) {
         case CANT_GET_INTERFACE_LIST:
@@ -1959,7 +1959,7 @@ main(int argc, char *argv[])
           if_capabilities_t *caps;
 
           interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-          caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str);
+          caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str, NULL);
           if (caps == NULL) {
             cmdarg_err("%s", err_str);
             g_free(err_str);
@@ -2274,7 +2274,7 @@ capture(void)
   fflush(stderr);
   g_string_free(str, TRUE);
 
-  ret = sync_pipe_start(&global_capture_opts, &global_capture_session);
+  ret = sync_pipe_start(&global_capture_opts, &global_capture_session, NULL);
 
   if (!ret)
     return FALSE;
@@ -2339,13 +2339,6 @@ capture(void)
   }
   ENDTRY;
   return TRUE;
-}
-
-
-/* XXX - move the call to main_window_update() out of capture_sync.c */
-/* dummy for capture_sync.c to make linker happy */
-void main_window_update(void)
-{
 }
 
 /* capture child detected an error */

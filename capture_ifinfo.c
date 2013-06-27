@@ -105,7 +105,7 @@ static void append_remote_list(GList *iflist)
 /* XXX - We parse simple text output to get our interface list.  Should
  * we use "real" data serialization instead, e.g. via XML? */
 GList *
-capture_interface_list(int *err, char **err_str)
+capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 {
     int        ret;
     GList     *if_list = NULL;
@@ -119,7 +119,7 @@ capture_interface_list(int *err, char **err_str)
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
 
     /* Try to get our interface list */
-    ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg);
+    ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
     if (ret != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
         if (err_str) {
@@ -206,7 +206,7 @@ capture_interface_list(int *err, char **err_str)
  * we use "real" data serialization instead, e.g. via XML? */
 if_capabilities_t *
 capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
-                            char **err_str)
+                            char **err_str, void (*update_cb)(void))
 {
     if_capabilities_t *caps;
     GList              *linktype_list = NULL;
@@ -219,7 +219,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
 
     /* Try to get our interface list */
     err = sync_if_capabilities_open(ifname, monitor_mode, &data,
-                                    &primary_msg, &secondary_msg);
+                                    &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed!");
         if (err_str) {

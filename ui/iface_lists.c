@@ -63,7 +63,7 @@ if_list_comparator_alph(const void *first_arg, const void *second_arg)
  * those interfaces.
  */
 void
-scan_local_interfaces(void)
+scan_local_interfaces(void (*update_cb)(void))
 {
     GList             *if_entry, *lt_entry, *if_list;
     if_info_t         *if_info, *temp;
@@ -94,7 +94,7 @@ scan_local_interfaces(void)
     }
 
     /* Scan through the list and build a list of strings to display. */
-    if_list = capture_interface_list(&err, NULL);
+    if_list = capture_interface_list(&err, NULL, update_cb);
     count = 0;
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;
@@ -160,7 +160,7 @@ scan_local_interfaces(void)
         }
         device.type = if_info->type;
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-        caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
+        caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, update_cb);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             temp_addr = (if_addr_t *)g_malloc0(sizeof(if_addr_t));
             if (ips != 0) {
@@ -347,7 +347,7 @@ scan_local_interfaces(void)
  * record how long it takes in the info log.
  */
 void
-fill_in_local_interfaces(void)
+fill_in_local_interfaces(void(*update_cb)(void))
 {
 	GTimeVal start_time;
 	GTimeVal end_time;
@@ -360,7 +360,7 @@ fill_in_local_interfaces(void)
 	
     if (!initialized) {
 		/* do the actual work */
-        scan_local_interfaces();
+        scan_local_interfaces(update_cb);
         initialized = TRUE;
     }
 	/* log how long it took */

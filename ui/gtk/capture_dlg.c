@@ -5298,7 +5298,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
      this capture. */
   collect_ifaces(&global_capture_opts);
 
-  if (capture_start(&global_capture_opts, &global_capture_session)) {
+  if (capture_start(&global_capture_opts, &global_capture_session, main_window_update)) {
     /* The capture succeeded, which means the capture filter syntax is
        valid; add this capture filter to the recent capture filter list. */
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -5796,7 +5796,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 
   if_string = g_strdup(device.name);
   monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
-  caps = capture_get_if_capabilities(if_string, monitor_mode, NULL);
+  caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
 
   if (caps != NULL) {
     g_signal_handlers_disconnect_by_func(linktype_combo_box, G_CALLBACK(select_link_type_cb), NULL );
@@ -6020,7 +6020,7 @@ void
 refresh_local_interface_lists(void)
 {
   /* Reload the local interface list. */
-  scan_local_interfaces();
+  scan_local_interfaces(main_window_update);
 
   /* If there's an interfaces dialog up, refresh it. */
   if (interfaces_dialog_window_present())

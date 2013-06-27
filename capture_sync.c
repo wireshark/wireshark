@@ -334,7 +334,7 @@ init_pipe_args(int *argc) {
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
-sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
+sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, void (*update_cb)(void))
 {
     char ssnap[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
@@ -687,7 +687,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
     cap_session->capture_opts = capture_opts;
 
     /* we might wait for a moment till child is ready, so update screen now */
-    main_window_update();
+    if (update_cb) update_cb();
 
     /* We were able to set up to read the capture file;
        arrange that our callback be called whenever it's possible
@@ -718,7 +718,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session)
 #define PIPE_BUF_SIZE 5120
 static int
 sync_pipe_open_command(char** argv, int *data_read_fd,
-                       int *message_read_fd, int *fork_child, gchar **msg)
+                       int *message_read_fd, int *fork_child, gchar **msg, void(*update_cb)(void))
 {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #ifdef _WIN32
@@ -912,7 +912,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     }
 
     /* we might wait for a moment till child is ready, so update screen now */
-    main_window_update();
+    if (update_cb) update_cb();
     return 0;
 }
 
@@ -957,7 +957,7 @@ sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
 #define PIPE_BUF_SIZE 5120
 static int
 sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
-                      gchar **secondary_msg)
+                      gchar **secondary_msg,  void(*update_cb)(void))
 {
     gchar *msg;
     int data_pipe_read_fd, sync_pipe_read_fd, fork_child, ret;
@@ -974,7 +974,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
     ssize_t count;
 
     ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_fd,
-                                 &fork_child, &msg);
+                                 &fork_child, &msg, update_cb);
     if (ret == -1) {
         *primary_msg = msg;
         *secondary_msg = NULL;
@@ -1133,7 +1133,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
 */
 static int
 sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
-                      gchar **secondary_msg)
+                      gchar **secondary_msg, void (*update_cb)(void))
 {
     int ret, i;
     GTimeVal start_time;
@@ -1151,7 +1151,7 @@ sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
         }
     }
     /* do the actual sync pipe run command */
-    ret=sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg);
+    ret=sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg, update_cb);
 
     if(logging_enabled){
         g_get_current_time(&end_time);
@@ -1168,7 +1168,7 @@ sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
 int
 sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
                               gchar **data, gchar **primary_msg,
-                              gchar **secondary_msg)
+                              gchar **secondary_msg, void (*update_cb)(void))
 {
     int argc, ret;
     char **argv;
@@ -1207,7 +1207,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
 
-    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg);
+    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
     g_free(opt);
     return ret;
 }
@@ -1226,7 +1226,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
  */
 int
 sync_interface_list_open(gchar **data, gchar **primary_msg,
-                         gchar **secondary_msg)
+                         gchar **secondary_msg, void (*update_cb)(void))
 {
     int argc;
     char **argv;
@@ -1236,7 +1236,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
     argv = init_pipe_args(&argc);
 
     if (!argv) {
-        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *primary_msg = g_strdup("We don't know where to find dumpcap..");
         *secondary_msg = NULL;
         *data = NULL;
         return -1;
@@ -1250,7 +1250,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg);
+    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
 }
 
 /*
@@ -1268,7 +1268,7 @@ sync_interface_list_open(gchar **data, gchar **primary_msg,
 int
 sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
                           gchar **data, gchar **primary_msg,
-                          gchar **secondary_msg)
+                          gchar **secondary_msg, void (*update_cb)(void))
 {
     int argc;
     char **argv;
@@ -1296,7 +1296,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg);
+    return sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
 }
 
 /*
@@ -1306,7 +1306,7 @@ sync_if_capabilities_open(const gchar *ifname, gboolean monitor_mode,
  * that must be g_free()d, and -1 will be returned.
  */
 int
-sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
+sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg, void (*update_cb)(void))
 {
     int argc;
     char **argv;
@@ -1338,7 +1338,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
     ret = sync_pipe_open_command(argv, data_read_fd, &message_read_fd,
-                                 fork_child, msg);
+                                 fork_child, msg, update_cb);
     if (ret == -1)
         return -1;
 

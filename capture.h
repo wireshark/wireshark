@@ -66,7 +66,7 @@ capture_callback_remove(capture_callback_t func);
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 extern gboolean
-capture_start(capture_options *capture_opts, capture_session *cap_session);
+capture_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void));
 
 /** Stop a capture session (usually from a menu item). */
 extern void

@@ -130,7 +130,7 @@ capture_callback_remove(capture_callback_t func)
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 gboolean
-capture_start(capture_options *capture_opts, capture_session *cap_session)
+capture_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void))
 {
   gboolean ret;
   guint i;
@@ -168,7 +168,7 @@ capture_start(capture_options *capture_opts, capture_session *cap_session)
   cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
   g_string_free(source, TRUE);
   /* try to start the capture child process */
-  ret = sync_pipe_start(capture_opts, cap_session);
+  ret = sync_pipe_start(capture_opts, cap_session, update_cb);
   if(!ret) {
       if(capture_opts->save_file != NULL) {
           g_free(capture_opts->save_file);
@@ -660,7 +660,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
     /* close the currently loaded capture file */
     cf_close((capture_file *)cap_session->cf);
 
-    capture_start(capture_opts, cap_session);
+    capture_start(capture_opts, cap_session,NULL); /*XXX is this NULL ok or we need an update_cb???*/
   } else {
     /* We're not doing a capture any more, so we don't have a save file. */
     g_free(capture_opts->save_file);
@@ -696,7 +696,7 @@ capture_stat_start(capture_options *capture_opts) {
    * mechanism, so opening all the devices and presenting packet
    * counts might not always be a good idea.
    */
-  if (sync_interface_stats_open(&stat_fd, &fork_child, &msg) == 0) {
+  if (sync_interface_stats_open(&stat_fd, &fork_child, &msg, NULL) == 0) {
     sc = (if_stat_cache_t *)g_malloc(sizeof(if_stat_cache_t));
     sc->stat_fd = stat_fd;
     sc->fork_child = fork_child;

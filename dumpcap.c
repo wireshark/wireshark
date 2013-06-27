@@ -232,12 +232,14 @@ typedef enum {
     STATE_EXPECT_DATA,
     STATE_READ_DATA
 } cap_pipe_state_t;
+
 typedef enum { 
     PIPOK, 
     PIPEOF, 
     PIPERR, 
     PIPNEXIST 
 } cap_pipe_err_t;
+
 typedef struct _pcap_options {
     guint32                      received;
     guint32                      dropped;
@@ -309,6 +311,7 @@ typedef struct _pcap_queue_element {
  */
 static const char please_report[] =
     "Please report this to the Wireshark developers.\n"
+    "http://bugs.wireshark.org/\n"
     "(This is not a crash; please do not report it as such.)";
 
 /*
@@ -929,7 +932,7 @@ show_filter_code(capture_options *capture_opts)
 #endif
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        pipe_write_block(2, SP_SUCCESS, NULL);
+        pipe_write_block(2, SP_SUCCESS, NULL); ///
     }
     return TRUE;
 }
@@ -949,7 +952,7 @@ show_filter_code(capture_options *capture_opts)
  * just call get_interface_list().
  */
 GList *
-capture_interface_list(int *err, char **err_str)
+capture_interface_list(int *err, char **err_str, void(*update_cb)(void) _U_)
 {
     return get_interface_list(err, err_str);
 }
@@ -1288,7 +1291,7 @@ print_machine_readable_interfaces(GList *if_list)
 
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        pipe_write_block(2, SP_SUCCESS, NULL);
+        pipe_write_block(2, SP_SUCCESS, NULL); ///
     }
 
     i = 1;  /* Interface id number */
@@ -1366,7 +1369,7 @@ print_machine_readable_if_capabilities(if_capabilities_t *caps)
 
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        pipe_write_block(2, SP_SUCCESS, NULL);
+        pipe_write_block(2, SP_SUCCESS, NULL); ///
     }
 
     if (caps->can_set_rfmon)
@@ -1442,7 +1445,7 @@ print_statistics_loop(gboolean machine_readable)
 
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        pipe_write_block(2, SP_SUCCESS, NULL);
+        pipe_write_block(2, SP_SUCCESS, NULL); ///
     }
 
     if (!machine_readable) {
@@ -4104,7 +4107,7 @@ set_80211_channel(const char *iface, const char *opt)
     }
 
     if (capture_child)
-        pipe_write_block(2, SP_SUCCESS, NULL);
+        pipe_write_block(2, SP_SUCCESS, NULL); ///
     ret = 0;
 
 out:
@@ -4661,7 +4664,7 @@ main(int argc, char *argv[])
         int    err;
         gchar *err_str;
 
-        if_list = capture_interface_list(&err, &err_str);
+        if_list = capture_interface_list(&err, &err_str,NULL);
         if (if_list == NULL) {
             switch (err) {
             case CANT_GET_INTERFACE_LIST:
@@ -4928,7 +4931,7 @@ report_packet_count(unsigned int packet_count)
     if (capture_child) {
         g_snprintf(tmp, sizeof(tmp), "%u", packet_count);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
-        pipe_write_block(2, SP_PACKET_COUNT, tmp);
+        pipe_write_block(2, SP_PACKET_COUNT, tmp); ///
     } else {
         count += packet_count;
         fprintf(stderr, "\rPackets: %u ", count);
@@ -4942,7 +4945,7 @@ report_new_capture_file(const char *filename)
 {
     if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
-        pipe_write_block(2, SP_FILE, filename);
+        pipe_write_block(2, SP_FILE, filename); ///
     } else {
 #ifdef SIGINFO
         /*
@@ -4981,7 +4984,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
         if (capture_child) {
             g_snprintf(tmp, sizeof(tmp), "%u:%s", i, errmsg);
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
-            pipe_write_block(2, SP_BAD_FILTER, tmp);
+            pipe_write_block(2, SP_BAD_FILTER, tmp); ///
         } else {
             /*
              * clopts_step_invalid_capfilter in test/suite-clopts.sh MUST match
@@ -5027,7 +5030,7 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
             "Packets received/dropped on interface %s: %u/%u (pcap:%u/dumpcap:%u/flushed:%u)",
             name, received, total_drops, pcap_drops, drops, flushed);
         /* XXX: Need to provide interface id, changes to consumers required. */
-        pipe_write_block(2, SP_DROPS, tmp);
+        pipe_write_block(2, SP_DROPS, tmp); ///
     } else {
         fprintf(stderr,
             "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u) (%.1f%%)\n",
@@ -5086,6 +5089,10 @@ signal_pipe_check_running(void)
     }
 }
 #endif
+
+
+
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

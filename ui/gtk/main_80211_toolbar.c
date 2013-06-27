@@ -43,6 +43,7 @@
 
 #include "ui/recent.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/ui_util.h"
 #include "ui/gtk/main_80211_toolbar.h"
 
 #include <ws80211_utils.h>
@@ -175,7 +176,7 @@ tb80211_do_set_channel(char *iface, int freq, int type)
 	freq_s = g_strdup_printf("%d", freq);
 	type_s = ws80211_chan_type_to_str(type);
 	ret = sync_interface_set_80211_chan(iface, freq_s, type_s,
-                                            &data, &primary_msg, &secondary_msg);
+                                            &data, &primary_msg, &secondary_msg, main_window_update);
 
 	/* Parse the error msg */
 	if (ret && primary_msg) {

@@ -77,7 +77,7 @@ typedef struct {
 /**
  * Fetch the interface list from a child process.
  */
-extern GList *capture_interface_list(int *err, char **err_str);
+extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)(void));
 
 /* Error values from "get_interface_list()/capture_interface_list()". */
 #define	CANT_GET_INTERFACE_LIST	1	/* error getting list */
@@ -110,7 +110,7 @@ typedef struct {
  */
 extern if_capabilities_t *
 capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
-                            char **err_str);
+                            char **err_str, void (*update_cb)(void));
 
 void free_if_capabilities(if_capabilities_t *caps);
 

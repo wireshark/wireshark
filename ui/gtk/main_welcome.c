@@ -47,6 +47,7 @@
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_utils.h"
@@ -1068,7 +1069,7 @@ static void fill_capture_box(void)
 
        /* run capture_interface_list(), not to get the interfaces, but to detect
         * any errors, if there is an error, display an appropriate message in the gui */
-       capture_interface_list(&error, &err_str);
+       capture_interface_list(&error, &err_str,main_window_update);
        switch (error) {
 
        case CANT_GET_INTERFACE_LIST:
@@ -1297,7 +1298,7 @@ welcome_new(void)
     g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_VIEW, topic_capture_to_fill);
 
 #ifdef HAVE_LIBPCAP
-    fill_in_local_interfaces();
+    fill_in_local_interfaces(main_window_update);
     fill_capture_box();
 
     /* capture help topic */

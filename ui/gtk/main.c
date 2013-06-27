@@ -2293,7 +2293,7 @@ main(int argc, char *argv[])
 	break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-        if_list = capture_interface_list(&err, &err_str);
+        if_list = capture_interface_list(&err, &err_str,main_window_update);
         if (if_list == NULL) {
           switch (err) {
           case CANT_GET_INTERFACE_LIST:
@@ -2800,7 +2800,7 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  fill_in_local_interfaces();
+  fill_in_local_interfaces(main_window_update);
   if (start_capture && list_link_layer_types) {
     /* Specifying *both* is bogus. */
     cmdarg_err("You can't specify both -L and a live capture.");
@@ -2870,7 +2870,7 @@ main(int argc, char *argv[])
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
       if (device.selected) {
 #if defined(HAVE_PCAP_CREATE)
-        caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
+        caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str, main_window_update);
 #else
         caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
 #endif
@@ -3133,7 +3133,7 @@ main(int argc, char *argv[])
          to use for this capture. */
       if (global_capture_opts.ifaces->len == 0)
         collect_ifaces(&global_capture_opts);
-      if (capture_start(&global_capture_opts, &global_capture_session)) {
+      if (capture_start(&global_capture_opts, &global_capture_session,main_window_update)) {
         /* The capture started.  Open stat windows; we do so after creating
            the main window, to avoid GTK warnings, and after successfully
            opening the capture file, so we know we have something to compute

@@ -37,6 +37,7 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/prefs_capture.h"
 #include "ui/gtk/prefs_dlg.h"
@@ -160,7 +161,7 @@ capture_prefs_show(void)
 	/*
 	 * XXX - what if we can't get the list?
 	 */
-	if_list = capture_interface_list(&err, NULL);
+	if_list = capture_interface_list(&err, NULL, main_window_update);
 	combo_list = build_capture_combo_list(if_list, FALSE);
 	free_interface_list(if_list);
 	if (combo_list != NULL) {
@@ -1076,7 +1077,7 @@ ifopts_description_to_val (const char *if_name, gboolean monitor_mode, const cha
 	if_capabilities_t *caps;
 	int dlt = -1;
 
-	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, main_window_update);
 	if (caps != NULL) {
 		if (caps->data_link_types != NULL) {
 			GList  *lt_entry;
@@ -1186,9 +1187,9 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	 * to the interface capabilities of the selected interface
 	 */
 #ifdef HAVE_PCAP_CREATE
-	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, main_window_update);
 #else
-	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
+	caps = capture_get_if_capabilities(if_name, FALSE, NULL, main_window_update);
 #endif
 	if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
@@ -1304,7 +1305,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	gtk_list_store_set  (list_store, &list_iter,
 			     DEF_MONITOR_MODE_COLUMN, monitor_mode,
 			     -1);
-	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL);
+	caps = capture_get_if_capabilities(if_name, monitor_mode, NULL, main_window_update);
 #else
 	/* no monitor-mode support */
 	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
@@ -1620,7 +1621,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 #ifdef HAVE_PCAP_CREATE
 	/* get default monitor mode setting */
 	monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
-	caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
+	caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, main_window_update);
 #else
 	/* no monitor-mode support */
 	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL);
@@ -1774,7 +1775,7 @@ ifopts_if_liststore_add(void)
 	int	 err;
 	gchar	*err_str;
 
-	if_list = capture_interface_list(&err, &err_str);  /* if_list = ptr to first element of list (or NULL) */
+	if_list = capture_interface_list(&err, &err_str, main_window_update);  /* if_list = ptr to first element of list (or NULL) */
 	if (if_list == NULL) {
 		if (err != NO_INTERFACES_FOUND) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
