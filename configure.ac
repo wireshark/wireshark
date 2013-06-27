@@ -644,7 +644,19 @@ bar(void)
   [generates warnings from strchr()])
 
 
-## AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)
+#
+# On OS X, suppress warnings about deprecated declarations, because
+# they apparently think everything on OS X is Shiny Happy Apple-
+# Framework-Based Apps and are deprecating some perfectly OK
+# multi-platform open-source libraries that we use in our multi-platform
+# open-source application in favor of various frameworks that are
+# OS X-only.
+#
+case "$host_os" in
+darwin*)
+	AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-deprecated-declarations)
+	;;
+esac
 
 #
 # Use the faster pre gcc 4.5 floating point precision if available.
