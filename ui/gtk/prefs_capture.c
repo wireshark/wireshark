@@ -1624,7 +1624,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, main_window_update);
 #else
 	/* no monitor-mode support */
-	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL);
+	caps = capture_get_if_capabilities(if_info->name, FALSE, NULL, main_window_update);
 #endif
 
 	/* set default link-layer header type */

@@ -2872,7 +2872,7 @@ main(int argc, char *argv[])
 #if defined(HAVE_PCAP_CREATE)
         caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str, main_window_update);
 #else
-        caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
+        caps = capture_get_if_capabilities(device.name, FALSE, &err_str,main_window_update);
 #endif
         if (caps == NULL) {
           cmdarg_err("%s", err_str);
