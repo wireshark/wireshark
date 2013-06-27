@@ -453,7 +453,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
-        if_list = capture_interface_list(&err, &err_str);
+        if_list = capture_interface_list(&err, &err_str, NULL);
         if (if_list == NULL) {
             switch (err) {
 
@@ -505,7 +505,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
          * the interface name, so that the user can try specifying an
          * interface explicitly for testing purposes.
          */
-        if_list = capture_interface_list(&err, NULL);
+        if_list = capture_interface_list(&err, NULL, NULL);
         if (if_list != NULL) {
             /* try and do an exact match (case insensitive) */
             GList   *if_entry;
