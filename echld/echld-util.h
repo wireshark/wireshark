@@ -26,12 +26,16 @@
 #ifndef __ECHLD_UTIL
 #define __ECHLD_UTIL
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef void (*echld_ping_cb_t)(long usec, void* data);
 WS_DLL_PUBLIC echld_state_t echld_ping(int child_id, echld_ping_cb_t pcb, void* cb_data);
 
-typedef void (*echld_list_interface_cb_t)(char* intf_name, char* params, void* cb_data);
-WS_DLL_PUBLIC echld_state_t echld_list_interfaces(int child_id, echld_list_interface_cb_t, void* cb_data);
+typedef void (*echld_param_cb_t)(const char* param, const char* value, const char* error, void* data);
+WS_DLL_PUBLIC echld_state_t echld_get_param(int chld_id, const char* param, echld_param_cb_t cb, void* cb_data);
+WS_DLL_PUBLIC echld_state_t echld_set_param(int chld_id, const char* param, const char* value, echld_param_cb_t acb, void* cb_data);
 
 typedef void (*echild_get_packet_summary_cb_t)(char* summary, void* data);
 WS_DLL_PUBLIC echld_state_t echld_open_file(int child_id, const char* filename,echild_get_packet_summary_cb_t,void*);
@@ -44,5 +48,9 @@ WS_DLL_PUBLIC echld_state_t echld_stop_capture(int child_id);
 typedef void (*echild_get_packets_cb)(char* tree_text,void* data);
 typedef void (*echild_get_buffer_cb)(char* buffer_text, void* data);
 WS_DLL_PUBLIC echld_state_t echld_get_packets_range(int child_id, const char* range, echild_get_packets_cb, echild_get_buffer_cb, void* data);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

@@ -100,7 +100,7 @@ static void parent_dbg(int level, const char* fmt, ...) {
 extern void echld_set_parent_dbg_level(int lvl) {
 	(dbg_level = lvl);
 	if (lvl > 6) {
-		echld_common_set_dbg(lvl,stderr);
+		echld_common_set_dbg(lvl,stderr,"parent");
 	}
 	PARENT_DBG((0,"Debug Level Set: %d",lvl));
 }
@@ -183,7 +183,7 @@ void parent_reaper(int sig) {
 }
 
 /* will initialize epan registering protocols and taps */
-void echld_initialize(echld_encoding_t enc) {
+void echld_initialize(echld_encoding_t enc,	char* argv0, int (*main)(int, char **)) {
 	int from_disp[2];
 	int to_disp[2];
 
@@ -213,7 +213,7 @@ void echld_initialize(echld_encoding_t enc) {
 #endif
 			/* child code */
 			echld_cleanup();
-			echld_dispatcher_start(to_disp,from_disp);
+			echld_dispatcher_start(to_disp,from_disp,argv0,main);
 			PARENT_FATAL((SHOULD_HAVE_EXITED_BEFORE,"This shoudln't happen"));
 		} else {
 			/* parent code */
@@ -221,7 +221,7 @@ void echld_initialize(echld_encoding_t enc) {
 			reader_realloc_buf =  parent_realloc_buff;
 	#endif
 
-			echld_common_set_dbg(9,stderr);
+			echld_common_set_dbg(9,stderr,"parent");
 
 			PARENT_DBG((3,"Dispatcher forked"));
 

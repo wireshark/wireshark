@@ -27,6 +27,10 @@
 #ifndef __ECHLD_H
 #define __ECHLD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "ws_symbol_export.h"
 
 #define ECHLD_VERSION "0.0"
@@ -74,7 +78,7 @@ typedef int echld_bool_t;
 typedef struct timeval tv_t;
 
 /* will initialize epan registering protocols and taps */
-WS_DLL_PUBLIC void echld_initialize(echld_encoding_t);
+WS_DLL_PUBLIC void echld_initialize(echld_encoding_t, char* argv0, int (*main)(int, char **));
 
 /* cleans up (?) echld and kills the server process(es) */
 WS_DLL_PUBLIC echld_state_t echld_terminate(void);
@@ -135,6 +139,7 @@ typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, enc_msg_t* msg_buf
  
 typedef struct _parent_out {
 	enc_msg_t* (*error)(int err, const char* text);
+	enc_msg_t* (*get_param)(const char* param);
 	enc_msg_t* (*set_param)(const char* param,  const char* value);
 	enc_msg_t* (*close_child)(int mode);
 	enc_msg_t* (*open_file)(const char* filename);
@@ -374,5 +379,8 @@ enum _echld_error {
 	ECHLD_ERR_OTHER
 };
 
+#ifdef __cplusplus
+};
+#endif
 
 #endif

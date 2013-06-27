@@ -68,36 +68,36 @@ void ping_cb(long usec, void* data _U_) {
 	}
 }
 
+void param_cb(const char* param, const char* value, const char* error, void* data _U_) {
+	if (error) {
+		fprintf(stderr, "Param Set Error msg=%s\n", error );
+		return;
+	}
 
-int main(int argc, char** argv) {
+	fprintf(stderr, "Param: param='%s' val='%s'\n", param, value );
+
+}
+
+
+int main(int argc _U_, char** argv _U_) {
 	struct timeval tv;
 	int tot_cycles = 0;
-	int max_cycles = 30;
-	int npings;
+	int max_cycles = 20;
+	int npings = 2;
 	tv.tv_sec = 0;
 	tv.tv_usec = 250000;
 
 	echld_set_parent_dbg_level(5);
 
-	switch(argc) {
-		case 1:
-			npings = 3;
-			break;
-		case 2:
-			npings = (int)atoi(argv[1]);
-			break;
-		default:
-			fprintf(stderr, "usage: %s [num pings, default=10]\n",argv[0]);
-			return 1;
-	}
-
-	max_cycles = npings*4;
-
-	echld_initialize(ECHLD_ENCODING_JSON);
-
+	echld_initialize(ECHLD_ENCODING_JSON,argv[0],main);
 
 	do {
-		if ( (tot_cycles > npings) && npings && npings-- ) echld_ping(0,ping_cb,NULL);
+		if ( (tot_cycles > 2) && npings > 0 && npings-- ) echld_ping(0,ping_cb,NULL);
+
+		if ( tot_cycles == 10) echld_set_param(0,"dbg_level","5",param_cb,NULL);
+
+		if ( tot_cycles == 12) echld_get_param(0,"interfaces",param_cb,NULL);
+
 		tot_cycles++;
 		echld_wait(&tv);
 	} while( (pings < npings) || (tot_cycles < max_cycles));
@@ -109,3 +109,4 @@ int main(int argc, char** argv) {
 }
 
 
+void main_window_update(void) {}

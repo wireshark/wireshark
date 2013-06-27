@@ -133,4 +133,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i,
 extern void
 capture_input_closed(capture_session *cap_session, gchar *msg);
 
+/* set a callback to be called after fork with the pid of the forked child */
+extern void capture_sync_set_fetch_dumpcap_pid_cb(void(*cb)(int pid));
+
 #endif /* capture_sync.h */

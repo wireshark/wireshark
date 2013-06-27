@@ -30,6 +30,7 @@
 
 static int dbg_level = DEBUG_BASE;
 static FILE* dbg_fp;
+static const char* dbg_prefix;
 
 static void common_dbg(int level, const char* fmt, ...) {
 	va_list ap;
@@ -42,21 +43,22 @@ static void common_dbg(int level, const char* fmt, ...) {
 	va_end(ap);
 
 	if (dbg_fp) {
-		fprintf(dbg_fp,"Common: level=%d msg='%s'\n",level,str);
+		fprintf(dbg_fp,"%s: level=%d msg='%s'\n",dbg_prefix,level,str);
 		fflush(dbg_fp);
 	}
 }
 
+extern void echld_common_set_dbg(int level, FILE* fp, const char* prefix) {
+	dbg_prefix = prefix;
+	dbg_level = level;
+	dbg_fp = fp;
+}
 #define DBG(attrs) ( common_dbg attrs )
 #else
 #define DBG(attrs) 
 #endif
 
 
-extern void echld_common_set_dbg(int level, FILE* fp) {
-	dbg_level = level;
-	dbg_fp = fp;
-}
 
 
 /**
@@ -404,6 +406,7 @@ static enc_msg_t* x3str_enc(const char* s1, const char* s2, const char* s3) {
 
 static echld_parent_encoder_t parent_encoder = {
 	int_str_enc,
+	str_enc,
 	x2str_enc,
 	int_enc,
 	str_enc,

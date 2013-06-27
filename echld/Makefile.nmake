@@ -1,0 +1,21 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id: Makefile.nmake 47938 2013-02-28 14:09:46Z rbalint $
+
+include ..\config.nmake
+include <win32.mak>
+include ..\Makefile.nmake.inc
+
+############### no need to modify below this line #########
+
+include Makefile.common
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	/I. /I.. $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -DWS_BUILD_DLL
+
+.c.obj::
+   $(CC) $(CFLAGS) -Fd.\ -c $<
+
+# no fork() on windows this needs some thoughts... 

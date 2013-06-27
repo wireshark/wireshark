@@ -57,6 +57,7 @@ struct dispatcher {
 		parent_decoder_t* from_child;
 	} dec;
 
+	int dumpcap_pid;
 	gboolean closing;
 };
 
@@ -67,8 +68,7 @@ struct dispatcher* dispatcher;
 static int debug_lvl = DEBUG_DISPATCHER;
 static FILE* debug_fp = NULL;
 
-#define DCOM echld_common_set_dbg(debug_lvl,debug_fp)
-#define DFL  fflush(debug_fp)
+#define DCOM() echld_common_set_dbg(debug_lvl,debug_fp,"Disp")
 
 int dispatcher_debug(int level, const char* fmt, ...) {
 	va_list ap;
@@ -111,15 +111,15 @@ static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 	}
 
 	debug_lvl = lvl;
-	DCOM;
+	DCOM();
 	return TRUE;
 }
 
 static long dbg_r = 0;
 
 #define DISP_DBG(attrs) ( dispatcher_debug attrs )
-#define DISP_DBG_INIT() do { debug_fp = stderr;  DCOM; } while(0)
-#define DISP_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM; DISP_DBG((0,"Log Started"));  } while(0)
+#define DISP_DBG_INIT() do { debug_fp = stderr;  DCOM(); } while(0)
+#define DISP_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM(); DISP_DBG((0,"Log Started"));  } while(0)
 #define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%c' rh=%d msg='%s'",FD,CH,T,RH, (dbg_r>0?"ok":strerror(errno)))), dbg_r )
 #else
 #define DISP_DBG(attrs)
@@ -258,7 +258,8 @@ static char* param_get_interfaces(char** err) {
 	GList* if_list;
 	char* s;
 	*err = NULL;
-	if_list = capture_interface_list(&err_no, err);
+
+	if_list = capture_interface_list(&err_no, err, NULL);
 
 	if (*err) {
 		return NULL;
@@ -333,9 +334,24 @@ static void dispatcher_clear_child(struct dispatcher_child* c) {
 	c->closing = 0;
 }
 
-static void preinit_epan(void) {
-	DISP_DBG((2,"preinit_epan"));
+static void set_dumpcap_pid(int pid) {
+	dispatcher->dumpcap_pid = pid;
+}
+
+static void preinit_epan(char* argv0, int (*main)(int, char **)) {
+	char* init_progfile_dir_error = init_progfile_dir(argv0, main);
+
+
+	if (init_progfile_dir_error) {
+		DISP_FATAL((CANNOT_PREINIT_EPAN,"Failed epan_preinit: msg='%s'",init_progfile_dir_error));
+	}
+
+	capture_sync_set_fetch_dumpcap_pid_cb(set_dumpcap_pid);
+
   /* Here we do initialization of parts of epan that will be the same for every child we fork */
+
+	DISP_DBG((2,"epan preinit"));
+
 }
 
 
@@ -357,9 +373,13 @@ void dispatcher_reaper(int sig) {
 	int max_children = dispatcher->max_children;
 	int pid =  waitpid(-1, &status, WNOHANG);
 	GByteArray* em;
+	int reqh_id_save = 	dispatcher->reqh_id;
+
+	dispatcher->reqh_id = 0;
 
 	if (sig != SIGCHLD) {
 		DISP_DBG((1,"Reaper got wrong signal=%d",sig));
+		dispatcher->reqh_id = reqh_id_save;
 		return;
 	}
 
@@ -398,11 +418,20 @@ void dispatcher_reaper(int sig) {
 			DISP_WRITE(dispatcher->parent_out, em, c->chld_id, ECHLD_CHILD_DEAD, 0);
 			dispatcher_clear_child(c);
 			g_byte_array_free(em,TRUE);
+			dispatcher->reqh_id = reqh_id_save;
 			return;
 		}
 	}
 
+	if (pid == dispatcher->dumpcap_pid) {
+		dispatcher->dumpcap_pid = 0;
+		dispatcher->reqh_id = reqh_id_save;
+		return;
+	}
+
 	dispatcher_err(ECHLD_ERR_UNKNOWN_PID, "Unkown child pid: %d", pid);
+	dispatcher->reqh_id = reqh_id_save;
+
 }
 
 
@@ -603,7 +632,7 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 
 
 	if (chld_id == 0) { /* these are messages to the dispatcher itself */
-		DISP_DBG((2,"Message to Dispatcher"));
+		DISP_DBG((2,"Parent => Dispatcher"));
 		switch(type) {
 			case ECHLD_CLOSE_CHILD:
 				dispatcher_destroy();
@@ -691,7 +720,7 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 	} else {
 		struct dispatcher_child* c;
 
-		DISP_DBG((2,"Message to Child"));
+		DISP_DBG((2,"Parent => Child"));
 
 		if (! (c = dispatcher_get_child(dispatcher, chld_id)) ) {
 			dispatcher_err(ECHLD_ERR_NO_SUCH_CHILD, "wrong chld_id %d", chld_id);
@@ -841,7 +870,7 @@ int dispatcher_loop(void) {
 }
 
 
-void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds) {
+void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, int (*main)(int, char **)) {
 	static struct dispatcher d;
 #ifdef DEBUG_DISPATCHER
 	int dbg_fd;
@@ -875,6 +904,7 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds) {
 	d.nchildren = 0;
 	d.reqh_id = -1;
 	d.pid = getpid();
+	d.dumpcap_pid = 0;
 
 	close(out_pipe_fds[0]);
 	close(in_pipe_fds[1]);
@@ -883,12 +913,9 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds) {
 
 	DISP_DBG((2,"Dispatcher Configured pid=%d parent_in=%d parent_out=%d",d.pid,in_pipe_fds[0],d.parent_out));
 
-	preinit_epan();
+	preinit_epan(argv0,main);
 
 	exit(dispatcher_loop());
 }
 
-extern void echld_dispatcher_unused(void) {
-	DISP_FATAL((1,"UNUSED"));
-}
 

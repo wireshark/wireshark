@@ -118,6 +118,9 @@ static void pipe_convert_header(const guchar *header, int header_len, char *indi
 static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                            char **err_msg);
 
+static void (*fetch_dumpcap_pid)(int) = NULL;
+
+
 void
 capture_session_init(capture_session *cap_session, void *cf)
 {
@@ -652,6 +655,9 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
         _exit(1);
     }
 
+    if (fetch_dumpcap_pid && cap_session->fork_child > 0)
+        fetch_dumpcap_pid(cap_session->fork_child);
+
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
 
@@ -878,6 +884,9 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
            status, over and above the error message we sent to the parent). */
         _exit(1);
     }
+
+    if (fetch_dumpcap_pid && *fork_child > 0)
+        fetch_dumpcap_pid(*fork_child);
 
     *data_read_fd = data_pipe[PIPE_READ];
     *message_read_fd = sync_pipe[PIPE_READ];
@@ -1862,9 +1871,12 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
                                     fork_child_status);
             ret = -1;
         }
-    } else {
+    } else if (errno != ECHILD) {
         *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
         ret = -1;
+    } else {
+        /* errno == ECHILD ; echld might have already reaped the child */
+        ret = fetch_dumpcap_pid ? 0 : -1;
     }
 #endif
 
@@ -2075,6 +2087,10 @@ sync_pipe_kill(int fork_child)
         TerminateProcess((HANDLE) (fork_child), 0);
 #endif
     }
+}
+
+void capture_sync_set_fetch_dumpcap_pid_cb(void(*cb)(int pid)) {
+    fetch_dumpcap_pid = cb;
 }
 
 #endif /* HAVE_LIBPCAP */

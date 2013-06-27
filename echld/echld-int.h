@@ -57,10 +57,18 @@
 
 
 
+#include "capture_opts.h"
+#include "capture_session.h"
 #include "capture_ifinfo.h"
+#include "capture_sync.h"
 
+#include "../epan/filesystem.h"
 
 #include "echld.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* XXX these shouldn't be needed */
 typedef struct _column_info column_info;
@@ -122,7 +130,7 @@ typedef struct _echld_reader {
 #define READER_FD_ISSET(R,fdset_p) READER_FD_ISSET(R.fd,&(fdset_p))
 #define READER_FD_CLEAR(R,fdset_p) READER_FD_CLEAR(R.fd,&(fdset_p))
 
-extern void echld_common_set_dbg(int level, FILE* fp);
+extern void echld_common_set_dbg(int level, FILE* fp, const char* prefix);
 
 extern void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
 extern void echld_reset_reader(echld_reader_t* r, int fd, size_t initial);
@@ -142,8 +150,6 @@ typedef struct _child_in {
 	echld_bool_t (*set_param)		(guint8*, size_t, char** param,  char** value);
 	echld_bool_t (*get_param)		(guint8*, size_t, char** param);
 	echld_bool_t (*close_child)		(guint8*, size_t, int* mode);
-
-
 	echld_bool_t (*open_file)		(guint8*, size_t, char** filename);
 	echld_bool_t (*open_interface)	(guint8*, size_t, char** intf_name, char** params);
 	echld_bool_t (*get_sum)			(guint8*, size_t, char** range);
@@ -189,7 +195,7 @@ extern void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int
 extern int echld_child_loop(void);
 
 /* never returns*/
-extern void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds);
+extern void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds,	char* argv0, int (*main)(int, char **));
 
 
 extern void dummy_switch(echld_msg_type_t type); 
@@ -216,6 +222,14 @@ extern void echld_unused(void);
 #define SHOULD_HAVE_EXITED_BEFORE 129
 #define DISPATCHER_PIPE_FAILED 130
 #define TERMINATED 140
+#define CANNOT_PREINIT_EPAN 141
 
+#ifndef DEBUG_BASE
+#define echld_common_set_dbg(a,b,c) 
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #endif

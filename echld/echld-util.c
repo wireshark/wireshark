@@ -77,3 +77,83 @@ extern echld_state_t echld_ping(int chld_id, echld_ping_cb_t pcb, void* cb_data)
 }
 
 
+struct _get_param {
+	const char* name;
+	echld_param_cb_t cb;
+	void* cb_data;
+	echld_bool_t (*dec)(enc_msg_t*, char**, char**);
+	echld_bool_t (*dec_err)(enc_msg_t*, int* , char**);
+	const char** err_msg;
+};
+
+#define CHNULL ((char*)NULL)
+
+static gboolean got_param(echld_msg_type_t type, GByteArray* ba _U_, void* data) {
+	struct _get_param* g = (struct _get_param*)data;
+	char* err_msg;
+
+	switch (type) {
+		case ECHLD_PARAM: 
+			if (g->cb) {
+				char* param;
+				char* value;
+				g->dec(ba,&param,&value);
+				g->cb(param,value,NULL,g->cb_data);
+
+			}
+			break;
+		case ECHLD_ERROR: {
+			int errnum;
+			g->dec_err(ba,&errnum,&err_msg);
+			g->cb(NULL,NULL,err_msg,g->cb_data);
+			break;
+		}
+		default:
+			err_msg = g_strdup_printf("other type='%c'",type);
+			g->cb(NULL,NULL,err_msg,g->cb_data);
+			g_free(err_msg);
+			break;
+	}
+
+	g_free(g);
+	return TRUE;
+}
+
+extern echld_state_t echld_get_param(int chld_id, const char* param, echld_param_cb_t acb, void* cb_data) {
+	struct _get_param* g = g_new0(struct _get_param,1);
+	echld_parent_encoder_t* enc; 
+	parent_decoder_t* dec;
+	enc_msg_t* em;
+
+	echld_get_all_codecs(NULL, NULL, &enc, &dec);
+
+	em = enc->get_param(param);
+
+	g->name = param;
+	g->cb = acb;
+	g->cb_data = cb_data;
+	g->dec = dec->param;
+	g->dec_err = dec->error;
+
+	return echld_reqh(chld_id, ECHLD_GET_PARAM, 0, em, got_param, g);
+}
+
+extern echld_state_t echld_set_param(int chld_id, const char* param, const char* value, echld_param_cb_t acb, void* cb_data) {
+	struct _get_param* g = g_new0(struct _get_param,1);
+	echld_parent_encoder_t* enc; 
+	parent_decoder_t* dec;
+	enc_msg_t* em;
+
+	echld_get_all_codecs(NULL, NULL, &enc, &dec);
+
+	em = enc->set_param(param,value);
+
+	g->name = param;
+	g->cb = acb;
+	g->cb_data = cb_data;
+	g->dec = dec->param;
+	g->dec_err = dec->error;
+
+	return echld_reqh(chld_id, ECHLD_SET_PARAM, 0, em, got_param, g);
+}
+

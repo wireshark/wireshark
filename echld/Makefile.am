@@ -43,20 +43,24 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS += -Werror
 endif
 
-AM_CPPFLAGS = -I$(srcdir)/..
+AM_CPPFLAGS = -I$(srcdir)/.. -I$(srcdir)/../wiretap 
 
 libechld_la_SOURCES = \
 	$(LIBECHLD_SRC)	\
-	$(LIBECHLD_INCLUDES)
+	$(LIBECHLD_INCLUDES) \
+	$(LIBECHLD_MORE_SRC)
+
 
 libechld_la_DEPENDENCIES= 
 	../epan/libwireshark.la \
+	../wiretap/libwiretap.la \
 	../wsutil/libwsutil.la
 
 
 libechld_la_LIBADD =		\
 	../epan/libwireshark.la \
 	../wsutil/libwsutil.la		\
+	../wiretap/libwiretap.la		\
 	@GLIB_LIBS@
 
 EXTRA_DIST =		\
