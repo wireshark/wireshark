@@ -633,8 +633,6 @@ wmem_test_tree(void)
     allocator       = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
     extra_allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
 
-    fprintf(stderr, "A");
-    fflush(stderr);
     tree = wmem_tree_new(allocator);
     g_assert(tree);
 
@@ -658,8 +656,6 @@ wmem_test_tree(void)
     wmem_free_all(allocator);
 
     /* test auto-reset functionality */
-    fprintf(stderr, "B");
-    fflush(stderr);
     tree = wmem_tree_new_autoreset(allocator, extra_allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
         g_assert(wmem_tree_lookup32(tree, i) == NULL);
@@ -675,31 +671,17 @@ wmem_test_tree(void)
 
     /* test array key functionality */
     tree = wmem_tree_new(allocator);
-    fprintf(stderr, "C\n");
-    fflush(stderr);
     for (i=0; i<CONTAINER_ITERS; i++) {
-        fprintf(stderr, "iter #%u", i);
-        fflush(stderr);
         key_count = g_random_int_range(1, WMEM_TREE_MAX_KEY_COUNT);
-        fprintf(stderr, "; key_count %d", key_count);
-        fflush(stderr);
         keys[key_count].length = 0;
         for (j=0; j<key_count; j++) {
             keys[j].length = g_random_int_range(1, WMEM_TREE_MAX_KEY_LEN);
             keys[j].key    = (guint32*)wmem_test_rand_string(allocator,
                     (keys[j].length*4), (keys[j].length*4)+1);
         }
-        fprintf(stderr, "; inserting...");
-        fflush(stderr);
         wmem_tree_insert32_array(tree, keys, GINT_TO_POINTER(i));
-        fprintf(stderr, "; asserting...");
-        fflush(stderr);
         g_assert(wmem_tree_lookup32_array(tree, keys) == GINT_TO_POINTER(i));
-        fprintf(stderr, "; OK\n");
-        fflush(stderr);
     }
-    fprintf(stderr, "D");
-    fflush(stderr);
     wmem_free_all(allocator);
 
     tree = wmem_tree_new(allocator);
@@ -724,8 +706,6 @@ wmem_test_tree(void)
     wmem_free_all(allocator);
 
     /* test string key functionality */
-    fprintf(stderr, "E");
-    fflush(stderr);
     tree = wmem_tree_new(allocator);
     for (i=0; i<CONTAINER_ITERS; i++) {
         str_key = wmem_test_rand_string(allocator, 1, 64);
@@ -748,8 +728,6 @@ wmem_test_tree(void)
     /* test for-each functionality */
     tree = wmem_tree_new(allocator);
     expected_user_data = GINT_TO_POINTER(g_test_rand_int());
-    fprintf(stderr, "F");
-    fflush(stderr);
     for (i=0; i<CONTAINER_ITERS; i++) {
         gint tmp;
         do {
@@ -769,8 +747,6 @@ wmem_test_tree(void)
         g_assert(value_seen[i]);
         value_seen[i] = FALSE;
     }
-    fprintf(stderr, "G");
-    fflush(stderr);
 
     cb_called_count    = 0;
     cb_continue_count  = 10;
@@ -787,8 +763,6 @@ wmem_test_tree(void)
 
     wmem_destroy_allocator(extra_allocator);
     wmem_destroy_allocator(allocator);
-    fprintf(stderr, "H");
-    fflush(stderr);
 }
 
 int
