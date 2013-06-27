@@ -5497,6 +5497,26 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 		   value ? tfstring->true_string : tfstring->false_string);
 }
 
+static const char *
+hf_try_val_to_str(guint32 value, const header_field_info *hfinfo)
+{
+	if (hfinfo->display & BASE_RANGE_STRING)
+		return try_rval_to_str(value, (const range_string *) hfinfo->strings);
+
+	if (hfinfo->display & BASE_EXT_STRING)
+		return try_val_to_str_ext(value, (const value_string_ext *) hfinfo->strings);
+
+	return try_val_to_str(value, (const value_string *) hfinfo->strings);
+}
+
+static const char *
+hf_try_val_to_str_const(guint32 value, const header_field_info *hfinfo, const char *unknown_str)
+{
+	const char *str = hf_try_val_to_str(value, hfinfo);
+
+	return (str) ? str : unknown_str;
+}
+
 /* Fills data for bitfield ints with val_strings */
 static void
 fill_label_bitfield(field_info *fi, gchar *label_str)
@@ -5535,19 +5555,9 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
-		if (hfinfo->display & BASE_RANGE_STRING) {
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				   format,  hfinfo->name,
-				   rval_to_str(value, (const range_string *)hfinfo->strings, "Unknown"), value);
-		} else if (hfinfo->display & BASE_EXT_STRING) {
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				 format,  hfinfo->name,
-				 val_to_str_ext_const(value, (const value_string_ext *) hfinfo->strings, "Unknown"), value);
-		} else {
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				   format,  hfinfo->name,
-				   val_to_str_const(value, cVALS(hfinfo->strings), "Unknown"), value);
-		}
+		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			   format,  hfinfo->name,
+			   hf_try_val_to_str_const(value, hfinfo, "Unknown"), value);
 	}
 	else {
 		format = hfinfo_uint_format(hfinfo);
@@ -5581,19 +5591,9 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
-		if (hfinfo->display & BASE_RANGE_STRING) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name,
-				   rval_to_str(value, (const range_string *)hfinfo->strings, "Unknown"), value);
-		} else if (hfinfo->display & BASE_EXT_STRING) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				 format,  hfinfo->name,
-				 val_to_str_ext_const(value, (const value_string_ext *) hfinfo->strings, "Unknown"), value);
-		} else {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name,
-				   val_to_str_const(value, cVALS(hfinfo->strings), "Unknown"), value);
-		}
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			   format,  hfinfo->name,
+			   hf_try_val_to_str_const(value, hfinfo, "Unknown"), value);
 	}
 	else {
 		format = hfinfo_uint_format(hfinfo);
@@ -5648,19 +5648,9 @@ fill_label_int(field_info *fi, gchar *label_str)
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_int_vals_format(hfinfo);
-		if (hfinfo->display & BASE_RANGE_STRING) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name,
-				   rval_to_str(value, (const range_string *)hfinfo->strings, "Unknown"), value);
-		} else if (hfinfo->display & BASE_EXT_STRING) {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				 format,  hfinfo->name,
-				 val_to_str_ext_const(value, (const value_string_ext *) hfinfo->strings, "Unknown"), value);
-		} else {
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   format,  hfinfo->name,
-				   val_to_str_const(value, cVALS(hfinfo->strings), "Unknown"), value);
-		}
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			   format,  hfinfo->name,
+			   hf_try_val_to_str_const(value, hfinfo, "Unknown"), value);
 	}
 	else {
 		format = hfinfo_int_format(hfinfo);
@@ -6965,26 +6955,14 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			if (hfinfo->display & BASE_RANGE_STRING) {
-				str = try_rval_to_str(fvalue_get_sinteger(&finfo->value), (const range_string *)hfinfo->strings);
-			} else if (hfinfo->display & BASE_EXT_STRING) {
-				str = try_val_to_str_ext(fvalue_get_sinteger(&finfo->value), (const value_string_ext *)hfinfo->strings);
-			} else {
-				str = try_val_to_str(fvalue_get_sinteger(&finfo->value), (const value_string *)hfinfo->strings);
-			}
+			str = hf_try_val_to_str(fvalue_get_sinteger(&finfo->value), hfinfo);
 			break;
 
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-			if (hfinfo->display & BASE_RANGE_STRING) {
-				str = try_rval_to_str(fvalue_get_uinteger(&finfo->value), (const range_string *)hfinfo->strings);
-			} else if (hfinfo->display & BASE_EXT_STRING) {
-				str = try_val_to_str_ext(fvalue_get_uinteger(&finfo->value), (const value_string_ext *)hfinfo->strings);
-			} else {
-				str = try_val_to_str(fvalue_get_uinteger(&finfo->value), (const value_string *)hfinfo->strings);
-			}
+			str = hf_try_val_to_str(fvalue_get_uinteger(&finfo->value), hfinfo);
 			break;
 
 		default:
@@ -7286,16 +7264,8 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 				first = FALSE;
 			}
 			else if (hf->strings) {
-				if (hf->display & BASE_RANGE_STRING) {
-					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-							       hf->name, rval_to_str(tmpval, (const range_string *)hf->strings, "Unknown"));
-				} else if (hf->display & BASE_EXT_STRING) {
-					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-							       hf->name, val_to_str_ext_const(tmpval, (const value_string_ext *) (hf->strings), "Unknown"));
-				} else {
-					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-							       hf->name, val_to_str_const(tmpval, cVALS(hf->strings), "Unknown"));
-				}
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						       hf->name, hf_try_val_to_str_const(tmpval, hf, "Unknown"));
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
