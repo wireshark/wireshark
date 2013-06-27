@@ -136,6 +136,8 @@ wrs_count_bitshift(const guint32 bitmask)
 		return pi; \
 	}
 
+static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
+
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
@@ -3876,20 +3878,13 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 					fmtfunc(tmp, u_integer);
 					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
 				} else if (hfinfo->strings) {
-					if (hfinfo->display & BASE_RANGE_STRING) {
-						g_strlcpy(result+offset_r,
-							  rval_to_str(u_integer, (const range_string *)hfinfo->strings, "%u"),
-							  size-offset_r);
-					} else if (hfinfo->display & BASE_EXT_STRING) {
-						g_strlcpy(result+offset_r,
-							  val_to_str_ext(u_integer,
-									 (const value_string_ext *)(hfinfo->strings),
-									 "%u"), size-offset_r);
-					} else {
-						g_strlcpy(result+offset_r,
-							  val_to_str(u_integer, cVALS(hfinfo->strings), "%u"),
-							  size-offset_r);
-					}
+					const char *str_val = hf_try_val_to_str(u_integer, hfinfo);
+
+					if (str_val)
+						g_strlcpy(result+offset_r, str_val, size-offset_r);
+					else
+						g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
+
 				} else {
 					char buf[32];
 
@@ -3944,21 +3939,13 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 					fmtfunc(tmp, integer);
 					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
 				} else if (hfinfo->strings) {
-					if (hfinfo->display & BASE_RANGE_STRING) {
-						g_strlcpy(result+offset_r,
-							  rval_to_str(integer, (const range_string *)hfinfo->strings, "%d"),
-							  size-offset_r);
-					} else if (hfinfo->display & BASE_EXT_STRING) {
-						g_strlcpy(result+offset_r,
-							  val_to_str_ext(integer,
-									 (const value_string_ext *)(hfinfo->strings),
-									 "%d"),
-							  size-offset_r);
-					} else {
-						g_strlcpy(result+offset_r,
-							  val_to_str(integer, cVALS(hfinfo->strings), "%d"),
-							  size-offset_r);
-					}
+					const char *str_val = hf_try_val_to_str(integer, hfinfo);
+
+					if (str_val)
+						g_strlcpy(result+offset_r, str_val, size-offset_r);
+					else
+						g_snprintf(result+offset_r, size-offset_r, "%d", integer);
+
 				} else {
 					char buf[32];
 
