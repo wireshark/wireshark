@@ -122,6 +122,8 @@ typedef struct _echld_reader {
 #define READER_FD_ISSET(R,fdset_p) READER_FD_ISSET(R.fd,&(fdset_p))
 #define READER_FD_CLEAR(R,fdset_p) READER_FD_CLEAR(R.fd,&(fdset_p))
 
+extern void echld_common_set_dbg(int level, FILE* fp);
+
 extern void echld_init_reader(echld_reader_t* r, int fd, size_t initial);
 extern void echld_reset_reader(echld_reader_t* r, int fd, size_t initial);
 
@@ -193,13 +195,27 @@ extern void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds);
 extern void dummy_switch(echld_msg_type_t type); 
 extern void echld_unused(void);
 
+/* initial debug levels */
 
+#define DEBUG_BASE 5
 #define DEBUG_CHILD 5
 #define DEBUG_DISPATCHER 5
 #define DEBUG_PARENT 5
 
-#define BROKEN_PARENT_PIPE 3333
-#define BROKEN_DUMPCAP_PIPE 4444
-#define BROKEN_READFILE 5555
+/* config stuff */
+#define DISPATCHER_WAIT_INITIAL 999999 /* almost 1s */
+
+
+/* fatalities */
+#define BROKEN_PARENT_PIPE 123
+#define BROKEN_DUMPCAP_PIPE 124
+#define BROKEN_READFILE 125
+#define DISPATCHER_DEAD 126
+#define UNIMPLEMENTED 127
+#define CANNOT_FORK 128
+#define SHOULD_HAVE_EXITED_BEFORE 129
+#define DISPATCHER_PIPE_FAILED 130
+#define TERMINATED 140
+
 
 #endif

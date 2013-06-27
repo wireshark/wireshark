@@ -58,8 +58,10 @@ int pings = 0;
 int errors = 0;
 
 void ping_cb(long usec, void* data _U_) {
-	if (usec > 0) {
-		fprintf(stderr, "ping=%d usec=%d\n", pings ,(int)usec );
+
+	fprintf(stderr, "Ping ping=%d usec=%d\n", pings ,(int)usec );
+
+	if (usec >= 0) {
 		pings++;
 	} else {
 		errors++;
@@ -70,18 +72,16 @@ void ping_cb(long usec, void* data _U_) {
 int main(int argc, char** argv) {
 	struct timeval tv;
 	int tot_cycles = 0;
+	int max_cycles = 30;
 	int npings;
-//	GString* str = g_string_new("");
 	tv.tv_sec = 0;
 	tv.tv_usec = 250000;
 
-
-
-	echld_set_parent_dbg_level(4);
+	echld_set_parent_dbg_level(5);
 
 	switch(argc) {
 		case 1:
-			npings = 10;
+			npings = 3;
 			break;
 		case 2:
 			npings = (int)atoi(argv[1]);
@@ -91,14 +91,16 @@ int main(int argc, char** argv) {
 			return 1;
 	}
 
+	max_cycles = npings*4;
+
 	echld_initialize(ECHLD_ENCODING_JSON);
 
 
 	do {
-		if (tot_cycles < npings) echld_ping(0,ping_cb,NULL);
+		if ( (tot_cycles > npings) && npings && npings-- ) echld_ping(0,ping_cb,NULL);
 		tot_cycles++;
 		echld_wait(&tv);
-	} while( (pings < 10) && (tot_cycles < 25));
+	} while( (pings < npings) || (tot_cycles < max_cycles));
 
 	fprintf(stderr, "Done: pings=%d errors=%d tot_cycles=%d\n", pings, errors ,tot_cycles );
 

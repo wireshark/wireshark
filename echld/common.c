@@ -26,6 +26,37 @@
 
 #include "echld-int.h"
 
+#ifdef DEBUG_BASE
+
+static int dbg_level = DEBUG_BASE;
+static FILE* dbg_fp;
+
+static void common_dbg(int level, const char* fmt, ...) {
+	va_list ap;
+	char str[1024];
+
+	if (level > dbg_level) return;
+
+	va_start(ap,fmt);
+	g_vsnprintf(str,1024,fmt,ap);
+	va_end(ap);
+
+	if (dbg_fp) {
+		fprintf(dbg_fp,"Common: level=%d msg='%s'\n",level,str);
+		fflush(dbg_fp);
+	}
+}
+
+#define DBG(attrs) ( common_dbg attrs )
+#else
+#define DBG(attrs) 
+#endif
+
+
+extern void echld_common_set_dbg(int level, FILE* fp) {
+	dbg_level = level;
+	dbg_fp = fp;
+}
 
 
 /**
@@ -38,6 +69,8 @@ static void child_realloc_buff(echld_reader_t* r, size_t needed) {
 	size_t a = r->actual_len;
 	size_t s = r->len;
 	long rp_off = r->rp - r->data;
+
+	DBG((2,"REALLOC BUFF needed=%d",needed));
 
 	if ( a < (s + needed) ) {
 		guint8* data = r->data;
@@ -68,19 +101,6 @@ static void parent_realloc_buff(echld_reader_t* b, size_t needed) {
 
 
 
-void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
-	r->fd = fd;
-	if (fd >= 0) fcntl(fd, F_SETFL, O_NONBLOCK);
-
-	if (r->data == NULL) {
-		r->actual_len = initial;
-		r->data = (guint8*)g_malloc0(initial);
-		r->wp = r->data;
-		r->rp = NULL;
-		r->len = 0;
-	}
-}
-
 void echld_reset_reader(echld_reader_t* r, int fd, size_t initial) {
 	r->fd = fd;
 	fcntl(fd, F_SETFL, O_NONBLOCK);
@@ -89,14 +109,20 @@ void echld_reset_reader(echld_reader_t* r, int fd, size_t initial) {
 		r->actual_len = initial;
 		r->data =(guint8*) g_malloc0(initial);
 		r->wp = r->data;
-		r->rp = NULL;
+		r->rp = r->data;
 		r->len = 0;
 	} else {
 		r->wp = r->data;
-		r->rp = NULL;
+		r->rp = r->data;
 		r->len = 0;		
 	}
 }
+
+void echld_init_reader(echld_reader_t* r, int fd, size_t initial) {
+	echld_reset_reader(r,fd,initial);
+}
+
+
 
 void free_reader(echld_reader_t* r) {
 	free(r->data);
@@ -106,26 +132,31 @@ static long reader_readv(echld_reader_t* r, size_t len) {
 	struct iovec iov;
 	long nread;
 
+	DBG((2,"READV needed=%d",len));
+
 	if ( (r->actual_len - r->len) < len ) 
 		reader_realloc_buff(r, len);
 
 	iov.iov_base = r->wp;
 	iov.iov_len = len;
 
-	nread = readv(0, 
-		&iov,
-		 (guint)len);
+	nread = readv(r->fd, &iov, 1);
+
+	DBG((2,"READV nread=%d msg='%s'",nread, (nread<0) ? strerror(errno) : "-" ));
 
 	if (nread >= 0) {
 		r->wp += nread;
 		r->len += nread;
 	}
 
+	if (errno == EAGAIN) return 0;
+
 	return nread;
 };
 
 
 long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
+	DBG((4,"READ = echld_read_frame fd=%d",r->fd));
 
     // it will use shared memory instead of inband communication
 	do {
@@ -135,6 +166,8 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 		size_t missing;
 		long off;
 
+		DBG((5,"READ reader_len=%d",r->len));
+
 		if ( r->len < ECHLD_HDR_LEN) {
 			/* read the header */
 			goto incomplete_header;
@@ -143,29 +176,28 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 			goto incomplete_frame;
 		}
 
-		/* we've got a frame! */
-		
 		off = (fr_len = HDR_LEN(h)) + ECHLD_HDR_LEN;
-			
+		DBG((5,"READ we've got a frame! fr_len=%d ch=%d t='%c' rh=%d",fr_len, h->h.chld_id, HDR_TYPE(h), h->h.reqh_id));
+		
+
 		cb( &(r->rp[sizeof(hdr_t)]), HDR_LEN(h), h->h.chld_id, HDR_TYPE(h), h->h.reqh_id, cb_data);
 
-		if ( ((long)r->len) >= off ) {
-			/* shift the consumed frame */
-			r->len -= off;
-			memcpy(r->rp ,r->rp + off ,r->len);
-			r->wp -= off;
-			r->rp -= off;
-		}
+		r->len = 0;
+		r->wp = r->data;
+		r->rp = r->data;
 
-		continue;
+		DBG((5,"READ consumed frame!"));
+
+		goto again;
 		
 	incomplete_header:
 		missing = ECHLD_HDR_LEN - (r->len);
+		DBG((5,"READ incomplete_header missing=%d",missing));
 
 		nread = reader_readv(r,missing);
 
 
-		if (nread < 0) {
+		if (nread < 0 && errno != EAGAIN) {
 			goto kaput; /*XXX*/
 		} else if (nread < (long)missing) {
 			goto again;
@@ -177,16 +209,21 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 		fr_len = HDR_LEN(h) + ECHLD_HDR_LEN;
 		missing = fr_len  - r->len;
 
-		nread = reader_readv(r,missing);
+		DBG((5,"READ incomplete_frame fr_len=%d missing=%d",fr_len ,missing));
 
+		if (missing) {
+			nread = reader_readv(r,missing);
 
-		if (nread < 0) {
-			goto kaput; /*XXX*/
-		} else if (nread <= (long)missing) {
-			goto again;
+			if (nread < 0 && errno != EAGAIN) {
+				goto kaput; /*XXX*/
+			} else if (nread < (long)missing) {
+				goto again;
+			}
 		}
 
 	} while(1);
+	
+	DBG((1,"READ incomplete_frame Cannot happen"));
 
 	return 0;
 	again:	return 1;
@@ -196,44 +233,26 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 
 
 
-long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data) {
-	static guint8* write_buf = NULL;
-	static long wb_len = 4096;
-	hdr_t* h;
-	struct iovec iov;
-	long fr_len = ba->len+ECHLD_HDR_LEN;
+long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data _U_) {
+	hdr_t h;
+	struct iovec iov[2];
+	int iov_cnt = 1;
 
-	data = data; //
 
-    // it will use shared memory instead of inband communication
+	h.h.type_len  = (type<<24) | ((ba?ba->len:0) & 0x00ffffff) ;
+	h.h.chld_id = chld_id;
+	h.h.reqh_id = reqh_id;
 
-	if (! write_buf) {
-		// lock if needed
-		write_buf = (guint8*)g_malloc0(wb_len);
-		// unlock if needed
+	iov[0].iov_base = &h;
+	iov[0].iov_len = 8;
+
+	if ( ba && ba->len > 0 ) {
+		iov[1].iov_base = ba->data;
+		iov[1].iov_len = ba->len;
+		iov_cnt++;
 	}
 
-	if (fr_len > wb_len) {
-		do {
-			wb_len *= 2;
-		} while (fr_len > wb_len);
-
-		// lock if needed
-		write_buf = (guint8*)g_realloc(write_buf,wb_len);
-		// unlock if needed
-	}
-
-	h = (hdr_t*)write_buf;
-	h->h.type_len  = (type<<24) | (((guint32)ba->len) & 0x00ffffff) ;
-	h->h.chld_id = chld_id;
-	h->h.reqh_id = reqh_id;
-
-	memcpy(write_buf+ECHLD_HDR_LEN,ba->data,ba->len);
-
-	iov.iov_base = write_buf;
-	iov.iov_len = fr_len;
-
-	return (long) writev(fd, &iov, (unsigned)fr_len);
+	return (long) writev(fd, iov, iov_cnt);
 }
 
 

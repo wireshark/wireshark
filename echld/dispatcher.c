@@ -62,27 +62,40 @@ struct dispatcher {
 
 struct dispatcher* dispatcher;
 
-#define DISP_RESP(B,T) (echld_write_frame( dispatcher->parent_out, (B), 0, (T), dispatcher->reqh_id, NULL))
 
 #ifdef DEBUG_DISPATCHER
-static int dbg_level = 0;
+static int debug_lvl = DEBUG_DISPATCHER;
+static FILE* debug_fp = NULL;
 
-void dispatcher_debug(int level, const char* fmt, ...) {
+#define DCOM echld_common_set_dbg(debug_lvl,debug_fp)
+#define DFL  fflush(debug_fp)
+
+int dispatcher_debug(int level, const char* fmt, ...) {
 	va_list ap;
 	char* str;
 
-	if (dbg_level<level) return;
+	if (debug_lvl<level) return 1;
 
     va_start(ap, fmt);
 	str = g_strdup_vprintf(fmt,ap);
 	va_end(ap);
 
-	fprintf(stderr, "dispatcher[%d]: reqh_id=%d dbg_level=%d message='%s'", dispatcher->pid, dispatcher->reqh_id, level, str);
+	if (dispatcher) {
+		fprintf(debug_fp, "dispatcher[%d]: reqh_id=%d dbg_level=%d message='%s'\n", dispatcher->pid, dispatcher->reqh_id, level, str);
+	} else {
+		fprintf(debug_fp, "dispatcher: dbg_level=%d message='%s'\n", level, str);
+	}
+
+	fflush(debug_fp);
+
 	g_free(str);
+
+	return 1;
 }
 
+
 static char* param_get_dbg_level(char** err _U_) {
-	return g_strdup_printf("%d",dbg_level);
+	return g_strdup_printf("%d",debug_lvl);
 }
 
 static echld_bool_t param_set_dbg_level(char* val , char** err ) {
@@ -97,14 +110,50 @@ static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 		return FALSE;
 	}
 
-	dbg_level = lvl;
+	debug_lvl = lvl;
+	DCOM;
 	return TRUE;
 }
 
+static long dbg_r = 0;
+
 #define DISP_DBG(attrs) ( dispatcher_debug attrs )
+#define DISP_DBG_INIT() do { debug_fp = stderr;  DCOM; } while(0)
+#define DISP_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM; DISP_DBG((0,"Log Started"));  } while(0)
+#define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%c' rh=%d msg='%s'",FD,CH,T,RH, (dbg_r>0?"ok":strerror(errno)))), dbg_r )
 #else
 #define DISP_DBG(attrs)
+#define DISP_DBG_INIT()
+#define DISP_DBG_START(fname)
+#define DISP_WRITE(FD,BA,CH,T,RH) echld_write_frame(FD,BA,CH,T,RH,NULL)
 #endif
+
+#define DISP_RESP(B,T) (DISP_WRITE( dispatcher->parent_out, (B), 0, (T), dispatcher->reqh_id))
+
+static void dispatcher_fatal(int cause, const char* fmt, ...) {
+	size_t len= 1024;
+	gchar err_str[len];
+	va_list ap;
+	int i;
+	struct dispatcher_child* cc = dispatcher->children;
+	int max_children = dispatcher->max_children;
+
+	va_start(ap, fmt);
+	g_vsnprintf(err_str,len,fmt,ap);
+	va_end(ap);
+
+	DISP_DBG((0,"fatal cause=%d msg=\"%s\"",cause ,err_str));
+
+	/* the massacre */
+	for(i = 0; i < max_children; i++) {
+		struct dispatcher_child* c = &(cc[i]);
+		if (c->chld_id > 0) kill(c->pid,SIGTERM);
+	}
+
+	exit(cause);
+}
+
+#define DISP_FATAL(attrs) dispatcher_fatal attrs
 
 static void dispatcher_err(int errnum, const char* fmt, ...) {
 	size_t len= 1024;
@@ -222,12 +271,33 @@ static char* param_get_interfaces(char** err) {
 	return s;
 }
 
+static struct timeval disp_loop_timeout;
+
+static char* param_get_loop_to(char** err _U_) {
+	return g_strdup_printf("%d.%6ds",(int)disp_loop_timeout.tv_sec, (int)disp_loop_timeout.tv_usec );
+}
+
+static echld_bool_t param_set_loop_to(char* val , char** err ) {
+	char* p;
+	int usec = (int)strtol(val, &p, 10); /*XXX: "10ms" or "500us" or "1s" */
+
+	if (p<=val) {
+		*err = g_strdup("not an integer");
+		return FALSE;
+	}
+
+	disp_loop_timeout.tv_sec = usec / 1000000;
+	disp_loop_timeout.tv_usec = usec % 1000000;
+
+	return TRUE;
+}
 
 
 static param_t disp_params[] = {
 #ifdef DEBUG_DISPATCHER
 	{"dbg_level", param_get_dbg_level, param_set_dbg_level},
 # endif
+	{"loop_timeout",param_get_loop_to,param_set_loop_to},
 	{"interfaces",param_get_interfaces,NULL},
 	{NULL,NULL,NULL} };
 
@@ -237,7 +307,7 @@ static param_t* get_paramset(char* name) {
 		if (strcmp(name,disp_params[i].name) == 0 ) return &(disp_params[i]);
 	}
 	return NULL;
-} 
+}
 
 
 static struct dispatcher_child* dispatcher_get_child(struct dispatcher* d, guint16 chld_id) {
@@ -255,6 +325,7 @@ static struct dispatcher_child* dispatcher_get_child(struct dispatcher* d, guint
 
 
 static void dispatcher_clear_child(struct dispatcher_child* c) {
+	DISP_DBG((5,"dispatcher_clear_child chld_id=%d",c->chld_id));
 	echld_reset_reader(&(c->reader), -1, 4096);
 	c->chld_id = 0;
 	c->write_fd = 0;
@@ -263,12 +334,20 @@ static void dispatcher_clear_child(struct dispatcher_child* c) {
 }
 
 static void preinit_epan(void) {
+	DISP_DBG((2,"preinit_epan"));
   /* Here we do initialization of parts of epan that will be the same for every child we fork */
 }
 
 
 static void dispatcher_clear(void) {
+	DISP_DBG((2,"Child chld_id=%d ->CAPTURING"));
 	/* remove unnecessary stuff for the working child */
+}
+
+void dispatcher_sig(int sig) {
+	DISP_FATAL((TERMINATED,"SIG sig=%d",sig));
+	exit(1);
+
 }
 
 void dispatcher_reaper(int sig) {
@@ -316,7 +395,7 @@ void dispatcher_reaper(int sig) {
 				if (s) g_free(s);
 			}
 
-			echld_write_frame(dispatcher->parent_out, em, c->chld_id, ECHLD_CHILD_DEAD, 0, NULL);
+			DISP_WRITE(dispatcher->parent_out, em, c->chld_id, ECHLD_CHILD_DEAD, 0);
 			dispatcher_clear_child(c);
 			g_byte_array_free(em,TRUE);
 			return;
@@ -369,19 +448,38 @@ static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, e
 	switch(type) {
 		case ECHLD_ERROR: break;
 		case ECHLD_TIMED_OUT: break;
-		case ECHLD_HELLO: c->state = IDLE; break;
-		case ECHLD_CLOSING: c->closing = TRUE; c->state = CLOSED; break;
+		case ECHLD_HELLO:
+			c->state = IDLE;
+			DISP_DBG((2,"Child chld_id=%d ->IDLE",c->chld_id));
+			break;
+		case ECHLD_CLOSING:
+			c->closing = TRUE;
+			c->state = CLOSED;
+			DISP_DBG((2,"Child chld_id=%d ->CLOSED",c->chld_id));
+			break;
 		case ECHLD_PARAM: break;
 		case ECHLD_PONG: break;
-		case ECHLD_FILE_OPENED: c->state = READING; break;
-		case ECHLD_INTERFACE_OPENED: c->state = READY; break;
-		case ECHLD_CAPTURE_STARTED: c->state = CAPTURING; break;
+		case ECHLD_FILE_OPENED:
+			c->state = READING;
+			DISP_DBG((2,"Child chld_id=%d ->READING",c->chld_id));
+			break;
+		case ECHLD_INTERFACE_OPENED:
+			c->state = READY;
+			DISP_DBG((2,"Child chld_id=%d ->READY",c->chld_id));
+			break;
+		case ECHLD_CAPTURE_STARTED:
+			c->state = CAPTURING;
+			DISP_DBG((2,"Child chld_id=%d ->CAPTURING",c->chld_id));
+			break;
 		case ECHLD_NOTIFY: break; // notify(pre-encoded) 
 		case ECHLD_PACKET_SUM: break; // packet_sum(pre-encoded)
 		case ECHLD_TREE: break; //tree(framenum, tree(pre-encoded) ) 
 		case ECHLD_BUFFER: break; // buffer (name,range,totlen,data)
-		case ECHLD_EOF: c->state = DONE; break; 
-		case ECHLD_CAPTURE_STOPPED: c->state = DONE; break; 
+		case ECHLD_EOF:
+		case ECHLD_CAPTURE_STOPPED:
+			c->state = DONE;
+			DISP_DBG((2,"Child chld_id=%d ->DONE",c->chld_id));
+			break; 
 		case ECHLD_NOTE_ADDED: break; 
 		case ECHLD_PACKET_LIST: break; // packet_list(name,filter,range);
 		case ECHLD_FILE_SAVED: break;
@@ -389,8 +487,9 @@ static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, e
 		default:
 			goto misbehabing;
 	}
-
-	return echld_write_frame(dispatcher->parent_out, &in_ba, chld_id, type, reqh_id, NULL);
+	
+	DISP_DBG((4,"Dispatching to child reqh_id=%d chld_id=%d type='%c'",reqh_id,c->chld_id,type));
+	return DISP_WRITE(dispatcher->parent_out, &in_ba, chld_id, type, reqh_id);
 
 misbehabing:
 	c->state = ERRORED;
@@ -415,6 +514,7 @@ void dispatch_new_child(struct dispatcher* dd) {
 		int pipe_to_child;
 		int pipe_from_child;
 
+		DISP_DBG((5,"new_child pipe(parent)"));
 		if( pipe(parent_pipe_fds) < 0) {
 			dispatcher_err(ECHLD_ERR_CANNOT_FORK,"CANNOT OPEN PARENT PIPE: %s",strerror(errno));
 			return;
@@ -423,6 +523,7 @@ void dispatch_new_child(struct dispatcher* dd) {
 		pipe_from_parent = parent_pipe_fds[0];
 		pipe_to_child = parent_pipe_fds[1];
 
+		DISP_DBG((5,"new_child pipe(child)"));
 		if( pipe(child_pipe_fds) < 0) {
 			close(pipe_from_parent);
 			close(pipe_to_child);
@@ -433,6 +534,7 @@ void dispatch_new_child(struct dispatcher* dd) {
 		pipe_from_child = child_pipe_fds[0];
 		pipe_to_parent = child_pipe_fds[1];
 
+		DISP_DBG((4,"New Child Forking()"));
 		switch (( pid = fork() )) {
 			case -1: {
 				close(pipe_to_child);
@@ -477,10 +579,12 @@ void dispatch_new_child(struct dispatcher* dd) {
 				echld_reset_reader(&(c->reader), pipe_from_child,4096);
 				c->write_fd = pipe_to_child;
 				c->pid = pid;
-				dispatcher->nchildren++;
+				c->chld_id = dispatcher->nchildren++;
+
+				DISP_DBG((4,"Child Forked pid=%d chld_id=%d",pid,c->chld_id));
 
 				/* configure child */
-				echld_write_frame(pipe_to_child, &out_ba, c->chld_id, ECHLD_NEW_CHILD, dispatcher->reqh_id, NULL);
+				DISP_WRITE(pipe_to_child, &out_ba, c->chld_id, ECHLD_NEW_CHILD, dispatcher->reqh_id);
 				return;
 			}
 		}
@@ -494,21 +598,19 @@ void dispatch_new_child(struct dispatcher* dd) {
 /* process signals sent from parent */
 static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data) {
 	struct dispatcher* disp = (struct dispatcher*)data;
-	GByteArray in_ba;
 
 	disp->reqh_id = reqh_id;
 
-	in_ba.data = b;
-	in_ba.len = (guint)len;
 
 	if (chld_id == 0) { /* these are messages to the dispatcher itself */
+		DISP_DBG((2,"Message to Dispatcher"));
 		switch(type) {
 			case ECHLD_CLOSE_CHILD:
 				dispatcher_destroy();
 				return 0;
 			case ECHLD_PING: 
-				echld_write_frame(disp->parent_out, &in_ba, chld_id, ECHLD_PONG, reqh_id, NULL);
-
+				DISP_DBG((2,"PONG reqh_id=%d",reqh_id));
+				DISP_WRITE(disp->parent_out, NULL, chld_id, ECHLD_PONG, reqh_id);
 				return 0;
 			case ECHLD_NEW_CHILD:
 				dispatch_new_child(disp);
@@ -589,6 +691,8 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 	} else {
 		struct dispatcher_child* c;
 
+		DISP_DBG((2,"Message to Child"));
+
 		if (! (c = dispatcher_get_child(dispatcher, chld_id)) ) {
 			dispatcher_err(ECHLD_ERR_NO_SUCH_CHILD, "wrong chld_id %d", chld_id);
 			return 0;
@@ -598,21 +702,26 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 			case ECHLD_CLOSE_CHILD: 
 				c->closing = TRUE;
 				c->state = CLOSED;
+				DISP_DBG((2,"Child chld_id=%d ->CLOSED",chld_id));
 				goto relay_frame;
 
 			case ECHLD_OPEN_FILE:
 				c->state = READING;
+				DISP_DBG((2,"Child chld_id=%d ->READING",chld_id));
 				goto relay_frame;
 
 			case ECHLD_OPEN_INTERFACE:
 				c->state = READY;
+				DISP_DBG((2,"Child chld_id=%d ->READY",chld_id));
 				goto relay_frame;
 
 			case ECHLD_START_CAPTURE:
+				DISP_DBG((2,"Child chld_id=%d ->CAPTURING",chld_id));
 				c->state = CAPTURING;
 				goto relay_frame;
 
 			case ECHLD_STOP_CAPTURE:
+				DISP_DBG((2,"Child chld_id=%d ->DONE",chld_id));
 				c->state = DONE;
 				goto relay_frame;
 
@@ -625,9 +734,15 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 			case ECHLD_GET_TREE:
 			case ECHLD_GET_BUFFER:
 			case ECHLD_ADD_NOTE:
-			relay_frame:
-				return echld_write_frame(c->write_fd, &in_ba, chld_id, type, reqh_id, NULL);
+			relay_frame: {
+				GByteArray in_ba;
 
+				in_ba.data = b;
+				in_ba.len = (guint)len;
+
+				DISP_DBG((3,"Relay to Child chld_id=%d type='%c' req_id=%d",chld_id, type, reqh_id));
+				return DISP_WRITE(c->write_fd, &in_ba, chld_id, type, reqh_id);
+			}
 			default:
 				dispatcher_err(ECHLD_ERR_WRONG_MSG, "wrong message %d %c", reqh_id, type);
 				return 0;
@@ -636,18 +751,23 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 }
 
 
+
+
 int dispatcher_loop(void) {
 	int parent_out = dispatcher->parent_out;
 	int parent_in = dispatcher->parent_in.fd;
-
 	struct dispatcher_child* children = dispatcher->children;
+	volatile int pforce = 0;
+
+	DISP_DBG((5,"LOOP in_fd=%d out_fd=%d",parent_in, parent_out));
 
 	do {
 		fd_set rfds;
 		fd_set efds;
-		struct timeval timeout;
 		struct dispatcher_child* c;
 		int nfds;
+		int nchld = 0;
+
 
 		FD_ZERO(&rfds);
 		FD_ZERO(&efds);
@@ -656,42 +776,58 @@ int dispatcher_loop(void) {
 		FD_SET(parent_in,&efds);
 		FD_SET(parent_out,&efds);
 
-		for (c = children, nfds = 0; c->pid; c++) {
-			if (c->chld_id) {
+		for (c = children; c->pid; c++) {
+			if (c->chld_id > 0) {
+				nchld++;
 				FD_SET(c->reader.fd, &rfds);
 				FD_SET(c->reader.fd, &efds);
 			}
-			nfds++;
 		}
 
-		nfds = select(nfds, &rfds, NULL, &efds, &timeout);
+		DISP_DBG((5,"Select()ing nchld=%d usecs=%d",nchld,disp_loop_timeout.tv_usec));
 
-		if ( FD_ISSET(parent_in, &efds) || FD_ISSET(parent_out, &efds) ) {
-			/* XXX deep shit */
-			break;
+		nfds = select(FD_SETSIZE, &rfds, NULL, &efds, &disp_loop_timeout);
+
+		if (nfds < 0) {
+			DISP_DBG((1,"select error='%s'",strerror(errno) ));
+			continue;
 		}
 
-		if (FD_ISSET(parent_in, &rfds)) {
+		if ( pforce || FD_ISSET(parent_in, &rfds)) {
 			long st = echld_read_frame(&(dispatcher->parent_in), dispatch_to_child, dispatcher);
 
 			if (st < 0) {
-				/* XXX */
+				DISP_DBG((1,"read frame returning < 0 for parent"));
+				/* XXX: ??? */
 				continue;
 			}
 		}
 
+		if ( FD_ISSET(parent_in, &efds) ) {
+			DISP_DBG((1,"Parent In Pipe Errored!"));
+			continue;
+		}
+
+		if ( FD_ISSET(parent_out, &efds) ) {
+			DISP_DBG((1,"Parent Out Pipe Errored!"));
+			continue;
+		}
+
+
 		for (c=children; c->pid; c++) {
 			if (c->chld_id) {
-				if ( FD_ISSET(c->reader.fd,&efds) ) {
-					/* XXX cleanup child and report */
-					continue;
-				}
+				// if ( FD_ISSET(c->reader.fd,&efds) ) {
+				// 	DISP_DBG((1,"errored child pipe chld_id=%d",c->chld_id));
+				// 	dispatcher_clear_child(c);
+				// 	continue;	
+				// }
 
 				if (FD_ISSET(c->reader.fd,&rfds)) {
 					long st = echld_read_frame(&(c->reader), dispatch_to_parent, c);
 
 					if (st < 0) {
-						/* XXX cleanup child and report */
+						DISP_DBG((1,"read_frame returned < 0 for chld_id=%d",c->chld_id));
+						/* XXX */
 						continue;
 					}
 					continue;
@@ -704,16 +840,33 @@ int dispatcher_loop(void) {
 	return 1;
 }
 
+
 void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds) {
 	static struct dispatcher d;
-	int fdt_len = getdtablesize();
-	int i;
+#ifdef DEBUG_DISPATCHER
+	int dbg_fd;
+#endif
 
-	preinit_epan();
+	disp_loop_timeout.tv_sec = 0;
+	disp_loop_timeout.tv_usec = DISPATCHER_WAIT_INITIAL;
+
+	DISP_DBG_INIT();
+	DISP_DBG_START("dispatcher.debug");
+#ifdef DEBUG_DISPATCHER
+	dbg_fd = fileno(debug_fp);
+#endif
+	DISP_DBG((2,"Dispatcher Starting"));
+
 
 	signal(SIGCHLD,dispatcher_reaper);
 
+	signal(SIGTERM,dispatcher_sig);
+	signal(SIGPIPE,dispatcher_sig);
+	signal(SIGINT,SIG_IGN);
+	signal(SIGCONT,SIG_IGN);
+
 	dispatcher = &d;
+
 
 	echld_init_reader(&(d.parent_in),in_pipe_fds[0],4096);
 	d.parent_out = out_pipe_fds[1];
@@ -723,19 +876,19 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds) {
 	d.reqh_id = -1;
 	d.pid = getpid();
 
+	close(out_pipe_fds[0]);
+	close(in_pipe_fds[1]);
+
 	echld_get_all_codecs(&(d.enc.to_parent), &(d.dec.from_parent), &(d.enc.to_child), &(d.dec.from_child));
 
-	dispatcher_clear();
+	DISP_DBG((2,"Dispatcher Configured pid=%d parent_in=%d parent_out=%d",d.pid,in_pipe_fds[0],d.parent_out));
 
-	/* close all fds but those used */
-	for(i=0;i<fdt_len;i++) {
-		if ( i != d.parent_in.fd
-			&& i != d.parent_out
-			&& i != STDERR_FILENO ) {
-			close(i);
-		}
-	}
+	preinit_epan();
 
 	exit(dispatcher_loop());
+}
+
+extern void echld_dispatcher_unused(void) {
+	DISP_FATAL((1,"UNUSED"));
 }
 

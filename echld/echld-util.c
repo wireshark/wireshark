@@ -47,15 +47,20 @@ static gboolean pong(echld_msg_type_t type, GByteArray* ba _U_, void* data) {
 	struct timeval t;
 	long ret = -1;
 	gettimeofday(&t,NULL);
+
 	
 	switch (type) {
 		case ECHLD_PONG:
 			ret = timevaldiff(&(p->tv),&t);
+			break;
 		default:
 			ret = -1;
+			break;
 	}
 
 	if (p->cb) p->cb(ret, p->cb_data);
+
+	g_free(p);
 
 	return TRUE;
 }
@@ -68,7 +73,7 @@ extern echld_state_t echld_ping(int chld_id, echld_ping_cb_t pcb, void* cb_data)
 	p->cb_data = cb_data;
 	gettimeofday(&(p->tv),NULL);
 
-	return echld_reqh(chld_id, 0, ECHLD_PING, NULL, pong, p);
+	return echld_reqh(chld_id, ECHLD_PING, 0, NULL, pong, p);
 }
 
 

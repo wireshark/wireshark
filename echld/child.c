@@ -60,7 +60,7 @@ static echld_child_t child;
 #define CHILD_RESP(BYTEARR,TYPE) echld_write_frame(child.fds.pipe_to_parent, BYTEARR, child.chld_id, TYPE, child.reqh_id, NULL)
 
 #ifdef DEBUG_CHILD
-static int dbg_level = 0;
+static int dbg_level = DEBUG_CHILD;
 
 void child_debug(int level, const char* fmt, ...) {
 	va_list ap;
