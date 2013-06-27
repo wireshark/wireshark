@@ -671,11 +671,13 @@ wmem_test_tree(void)
 
     /* test array key functionality */
     tree = wmem_tree_new(allocator);
+    key_count = g_random_int_range(1, WMEM_TREE_MAX_KEY_COUNT);
+    for (j=0; j<key_count; j++) {
+        keys[j].length = g_random_int_range(1, WMEM_TREE_MAX_KEY_LEN);
+    }
+    keys[key_count].length = 0;
     for (i=0; i<CONTAINER_ITERS; i++) {
-        key_count = g_random_int_range(1, WMEM_TREE_MAX_KEY_COUNT);
-        keys[key_count].length = 0;
         for (j=0; j<key_count; j++) {
-            keys[j].length = g_random_int_range(1, WMEM_TREE_MAX_KEY_LEN);
             keys[j].key    = (guint32*)wmem_test_rand_string(allocator,
                     (keys[j].length*4), (keys[j].length*4)+1);
         }
