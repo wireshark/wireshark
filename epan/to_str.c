@@ -74,17 +74,13 @@ word_to_hex(char *out, guint16 word) {
 
 char *
 word_to_hex_npad(char *out, guint16 word) {
-  static const gchar hex_digits[16] =
-      { '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
 	if (word >= 0x1000)
-		*out++ = hex_digits[(word >> 12) & 0xF];
+		*out++ = octet_to_hex(word >> 12);
 	if (word >= 0x0100)
-		*out++ = hex_digits[(word >> 8) & 0xF];
+		*out++ = octet_to_hex(word >> 8);
 	if (word >= 0x0010)
-		*out++ = hex_digits[(word >> 4) & 0xF];
-	*out++ = hex_digits[word & 0xF];
+		*out++ = octet_to_hex(word >> 4);
+	*out++ = octet_to_hex(word);
 	return out;
 }
 
