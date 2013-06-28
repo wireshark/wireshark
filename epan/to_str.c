@@ -43,7 +43,7 @@
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
 
 static inline char
-octet_to_hex(guint8 oct)
+low_nibble_of_octet_to_hex(guint8 oct)
 {
   /* At least one version of Apple's C compiler/linker is buggy, causing
      a complaint from the linker about the "literal C string section"
@@ -60,8 +60,8 @@ octet_to_hex(guint8 oct)
 
 static inline char *
 byte_to_hex(char *out, guint32 dword) {
-  *out++ = octet_to_hex(dword >> 4);
-  *out++ = octet_to_hex(dword);
+  *out++ = low_nibble_of_octet_to_hex(dword >> 4);
+  *out++ = low_nibble_of_octet_to_hex(dword);
   return out;
 }
 
@@ -75,12 +75,12 @@ word_to_hex(char *out, guint16 word) {
 char *
 word_to_hex_npad(char *out, guint16 word) {
 	if (word >= 0x1000)
-		*out++ = octet_to_hex(word >> 12);
+		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 12));
 	if (word >= 0x0100)
-		*out++ = octet_to_hex(word >> 8);
+		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 8));
 	if (word >= 0x0010)
-		*out++ = octet_to_hex(word >> 4);
-	*out++ = octet_to_hex(word);
+		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 4));
+	*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 0));
 	return out;
 }
 
@@ -1135,7 +1135,7 @@ char *
 hex_to_str_back(char *ptr, int pad, guint32 value)
 {
 	do {
-		*(--ptr) = octet_to_hex(value);
+		*(--ptr) = low_nibble_of_octet_to_hex(value);
 		value >>= 4;
 		pad--;
 	} while (value);
