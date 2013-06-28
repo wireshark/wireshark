@@ -1660,63 +1660,61 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     then
       CFLAGS="$CFLAGS -Werror $GCC_OPTION"
     fi
-    AC_COMPILE_IFELSE([
-      AC_LANG_SOURCE([[
-                        int foo;
-                    ]])],
-                    [
-                      AC_MSG_RESULT(yes)
-                      can_add_to_cflags=yes
-                      #
-		      # OK, do we have a test program?  If so, check
-		      # whether it fails with this option and -Werror,
-		      # and, if so, don't include it.
-		      #
-		      # We test arg 4 here because arg 3 is a program which
-		      # could contain quotes (breaking the comparison).
-		      #
-		      if test "x$4" != "x" ; then
-                        CFLAGS="$CFLAGS -Werror"
-                        AC_MSG_CHECKING(whether $GCC_OPTION $4)
-                        AC_COMPILE_IFELSE([
-                          AC_LANG_SOURCE($3)],
-                          [
-                            AC_MSG_RESULT(no)
-                            #
-                            # Remove -Werror=unknown-warning-option, if we
-                            # added it, and -Werror by setting CFLAGS to
-                            # the saved value plus just the new option.
-                            #
-                            CFLAGS="$CFLAGS_saved $GCC_OPTION"
-                            #
-                            # Add it to the flags we use when building
-                            # build tools.
-                            #
-                            CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
-                          ],
-                          [
-                            AC_MSG_RESULT(yes)
-                            CFLAGS="$CFLAGS_saved"
-                          ])
-                      else
-                        #
-                        # Remove -Werror=unknown-warning-option, if we
-                        # added it, and -Werror by setting CFLAGS to
-                        # the saved value plus just the new option.
-                        #
-                        CFLAGS="$CFLAGS_saved $GCC_OPTION"
-                        #
-                        # Add it to the flags we use when building
-                        # build tools.
-                        #
-                        CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
-                      fi
-                    ],
-                    [
-                      AC_MSG_RESULT(no)
-                      can_add_to_cflags=no
-                      CFLAGS="$CFLAGS_saved"
-                    ])
+    AC_COMPILE_IFELSE(
+      [
+        AC_LANG_SOURCE([[int foo;]])
+      ],
+      [
+        AC_MSG_RESULT(yes)
+        can_add_to_cflags=yes
+        #
+        # OK, do we have a test program?  If so, check
+        # whether it fails with this option and -Werror,
+        # and, if so, don't include it.
+        #
+        # We test arg 4 here because arg 3 is a program which
+        # could contain quotes (breaking the comparison).
+        #
+        if test "x$4" != "x" ; then
+          CFLAGS="$CFLAGS -Werror"
+          AC_MSG_CHECKING(whether $GCC_OPTION $4)
+          AC_COMPILE_IFELSE(
+	    [AC_LANG_SOURCE($3)],
+            [
+              AC_MSG_RESULT(no)
+              #
+              # Remove "force an error for a warning" options, if we
+              # added them, by setting CFLAGS to the saved value plus
+              # just the new option.
+              #
+              CFLAGS="$CFLAGS_saved $GCC_OPTION"
+              #
+              # Add it to the flags we use when building build tools.
+              #
+              CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+            ],
+            [
+              AC_MSG_RESULT(yes)
+              CFLAGS="$CFLAGS_saved"
+            ])
+        else
+          #
+          # Remove "force an error for a warning" options, if we
+          # added them, by setting CFLAGS to the saved value plus
+          # just the new option.
+          #
+          CFLAGS="$CFLAGS_saved $GCC_OPTION"
+          #
+          # Add it to the flags we use when building build tools.
+          #
+          CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+        fi
+      ],
+      [
+        AC_MSG_RESULT(no)
+        can_add_to_cflags=no
+        CFLAGS="$CFLAGS_saved"
+      ])
   fi
   if test "$2" != C ; then
     #
@@ -1732,53 +1730,53 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
       CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
     fi
     AC_LANG_PUSH([C++])
-    AC_COMPILE_IFELSE([
-      AC_LANG_SOURCE([[
-                        int foo;
-                    ]])],
-                    [
-                      AC_MSG_RESULT(yes)
-                      can_add_to_cxxflags=yes
-                      #
-		      # OK, do we have a test program?  If so, check
-		      # whether it fails with this option and -Werror,
-		      # and, if so, don't include it.
-		      #
-		      # We test arg 4 here because arg 3 is a program which
-		      # could contain quotes (breaking the comparison).
-		      #
-		      if test "x$4" != "x" ; then
-                        CXXFLAGS="$CXXFLAGS -Werror"
-                        AC_MSG_CHECKING(whether $GCC_OPTION $4)
-                        AC_COMPILE_IFELSE([
-                          AC_LANG_SOURCE($3)],
-                          [
-                            AC_MSG_RESULT(no)
-                            #
-                            # Remove -Werror=unknown-warning-option, if we
-                            # added it, and -Werror by setting CXXFLAGS to
-                            # the saved value plus just the new option.
-                            #
-                            CXXFLAGS="$CXXFLAGS_saved $GCC_OPTION"
-                          ],
-                          [
-                            AC_MSG_RESULT(yes)
-                            CXXFLAGS="$CXXFLAGS_saved"
-                          ])
-                      else
-                        #
-                        # Remove -Werror=unknown-warning-option, if we
-                        # added it, and -Werror by setting CXXFLAGS to
-                        # the saved value plus just the new option.
-                        #
-                        CXXFLAGS="$CXXFLAGS_saved $GCC_OPTION"
-                      fi
-                    ],
-                    [
-                      AC_MSG_RESULT(no)
-                      can_add_to_cxxflags=no
-                      CXXFLAGS="$CXXFLAGS_saved"
-                    ])
+    AC_COMPILE_IFELSE(
+      [
+        AC_LANG_SOURCE([[int foo;]])
+      ],
+      [
+        AC_MSG_RESULT(yes)
+        can_add_to_cxxflags=yes
+        #
+        # OK, do we have a test program?  If so, check
+        # whether it fails with this option and -Werror,
+        # and, if so, don't include it.
+        #
+        # We test arg 4 here because arg 3 is a program which
+        # could contain quotes (breaking the comparison).
+        #
+        if test "x$4" != "x" ; then
+          CXXFLAGS="$CXXFLAGS -Werror"
+          AC_MSG_CHECKING(whether $GCC_OPTION $4)
+          AC_COMPILE_IFELSE(
+            [AC_LANG_SOURCE($3)],
+            [
+              AC_MSG_RESULT(no)
+              #
+              # Remove "force an error for a warning" options, if we
+              # added them, by setting CXXFLAGS to the saved value plus
+              # just the new option.
+              #
+              CXXFLAGS="$CXXFLAGS_saved $GCC_OPTION"
+            ],
+            [
+              AC_MSG_RESULT(yes)
+              CXXFLAGS="$CXXFLAGS_saved"
+            ])
+        else
+          #
+          # Remove "force an error for a warning" options, if we
+          # added them, by setting CXXFLAGS to the saved value plus
+          # just the new option.
+          #
+          CXXFLAGS="$CXXFLAGS_saved $GCC_OPTION"
+        fi
+      ],
+      [
+        AC_MSG_RESULT(no)
+        can_add_to_cxxflags=no
+        CXXFLAGS="$CXXFLAGS_saved"
+      ])
     AC_LANG_POP([C++])
   fi
   if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \
