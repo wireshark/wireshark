@@ -49,8 +49,6 @@
 /* Initialize the protocol and registered fields */
 static int proto_p22 = -1;
 
-static const char *object_identifier_id; /* content type identifier */
-
 static const value_string charsetreg_vals [] = {
   { 1, "C0: (ISO/IEC 6429)"},
   { 6, "G0: ASCII (ISO/IEC 646)"},

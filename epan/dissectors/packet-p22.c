@@ -57,8 +57,6 @@
 /* Initialize the protocol and registered fields */
 static int proto_p22 = -1;
 
-static const char *object_identifier_id; /* content type identifier */
-
 static const value_string charsetreg_vals [] = {
   { 1, "C0: (ISO/IEC 6429)"},
   { 6, "G0: ASCII (ISO/IEC 646)"},
@@ -340,7 +338,7 @@ static const value_string charsetreg_vals [] = {
 #define ub_telephone_number            32
 
 /*--- End of included file: packet-p22-val.h ---*/
-#line 84 "../../asn1/p22/packet-p22-template.c"
+#line 82 "../../asn1/p22/packet-p22-template.c"
 
 
 /*--- Included file: packet-p22-hf.c ---*/
@@ -725,7 +723,7 @@ static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation = -1;
 static int hf_p22_RecipientSecurityRequest_ipn_proof = -1;
 
 /*--- End of included file: packet-p22-hf.c ---*/
-#line 86 "../../asn1/p22/packet-p22-template.c"
+#line 84 "../../asn1/p22/packet-p22-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p22 = -1;
@@ -859,7 +857,7 @@ static gint ett_p22_T_body_part_token_choice = -1;
 static gint ett_p22_T_choice = -1;
 
 /*--- End of included file: packet-p22-ett.c ---*/
-#line 90 "../../asn1/p22/packet-p22-template.c"
+#line 88 "../../asn1/p22/packet-p22-template.c"
 
 
 /*--- Included file: packet-p22-fn.c ---*/
@@ -1037,11 +1035,11 @@ dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 #line 221 "../../asn1/p22/p22.cnf"
   const char *name = NULL;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
   
-  name = oid_resolved_from_string(object_identifier_id);
-  proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+  name = oid_resolved_from_string(actx->external.direct_reference);
+  proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference); 
 
 
 
@@ -1054,7 +1052,7 @@ static int
 dissect_p22_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 229 "../../asn1/p22/p22.cnf"
 
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+  offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 
@@ -3104,7 +3102,7 @@ dissect_p22_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 276 "../../asn1/p22/p22.cnf"
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
 
 
@@ -4509,7 +4507,7 @@ static void dissect_ForwardedContentToken_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p22-fn.c ---*/
-#line 92 "../../asn1/p22/packet-p22-template.c"
+#line 90 "../../asn1/p22/packet-p22-template.c"
 
 /*
 * Dissect P22 PDUs inside a PPDU.
@@ -6054,7 +6052,7 @@ void proto_register_p22(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p22-hfarr.c ---*/
-#line 124 "../../asn1/p22/packet-p22-template.c"
+#line 122 "../../asn1/p22/packet-p22-template.c"
   };
 
   /* List of subtrees */
@@ -6190,7 +6188,7 @@ void proto_register_p22(void) {
     &ett_p22_T_choice,
 
 /*--- End of included file: packet-p22-ettarr.c ---*/
-#line 130 "../../asn1/p22/packet-p22-template.c"
+#line 128 "../../asn1/p22/packet-p22-template.c"
   };
 
   /* Register protocol */
@@ -6310,7 +6308,7 @@ void proto_reg_handoff_p22(void) {
 
 
 /*--- End of included file: packet-p22-dis-tab.c ---*/
-#line 146 "../../asn1/p22/packet-p22-template.c"
+#line 144 "../../asn1/p22/packet-p22-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");

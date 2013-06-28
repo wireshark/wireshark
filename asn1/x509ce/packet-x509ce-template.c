@@ -50,9 +50,6 @@ static int hf_x509ce_IPAddress = -1;
 
 /* Initialize the subtree pointers */
 #include "packet-x509ce-ett.c"
-
-static const char *object_identifier_id;
-
 #include "packet-x509ce-fn.c"
 
 /* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
