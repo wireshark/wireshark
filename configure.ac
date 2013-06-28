@@ -559,12 +559,12 @@ AC_ARG_ENABLE(extra-gcc-checks,
 	wireshark_extra_gcc_flags=$enableval
 	if test $enableval != no
 	then
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-pedantic)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-pedantic)
 		#
 		# Various code blocks this one.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Woverflow)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Woverflow)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
 		#
 		# Some memset() calls to clear out structures
 		# on the stack are getting flagged as "will never
@@ -573,60 +573,60 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		# Apple Inc. build 5658) (LLVM build 2336.11.00), for
 		# some unknown reason.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunreachable-code)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
 		#
 		# Due to various places where APIs we don't control
 		# require us to cast away constness, we can probably
 		# never enable these ones with -Werror.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast, C)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-qual)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
 		#
 		# Some generated ASN.1 dissectors block this one;
 		# multiple function declarations for the same
 		# function are being generated.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wredundant-decls)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wredundant-decls)
 		#
 		# Some loops are safe, but it's hard to convince the
 		# compiler of that.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunsafe-loop-optimizations)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunsafe-loop-optimizations)
 		#
 		# All the registration functions block these for now.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-declarations)
 		#
 		# A bunch of "that might not work on SPARC" code blocks
 		# this one for now.
 		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
 	fi
 ],)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wextra) # -W is now known as -Wextra
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement, C)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign, C)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes, C)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wjump-misses-init, C)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wvla)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Waddress)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wattributes)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdiv-by-zero)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wignored-qualifiers)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpragmas)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wextra) # -W is now known as -Wextra
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wendif-labels)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpointer-arith)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-pointer-sign, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Warray-bounds)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wformat-security)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wold-style-definition, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wstrict-prototypes, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wvla)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Waddress)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Warray-bounds)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wattributes)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdiv-by-zero)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wignored-qualifiers)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpragmas)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-overlength-strings)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wwrite-strings)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
 
 #
 # XXX - OK for C++?
@@ -637,7 +637,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat, C)
 # some Xcode versions that came with Mac OS X 10.5) complain about
 # that.
 #
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow, C,
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshadow, C,
   [
 extern int bar(int a);
 extern int foo(int);
@@ -655,7 +655,7 @@ foo(int a)
 # Unfortunately some versions of gcc generate logical-op warnings when strchr()
 # is given a constant string.
 # gcc versions 4.3.2 and 4.4.5 are known to have the problem.
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op, C,
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wlogical-op, C,
   [
 #include <string.h>
 
@@ -690,17 +690,17 @@ bar(void)
 #
 case "$host_os" in
 darwin*)
-	AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-deprecated-declarations)
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-deprecated-declarations)
 	;;
 esac
 
 #
 # Use the faster pre gcc 4.5 floating point precision if available.
 #
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fexcess-precision=fast)
 
 CFLAGS_before_fvhidden=$CFLAGS
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-fvisibility=hidden)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fvisibility=hidden)
 if test "x$CLFAGS" = "x$CFLAGS_before_fvhidden"
 then
 	# TODO add other ways of hiding symbols
@@ -721,7 +721,7 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # in the address space to make attacks more difficult.
 #
 CFLAGS_before_pie=$CFLAGS
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-fPIE, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE, C)
 if test "x$CLFAGS" != "x$CFLAGS_before_pie"
 then
 	# Restore CFLAGS

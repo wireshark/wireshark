@@ -1611,9 +1611,9 @@ AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
     ])
 
 #
-# AC_WIRESHARK_GCC_CFLAGS_CHECK
+# AC_WIRESHARK_COMPILER_FLAGS_CHECK
 #
-# $1 : cflags to test
+# $1 : flags to test
 # $2 : if supplied, C for C-only flags, CXX for C++-only flags
 # $3 : if supplied, a program to try to compile with the flag
 #      and, if the compile fails when -Werror is turned on,
@@ -1630,7 +1630,7 @@ AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
 # We do this because not all such options are necessarily supported by
 # the version of the particular compiler we're using.
 #
-AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
+AC_DEFUN([AC_WIRESHARK_COMPILER_FLAGS_CHECK],
 [GCC_OPTION="$1"
 can_add_to_cflags=""
 can_add_to_cxxflags=""
