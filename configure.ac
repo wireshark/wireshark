@@ -55,6 +55,42 @@ dnl Work around libtool bug (fixed in the version 1.5a?)
 AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
+if test ! -z "$CXX"; then
+	#
+	# OK, we found something AC_LANG_CXX thinks is a C++ compiler,
+	# but is it one?
+	#
+	# Some UN*Xes have, by default, a case-insensitive file
+	# system, and AC_PROG_CXX looks for, among other things,
+	# "CC" as a C++ compiler, and, if you have a case-insensitive
+	# file system and a C compiler named "cc" (both true, by
+	# default, on OS X), AC_PROG_CXX may end up thinking it's
+	# the C++ compiler.
+	#
+	# So we check by feeding the purported C++ compiler a
+	# program using C++ features (iostream).
+	#
+	# We do this after AC_PROG_LIBTOOL; if we did so before, and
+	# cleared CXX if what we had isn't a C++ compiler, that'd
+	# get undone by AC_PROG_LIBTOOL for some reason.
+	#
+	AC_MSG_CHECKING(whether $CXX is a C++ compiler)
+	AC_LANG_PUSH([C++])
+	AC_LINK_IFELSE([AC_LANG_PROGRAM(
+	[
+#include <iostream>
+	],
+	[
+	std::cout << "Hello World! ";
+	return 0;
+	])],
+		[AC_MSG_RESULT(yes)],
+		[
+			AC_MSG_RESULT(no)
+			CXX=""
+		])
+	AC_LANG_POP([C++])
+fi
 AC_PATH_PROG(PERL, perl)
 
 # Check for Python.
@@ -1070,32 +1106,9 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		# Make sure we have a C++ compiler.
 		#
-		# Some UN*Xes have, by default, a case-insensitive file
-		# system, and AC_PROG_CXX looks for, among other things,
-		# "CC" as a C++ compiler, and, if you have a case-insensitive
-		# file system and a C compiler named "cc" (both true, by
-		# default, on OS X), AC_PROG_CXX may end up thinking it's
-		# the C++ compiler.
-		#
-		# So we check by feeding the purported C++ compiler a
-		# program using C++ features (iostream).
-		#
-		AC_MSG_CHECKING(whether we have a working C++ compiler)
-		AC_LANG_PUSH([C++])
-		AC_LINK_IFELSE([AC_LANG_PROGRAM(
-		[
-#include <iostream>
-		],
-		[
-	std::cout << "Hello World! ";
-	return 0;
-		])],
-			[AC_MSG_RESULT(yes)],
-			[
-				AC_MSG_RESULT(no)
-				 AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
-			])
-		AC_LANG_POP([C++])
+		if test -z "$CXX"; then
+			AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
+		fi
 
 		AM_PATH_QT($QT_MIN_VERSION,
 		[
