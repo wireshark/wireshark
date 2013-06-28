@@ -1632,20 +1632,8 @@ AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
 #
 AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
 [GCC_OPTION="$1"
-case "$2" in
-C)
-  AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
-  ;;
-
-CXX)
-  AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
-  ;;
-
-*)
-  AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS and CXXFLAGS)
-  ;;
-esac
-
+can_add_to_cflags=""
+can_add_to_cxxflags=""
 if test "x$ac_supports_gcc_flags" = "xyes" ; then
   if test "$2" != CXX ; then
     #
@@ -1663,6 +1651,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     # with -Werror or annoying noise for files compiled without it.
     # (Yeah, you, clang.)
     #
+    AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
     CFLAGS_saved="$CFLAGS"
     if expr "$GCC_OPTION" : "-W.*" >/dev/null
     then
@@ -1677,6 +1666,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                     ]])],
                     [
                       AC_MSG_RESULT(yes)
+                      can_add_to_cflags=yes
                       #
 		      # OK, do we have a test program?  If so, check
 		      # whether it fails with this option and -Werror,
@@ -1703,12 +1693,6 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                             # build tools.
                             #
                             CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
-                            if test "$2" != C ; then
-                              #
-                              # Add it to the C++ flags as well.
-                              #
-                              CXXFLAGS="$CXXFLAGS $GCC_OPTION"
-                            fi
                           ],
                           [
                             AC_MSG_RESULT(yes)
@@ -1726,22 +1710,19 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                         # build tools.
                         #
                         CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
-                        if test "$2" != C ; then
-                          #
-                          # Add it to the C++ flags as well.
-                          #
-                          CXXFLAGS="$CXXFLAGS $GCC_OPTION"
-                        fi
                       fi
                     ],
                     [
                       AC_MSG_RESULT(no)
+                      can_add_to_cflags=no
                       CFLAGS="$CFLAGS_saved"
                     ])
-  else
+  fi
+  if test "$2" != C ; then
     #
-    # C++-only; if this can be added to the C++ compiler flags, add them.
+    # Not C-only; if this can be added to the C++ compiler flags, add them.
     #
+    AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
     CXXFLAGS_saved="$CXXFLAGS"
     if expr "$GCC_OPTION" : "-W.*" >/dev/null
     then
@@ -1757,6 +1738,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                     ]])],
                     [
                       AC_MSG_RESULT(yes)
+                      can_add_to_cxxflags=yes
                       #
 		      # OK, do we have a test program?  If so, check
 		      # whether it fails with this option and -Werror,
@@ -1794,9 +1776,15 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                     ],
                     [
                       AC_MSG_RESULT(no)
+                      can_add_to_cxxflags=no
                       CXXFLAGS="$CXXFLAGS_saved"
                     ])
     AC_LANG_POP([C++])
+  fi
+  if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \
+       -o "(" "$can_add_to_cflags" = "no" -a "$can_add_to_cxxflags" = "yes" ")"
+  then
+    AC_MSG_WARN([$CC and $CXX appear to be a mismatched pair])
   fi
 else
   AC_MSG_RESULT(no)
