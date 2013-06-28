@@ -53,7 +53,6 @@
 
 static guint global_p7_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-static const char *object_identifier_id = NULL; /* attribute identifier */
 static int seqno = 0;
 
 static void prefs_register_p7(void); /* forward declaration for use in preferences registration */
@@ -121,7 +120,7 @@ static int proto_p7 = -1;
 #define ub_ua_restrictions             16
 
 /*--- End of included file: packet-p7-val.h ---*/
-#line 58 "../../asn1/p7/packet-p7-template.c"
+#line 57 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-hf.c ---*/
@@ -493,7 +492,7 @@ static int hf_p7_T_entry_class_problem_entry_class_not_subscribed = -1;
 static int hf_p7_T_entry_class_problem_inappropriate_entry_class = -1;
 
 /*--- End of included file: packet-p7-hf.c ---*/
-#line 60 "../../asn1/p7/packet-p7-template.c"
+#line 59 "../../asn1/p7/packet-p7-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
@@ -635,7 +634,7 @@ static gint ett_p7_RTSE_apdus = -1;
 static gint ett_p7_RTABapdu = -1;
 
 /*--- End of included file: packet-p7-ett.c ---*/
-#line 64 "../../asn1/p7/packet-p7-template.c"
+#line 63 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table.c ---*/
@@ -678,7 +677,7 @@ static const value_string p7_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p7-table.c ---*/
-#line 66 "../../asn1/p7/packet-p7-template.c"
+#line 65 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-fn.c ---*/
@@ -694,7 +693,7 @@ static int dissect_p7_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p7_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
   return offset;
 }
@@ -703,8 +702,8 @@ dissect_p7_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p7_AttributeItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -742,7 +741,7 @@ dissect_p7_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p7_AutoActionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
   return offset;
 }
@@ -761,8 +760,8 @@ dissect_p7_INTEGER_1_ub_per_auto_action(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_p7_T_registration_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 
@@ -800,8 +799,8 @@ dissect_p7_T_error_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p7_T_error_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -947,7 +946,7 @@ dissect_p7_T_initiator_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	  offset = dissect_p1_ORAddressAndOrDirectoryName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 
-	if ((ora = p1_get_last_oraddress())) {
+	if ((ora = p1_get_last_oraddress(actx))) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (initiator=%s)", ora);
 	}
 
@@ -1406,8 +1405,8 @@ dissect_p7_Range(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_p7_T_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -1432,8 +1431,8 @@ dissect_p7_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_p7_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -1443,8 +1442,8 @@ dissect_p7_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p7_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -1454,8 +1453,8 @@ dissect_p7_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_p7_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -1517,8 +1516,8 @@ dissect_p7_T_substrings(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p7_T_match_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -1756,11 +1755,11 @@ static const ber_sequence_t EntryInformation_sequence[] = {
 
 static int
 dissect_p7_EntryInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EntryInformation_sequence, hf_index, ett_p7_EntryInformation);
 
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 
 
   return offset;
@@ -1886,8 +1885,8 @@ dissect_p7_Span(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_p7_SummaryPresentItemValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -2372,7 +2371,7 @@ dissect_p7_T_registrations(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_p7_T_extended_registrations_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	/* XXX: Is this really the best way to do this? */
-	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
 
   return offset;
@@ -2602,8 +2601,8 @@ dissect_p7_T_entries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p7_OrderedAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
   return offset;
@@ -2687,11 +2686,11 @@ static const ber_sequence_t EntryModification_set[] = {
 
 static int
 dissect_p7_EntryModification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               EntryModification_set, hf_index, ett_p7_EntryModification);
 
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 
   return offset;
 }
@@ -2751,11 +2750,11 @@ static const ber_sequence_t MSMessageSubmissionArgument_sequence[] = {
 
 static int
 dissect_p7_MSMessageSubmissionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	p1_initialize_content_globals (tree, TRUE);
+	p1_initialize_content_globals (actx, tree, TRUE);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MSMessageSubmissionArgument_sequence, hf_index, ett_p7_MSMessageSubmissionArgument);
 
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 
 
   return offset;
@@ -2892,8 +2891,8 @@ dissect_p7_AttributeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_p7_T_attr_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 
@@ -4081,7 +4080,7 @@ static void dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
-#line 68 "../../asn1/p7/packet-p7-template.c"
+#line 67 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table11.c ---*/
@@ -4113,7 +4112,7 @@ static const ros_opr_t p7_opr_tab[] = {
 
 
 /*--- End of included file: packet-p7-table11.c ---*/
-#line 70 "../../asn1/p7/packet-p7-template.c"
+#line 69 "../../asn1/p7/packet-p7-template.c"
 
 /*--- Included file: packet-p7-table21.c ---*/
 #line 1 "../../asn1/p7/packet-p7-table21.c"
@@ -4152,7 +4151,7 @@ static const ros_err_t p7_err_tab[] = {
 
 
 /*--- End of included file: packet-p7-table21.c ---*/
-#line 71 "../../asn1/p7/packet-p7-template.c"
+#line 70 "../../asn1/p7/packet-p7-template.c"
 
 static const ros_info_t p7_ros_info = {
   "P7",
@@ -5632,7 +5631,7 @@ void proto_register_p7(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p7-hfarr.c ---*/
-#line 90 "../../asn1/p7/packet-p7-template.c"
+#line 89 "../../asn1/p7/packet-p7-template.c"
   };
 
   /* List of subtrees */
@@ -5776,7 +5775,7 @@ void proto_register_p7(void) {
     &ett_p7_RTABapdu,
 
 /*--- End of included file: packet-p7-ettarr.c ---*/
-#line 96 "../../asn1/p7/packet-p7-template.c"
+#line 95 "../../asn1/p7/packet-p7-template.c"
   };
   module_t *p7_module;
 
@@ -5835,7 +5834,7 @@ void proto_reg_handoff_p7(void) {
 
 
 /*--- End of included file: packet-p7-dis-tab.c ---*/
-#line 122 "../../asn1/p7/packet-p7-template.c"
+#line 121 "../../asn1/p7/packet-p7-template.c"
 
   /* APPLICATION CONTEXT */
 

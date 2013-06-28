@@ -302,45 +302,45 @@ ProtectedChangeCredentials			B	"2.6.4.9.4"	"id-ext-protected-change-credentials"
 
 RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
-#.FN_PARS	AttributeType	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_PARS	AttributeType	FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY 	Attribute/attribute-values/_item
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	AttributeValueAssertion/attribute-value
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/initial
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/any
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	FilterItem/substrings/strings/_item/final
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	MatchingRuleAssertion/match-value
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	Summary/present/_item/value
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY 	OrderedAttribute/attribute-values/_item/value
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
-#.FN_PARS	AutoActionType	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_PARS	AutoActionType	FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY	AutoActionRegistration/registration-parameter
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 #.FN_BODY	AutoActionError/error-code
@@ -349,7 +349,7 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 #.FN_BODY	RegistrationTypes/extended-registrations/_item
 	/* XXX: Is this really the best way to do this? */
-	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
 #.FN_BODY	RTABapdu/userdataAB
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
@@ -357,12 +357,12 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 #.END
 
 #.FN_BODY	AutoActionError/error-parameter
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY	PAR-attribute-error/problems/_item/value
-	if(object_identifier_id)
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference)
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 
 #.FN_BODY	MSBindArgument/initiator-name
@@ -370,7 +370,7 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 	%(DEFAULT_BODY)s
 
-	if ((ora = p1_get_last_oraddress())) {
+	if ((ora = p1_get_last_oraddress(actx))) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (initiator=%%s)", ora);
 	}
 
@@ -397,16 +397,16 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
 
 #.FN_BODY	MSMessageSubmissionArgument
-	p1_initialize_content_globals (tree, TRUE);
+	p1_initialize_content_globals (actx, tree, TRUE);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 
 #.FN_BODY	EntryInformation
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 
 #.FN_BODY	EntryModification
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);
 	%(DEFAULT_BODY)s
-	p1_initialize_content_globals (NULL, FALSE);
+	p1_initialize_content_globals (actx, NULL, FALSE);

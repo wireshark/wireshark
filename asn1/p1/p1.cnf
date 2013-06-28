@@ -534,55 +534,55 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY ExtensionField/value
 	const char *name;
 
-	if(extension_id != -1) {
-		proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, p1_StandardExtension_vals, "standard-extension %%d")); 
-  		if (dissector_try_uint(p1_extension_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	if(actx->external.indirect_ref_present) {
+		proto_item_append_text(tree, " (%%s)", val_to_str(actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %%d")); 
+		if (dissector_try_uint(p1_extension_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 			offset = tvb_length(tvb);
 		} else {
 			proto_item *item = NULL;
 			proto_tree *next_tree = NULL;
 
 			item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
-				"Dissector for standard-extension %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
+				"Dissector for standard-extension %%d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 			next_tree = proto_item_add_subtree(item, ett_p1_unknown_standard_extension);
 			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 			expert_add_info(actx->pinfo, item, &ei_p1_unknown_standard_extension);
 		}
-	} else if (object_identifier_id) {
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-		name = oid_resolved_from_string(object_identifier_id);
-		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
+	} else if (actx->external.direct_ref_present) {
+		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		name = oid_resolved_from_string(actx->external.direct_reference);
+		proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference); 
 	}
 		
 
 #.FN_PARS SecurityCategoryIdentifier
-	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
+	FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY SecurityCategoryValue
 	const char *name;
 
-	if (object_identifier_id) {
-		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-		name = oid_resolved_from_string(object_identifier_id);
-		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
+	if (actx->external.direct_reference) {
+		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+		name = oid_resolved_from_string(actx->external.direct_reference);
+		proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference); 
 	} else {
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 	}
 
 #.FN_PARS ExtensionAttributeType
-	VAL_PTR = &extension_id
+	VAL_PTR = &actx->external.indirect_reference
 
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
-	proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, p1_ExtensionAttributeType_vals, "extension-attribute-type %%d")); 
-	if (dissector_try_uint(p1_extension_attribute_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	proto_item_append_text(tree, " (%%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %%d")); 
+	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset =tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
 
 		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
-			"Dissector for extension-attribute-type %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
+			"Dissector for extension-attribute-type %%d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_extension_attribute_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 		expert_add_info(actx->pinfo, item, &ei_p1_unknown_extension_attribute_type);
@@ -593,106 +593,117 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 /*XXX not implemented yet */
 
 #.FN_BODY CountryName
- if(doing_address)
-    g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
- 
- %(DEFAULT_BODY)s
-
-
-#.FN_BODY AdministrationDomainName
-  if(doing_address)
-    g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
-
- %(DEFAULT_BODY)s
-
-
-#.FN_PARS StandardExtension
-	VAL_PTR = &extension_id
-
-#.FN_BODY ExtensionType/private-extension  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
+	do_address("/C=", NULL, actx);
 
 	%(DEFAULT_BODY)s
-	extension_id = -1;
+
+#.FN_BODY AdministrationDomainName
+	do_address("/A=", NULL, actx);
+
+	%(DEFAULT_BODY)s
+
+#.FN_PARS StandardExtension VAL_PTR = &actx->external.indirect_reference
+
+#.FN_BODY StandardExtension	
+	actx->external.indirect_ref_present = TRUE;
+	actx->external.direct_ref_present = FALSE;
+	%(DEFAULT_BODY)s
+
+#.FN_BODY ExtensionType/private-extension  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
+	actx->external.indirect_ref_present = FALSE;
+	actx->external.direct_reference = NULL;
+	%(DEFAULT_BODY)s
+	actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_PARS ExtendedContentType
-	FN_VARIANT = _str  VAL_PTR = &content_type_id
+	FN_VARIANT = _str  VAL_PTR = &ctx->content_type_id
 
 #.FN_BODY ExtendedContentType
 	const char *name = NULL;
+	p1_address_ctx_t* ctx;
+
+	if (actx->subtree.tree_ctx == NULL)
+		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+
+	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	%(DEFAULT_BODY)s
 
-	if(content_type_id) {
-	  name = oid_resolved_from_string(content_type_id);
+	if(ctx->content_type_id) {
+		name = oid_resolved_from_string(ctx->content_type_id);
 
-  	  if(!name) name = content_type_id;
+		if(!name) name = ctx->content_type_id;
 
-	  proto_item_append_text(tree, " (%%s)", name);
+		proto_item_append_text(tree, " (%%s)", name);
 	}
 
 #.FN_PARS BuiltInContentType/_untag VAL_PTR = &ict
 
 #.FN_BODY BuiltInContentType/_untag
-  static guint32	ict = -1;	
+	static guint32	ict = -1;
+	p1_address_ctx_t* ctx;
+
+	if (actx->subtree.tree_ctx == NULL)
+		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+
+	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
   %(DEFAULT_BODY)s
 
-  /* convert integer content type to oid for dispatch when the content is found */
-  switch(ict) {
+	/* convert integer content type to oid for dispatch when the content is found */
+	switch(ict) {
 	case 2:
-	content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.0");
-	break;
+		ctx->content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.0");
+		break;
 	case 22:
-	content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.1");
-	break;
+		ctx->content_type_id = wmem_strdup(wmem_packet_scope(), "2.6.1.10.1");
+		break;
 	default:
-	content_type_id = NULL;
-	break;
+		ctx->content_type_id = NULL;
+		break;
 	}
 
 #.FN_BODY Content
-  tvbuff_t *next_tvb;
+	tvbuff_t *next_tvb;
+	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-  /* we can do this now constructed octet strings are supported */
-  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
-  proto_item_set_text(actx->created_item, "content (%%u bytes)", tvb_length (next_tvb));
+	/* we can do this now constructed octet strings are supported */
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
+	proto_item_set_text(actx->created_item, "content (%%u bytes)", tvb_length (next_tvb));
 
-  if (next_tvb) {
-    if (content_type_id) {
-      (void) call_ber_oid_callback(content_type_id, next_tvb, 0, actx->pinfo, top_tree ? top_tree : tree);
-    } else if (report_unknown_content_type) {
-      proto_item *item = NULL;
-      proto_tree *next_tree = NULL;
+	if (next_tvb) {
+		if (ctx->content_type_id) {
+			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree);
+	} else if (ctx && ctx->report_unknown_content_type) {
+		proto_item *item = NULL;
+		proto_tree *next_tree = NULL;
 
-      item = proto_tree_add_text(top_tree ? top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "P1 Unknown Content (unknown built-in content-type)");
-      expert_add_info(actx->pinfo, item, &ei_p1_unknown_built_in_content_type);
-      if (item) {
-        next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
-      }
-      dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
-    } else {
-      proto_item_append_text (actx->created_item, " (unknown content-type)");
-    }
-  }
+		item = proto_tree_add_text(actx->subtree.top_tree ? actx->subtree.top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "P1 Unknown Content (unknown built-in content-type)");
+		expert_add_info(actx->pinfo, item, &ei_p1_unknown_built_in_content_type);
+		if (item) {
+			next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
+		}
+		dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
+		} else {
+			proto_item_append_text (actx->created_item, " (unknown content-type)");
+		}
+	}
 
 #.FN_PARS MTAName
 	VAL_PTR = &mtaname
 
 #.FN_BODY MTAName
 	tvbuff_t	*mtaname = NULL;
+	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address) {
-
-		proto_item_append_text(address_item, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
-
+	if (ctx && ctx->do_address) {
+		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
 	} else {
-
-	if (mtaname) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
-	}
-
+		if (mtaname) {
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+		}
 	}
 
 #.FN_PARS X121Address
@@ -703,11 +714,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/X121=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
-
+	do_address("/PX121=", string, actx);
 
 #.FN_PARS TerminalIdentifier
 	VAL_PTR=&string
@@ -717,22 +724,17 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/UA-ID=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/UA-ID=", string, actx);
 
 #.FN_BODY PrivateDomainName
 
-	if(doing_address)
-		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
+	do_address("/P=", NULL, actx);
 
 	%(DEFAULT_BODY)s
 
 #.FN_BODY PrivateDomainIdentifier
 
-	if(doing_address)
-		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
+	do_address("/P=", NULL, actx);
 
 	%(DEFAULT_BODY)s
 
@@ -744,10 +746,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/O=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/O=", string, actx);
 
 #.FN_PARS TeletexOrganizationName
 	VAL_PTR=&string
@@ -757,10 +756,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/O=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/O=", string, actx);
 
 #.FN_PARS OrganizationalUnitName
 	VAL_PTR=&string
@@ -768,12 +764,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY OrganizationalUnitName
 	tvbuff_t	*string = NULL;
 
-	%(DEFAULT_BODY)s
-
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/OU=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/OU=", string, actx);
 
 #.FN_PARS TeletexOrganizationalUnitName
 	VAL_PTR=&string
@@ -783,10 +774,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/OU=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/OU=", string, actx);
 
 #.FN_PARS CommonName
 	VAL_PTR=&string
@@ -796,10 +784,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/CN=", string, actx);
 
 #.FN_PARS TeletexCommonName
 	VAL_PTR=&string
@@ -809,106 +794,91 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
+	do_address("/CN=", string, actx);
 
 #.FN_BODY CountryName/_untag/iso-3166-alpha2-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY AdministrationDomainName/_untag/printable  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PrivateDomainName/printable  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PrivateDomainIdentifier/printable  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PhysicalDeliveryCountryName/iso-3166-alpha2-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY UserAddress/x121/x121-address  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY CountryName/_untag/x121-dcc-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY AdministrationDomainName/_untag/numeric  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PrivateDomainName/numeric  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PrivateDomainIdentifier/numeric  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PhysicalDeliveryCountryName/x121-dcc-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 #.FN_BODY PostalCode/numeric-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && nstring)
-		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+	do_address(NULL, nstring, actx);
 
 
 #.FN_BODY TeletexDomainDefinedAttribute/type  VAL_PTR=&tstring
@@ -916,29 +886,17 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) {
-		g_strlcat(oraddress, "/DD.", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-		g_strlcat(ddatype, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-	}
-
+	do_address_str("/DD.", tstring, actx);
 
 #.FN_BODY TeletexDomainDefinedAttribute/value  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) {
-		g_strlcat(oraddress, "=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-		if (*ddatype) {
-		   proto_item_append_text (tree, " (%%s=%%s)", ddatype, tvb_format_text(tstring, 0, tvb_length(tstring)));
-		}
-	}
-
+	do_address_str_tree("=", tstring, actx, tree);
 
 #.FN_BODY TeletexDomainDefinedAttribute
-        ddatype = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); ddatype[0] = '\0';
+	actx->value_ptr = ep_strbuf_new("");
 
 	%(DEFAULT_BODY)s
 
@@ -947,154 +905,140 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "/S=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/S=", pstring, actx);
 
 #.FN_BODY PersonalName/given-name  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "/G=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/G=", pstring, actx);
 
 #.FN_BODY PersonalName/initials  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "/I=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/I=", pstring, actx);
 
 #.FN_BODY PersonalName/generation-qualifier  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "/Q=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/Q=", pstring, actx);
 
 #.FN_BODY TeletexPersonalName/surname  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) {
-	    g_strlcat(oraddress, "/S=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/S=", tstring, actx);
 
 #.FN_BODY TeletexPersonalName/given-name  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) {
-	    g_strlcat(oraddress, "/G=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/G=", tstring, actx);
 
 #.FN_BODY TeletexPersonalName/initials  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) {
-	    g_strlcat(oraddress, "/I=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/I=", tstring, actx);
 
 #.FN_BODY TeletexPersonalName/generation-qualifier  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) {
-	    g_strlcat(oraddress, "/Q=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
-	}
+	do_address("/Q=", tstring, actx);
 
 #.FN_BODY BuiltInDomainDefinedAttribute/type  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "/DD.", MAX_ORA_STR_LEN);
-	    g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	    g_strlcat(ddatype, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	}
+	do_address_str("/DD.", pstring, actx);
 	
 #.FN_BODY BuiltInDomainDefinedAttribute/value  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "=", MAX_ORA_STR_LEN);
-	    g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
-	    if (*ddatype) {
-	       proto_item_append_text (tree, " (%%s=%%s)", ddatype, tvb_format_text(pstring, 0, tvb_length(pstring)));
-	    }
-	}
+	do_address_str_tree("=", pstring, actx, tree);
 	
 #.FN_BODY BuiltInDomainDefinedAttribute
-        ddatype = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); ddatype[0] = '\0';
+	actx->value_ptr = ep_strbuf_new("");
 
 	%(DEFAULT_BODY)s
 
 #.FN_BODY ORAddress
-	
-	oraddress = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); oraddress[0] = '\0';	
-	doing_address = TRUE;
-	address_item = NULL;
+	p1_address_ctx_t* ctx;
+
+	if (actx->subtree.tree_ctx == NULL) {
+		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+	}
+
+	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	ctx->oraddress = ep_strbuf_new("");
+
+	actx->subtree.tree = NULL;
+	set_do_address(actx, TRUE);
 
 	%(DEFAULT_BODY)s
+	
 
-	if(*oraddress && address_item)
-		proto_item_append_text(address_item, " %%s/", oraddress);
+	if (ctx->oraddress && (ctx->oraddress->len > 0) && actx->subtree.tree)
+		proto_item_append_text(actx->subtree.tree, " (%%s/)", ctx->oraddress->str);
 
-	doing_address = FALSE;
+	set_do_address(actx, FALSE);
 
 #.FN_BODY ORName
-	
-	oraddress = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); oraddress[0] = '\0';	
-	address_item = NULL;
-	doing_address = TRUE;
+	p1_address_ctx_t* ctx;
+
+	if (actx->subtree.tree_ctx == NULL) {
+		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+	}
+
+	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	ctx->oraddress = ep_strbuf_new("");
+
+	actx->subtree.tree = NULL;
+	set_do_address(actx, TRUE);
 
 	%(DEFAULT_BODY)s
 
-	if(*oraddress && address_item)
-		proto_item_append_text(address_item, " (%%s/)", oraddress);
+	if (ctx->oraddress && (ctx->oraddress->len > 0) && actx->subtree.tree)
+		proto_item_append_text(actx->subtree.tree, " (%%s/)", ctx->oraddress->str);
 
-	doing_address = FALSE;
-
+	set_do_address(actx, FALSE);
 #.FN_BODY MessageIdentifier
-
-	address_item = NULL;
+	actx->subtree.tree = NULL;
 
 	%(DEFAULT_BODY)s
 
 #.FN_BODY GlobalDomainIdentifier
-	
-	oraddress = (char *)wmem_alloc(wmem_packet_scope(), MAX_ORA_STR_LEN); oraddress[0] = '\0';	
-	address_item = tree;
+	p1_address_ctx_t* ctx;
 
+	if (actx->subtree.tree_ctx == NULL) {
+		actx->subtree.tree_ctx = ep_new0(p1_address_ctx_t);
+	}
+
+	ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
+	ctx->oraddress = ep_strbuf_new("");
+
+	actx->subtree.tree = tree;
+	
 	%(DEFAULT_BODY)s
 
-	if(*oraddress) {
-		proto_item_append_text(address_item, " (%%s/", oraddress);
+	if (ctx->oraddress && (ctx->oraddress->len > 0)) {
+		proto_item_append_text(actx->subtree.tree, " (%%s/", ctx->oraddress->str);
 
-		if(doing_subjectid) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s/", oraddress);
+		if (hf_index == hf_p1_subject_identifier) {
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s/", ctx->oraddress->str);
 		}
 	}
 
@@ -1104,79 +1048,72 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.FN_BODY LocalIdentifier
 	tvbuff_t 	*id = NULL;
-	
-	%(DEFAULT_BODY)s
-	
-	if(id) {
-	  if(doing_address) 
-		  proto_item_append_text(address_item, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-          if(doing_subjectid) 
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+	%(DEFAULT_BODY)s
+
+	if(id) {
+		if (ctx && ctx->do_address)
+			proto_item_append_text(actx->subtree.tree, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+
+		if (hf_index == hf_p1_subject_identifier) 
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
 	}
 
 #.FN_BODY MTSIdentifier
 
-	doing_address = TRUE;
-
-	if(hf_index == hf_p1_subject_identifier)
-		doing_subjectid = TRUE;
+	set_do_address(actx, TRUE);
 
 	%(DEFAULT_BODY)s
 
-	doing_address = FALSE;
-
-	if(hf_index == hf_p1_subject_identifier)
-		doing_subjectid = FALSE;
-
+	set_do_address(actx, FALSE);
 
 #.FN_BODY MTANameAndOptionalGDI
 
-	doing_address = TRUE;
+	set_do_address(actx, TRUE);
 
 	%(DEFAULT_BODY)s
 
-	doing_address = FALSE;
+	set_do_address(actx, FALSE);
 	proto_item_append_text(tree, ")");
 
 #.FN_BODY BuiltInStandardAttributes
-
-	address_item = tree;	
+	actx->subtree.tree = tree;
 
 	%(DEFAULT_BODY)s
 
 #.FN_BODY TraceInformationElement
 
-	doing_address = TRUE;
+	set_do_address(actx, TRUE);
 
 	%(DEFAULT_BODY)s
 
-	doing_address = FALSE;
+	set_do_address(actx, FALSE);
 
 #.FN_BODY InternalTraceInformationElement
 
-	doing_address = TRUE;
+	set_do_address(actx, TRUE);
 
 	%(DEFAULT_BODY)s
 
-	doing_address = FALSE;
+	set_do_address(actx, FALSE);
 
 #.FN_BODY DomainSuppliedInformation
 
-	doing_address = FALSE;
+	set_do_address(actx, FALSE);
 
 	%(DEFAULT_BODY)s
 
-	doing_address = TRUE;
+	set_do_address(actx, TRUE);
 	proto_item_append_text(tree, ")");
 
 #.FN_BODY MTASuppliedInformation
 
-	doing_address = FALSE;
+	set_do_address(actx, FALSE);
 
 	%(DEFAULT_BODY)s
 
-	doing_address = TRUE;
+	set_do_address(actx, TRUE);
 	proto_item_append_text(tree, ")");
 
 #.FN_PARS Time
@@ -1184,11 +1121,12 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.FN_BODY Time
 	tvbuff_t *arrival = NULL;
+	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	%(DEFAULT_BODY)s
 
-	if(arrival && doing_address)
-		proto_item_append_text(address_item, " %%s", tvb_format_text(arrival, 0, tvb_length(arrival)));
+	if(arrival && ctx && ctx->do_address)
+		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(arrival, 0, tvb_length(arrival)));
 
 #.FN_PARS RoutingAction
 	VAL_PTR = &action
@@ -1198,7 +1136,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-	proto_item_append_text(address_item, " %%s", val_to_str(action, p1_RoutingAction_vals, "action(%%d)"));
+	proto_item_append_text(actx->subtree.tree, " %%s", val_to_str(action, p1_RoutingAction_vals, "action(%%d)"));
 
 #.FN_PARS MTABindError
   VAL_PTR=&error
@@ -1210,12 +1148,12 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(error, p1_MTABindError_vals, "error(%%d)"));
 
 #.FN_PARS TokenTypeIdentifier
-	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
+	FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
 
 #.FN_BODY TokenTypeData
 	
-	if(object_identifier_id) 
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	if(actx->external.direct_reference) 
+		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS Credentials
 	VAL_PTR = &credentials
@@ -1230,19 +1168,19 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   }
 
 #.FN_PARS TokenDataType
-	VAL_PTR = &extension_id
+	VAL_PTR = &actx->external.indirect_reference
 
 #.FN_BODY TokenData/value
 
-	proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, p1_TokenDataType_vals, "tokendata-type %%d")); 
-	if (dissector_try_uint(p1_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	proto_item_append_text(tree, " (%%s)", val_to_str(actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %%d")); 
+	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset = tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
 
 		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
-			"Dissector for tokendata-type %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
+			"Dissector for tokendata-type %%d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_tokendata_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 		expert_add_info(actx->pinfo, item, &ei_p1_unknown_tokendata_type);
@@ -1283,29 +1221,29 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY ReportType
 	gint report = -1;
 
-  	%(DEFAULT_BODY)s
+	%(DEFAULT_BODY)s
 	
-        if( (report!=-1) && p1_ReportType_vals[report].strptr ){
+		if( (report!=-1) && p1_ReportType_vals[report].strptr ){
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", p1_ReportType_vals[report].strptr);
 	}
 
 #.FN_BODY MessageSubmissionArgument
-	p1_initialize_content_globals(tree, TRUE);
-  	%(DEFAULT_BODY)s
-	p1_initialize_content_globals(NULL, FALSE);
+	p1_initialize_content_globals(actx, tree, TRUE);
+	%(DEFAULT_BODY)s
+	p1_initialize_content_globals(actx, NULL, FALSE);
 
 #.FN_BODY MessageDeliveryArgument
-	p1_initialize_content_globals(tree, TRUE);
-  	%(DEFAULT_BODY)s
-	p1_initialize_content_globals(NULL, FALSE);
+	p1_initialize_content_globals(actx, tree, TRUE);
+	%(DEFAULT_BODY)s
+	p1_initialize_content_globals(actx, NULL, FALSE);
 
 #.FN_BODY ReportDeliveryArgument
-	p1_initialize_content_globals(tree, TRUE);
-  	%(DEFAULT_BODY)s
-	p1_initialize_content_globals(NULL, FALSE);
+	p1_initialize_content_globals(actx, tree, TRUE);
+	%(DEFAULT_BODY)s
+	p1_initialize_content_globals(actx, NULL, FALSE);
 
 #.FN_HDR MTSBindResult
-  /* TODO: there may be other entry points where this global should be initialized... */
-  address_item = NULL;
+	/* TODO: there may be other entry points where this global should be initialized... */
+	actx->subtree.tree = NULL;
 #.END
 

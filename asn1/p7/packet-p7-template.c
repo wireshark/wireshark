@@ -45,7 +45,6 @@
 
 static guint global_p7_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-static const char *object_identifier_id = NULL; /* attribute identifier */
 static int seqno = 0;
 
 static void prefs_register_p7(void); /* forward declaration for use in preferences registration */

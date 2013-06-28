@@ -111,6 +111,11 @@ typedef struct _asn1_ctx_t {
     } u;
   } external;
   struct {
+      proto_tree *tree;
+      proto_tree *top_tree;
+      void* tree_ctx;
+  } subtree;
+  struct {
     int hf_index;
     gboolean data_value_descr_present;
     tvbuff_t *data_value_descriptor;
