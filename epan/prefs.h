@@ -137,6 +137,7 @@ typedef struct _e_prefs {
   GList       *col_list;
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
+  color_t      gui_text_valid, gui_text_invalid, gui_text_deprecated;
   gboolean     gui_altern_colors;
   gboolean     gui_expert_composite_eyecandy;
   gboolean     filter_toolbar_show_in_statusbar;
