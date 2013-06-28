@@ -1865,10 +1865,10 @@ proto_register_lisp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_mnot_flags_xtrid,
             { "I bit (xTR-ID present)", "lisp.mnot.flags.xtrid",
-            FT_BOOLEAN, 24, TFS(&tfs_set_notset), MAP_REG_FLAG_I, NULL, HFILL }},
+            FT_BOOLEAN, 24, TFS(&tfs_set_notset), MAP_NOT_FLAG_I, NULL, HFILL }},
         { &hf_lisp_mnot_flags_rtr,
             { "R bit (Built for an RTR)", "lisp.mnot.flags.rtr",
-            FT_BOOLEAN, 24, TFS(&tfs_set_notset), MAP_REG_FLAG_R, NULL, HFILL }},
+            FT_BOOLEAN, 24, TFS(&tfs_set_notset), MAP_NOT_FLAG_R, NULL, HFILL }},
         { &hf_lisp_mnot_res,
             { "Reserved bits", "lisp.mnot.res",
             FT_UINT24, BASE_HEX, NULL, MAP_NOT_RESERVED, "Must be zero", HFILL }},
@@ -1976,7 +1976,7 @@ proto_register_lisp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_lisp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    
+
     /* Register dissector so that other dissectors can call it */
     new_register_dissector("lisp", dissect_lisp, proto_lisp);
 }
