@@ -1078,16 +1078,16 @@ if test "x$enable_wireshark" = "xyes"; then
 		# the C++ compiler.
 		#
 		# So we check by feeding the purported C++ compiler a
-		# program using C++ features (iostream.h).
+		# program using C++ features (iostream).
 		#
 		AC_MSG_CHECKING(whether we have a working C++ compiler)
 		AC_LANG_PUSH([C++])
 		AC_LINK_IFELSE([AC_LANG_PROGRAM(
 		[
-#include <iostream.h>
+#include <iostream>
 		],
 		[
-	cout << "Hello World! ";
+	std::cout << "Hello World! ";
 	return 0;
 		])],
 			[AC_MSG_RESULT(yes)],
