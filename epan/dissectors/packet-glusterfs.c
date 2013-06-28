@@ -1185,20 +1185,6 @@ glusterfs_gfs3_3_op_read_call(tvbuff_t *tvb, int offset,
 }
 
 static int
-glusterfs_gfs3_3_op_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-							proto_tree *tree)
-{
-	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree);
-	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
-					hf_glusterfs_preparent_iatt, offset);
-	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
-					hf_glusterfs_postparent_iatt, offset);
-	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
-
-	return offset;
-}
-
-static int
 glusterfs_gfs3_3_op_write_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -1641,6 +1627,7 @@ glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb, int offset,
         return offset;
 }
 
+/* READDIRP and DISCARD both use this */
 static int
 glusterfs_gfs3_3_op_readdirp_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
@@ -1671,6 +1658,32 @@ glusterfs_gfs3_3_op_releasedir_call(tvbuff_t *tvb, int offset,
 {
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+
+	return offset;
+}
+
+static int
+glusterfs_gfs3_3_op_fremovexattr_call(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree)
+{
+	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
+	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_name, offset, NULL);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+
+	return offset;
+}
+
+static int
+glusterfs_gfs3_3_op_fallocate_call(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree)
+{
+	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
+	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_size, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
@@ -1831,7 +1844,7 @@ static const vsff glusterfs3_3_fop_proc[] = {
 	},
 	{
 		GFS3_OP_WRITE, "WRITE",
-		glusterfs_gfs3_3_op_write_call, glusterfs_gfs3_3_op_write_reply
+		glusterfs_gfs3_3_op_write_call, glusterfs_gfs3_3_op_setattr_reply
 	},
 	{
 		GFS3_OP_STATFS, "STATFS",
@@ -1887,7 +1900,7 @@ static const vsff glusterfs3_3_fop_proc[] = {
 	},
 	{
 		GFS3_OP_LOOKUP, "LOOKUP",
-		glusterfs_gfs3_3_op_lookup_call, glusterfs_gfs3_3_op_write_reply
+		glusterfs_gfs3_3_op_lookup_call, glusterfs_gfs3_3_op_setattr_reply
 	},
 	{
 		GFS3_OP_READDIR, "READDIR",
@@ -1948,54 +1961,69 @@ static const vsff glusterfs3_3_fop_proc[] = {
 		GFS3_OP_RELEASEDIR, "RELEASEDIR",
  		glusterfs_gfs3_3_op_releasedir_call, glusterfs_gfs3_3_op_common_reply
 	},
+	{
+		GFS3_OP_FREMOVEXATTR, "FREMOVEXATTR",
+ 		glusterfs_gfs3_3_op_fremovexattr_call, glusterfs_gfs3_3_op_common_reply
+	},
+	{
+		GFS3_OP_FALLOCATE, "FALLOCATE",
+ 		glusterfs_gfs3_3_op_fallocate_call, glusterfs_gfs3_3_op_setattr_reply
+	},
+	{
+		GFS3_OP_DISCARD, "DISCARD",
+ 		glusterfs_gfs3_3_op_readdirp_call, glusterfs_gfs3_3_op_setattr_reply
+	},
 	{ 0, NULL, NULL, NULL }
 };
 
 
 static const value_string glusterfs3_1_fop_proc_vals[] = {
-	{ GFS3_OP_NULL,        "NULL" },
-	{ GFS3_OP_STAT,        "STAT" },
-	{ GFS3_OP_READLINK,    "READLINK" },
-	{ GFS3_OP_MKNOD,       "MKNOD" },
-	{ GFS3_OP_MKDIR,       "MKDIR" },
-	{ GFS3_OP_UNLINK,      "UNLINK" },
-	{ GFS3_OP_RMDIR,       "RMDIR" },
-	{ GFS3_OP_SYMLINK,     "SYMLINK" },
-	{ GFS3_OP_RENAME,      "RENAME" },
-	{ GFS3_OP_LINK,        "LINK" },
-	{ GFS3_OP_TRUNCATE,    "TRUNCATE" },
-	{ GFS3_OP_OPEN,        "OPEN" },
-	{ GFS3_OP_READ,        "READ" },
-	{ GFS3_OP_WRITE,       "WRITE" },
-	{ GFS3_OP_STATFS,      "STATFS" },
-	{ GFS3_OP_FLUSH,       "FLUSH" },
-	{ GFS3_OP_FSYNC,       "FSYNC" },
-	{ GFS3_OP_SETXATTR,    "SETXATTR" },
-	{ GFS3_OP_GETXATTR,    "GETXATTR" },
-	{ GFS3_OP_REMOVEXATTR, "REMOVEXATTR" },
-	{ GFS3_OP_OPENDIR,     "OPENDIR" },
-	{ GFS3_OP_FSYNCDIR,    "FSYNCDIR" },
-	{ GFS3_OP_ACCESS,      "ACCESS" },
-	{ GFS3_OP_CREATE,      "CREATE" },
-	{ GFS3_OP_FTRUNCATE,   "FTRUNCATE" },
-	{ GFS3_OP_FSTAT,       "FSTAT" },
-	{ GFS3_OP_LK,          "LK" },
-	{ GFS3_OP_LOOKUP,      "LOOKUP" },
-	{ GFS3_OP_READDIR,     "READDIR" },
-	{ GFS3_OP_INODELK,     "INODELK" },
-	{ GFS3_OP_FINODELK,    "FINODELK" },
-	{ GFS3_OP_ENTRYLK,     "ENTRYLK" },
-	{ GFS3_OP_FENTRYLK,    "FENTRYLK" },
-	{ GFS3_OP_XATTROP,     "XATTROP" },
-	{ GFS3_OP_FXATTROP,    "FXATTROP" },
-	{ GFS3_OP_FGETXATTR,   "FGETXATTR" },
-	{ GFS3_OP_FSETXATTR,   "FSETXATTR" },
-	{ GFS3_OP_RCHECKSUM,   "RCHECKSUM" },
-	{ GFS3_OP_SETATTR,     "SETATTR" },
-	{ GFS3_OP_FSETATTR,    "FSETATTR" },
-	{ GFS3_OP_READDIRP,    "READDIRP" },
-	{ GFS3_OP_RELEASE,     "RELEASE" },
-	{ GFS3_OP_RELEASEDIR,  "RELEASEDIR" },
+	{ GFS3_OP_NULL,         "NULL" },
+	{ GFS3_OP_STAT,         "STAT" },
+	{ GFS3_OP_READLINK,     "READLINK" },
+	{ GFS3_OP_MKNOD,        "MKNOD" },
+	{ GFS3_OP_MKDIR,        "MKDIR" },
+	{ GFS3_OP_UNLINK,       "UNLINK" },
+	{ GFS3_OP_RMDIR,        "RMDIR" },
+	{ GFS3_OP_SYMLINK,      "SYMLINK" },
+	{ GFS3_OP_RENAME,       "RENAME" },
+	{ GFS3_OP_LINK,         "LINK" },
+	{ GFS3_OP_TRUNCATE,     "TRUNCATE" },
+	{ GFS3_OP_OPEN,         "OPEN" },
+	{ GFS3_OP_READ,         "READ" },
+	{ GFS3_OP_WRITE,        "WRITE" },
+	{ GFS3_OP_STATFS,       "STATFS" },
+	{ GFS3_OP_FLUSH,        "FLUSH" },
+	{ GFS3_OP_FSYNC,        "FSYNC" },
+	{ GFS3_OP_SETXATTR,     "SETXATTR" },
+	{ GFS3_OP_GETXATTR,     "GETXATTR" },
+	{ GFS3_OP_REMOVEXATTR,  "REMOVEXATTR" },
+	{ GFS3_OP_OPENDIR,      "OPENDIR" },
+	{ GFS3_OP_FSYNCDIR,     "FSYNCDIR" },
+	{ GFS3_OP_ACCESS,       "ACCESS" },
+	{ GFS3_OP_CREATE,       "CREATE" },
+	{ GFS3_OP_FTRUNCATE,    "FTRUNCATE" },
+	{ GFS3_OP_FSTAT,        "FSTAT" },
+	{ GFS3_OP_LK,           "LK" },
+	{ GFS3_OP_LOOKUP,       "LOOKUP" },
+	{ GFS3_OP_READDIR,      "READDIR" },
+	{ GFS3_OP_INODELK,      "INODELK" },
+	{ GFS3_OP_FINODELK,     "FINODELK" },
+	{ GFS3_OP_ENTRYLK,      "ENTRYLK" },
+	{ GFS3_OP_FENTRYLK,     "FENTRYLK" },
+	{ GFS3_OP_XATTROP,      "XATTROP" },
+	{ GFS3_OP_FXATTROP,     "FXATTROP" },
+	{ GFS3_OP_FGETXATTR,    "FGETXATTR" },
+	{ GFS3_OP_FSETXATTR,    "FSETXATTR" },
+	{ GFS3_OP_RCHECKSUM,    "RCHECKSUM" },
+	{ GFS3_OP_SETATTR,      "SETATTR" },
+	{ GFS3_OP_FSETATTR,     "FSETATTR" },
+	{ GFS3_OP_READDIRP,     "READDIRP" },
+	{ GFS3_OP_RELEASE,      "RELEASE" },
+	{ GFS3_OP_RELEASEDIR,   "RELEASEDIR" },
+	{ GFS3_OP_FREMOVEXATTR, "FREMOVEXATTR" },
+	{ GFS3_OP_FALLOCATE,    "FALLOCATE" },
+	{ GFS3_OP_DISCARD,      "DISCARD" },
 	{ 0, NULL }
 };
 static value_string_ext glusterfs3_1_fop_proc_vals_ext = VALUE_STRING_EXT_INIT(glusterfs3_1_fop_proc_vals);
