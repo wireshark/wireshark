@@ -141,7 +141,7 @@ static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfi
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
 static void fill_label_bitfield(field_info *fi, gchar *label_str);
-static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_int);
+static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
@@ -5581,7 +5581,7 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 }
 
 static void
-fill_label_number(field_info *fi, gchar *label_str, gboolean is_int)
+fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	header_field_info *hfinfo = fi->hfinfo;
 	guint32            value;
@@ -5589,7 +5589,10 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_int)
 	char               buf[32];
 	const char        *out;
 
-	value = (is_int) ? fvalue_get_sinteger(&fi->value) : fvalue_get_uinteger(&fi->value);
+	if (is_signed)
+		value = fvalue_get_sinteger(&fi->value);
+	else
+		value = fvalue_get_uinteger(&fi->value);
 
 	/* Fill in the textual info */
 	if (hfinfo->display == BASE_CUSTOM) {
