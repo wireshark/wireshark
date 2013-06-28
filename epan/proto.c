@@ -145,9 +145,8 @@ static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_int(field_info *fi, gchar *label_str);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
-static const char *hfinfo_uint_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static const char *hfinfo_int_vals_format(const header_field_info *hfinfo, char buf[32], gint32 value);
 static const char *hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value);
 
 static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
@@ -5546,7 +5545,7 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
-		out = hfinfo_uint_vals_format(hfinfo, buf, value);
+		out = hfinfo_number_vals_format(hfinfo, buf, value);
 		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 			   "%s: %s",  hfinfo->name, val_str);
@@ -5585,7 +5584,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
-		out = hfinfo_uint_vals_format(hfinfo, buf, value);
+		out = hfinfo_number_vals_format(hfinfo, buf, value);
 		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			label_fill(label_str, hfinfo, val_str);
 		else
@@ -5642,7 +5641,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
-		out = hfinfo_int_vals_format(hfinfo, buf, value);
+		out = hfinfo_number_vals_format(hfinfo, buf, value);
 		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			label_fill(label_str, hfinfo, val_str);
 		else
@@ -5746,22 +5745,23 @@ char *uint_to_str_back(char *ptr, guint32 value);
 char *int_to_str_back(char *ptr, gint32 value);
 
 static const char *
-_hfinfo_uint_value_format(const header_field_info *hfinfo, int display, char buf[32], guint32 value)
+_hfinfo_number_value_format(const header_field_info *hfinfo, int display, char buf[32], guint32 value)
 {
 	char *ptr = &buf[31];
+	gboolean isint = IS_FT_INT(hfinfo->type);
 
 	*ptr = '\0';
 	/* Properly format value */
 		switch (display) {
 			case BASE_DEC:
-				return uint_to_str_back(ptr, value);
+				return isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
 
 			case BASE_DEC_HEX:
 				*(--ptr) = ')';
 				ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
 				*(--ptr) = '(';
 				*(--ptr) = ' ';
-				ptr = uint_to_str_back(ptr, value);
+				ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
 				return ptr;
 
 			case BASE_OCT:
@@ -5772,7 +5772,7 @@ _hfinfo_uint_value_format(const header_field_info *hfinfo, int display, char buf
 
 			case BASE_HEX_DEC:
 				*(--ptr) = ')';
-				ptr = uint_to_str_back(ptr, value);
+				ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
 				*(--ptr) = '(';
 				*(--ptr) = ' ';
 				ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
@@ -5798,11 +5798,11 @@ hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 
 		return uint_to_str_back(ptr, value);
 	}
 
-	return _hfinfo_uint_value_format(hfinfo, hfinfo->display, buf, value);
+	return _hfinfo_number_value_format(hfinfo, hfinfo->display, buf, value);
 }
 
 static const char *
-hfinfo_uint_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value)
+hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = hfinfo->display & BASE_DISPLAY_E_MASK;
@@ -5815,7 +5815,7 @@ hfinfo_uint_vals_format(const header_field_info *hfinfo, char buf[32], guint32 v
 	if (display == BASE_HEX_DEC)
 		display = BASE_HEX;
 
-	return _hfinfo_uint_value_format(hfinfo, display, buf, value);
+	return _hfinfo_number_value_format(hfinfo, display, buf, value);
 }
 
 static const char *
@@ -5848,67 +5848,9 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 }
 
 static const char *
-_hfinfo_int_value_format(const header_field_info *hfinfo, int display, char buf[32], gint32 value)
-{
-	char *ptr = &buf[31];
-
-	*ptr = '\0';
-
-	/* Properly format value */
-	switch (display) {
-		case BASE_DEC:
-			return int_to_str_back(ptr, value);
-
-		case BASE_DEC_HEX:
-			*(--ptr) = ')';
-			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), (guint32) value);
-			*(--ptr) = '(';
-			*(--ptr) = ' ';
-			ptr = int_to_str_back(ptr, value);
-			return ptr;
-
-		case BASE_OCT:
-			return oct_to_str_back(ptr, (guint32) value);
-
-		case BASE_HEX:
-			return hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), (guint32) value);
-
-		case BASE_HEX_DEC:
-			*(--ptr) = ')';
-			ptr = int_to_str_back(ptr, value);
-			*(--ptr) = '(';
-			*(--ptr) = ' ';
-			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), (guint32) value);
-			return ptr;
-
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
-	}
-	return ptr;
-}
-
-static const char *
 hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value)
 {
-	return _hfinfo_int_value_format(hfinfo, hfinfo->display, buf, value);
-}
-
-static const char *
-hfinfo_int_vals_format(const header_field_info *hfinfo, char buf[32], gint32 value)
-{
-	/* Get the underlying BASE_ value */
-	int display = hfinfo->display & BASE_DISPLAY_E_MASK;
-
-	if (display == BASE_NONE)
-		return NULL;
-
-	if (display == BASE_DEC_HEX)
-		display = BASE_DEC;
-	if (display == BASE_HEX_DEC)
-		display = BASE_HEX;
-
-	return _hfinfo_int_value_format(hfinfo, display, buf, value);
+	return _hfinfo_number_value_format(hfinfo, hfinfo->display, buf, value);
 }
 
 static const char *
