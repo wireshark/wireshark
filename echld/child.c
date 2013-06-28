@@ -33,7 +33,7 @@ typedef struct _child {
 	child_state_t state;
 
 	int pid;
-	int ppid;
+	int dispatcher_pid;
 	int chld_id;
 	int reqh_id;
 	echld_reader_t parent;
@@ -56,36 +56,88 @@ typedef struct _child {
 
 static echld_child_t child;
 
+struct _st_map {
+	child_state_t id;
+	const char* str;
+};
 
-#define CHILD_RESP(BYTEARR,TYPE) echld_write_frame(child.fds.pipe_to_parent, BYTEARR, child.chld_id, TYPE, child.reqh_id, NULL)
 
 #ifdef DEBUG_CHILD
-static int dbg_level = DEBUG_CHILD;
+static int debug_lvl = DEBUG_CHILD;
+static FILE* debug_fp = NULL;
+#define DBG_BUF_LEN 1024
 
-void child_debug(int level, const char* fmt, ...) {
+#define DCOM() 
+
+int child_debug(int level, const char* fmt, ...) {
 	va_list ap;
-	char* str;
+	char str[DBG_BUF_LEN];
 
-	if (dbg_level<level) return;
+	if (debug_lvl<level) return 1;
 
     va_start(ap, fmt);
-	str = g_strdup_vprintf(fmt,ap);
+	vsnprintf(str,DBG_BUF_LEN,fmt,ap);
 	va_end(ap);
 
-	fprintf(stderr, "child[%d]: reqh_id=%d dbg_level=%d message='%s'", child.pid, child.reqh_id, level, str);
-	g_free(str);
+	fprintf(debug_fp, "child[%d-%d]: reqh_id=%d debug_lvl=%d message='%s'\n",
+		child.chld_id, child.pid, child.reqh_id, level, str);
+
+	return 1;
+}
+
+static char* param_get_dbg_level(char** err _U_) {
+	return g_strdup_printf("%d",debug_lvl);
+}
+
+static echld_bool_t param_set_dbg_level(char* val , char** err ) {
+	char* p;
+	int lvl = (int)strtol(val, &p, 10);
+
+	if (p<=val) {
+		*err = g_strdup("not an integer");
+		return FALSE;
+	} else if (lvl < 0 || lvl > 5) {
+		*err = g_strdup_printf("invalid level=%d (min=0 max=5)",lvl);
+		return FALSE;
+	}
+
+	debug_lvl = lvl;
+	DCOM();
+	return TRUE;
+}
+
+
+static long dbg_resp(GByteArray* em, echld_msg_type_t t) {
+	long st = echld_write_frame(child.fds.pipe_to_parent, em, child.chld_id, t, child.reqh_id, NULL);
+	child_debug(1, "SND fd=%d ch=%d ty='%c' rh=%d msg='%s'",
+		child.fds.pipe_to_parent, child.chld_id, t, child.reqh_id, (st>0?"ok":strerror(errno)) );
+	return st;
 }
 
 #define CHILD_DBG(attrs) ( child_debug attrs )
+#define CHILD_DBG_INIT() do { debug_fp = stderr;  DCOM(); } while(0)
+#define CHILD_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM(); CHILD_DBG((0,"Log Started"));  } while(0)
+#define CHILD_RESP(BA,T) dbg_resp(BA,T)
+#define CHILD_STATE(ST) do { DISP_DBG((0,"State %s => %s")) } while(0)
 #else
 #define CHILD_DBG(attrs)
+#define CHILD_DBG_INIT() 
+#define CHILD_DBG_START(fname) 
+#define CHILD_RESP(BA,T) echld_write_frame(child.fds.pipe_to_parent,(BA),child.chld_id,T,child.reqh_id,NULL)
 #endif
 
-void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id) {
+
+static struct timeval close_sleep_time; 
+
+void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id) {
+
+	close_sleep_time.tv_sec = CHILD_CLOSE_SLEEP_TIME / 1000000;
+	close_sleep_time.tv_usec = CHILD_CLOSE_SLEEP_TIME % 1000000;
+
+	child.chld_id = chld_id;
 	child.state = IDLE;
 	child.pid = getpid();
-	child.ppid = getppid();
-	child.chld_id = 0;
+	child.dispatcher_pid = getppid();
 	child.reqh_id = reqh_id;
 	echld_init_reader( &(child.parent), pipe_from_parent,4096);
 	child.fds.pipe_to_parent = pipe_to_parent;
@@ -93,12 +145,15 @@ void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_i
 	child.fds.pipe_to_dumpcap = -1;
 	child.fds.file_being_read = -1;
 	gettimeofday(&child.started,NULL);
-	gettimeofday(&child.now,NULL);
+	child.now.tv_sec = child.started.tv_sec;
+	child.now.tv_usec = child.started.tv_usec;
+
 	echld_get_all_codecs(&(child.enc), &(child.dec), NULL, NULL);
 
-		/* epan stuff */
+	CHILD_DBG_INIT();
+	CHILD_DBG((5,"Child Initialized ch=%d from=%d to=%d rq=%d",chld_id, pipe_from_parent, pipe_to_parent, reqh_id));
 
-	CHILD_DBG((5,"Child Initialized"));
+	/* epan stuff */
 }
 
 
@@ -253,28 +308,6 @@ static echld_bool_t param_set_cookie(char* val , char** err _U_) {
 	return TRUE;
 }
 
-#ifdef DEBUG_CHILD
-static char* param_get_dbg_level(char** err _U_) {
-	return g_strdup_printf("%d",dbg_level);
-}
-
-static echld_bool_t param_set_dbg_level(char* val , char** err ) {
-	char* p;
-	int lvl = (int)strtol(val, &p, 10);
-
-	if (p<=val) {
-		*err = g_strdup("not an integer");
-		return FALSE;
-	} else if (lvl < 0 || lvl > 5) {
-		*err = g_strdup_printf("invalid level=%d (min=0 max=5)",lvl);
-		return FALSE;
-	}
-
-	dbg_level = lvl;
-	return TRUE;
-}
-#endif
-
 
 static param_t params[] = {
 #ifdef DEBUG_CHILD
@@ -294,14 +327,13 @@ static param_t* get_paramset(char* name) {
 } 
 
 
-
 static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data _U_) {
-	GByteArray* ba = NULL;
+	GByteArray ba;
+	GByteArray* gba;
 
-	child.chld_id = chld_id;
 	child.reqh_id = reqh_id;
 
-	CHILD_DBG((2,"Message Received type='%c' len='%d'",type,len));
+	CHILD_DBG((2,"RCVD type='%s' len='%d'",TY(type),len));
 
 	// gettimeofday(&(child.now), NULL);
 
@@ -311,7 +343,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 				child.chld_id = chld_id;
 				// more init needed for sure
 				CHILD_DBG((1,"chld_id set, sending HELLO"));
-				CHILD_RESP(ba,ECHLD_HELLO);
+				CHILD_RESP(NULL,ECHLD_HELLO);
 				return 0;
 			} else {
 				child_err(ECHLD_ERR_WRONG_MSG,reqh_id,
@@ -328,15 +360,19 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 	switch(type) {
 		case ECHLD_PING:
+			ba.data = b;
+			ba.len = (guint)len;
 			CHILD_DBG((1,"PONG"));
-			CHILD_RESP(ba,ECHLD_PONG);
+			CHILD_RESP(&ba,ECHLD_PONG);
 			break;
 		case ECHLD_SET_PARAM:{
 			char* param;
 			char* value;
+
 			if ( child.dec->set_param && child.dec->set_param(b,len,&param,&value) ) {
 				param_t* p = get_paramset(param);
 				char* err;
+
 				if (!p) {
 					child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"no such param='%s'",param);					
 					break;
@@ -353,9 +389,9 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 					break;
 				}
 
-				ba = child.enc->param(param,value);
-				CHILD_RESP(ba,ECHLD_PARAM);
-				g_byte_array_free(ba,TRUE);
+				gba = child.enc->param(param,value);
+				CHILD_RESP(gba,ECHLD_PARAM);
+				g_byte_array_free(gba,TRUE);
 				CHILD_DBG((1,"Set Param: param='%s' value='%s'",param,value));
 
 				break;
@@ -387,9 +423,9 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 					break;
 				}
 				
-				ba = child.enc->param(param,val);
-				CHILD_RESP(ba,ECHLD_PARAM);
-				g_byte_array_free(ba,TRUE);
+				gba = child.enc->param(param,val);
+				CHILD_RESP(gba,ECHLD_PARAM);
+				g_byte_array_free(gba,TRUE);
 				CHILD_DBG((2,"Get Param: param='%s' value='%s'",param,val));
 				break;
 			} else {
@@ -397,10 +433,9 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 			}
 		}
 		case ECHLD_CLOSE_CHILD:
-			CHILD_RESP(ba,ECHLD_CLOSING);
+			CHILD_RESP(NULL,ECHLD_CLOSING);
 			CHILD_DBG((3,"Closing"));
-
-			// select(0,NULL,NULL,NULL,sleep_time);
+			select(0,NULL,NULL,NULL,&close_sleep_time);
 			CHILD_DBG((1,"Bye"));
 			exit(0);
 			break;
@@ -459,61 +494,67 @@ static void child_read_file(void) {
 }
 
 int echld_child_loop(void) {
-	int parent_fd = child.fds.pipe_to_parent;
+	int disp_from = child.parent.fd;
+	int disp_to = child.fds.pipe_to_parent;
 
 #ifdef DEBUG_CHILD
 	int step = 0;
 #endif
 
-	CHILD_DBG((0,"child_loop()"));
+	CHILD_DBG((0,"entering child_loop()"));
 
 	do {
 		fd_set rfds;
 		fd_set wfds;
 		fd_set efds;
 		struct timeval timeout;
-		int nfds = 0;
-
+		int nfds;
 
 		FD_ZERO(&rfds);
 		FD_ZERO(&wfds);
 		FD_ZERO(&efds);
 
-		FD_SET(parent_fd,&rfds);
+		FD_SET(disp_from,&rfds);
+		FD_SET(disp_from,&efds);
+		FD_SET(disp_to,&efds);
 
 		if (child.fds.pipe_from_dumpcap > 0) {
 			FD_SET(child.fds.pipe_from_dumpcap,&rfds);
-			nfds++;
 		}
 
 		if (child.fds.file_being_read > 0) {
 			FD_SET(child.fds.file_being_read,&rfds);
-			nfds++;
 		}
 
-		CHILD_DBG((4,"child_loop: before select() step=%d",step++));
-		nfds = select(nfds, &rfds, &wfds, &efds, &timeout);
-		CHILD_DBG((5,"child_loop: after select() step=%d",step++));
+		CHILD_DBG((4,"child_loop: select()ing step=%d",step++));
+		nfds = select(FD_SETSIZE, &rfds, &wfds, &efds, &timeout);
+		CHILD_DBG((4,"child_loop: select()ed nfds=%d",nfds));
 
-		if ( FD_ISSET(parent_fd,&efds) ) {
-			CHILD_DBG((0,"Broken Parent Pipe step=%d",step++));
+		if ( FD_ISSET(disp_from,&efds) ) {
+			CHILD_DBG((0,"Broken Parent Pipe 'From' step=%d",step));
 			break;
 		}
+
+		if ( FD_ISSET(disp_to,&efds) ) {
+			CHILD_DBG((0,"Broken Parent Pipe 'To' step=%d",step));
+			break;
+		}
+
 		if (child.fds.pipe_from_dumpcap > 0 &&  FD_ISSET(child.fds.pipe_from_dumpcap,&efds) ) {
-			CHILD_DBG((0,"Broken Dumpcap Pipe step=%d",step++));
+			CHILD_DBG((0,"Broken Dumpcap Pipe step=%d",step));
 			break;
 		}
+
 		if (child.fds.file_being_read > 0 &&  FD_ISSET(child.fds.file_being_read,&efds) ) {
-			CHILD_DBG((0,"Broken Readfile Pipe step=%d",step++));
+			CHILD_DBG((0,"Broken Readfile Pipe step=%d",step));
 			break;
 		}
 
-		if (FD_ISSET(parent_fd, &rfds)) {
-
+		if (FD_ISSET(disp_from, &rfds)) {
 			long st = echld_read_frame(&(child.parent), child_receive, &child);
 
 			if (st < 0) {
-				CHILD_DBG((0,"Read Frame Failed step=%d",step++));
+				CHILD_DBG((0,"Read Frame Failed step=%d",step));
 				return (int)st;
 			}
 		}

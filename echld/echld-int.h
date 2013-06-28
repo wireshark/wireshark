@@ -108,6 +108,10 @@ typedef enum _cst {
 	ERRORED=-2
 } child_state_t;
 
+extern const char* echld_state_str(child_state_t);
+extern const char* echld_msg_type_str(echld_msg_type_t id);
+#define ST(st) echld_state_str(st)
+#define TY(ty) echld_msg_type_str(ty)
 
 /* these manage the de-framing machine in the receiver side */
 typedef struct _echld_reader {
@@ -191,7 +195,7 @@ extern long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
 extern long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
 
 
-extern void echld_child_initialize(int pipe_from_parent, int pipe_to_parent, int reqh_id);
+extern void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id);
 extern int echld_child_loop(void);
 
 /* never returns*/
@@ -201,16 +205,20 @@ extern void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds,	char* ar
 extern void dummy_switch(echld_msg_type_t type); 
 extern void echld_unused(void);
 
-/* initial debug levels */
+/* config stuff */
 
+/* initial debug levels */
+/* undefine to avoid debugging */ 
 #define DEBUG_BASE 5
 #define DEBUG_CHILD 5
 #define DEBUG_DISPATCHER 5
 #define DEBUG_PARENT 5
 
-/* config stuff */
+/* timers */
 #define DISPATCHER_WAIT_INITIAL 999999 /* almost 1s */
-
+#define CHILD_CLOSE_SLEEP_TIME 2000000 /* 2s */
+#define CHILD_START_WAIT_TIME 100000 /* 0.1s */
+#define DISP_KILLED_CHILD_WAIT 100000 /* 0.1s */
 
 /* fatalities */
 #define BROKEN_PARENT_PIPE 123

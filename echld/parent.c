@@ -90,7 +90,7 @@ static void parent_dbg(int level, const char* fmt, ...) {
 }
 
 #define PARENT_DBG(attrs) parent_dbg attrs
-#define PARENT_SEND(BYTEARR,CHILDNUM,TYPE,R_ID) do {  long st = echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, R_ID, NULL); PARENT_DBG((1,"SEND type='%c' chld_id=%d reqh_id=%d msg='%s'",TYPE,CHILDNUM,R_ID, ( st >= 8 ? "ok" : ((st<0)?strerror(errno):"?") )  )); } while(0)
+#define PARENT_SEND(BYTEARR,CHILDNUM,TYPE,R_ID) do {  long st = echld_write_frame(parent.dispatcher_fd, BYTEARR, CHILDNUM, TYPE, R_ID, NULL); PARENT_DBG((1,"SEND type='%s' chld_id=%d reqh_id=%d err_msg='%s'",TY(TYPE),CHILDNUM,R_ID, ( st >= 8 ? "ok" : ((st<0)?strerror(errno):"?") )  )); } while(0)
 
 #else 
 #define PARENT_DBG(attrs) 
@@ -221,7 +221,7 @@ void echld_initialize(echld_encoding_t enc,	char* argv0, int (*main)(int, char *
 			reader_realloc_buf =  parent_realloc_buff;
 	#endif
 
-			echld_common_set_dbg(9,stderr,"parent");
+			/* echld_common_set_dbg(9,stderr,"parent"); */
 
 			PARENT_DBG((3,"Dispatcher forked"));
 
@@ -323,7 +323,7 @@ static echld_state_t reqh_snd(echld_t* c, echld_msg_type_t t, GByteArray* ba, ec
 
 	PARENT_DBG((4,"reqh_add: idx='%d'",idx));
 
-	PARENT_DBG((1,"REQH_SND: type='%c' chld_id=%d reqh_id=%d",t, c->chld_id,reqh_id));
+	PARENT_DBG((3,"REQH_SND: type='%s' chld_id=%d reqh_id=%d",TY(t), c->chld_id,reqh_id));
 
 	PARENT_SEND(ba,c->chld_id,t,reqh_id);
 
@@ -466,16 +466,16 @@ int chld_cmp(const void *a, const void *b) {
 
 static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, void* cb_data);
 
+static int next_chld_id = 1;
+
 extern int echld_new(void* child_data) {
-	int next_chld_id = 1;
 	echld_t* c = get_child(-1);
 
 	if (!c) return -1;
 
-	c->chld_id = next_chld_id++;
+	c->chld_id = (next_chld_id++);
 	c->data = child_data;
 	c->state = CREATING;
-	c->handlers = g_array_new(TRUE,TRUE,sizeof(hdlr_t));
 
 	g_byte_array_set_size(parent.snd,0);
 
@@ -483,8 +483,6 @@ extern int echld_new(void* child_data) {
     
 	msgh_attach(c,ECHLD_CHILD_DEAD, parent_dead_child , c);
     reqh_snd(c, ECHLD_NEW_CHILD, parent.snd, parent_get_hello, c);
-
-	qsort(parent.children,ECHLD_MAX_CHILDREN,sizeof(echld_t),chld_cmp);
 
 	return c->chld_id;
 }
@@ -722,7 +720,7 @@ static long parent_read_frame(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 	echld_t* c = get_child(chld_id);
 	GByteArray* ba = g_byte_array_new();
 
-	PARENT_DBG((3,"parent_read_frame ch=%d t='%c' rh=%d",chld_id,t,reqh_id));
+	PARENT_DBG((1,"MSG_IN<- ch=%d t='%s' rh=%d",chld_id,TY(t),reqh_id));
 	g_byte_array_append(ba,b, (guint)len);
 
 	if (c) {

@@ -59,6 +59,89 @@ extern void echld_common_set_dbg(int level, FILE* fp, const char* prefix) {
 #endif
 
 
+struct _st_map
+{
+	child_state_t id;
+	const char* str;
+};
+
+static struct _st_map st_map[] = {
+	{ FREE, "FREE"},
+	{ CREATING, "CREATING"},
+	{ IDLE, "IDLE"},
+	{ READY, "READY"},
+	{ READING, "READING"},
+	{ CAPTURING, "CAPTURING"},
+	{ DONE, "DONE"},
+	{ CLOSED, "CLOSED"},
+	{ ERRORED, "ERRORED"},
+	{0,NULL}
+};
+
+const char* echld_state_str(child_state_t id) {
+	int i = 0;
+
+	for (;st_map[i].str;i++) {
+		if (id == st_map[i].id) return st_map[i].str;
+	}
+
+	return "UNKNOWN";
+}
+
+
+struct _t_map
+{
+	echld_msg_type_t type;
+	const char* str;
+};
+
+static struct _t_map t_map[] = {
+	{ECHLD_ERROR,"ERROR"},
+	{ECHLD_TIMED_OUT,"TIMED_OUT"},
+	{ECHLD_NEW_CHILD,"NEW_CHILD"},
+	{ECHLD_HELLO,"HELLO"},
+	{ECHLD_CHILD_DEAD,"CHILD_DEAD"},
+	{ECHLD_CLOSE_CHILD,"CLOSE_CHILD"},
+	{ECHLD_CLOSING,"CLOSING"},
+	{ECHLD_SET_PARAM,"SET_PARAM"},
+	{ECHLD_GET_PARAM,"GET_PARAM"},
+	{ECHLD_PARAM,"PARAM"},
+	{ECHLD_PING,"PING"},
+	{ECHLD_PONG,"PONG"},
+	{ECHLD_OPEN_FILE,"OPEN_FILE"},
+	{ECHLD_FILE_OPENED,"FILE_OPENED"},
+	{ECHLD_OPEN_INTERFACE,"OPEN_INTERFACE"},
+	{ECHLD_INTERFACE_OPENED,"INTERFACE_OPENED"},
+	{ECHLD_START_CAPTURE,"START_CAPTURE"},
+	{ECHLD_CAPTURE_STARTED,"CAPTURE_STARTED"},
+	{ECHLD_NOTIFY,"NOTIFY"},
+	{ECHLD_GET_SUM,"GET_SUM"},
+	{ECHLD_PACKET_SUM,"PACKET_SUM"},
+	{ECHLD_GET_TREE,"GET_TREE"},
+	{ECHLD_TREE,"TREE"},
+	{ECHLD_GET_BUFFER,"GET_BUFFER"},
+	{ECHLD_BUFFER,"BUFFER"},
+	{ECHLD_EOF,"EOF"},
+	{ECHLD_STOP_CAPTURE,"STOP_CAPTURE"},
+	{ECHLD_CAPTURE_STOPPED,"CAPTURE_STOPPED"},
+	{ECHLD_ADD_NOTE,"ADD_NOTE"},
+	{ECHLD_NOTE_ADDED,"NOTE_ADDED"},
+	{ECHLD_APPLY_FILTER,"APPLY_FILTER"},
+	{ECHLD_PACKET_LIST,"PACKET_LIST"},
+	{ECHLD_SAVE_FILE,"SAVE_FILE"},
+	{ECHLD_FILE_SAVED,"FILE_SAVED"},
+	{0,NULL}
+};
+
+const char* echld_msg_type_str(echld_msg_type_t id) {
+	int i = 0;
+
+	for (;t_map[i].str;i++) {
+		if (id == t_map[i].type) return t_map[i].str;
+	}
+
+	return "UNKNOWN";
+}
 
 
 /**

@@ -68,22 +68,27 @@ void ping_cb(long usec, void* data _U_) {
 	}
 }
 
+int got_param = 0;
+
 void param_cb(const char* param, const char* value, const char* error, void* data _U_) {
 	if (error) {
 		fprintf(stderr, "Param Set Error msg=%s\n", error );
+		got_param = 0;
 		return;
 	}
 
+	got_param = 1;
 	fprintf(stderr, "Param: param='%s' val='%s'\n", param, value );
-
 }
 
 
 int main(int argc _U_, char** argv _U_) {
 	struct timeval tv;
 	int tot_cycles = 0;
-	int max_cycles = 20;
-	int npings = 2;
+	int max_cycles = 50;
+	int child = -1;
+	int keep_going = 1;
+
 	tv.tv_sec = 0;
 	tv.tv_usec = 250000;
 
@@ -92,15 +97,94 @@ int main(int argc _U_, char** argv _U_) {
 	echld_initialize(ECHLD_ENCODING_JSON,argv[0],main);
 
 	do {
-		if ( (tot_cycles > 2) && npings > 0 && npings-- ) echld_ping(0,ping_cb,NULL);
+		if ( tot_cycles == 2 ) echld_ping(0,ping_cb,NULL);
 
-		if ( tot_cycles == 10) echld_set_param(0,"dbg_level","5",param_cb,NULL);
+		if ( tot_cycles == 4 ) {
+			if (pings!=1) {
+				fprintf(stderr, "No Dispatcher PONG 0\n");
+				break;
+			}
+			echld_ping(0,ping_cb,NULL);
+		}
 
-		if ( tot_cycles == 12) echld_get_param(0,"interfaces",param_cb,NULL);
+		if ( tot_cycles == 6 ) {
+			if (pings!=2) {
+				fprintf(stderr, "No Dispatcher PONG 1\n");
+				break;
+			}
+
+			echld_set_param(0,"dbg_level","5",param_cb,NULL);
+		}
+
+		if ( tot_cycles == 8) {
+			if (! got_param ) {
+				fprintf(stderr, "Set Dispatcher Param Failed\n");
+				break;
+			}
+
+			echld_get_param(0,"interfaces",param_cb,NULL);
+		}
+
+		if ( tot_cycles == 10) {
+			if (! got_param ) {
+				fprintf(stderr, "Set Dispatcher Param Failed\n");
+				break;
+			}
+
+			child = echld_new(NULL);
+			
+			fprintf(stderr, "New chld_id=%d\n",child);
+
+			if (child <= 0) {
+				fprintf(stderr, "No child\n");
+				break;
+			}
+		}
+
+
+		if ( tot_cycles == 16 ) echld_ping(child,ping_cb,NULL);
+
+		if ( tot_cycles == 18 ) {
+			if (pings!=3) {
+				fprintf(stderr, "No Child PONG 0\n");
+				break;
+			}
+			echld_ping(child,ping_cb,NULL);
+		}
+
+
+
+		if ( tot_cycles == 20 ) {
+			if (pings!=4) {
+				fprintf(stderr, "No Child PONG 1\n");
+				break;
+			}
+
+			echld_set_param(child,"cookie","hello-hello",param_cb,NULL);
+		}
+
+
+		if ( tot_cycles == 22 ) {
+			if (!got_param) {
+				fprintf(stderr, "Set Child Param Failed\n");
+				break;
+			}
+
+			echld_get_param(child,"dbg_level",param_cb,NULL);
+		}
+
+		if ( tot_cycles == 24 ) {
+			if (!got_param) {
+				fprintf(stderr, "Get Child Param Failed\n");
+				break;
+			}
+
+			keep_going = 0;
+		}
 
 		tot_cycles++;
 		echld_wait(&tv);
-	} while( (pings < npings) || (tot_cycles < max_cycles));
+	} while( keep_going && (tot_cycles < max_cycles));
 
 	fprintf(stderr, "Done: pings=%d errors=%d tot_cycles=%d\n", pings, errors ,tot_cycles );
 

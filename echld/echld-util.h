@@ -41,6 +41,7 @@ typedef void (*echild_get_packet_summary_cb_t)(char* summary, void* data);
 WS_DLL_PUBLIC echld_state_t echld_open_file(int child_id, const char* filename,echild_get_packet_summary_cb_t,void*);
 
 
+
 WS_DLL_PUBLIC echld_state_t echld_open_interface(int child_id, const char* intf_name, const char* params);
 WS_DLL_PUBLIC echld_state_t echld_start_capture(int child_id, echild_get_packet_summary_cb_t);
 WS_DLL_PUBLIC echld_state_t echld_stop_capture(int child_id);
