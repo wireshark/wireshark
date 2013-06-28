@@ -1067,14 +1067,37 @@ have_qt=no
 have_gtk=no
 if test "x$enable_wireshark" = "xyes"; then
 	if test "x$with_qt" = "xyes"; then
-
+		#
+		# Make sure we have a C++ compiler.
+		#
+		# Some UN*Xes have, by default, a case-insensitive file
+		# system, and AC_PROG_CXX looks for, among other things,
+		# "CC" as a C++ compiler, and, if you have a case-insensitive
+		# file system and a C compiler named "cc" (both true, by
+		# default, on OS X), AC_PROG_CXX may end up thinking it's
+		# the C++ compiler.
+		#
+		# So we check by feeding the purported C++ compiler a
+		# program using C++ features (iostream.h).
+		#
 		AC_MSG_CHECKING(whether we have a working C++ compiler)
 		AC_LANG_PUSH([C++])
-		AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+		AC_LINK_IFELSE([AC_LANG_PROGRAM(
+		[
+#include <iostream.h>
+		],
+		[
+int
+main()
+{
+	cout << "Hello World! ";
+	return 0;
+}
+		])],
 			[AC_MSG_RESULT(yes)],
 			[
-			 AC_MSG_RESULT(no)
-			 AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
+				AC_MSG_RESULT(no)
+				 AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
 			])
 		AC_LANG_POP([C++])
 
