@@ -3305,19 +3305,19 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_mask_element_src_ip,
-      { "Source Address Mask", "wccp.mask_element.src_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Source Address Mask", "wccp.mask_element.src_ip", FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mask_element_dest_ip,
-      { "Destination Address Mask", "wccp.mask_element.dest_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Destination Address Mask", "wccp.mask_element.dest_ip", FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mask_element_src_port,
-      { "Source Port Mask", "wccp.mask_element.src_port", FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Source Port Mask", "wccp.mask_element.src_port", FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mask_element_dest_port,
-      { "Destination Port Mask", "wccp.mask_element.dest_port", FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Destination Port Mask", "wccp.mask_element.dest_port", FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_alt_assignment_info_assignment_type,
