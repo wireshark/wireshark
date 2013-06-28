@@ -139,15 +139,13 @@ wrs_count_bitshift(const guint32 bitmask)
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
-static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
 static void fill_label_bitfield(field_info *fi, gchar *label_str);
-static void fill_label_int(field_info *fi, gchar *label_str);
+static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_int);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static const char *hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static const char *hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value);
+static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 
 static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
 static const char* hfinfo_int64_format(const header_field_info *hfinfo);
@@ -3889,7 +3887,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 					char buf[32];
 					const char *out;
 
-					out = hfinfo_uint_value_format(hfinfo, buf, u_integer);
+					out = hfinfo_number_value_format(hfinfo, buf, u_integer);
 
 					g_strlcpy(result+offset_r, out, size-offset_r);
 				}
@@ -3951,7 +3949,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 					char buf[32];
 					const char *out;
 
-					out = hfinfo_int_value_format(hfinfo, buf, integer);
+					out = hfinfo_number_value_format(hfinfo, buf, integer);
 
 					g_strlcpy(result+offset_r, out, size-offset_r);
 				}
@@ -5326,12 +5324,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			if (hfinfo->bitmask) {
 				fill_label_bitfield(fi, label_str);
 			} else {
-				fill_label_uint(fi, label_str);
+				fill_label_number(fi, label_str, FALSE);
 			}
 			break;
 
 		case FT_FRAMENUM:
-			fill_label_uint(fi, label_str);
+			fill_label_number(fi, label_str, FALSE);
 			break;
 
 		case FT_UINT64:
@@ -5343,7 +5341,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_INT24:
 		case FT_INT32:
 			DISSECTOR_ASSERT(!hfinfo->bitmask);
-			fill_label_int(fi, label_str);
+			fill_label_number(fi, label_str, TRUE);
 			break;
 
 		case FT_INT64:
@@ -5554,46 +5552,10 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 			   "%s: %s (%s)",  hfinfo->name, val_str, out);
 	}
 	else {
-		out = hfinfo_uint_value_format(hfinfo, buf, value);
+		out = hfinfo_number_value_format(hfinfo, buf, value);
 
 		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 				   "%s: %s",  hfinfo->name, out);
-	}
-}
-
-static void
-fill_label_uint(field_info *fi, gchar *label_str)
-{
-	header_field_info *hfinfo = fi->hfinfo;
-	guint32            value;
-
-	char               buf[32];
-	const char        *out;
-
-	value = fvalue_get_uinteger(&fi->value);
-
-	/* Fill in the textual info */
-	if (hfinfo->display == BASE_CUSTOM) {
-		gchar tmp[ITEM_LABEL_LENGTH];
-		const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hfinfo->strings;
-
-		DISSECTOR_ASSERT(fmtfunc);
-		fmtfunc(tmp, value);
-		label_fill(label_str, hfinfo, tmp);
-	}
-	else if (hfinfo->strings) {
-		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
-
-		out = hfinfo_number_vals_format(hfinfo, buf, value);
-		if (out == NULL) /* BASE_NONE so don't put integer in descr */
-			label_fill(label_str, hfinfo, val_str);
-		else
-			label_fill_descr(label_str, hfinfo, val_str, out);
-	}
-	else {
-		out = hfinfo_uint_value_format(hfinfo, buf, value);
-
-		label_fill(label_str, hfinfo, out);
 	}
 }
 
@@ -5619,7 +5581,7 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 }
 
 static void
-fill_label_int(field_info *fi, gchar *label_str)
+fill_label_number(field_info *fi, gchar *label_str, gboolean is_int)
 {
 	header_field_info *hfinfo = fi->hfinfo;
 	guint32            value;
@@ -5627,7 +5589,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 	char               buf[32];
 	const char        *out;
 
-	value = fvalue_get_sinteger(&fi->value);
+	value = (is_int) ? fvalue_get_sinteger(&fi->value) : fvalue_get_uinteger(&fi->value);
 
 	/* Fill in the textual info */
 	if (hfinfo->display == BASE_CUSTOM) {
@@ -5648,7 +5610,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 			label_fill_descr(label_str, hfinfo, val_str, out);
 	}
 	else {
-		out = hfinfo_int_value_format(hfinfo, buf, value);
+		out = hfinfo_number_value_format(hfinfo, buf, value);
 
 		label_fill(label_str, hfinfo, out);
 	}
@@ -5786,7 +5748,7 @@ _hfinfo_number_value_format(const header_field_info *hfinfo, int display, char b
 }
 
 static const char *
-hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
+hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	if (hfinfo->type == FT_FRAMENUM) {
 		char *ptr = &buf[31];
@@ -5845,12 +5807,6 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 			;
 	}
 	return format;
-}
-
-static const char *
-hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value)
-{
-	return _hfinfo_number_value_format(hfinfo, hfinfo->display, buf, value);
 }
 
 static const char *
@@ -6968,7 +6924,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 					proto_item_append_text(item, ", ");
 				}
 
-				out = IS_FT_INT(hf->type) ? hfinfo_int_value_format(hf, buf, (gint32) tmpval) : hfinfo_uint_value_format(hf, buf, tmpval);
+				out = hfinfo_number_value_format(hf, buf, tmpval);
 				proto_item_append_text(item, "%s: %s", hf->name, out);
 				first = FALSE;
 			}
@@ -7232,7 +7188,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	case FT_UINT24:
 	case FT_UINT32:
 		pi = proto_tree_add_uint(tree, hf_index, tvb, offset, length, (guint32)value);
-		fill_label_uint(PITEM_FINFO(pi), lbl_str);
+		fill_label_number(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
 	case FT_INT8:
@@ -7240,7 +7196,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	case FT_INT24:
 	case FT_INT32:
 		pi = proto_tree_add_int(tree, hf_index, tvb, offset, length, (gint32)value);
-		fill_label_int(PITEM_FINFO(pi), lbl_str);
+		fill_label_number(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
 	case FT_UINT64:
@@ -7394,7 +7350,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	case FT_UINT24:
 	case FT_UINT32:
 		pi = proto_tree_add_uint(tree, hf_index, tvb, octet_offset, octet_length, (guint32)value);
-		fill_label_uint(PITEM_FINFO(pi), lbl_str);
+		fill_label_number(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
 	case FT_INT8:
@@ -7402,7 +7358,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	case FT_INT24:
 	case FT_INT32:
 		pi = proto_tree_add_int(tree, hf_index, tvb, octet_offset, octet_length, (gint32)value);
-		fill_label_int(PITEM_FINFO(pi), lbl_str);
+		fill_label_number(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
 	case FT_UINT64:
