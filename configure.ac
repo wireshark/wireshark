@@ -1087,12 +1087,8 @@ if test "x$enable_wireshark" = "xyes"; then
 #include <iostream.h>
 		],
 		[
-int
-main()
-{
 	cout << "Hello World! ";
 	return 0;
-}
 		])],
 			[AC_MSG_RESULT(yes)],
 			[
