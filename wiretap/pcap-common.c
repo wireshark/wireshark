@@ -399,6 +399,10 @@ static const struct {
 	{ 249,		WTAP_ENCAP_USBPCAP},
 	/* RTAC SERIAL */
 	{ 250,		WTAP_ENCAP_RTAC_SERIAL},
+	/* Bluetooth Low Energy Link Layer */
+	{ 251,		WTAP_ENCAP_BLUETOOTH_LE_LL},
+	/* Wireshark Upper PDU export */
+	{ 252,		WTAP_ENCAP_WIRESHARK_UPPER_PDU},
 
 	/*
 	 * To repeat:

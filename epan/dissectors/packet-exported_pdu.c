@@ -337,16 +337,14 @@ proto_register_exported_pdu(void)
 void
 proto_reg_handoff_exported_pdu(void)
 {
-#if 0
     static gboolean initialized = FALSE;
     static dissector_handle_t exported_pdu_handle;
 
     if (!initialized) {
         exported_pdu_handle = find_dissector("exported_pdu");
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_WIRESHARK_UPPER_PDU, exported_pdu_handle);
         initialized = TRUE;
-
     }
-#endif
 }
 
 

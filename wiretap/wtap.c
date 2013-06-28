@@ -611,6 +611,12 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_RTAC_SERIAL */
 	{ "RTAC serial-line", "rtac-serial" },
+
+	/* WTAP_ENCAP_BLUETOOTH_LE_LL */
+	{ "Bluetooth Low Energy Link Layer", "bluetooth-le-ll" },
+
+	/* WTAP_ENCAP_WIRESHARK_UPPER_PDU */
+	{ "Wireshark Upper PDU export", "wireshark-upper-pdu" },
 };
 
 WS_DLL_LOCAL

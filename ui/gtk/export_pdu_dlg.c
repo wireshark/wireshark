@@ -164,9 +164,9 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 
     /* create the fake interface data */
-    int_data.wtap_encap            = WTAP_ENCAP_USER10;
+    int_data.wtap_encap            = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     int_data.time_units_per_second = 1000000; /* default microsecond resolution */
-    int_data.link_type             = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_USER10);
+    int_data.link_type             = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
     int_data.snap_len              = WTAP_MAX_PACKET_SIZE;
     int_data.if_name               = g_strdup("Fake IF, PDU->Export");
     int_data.opt_comment           = NULL;
@@ -183,7 +183,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
-    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_PCAPNG, WTAP_ENCAP_USER10, WTAP_MAX_PACKET_SIZE, FALSE, shb_hdr, idb_inf, &err);
+    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE, FALSE, shb_hdr, idb_inf, &err);
     if (exp_pdu_tap_data->wdh == NULL) {
         open_failure_alert_box(capfile_name, err, TRUE);
         goto end;
@@ -275,7 +275,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 
   GtkWidget  *main_vb, *bbox, *close_bt, *ok_bt;
-  GtkWidget  *grid, *label, *filter_bt;
+  GtkWidget  *grid, *filter_bt;
   exp_pdu_t  *exp_pdu_tap_data;
   const char *filter = NULL;
   guint         row;
@@ -294,7 +294,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   exp_pdu_tap_data = (exp_pdu_t *)g_malloc(sizeof(exp_pdu_t));
-  exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_USER10); 
+  exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU); 
 
   export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDU:s to pcap-ng file");
 
@@ -305,16 +305,12 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 3);
   gtk_container_add(GTK_CONTAINER(export_pdu_dlg), main_vb);
 
-  /* grid (Replace by a dropdown box to select USER DLT:s*/
+  /* grid */
   grid = ws_gtk_grid_new();
   ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
   ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
   gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
   row = 0;
-
-  label = gtk_label_new("Add a drop-down list to select USER_DLT, currently hardcoded to USER10");
-  ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 2, 1);
-  row++;
 
   /* Filter button */
   filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);

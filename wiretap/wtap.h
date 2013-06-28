@@ -246,6 +246,8 @@ extern "C" {
 #define WTAP_ENCAP_JUNIPER_SVCS                 152
 #define WTAP_ENCAP_USBPCAP                      153
 #define WTAP_ENCAP_RTAC_SERIAL                  154
+#define WTAP_ENCAP_BLUETOOTH_LE_LL              155
+#define WTAP_ENCAP_WIRESHARK_UPPER_PDU          156
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
