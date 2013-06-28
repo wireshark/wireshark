@@ -42,8 +42,9 @@
  */
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
 
-static inline char *
-byte_to_hex(char *out, guint32 dword) {
+static inline char
+octet_to_hex(guint8 oct)
+{
   /* At least one version of Apple's C compiler/linker is buggy, causing
      a complaint from the linker about the "literal C string section"
      not ending with '\0' if we initialize a 16-element "char" array with
@@ -54,8 +55,13 @@ byte_to_hex(char *out, guint32 dword) {
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-  *out++ = hex_digits[(dword >> 4) & 0xF];
-  *out++ = hex_digits[dword & 0xF];
+  return hex_digits[oct & 0xF];
+}
+
+static inline char *
+byte_to_hex(char *out, guint32 dword) {
+  *out++ = octet_to_hex(dword >> 4);
+  *out++ = octet_to_hex(dword);
   return out;
 }
 
@@ -294,12 +300,13 @@ static const char fast_strings[][4] = {
 "248", "249", "250", "251", "252", "253", "254", "255"
 };
 
+char *uint_to_str_back(char *ptr, guint32 value);
+
 void
 guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
   int str_len = guint32_to_str_buf_len(u)+1;
 
   gchar *bp = &buf[str_len];
-  gchar const *p;
 
   if (buf_len < str_len) {
     g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
@@ -308,17 +315,7 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len) {
 
   *--bp = '\0';
 
-  while (u >= 10) {
-    p = fast_strings[100 + (u % 100)];
-
-    *--bp = p[2];
-    *--bp = p[1];
-
-    u /= 100;
-  }
-
-  if (bp != buf) /* ugly, fixme! */
-    *--bp = (u % 10) | '0';
+  uint_to_str_back(bp, u);
 }
 
 gchar *
@@ -1125,3 +1122,73 @@ const gchar* port_type_to_str (port_type type) {
 		default:			return "[Unknown]";
 	}
 }
+
+char *
+oct_to_str_back(char *ptr, guint32 value)
+{
+	while (value) {
+		*(--ptr) = '0' + (value & 0x7);
+		value >>= 3;
+	}
+
+	*(--ptr) = '0';
+	return ptr;
+}
+
+char *
+hex_to_str_back(char *ptr, int pad, guint32 value)
+{
+	do {
+		*(--ptr) = octet_to_hex(value);
+		value >>= 4;
+		pad--;
+	} while (value);
+
+	/* pad */
+	while (pad > 0) {
+		*(--ptr) = '0';
+		pad--;
+	}
+
+	*(--ptr) = 'x';
+	*(--ptr) = '0';
+
+	return ptr;
+}
+
+char *
+uint_to_str_back(char *ptr, guint32 value)
+{
+	char const *p;
+
+	/* special case */
+	if (value == 0)
+		*(--ptr) = '0';
+
+	while (value >= 10) {
+		p = fast_strings[100 + (value % 100)];
+
+		value /= 100;
+
+		*(--ptr) = p[2];
+		*(--ptr) = p[1];
+	}
+
+	if (value)
+		*(--ptr) = (value) | '0';
+
+	return ptr;
+}
+
+char *
+int_to_str_back(char *ptr, gint32 value)
+{
+	if (value < 0) {
+		ptr = uint_to_str_back(ptr, -value);
+		*(--ptr) = '-';
+	} else
+		ptr = uint_to_str_back(ptr, value);
+
+	return ptr;
+}
+

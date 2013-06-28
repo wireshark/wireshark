@@ -145,11 +145,12 @@ static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_int(field_info *fi, gchar *label_str);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
-static int hfinfo_uint_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static int hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_uint_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_int_vals_format(const header_field_info *hfinfo, char buf[32], gint32 value);
+static const char *hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value);
+
 static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
-static int hfinfo_int_vals_format(const header_field_info *hfinfo, char buf[32], gint32 value);
-static int hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value);
 static const char* hfinfo_int64_format(const header_field_info *hfinfo);
 static const char* hfinfo_numeric_value_format(const header_field_info *hfinfo);
 
@@ -3887,10 +3888,11 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 				} else {
 					char buf[32];
+					const char *out;
 
-					hfinfo_uint_value_format(hfinfo, buf, u_integer);
+					out = hfinfo_uint_value_format(hfinfo, buf, u_integer);
 
-					g_strlcpy(result+offset_r, buf, size-offset_r);
+					g_strlcpy(result+offset_r, out, size-offset_r);
 				}
 
 				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
@@ -3948,10 +3950,11 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 				} else {
 					char buf[32];
+					const char *out;
 
-					hfinfo_int_value_format(hfinfo, buf, integer);
+					out = hfinfo_int_value_format(hfinfo, buf, integer);
 
-					g_strlcpy(result+offset_r, buf, size-offset_r);
+					g_strlcpy(result+offset_r, out, size-offset_r);
 				}
 
 				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
@@ -5510,7 +5513,9 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	int         bitfield_byte_length, bitwidth;
 	guint32     unshifted_value;
 	guint32     value;
+
 	char        buf[32];
+	const char *out;
 
 	header_field_info *hfinfo = fi->hfinfo;
 
@@ -5541,18 +5546,19 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
-		if (hfinfo_uint_vals_format(hfinfo, buf, value) == -1) /* BASE_NONE so don't put integer in descr */
+		out = hfinfo_uint_vals_format(hfinfo, buf, value);
+		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 			   "%s: %s",  hfinfo->name, val_str);
 		else
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-			   "%s: %s (%s)",  hfinfo->name, val_str, buf);
+			   "%s: %s (%s)",  hfinfo->name, val_str, out);
 	}
 	else {
-		hfinfo_uint_value_format(hfinfo, buf, value);
+		out = hfinfo_uint_value_format(hfinfo, buf, value);
 
 		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				   "%s: %s",  hfinfo->name, buf);
+				   "%s: %s",  hfinfo->name, out);
 	}
 }
 
@@ -5561,7 +5567,9 @@ fill_label_uint(field_info *fi, gchar *label_str)
 {
 	header_field_info *hfinfo = fi->hfinfo;
 	guint32            value;
+
 	char               buf[32];
+	const char        *out;
 
 	value = fvalue_get_uinteger(&fi->value);
 
@@ -5577,15 +5585,16 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
-		if (hfinfo_uint_vals_format(hfinfo, buf, value) == -1)	/* BASE_NONE so don't put integer in descr */
+		out = hfinfo_uint_vals_format(hfinfo, buf, value);
+		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			label_fill(label_str, hfinfo, val_str);
 		else
-			label_fill_descr(label_str, hfinfo, val_str, buf);
+			label_fill_descr(label_str, hfinfo, val_str, out);
 	}
 	else {
-		hfinfo_uint_value_format(hfinfo, buf, value);
+		out = hfinfo_uint_value_format(hfinfo, buf, value);
 
-		label_fill(label_str, hfinfo, buf);
+		label_fill(label_str, hfinfo, out);
 	}
 }
 
@@ -5615,7 +5624,9 @@ fill_label_int(field_info *fi, gchar *label_str)
 {
 	header_field_info *hfinfo = fi->hfinfo;
 	guint32            value;
+
 	char               buf[32];
+	const char        *out;
 
 	value = fvalue_get_sinteger(&fi->value);
 
@@ -5631,15 +5642,16 @@ fill_label_int(field_info *fi, gchar *label_str)
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
-		if (hfinfo_int_vals_format(hfinfo, buf, value) == -1)	/* BASE_NONE so don't put integer in descr */
+		out = hfinfo_int_vals_format(hfinfo, buf, value);
+		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			label_fill(label_str, hfinfo, val_str);
 		else
-			label_fill_descr(label_str, hfinfo, val_str, buf);
+			label_fill_descr(label_str, hfinfo, val_str, out);
 	}
 	else {
-		hfinfo_int_value_format(hfinfo, buf, value);
+		out = hfinfo_int_value_format(hfinfo, buf, value);
 
-		label_fill(label_str, hfinfo, buf);
+		label_fill(label_str, hfinfo, out);
 	}
 }
 
@@ -5701,105 +5713,102 @@ hfinfo_bitwidth(const header_field_info *hfinfo)
 }
 
 static int
+_hfinfo_type_hex_octet(int type)
+{
+	switch (type) {
+		case FT_INT8:
+		case FT_UINT8:
+			return 2;
+
+		case FT_UINT16:
+		case FT_INT16:
+			return 4;
+
+		case FT_UINT24:
+		case FT_INT24:
+			return 6;
+
+		case FT_UINT32:
+		case FT_INT32:
+			return 8;
+
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			;
+	}
+	return -1;
+}
+
+/* private to_str.c API don't export to .h! */
+char *oct_to_str_back(char *ptr, guint32 value);
+char *hex_to_str_back(char *ptr, int pad, guint32 value);
+char *uint_to_str_back(char *ptr, guint32 value);
+char *int_to_str_back(char *ptr, gint32 value);
+
+static const char *
 _hfinfo_uint_value_format(const header_field_info *hfinfo, int display, char buf[32], guint32 value)
 {
+	char *ptr = &buf[31];
+
+	*ptr = '\0';
 	/* Properly format value */
 		switch (display) {
 			case BASE_DEC:
-				return g_snprintf(buf, 32, "%u", value);
+				return uint_to_str_back(ptr, value);
 
 			case BASE_DEC_HEX:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-						return g_snprintf(buf, 32, "%u (0x%02x)", value, value);
-
-					case FT_UINT16:
-						return g_snprintf(buf, 32, "%u (0x%04x)", value, value);
-
-					case FT_UINT24:
-						return g_snprintf(buf, 32, "%u (0x%06x)", value, value);
-
-					case FT_UINT32:
-						return g_snprintf(buf, 32, "%u (0x%08x)", value, value);
-
-					default:
-						buf[0] = '\0';
-						DISSECTOR_ASSERT_NOT_REACHED();
-				}
-				break;
+				*(--ptr) = ')';
+				ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				*(--ptr) = '(';
+				*(--ptr) = ' ';
+				ptr = uint_to_str_back(ptr, value);
+				return ptr;
 
 			case BASE_OCT:
-				return g_snprintf(buf, 32, "%#o", value);
+				return oct_to_str_back(ptr, value);
 
 			case BASE_HEX:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-						return g_snprintf(buf, 32, "0x%02x", value);
-
-					case FT_UINT16:
-						return g_snprintf(buf, 32, "0x%04x", value);
-
-					case FT_UINT24:
-						return g_snprintf(buf, 32, "0x%06x", value);
-
-					case FT_UINT32:
-						return g_snprintf(buf, 32, "0x%08x", value);
-
-					default:
-						buf[0] = '\0';
-						DISSECTOR_ASSERT_NOT_REACHED();
-				}
-				break;
+				return hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
 
 			case BASE_HEX_DEC:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-						return g_snprintf(buf, 32, "0x%02x (%u)", value, value);
-
-					case FT_UINT16:
-						return g_snprintf(buf, 32, "0x%04x (%u)", value, value);
-
-					case FT_UINT24:
-						return g_snprintf(buf, 32, "0x%06x (%u)", value, value);
-
-					case FT_UINT32:
-						return g_snprintf(buf, 32, "0x%08x (%u)", value, value);
-
-					default:
-						buf[0] = '\0';
-						DISSECTOR_ASSERT_NOT_REACHED();
-				}
-				break;
-
+				*(--ptr) = ')';
+				ptr = uint_to_str_back(ptr, value);
+				*(--ptr) = '(';
+				*(--ptr) = ' ';
+				ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				return ptr;
 
 			default:
-				buf[0] = '\0';
 				DISSECTOR_ASSERT_NOT_REACHED();
+				;
 		}
-	return 0;
+	return ptr;
 }
 
-static int
+static const char *
 hfinfo_uint_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	if (hfinfo->type == FT_FRAMENUM) {
+		char *ptr = &buf[31];
+
+		*ptr = '\0';
 		/*
 		 * Frame numbers are always displayed in decimal.
 		 */
-		return g_snprintf(buf, 32, "%u", value);
+		return uint_to_str_back(ptr, value);
 	}
 
 	return _hfinfo_uint_value_format(hfinfo, hfinfo->display, buf, value);
 }
 
-static int
+static const char *
 hfinfo_uint_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = hfinfo->display & BASE_DISPLAY_E_MASK;
 
 	if (display == BASE_NONE)
-		return -1;
+		return NULL;
 
 	if (display == BASE_DEC_HEX)
 		display = BASE_DEC;
@@ -5838,98 +5847,61 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 	return format;
 }
 
-static int
+static const char *
 _hfinfo_int_value_format(const header_field_info *hfinfo, int display, char buf[32], gint32 value)
 {
+	char *ptr = &buf[31];
+
+	*ptr = '\0';
+
 	/* Properly format value */
 	switch (display) {
 		case BASE_DEC:
-			return g_snprintf(buf, 32, "%d", value);
+			return int_to_str_back(ptr, value);
 
 		case BASE_DEC_HEX:
-			switch (hfinfo->type) {
-				case FT_INT8:
-					return g_snprintf(buf, 32, "%d (0x%02x)", value, value);
-
-				case FT_INT16:
-					return g_snprintf(buf, 32, "%d (0x%04x)", value, value);
-
-				case FT_INT24:
-					return g_snprintf(buf, 32, "%d (0x%06x)", value, value);
-
-				case FT_INT32:
-					return g_snprintf(buf, 32, "%d (0x%08x)", value, value);
-
-				default:
-					buf[0] = '\0';
-					DISSECTOR_ASSERT_NOT_REACHED();
-			}
-			break;
+			*(--ptr) = ')';
+			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), (guint32) value);
+			*(--ptr) = '(';
+			*(--ptr) = ' ';
+			ptr = int_to_str_back(ptr, value);
+			return ptr;
 
 		case BASE_OCT:
-			return g_snprintf(buf, 32, "%#o", value);
+			return oct_to_str_back(ptr, (guint32) value);
 
 		case BASE_HEX:
-			switch (hfinfo->type) {
-				case FT_INT8:
-					return g_snprintf(buf, 32, "0x%02x", value);
-
-				case FT_INT16:
-					return g_snprintf(buf, 32, "0x%04x", value);
-
-				case FT_INT24:
-					return g_snprintf(buf, 32, "0x%06x", value);
-
-				case FT_INT32:
-					return g_snprintf(buf, 32, "0x%08x", value);
-
-				default:
-					buf[0] = '\0';
-					DISSECTOR_ASSERT_NOT_REACHED();
-			}
-			break;
+			return hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), (guint32) value);
 
 		case BASE_HEX_DEC:
-			switch (hfinfo->type) {
-				case FT_INT8:
-					return g_snprintf(buf, 32, "0x%02x (%d)", value, value);
-
-				case FT_INT16:
-					return g_snprintf(buf, 32, "0x%04x (%d)", value, value);
-
-				case FT_INT24:
-					return g_snprintf(buf, 32, "0x%06x (%d)", value, value);
-
-				case FT_INT32:
-					return g_snprintf(buf, 32, "0x%08x (%d)", value, value);
-
-				default:
-					buf[0] = '\0';
-					DISSECTOR_ASSERT_NOT_REACHED();
-			}
-			break;
+			*(--ptr) = ')';
+			ptr = int_to_str_back(ptr, value);
+			*(--ptr) = '(';
+			*(--ptr) = ' ';
+			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), (guint32) value);
+			return ptr;
 
 		default:
-			buf[0] = '\0';
 			DISSECTOR_ASSERT_NOT_REACHED();
+			;
 	}
-	return 0;
+	return ptr;
 }
 
-static int
+static const char *
 hfinfo_int_value_format(const header_field_info *hfinfo, char buf[32], gint32 value)
 {
 	return _hfinfo_int_value_format(hfinfo, hfinfo->display, buf, value);
 }
 
-static int
+static const char *
 hfinfo_int_vals_format(const header_field_info *hfinfo, char buf[32], gint32 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = hfinfo->display & BASE_DISPLAY_E_MASK;
 
 	if (display == BASE_NONE)
-		return -1;
+		return NULL;
 
 	if (display == BASE_DEC_HEX)
 		display = BASE_DEC;
@@ -7048,13 +7020,14 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			}
 			else if (!(flags & BMT_NO_INT)) {
 				char buf[32];
+				const char *out;
 
 				if (!first) {
 					proto_item_append_text(item, ", ");
 				}
 
-				IS_FT_INT(hf->type) ? hfinfo_int_value_format(hf, buf, (gint32) tmpval) : hfinfo_uint_value_format(hf, buf, tmpval);
-				proto_item_append_text(item, "%s: %s", hf->name, buf);
+				out = IS_FT_INT(hf->type) ? hfinfo_int_value_format(hf, buf, (gint32) tmpval) : hfinfo_uint_value_format(hf, buf, tmpval);
+				proto_item_append_text(item, "%s: %s", hf->name, out);
 				first = FALSE;
 			}
 
