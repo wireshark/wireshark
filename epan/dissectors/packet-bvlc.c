@@ -196,11 +196,11 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		 	* packet to dissect, see README.developer, 1.6.2, FID */
 			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_result, tvb,
 				offset, 2, bvlc_result,"0x%04x (%s)",
-                                                         bvlc_result,
-                                                         val_to_str_const(bvlc_result,
-                                                                          bvlc_result_names,
-                                                                          "Unknown"));
-			offset += 2;
+							 bvlc_result,
+							 val_to_str_const(bvlc_result,
+									  bvlc_result_names,
+									  "Unknown"));
+			/*offset += 2;*/
 			break;
 		case 0x01: /* Write-Broadcast-Distribution-Table */
 		case 0x03: /* Read-Broadcast-Distribution-Table-Ack */
@@ -230,7 +230,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			/* Time-to-Live	2-octets T, Time-to-Live T, in seconds */
 			proto_tree_add_item(bvlc_tree, hf_bvlc_reg_ttl,
 				tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
+			/*offset += 2;*/
 			break;
 		case 0x06: /* Read-Foreign-Device-Table */
 			/* nothing to do here */
@@ -274,7 +274,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			offset += 4;
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fdt_port,
 				tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
+			/*offset += 2;*/
 			break;
 			/* We check this if we get a FDT-packet somewhere */
 		case 0x04:	/* Forwarded-NPDU
@@ -288,7 +288,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			offset += 4;
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fwd_port,
 				tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
+			/*offset += 2;*/
 		default:/* Distribute-Broadcast-To-Network
 			 * Original-Unicast-NPDU
 			 * Original-Broadcast-NPDU
