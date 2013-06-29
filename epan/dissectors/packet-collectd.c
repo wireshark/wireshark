@@ -1000,7 +1000,6 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (size < 4)
 			{
 				pkt_errors++;
-				status = -1;
 				break;
 			}
 
@@ -1011,7 +1010,6 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ((part_length < 4) || (part_length > size))
 			{
 				pkt_errors++;
-				status = -1;
 				break;
 			}
 
@@ -1085,7 +1083,6 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						PI_ERROR,
 						"Garbage at end of packet");
 			pkt_errors++;
-			status = -1;
 			break;
 		}
 
@@ -1121,7 +1118,6 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							"Bad part length: Larger than remaining packet size.");
 
 			pkt_errors++;
-			status = -1;
 			break;
 		}
 
