@@ -707,17 +707,17 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     zbee_zcl_packet packet;
     zbee_zcl_cluster_desc *desc;
-    
+
     guint8  fcf;
     guint   offset = 0;
 
     /* Init. */
     memset(&packet, 0, sizeof(zbee_zcl_packet));
-  
+
     /* Fill the zcl cluster id */
     zcl_cluster_id = pinfo->zbee_cluster_id;
     cluster_handle = dissector_get_uint_handle(zbee_zcl_dissector_table, zcl_cluster_id);
-    
+
     /* Create the protocol tree */
     if ( tree ) {
         proto_root = proto_tree_add_protocol_format(tree, proto_zbee_zcl, tvb, offset,
@@ -788,10 +788,10 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     packet.cmd_id = tvb_get_guint8(tvb, offset);
 
     desc = zbee_zcl_get_cluster_desc(zcl_cluster_id);
-    if (desc != NULL) {            
+    if (desc != NULL) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ", desc->name);
     }
-    
+
     /* Add command ID to the tree. */
     if ( packet.frame_type == ZBEE_ZCL_FCF_PROFILE_WIDE ) {
         if ( tree ) {
@@ -799,11 +799,11 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 val_to_str_ext_const(packet.cmd_id, &zbee_zcl_cmd_names_ext, "Unknown Command"),
                 packet.tran_seqno);
         }
-        
+
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_ext_const(packet.cmd_id, &zbee_zcl_cmd_names_ext, "Unknown Command"),
             packet.tran_seqno);
-        
+
         if ( zcl_tree ) {
             proto_tree_add_uint(zcl_tree, hf_zbee_zcl_cmd_id, tvb, offset, (int)1,
                             packet.cmd_id);
@@ -813,11 +813,11 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     else {
         /* Cluster Specific */
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
-    
+
         if (cluster_handle != NULL) {
             /* Call the specific cluster dissector registered */
-            pinfo->private_data = (void *)&packet;  
-            call_dissector(cluster_handle, payload_tvb, pinfo, zcl_tree);        
+            pinfo->private_data = (void *)&packet;
+            call_dissector(cluster_handle, payload_tvb, pinfo, zcl_tree);
         }
         else {
             proto_item_append_text(proto_root, ", Cluster-specific Command: 0x%02x, Seq: %u",
@@ -2132,6 +2132,22 @@ void decode_zcl_time_in_seconds(gchar *s, guint16 value)
     g_snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", value);
     return;
 } /* decode_zcl_time_in_seconds*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      decode_zcl_time_in_minutes
+ *  DESCRIPTION
+ *    this function decodes minute time type variable
+ *  PARAMETERS
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void decode_zcl_time_in_minutes(gchar *s, guint16 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", value);
+    return;
+} /*decode_zcl_time_in_minutes*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
