@@ -1179,7 +1179,6 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
 
                 tlv5_counter = 0;
                 tlv5_cap_index = sub_off;
-                tlv5_cap_len = 0;
 
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_tlv5_type);
 
