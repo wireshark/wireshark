@@ -605,8 +605,6 @@ cf_read(capture_file *cf, gboolean reloading)
         progbar_quantum = MIN_QUANTUM;
     }else
       progbar_quantum = 0;
-    /* Progress so far. */
-    progbar_val = 0.0f;
 
     while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
       if (size >= 0) {
@@ -4205,8 +4203,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       progbar_quantum = MIN_QUANTUM;
   }else
     progbar_quantum = 0;
-  /* Progress so far. */
-  progbar_val = 0.0f;
 
   stop_flag = FALSE;
   g_get_current_time(&start_time);
