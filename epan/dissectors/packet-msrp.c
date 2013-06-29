@@ -489,7 +489,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      * is not longer than what's in the buffer, so the
      * "tvb_get_ptr()" calls below won't throw exceptions.   *
      */
-    offset = 0;
     linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
 
     /* Find the first SP and skip the first token */
