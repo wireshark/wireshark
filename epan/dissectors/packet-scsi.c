@@ -2413,7 +2413,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(evpd_tree, hf_scsi_inquiry_bdc_vbuls, tvb,
                 offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+            /*offset += 1;*/
         break;
         case SCSI_EVPD_BLKLIMITS:
             proto_tree_add_item(evpd_tree, hf_scsi_block_limits_wsnz, tvb, offset, 1, ENC_NA);
