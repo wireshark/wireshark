@@ -77,14 +77,14 @@ WS_DLL_PUBLIC FILE *data_out_file;
 static void
 follow_redraw(gpointer data, gpointer user_data _U_)
 {
-	follow_load_text((follow_info_t *)data);
+    follow_load_text((follow_info_t *)data);
 }
 
 /* Redraw the text in all "Follow TCP Stream" windows. */
 void
 follow_tcp_redraw_all(void)
 {
-	g_list_foreach(follow_infos, follow_redraw, NULL);
+    g_list_foreach(follow_infos, follow_redraw, NULL);
 }
 
 /* Follow the TCP stream, if any, to which the last packet that we called
@@ -93,227 +93,227 @@ follow_tcp_redraw_all(void)
 void
 follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-	GtkWidget *filter_cm;
-	GtkWidget	*filter_te;
-	int		tmp_fd;
-	gchar		*follow_filter;
-	const gchar	*previous_filter;
-	int		filter_out_filter_len;
-	const char	*hostname0, *hostname1;
-	char		*port0, *port1;
-	gchar		*server_to_client_string = NULL;
-	gchar		*client_to_server_string = NULL;
-	gchar		*both_directions_string = NULL;
-	follow_stats_t stats;
-	follow_info_t	*follow_info;
-	tcp_stream_chunk sc;
-	size_t              nchars;
-	gchar           *data_out_filename;
-	char        stream_window_title[256];
+    GtkWidget   *filter_cm;
+    GtkWidget   *filter_te;
+    int         tmp_fd;
+    gchar       *follow_filter;
+    const gchar *previous_filter;
+    int         filter_out_filter_len;
+    const char  *hostname0, *hostname1;
+    char        *port0, *port1;
+    gchar       *server_to_client_string = NULL;
+    gchar       *client_to_server_string = NULL;
+    gchar       *both_directions_string = NULL;
+    follow_stats_t stats;
+    follow_info_t  *follow_info;
+    tcp_stream_chunk sc;
+    size_t      nchars;
+    gchar       *data_out_filename;
+    char        stream_window_title[256];
 
-	/* we got tcp so we can follow */
-	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error following stream.  Please make\n"
-			      "sure you have a TCP packet selected.");
-		return;
-	}
+    /* we got tcp so we can follow */
+    if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Error following stream.  Please make\n"
+                      "sure you have a TCP packet selected.");
+        return;
+    }
 
-	follow_info = g_new0(follow_info_t, 1);
-	follow_info->follow_type = FOLLOW_TCP;
+    follow_info = g_new0(follow_info_t, 1);
+    follow_info->follow_type = FOLLOW_TCP;
 
-	/* Create a new filter that matches all packets in the TCP stream,
-	   and set the display filter entry accordingly */
-	reset_tcp_reassembly();
-	follow_filter = build_follow_filter(&cfile.edt->pi);
-	if (!follow_filter) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error creating filter for this stream.\n"
-			      "A transport or network layer header is needed");
-		g_free(follow_info);
-		return;
-	}
+    /* Create a new filter that matches all packets in the TCP stream,
+       and set the display filter entry accordingly */
+    reset_tcp_reassembly();
+    follow_filter = build_follow_filter(&cfile.edt->pi);
+    if (!follow_filter) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Error creating filter for this stream.\n"
+                      "A transport or network layer header is needed");
+        g_free(follow_info);
+        return;
+    }
 
-	/* Create a temporary file into which to dump the reassembled data
-	   from the TCP stream, and set "data_out_file" to refer to it, so
-	   that the TCP code will write to it.
+    /* Create a temporary file into which to dump the reassembled data
+       from the TCP stream, and set "data_out_file" to refer to it, so
+       that the TCP code will write to it.
 
-	   XXX - it might be nicer to just have the TCP code directly
-	   append stuff to the text widget for the TCP stream window,
-	   if we can arrange that said window not pop up until we're
-	   done. */
-	tmp_fd = create_tempfile(&data_out_filename, "follow");
-	follow_info->data_out_filename = g_strdup(data_out_filename);
+       XXX - it might be nicer to just have the TCP code directly
+       append stuff to the text widget for the TCP stream window,
+       if we can arrange that said window not pop up until we're
+       done. */
+    tmp_fd = create_tempfile(&data_out_filename, "follow");
+    follow_info->data_out_filename = g_strdup(data_out_filename);
 
-	if (tmp_fd == -1) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  "Could not create temporary file %s: %s",
-			  follow_info->data_out_filename, g_strerror(errno));
-	    g_free(follow_info->data_out_filename);
-	    g_free(follow_info);
-	    g_free(follow_filter);
-	    return;
-	}
+    if (tmp_fd == -1) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Could not create temporary file %s: %s",
+                      follow_info->data_out_filename, g_strerror(errno));
+        g_free(follow_info->data_out_filename);
+        g_free(follow_info);
+        g_free(follow_filter);
+        return;
+    }
 
-	data_out_file = fdopen(tmp_fd, "w+b");
-	if (data_out_file == NULL) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  "Could not create temporary file %s: %s",
-			  follow_info->data_out_filename, g_strerror(errno));
-	    ws_close(tmp_fd);
-	    ws_unlink(follow_info->data_out_filename);
-	    g_free(follow_info->data_out_filename);
-	    g_free(follow_info);
-	    g_free(follow_filter);
-	    return;
-	}
+    data_out_file = fdopen(tmp_fd, "w+b");
+    if (data_out_file == NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Could not create temporary file %s: %s",
+                      follow_info->data_out_filename, g_strerror(errno));
+        ws_close(tmp_fd);
+        ws_unlink(follow_info->data_out_filename);
+        g_free(follow_info->data_out_filename);
+        g_free(follow_info);
+        g_free(follow_filter);
+        return;
+    }
 
-	/* Set the display filter entry accordingly */
-	filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+    /* Set the display filter entry accordingly */
+    filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+    filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
-	/* needed in follow_filter_out_stream(), is there a better way? */
-	follow_info->filter_te = filter_te;
+    /* needed in follow_filter_out_stream(), is there a better way? */
+    follow_info->filter_te = filter_te;
 
-	/* save previous filter, const since we're not supposed to alter */
-	previous_filter =
-	    (const gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
+    /* save previous filter, const since we're not supposed to alter */
+    previous_filter =
+        (const gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
 
-	/* allocate our new filter. API claims g_malloc terminates program on failure */
-	/* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
-	filter_out_filter_len = (int)(strlen(follow_filter) + strlen(previous_filter) + 16);
-	follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
+    /* allocate our new filter. API claims g_malloc terminates program on failure */
+    /* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
+    filter_out_filter_len = (int)(strlen(follow_filter) + strlen(previous_filter) + 16);
+    follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
 
-	/* append the negation */
-	if(strlen(previous_filter)) {
-	    g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
+    /* append the negation */
+    if(strlen(previous_filter)) {
+        g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
             "%s and !(%s)", previous_filter, follow_filter);
-	} else {
-	    g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
+    } else {
+        g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
             "!(%s)", follow_filter);
-	}
+    }
 
-	gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
+    gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
-	/* Run the display filter so it goes in effect - even if it's the
-	   same as the previous display filter. */
-	main_filter_packets(&cfile, follow_filter, TRUE);
+    /* Run the display filter so it goes in effect - even if it's the
+       same as the previous display filter. */
+    main_filter_packets(&cfile, follow_filter, TRUE);
 
-	/* Check whether we got any data written to the file. */
-	if (empty_tcp_stream) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  "The packets in the capture file for that stream have no data.");
-	    ws_close(tmp_fd);
-	    ws_unlink(follow_info->data_out_filename);
-	    g_free(follow_info->data_out_filename);
-	    g_free(follow_info->filter_out_filter);
-	    g_free(follow_info);
-	    return;
-	}
+    /* Check whether we got any data written to the file. */
+    if (empty_tcp_stream) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                     "The packets in the capture file for that stream have no data.");
+        ws_close(tmp_fd);
+        ws_unlink(follow_info->data_out_filename);
+        g_free(follow_info->data_out_filename);
+        g_free(follow_info->filter_out_filter);
+        g_free(follow_info);
+        return;
+    }
 
-	/* Go back to the top of the file and read the first tcp_stream_chunk
-	 * to ensure that the IP addresses and port numbers in the drop-down
-	 * list are tied to the correct lines displayed by follow_read_stream()
-	 * later on (which also reads from this file).  Close the file when
-	 * we're done.
-	 *
-	 * We read the data now, before we pop up a window, in case the
-	 * read fails.  We use the data later.
-	 */
+    /* Go back to the top of the file and read the first tcp_stream_chunk
+     * to ensure that the IP addresses and port numbers in the drop-down
+     * list are tied to the correct lines displayed by follow_read_stream()
+     * later on (which also reads from this file).  Close the file when
+     * we're done.
+     *
+     * We read the data now, before we pop up a window, in case the
+     * read fails.  We use the data later.
+     */
 
-	rewind(data_out_file);
-	nchars=fread(&sc, 1, sizeof(sc), data_out_file);
-	if (nchars != sizeof(sc)) {
-	    if (ferror(data_out_file)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Could not read from temporary file %s: %s",
-			      follow_info->data_out_filename, g_strerror(errno));
-	    } else {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Short read from temporary file %s: expected %lu, got %lu",
-			      follow_info->data_out_filename,
-			      (unsigned long)sizeof(sc),
-			      (unsigned long)nchars);
-	    }
-	    ws_close(tmp_fd);
-	    ws_unlink(follow_info->data_out_filename);
-	    g_free(follow_info->data_out_filename);
-	    g_free(follow_info->filter_out_filter);
-	    g_free(follow_info);
-	    return;
-	}
-	fclose(data_out_file);
+    rewind(data_out_file);
+    nchars=fread(&sc, 1, sizeof(sc), data_out_file);
+    if (nchars != sizeof(sc)) {
+        if (ferror(data_out_file)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Could not read from temporary file %s: %s",
+                      follow_info->data_out_filename, g_strerror(errno));
+        } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Short read from temporary file %s: expected %lu, got %lu",
+                      follow_info->data_out_filename,
+                      (unsigned long)sizeof(sc),
+                      (unsigned long)nchars);
+        }
+        ws_close(tmp_fd);
+        ws_unlink(follow_info->data_out_filename);
+        g_free(follow_info->data_out_filename);
+        g_free(follow_info->filter_out_filter);
+        g_free(follow_info);
+        return;
+    }
+    fclose(data_out_file);
 
-	/* The data_out_filename file now has all the text that was in the
-	   session (this is dumped to file by the TCP dissector). */
+    /* The data_out_filename file now has all the text that was in the
+       session (this is dumped to file by the TCP dissector). */
 
-	/* Stream to show */
-	follow_stats(&stats);
+    /* Stream to show */
+    follow_stats(&stats);
 
-	if (stats.is_ipv6) {
-		struct e_in6_addr ipaddr;
-		memcpy(&ipaddr, stats.ip_address[0], 16);
-		hostname0 = get_hostname6(&ipaddr);
-		memcpy(&ipaddr, stats.ip_address[1], 16);
-		hostname1 = get_hostname6(&ipaddr);
-	} else {
-		guint32 ipaddr;
-		memcpy(&ipaddr, stats.ip_address[0], 4);
-		hostname0 = get_hostname(ipaddr);
-		memcpy(&ipaddr, stats.ip_address[1], 4);
-		hostname1 = get_hostname(ipaddr);
-	}
+    if (stats.is_ipv6) {
+        struct e_in6_addr ipaddr;
+        memcpy(&ipaddr, stats.ip_address[0], 16);
+        hostname0 = get_hostname6(&ipaddr);
+        memcpy(&ipaddr, stats.ip_address[1], 16);
+        hostname1 = get_hostname6(&ipaddr);
+    } else {
+        guint32 ipaddr;
+        memcpy(&ipaddr, stats.ip_address[0], 4);
+        hostname0 = get_hostname(ipaddr);
+        memcpy(&ipaddr, stats.ip_address[1], 4);
+        hostname1 = get_hostname(ipaddr);
+    }
 
-	follow_info->is_ipv6 = stats.is_ipv6;
+    follow_info->is_ipv6 = stats.is_ipv6;
 
-	port0 = get_tcp_port(stats.port[0]);
-	port1 = get_tcp_port(stats.port[1]);
+    port0 = get_tcp_port(stats.port[0]);
+    port1 = get_tcp_port(stats.port[1]);
 
-	/* Host 0 --> Host 1 */
-	if(sc.src_port == stats.port[0]) {
-		server_to_client_string =
-			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-					hostname0, port0,
-					hostname1, port1,
-					stats.bytes_written[0]);
-	} else {
-		server_to_client_string =
-			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-					hostname1, port1,
-					hostname0,port0,
-					stats.bytes_written[0]);
-	}
+    /* Host 0 --> Host 1 */
+    if(sc.src_port == stats.port[0]) {
+        server_to_client_string =
+            g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
+                            hostname0, port0,
+                            hostname1, port1,
+                            stats.bytes_written[0]);
+    } else {
+        server_to_client_string =
+            g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
+                            hostname1, port1,
+                            hostname0,port0,
+                            stats.bytes_written[0]);
+    }
 
-	/* Host 1 --> Host 0 */
-	if(sc.src_port == stats.port[1]) {
-		client_to_server_string =
-			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-					hostname0, port0,
-					hostname1, port1,
-					stats.bytes_written[1]);
-	} else {
-		client_to_server_string =
-			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
-					hostname1, port1,
-					hostname0, port0,
-					stats.bytes_written[1]);
-	}
+    /* Host 1 --> Host 0 */
+    if(sc.src_port == stats.port[1]) {
+        client_to_server_string =
+            g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
+                            hostname0, port0,
+                            hostname1, port1,
+                            stats.bytes_written[1]);
+    } else {
+        client_to_server_string =
+            g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
+                            hostname1, port1,
+                            hostname0, port0,
+                            stats.bytes_written[1]);
+    }
 
-	/* Both Stream Directions */
-	both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", stats.bytes_written[0] + stats.bytes_written[1]);
+    /* Both Stream Directions */
+    both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", stats.bytes_written[0] + stats.bytes_written[1]);
 
-	g_snprintf(stream_window_title, 256, "Follow TCP Stream (%s)", follow_filter);
-	follow_stream(stream_window_title, follow_info, both_directions_string,
-	              server_to_client_string, client_to_server_string);
+    g_snprintf(stream_window_title, 256, "Follow TCP Stream (%s)", follow_filter);
+    follow_stream(stream_window_title, follow_info, both_directions_string,
+                  server_to_client_string, client_to_server_string);
 
-	/* Free the filter string, as we're done with it. */
-	g_free(follow_filter);
+    /* Free the filter string, as we're done with it. */
+    g_free(follow_filter);
 
-	g_free(both_directions_string);
-	g_free(server_to_client_string);
-	g_free(client_to_server_string);
+    g_free(both_directions_string);
+    g_free(server_to_client_string);
+    g_free(client_to_server_string);
 
-	data_out_file = NULL;
+    data_out_file = NULL;
 }
 
 #ifdef HAVE_LIBZ
@@ -415,179 +415,192 @@ parse_http_header(char *data, size_t len, size_t *content_start)
  */
 frs_return_t
 follow_read_tcp_stream(follow_info_t *follow_info,
-	gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
-	void *arg)
+    gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+    void *arg)
 {
-	tcp_stream_chunk	sc;
-	size_t		bcount;
-	size_t		bytes_read;
-	int			iplen;
-	guint8		client_addr[MAX_IPADDR_LEN];
-	guint16		client_port = 0;
-	gboolean		is_server;
-	guint32		global_client_pos = 0, global_server_pos = 0;
-	guint32		server_packet_count = 0;
-	guint32		client_packet_count = 0;
-	guint32		*global_pos;
-	gboolean		skip;
-	char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
-	size_t              nchars;
-	frs_return_t        frs_return;
+    tcp_stream_chunk    sc;
+    size_t              bcount;
+    size_t              bytes_read;
+    int                 iplen;
+    guint8              client_addr[MAX_IPADDR_LEN];
+    guint16             client_port = 0;
+    gboolean            is_server;
+    guint32             global_client_pos = 0, global_server_pos = 0;
+    guint32             server_packet_count = 0;
+    guint32             client_packet_count = 0;
+    guint32             *global_pos;
+    gboolean            skip;
+    char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
+    size_t              nchars;
+    frs_return_t        frs_return;
 #ifdef HAVE_LIBZ
-	char                outbuffer[FLT_BUF_SIZE+1];
-	z_stream            strm;
-	gboolean            gunzip = FALSE;
-	int                 ret;
+    char                outbuffer[FLT_BUF_SIZE+1];
+    z_stream            strm;
+    gboolean            gunzip = FALSE;
+    int                 ret;
 #endif
 
 
-	iplen = (follow_info->is_ipv6) ? 16 : 4;
+    iplen = (follow_info->is_ipv6) ? 16 : 4;
 
-	data_out_file = ws_fopen(follow_info->data_out_filename, "rb");
-	if (data_out_file == NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Could not open temporary file %s: %s", follow_info->data_out_filename,
-			g_strerror(errno));
-		return FRS_OPEN_ERROR;
-	}
+    data_out_file = ws_fopen(follow_info->data_out_filename, "rb");
+    if (data_out_file == NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Could not open temporary file %s: %s", follow_info->data_out_filename,
+                    g_strerror(errno));
+        return FRS_OPEN_ERROR;
+    }
 
-	while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
-		if (nchars != sizeof(sc)) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				"Short read from temporary file %s: expected %lu, got %lu",
-				follow_info->data_out_filename,
-				(unsigned long)sizeof(sc),
-				(unsigned long)nchars);
-			fclose(data_out_file);
-			data_out_file = NULL;
-			return FRS_READ_ERROR;
-		}
-		if (client_port == 0) {
-			memcpy(client_addr, sc.src_addr, iplen);
-			client_port = sc.src_port;
-		}
-		skip = FALSE;
-		if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
-			client_port == sc.src_port) {
-				is_server = FALSE;
-				global_pos = &global_client_pos;
-				if (follow_info->show_stream == FROM_SERVER) {
-					skip = TRUE;
-				}
-		}
-		else {
-			is_server = TRUE;
-			global_pos = &global_server_pos;
-			if (follow_info->show_stream == FROM_CLIENT) {
-				skip = TRUE;
-			}
-		}
+    while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
+        if (nchars != sizeof(sc)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Short read from temporary file %s: expected %lu, got %lu",
+                        follow_info->data_out_filename,
+                        (unsigned long)sizeof(sc),
+                        (unsigned long)nchars);
+            fclose(data_out_file);
+            data_out_file = NULL;
+            return FRS_READ_ERROR;
+        }
+        if (client_port == 0) {
+            memcpy(client_addr, sc.src_addr, iplen);
+            client_port = sc.src_port;
+        }
+        skip = FALSE;
+        if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
+            client_port == sc.src_port) {
+                is_server = FALSE;
+                global_pos = &global_client_pos;
+                if (follow_info->show_stream == FROM_SERVER) {
+                    skip = TRUE;
+                }
+        }
+        else {
+            is_server = TRUE;
+            global_pos = &global_server_pos;
+            if (follow_info->show_stream == FROM_CLIENT) {
+                skip = TRUE;
+            }
+        }
 
-		bytes_read = 0;
-		while (bytes_read < sc.dlen) {
-			bcount = ((sc.dlen-bytes_read) < FLT_BUF_SIZE) ? (sc.dlen-bytes_read) : FLT_BUF_SIZE;
-			nchars = fread(buffer, 1, bcount, data_out_file);
-			if (nchars == 0)
-				break;
-			/* XXX - if we don't get "bcount" bytes, is that an error? */
-			bytes_read += nchars;
+        bytes_read = 0;
+        while (bytes_read < sc.dlen) {
+            bcount = ((sc.dlen-bytes_read) < FLT_BUF_SIZE) ? (sc.dlen-bytes_read) : FLT_BUF_SIZE;
+            nchars = fread(buffer, 1, bcount, data_out_file);
+            if (nchars == 0)
+                break;
+            /* XXX - if we don't get "bcount" bytes, is that an error? */
+            bytes_read += nchars;
 
 #ifdef HAVE_LIBZ
-			/* If we are on the first packet of an HTTP response, check if data is gzip
-			* compressed.
-			*/
-			if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
-				size_t header_len;
-				gunzip = parse_http_header(buffer, nchars, &header_len);
-				if (gunzip) {
-					/* show header (which is not gzipped)*/
-					frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
-						header_len, is_server, arg, global_pos,
-						&server_packet_count, &client_packet_count);
-					if (frs_return == FRS_PRINT_ERROR) {
-						fclose(data_out_file);
-						data_out_file = NULL;
-						return frs_return;
-					}
+            /* If we are on the first packet of an HTTP response, check if data is gzip
+            * compressed.
+            */
+            if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
+                size_t header_len;
+                gunzip = parse_http_header(buffer, nchars, &header_len);
+                if (gunzip) {
+                    /* show header (which is not gzipped)*/
+                    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
+                        header_len, is_server, arg, global_pos,
+                        &server_packet_count, &client_packet_count);
+                    if (frs_return == FRS_PRINT_ERROR) {
+                        fclose(data_out_file);
+                        data_out_file = NULL;
+                        return frs_return;
+                    }
 
-					/* init gz_stream*/
-					strm.next_in = Z_NULL;
-					strm.avail_in = 0;
-					strm.next_out = Z_NULL;
-					strm.avail_out = 0;
-					strm.zalloc = Z_NULL;
-					strm.zfree = Z_NULL;
-					strm.opaque = Z_NULL;
-					ret = inflateInit2(&strm, MAX_WBITS+16);
-					if (ret != Z_OK) {
-						fclose(data_out_file);
-						data_out_file = NULL;
-						return FRS_READ_ERROR;
-					}
+                    /* init gz_stream*/
+                    strm.next_in = Z_NULL;
+                    strm.avail_in = 0;
+                    strm.next_out = Z_NULL;
+                    strm.avail_out = 0;
+                    strm.zalloc = Z_NULL;
+                    strm.zfree = Z_NULL;
+                    strm.opaque = Z_NULL;
+                    ret = inflateInit2(&strm, MAX_WBITS+16);
+                    if (ret != Z_OK) {
+                        fclose(data_out_file);
+                        data_out_file = NULL;
+                        return FRS_READ_ERROR;
+                    }
 
-					/* prepare remainder of buffer to be inflated below */
-					memmove(buffer, buffer+header_len, nchars-header_len);
-					nchars -= header_len;
-				}
-			}
+                    /* prepare remainder of buffer to be inflated below */
+                    memmove(buffer, buffer+header_len, nchars-header_len);
+                    nchars -= header_len;
+                }
+            }
 
-			if (gunzip) {
-				strm.next_in = buffer;
-				strm.avail_in = (int)nchars;
-				do {
-					strm.next_out = outbuffer;
-					strm.avail_out = FLT_BUF_SIZE;
+            if (gunzip) {
+                strm.next_in = buffer;
+                strm.avail_in = (int)nchars;
+                do {
+                    strm.next_out = outbuffer;
+                    strm.avail_out = FLT_BUF_SIZE;
 
-					ret = inflate(&strm, Z_NO_FLUSH);
-					if (ret < 0 || ret == Z_NEED_DICT) {
-						inflateEnd(&strm);
-						fclose(data_out_file);
-						data_out_file = NULL;
-						return FRS_READ_ERROR;
-					} else if (ret == Z_STREAM_END) {
-						inflateEnd(&strm);
-					}
+                    ret = inflate(&strm, Z_NO_FLUSH);
+                    if (ret < 0 || ret == Z_NEED_DICT) {
+                        inflateEnd(&strm);
+                        fclose(data_out_file);
+                        data_out_file = NULL;
+                        return FRS_READ_ERROR;
+                    } else if (ret == Z_STREAM_END) {
+                        inflateEnd(&strm);
+                    }
 
-					frs_return = follow_show(follow_info, print_line_fcn_p, outbuffer,
-						FLT_BUF_SIZE-strm.avail_out, is_server,
-						arg, global_pos,
-						&server_packet_count,
-						&client_packet_count);
-					if(frs_return == FRS_PRINT_ERROR) {
-						inflateEnd(&strm);
-						fclose(data_out_file);
-						data_out_file = NULL;
-						return frs_return;
-					}
-				} while (strm.avail_out == 0);
-				skip = TRUE;
-			}
+                    frs_return = follow_show(follow_info, print_line_fcn_p, outbuffer,
+                                            FLT_BUF_SIZE-strm.avail_out, is_server,
+                                            arg, global_pos,
+                                            &server_packet_count,
+                                            &client_packet_count);
+                    if(frs_return == FRS_PRINT_ERROR) {
+                        inflateEnd(&strm);
+                        fclose(data_out_file);
+                        data_out_file = NULL;
+                        return frs_return;
+                    }
+                } while (strm.avail_out == 0);
+                skip = TRUE;
+            }
 #endif
-			if (!skip) {
-				frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
-					nchars, is_server, arg, global_pos,
-					&server_packet_count,
-					&client_packet_count);
-				if(frs_return == FRS_PRINT_ERROR) {
-					fclose(data_out_file);
-					data_out_file = NULL;
-					return frs_return;
+            if (!skip) {
+                frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
+                                        nchars, is_server, arg, global_pos,
+                                        &server_packet_count,
+                                        &client_packet_count);
+                if(frs_return == FRS_PRINT_ERROR) {
+                    fclose(data_out_file);
+                    data_out_file = NULL;
+                    return frs_return;
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	if (ferror(data_out_file)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Error reading temporary file %s: %s", follow_info->data_out_filename,
-			g_strerror(errno));
-		fclose(data_out_file);
-		data_out_file = NULL;
-		return FRS_READ_ERROR;
-	}
+    if (ferror(data_out_file)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Error reading temporary file %s: %s", follow_info->data_out_filename,
+                    g_strerror(errno));
+        fclose(data_out_file);
+        data_out_file = NULL;
+        return FRS_READ_ERROR;
+    }
 
-	fclose(data_out_file);
-	data_out_file = NULL;
-	return FRS_OK;
+    fclose(data_out_file);
+    data_out_file = NULL;
+    return FRS_OK;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

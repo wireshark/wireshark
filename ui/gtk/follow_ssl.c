@@ -179,13 +179,13 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Error creating filter for this stream.\n"
                       "A network layer header is needed");
-	g_free(follow_info);
+        g_free(follow_info);
         return;
     }
 
     /* Set the display filter entry accordingly */
-	filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
-	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+    filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+    filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
     /* needed in follow_filter_out_stream(), is there a better way? */
     follow_info->filter_te = filter_te;
@@ -211,14 +211,14 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     /* data will be passed via tap callback*/
     msg = register_tap_listener("ssl", follow_info, follow_filter, 0,
-	NULL, ssl_queue_packet_data, NULL);
+        NULL, ssl_queue_packet_data, NULL);
     if (msg)
     {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Can't register ssl tap: %s\n",msg->str);
-	g_free(follow_info->filter_out_filter);
-	g_free(follow_info);
-	g_free(follow_filter);
+        g_free(follow_info->filter_out_filter);
+        g_free(follow_info);
+        g_free(follow_filter);
         return;
     }
     gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
@@ -236,17 +236,17 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     follow_stats(&stats);
 
     if (stats.is_ipv6) {
-	    struct e_in6_addr ipaddr;
-	    memcpy(&ipaddr, stats.ip_address[0], 16);
-	    hostname0 = get_hostname6(&ipaddr);
-	    memcpy(&ipaddr, stats.ip_address[0], 16);
-	    hostname1 = get_hostname6(&ipaddr);
+        struct e_in6_addr ipaddr;
+        memcpy(&ipaddr, stats.ip_address[0], 16);
+        hostname0 = get_hostname6(&ipaddr);
+        memcpy(&ipaddr, stats.ip_address[0], 16);
+        hostname1 = get_hostname6(&ipaddr);
     } else {
-	    guint32 ipaddr;
-	    memcpy(&ipaddr, stats.ip_address[0], 4);
-	    hostname0 = get_hostname(ipaddr);
-	    memcpy(&ipaddr, stats.ip_address[1], 4);
-	    hostname1 = get_hostname(ipaddr);
+        guint32 ipaddr;
+        memcpy(&ipaddr, stats.ip_address[0], 4);
+        hostname0 = get_hostname(ipaddr);
+        memcpy(&ipaddr, stats.ip_address[1], 4);
+        hostname1 = get_hostname(ipaddr);
     }
 
     port0 = get_tcp_port(stats.port[0]);
@@ -283,7 +283,7 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     /* Invoke the dialog. */
     follow_stream("Follow SSL Stream", follow_info, both_directions_string,
-		  server_to_client_string, client_to_server_string);
+                    server_to_client_string, client_to_server_string);
 
     g_free(both_directions_string);
     g_free(server_to_client_string);
@@ -350,3 +350,16 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 
     return FRS_OK;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
