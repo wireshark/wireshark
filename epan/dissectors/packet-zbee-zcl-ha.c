@@ -823,8 +823,8 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
             /* Check is this command has a payload, than add the payload tree */
             if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_evtalt);
+                /*payload_root = */proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
+                /*payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_evtalt);*/
             }
         }
         offset += (int)1;
@@ -926,7 +926,7 @@ dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
 
     /* Retrieve "Alert Count" field */
     count = tvb_get_guint8(tvb, *offset) & ZBEE_ZCL_APPL_EVTALT_COUNT_NUM_MASK;
-    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Alert Count: 0x%02x", count);
+    proto_tree_add_text(tree, tvb, *offset, 1, "Alert Count: 0x%02x", count);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_num, tvb, *offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
