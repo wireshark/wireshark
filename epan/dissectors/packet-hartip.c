@@ -497,7 +497,7 @@ dissect_cmd0(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_extended_device_status,           tvb, offset);
     offset += dissect_short(body_tree, hf_hartip_pt_rsp_manufacturer_Identification_code, tvb, offset);
     offset += dissect_short(body_tree, hf_hartip_pt_rsp_private_label,                    tvb, offset);
-    offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_device_profile,                   tvb, offset);
+    /*offset += */dissect_byte(body_tree,  hf_hartip_pt_rsp_device_profile,                   tvb, offset);
 
     return bodylen;
   }
@@ -510,7 +510,7 @@ dissect_cmd1(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 {
   if (bodylen >= 5) {
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_pv_units, tvb, offset);
-    offset += dissect_float(body_tree, hf_hartip_pt_rsp_pv,       tvb, offset);
+    /*offset += */dissect_float(body_tree, hf_hartip_pt_rsp_pv,       tvb, offset);
     return bodylen;
   }
 
@@ -522,7 +522,7 @@ dissect_cmd2(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 {
   if (bodylen >= 8) {
     offset += dissect_float(body_tree, hf_hartip_pt_rsp_pv_loop_current,  tvb, offset);
-    offset += dissect_float(body_tree, hf_hartip_pt_rsp_pv_percent_range, tvb, offset);
+    /*offset += */dissect_float(body_tree, hf_hartip_pt_rsp_pv_percent_range, tvb, offset);
     return bodylen;
   }
 
@@ -541,7 +541,7 @@ dissect_cmd3(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_tv_units,        tvb, offset);
     offset += dissect_float(body_tree, hf_hartip_pt_rsp_tv,              tvb, offset);
     offset += dissect_byte(body_tree,  hf_hartip_pt_rsp_qv_units,        tvb, offset);
-    offset += dissect_float(body_tree, hf_hartip_pt_rsp_qv,              tvb, offset);
+    /*offset += */dissect_float(body_tree, hf_hartip_pt_rsp_qv,              tvb, offset);
 
     return bodylen;
   }
@@ -632,7 +632,7 @@ dissect_cmd13(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
     offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_packed_descriptor, "descriptor", 12, tvb, offset);
     offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_day,                                 tvb, offset);
     offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_month,                               tvb, offset);
-    offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_year,                                tvb, offset);
+    /*offset += */dissect_byte(body_tree,      hf_hartip_pt_rsp_year,                                tvb, offset);
 
     return bodylen;
   }
@@ -660,7 +660,7 @@ dissect_cmd48(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 
     if (bodylen >= 24) {
       proto_tree_add_item(body_tree,    hf_hartip_pt_rsp_device_sp_status,         tvb, offset, 11, ENC_NA);
-      offset += 11;
+      /*offset += 11;*/
     }
     return bodylen;
   }
