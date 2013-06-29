@@ -1491,8 +1491,9 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                            val_to_str(function, qs_func_vals, "Unknown (%u)"),
                            function);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
   dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
-  ti = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
+  proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info(pinfo, tf, &ei_ip_opt_len_invalid);
   proto_tree_add_item(field_tree, hf_ip_opt_qs_func, tvb, offset + 2, 1, ENC_NA);
