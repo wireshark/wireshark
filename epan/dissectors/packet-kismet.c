@@ -251,8 +251,8 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 					}
 				}
 
-				offset += (gint) (next_token - line);
-				linelen -= (int) (next_token - line);
+				/*offset += (gint) (next_token - line);
+				linelen -= (int) (next_token - line);*/
 				line = next_token;
 			}
 		}
