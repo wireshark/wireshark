@@ -386,7 +386,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = offset +2;
 				next_tvb = tvb_new_subset(tvb, offset, length, length);
 				call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
-				offset = offset+length;
+				/*offset = offset+length;*/
 
 			}
 			/*return;*/
@@ -418,7 +418,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = offset +2;
 				next_tvb = tvb_new_subset(tvb, offset, length, length);
 				call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
-				offset = offset+length;
+				/*offset = offset+length;*/
 
 			}
 			break;
