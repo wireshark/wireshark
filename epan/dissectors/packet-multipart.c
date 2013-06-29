@@ -269,11 +269,9 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
         } else { /* Regular character */
             if (sep_seen) {
                 sep_seen = 0;
-                lws = FALSE;
             } else {
                 if (lws) {
                     *(q++) = ' ';
-                    lws = FALSE;
                 }
             }
             lws = FALSE;
