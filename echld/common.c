@@ -515,6 +515,7 @@ static child_decoder_t child_decoder = {
 	x2str_dec,
 	str_dec,
 	str_dec,
+	str_dec,
 	int_str_dec,
 	str_dec,
 	x2str_dec 

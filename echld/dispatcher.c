@@ -121,13 +121,13 @@ static long dbg_r = 0;
 #define DISP_DBG_INIT() do { debug_fp = stderr;  DCOM(); } while(0)
 #define DISP_DBG_START(fname) do { debug_fp = fopen(fname,"a"); DCOM(); DISP_DBG((0,"Log Started"));  } while(0)
 #define DISP_WRITE(FD,BA,CH,T,RH) ( dbg_r = echld_write_frame(FD,BA,CH,T,RH,NULL), DISP_DBG((1,"SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",FD,CH,TY(T),RH, (dbg_r>0?"ok":strerror(errno)))), dbg_r )
-#define CHLD_SET_STATE(c,st) DISP_DBG((1,"Child[%d] State %s => %s",(c)->chld_id,ST((c)->state),ST((c)->state=(st)) ))
+#define CHLD_SET_STATE(c,st) do { DISP_DBG((1,"Child[%d] State %s => %s",(c)->chld_id, ST((c)->state), ST((st)) )); (c)->state=(st); } while(0)
 #else
 #define DISP_DBG(attrs)
 #define DISP_DBG_INIT()
 #define DISP_DBG_START(fname)
 #define DISP_WRITE(FD,BA,CH,T,RH) echld_write_frame(FD,BA,CH,T,RH,NULL)
-#define CHLD_SET_STATE(c,st) ((c)->state=(st))
+#define CHLD_SET_STATE(c,st) ((c)->state = (st))
 #endif
 
 #define DISP_RESP(B,T) (DISP_WRITE( dispatcher->parent_out, (B), 0, (T), dispatcher->reqh_id))
@@ -595,11 +595,12 @@ static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 				c->write_fd = pipe_to_child;
 				c->pid = pid;
 				c->chld_id = chld_id;
-				c->state = CREATING;
 				c->closing = FALSE;
 
+				CHLD_SET_STATE(c,CREATING);
+
 				DISP_DBG((4,"Child Forked pid=%d chld_id=%d from_fd=%d to_fd=%d",
-					pid, c->chld_id, pipe_from_child, pipe_to_child));
+				pid, c->chld_id, pipe_from_child, pipe_to_child));
 
 				start_wait_time.tv_sec = (int)(start_wait_time_us / 1000000);
 				start_wait_time.tv_usec = (int)(start_wait_time_us % 1000000);

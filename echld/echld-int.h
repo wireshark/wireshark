@@ -158,6 +158,7 @@ typedef struct _child_in {
 	echld_bool_t (*open_interface)	(guint8*, size_t, char** intf_name, char** params);
 	echld_bool_t (*get_sum)			(guint8*, size_t, char** range);
 	echld_bool_t (*get_tree)		(guint8*, size_t, char** range);
+	echld_bool_t (*get_buffer)		(guint8*, size_t, char** name);
 	echld_bool_t (*add_note)		(guint8*, size_t, int* packet_number, char** note);
 	echld_bool_t (*apply_filter)	(guint8*, size_t, char** filter);
 	echld_bool_t (*save_file)		(guint8*, size_t, char** filename, char** params);

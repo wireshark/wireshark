@@ -109,8 +109,8 @@ static echld_bool_t param_set_dbg_level(char* val , char** err ) {
 
 static long dbg_resp(GByteArray* em, echld_msg_type_t t) {
 	long st = echld_write_frame(child.fds.pipe_to_parent, em, child.chld_id, t, child.reqh_id, NULL);
-	child_debug(1, "SND fd=%d ch=%d ty='%c' rh=%d msg='%s'",
-		child.fds.pipe_to_parent, child.chld_id, t, child.reqh_id, (st>0?"ok":strerror(errno)) );
+	child_debug(1, "SND fd=%d ch=%d ty='%s' rh=%d msg='%s'",
+		child.fds.pipe_to_parent, child.chld_id, TY(t), child.reqh_id, (st>0?"ok":strerror(errno)) );
 	return st;
 }
 
@@ -176,100 +176,6 @@ void child_err(int e, unsigned reqh_id, const char* fmt, ...) {
 }
 
 
-static char* intflist2json(GList* if_list) {
-	/* blatantly stolen from print_machine_readable_interfaces in dumpcap.c */
-#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
-
-    int         i;
-    GList       *if_entry;
-    if_info_t   *if_info;
-    GSList      *addr;
-    if_addr_t   *if_addr;
-    char        addr_str[ADDRSTRLEN];
-    GString     *str = g_string_new("={ ");
-    char* s;
-
-    i = 1;  /* Interface id number */
-    for (if_entry = g_list_first(if_list); if_entry != NULL;
-         if_entry = g_list_next(if_entry)) {
-        if_info = (if_info_t *)if_entry->data;
-        g_string_append_printf(str,"%d={ intf='%s',", i++, if_info->name);
-
-        /*
-         * Print the contents of the if_entry struct in a parseable format.
-         * Each if_entry element is tab-separated.  Addresses are comma-
-         * separated.
-         */
-        /* XXX - Make sure our description doesn't contain a tab */
-        if (if_info->vendor_description != NULL)
-            g_string_append_printf(str," vnd_desc='%s',", if_info->vendor_description);
-
-        /* XXX - Make sure our friendly name doesn't contain a tab */
-        if (if_info->friendly_name != NULL)
-            g_string_append_printf(str," name='%s', addrs=[ ", if_info->friendly_name);
-
-        for (addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
-                    addr = g_slist_next(addr)) {
-
-            if_addr = (if_addr_t *)addr->data;
-            switch(if_addr->ifat_type) {
-            case IF_AT_IPv4:
-                if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
-                              ADDRSTRLEN)) {
-                    g_string_append_printf(str,"%s", addr_str);
-                } else {
-                    g_string_append(str,"<unknown IPv4>");
-                }
-                break;
-            case IF_AT_IPv6:
-                if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
-                              addr_str, ADDRSTRLEN)) {
-                    g_string_append_printf(str,"%s", addr_str);
-                } else {
-                    g_string_append(str,"<unknown IPv6>");
-                }
-                break;
-            default:
-                g_string_append_printf(str,"<type unknown %u>", if_addr->ifat_type);
-            }
-        }
-
-        g_string_append(str," ]"); /* addrs */
-
-
-        if (if_info->loopback)
-            g_string_append(str,", loopback=1");
-        else
-            g_string_append(str,", loopback=0");
-
-        g_string_append(str,"}, ");
-    }
-
-    g_string_truncate(str,str->len - 2); /* the comma and space */
-    g_string_append(str,"}");
-
-    s=str->str;
-    g_string_free(str,FALSE);
-    return s;
-}
-
-static void child_start_interface_listing(void) {
-
-}
-
-static gboolean child_open_file(int chld_id _U_, int reqh_id _U_, const char* filename, guint8* buff, int buff_len) {
-	const char* reason = "Unimplemented"; // this ain't a good reason to fail!
-	g_snprintf(buff,buff_len,"Cannot open file=%s reason=%s",filename,reason);
-	return FALSE;
-}
-
-static gboolean child_open_interface(int chld_id _U_, int reqh_id _U_, const char* intf_name, const char* params _U_, guint8* err_buf, int errbuff_len) {
-	const char* reason = "Unimplemented"; // this ain't a good reason to fail!
-	g_snprintf(err_buf,errbuff_len,"Cannot open interface=%s reason=%s",intf_name,reason);
-	return FALSE;
-}
-
-
 static char* param_get_cwd(char** err ) {
 	char* pwd = getcwd(NULL, 128);
 
@@ -282,7 +188,7 @@ static char* param_get_cwd(char** err ) {
 static echld_bool_t param_set_cwd(char* val , char** err ) {
 	/* XXX SANITIZE */
 	if (chdir(val) != 0) {
-		*err = g_strdup_printf("(%d)'%s'",errno,strerror(errno));
+		*err = g_strdup_printf("cannot chdir reas='%s'",strerror(errno));
 		return FALSE;
 	}
 
@@ -327,6 +233,64 @@ static param_t* get_paramset(char* name) {
 } 
 
 
+
+
+
+
+static void child_open_file(char* filename) {
+	CHILD_DBG((2,"CMD open file filename='%s'",filename));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"open file not implemented yet!");
+	child.state = READING;
+}
+
+static void child_open_interface(char* intf, char* pars) {
+	CHILD_DBG((2,"CMD open interface intf='%s', params='%s'",intf,pars));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"open interface not implemented yet!");
+	child.state = READY;
+}
+
+static void child_start_capture(void) {
+	CHILD_DBG((2,"CMD start capture"));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"start capture not implemented yet!");
+	child.state = CAPTURING;
+}
+
+static void child_stop_capure(void) {
+	CHILD_DBG((2,"CMD stop capture"));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"stop capture not implemented yet!");
+	child.state = DONE;	
+}
+
+static void child_get_summary(char* range) {
+	CHILD_DBG((2,"CMD get summary range='%s'",range));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"get_summary not implemented yet!");
+}
+
+static void child_get_tree(char* range)  {
+	CHILD_DBG((2,"CMD get tree range='%s'",range));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"get_tree not implemented yet!");
+}
+
+static void child_get_buffer(char* name)  {
+	CHILD_DBG((2,"CMD get buffer name='%s'",name));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"get_buffer not implemented yet!");
+}
+
+static void child_add_note(int framenum, char* note)  {
+	CHILD_DBG((2,"CMD add note framenum=%d note='%s'",framenum,note));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"add_note not implemented yet!");
+}
+
+static void child_apply_filter(char* filter) {
+	CHILD_DBG((2,"CMD apply filter filter='%s'",filter));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"apply_filter not implemented yet!");
+}
+
+static void child_save_file(char* filename, char* pars) {
+	CHILD_DBG((2,"CMD save file filename='%s' params='%s'",filename,pars));
+	child_err(ECHLD_ERR_UNIMPLEMENTED,child.reqh_id,"save_file not implemented yet!");
+}
+
 static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data _U_) {
 	GByteArray ba;
 	GByteArray* gba;
@@ -337,28 +301,18 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 	// gettimeofday(&(child.now), NULL);
 
-	if (child.chld_id != chld_id) {
-		if (child.chld_id == 0) {
-			if ( type == ECHLD_NEW_CHILD) {
-				child.chld_id = chld_id;
-				// more init needed for sure
-				CHILD_DBG((1,"chld_id set, sending HELLO"));
-				CHILD_RESP(NULL,ECHLD_HELLO);
-				return 0;
-			} else {
-				child_err(ECHLD_ERR_WRONG_MSG,reqh_id,
-					"not yet initialized: chld_id:%d msg_type='%c'",chld_id,type);
-				return 0;
-			}
-		}
-	
+	if (child.chld_id != chld_id) {	
 		child_err(ECHLD_ERR_WRONG_MSG,reqh_id,
-			"chld_id: own:%d given:%d msg_type='%c'",child.chld_id,chld_id,type);
+			"chld_id: own:%d given:%d msg_type='%s'",child.chld_id,chld_id,TY(type));
 		return 0;
 	}
 
-
 	switch(type) {
+		case ECHLD_NEW_CHILD: {
+			child.state = IDLE;
+			CHILD_RESP(NULL,ECHLD_HELLO);
+			break;
+		}
 		case ECHLD_PING:
 			ba.data = b;
 			ba.len = (guint)len;
@@ -439,28 +393,116 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 			CHILD_DBG((1,"Bye"));
 			exit(0);
 			break;
-		case ECHLD_OPEN_INTERFACE:
-		case ECHLD_OPEN_FILE:
+		case ECHLD_OPEN_FILE: {
+			char* filename;
 			if (child.state != IDLE) goto wrong_state;
-			goto not_implemented;			
-		case ECHLD_START_CAPTURE:
+
+			if ( child.dec->open_file(b,len,&filename) ) {
+				child_open_file(filename);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode open_file");
+			}
+			break;
+		}
+		case ECHLD_OPEN_INTERFACE: {
+			char* intf;
+			char* pars;
+
+			if (child.state != IDLE) goto wrong_state;
+			
+			if ( child.dec->open_interface(b,len,&intf,&pars) ) {
+				child_open_interface(intf,pars);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id, "cannot decode open_interface");
+			}
+			break;
+		}
+		case ECHLD_START_CAPTURE:{
 			if (child.state != READY) goto wrong_state;
-			goto not_implemented;					
-		case ECHLD_STOP_CAPTURE:
-			if (child.state != IDLE) goto wrong_state;
-			goto not_implemented;			
-		case ECHLD_GET_SUM:
-		case ECHLD_GET_TREE:
-		case ECHLD_GET_BUFFER:
-			if (child.state != READING && child.state != CAPTURING ) goto wrong_state;
-			goto not_implemented;		
-		case ECHLD_ADD_NOTE:
-		case ECHLD_APPLY_FILTER:
-		case ECHLD_SAVE_FILE:
-			if (child.state != DONE ) goto wrong_state;
-			goto not_implemented;
+			child_start_capture();
+			break;
+		}					
+		case ECHLD_STOP_CAPTURE: {
+			if (child.state != CAPTURING) goto wrong_state;
+			child_stop_capure();
+			break;
+		}
+		case ECHLD_GET_SUM: {
+			char* range;
+
+			if (child.state != CAPTURING || child.state != READING || child.state != DONE) goto wrong_state;
+
+			if ( child.dec->get_sum(b,len,&range) ) {
+				child_get_summary(range);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode get_summary");
+			}
+			break;
+		}
+		case ECHLD_GET_TREE:{
+			char* range;
+			
+			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
+
+			if ( child.dec->get_tree(b,len,&range) ) {
+				child_get_tree(range);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode get_tree");
+			}
+			break;
+		}
+		case ECHLD_GET_BUFFER:{
+			char* name;
+			
+			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
+
+			if ( child.dec->get_buffer(b,len,&name) ) {
+				child_get_buffer(name);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode get_buffer");
+			}
+			break;
+		}
+		case ECHLD_ADD_NOTE: {
+			int framenum;
+			char* note;
+			
+			if (child.state != CAPTURING && child.state != READING && child.state != DONE) goto wrong_state;
+
+			if ( child.dec->add_note(b,len,&framenum,&note) ) {
+				child_add_note(framenum,note);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode get_buffer");
+			}
+			break;
+		}
+		case ECHLD_APPLY_FILTER: {
+			char* filter;
+			
+			if (child.state != DONE) goto wrong_state;
+
+			if ( child.dec->apply_filter(b,len,&filter) ) {
+				child_apply_filter(filter);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode apply_filter");
+			}
+			break;
+		}
+		case ECHLD_SAVE_FILE: {
+			char* filename;
+			char* pars;
+			
+			if (child.state != DONE) goto wrong_state;
+
+			if ( child.dec->save_file(b,len,&filename,&pars) ) {
+				child_save_file(filename,pars);
+			} else {
+				child_err(ECHLD_DECODE_ERROR,reqh_id,"cannot decode save_file");
+			}
+			break;
+		}
 		default:
-			child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"chld_id=%d msg_type='%c'",chld_id,type);
+			child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"wrong message: chld_id=%d msg_type='%s'",chld_id,TY(type));
 			break;
 	}
 
@@ -468,15 +510,11 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 	misencoded:
 	// dump the misencoded message (b,blen)
-	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"misencoded msg msg_type='%c'",type);
+	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"misencoded msg msg_type='%s'",TY(type);
 	return 0;
 
 	wrong_state:
-	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"unexpected message: received in wrong state='%c', msg_type='%c'",child.state,type);
-	return 0;
-
-	not_implemented:
-	child_err(ECHLD_ERR_UNIMPLEMENTED,reqh_id,"unimplemented message: received in wrong state='%c', msg_type='%c'",child.state,type);
+	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"unexpected message: received in wrong state='%s', msg_type='%s'",ST(child.state),TY(type));
 	return 0;
 
 }
@@ -486,11 +524,6 @@ static void child_dumpcap_read(void) {
 	// it has to read interface descriptions when doing so
 	// and managing capture during capture
 				CHILD_DBG((2,"child_dumpcap_read"));
-}
-
-static void child_read_file(void) {
-	// this folk manages the reading of the file after open file has opened it
-	CHILD_DBG((2,"child_read_file"));
 }
 
 int echld_child_loop(void) {
@@ -562,10 +595,6 @@ int echld_child_loop(void) {
 		if (child.fds.pipe_from_dumpcap > 0 && FD_ISSET(child.fds.pipe_from_dumpcap,&rfds) ) {
 			child_dumpcap_read();
 		}
-
-		if (child.fds.file_being_read > 0 && FD_ISSET(child.fds.pipe_from_dumpcap,&rfds) ) {
-			child_read_file();
-		}
 	} while(1);
 
 
@@ -574,11 +603,4 @@ int echld_child_loop(void) {
 	return 222;
 }
 
-
-extern void echld_unused(void) {
-	intflist2json(NULL);
-	child_start_interface_listing();
-	child_open_file(0, 0, NULL, NULL, 0);
-	child_open_interface(0, 0, NULL, NULL, NULL, 0);
-}
 
