@@ -4656,7 +4656,7 @@ dissect_spc_mgmt_protocol_in(tvbuff_t *tvb, packet_info *pinfo _U_,
                     length = tvb_get_ntohs(tvb_v, offset_v+2);
 
                     proto_tree_add_item(tree, hf_scsi_report_opcodes_cdb_usage_data,
-                            tvb_v, offset_v+4, length, ENC_BIG_ENDIAN);
+                            tvb_v, offset_v+4, length, ENC_NA);
 
                     if (ctdp) {
                         proto_tree *tr;
