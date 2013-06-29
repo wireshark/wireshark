@@ -195,7 +195,7 @@ dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Add the command ID. */
             proto_tree_add_item(tree, hf_zbee_zcl_basic_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
         }
-        offset += (int)1;
+        /*offset += (int)1;*/
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
@@ -855,7 +855,7 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Add the command ID. */
             proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
         }
-        offset += (int)1;
+        /*offset += (int)1;*/
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
