@@ -144,7 +144,6 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
                     default:    g_snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
                 }
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 4, 1, "%s", eom_msg);
-                ia = tvb_get_guint8(tvb, 5) & 0x3f;
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 5, 1, "Good BCC");
             } else {
                 next_tvb = tvb_new_subset_remaining(tvb, 3);
