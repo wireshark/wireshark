@@ -119,6 +119,23 @@ qtshark
 /ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
 
+# Windows Stuff #
+#################
+*.bsc
+*.chm
+*.dsp
+*.dsw
+*.chm
+*.exp
+*.lib
+*.ilk
+*.manifest
+*.pdb
+*.rc
+*.res
+*.manifest
+/wireshark-gtk*
+
 # Misc #
 ########
 *.swp
