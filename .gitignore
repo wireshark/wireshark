@@ -139,6 +139,23 @@ wiretap/abi-descriptor.xml
 wsutil/abi-check-headers/
 wsutil/abi-descriptor.xml
 
+# Windows Stuff #
+#################
+*.bsc
+*.chm
+*.dsp
+*.dsw
+*.chm
+*.exp
+*.lib
+*.ilk
+*.manifest
+*.pdb
+*.rc
+*.res
+*.manifest
+/wireshark-gtk*
+
 # Misc #
 ########
 *.swp
