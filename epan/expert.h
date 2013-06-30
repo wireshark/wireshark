@@ -139,7 +139,7 @@ expert_update_comment_count(guint64 count);
 WS_DLL_PUBLIC void
 expert_add_info(packet_info *pinfo, proto_item *pi, expert_field* eiindex);
 
-/** Add an expert info.
+/** Add an expert info. TO BE DEPRECATED IN ITS CURRENT FORM!!!
  Add an expert info tree to a protocol item, with classification and message.
  @param pinfo Packet info of the currently processed packet. May be NULL if
         pi is supplied

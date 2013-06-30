@@ -4627,6 +4627,8 @@ static gint ett_bacapp_tag = -1;
 static gint ett_bacapp_list = -1;
 static gint ett_bacapp_value = -1;
 
+static expert_field ei_bacapp_bad_length = EI_INIT;
+
 static dissector_handle_t data_handle;
 static gint32 propertyIdentifier = -1;
 static gint32 propertyArrayIndex = -1;
@@ -5129,7 +5131,7 @@ fTagHeaderTree (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } /* if (tree) */
 
     if (*lvt > tvb_length(tvb)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_bacapp_bad_length,
                                "LVT length too long: %d > %d", *lvt,
                                tvb_length(tvb));
         *lvt = 1;
@@ -5226,7 +5228,7 @@ fDevice_Instance (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     ti = proto_tree_add_item(tree, hf, tvb, offset+tag_len, safe_lvt, ENC_BIG_ENDIAN);
 
     if (lvt != safe_lvt)
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_bacapp_bad_length,
                 "This field claims to be an impossible %u bytes, while the max is %u", lvt, safe_lvt);
 
     subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
@@ -7070,7 +7072,7 @@ fVendorIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
     if ((lvt < 1) || (lvt > 2)) { /* vendorIDs >= 1  and <= 2 are supported */
         proto_item *expert_item;
         expert_item = proto_tree_add_text(tree, tvb, 0, lvt, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
-        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
+        expert_add_info_format_text(pinfo, expert_item, &ei_bacapp_bad_length, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
         PROTO_ITEM_SET_GENERATED(expert_item);
         return offset+tag_len+lvt;
     }
@@ -7106,7 +7108,7 @@ fRestartReason (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     if (lvt != 1) {
         proto_item *expert_item;
         expert_item = proto_tree_add_text(tree, tvb, 0, lvt, "Wrong length indicated. Expected 1, got %u", lvt);
-        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", lvt);
+        expert_add_info_format_text(pinfo, expert_item, &ei_bacapp_bad_length, "Wrong length indicated. Expected 1, got %u", lvt);
         PROTO_ITEM_SET_GENERATED(expert_item);
         return offset+tag_len+lvt;
     }
@@ -11108,11 +11110,19 @@ proto_register_bacapp(void)
 
     };
 
+    static ei_register_info ei[] = {
+        { &ei_bacapp_bad_length, { "bacapp.bad_length", PI_MALFORMED, PI_ERROR, "Wrong length indicated", EXPFILL }},
+    };
+
+    expert_module_t* expert_bacapp;
+
     proto_bacapp = proto_register_protocol("Building Automation and Control Network APDU",
                                            "BACapp", "bacapp");
 
     proto_register_field_array(proto_bacapp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_bacapp = expert_register_protocol(proto_bacapp);
+    expert_register_field_array(expert_bacapp, ei, array_length(ei));
     register_dissector("bacapp", dissect_bacapp, proto_bacapp);
     register_init_routine (&bacapp_init_routine);
 

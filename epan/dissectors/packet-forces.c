@@ -186,6 +186,14 @@ static gint  ett_forces_astreason_tlv = -1;
 /*Main_TLV unknown subtree*/
 static gint  ett_forces_unknown_tlv = -1;
 
+
+static expert_field ei_forces_length = EI_INIT;
+static expert_field ei_forces_tlv_type = EI_INIT;
+static expert_field ei_forces_tlv_length = EI_INIT;
+static expert_field ei_forces_lfbselect_tlv_type_operation_path_length = EI_INIT;
+static expert_field ei_forces_lfbselect_tlv_type_operation_type = EI_INIT;
+static expert_field ei_forces_redirect_tlv_redirect_data_tlv_length = EI_INIT;
+
 /*ACK values and the strings to be displayed*/
 static const value_string main_header_flags_ack_vals[] = {
     { 0x0, "NoACK" },
@@ -308,7 +316,7 @@ dissect_path_data_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
                             tvb, offset+2, 2, ENC_BIG_ENDIAN);
         if (length_TLV < TLV_TL_LENGTH)
         {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus TLV length: %u", length_TLV);
+            expert_add_info_format_text(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_path_length, "Bogus TLV length: %u", length_TLV);
             break;
         }
         proto_item_set_len(ti, length_TLV);
@@ -365,7 +373,7 @@ dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
         ti = proto_tree_add_item(oper_tree, hf_forces_lfbselect_tlv_type_operation_type,
                                  tvb, offset, 2, ENC_BIG_ENDIAN);
         if (try_val_to_str(type, operation_type_vals) == NULL)
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+            expert_add_info_format_text(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_type,
                 "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
 
         length = tvb_get_ntohs(tvb, offset+2);
@@ -451,13 +459,11 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
         if (tvb_reported_length_remaining(tvb, offset) < length_redirect)
         {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                "Bogus: Redirect Data TLV length (%u bytes) is wrong", length_redirect);
+            expert_add_info_format_text(pinfo, ti, &ei_forces_redirect_tlv_redirect_data_tlv_length, "Bogus: Redirect Data TLV length (%u bytes) is wrong", length_redirect);
         }
         else if (length_redirect < TLV_TL_LENGTH + MIN_IP_HEADER_LENGTH)
         {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                "Bogus: Redirect Data TLV length (%u bytes) not big enough for IP layer", length_redirect);
+            expert_add_info_format_text(pinfo, ti, &ei_forces_redirect_tlv_redirect_data_tlv_length, "Bogus: Redirect Data TLV length (%u bytes) not big enough for IP layer", length_redirect);
         }
         else
         {
@@ -507,12 +513,10 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
     ti = proto_tree_add_uint_format( forces_main_header_tree, hf_forces_length,
                                      tvb, offset+2, 2, length_count, "Length: %u Bytes", length_count);
     if (length_count != tvb_reported_length_remaining(tvb, offset))
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-            "Bogus: ForCES Header length (%u bytes) is wrong),should be (%u bytes)",
+        expert_add_info_format_text(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is wrong),should be (%u bytes)",
             length_count, tvb_reported_length_remaining(tvb, offset));
     if (length_count < 24)
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-            "Bogus: ForCES Header length (%u bytes) is less than 24bytes)", length_count);
+        expert_add_info_format_text(pinfo, ti, &ei_forces_length, "Bogus: ForCES Header length (%u bytes) is less than 24bytes)", length_count);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s, Total Length:  %u Bytes",
             val_to_str(message_type, message_type_vals, "Unknown messagetype 0x%x"), length_count);
@@ -546,12 +550,11 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
         ti = proto_tree_add_uint_format(forces_tlv_tree, hf_forces_tlv_length,
                                         tvb, offset+2, 2, length_count, "Length: %u Bytes", length_count);
         if (tvb_reported_length_remaining(tvb, offset) < length_count)
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                "Bogus: Main TLV length (%u bytes) is wrong", length_count);
+            expert_add_info_format_text(pinfo, ti, &ei_forces_tlv_length, "Bogus: Main TLV length (%u bytes) is wrong", length_count);
 
         if (length_count < TLV_TL_LENGTH)
         {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bogus TLV length: %u", length_count);
+            expert_add_info_format_text(pinfo, ti, &ei_forces_tlv_length, "Bogus TLV length: %u", length_count);
             break;
         }
 
@@ -585,8 +588,7 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
             break;
 
         default:
-            expert_add_info_format(pinfo, tlv_item, PI_PROTOCOL, PI_WARN,
-                "Bogus: The Main_TLV type is unknown");
+            expert_add_info(pinfo, tlv_item, &ei_forces_tlv_type);
             ti = proto_tree_add_text(forces_tlv_tree, tvb, offset, length_count, "Unknown TLV");
             tlv_tree = proto_item_add_subtree(ti, ett_forces_unknown_tlv);
             proto_tree_add_item(tlv_tree, hf_forces_unknown_tlv, tvb, offset, length_count, ENC_NA);
@@ -617,6 +619,7 @@ void
 proto_register_forces(void)
 {
     module_t *forces_module;
+    expert_module_t* expert_forces;
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -805,12 +808,23 @@ proto_register_forces(void)
         &ett_forces_unknown_tlv
     };
 
+    static ei_register_info ei[] = {
+        { &ei_forces_length, { "forces.length.bad", PI_PROTOCOL, PI_WARN, "ForCES Header length is wrong", EXPFILL }},
+        { &ei_forces_tlv_type, { "forces.tlv.type.unknown", PI_PROTOCOL, PI_WARN, "Bogus: The Main_TLV type is unknown", EXPFILL }},
+        { &ei_forces_tlv_length, { "forces.tlv.length.bad", PI_PROTOCOL, PI_WARN, "Bogus TLV length", EXPFILL }},
+        { &ei_forces_lfbselect_tlv_type_operation_path_length, { "forces.lfbselect.tlv.type.operation.path.length.bad", PI_PROTOCOL, PI_WARN, "Bogus TLV length", EXPFILL }},
+        { &ei_forces_lfbselect_tlv_type_operation_type, { "forces.lfbselect.tlv.type.operation.type.unsupported", PI_PROTOCOL, PI_WARN, "ForCES Operation TLV is not supported", EXPFILL }},
+        { &ei_forces_redirect_tlv_redirect_data_tlv_length, { "forces.redirect.tlv.redirect.data.tlv.length.bad", PI_PROTOCOL, PI_WARN, "Redirect Data TLV length is wrong", EXPFILL }},
+    };
+
     /* Register the protocol name and description */
     proto_forces = proto_register_protocol("Forwarding and Control Element Separation Protocol", "ForCES", "forces");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_forces, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_forces = expert_register_protocol(proto_forces);
+    expert_register_field_array(expert_forces, ei, array_length(ei));
 
     forces_module = prefs_register_protocol(proto_forces,proto_reg_handoff_forces);
 

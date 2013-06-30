@@ -142,6 +142,17 @@ static gint ett_ged125_float_field = -1;
 static gint ett_ged125_service_control_header = -1;
 static gint ett_ged125_service_control_data = -1;
 
+static expert_field ei_ged125_OperationalStatus_normal = EI_INIT;
+static expert_field ei_ged125_OperationalStatus_loss_redundant_component = EI_INIT;
+static expert_field ei_ged125_OperationalStatus_degraded_call_processing = EI_INIT;
+static expert_field ei_ged125_OperationalStatus_conditions_prevent_call = EI_INIT;
+static expert_field ei_ged125_OperationalStatus_invalid_message = EI_INIT;
+static expert_field ei_ged125_length_bad = EI_INIT;
+static expert_field ei_ged125_sendseqno_and_dialogueid = EI_INIT;
+static expert_field ei_ged125_service_control_value_unknown = EI_INIT;
+static expert_field ei_ged125_trunk_group_id = EI_INIT;
+static expert_field ei_ged125_TrunkCount_invalid = EI_INIT;
+
 /* Preferences */
 static guint global_tcp_port_ged125 = 0;
 static gboolean ged125_desegment_body = TRUE;
@@ -517,16 +528,15 @@ OperationalStatus_funk(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint
 	ti = proto_tree_add_item(tree, hf_ged125_OperationalStatus, tvb, *offset, 4, ENC_BIG_ENDIAN);
 
 	if(value == 0)  
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "Normal Operation");
+		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_normal);
 	else if(value <= 31 && value >0)
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, 
-		"Loss of redundant component or other transparent failure; still fully functional for call processing");
+		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_loss_redundant_component);
 	else if(value <= 63 && value >= 32 ) /*32-63*/
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "Degraded call processing" );
+		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_degraded_call_processing);
 	else if(value <= 127 && value >= 64  ) /*64-127*/
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "Conditions prevent call processing" );
+		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_conditions_prevent_call);
 	else if(value > 127) /*error*/
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error: Invalid message" );
+		expert_add_info(pinfo, ti, &ei_ged125_OperationalStatus_invalid_message);
 
 	*offset+=4;
 }
@@ -637,7 +647,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, gint offset
 
 		if ((offset + length > size) && (length > 0))
 		{
-			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Incorrect size given in the packet (corrupted)");
+			expert_add_info(pinfo, ti, &ei_ged125_length_bad);
 			break;
 		}
 
@@ -735,8 +745,7 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 
 	if ((DialogueID != SendSeqNo) &&
 		((DialogueID == 0xFFFFFFFF) || (SendSeqNo == 0xFFFFFFFF)))
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-			"Both SendSeqNo & DialogueID must be NULL because at least one is NULL");
+		expert_add_info(pinfo, ti, &ei_ged125_sendseqno_and_dialogueid);
 
 	ti = proto_tree_add_uint(service_tree, hf_ged125_service_control_value,
 								tvb, *offset-12, 4, mess_type);
@@ -964,8 +973,7 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 		break;
 
 	default:
-		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
-			"Unknown Service-Control Message Sub-type, aborting dissection");
+		expert_add_info(pinfo, ti, &ei_ged125_service_control_value_unknown);
 	}
 }
 
@@ -1063,13 +1071,13 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_InvokeID, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 		if (value > 65535)
-			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "TrunkGroupID must be between 0-65535");
+			expert_add_info(pinfo, ti, &ei_ged125_trunk_group_id);
 
 		value = tvb_get_ntohl(tvb, offset);
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkCount, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 		if (value > 1023)
-			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid number of trunks (max is 1023)");
+			expert_add_info(pinfo, ti, &ei_ged125_TrunkCount_invalid);
 
 		proto_tree_add_item(ged125_message_tree, hf_ged125_CallsInToday, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
@@ -1202,7 +1210,7 @@ dissect_ged125_base_messages(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
 		ti = proto_tree_add_item(ged125_message_tree, hf_ged125_TrunkCount, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 		if (value > 1023)
-			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Invalid number of trunks (max is 1023)");
+			expert_add_info(pinfo, ti, &ei_ged125_TrunkCount_invalid);
 
 		proto_tree_add_item(ged125_message_tree, hf_ged125_InService, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
@@ -1723,9 +1731,27 @@ proto_register_ged125 (void)
 		&ett_ged125_service_control_data
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_ged125_OperationalStatus_normal, { "ged125.operational_status.normal", PI_PROTOCOL, PI_NOTE, "Normal Operation", EXPFILL }},
+		{ &ei_ged125_OperationalStatus_loss_redundant_component, { "ged125.operational_status.loss_redundant_component", PI_PROTOCOL, PI_NOTE,
+			"Loss of redundant component or other transparent failure; still fully functional for call processing", EXPFILL }},
+		{ &ei_ged125_OperationalStatus_degraded_call_processing, { "ged125.operational_status.degraded_call_processing", PI_PROTOCOL, PI_NOTE, "Degraded call processing", EXPFILL }},
+		{ &ei_ged125_OperationalStatus_conditions_prevent_call, { "ged125.operational_status.conditions_prevent_call", PI_PROTOCOL, PI_NOTE, "Conditions prevent call processing", EXPFILL }},
+		{ &ei_ged125_OperationalStatus_invalid_message, { "ged125.operational_status.invalid_message", PI_PROTOCOL, PI_WARN, "Error: Invalid message", EXPFILL }},
+		{ &ei_ged125_length_bad, { "ged125.length.bad", PI_MALFORMED, PI_ERROR, "Incorrect size given in the packet (corrupted)", EXPFILL }},
+		{ &ei_ged125_sendseqno_and_dialogueid, { "ged125.sendseqno_and_dialogueid", PI_PROTOCOL, PI_WARN, "Both SendSeqNo & DialogueID must be NULL because at least one is NULL", EXPFILL }},
+		{ &ei_ged125_service_control_value_unknown, { "ged125.service_control_value.unknown", PI_PROTOCOL, PI_WARN, "Unknown Service-Control Message Sub-type, aborting dissection", EXPFILL }},
+		{ &ei_ged125_trunk_group_id, { "ged125.trunk_group_id.bad_range", PI_PROTOCOL, PI_WARN, "TrunkGroupID must be between 0-65535", EXPFILL }},
+		{ &ei_ged125_TrunkCount_invalid, { "ged125.trunk_count.invalid", PI_PROTOCOL, PI_WARN, "Invalid number of trunks (max is 1023)", EXPFILL }},
+	};
+
+	expert_module_t* expert_ged125;
+
 	proto_ged125 = proto_register_protocol ("Cisco GED-125 Protocol", "GED125", "ged125");
 	proto_register_field_array (proto_ged125, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
+	expert_ged125 = expert_register_protocol(proto_ged125);
+	expert_register_field_array(expert_ged125, ei, array_length(ei));
 	new_register_dissector("ged125", dissect_ged125, proto_ged125);
 
 	ged125_module = prefs_register_protocol(proto_ged125, NULL);

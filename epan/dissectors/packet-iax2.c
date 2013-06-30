@@ -178,6 +178,10 @@ static gint ett_iax2_fragments = -1;
 static gint ett_iax2_trunk_cmddata = -1;
 static gint ett_iax2_trunk_call = -1;
 
+static expert_field ei_iax_too_many_transfers = EI_INIT;
+static expert_field ei_iax_circuit_id_conflict = EI_INIT;
+static expert_field ei_iax_peer_address_unsupported = EI_INIT;
+
 static const fragment_items iax2_fragment_items = {
   &ett_iax2_fragment,
   &ett_iax2_fragments,
@@ -701,7 +705,7 @@ static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * ite
 
   if ((reversed && iax_call->n_reverse_circuit_ids >= IAX_MAX_TRANSFERS) ||
       (! reversed && iax_call->n_forward_circuit_ids >= IAX_MAX_TRANSFERS)) {
-    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Too many transfers for iax_call");
+    expert_add_info(pinfo, item, &ei_iax_too_many_transfers);
     return NULL;
   }
 
@@ -804,7 +808,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
       g_debug("++ done");
 #endif
     } else if (!is_reverse_circuit(src_circuit_id, iax_call)) {
-      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, 
+      expert_add_info_format_text(pinfo, item, &ei_iax_circuit_id_conflict, 
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
@@ -820,7 +824,7 @@ static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item *
 
     reversed = FALSE;
     if (!is_forward_circuit(src_circuit_id, iax_call)) {
-      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, 
+      expert_add_info_format_text(pinfo, item, &ei_iax_circuit_id_conflict, 
                 "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
@@ -1226,7 +1230,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
             break;
 
           default:
-            expert_add_info_format(pinfo, iax_item, PI_PROTOCOL, PI_WARN, 
+            expert_add_info_format_text(pinfo, iax_item, &ei_iax_peer_address_unsupported,
                 "Not supported in IAX dissector: peer address family of %u", apparent_addr_family);
             break;
         }
@@ -3030,6 +3034,14 @@ proto_register_iax2(void)
     &ett_iax2_trunk_call
   };
 
+  static ei_register_info ei[] = {
+    { &ei_iax_too_many_transfers, { "iax.too_many_transfers", PI_PROTOCOL, PI_WARN, "Too many transfers for iax_call", EXPFILL }},
+    { &ei_iax_circuit_id_conflict, { "iax.circuit_id_conflict", PI_PROTOCOL, PI_WARN, "Circuit ID conflict", EXPFILL }},
+    { &ei_iax_peer_address_unsupported, { "iax.peer_address_unsupported", PI_PROTOCOL, PI_WARN, "Peer address unsupported", EXPFILL }},
+  };
+
+  expert_module_t* expert_iax;
+
   /* initialize the hf_iax2_ies[] array to -1 */
   memset(hf_iax2_ies, 0xff, sizeof(hf_iax2_ies));
 
@@ -3037,6 +3049,8 @@ proto_register_iax2(void)
     proto_register_protocol("Inter-Asterisk eXchange v2", "IAX2", "iax2");
   proto_register_field_array(proto_iax2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_iax = expert_register_protocol(proto_iax2);
+  expert_register_field_array(expert_iax, ei, array_length(ei));
 
   register_dissector("iax2", dissect_iax2, proto_iax2);
 

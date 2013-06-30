@@ -98,6 +98,8 @@ static const fragment_items clnp_frag_items = {
     "segments"
 };
 
+static expert_field ei_clnp_length = EI_INIT;
+
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
 static dissector_handle_t ositp_inactive_handle;
@@ -270,7 +272,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (cnf_hdr_len < FIXED_PART_LEN) {
         /* Header length is less than the length of the fixed part of
            the header. */
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti_len, &ei_clnp_length,
                 "Header length value < minimum length %u",
                 FIXED_PART_LEN);
         return;
@@ -318,7 +320,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             segment_length);
     if (segment_length < cnf_hdr_len) {
         /* Segment length is less than the header length. */
-        expert_add_info_format(pinfo, ti_pdu_len, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti_pdu_len, &ei_clnp_length,
                 "PDU length < header length %u", cnf_hdr_len);
         return;
     }
@@ -369,7 +371,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (opt_len < 1) {
         /* Header length is less than the minimum value in CLNP,
            including the destination address length. */
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti_len, &ei_clnp_length,
                 "Header length value < %u",
                 FIXED_PART_LEN + 1);
         return;
@@ -386,7 +388,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Header length is less than the minimum value,
            including the destination address length and the
            destination address. */
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti_len, &ei_clnp_length,
                 "Header length value < %u",
                 FIXED_PART_LEN + 1 + dst_len);
         return;
@@ -406,7 +408,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Header length is less than the minimum value,
            including the destination address length, the
            destination address, and the source address length. */
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti_len, &ei_clnp_length,
                 "Header length value < %u",
                 FIXED_PART_LEN + 1 + dst_len + 1);
         return;
@@ -424,7 +426,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            including the destination address length, the
            destination address, the source address length,
            and the source address. */
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti_len, &ei_clnp_length,
                 "Header length value < %u",
                 FIXED_PART_LEN + 1 + dst_len + 1 + src_len);
         return;
@@ -449,7 +451,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                including the destination address length, the
                destination address, the source address length,
                the source address, and the segmentation part. */
-            expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti_len, &ei_clnp_length,
                     "Header length value < %u",
                     FIXED_PART_LEN + 1 + dst_len + 1 + SEGMENTATION_PART_LEN);
             return;
@@ -468,7 +470,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 total_length);
         if (total_length < segment_length) {
             /* Reassembled length is less than the length of this segment. */
-            expert_add_info_format(pinfo, ti_tot_len, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti_tot_len, &ei_clnp_length,
                     "Total length < segment length %u", segment_length);
             return;
         }
@@ -721,11 +723,18 @@ proto_register_clnp(void)
         &ett_clnp_disc_pdu,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_clnp_length, { "clnp.len.bad", PI_MALFORMED, PI_ERROR, "Header length value bad", EXPFILL }},
+    };
+
     module_t *clnp_module;
+    expert_module_t* expert_clnp;
 
     proto_clnp = proto_register_protocol(PROTO_STRING_CLNP, "CLNP", "clnp");
     proto_register_field_array(proto_clnp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_clnp = expert_register_protocol(proto_clnp);
+    expert_register_field_array(expert_clnp, ei, array_length(ei));
     register_dissector("clnp", dissect_clnp, proto_clnp);
     register_heur_dissector_list("clnp", &clnp_heur_subdissector_list);
     register_init_routine(clnp_reassemble_init);
