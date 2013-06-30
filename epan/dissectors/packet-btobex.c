@@ -1103,12 +1103,11 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_item_append_text(hdr_tree, " (\"%s\")", str);
 
                         col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
+                        offset += item_length - 3;
                     }
                     else {
                         col_append_str(pinfo->cinfo, COL_INFO, " \"\"");
                     }
-
-                    offset += item_length - 3;
                 }
                 break;
             case 0x40:  /* byte sequence */
@@ -1225,7 +1224,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_ephemeral_string(tvb, offset,item_length - 3));
                 }
 
-                offset += item_length - 3;
+                if (item_length >= 3) /* prevent infinite loops */
+                    offset += item_length - 3;
                 break;
             case 0x80:  /* 1 byte */
                 proto_item_append_text(hdr_tree, " (%i)", tvb_get_ntohl(tvb, offset));
