@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/follow.h>
 #include <epan/prefs.h>
@@ -40,7 +41,6 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
-#include <epan/expert.h>
 
 #include "packet-tcp.h"
 
@@ -300,6 +300,8 @@ static gint ett_tcp_opt_rvbd_probe = -1;
 static gint ett_tcp_opt_rvbd_probe_flags = -1;
 static gint ett_tcp_opt_rvbd_trpy = -1;
 static gint ett_tcp_opt_rvbd_trpy_flags = -1;
+
+static expert_field ei_tcp_opt_len_invalid = EI_INIT;
 
 /* Some protocols such as encrypted DCE/RPCoverHTTP have dependencies
  * from one PDU to the next PDU and require that they are called in sequence.
@@ -4712,8 +4714,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tf = NULL;
             field_tree = NULL;
         }
-        dissect_ip_tcp_options(tvb, offset + 20, optlen,
-                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, &TCP_OPT_TYPES, pinfo, field_tree, tf, tcph);
+        dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS, TCPOPT_EOL, 
+                               &TCP_OPT_TYPES, &ei_tcp_opt_len_invalid, pinfo, field_tree, tf, tcph);
     }
 
     if(!pinfo->fd->flags.visited) {
@@ -5727,14 +5729,20 @@ proto_register_tcp(void)
         {NULL, NULL, -1}
     };
 
+    static ei_register_info ei[] = {
+        { &ei_tcp_opt_len_invalid, { "tcp.option.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+    };
 
     module_t *tcp_module;
+    expert_module_t* expert_tcp;
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol",
         "TCP", "tcp");
     register_dissector("tcp", dissect_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_tcp = expert_register_protocol(proto_tcp);
+    expert_register_field_array(expert_tcp, ei, array_length(ei));
 
     /* subdissector code */
     subdissector_table = register_dissector_table("tcp.port",

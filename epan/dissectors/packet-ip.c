@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -49,7 +50,6 @@
 #include <epan/ax25_pids.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
-#include <epan/expert.h>
 
 #include "packet-ip.h"
 #include "packet-ipsec.h"
@@ -1594,7 +1594,8 @@ static const ip_tcp_opt ipopts[] = {
  * options in a packet. */
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
-                       const ip_tcp_opt *opttab, int nopts, int eol, ip_tcp_opt_type* opttypes,
+                       const ip_tcp_opt *opttab, int nopts, int eol,
+                       ip_tcp_opt_type* opttypes, expert_field* ei_bad,
                        packet_info *pinfo, proto_tree *opt_tree,
                        proto_item *opt_item, void * data)
 {
@@ -1603,6 +1604,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   opt_len_type      len_type;
   unsigned int      optlen;
   const char       *name;
+  proto_item       *ti;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
                              int, guint, packet_info *, proto_tree *,
                              void *);
@@ -1644,8 +1646,9 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
            length byte! */
-        proto_tree_add_text(opt_tree, tvb, offset, 1,
+        ti = proto_tree_add_text(opt_tree, tvb, offset, 1,
                             "%s (length byte past end of options)", name);
+        expert_add_info_format_text(pinfo, ti, ei_bad, "%s (length byte past end of options)", name);
         return;
       }
       len = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
@@ -1653,28 +1656,40 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       if (len < 2) {
         /* Bogus - option length is too short to include option code and
            option length. */
-        proto_tree_add_text(opt_tree, tvb, offset, 2,
+        ti = proto_tree_add_text(opt_tree, tvb, offset, 2,
                             "%s (with too-short option length = %u byte%s)",
+                            name, len, plurality(len, "", "s"));
+        expert_add_info_format_text(pinfo, ti, ei_bad, "%s (with too-short option length = %u byte%s)",
                             name, len, plurality(len, "", "s"));
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
-        proto_tree_add_text(opt_tree, tvb, offset, length,
+        ti = proto_tree_add_text(opt_tree, tvb, offset, length,
                             "%s (option length = %u byte%s says option goes "
+                            "past end of options)",
+                            name, len, plurality(len, "", "s"));
+        expert_add_info_format_text(pinfo, ti, ei_bad, "%s (option length = %u byte%s says option goes "
                             "past end of options)",
                             name, len, plurality(len, "", "s"));
         return;
       } else if (len_type == OPT_LEN_FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
-        proto_tree_add_text(opt_tree, tvb, offset, len,
+        ti = proto_tree_add_text(opt_tree, tvb, offset, len,
+                            "%s (with option length = %u byte%s; should be %u)",
+                            name, len, plurality(len, "", "s"), optlen);
+        expert_add_info_format_text(pinfo, ti, ei_bad,
                             "%s (with option length = %u byte%s; should be %u)",
                             name, len, plurality(len, "", "s"), optlen);
         return;
       } else if (len_type == OPT_LEN_VARIABLE_LENGTH && len < optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
-        proto_tree_add_text(opt_tree, tvb, offset, len,
+        ti = proto_tree_add_text(opt_tree, tvb, offset, len,
+                            "%s (with option length = %u byte%s; "
+                            "should be >= %u)",
+                            name, len, plurality(len, "", "s"), optlen);
+        expert_add_info_format_text(pinfo, ti, ei_bad,
                             "%s (with option length = %u byte%s; "
                             "should be >= %u)",
                             name, len, plurality(len, "", "s"), optlen);
@@ -2317,7 +2332,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                              "Options: (%u bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_ip_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen, ipopts, N_IP_OPTS,
-                           IPOPT_EOOL, &IP_OPT_TYPES, pinfo, field_tree, tf, NULL);
+                           IPOPT_EOOL, &IP_OPT_TYPES, &ei_ip_opt_len_invalid, pinfo, field_tree, tf, NULL);
   }
 
   pinfo->ipproto = iph->ip_p;

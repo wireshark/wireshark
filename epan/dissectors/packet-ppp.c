@@ -34,6 +34,7 @@
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/atalk-utils.h>
 #include "packet-chdlc.h"
@@ -69,6 +70,8 @@ static int hf_ppp_opt_type_number = -1;
 
 static gint ett_ppp = -1;
 static gint ett_ppp_opt_type = -1;
+
+static expert_field ei_ppp_opt_len_invalid = EI_INIT;
 
 static int proto_ppp_hdlc = -1;
 
@@ -2713,7 +2716,7 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                 "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
             subopt_tree = proto_item_add_subtree(tso, *optp->subtree_index);
             dissect_ip_tcp_options(tvb, offset, length, ipcp_rohc_subopts,
-                N_IPCP_ROHC_SUBOPTS, -1, &PPP_OPT_TYPES, pinfo, subopt_tree, NULL, NULL);
+                N_IPCP_ROHC_SUBOPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, subopt_tree, NULL, NULL);
         }
         break;
 
@@ -2752,7 +2755,7 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                 "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
             subopt_tree = proto_item_add_subtree(tso, *optp->subtree_index);
             dissect_ip_tcp_options(tvb, offset, length, ipcp_iphc_subopts,
-                N_IPCP_IPHC_SUBOPTS, -1, &PPP_OPT_TYPES, pinfo, subopt_tree, NULL, NULL);
+                N_IPCP_IPHC_SUBOPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, subopt_tree, NULL, NULL);
         }
         break;
 
@@ -3854,8 +3857,8 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
             tf = proto_tree_add_text(fh_tree, tvb, offset, length,
                 "Options: (%d byte%s)", length, plurality(length, "", "s"));
             field_tree = proto_item_add_subtree(tf, options_subtree_index);
-            dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1, &PPP_OPT_TYPES, pinfo,
-                field_tree, NULL, NULL);
+            dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1, &PPP_OPT_TYPES,
+                &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
         }
         break;
 
@@ -4022,7 +4025,7 @@ static void
 dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts,
-        N_LCP_OPTS, -1, &PPP_OPT_TYPES, pinfo, tree, NULL, NULL);
+        N_LCP_OPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, tree, NULL, NULL);
 }
 
 /*
@@ -4079,8 +4082,8 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      "Options: (%d byte%s)", length,
                                      plurality(length, "", "s"));
             field_tree = proto_item_add_subtree(tf, ett_vsncp_options);
-            dissect_ip_tcp_options(tvb, offset, length, vsncp_opts,
-                                   N_VSNCP_OPTS, -1, &PPP_OPT_TYPES, pinfo, field_tree, NULL, NULL);
+            dissect_ip_tcp_options(tvb, offset, length, vsncp_opts, N_VSNCP_OPTS, -1, &PPP_OPT_TYPES,
+                                    &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
         }
         break;
 
@@ -4342,8 +4345,8 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tf = proto_tree_add_text(fh_tree, tvb, offset, length,
                                  "Data (%d byte%s)", length, plurality(length, "", "s"));
         field_tree = proto_item_add_subtree(tf, ett_bap_options);
-        dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS,
-                               -1, &PPP_OPT_TYPES, pinfo, field_tree, NULL, NULL);
+        dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS, -1, &PPP_OPT_TYPES,
+                                &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
     }
 }
 
@@ -5489,13 +5492,19 @@ proto_register_ppp(void)
         &ett_ppp,
         &ett_ppp_opt_type
     };
+    static ei_register_info ei[] = {
+        { &ei_ppp_opt_len_invalid, { "ppp.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+    };
 
     module_t *ppp_module;
+    expert_module_t* expert_ppp;
 
     proto_ppp = proto_register_protocol("Point-to-Point Protocol", "PPP",
         "ppp");
     proto_register_field_array(proto_ppp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ppp = expert_register_protocol(proto_ppp);
+    expert_register_field_array(expert_ppp, ei, array_length(ei));
 
     /* subdissector code */
     ppp_subdissector_table = register_dissector_table("ppp.protocol",
