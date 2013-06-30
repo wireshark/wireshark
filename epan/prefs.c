@@ -1859,6 +1859,14 @@ prefs_register_modules(void)
     gui_module = prefs_register_module(NULL, "gui", "User Interface",
         "User Interface", &gui_callback, FALSE);
 
+    /* gui.console_open is placed first in the list so that any problems encountered
+     *  in the following prefs can be displayed in the console window.
+     */
+    prefs_register_enum_preference(gui_module, "console_open",
+                       "Open a console window",
+                       "Open a console window (WIN32 only)",
+                       (gint*)(void*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
+
     prefs_register_obsolete_preference(gui_module, "scrollbar_on_right");
     prefs_register_obsolete_preference(gui_module, "packet_list_sel_browse");
     prefs_register_obsolete_preference(gui_module, "protocol_tree_sel_browse");
@@ -1996,11 +2004,6 @@ prefs_register_modules(void)
 
     prefs_register_color_preference(gui_color_module, "color_filter_bg.deprecated", "Deprecated color filter background",
         "Deprecated color filter background", &prefs.gui_text_deprecated);
-
-    prefs_register_enum_preference(gui_module, "console_open",
-                       "Open a console window",
-                       "Open a console window (WIN32 only)",
-                       (gint*)(void*)(&prefs.gui_console_open), gui_console_open_type, FALSE);
 
     prefs_register_enum_preference(gui_module, "fileopen.style",
                        "Where to start the File Open dialog box",
