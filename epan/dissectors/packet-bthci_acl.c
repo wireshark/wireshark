@@ -258,10 +258,15 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     localhost_bdaddr_entry = (localhost_bdaddr_entry_t *)wmem_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
     if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == hci_data->interface_id &&
-            localhost_bdaddr_entry->adapter_id == hci_data->adapter_id)
+        localhost_bdaddr_entry->adapter_id == hci_data->adapter_id) {
+
         localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
-    else
+        memcpy(localhost_bdaddr, localhost_bdaddr_entry->bd_addr, 6);
+    } else { 
         localhost_ether_addr = "localhost";
+        /* XXX - is this the right value to use? */
+        memset(localhost_bdaddr, 0, 6);
+    }
 
     localhost_name_entry = (localhost_name_entry_t *)wmem_tree_lookup32_array_le(hci_data->localhost_name, key);
     if (localhost_name_entry && localhost_name_entry->interface_id == hci_data->interface_id &&
