@@ -408,6 +408,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             uFragNumber,
             val_to_str( (u8FragStatus & 0x80) >> 7, pn_rt_frag_status_more_follows, "Unknown"));
 
+        /* Is this a string or a bunch of bytes? Should it be FT_BYTES? */
         proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data",
             "Fragment Length: %d bytes", tvb_length(tvb) - offset);
         col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment Length: %d bytes", tvb_length(tvb) - offset);
@@ -949,6 +950,7 @@ proto_register_pn_rt(void)
             FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL }},
 
+        /* Is this a string or a bunch of bytes? Should it be FT_BYTES? */
         { &hf_pn_rt_frag_data,
           { "FragData", "pn_rt.frag_data",
             FT_STRING, BASE_NONE, NULL, 0x00,
