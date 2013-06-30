@@ -43,7 +43,7 @@
    string */
 const gchar *
 col_format_to_string(const gint fmt) {
-  const gchar *slist[] = {
+  static const gchar *const slist[NUM_COL_FMTS] = {
     "%q",                                       /* 0) COL_8021Q_VLAN_ID */
     "%Yt",                                      /* 1) COL_ABS_DATE_TIME */
     "%At",                                      /* 2) COL_ABS_TIME */
@@ -115,7 +115,9 @@ col_format_to_string(const gint fmt) {
 
 /* Given a format number (as defined in column_info.h), returns its
   description */
-static const gchar *dlist[NUM_COL_FMTS] = {
+const gchar *
+col_format_desc(const gint fmt) {
+  static const gchar *const dlist[NUM_COL_FMTS] = {
     "802.1Q VLAN id",                           /* 0) COL_8021Q_VLAN_ID */
     "Absolute date and time",                   /* 1) COL_ABS_DATE_TIME */
     "Absolute time",                            /* 2) COL_ABS_TIME */
@@ -177,10 +179,8 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "UTC date and time",                        /* 58) COL_UTC_DATE_TIME */
     "UTC time",                                 /* 59) COL_UTC_TIME */
     "Time (format as specified)"                /* 60) COL_CLS_TIME */
-};
+  };
 
-const gchar *
-col_format_desc(const gint fmt) {
   g_assert((fmt >= 0) && (fmt < NUM_COL_FMTS));
   return(dlist[fmt]);
 }
