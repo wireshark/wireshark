@@ -2449,7 +2449,7 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_key_event_counter,
 				    tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
-		VNC_BYTES_NEEDED(4 * num);
+		VNC_BYTES_NEEDED((guint)(4 * num));
 		ti = proto_tree_add_text(tree, tvb, *offset, 4 * num,
 					 "Key Event List");
 		sub_tree = proto_item_add_subtree(ti, ett_vnc_key_events);
@@ -2555,7 +2555,7 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_touch_num_events,
 				    tvb, *offset, 1, ENC_BIG_ENDIAN);
 		*offset += 1;
-		VNC_BYTES_NEEDED(6 * num);
+		VNC_BYTES_NEEDED((guint)(6 * num));
 		/*sub_tree = proto_item_add_subtree(tree, ett_vnc_touch_events);*/
 		for (i = 0; i < num; i++) {
 			ti = proto_tree_add_text(tree, tvb, *offset, 6,
