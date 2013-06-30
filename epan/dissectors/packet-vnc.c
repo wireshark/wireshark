@@ -1462,8 +1462,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
 
-	proto_tree_add_item(tree, hf_vnc_padding,
-			    tvb, *offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, ENC_NA);
 	*offset += 1; /* Skip over 1 byte of padding */
 
 	number_of_encodings = tvb_get_ntohs(tvb, *offset);
@@ -1767,7 +1766,7 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 	num_of_screens = tvb_get_guint8(tvb, *offset);
 	proto_tree_add_item(tree, hf_vnc_desktop_screen_num, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset += 1;
-	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
 
 	VNC_BYTES_NEEDED((guint32)(3 + (num_of_screens * 16)));
 	*offset += 3;
