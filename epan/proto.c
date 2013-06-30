@@ -3898,7 +3898,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				} else {
 					g_snprintf(expr+offset_e, size-offset_e,
 						   hfinfo_numeric_value_format(hfinfo),
-						   fvalue_get_uinteger(&finfo->value));
+						   u_integer);
 				}
 
 				offset_r = (int)strlen(result);
@@ -3959,7 +3959,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				} else {
 					g_snprintf(expr+offset_e, size-offset_e,
 						   hfinfo_numeric_value_format(hfinfo),
-						   fvalue_get_sinteger(&finfo->value));
+						   integer);
 				}
 
 				offset_r = (int)strlen(result);
