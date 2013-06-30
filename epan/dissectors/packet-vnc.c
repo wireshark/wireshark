@@ -3442,12 +3442,12 @@ proto_register_vnc(void)
 		    FT_BOOLEAN, 32, TFS(&auth_result_tfs), 0x1,
 		    NULL, HFILL }
 		},
-		{ &hf_vnc_auth_error,
+		{ &hf_vnc_auth_error_length,
 		  { "Length of authentication error", "vnc.auth_error_len",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Authentication error length (present only if the authentication result is fail", HFILL }
 		},
-		{ &hf_vnc_auth_error_length,
+		{ &hf_vnc_auth_error,
 		  { "Authentication error", "vnc.auth_error",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Authentication error (present only if the authentication result is fail", HFILL }
