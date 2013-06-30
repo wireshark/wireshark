@@ -728,7 +728,7 @@ proto_register_pn_rt(void)
     { &hf_pn_rt_frag_status_fragment_number, {
         "FragmentNumber (zero based)", "pn_rt.frag_status.fragment_number", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
     { &hf_pn_rt_frag_data, {
-        "FragData", "pn_rt.frag_data", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        "FragData", "pn_rt.frag_data", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_pn_rt,
