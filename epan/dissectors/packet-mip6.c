@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
@@ -1729,7 +1730,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     /* see 3GPP TS 29.275 version 10.5.0 Release 10 */
     switch (sub_type) {
-    /*  1, Protocol Configuration Options 
+    /*  1, Protocol Configuration Options
      *     3GPP PCO data, in the format from 3GPP TS 24.008 [16] subclause 10.5.6.3, starting with octet 3
      *     de_sm_pco(tvb, tree, pinfo, 0, length, NULL, 0);
      *     Note needs pinfo->link_dir ?
@@ -1754,13 +1755,13 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(tree, hf_mip6_opt_3gpp_pdn_gw_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
         }
         break;
-    /*  4, PMIPv6 DHCPv4 Address Allocation Procedure Indication 
+    /*  4, PMIPv6 DHCPv4 Address Allocation Procedure Indication
      *     DHCPv4 Address Allocation Procedure Indication, as specified in subclause 12.1.1.5
      */
     case 4:
         proto_tree_add_item(tree, hf_mip6_opt_3gpp_dhcpv4_addr_all_proc_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
-    /*  5, PMIPv6 Fully Qualified PDN Connection Set Identifier 
+    /*  5, PMIPv6 Fully Qualified PDN Connection Set Identifier
      * FQ-CSID as specified in subclause 12.1.1.2
      */
     case 5:
@@ -1835,7 +1836,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     case 19:
          proto_tree_add_item(tree, hf_hf_mip6_opt_3gpp_lapi, tvb, offset, 1, ENC_BIG_ENDIAN);
          break;
-    /* 20, Additional Protocol Configuration Options 
+    /* 20, Additional Protocol Configuration Options
      *     12.1.1.19 Additional Protocol Configuration Options
      *     The Additional Protocol Configuration Options IE contains additional 3GPP protocol configuration options
      *     information. The IE is in the same format as the PCO IE specified in 3GPP TS 24.008 [16] subclause 10.5.6.3, starting
@@ -2226,7 +2227,7 @@ dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     len = optlen - MIP6_SSM_SSM_OFF;
 
-    /* 3GPP TS 29.275 version 10.5.0 Release 10, Table 5.1.1.1-2 
+    /* 3GPP TS 29.275 version 10.5.0 Release 10, Table 5.1.1.1-2
 	 * Set to the EPS Access Point Name to which the UE
 	 * attaches the new PDN connection.
 	 * The encoding the APN field follows 3GPP TS 23.003
@@ -3557,7 +3558,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case MIP6_EMH:
         /* 11 Experimental Mobility Header RFC5096 */
-		/* There are no fields in the message beyond the required fields 
+		/* There are no fields in the message beyond the required fields
          * in the Mobility Header.
          */
 		offset = MIP6_DATA_OFF;

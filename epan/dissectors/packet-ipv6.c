@@ -31,6 +31,7 @@
 #include <math.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -2824,7 +2825,7 @@ proto_register_ipv6(void)
      { &ei_ipv6_shim6_checksum_bad, { "ipv6.shim6.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
      { &ei_ipv6_routing_hdr_rpl_segments_ge0, { "ipv6.routing_hdr.rpl.segments.ge0", PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was X", EXPFILL }},
   };
-  
+
   module_t *ipv6_module;
   expert_module_t* expert_ipv6;
 
