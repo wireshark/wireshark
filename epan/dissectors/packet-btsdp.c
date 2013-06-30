@@ -269,7 +269,13 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
         break;
     }
 
-    *length = size;
+    if (size < 0) {
+        *length = 0; /* Add expert info? */
+    }
+    else {
+        *length = size;
+    }
+
     return offset;
 }
 
