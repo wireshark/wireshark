@@ -105,7 +105,7 @@ wrs_count_bitshift(const guint32 bitmask)
 		return NULL;						\
 	PTREE_DATA(tree)->count++;					\
 	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
-		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) \
+		if (getenv("WIRESHARK_ABORT_ON_TOO_MANY_ITEMS") != NULL) \
 			g_error("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS); \
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
@@ -238,7 +238,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 static int proto_register_field_init(header_field_info *hfinfo, const int parent);
 
 /* special-case header field used within proto.c */
-static header_field_info hfi_text_only = 
+static header_field_info hfi_text_only =
 	{ "Text item",	"text", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 int hf_text_only = -1;
 
