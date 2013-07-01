@@ -2090,7 +2090,7 @@ nbap_com_context_id_t *cur_val;
 
    /*If both are avaible we can update the map*/
 if(crcn_context_present){
-        if( (cur_val=(nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) == NULL ){
+        if( (nbap_com_context_id_t *)g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id)) == NULL ){
 
             cur_val = g_new(nbap_com_context_id_t,1);
             cur_val->crnc_context = com_context_id;
