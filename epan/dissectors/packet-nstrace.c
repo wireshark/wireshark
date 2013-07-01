@@ -146,7 +146,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8      offset;
 	guint      	i, bpos;
 	emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("None");
-	const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
+	static const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
 	gboolean 	first_flag = TRUE;
 	guint8		flagoffset, flagval;
 	guint8      src_vmname_len = 0, dst_vmname_len = 0;

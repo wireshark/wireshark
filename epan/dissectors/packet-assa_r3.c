@@ -4273,9 +4273,9 @@ dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 start_offset, 
     proto_tree  *cpe_tree  = proto_item_add_subtree (cpe_item, ett_r3checkpointlogentry);
     guint        resettype;
     const gchar *desc;
-    const gchar *resets [] = { "Stack underflow", "Stack overflow", "Power-On",
-                               "Software", "Brown-out", "MCLR in sleep", "WDT",
-                               "Normal", "[Unknown Reset Type]" };
+    static const gchar *resets [] = { "Stack underflow", "Stack overflow", "Power-On",
+                                      "Software", "Brown-out", "MCLR in sleep", "WDT",
+                                      "Normal", "[Unknown Reset Type]" };
 
     desc = val_to_str_ext_const (cp, &r3_checkpointnames_ext, "[Unknown Checkpoint]");
 

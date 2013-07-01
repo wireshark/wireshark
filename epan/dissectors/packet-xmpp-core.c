@@ -276,11 +276,11 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     proto_item *presence_item;
     proto_tree *presence_tree;
 
-    const gchar *type_enums[] = {"error", "probe", "subscribe", "subscribed",
+    static const gchar *type_enums[] = {"error", "probe", "subscribe", "subscribed",
                                  "unavailable", "unsubscribe", "unsubscribed"};
     xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
-    const gchar *show_enums[] = {"away", "chat", "dnd", "xa"};
+    static const gchar *show_enums[] = {"away", "chat", "dnd", "xa"};
     xmpp_array_t *show_array = xmpp_ep_init_array_t(show_enums, array_length(show_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -366,7 +366,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     proto_item *message_item;
     proto_tree *message_tree;
 
-    const gchar  *type_enums[] = {"chat", "error", "groupchat", "headline", "normal"};
+    static const gchar  *type_enums[] = {"chat", "error", "groupchat", "headline", "normal"};
     xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -565,7 +565,7 @@ xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
         {"condition", -1, FALSE, TRUE, NULL, NULL}
     };
 
-    const gchar *fail_names[] = {"aborted","account-disabled", "credentials-expired",
+    static const gchar *fail_names[] = {"aborted","account-disabled", "credentials-expired",
         "encryption-required", "incorrect-encoding", "invalid-authzid", "invalid-mechanism",
         "malformed-request", "mechanism-too-weak", "not-authorized", "temporary-auth-failure",
         "transition-needed"

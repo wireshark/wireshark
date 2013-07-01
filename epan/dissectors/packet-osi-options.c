@@ -372,10 +372,10 @@ static void
 dissect_option_rfd( const guchar error, const guchar field, int offset,
                           guchar len, tvbuff_t *tvb, proto_tree *tree ) {
   guchar error_class = 0;
-  const char   *format_string[] =
+  static const char *format_string[] =
              { "Reason for discard {General}        : %s, in field %u",
                "Reason for discard {Address}        : %s, in field %u",
-               "Reason for discard {Source Routing}: %s, in field %u",
+               "Reason for discard {Source Routing} : %s, in field %u",
                "Reason for discard {Lifetime}       : %s, in field %u",
                "Reason for discard {PDU discarded}  : %s, in field %u",
                "Reason for discard {Reassembly}     : %s, in field %u"

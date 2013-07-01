@@ -998,7 +998,7 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
         tag_icon_url = 7
     };
 
-    const gchar *tag_name[] = {
+    static const gchar *tag_name[] = {
         "Reserved Tag",
         "languageChar",
         "manufacturerName",

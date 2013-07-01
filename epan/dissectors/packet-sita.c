@@ -109,12 +109,14 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree  *sita_errors1_tree  = NULL;
     proto_tree  *sita_errors2_tree  = NULL;
     proto_tree  *sita_signals_tree  = NULL;
-    const gchar *rx_errors1_str[]   = {"Framing",       "Parity",   "Collision",    "Long-frame",   "Short-frame",  "",         "",     ""              };
-    const gchar *rx_errors2_str[]   = {"Non-Aligned",   "Abort",    "CD-lost",      "DPLL",         "Overrun",      "Length",   "CRC",  "Break"         };
-    /*const gchar   *tx_errors1_str[]   = {"",              "",         "",             "",             "",             "",         "",     ""              }; */
-    const gchar *tx_errors2_str[]   = {"Underrun",      "CTS-lost", "UART",         "ReTx-limit",   "",             "",         "",     ""              };
-    const gchar *signals_str[]      = {"DSR",           "DTR",      "CTS",          "RTS",          "DCD",          "",         "",     ""              };
-    const gchar *flags_str[]        = {"",              "",         "",             "",             "",             "",         "",     "No-buffers"    };
+    static const gchar *rx_errors1_str[]   = {"Framing",       "Parity",   "Collision",    "Long-frame",   "Short-frame",  "",         "",     ""              };
+    static const gchar *rx_errors2_str[]   = {"Non-Aligned",   "Abort",    "CD-lost",      "DPLL",         "Overrun",      "Length",   "CRC",  "Break"         };
+#if 0
+    static const gchar   *tx_errors1_str[]   = {"",              "",         "",             "",             "",             "",         "",     ""              };
+#endif
+    static const gchar *tx_errors2_str[]   = {"Underrun",      "CTS-lost", "UART",         "ReTx-limit",   "",             "",         "",     ""              };
+    static const gchar *signals_str[]      = {"DSR",           "DTR",      "CTS",          "RTS",          "DCD",          "",         "",     ""              };
+    static const gchar *flags_str[]        = {"",              "",         "",             "",             "",             "",         "",     "No-buffers"    };
 
     col_clear(pinfo->cinfo, COL_PROTOCOL);      /* erase the protocol */
     col_clear(pinfo->cinfo, COL_INFO);          /* and info columns so that the next decoder can fill them in */

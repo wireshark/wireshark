@@ -1222,7 +1222,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	     * They are used to "implement" a poorman's exception handling
 	     */
 	    int len = 0;
-	    const char *descr[] = {
+	    static const char *descr[] = {
 		"Nick",
 		"First name",
 		"Last name",

@@ -1615,7 +1615,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_item *item = NULL;
 		proto_tree *subtree = NULL;
 		char *flag_string;
-		const char *strings[] = { " MNT_PNT", " SNAPDIR", " SNAPDIR_ENT",
+		static const char *strings[] = { " MNT_PNT", " SNAPDIR", " SNAPDIR_ENT",
 				    " EMPTY", " VBN_ACCESS", " MULTIVOLUME",
 				    " METADATA" };
 		guint16 bit = sizeof(strings) / sizeof(strings[0]);
@@ -1685,32 +1685,32 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 	guint32 inum = tvb_get_ntohl(tvb, offset + 12);
 
 	const char *handle_string=NULL;
-	const char *handle_type_strings [] = { "NORMAL",
-					       "UNEXP",
-					       "VOLDIR",
-					       "ROOT",
-					       "ABSENT",
-					       "INVALID"
-					     };
+	static const char *handle_type_strings [] = { "NORMAL",
+						      "UNEXP",
+						      "VOLDIR",
+						      "ROOT",
+						      "ABSENT",
+						      "INVALID"
+					     	     };
 
 	char *flag_string;
-	const char *strings[] = { " MNT_PNT",
-				  " SNAPDIR",
-				  " SNAPDIR_ENT",
-				  " EMPTY",
-				  " VBN_ACCESS",
-				  " MULTIVOLUME",
-				  " METADATA",
-				  " ORPHAN",
-				  " FOSTER",
-				  " NAMED_ATTR",
-				  " EXP_SNAPDIR",
-				  " VFILER",
-				  " NS_AGGR",
-				  " STRIPED",
-				  " NS_PRIVATE",
-				  " NEXT_GEN_FH"
-				};
+	static const char *strings[] = { " MNT_PNT",
+					 " SNAPDIR",
+					 " SNAPDIR_ENT",
+					 " EMPTY",
+					 " VBN_ACCESS",
+					 " MULTIVOLUME",
+					 " METADATA",
+					 " ORPHAN",
+					 " FOSTER",
+					 " NAMED_ATTR",
+					 " EXP_SNAPDIR",
+					 " VFILER",
+					 " NS_AGGR",
+					 " STRIPED",
+					 " NS_PRIVATE",
+					 " NEXT_GEN_FH"
+				       };
 	guint16 bit = sizeof(strings) / sizeof(strings[0]);
 	proto_tree *flag_tree = NULL;
 

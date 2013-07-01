@@ -134,7 +134,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 	guint	sv_length, sv_id;
 	guint16	beacon_type, ring;
 
-	const char *beacon[] = {
+	static const char *beacon[] = {
 		"Recovery mode set", "Signal loss error",
 		"Streaming signal not Claim Token MAC frame",
 		"Streaming signal, Claim Token MAC frame"

@@ -94,9 +94,9 @@ xmpp_jingle(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t 
     proto_item *jingle_item;
     proto_tree *jingle_tree;
 
-    const gchar *rtp_info_msgs[] = {"active", "hold", "mute", "ringing", "unhold", "unmute"};
+    static const gchar *rtp_info_msgs[] = {"active", "hold", "mute", "ringing", "unhold", "unmute"};
 
-    const gchar *action_enums[] = {"content-accept","content-add", "content-modify",
+    static const gchar *action_enums[] = {"content-accept","content-add", "content-modify",
         "content-modify", "content-remove", "description-info", "security-info",
         "session-accept", "session-info", "session-initiate", "session-terminate",
         "transport-accept", "transport-info", "transport-reject", "transport-replace"
@@ -138,7 +138,7 @@ xmpp_jingle_content(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_el
     proto_item *content_item;
     proto_tree *content_tree;
 
-    const gchar *creator_enums[] = {"initiator","responder"};
+    static const gchar *creator_enums[] = {"initiator","responder"};
     xmpp_array_t *creator_enums_array = xmpp_ep_init_array_t(creator_enums,array_length(creator_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -187,11 +187,11 @@ xmpp_jingle_reason(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_ele
     xmpp_element_t *text; /*0-1*/
     xmpp_element_t *rtp_error;
 
-    const gchar *reason_names[] = { "success", "busy", "failed-application", "cancel", "connectivity-error",
+    static const gchar *reason_names[] = { "success", "busy", "failed-application", "cancel", "connectivity-error",
         "decline", "expired", "failed-transport", "general-error", "gone", "incompatible-parameters",
         "media-error", "security-error", "timeout", "unsupported-applications", "unsupported-transports"};
 
-    const gchar *rtp_error_names[] = {"crypto-required", "invalid-crypto"};
+    static const gchar *rtp_error_names[] = {"crypto-required", "invalid-crypto"};
 
     reason_item = proto_tree_add_item(tree, hf_xmpp_jingle_reason, tvb, element->offset, element->length, ENC_BIG_ENDIAN);
     reason_tree = proto_item_add_subtree(reason_item, ett_xmpp_jingle_reason);
@@ -436,7 +436,7 @@ xmpp_jingle_cont_desc_rtp_hdrext(proto_tree* tree, tvbuff_t* tvb, packet_info *p
     proto_item *rtp_hdr_item;
     proto_tree *rtp_hdr_tree;
 
-    const gchar *senders[] = {"both", "initiator", "responder"};
+    static const gchar *senders[] = {"both", "initiator", "responder"};
     xmpp_array_t *senders_enums = xmpp_ep_init_array_t(senders, 3);
 
     xmpp_attr_info attrs_info[] = {
@@ -471,7 +471,7 @@ xmpp_jingle_rtp_info(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_e
     proto_item *rtp_info_item;
     proto_tree *rtp_info_tree;
 
-    const gchar *creator[] = {"initiator","responder"};
+    static const gchar *creator[] = {"initiator","responder"};
     xmpp_array_t *creator_enums = xmpp_ep_init_array_t(creator, array_length(creator));
 
     xmpp_attr_info mute_attrs_info[] = {
@@ -520,7 +520,7 @@ xmpp_jingle_cont_trans_ice_candidate(proto_tree* tree, tvbuff_t* tvb, packet_inf
     proto_item *cand_item;
     proto_tree *cand_tree;
 
-    const gchar *type_enums[] = {"host", "prflx", "relay", "srflx"};
+    static const gchar *type_enums[] = {"host", "prflx", "relay", "srflx"};
     xmpp_array_t *type_enums_array = xmpp_ep_init_array_t(type_enums,array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -595,7 +595,7 @@ xmpp_jingle_cont_trans_raw_candidate(proto_tree* tree, tvbuff_t* tvb, packet_inf
     proto_item *cand_item;
     proto_tree *cand_tree;
 
-    const gchar *type_enums[] = {"host", "prflx", "relay", "srflx"};
+    static const gchar *type_enums[] = {"host", "prflx", "relay", "srflx"};
     xmpp_array_t *type_enums_array = xmpp_ep_init_array_t(type_enums,array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -649,7 +649,7 @@ xmpp_jingle_cont_trans_s5b_candidate(proto_tree *tree, tvbuff_t *tvb, packet_inf
     proto_item *cand_item;
     proto_tree *cand_tree;
 
-    const gchar * type_enums[] = {"assisted", "direct", "proxy", "tunnel"};
+    static const gchar * type_enums[] = {"assisted", "direct", "proxy", "tunnel"};
     xmpp_array_t *type_enums_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {

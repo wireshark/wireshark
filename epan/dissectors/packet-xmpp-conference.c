@@ -71,7 +71,7 @@ xmpp_conference_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_e
     proto_item *cinfo_item;
     proto_tree *cinfo_tree;
 
-    const gchar *state_enums[] = {"full", "partial", "deleted"};
+    static const gchar *state_enums[] = {"full", "partial", "deleted"};
     xmpp_array_t *state_array = xmpp_ep_init_array_t(state_enums, array_length(state_enums));
 
     xmpp_attr_info attrs_info [] = {

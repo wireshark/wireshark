@@ -4142,7 +4142,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL, *tf, *hidden_item;
     int        offset = 0;
     emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("<None>");
-    const gchar *flags[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS"};
+    static const gchar *flags[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS"};
     gint       i;
     guint      bpos;
     guint      optlen;

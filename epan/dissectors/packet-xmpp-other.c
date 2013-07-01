@@ -249,8 +249,8 @@ xmpp_roster_item(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, xmpp_eleme
     proto_item *item_item;
     proto_tree *item_tree;
 
-    const gchar *ask_enums[] = {"subscribe"};
-    const gchar *subscription_enums[] = {"both","from","none","remove","to"};
+    static const gchar *ask_enums[] = {"subscribe"};
+    static const gchar *subscription_enums[] = {"both", "from", "none", "remove", "to"};
 
     xmpp_array_t *ask_enums_array = xmpp_ep_init_array_t(ask_enums,array_length(ask_enums));
     xmpp_array_t *subscription_array = xmpp_ep_init_array_t(subscription_enums,array_length(subscription_enums));
@@ -356,7 +356,7 @@ xmpp_bytestreams_query(proto_tree *tree,  tvbuff_t *tvb, packet_info *pinfo, xmp
     proto_item *query_item;
     proto_tree *query_tree;
 
-    const gchar *mode_enums[] = {"tcp", "udp"};
+    static const gchar *mode_enums[] = {"tcp", "udp"};
     xmpp_array_t *mode_array = xmpp_ep_init_array_t(mode_enums, array_length(mode_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -592,7 +592,7 @@ xmpp_x_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t*
     proto_item *x_item;
     proto_tree *x_tree;
 
-    const gchar *type_enums[] = {"cancel", "form", "result", "submit"};
+    static const gchar *type_enums[] = {"cancel", "form", "result", "submit"};
     xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -622,7 +622,7 @@ xmpp_x_data_field(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_elem
     proto_item *field_item;
     proto_tree *field_tree;
 
-    const gchar *type_enums[] = {"boolean", "fixed", "hidden", "jid-multi",
+    static const gchar *type_enums[] = {"boolean", "fixed", "hidden", "jid-multi",
         "jid-single", "list-multi", "list-single", "text-multi", "text-single",
         "text-private"
     };
@@ -722,7 +722,7 @@ xmpp_ibb_open(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     proto_item *open_item;
     proto_tree *open_tree;
 
-    const gchar *stanza_enums[] = {"iq","message"};
+    static const gchar *stanza_enums[] = {"iq", "message"};
     xmpp_array_t *stanza_array = xmpp_ep_init_array_t(stanza_enums, array_length(stanza_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -854,7 +854,7 @@ xmpp_x_event(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
         {"id", -1, FALSE, TRUE, NULL, NULL}
     };
 
-    const gchar *cond_names[] = {"offline", "delivered", "displayed", "composing"};
+    static const gchar *cond_names[] = {"offline", "delivered", "displayed", "composing"};
 
     xmpp_attr_t *fake_cond;
 
@@ -992,10 +992,10 @@ xmpp_muc_user_item(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_ele
     proto_item *item_item;
     proto_tree *item_tree;
 
-    const gchar *affiliation_enums[] = {"admin", "member", "none", "outcast", "owner"};
+    static const gchar *affiliation_enums[] = {"admin", "member", "none", "outcast", "owner"};
     xmpp_array_t  *affil_array = xmpp_ep_init_array_t(affiliation_enums, array_length(affiliation_enums));
 
-    const gchar *role_enums[] = {"none", "moderator", "participant", "visitor"};
+    static const gchar *role_enums[] = {"none", "moderator", "participant", "visitor"};
     xmpp_array_t *role_array = xmpp_ep_init_array_t(role_enums, array_length(role_enums));
 
     xmpp_attr_info attrs_info [] ={
@@ -1297,7 +1297,7 @@ xmpp_jitsi_inputevt_rmt_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     };
 
     xmpp_element_t *action;
-    const gchar *action_names[] = {"mouse-move","mouse-press", "mouse-release", "key-press", "key-release"};
+    static const gchar *action_names[] = {"mouse-move", "mouse-press", "mouse-release", "key-press", "key-release"};
 
     if((action = xmpp_steal_element_by_names(element, action_names, array_length(action_names)))!=NULL)
     {

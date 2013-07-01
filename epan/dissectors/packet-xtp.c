@@ -906,9 +906,9 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	struct xtphdr xtph[1];
 	int	error = 0;
 	gchar   *options;
-	const char *fstr[] = { "<None>", "NOCHECK", "EDGE", "NOERR", "MULTI", "RES",
-				"SORT", "NOFLOW", "FASTNAK", "SREQ", "DREQ",
-				"RCLOSE", "WCLOSE", "EOM", "END", "BTAG" };
+	static const char *fstr[] = { "<None>", "NOCHECK", "EDGE", "NOERR", "MULTI", "RES",
+				      "SORT", "NOFLOW", "FASTNAK", "SREQ", "DREQ",
+				      "RCLOSE", "WCLOSE", "EOM", "END", "BTAG" };
 	gint	fpos = 0, returned_length;
 	guint	i, bpos;
 	guint	cmd_options;

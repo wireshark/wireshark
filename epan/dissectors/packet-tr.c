@@ -344,7 +344,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int			x;
 
 	/* Token-Ring Strings */
-	const char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
+	static const char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
 
 	trh_current++;

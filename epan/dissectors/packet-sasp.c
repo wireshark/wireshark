@@ -583,7 +583,7 @@ static void dissect_dereg_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 offse
 
 
 	emem_strbuf_t *reasonflags_strbuf = ep_strbuf_new_label("");
-	const gchar *fstr[] = {"No Reason", "Learned & Purposeful" };
+	static const gchar *fstr[] = {"No Reason", "Learned & Purposeful" };
 
 
 	dereg_tree = proto_tree_add_text(pay_load, tvb, offset, -1 , "DeReg Request");
