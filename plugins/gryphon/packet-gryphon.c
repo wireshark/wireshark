@@ -1974,7 +1974,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree  *localTree;
     proto_item  *localItem;
 
-    const gchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
+    static const gchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
 
     flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(pt, hf_gryphon_usdt_flags_register, tvb, offset, 1, ENC_BIG_ENDIAN);

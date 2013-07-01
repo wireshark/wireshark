@@ -696,10 +696,10 @@ static void wimaxasncp_dissect_tlv_value(
     proto_item         *tlv_item,
     const wimaxasncp_dict_tlv_t *tlv_info)
 {
-    guint        offset         = 0;
+    guint        offset          = 0;
     guint        length;
-    const guint  max_show_bytes = 24; /* arbitrary */
-    const gchar *hex_note       = "[hex]";
+    const guint  max_show_bytes  = 24; /* arbitrary */
+    static const gchar *hex_note = "[hex]";
 
     length = tvb_reported_length(tvb);
 
