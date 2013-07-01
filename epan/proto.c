@@ -146,10 +146,10 @@ static void fill_label_int64(field_info *fi, gchar *label_str);
 
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 
 static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
 static const char* hfinfo_int64_format(const header_field_info *hfinfo);
-static const char* hfinfo_numeric_value_format(const header_field_info *hfinfo);
 
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
@@ -3748,6 +3748,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	header_field_info*  hfinfo;
 	const gchar        *abbrev        = NULL;
 
+	char number_buf[32];
+	const char *number_out;
+
 	g_assert(field_id >= 0);
 
 	hfinfo = proto_registrar_get_nth((guint)field_id);
@@ -3884,21 +3887,18 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 						g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
 
 				} else {
-					char buf[32];
-					const char *out;
+					number_out = hfinfo_number_value_format(hfinfo, number_buf, u_integer);
 
-					out = hfinfo_number_value_format(hfinfo, buf, u_integer);
-
-					g_strlcpy(result+offset_r, out, size-offset_r);
+					g_strlcpy(result+offset_r, number_out, size-offset_r);
 				}
 
 				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
 					g_snprintf(expr+offset_e, size-offset_e,
 						   "\"%s\"", result+offset_r);
 				} else {
-					g_snprintf(expr+offset_e, size-offset_e,
-						   hfinfo_numeric_value_format(hfinfo),
-						   u_integer);
+					number_out = hfinfo_numeric_value_format(hfinfo, number_buf, u_integer);
+
+					g_strlcpy(expr+offset_e, number_out, size-offset_e);
 				}
 
 				offset_r = (int)strlen(result);
@@ -3946,20 +3946,17 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 						g_snprintf(result+offset_r, size-offset_r, "%d", integer);
 
 				} else {
-					char buf[32];
-					const char *out;
+					number_out = hfinfo_number_value_format(hfinfo, number_buf, integer);
 
-					out = hfinfo_number_value_format(hfinfo, buf, integer);
-
-					g_strlcpy(result+offset_r, out, size-offset_r);
+					g_strlcpy(result+offset_r, number_out, size-offset_r);
 				}
 
 				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
 					g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
 				} else {
-					g_snprintf(expr+offset_e, size-offset_e,
-						   hfinfo_numeric_value_format(hfinfo),
-						   integer);
+					number_out = hfinfo_numeric_value_format(hfinfo, number_buf, (guint32) integer);
+
+					g_strlcpy(expr+offset_e, number_out, size-offset_e);
 				}
 
 				offset_r = (int)strlen(result);
@@ -5753,17 +5750,47 @@ _hfinfo_number_value_format(const header_field_info *hfinfo, int display, char b
 static const char *
 hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
-	if (hfinfo->type == FT_FRAMENUM) {
-		char *ptr = &buf[31];
+	int display = hfinfo->display;
 
-		*ptr = '\0';
+	if (hfinfo->type == FT_FRAMENUM) {
 		/*
 		 * Frame numbers are always displayed in decimal.
 		 */
-		return uint_to_str_back(ptr, value);
+		display = BASE_DEC;
 	}
 
-	return _hfinfo_number_value_format(hfinfo, hfinfo->display, buf, value);
+	return _hfinfo_number_value_format(hfinfo, display, buf, value);
+}
+
+static const char *
+hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
+{
+	/* Get the underlying BASE_ value */
+	int display = hfinfo->display & BASE_DISPLAY_E_MASK;
+
+	if (hfinfo->type == FT_FRAMENUM) {
+		/*
+		 * Frame numbers are always displayed in decimal.
+		 */
+		display = BASE_DEC;
+	}
+
+	switch (display) {
+		case BASE_NONE:
+		/* case BASE_DEC: */
+		case BASE_DEC_HEX:
+		case BASE_OCT: /* XXX, why we're changing BASE_OCT to BASE_DEC? */
+		case BASE_CUSTOM:
+			display = BASE_DEC;
+			break;
+
+		/* case BASE_HEX: */
+		case BASE_HEX_DEC:
+			display = BASE_HEX;
+			break;
+	}
+
+	return _hfinfo_number_value_format(hfinfo, display, buf, value);
 }
 
 static const char *
@@ -6417,13 +6444,6 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
-	/* Pick the proper format string */
-	if (hfinfo->type == FT_FRAMENUM) {
-		/*
-		 * Frame numbers are always displayed in decimal.
-		 */
-		format = "%s == %u";
-	} else {
 		/* Get the underlying BASE_ value */
 		switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 			case BASE_DEC:
@@ -6431,20 +6451,8 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 			case BASE_OCT: /* I'm lazy */
 			case BASE_CUSTOM:
 				switch (hfinfo->type) {
-					case FT_UINT8:
-					case FT_UINT16:
-					case FT_UINT24:
-					case FT_UINT32:
-						format = "%s == %u";
-						break;
 					case FT_UINT64:
 						format = "%s == %" G_GINT64_MODIFIER "u";
-						break;
-					case FT_INT8:
-					case FT_INT16:
-					case FT_INT24:
-					case FT_INT32:
-						format = "%s == %d";
 						break;
 					case FT_INT64:
 						format = "%s == %" G_GINT64_MODIFIER "d";
@@ -6457,22 +6465,6 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 			case BASE_HEX:
 			case BASE_HEX_DEC:
 				switch (hfinfo->type) {
-					case FT_UINT8:
-					case FT_INT8:
-						format = "%s == 0x%02x";
-						break;
-					case FT_UINT16:
-					case FT_INT16:
-						format = "%s == 0x%04x";
-						break;
-					case FT_UINT24:
-					case FT_INT24:
-						format = "%s == 0x%06x";
-						break;
-					case FT_UINT32:
-					case FT_INT32:
-						format = "%s == 0x%08x";
-						break;
 					case FT_UINT64:
 					case FT_INT64:
 						format = "%s == 0x%016" G_GINT64_MODIFIER "x";
@@ -6486,86 +6478,6 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 				DISSECTOR_ASSERT_NOT_REACHED();
 				;
 		}
-	}
-	return format;
-}
-
-static const char *
-hfinfo_numeric_value_format(const header_field_info *hfinfo)
-{
-	const char *format = NULL;
-
-	/* Pick the proper format string */
-	if (hfinfo->type == FT_FRAMENUM) {
-		/*
-		 * Frame numbers are always displayed in decimal.
-		 */
-		format = "%u";
-	} else {
-		/* Get the underlying BASE_ value */
-		switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
-			case BASE_NONE:
-			case BASE_DEC:
-			case BASE_DEC_HEX:
-			case BASE_OCT: /* I'm lazy */
-			case BASE_CUSTOM:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-					case FT_UINT16:
-					case FT_UINT24:
-					case FT_UINT32:
-						format = "%u";
-						break;
-					case FT_UINT64:
-						format = "%" G_GINT64_MODIFIER "u";
-						break;
-					case FT_INT8:
-					case FT_INT16:
-					case FT_INT24:
-					case FT_INT32:
-						format = "%d";
-						break;
-					case FT_INT64:
-						format = "%" G_GINT64_MODIFIER "d";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			case BASE_HEX:
-			case BASE_HEX_DEC:
-				switch (hfinfo->type) {
-					case FT_UINT8:
-					case FT_INT8:
-						format = "0x%02x";
-						break;
-					case FT_UINT16:
-					case FT_INT16:
-						format = "0x%04x";
-						break;
-					case FT_UINT24:
-					case FT_INT24:
-						format = "0x%06x";
-						break;
-					case FT_UINT32:
-					case FT_INT32:
-						format = "0x%08x";
-						break;
-					case FT_UINT64:
-					case FT_INT64:
-						format = "0x%016" G_GINT64_MODIFIER "x";
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						;
-				}
-				break;
-			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				;
-		}
-	}
 	return format;
 }
 
@@ -6585,7 +6497,6 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	int		   abbrev_len;
 	char		  *ptr;
 	int		   buf_len;
-	const char	  *format;
 	int		   dfilter_len, i;
 	gint		   start, length, length_remaining;
 	guint8		   c;
@@ -6659,34 +6570,29 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-			if (filter != NULL) {
-				format = hfinfo_numeric_format(hfinfo);
-				if (is_signed_num) {
-					*filter = ep_strdup_printf(format,
-						   hfinfo->abbrev,
-						   fvalue_get_sinteger(&finfo->value));
-				} else {
-					*filter = ep_strdup_printf(format,
-						   hfinfo->abbrev,
-							   fvalue_get_uinteger(&finfo->value));
-				}
-			}
-			break;
-
 		case FT_FRAMENUM:
-			DISSECTOR_ASSERT(!is_signed_num);
 			if (filter != NULL) {
-				format = hfinfo_numeric_format(hfinfo);
-				*filter = ep_strdup_printf(format,
-					   hfinfo->abbrev,
-						   fvalue_get_uinteger(&finfo->value));
+				guint32 number;
+
+				char buf[32];
+				const char *out;
+
+				if (is_signed_num)
+					number = fvalue_get_sinteger(&finfo->value);
+				else
+					number = fvalue_get_uinteger(&finfo->value);
+
+				out = hfinfo_numeric_value_format(hfinfo, buf, number);
+
+				*filter = ep_strdup_printf("%s == %s", hfinfo->abbrev, out);
 			}
 			break;
 
 		case FT_INT64:
 		case FT_UINT64:
 			if (filter != NULL) {
-				format = hfinfo_numeric_format(hfinfo);
+				const char *format = hfinfo_numeric_format(hfinfo);
+
 				*filter = ep_strdup_printf(format,
 					hfinfo->abbrev,
 					fvalue_get_integer64(&finfo->value));
