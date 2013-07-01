@@ -775,7 +775,11 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                                     crcOffset = 1;
 
                                     if ( crc != 0x00 )
+                                    {
                                         calcCrc = crc16_0x755B( bytes, b_Length + 4, 0 );
+                                        if ( ( crc ^ calcCrc ) != 0 )
+                                            calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
+                                    } 
                                 } else {
                                     if ( crc != 0x00 )
                                         calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
