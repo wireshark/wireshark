@@ -2175,7 +2175,7 @@ proto_register_btvdp(void)
 void
 proto_reg_handoff_btvdp(void)
 {
-    h263_handle = find_dissector("h63");
+    h263_handle = find_dissector("h263");
     mp4v_es_handle = find_dissector("mp4v-es");
 
     rtp_handle   = find_dissector("rtp");
