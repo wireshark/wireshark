@@ -811,7 +811,7 @@ static void
 dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree;
+    proto_tree        *payload_tree = NULL;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
@@ -834,12 +834,15 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        if (payload_tree) {
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_APPL_EVTALT_GET_ALERTS_CMD:
+                    /* No payload */
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_EVTALT_GET_ALERTS_CMD:
-                /* No payload */
-            default:
-                break;
+                default:
+                    break;
+            }
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
@@ -858,19 +861,20 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        if (payload_tree) {
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_APPL_EVTALT_GET_ALERTS_RSP_CMD:
+                case ZBEE_ZCL_CMD_ID_APPL_EVTALT_ALERTS_NOTIF_CMD:
+                    dissect_zcl_appl_evtalt_get_alerts_rsp(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_EVTALT_GET_ALERTS_RSP_CMD:
-            case ZBEE_ZCL_CMD_ID_APPL_EVTALT_ALERTS_NOTIF_CMD:
-                dissect_zcl_appl_evtalt_get_alerts_rsp(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_APPL_EVTALT_EVENT_NOTIF_CMD:
+                    dissect_zcl_appl_evtalt_event_notif(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_EVTALT_EVENT_NOTIF_CMD:
-                dissect_zcl_appl_evtalt_event_notif(tvb, payload_tree, &offset);
-                break;
-
-            default:
-                break;
+                default:
+                    break;
+            }
         }
     }
 } /*dissect_zbee_zcl_appl_evtalt*/
@@ -1190,7 +1194,7 @@ static void
 dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree;
+    proto_tree        *payload_tree = NULL;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
@@ -1213,18 +1217,19 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        if (payload_tree) {
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_REQ:
+                    dissect_zcl_appl_stats_log_req(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_REQ:
-                dissect_zcl_appl_stats_log_req(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_QUEUE_REQ:
+                    /* No payload */
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_QUEUE_REQ:
-                /* No payload */
-                break;
-
-            default:
-                break;
+                default:
+                    break;
+            }
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
@@ -1243,19 +1248,21 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             zcl->tran_seqno);
 
         /* Call the appropriate command dissector */
-        switch (cmd_id) {
-            case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_NOTIF:
-            case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_RSP:
-                dissect_zcl_appl_stats_log_rsp(tvb, payload_tree, &offset);
-                break;
+        if (payload_tree) {
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_NOTIF:
+                case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_RSP:
+                    dissect_zcl_appl_stats_log_rsp(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_QUEUE_RSP:
-            case ZBEE_ZCL_CMD_ID_APPL_STATS_STATS_AVAILABLE:
-                dissect_zcl_appl_stats_log_queue_rsp(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_QUEUE_RSP:
+                case ZBEE_ZCL_CMD_ID_APPL_STATS_STATS_AVAILABLE:
+                    dissect_zcl_appl_stats_log_queue_rsp(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
     }
 } /*dissect_zbee_zcl_appl_stats*/
