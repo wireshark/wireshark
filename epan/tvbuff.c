@@ -3240,11 +3240,9 @@ tvb_skip_wsp(tvbuff_t *tvb, const gint offset, const gint maxlength)
 gint
 tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset) {
 	gint   counter = offset;
-	gint   end;
 	guint8 tempchar;
-	end    = 0;
 
-	for(counter = offset; counter > end &&
+	for(counter = offset; counter > 0 &&
 		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
 		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
 	counter++;
