@@ -3763,48 +3763,6 @@ remove_tap_listener_skinny_calls(void)
 /* ***************************TAP for IAX2 **********************************/
 /****************************************************************************/
 
-/* IAX2 to tap-voip call state mapping */
-static const voip_call_state tap_iax_voip_state[] = {
-	VOIP_NO_STATE,
-        VOIP_CALL_SETUP, /*NEW*/
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-        VOIP_COMPLETED,  /*HANGUP*/
-        VOIP_REJECTED, 	 /*REJECT*/
-        VOIP_RINGING,	/*ACCEPT*/
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_CALL_SETUP, /*DIAL*/
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE,
-	VOIP_NO_STATE
-};
-
 static void free_iax2_info(gpointer p) {
 	iax2_info_t *ii = (iax2_info_t *)p;
 
@@ -3857,7 +3815,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 		tmp_iax2info->scallno = ii->scallno;
 		if (tmp_iax2info->scallno == 0) tmp_iax2info->scallno = ii->dcallno;
-		tmp_iax2info->callState = tap_iax_voip_state[ii->callState];
+		tmp_iax2info->callState = ii->callState;
 
 		callsinfo->npackets = 1;
 
@@ -3874,8 +3832,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 
 	} else {
-		if ((ii->callState > 0) && (ii->callState < (sizeof(tap_iax_voip_state)/sizeof(tap_iax_voip_state[0]))))
-			callsinfo->call_state = tap_iax_voip_state[ii->callState];
+		callsinfo->call_state = ii->callState;
 
 		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);

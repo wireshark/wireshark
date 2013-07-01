@@ -292,7 +292,7 @@ static const value_string iax_cmd_subclasses[] = {
 };
 static value_string_ext iax_cmd_subclasses_ext = VALUE_STRING_EXT_INIT(iax_cmd_subclasses);
 
-/* IAX2 to tap-voip call state mapping */
+/* IAX2 to tap-voip call state mapping for command frames */
 static const voip_call_state tap_cmd_voip_state[] = {
   VOIP_NO_STATE,
   VOIP_COMPLETED, /*HANGUP*/
@@ -304,6 +304,50 @@ static const voip_call_state tap_cmd_voip_state[] = {
   VOIP_UNKNOWN    /*OFFHOOK*/
 };
 #define NUM_TAP_CMD_VOIP_STATES array_length(tap_cmd_voip_state)
+
+/* IAX2 to tap-voip call state mapping for IAX frames */
+static const voip_call_state tap_iax_voip_state[] = {
+  VOIP_NO_STATE,
+  VOIP_CALL_SETUP, /*NEW*/
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_COMPLETED,  /*HANGUP*/
+  VOIP_REJECTED,   /*REJECT*/
+  VOIP_RINGING,    /*ACCEPT*/
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_CALL_SETUP, /*DIAL*/
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE,
+  VOIP_NO_STATE
+};
+
+#define NUM_TAP_IAX_VOIP_STATES array_length(tap_iax_voip_state)
 
 /* Subclasses for Modem packets */
 static const value_string iax_modem_subclasses[] = {
@@ -1654,7 +1698,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
   case AST_FRAME_IAX:
     offset=dissect_iax2_command(tvb, offset+9, pinfo, packet_type_tree, iax_packet);
     iax2_info->messageName = val_to_str_ext(csub, &iax_iax_subclasses_ext, "unknown (0x%02x)");
-    iax2_info->callState   = (voip_call_state)csub;
+    if (csub < NUM_TAP_IAX_VOIP_STATES) iax2_info->callState = tap_iax_voip_state[csub];
     break;
 
   case AST_FRAME_DTMF_BEGIN:
