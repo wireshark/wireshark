@@ -811,23 +811,21 @@ static void
 dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree = NULL;
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                /*payload_root = */proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                /*payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_evtalt);*/
-            }
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        /* Check is this command has a payload, than add the payload tree */
+        if (tvb_length_remaining(tvb, offset + 1) > 0) {
+            /*payload_root = */proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset + 1), "Payload");
+            /*payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_evtalt);*/
         }
-        offset += (int)1;
+        offset++;
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
@@ -844,16 +842,14 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_evtalt);
-            }
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        /* Check is this command has a payload, than add the payload tree */
+        if (tvb_length_remaining(tvb, offset + 1) > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset + 1), "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_evtalt);
         }
-        offset += (int)1;
+        offset++;
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
@@ -1193,23 +1189,21 @@ static void
 dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree = NULL;
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_stats);
-            }
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        /* Check is this command has a payload, than add the payload tree */
+        if (tvb_length_remaining(tvb, offset + 1) > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset + 1), "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_stats);
         }
-        offset += (int)1;
+        offset++;
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
@@ -1218,7 +1212,6 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* Call the appropriate command dissector */
         switch (cmd_id) {
-
 
             case ZBEE_ZCL_CMD_ID_APPL_STATS_LOG_REQ:
                 dissect_zcl_appl_stats_log_req(tvb, payload_tree, &offset);
@@ -1233,17 +1226,14 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
-
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_stats);
-            }
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+        /* Check is this command has a payload, than add the payload tree */
+        if (tvb_length_remaining(tvb, offset + 1) > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset + 1), "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_stats);
         }
-        offset += (int)1;
+        offset++;
 
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
@@ -1325,7 +1315,7 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Retrieve 'Log Payload' field */
     log_data = tvb_bytes_to_str_punct(tvb, *offset, log_len, ':');
     proto_tree_add_string(tree, hf_zbee_zcl_appl_stats_log_payload, tvb, *offset, log_len, log_data);
-    *offset += (int)log_len;
+    *offset += log_len;
 }/*dissect_zcl_appl_stats_log_rsp*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1345,7 +1335,7 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    guint list_len;
+    gint list_len;
 
     /* Retrieve 'Log Queue Size' field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_queue_size, tvb, *offset, 1, ENC_NA);
@@ -1353,10 +1343,12 @@ dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
 
     /* Dissect the attribute id list */
     list_len = tvb_length_remaining(tvb, *offset);
-    while ( *offset < list_len ) {
-        /* Retrieve 'Log ID' field */
-        proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-        *offset += 4;
+    if ( list_len > 0 ) {
+        while ( *offset < (guint)list_len ) {
+            /* Retrieve 'Log ID' field */
+            proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            *offset += 4;
+        }
     }
 }/*dissect_zcl_appl_stats_log_queue_rsp*/
 
