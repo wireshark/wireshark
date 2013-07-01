@@ -1565,7 +1565,7 @@ static const AsterixField IX_SPARE = { FIXED, 0, 0, 0, &hf_spare, NULL, { NULL }
 /* *********************** */
 /* Fields */
 
-/* Target report descriptor */ 
+/* Target report descriptor */
 static const value_string valstr_001_020_TYP[] = {
     { 0, "Plot" },
     { 1, "Track" },
@@ -1633,7 +1633,7 @@ static const FieldPart I001_020_MI = { 1, 1.0, FIELD_PART_UINT, &hf_001_020_MI, 
 static const FieldPart *I001_020_PARTS[] = { &I001_020_TYP, &I001_020_SIM, &I001_020_SSR_PSR, &I001_020_ANT, &I001_020_SPI, &I001_020_RAB, &IXXX_FX,
                                              &I001_020_TST, &I001_020_DS12, &I001_020_ME, &I001_020_MI, &IXXX_2bit_spare, &IXXX_FX, NULL };
 
-/* Warning/Error Conditions */                                       
+/* Warning/Error Conditions */
 static const value_string valstr_001_030_WE[] = {
     { 0, "no warning nor error condition" },
     { 1, "garbled reply" },
@@ -1710,7 +1710,7 @@ static const FieldPart *I001_080_PARTS[] = { &IXXX_4bit_spare,
                                               &I001_080_QC4, &I001_080_QC2, &I001_080_QC1,
                                               &I001_080_QD4, &I001_080_QD2, &I001_080_QD1, NULL };
 
-/* Mode-C Code in Binary Representation - Flight Level */                           
+/* Mode-C Code in Binary Representation - Flight Level */
 static const value_string valstr_001_090_V[] = {
     { 0, "Code validated" },
     { 1, "Code not validated" },
@@ -1855,7 +1855,7 @@ static const FieldPart I002_070_IDENT = { 5, 1.0, FIELD_PART_UINT, &hf_002_070_I
 static const FieldPart I002_070_COUNTER = { 10, 1.0, FIELD_PART_UINT, &hf_002_070_COUNTER, NULL };
 static const FieldPart *I002_070_PARTS[] = { &I002_070_A, &I002_070_IDENT, &I002_070_COUNTER, NULL };
 
-/* Warning/Error Conditions */                                       
+/* Warning/Error Conditions */
 static const FieldPart I002_080_WE = { 7, 1.0, FIELD_PART_UINT, &hf_002_080_WE, NULL };
 static const FieldPart *I002_080_PARTS[] = { &I002_080_WE, &IXXX_FX, NULL };
 
@@ -2294,7 +2294,7 @@ static const AsterixField *I034[] = { &I034_010, &I034_000, &I034_030, &I034_020
 /* *********************** */
 /* Fields */
 
-/* Target report descriptor */ 
+/* Target report descriptor */
 static const value_string valstr_048_020_TYP[] = {
     { 0, "No detection" },
     { 1, "Single PSR detection" },
@@ -2387,7 +2387,7 @@ static const value_string valstr_048_030_WE[] = {
 };
 static const FieldPart I048_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_048_030_WE, NULL };
 static const FieldPart *I048_030_PARTS[] = { &I048_030_WE, &IXXX_FX, NULL };
-    
+
 /* Measured Position in Polar Co-ordinates */
 static const FieldPart I048_040_RHO = { 16, 1.0/256.0, FIELD_PART_UFLOAT, &hf_048_040_RHO, NULL };
 static const FieldPart I048_040_THETA = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_048_040_THETA, NULL };
@@ -2495,7 +2495,7 @@ static const FieldPart I048_120_02_AMB = { 16, 1.0, FIELD_PART_UINT, &hf_048_120
 static const FieldPart I048_120_02_FRQ = { 16, 1.0, FIELD_PART_UINT, &hf_048_120_02_FRQ, NULL };
 static const FieldPart *I048_120_02_PARTS[] = { &I048_120_02_DOP, &I048_120_02_AMB, &I048_120_02_FRQ, NULL };
 
-/* Radar Plot Characteristics */ 
+/* Radar Plot Characteristics */
 static const FieldPart I048_130_SRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UFLOAT, NULL/*&hf_048_130_01*/, NULL };
 static const FieldPart *I048_130_SRL[] = { &I048_130_SRL_VAL, NULL };
 static const FieldPart I048_130_SRR_VAL = { 8, 1.0, FIELD_PART_UINT, NULL/*&hf_048_130_02*/, NULL };
@@ -2576,7 +2576,7 @@ static const FieldPart I048_170_SUP = { 1, 1.0, FIELD_PART_UINT, &hf_048_170_SUP
 static const FieldPart I048_170_TCC = { 1, 1.0, FIELD_PART_UINT, &hf_048_170_TCC, NULL };
 static const FieldPart *I048_170_PARTS[] = { &I048_170_CNF, &I048_170_RAD, &I048_170_DOU, &I048_170_MAH, &I048_170_CDM, &IXXX_FX,
                                               &I048_170_TRE, &I048_170_GHO, &I048_170_SUP, &I048_170_TCC, &IXXX_3bit_spare, &IXXX_FX, NULL };
-                                             
+
 /* Calculated Track Velocity in Polar Co-ordinates */
 static const FieldPart I048_200_GS = { 16, 1.0/16384.0, FIELD_PART_UFLOAT, &hf_048_200_GS, NULL };
 static const FieldPart I048_200_HDG = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_048_200_HDG, NULL };
@@ -2616,7 +2616,7 @@ static const value_string valstr_048_230_MSSC[] = {
     { 0, "No" },
     { 1, "Yes" },
     { 0, NULL }
-};    
+};
 static const value_string valstr_048_230_ARC[] = {
     { 0, "100 ft resolution" },
     { 1, "25 ft resolution" },
@@ -2826,22 +2826,22 @@ static const value_string valstr_062_080_MDS[] = {
     { 1, "Age of the last received Mode S track update is higher than system dependent threshold" },
     { 0, NULL }
 };
-static const value_string valstr_062_080_ADS[] = { 
+static const value_string valstr_062_080_ADS[] = {
     { 0, "Default value" },
     { 1, "Age of the last received ADS-B track update is higher than system dependent threshold" },
     { 0, NULL }
 };
-static const value_string valstr_062_080_SUC[] = { 
+static const value_string valstr_062_080_SUC[] = {
     { 0, "Default value" },
     { 1, "Special Used Code (Mode A codes to be defined in the system to mark a track with special interest)" },
     { 0, NULL }
 };
-static const value_string valstr_062_080_AAC[] = { 
+static const value_string valstr_062_080_AAC[] = {
     { 0, "Default value" },
     { 1, "Assigned Mode A Code Conflict (same discrete Mode A Code assigned to another track)" },
     { 0, NULL }
 };
-static const value_string valstr_062_080_SDS[] = { 
+static const value_string valstr_062_080_SDS[] = {
     { 0, "Combined" },
     { 1, "Co-operative only" },
     { 2, "Non-Cooperative only" },
@@ -2922,7 +2922,7 @@ static const FieldPart *I062_080_PARTS[] = { &I062_080_MON, &I062_080_SPI, &I062
                                               &I062_080_CST, &I062_080_PSR, &I062_080_SSR, &I062_080_MDS, &I062_080_ADS, &I062_080_SUC, &I062_080_AAC, &IXXX_FX,
                                               &I062_080_SDS, &I062_080_EMS, &I062_080_PFT, &I062_080_FPLT, &IXXX_FX,
                                               &I062_080_DUPT, &I062_080_DUPF, &I062_080_DUPM, &IXXX_4bit_spare, &IXXX_FX, NULL };
-                                             
+
 /* Calculated Track Position. (Cartesian) */
 static const FieldPart I062_100_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_062_100_X, NULL };
 static const FieldPart I062_100_Y = { 24, 0.5, FIELD_PART_FLOAT, &hf_062_100_Y, NULL };
@@ -3116,8 +3116,8 @@ static const FieldPart I062_270_WIDTH = { 7, 1.0, FIELD_PART_UFLOAT, &hf_062_270
 static const FieldPart *I062_270_PARTS[] = { &I062_270_LENGTH, &IXXX_FX,
                                              &I062_270_ORIENTATION, &IXXX_FX,
                                              &I062_270_WIDTH, &IXXX_FX, NULL };
-                                             
-/* System Track Update Ages */                                             
+
+/* System Track Update Ages */
 static const FieldPart I062_290_01_TRK = { 8, 0.25, FIELD_PART_UFLOAT, &hf_062_290_01_TRK, NULL };
 static const FieldPart *I062_290_01_PARTS[] = { &I062_290_01_TRK, NULL };
 static const FieldPart I062_290_02_PSR = { 8, 0.25, FIELD_PART_UFLOAT, &hf_062_290_02_PSR, NULL };
@@ -3235,7 +3235,7 @@ static const FieldPart *I062_340_02_PARTS[] = { &I062_340_02_RHO, &I062_340_02_T
 
 static const FieldPart I062_340_03_H = { 16, 25.0, FIELD_PART_FLOAT, &hf_062_340_03_H, NULL };
 static const FieldPart *I062_340_03_PARTS[] = { &I062_340_03_H, NULL };
-                          
+
 static const value_string valstr_062_340_04_V[] = {
     { 0, "Code validated" },
     { 1, "Code not validated" },
@@ -4124,7 +4124,7 @@ static const AsterixField I063_SP = { VAR, 0, 0, 1, &hf_063_SP, NULL, { NULL } }
 
 static const AsterixField *I063[] = { &I063_010, &I063_015, &I063_030, &I063_050, &I063_060, &I063_070, &I063_080,
                                       &I063_081, &I063_090, &I063_091, &I063_092, &IX_SPARE, &I063_RE,  &I063_SP, NULL };
-                                      
+
 /* *********************** */
 /*      Category 065       */
 /* *********************** */
@@ -4437,7 +4437,7 @@ static void dissect_asterix_packet (tvbuff_t *tvb, proto_tree *tree)
         asterix_packet_tree = proto_item_add_subtree (asterix_packet_item, ett_asterix);
         proto_tree_add_item (asterix_packet_tree, hf_asterix_category, tvb, i, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (asterix_packet_tree, hf_asterix_length, tvb, i + 1, 2, ENC_BIG_ENDIAN);
-        
+
         dissect_asterix_data_block (tvb, i + 3, asterix_packet_tree, category, length);
     }
 }
@@ -4448,7 +4448,7 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, guint offset, proto_tree 
     int fspec_len, inner_offset, size, counter;
     proto_item *asterix_message_item = NULL;
     proto_tree *asterix_message_tree = NULL;
-    
+
     for (counter = 1, inner_offset = 0; inner_offset < length; counter++) {
         active_uap = asterix_get_active_uap (tvb, offset + inner_offset, category);
         size = asterix_message_length (tvb, offset + inner_offset, category, active_uap);
@@ -4459,9 +4459,9 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, guint offset, proto_tree 
             fspec_len = asterix_fspec_len (tvb, offset + inner_offset);
             /*show_fspec (tvb, asterix_message_tree, offset + inner_offset, fspec_len);*/
             proto_tree_add_item (asterix_message_tree, hf_asterix_fspec, tvb, offset + inner_offset, fspec_len, ENC_NA);
-            
+
             size = dissect_asterix_fields (tvb, offset + inner_offset, asterix_message_tree, category, uap[category][active_uap]);
-            
+
             inner_offset += size + fspec_len;
         }
         else {
@@ -4481,7 +4481,7 @@ static gint dissect_asterix_fields (tvbuff_t *tvb, guint offset, proto_tree *tre
 
     if (current_uap == NULL)
         return 0;
-    
+
     for (i = 0, size = 0; current_uap[i] != NULL; i++) {
         start = asterix_field_offset (tvb, offset, current_uap, i);
         if (start > 0) {
@@ -4523,7 +4523,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, guint offset, proto_tree *pare
     guint8 go_on;
     gint64 value;
     char *str_buffer = NULL;
-    
+
     if (field->part != NULL) {
         for (i = 0, inner_offset = 0, go_on = 1; go_on && field->part[i] != NULL; i++) {
             value = 0L;
@@ -4564,7 +4564,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, guint offset, proto_tree *pare
             }
             inner_offset += field->part[i]->bit_length;
         }
-    } /* if not null */    
+    } /* if not null */
 }
 
 static guint8 byte_length (guint8 bits)
@@ -4585,7 +4585,7 @@ static guint8 asterix_bit (guint8 b, guint8 bitNo)
 static void twos_complement (gint64 *v, guint8 bit_len)
 {
     guint64 i, to_stuff;
-    i = (guint64) (1 << (bit_len - 1));
+    i = (G_GUINT64_CONSTANT(1) << (bit_len - 1));
     to_stuff = *v & i;
     i = 0;
     if (to_stuff) i = G_GINT64_CONSTANT(0xffffffffffffffff) << bit_len;
@@ -4614,7 +4614,7 @@ static int asterix_field_length (tvbuff_t *tvb, guint offset, const AsterixField
     guint size;
     guint64 count;
     guint8 i;
-    
+
     size = 0;
     if (field->type & FIXED) {
         size = field->length;
@@ -4650,7 +4650,7 @@ static guint8 asterix_get_active_uap (tvbuff_t *tvb, guint offset, guint8 catego
 {
     int i, inner_offset;
     AsterixField **current_uap;
-    
+
     if (uap[category][1] != NULL) { /* if exists another uap */
         current_uap = (AsterixField **)uap[category][0];
         if (current_uap != NULL) {
