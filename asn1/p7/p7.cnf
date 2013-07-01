@@ -366,7 +366,7 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 
 
 #.FN_BODY	MSBindArgument/initiator-name
-	char *ora = NULL;
+	const char *ora = NULL;
 
 	%(DEFAULT_BODY)s
 

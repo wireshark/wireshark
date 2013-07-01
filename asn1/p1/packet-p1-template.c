@@ -107,13 +107,13 @@ static void set_do_address(asn1_ctx_t* actx, gboolean do_address)
 	ctx->do_address = do_address;
 }
 
-static void do_address(const char* address, tvbuff_t* tvb_string, asn1_ctx_t* actx)
+static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 {
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	if (ctx && ctx->do_address) {
-		if (address) {
-			ep_strbuf_append(ctx->oraddress, address);
+		if (addr) {
+			ep_strbuf_append(ctx->oraddress, addr);
 		}
 		if (tvb_string) {
 			ep_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
@@ -122,23 +122,23 @@ static void do_address(const char* address, tvbuff_t* tvb_string, asn1_ctx_t* ac
 
 }
 
-static void do_address_str(const char* address, tvbuff_t* tvb_string, asn1_ctx_t* actx)
+static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
 {
 	emem_strbuf_t *ddatype = (emem_strbuf_t *)actx->value_ptr;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-	do_address(address, tvb_string, actx);
+	do_address(addr, tvb_string, actx);
 
 	if (ctx && ctx->do_address && ddatype && tvb_string)
 		ep_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 }
 
-static void do_address_str_tree(const char* address, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
+static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
 {
 	emem_strbuf_t *ddatype = (emem_strbuf_t *)actx->value_ptr;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-	do_address(address, tvb_string, actx);
+	do_address(addr, tvb_string, actx);
 
 	if (ctx && ctx->do_address && tvb_string && ddatype) {
 		if (ddatype->len > 0) {
@@ -178,7 +178,7 @@ void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean
 	ctx->report_unknown_content_type = report_unknown_cont_type;
 }
 
-char* p1_get_last_oraddress (asn1_ctx_t* actx)
+const char* p1_get_last_oraddress (asn1_ctx_t* actx)
 {
 	p1_address_ctx_t* ctx;
 
