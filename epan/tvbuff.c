@@ -2259,12 +2259,13 @@ tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const 
 /*
  * Format the data in the tvb from offset for length ...
  */
-
 gchar *
 tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr;
-	gint          len = size;
+	gint          len;
+
+	len = (size > 0) ? size : 0;
 
 	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 		len = tvb_length_remaining(tvb, offset);
@@ -2277,12 +2278,13 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 /*
  * Format the data in the tvb from offset for length ...
  */
-
 gchar *
 tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr;
-	gint          len = size;
+	gint          len;
+
+	len = (size > 0) ? size : 0;
 
 	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
@@ -2292,7 +2294,6 @@ tvb_format_text_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 	}
 
 	return format_text_wsp(ptr, len);
-
 }
 
 /*
@@ -2303,8 +2304,10 @@ gchar *
 tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr, *p;
-	gint          len = size;
+	gint          len;
 	gint          stringlen;
+
+	len = (size > 0) ? size : 0;
 
 	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
@@ -2316,7 +2319,6 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
 	return format_text(ptr, stringlen);
-
 }
 
 /*
@@ -2327,8 +2329,10 @@ gchar *
 tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr, *p;
-	gint          len = size;
+	gint          len;
 	gint          stringlen;
+
+	len = (size > 0) ? size : 0;
 
 	if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
@@ -2340,7 +2344,6 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
 	return format_text_wsp(ptr, stringlen);
-
 }
 
 /*
