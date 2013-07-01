@@ -1340,7 +1340,6 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
 /* Prints results of the sequence number analysis concerning reused ports */
 static void
 tcp_sequence_number_analysis_print_reused(packet_info * pinfo,
-                      tvbuff_t * tvb,
                       proto_item * flags_item,
                       struct tcp_acked *ta
                       )
@@ -1356,7 +1355,6 @@ tcp_sequence_number_analysis_print_reused(packet_info * pinfo,
 /* Prints results of the sequence number analysis concerning lost tcp segments */
 static void
 tcp_sequence_number_analysis_print_lost(packet_info * pinfo,
-                    tvbuff_t * tvb,
                     proto_item * flags_item,
                     struct tcp_acked *ta
                     )
@@ -1378,7 +1376,6 @@ tcp_sequence_number_analysis_print_lost(packet_info * pinfo,
 /* Prints results of the sequence number analysis concerning tcp window */
 static void
 tcp_sequence_number_analysis_print_window(packet_info * pinfo,
-                      tvbuff_t * tvb,
                       proto_item * flags_item,
                       struct tcp_acked *ta
                       )
@@ -1398,7 +1395,6 @@ tcp_sequence_number_analysis_print_window(packet_info * pinfo,
 /* Prints results of the sequence number analysis concerning tcp keepalive */
 static void
 tcp_sequence_number_analysis_print_keepalive(packet_info * pinfo,
-                      tvbuff_t * tvb,
                       proto_item * flags_item,
                       struct tcp_acked *ta
                       )
@@ -1455,7 +1451,6 @@ tcp_sequence_number_analysis_print_duplicate(packet_info * pinfo,
 /* Prints results of the sequence number analysis concerning tcp zero window */
 static void
 tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
-                          tvbuff_t * tvb,
                           proto_item * flags_item,
                           struct tcp_acked *ta
                         )
@@ -1548,25 +1543,25 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
         flags_tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
         /* print results for reused tcp ports */
-        tcp_sequence_number_analysis_print_reused(pinfo, tvb, item, ta);
+        tcp_sequence_number_analysis_print_reused(pinfo, item, ta);
 
         /* print results for retransmission and out-of-order segments */
         tcp_sequence_number_analysis_print_retransmission(pinfo, tvb, flags_tree, item, ta);
 
         /* print results for lost tcp segments */
-        tcp_sequence_number_analysis_print_lost(pinfo, tvb, item, ta);
+        tcp_sequence_number_analysis_print_lost(pinfo, item, ta);
 
         /* print results for tcp window information */
-        tcp_sequence_number_analysis_print_window(pinfo, tvb, item, ta);
+        tcp_sequence_number_analysis_print_window(pinfo, item, ta);
 
         /* print results for tcp keep alive information */
-        tcp_sequence_number_analysis_print_keepalive(pinfo, tvb, item, ta);
+        tcp_sequence_number_analysis_print_keepalive(pinfo, item, ta);
 
         /* print results for tcp duplicate acks */
         tcp_sequence_number_analysis_print_duplicate(pinfo, tvb, flags_tree, ta, tree);
 
         /* print results for tcp zero window  */
-        tcp_sequence_number_analysis_print_zero_window(pinfo, tvb, item, ta);
+        tcp_sequence_number_analysis_print_zero_window(pinfo, item, ta);
 
     }
 
