@@ -146,6 +146,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
 	packet-opsi.c \
+	packet-p1.c \
 	packet-p22.c \
 	packet-p7.c \
 	packet-p772.c \
@@ -201,7 +202,6 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-gsm_map.c \
 	packet-ldap.c \
 	packet-m3ap.c \
-	packet-p1.c \
 	packet-parlay.c \
 	packet-pkcs12.c \
 	packet-rnsap.c \
