@@ -102,7 +102,7 @@ about_plugins_page_new(void)
 {
     GtkWidget *scrolledwindow;
     GtkWidget *plugins_list;
-    const gchar     *titles[] = {"Name", "Version", "Type", "Path"};
+    static const gchar *titles[] = {"Name", "Version", "Type", "Path"};
 
 
     scrolledwindow = scrolled_window_new(NULL, NULL);

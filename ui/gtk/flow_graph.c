@@ -313,7 +313,7 @@ flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
 {
 	graph_analysis_item_t *gai;
 	/* copied from packet-tcp */
-	const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
+	static const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
 	guint i, bpos;
 	gboolean flags_found = FALSE;
 	gchar flags[64];

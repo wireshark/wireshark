@@ -101,22 +101,22 @@ visible_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
  */
 GtkWidget *
 column_prefs_show(GtkWidget *prefs_window) {
-    GtkWidget         *main_vb, *bottom_hb, *column_l, *add_bt, *grid, *lb;
-    GtkWidget         *list_vb, *list_lb, *list_sc;
-    GtkWidget         *add_remove_vb;
-    GtkWidget         *props_fr, *props_hb;
-    GList             *clp;
-    fmt_data          *cfmt;
-    gint               i;
-    gchar             *fmt;
-    const gchar       *column_titles[] = {"Displayed", "Title", "Field type"};
-    GtkListStore      *store;
-    GtkCellRenderer   *renderer;
-    GtkTreeViewColumn *column;
-    GtkTreeSelection  *sel;
-    GtkTreeIter        iter;
-    GtkTreeIter        first_iter;
-    gint               first_row = TRUE;
+    GtkWidget          *main_vb, *bottom_hb, *column_l, *add_bt, *grid, *lb;
+    GtkWidget          *list_vb, *list_lb, *list_sc;
+    GtkWidget          *add_remove_vb;
+    GtkWidget          *props_fr, *props_hb;
+    GList              *clp;
+    fmt_data           *cfmt;
+    gint                i;
+    gchar              *fmt;
+    static const gchar *column_titles[] = {"Displayed", "Title", "Field type"};
+    GtkListStore       *store;
+    GtkCellRenderer    *renderer;
+    GtkTreeViewColumn  *column;
+    GtkTreeSelection   *sel;
+    GtkTreeIter         iter;
+    GtkTreeIter         first_iter;
+    gint                first_row = TRUE;
 
     /* Container for each row of widgets */
     main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);

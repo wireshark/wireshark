@@ -386,7 +386,7 @@ about_folders_page_new(void)
   GtkWidget   *table;
   const char *constpath;
   char *path;
-  const gchar *titles[] = { "Name", "Folder", "Typical Files"};
+  static const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget *scrolledwindow;
 #if defined (HAVE_LIBSMI) || defined (HAVE_GEOIP)
   gint i;

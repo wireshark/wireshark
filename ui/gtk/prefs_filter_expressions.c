@@ -87,18 +87,18 @@ enable_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
  */
 GtkWidget *
 filter_expressions_prefs_show(void) {
-    GtkWidget         *main_vb, *bottom_hb, *column_l, *add_bt, *remove_bt;
-    GtkWidget         *list_vb, *list_lb, *list_sc;
-    GtkWidget         *add_remove_hb;
-    GtkListStore      *store;
-    GtkCellRenderer   *renderer;
-    GtkTreeViewColumn *column;
-    GtkTreeSelection  *sel;
-    GtkTreeIter        iter;
-    GtkTreeIter        first_iter;
-    gint               first_row = TRUE;
+    GtkWidget          *main_vb, *bottom_hb, *column_l, *add_bt, *remove_bt;
+    GtkWidget          *list_vb, *list_lb, *list_sc;
+    GtkWidget          *add_remove_hb;
+    GtkListStore       *store;
+    GtkCellRenderer    *renderer;
+    GtkTreeViewColumn  *column;
+    GtkTreeSelection   *sel;
+    GtkTreeIter         iter;
+    GtkTreeIter         first_iter;
+    gint                first_row = TRUE;
     struct filter_expression *fe;
-    const gchar       *column_titles[] = {"Enabled", "Label", "Filter Expression"};
+    static const gchar *column_titles[] = {"Enabled", "Label", "Filter Expression"};
 
     /* Container for each row of widgets */
     main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);

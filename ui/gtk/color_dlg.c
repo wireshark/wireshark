@@ -203,7 +203,7 @@ colorize_dialog_new (char *filter)
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
   GtkTreeSelection  *selection;
-  const gchar *titles[] = { "Name", "String" };
+  static const gchar *titles[] = { "Name", "String" };
 
 
 

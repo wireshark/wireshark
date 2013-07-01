@@ -132,18 +132,18 @@ font_color_prefs_show(void)
 {
   GtkWidget     *main_vb, *main_grid, *label, *combo_box;
   GtkWidget     *font_sample, *color_sample, *colorsel;
-  const gchar   *mt[] = {
-    "Marked packet foreground",  /* MFG_IDX 0*/
-    "Marked packet background",  /* MBG_IDX 1*/
-    "Ignored packet foreground", /* IFG_IDX 2*/
-    "Ignored packet background", /* IBG_IDX 3*/
-    "'Follow Stream' client foreground",  /* CFG_IDX 4*/
-    "'Follow Stream' client background",  /* CBG_IDX 5*/
-    "'Follow Stream' server foreground",  /* SFG_IDX 6*/
-    "'Follow Stream' server background",   /* SBG_IDX 7*/
-    "Valid filter text entry",   /* FTV_IDX 8*/
-    "Invalid filter text entry",   /* FTI_IDX 9*/
-    "Deprecated filter text entry"   /* FTD_IDX 10*/
+  static const gchar   *mt[] = {
+    "Marked packet foreground",          /* MFG_IDX 0*/
+    "Marked packet background",          /* MBG_IDX 1*/
+    "Ignored packet foreground",         /* IFG_IDX 2*/
+    "Ignored packet background",         /* IBG_IDX 3*/
+    "'Follow Stream' client foreground", /* CFG_IDX 4*/
+    "'Follow Stream' client background", /* CBG_IDX 5*/
+    "'Follow Stream' server foreground", /* SFG_IDX 6*/
+    "'Follow Stream' server background", /* SBG_IDX 7*/
+    "Valid filter text entry",           /* FTV_IDX 8*/
+    "Invalid filter text entry",         /* FTI_IDX 9*/
+    "Deprecated filter text entry"       /* FTD_IDX 10*/
   };
   int            mcount = sizeof(mt) / sizeof (gchar *);
   GtkTextBuffer *buf;

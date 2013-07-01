@@ -100,7 +100,7 @@ build_heur_dissectors_treeview(void)
   GtkWidget  *bbox, *proto_list, *label, *proto_sw, *proto_vb, *button,
              *ok_bt, *save_bt, *cancel_bt;
 
-  const gchar *titles[] = { "Status", "Heuristic Protocol", "Description" };
+  static const gchar *titles[] = { "Status", "Heuristic Protocol", "Description" };
   GtkListStore *proto_store;
   GtkCellRenderer *proto_rend;
   GtkTreeViewColumn *proto_col;
@@ -232,7 +232,7 @@ build_protocols_treeview(void)
   GtkWidget  *bbox, *proto_list, *label, *proto_sw, *proto_vb, *button,
              *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
 
-  const gchar *titles[] = { "Status", "Protocol", "Description" };
+  static const gchar *titles[] = { "Status", "Protocol", "Description" };
   GtkListStore *proto_store;
   GtkCellRenderer *proto_rend;
   GtkTreeViewColumn *proto_col;

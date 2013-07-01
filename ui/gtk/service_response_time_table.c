@@ -405,7 +405,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	GtkTreeSortable *sortable;
 	GtkTreeSelection  *sel;
 
-	const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
+	static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
 
 	/* Create the store */
 	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
