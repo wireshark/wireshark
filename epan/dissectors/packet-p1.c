@@ -872,23 +872,23 @@ const value_string p3_opr_code_string_vals[] = {
 
 /* P3 ERRORS */
 static const value_string p3_err_code_string_vals[] = {
-	{ err_ros_bind, "mts_bind_error" },  
-	{ err_submission_control_violated, "submission_control_violated" },  
-	{ err_element_of_service_not_subscribed, "element_of_service_not_subscribed" },  
-	{ err_deferred_delivery_cancellation_rejected, "deferred_delivery_cancellation_rejected" },  
-	{ err_originator_invalid, "originator_invalid" },  
-	{ err_recipient_improperly_specified, "recipient_improperly_specified" },  
-	{ err_message_submission_identifier_invalid, "message_submission_identifier_invalid" },  
-	{ err_inconsistent_request, "inconsistent_request" },  
-	{ err_security_error, "security_error" },  
-	{ err_unsupported_critical_function, "unsupported_critical_function" },  
-	{ err_remote_bind_error, "remote_bind_error" },  
-	{ err_delivery_control_violated, "delivery_control_violated" },  
-	{ err_control_violates_registration, "control_violates_registration" },  
-	{ err_operation_refused, "operation_refused" },  
-	{ err_register_rejected, "register_rejected" },  
-	{ err_new_credentials_unacceptable, "new_credentials_unacceptable" },  
-	{ err_old_credentials_incorrectly_specified, "old_credentials_incorrectly_specified" },  
+	{ err_ros_bind, "mts_bind_error" },
+	{ err_submission_control_violated, "submission_control_violated" },
+	{ err_element_of_service_not_subscribed, "element_of_service_not_subscribed" },
+	{ err_deferred_delivery_cancellation_rejected, "deferred_delivery_cancellation_rejected" },
+	{ err_originator_invalid, "originator_invalid" },
+	{ err_recipient_improperly_specified, "recipient_improperly_specified" },
+	{ err_message_submission_identifier_invalid, "message_submission_identifier_invalid" },
+	{ err_inconsistent_request, "inconsistent_request" },
+	{ err_security_error, "security_error" },
+	{ err_unsupported_critical_function, "unsupported_critical_function" },
+	{ err_remote_bind_error, "remote_bind_error" },
+	{ err_delivery_control_violated, "delivery_control_violated" },
+	{ err_control_violates_registration, "control_violates_registration" },
+	{ err_operation_refused, "operation_refused" },
+	{ err_register_rejected, "register_rejected" },
+	{ err_new_credentials_unacceptable, "new_credentials_unacceptable" },
+	{ err_old_credentials_incorrectly_specified, "old_credentials_incorrectly_specified" },
 	  { 0, NULL }
 };
 
@@ -1245,7 +1245,7 @@ dissect_p1_SecurityCategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 	if (actx->external.direct_reference) {
 		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 		name = oid_resolved_from_string(actx->external.direct_reference);
-		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference); 
+		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	} else {
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 	}
@@ -2200,14 +2200,14 @@ static int
 dissect_p1_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 576 "../../asn1/p1/p1.cnf"
 
-	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d")); 
+	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
 	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset =tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
 
-		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
+		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
 			"Dissector for extension-attribute-type %d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 		next_tree = proto_item_add_subtree(item, ett_p1_unknown_extension_attribute_type);
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
@@ -3046,14 +3046,14 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	const char *name;
 
 	if(actx->external.indirect_ref_present) {
-		proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %d")); 
+		proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %d"));
 		if (dissector_try_uint(p1_extension_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 			offset = tvb_length(tvb);
 		} else {
 			proto_item *item = NULL;
 			proto_tree *next_tree = NULL;
 
-			item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
+			item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset),
 				"Dissector for standard-extension %d not implemented.  Contact Wireshark developers if you want this supported", actx->external.indirect_reference);
 			next_tree = proto_item_add_subtree(item, ett_p1_unknown_standard_extension);
 			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
@@ -3062,9 +3062,9 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	} else if (actx->external.direct_ref_present) {
 		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 		name = oid_resolved_from_string(actx->external.direct_reference);
-		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference); 
+		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	}
-		
+
 
 
 
@@ -3234,7 +3234,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 	proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_length (next_tvb));
 
 	if (next_tvb) {
-		if (ctx->content_type_id) {
+		if (ctx && ctx->content_type_id) {
 			(void) call_ber_oid_callback(ctx->content_type_id, next_tvb, 0, actx->pinfo, actx->subtree.top_tree ? actx->subtree.top_tree : tree);
 	} else if (ctx && ctx->report_unknown_content_type) {
 		proto_item *item = NULL;
@@ -3431,7 +3431,7 @@ dissect_p1_AdditionalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
    item = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_BIG_ENDIAN);
    tree = proto_item_add_subtree(item, ett_p1_additional_information);
-   proto_item_append_text(tree, " (The use of this field is \"strongly deprecated\".)"); 
+   proto_item_append_text(tree, " (The use of this field is \"strongly deprecated\".)");
 
    offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
@@ -8201,26 +8201,26 @@ static void dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *p
 #line 1 "../../asn1/p1/packet-p1-table11.c"
 
 static const ros_opr_t p3_opr_tab[] = {
-  /* mts-bind */ 
-  { op_ros_bind              ,	dissect_MTSBindArgument_PDU,	dissect_MTSBindResult_PDU }, 
-  /* message-submission */ 
-  { op_message_submission    ,	dissect_MessageSubmissionArgument_PDU,	dissect_MessageSubmissionResult_PDU }, 
-  /* probe-submission */ 
-  { op_probe_submission      ,	dissect_ProbeSubmissionArgument_PDU,	dissect_ProbeSubmissionResult_PDU }, 
-  /* cancel-deferred-delivery */ 
-  { op_cancel_deferred_delivery,	dissect_CancelDeferredDeliveryArgument_PDU,	dissect_CancelDeferredDeliveryResult_PDU }, 
-  /* submission-control */ 
-  { op_submission_control    ,	dissect_SubmissionControlArgument_PDU,	dissect_SubmissionControlResult_PDU }, 
-  /* message-delivery */ 
-  { op_message_delivery      ,	dissect_MessageDeliveryArgument_PDU,	dissect_MessageDeliveryResult_PDU }, 
-  /* report-delivery */ 
-  { op_report_delivery       ,	dissect_ReportDeliveryArgument_PDU,	dissect_ReportDeliveryResult_PDU }, 
-  /* delivery-control */ 
-  { op_delivery_control      ,	dissect_DeliveryControlArgument_PDU,	dissect_DeliveryControlResult_PDU }, 
-  /* register */ 
-  { op_register              ,	dissect_RegisterArgument_PDU,	dissect_RegisterResult_PDU }, 
-  /* change-credentials */ 
-  { op_change_credentials    ,	dissect_ChangeCredentialsArgument_PDU,	dissect_RES_change_credentials_PDU }, 
+  /* mts-bind */
+  { op_ros_bind              ,	dissect_MTSBindArgument_PDU,	dissect_MTSBindResult_PDU },
+  /* message-submission */
+  { op_message_submission    ,	dissect_MessageSubmissionArgument_PDU,	dissect_MessageSubmissionResult_PDU },
+  /* probe-submission */
+  { op_probe_submission      ,	dissect_ProbeSubmissionArgument_PDU,	dissect_ProbeSubmissionResult_PDU },
+  /* cancel-deferred-delivery */
+  { op_cancel_deferred_delivery,	dissect_CancelDeferredDeliveryArgument_PDU,	dissect_CancelDeferredDeliveryResult_PDU },
+  /* submission-control */
+  { op_submission_control    ,	dissect_SubmissionControlArgument_PDU,	dissect_SubmissionControlResult_PDU },
+  /* message-delivery */
+  { op_message_delivery      ,	dissect_MessageDeliveryArgument_PDU,	dissect_MessageDeliveryResult_PDU },
+  /* report-delivery */
+  { op_report_delivery       ,	dissect_ReportDeliveryArgument_PDU,	dissect_ReportDeliveryResult_PDU },
+  /* delivery-control */
+  { op_delivery_control      ,	dissect_DeliveryControlArgument_PDU,	dissect_DeliveryControlResult_PDU },
+  /* register */
+  { op_register              ,	dissect_RegisterArgument_PDU,	dissect_RegisterResult_PDU },
+  /* change-credentials */
+  { op_change_credentials    ,	dissect_ChangeCredentialsArgument_PDU,	dissect_RES_change_credentials_PDU },
   { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
 };
 
@@ -8232,39 +8232,39 @@ static const ros_opr_t p3_opr_tab[] = {
 #line 1 "../../asn1/p1/packet-p1-table21.c"
 
 static const ros_err_t p3_err_tab[] = {
-  /* mts-bind-error*/ 
+  /* mts-bind-error*/
   { err_ros_bind,	dissect_PAR_mts_bind_error_PDU },
-  /* submission-control-violated*/ 
+  /* submission-control-violated*/
   { err_submission_control_violated,	dissect_PAR_submission_control_violated_PDU },
-  /* element-of-service-not-subscribed*/ 
+  /* element-of-service-not-subscribed*/
   { err_element_of_service_not_subscribed,	dissect_PAR_element_of_service_not_subscribed_PDU },
-  /* deferred-delivery-cancellation-rejected*/ 
+  /* deferred-delivery-cancellation-rejected*/
   { err_deferred_delivery_cancellation_rejected,	dissect_PAR_deferred_delivery_cancellation_rejected_PDU },
-  /* originator-invalid*/ 
+  /* originator-invalid*/
   { err_originator_invalid,	dissect_PAR_originator_invalid_PDU },
-  /* recipient-improperly-specified*/ 
+  /* recipient-improperly-specified*/
   { err_recipient_improperly_specified,	dissect_ImproperlySpecifiedRecipients_PDU },
-  /* message-submission-identifier-invalid*/ 
+  /* message-submission-identifier-invalid*/
   { err_message_submission_identifier_invalid,	dissect_PAR_message_submission_identifier_invalid_PDU },
-  /* inconsistent-request*/ 
+  /* inconsistent-request*/
   { err_inconsistent_request,	dissect_PAR_inconsistent_request_PDU },
-  /* security-error*/ 
+  /* security-error*/
   { err_security_error,	dissect_SecurityProblem_PDU },
-  /* unsupported-critical-function*/ 
+  /* unsupported-critical-function*/
   { err_unsupported_critical_function,	dissect_PAR_unsupported_critical_function_PDU },
-  /* remote-bind-error*/ 
+  /* remote-bind-error*/
   { err_remote_bind_error,	dissect_PAR_remote_bind_error_PDU },
-  /* delivery-control-violated*/ 
+  /* delivery-control-violated*/
   { err_delivery_control_violated,	dissect_PAR_delivery_control_violated_PDU },
-  /* control-violates-registration*/ 
+  /* control-violates-registration*/
   { err_control_violates_registration,	dissect_PAR_control_violates_registration_PDU },
-  /* operation-refused*/ 
+  /* operation-refused*/
   { err_operation_refused,	dissect_RefusedOperation_PDU },
-  /* register-rejected*/ 
+  /* register-rejected*/
   { err_register_rejected,	dissect_PAR_register_rejected_PDU },
-  /* new-credentials-unacceptable*/ 
+  /* new-credentials-unacceptable*/
   { err_new_credentials_unacceptable,	dissect_PAR_new_credentials_unacceptable_PDU },
-  /* old-credentials-incorrectly-specified*/ 
+  /* old-credentials-incorrectly-specified*/
   { err_old_credentials_incorrectly_specified,	dissect_PAR_old_credentials_incorrectly_specified_PDU },
   { 0,	(new_dissector_t)(-1) },
 };
