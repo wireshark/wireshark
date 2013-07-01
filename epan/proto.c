@@ -139,10 +139,9 @@ wrs_count_bitshift(const guint32 bitmask)
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
-static void fill_label_uint64(field_info *fi, gchar *label_str);
 static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
-static void fill_label_int64(field_info *fi, gchar *label_str);
+static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
 
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
@@ -5330,7 +5329,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_UINT64:
-			fill_label_uint64(fi, label_str);
+			fill_label_number64(fi, label_str, FALSE);
 			break;
 
 		case FT_INT8:
@@ -5342,7 +5341,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_INT64:
-			fill_label_int64(fi, label_str);
+			fill_label_number64(fi, label_str, TRUE);
 			break;
 
 		case FT_FLOAT:
@@ -5557,27 +5556,6 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 }
 
 static void
-fill_label_uint64(field_info *fi, gchar *label_str)
-{
-	const char        *format = NULL;
-	header_field_info *hfinfo = fi->hfinfo;
-	guint64            value;
-
-	/* Pick the proper format string */
-	format = hfinfo_uint64_format(hfinfo);
-	value  = fvalue_get_integer64(&fi->value);
-
-	/* Fill in the textual info */
-	if (IS_BASE_DUAL(hfinfo->display)) {
-		g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			   format,  hfinfo->name, value, value);
-	} else {
-		g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			   format,  hfinfo->name, value);
-	}
-}
-
-static void
 fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	header_field_info *hfinfo = fi->hfinfo;
@@ -5617,15 +5595,19 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 }
 
 static void
-fill_label_int64(field_info *fi, gchar *label_str)
+fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	const char        *format = NULL;
 	header_field_info *hfinfo = fi->hfinfo;
 	guint64            value;
 
 	/* Pick the proper format string */
-	format = hfinfo_int64_format(hfinfo);
-	value  = fvalue_get_integer64(&fi->value);
+	if (is_signed)
+		format = hfinfo_int64_format(hfinfo);
+	else
+		format = hfinfo_uint64_format(hfinfo);
+
+	value = fvalue_get_integer64(&fi->value);
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
@@ -7110,12 +7092,12 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 
 	case FT_UINT64:
 		pi = proto_tree_add_uint64(tree, hf_index, tvb, offset, length, value);
-		fill_label_uint64(PITEM_FINFO(pi), lbl_str);
+		fill_label_number64(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
 	case FT_INT64:
 		pi = proto_tree_add_int64(tree, hf_index, tvb, offset, length, (gint64)value);
-		fill_label_int64(PITEM_FINFO(pi), lbl_str);
+		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
 	default:
@@ -7272,12 +7254,12 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 
 	case FT_UINT64:
 		pi = proto_tree_add_uint64(tree, hf_index, tvb, octet_offset, octet_length, value);
-		fill_label_uint64(PITEM_FINFO(pi), lbl_str);
+		fill_label_number64(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
 	case FT_INT64:
 		pi = proto_tree_add_int64(tree, hf_index, tvb, octet_offset, octet_length, (gint64)value);
-		fill_label_int64(PITEM_FINFO(pi), lbl_str);
+		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
 	default:
