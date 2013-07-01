@@ -201,6 +201,34 @@ static gint ett_alternate_mv_set_element = -1;
 static gint ett_value_element = -1;
 static gint ett_unknown_info = -1;
 
+static expert_field ei_wccp_missing_security_info = EI_INIT;
+static expert_field ei_wccp_missing_service_info = EI_INIT;
+static expert_field ei_wccp_missing_wc_id_info = EI_INIT;
+static expert_field ei_wccp_missing_router_id_info = EI_INIT;
+static expert_field ei_wccp_missing_query_info = EI_INIT;
+static expert_field ei_wccp_missing_wc_view_info = EI_INIT;
+static expert_field ei_wccp_missing_rtr_view_info = EI_INIT;
+static expert_field ei_wccp_contains_redirect_assignment = EI_INIT;
+static expert_field ei_wccp_contains_router_id_info = EI_INIT;
+static expert_field ei_wccp_contains_rtr_view_info = EI_INIT;
+static expert_field ei_wccp_contains_query_info = EI_INIT;
+static expert_field ei_wccp_contains_alt_assignment = EI_INIT;
+static expert_field ei_wccp_contains_assign_map = EI_INIT;
+static expert_field ei_wccp_contains_alt_assignment_map = EI_INIT;
+static expert_field ei_wccp_contains_wc_id_info = EI_INIT;
+static expert_field ei_wccp_contains_wc_view_info = EI_INIT;
+static expert_field ei_wccp_contains_capabilities_info = EI_INIT;
+static expert_field ei_wccp_contains_command_extension = EI_INIT;
+static expert_field ei_wccp_missing_assignment = EI_INIT;
+static expert_field ei_wccp_assignment_length_bad = EI_INIT;
+static expert_field ei_wccp_length_bad = EI_INIT;
+static expert_field ei_wccp_service_info_priority_nonzero = EI_INIT;
+static expert_field ei_wccp_service_info_protocol_nonzero = EI_INIT;
+static expert_field ei_wccp_router_identity_receive_id_zero = EI_INIT;
+static expert_field ei_wccp_web_cache_identity_hash_rev_zero = EI_INIT;
+static expert_field ei_wccp_address_table_family_unknown = EI_INIT;
+static expert_field ei_wccp_capability_element_length = EI_INIT;
+
 /*
  * At
  *
@@ -653,16 +681,13 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   col_add_str(pinfo->cinfo, COL_INFO, val_to_str(wccp_message_type,
                                                    wccp_type_vals, "Unknown WCCP message (%u)"));
 
-  if(tree != NULL) {
-    wccp_tree_item = proto_tree_add_item(tree, proto_wccp, tvb, offset,
-                                         -1, ENC_NA);
-    wccp_tree = proto_item_add_subtree(wccp_tree_item, ett_wccp);
+  wccp_tree_item = proto_tree_add_item(tree, proto_wccp, tvb, offset, -1, ENC_NA);
+  wccp_tree = proto_item_add_subtree(wccp_tree_item, ett_wccp);
 
-    proto_tree_add_uint(wccp_tree, hf_wccp_message_type, tvb, offset,
-                        4, wccp_message_type);
-    offset += 4;
+  proto_tree_add_uint(wccp_tree, hf_wccp_message_type, tvb, offset, 4, wccp_message_type);
+  offset += 4;
 
-    switch (wccp_message_type) {
+  switch (wccp_message_type) {
 
     case WCCP_HERE_I_AM:
       proto_tree_add_item(wccp_tree, hf_wccp_version, tvb,
@@ -738,10 +763,9 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
       offset += 4;
       dissect_wccp2_info(tvb, offset, length, pinfo, wccp_tree, wccp_message_type);
       break;
-    }
   }
 
-  return(tvb_length(tvb));
+  return tvb_length(tvb);
 }
 
 static guint
@@ -888,7 +912,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
       tf = proto_tree_add_text(wccp_tree, tvb, offset, length,
                                "Invalid WCCP Type/Length values");
 
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR,
+      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                              "The packet only has %d bytes left. That is not enough for a WCCP item type and length.",
                              length);
       break;
@@ -901,7 +925,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     if (item_length > tvb_length_remaining(tvb, offset)) {
       tf = proto_tree_add_text(wccp_tree, tvb, offset, length,
                                "Excessive WCCP Length values");
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR,
+      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                              "The length of the item is %d but there are only %d bytes remaining in the packet, I counted %d remaining",
                              item_length, tvb_length_remaining(tvb, offset), length);
       break;
@@ -1006,7 +1030,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
     length -= 4;
 
     if (length < item_length) {
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR,
+      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                              "The item has length %d but the remaining WCCP data is only %d long",
                              item_length,
                              length);
@@ -1017,13 +1041,13 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
 
       /* warn if we left bytes */
       if (remaining_item_length > 0)
-        expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                                "The dissector left %d bytes undecoded",
                                remaining_item_length);
 
       /* error if we needed more bytes */
       if (remaining_item_length < 0)
-        expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR,
+        expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                                "The dissector needed %d more bytes to decode the packet, but the item is not that long",
                                remaining_item_length);
 
@@ -1048,189 +1072,99 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
   switch (message_type) {
   case WCCP2_HERE_I_AM:
     if (!wccp2_security_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SECURITY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_security_info);
     if (!wccp2_service_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SERVICE_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_service_info);
     if (wccp2_router_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ROUTER_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_router_id_info);
     if (!wccp2_wc_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_WC_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_wc_id_info);
     if (wccp2_rtr_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_RTR_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_rtr_view_info);
     if (!wccp2_wc_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_WC_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_wc_view_info);
     if (wccp2_redirect_assignment)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_REDIRECT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_redirect_assignment);
     if (wccp2_query_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_QUERY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_query_info);
     if (wccp2_alt_assignment)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ALT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_alt_assignment);
     if (wccp2_assign_map)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ASSIGN_MAP, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_assign_map);
     if (wccp2r1_alt_assignment_map)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2r1_ALT_ASSIGNMENT_MAP, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_alt_assignment_map);
     break;
   case WCCP2_I_SEE_YOU:
     if (!wccp2_security_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SECURITY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_security_info);
     if (!wccp2_service_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SERVICE_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_service_info);
     if (!wccp2_router_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_ROUTER_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_router_id_info);
     if (wccp2_wc_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_WC_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_wc_id_info);
     if (!wccp2_rtr_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_RTR_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_rtr_view_info);
     if (wccp2_wc_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_WC_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_wc_view_info);
     if (wccp2_redirect_assignment)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_REDIRECT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_redirect_assignment);
     if (wccp2_query_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_QUERY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_query_info);
     if (wccp2r1_alt_assignment_map)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2r1_ALT_ASSIGNMENT_MAP, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_alt_assignment_map);
     break;
 
   case WCCP2_REMOVAL_QUERY:
     if (!wccp2_security_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SECURITY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_security_info);
     if (!wccp2_service_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SERVICE_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_service_info);
     if (wccp2_router_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ROUTER_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_router_id_info);
     if (wccp2_wc_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_WC_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_wc_id_info);
     if (wccp2_rtr_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_RTR_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_rtr_view_info);
     if (wccp2_wc_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_WC_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_wc_view_info);
     if (wccp2_redirect_assignment)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_REDIRECT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_redirect_assignment);
     if (!wccp2_query_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_QUERY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_query_info);
     if (wccp2_capabilities_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_CAPABILITIES_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_capabilities_info);
     if (wccp2_alt_assignment)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ALT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_alt_assignment);
     if (wccp2_assign_map)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ASSIGN_MAP, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_assign_map);
     if (wccp2_command_extension)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_COMMAND_EXTENSION, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_command_extension);
     if (wccp2r1_alt_assignment_map)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2r1_ALT_ASSIGNMENT_MAP, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_alt_assignment_map);
     break;
 
   case WCCP2_REDIRECT_ASSIGN:
     if (!wccp2_security_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SECURITY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_security_info);
     if (!wccp2_service_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s component, but it is missing",
-                             val_to_str(WCCP2_SERVICE_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_service_info);
     if (wccp2_router_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_ROUTER_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_router_id_info);
     if (wccp2_wc_id_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_WC_ID_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_wc_id_info);
     if (wccp2_rtr_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_RTR_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_rtr_view_info);
     if (wccp2_wc_view_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_WC_VIEW_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_wc_view_info);
     if (wccp2_query_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_QUERY_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_query_info);
     if (wccp2_capabilities_info)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_CAPABILITIES_INFO, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_capabilities_info);
     if (! (wccp2_assign_map || wccp2r1_alt_assignment_map || wccp2_alt_assignment || wccp2_redirect_assignment))
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message should contain a %s, %s, %s or %s component, but it is missing",
-                             val_to_str(WCCP2_ALT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"),
-                             val_to_str(WCCP2_ASSIGN_MAP, info_type_vals, "Unknown info type (%u)"),
-                             val_to_str(WCCP2_REDIRECT_ASSIGNMENT, info_type_vals, "Unknown info type (%u)"),
-                             val_to_str(WCCP2r1_ALT_ASSIGNMENT_MAP, info_type_vals, "Unknown info type (%u)"));
-
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_missing_assignment);
     if (wccp2_command_extension)
-      expert_add_info_format(pinfo,wccp_tree, PI_PROTOCOL, PI_ERROR,
-                             "This message contains a %s component, but it should not",
-                             val_to_str(WCCP2_COMMAND_EXTENSION, info_type_vals, "Unknown info type (%u)"));
+      expert_add_info(pinfo, wccp_tree, &ei_wccp_contains_command_extension);
     break;
   }
 }
@@ -1319,8 +1253,6 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
                            packet_info *pinfo, proto_tree *info_tree)
 {
   guint8 service_type;
-  guint8 priority;
-  guint8 protocol;
   guint32 flags;
   proto_item *tf;
   proto_tree *field_tree, *ports_tree;
@@ -1341,18 +1273,15 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
     proto_tree_add_item(info_tree, hf_service_info_id_standard, tvb,
                         offset +1 , 1, ENC_BIG_ENDIAN);
 
-    priority = tvb_get_guint8(tvb, offset+2);
     tf = proto_tree_add_item(info_tree, hf_service_info_priority, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-    if (priority != 0)
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "The priority must be zero for well-known services.");
+    if (tvb_get_guint8(tvb, offset+2) != 0)
+      expert_add_info(pinfo, tf, &ei_wccp_service_info_priority_nonzero);
 
-    protocol = tvb_get_guint8(tvb, offset+3);
-    tf = proto_tree_add_text(info_tree, tvb, offset+3, 1, "Protocol: unused, must be 0");
+    tf = proto_tree_add_item(info_tree, hf_service_info_protocol, tvb,
+                        offset+3, 1, ENC_BIG_ENDIAN);
 
-    if (protocol != 0)
-      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
-                             "The protocol must be zero for well-known services.");
+    if (tvb_get_guint8(tvb, offset+3) != 0)
+      expert_add_info(pinfo, tf, &ei_wccp_service_info_protocol_nonzero);
     break;
 
   case WCCP2_SERVICE_DYNAMIC:
@@ -1362,11 +1291,6 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
                         offset+2, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(info_tree, hf_service_info_protocol, tvb,
                         offset+3, 1, ENC_BIG_ENDIAN);
-    break;
-
-  default:
-    proto_tree_add_text(info_tree, tvb, offset, 1,
-                        "Service Type: Unknown (%u)", service_type);
     break;
   }
   offset += 4;
@@ -1453,8 +1377,7 @@ dissect_wccp2_router_identity_element(tvbuff_t *tvb, int offset, packet_info *pi
   tf = proto_tree_add_item(tree, hf_router_identity_receive_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
   if (tvb_get_ntohl(tvb, offset + 4) == 0)
-    expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_WARN,
-                           "Receive ID is 0, this cannot be");
+    expert_add_info(pinfo, tf, &ei_wccp_router_identity_receive_id_zero);
 }
 
 #define ROUTER_ID_INFO_MIN_LEN          (8+4+4)
@@ -1521,8 +1444,8 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
 
   tf = proto_tree_add_item(info_tree, hf_web_cache_identity_hash_rev, tvb, offset, 2, ENC_BIG_ENDIAN);
   if (tvb_get_ntohs(tvb, offset) != 0)
-    expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_WARN,
-                           "Should be 0 (6.4)");
+    expert_add_info(pinfo, tf, &ei_wccp_web_cache_identity_hash_rev_zero);
+
   EAT_AND_CHECK(2,2);
 
   flags = tvb_get_ntohs(tvb, offset);
@@ -1996,7 +1919,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
       wccp_wccp_address_table.table_ipv4 = (guint32 *)
         ep_alloc( wccp_wccp_address_table.table_length * 4);
     if ((address_length != 4) && (pinfo && info_tree)) {
-      expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
+      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 4, but I found  %d for IPv4 addresses. Correcting this.",
                              address_length);
       address_length = 4;
@@ -2007,7 +1930,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
       wccp_wccp_address_table.table_ipv6 = (struct e_in6_addr *)
         ep_alloc( wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
     if ((address_length != 16) && (pinfo && info_tree)) {
-      expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
+      expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 16, but I found %d for IPv6 addresses.  Correcting this",
                              address_length);
       address_length=16;
@@ -2015,8 +1938,8 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
     break;
   default:
     if (pinfo && info_tree) {
-      expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
-                             "Unknown address family: %d", wccp_wccp_address_table.family);
+      expert_add_info_format_text(pinfo, tf, &ei_wccp_address_table_family_unknown,
+                    "Unknown address family: %d", wccp_wccp_address_table.family);
     }
   };
 
@@ -2028,8 +1951,8 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
     /* do we have space? */
     if (length < address_length) {
       if (pinfo && tf)
-        expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
-                               "Ran out of space to decode");
+        expert_add_info_format_text(pinfo, tf, &ei_wccp_length_bad, "Ran out of space to decode");
+
       /* first clean up: */
       wccp_wccp_address_table.in_use = FALSE;
       wccp_wccp_address_table.family = -1;
@@ -2155,12 +2078,12 @@ dissect_wccp2r1_alt_assignment_map_info(tvbuff_t *tvb, int offset,
   EAT(2);
 
   if (length < assignment_length)
-    expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
+    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but only %d remain in the packet. Ignoring this for now",
                            assignment_length, length);
 
   if (length > assignment_length)  {
-    expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
+    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but %d remain in the packet. Assuming that the assignment length is wrong and setting it to %d.",
                            assignment_length, length, length);
     assignment_length = length;
@@ -2332,7 +2255,7 @@ dissect_wccp2_extended_assignment_data_element(tvbuff_t *tvb, int offset, gint l
   EAT(2);
 
   if (length < assignment_length)
-    expert_add_info_format(pinfo,element_item, PI_PROTOCOL, PI_ERROR,
+    expert_add_info_format_text(pinfo, element_item, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but only %d remain in the packet. Ignoring this for now",
                            assignment_length, length);
 
@@ -2341,7 +2264,7 @@ dissect_wccp2_extended_assignment_data_element(tvbuff_t *tvb, int offset, gint l
   if ((length > assignment_length) &&
       (length == (assignment_length + 4)))
     {
-      expert_add_info_format(pinfo,element_item, PI_PROTOCOL, PI_ERROR,
+      expert_add_info_format_text(pinfo, element_item, &ei_wccp_assignment_length_bad,
                              "Assignment length is %d but %d remain in the packet. Assuming that this is wrong as this is only 4 bytes to small, proceding with the assumption it is %d",
                              assignment_length, length, length);
       assignment_length = length;
@@ -2380,7 +2303,7 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, gint length,
 {
   guint16 capability_type;
   guint16 capability_val_len;
-  proto_item *te, *header;
+  proto_item *te, *header, *tf;
   proto_tree *element_tree;
 
   if (length < 4)
@@ -2394,15 +2317,15 @@ dissect_wccp2_capability_element(tvbuff_t *tvb, int offset, gint length,
   proto_item_set_len(te, capability_val_len + 4);
   element_tree = proto_item_add_subtree(te, ett_capability_element);
 
-  proto_tree_add_uint(element_tree, hf_capability_element_length, tvb, offset+2, 2, capability_val_len);
+  tf = proto_tree_add_uint(element_tree, hf_capability_element_length, tvb, offset+2, 2, capability_val_len);
 
   proto_tree_add_text(element_tree, tvb, offset, 2,
                       "Type: %s",
                       val_to_str(capability_type,
                                  capability_type_vals, "Unknown (0x%08X)"));
   if (capability_val_len < 4) {
-    expert_add_info_format(pinfo, te, PI_PROTOCOL, PI_WARN,
-                           "Value Length: %u (illegal, must be >= 4)", capability_val_len);
+    expert_add_info_format_text(pinfo, tf, &ei_wccp_capability_element_length, 
+                "Value Length: %u (illegal, must be >= 4)", capability_val_len);
     return -length;
   }
 
@@ -2862,12 +2785,12 @@ dissect_wccp2_alternate_assignment_info(tvbuff_t *tvb, int offset, gint length,
   EAT(2);
 
   if (length < assignment_length)
-    expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
+    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but only %d remain in the packet. Ignoring this for now",
                            assignment_length, length);
 
   if (length > assignment_length)  {
-    expert_add_info_format(pinfo,tf, PI_PROTOCOL, PI_ERROR,
+    expert_add_info_format_text(pinfo, tf, &ei_wccp_assignment_length_bad,
                            "Assignment length is %d but %d remain in the packet. Assuming that the assignment length is wrong and setting it to %d.",
                            assignment_length, length, length);
     assignment_length = length;
@@ -3433,10 +3356,45 @@ proto_register_wccp(void)
     &ett_command_extension,
   };
 
+  static ei_register_info ei[] = {
+     { &ei_wccp_missing_security_info, { "wccp.missing.security_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Security Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_service_info, { "wccp.missing.service_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Service Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_wc_id_info, { "wccp.missing.wc_id_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Web-Cache Identity Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_router_id_info, { "wccp.missing.router_id_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Router Identity Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_query_info, { "wccp.missing.query_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Query Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_wc_view_info, { "wccp.missing.wc_view_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Web-Cache View Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_rtr_view_info, { "wccp.missing.rtr_view_info", PI_PROTOCOL, PI_ERROR, "This message should contain a Router View Info component, but it is missing", EXPFILL }},
+     { &ei_wccp_missing_assignment, { "wccp.missing.assignment", PI_PROTOCOL, PI_ERROR, "This message should contain a Alternate Assignment, Assignment Map, Assignment Info or "
+                                      "Alternative Assignment Map component, but it is missing", EXPFILL }},
+     { &ei_wccp_contains_redirect_assignment, { "wccp.contains.redirect_assignment", PI_PROTOCOL, PI_ERROR, "This message contains a Assignment Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_router_id_info, { "wccp.contains.router_id_info", PI_PROTOCOL, PI_ERROR, "This message contains a Router Identity Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_rtr_view_info, { "wccp.contains.rtr_view_info", PI_PROTOCOL, PI_ERROR, "This message contains a Router View Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_query_info, { "wccp.contains.query_info", PI_PROTOCOL, PI_ERROR, "This message contains a Query Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_alt_assignment, { "wccp.contains.alt_assignment", PI_PROTOCOL, PI_ERROR, "This message contains a Alternate Assignment component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_assign_map, { "wccp.contains.assign_map", PI_PROTOCOL, PI_ERROR, "This message contains a Assignment Map component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_alt_assignment_map, { "wccp.contains.alt_assignment_map", PI_PROTOCOL, PI_ERROR, "This message contains a Alternative Assignment Map component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_wc_id_info, { "wccp.contains.wc_id_info", PI_PROTOCOL, PI_ERROR, "This message contains a Web-Cache Identity Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_wc_view_info, { "wccp.contains.wc_view_info", PI_PROTOCOL, PI_ERROR, "This message contains a Web-Cache View Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_capabilities_info, { "wccp.contains.capabilities_info", PI_PROTOCOL, PI_ERROR, "This message contains a Capabilities Info component, but it should not", EXPFILL }},
+     { &ei_wccp_contains_command_extension, { "wccp.contains.command_extension", PI_PROTOCOL, PI_ERROR, "This message contains a Command Extension component, but it should not", EXPFILL }},
+     { &ei_wccp_assignment_length_bad, { "wccp.assignment_length_bad", PI_PROTOCOL, PI_ERROR, "Assignment length bad", EXPFILL }},
+     { &ei_wccp_length_bad, { "wccp.length_bad", PI_PROTOCOL, PI_ERROR, "Length bad", EXPFILL }},
+     { &ei_wccp_service_info_priority_nonzero, { "wccp.service_info_priority.nonzero", PI_PROTOCOL, PI_WARN, "The priority must be zero for well-known services.", EXPFILL }},
+     { &ei_wccp_service_info_protocol_nonzero, { "wccp.service_info_protocol.nonzero", PI_PROTOCOL, PI_WARN, "The protocol must be zero for well-known services.", EXPFILL }},
+     { &ei_wccp_router_identity_receive_id_zero, { "wccp.router_identity.receive_id.zero", PI_PROTOCOL, PI_WARN, "Receive ID shouldn't be 0", EXPFILL }},
+     { &ei_wccp_web_cache_identity_hash_rev_zero, { "wccp.web_cache_identity.hash_rev.zero", PI_PROTOCOL, PI_WARN, "Should be 0 (6.4)", EXPFILL }},
+     { &ei_wccp_address_table_family_unknown, { "wccp.address_table.family_type.unknown", PI_PROTOCOL, PI_ERROR, "Unknown address family", EXPFILL }},
+     { &ei_wccp_capability_element_length, { "wccp.capability_element.length.invalid", PI_PROTOCOL, PI_WARN, "Value Length invalid", EXPFILL }},
+  };
+
+  expert_module_t* expert_wccp;
+
   proto_wccp = proto_register_protocol("Web Cache Communication Protocol",
                                        "WCCP", "wccp");
   proto_register_field_array(proto_wccp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_wccp = expert_register_protocol(proto_wccp);
+  expert_register_field_array(expert_wccp, ei, array_length(ei));
 }
 
 void
