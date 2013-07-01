@@ -29,6 +29,8 @@
 #include "echld-int.h"
 #include "echld-util.h"
 
+#include <glib.h>
+
 struct _ping {
 	struct timeval tv;
 	echld_ping_cb_t cb;
@@ -109,7 +111,7 @@ static gboolean got_param(echld_msg_type_t type, GByteArray* ba _U_, void* data)
 			break;
 		}
 		default:
-			err_msg = g_strdup_printf("other type='%c'",type);
+			err_msg = g_strdup_printf("other type='%s'",TY(type));
 			g->cb(NULL,NULL,err_msg,g->cb_data);
 			g_free(err_msg);
 			break;
@@ -156,4 +158,55 @@ extern echld_state_t echld_set_param(int chld_id, const char* param, const char*
 
 	return echld_reqh(chld_id, ECHLD_SET_PARAM, 0, em, got_param, g);
 }
+
+typedef struct _close {
+	echld_close_cb_t cb;
+	void* cb_data;
+} close_t;
+
+static gboolean closed(echld_msg_type_t type, GByteArray* ba, void* data) {
+	close_t* c = (close_t*)data;
+	parent_decoder_t* dec;
+	char* err_msg;
+
+	echld_get_all_codecs(NULL, NULL, NULL, &dec);
+
+	switch (type) {
+		case ECHLD_CLOSING: {
+			if (c->cb) {
+				c->cb(NULL,c->cb_data);
+			}
+			break;
+		}
+		case ECHLD_ERROR: {
+			int errnum;
+
+			if ( dec->error(ba, &errnum ,&err_msg) ) {
+				c->cb(err_msg,c->cb_data);
+				g_free(err_msg);
+			} else {
+				c->cb("Canot decode error message",c->cb_data);
+			}
+			break;
+		}
+		default:
+			err_msg = g_strdup_printf("other type='%s'",TY(type));
+			c->cb(err_msg,c->cb_data);
+			g_free(err_msg);
+			break;
+	}
+
+	g_free(c);
+	return TRUE;
+
+}
+ 
+echld_state_t echld_close(int child_id, echld_close_cb_t pcb, void* cb_data) {
+	close_t* c = g_new0(close_t,1);
+	c->cb = pcb;
+	c->cb_data = cb_data;
+
+	return echld_reqh(child_id,ECHLD_CLOSE_CHILD, 0, NULL, closed, c);
+}
+
 

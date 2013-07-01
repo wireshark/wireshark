@@ -51,6 +51,8 @@ typedef struct _child {
 	child_decoder_t* dec;
 
 	// epan stuff
+	//capture_file cfile;
+
 } echld_child_t;
 
 
@@ -129,6 +131,13 @@ static long dbg_resp(GByteArray* em, echld_msg_type_t t) {
 
 static struct timeval close_sleep_time; 
 
+
+static void sig_term(int sig _U_) {
+	CHILD_DBG((3,"Terminated, Closing"));
+	exit(0);	
+}
+
+
 void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id) {
 
 	close_sleep_time.tv_sec = CHILD_CLOSE_SLEEP_TIME / 1000000;
@@ -152,6 +161,14 @@ void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int p
 
 	CHILD_DBG_INIT();
 	CHILD_DBG((5,"Child Initialized ch=%d from=%d to=%d rq=%d",chld_id, pipe_from_parent, pipe_to_parent, reqh_id));
+
+	/*clear signal handlers */
+	signal(SIGALRM,SIG_DFL);
+	signal(SIGTERM,sig_term);
+	signal(SIGPIPE,SIG_DFL);
+	signal(SIGINT,SIG_DFL);
+	signal(SIGABRT,SIG_DFL);
+	signal(SIGHUP,SIG_DFL);
 
 	/* epan stuff */
 }
@@ -195,32 +212,96 @@ static echld_bool_t param_set_cwd(char* val , char** err ) {
 	return TRUE;
 }
 
-#define COOKIE_SIZE 1024
-static char* cookie = NULL;
 
-static char* param_get_cookie(char** err ) {
-	if (cookie)
-		return g_strdup(cookie);
+static unsigned packet_count = 0;
+static char* param_get_packet_count(char** err) {
 
-	*err = g_strdup("cookie not set");
-	return NULL;
+	if (child.state != CAPTURING || child.state != READING) {
+		*err = g_strdup("Must be reading or in-capture for packet_count");
+		return NULL;
+	}
+	return g_strdup_printf("%d",packet_count);
 }
 
-static echld_bool_t param_set_cookie(char* val , char** err _U_) {
 
-	if (cookie) g_free(cookie);
+static char* dfilter = NULL;
+dfilter_t *df = NULL;
 
-	cookie = g_strdup(val);
-	return TRUE;
+static echld_bool_t param_set_dfilter(char* val , char** err _U_) {
+	dfilter_t *dfn = NULL;
+		if ( dfilter_compile(val, &dfn) ) {
+		if (dfilter) g_free(dfilter);
+		if (df) dfilter_free(df);
+		df = dfn;
+		dfilter = g_strdup(val);
+		return TRUE;
+	} else {
+		*err = g_strdup(dfilter_error_msg);
+		return FALSE;
+	}
 }
 
+static char* param_get_dfilter(char** err _U_) { return g_strdup(dfilter ? dfilter : ""); }
+
+char* param_profile = NULL;
+
+static echld_bool_t param_set_profile(char* val , char** err ) {
+
+	if (child.state != IDLE) {
+		*err = g_strdup_printf("Cannot set Profile \"%s\", too late.", val);
+		return FALSE;		
+	}
+
+	if (profile_exists (val, FALSE)) {
+		set_profile_name (val);
+		if (param_profile) g_free(param_profile);
+		param_profile = g_strdup(val);
+		return TRUE;
+	} else {
+		*err = g_strdup_printf("Configuration Profile \"%s\" does not exist", val);
+		return FALSE;
+	}
+}
+
+static char* param_get_profile(char** err _U_) { return g_strdup(param_profile ? param_profile : ""); }
+
+static char* param_get_file_list(char** err) {
+	GError* gerror  = NULL;
+	GDir* dir = g_dir_open(".", 0, &gerror);
+	GString* str = g_string_new("{ what='file_list', files=[");
+	char* s;
+	const char* file;
+
+	if (gerror) {
+		*err = g_strdup_printf("Failed to open curr dir reason='%s'",gerror->message);
+		return NULL;
+	}
+
+	while(( file = g_dir_read_name(dir) )) {
+		g_string_append_printf(str,"{filename='%s'},\n",file);
+ 	} 
+ 	g_dir_close(dir);
+
+	g_string_truncate(str, str->len-2); /* ',\n' */
+	g_string_append(str, "]}");
+
+ 	s=str->str;
+ 	g_string_free(str,FALSE);
+ 	return s;
+}
+
+PARAM_BOOL(quiet,FALSE);
 
 static param_t params[] = {
 #ifdef DEBUG_CHILD
-	{"dbg_level", param_get_dbg_level, param_set_dbg_level},
+	PARAM(dbg_level),
 # endif
-	{"cookie",param_get_cookie,param_set_cookie},
-	{"cwd",param_get_cwd,param_set_cwd},
+	PARAM(profile),
+	PARAM(cwd),
+	PARAM(dfilter),
+	RO_PARAM(packet_count),
+	RO_PARAM(file_list),
+	PARAM(quiet),
 	{NULL,NULL,NULL}
 };
 
@@ -510,7 +591,7 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 	misencoded:
 	// dump the misencoded message (b,blen)
-	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"misencoded msg msg_type='%s'",TY(type);
+	child_err(ECHLD_ERR_WRONG_MSG,reqh_id,"misencoded msg msg_type='%s'",TY(type));
 	return 0;
 
 	wrong_state:

@@ -61,9 +61,11 @@
 #include "capture_session.h"
 #include "capture_ifinfo.h"
 #include "capture_sync.h"
-
-#include "../epan/filesystem.h"
-
+#include "version_info.h"
+#include "wsutil/crash_info.h"
+#include "wsutil/privileges.h"
+#include "epan/filesystem.h"
+#include "epan/epan.h"
 #include "echld.h"
 
 #ifdef __cplusplus
@@ -71,8 +73,6 @@ extern "C" {
 #endif
 
 /* XXX these shouldn't be needed */
-typedef struct _column_info column_info;
-typedef struct _proto_node proto_tree;
 typedef struct tvbuff tvb_t;
 
 struct _hdr {
@@ -104,6 +104,7 @@ typedef enum _cst {
 	READING,
 	CAPTURING,
 	DONE,
+	CLOSING,
 	CLOSED=-1,
 	ERRORED=-2
 } child_state_t;
@@ -144,6 +145,22 @@ typedef struct _param {
 	char* (*get)(char** err );
 	echld_bool_t (*set)(char* val , char** err);	
 } param_t;
+
+#define PARAM_STR(Name, Default) static char* param_ ## Name = Default;  \
+ static char* param_get_ ## Name (char** err _U_ ) { return  (param_ ## Name) ? g_strdup(param_ ## Name) : (*err = g_strdup( #Name " not set"), NULL); } \
+ static echld_bool_t param_set_ ## Name (char* val , char** err _U_) { if (param_ ## Name) g_free(param_ ## Name); param_ ## Name = g_strdup(val); return TRUE; } \
+
+#define PARAM_INT(Name, Default) static int param_ ## Name = Default;  \
+ static char* param_get_ ## Name (char** err _U_ ) { return  g_strdup_printf("%d",param_ ## Name); } \
+ static echld_bool_t param_set_ ## Name (char* val , char** err _U_) {  char* p; int temp = (int)strtol(val, &p, 10); if (p<=val) { *err = g_strdup("not an integer"); return FALSE; } else {	param_ ## Name = temp; return TRUE; } }
+
+#define PARAM_BOOL(Name, Default) static gboolean param_ ## Name = Default;  \
+ static char* param_get_ ## Name (char** err _U_ ) { return  g_strdup_printf("%s",param_ ## Name ? "TRUE" : "FALSE"); } \
+ static echld_bool_t param_set_ ## Name (char* val , char** err _U_) { param_ ## Name = (*val == 'T' || *val == 't') ? TRUE : FALSE; return TRUE;}
+
+#define PARAM(Name) {#Name, param_get_ ## Name, param_set_ ## Name}
+#define RO_PARAM(Name) {#Name, param_get_ ## Name, NULL}
+#define WO_PARAM(Name) {#Name, NULL, param_set_ ## Name}
 
 /* the call_back used by read_frame() */
 typedef long (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, echld_reqh_id_t, void*);
@@ -216,7 +233,7 @@ extern void echld_unused(void);
 #define DEBUG_PARENT 5
 
 /* timers */
-#define DISPATCHER_WAIT_INITIAL 999999 /* almost 1s */
+#define DISPATCHER_WAIT_INITIAL 5000000 /* 5s */
 #define CHILD_CLOSE_SLEEP_TIME 2000000 /* 2s */
 #define CHILD_START_WAIT_TIME 100000 /* 0.1s */
 #define DISP_KILLED_CHILD_WAIT 100000 /* 0.1s */

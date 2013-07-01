@@ -73,6 +73,7 @@ static struct _st_map st_map[] = {
 	{ READING, "READING"},
 	{ CAPTURING, "CAPTURING"},
 	{ DONE, "DONE"},
+	{ CLOSING, "CLOSING"},
 	{ CLOSED, "CLOSED"},
 	{ ERRORED, "ERRORED"},
 	{0,NULL}

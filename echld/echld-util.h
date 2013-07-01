@@ -30,6 +30,10 @@
 extern "C" {
 #endif
 
+typedef void (*echld_close_cb_t)(const char* error, void* data);
+WS_DLL_PUBLIC echld_state_t echld_close(int child_id, echld_close_cb_t pcb, void* cb_data);
+
+
 typedef void (*echld_ping_cb_t)(long usec, void* data);
 WS_DLL_PUBLIC echld_state_t echld_ping(int child_id, echld_ping_cb_t pcb, void* cb_data);
 

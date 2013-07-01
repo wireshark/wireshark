@@ -36,6 +36,7 @@ struct dispatcher_child {
 	echld_reader_t reader;
 	int write_fd;
 	int pid;
+	int reqh_id;
 	gboolean closing;
 };
 
@@ -290,10 +291,10 @@ static char* param_get_interfaces(char** err) {
 	return s;
 }
 
-static struct timeval disp_loop_timeout;
+static long disp_loop_timeout_usec = DISPATCHER_WAIT_INITIAL;
 
 static char* param_get_loop_to(char** err _U_) {
-	return g_strdup_printf("%d.%06ds",(int)disp_loop_timeout.tv_sec, (int)disp_loop_timeout.tv_usec );
+	return g_strdup_printf("%fs", (((float)disp_loop_timeout_usec)/1000000.0) );
 }
 
 static echld_bool_t param_set_loop_to(char* val , char** err ) {
@@ -305,10 +306,31 @@ static echld_bool_t param_set_loop_to(char* val , char** err ) {
 		return FALSE;
 	}
 
-	disp_loop_timeout.tv_sec = usec / 1000000;
-	disp_loop_timeout.tv_usec = usec % 1000000;
+	disp_loop_timeout_usec = usec;
 
 	return TRUE;
+}
+
+GString *comp_info_str;
+GString *runtime_info_str;
+
+static char* param_get_version(char** err _U_) {
+	char* str;
+
+  	str = g_strdup_printf("Echld " VERSION "%s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+         wireshark_svnversion, get_copyright_info(), comp_info_str->str,
+         runtime_info_str->str);
+
+  	g_string_free(runtime_info_str,TRUE);
+  	g_string_free(comp_info_str,TRUE);
+
+  	return str;
 }
 
 
@@ -316,6 +338,7 @@ static param_t disp_params[] = {
 #ifdef DEBUG_DISPATCHER
 	{"dbg_level", param_get_dbg_level, param_set_dbg_level},
 # endif
+	{"version",param_get_version,NULL},
 	{"loop_timeout",param_get_loop_to,param_set_loop_to},
 	{"interfaces",param_get_interfaces,NULL},
 	{NULL,NULL,NULL} };
@@ -351,6 +374,7 @@ static void dispatcher_clear_child(struct dispatcher_child* c) {
 	c->reader.fd = -1;
 	c->write_fd = -1;
 	c->pid = -1;
+	c->reqh_id = -1;
 	c->closing = FALSE;
 }
 
@@ -361,12 +385,33 @@ static void set_dumpcap_pid(int pid) {
 static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	char* init_progfile_dir_error = init_progfile_dir(argv0, main);
 
+	comp_info_str = g_string_new("Compiled ");	
+  	get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+
+ 	runtime_info_str = g_string_new("Running ");
+  	get_runtime_version_info(runtime_info_str, NULL);
+
 
 	if (init_progfile_dir_error) {
 		DISP_FATAL((CANNOT_PREINIT_EPAN,"Failed epan_preinit: msg='%s'",init_progfile_dir_error));
 	}
 
+	 /* Add it to the information to be reported on a crash. */
+	ws_add_crash_info("Echld " VERSION "%s\n%s\n%s",
+		wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+		
 	capture_sync_set_fetch_dumpcap_pid_cb(set_dumpcap_pid);
+
+#ifdef _WIN32
+	arg_list_utf_16to8(argc, argv);
+	create_app_running_mutex();
+#if !GLIB_CHECK_VERSION(2,31,0)
+	g_thread_init(NULL);
+#endif
+#endif /* _WIN32 */
+
+
+  init_process_policies();
 
   /* Here we do initialization of parts of epan that will be the same for every child we fork */
 
@@ -392,7 +437,6 @@ void dispatcher_reaper(int sig) {
 	struct dispatcher_child* cc = dispatcher->children;
 	int max_children = dispatcher->max_children;
 	int pid =  waitpid(-1, &status, WNOHANG);
-	GByteArray* em;
 	int reqh_id_save = 	dispatcher->reqh_id;
 
 	dispatcher->reqh_id = 0;
@@ -409,9 +453,10 @@ void dispatcher_reaper(int sig) {
 		struct dispatcher_child* c = &(cc[i]);
 		if ( c->pid == pid ) {
 			if (c->closing || dispatcher->closing) {
-				em = dispatcher->enc.to_parent->child_dead("OK");
+				DISP_WRITE(dispatcher->parent_out, NULL, c->chld_id, ECHLD_CLOSING, c->reqh_id);
 			} else {
 				char* s = NULL;
+				GByteArray* em;
 
 				if (WIFEXITED(status)) {
 				    s = g_strdup_printf(
@@ -433,12 +478,12 @@ void dispatcher_reaper(int sig) {
 				em = dispatcher->enc.to_parent->child_dead(s);
 				dispatcher_err(ECHLD_ERR_CRASHED_CHILD, s);
 				if (s) g_free(s);
+				DISP_WRITE(dispatcher->parent_out, em, c->chld_id, ECHLD_CHILD_DEAD, 0);
+				if (em) g_byte_array_free(em,TRUE);
 			}
 
 			CHLD_SET_STATE(c,CLOSED);
-			DISP_WRITE(dispatcher->parent_out, em, c->chld_id, ECHLD_CHILD_DEAD, 0);
 			dispatcher_clear_child(c);
-			g_byte_array_free(em,TRUE);
 			dispatcher->reqh_id = reqh_id_save;
 			return;
 		}
@@ -474,8 +519,9 @@ static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, e
 	GByteArray in_ba;
 
 	struct dispatcher_child* c = (struct dispatcher_child*)data;
-	dispatcher->reqh_id  = reqh_id;
 
+	dispatcher->reqh_id = c->reqh_id = reqh_id;
+	
 	in_ba.data = b;
 	in_ba.len = (guint)len;
 
@@ -487,7 +533,10 @@ static long dispatch_to_parent(guint8* b, size_t len, echld_chld_id_t chld_id, e
 		case ECHLD_ERROR: break;
 		case ECHLD_TIMED_OUT: break;
 		case ECHLD_HELLO: CHLD_SET_STATE(c,IDLE); break;
-		case ECHLD_CLOSING: CHLD_SET_STATE(c,CLOSED); break;
+		case ECHLD_CLOSING:
+			c->closing = TRUE;
+			CHLD_SET_STATE(c,CLOSING);
+			break;
 		case ECHLD_PARAM: break;
 		case ECHLD_PONG: break;
 		case ECHLD_FILE_OPENED: CHLD_SET_STATE(c,READING); break;
@@ -771,12 +820,10 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 
 
 
-
 int dispatcher_loop(void) {
 	int parent_out = dispatcher->parent_out;
 	int parent_in = dispatcher->parent_in.fd;
 	struct dispatcher_child* children = dispatcher->children;
-	volatile int pforce = 0;
 
 	DISP_DBG((5,"LOOP in_fd=%d out_fd=%d",parent_in, parent_out));
 
@@ -786,7 +833,7 @@ int dispatcher_loop(void) {
 		struct dispatcher_child* c;
 		int nfds;
 		int nchld = 0;
-
+		struct timeval disp_loop_timeout;
 
 		FD_ZERO(&rfds);
 		FD_ZERO(&efds);
@@ -803,16 +850,21 @@ int dispatcher_loop(void) {
 			}
 		}
 
-		DISP_DBG((5,"Select()ing nchld=%d usecs=%d",nchld,disp_loop_timeout.tv_usec));
+		DISP_DBG((4,"Select()ing nchld=%d",nchld,disp_loop_timeout.tv_usec));
+
+		disp_loop_timeout.tv_sec = (int)(disp_loop_timeout_usec / 1000000);
+		disp_loop_timeout.tv_usec = (int)(disp_loop_timeout_usec % 1000000);
 
 		nfds = select(FD_SETSIZE, &rfds, NULL, &efds, &disp_loop_timeout);
+
+		DISP_DBG((5,"Select()ed nfds=%d",nchld,nfds));
 
 		if (nfds < 0) {
 			DISP_DBG((1,"select error='%s'",strerror(errno) ));
 			continue;
 		}
 
-		if ( pforce || FD_ISSET(parent_in, &rfds)) {
+		if ( FD_ISSET(parent_in, &rfds)) {
 			long st = echld_read_frame(&(dispatcher->parent_in), dispatch_to_child, dispatcher);
 
 			if (st < 0) {
@@ -865,6 +917,9 @@ int dispatcher_loop(void) {
 	return 1;
 }
 
+void dispatcher_alrm(int sig _U_) {
+	DISP_DBG((1,"ALRM received"));
+}
 
 void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, int (*main)(int, char **)) {
 	static struct dispatcher d;
@@ -872,9 +927,6 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 #ifdef DEBUG_DISPATCHER
 	int dbg_fd;
 #endif
-
-	disp_loop_timeout.tv_sec = 0;
-	disp_loop_timeout.tv_usec = DISPATCHER_WAIT_INITIAL;
 
 	DISP_DBG_INIT();
 #ifdef DEBUG_DISPATCHER
@@ -889,6 +941,9 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 	signal(SIGPIPE,dispatcher_sig);
 	signal(SIGINT,SIG_IGN);
 	signal(SIGCONT,SIG_IGN);
+	signal(SIGABRT,dispatcher_sig);
+	signal(SIGHUP,dispatcher_sig);
+	signal(SIGALRM,dispatcher_alrm);
 
 	dispatcher = &d;
 
