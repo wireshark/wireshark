@@ -127,7 +127,7 @@ static int ack_handler(struct nl_msg *msg _U_, void *arg)
 
 static int nl80211_do_cmd(struct nl_msg *msg, struct nl_cb *cb)
 {
-	int err;
+	volatile int err;
 
 	if (!nl_state.nl_sock)
 		return -ENOLINK;
