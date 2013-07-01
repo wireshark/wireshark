@@ -875,11 +875,11 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8          *col_str = NULL;
     guint8          *at_stream;
     guint8          *at_command = NULL;
-    guint            i_char = 0;
+    gint             i_char = 0;
     guint            i_char_fix = 0;
-    guint            length;
+    gint             length;
     const at_cmd_t  *i_at_cmd;
-    guint            parameter_length;
+    gint             parameter_length;
     guint            parameter_number;
     guint16          type = TYPE_UNKNOWN;
     guint32          brackets;
@@ -887,6 +887,9 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean         next;
 
     length = tvb_length_remaining(tvb, offset);
+    if (length <= 0)
+        return tvb_length(tvb);
+
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
         col_str = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
@@ -1118,8 +1121,11 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_char += i_char_fix;
         proto_item_set_len(command_item, i_char);
     } else {
-        proto_item_set_len(command_item, tvb_length_remaining(tvb, offset));
-        offset += tvb_length_remaining(tvb, offset);
+        length = tvb_length_remaining(tvb, offset);
+        if (length < 0)
+            length = 0;
+        proto_item_set_len(command_item, length);
+        offset += length;
     }
 
     return offset;
