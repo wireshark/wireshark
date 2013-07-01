@@ -181,12 +181,12 @@ dissect_enttec_ack(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 static gint
 dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	const char* chan_format[] = {
+	static const char* chan_format[] = {
 		"%2u ",
 		"%02x ",
 		"%3u "
 	};
-	const char* string_format[] = {
+	static const char* string_format[] = {
 		"%03x: %s",
 		"%3u: %s"
 	};

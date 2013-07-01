@@ -534,7 +534,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
     static gchar *fmtbuf[3];
     static guint fmtbuf_len[3];
     static guint idx;
-    const guchar *reserved_def = ":/?#[]@!$&'()*+,;= ";
+    static const guchar *reserved_def = ":/?#[]@!$&'()*+,;= ";
     const guchar *reserved = reserved_def;
     guint8 c;
     guint column, i;

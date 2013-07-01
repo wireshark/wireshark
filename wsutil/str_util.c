@@ -104,7 +104,7 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 	int power = 1000;
 	int pfx_off = 0;
 	gboolean is_small = FALSE;
-	const gchar *prefix[] = {"T", "G", "M", "k", "Ti", "Gi", "Mi", "Ki"};
+	static const gchar *prefix[] = {"T", "G", "M", "k", "Ti", "Gi", "Mi", "Ki"};
 	gchar *ret_val;
 
 	if ((flags & FORMAT_SIZE_PFX_MASK) == format_size_prefix_iec) {
