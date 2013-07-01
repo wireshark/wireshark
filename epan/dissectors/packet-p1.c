@@ -950,7 +950,7 @@ static void do_address_str_tree(const char* address, tvbuff_t* tvb_string, asn1_
 
 	if (ctx && ctx->do_address && tvb_string && ddatype) {
 		if (ddatype->len > 0) {
-			proto_item_append_text (tree, " (%%s=%%s)", ddatype->str, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
+			proto_item_append_text (tree, " (%s=%s)", ddatype->str, tvb_format_text(tvb_string, 0, tvb_length(tvb_string)));
 		}
 	}
 }
@@ -8299,7 +8299,7 @@ void p1_initialize_content_globals (asn1_ctx_t* actx, proto_tree *tree, gboolean
 	ctx->report_unknown_content_type = report_unknown_cont_type;
 }
 
-char* p1_get_last_oraddress (asn1_ctx_t* actx) 
+char* p1_get_last_oraddress (asn1_ctx_t* actx)
 {
 	p1_address_ctx_t* ctx;
 
