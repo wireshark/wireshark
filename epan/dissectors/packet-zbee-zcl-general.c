@@ -2080,15 +2080,13 @@ dissect_zcl_pwr_prof_enphsschednotif(tvbuff_t *tvb, proto_tree *tree, guint *off
     proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_num_of_sched_phases, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    if (num_of_sched_phases != 0) {
-        /* Scheduled Energy Phases decoding */
-        for (i=0 ; i<num_of_sched_phases ; i++) {
-            /* Create subtree */
-            ti = proto_tree_add_text(tree, tvb, *offset, 1, "Energy Phase #%u", i);
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_enphases[i]);
+    /* Scheduled Energy Phases decoding */
+    for (i=0 ; i<num_of_sched_phases ; i++) {
+        /* Create subtree */
+        ti = proto_tree_add_text(tree, tvb, *offset, 1, "Energy Phase #%u", i);
+        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_enphases[i]);
 
-            dissect_zcl_sched_energy_phase(tvb, sub_tree, offset);
-        }
+        dissect_zcl_sched_energy_phase(tvb, sub_tree, offset);
     }
 } /*dissect_zcl_pwr_prof_enphsschednotif*/
 
@@ -2246,15 +2244,13 @@ dissect_zcl_pwr_prof_pwrprofstatersp(tvbuff_t *tvb, proto_tree *tree, guint *off
     proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_pwr_prof_count, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    if ( power_profile_count != 0 ) {
-        /* Energy Phases decoding */
-        for (i=0 ; i<power_profile_count ; i++) {
-            /* Create subtree */
-            ti = proto_tree_add_text(tree, tvb, *offset, 1, "Power Profile #%u", i);
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_pwrprofiles[i]);
+    /* Energy Phases decoding */
+    for (i=0 ; i<power_profile_count ; i++) {
+        /* Create subtree */
+        ti = proto_tree_add_text(tree, tvb, *offset, 1, "Power Profile #%u", i);
+        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_pwrprofiles[i]);
 
-            dissect_zcl_power_profile(tvb, sub_tree, offset);
-        }
+        dissect_zcl_power_profile(tvb, sub_tree, offset);
     }
 } /*dissect_zcl_pwr_prof_pwrprofstatersp*/
 
@@ -3282,13 +3278,12 @@ dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
         case ZBEE_ZCL_ATTR_ID_APPL_CTRL_FINISH_TIME:
         case ZBEE_ZCL_ATTR_ID_APPL_CTRL_REMAINING_TIME:
             raw_time = tvb_get_letohs(tvb, *offset);
-            raw_time = (raw_time << 8) | (raw_time >> 8);
             ti = proto_tree_add_text(tree, tvb, *offset, 2, "Data: 0x%04x", raw_time);
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_appl_ctrl_time);
 
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_mm, tvb, *offset, 2, ENC_NA);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_encoding_type, tvb, *offset, 2, ENC_NA);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_hh, tvb, *offset, 2, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_mm, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_encoding_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_hh, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
             break;
 
