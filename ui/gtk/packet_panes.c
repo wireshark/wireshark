@@ -834,6 +834,8 @@ get_top_finfo(proto_node *node, field_info *finfo)
         proto_node *child;
         field_info *top;
 
+        if (node == NULL)
+            return NULL;
         if (PNODE_FINFO(node) == finfo) {
                 top = finfo;
 
