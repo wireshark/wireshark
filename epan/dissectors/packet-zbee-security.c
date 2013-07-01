@@ -450,9 +450,10 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     memset(&packet, 0, sizeof(zbee_security_packet));
 
     /* Get pointers to any useful frame data from lower layers */
-    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
+    nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd,
+        proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0);
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
-    proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+        proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
 
     /* Create a subtree for the security information. */
     if (tree) {
@@ -514,7 +515,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         if (!pinfo->fd->flags.visited) {
             switch ( packet.key_id ) {
                 case ZBEE_SEC_KEY_LINK:
-                if (nwk_hints) {
+                if (nwk_hints && ieee_hints) {
                     /* Map this long address with the nwk layer short address. */
                     nwk_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, nwk_hints->src,
                             ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
@@ -545,14 +546,18 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         switch ( packet.key_id ) {
             case ZBEE_SEC_KEY_NWK:
                 /* use the ieee extended source address for NWK decryption */
-                if ( ieee_hints && (map_rec = ieee_hints->map_rec) ) packet.src64 = map_rec->addr64;
-                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
+                if ( ieee_hints && (map_rec = ieee_hints->map_rec) )
+                    packet.src64 = map_rec->addr64;
+                else if (tree)
+                    proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
                 break;
 
             default:
                 /* use the nwk extended source address for APS decryption */
-                if ( nwk_hints && (map_rec = nwk_hints->map_rec) ) packet.src64 = map_rec->addr64;
-                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
+                if ( nwk_hints && (map_rec = nwk_hints->map_rec) )
+                    packet.src64 = map_rec->addr64;
+                else if (tree)
+                    proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
                 break;
         }
     }
