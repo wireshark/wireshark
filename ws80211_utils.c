@@ -138,9 +138,9 @@ static int nl80211_do_cmd(struct nl_msg *msg, struct nl_cb *cb)
 
 	err = 1;
 
-	nl_cb_err(cb, NL_CB_CUSTOM, error_handler, &err);
-	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, finish_handler, &err);
-	nl_cb_set(cb, NL_CB_ACK, NL_CB_CUSTOM, ack_handler, &err);
+	nl_cb_err(cb, NL_CB_CUSTOM, error_handler, (void *)&err);
+	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, finish_handler, (void *)&err);
+	nl_cb_set(cb, NL_CB_ACK, NL_CB_CUSTOM, ack_handler, (void *)&err);
 
 	while (err > 0)
 		nl_recvmsgs(nl_state.nl_sock, cb);
