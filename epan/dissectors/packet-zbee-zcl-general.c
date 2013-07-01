@@ -191,16 +191,16 @@ dissect_zbee_zcl_basic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_basic_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-        }
-        /*offset += (int)1;*/
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_basic_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
+
+        if (tree) {
+            /* Add the command ID. */
+            proto_tree_add_item(tree, hf_zbee_zcl_basic_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        }
+        /*offset++;*/
 
         /* Call the appropriate command dissector */
         switch (cmd_id) {
@@ -506,72 +506,68 @@ static const value_string zbee_zcl_identify_srv_tx_cmd_names[] = {
 static void
 dissect_zbee_zcl_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree = NULL;
+    proto_item        *payload_root;
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
+    gint              rem_len;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_identify_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_identify);
-            }
-        }
-        offset += (int)1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_identify_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_identify_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY:
-                dissect_zcl_identify_identify(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_identify);
 
-            case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY:
-                /* without payload*/
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY:
+                    dissect_zcl_identify_identify(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY:
+                    /* without payload*/
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
-
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_identify_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_identify);
-            }
-        }
-        offset += (int)1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_identify_srv_tx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_identify_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY_RSP:
-                dissect_zcl_identify_identifyqueryrsp(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_identify);
 
-            default:
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_IDENTIFY_IDENTITY_QUERY_RSP:
+                    dissect_zcl_identify_identifyqueryrsp(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 } /*dissect_zbee_zcl_identify*/
@@ -851,16 +847,16 @@ dissect_zbee_zcl_on_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-        }
-        /*offset += (int)1;*/
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_on_off_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
+
+        if (tree) {
+            /* Add the command ID. */
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+        }
+        /*offset++;*/
     }
 } /*dissect_zbee_zcl_on_off*/
 
@@ -1133,79 +1129,76 @@ static const value_string zbee_zcl_part_id_length_names[] = {
 static void
 dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item  *payload_root = NULL;
-    proto_tree  *payload_tree = NULL;
+    proto_item  *payload_root;
+    proto_tree  *payload_tree;
     zbee_zcl_packet  *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint       offset = 0;
     guint8      cmd_id = zcl->cmd_id;
+    gint        rem_len;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_part_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_part);
-            }
-        }
-        offset += (int)1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_part_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_part_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_PART_TRANSF_PART_FRAME:
-                dissect_zcl_part_trasfpartframe(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_part);
 
-            case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM:
-                dissect_zcl_part_rdhandshakeparam(tvb, payload_tree, &offset);
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_PART_TRANSF_PART_FRAME:
+                    dissect_zcl_part_trasfpartframe(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM:
-                dissect_zcl_part_wrhandshakeparam(tvb, pinfo, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM:
+                    dissect_zcl_part_rdhandshakeparam(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                case ZBEE_ZCL_CMD_ID_PART_WR_HANDSHAKE_PARAM:
+                    dissect_zcl_part_wrhandshakeparam(tvb, pinfo, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_part_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_part);
-            }
-        }
-        offset += (int)1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_part_srv_tx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_part_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_PART_MULTI_ACK:
-                dissect_zcl_part_multiack(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_part);
 
-            case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM_RSP:
-                dissect_zcl_part_rdhandshakeparamrsp(tvb, pinfo, payload_tree, &offset);
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_PART_MULTI_ACK:
+                    dissect_zcl_part_multiack(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                case ZBEE_ZCL_CMD_ID_PART_RD_HANDSHAKE_PARAM_RSP:
+                    dissect_zcl_part_rdhandshakeparamrsp(tvb, pinfo, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 } /*dissect_zbee_zcl_part*/
@@ -1259,14 +1252,15 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
 
     /* Retrieve PartitionedFrame length field */
     frame_len = tvb_get_guint8(tvb, *offset); /* string length */
-    if (frame_len == ZBEE_ZCL_INVALID_STR_LENGTH) frame_len = 0;
+    if (frame_len == ZBEE_ZCL_INVALID_STR_LENGTH)
+        frame_len = 0;
     proto_tree_add_item(tree, hf_zbee_zcl_part_part_frame_len, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Retrieve "PartitionedFrame" field */
     data_frame = tvb_bytes_to_str_punct(tvb, *offset, frame_len, ':');
     proto_tree_add_string(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, frame_len, data_frame);
-    *offset += (int)frame_len;
+    *offset += frame_len;
 
 } /*dissect_zcl_part_trasfpartframe*/
 
@@ -1286,7 +1280,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
 static void
 dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    guint tvb_len;
+    gint tvb_len;
     guint16 attr_id;
 
     /* Retrieve "Partitioned Cluster ID" field */
@@ -1294,16 +1288,15 @@ dissect_zcl_part_rdhandshakeparam(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 2;
 
     /* Dissect the attribute id list */
-    tvb_len = tvb_length(tvb);
-    while ( *offset < tvb_len ) {
-        /* Dissect the attribute identifier */
-        attr_id = tvb_get_letohs(tvb, *offset);
-        dissect_zcl_part_attr_id(tree, tvb, offset, attr_id);
-        *offset += 2;
+    tvb_len = tvb_reported_length_remaining(tvb, *offset);
+    if ( tvb_len > 0 ) {
+        while ( *offset < (guint)tvb_len ) {
+            /* Dissect the attribute identifier */
+            attr_id = tvb_get_letohs(tvb, *offset);
+            dissect_zcl_part_attr_id(tree, tvb, offset, attr_id);
+            *offset += 2;
+        }
     }
-
-    return;
-
 } /*dissect_zcl_part_rdhandshakeparam*/
 
  /*FUNCTION:------------------------------------------------------
@@ -1355,7 +1348,7 @@ dissect_zcl_part_multiack(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree *sub_tree = NULL;
     proto_item *ti;
 
-    guint   tvb_len = tvb_length(tvb);
+    guint   tvb_len = tvb_reported_length(tvb);
     guint   i = 0;
     guint8  options;
     guint16 first_frame_id;
@@ -1823,117 +1816,113 @@ static const value_string zbee_zcl_options_types[] = {
 static void
 dissect_zbee_zcl_pwr_prof (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree = NULL;
+    proto_item        *payload_root;
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
+    gint              rem_len;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_pwr_prof);
-            }
-        }
-        offset += 1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_pwr_prof_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_REQ:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_SCHED_CONSTRS_REQ:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_STATE_REQ:
-                dissect_zcl_pwr_prof_pwrprofreq(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_pwr_prof);
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_STATE_REQ:
-                /* No payload */
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_REQ:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_SCHED_CONSTRS_REQ:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_STATE_REQ:
+                    dissect_zcl_pwr_prof_pwrprofreq(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE_RSP:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE_EXT_RSP:
-                dissect_zcl_pwr_prof_getpwrprofpricersp(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_STATE_REQ:
+                    /* No payload */
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_OVERALL_SCHED_PRICE_RSP:
-                dissect_zcl_pwr_prof_getoverallschedpricersp(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE_RSP:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE_EXT_RSP:
+                    dissect_zcl_pwr_prof_getpwrprofpricersp(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_NOTIF:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_RSP:
-                dissect_zcl_pwr_prof_enphsschednotif(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_OVERALL_SCHED_PRICE_RSP:
+                    dissect_zcl_pwr_prof_getoverallschedpricersp(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_NOTIF:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_RSP:
+                    dissect_zcl_pwr_prof_enphsschednotif(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
-
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_pwr_prof);
-            }
-        }
-        offset += 1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_pwr_prof_srv_tx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_NOTIF:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_RSP:
-                dissect_zcl_pwr_prof_pwrprofnotif(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_pwr_prof);
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_STATE_RSP:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_STATE_NOTIF:
-                dissect_zcl_pwr_prof_pwrprofstatersp(tvb, payload_tree, &offset);
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_NOTIF:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_RSP:
+                    dissect_zcl_pwr_prof_pwrprofnotif(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_OVERALL_SCHED_PRICE:
-                /* no payload */
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_STATE_RSP:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_STATE_NOTIF:
+                    dissect_zcl_pwr_prof_pwrprofstatersp(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_STATE_RSP:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_STATE_NOITIF:
-                dissect_zcl_pwr_prof_enphsschednotif(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_OVERALL_SCHED_PRICE:
+                    /* no payload */
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_REQ:
-                dissect_zcl_pwr_prof_pwrprofreq(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_STATE_RSP:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_STATE_NOITIF:
+                    dissect_zcl_pwr_prof_enphsschednotif(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_SCHED_CONSTRS_NOTIF:
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_SCHED_CONSTRS_RSP:
-                dissect_zcl_pwr_prof_pwrprofschedcontrsnotif(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_ENERGY_PHASES_SCHED_REQ:
+                    dissect_zcl_pwr_prof_pwrprofreq(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE_EXT:
-                dissect_zcl_pwr_prof_pwrprofpriceext(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_SCHED_CONSTRS_NOTIF:
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_PWR_PROF_SCHED_CONSTRS_RSP:
+                    dissect_zcl_pwr_prof_pwrprofschedcontrsnotif(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                case ZBEE_ZCL_CMD_ID_PWR_PROF_GET_PWR_PROF_PRICE_EXT:
+                    dissect_zcl_pwr_prof_pwrprofpriceext(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 } /*dissect_zbee_zcl_pwr_prof*/
@@ -2091,8 +2080,7 @@ dissect_zcl_pwr_prof_enphsschednotif(tvbuff_t *tvb, proto_tree *tree, guint *off
     proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_num_of_sched_phases, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    if (num_of_sched_phases != 0)
-    {
+    if (num_of_sched_phases != 0) {
         /* Scheduled Energy Phases decoding */
         for (i=0 ; i<num_of_sched_phases ; i++) {
             /* Create subtree */
@@ -2172,8 +2160,7 @@ dissect_zcl_pwr_prof_pwrprofnotif(tvbuff_t *tvb, proto_tree *tree, guint *offset
     proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_tot_prof_num, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    if ( total_profile_number != 0 )
-    {
+    if ( total_profile_number != 0 ) {
         /* Retrieve "Power Profile Id" field */
         proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_pwr_prof_id, tvb, *offset, 1, ENC_NA);
         *offset += 1;
@@ -2184,8 +2171,7 @@ dissect_zcl_pwr_prof_pwrprofnotif(tvbuff_t *tvb, proto_tree *tree, guint *offset
         *offset += 1;
 
         /* Energy Phases decoding */
-        for ( i=0 ; i<num_of_transferred_phases ; i++)
-        {
+        for ( i=0 ; i<num_of_transferred_phases ; i++) {
             /* Create subtree */
             ti = proto_tree_add_text(tree, tvb, *offset, 1, "Energy Phase #%u", i);
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_enphases[i]);
@@ -2260,11 +2246,9 @@ dissect_zcl_pwr_prof_pwrprofstatersp(tvbuff_t *tvb, proto_tree *tree, guint *off
     proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_pwr_prof_count, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    if ( power_profile_count != 0 )
-    {
+    if ( power_profile_count != 0 ) {
         /* Energy Phases decoding */
-        for (i=0 ; i<power_profile_count ; i++)
-        {
+        for (i=0 ; i<power_profile_count ; i++) {
             /* Create subtree */
             ti = proto_tree_add_text(tree, tvb, *offset, 1, "Power Profile #%u", i);
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_pwrprofiles[i]);
@@ -3009,82 +2993,79 @@ static const value_string zbee_zcl_appl_ctrl_time_encoding_type_names[] = {
 static void
 dissect_zbee_zcl_appl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item        *payload_root = NULL;
-    proto_tree        *payload_tree = NULL;
+    proto_item        *payload_root;
+    proto_tree        *payload_tree;
     zbee_zcl_packet   *zcl = (zbee_zcl_packet *)pinfo->private_data;
     guint             offset = 0;
     guint8            cmd_id = zcl->cmd_id;
+    gint              rem_len;
 
     /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_ctrl);
-            }
-        }
-        offset += 1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_appl_ctrl_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_EXECUTION_CMD:
-                dissect_zcl_appl_ctrl_exec_cmd(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_ctrl);
 
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_SIGNAL_STATE:
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_OVERLOAD_PAUSE_RESUME:
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_OVERLOAD_PAUSE:
-                /* No payload */
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_EXECUTION_CMD:
+                    dissect_zcl_appl_ctrl_exec_cmd(tvb, payload_tree, &offset);
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_WRITE_FUNCS:
-                dissect_zcl_appl_ctrl_wr_funcs(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_SIGNAL_STATE:
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_OVERLOAD_PAUSE_RESUME:
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_OVERLOAD_PAUSE:
+                    /* No payload */
+                    break;
 
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_OVERLOAD_WARNING:
-                dissect_zcl_appl_ctrl_ovrl_warning(tvb, payload_tree, &offset);
-                break;
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_WRITE_FUNCS:
+                    dissect_zcl_appl_ctrl_wr_funcs(tvb, payload_tree, &offset);
+                    break;
 
-            default:
-                break;
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_OVERLOAD_WARNING:
+                    dissect_zcl_appl_ctrl_ovrl_warning(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
-        if (tree) {
-            /* Add the command ID. */
-            proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
-            /* Check is this command has a payload, than add the payload tree */
-            if (offset != (tvb_length(tvb) - 1)) {
-                payload_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Payload");
-                payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_ctrl);
-            }
-        }
-        offset += 1;
-
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
             val_to_str_const(cmd_id, zbee_zcl_appl_ctrl_srv_tx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
-        /* Call the appropriate command dissector */
-        switch (cmd_id) {
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
 
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_SIGNAL_STATE_RSP:
-            case ZBEE_ZCL_CMD_ID_APPL_CTRL_SIGNAL_STATE_NOTIF:
-                dissect_zcl_appl_ctrl_signal_state_rsp(tvb, payload_tree, &offset);
-                break;
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_appl_ctrl);
 
-            default:
-                break;
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_SIGNAL_STATE_RSP:
+                case ZBEE_ZCL_CMD_ID_APPL_CTRL_SIGNAL_STATE_NOTIF:
+                    dissect_zcl_appl_ctrl_signal_state_rsp(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }
@@ -3173,7 +3154,7 @@ dissect_zcl_appl_ctrl_wr_funcs(tvbuff_t *tvb, proto_tree *tree, guint *offset)
   guint tvb_len;
   guint i = 0;
 
-  tvb_len = tvb_length(tvb);
+  tvb_len = tvb_reported_length(tvb);
   while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
     /* Create subtree for attribute status field */
     ti = proto_tree_add_text(tree, tvb, *offset, 0, "Function #%d", i);
