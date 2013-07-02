@@ -55,7 +55,7 @@
     #else /* ! __GNUC__ */
 #define WS_DLL_PUBLIC __declspec(dllexport) /* Note: actually gcc seems to also support this syntax. */
     #endif /* __GNUC__ */
-  #else
+  #else /* WS_BUILD_DLL */
     #ifdef __GNUC__
 #define WS_DLL_PUBLIC __attribute__ ((dllimport))
     #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
@@ -66,15 +66,15 @@
   #endif /* WS_BUILD_DLL */
   #define WS_DLL_PUBLIC_NOEXTERN WS_DLL_PUBLIC
   #define WS_DLL_LOCAL
-#else
+#else /* defined _WIN32 || defined __CYGWIN__ */
   #if __GNUC__ >= 4
 #define WS_DLL_PUBLIC __attribute__ ((visibility ("default"))) extern
 #define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((visibility ("default")))
 #define WS_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
   #else /* ! __GNUC__ >= 4 */
-    #define WS_DLL_PUBLIC
+    #define WS_DLL_PUBLIC extern
     #define WS_DLL_PUBLIC_NOEXTERN
-    #define WS_DLL_LOCAL extern
+    #define WS_DLL_LOCAL
   #endif /* __GNUC__ >= 4 */
 #endif
 
