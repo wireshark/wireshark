@@ -1167,33 +1167,31 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const g
 	return value;
 }
 
-static GPtrArray *
-proto_lookup_or_create_interesting_hfids(proto_tree *tree,
-					 header_field_info *hfinfo)
+static void
+proto_data_add_maybe_interesting_field(tree_data_t *tree_data, field_info *fi)
 {
-	GPtrArray *ptrs = NULL;
-
-	DISSECTOR_ASSERT(tree);
-	DISSECTOR_ASSERT(hfinfo);
+	header_field_info *hfinfo = fi->hfinfo;
 
 	if (hfinfo->ref_type == HF_REF_TYPE_DIRECT) {
-		if (PTREE_DATA(tree)->interesting_hfids == NULL) {
+		GPtrArray *ptrs;
+
+		if (tree_data->interesting_hfids == NULL) {
 			/* Initialize the hash because we now know that it is needed */
-			PTREE_DATA(tree)->interesting_hfids =
+			tree_data->interesting_hfids =
 				g_hash_table_new(g_direct_hash, NULL /* g_direct_equal */);
 		}
 
-		ptrs = (GPtrArray *)g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
+		ptrs = (GPtrArray *)g_hash_table_lookup(tree_data->interesting_hfids,
 					   GINT_TO_POINTER(hfinfo->id));
 		if (!ptrs) {
 			/* First element triggers the creation of pointer array */
 			ptrs = g_ptr_array_new();
-			g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
+			g_hash_table_insert(tree_data->interesting_hfids,
 					    GINT_TO_POINTER(hfinfo->id), ptrs);
 		}
-	}
 
-	return ptrs;
+		g_ptr_array_add(ptrs, fi);
+	}
 }
 
 /* Add an item to a proto_tree, using the text label registered to that item;
@@ -1211,7 +1209,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	const char *string;
 	nstime_t    time_stamp;
 	guint32     tmpsecs;
-	GPtrArray  *ptrs;
 	gboolean    length_error;
 
 	/* there is a possibility here that we might raise an exception
@@ -1736,12 +1733,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	 * field_info struct any more.
 	 */
 	tree_data->fi_tmp = NULL;
-
-	/* If the proto_tree wants to keep a record of this finfo
-	 * for quick lookup, then record it. */
-	ptrs = proto_lookup_or_create_interesting_hfids(tree, new_fi->hfinfo);
-	if (ptrs)
-		g_ptr_array_add(ptrs, new_fi);
 
 	return pi;
 }
@@ -3324,6 +3315,8 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		tnode->first_child = pnode;
 	tnode->last_child = pnode;
 
+	proto_data_add_maybe_interesting_field(pnode->tree_data, fi);
+
 	return (proto_item *)pnode;
 }
 
@@ -3336,16 +3329,9 @@ proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, gi
 {
 	proto_item *pi;
 	field_info *fi;
-	GPtrArray  *ptrs;
 
 	fi = alloc_field_info(tree, hfinfo, tvb, start, length);
 	pi = proto_tree_add_node(tree, fi);
-
-	/* If the proto_tree wants to keep a record of this finfo
-	 * for quick lookup, then record it. */
-	ptrs = proto_lookup_or_create_interesting_hfids(tree, fi->hfinfo);
-	if (ptrs)
-		g_ptr_array_add(ptrs, fi);
 
 	*pfi = fi;
 
