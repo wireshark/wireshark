@@ -1166,20 +1166,19 @@ get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const g
 }
 
 static void
-proto_data_add_maybe_interesting_field(tree_data_t *tree_data, field_info *fi)
+tree_data_add_maybe_interesting_field(tree_data_t *tree_data, field_info *fi)
 {
-	header_field_info *hfinfo = fi->hfinfo;
+	const header_field_info *hfinfo = fi->hfinfo;
 
 	if (hfinfo->ref_type == HF_REF_TYPE_DIRECT) {
-		GPtrArray *ptrs;
+		GPtrArray *ptrs = NULL;
 
 		if (tree_data->interesting_hfids == NULL) {
 			/* Initialize the hash because we now know that it is needed */
 			tree_data->interesting_hfids =
 				g_hash_table_new(g_direct_hash, NULL /* g_direct_equal */);
-		}
-
-		ptrs = (GPtrArray *)g_hash_table_lookup(tree_data->interesting_hfids,
+		} else
+			ptrs = (GPtrArray *)g_hash_table_lookup(tree_data->interesting_hfids,
 					   GINT_TO_POINTER(hfinfo->id));
 		if (!ptrs) {
 			/* First element triggers the creation of pointer array */
@@ -3297,9 +3296,6 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		/* XXX - is it safe to continue here? */
 	}
 
-	DISSECTOR_ASSERT(tfi == NULL ||
-		(tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
-
 	PROTO_NODE_NEW(pnode);
 	pnode->parent = tnode;
 	PNODE_FINFO(pnode) = fi;
@@ -3313,7 +3309,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		tnode->first_child = pnode;
 	tnode->last_child = pnode;
 
-	proto_data_add_maybe_interesting_field(pnode->tree_data, fi);
+	tree_data_add_maybe_interesting_field(pnode->tree_data, fi);
 
 	return (proto_item *)pnode;
 }
