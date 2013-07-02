@@ -24,12 +24,6 @@
  */
 
 /*
- * "Protocol" used for "malformed frame" errors (other than
- * ReportedBoundsError exceptions).
- */
-extern int proto_malformed;
-
-/*
  * Called to register the pseudo-protocols used for exceptions.
  */
 void register_show_exception(void);

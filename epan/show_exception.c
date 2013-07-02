@@ -31,7 +31,7 @@
 #include <epan/show_exception.h>
 
 static int proto_short = -1;
-int proto_malformed = -1;
+static int proto_malformed = -1;
 static int proto_unreassembled = -1;
 
 void
