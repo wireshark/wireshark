@@ -2036,15 +2036,13 @@ proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2056,17 +2054,15 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2106,15 +2102,13 @@ proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2126,17 +2120,15 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2174,15 +2166,13 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2194,17 +2184,15 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2243,15 +2231,13 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2263,17 +2249,15 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2319,15 +2303,13 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2339,17 +2321,15 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2399,15 +2379,13 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2419,17 +2397,15 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2543,15 +2519,13 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2563,17 +2537,15 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2708,15 +2680,13 @@ proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2728,17 +2698,15 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2782,15 +2750,13 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2802,17 +2768,15 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2850,15 +2814,13 @@ proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2870,17 +2832,15 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2918,15 +2878,13 @@ proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2938,17 +2896,15 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -2996,15 +2952,13 @@ proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3016,17 +2970,15 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3080,15 +3032,13 @@ proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3100,17 +3050,15 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3148,17 +3096,15 @@ proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				gint start, gint length, gint32 value,
 				const char *format, ...)
 {
-	proto_item	  *pi = NULL;
-	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+	proto_item  *pi;
+	va_list	     ap;
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3168,19 +3114,17 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			  gint start, gint length, gint32 value,
 			  const char *format, ...)
 {
-	proto_item	  *pi = NULL;
-	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+	proto_item *pi;
+	va_list     ap;
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3234,15 +3178,13 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3254,17 +3196,15 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3294,15 +3234,13 @@ proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
-
-	va_start(ap, format);
-	proto_tree_set_representation_value(pi, format, ap);
-	va_end(ap);
+	if (pi != tree) {
+		va_start(ap, format);
+		proto_tree_set_representation_value(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
@@ -3314,17 +3252,15 @@ proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item	  *pi;
 	va_list		   ap;
-	header_field_info *hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
+	if (pi != tree) {
+		TRY_TO_FAKE_THIS_REPR(tree, pi);
 
-	TRY_TO_FAKE_THIS_REPR(tree, pi);
-
-	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		proto_tree_set_representation(pi, format, ap);
+		va_end(ap);
+	}
 
 	return pi;
 }
