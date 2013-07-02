@@ -2626,9 +2626,6 @@ proto_tree_add_ax25(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	field_info		*new_fi;
 	header_field_info	*hfinfo;
 
-	if (!tree)
-		return (NULL);
-
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
