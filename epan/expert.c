@@ -72,6 +72,15 @@ static gpa_expertinfo_t gpa_expertinfo;
  */
 static emem_tree_t *expert_modules = NULL;
 
+/* Possible values for a checksum evaluation */
+const value_string expert_checksum_vals[] = {
+	{ -1,       "Unknown/Disabled"  },
+	{ 0,        "Good"  },
+	{ 1,        "Bad" },
+
+	{ 0,        NULL }
+};
+
 
 #define EXPERT_REGISTRAR_GET_NTH(eiindex, expinfo)						\
 	if((guint)eiindex >= gpa_expertinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
@@ -401,6 +410,39 @@ expert_add_info_format_text(packet_info *pinfo, proto_item *pi, expert_field *ex
 	va_end(ap);
 }
 
+proto_item *
+proto_tree_add_expert(proto_tree *tree, packet_info *pinfo, expert_field* expindex,
+		tvbuff_t *tvb, gint start, gint length)
+{
+	expert_field_info* eiinfo;
+	proto_item *ti;
+
+	/* Look up the item */
+	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
+
+	ti = proto_tree_add_text(tree, tvb, start, length, "%s", eiinfo->summary);
+	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, FALSE, eiinfo->summary, NULL);
+	return ti;
+}
+
+proto_item *
+proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field* expindex,
+		tvbuff_t *tvb, gint start, gint length, const char *format, ...)
+{
+	va_list ap;
+	expert_field_info* eiinfo;
+	proto_item *ti;
+
+	/* Look up the item */
+	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
+
+	va_start(ap, format);
+	ti = proto_tree_add_text(tree, tvb, start, length, format, ap);
+	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, TRUE, format, ap);
+	va_end(ap);
+	return ti;
+}
+
 void
 expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, const int severity)
 {
@@ -409,7 +451,7 @@ expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	expert_item = proto_tree_add_text(tree, tvb, offset, length, "Not dissected yet");
 
-	expert_add_info_format(pinfo, expert_item, PI_UNDECODED, severity, "Not dissected yet(report to wireshark.org)"); \
-	PROTO_ITEM_SET_GENERATED(expert_item); \
+	expert_add_info_format(pinfo, expert_item, PI_UNDECODED, severity, "Not dissected yet(report to wireshark.org)");
+	PROTO_ITEM_SET_GENERATED(expert_item);
 
 }
