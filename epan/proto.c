@@ -3596,13 +3596,12 @@ alloc_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, con
 static void
 proto_tree_set_representation_value(proto_item *pi, const char *format, va_list ap)
 {
-	int ret;	/*tmp return value */
-
 	g_assert(pi);
 
 	/* If the tree (GUI) or item isn't visible it's pointless for us to generate the protocol
 	 * items string representation */
 	if (PTREE_DATA(pi)->visible && !PROTO_ITEM_IS_HIDDEN(pi)) {
+		int               ret = 0;
 		field_info        *fi = PITEM_FINFO(pi);
 		header_field_info *hf;
 
@@ -3612,22 +3611,19 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 
 		ITEM_LABEL_NEW(fi->rep);
 		if (hf->bitmask && (hf->type == FT_BOOLEAN || IS_FT_UINT(hf->type))) {
-			char tmpbuf[64];
 			guint32 val;
+			char *p;
 
 			val = fvalue_get_uinteger(&fi->value);
-			if (hf->bitshift > 0) {
+			if (hf->bitshift > 0)
 				val <<= hf->bitshift;
-			}
-			decode_bitfield_value(tmpbuf, val, hf->bitmask, hfinfo_bitwidth(hf));
-			/* put in the hf name */
-			ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
-					 "%s%s: ", tmpbuf, fi->hfinfo->name);
-		} else {
-			/* put in the hf name */
-			ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
-					 "%s: ", fi->hfinfo->name);
+
+			p = decode_bitfield_value(fi->rep->representation, val, hf->bitmask, hfinfo_bitwidth(hf));
+			ret = (int) (p - fi->rep->representation);
 		}
+
+		/* put in the hf name */
+		ret += g_snprintf(fi->rep->representation + ret, ITEM_LABEL_LENGTH - ret, "%s: ", hf->name);
 
 		/* If possible, Put in the value of the string */
 		if (ret < ITEM_LABEL_LENGTH) {
