@@ -56,7 +56,6 @@
 int proto_rlc = -1;
 
 extern int proto_fp;
-extern int proto_malformed;
 
 /* Preference to perform reassembly */
 static gboolean global_rlc_perform_reassemby = TRUE;
@@ -1727,12 +1726,9 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     }
                     /*invalid for AM */
                     /* add malformed LI for investigation */
-                    tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                    malformed = proto_tree_add_protocol_format(tree,
-                        proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                    expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                        "Malformed Packet (Uses reserved LI)");
-                    col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+                    malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
+                    expert_add_info_format(pinfo, malformed, PI_PROTOCOL, PI_WARN,
+                        "Uses reserved LI");
                     return -1; /* just give up on this */
                 default:
                     /* since the LI is an offset (from the end of the header), it
@@ -1742,12 +1738,9 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
-                        tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                        malformed = proto_tree_add_protocol_format(tree,
-                            proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                        expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                            "Malformed Packet (incorrect LI value)");
-                        col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+                        malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
+                        expert_add_info_format(pinfo, malformed, PI_PROTOCOL, PI_WARN,
+                            "Incorrect LI value");
                         return -1; /* just give up on this */
                     }
                     li[num_li].len = li[num_li].li - prev_li;
@@ -1769,12 +1762,9 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     }
                     /*invalid for AM */
                     /* add malformed LI for investigation */
-                    tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                    malformed = proto_tree_add_protocol_format(tree,
-                        proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                    expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                        "Malformed Packet (Uses reserved LI)");
-                    col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+                    malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
+                    expert_add_info_format(pinfo, malformed, PI_PROTOCOL, PI_WARN,
+                        "Uses reserved LI");
                     return -1; /* just give up on this */
                 default:
                     /* since the LI is an offset (from the end of the header), it
@@ -1784,12 +1774,9 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     if (((li[num_li].li > total_len) && !global_rlc_headers_expected)
                         || (li[num_li].li < prev_li)) {
                         /* add malformed LI for investigation */
-                        tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
-                        malformed = proto_tree_add_protocol_format(tree,
-                            proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+                        malformed = tree_add_li(mode, &li[num_li], num_li, li_offs, li_on_2_bytes, tvb, tree);
                         expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                            "Malformed Packet (incorrect LI value 0x%x)",li[num_li].li);
-                        col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+                            "Incorrect LI value 0x%x", li[num_li].li);
                         return -1; /* just give up on this */
                     }
                     li[num_li].len = li[num_li].li - prev_li;
@@ -1802,9 +1789,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         if (num_li > max_li) {
             /* OK, so this is not really a malformed packet, but for now,
             * we will treat it as such, so that it is marked in some way */
-            malformed = proto_tree_add_protocol_format(tree,
-                proto_malformed, tvb, 0, 0, "[Dissector Problem: %s]", pinfo->current_proto);
-            expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format(pinfo, li[num_li-1].tree, PI_MALFORMED, PI_ERROR,
                 "Too many LI entries");
             return -1;
         }
@@ -1914,7 +1899,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
     gint        bit_offset, previous_bit_offset;
     guint       i, j;
     proto_tree *sufi_tree, *bitmap_tree, *rlist_tree;
-    proto_item *sufi_item, *malformed, *ti;
+    proto_item *sufi_item, *ti;
     #define BUFF_SIZE 41
     gchar      *buff                     = NULL;
     guint8      cw[15];
@@ -1971,11 +1956,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                         len--;
                     }
                 } else {
-                    malformed = proto_tree_add_protocol_format(tree,
-                        proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                    expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                        "Malformed Packet (invalid length)");
-                    col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+                    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+                        "Invalid length");
                 }
                 break;
             case RLC_SUFI_BITMAP:
@@ -2024,11 +2006,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                     cw[i] = (guint8)l;
                 }
                 if (len && (((cw[len-1] & 0x01) == 0) || (cw[len-1] == 0x01))) {
-                    malformed = proto_tree_add_protocol_format(tree,
-                        proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                    expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                        "Malformed Packet (invalid last codeword)");
-                    col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+                    expert_add_info_format(pinfo, tree, PI_PROTOCOL, PI_WARN,
+                        "Invalid last codeword");
                 } else {
                     ti = proto_tree_add_text(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, "Decoded list:");
                     rlist_tree = proto_item_add_subtree(ti, ett_rlc_rlist);
@@ -2098,11 +2077,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 break;
 
             default:
-                malformed = proto_tree_add_protocol_format(tree,
-                    proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                    "Malformed Packet (invalid SUFI type)");
-                col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+                expert_add_info_format(pinfo, tree, PI_PROTOCOL, PI_WARN,
+                    "Invalid SUFI type");
                 return; /* invalid value, ignore the rest */
         }
 
@@ -2115,14 +2091,14 @@ static void
 dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8      type, next_byte;
-    proto_item *malformed;
+    proto_item *ti;
     guint64     r1;
     guint64     rsn, hfn;
 
     next_byte = tvb_get_guint8(tvb, 0);
     type = (next_byte >> 4) & 0x07;
 
-    proto_tree_add_bits_item(tree, hf_rlc_ctrl_type, tvb, 1, 3, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_bits_item(tree, hf_rlc_ctrl_type, tvb, 1, 3, ENC_BIG_ENDIAN);
     switch (type) {
         case RLC_STATUS:
             dissect_rlc_status(tvb, pinfo, tree, 0);
@@ -2133,22 +2109,16 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_bits_ret_val(tree, hf_rlc_rsn, tvb, 4, 1, &rsn, ENC_BIG_ENDIAN);
             proto_tree_add_bits_ret_val(tree, hf_rlc_r1, tvb, 5, 3, &r1, ENC_BIG_ENDIAN);
             if (r1) {
-                malformed = proto_tree_add_protocol_format(tree,
-                proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-                expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                    "Malformed Packet (reserved bits not zero)");
-                col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+                    "reserved bits not zero");
                 return;
             }
             proto_tree_add_bits_ret_val(tree, hf_rlc_hfni, tvb, 8, 20, &hfn, ENC_BIG_ENDIAN);
             col_append_fstr(pinfo->cinfo, COL_INFO, " RSN=%u HFN=%u", (guint16)rsn, (guint32)hfn);
             break;
         default:
-            malformed = proto_tree_add_protocol_format(tree,
-                proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-            expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-                "Malformed Packet (invalid RLC AM control type %u)", type);
-            col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
+            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+                "Invalid RLC AM control type %u", type);
             return; /* invalid */
     }
 }
@@ -2242,7 +2212,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     gint16         num_li          = 0, pos;
     guint16        seq;
     gboolean       is_truncated, li_is_on_2_bytes;
-    proto_item    *truncated_ti;
+    proto_item    *truncated_ti, *ti;
     guint64        polling;
 
     fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp, 0);
@@ -2272,16 +2242,12 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     /* show header fields */
     proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 1, 12, ENC_BIG_ENDIAN);
     proto_tree_add_bits_ret_val(tree, hf_rlc_p, tvb, 13, 1, &polling, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, ENC_BIG_ENDIAN);
 
     /* header extension may only be 00, 01 or 10 */
     if (ext > 2) {
-        proto_item *malformed;
-        malformed = proto_tree_add_protocol_format(tree,
-            proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-        expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-            "Malformed Packet (incorrect HE value)");
-        col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
+        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+            "Incorrect HE value");
         return;
     }
 
