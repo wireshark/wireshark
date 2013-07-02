@@ -974,8 +974,12 @@ static proto_item *
 proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
 {
 	proto_item *pi;
+	field_info *new_fi;
 
-	pi = proto_tree_add_pi(tree, &hfi_text_only, tvb, start, &length, NULL);
+	if (tree == NULL)
+		return NULL;
+
+	pi = proto_tree_add_pi(tree, &hfi_text_only, tvb, start, &length, &new_fi);
 
 	return pi;
 }
@@ -1844,12 +1848,13 @@ proto_tree_add_none_format(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	proto_item	  *pi;
 	va_list		   ap;
 	header_field_info *hfinfo;
+	field_info        *new_fi;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	DISSECTOR_ASSERT(hfinfo->type == FT_NONE);
 
-	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length, NULL);
+	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length, &new_fi);
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3324,8 +3329,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 
 
 /* Generic way to allocate field_info and add to proto_tree.
- * Sets *pfi to address of newly-allocated field_info struct, if pfi is
- * non-NULL. */
+ * Sets *pfi to address of newly-allocated field_info struct */
 static proto_item *
 proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, gint start,
 		  gint *length, field_info **pfi)
@@ -3333,9 +3337,6 @@ proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, gi
 	proto_item *pi;
 	field_info *fi;
 	GPtrArray  *ptrs;
-
-	if (!tree)
-		return NULL;
 
 	fi = alloc_field_info(tree, hfinfo, tvb, start, length);
 	pi = proto_tree_add_node(tree, fi);
@@ -3346,10 +3347,7 @@ proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, gi
 	if (ptrs)
 		g_ptr_array_add(ptrs, fi);
 
-	/* Does the caller want to know the fi pointer? */
-	if (pfi) {
-		*pfi = fi;
-	}
+	*pfi = fi;
 
 	return pi;
 }
