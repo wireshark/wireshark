@@ -3859,9 +3859,8 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 							     tfstring->true_string :
 							     tfstring->false_string, size-offset_r);
 
-				g_snprintf(expr+offset_e, size-offset_e, "%u",
-					   fvalue_get_uinteger(&finfo->value) ? 1 : 0);
-				offset_e = (int)strlen(expr);
+				offset_e += protoo_strlcpy(expr+offset_e,
+							   u_integer ? "1" : "0", size-offset_e);
 				break;
 
 			case FT_UINT8:
@@ -3876,7 +3875,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 					DISSECTOR_ASSERT(fmtfunc);
 					fmtfunc(tmp, u_integer);
-					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
+					g_strlcpy(result+offset_r, tmp, size-offset_r);
 				} else if (hfinfo->strings) {
 					const char *str_val = hf_try_val_to_str(u_integer, hfinfo);
 
@@ -3935,7 +3934,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 					DISSECTOR_ASSERT(fmtfunc);
 					fmtfunc(tmp, integer);
-					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
+					g_strlcpy(result+offset_r, tmp, size-offset_r);
 				} else if (hfinfo->strings) {
 					const char *str_val = hf_try_val_to_str(integer, hfinfo);
 
