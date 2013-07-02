@@ -1653,10 +1653,10 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     #
     AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
     CFLAGS_saved="$CFLAGS"
-    if expr "$GCC_OPTION" : "-W.*" >/dev/null
+    if expr "X$GCC_OPTION" : "-W.*" >/dev/null
     then
       CFLAGS="$CFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
-    elif expr "$GCC_OPTION" : "-f.*" >/dev/null
+    elif expr "X$GCC_OPTION" : "-f.*" >/dev/null
     then
       CFLAGS="$CFLAGS -Werror $GCC_OPTION"
     fi
@@ -1722,10 +1722,10 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     #
     AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
     CXXFLAGS_saved="$CXXFLAGS"
-    if expr "$GCC_OPTION" : "-W.*" >/dev/null
+    if expr "$XGCC_OPTION" : "-W.*" >/dev/null
     then
       CXXFLAGS="$CXXFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
-    elif expr "$GCC_OPTION" : "-f.*" >/dev/null
+    elif expr "$XGCC_OPTION" : "-f.*" >/dev/null
     then
       CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
     fi
