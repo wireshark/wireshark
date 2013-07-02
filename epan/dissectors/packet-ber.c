@@ -118,10 +118,6 @@ static gint hf_ber_unknown_INTEGER = -1;
 static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
 static gint hf_ber_error = -1;
-static gint hf_ber_no_oid = -1;
-static gint hf_ber_no_syntax = -1;
-static gint hf_ber_oid_not_implemented = -1;
-static gint hf_ber_syntax_not_implemented = -1;
 static gint hf_ber_direct_reference = -1;         /* OBJECT_IDENTIFIER */
 static gint hf_ber_indirect_reference = -1;       /* INTEGER */
 static gint hf_ber_data_value_descriptor = -1;    /* ObjectDescriptor */
@@ -150,6 +146,38 @@ static gint ett_ber_EXTERNAL = -1;
 static gint ett_ber_T_encoding = -1;
 static gint ett_ber_fragment = -1;
 static gint ett_ber_fragments = -1;
+
+static expert_field ei_ber_size_constraint_string = EI_INIT;
+static expert_field ei_ber_size_constraint_value = EI_INIT;
+static expert_field ei_ber_size_constraint_items = EI_INIT;
+static expert_field ei_ber_sequence_field_wrong = EI_INIT;
+static expert_field ei_ber_expected_octet_string = EI_INIT;
+static expert_field ei_ber_expected_null = EI_INIT;
+static expert_field ei_ber_expected_null_zero_length = EI_INIT;
+static expert_field ei_ber_expected_sequence = EI_INIT;
+static expert_field ei_ber_expected_set = EI_INIT;
+static expert_field ei_ber_expected_string = EI_INIT;
+static expert_field ei_ber_expected_object_identifier = EI_INIT;
+static expert_field ei_ber_expected_generalized_time = EI_INIT;
+static expert_field ei_ber_expected_utc_time = EI_INIT;
+static expert_field ei_ber_expected_bitstring = EI_INIT;
+static expert_field ei_ber_error_length = EI_INIT;
+static expert_field ei_ber_wrong_tag_in_tagged_type = EI_INIT;
+static expert_field ei_ber_universal_tag_unknown = EI_INIT;
+static expert_field ei_ber_no_oid = EI_INIT;
+static expert_field ei_ber_syntax_not_implemented = EI_INIT;
+static expert_field ei_ber_oid_not_implemented = EI_INIT;
+static expert_field ei_ber_value_too_many_bytes = EI_INIT;
+static expert_field ei_ber_unknown_field_sequence = EI_INIT;
+static expert_field ei_ber_unknown_field_set = EI_INIT;
+static expert_field ei_ber_missing_field_set = EI_INIT;
+static expert_field ei_ber_empty_choice = EI_INIT;
+static expert_field ei_ber_choice_not_found = EI_INIT;
+static expert_field ei_ber_bits_unknown = EI_INIT;
+static expert_field ei_ber_bits_set_padded = EI_INIT;
+static expert_field ei_ber_illegal_padding = EI_INIT;
+static expert_field ei_ber_invalid_format_generalized_time = EI_INIT;
+static expert_field ei_ber_invalid_format_utctime = EI_INIT;
 
 static gboolean show_internal_ber_fields         = FALSE;
 static gboolean decode_octetstring_as_ber        = FALSE;
@@ -472,13 +500,13 @@ static void
 ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean bit)
 {
     if ((min_len != -1) && (length < (guint32)min_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_string,
             "Size constraint: %sstring too short: %d (%d .. %d)",
             bit ? "bit " : "", length, min_len, max_len);
     } else if ((max_len != -1) && (length > (guint32)max_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_string,
             "Size constraint: %sstring too long: %d (%d .. %d)",
             bit ? "bit " : "", length, min_len, max_len);
     }
@@ -488,13 +516,13 @@ static void
 ber_check_value64 (gint64 value, gint64 min_len, gint64 max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (value < min_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too small: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)",
             value, min_len, max_len);
     } else if ((max_len != -1) && (value > max_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)",
             value, min_len, max_len);
     }
@@ -504,13 +532,13 @@ static void
 ber_check_value (guint32 value, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (value < (guint32)min_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too small: %d (%d .. %d)",
             value, min_len, max_len);
     } else if ((max_len != -1) && (value > (guint32)max_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_value,
             "Size constraint: value too big: %d (%d .. %d)",
             value, min_len, max_len);
     }
@@ -520,13 +548,13 @@ static void
 ber_check_items (int cnt, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (cnt < min_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_items,
             "Size constraint: too few items: %d (%d .. %d)",
             cnt, min_len, max_len);
     } else if ((max_len != -1) && (cnt > max_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(
+            actx->pinfo, item, &ei_ber_size_constraint_items,
             "Size constraint: too many items: %d (%d .. %d)",
             cnt, min_len, max_len);
     }
@@ -578,9 +606,7 @@ printf("dissect_ber_tagged_type(%s) entered\n", name);
             val_to_str_const(tmp_cls, ber_class_codes, "Unknown"),
             tmp_cls,
             tmp_tag);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-            "BER Error: Wrong tag in tagged type");
+        expert_add_info(actx->pinfo, cause, &ei_ber_wrong_tag_in_tagged_type);
     }
 
     if (tag_impl) {
@@ -613,8 +639,8 @@ ber_add_bad_length_error(packet_info *pinfo, proto_tree *tree,
         tree, hf_ber_error, tvb, start, length, "illegal_length",
         "%s: length of item (%d) is not valid",
         name, length);
-    expert_add_info_format(
-        pinfo, ti, PI_MALFORMED, PI_WARN,
+    expert_add_info_format_text(
+        pinfo, ti, &ei_ber_error_length,
         "Length of item (%d) is not valid", length);
     return ti;
 }
@@ -762,9 +788,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
             "BER Error: length:%u longer than tvb_length_remaining:%d",
             len,
             tvb_length_remaining(tvb, offset));
-        expert_add_info_format(
-            pinfo, cause, PI_MALFORMED, PI_WARN,
-            "BER Error length");
+        expert_add_info(pinfo, cause, &ei_ber_error_length);
         return tvb_length(tvb);
     }
 /* we don't care about the class only on the constructor flag */
@@ -868,9 +892,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
                     tree, hf_ber_error, tvb, offset, len, "unknown_universal_tag",
                     "BER Error: can not handle universal tag:%d",
                     tag);
-                expert_add_info_format(
-                    pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: can not handle universal");
+                expert_add_info(pinfo, cause, &ei_ber_universal_tag_unknown);
                 offset += len;
             }
             break;
@@ -1004,29 +1026,17 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
         length_remaining = tvb_length_remaining(tvb, offset);
 
         if (oid == NULL) {
-            item = proto_tree_add_none_format(
-                tree, hf_ber_no_oid, next_tvb, 0, length_remaining,
-                "BER: No OID supplied to call_ber_oid_callback");
-            expert_add_info_format(
-                pinfo, item, PI_MALFORMED, PI_WARN,
-                "BER Error: No OID supplied");
+            item = proto_tree_add_expert(tree, pinfo, &ei_ber_no_oid, next_tvb, 0, length_remaining);
         } else if (tvb_get_ntohs (tvb, offset) != 0x0500) { /* Not NULL tag */
             if (syntax) {
-                item = proto_tree_add_none_format(
-                    tree, hf_ber_syntax_not_implemented, next_tvb, 0, length_remaining,
+                item = proto_tree_add_expert_format(
+                    tree, pinfo, &ei_ber_syntax_not_implemented, next_tvb, 0, length_remaining,
                     "BER: Dissector for syntax:%s not implemented."
                     " Contact Wireshark developers if you want this supported",
                     syntax);
             } else {
-                item = proto_tree_add_none_format(
-                    tree, hf_ber_oid_not_implemented, next_tvb, 0, length_remaining,
-                    "BER: Dissector for OID:%s not implemented."
-                    " Contact Wireshark developers if you want this supported",
-                    oid);
+                item = proto_tree_add_expert(tree, pinfo, &ei_ber_oid_not_implemented, next_tvb, 0, length_remaining);
             }
-            expert_add_info_format(
-                pinfo, item, PI_UNDECODED, PI_WARN,
-                "BER: Dissector for OID %s not implemented", oid);
         } else {
             next_tree = tree;
         }
@@ -1074,14 +1084,15 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
         proto_tree *next_tree = NULL;
 
         if (syntax == NULL) {
-            item = proto_tree_add_none_format(
-                tree, hf_ber_no_syntax, next_tvb, 0, tvb_length_remaining(tvb, offset),
-                "BER: No syntax supplied to call_ber_syntax_callback");
+            item = proto_tree_add_expert_format(
+                    tree, pinfo, &ei_ber_no_oid, next_tvb, 0, tvb_length_remaining(tvb, offset),
+                    "BER: No syntax supplied to call_ber_syntax_callback");
         } else {
-            item = proto_tree_add_none_format(
-                tree, hf_ber_syntax_not_implemented, next_tvb, 0, tvb_length_remaining(tvb, offset),
-                "BER: Dissector for syntax: %s not implemented. Contact Wireshark developers if you want this supported",
-                syntax);
+            item = proto_tree_add_expert_format(
+                    tree, pinfo, &ei_ber_syntax_not_implemented, next_tvb, 0, tvb_length_remaining(tvb, offset),
+                    "BER: Dissector for syntax:%s not implemented."
+                    " Contact Wireshark developers if you want this supported",
+                    syntax);
         }
         if (item) {
             next_tree = proto_item_add_subtree(item, ett_ber_unknown);
@@ -1485,9 +1496,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
                     ber_class,
                     pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tag);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: OctetString expected");
+                expert_add_info(actx->pinfo, cause, &ei_ber_expected_octet_string);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -1520,9 +1529,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
                 "BER Error: length:%u longer than tvb_length_remaining:%d",
                 len,
                 len_remain);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error length");
+            expert_add_info(actx->pinfo, cause, &ei_ber_error_length);
             return end_offset;
         }
 
@@ -1628,9 +1635,7 @@ dissect_ber_null(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
                 ber_class,
                 pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: NULL expected");
+            expert_add_info(actx->pinfo, cause, &ei_ber_expected_null);
         }
 
         offset_old = offset;
@@ -1643,9 +1648,7 @@ dissect_ber_null(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
             cause = proto_tree_add_string_format(
                 tree, hf_ber_error, tvb, offset, len, "unexpected_data",
                 "BER Error: unexpected data in NULL type");
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: NULL expect zero length");
+            expert_add_info(actx->pinfo, cause, &ei_ber_expected_null_zero_length);
             offset += len;
         }
     }
@@ -1750,8 +1753,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
               tree, hf_ber_error, tvb, offset-len, len, "invalid length",
               "BER Error: Can't handle integer length: %u",
               len);
-          expert_add_info_format(
-              actx->pinfo, pi, PI_MALFORMED, PI_WARN,
+          expert_add_info_format_text(actx->pinfo, pi, &ei_ber_error_length,
               "BER Error: Illegal integer length: %u", len);
         } else {
             header_field_info* hfi;
@@ -1781,8 +1783,8 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n", name, im
             }
 
             if (used_too_many_bytes) {
-                expert_add_info_format(
-                    actx->pinfo, actx->created_item, PI_PROTOCOL, PI_WARN,
+                expert_add_info_format_text(
+                    actx->pinfo, actx->created_item, &ei_ber_value_too_many_bytes,
                     "Value is encoded with too many bytes(9 leading zero or one bits), hf_abbr: %s",
                     hfi->abbrev);
             }
@@ -1990,9 +1992,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n", name);
                     classx,
                     pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: Sequence expected");
+                expert_add_info(actx->pinfo, cause, &ei_ber_expected_sequence);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2050,9 +2050,7 @@ ber_sequence_try_again:
             cause = proto_tree_add_string_format(
                 tree, hf_ber_error, tvb, offset, len, "unknown_field",
                 "BER Error: This field lies beyond the end of the known sequence definition.");
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: Unknown field in Sequence");
+            expert_add_info(actx->pinfo, cause, &ei_ber_unknown_field_sequence);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2096,9 +2094,7 @@ ber_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                        "BER Error: Wrong field in SEQUENCE");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 } else {
                     cause = proto_tree_add_string_format(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
@@ -2109,9 +2105,7 @@ ber_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                        "BER Error: Wrong field in SEQUENCE");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 }
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2145,9 +2139,7 @@ ber_sequence_try_again:
                         val_to_str_ext_const(seq->tag, &ber_uni_tag_codes_ext, "Unknown"),
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class, tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                        "BER Error: Wrong field in sequence");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 } else {
                     cause = proto_tree_add_string_format(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
@@ -2158,9 +2150,7 @@ ber_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                        "BER Error: Wrong field in sequence");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 }
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2277,8 +2267,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: Sequence ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: too many bytes in Sequence");
     }
     if (ind) {
@@ -2364,9 +2353,8 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n", name);
                     classx,
                     pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: Sequence expected");
+                expert_add_info(
+                    actx->pinfo, cause, &ei_ber_expected_sequence);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2424,9 +2412,7 @@ ber_old_sequence_try_again:
             cause = proto_tree_add_string_format(
                 tree, hf_ber_error, tvb, offset, len, "illegal_length",
                 "BER Error: This field lies beyond the end of the known sequence definition.");
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: Unknown field in Sequence");
+            expert_add_info(actx->pinfo, cause, &ei_ber_unknown_field_sequence);
             if (decode_unexpected) {
               proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
               dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2470,9 +2456,7 @@ ber_old_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                        "BER Error: Wrong field in SEQUENCE");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 } else {
                     cause = proto_tree_add_string_format(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field"
@@ -2483,9 +2467,7 @@ ber_old_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED,
-                        PI_WARN, "BER Error: Wrong field in SEQUENCE");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 }
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2520,9 +2502,7 @@ ber_old_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED,
-                        PI_WARN, "BER Error: Wrong field in sequence");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 } else {
                     cause = proto_tree_add_string_format(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
@@ -2533,9 +2513,7 @@ ber_old_sequence_try_again:
                         val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                         ber_class,
                         tag);
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                        "BER Error: Wrong field in sequence");
+                    expert_add_info(actx->pinfo, cause, &ei_ber_sequence_field_wrong);
                 }
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2648,8 +2626,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) subdissector ate %d bytes\n", name
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: Sequence ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length, 
             "BER Error: too many bytes in Sequence");
     }
     if (ind) {
@@ -2731,9 +2708,7 @@ printf("SET dissect_ber_set(%s) entered\n", name);
                     classx,
                     pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: SET expected");
+                expert_add_info(actx->pinfo, cause, &ei_ber_expected_set);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2894,9 +2869,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: Unknown field in SET");
+            expert_add_info(actx->pinfo, cause, &ei_ber_unknown_field_set);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -2918,9 +2891,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
                     val_to_str_const(cset->ber_class, ber_class_codes, "Unknown"),
                     cset->ber_class,
                     cset->tag);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: Missing field in SET");
+                expert_add_info(actx->pinfo, cause, &ei_ber_missing_field_set);
 
             }
 
@@ -2934,8 +2905,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n", name);
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: SET ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length, 
             "BER Error: too many bytes in SET");
     }
 
@@ -3018,9 +2988,7 @@ printf("SET dissect_old_ber_set(%s) entered\n", name);
                     classx,
                     pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: SET expected");
+                expert_add_info(actx->pinfo, cause, &ei_ber_expected_set);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -3177,9 +3145,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n", name);
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: Unknown field in SET");
+            expert_add_info(actx->pinfo, cause, &ei_ber_unknown_field_set);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -3201,9 +3167,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n", name);
                     val_to_str_const(cset->ber_class, ber_class_codes, "Unknown"),
                     cset->ber_class,
                     cset->tag);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: Missing field in SET");
+                expert_add_info(actx->pinfo, cause, &ei_ber_missing_field_set);
             }
         }
     }
@@ -3215,8 +3179,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n", name);
             tree, hf_ber_error, tvb, offset-2, 2, "illegal_length",
             "BER Error: SET ate %d too many bytes",
             offset - end_offset);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length, 
             "BER Error: too many bytes in SET");
     }
 
@@ -3285,9 +3248,7 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n", name, tvb_length_remain
         item = proto_tree_add_string_format(
             parent_tree, hf_ber_error, tvb, offset, 0, "empty_choice",
             "BER Error: Empty choice was found");
-        expert_add_info_format(
-            actx->pinfo, item, PI_MALFORMED, PI_WARN,
-            "BER Error: Empty choice was found");
+        expert_add_info(actx->pinfo, item, &ei_ber_empty_choice);
         return offset;
     }
 
@@ -3471,9 +3432,7 @@ printf("CHOICE dissect_ber_choice(%s) trying again\n", name);
     item = proto_tree_add_string_format(
         tree, hf_ber_error, tvb, offset, len, "missing_choice_field",
         "BER Error: This choice field was not found.");
-    expert_add_info_format(
-        actx->pinfo, item, PI_MALFORMED, PI_WARN,
-        "BER Error: This choice field was not found");
+    expert_add_info(actx->pinfo, item, &ei_ber_choice_not_found);
     return end_offset;
 #endif
 
@@ -3520,9 +3479,7 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n", name, tvb_length_re
         item = proto_tree_add_string_format(
             parent_tree, hf_ber_error, tvb, offset, 0, "empty_choice",
             "BER Error: Empty choice was found");
-        expert_add_info_format(
-            actx->pinfo, item, PI_MALFORMED, PI_WARN,
-            "BER Error: Empty choice was found");
+        expert_add_info(actx->pinfo, item, &ei_ber_empty_choice);
         return offset;
     }
 
@@ -3708,9 +3665,7 @@ printf("CHOICE dissect_ber_old_choice(%s) trying again\n", name);
     cause = proto_tree_add_string_format(
         tree, hf_ber_error, tvb, offset, len, "missing_choice_field",
         "BER Error: This choice field was not found.");
-    expert_add_info_format(
-        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-        "BER Error: This choice field was not found");
+    expert_add_info(actx->pinfo, item, &ei_ber_choice_not_found);
     return end_offset;
 #endif
 
@@ -3757,8 +3712,7 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
             val_to_str_const(ber_class, ber_class_codes, "Unknown"),
             ber_class, pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
             tag);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+        expert_add_info(actx->pinfo, cause, &ei_ber_expected_general_string,
             "BER Error: GeneralString expected");
         if (decode_unexpected) {
             proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3826,9 +3780,7 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n", name);
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class, pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: String expected");
+            expert_add_info(actx->pinfo, cause, &ei_ber_expected_string);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -3925,9 +3877,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n", name);
                 ber_class,
                 pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: Object Identifier expected");
+            expert_add_info(actx->pinfo, cause, &ei_ber_expected_object_identifier);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -4047,10 +3997,15 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
                     classx, pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
-                expert_add_info_format(
-                    actx->pinfo, causex, PI_MALFORMED, PI_WARN,
-                    "BER Error: %s Of expected",
-                    (type == BER_UNI_TAG_SEQUENCE) ? "Set":"Sequence");
+                if (type == BER_UNI_TAG_SEQUENCE) {
+                    expert_add_info_format_text(
+                        actx->pinfo, causex, &ei_ber_expected_set,
+                        "BER Error: Set Of expected");
+                } else {
+                    expert_add_info_format_text(
+                        actx->pinfo, causex, &ei_ber_expected_sequence,
+                        "BER Error: Sequence Of expected");
+                }
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(causex, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffsetx, unknown_tree);
@@ -4162,8 +4117,8 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     "BER Error: Wrong field in SQ OF(tag %u expected %u)",
                     tag,
                     seq->tag);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+                expert_add_info_format_text(
+                    actx->pinfo, cause, &ei_ber_sequence_field_wrong,
                     "BER Error: Wrong field in Sequence Of");
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -4214,8 +4169,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             "BER Error: %s Of ate %d too many bytes",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence",
             offset - end_offset);
-        expert_add_info_format(
-            actx->pinfo, causex, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, causex, &ei_ber_error_length, 
             "BER Error:too many byte in %s",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
     }
@@ -4284,10 +4238,15 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
                     classx,
                     pcx ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tagx);
-                expert_add_info_format(
-                    actx->pinfo, causex, PI_MALFORMED, PI_WARN,
-                    "BER Error: %s Of expected",
-                    (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
+                if (type == BER_UNI_TAG_SEQUENCE) {
+                    expert_add_info_format_text(
+                        actx->pinfo, causex, &ei_ber_expected_set,
+                        "BER Error: Set Of expected");
+                } else {
+                    expert_add_info_format_text(
+                        actx->pinfo, causex, &ei_ber_expected_sequence,
+                        "BER Error: Sequence Of expected");
+                }
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(causex, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffsetx, unknown_tree);
@@ -4393,8 +4352,8 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
                     cause = proto_tree_add_string_format(
                         tree, hf_ber_error, tvb, offset, len, "wrong_field",
                         "BER Error: Wrong field in SQ OF");
-                    expert_add_info_format(
-                        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+                    expert_add_info_format_text(
+                        actx->pinfo, cause, &ei_ber_sequence_field_wrong,
                         "BER Error: Wrong field in Sequence Of");
                     if (decode_unexpected) {
                         proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -4441,8 +4400,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
             "BER Error: %s Of ate %d too many bytes",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence",
             offset-end_offset);
-        expert_add_info_format(
-            actx->pinfo, causex, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, causex, &ei_ber_error_length, 
             "BER Error:too many byte in %s",
             (type == BER_UNI_TAG_SEQUENCE) ? "Set" : "Sequence");
     }
@@ -4517,9 +4475,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
                 ber_class,
                 pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: GeneralizedTime expected");
+            expert_add_info(actx->pinfo, cause, &ei_ber_expected_generalized_time);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -4536,8 +4492,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
             tree, hf_ber_error, tvb, offset, len, "illegal_length",
             "BER Error: GeneralizedTime invalid length: %u",
             len);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
+        expert_add_info_format_text(actx->pinfo, cause, &ei_ber_error_length,
             "BER Error: GeneralizedTime invalid length");
         if (decode_unexpected) {
             proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -4562,9 +4517,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
             tree, hf_ber_error, tvb, offset, len, "invalid_generalized_time",
             "BER Error: GeneralizedTime invalid format: %s",
             tmpstr);
-        expert_add_info_format(
-            actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-            "BER Error: GeneralizedTime invalid format");
+        expert_add_info(actx->pinfo, cause, &ei_ber_invalid_format_generalized_time);
         if (decode_unexpected) {
             proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
             dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
@@ -4644,9 +4597,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
                 ber_class,
                 pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                 tag);
-            expert_add_info_format(
-                actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                "BER Error: UTCTime expected");
+            expert_add_info(actx->pinfo, cause, &ei_ber_expected_utc_time);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                 dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -4755,9 +4706,7 @@ malformed:
         error_tree, hf_ber_error, tvb, offset, len, "invalid_utctime",
         "%s",
         error_str);
-    expert_add_info_format(
-        actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-        "BER Error: malformed UTCTime encoding");
+    expert_add_info(actx->pinfo, cause, &ei_ber_invalid_format_utctime);
 
     return offset+len;
 }
@@ -4806,9 +4755,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                     ber_class, pc ? ber_pc_codes_short.true_string : ber_pc_codes_short.false_string,
                     tag);
-                expert_add_info_format(
-                    actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-                    "BER Error: BitString expected");
+                expert_add_info(actx->pinfo, cause, &ei_ber_expected_bitstring);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
                     dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
@@ -4837,8 +4784,8 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
             /* padding */
             proto_item *pad_item = proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
             if (pad > 7) {
-                expert_add_info_format(
-                    actx->pinfo, pad_item, PI_UNDECODED, PI_WARN,
+                expert_add_info_format_text(
+                    actx->pinfo, pad_item, &ei_ber_illegal_padding,
                     "Illegal padding (0 .. 7): %d", pad);
             }
         }
@@ -4900,8 +4847,8 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
 
         for (byteno = 0; byteno < len; byteno++) {
             if (bitstring[byteno]) {
-                expert_add_info_format(
-                    actx->pinfo, item, PI_UNDECODED, PI_WARN,
+                expert_add_info_format_text(
+                    actx->pinfo, item, &ei_ber_bits_unknown,
                     "Unknown bit(s): 0x%s", bytes_to_str(bitstring, len));
                 break;
             }
@@ -4911,8 +4858,8 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
     if ((pad > 0) && (pad < 8) && (len > 0)) {
         guint8 bits_in_pad = tvb_get_guint8(tvb, offset + len - 1) & (0xFF >> (8-pad));
         if (bits_in_pad) {
-            expert_add_info_format(
-                actx->pinfo, item, PI_UNDECODED, PI_WARN,
+            expert_add_info_format_text(
+                actx->pinfo, item, &ei_ber_bits_set_padded,
                 "Bits set in padded area: 0x%02x", bits_in_pad);
         }
     }
@@ -5259,18 +5206,6 @@ proto_register_ber(void)
         { &hf_ber_error, {
                 "BER Error", "ber.error", FT_STRING, BASE_NONE,
                 NULL, 0, NULL, HFILL }},
-        { &hf_ber_no_oid, {
-                "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
-                NULL, 0, "No OID supplied to call_ber_oid_callback", HFILL }},
-        { &hf_ber_oid_not_implemented, {
-                "OID not implemented", "ber.oid_not_implemented", FT_NONE, BASE_NONE,
-                NULL, 0, "Dissector for OID not implemented", HFILL }},
-        { &hf_ber_no_syntax, {
-                "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
-                NULL, 0, "No syntax supplied to call_ber_syntax_callback", HFILL }},
-        { &hf_ber_syntax_not_implemented, {
-                "Syntax not implemented", "ber.syntax_not_implemented", FT_NONE, BASE_NONE,
-                NULL, 0, "Dissector for OID not implemented", HFILL }},
         { &hf_ber_direct_reference,
           { "direct-reference", "ber.direct_reference",
             FT_OID, BASE_NONE, NULL, 0,
@@ -5348,7 +5283,42 @@ proto_register_ber(void)
         &ett_ber_fragment,
         &ett_ber_fragments
     };
+    static ei_register_info ei[] = {
+        { &ei_ber_size_constraint_string, { "ber.size_constraint.string", PI_PROTOCOL, PI_WARN, "Size constraint: string", EXPFILL }},
+        { &ei_ber_size_constraint_value, { "ber.size_constraint.value", PI_PROTOCOL, PI_WARN, "Size constraint: values", EXPFILL }},
+        { &ei_ber_size_constraint_items, { "ber.size_constraint.items", PI_PROTOCOL, PI_WARN, "Size constraint: items", EXPFILL }},
+        { &ei_ber_sequence_field_wrong, { "ber.error.sequence.field_wrong", PI_MALFORMED, PI_WARN, "BER Error: Wrong field in SEQUENCE", EXPFILL }},
+        { &ei_ber_expected_octet_string, { "ber.error.expected.octet_string", PI_MALFORMED, PI_WARN, "BER Error: OctetString expected", EXPFILL }},
+        { &ei_ber_expected_null, { "ber.error.expected.null", PI_MALFORMED, PI_WARN, "BER Error: NULL expected", EXPFILL }},
+        { &ei_ber_expected_null_zero_length, { "ber.error.expected.null_zero_length", PI_MALFORMED, PI_WARN, "BER Error: NULL expect zero length", EXPFILL }},
+        { &ei_ber_expected_sequence, { "ber.error.expected.sequence", PI_MALFORMED, PI_WARN, "BER Error: Sequence expected", EXPFILL }},
+        { &ei_ber_expected_set, { "ber.error.expected.set", PI_MALFORMED, PI_WARN, "BER Error: SET expected", EXPFILL }},
+        { &ei_ber_expected_string, { "ber.error.expected.string", PI_MALFORMED, PI_WARN, "BER Error: String expected", EXPFILL }},
+        { &ei_ber_expected_object_identifier, { "ber.error.expected.object_identifier", PI_MALFORMED, PI_WARN, "BER Error: Object Identifier expected", EXPFILL }},
+        { &ei_ber_expected_generalized_time, { "ber.error.expected.generalized_time", PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime expected", EXPFILL }},
+        { &ei_ber_expected_utc_time, { "ber.error.expected.utc_time", PI_MALFORMED, PI_WARN, "BER Error: UTCTime expected", EXPFILL }},
+        { &ei_ber_expected_bitstring, { "ber.error.expected.bitstring", PI_MALFORMED, PI_WARN, "BER Error: BitString expected", EXPFILL }},
+        { &ei_ber_error_length, { "ber.error.length", PI_MALFORMED, PI_WARN, "BER Error length", EXPFILL }},
+        { &ei_ber_wrong_tag_in_tagged_type, { "ber.error.wrong_tag_in_tagged_type", PI_MALFORMED, PI_WARN, "BER Error: Wrong tag in tagged type", EXPFILL }},
+        { &ei_ber_universal_tag_unknown, { "ber.error.universal_tag_unknown", PI_MALFORMED, PI_WARN, "BER Error: can not handle universal", EXPFILL }},
+        { &ei_ber_no_oid, { "ber.error.no_oid", PI_MALFORMED, PI_WARN, "BER Error: No OID supplied to call_ber_oid_callback", EXPFILL }},
+        { &ei_ber_oid_not_implemented, { "ber.error.oid_not_implemented", PI_UNDECODED, PI_WARN, "BER: Dissector for OID not implemented. Contact Wireshark developers if you want this supported", EXPFILL }},
+        { &ei_ber_syntax_not_implemented, { "ber.error.syntax_not_implemented", PI_UNDECODED, PI_WARN, "BER: Syntax not implemented", EXPFILL }},
+        { &ei_ber_value_too_many_bytes, { "ber.error.value_too_many_bytes", PI_MALFORMED, PI_WARN, "Value is encoded with too many bytes", EXPFILL }},
+        { &ei_ber_unknown_field_sequence, { "ber.error.unknown_field.sequence", PI_MALFORMED, PI_WARN, "BER Error: Unknown field in Sequence", EXPFILL }},
+        { &ei_ber_unknown_field_set, { "ber.error.unknown_field.set", PI_MALFORMED, PI_WARN, "BER Error: Unknown field in SET", EXPFILL }},
+        { &ei_ber_missing_field_set, { "ber.error.missing_field.set", PI_MALFORMED, PI_WARN, "BER Error: Missing field in SET", EXPFILL }},
+        { &ei_ber_empty_choice, { "ber.error.empty_choice", PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found", EXPFILL }},
+        { &ei_ber_choice_not_found, { "ber.error.choice_not_found", PI_MALFORMED, PI_WARN, "BER Error: This choice field was not found", EXPFILL }},
+        { &ei_ber_bits_unknown, { "ber.error.bits_unknown", PI_UNDECODED, PI_WARN, "BER Error: Bits unknown", EXPFILL }},
+        { &ei_ber_bits_set_padded, { "ber.error.bits_set_padded", PI_UNDECODED, PI_WARN, "BER Error: Bits set in padded area", EXPFILL }},
+        { &ei_ber_illegal_padding, { "ber.error.illegal_padding", PI_UNDECODED, PI_WARN, "Illegal padding", EXPFILL }},
+        { &ei_ber_invalid_format_generalized_time, { "ber.error.invalid_format.generalized_time", PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format", EXPFILL }},
+        { &ei_ber_invalid_format_utctime, { "ber.error.invalid_format.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
+    };
+
     module_t *ber_module;
+    expert_module_t* expert_ber;
     uat_t* users_uat = uat_new("OID Tables",
                                sizeof(oid_user_t),
                                "oid",
@@ -5367,6 +5337,8 @@ proto_register_ber(void)
     register_dissector ("ber", dissect_ber, proto_ber);
     proto_register_field_array(proto_ber, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ber = expert_register_protocol(proto_ber);
+    expert_register_field_array(expert_ber, ei, array_length(ei));
 
     proto_set_cant_toggle(proto_ber);
 
