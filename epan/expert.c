@@ -74,10 +74,10 @@ static emem_tree_t *expert_modules = NULL;
 
 /* Possible values for a checksum evaluation */
 const value_string expert_checksum_vals[] = {
-	{ -1,       "Unknown/Disabled"  },
-	{ 0,        "Good"  },
-	{ 1,        "Bad" },
-
+	{ EXPERT_CHECKSUM_DISABLED,   "Disabled"  },
+	{ EXPERT_CHECKSUM_UNKNOWN,    "Unknown"  },
+	{ EXPERT_CHECKSUM_GOOD,       "Good"  },
+	{ EXPERT_CHECKSUM_BAD,        "Bad" },
 	{ 0,        NULL }
 };
 

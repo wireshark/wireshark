@@ -229,6 +229,11 @@ expert_register_field_array(expert_module_t* module, ei_register_info *ei, const
 WS_DLL_PUBLIC void
 expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, const int severity);
 
+#define EXPERT_CHECKSUM_DISABLED    -2
+#define EXPERT_CHECKSUM_UNKNOWN     -1
+#define EXPERT_CHECKSUM_GOOD        0
+#define EXPERT_CHECKSUM_BAD         1
+
 WS_DLL_PUBLIC const value_string expert_checksum_vals[];
 
 #ifdef __cplusplus
