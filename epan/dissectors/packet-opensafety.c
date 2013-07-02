@@ -678,16 +678,20 @@ findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLeng
      * is somewhat time consuming, so it will only run if the normal check led to a mistake detected along the line */
     if ( checkIfSlimMistake && i_calculatedLength == dataLength )
     {
-    	bytes = (guint8*)ep_tvb_memdup(message_tvb, byte_offset + i_wFrame1Position, dataLength + 4);
-        if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
-            calcCRC = crc16_0x5935(bytes, dataLength + 4, 0);
-        else
-            calcCRC = crc8_0x2F(bytes, dataLength + 4, 0);
-
         if (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
             frameCRC = tvb_get_letohs(message_tvb,  byte_offset + i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA);
         else
             frameCRC = tvb_get_guint8(message_tvb,  byte_offset + i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA);
+
+    	bytes = (guint8*)ep_tvb_memdup(message_tvb, byte_offset + i_wFrame1Position, dataLength + 4);
+        if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
+        {
+            calcCRC = crc16_0x755B(bytes, dataLength + 4, 0);
+            if ( frameCRC != calcCRC )
+                calcCRC = crc16_0x5935(bytes, dataLength + 4, 0);
+        }
+        else
+            calcCRC = crc8_0x2F(bytes, dataLength + 4, 0);
 
         /* if the calculated crc does not match the detected, the package is not a normal openSAFETY package */
         if ( frameCRC != calcCRC )
@@ -774,18 +778,14 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                                     crc = tvb_get_letohs ( message_tvb, ctr + 3 + b_Length );
                                     crcOffset = 1;
 
-                                    if ( crc != 0x00 )
-                                    {
-                                        calcCrc = crc16_0x755B( bytes, b_Length + 4, 0 );
-                                        if ( ( crc ^ calcCrc ) != 0 )
-                                            calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
-                                    } 
+                                    calcCrc = crc16_0x755B( bytes, b_Length + 4, 0 );
+                                    if ( ( crc ^ calcCrc ) != 0 )
+                                        calcCrc = crc16_0x5935( bytes, b_Length + 4, 0 );
                                 } else {
-                                    if ( crc != 0x00 )
-                                        calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
+                                    calcCrc = crc8_0x2F ( bytes, b_Length + 4, 0 );
                                 }
 
-                                if ( ( crc != 0x00 ) && ( crc ^ calcCrc ) == 0 )
+                                if ( ( crc ^ calcCrc ) == 0 )
                                 {
                                     /* We have found a Slim frame. Those are not correctly identified yet */
                                     if ( ( b_ID >> 3 ) == ( OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE >> 3 ) )
@@ -1296,7 +1296,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                 {
                     proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
-                    expert_add_info_format_text(pinfo, item, &ei_payload_length_not_positive, 
+                    expert_add_info_format_text(pinfo, item, &ei_payload_length_not_positive,
                                                 "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
                 }
             }
@@ -2407,44 +2407,44 @@ proto_register_opensafety(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_crc_frame_1_invalid, 
-            { "opensafety.crc.error.frame1_invalid", PI_MALFORMED, PI_ERROR, 
+        { &ei_crc_frame_1_invalid,
+            { "opensafety.crc.error.frame1_invalid", PI_MALFORMED, PI_ERROR,
               "Frame 1 CRC invalid, Possible error in package", EXPFILL } },
-        { &ei_crc_frame_1_valid_frame2_invalid, 
-            { "opensafety.crc.error.frame1_valid_frame2_invalid", PI_MALFORMED, PI_ERROR, 
+        { &ei_crc_frame_1_valid_frame2_invalid,
+            { "opensafety.crc.error.frame1_valid_frame2_invalid", PI_MALFORMED, PI_ERROR,
               "Frame 1 is valid, frame 2 id is invalid", EXPFILL } },
-        { &ei_crc_slimssdo_instead_of_spdo, 
-            { "opensafety.crc.warning.wrong_crc_for_spdo", PI_PROTOCOL, PI_WARN, 
+        { &ei_crc_slimssdo_instead_of_spdo,
+            { "opensafety.crc.warning.wrong_crc_for_spdo", PI_PROTOCOL, PI_WARN,
               "Frame 1 SPDO CRC is Slim SSDO CRC16 0x5935", EXPFILL } },
-              
-        { &ei_message_reassembly_size_differs_from_header, 
-            { "opensafety.msg.warning.reassembly_size_fail", PI_PROTOCOL, PI_WARN, 
+
+        { &ei_message_reassembly_size_differs_from_header,
+            { "opensafety.msg.warning.reassembly_size_fail", PI_PROTOCOL, PI_WARN,
               "Reassembled message size differs from size in header", EXPFILL } },
-        { &ei_message_unknown_type, 
-            { "opensafety.msg.error.unknown_type", PI_MALFORMED, PI_ERROR, 
+        { &ei_message_unknown_type,
+            { "opensafety.msg.error.unknown_type", PI_MALFORMED, PI_ERROR,
               "Unknown openSAFETY message type", EXPFILL } },
-        { &ei_message_spdo_address_invalid, 
-            { "opensafety.msg.error.spdo_address_invalid", PI_MALFORMED, PI_ERROR, 
+        { &ei_message_spdo_address_invalid,
+            { "opensafety.msg.error.spdo_address_invalid", PI_MALFORMED, PI_ERROR,
               "SPDO address is invalid", EXPFILL } },
-              
-        { &ei_scmudid_autodetected, 
-            { "opensafety.scm_udid.note.autodetected", PI_PROTOCOL, PI_NOTE, 
+
+        { &ei_scmudid_autodetected,
+            { "opensafety.scm_udid.note.autodetected", PI_PROTOCOL, PI_NOTE,
               "Auto detected payload as SCM UDID", EXPFILL } },
-        { &ei_scmudid_invalid_preference, 
-            { "opensafety.scm_udid.note.invalid_preference", PI_PROTOCOL, PI_WARN, 
+        { &ei_scmudid_invalid_preference,
+            { "opensafety.scm_udid.note.invalid_preference", PI_PROTOCOL, PI_WARN,
               "openSAFETY protocol settings are invalid! SCM UDID first octet will be assumed to be 00", EXPFILL } },
-        { &ei_scmudid_unknown, 
-            { "opensafety.scm_udid.warning.assuming_first_octet", PI_PROTOCOL, PI_WARN, 
+        { &ei_scmudid_unknown,
+            { "opensafety.scm_udid.warning.assuming_first_octet", PI_PROTOCOL, PI_WARN,
               "SCM UDID unknown, assuming 00 as first UDID octet", EXPFILL } },
-              
-        { &ei_payload_unknown_format, 
-            { "opensafety.msg.warning.unknown_format", PI_PROTOCOL, PI_WARN, 
+
+        { &ei_payload_unknown_format,
+            { "opensafety.msg.warning.unknown_format", PI_PROTOCOL, PI_WARN,
               "Unknown payload format detected", EXPFILL } },
-        { &ei_payload_length_not_positive, 
-            { "opensafety.msg.warning.reassembly_length_not_positive", PI_PROTOCOL, PI_NOTE, 
+        { &ei_payload_length_not_positive,
+            { "opensafety.msg.warning.reassembly_length_not_positive", PI_PROTOCOL, PI_NOTE,
               "Calculation for payload length yielded non-positive result", EXPFILL } },
     };
-    
+
     module_t *opensafety_module;
     expert_module_t *expert_opensafety;
 
@@ -2458,7 +2458,7 @@ proto_register_opensafety(void)
 
     expert_opensafety = expert_register_protocol ( proto_opensafety );
     expert_register_field_array ( expert_opensafety, ei, array_length (ei ) );
-    
+
     /* register user preferences */
     prefs_register_string_preference(opensafety_module, "scm_udid",
                  "SCM UDID (xx:xx:xx:xx:xx:xx)",
