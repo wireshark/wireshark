@@ -965,7 +965,7 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 	/* object descriptor */
 	proto_tree_add_item(tree, hf_scsi_osd_object_descriptor, tvb, offset, 24, ENC_NA);
-	offset+=24;
+	/*offset+=24;*/
 
 	return;
 }
