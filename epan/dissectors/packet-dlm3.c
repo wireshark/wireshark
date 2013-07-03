@@ -683,7 +683,7 @@ dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree,
                       hf_dlm3_rf_unused, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
 
-  offset += 8;
+  /*offset += 8;*/
   /* END */
 }
 
