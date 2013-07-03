@@ -245,7 +245,6 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         pi = proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_ca_reserved, tvb,
             offset, 1, ENC_BIG_ENDIAN);
         if (0xff != tmp) {
-            PROTO_ITEM_SET_GENERATED(pi);
             expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                         "Invalid value - should be 0xff");
         }
@@ -269,7 +268,6 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         pi = proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_user_id_reserved, tvb,
             offset, 1, ENC_BIG_ENDIAN);
         if (0xff != tmp) {
-            PROTO_ITEM_SET_GENERATED(pi);
             expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                         "Invalid value - should be 0xff");
         }
@@ -305,7 +303,6 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     pi = proto_tree_add_item(sub_tree, hf_dsmcc_protocol_discriminator, tvb,
                  offset, 1, ENC_BIG_ENDIAN);
     if (0x11 != prot_disc) {
-        PROTO_ITEM_SET_GENERATED(pi);
         expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0x11");
     }
@@ -329,7 +326,6 @@ dissect_dsmcc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     pi = proto_tree_add_item(sub_tree, hf_dsmcc_header_reserved, tvb,
         offset, 1, ENC_BIG_ENDIAN);
     if (0xff != reserved) {
-        PROTO_ITEM_SET_GENERATED(pi);
         expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0xff");
     }
@@ -510,7 +506,6 @@ dissect_dsmcc_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pi = proto_tree_add_item(tree, hf_dsmcc_ddb_reserved, tvb,
         offset, 1, ENC_BIG_ENDIAN);
     if (0xff != reserved) {
-        PROTO_ITEM_SET_GENERATED(pi);
         expert_add_info_format_text(pinfo, pi, &ei_dsmcc_invalid_value,
                     "Invalid value - should be 0xff");
     }

@@ -1005,8 +1005,6 @@ static int dissect_mc_message(tvbuff_t *tvb,
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
 
-  proto_item *cause;
-
   switch(opcode){
   case  2: /*updateLocation*/
     offset=dissect_gsm_map_ms_UpdateLocationArg(FALSE, tvb, offset, actx, tree, -1);
@@ -1353,8 +1351,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   default:
     if(!dissector_try_uint(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
-        cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
-        expert_add_info_format_text(actx->pinfo, cause, &ei_gsm_map_unknown_invokeData, "Unknown invokeData %d",opcode);
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData, 
+                                     tvb, offset, -1, "Unknown invokeData %d", opcode);
 	}
 	offset+= tvb_length_remaining(tvb,offset);
 	break;
@@ -1364,8 +1362,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
 
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
-
-  proto_item *cause;
 
   switch(opcode){
   case  2: /*updateLocation*/
@@ -1660,8 +1656,8 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
  default:
    if(!dissector_try_uint(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
-       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
-       expert_add_info_format_text(actx->pinfo, cause, &ei_gsm_map_unknown_invokeData, "Unknown invokeData %d",opcode);
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData, 
+                                     tvb, offset, -1, "Unknown returnResultData %d", opcode);
    }
    offset+= tvb_length_remaining(tvb,offset);
    break;
@@ -1672,7 +1668,6 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
-  proto_item *cause;
 
   switch(errorCode){
   case 1: /* UnknownSubscriberParam */
@@ -1824,8 +1819,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 	  break;
   default:
     if(!dissector_try_uint(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
-        cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
-        expert_add_info_format_text(actx->pinfo, cause, &ei_gsm_map_unknown_invokeData, "Unknown invokeData %d",errorCode);
+        proto_tree_add_expert_format(tree, actx->pinfo, &ei_gsm_map_unknown_invokeData, 
+                                     tvb, offset, -1, "Unknown returnErrorData %d", opcode);
     }
 	offset+= tvb_length_remaining(tvb,offset);
     break;

@@ -4275,7 +4275,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset)
 {
-   proto_item *mult_serv_item;
+   proto_item *mult_serv_item, *ti;
    proto_tree *mult_serv_tree;
    int i, num_services, serv_offset, prev_offset = 0;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
@@ -4283,12 +4283,12 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
 
    /* Add number of services */
    num_services = tvb_get_letohs( tvb, offset);
-   proto_tree_add_item(tree, hf_cip_sc_mult_serv_pack_num_services, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   ti = proto_tree_add_item(tree, hf_cip_sc_mult_serv_pack_num_services, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Ensure a rough sanity check */
    if (num_services*2 > tvb_reported_length_remaining(tvb, offset+2))
    {
-        expert_add_info(pinfo, item, &ei_mal_msp_services);
+        expert_add_info(pinfo, ti, &ei_mal_msp_services);
    }
    else
    {

@@ -7013,7 +7013,6 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 #line 1 "../../asn1/camel/packet-camel-table2.c"
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
-  proto_item *cause;
 
   switch(opcode){
     case opcode_playAnnouncement:  /* playAnnouncement */
@@ -7164,9 +7163,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       offset= dissect_ResetTimerSMSArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     default:
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
-      proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-      expert_add_info_format_text(actx->pinfo, cause, &ei_camel_unknown_invokeData, "Unknown invokeData %d",opcode);
+      proto_tree_add_expert_format(tree, actx->pinfo, &ei_camel_unknown_invokeData,
+                                   tvb, offset, -1, "Unknown invokeData %d", opcode);
       /* todo call the asn.1 dissector */
       break;
   }
@@ -7175,7 +7173,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
 
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
-  proto_item *cause;
 
   switch(opcode){
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
@@ -7185,16 +7182,14 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 	  offset= dissect_InitiateCallAttemptRes_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
-    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
-    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format_text(actx->pinfo, cause, &ei_camel_unknown_returnResultData, "Unknown returnResultData %d",opcode);
+    proto_tree_add_expert_format(tree, actx->pinfo, &ei_camel_unknown_returnResultData,
+	                             tvb, offset, -1, "Unknown returnResultData %d",opcode);
   }
   return offset;
 }
 
 
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
-  proto_item *cause;
 
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
@@ -7210,9 +7205,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
       dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
-    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
-    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format_text(actx->pinfo, cause, &ei_camel_unknown_returnErrorData, "Unknown returnErrorData %d",errorCode);
+    proto_tree_add_expert_format(tree, actx->pinfo, &ei_camel_unknown_returnErrorData,
+                                 tvb, offset, -1, "Unknown returnErrorData %d",errorCode);
   }
   return offset;
 }

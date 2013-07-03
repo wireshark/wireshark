@@ -7070,10 +7070,8 @@ fVendorIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
     fTagHeaderTree (tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     if ((lvt < 1) || (lvt > 2)) { /* vendorIDs >= 1  and <= 2 are supported */
-        proto_item *expert_item;
-        expert_item = proto_tree_add_text(tree, tvb, 0, lvt, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
-        expert_add_info_format_text(pinfo, expert_item, &ei_bacapp_bad_length, "Wrong length indicated. Expected 1 or 2, got %u", lvt);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_bacapp_bad_length, tvb, 0, lvt, 
+                                "Wrong length indicated. Expected 1 or 2, got %u", lvt);
         return offset+tag_len+lvt;
     }
 
@@ -7106,10 +7104,8 @@ fRestartReason (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
     fTagHeaderTree (tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     if (lvt != 1) {
-        proto_item *expert_item;
-        expert_item = proto_tree_add_text(tree, tvb, 0, lvt, "Wrong length indicated. Expected 1, got %u", lvt);
-        expert_add_info_format_text(pinfo, expert_item, &ei_bacapp_bad_length, "Wrong length indicated. Expected 1, got %u", lvt);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_bacapp_bad_length, tvb, 0, lvt, 
+                                "Wrong length indicated. Expected 1, got %u", lvt);
         return offset+tag_len+lvt;
     }
 

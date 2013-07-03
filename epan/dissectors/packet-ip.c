@@ -1604,7 +1604,6 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   opt_len_type      len_type;
   unsigned int      optlen;
   const char       *name;
-  proto_item       *ti;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
                              int, guint, packet_info *, proto_tree *,
                              void *);
@@ -1646,9 +1645,8 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
            length byte! */
-        ti = proto_tree_add_text(opt_tree, tvb, offset, 1,
-                            "%s (length byte past end of options)", name);
-        expert_add_info_format_text(pinfo, ti, ei_bad, "%s (length byte past end of options)", name);
+        proto_tree_add_expert_format(opt_tree, pinfo, ei_bad, tvb, offset, 1,
+                                     "%s (length byte past end of options)", name);
         return;
       }
       len = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
@@ -1656,42 +1654,28 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       if (len < 2) {
         /* Bogus - option length is too short to include option code and
            option length. */
-        ti = proto_tree_add_text(opt_tree, tvb, offset, 2,
+        proto_tree_add_expert_format(opt_tree, pinfo, ei_bad, tvb, offset, 2,
                             "%s (with too-short option length = %u byte%s)",
-                            name, len, plurality(len, "", "s"));
-        expert_add_info_format_text(pinfo, ti, ei_bad, "%s (with too-short option length = %u byte%s)",
                             name, len, plurality(len, "", "s"));
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
-        ti = proto_tree_add_text(opt_tree, tvb, offset, length,
-                            "%s (option length = %u byte%s says option goes "
-                            "past end of options)",
-                            name, len, plurality(len, "", "s"));
-        expert_add_info_format_text(pinfo, ti, ei_bad, "%s (option length = %u byte%s says option goes "
-                            "past end of options)",
+        proto_tree_add_expert_format(opt_tree, pinfo, ei_bad, tvb, offset, length,
+                            "%s (option length = %u byte%s says option goes past end of options)",
                             name, len, plurality(len, "", "s"));
         return;
       } else if (len_type == OPT_LEN_FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
-        ti = proto_tree_add_text(opt_tree, tvb, offset, len,
-                            "%s (with option length = %u byte%s; should be %u)",
-                            name, len, plurality(len, "", "s"), optlen);
-        expert_add_info_format_text(pinfo, ti, ei_bad,
+        proto_tree_add_expert_format(opt_tree, pinfo, ei_bad, tvb, offset, len,
                             "%s (with option length = %u byte%s; should be %u)",
                             name, len, plurality(len, "", "s"), optlen);
         return;
       } else if (len_type == OPT_LEN_VARIABLE_LENGTH && len < optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
-        ti = proto_tree_add_text(opt_tree, tvb, offset, len,
-                            "%s (with option length = %u byte%s; "
-                            "should be >= %u)",
-                            name, len, plurality(len, "", "s"), optlen);
-        expert_add_info_format_text(pinfo, ti, ei_bad,
-                            "%s (with option length = %u byte%s; "
-                            "should be >= %u)",
+        proto_tree_add_expert_format(opt_tree, pinfo, ei_bad, tvb, offset, len,
+                            "%s (with option length = %u byte%s; should be >= %u)",
                             name, len, plurality(len, "", "s"), optlen);
         return;
       } else {

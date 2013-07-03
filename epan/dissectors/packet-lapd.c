@@ -74,7 +74,6 @@ static int hf_lapd_ftype_s_u_ext = -1;
 static int hf_lapd_checksum = -1;
 static int hf_lapd_checksum_good = -1;
 static int hf_lapd_checksum_bad = -1;
-static int hf_lapd_abort = -1;
 
 static gint ett_lapd = -1;
 static gint ett_lapd_address = -1;
@@ -212,13 +211,11 @@ static void new_byte(char full_byte, char data[], int *data_len) {
 
 static void
 lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *msg)
-{	proto_tree *lapd_tree;
-	proto_item *lapd_ti, *pi;
+{
+	proto_item *ti;
 
-	lapd_ti = proto_tree_add_item(tree, proto_lapd, tvb, offset, 1, ENC_NA);
-	lapd_tree = proto_item_add_subtree(lapd_ti, ett_lapd);
-	pi = proto_tree_add_boolean(lapd_tree, hf_lapd_abort, tvb, offset, 1, TRUE);
-	expert_add_info_format_text(pinfo, pi, &ei_lapd_abort, "%s", msg);
+	ti = proto_tree_add_item(tree, proto_lapd, tvb, offset, 1, ENC_NA);
+	expert_add_info_format_text(pinfo, ti, &ei_lapd_abort, "%s", msg);
 }
 
 static void
@@ -688,13 +685,7 @@ proto_register_lapd(void)
 	{ &hf_lapd_checksum_bad,
 	    { "Bad Checksum", "lapd.checksum_bad", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
-
-	{ &hf_lapd_abort,
-	    { "Abort", "lapd.abort", FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0, "True: there is an Abort sequence, 7 ones in a row, or 6 ones in a row that aren't equal to 0x7e", HFILL }}
-
     };
-
     static gint *ett[] = {
         &ett_lapd,
         &ett_lapd_address,

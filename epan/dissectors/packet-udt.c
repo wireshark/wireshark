@@ -113,7 +113,7 @@ dissect_udt(tvbuff_t * tvb, packet_info * pinfo, proto_tree * parent_tree,
 	    void *data _U_)
 {
 	proto_tree *tree;
-	proto_item *udt_item, *ti;
+	proto_item *udt_item;
 	int is_control, type;
 	guint i;
 
@@ -220,20 +220,13 @@ dissect_udt(tvbuff_t * tvb, packet_info * pinfo, proto_tree * parent_tree,
 				if (is_range) {
 					finish = tvb_get_ntohl(tvb, i + 4) & 0x7fffffff;
 
-					ti = proto_tree_add_text(tree, tvb, i, 8,
-							    "Missing Sequence Numbers: %u-%u",
-							    start,
-							    finish);
-					expert_add_info_format_text(pinfo, ti, &ei_udt_nak_seqno,
-								    "Missing Sequence Number(s): %u-%u",
+					proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
+									tvb, i, 8, "Missing Sequence Number(s): %u-%u",
 								    start, finish);
 					i = i + 4;
 				} else {
-					ti = proto_tree_add_text(tree, tvb, i, 4,
-							    "Missing Sequence Number: %u",
-							    start);
-					expert_add_info_format_text(pinfo, ti, &ei_udt_nak_seqno,
-								    "Missing Sequence Number: %u",
+					proto_tree_add_expert_format(tree, pinfo, &ei_udt_nak_seqno,
+								    tvb, i, 4, "Missing Sequence Number: %u",
 								    start);
 				}
 			}

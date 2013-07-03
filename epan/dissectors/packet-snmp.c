@@ -2484,7 +2484,7 @@ dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "../../asn1/snmp/snmp.cnf"
+#line 218 "../../asn1/snmp/snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2539,7 +2539,7 @@ dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "../../asn1/snmp/snmp.cnf"
+#line 166 "../../asn1/snmp/snmp.cnf"
 
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */
@@ -2594,11 +2594,8 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
 
 		if (! cleartext_tvb) {
-			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, crypt_tvb, 0, -1,
-				"Failed to decrypt encryptedPDU: %s", error);
-
-			expert_add_info_format_text(actx->pinfo, cause, &ei_snmp_failed_decrypted_data_pdu,
-				"Failed to decrypt encryptedPDU: %s", error);
+			proto_tree_add_expert_format(encryptedpdu_tree, actx->pinfo, &ei_snmp_failed_decrypted_data_pdu,
+				crypt_tvb, 0, -1, "Failed to decrypt encryptedPDU: %s", error);
 
 			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
 
@@ -2670,7 +2667,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
-#line 184 "../../asn1/snmp/snmp.cnf"
+#line 181 "../../asn1/snmp/snmp.cnf"
 
 	if( usm_p.authenticated
 		&& usm_p.user_assoc
@@ -2684,9 +2681,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
-			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Message authenticity: %s", error);
-			PROTO_ITEM_SET_GENERATED(authen_item);
-			expert_add_info_format_text( actx->pinfo, authen_item, &ei_snmp_verify_authentication_error, "Error while verifying Message authenticity: %s", error );
+			expert_add_info_format_text( actx->pinfo, usm_p.auth_item, &ei_snmp_verify_authentication_error, "Error while verifying Message authenticity: %s", error );
 		} else {
 			expert_field* expert;
 

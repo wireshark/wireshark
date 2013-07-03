@@ -1826,11 +1826,8 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             next_len  = tvb_get_guint8(tvb, offset);
             remaining_len = len - (offset - old_offset);
             if ((next_len < 3) || (next_len > remaining_len)) {
-                item = proto_tree_add_text(parent_tree, tvb, offset, 1,
-                    "Invalid descriptor length: %u",  next_len);
-                proto_item_set_len(item, 1);
-                expert_add_info_format_text(pinfo, item, &ei_usb_desc_length_invalid,
-                    "Invalid descriptor length: %u",  next_len);
+                proto_tree_add_expert_format(parent_tree, pinfo, &ei_usb_desc_length_invalid,
+                    tvb, offset, 1, "Invalid descriptor length: %u",  next_len);
                 item = NULL;
                 break;
             }

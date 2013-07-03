@@ -1500,12 +1500,11 @@ dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint l
 static void
 dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  proto_item *lr_item, *expert_item;
+  proto_item *lr_item;
 
   if (length != 3) {
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 3, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 3, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 3, got %u", length);
     return;
   }
 
@@ -1521,12 +1520,11 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 static void
 dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  proto_item *lr_item, *expert_item;
+  proto_item *lr_item;
 
   if (length != 3) {
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 3, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 3, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 3, got %u", length);
     return;
   }
 
@@ -2011,9 +2009,8 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
   gboolean    invalid_class = FALSE;
 
   if (length != 1) {
-    pi = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, pi, &ei_sccp_wrong_length, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 
@@ -2074,10 +2071,8 @@ static void
 dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 
@@ -2090,10 +2085,8 @@ dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, packet_info *pinfo, pr
   guint8 rsn;
 
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 
@@ -2131,11 +2124,8 @@ static void
 dissect_sccp_credit_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length,
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
                            "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
     return;
   }
 
@@ -2145,105 +2135,76 @@ dissect_sccp_credit_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 static void
 dissect_sccp_release_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 cause;
-
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length,
-                                      "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length,
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
                            "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
     return;
   }
 
-  cause = tvb_get_guint8(tvb, 0);
-  proto_tree_add_uint(tree, hf_sccp_release_cause, tvb, 0, length, cause);
+  proto_tree_add_item(tree, hf_sccp_release_cause, tvb, 0, length, ENC_LITTLE_ENDIAN);
 
   if (show_key_params)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", tvb_get_guint8(tvb, 0));
 }
 
 static void
 dissect_sccp_return_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 cause;
-
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length,
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
                            "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
     return;
   }
 
-  cause = tvb_get_guint8(tvb, 0);
-  proto_tree_add_uint(tree, hf_sccp_return_cause, tvb, 0, length, cause);
+  proto_tree_add_item(tree, hf_sccp_return_cause, tvb, 0, length, ENC_LITTLE_ENDIAN);
 
   if (show_key_params)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", tvb_get_guint8(tvb, 0));
 }
 
 static void
 dissect_sccp_reset_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 cause;
-
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length,
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
                            "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
     return;
   }
 
-  cause = tvb_get_guint8(tvb, 0);
-  proto_tree_add_uint(tree, hf_sccp_reset_cause, tvb, 0, length, cause);
+  proto_tree_add_item(tree, hf_sccp_reset_cause, tvb, 0, length, ENC_LITTLE_ENDIAN);
 
   if (show_key_params)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", tvb_get_guint8(tvb, 0));
 }
 
 static void
 dissect_sccp_error_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 cause;
-
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 
-  cause = tvb_get_guint8(tvb, 0);
-  proto_tree_add_uint(tree, hf_sccp_error_cause, tvb, 0, length, cause);
+  proto_tree_add_item(tree, hf_sccp_error_cause, tvb, 0, length, ENC_LITTLE_ENDIAN);
 
   if (show_key_params)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", tvb_get_guint8(tvb, 0));
 }
 
 static void
 dissect_sccp_refusal_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 cause;
-
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 
-  cause = tvb_get_guint8(tvb, 0);
-  proto_tree_add_uint(tree, hf_sccp_refusal_cause, tvb, 0, length, cause);
+  proto_tree_add_item(tree, hf_sccp_refusal_cause, tvb, 0, length, ENC_LITTLE_ENDIAN);
 
   if (show_key_params)
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", tvb_get_guint8(tvb, 0));
 }
 
 
@@ -2358,10 +2319,8 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   proto_tree_add_item(param_tree, hf_sccp_segmentation_remaining, tvb, 0, 1, ENC_NA);
 
   if (length-1 != 3) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length-1, "Wrong length indicated. Expected 3, got %u", length-1);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 3, got %u", length-1);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length-1,
+                                 "Wrong length indicated. Expected 3, got %u", length-1);
     return;
   }
 
@@ -2381,10 +2340,8 @@ static void
 dissect_sccp_importance_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   if (length != 1) {
-    proto_item *expert_item;
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-    expert_add_info_format_text(pinfo, expert_item, &ei_sccp_wrong_length, "Wrong length indicated. Expected 1, got %u", length);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert_format(tree, pinfo, &ei_sccp_wrong_length, tvb, 0, length,
+                                 "Wrong length indicated. Expected 1, got %u", length);
     return;
   }
 

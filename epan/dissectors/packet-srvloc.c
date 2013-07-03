@@ -1059,8 +1059,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
 
         default:
-            expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
-            expert_add_info_format_text(pinfo, expert_item, &ei_srvloc_function_unknown, "Unknown Function Type: %d", function);
+            proto_tree_add_expert_format(srvloc_tree, pinfo, &ei_srvloc_function_unknown,
+                tvb, offset, -1, "Unknown Function Type: %d", function);
         }
     }
     else { /* Version 2 */
@@ -1391,8 +1391,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             break;
 
         default:
-            expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
-            expert_add_info_format_text(pinfo, expert_item, &ei_srvloc_function_unknown, "Unknown Function Type: %d", function);
+            proto_tree_add_expert_format(srvloc_tree, pinfo, &ei_srvloc_function_unknown,
+                                         tvb, offset, -1, "Unknown Function Type: %d", function);
         }
     }
 return offset;

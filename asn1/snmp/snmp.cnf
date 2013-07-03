@@ -130,11 +130,8 @@ gint pdu_type=-1;
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
 
 		if (! cleartext_tvb) {
-			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, crypt_tvb, 0, -1,
-				"Failed to decrypt encryptedPDU: %%s", error);
-
-			expert_add_info_format_text(actx->pinfo, cause, &ei_snmp_failed_decrypted_data_pdu,
-				"Failed to decrypt encryptedPDU: %%s", error);
+			proto_tree_add_expert_format(encryptedpdu_tree, actx->pinfo, &ei_snmp_failed_decrypted_data_pdu,
+				crypt_tvb, 0, -1, "Failed to decrypt encryptedPDU: %%s", error);
 
 			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
 
@@ -194,9 +191,7 @@ gint pdu_type=-1;
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
-			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Message authenticity: %s", error);
-			PROTO_ITEM_SET_GENERATED(authen_item);
-			expert_add_info_format_text( actx->pinfo, authen_item, &ei_snmp_verify_authentication_error, "Error while verifying Message authenticity: %s", error );
+			expert_add_info_format_text( actx->pinfo, usm_p.auth_item, &ei_snmp_verify_authentication_error, "Error while verifying Message authenticity: %s", error );
 		} else {
 			expert_field* expert;
 

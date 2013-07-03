@@ -531,12 +531,10 @@ static void
 dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
     guint8 octet;
-    proto_item* item;
 
     if (len < 2) {
-        item = proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: FCD length must be at least 2 bytes]");
-        expert_add_info_format_text(pinfo, item, &ei_t30_bad_length, "T30 FCD length must be at least 2 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
+                    offset, tvb_reported_length_remaining(tvb, offset), "T30 FCD length must be at least 2 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
@@ -556,12 +554,9 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static void
 dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
-    proto_item* item;
-
     if (len < 2) {
-        item = proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: NSC length must be at least 2 bytes]");
-        expert_add_info_format_text(pinfo, item, &ei_t30_bad_length, "T30 NSC length must be at least 2 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
+            offset, tvb_reported_length_remaining(tvb, offset),"T30 NSC length must be at least 2 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
@@ -577,12 +572,10 @@ static void
 dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
     guint8 octet, page_count, block_count, frame_count;
-    proto_item* item;
 
     if (len != 4) {
-        item = proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: PPS length must be 4 bytes]");
-        expert_add_info_format_text(pinfo, item, &ei_t30_bad_length, "T30 PPS length must be 4 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
+                    offset, tvb_reported_length_remaining(tvb, offset), "T30 PPS length must be 4 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
@@ -621,12 +614,10 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 #define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
     gchar *buf = (gchar *)ep_alloc(BUF_SIZE);
     gchar *buf_top = buf;
-    proto_item* item;
 
     if (len != 32) {
-        item = proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: PPR length must be 32 bytes]");
-        expert_add_info_format_text(pinfo, item, &ei_t30_bad_length, "T30 PPR length must be 32 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
+                    offset, tvb_reported_length_remaining(tvb, offset), "T30 PPR length must be 32 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
@@ -659,13 +650,11 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static void
 dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, gboolean dis_dtc)
 {
-    proto_item* item;
     guint8 octet;
 
     if (len < 3) {
-        item = proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: DIS length must be at least 4 bytes]");
-        expert_add_info_format_text(pinfo, item, &ei_t30_bad_length, "T30 DIS length must be at least 4 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
+               offset, tvb_reported_length_remaining(tvb, offset), "T30 DIS length must be at least 4 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
@@ -939,9 +928,8 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item *item;
 
     if (tvb_reported_length_remaining(tvb, offset) < 3) {
-        item = proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                            "[MALFORMED OR SHORT PACKET: hdlc T30 length must be at least 4 bytes]");
-        expert_add_info_format_text(pinfo, item, &ei_t30_bad_length, "T30 length must be at least 4 bytes");
+        proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb,
+                offset, tvb_reported_length_remaining(tvb, offset), "T30 length must be at least 4 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled: [MALFORMED OR SHORT PACKET])");
         return offset;
     }

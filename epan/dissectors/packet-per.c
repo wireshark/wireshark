@@ -1859,7 +1859,6 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 		/* decode the extensions one by one */
 		for(i=0;i<num_extensions;i++){
-			proto_item *cause;
 			guint32 length;
 			guint32 new_offset;
 			guint32 difference;
@@ -1898,9 +1897,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				/* A difference of 7 or less might be byte aligning */
                 /* Difference could be 8 if open type has no bits and the length is 1 */
 				if ((length > 1) && (difference > 7)) {
-					cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3,
-						"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
-					expert_add_info_format_text(actx->pinfo, cause, &ei_per_encoding_error,
+					proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_encoding_error, tvb, new_offset>>3, (offset-new_offset)>>3,
 						"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
 				}
 			} else {

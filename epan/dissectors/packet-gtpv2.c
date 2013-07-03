@@ -2179,7 +2179,6 @@ dissect_gtpv2_g_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 static void
 dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
     int         offset = 0;
     guint8      m, k, i;
 
@@ -2206,9 +2205,8 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
         break;
     default:
         /* Error */
-        expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length %u, should be 4 or 16", m);
-        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_ie_len_invalid, "Wrong length %u, should be 4 or 16", m);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                     "Wrong length %u, should be 4 or 16", m);
         return;
     }
 
@@ -2237,7 +2235,6 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 static void
 dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
     int         offset = 0;
     guint8      m;
 
@@ -2263,9 +2260,8 @@ dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
         break;
     default:
         /* Error */
-        expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length %u, should be 4 or 16", m);
-        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_ie_len_invalid, "Wrong length %u, should be 4 or 16", m);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                     "Wrong length %u, should be 4 or 16", m);
         return;
     }
 
@@ -2360,10 +2356,8 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     guint8 pdn;
 
     if (length != 1) {
-        proto_item *expert_item;
-        expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
-        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_ie_len_invalid, "Wrong length indicated. Expected 1, got %u", length);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length,
+                                     "Wrong length indicated. Expected 1, got %u", length);
         return;
     }
 
@@ -4289,7 +4283,6 @@ static const value_string gtpv2_fq_csid_type_vals[] = {
 void
 dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
     int         offset = 0;
     guint8      octet, node_id_type, csids;
     guint32     node_id, node_id_mcc_mnc;
@@ -4328,9 +4321,8 @@ dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
         offset += 4;
         break;
     default:
-        expert_item = proto_tree_add_text(tree, tvb, offset-1, 1, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)", node_id_type);
-        expert_add_info_format_text(pinfo, expert_item, &ei_gtpv2_fq_csid_type_bad, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)", node_id_type);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_fq_csid_type_bad, tvb, offset-1, 1,
+                                     "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)", node_id_type);
         return;
     }
 

@@ -1240,9 +1240,7 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
   proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_elemlen, tvb, p, 1, ENC_BIG_ENDIAN);
 
   if (optlen < 1 || optlen > 3) {
-    it = proto_tree_add_text(opt_tree, tvb, p, 1,
-      "Invalid element length: %u",  optlen);
-    expert_add_info_format_text(pinfo, it, &ei_ipv6_shim6_opt_elemlen_invalid,
+    proto_tree_add_expert_format(opt_tree, pinfo, &ei_ipv6_shim6_opt_elemlen_invalid, tvb, p, 1,
       "Invalid element length: %u", optlen);
     return;
   }

@@ -150,22 +150,18 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   version_minor =  (hdr_version & 0x0f);
 
   if (hdr_version != 16)
-    {
+  {
       col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
                     version_major, version_minor);
-      if (tree)
-        {
-          ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, ENC_NA);
-          miop_tree = proto_item_add_subtree (ti, ett_miop);
-          proto_tree_add_text (miop_tree, tvb, 0, -1,
-                               "Version %u.%u",
-                               version_major, version_minor);
-          expert_add_info_format_text(pinfo, ti, &ei_miop_version_not_supported,
+
+      ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, ENC_NA);
+      miop_tree = proto_item_add_subtree (ti, ett_miop);
+      proto_tree_add_expert_format(miop_tree, pinfo, &ei_miop_version_not_supported,
+                               tvb, 0, -1,
                                "MIOP version %u.%u not supported",
                                version_major, version_minor);
-        }
       return;
-    }
+  }
 
   flags = tvb_get_guint8(tvb, 5);
   byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
