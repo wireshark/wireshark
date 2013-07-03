@@ -205,7 +205,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			vlan_info_len =
 				dissect_vlan_info(tvb, pinfo, offset, vtp_tree);
-			if (vlan_info_len < 0)
+			if (vlan_info_len <= 0)
 				break;
 			offset += vlan_info_len;
 		}
