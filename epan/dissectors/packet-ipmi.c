@@ -1297,7 +1297,7 @@ ipmi_do_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipmi_tree, ipmi_d
 		if (siglen) {
 			ti = proto_tree_add_item(hdr_tree, hf_ipmi_header_sig, tvb, offs, siglen, ENC_NA);
 			proto_item_append_text(ti, " (%s)", ndesc);
-			offs += siglen;
+			/*offs += siglen;*/
 		}
 
 		/* Call data parser */
