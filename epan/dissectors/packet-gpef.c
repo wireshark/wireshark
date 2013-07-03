@@ -90,17 +90,17 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	/* cert offset */
 	cert_offset = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_gpef_efskey_cert_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
+	/*offset += 4;*/
 
 	/* reserved, must be 0x20 0x00 0x00 0x00 */
-	offset += 4;
+	/*offset += 4;*/
 
 	/* sid */
 	dissect_nt_sid(tvb, old_offset+4+sid_offset, tree, "sid", NULL, -1);
 
 	/* certificate */
 	next_tvb = tvb_new_subset(tvb, old_offset+4+cert_offset, cert_length, cert_length);
-        (void)dissect_x509af_Certificate(FALSE, next_tvb, 0, &asn1_ctx, tree, hf_gpef_efskey_certificate);
+	(void)dissect_x509af_Certificate(FALSE, next_tvb, 0, &asn1_ctx, tree, hf_gpef_efskey_certificate);
 
 
 	offset = old_offset + length1;
