@@ -1062,7 +1062,7 @@ static void dissect_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_
                 } else {
                     proto_tree_add_uint(sod_tree, hf_oss_ssdo_sodentry_size, new_tvb, ctr + 1, 4, sodLength );
                     if ( sodLength > 0 )
-                        proto_tree_add_item(sod_tree, hf_oss_ssdo_sodentry_data, new_tvb, ctr + 5, sodLength, ENC_LITTLE_ENDIAN );
+                        proto_tree_add_item(sod_tree, hf_oss_ssdo_sodentry_data, new_tvb, ctr + 5, sodLength, ENC_NA );
                 }
                 ctr += sodLength + 4;
         }
@@ -1937,7 +1937,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             if ( tree )
             {
                 /* create the opensafety protocol tree */
-                opensafety_item = proto_tree_add_item(tree, proto_opensafety, message_tvb, frameOffset, frameLength, ENC_BIG_ENDIAN);
+                opensafety_item = proto_tree_add_item(tree, proto_opensafety, message_tvb, frameOffset, frameLength, ENC_NA);
                 opensafety_tree = proto_item_add_subtree(opensafety_item, ett_opensafety);
             } else {
                 opensafety_item = NULL;
