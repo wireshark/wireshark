@@ -370,7 +370,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
             ltree = proto_item_add_subtree(item, ett_btatt_list);
-            
+
             proto_tree_add_item(ltree, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(ltree, hf_btatt_group_end_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -383,12 +383,12 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Handles: 0x%04x..0x%04x",
                             val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &uuid_vals_ext, "<unknown>"),
                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
-        
+
         proto_tree_add_item(st, hf_btatt_starting_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         proto_tree_add_item(st, hf_btatt_ending_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        
+
         if (tvb_length_remaining(tvb, offset) == 2) {
             proto_tree_add_item(st, hf_btatt_uuid16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
@@ -455,7 +455,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                                     "Too few handles, should be 2 or more");
             break;
         }
-        
+
         col_append_str(pinfo->cinfo, COL_INFO, ", Handles: ");
         while (tvb_length_remaining(tvb, offset) >= 2) {
             proto_tree_add_item(st, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -480,7 +480,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                                     tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
                     ltree = proto_item_add_subtree(item, ett_btatt_list);
-                
+
                     proto_tree_add_item(ltree, hf_btatt_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(ltree, hf_btatt_group_end_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -549,101 +549,101 @@ void
 proto_register_btatt(void)
 {
     module_t *module;
-    
+
     static hf_register_info hf[] = {
         {&hf_btatt_opcode,
             {"Opcode", "btatt.opcode",
-            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_handle,
             {"Handle", "btatt.handle",
-            FT_UINT16, BASE_HEX, NULL, 0x0,          
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_starting_handle,
             {"Starting Handle", "btatt.starting_handle",
-            FT_UINT16, BASE_HEX, NULL, 0x0,          
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_ending_handle,
             {"Ending Handle", "btatt.ending_handle",
-            FT_UINT16, BASE_HEX, NULL, 0x0,          
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_group_end_handle,
             {"Group End Handle", "btatt.group_end_handle",
-            FT_UINT16, BASE_HEX, NULL, 0x0,          
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_value,
             {"Value", "btatt.value",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_req_opcode_in_error,
             {"Request Opcode in Error", "btatt.req_opcode_in_error",
-            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_handle_in_error,
             {"Handle in Error", "btatt.handle_in_error",
-            FT_UINT16, BASE_HEX, NULL, 0x0,          
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_error_code,
             {"Error Code", "btatt.error_code",
-            FT_UINT8, BASE_HEX, VALS(error_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(error_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_uuid16,
             {"UUID", "btatt.uuid16",
-            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &uuid_vals_ext, 0x0,          
+            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &uuid_vals_ext, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_uuid128,
             {"UUID", "btatt.uuid128",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_client_rx_mtu,
             {"Client Rx MTU", "btatt.client_rx_mtu",
-            FT_UINT16, BASE_DEC, NULL, 0x0,          
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_server_rx_mtu,
             {"Server Rx MTU", "btatt.server_rx_mtu",
-            FT_UINT16, BASE_DEC, NULL, 0x0,          
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_uuid_format,
             {"UUID Format", "btatt.uuid_format",
-            FT_UINT8, BASE_HEX, VALS(uuid_format_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(uuid_format_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_length,
             {"Length", "btatt.length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,          
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             "Length of Handle/Value Pair", HFILL}
         },
         {&hf_btatt_offset,
             {"Offset", "btatt.offset",
-            FT_UINT16, BASE_DEC, NULL, 0x0,          
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_flags,
             {"Flags", "btatt.flags",
-            FT_UINT8, BASE_HEX, VALS(flags_vals), 0x0,          
+            FT_UINT8, BASE_HEX, VALS(flags_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_sign_counter,
             {"Sign Counter", "btatt.sign_counter",
-            FT_UINT32, BASE_DEC, NULL, 0x0,          
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_signature,
             {"Signature", "btatt.signature",
-            FT_BYTES, BASE_NONE, NULL, 0x0,          
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         }
     };
