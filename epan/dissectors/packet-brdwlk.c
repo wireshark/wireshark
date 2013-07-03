@@ -202,7 +202,7 @@ dissect_brdwlk_err(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
     if (flags & 0x80) {
         proto_item_append_text(item, "  Ctrl Char Inside Frame");
     }
-    flags &= (~( 0x80 ));
+    /*flags &= (~( 0x80 ));*/
 }
 
 /* Code to actually dissect the packets */
@@ -319,13 +319,13 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     p_add_proto_data(pinfo->fd, proto_brdwlk, 0, &packet_count);
                 }
             }
-
-            if (tree) {
-                hidden_item = proto_tree_add_boolean(brdwlk_tree, hf_brdwlk_drop,
-                                                     tvb, offset, 0, dropped_packets);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
-            }
         }
+        if (tree) {
+            hidden_item = proto_tree_add_boolean(brdwlk_tree, hf_brdwlk_drop,
+                                                     tvb, offset, 0, dropped_packets);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+        }
+
         packet_count = pkt_cnt;
 
         error=tvb_get_guint8(tvb, offset+2);
