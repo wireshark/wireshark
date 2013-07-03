@@ -49,24 +49,62 @@
 
 /* Originally copied from GCC Wiki at http://gcc.gnu.org/wiki/Visibility */
 #if defined _WIN32 || defined __CYGWIN__
+  /* Compiling for Windows, so we use the Windows DLL declarations. */
   #ifdef WS_BUILD_DLL
+    /*
+     * Building a library; for all definitions, we want dllexport, and
+     * (presumably so source from DLL and source from a program using the
+     * DLL can both include a header that declares APIs and exported data
+     * for the DLL), for declarations, either dllexport or dllimport will
+     * work (they mean the same thing for a declaration when building a DLL).
+     */
     #ifdef __GNUC__
-#define WS_DLL_PUBLIC __attribute__ ((dllexport))
+      /* GCC */
+#define WS_DLL_PUBLIC __attribute__ ((dllexport)) extern
+#define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((dllexport))
     #else /* ! __GNUC__ */
-#define WS_DLL_PUBLIC __declspec(dllexport) /* Note: actually gcc seems to also support this syntax. */
+      /*
+       * Presumably MSVC.
+       * Note: actually gcc seems to also support this syntax.
+       */
+#define WS_DLL_PUBLIC __declspec(dllexport) extern
+#define WS_DLL_PUBLIC_NOEXTERN __declspec(dllexport)
     #endif /* __GNUC__ */
   #else /* WS_BUILD_DLL */
+    /*
+     * Building a program; we should only see declarations, not definitions,
+     * with WS_DLL_PUBLIC, and they all represent APIs or data imported
+     * from a DLL, so use dllimport.
+     *
+     * For functions, export shouldn't be necessary; for data, it might
+     * be necessary, e.g. if what's declared is an array whose size is
+     * not given in the declaration.
+     */
     #ifdef __GNUC__
-#define WS_DLL_PUBLIC __attribute__ ((dllimport))
+      /* GCC */
+#define WS_DLL_PUBLIC __attribute__ ((dllimport)) extern
+#define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((dllimport))
     #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
-#define WS_DLL_PUBLIC __declspec(dllimport) /* Note: actually gcc seems to also support this syntax. */
+      /*
+       * Presumably MSVC.
+       * Note: actually gcc seems to also support this syntax.
+       */
+#define WS_DLL_PUBLIC __declspec(dllimport) extern
+#define WS_DLL_PUBLIC_NOEXTERN __declspec(dllimport)
     #else /* ! __GNUC__  && ENABLE_STATIC */
-#define WS_DLL_PUBLIC
+      /* presumably MSVC */
+#define WS_DLL_PUBLIC extern
+#define WS_DLL_PUBLIC_NOEXTERN
     #endif /* __GNUC__ */
   #endif /* WS_BUILD_DLL */
-  #define WS_DLL_PUBLIC_NOEXTERN WS_DLL_PUBLIC
   #define WS_DLL_LOCAL
 #else /* defined _WIN32 || defined __CYGWIN__ */
+  /*
+   * Compiling for UN*X, where the dllimport and dllexport stuff
+   * is neither necessary nor supported; just specify the
+   * visibility if we have a compiler that claims compatibility
+   * with GCC 4 or later.
+   */
   #if __GNUC__ >= 4
 #define WS_DLL_PUBLIC __attribute__ ((visibility ("default"))) extern
 #define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((visibility ("default")))
