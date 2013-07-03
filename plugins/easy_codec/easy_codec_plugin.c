@@ -37,9 +37,9 @@
 #include "codec-g729a.h"
 #include "codec-g722.h"
 
-WS_DLL_PUBLIC_NOEXTERN const gchar version[] = "0.0.1";
+WS_DLL_PUBLIC_DEF const gchar version[] = "0.0.1";
 
-WS_DLL_PUBLIC_NOEXTERN void register_codec_module(void)
+WS_DLL_PUBLIC_DEF void register_codec_module(void)
 {
   register_codec("g723", codec_g7231_init, codec_g7231_release, codec_g7231_decode);
   register_codec("g729", codec_g729a_init, codec_g729a_release, codec_g729a_decode);

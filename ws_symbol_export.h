@@ -34,8 +34,8 @@
 #undef WS_DLL_PUBLIC
 #endif
 
-#ifdef WS_DLL_PUBLIC_NOEXTERN
-#undef WS_DLL_PUBLIC_NOEXTERN
+#ifdef WS_DLL_PUBLIC_DEF
+#undef WS_DLL_PUBLIC_DEF
 #endif
 
 #ifdef WS_DLL_LOCAL
@@ -52,7 +52,7 @@
   /* Compiling for Windows, so we use the Windows DLL declarations. */
   #ifdef WS_BUILD_DLL
     /*
-     * Building a library; for all definitions, we want dllexport, and
+     * Building a DLL; for all definitions, we want dllexport, and
      * (presumably so source from DLL and source from a program using the
      * DLL can both include a header that declares APIs and exported data
      * for the DLL), for declarations, either dllexport or dllimport will
@@ -60,15 +60,13 @@
      */
     #ifdef __GNUC__
       /* GCC */
-#define WS_DLL_PUBLIC __attribute__ ((dllexport)) extern
-#define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((dllexport))
+#define WS_DLL_PUBLIC_DEF __attribute__ ((dllexport))
     #else /* ! __GNUC__ */
       /*
        * Presumably MSVC.
        * Note: actually gcc seems to also support this syntax.
        */
-#define WS_DLL_PUBLIC __declspec(dllexport) extern
-#define WS_DLL_PUBLIC_NOEXTERN __declspec(dllexport)
+#define WS_DLL_PUBLIC_DEF __declspec(dllexport)
     #endif /* __GNUC__ */
   #else /* WS_BUILD_DLL */
     /*
@@ -82,19 +80,16 @@
      */
     #ifdef __GNUC__
       /* GCC */
-#define WS_DLL_PUBLIC __attribute__ ((dllimport)) extern
-#define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((dllimport))
+#define WS_DLL_PUBLIC_DEF __attribute__ ((dllimport))
     #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
       /*
        * Presumably MSVC.
        * Note: actually gcc seems to also support this syntax.
        */
-#define WS_DLL_PUBLIC __declspec(dllimport) extern
-#define WS_DLL_PUBLIC_NOEXTERN __declspec(dllimport)
+#define WS_DLL_PUBLIC_DEF __declspec(dllimport)
     #else /* ! __GNUC__  && ENABLE_STATIC */
       /* presumably MSVC */
-#define WS_DLL_PUBLIC extern
-#define WS_DLL_PUBLIC_NOEXTERN
+#define WS_DLL_PUBLIC_DEF
     #endif /* __GNUC__ */
   #endif /* WS_BUILD_DLL */
   #define WS_DLL_LOCAL
@@ -106,14 +101,19 @@
    * with GCC 4 or later.
    */
   #if __GNUC__ >= 4
-#define WS_DLL_PUBLIC __attribute__ ((visibility ("default"))) extern
-#define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((visibility ("default")))
+#define WS_DLL_PUBLIC_DEF __attribute__ ((visibility ("default")))
 #define WS_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
   #else /* ! __GNUC__ >= 4 */
-    #define WS_DLL_PUBLIC extern
-    #define WS_DLL_PUBLIC_NOEXTERN
+    #define WS_DLL_PUBLIC_DEF
     #define WS_DLL_LOCAL
   #endif /* __GNUC__ >= 4 */
 #endif
+
+/*
+ * Use this for declarations; it can also be used for exported
+ * *function* definitions, but must not be used for exported *data*
+ * definitions.
+ */
+#define WS_DLL_PUBLIC	WS_DLL_PUBLIC_DEF extern
 
 #endif /* SYMBOL_EXPORT_H */

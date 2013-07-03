@@ -195,11 +195,11 @@ if registertype == "plugin" or registertype == "plugin_wtap":
 #include "ws_symbol_export.h"
 
 #ifndef ENABLE_STATIC
-WS_DLL_PUBLIC_NOEXTERN const gchar version[] = VERSION;
+WS_DLL_PUBLIC_DEF const gchar version[] = VERSION;
 
 /* Start the functions we need for the plugin stuff */
 
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_register (void)
 {
 """
@@ -223,7 +223,7 @@ reg_code += "}\n"
 # Make the routine to register all protocol handoffs
 if registertype == "plugin" or registertype == "plugin_wtap":
 	reg_code += """
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void)
 {
 """
@@ -246,7 +246,7 @@ if registertype == "plugin":
 	reg_code += "#endif\n"
 elif registertype == "plugin_wtap":
 	reg_code += """
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 register_wtap_module(void)
 {
 """

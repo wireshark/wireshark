@@ -50,7 +50,7 @@ typedef struct _tcp_frag {
   struct _tcp_frag   *next;
 } tcp_frag;
 
-WS_DLL_PUBLIC_NOEXTERN
+WS_DLL_PUBLIC_DEF
 FILE* data_out_file = NULL;
 
 gboolean empty_tcp_stream;

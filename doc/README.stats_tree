@@ -110,9 +110,9 @@ extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to 
 }
 
 #ifndef ENABLE_STATIC
-WS_DLL_PUBLIC_NOEXTERN const gchar version[] = "0.0";
+WS_DLL_PUBLIC_DEF const gchar version[] = "0.0";
 
-WS_DLL_PUBLIC_NOEXTERN void plugin_register_tap_listener(void) {
+WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
 
     stats_tree_register("udp", /* the proto we are going to "tap" */
                         "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */

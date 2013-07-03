@@ -47,11 +47,11 @@ then
 #include "ws_symbol_export.h"
 
 #ifndef ENABLE_STATIC
-WS_DLL_PUBLIC_NOEXTERN const gchar version[] = VERSION;
+WS_DLL_PUBLIC_DEF const gchar version[] = VERSION;
 
 /* Start the functions we need for the plugin stuff */
 
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_register (void)
 {
 EOF
@@ -119,7 +119,7 @@ echo '}' >>${outfile}-tmp
 if [ "$registertype" = plugin ]
 then
 	cat <<"EOF" >>${outfile}-tmp
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void)
 {
 EOF

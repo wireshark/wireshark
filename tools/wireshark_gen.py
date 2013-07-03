@@ -1976,7 +1976,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */"""
     template_plugin_register = """
 #if 0
 
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_register(void)
 {
    if (proto_@dissector_name@ == -1) {
@@ -1984,7 +1984,7 @@ plugin_register(void)
    }
 }
 
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void){
    proto_register_handoff_giop_@dissector_name@();
 }

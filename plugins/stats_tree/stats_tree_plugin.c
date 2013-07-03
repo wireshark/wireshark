@@ -36,9 +36,9 @@
 
 #include "pinfo_stats_tree.h"
 
-WS_DLL_PUBLIC_NOEXTERN const gchar version[] = "0.0.1";
+WS_DLL_PUBLIC_DEF const gchar version[] = "0.0.1";
 
-WS_DLL_PUBLIC_NOEXTERN void plugin_register_tap_listener(void)
+WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
 {
 	register_pinfo_stat_trees();
 }

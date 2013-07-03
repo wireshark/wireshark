@@ -122,9 +122,9 @@ static void proto_reg_handoff_http(void) {
 
 #ifndef ENABLE_STATIC
 
-WS_DLL_PUBLIC_NOEXTERN const gchar version[] = "0.0.0";
+WS_DLL_PUBLIC_DEF const gchar version[] = "0.0.0";
 
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_register(void)
 {
     /* register the new protocol, protocol fields, and subtrees */
@@ -133,7 +133,7 @@ plugin_register(void)
     }
 }
 
-WS_DLL_PUBLIC_NOEXTERN void
+WS_DLL_PUBLIC_DEF void
 plugin_reg_handoff(void){
     proto_reg_handoff_http();
 }
