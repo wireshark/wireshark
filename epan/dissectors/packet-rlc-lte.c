@@ -599,7 +599,7 @@ static GHashTable *repeated_nack_report_hash = NULL;
 
 /********************************************************/
 /* Forward declarations & functions                     */
-static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp_framing);
 
 
 /* Write the given formatted text to:
@@ -2693,7 +2693,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual RLC PDU */
     rlc_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_rlc_lte(rlc_tvb, pinfo, tree);
+    dissect_rlc_lte_common(rlc_tvb, pinfo, tree, TRUE);
     return TRUE;
 }
 
@@ -2704,6 +2704,11 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 /*****************************/
 
 static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_rlc_lte_common(tvb, pinfo, tree, FALSE);
+}
+
+static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp_framing)
 {
     proto_tree             *rlc_lte_tree;
     proto_tree             *context_tree;
@@ -2734,6 +2739,11 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  "Can't dissect LTE RLC frame because no per-frame info was attached!");
         PROTO_ITEM_SET_GENERATED(ti);
         return;
+    }
+
+    /* Clear info column when using UDP framing */
+    if (is_udp_framing) {
+        col_clear(pinfo->cinfo, COL_INFO);
     }
 
     /*****************************************/
