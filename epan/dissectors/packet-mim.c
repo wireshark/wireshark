@@ -187,7 +187,7 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
   offset += FP_SSWID_LEN;
 
   proto_tree_add_item (tree, hf_lid, tvb, offset, FP_LID_LEN, ENC_BIG_ENDIAN);
-  offset += FP_LID_LEN;
+  /*offset += FP_LID_LEN;*/
 
 }
 /* FabricPath MiM Dissector */
