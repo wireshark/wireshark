@@ -216,7 +216,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-h501.c
 	dissectors/packet-hnbap.c
 	dissectors/packet-idmp.c
-	dissectors/packet-idrp.c
 	dissectors/packet-inap.c
 	dissectors/packet-isdn-sup.c
 	dissectors/packet-lcsap.c
@@ -231,7 +230,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-nbap.c
 	dissectors/packet-ns_cert_exts.c
 	dissectors/packet-ocsp.c
-	dissectors/packet-opsi.c
 	dissectors/packet-p22.c
 	dissectors/packet-p7.c
 	dissectors/packet-p772.c
@@ -249,7 +247,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-qsig.c
 	dissectors/packet-ranap.c
 	dissectors/packet-ros.c
-	dissectors/packet-rpki-rtr.c
 	dissectors/packet-rrc.c
 	dissectors/packet-rrlp.c
 	dissectors/packet-rtse.c
@@ -260,11 +257,9 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
-	dissectors/packet-sysex.c
 	dissectors/packet-t38.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
-	dissectors/packet-x224.c
 	dissectors/packet-x2ap.c
 	dissectors/packet-x509af.c
 	dissectors/packet-x509ce.c
@@ -748,6 +743,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-icp.c
 	dissectors/packet-icq.c
 	dissectors/packet-idp.c
+	dissectors/packet-idrp.c
 	dissectors/packet-iec104.c
 	dissectors/packet-ieee1722.c
 	dissectors/packet-ieee17221.c
@@ -980,6 +976,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-opensafety.c
 	dissectors/packet-openvpn.c
 	dissectors/packet-openwire.c
+	dissectors/packet-opsi.c
 	dissectors/packet-osi-options.c
 	dissectors/packet-osi.c
 	dissectors/packet-ositp.c
@@ -1073,6 +1070,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-roofnet.c
 	dissectors/packet-rpc.c
 	dissectors/packet-rpcap.c
+	dissectors/packet-rpki-rtr.c
 	dissectors/packet-rpl.c
 	dissectors/packet-rquota.c
 	dissectors/packet-rsh.c
@@ -1170,6 +1168,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sync.c
 	dissectors/packet-synergy.c
 	dissectors/packet-synphasor.c
+	dissectors/packet-sysex.c
 	dissectors/packet-syslog.c
 	dissectors/packet-t30.c
 	dissectors/packet-tacacs.c
@@ -1270,6 +1269,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wsp.c
 	dissectors/packet-wtls.c
 	dissectors/packet-wtp.c
+	dissectors/packet-x224.c
 	dissectors/packet-x25.c
 	dissectors/packet-x29.c
 	dissectors/packet-xcsl.c
