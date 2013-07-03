@@ -896,7 +896,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tvb_length_remaining(tvb, offset) > 0) {
 
-    offset += dissect_beep_tree(tvb, offset, pinfo, beep_tree, request_val, beep_frame_data);
+    /*offset += */dissect_beep_tree(tvb, offset, pinfo, beep_tree, request_val, beep_frame_data);
 
   }
 
