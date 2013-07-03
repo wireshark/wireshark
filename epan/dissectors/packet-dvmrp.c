@@ -271,7 +271,6 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			int old_offset_b = offset;
 			m0 = 0xff;
 
-			s0 = 0;
 			s1 = 0;
 			s2 = 0;
 			s3 = 0;
