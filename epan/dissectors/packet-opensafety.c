@@ -770,7 +770,6 @@ static guint8 findSafetyFrame ( tvbuff_t * message_tvb, guint u_Offset, gboolean
                             if ( ( ( b_ID >> 4 ) != 0x09 ) && ( ( b_ID >> 4 ) != 0x0F ) )
                             {
                                 /* Find CRC position and calculate checksum */
-                                calcCrc = 0;
                                 crc = tvb_get_guint8(message_tvb, ctr + 3 + b_Length );
 
                                 bytes = (guint8 *)ep_tvb_memdup(message_tvb, ctr - 1, b_Length + 5 );
