@@ -141,6 +141,7 @@ static gint ett_osd_set_attributes	= -1;
 
 static expert_field ei_osd_attr_unknown    = EI_INIT;
 static expert_field ei_osd2_invalid_offset = EI_INIT;
+static expert_field ei_osd2_invalid_object_descriptor_format = EI_INIT;
 
 #define PAGE_NUMBER_PARTITION		0x30000000
 #define PAGE_NUMBER_COLLECTION		0x60000000
@@ -1351,7 +1352,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		guint64  additional_length;
 		gboolean is_root;
-		guint8   list_format;
+		guint8   format;
 
 		if (osd2&&tvb_length_remaining(tvb, offset)<24) return;
 
@@ -1378,9 +1379,14 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   OSD2: LSTCHG and OBJECT DESCRIPTOR FORMAT*/
 		proto_tree_add_item(tree, hf_scsi_osd_list_flags_lstchg, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if (osd2) {
-			proto_tree_add_item(tree, hf_scsi_osd2_object_descriptor_format, tvb, offset, 1, ENC_BIG_ENDIAN);
-			list_format = tvb_get_guint8(tvb, offset)>>2;
-			is_root=!(list_format&0x1);
+			proto_item *item;
+			item = proto_tree_add_item(tree, hf_scsi_osd2_object_descriptor_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+			format = tvb_get_guint8(tvb, offset)>>2;
+			is_root=(format==0x01||format==0x02);
+			if (!is_root&&format!=0x21&&format!=0x22) {
+				expert_add_info(pinfo,item,&ei_osd2_invalid_object_descriptor_format);
+				return;
+			}
 		} else {
 			proto_tree_add_item(tree, hf_scsi_osd_list_flags_root, tvb, offset, 1, ENC_BIG_ENDIAN);
 			is_root=tvb_get_guint8(tvb, offset)&0x01;
@@ -1395,17 +1401,17 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				dissect_osd_user_object_id(tvb, offset, tree);
 			}
 			offset+=8;
-		} else if (list_format&&(list_format&~0x23)) while(offset+8<additional_length){
+		} else while(offset+8<additional_length) {
 			if(is_root){
 				dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
 			} else {
 				dissect_osd_user_object_id(tvb, offset, tree);
 			}
 			offset+=8;
-			if (list_format&0x20) {
+			if (format&0x02) {
 				guint16 attr_list_len;
 				guint32 attr_list_end;
-				if (offset+8<additional_length) break;
+				if (offset+8>additional_length) break;
 				/*object type*/
 				proto_tree_add_item(tree, hf_scsi_osd_object_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
@@ -1413,6 +1419,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset+=5;
 				/* attribute list length*/
 				attr_list_len=tvb_get_ntohs(tvb, offset);
+				offset+=2;
 				attr_list_end=offset+attr_list_len;
 				if (attr_list_end>additional_length) break;
 				while (offset+16<attr_list_end) {
@@ -3539,7 +3546,7 @@ proto_register_scsi_osd(void)
 	{ &hf_scsi_osd2_list_attr,
 	 {"LIST ATTR flag", "scsi_osd2.list_attr", FT_BOOLEAN, 8, 0, 0x40, NULL, HFILL}},
 	{ &hf_scsi_osd2_object_descriptor_format,
-	 {"Object Descriptor Format", "scsi_osd2.list_format", FT_UINT8, BASE_HEX, VALS(scsi_osd2_object_descriptor_format_val), 0xFC, NULL, HFILL}},
+	 {"Object Descriptor Format", "scsi_osd2.object_descriptor_format", FT_UINT8, BASE_HEX, VALS(scsi_osd2_object_descriptor_format_val), 0xFC, NULL, HFILL}},
 	};
 
 	/* Setup protocol subtree array */
@@ -3558,6 +3565,7 @@ proto_register_scsi_osd(void)
 	static ei_register_info ei[] = {
 		{ &ei_osd_attr_unknown,    { "scsi_osd.attr_unknown",    PI_UNDECODED, PI_NOTE,  "Unknown attribute, cannot decode attribute value", EXPFILL }},
 		{ &ei_osd2_invalid_offset, { "scsi_osd2.invalid_offset", PI_UNDECODED, PI_ERROR, "Invalid offset exponent", EXPFILL }},
+		{ &ei_osd2_invalid_object_descriptor_format, { "scsi_osd2.object_descriptor_format.invalid", PI_UNDECODED, PI_ERROR, "Invalid list format", EXPFILL }},
 	};
 
 	/* Register the protocol name and description */
