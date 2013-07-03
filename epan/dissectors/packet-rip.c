@@ -352,7 +352,7 @@ proto_register_rip(void)
 
 	rip_module = prefs_register_protocol(proto_rip, proto_reg_handoff_rip);
 
-	prefs_register_bool_preference(rip_module, "display_routing_domain", "Display Routing Domain field", "Display the third and forth bytes of the RIPv2 header as the Routing Domain field (introduced in RFC 1388 [January 1993] and obsoleted as of RFC 1723 [November 1994])", &pref_display_routing_domain);
+	prefs_register_bool_preference(rip_module, "display_routing_domain", "Display Routing Domain field", "Display the third and forth bytes of the RIPv2 header as the Routing Domain field (introduced in RFC 1388 [January 1993] and obsolete as of RFC 1723 [November 1994])", &pref_display_routing_domain);
 }
 
 void
