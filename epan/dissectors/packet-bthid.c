@@ -466,7 +466,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (leds & 0x80) {
                 if (shortcut_helper) col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Constant3");
-                shortcut_helper = TRUE;
+                /*shortcut_helper = TRUE;*/
             }
             if (!leds) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "none");
@@ -680,8 +680,8 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-static void
-dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item   *ti;
     proto_tree   *bthid_tree;
@@ -820,6 +820,8 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset = dissect_hid_data(tvb, pinfo,  bthid_tree, offset, parameter & 0x03);
             break;
     }
+
+    return offset;
 }
 
 
@@ -1077,7 +1079,7 @@ proto_register_bthid(void)
     };
 
     proto_bthid = proto_register_protocol("Bluetooth HID Profile", "BT HID", "bthid");
-    register_dissector("bthid", dissect_bthid, proto_bthid);
+    new_register_dissector("bthid", dissect_bthid, proto_bthid);
 
     proto_register_field_array(proto_bthid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
