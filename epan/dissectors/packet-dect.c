@@ -1928,7 +1928,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	else
 		proto_tree_add_uint_format(afieldti, hf_dect_A_RCRC, tvb, offset, 2, 1, "R-CRC Match (Calc:%.4x, Recv:%.4x)", computed_rcrc, rcrc);
 
-	offset+=2;
+	/*offset+=2;*/
 }
 
 static void
