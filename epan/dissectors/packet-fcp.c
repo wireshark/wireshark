@@ -496,7 +496,7 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, con
 }
 
 /* fcp-3  9.5 table 24 */
-static void
+static int
 dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     /* 3 reserved bytes */
@@ -508,6 +508,8 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     /* 4 reserved bytes */
     offset += 4;
+
+    return offset;
 }
 
 static void
@@ -598,7 +600,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         if (flags & 0x60) {
             proto_tree_add_item(tree, hf_fcp_bidir_resid, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
-        offset += 4;
+        /*offset += 4;*/
     }
 }
 
