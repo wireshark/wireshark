@@ -250,8 +250,8 @@ static const value_string flags_vals[] = {
 void proto_register_btatt(void);
 void proto_reg_handoff_btatt(void);
 
-static void
-dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
     proto_item *ti, *item;
@@ -274,7 +274,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tvb_length_remaining(tvb, 0) < 1)
-        return;
+        return FALSE;
 
     ti = proto_tree_add_item(tree, proto_btatt, tvb, 0, -1, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btatt);
@@ -542,6 +542,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
         break;
     }
+    return offset;
 }
 
 void
@@ -656,7 +657,7 @@ proto_register_btatt(void)
     /* Register the protocol name and description */
     proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");
 
-    register_dissector("btatt", dissect_btatt, proto_btatt);
+    new_register_dissector("btatt", dissect_btatt, proto_btatt);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btatt, hf, array_length(hf));
