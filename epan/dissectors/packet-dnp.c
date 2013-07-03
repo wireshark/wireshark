@@ -1913,7 +1913,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                    al_ctlobj_count, al_ctlobj_on, al_ctlobj_off);
 
             /* Get "Control Status" Field */
-            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
             proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
 
