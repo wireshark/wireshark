@@ -339,7 +339,7 @@ void proto_register_p1(void) {
   static ei_register_info ei[] = {
      { &ei_p1_unknown_extension_attribute_type, { "p1.unknown.extension_attribute_type", PI_UNDECODED, PI_WARN, "Unknown extension-attribute-type", EXPFILL }},
      { &ei_p1_unknown_standard_extension, { "p1.unknown.standard_extension", PI_UNDECODED, PI_WARN, "Unknown standard-extension", EXPFILL }},
-     { &ei_p1_unknown_built_in_content_type, { "p1.unknown.built_in_content_type", PI_UNDECODED, PI_WARN, "Unknown built-in content-type", EXPFILL }},
+     { &ei_p1_unknown_built_in_content_type, { "p1.unknown.built_in_content_type", PI_UNDECODED, PI_WARN, "P1 Unknown Content (unknown built-in content-type)", EXPFILL }},
      { &ei_p1_unknown_tokendata_type, { "p1.unknown.tokendata_type", PI_UNDECODED, PI_WARN, "Unknown tokendata-type", EXPFILL }},
   };
 

@@ -395,8 +395,8 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
 
     /* Check if we have enough data available for our frames */
     if (tvb_reported_length_remaining(tvb, bitcount/8) < bytes_needed_for_frames) {
-        item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, "Error:");
-        proto_item_append_text(item, " %d Bytes available, %d would be needed!",
+        item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, 
+                "Error: %d Bytes available, %d would be needed!",
                        tvb_reported_length_remaining(tvb, bitcount/8),
                        bytes_needed_for_frames);
         expert_add_info(pinfo, item, &ei_amr_not_enough_data_for_frames);
@@ -409,8 +409,8 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
     bitcount += bits_used_for_frames;
 
     if (tvb_reported_length_remaining(tvb, (bitcount+8)/8) > 0) {
-        item = proto_tree_add_text(tree, tvb, bitcount/8, tvb_reported_length_remaining(tvb, bitcount/8), "Error:");
-        proto_item_append_text(item, " %d Bytes remaining - should be 0!",tvb_reported_length_remaining(tvb, (bitcount+8)/8));
+        item = proto_tree_add_text(tree, tvb, bitcount/8, tvb_reported_length_remaining(tvb, bitcount/8),
+            "Error: %d Bytes remaining - should be 0!",tvb_reported_length_remaining(tvb, (bitcount+8)/8));
         expert_add_info(pinfo, item, &ei_amr_superfluous_data);
 
         /* Now check the paddings */
@@ -418,8 +418,8 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
             if ( (1 << (8 -(bitcount%8)-1)) & tvb_get_guint8(tvb,bitcount/8) )
                 proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits correct");
             else {
-                item = proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits error");
-                expert_add_info(pinfo, item, &ei_amr_padding_bits_not0);
+                proto_tree_add_expert(tree, pinfo, &ei_amr_padding_bits_not0, tvb,
+                                        bitcount/8, 1);
             }
         }
     }

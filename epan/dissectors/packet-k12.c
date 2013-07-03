@@ -258,13 +258,10 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 	}
 
 	if (handles == data_handles) {
-		proto_tree* stack_tree = proto_item_add_subtree(stack_item,ett_stack_item);
+		proto_tree* stack_tree = proto_item_add_subtree(stack_item, ett_stack_item);
 		proto_item* item;
 
-		item = proto_tree_add_text(stack_tree,tvb,0,0,
-					   "Warning: stk file not matched in the 'K12 Protocols' table");
-		PROTO_ITEM_SET_GENERATED(item);
-		expert_add_info(pinfo, item, &ei_k12_unmatched_stk_file);
+		expert_add_info(pinfo, stack_item, &ei_k12_unmatched_stk_file);
 
 		item = proto_tree_add_text(stack_tree,tvb,0,0,
 					   "Info: You can edit the 'K12 Protocols' table from Preferences->Protocols->k12xx");
@@ -435,7 +432,7 @@ proto_register_k12(void)
   };
 
   static ei_register_info ei[] = {
-     { &ei_k12_unmatched_stk_file, { "k12.unmatched_stk_file", PI_UNDECODED, PI_WARN, "unmatched stk file", EXPFILL }},
+     { &ei_k12_unmatched_stk_file, { "k12.unmatched_stk_file", PI_UNDECODED, PI_WARN, "Warning: stk file not matched in the 'K12 Protocols' table", EXPFILL }},
   };
 
   static uat_field_t uat_k12_flds[] = {

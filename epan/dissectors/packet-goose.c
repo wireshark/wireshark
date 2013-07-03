@@ -476,7 +476,6 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 #line 18 "../../asn1/goose/goose.cnf"
 
 	guint32 len;
-	proto_item *cause;
 	guint32 seconds;
 	guint32	fraction;
 	guint32 nanoseconds;
@@ -487,11 +486,7 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 	if(len != 8)
 	{
-		cause = proto_tree_add_text(tree, tvb, offset, len,
-				"BER Error: malformed UTCTime encoding, "
-				"length must be 8 bytes");
-		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-		expert_add_info(actx->pinfo, cause, &ei_goose_mal_utctime);
+		proto_tree_add_expert(tree, actx->pinfo, &ei_goose_mal_utctime, tvb, offset, len);
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");

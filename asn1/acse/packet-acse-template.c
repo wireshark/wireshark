@@ -216,8 +216,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
-			proto_item *ti = proto_tree_add_text(parent_tree, tvb, offset, -1, "dissector is not available");
-			expert_add_info(pinfo, ti, &ei_acse_dissector_not_available);
+			proto_tree_add_expert(parent_tree, pinfo, &ei_acse_dissector_not_available,
+                                    tvb, offset, -1);
 		}
 		top_tree = NULL;
 		return;

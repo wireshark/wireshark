@@ -4605,9 +4605,7 @@ dissect_enc(tvbuff_t *tvb,
      * wrong encryption algorithm and/or authentication algorithm.
      */
     if (encr_data_len <= 0) {
-      item = proto_tree_add_text(tree, tvb, offset, length, "Not enough data for IV, Encrypted data and ICD.");
-      expert_add_info(pinfo, item, &ei_isakmp_enc_iv);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_tree_add_expert(tree, pinfo, &ei_isakmp_enc_iv, tvb, offset, length);
       return;
     }
 

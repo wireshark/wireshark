@@ -244,16 +244,14 @@ static int
 dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 69 "../../asn1/cdt/cdt.cnf"
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
-  proto_item *tf = NULL;
   int         save_offset = offset;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &compr_tvb);
 
   if (compr_tvb == NULL) {
-    tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
-                              "[Error: Unable to get compressed content]");
-    expert_add_info(actx->pinfo, tf, &ei_cdt_unable_compress_content);
+    proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_compress_content,
+							tvb, save_offset, -1);
     col_append_str (actx->pinfo->cinfo, COL_INFO, 
                     "[Error: Unable to get compressed content]");
     return offset;
@@ -262,9 +260,8 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   next_tvb = tvb_child_uncompress (tvb, compr_tvb, 0, tvb_length (compr_tvb));
 
   if (next_tvb == NULL) {
-    tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
-                              "[Error: Unable to uncompress content]");
-    expert_add_info(actx->pinfo, tf, &ei_cdt_unable_uncompress_content);
+    proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_uncompress_content,
+							tvb, save_offset, -1);
     col_append_str (actx->pinfo->cinfo, COL_INFO, 
                     "[Error: Unable to uncompress content]");
     return offset;

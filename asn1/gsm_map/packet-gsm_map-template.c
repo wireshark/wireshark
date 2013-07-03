@@ -974,7 +974,6 @@ static int dissect_mc_message(tvbuff_t *tvb,
   gboolean bug_pc, bug_ind_field;
   gint32 bug_tag;
   guint32 bug_len;
-  proto_item *cause;
 
   octet = tvb_get_guint8(tvb,0);
   if ( (octet & 0xf) == 3) {
@@ -986,22 +985,19 @@ static int dissect_mc_message(tvbuff_t *tvb,
     if (sequence3 != NULL) {
       offset= (sequence3) (implicit_seq3, tvb, offset, actx, tree, hf_index_seq3);
     } else {
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented [3] sequence, cannot decode");
-      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_sequence3);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_gsm_map_unknown_sequence3, tvb, offset, -1);
     }
   } else if (octet == 0x30) {
     if (sequence != NULL) {
       offset= (sequence) (implicit_seq, tvb, 0, actx, tree, hf_index_seq);
     } else {
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented sequence");
-      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_sequence);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_gsm_map_unknown_sequence, tvb, offset, -1);
     }
   } else {
     if (parameter != NULL) {
       offset= (parameter) (implicit_param, tvb, offset, actx, tree, hf_index_param);
     } else {
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented parameter");
-      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_parameter);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_gsm_map_unknown_parameter, tvb, offset, -1);
     }
   }
   return offset;

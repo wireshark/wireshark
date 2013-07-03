@@ -644,8 +644,8 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
-		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-		expert_add_info(actx->pinfo, ti, &ei_pres_dissector_not_available);
+		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
+								tvb, offset, -1);
 	}
 
 
@@ -667,8 +667,8 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
-		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-		expert_add_info(actx->pinfo, ti, &ei_pres_dissector_not_available);
+		proto_tree_add_expert(tree, actx->pinfo, &ei_pres_dissector_not_available,
+								tvb, offset, -1);
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 

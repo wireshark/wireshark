@@ -919,10 +919,8 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 msg_flag  = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
 
                 if (msg_end <= msg_start) {
-                    proto_item *pi;
-                    pi = proto_tree_add_text(field_tree, tvb, tmpOffset-3, 2,
-                        "Message start and end are illogical, aborting dissection");
-                    expert_add_info(pinfo, pi, &ei_mux27010_message_illogical);
+                    proto_tree_add_expert(field_tree, pinfo, &ei_mux27010_message_illogical,
+                                          tvb, tmpOffset-3, 2);
                     continue;
                 }
 
@@ -1395,7 +1393,7 @@ proto_register_mux27010 (void)
         };
 
     static ei_register_info ei[] = {
-        { &ei_mux27010_message_illogical, { "mux27010.message_illogical", PI_MALFORMED, PI_ERROR, "Message start and end are illogical", EXPFILL }},
+        { &ei_mux27010_message_illogical, { "mux27010.message_illogical", PI_MALFORMED, PI_ERROR, "Message start and end are illogical, aborting dissection", EXPFILL }},
         { &ei_mux27010_checksum_incorrect, { "mux27010.checksum_incorrect", PI_CHECKSUM, PI_WARN, "Checksum: incorrect", EXPFILL }},
     };
 

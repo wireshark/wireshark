@@ -2310,7 +2310,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		gint value_len;
 		char *value;
 		gboolean is_no_header_termination = FALSE;
-		proto_item *cause;
 		proto_tree *tc_uri_item_tree = NULL;
 		uri_offset_info uri_offsets;
 
@@ -3095,11 +3094,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		}/* if colon_offset */
 		if (is_no_header_termination == TRUE){
 			/* Header not terminated by empty line CRLF */
-			cause=proto_tree_add_text(hdr_tree, tvb, line_end_offset, -1,
-						"[Header not terminated by empty line (CRLF)]");
-
-			proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-			expert_add_info(pinfo, sip_element_item, &ei_sip_header_not_terminated);
+			proto_tree_add_expert(hdr_tree, pinfo, &ei_sip_header_not_terminated,
+									tvb, line_end_offset, -1);
 		}
 		offset = next_offset;
 	}/* End while */

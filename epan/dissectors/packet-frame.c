@@ -48,7 +48,6 @@ int proto_pkt_comment = -1;
 int hf_frame_arrival_time = -1;
 int hf_frame_shift_offset = -1;
 int hf_frame_arrival_time_epoch = -1;
-static int hf_frame_time_invalid = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
@@ -318,12 +317,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 					    0, 0, &(pinfo->fd->abs_ts));
 			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
-				item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb, 0, 0,
+				expert_add_info_format_text(pinfo, ti, &ei_arrive_time_out_of_range,
 								  "Arrival Time: Fractional second %09ld is invalid,"
 								  " the valid range is 0-1000000000",
 								  (long) pinfo->fd->abs_ts.nsecs);
-				PROTO_ITEM_SET_GENERATED(item);
-				expert_add_info(pinfo, item, &ei_arrive_time_out_of_range);
 			}
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
@@ -602,11 +599,6 @@ proto_register_frame(void)
 		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "Epoch time when this frame was captured", HFILL }},
 
-		{ &hf_frame_time_invalid,
-		  { "Arrival Timestamp invalid", "frame.time_invalid",
-		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    "The timestamp from the capture is out of the valid range", HFILL }},
-
 		{ &hf_frame_time_delta,
 		  { "Time delta from previous captured frame", "frame.time_delta",
 		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
@@ -782,7 +774,7 @@ proto_register_frame(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_comments_text, { "frame.comment.expert", PI_COMMENTS_GROUP, PI_COMMENT, "Formatted comment", EXPFILL }},
-		{ &ei_arrive_time_out_of_range, { "frame.time_invalid.expert", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
+		{ &ei_arrive_time_out_of_range, { "frame.time_invalid", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
 	};
 
 	module_t *frame_module;

@@ -1822,11 +1822,9 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     if (pci) {
       if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
         if (length < offset + ITU_PC_LENGTH) {
-          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1,
+          proto_tree_add_expert_format(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0, -1,
                                             "Wrong length indicated (%u) should be at least %u, PC is %u octets",
                                             length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
-          expert_add_info(pinfo, expert_item, &ei_sccp_wrong_length);
-          PROTO_ITEM_SET_GENERATED(expert_item);
           return;
         }
         proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc : hf_sccp_calling_itu_pc,
@@ -1836,11 +1834,9 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       } else if (decode_mtp3_standard == JAPAN_STANDARD) {
 
         if (length < offset + JAPAN_PC_LENGTH) {
-          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1,
+          proto_tree_add_expert_format(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0, -1,
                                             "Wrong length indicated (%u) should be at least %u, PC is %u octets",
                                             length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
-          expert_add_info(pinfo, expert_item, &ei_sccp_wrong_length);
-          PROTO_ITEM_SET_GENERATED(expert_item);
           return;
         }
         proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc : hf_sccp_calling_japan_pc,
@@ -1851,11 +1847,9 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       } else /* CHINESE_ITU_STANDARD */ {
 
         if (length < offset + ANSI_PC_LENGTH) {
-          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1,
+          proto_tree_add_expert_format(call_tree, pinfo, &ei_sccp_wrong_length, tvb, 0, -1,
                                             "Wrong length indicated (%u) should be at least %u, PC is %u octets",
                                             length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
-          expert_add_info(pinfo, expert_item, &ei_sccp_wrong_length);
-          PROTO_ITEM_SET_GENERATED(expert_item);
           return;
         }
         offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);

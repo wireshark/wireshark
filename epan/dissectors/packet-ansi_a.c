@@ -927,10 +927,8 @@ ansi_a_so_int_to_str(
 #define EXTRANEOUS_DATA_CHECK_EXPERT(edc_len, edc_max_len) \
     if ((edc_len) > (edc_max_len)) \
     { \
-        proto_item *expert_item; \
-        expert_item = proto_tree_add_text(tree, tvb, \
-            curr_offset, (edc_len) - (edc_max_len), "Extraneous Data, dissector bug or later version spec(report to wireshark.org)"); \
-        expert_add_info(pinfo, expert_item, &ei_ansi_a_extraneous_data); \
+        proto_tree_add_expert(tree, pinfo, &ei_ansi_a_extraneous_data, \
+            tvb, curr_offset, (edc_len) - (edc_max_len)); \
         curr_offset += ((edc_len) - (edc_max_len)); \
     }
 

@@ -280,7 +280,6 @@ static int
 dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 25 "../../asn1/sv/sv.cnf"
 	guint32 len;
-	proto_item *cause;
 	guint32 seconds;
 	guint32	fraction;
 	guint32 nanoseconds;
@@ -291,11 +290,8 @@ dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	if(len != 8)
 	{
-		cause = proto_tree_add_text(tree, tvb, offset, len,
-				"BER Error: malformed UTCTime encoding, "
-				"length must be 8 bytes");
-		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-		expert_add_info(actx->pinfo, cause, &ei_sv_mal_utctime);
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_sv_mal_utctime, tvb, offset, len,
+				"BER Error: malformed UTCTime encoding, length must be 8 bytes");
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
@@ -334,7 +330,7 @@ static const value_string sv_T_smpSynch_vals[] = {
 
 static int
 dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "../../asn1/sv/sv.cnf"
+#line 66 "../../asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -366,7 +362,7 @@ static const value_string sv_T_smpMod_vals[] = {
 
 static int
 dissect_sv_T_smpMod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "../../asn1/sv/sv.cnf"
+#line 72 "../../asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);

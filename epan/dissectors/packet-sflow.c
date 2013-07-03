@@ -872,7 +872,6 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
                                struct sflow_address_details *addr_detail) {
     guint32 addr_type;
     int len;
-    proto_item *pi;
 
     addr_type = tvb_get_ntohl(tvb, offset);
     offset += 4;
@@ -896,8 +895,8 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
            the address type and thus at least advance the offset by 4.
            Note that we have a problem, though. */
         len = 0;
-        pi = proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
-        expert_add_info(pinfo, pi, &ei_sflow_invalid_address_type);
+        proto_tree_add_expert_format(tree, pinfo, &ei_sflow_invalid_address_type, tvb,
+                                     offset - 4, 4, "Unknown address type (%u)", addr_type);
     }
 
     if (addr_detail) {

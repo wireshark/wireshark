@@ -18820,7 +18820,6 @@ static int dissect_mc_message(tvbuff_t *tvb,
   gboolean bug_pc, bug_ind_field;
   gint32 bug_tag;
   guint32 bug_len;
-  proto_item *cause;
 
   octet = tvb_get_guint8(tvb,0);
   if ( (octet & 0xf) == 3) {
@@ -18832,22 +18831,19 @@ static int dissect_mc_message(tvbuff_t *tvb,
     if (sequence3 != NULL) {
       offset= (sequence3) (implicit_seq3, tvb, offset, actx, tree, hf_index_seq3);
     } else {
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented [3] sequence, cannot decode");
-      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_sequence3);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_gsm_map_unknown_sequence3, tvb, offset, -1);
     }
   } else if (octet == 0x30) {
     if (sequence != NULL) {
       offset= (sequence) (implicit_seq, tvb, 0, actx, tree, hf_index_seq);
     } else {
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented sequence");
-      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_sequence);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_gsm_map_unknown_sequence, tvb, offset, -1);
     }
   } else {
     if (parameter != NULL) {
       offset= (parameter) (implicit_param, tvb, offset, actx, tree, hf_index_param);
     } else {
-      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented parameter");
-      expert_add_info(actx->pinfo, cause, &ei_gsm_map_unknown_parameter);
+      proto_tree_add_expert(tree, actx->pinfo, &ei_gsm_map_unknown_parameter, tvb, offset, -1);
     }
   }
   return offset;
@@ -26593,7 +26589,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2616 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2612 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -27237,7 +27233,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2647 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2643 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -27339,7 +27335,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2687 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2683 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

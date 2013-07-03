@@ -843,12 +843,7 @@ static value_string_ext gtpv2_element_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 static void
 dissect_gtpv2_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
-
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /*
@@ -4193,7 +4188,6 @@ static const value_string gtpv2_source_ident_types[] = {
 static void
 dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
     int         offset = 0;
     guint8      source_type;
 
@@ -4222,9 +4216,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     case 2:
         break;
     default:
-        expert_item = proto_tree_add_text(tree, tvb, offset-1, 1, "Unknown source type");
-        expert_add_info(pinfo, expert_item, &ei_gtpv2_source_type_unknown);
-        PROTO_ITEM_SET_GENERATED(expert_item);
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_source_type_unknown, tvb, offset-1, 1);
         break;
     }
 
@@ -4665,24 +4657,16 @@ dissect_gtpv2_mbms_dist_ack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  * 8.75 User CSG Information (UCI)
  */
 static void
-dissect_gtpv2_uci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_uci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.76 CSG Information Reporting Action */
 static void
-dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.77 RFSP Index */
@@ -4697,57 +4681,37 @@ dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 /* 8.78 CSG ID */
 static void
-dissect_gtpv2_csg_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_csg_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.79 CSG Membership Indication (CMI) */
 static void
-dissect_gtpv2_cmi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_cmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.80 Service indicator */
 static void
-dissect_gtpv2_service_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_service_indicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.81 Detach Type */
 static void
-dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.82 Local Distinguished Name (LDN) */
 static void
-dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.83 Node Features */
@@ -4785,13 +4749,9 @@ dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 /* 8.85 Throttling */
 static void
-dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.86 Allocation/Retention Priority (ARP) */
@@ -4941,13 +4901,9 @@ dissect_gtpv2_mmbr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
 /* 8.93 MDT Configuration */
 static void
-dissect_gtpv2_mdt_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_mdt_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
-
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info(pinfo, expert_item, &ei_gtpv2_ie_data_not_dissected);
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
 }
 
 /* 8.94 Additional Protocol Configuration Options (APCO) */

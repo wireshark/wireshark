@@ -273,8 +273,6 @@ static int num_len(tvbuff_t *tvb, int offset)
 static int
 check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
-  proto_item  *ti;
-
   /* First, check for CRLF, or, if global_beep_strict_term is false,
    * one of CR or LF ... If neither of these hold, we add an element
    * that complains of a protocol violation, and return -1, else
@@ -293,21 +291,19 @@ check_term(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 
   if ((tvb_get_guint8(tvb, offset) == 0x0d) && !global_beep_strict_term) {
 
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Terminator: CR");
-    expert_add_info(pinfo, ti, &ei_beep_cr_terminator);
+    proto_tree_add_expert(tree, pinfo, &ei_beep_cr_terminator, tvb, offset, 1);
     return 1;
 
   }
   
   if ((tvb_get_guint8(tvb, offset) == 0x0a) && !global_beep_strict_term) {
 
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Terminator: LF");
-    expert_add_info(pinfo, ti, &ei_beep_lf_terminator);
+    proto_tree_add_expert(tree, pinfo, &ei_beep_lf_terminator, tvb, offset, 1);
     return 1;
   }
 
-  ti = proto_tree_add_text(tree, tvb, offset, 1, "Terminator: %s", tvb_format_text(tvb, offset, 2));
-  expert_add_info_format_text(pinfo, ti, &ei_beep_invalid_terminator, "Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
+  proto_tree_add_expert_format(tree, pinfo, &ei_beep_invalid_terminator, tvb, 
+                                offset, 1, "Terminator: %s", tvb_format_text(tvb, offset, 2));
   return -1;
 }
 

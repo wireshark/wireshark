@@ -1834,7 +1834,6 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 #line 50 "../../asn1/mms/mms.cnf"
 
 	guint32 len;
-	proto_item *cause;
 	guint32 milliseconds;
 	guint16 days;
 	gchar *	ptime;
@@ -1874,10 +1873,8 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 		return offset;
 	}
 
-	cause = proto_tree_add_text(tree, tvb, offset, len,
-			"BER Error: malformed TimeOfDay encoding, "
-			"length must be 4 or 6 bytes");
-	expert_add_info(actx->pinfo, cause, &ei_mms_mal_timeofday_encoding);
+	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding, 
+			tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
 	if(hf_index >= 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
@@ -1914,10 +1911,9 @@ dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "../../asn1/mms/mms.cnf"
+#line 101 "../../asn1/mms/mms.cnf"
 
 	guint32 len;
-	proto_item *cause;
 	guint32 seconds;
 	guint32	fraction;
 	guint32 nanoseconds;
@@ -1928,10 +1924,8 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 	if(len != 8)
 	{
-		cause = proto_tree_add_text(tree, tvb, offset, len,
-				"BER Error: malformed IEC61850 UTCTime encoding, "
-				"length must be 8 bytes");
-		expert_add_info(actx->pinfo, cause, &ei_mms_mal_utctime_encoding);
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding, 
+				tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
 		if(hf_index >= 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
