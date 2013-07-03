@@ -684,24 +684,27 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
   length = tvb_length(nas_sys_info_gsm_map_tvb);
   if (length) {
-    switch (GPOINTER_TO_UINT(actx->private_data)) {
-      case RRC_NAS_SYS_INFO_CN_COMMON:
-        item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
-        subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
-        de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-        break;
-      case RRC_NAS_SYS_INFO_CS:
-        item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CS domain specific system information");
-        subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
-        de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-        break;
-      case RRC_NAS_SYS_INFO_PS:
-        item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "PS domain specific system information");
-        subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
-        de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
-        break;
-      default:
-        break;
+    if (actx->private_data) {
+      switch (GPOINTER_TO_UINT(actx->private_data)) {
+        case RRC_NAS_SYS_INFO_CN_COMMON:
+          item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
+          subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+          de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+          break;
+        case RRC_NAS_SYS_INFO_CS:
+          item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CS domain specific system information");
+          subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+          de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+          break;
+        case RRC_NAS_SYS_INFO_PS:
+          item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "PS domain specific system information");
+          subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+          de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+          break;
+        default:
+          break;
+      }
+      actx->private_data = NULL;
     }
   }
 
@@ -810,23 +813,24 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
       return offset;
   }
   /*Retrieve the start value for the two ciphering domains*/
-  switch(GPOINTER_TO_UINT(actx->private_data)){
-    case RRC_NAS_SYS_INFO_CS:
-      /*
-      g_warning("Not implemented");
-      */
-      break;
-    case RRC_NAS_SYS_INFO_PS:
-
-      /*Find the entry for the communication context (taken from FP)*/
-      if( (c_inf =(rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
-        c_inf = g_new0(rrc_ciphering_info,1);
-
-        /*Initiate tree with START_PS values.*/
-        if(!c_inf->start_ps)
-          c_inf->start_ps = g_tree_new_full(rrc_key_cmp,
-                                            NULL,rrc_free_key,rrc_free_value);
-
+  if (actx->private_data) {
+    switch(GPOINTER_TO_UINT(actx->private_data)){
+      case RRC_NAS_SYS_INFO_CS:
+        /*
+        g_warning("Not implemented");
+        */
+        break;
+      case RRC_NAS_SYS_INFO_PS:
+    
+        /*Find the entry for the communication context (taken from FP)*/
+        if( (c_inf =(rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
+          c_inf = g_new0(rrc_ciphering_info,1);
+    
+          /*Initiate tree with START_PS values.*/
+          if(!c_inf->start_ps)
+            c_inf->start_ps = g_tree_new_full(rrc_key_cmp,
+                                              NULL,rrc_free_key,rrc_free_value);
+    
           /*Clear and initialize seq_no matrix*/
           for(i = 0; i< 31; i++){
             c_inf->seq_no[i][0] = -1;
@@ -834,18 +838,20 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
           }
           g_tree_insert(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id), c_inf);
         }
-
+    
         /*Retrieve and store the value*/
         start = g_new(guint32,1);
-                *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
-                if(c_inf && c_inf->start_ps)
-                /*Insert the value based on current frame num since this might vary over time*/
-                g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->fd->num), start);
-
-            break;
-            default:
-            break;
-        }
+        *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
+        if(c_inf && c_inf->start_ps)
+          /*Insert the value based on current frame num since this might vary over time*/
+          g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->fd->num), start);
+    
+        break;
+      default:
+        break;
+    }
+    actx->private_data = NULL;
+  }
 
 #.FN_BODY RB-ActivationTimeInfo
   fp_info       *fpinf;
