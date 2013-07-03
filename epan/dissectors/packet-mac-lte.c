@@ -2099,9 +2099,13 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
 {
     struct mac_lte_info *p_mac_lte_info = (struct mac_lte_info *)p_get_proto_data(pinfo->fd, proto_mac_lte, 0);
 
+    if (p_mac_lte_info == NULL) {
+        return FALSE;
+    }
+
     if (direction == DIRECTION_UPLINK) {
         /* For UL, retx count is stored in per-packet struct */
-        return ((p_mac_lte_info != NULL) && (p_mac_lte_info->reTxCount > 0));
+        return (p_mac_lte_info->reTxCount > 0);
     }
     else {
         /* Use answer if told directly */
