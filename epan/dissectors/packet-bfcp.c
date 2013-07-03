@@ -444,7 +444,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		bfcp_payload_length = tvb_get_ntohs(tvb,
 							BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
 
-		offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_tree, offset, bfcp_payload_length);
+		/*offset = */dissect_bfcp_attributes(tvb, pinfo, bfcp_tree, offset, bfcp_payload_length);
 
 	} /* if(tree) */
 }
