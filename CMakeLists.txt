@@ -600,7 +600,7 @@ ADD_CUSTOM_COMMAND(
 
 if(UNIX)
 	set(PLATFORM_SRC
-		capture-pcap-util-unix.c capture_unix_ifnames.c
+		capture-pcap-util-unix.c
 	)
 endif()
 
