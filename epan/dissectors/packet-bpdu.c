@@ -1070,7 +1070,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           proto_tree_add_item(agreement_tree, hf_bpdu_spt_agreement_digest,
                               tvb, spt_offset, 20, ENC_NA);
-          spt_offset += 20;
+          /*spt_offset += 20;*/
 
           if (protocol_version_identifier == 4) {
             set_actual_length(tvb, (bpdu_version_4_length + version_4_length + 2));
