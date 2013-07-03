@@ -2621,7 +2621,6 @@ proto_tree_add_ax25(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_AX25);
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length, &new_fi);
