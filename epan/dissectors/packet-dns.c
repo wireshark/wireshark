@@ -223,6 +223,15 @@ static int hf_dns_apl_coded_prefix = -1;
 static int hf_dns_apl_negation = -1;
 static int hf_dns_apl_afdlength = -1;
 static int hf_dns_nsap_rdata = -1;
+static int hf_dns_caa_flags = -1;
+static int hf_dns_caa_flag_issuer_critical = -1;
+static int hf_dns_caa_issue = -1;
+static int hf_dns_caa_issuewild = -1;
+static int hf_dns_caa_iodef = -1;
+static int hf_dns_caa_unknown = -1;
+static int hf_dns_caa_tag_length = -1;
+static int hf_dns_caa_tag = -1;
+static int hf_dns_caa_value = -1;
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -235,6 +244,8 @@ static gint ett_nsec3_flags = -1;
 static gint ett_key_flags = -1;
 static gint ett_t_key = -1;
 static gint ett_dns_mac = -1;
+static gint ett_caa_flags = -1;
+static gint ett_caa_data = -1;
 
 static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
 
@@ -356,6 +367,7 @@ typedef struct _dns_conv_info_t {
 #define T_MAILB        253              /* mailbox-related RRs (MB, MG or MR) (RFC 1035) */
 #define T_MAILA        254              /* mail agent RRs (OBSOLETE - see MX) (RFC 1035) */
 #define T_ANY          255              /* A request for all records (RFC 1035) */
+#define T_CAA          257              /* Certification Authority Authorization (RFC 6844) */
 #define T_DLV        32769              /* DNSSEC Lookaside Validation (DLV) DNS Resource Record (RFC 4431) */
 #define T_WINS       65281              /* Microsoft's WINS RR */
 #define T_WINS_R     65282              /* Microsoft's WINS-R RR */
@@ -565,6 +577,9 @@ static const value_string afamily_vals[] = {
   { 0,               NULL  }
 };
 
+/* RFC 6844 */
+#define CAA_FLAG_ISSUER_CRITICAL (1<<7)
+
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
    which one should look at
@@ -649,6 +664,8 @@ static const value_string dns_types[] = {
   { T_MAILA,      "MAILB"      },
   { T_MAILB,      "MAILA"      },
   { T_ANY,        "ANY"        },
+
+  { T_CAA,        "CAA"        }, /* RFC 6844 */
 
   { T_DLV,        "DLV"        }, /* RFC 4431 */
 
@@ -764,6 +781,9 @@ dns_type_description (guint type)
         break;
       case T_ANY:
         long_name = "Request for all records";
+        break;
+      case T_CAA:
+        long_name = "Certification Authority Authorization";
         break;
       default:
         long_name = NULL;
@@ -3369,6 +3389,48 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_CAA:
+    {
+      proto_item *caa_item;
+      proto_tree *caa_tree;
+      guint8 tag_len;
+      const char *tag;
+      gushort value_len;
+      const guchar *value;
+      int cur_hf = -1;
+
+      caa_item = proto_tree_add_item(rr_tree, hf_dns_caa_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      caa_tree = proto_item_add_subtree(caa_item, ett_caa_flags);
+      proto_tree_add_item(caa_tree, hf_dns_caa_flag_issuer_critical, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset++;
+
+      tag_len = tvb_get_guint8(tvb, cur_offset);
+      tag = tvb_get_ephemeral_string(tvb, cur_offset + 1, tag_len);
+
+      value_len = data_len - (tag_len + 2);
+      value = tvb_get_ephemeral_string(tvb, cur_offset + 1 + tag_len, value_len);
+
+      value = format_text(value, value_len);
+
+      if (strncmp(tag, "issue", tag_len) == 0) {
+        cur_hf = hf_dns_caa_issue;
+      } else if (strncmp(tag, "issuewild", tag_len) == 0) {
+        cur_hf = hf_dns_caa_issuewild;
+      } else if (strncmp(tag, "iodef", tag_len) == 0) {
+        cur_hf = hf_dns_caa_iodef;
+      } else {
+        cur_hf = hf_dns_caa_unknown;
+      }
+
+      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, value);
+      caa_tree = proto_item_add_subtree(caa_item, ett_caa_data);
+
+      proto_tree_add_uint(caa_tree, hf_dns_caa_tag_length, tvb, cur_offset, 1, tag_len);
+      proto_tree_add_string(caa_tree, hf_dns_caa_tag, tvb, cur_offset + 1, tag_len, tag);
+      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, value);
+    }
+    break;
+
     case T_NULL:
     {
       if (cinfo != NULL) {
@@ -4699,8 +4761,52 @@ proto_register_dns(void)
     { &hf_dns_nsap_rdata,
       { "NSAP Data", "dns.nsap.rdata",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }}
+        NULL, HFILL }},
 
+    { &hf_dns_caa_flags,
+      { "CAA Flags", "dns.caa.flags",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_caa_flag_issuer_critical,
+      { "Issuer Critical", "dns.caa.flags.issuer_critical",
+        FT_BOOLEAN, 8, TFS(&tfs_critical_not_critical), CAA_FLAG_ISSUER_CRITICAL,
+        "Other CAs must not issue certificates", HFILL }},
+
+    { &hf_dns_caa_issue,
+      { "Issue", "dns.caa.issue",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "CA which is allowed to issue certificates", HFILL }},
+
+    { &hf_dns_caa_issuewild,
+      { "Issue Wildcard", "dns.caa.issuewild",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "CA which is allowed to issue wildcard certificates", HFILL }},
+
+    { &hf_dns_caa_iodef,
+      { "Report URL", "dns.caa.iodef",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "URL or email address for certificate issue requests and violation reports", HFILL }},
+
+    { &hf_dns_caa_unknown,
+      { "Unkown tag", "dns.caa.unknown",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_caa_tag_length,
+      { "Tag length", "dns.caa.tag_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+
+    { &hf_dns_caa_tag,
+      { "Tag", "dns.caa.tag",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_caa_value,
+      { "Value", "dns.caa.value",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }}
   };
 
   static ei_register_info ei[] = {
@@ -4719,6 +4825,8 @@ proto_register_dns(void)
     &ett_key_flags,
     &ett_t_key,
     &ett_dns_mac,
+    &ett_caa_flags,
+    &ett_caa_data,
   };
   module_t *dns_module;
   expert_module_t* expert_dns;

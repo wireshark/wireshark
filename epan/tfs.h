@@ -81,4 +81,5 @@ WS_DLL_PUBLIC const true_false_string tfs_shared_independent;
 WS_DLL_PUBLIC const true_false_string tfs_valid_invalid;
 WS_DLL_PUBLIC const true_false_string tfs_group_unique_name;
 WS_DLL_PUBLIC const true_false_string tfs_inuse_not_inuse;
+WS_DLL_PUBLIC const true_false_string tfs_critical_not_critical;
 #endif

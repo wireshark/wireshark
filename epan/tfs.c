@@ -70,5 +70,5 @@ const true_false_string tfs_shared_independent = { "Shared", "Independent" };
 const true_false_string tfs_valid_invalid = { "Valid", "Invalid" };
 const true_false_string tfs_group_unique_name = { "Group name", "Unique name" };
 const true_false_string tfs_inuse_not_inuse = { "In use", "Not in use" };
-
+const true_false_string tfs_critical_not_critical = { "Critical", "Not critical" };
 
