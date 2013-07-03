@@ -2809,7 +2809,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 						/* Add 'Call-id' string item to tree */
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
@@ -2824,7 +2824,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						}
 						/* Add 'Expires' string item to tree */
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_uint(hdr_tree,
+							proto_tree_add_uint(hdr_tree,
 							                    hf_header_array[hf_index], tvb,
 							                    offset, next_offset - offset,
 							                    atoi(value));
@@ -2839,7 +2839,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					 */
 					case POS_CONTENT_TYPE :
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
@@ -2877,7 +2877,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					case POS_CONTENT_LENGTH :
 						content_length = atoi(value);
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_uint_format(hdr_tree,
+							proto_tree_add_uint_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
 							                   content_length, "%s",
@@ -2889,7 +2889,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					case POS_MAX_FORWARDS :
 					case POS_RSEQ :
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_uint(hdr_tree,
+							proto_tree_add_uint(hdr_tree,
 							                    hf_header_array[hf_index], tvb,
 							                    offset, next_offset - offset,
 							                    (guint32)strtoul(value, NULL, 10));
@@ -3070,7 +3070,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						 * content-coding *(COMMA content-coding)
 						 */
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
@@ -3082,7 +3082,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					default :
 						/* Default case is to assume it's an FT_STRING field */
 						if(hdr_tree) {
-							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
