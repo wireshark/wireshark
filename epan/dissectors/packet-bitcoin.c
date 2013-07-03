@@ -390,7 +390,6 @@ dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset += 8;
 
     /* find null terminated subver */
-    subver_length = 0;
     subver_length = tvb_strsize(tvb, offset);
     proto_tree_add_item(tree, hf_msg_version_subver, tvb, offset, subver_length, ENC_ASCII|ENC_NA);
     offset += subver_length;
