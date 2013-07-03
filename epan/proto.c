@@ -4036,10 +4036,10 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 		 */
 		if (fi->rep == NULL) {
 			ITEM_LABEL_NEW(fi->rep);
-			proto_item_fill_label(fi, fi->rep->representation);
-		}
+			proto_item_fill_label(fi, representation);
+		} else
+			g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 
-		g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 		va_start(ap, format);
 		g_vsnprintf(fi->rep->representation,
 			ITEM_LABEL_LENGTH, format, ap);
