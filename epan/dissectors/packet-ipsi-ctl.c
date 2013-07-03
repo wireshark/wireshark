@@ -111,8 +111,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if (remaining_length>=2)
     {
-      field1 = tvb_get_ntohs(tvb, loffset); loffset+=2;
-      remaining_length-=2;
+      field1 = tvb_get_ntohs(tvb, loffset); 
       llength-=2;
     }
 
@@ -163,7 +162,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree) {
         proto_tree_add_item(pdu_tree, hf_ipsictl_data, tvb, loffset, llength, ENC_NA);
       }
-      loffset+=llength; remaining_length-=llength;
+      loffset+=llength;
     }
 
     offset=loffset;
