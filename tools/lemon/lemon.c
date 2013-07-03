@@ -2235,7 +2235,7 @@ to follow the previous rule.");
           psp->rhs[psp->nrhs-1] = msp;
         }
         msp->nsubsym++;
-        msp->subsym = (struct symbol **) realloc(msp->subsym, 
+        msp->subsym = (struct symbol **) realloc(msp->subsym,
             sizeof(struct symbol*)*msp->nsubsym);
         msp->subsym[msp->nsubsym-1] = Symbol_new(&x[1]);
         if( safe_islower(x[1]) || safe_islower(msp->subsym[0]->name[0]) ){
@@ -3179,20 +3179,20 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
         tpltname = pathsearch(lemp->argv0,templatename,0);
       }
   }
-  if( tpltname==0 ){
+  if( tpltname==NULL ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
     templatename);
     lemp->errorcnt++;
-    free(tpltname);
-    return 0;
+    return NULL;
   }
   in = fopen(tpltname,"rb");
-  free(tpltname);
+  if( tpltname != buf )
+    free(tpltname);
 
   if( in==0 ){
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
-    return 0;
+    return NULL;
   }
   return in;
 }
