@@ -1145,9 +1145,8 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			tmptsn =(tsn_t*)(tsnlist->data);
 			tfirst = tsn->secs + tsn->usecs/1000000.0;
 
-			while (tsnlist)
+			for (tsnlist = g_list_previous(tsnlist); tsnlist; tsnlist = g_list_previous(tsnlist))
 			{
-				tsnlist = g_list_previous(tsnlist);
 				tsn = (tsn_t*) (tsnlist->data);
 				if (tsn->secs+tsn->usecs/1000000.0<x_value)
 				{
