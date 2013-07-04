@@ -333,13 +333,13 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     #	https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
     #
     # First, determine where the system include files are.  (It's not
-    # necessarily /usr/include.)
+    # necessarily /usr/include.)  There's a bit of a greasy hack here;
+    # pre-5.x versions of the developer tools don't support the
+    # --show-sdk-path option, and will produce no output, so includedir
+    # will be set to /usr/include (in those older versions of the
+    # developer tools, there is a /usr/include directory).
     #
-    testfile=/tmp/test$$.c
-    trap "rm -f $testfile" 0
-    echo "#include <ffi/ffi.h>" > $testfile
-    includedir=`gcc -M $testfile | sed -n -e 's;[\\];;' -e 's/^ *//' -e 's/ *$//' -e 's;/ffi/ffi\.h;;p'`
-    rm -f $testfile
+    includedir=`xcrun --show-sdk-path 2>/dev/null`/usr/include
     if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
     then
 	# It's defined, nothing to do
