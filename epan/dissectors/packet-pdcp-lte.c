@@ -942,6 +942,10 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 p_pdcp_lte_info->profile = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
+            case PDCP_LTE_CHANNEL_ID_TAG:
+                p_pdcp_lte_info->channelId = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
 
             case PDCP_LTE_PAYLOAD_TAG:
                 /* Have reached data, so get out of loop */
@@ -1058,6 +1062,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, ENC_BIG_ENDIAN);
             write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
             offset++;
+
+            if (tvb_length_remaining(tvb, offset) == 0) {
+                /* Only PDCP header was captured, stop dissection here */
+                return;
+            }
 
             /* RRC data is all but last 4 bytes.
                Call lte-rrc dissector (according to direction and channel type) */
