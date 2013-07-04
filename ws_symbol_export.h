@@ -83,15 +83,24 @@
 #define WS_DLL_PUBLIC_DEF __attribute__ ((dllimport))
     #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
       /*
-       * Presumably MSVC.
+       * Presumably MSVC, and we're not building all-static.
        * Note: actually gcc seems to also support this syntax.
        */
 #define WS_DLL_PUBLIC_DEF __declspec(dllimport)
     #else /* ! __GNUC__  && ENABLE_STATIC */
-      /* presumably MSVC */
+      /*
+       * Presumably MSVC, and we're building all-static, so we're
+       * not building any DLLs.
+       */
 #define WS_DLL_PUBLIC_DEF
     #endif /* __GNUC__ */
   #endif /* WS_BUILD_DLL */
+
+  /*
+   * Symbols in a DLL are *not* exported unless they're specifically
+   * flagged as exported, so, for a non-static but non-exported
+   * symbol, we don't have to do anything.
+   */
   #define WS_DLL_LOCAL
 #else /* defined _WIN32 || defined __CYGWIN__ */
   /*
@@ -101,9 +110,19 @@
    * with GCC 4 or later.
    */
   #if __GNUC__ >= 4
+    /*
+     * Symbols exported from libraries.
+     */
 #define WS_DLL_PUBLIC_DEF __attribute__ ((visibility ("default")))
+
+    /*
+     * Non-static symbols *not* exported from libraries.
+     */
 #define WS_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
   #else /* ! __GNUC__ >= 4 */
+    /*
+     * We have no way to control visibility.
+     */
     #define WS_DLL_PUBLIC_DEF
     #define WS_DLL_LOCAL
   #endif /* __GNUC__ >= 4 */
