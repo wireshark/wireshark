@@ -129,9 +129,15 @@
 #endif
 
 /*
- * Use this for declarations; it can also be used for exported
- * *function* definitions, but must not be used for exported *data*
- * definitions.
+ * You *must* use this for exported data *declarations*; if you use
+ * WS_DLL_PUBLIC_DEF, some compilers, such as MSVC++, will complain
+ * about array definitions with no size.
+ *
+ * You must *not* use this for exported data *definitions*, as that
+ * will, for some compilers, cause warnings about items being initialized
+ * and declared extern.
+ *
+ * Either can be used for exported *function* declarations and definitions.
  */
 #define WS_DLL_PUBLIC	WS_DLL_PUBLIC_DEF extern
 
