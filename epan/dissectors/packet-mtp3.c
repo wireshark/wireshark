@@ -133,8 +133,6 @@ static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 static gboolean mtp3_use_japan_5_bit_sls = FALSE;
 static gboolean mtp3_show_itu_priority = FALSE;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
-static mtp3_addr_pc_t* mtp3_addr_dpc;
-static mtp3_addr_pc_t* mtp3_addr_opc;
 
 #define SIO_LENGTH                1
 #define SLS_LENGTH                1
@@ -452,7 +450,8 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
 }
 
 static void
-dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree)
+dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree,
+    mtp3_addr_pc_t *mtp3_addr_opc, mtp3_addr_pc_t *mtp3_addr_dpc)
 {
   guint8 sio;
   proto_item *sio_item;
@@ -490,7 +489,8 @@ dissect_mtp3_sio(tvbuff_t *tvb, proto_tree *mtp3_tree)
 }
 
 static void
-dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
+dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree,
+    mtp3_addr_pc_t *mtp3_addr_opc, mtp3_addr_pc_t *mtp3_addr_dpc)
 {
   guint32 label, dpc, opc;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
@@ -701,6 +701,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mtp3_tap_rec_t* tap_rec = ep_new0(mtp3_tap_rec_t);
     gint heuristic_standard;
     guint8 si;
+    mtp3_addr_pc_t* mtp3_addr_dpc;
+    mtp3_addr_pc_t* mtp3_addr_opc;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *mtp3_item = NULL, *gen_item;
@@ -757,8 +759,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect the packet (even if !tree so can call sub-dissectors and update
      * the source and destination address columns) */
-    dissect_mtp3_sio(tvb, mtp3_tree);
-    dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
+    dissect_mtp3_sio(tvb, mtp3_tree, mtp3_addr_opc, mtp3_addr_dpc);
+    dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree, mtp3_addr_opc, mtp3_addr_dpc);
 
     memcpy(&(tap_rec->addr_opc), mtp3_addr_opc, sizeof(mtp3_addr_pc_t));
     memcpy(&(tap_rec->addr_dpc), mtp3_addr_dpc, sizeof(mtp3_addr_pc_t));
