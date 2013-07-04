@@ -165,8 +165,54 @@ static char* quit_cmd(char** params _U_, char** err _U_) {
 
 static char* help_cmd(char**, char**);
 
-static char* nothing_at_last_cmd(char** pars _U_, char** err _U_) {
-	return g_strdup("");
+static char* open_file_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* prepare_capture_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* start_capture_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* get_sum_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* get_tree_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* get_buf_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* stop_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* note_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* apply_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
+}
+
+static char* save_cmd(char** pars _U_, char** err _U_) {
+	*err = g_strdup("Not Implemented");
+	return NULL;
 }
 
 
@@ -178,7 +224,16 @@ cmd_t commands[] = {
 	{ "SET", set_cmd, 3, "SET child_id param_name param_val"},
 	{ "GET", get_cmd, 2, "GET child_id param_name"},
 	{ "CLOSE", close_cmd, 1, "CLOSE child_id"},
-	{ "", nothing_at_last_cmd,0,""},
+	{ "FILE", open_file_cmd, 2, "FILE child_id filename"},
+	{ "PREP", prepare_capture_cmd, 2, "PREP child_id intfname params"},
+	{ "START",start_capture_cmd,1,"START child_id"},
+	{ "SUM", get_sum_cmd,2,"SUM child_id packet_range"},
+	{ "TREE", get_tree_cmd,2,"TREE child_id packet_range"},
+	{ "BUFF", get_buf_cmd,2,"BUFF child_id buffer_name"},
+	{ "STOP", stop_cmd,1,"STOP child_id"},
+	{ "NOTE", note_cmd,1,"NOTE child_id framenum note..."},
+	{ "APPLY", apply_cmd,1,"APPLY child_id dfilter"},
+	{ "SAVE", save_cmd,1,"SAVE child_id filename params"},
 	{ NULL, NULL, 0, NULL }
 };
 

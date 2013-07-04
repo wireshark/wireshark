@@ -42,21 +42,20 @@ LIBECHLD_INCLUDES = \
 	echld.h
 
 LIBECHLD_MORE_SRC = \
+	../capture_ifinfo.c \
 	../capture_opts.c	\
-	../capture_stop_conditions.c	\
+	../capture-pcap-util.c \
 	../capture-pcap-util-unix.c \
+	../capture_stop_conditions.c	\
+	../capture_sync.c \
 	../cfutils.c	\
 	../clopts_common.c	\
-	../sync_pipe_write.c \
-	../capture-pcap-util.c \
-	../capture-pcap-util.h	\
-	../capture-pcap-util-int.h	\
 	../conditions.c	\
+	../disabled_protos.c \
 	../pcapio.c	\
 	../ringbuffer.c	\
-	../capture_sync.c \
+	../sync_pipe_write.c \
 	../version_info.c	\
-	../capture_ifinfo.c \
 	../ws80211_utils.c
 
 OTHER = \

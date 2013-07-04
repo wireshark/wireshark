@@ -66,6 +66,8 @@
 #include "wsutil/privileges.h"
 #include "epan/filesystem.h"
 #include "epan/epan.h"
+#include "epan/prefs.h"
+#include "disabled_protos.h"
 #include "echld.h"
 
 #ifdef __cplusplus
@@ -143,7 +145,8 @@ extern void echld_reset_reader(echld_reader_t* r, int fd, size_t initial);
 typedef struct _param {
 	const char* name;
 	char* (*get)(char** err );
-	echld_bool_t (*set)(char* val , char** err);	
+	echld_bool_t (*set)(char* val , char** err);
+	const char* desc;
 } param_t;
 
 #define PARAM_STR(Name, Default) static char* param_ ## Name = Default;  \
@@ -158,9 +161,9 @@ typedef struct _param {
  static char* param_get_ ## Name (char** err _U_ ) { return  g_strdup_printf("%s",param_ ## Name ? "TRUE" : "FALSE"); } \
  static echld_bool_t param_set_ ## Name (char* val , char** err _U_) { param_ ## Name = (*val == 'T' || *val == 't') ? TRUE : FALSE; return TRUE;}
 
-#define PARAM(Name) {#Name, param_get_ ## Name, param_set_ ## Name}
-#define RO_PARAM(Name) {#Name, param_get_ ## Name, NULL}
-#define WO_PARAM(Name) {#Name, NULL, param_set_ ## Name}
+#define PARAM(Name,Desc) {#Name, param_get_ ## Name, param_set_ ## Name, Desc}
+#define RO_PARAM(Name,Desc) {#Name, param_get_ ## Name, NULL, Desc}
+#define WO_PARAM(Name,Desc) {#Name, NULL, param_set_ ## Name, Desc}
 
 /* the call_back used by read_frame() */
 typedef long (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, echld_reqh_id_t, void*);

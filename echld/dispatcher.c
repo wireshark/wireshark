@@ -60,6 +60,7 @@ struct dispatcher {
 
 	int dumpcap_pid;
 	gboolean closing;
+	capture_options capture_opts;
 };
 
 struct dispatcher* dispatcher;
@@ -188,8 +189,7 @@ static void dispatcher_err(int errnum, const char* fmt, ...) {
 
 /* interface listing */
 
-static char* intflist2json(GList* if_list) {
-	/* blatantly stolen from print_machine_readable_interfaces in dumpcap.c */
+static char* intflist2json(GList* if_list, char** if_cap_err) {
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
 
     int         i;
@@ -197,6 +197,7 @@ static char* intflist2json(GList* if_list) {
     if_info_t   *if_info;
     GSList      *addr;
     if_addr_t   *if_addr;
+    if_capabilities_t *caps;
     char        addr_str[ADDRSTRLEN];
     GString     *str = g_string_new("{ what='interfaces', interfaces={ \n");
     char* s;
@@ -248,7 +249,7 @@ static char* intflist2json(GList* if_list) {
         }
 
 	    g_string_truncate(str,str->len - 1); /* the last comma or space (on empty list) */
-        g_string_append(str," ],"); /* addrs */
+        g_string_append(str," ]"); /* addrs */
 
 
         if (if_info->loopback)
@@ -256,6 +257,52 @@ static char* intflist2json(GList* if_list) {
         else
             g_string_append(str,", loopback=0");
 
+
+
+		caps = capture_get_if_capabilities(if_info->name, 0, if_cap_err, NULL);
+
+		if (caps != NULL) {
+			if (caps->data_link_types != NULL) {
+				GList* lt_entry = caps->data_link_types;
+			    data_link_info_t *data_link_info;
+
+				g_string_append(str,", data_link_types=[");
+
+				for (; lt_entry != NULL; lt_entry = g_list_next(lt_entry) ) {
+
+				    data_link_info = (data_link_info_t *)lt_entry->data;
+				    g_string_append_printf(str,"{ name='%s', desc='%s' }, ", data_link_info->name, (data_link_info->description) ? data_link_info->description : "" );
+				}				    
+
+				g_string_truncate(str,str->len - 2); /* the comma and space */
+				g_string_append(str,"]");
+			}	
+
+			g_string_append_printf(str,", can_set_rfmon=%s", caps->can_set_rfmon ? "1" : "0");
+
+			if (caps->can_set_rfmon) {
+				free_if_capabilities(caps);
+				caps = capture_get_if_capabilities(if_info->name, 1, if_cap_err, NULL);
+
+				if (caps->data_link_types != NULL) {
+					GList* lt_entry = caps->data_link_types;
+					data_link_info_t *data_link_info;
+
+					g_string_append(str,", data_link_types_rfmon=[");
+
+					for (; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+					    data_link_info = (data_link_info_t *)lt_entry->data;
+					    g_string_append_printf(str,"{ name='%s', desc='%s' }, ", data_link_info->name, (data_link_info->description) ? data_link_info->description : "" );
+					}
+
+				    g_string_truncate(str,str->len - 2); /* the comma and space */
+					g_string_append(str,"]");
+				}
+			}
+
+			free_if_capabilities(caps);
+		}
+		  
         g_string_append(str,"},\n");
     }
 
@@ -267,28 +314,30 @@ static char* intflist2json(GList* if_list) {
     return s;
 }
 
-static char* param_get_interfaces(char** err) {
+static char* intf_list;
+
+static void get_interfaces(char** err) {
 	int err_no = 0;
 	GList* if_list;
-	char* s;
-	*err = NULL;
-
-	if (dispatcher->dumpcap_pid) {
-		*err = g_strdup_printf("Dumpcap already running");
-		return NULL;
-	}
-
+	
+	err = NULL;	
 	if_list = capture_interface_list(&err_no, err, NULL);
 
-	if (*err) {
-		return NULL;
+	if (err) {
+		DISP_DBG((1,"Could not get capture interface list: %s",err));
+	} else {
+		intf_list = intflist2json(if_list,err);
+		if (err) {
+			DISP_DBG((1,"get capabilities error: %s",err));
+		}
 	}
 
-	s = intflist2json(if_list);
-
 	free_interface_list(if_list);
+}
 
-	return s;
+
+static char* param_get_interfaces(char** err _U_) {
+	return g_strdup(intf_list ? intf_list : "");
 }
 
 static long disp_loop_timeout_usec = DISPATCHER_WAIT_INITIAL;
@@ -333,15 +382,34 @@ static char* param_get_version(char** err _U_) {
   	return str;
 }
 
+static char* param_get_params(char** err _U_);
 
 static param_t disp_params[] = {
 #ifdef DEBUG_DISPATCHER
-	{"dbg_level", param_get_dbg_level, param_set_dbg_level},
+	{"dbg_level", param_get_dbg_level, param_set_dbg_level,"0>int>5"},
 # endif
-	{"version",param_get_version,NULL},
-	{"loop_timeout",param_get_loop_to,param_set_loop_to},
-	{"interfaces",param_get_interfaces,NULL},
-	{NULL,NULL,NULL} };
+	{"version",param_get_version,NULL,"version string"},
+	{"loop_timeout",param_get_loop_to,param_set_loop_to,"main loop step timeout"},
+	{"interfaces",param_get_interfaces,NULL,"interface information"},
+	{"params",param_get_params,NULL,"this list"},
+	{NULL,NULL,NULL,NULL}
+};
+
+static char* param_get_params(char** err _U_) {
+	param_t* p = disp_params;
+	GString* str = g_string_new("");
+	char* s;
+
+	for (;p->name;p++) {
+		g_string_append_printf(str,"%s(%s): %s\n",
+			p->name,((p->get && p->set)?"rw":(p->get?"ro":"wo")),p->desc);
+	}
+
+	s = str->str;
+	g_string_free(str,FALSE);
+	return s;
+}
+
 
 static param_t* get_paramset(char* name) {
 	int i;
@@ -383,7 +451,9 @@ static void set_dumpcap_pid(int pid) {
 }
 
 static void preinit_epan(char* argv0, int (*main)(int, char **)) {
-	char* init_progfile_dir_error = init_progfile_dir(argv0, main);
+	char* error;
+
+	error = init_progfile_dir(argv0, main);
 
 	comp_info_str = g_string_new("Compiled ");	
   	get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
@@ -391,9 +461,10 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
  	runtime_info_str = g_string_new("Running ");
   	get_runtime_version_info(runtime_info_str, NULL);
 
+	capture_opts_init(&dispatcher->capture_opts);
 
-	if (init_progfile_dir_error) {
-		DISP_FATAL((CANNOT_PREINIT_EPAN,"Failed epan_preinit: msg='%s'",init_progfile_dir_error));
+	if (error) {
+		DISP_FATAL((CANNOT_PREINIT_EPAN,"Failed epan_preinit: msg='%s'",error));
 	}
 
 	 /* Add it to the information to be reported on a crash. */
@@ -402,20 +473,23 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 		
 	capture_sync_set_fetch_dumpcap_pid_cb(set_dumpcap_pid);
 
-#ifdef _WIN32
-	arg_list_utf_16to8(argc, argv);
-	create_app_running_mutex();
-#if !GLIB_CHECK_VERSION(2,31,0)
-	g_thread_init(NULL);
-#endif
-#endif /* _WIN32 */
+  	init_process_policies();
+
+	get_interfaces(&error);
+	
+	if (error) {
+		DISP_FATAL((CANNOT_PREINIT_EPAN,"Error getting interfaces: %s", error));
+	}
 
 
-  init_process_policies();
+	prefs_apply_all();
 
-  /* Here we do initialization of parts of epan that will be the same for every child we fork */
+	/* disabled protocols as per configuration file */
+	set_disabled_protos_list();
 
-	DISP_DBG((2,"epan preinit"));
+  	/* Here we do initialization of parts of epan that will be the same for every child we fork */
+
+	DISP_DBG((2,"epan preinit done"));
 
 }
 

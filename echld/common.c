@@ -316,9 +316,6 @@ long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data) {
 	kaput:  return -1;
 }
 
-
-
-
 long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data _U_) {
 	hdr_t h;
 	struct iovec iov[2];

@@ -51,7 +51,13 @@ typedef struct _child {
 	child_decoder_t* dec;
 
 	// epan stuff
-	//capture_file cfile;
+	char* cf_name;
+	char* cfilter;
+	char* dfilter;
+
+
+//	capture_file cfile;
+	dfilter_t* df;
 
 } echld_child_t;
 
@@ -224,16 +230,18 @@ static char* param_get_packet_count(char** err) {
 }
 
 
-static char* dfilter = NULL;
-dfilter_t *df = NULL;
 
 static echld_bool_t param_set_dfilter(char* val , char** err _U_) {
 	dfilter_t *dfn = NULL;
-		if ( dfilter_compile(val, &dfn) ) {
-		if (dfilter) g_free(dfilter);
-		if (df) dfilter_free(df);
-		df = dfn;
-		dfilter = g_strdup(val);
+	
+	if (child.state != IDLE && child.state != DONE ) {
+		*err = g_strdup("Only while idle or done");
+		return FALSE;
+	} else if ( dfilter_compile(val, &dfn) ) {
+		if (child.dfilter) g_free(child.dfilter);
+		if (child.df) dfilter_free(child.df);
+		child.df = dfn;
+		child.dfilter = g_strdup(val);
 		return TRUE;
 	} else {
 		*err = g_strdup(dfilter_error_msg);
@@ -241,7 +249,7 @@ static echld_bool_t param_set_dfilter(char* val , char** err _U_) {
 	}
 }
 
-static char* param_get_dfilter(char** err _U_) { return g_strdup(dfilter ? dfilter : ""); }
+static char* param_get_dfilter(char** err _U_) { return g_strdup(child.dfilter ? child.dfilter : ""); }
 
 char* param_profile = NULL;
 
@@ -292,18 +300,37 @@ static char* param_get_file_list(char** err) {
 
 PARAM_BOOL(quiet,FALSE);
 
+static char* param_get_params(char** err _U_);
+
 static param_t params[] = {
 #ifdef DEBUG_CHILD
-	PARAM(dbg_level),
+	PARAM(dbg_level,"Debug Level (0<int<5)"),
 # endif
-	PARAM(profile),
-	PARAM(cwd),
-	PARAM(dfilter),
-	RO_PARAM(packet_count),
-	RO_PARAM(file_list),
-	PARAM(quiet),
-	{NULL,NULL,NULL}
+	PARAM(profile,"Configuration Profile (str)"),
+	PARAM(cwd,"Current Directory (str)"),
+	PARAM(dfilter,"Dispay Filter (str)"),
+	RO_PARAM(packet_count,"Packets Read/Captured So Far (str)"),
+	RO_PARAM(file_list,"List of Files in the Current Dir"),
+	PARAM(quiet,"Quiet Mode"),
+	RO_PARAM(params,"This List"),
+	{NULL,NULL,NULL,NULL}
 };
+
+
+static char* param_get_params(char** err _U_) {
+	param_t* p = params;
+	GString* str = g_string_new("");
+	char* s;
+
+	for (;p->name;p++) {
+		g_string_append_printf(str,"%s(%s): %s\n",
+			p->name,((p->get && p->set)?"rw":(p->get?"ro":"wo")),p->desc);
+	}
+
+	s = str->str;
+	g_string_free(str,FALSE);
+	return s;
+}
 
 static param_t* get_paramset(char* name) {
 	int i;
@@ -632,6 +659,7 @@ int echld_child_loop(void) {
 		FD_SET(disp_from,&efds);
 		FD_SET(disp_to,&efds);
 
+
 		if (child.fds.pipe_from_dumpcap > 0) {
 			FD_SET(child.fds.pipe_from_dumpcap,&rfds);
 		}
@@ -640,9 +668,13 @@ int echld_child_loop(void) {
 			FD_SET(child.fds.file_being_read,&rfds);
 		}
 
-		CHILD_DBG((4,"child_loop: select()ing step=%d",step++));
+#ifdef DEBUG_CHILD
+		if (step >= 100) CHILD_DBG((4,"child_loop: select()ing step=%d",step++));
+#endif
 		nfds = select(FD_SETSIZE, &rfds, &wfds, &efds, &timeout);
-		CHILD_DBG((4,"child_loop: select()ed nfds=%d",nfds));
+#ifdef DEBUG_CHILD
+		if (step >= 100) CHILD_DBG((4,"child_loop: select()ed nfds=%d",nfds));
+#endif
 
 		if ( FD_ISSET(disp_from,&efds) ) {
 			CHILD_DBG((0,"Broken Parent Pipe 'From' step=%d",step));
@@ -667,6 +699,10 @@ int echld_child_loop(void) {
 		if (FD_ISSET(disp_from, &rfds)) {
 			long st = echld_read_frame(&(child.parent), child_receive, &child);
 
+#ifdef DEBUG_CHILD
+			step = 0;
+#endif
+
 			if (st < 0) {
 				CHILD_DBG((0,"Read Frame Failed step=%d",step));
 				return (int)st;
@@ -674,6 +710,10 @@ int echld_child_loop(void) {
 		}
 
 		if (child.fds.pipe_from_dumpcap > 0 && FD_ISSET(child.fds.pipe_from_dumpcap,&rfds) ) {
+
+#ifdef DEBUG_CHILD
+			step = 0;
+#endif
 			child_dumpcap_read();
 		}
 	} while(1);
