@@ -61,6 +61,7 @@ typedef struct _child {
 
 } echld_child_t;
 
+static echld_epan_stuff_t* stuff = NULL;
 
 static echld_child_t child;
 
@@ -143,8 +144,8 @@ static void sig_term(int sig _U_) {
 	exit(0);	
 }
 
-
-void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id) {
+extern void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id, echld_epan_stuff_t* es) {
+	stuff = es;
 
 	close_sleep_time.tv_sec = CHILD_CLOSE_SLEEP_TIME / 1000000;
 	close_sleep_time.tv_usec = CHILD_CLOSE_SLEEP_TIME % 1000000;
@@ -298,11 +299,48 @@ static char* param_get_file_list(char** err) {
  	return s;
 }
 
+#ifdef PCAP_NG_DEFAULT
+static int out_file_type = WTAP_FILE_PCAPNG;
+#else
+static int out_file_type = WTAP_FILE_PCAP;
+#endif
+
+static echld_bool_t param_set_out_file_type(char* val, char** err) {
+      int oft = wtap_short_string_to_file_type(val);
+
+      if (oft < 0) {
+        *err = g_strdup_printf("\"%s\" isn't a valid capture file type", val);
+        return FALSE;
+      } else {	
+		out_file_type = oft;
+		return TRUE;
+	  }
+}
+
+static char* param_get_out_file_type(char** err _U_) {
+	return g_strdup_printf("%s(%d): %s",
+		wtap_file_type_short_string(out_file_type),
+		out_file_type, wtap_file_type_string(out_file_type));
+}
+
+
+static echld_bool_t param_set_add_hosts_file(char* val, char** err) {
+	if (add_hosts_file(val)) {
+		return TRUE;
+	} else {
+		*err = g_strdup_printf("Can't read host entries from \"%s\"",val);
+		return FALSE;
+	}
+}
+
 PARAM_BOOL(quiet,FALSE);
+PARAM_BOOL(start_capture,FALSE);
+PARAM_BOOL(push_details,FALSE);
+PARAM_BOOL(print_hex,FALSE);
 
 static char* param_get_params(char** err _U_);
 
-static param_t params[] = {
+static param_t child_params[] = {
 #ifdef DEBUG_CHILD
 	PARAM(dbg_level,"Debug Level (0<int<5)"),
 # endif
@@ -311,39 +349,20 @@ static param_t params[] = {
 	PARAM(dfilter,"Dispay Filter (str)"),
 	RO_PARAM(packet_count,"Packets Read/Captured So Far (str)"),
 	RO_PARAM(file_list,"List of Files in the Current Dir"),
+	PARAM(start_capture,"Automatically start capture"),
 	PARAM(quiet,"Quiet Mode"),
+	PARAM(push_details,"Whether details of dissection should be passed"),
+	PARAM(print_hex,"Output in hex"),
+	PARAM(out_file_type,"Output File Type"),
+	WO_PARAM(add_hosts_file,"Add a Hosts File"),
 	RO_PARAM(params,"This List"),
 	{NULL,NULL,NULL,NULL}
 };
 
 
 static char* param_get_params(char** err _U_) {
-	param_t* p = params;
-	GString* str = g_string_new("");
-	char* s;
-
-	for (;p->name;p++) {
-		g_string_append_printf(str,"%s(%s): %s\n",
-			p->name,((p->get && p->set)?"rw":(p->get?"ro":"wo")),p->desc);
-	}
-
-	s = str->str;
-	g_string_free(str,FALSE);
-	return s;
+	return paramset_get_params_list(child_params,PARAM_LIST_FMT);
 }
-
-static param_t* get_paramset(char* name) {
-	int i;
-	for (i = 0; params[i].name != NULL;i++) {
-		if (strcmp(name,params[i].name) == 0 ) return &(params[i]);
-	}
-	return NULL;
-} 
-
-
-
-
-
 
 static void child_open_file(char* filename) {
 	CHILD_DBG((2,"CMD open file filename='%s'",filename));
@@ -402,6 +421,7 @@ static void child_save_file(char* filename, char* pars) {
 static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_msg_type_t type, echld_reqh_id_t reqh_id, void* data _U_) {
 	GByteArray ba;
 	GByteArray* gba;
+	char* err = NULL;
 
 	child.reqh_id = reqh_id;
 
@@ -415,15 +435,22 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		return 0;
 	}
 
+	ba.data = b;
+	ba.len = (guint)len;
+
 	switch(type) {
 		case ECHLD_NEW_CHILD: {
-			child.state = IDLE;
-			CHILD_RESP(NULL,ECHLD_HELLO);
+			child.state = CREATING;
+			if ( !paramset_apply_em(child_params,(enc_msg_t*)&ba, &err) ) {
+				child_err(ECHLD_ERR_CRASHED_CHILD,reqh_id,
+					"Initial Paramset Error '%s'",err);
+			} else {
+				child.state = IDLE;
+				CHILD_RESP(NULL,ECHLD_HELLO);
+			}
 			break;
 		}
 		case ECHLD_PING:
-			ba.data = b;
-			ba.len = (guint)len;
 			CHILD_DBG((1,"PONG"));
 			CHILD_RESP(&ba,ECHLD_PONG);
 			break;
@@ -432,23 +459,10 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 			char* value;
 
 			if ( child.dec->set_param && child.dec->set_param(b,len,&param,&value) ) {
-				param_t* p = get_paramset(param);
-				char* err;
-
-				if (!p) {
-					child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"no such param='%s'",param);					
-					break;
-				}
-
-				if (!p->set) {
-					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='read only'");
-					break;
-				}
-
-				if (! p->set(value,&err) ) {
-					child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"reason='%s'",err);
+				if (! paramset_apply_set (child_params, param, value, &err) ) {
+					child_err(ECHLD_CANNOT_SET_PARAM,reqh_id,"%s",err);
 					g_free(err);
-					break;
+					return 0;
 				}
 
 				gba = child.enc->param(param,value);
@@ -464,27 +478,14 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 		case ECHLD_GET_PARAM: {
 			char* param;
 			if ( child.dec->get_param && child.dec->get_param(b,len,&param) ) {
-				char* err;
 				char* val;
 
-				param_t* p = get_paramset(param);
-
-				if (!p) {
-					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"no such param='%s'",param);					
-					break;
-				}
-
-				if (!p->get) {
-					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='write only'");					
-					break;
-				}
-
-				if (!(val = p->get(&err))) {
-					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"reason='%s'",err);
+				if (! (val = paramset_apply_get (child_params, param, &err)) ) {
+					child_err(ECHLD_CANNOT_GET_PARAM,reqh_id,"%s",err);
 					g_free(err);
-					break;
+					return 0;
 				}
-				
+								
 				gba = child.enc->param(param,val);
 				CHILD_RESP(gba,ECHLD_PARAM);
 				g_byte_array_free(gba,TRUE);
@@ -627,11 +628,16 @@ static long child_receive(guint8* b, size_t len, echld_chld_id_t chld_id, echld_
 
 }
 
-static void child_dumpcap_read(void) {
+static int child_dumpcap_read(void) {
 	// this folk manages the reading of dumpcap's pipe
 	// it has to read interface descriptions when doing so
 	// and managing capture during capture
-				CHILD_DBG((2,"child_dumpcap_read"));
+	CHILD_DBG((2,"child_dumpcap_read"));
+	return FALSE;
+}
+
+static void child_file_read(void) {
+
 }
 
 int echld_child_loop(void) {
@@ -650,6 +656,7 @@ int echld_child_loop(void) {
 		fd_set efds;
 		struct timeval timeout;
 		int nfds;
+		gboolean captured = FALSE;
 
 		FD_ZERO(&rfds);
 		FD_ZERO(&wfds);
@@ -664,16 +671,15 @@ int echld_child_loop(void) {
 			FD_SET(child.fds.pipe_from_dumpcap,&rfds);
 		}
 
-		if (child.fds.file_being_read > 0) {
-			FD_SET(child.fds.file_being_read,&rfds);
-		}
-
 #ifdef DEBUG_CHILD
-		if (step >= 100) CHILD_DBG((4,"child_loop: select()ing step=%d",step++));
+		if (step <= 20) CHILD_DBG((4,"child_loop: select()ing step=%d",step++));
 #endif
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 999999;
+
 		nfds = select(FD_SETSIZE, &rfds, &wfds, &efds, &timeout);
 #ifdef DEBUG_CHILD
-		if (step >= 100) CHILD_DBG((4,"child_loop: select()ed nfds=%d",nfds));
+		if (step <= 20) CHILD_DBG((4,"child_loop: select()ed nfds=%d",nfds));
 #endif
 
 		if ( FD_ISSET(disp_from,&efds) ) {
@@ -688,11 +694,6 @@ int echld_child_loop(void) {
 
 		if (child.fds.pipe_from_dumpcap > 0 &&  FD_ISSET(child.fds.pipe_from_dumpcap,&efds) ) {
 			CHILD_DBG((0,"Broken Dumpcap Pipe step=%d",step));
-			break;
-		}
-
-		if (child.fds.file_being_read > 0 &&  FD_ISSET(child.fds.file_being_read,&efds) ) {
-			CHILD_DBG((0,"Broken Readfile Pipe step=%d",step));
 			break;
 		}
 
@@ -714,7 +715,11 @@ int echld_child_loop(void) {
 #ifdef DEBUG_CHILD
 			step = 0;
 #endif
-			child_dumpcap_read();
+			captured = child_dumpcap_read();
+		}
+
+		if ( child.state == READING || captured ) {
+			child_file_read();
 		}
 	} while(1);
 

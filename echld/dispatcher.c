@@ -65,7 +65,6 @@ struct dispatcher {
 
 struct dispatcher* dispatcher;
 
-
 #ifdef DEBUG_DISPATCHER
 static int debug_lvl = DEBUG_DISPATCHER;
 static FILE* debug_fp = NULL;
@@ -134,6 +133,17 @@ static long dbg_r = 0;
 
 #define DISP_RESP(B,T) (DISP_WRITE( dispatcher->parent_out, (B), 0, (T), dispatcher->reqh_id))
 
+
+
+static echld_epan_stuff_t stuff;
+
+static void init_stuff(void) {
+#ifdef HAVE_LIBPCAP
+	capture_opts_init(&stuff.cap_opts);
+  	capture_session_init(&stuff.cap_sess, (void *)&stuff.cfile);
+#endif
+
+}
 
 static void children_massacre(void) {
 	int i;
@@ -314,7 +324,7 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
     return s;
 }
 
-static char* intf_list;
+static char* intf_list = NULL;
 
 static void get_interfaces(char** err) {
 	int err_no = 0;
@@ -342,11 +352,11 @@ static char* param_get_interfaces(char** err _U_) {
 
 static long disp_loop_timeout_usec = DISPATCHER_WAIT_INITIAL;
 
-static char* param_get_loop_to(char** err _U_) {
+static char* param_get_loop_timeout(char** err _U_) {
 	return g_strdup_printf("%fs", (((float)disp_loop_timeout_usec)/1000000.0) );
 }
 
-static echld_bool_t param_set_loop_to(char* val , char** err ) {
+static echld_bool_t param_set_loop_timeout(char* val , char** err ) {
 	char* p;
 	int usec = (int)strtol(val, &p, 10); /*XXX: "10ms" or "500us" or "1s" */
 
@@ -360,66 +370,78 @@ static echld_bool_t param_set_loop_to(char* val , char** err ) {
 	return TRUE;
 }
 
-GString *comp_info_str;
-GString *runtime_info_str;
+static GString *comp_info_str;
+static GString *runtime_info_str;
+static const char* version_str = "Echld " VERSION;
+static char* version_long_str = NULL;
+
+
+static char* param_get_long_version(char** err _U_) {
+  	return g_strdup(version_long_str);
+}
 
 static char* param_get_version(char** err _U_) {
-	char* str;
-
-  	str = g_strdup_printf("Echld " VERSION "%s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-         wireshark_svnversion, get_copyright_info(), comp_info_str->str,
-         runtime_info_str->str);
-
-  	g_string_free(runtime_info_str,TRUE);
-  	g_string_free(comp_info_str,TRUE);
-
-  	return str;
+	return g_strdup(version_str);
 }
+
+static char* param_get_capture_types(char** err _U_) {
+  GString* str = g_string_new("");
+  char* s;
+  int i;
+
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i)) {
+      g_string_append_printf(str,"%s: %s\n",
+      	wtap_file_type_short_string(i), wtap_file_type_string(i));
+    }
+  }
+
+  s = str->str;
+  g_string_free(str,FALSE);
+  return s;
+}
+
+static echld_bool_t param_set_add_hosts_file(char* val, char** err) {
+	if (add_hosts_file(val)) {
+		return TRUE;
+	} else {
+		*err = g_strdup_printf("Can't read host entries from \"%s\"",val);
+		return FALSE;
+	}
+}
+
+static echld_bool_t param_set_x_opt(char* val, char** err) {
+	if (ex_opt_add(val)) {
+		return TRUE;
+	} else {
+		*err = g_strdup_printf("Cannot set X opt '%s'",val);
+		return FALSE;
+	}
+}
+
+
+
 
 static char* param_get_params(char** err _U_);
 
 static param_t disp_params[] = {
 #ifdef DEBUG_DISPATCHER
-	{"dbg_level", param_get_dbg_level, param_set_dbg_level,"0>int>5"},
+	PARAM(dbg_level,"0>int>5"),
 # endif
-	{"version",param_get_version,NULL,"version string"},
-	{"loop_timeout",param_get_loop_to,param_set_loop_to,"main loop step timeout"},
-	{"interfaces",param_get_interfaces,NULL,"interface information"},
-	{"params",param_get_params,NULL,"this list"},
+	RO_PARAM(long_version,"long version string"),
+	RO_PARAM(version,"version string"),
+	PARAM(loop_timeout,"main loop step timeout"),
+	RO_PARAM(interfaces,"interface information"),
+	RO_PARAM(capture_types,"the available capture types"),
+	WO_PARAM(add_hosts_file,"Add a hosts file"),
+	WO_PARAM(x_opt,"Set a -X option"),
+	RO_PARAM(params,"This List"),
 	{NULL,NULL,NULL,NULL}
 };
 
 static char* param_get_params(char** err _U_) {
-	param_t* p = disp_params;
-	GString* str = g_string_new("");
-	char* s;
-
-	for (;p->name;p++) {
-		g_string_append_printf(str,"%s(%s): %s\n",
-			p->name,((p->get && p->set)?"rw":(p->get?"ro":"wo")),p->desc);
-	}
-
-	s = str->str;
-	g_string_free(str,FALSE);
-	return s;
+	return paramset_get_params_list(disp_params,PARAM_LIST_FMT);
 }
-
-
-static param_t* get_paramset(char* name) {
-	int i;
-	for (i = 0; disp_params[i].name != NULL;i++) {
-		if (strcmp(name,disp_params[i].name) == 0 ) return &(disp_params[i]);
-	}
-	return NULL;
-}
-
-
 
 static struct dispatcher_child* dispatcher_get_child(struct dispatcher* d, int chld_id) {
 	int i;
@@ -451,6 +473,12 @@ static void set_dumpcap_pid(int pid) {
 }
 
 static void preinit_epan(char* argv0, int (*main)(int, char **)) {
+	char *gpf_path, *pf_path;
+	char *gdp_path, *dp_path;
+	int gpf_open_errno, gpf_read_errno;
+	int pf_open_errno, pf_read_errno;
+	int gdp_open_errno, gdp_read_errno;
+	int dp_open_errno, dp_read_errno;
 	char* error;
 
 	error = init_progfile_dir(argv0, main);
@@ -461,7 +489,9 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
  	runtime_info_str = g_string_new("Running ");
   	get_runtime_version_info(runtime_info_str, NULL);
 
-	capture_opts_init(&dispatcher->capture_opts);
+	version_long_str = g_strdup_printf("%s%s\n%s\n%s\n%s",
+		version_str, wireshark_svnversion, get_copyright_info(),
+		comp_info_str->str, runtime_info_str->str);
 
 	if (error) {
 		DISP_FATAL((CANNOT_PREINIT_EPAN,"Failed epan_preinit: msg='%s'",error));
@@ -470,6 +500,8 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	 /* Add it to the information to be reported on a crash. */
 	ws_add_crash_info("Echld " VERSION "%s\n%s\n%s",
 		wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+
+	init_stuff();
 		
 	capture_sync_set_fetch_dumpcap_pid_cb(set_dumpcap_pid);
 
@@ -481,28 +513,38 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 		DISP_FATAL((CANNOT_PREINIT_EPAN,"Error getting interfaces: %s", error));
 	}
 
-
 	prefs_apply_all();
 
 	/* disabled protocols as per configuration file */
 	set_disabled_protos_list();
 
-  	/* Here we do initialization of parts of epan that will be the same for every child we fork */
+	initialize_funnel_ops();
+
+	setlocale(LC_ALL, "");
+
+	stuff.prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path, &pf_open_errno, &pf_read_errno, &pf_path);
+	// check 4 errors
+
+	read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno, &dp_path, &dp_open_errno, &dp_read_errno);
+	// check 4 errors
+
+	cap_file_init(&stuff.cfile);
+
+    timestamp_set_precision(TS_PREC_AUTO_USEC);
 
 	DISP_DBG((2,"epan preinit done"));
-
 }
 
 
 static void dispatcher_clear(void) {
 	DISP_DBG((2,"dispatcher_clear"));
 	/* remove unnecessary stuff for the working child */
+	/* remove signal handlers */
 }
 
 void dispatcher_sig(int sig) {
 	DISP_FATAL((TERMINATED,"SIG sig=%d",sig));
 	exit(1);
-
 }
 
 void dispatcher_reaper(int sig) {
@@ -701,7 +743,7 @@ static void detach_new_child(enc_msg_t* em,  echld_chld_id_t chld_id) {
 				close(pipe_to_child);
 				close(pipe_from_child);
 
-				echld_child_initialize(chld_id, pipe_from_disp,pipe_to_disp,reqh_id);
+				echld_child_initialize(chld_id, pipe_from_disp,pipe_to_disp,reqh_id,&stuff);
 
 				exit( echld_child_loop() );
 
@@ -768,20 +810,9 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 				char* value;
 				if ( dispatcher->dec.from_parent->set_param(b,len,&param,&value) ) {
 					GByteArray* ba;
-					param_t* p = get_paramset(param);
 					char* err;
-					if (!p) {
-						dispatcher_err(ECHLD_CANNOT_SET_PARAM,"no such param='%s'",param);					
-						return 0;
-					}
-
-					if (! p->set ) {
-						dispatcher_err(ECHLD_CANNOT_SET_PARAM,"reason='read only'");
-						return 0;
-					}
-
-					if (! p->set(value,&err) ) {
-						dispatcher_err(ECHLD_CANNOT_SET_PARAM,"reason='%s'",err);
+					if (! paramset_apply_set (disp_params, param, value, &err) ) {
+						dispatcher_err(ECHLD_CANNOT_SET_PARAM,"%s",err);
 						g_free(err);
 						return 0;
 					}
@@ -804,20 +835,8 @@ static long dispatch_to_child(guint8* b, size_t len, echld_chld_id_t chld_id, ec
 					char* err;
 					char* val;
 
-					param_t* p = get_paramset(param);
-
-					if (!p) {
-						dispatcher_err(ECHLD_CANNOT_GET_PARAM,"no such param='%s'",param);					
-						return 0;
-					}
-
-					if (! p->get ) {
-						dispatcher_err(ECHLD_CANNOT_SET_PARAM,"reason='write only'");
-						return 0;
-					}
-
-					if (!(val = p->get(&err))) {
-						dispatcher_err(ECHLD_CANNOT_GET_PARAM,"reason='%s'",err);
+					if (! (val = paramset_apply_get (disp_params, param, &err)) ) {
+						dispatcher_err(ECHLD_CANNOT_GET_PARAM,"%s",err);
 						g_free(err);
 						return 0;
 					}
@@ -1020,7 +1039,6 @@ void echld_dispatcher_start(int* in_pipe_fds, int* out_pipe_fds, char* argv0, in
 	signal(SIGALRM,dispatcher_alrm);
 
 	dispatcher = &d;
-
 
 	echld_init_reader(&(d.parent_in),in_pipe_fds[0],4096);
 	d.parent_out = out_pipe_fds[1];

@@ -183,13 +183,16 @@ void parent_reaper(int sig) {
 }
 
 /* will initialize epan registering protocols and taps */
-void echld_initialize(echld_encoding_t enc,	char* argv0, int (*main)(int, char **)) {
+void echld_initialize(echld_init_t* init) {
 	int from_disp[2];
 	int to_disp[2];
-
 	PARENT_DBG((1,"Echld Starting"));
 
-	if (enc != ECHLD_ENCODING_JSON) {
+	if (!init) {
+		PARENT_FATAL((NO_INITIALIZER,"Missing Initializer"));
+	}
+
+	if (init->encoding != ECHLD_ENCODING_JSON) {
 		PARENT_FATAL((UNIMPLEMENTED,"Only JSON implemented"));
 	}
 
@@ -213,7 +216,12 @@ void echld_initialize(echld_encoding_t enc,	char* argv0, int (*main)(int, char *
 #endif
 			/* child code */
 			echld_cleanup();
-			echld_dispatcher_start(to_disp,from_disp,argv0,main);
+			
+			if (init->after_fork_cb)
+				init->after_fork_cb(init->after_fork_cb_data);
+
+			echld_dispatcher_start(to_disp,from_disp,init->argv0,init->main);
+
 			PARENT_FATAL((SHOULD_HAVE_EXITED_BEFORE,"This shoudln't happen"));
 		} else {
 			/* parent code */
@@ -468,7 +476,7 @@ static int msgh_attach(echld_t* c, echld_msg_type_t t, echld_msg_cb_t resp_cb, v
 
 static int next_chld_id = 1;
 
-extern int echld_new(void* child_data) {
+extern int echld_new(enc_msg_t* new_child_em, void* child_data) {
 	echld_t* c = get_child(-1);
 
 	if (!c) return -1;
@@ -477,12 +485,10 @@ extern int echld_new(void* child_data) {
 	c->data = child_data;
 	c->state = CREATING;
 
-	g_byte_array_set_size(parent.snd,0);
-
 	PARENT_DBG((1,"Child[%d]: =>CREATING",c->chld_id));
     
 	msgh_attach(c,ECHLD_CHILD_DEAD, parent_dead_child , c);
-    reqh_snd(c, ECHLD_NEW_CHILD, parent.snd, parent_get_hello, c);
+    reqh_snd(c, ECHLD_NEW_CHILD, (GByteArray*)new_child_em, parent_get_hello, c);
 
 	return c->chld_id;
 }
@@ -805,4 +811,41 @@ extern echld_state_t echld_wait(struct timeval* timeout) {
 	} else {
 		return ECHLD_OK;
 	}
+}
+
+enc_msg_t* echld_new_child_params(void) {
+	return (enc_msg_t*)g_byte_array_new();
+}
+
+enc_msg_t* echld_new_child_params_merge(enc_msg_t* em1, enc_msg_t* em2) {
+	GByteArray* ba = g_byte_array_new();
+	GByteArray* b1 = (GByteArray*)em1;
+	GByteArray* b2 = (GByteArray*)em2;
+
+	g_byte_array_append(ba,b1->data,b1->len);
+	g_byte_array_append(ba,b2->data,b2->len);
+
+	return (enc_msg_t*)ba;
+}
+
+WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t* em, ...) {
+	GByteArray* ba = (GByteArray*) em;
+	va_list ap;
+
+	va_start(ap,em);
+	do {
+		char* param_str = va_arg(ap, char*);
+
+		if (param_str) {
+			char* val_str = va_arg(ap, char*);
+
+			g_byte_array_append(ba, (guint8*) param_str, (guint)strlen(param_str)+1);
+			g_byte_array_append(ba, (guint8*) val_str, (guint)strlen(val_str)+1);
+			continue;
+		}
+
+		break;
+	} while(1);
+	va_end(ap);
+
 }

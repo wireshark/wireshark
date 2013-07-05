@@ -338,7 +338,96 @@ long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t
 	return (long) writev(fd, iov, iov_cnt);
 }
 
+/* paramset management */
 
+param_t* paramset_find (param_t* paramsets, char* name, char** err) {
+	int i;
+	for (i = 0; paramsets[i].name != NULL;i++) {
+		if (strcmp(name,paramsets[i].name) == 0 ) return &(paramsets[i]);
+	}
+
+	*err = g_strdup_printf("Could not find param='%s'",name);
+	return NULL;
+}
+
+echld_bool_t paramset_apply_set (param_t* paramsets, char* name, char* val, char** err) {
+	param_t* p = paramset_find(paramsets,name,err);
+	
+	if ( !p ) return FALSE;
+	if ( ! p->set ) {
+		*err = g_strdup_printf("Cannot set RO param='%s'",name);
+		return FALSE;
+	}
+
+	return p->set(val,err);
+}
+
+char* paramset_apply_get (param_t* paramsets, char* name, char** err) {
+	param_t* p = paramset_find(paramsets,name,err);
+	
+	if ( !p ) return NULL;
+
+	if ( ! p->get ) {
+		*err = g_strdup_printf("Cannot get WO param='%s'",name);
+		return NULL;
+	}
+
+	return p->get(err);
+}
+
+echld_bool_t paramset_apply_em(param_t* paramset, enc_msg_t* em, char** err) {
+	GByteArray* ba = (GByteArray*)em;
+	char* p = (char*) ba->data;
+	int tot_len = ba->len;
+	long rem = tot_len;
+	p[rem-1] = '\0'; /* make sure last char is null */
+
+	while(rem > 2) {
+		char* param = p;
+		long param_len = strlen(param)+1;
+		char* value = p + param_len;
+		long value_len;
+
+		rem -= param_len;
+
+		if (rem < 0) {
+			*err = g_strdup_printf("Malformed msg param len invalid");
+			return FALSE;
+		}
+
+		value_len = strlen(value)+1;
+
+		rem -= value_len;
+		p = value + value_len;
+
+		if (rem < 0) {
+			*err = g_strdup_printf("Malformed msg value len invalid");
+			return FALSE;
+		}
+
+		if (! paramset_apply_set(paramset,param,value,err)) 
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+char* paramset_get_params_list(param_t* paramsets,const char* fmt) { 
+	param_t* p = paramsets;
+	GString* str = g_string_new("");
+	char* s;
+
+	for (;p->name;p++) {
+		g_string_append_printf(str,fmt,
+			p->name,
+			((p->get && p->set)?"rw":(p->get?"ro":"wo")),
+			p->desc);
+	}
+
+	s = str->str;
+	g_string_free(str,FALSE);
+	return s;
+}
 
 /* encoders and decoders */
 

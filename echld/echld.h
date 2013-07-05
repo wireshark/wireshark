@@ -1,4 +1,4 @@
-/* echld_child.h
+/* echld.h
  *  epan working child API
  *
  * $Id$
@@ -65,6 +65,9 @@ typedef int echld_reqh_id_t;
 /* id of message handlers, a negative value is an error */
 typedef int echld_msgh_id_t;
 
+/* enc_msg_t is an obscure object for an encoded message (a GbyteArray for now)*/
+typedef struct _GByteArray enc_msg_t;
+
 /* sets the codec set by name */
 typedef enum _echld_encoding { 
 	ECHLD_ENCODING_TEXT = 'T',
@@ -77,11 +80,28 @@ typedef int echld_bool_t;
 /* typedef for a timeval so that sys/time.h is not required in the client */
 typedef struct timeval tv_t;
 
-/* will initialize epan registering protocols and taps */
-WS_DLL_PUBLIC void echld_initialize(echld_encoding_t, char* argv0, int (*main)(int, char **));
+typedef void (*cleanup_cb_t)(void*);
+typedef int (*main_t)(int, char**); /* a pointer to main() */
 
-/* cleans up (?) echld and kills the server process(es) */
+/* I will be passed to echld_initialize() */
+typedef struct _echld_init {
+	echld_encoding_t encoding; /* only JSON for now */
+	char* argv0; /* the value of argv[0] */
+	main_t main;
+	cleanup_cb_t after_fork_cb; /* to be called after fork to free the
+									child processes from entities of the parent */
+	void* after_fork_cb_data;
+
+	cleanup_cb_t at_term_cb; /* to be called after echld_terminate() is done */
+	void* at_term_cb_data; 
+} echld_init_t;
+
+/* will initialize echld forking the dispatcher and registering protocols and taps */
+WS_DLL_PUBLIC void echld_initialize(echld_init_t*);
+
+/* cleans up echld and kills the server process(es) */
 WS_DLL_PUBLIC echld_state_t echld_terminate(void);
+
 
 /*
  * returning ECHLD_NO_ERROR means there has being no error
@@ -93,25 +113,6 @@ WS_DLL_PUBLIC echld_state_t echld_terminate(void);
  * the response cb of reqh might be a ECHLD_ERROR message
  */
 WS_DLL_PUBLIC echld_error_t echld_get_error(const char** errstr_ptr);
-
-/*
- *  Children Management Operations
- */
-
-/* create a new worker process */
-WS_DLL_PUBLIC echld_chld_id_t echld_new(void* child_data);
-
-/* will return NULL on error, if NULL is also ok for you use echld_get_error() */
-WS_DLL_PUBLIC void* echld_get_data(echld_chld_id_t);
-
-WS_DLL_PUBLIC echld_state_t echld_set_data(echld_chld_id_t id, void* child_data);
-
-/* for each child call cb(id,child_data,cb_data) */
-typedef echld_bool_t (*echld_iter_cb_t)(echld_chld_id_t, void* child_data, void* cb_data);
-WS_DLL_PUBLIC void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
-
-/* enc_msg_t is an obscure object for an encoded message */
-typedef struct _GByteArray enc_msg_t;
 
 
 /*
@@ -125,7 +126,6 @@ typedef struct _GByteArray enc_msg_t;
  * returns TRUE if other potential handlers are to be run, false otherwise
  */
 typedef echld_bool_t (*echld_msg_cb_t)(echld_msg_type_t type, enc_msg_t* msg_buff, void* cb_data);
-
 
 
 /* encoding and decoding */
@@ -152,7 +152,9 @@ typedef struct _parent_out {
 	enc_msg_t* (*save_file)(const char* filename, const char* params);
 } echld_parent_encoder_t;
 
+
 WS_DLL_PUBLIC echld_parent_encoder_t* echld_get_encoder(void);
+
 
 /*
  * decoder
@@ -160,6 +162,31 @@ WS_DLL_PUBLIC echld_parent_encoder_t* echld_get_encoder(void);
  * it destroys the enc_msg_t as well.
  */
 WS_DLL_PUBLIC char* echld_decode(echld_msg_type_t, enc_msg_t*);
+
+/*
+ *  Children Management Operations
+ */
+
+WS_DLL_PUBLIC enc_msg_t* echld_new_child_params(void);
+
+/* takes the em, and param=value pairs of strings, NULL to end. 
+    echld_new_child_params_add_params(em,param1_str,val1_str,param2_str,val2_str,NULL);  */
+WS_DLL_PUBLIC void echld_new_child_params_add_params(enc_msg_t*, ...);
+
+WS_DLL_PUBLIC enc_msg_t* echld_new_child_params_merge(enc_msg_t*, enc_msg_t*);
+
+
+/* create a new worker process */
+WS_DLL_PUBLIC echld_chld_id_t echld_new(enc_msg_t* new_child_parameters, void* child_data);
+
+/* will return NULL on error, if NULL is also ok for you use echld_get_error() */
+WS_DLL_PUBLIC void* echld_get_data(echld_chld_id_t);
+
+WS_DLL_PUBLIC echld_state_t echld_set_data(echld_chld_id_t id, void* child_data);
+
+/* for each child call cb(id,child_data,cb_data) */
+typedef echld_bool_t (*echld_iter_cb_t)(echld_chld_id_t, void* child_data, void* cb_data);
+WS_DLL_PUBLIC void echld_foreach_child(echld_iter_cb_t cb, void* cb_data);
 
 /*
  *  Request Handlers

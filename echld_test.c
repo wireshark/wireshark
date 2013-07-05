@@ -64,8 +64,79 @@ typedef struct _cmd_t {
 	const char* help;
 } cmd_t;
 
-static char* new_child_cmd(char** params _U_, char** err) {
-	int child = echld_new(NULL);
+
+#define MAX_PARAMSETS 16
+
+static enc_msg_t* paramsets[MAX_PARAMSETS] = {
+	NULL,NULL,NULL,NULL, NULL,NULL,NULL,NULL,
+	NULL,NULL,NULL,NULL, NULL,NULL,NULL,NULL
+};
+
+static int nps = 0;
+
+static char* ps_cmd(char** pars _U_, char** err _U_) {
+	int n_id = nps++;
+
+	if (n_id >= MAX_PARAMSETS) {
+		*err = g_strdup("Max Num of Paramsets reached");
+		return NULL;
+	}
+
+	paramsets[n_id] = echld_new_child_params();
+
+	return g_strdup_printf("New Paramset ps_id=%d",n_id);
+}
+
+static char* psadd_cmd(char** params _U_, char** err) {
+	int ps_id = (int) strtol(params[1], NULL, 10);
+
+	if (ps_id >= nps) {
+		*err = g_strdup_printf("No paramset pd_is=%d",ps_id);
+		return NULL;
+	}
+
+	echld_new_child_params_add_params(paramsets[ps_id], params[2], params[3], NULL);
+
+	return g_strdup_printf("PSAdd ps_id=%d %s='%s'", ps_id, params[2], params[3]);
+} 
+
+static char* psmerge_cmd(char** params, char** err) {
+	int ps1_id = (int) strtol(params[1], NULL, 10);
+	int ps2_id = (int) strtol(params[2], NULL, 10);
+	int n_id;
+
+	if (ps1_id >= nps) {
+		*err = g_strdup_printf("No paramset pd_is=%d",ps1_id);
+		return NULL;
+	}
+
+	if (ps2_id >= nps) {
+		*err = g_strdup_printf("No paramset pd_is=%d",ps2_id);
+		return NULL;
+	}
+
+	n_id = nps++;
+
+	if (n_id >= MAX_PARAMSETS) {
+		*err = g_strdup_printf("Max Num of Paramsets reached");
+		return NULL;
+	}
+
+	paramsets[n_id] = echld_new_child_params_merge(paramsets[ps1_id],paramsets[ps2_id]);
+
+	return g_strdup_printf("Merged Paramset ps1_id=%d ps2_id=%d ps_id=%d",ps1_id, ps2_id, n_id);
+}
+
+static char* new_child_cmd(char** params, char** err) {
+	int ps_id = (int) strtol(params[1], NULL, 10);
+	int child;
+
+	if (ps_id >= nps) {
+		*err = g_strdup_printf("No paramset pd_is=%d",ps_id);
+		return NULL;
+	}
+
+	child = echld_new(paramsets[ps_id],NULL);
 
 	if (child <= 0) {
 		*err = g_strdup("No child\n");
@@ -215,11 +286,19 @@ static char* save_cmd(char** pars _U_, char** err _U_) {
 	return NULL;
 }
 
+static char* run_cmd(char** pars, char** err _U_);
+
+
+
 
 cmd_t commands[] = {
 	{ "QUIT", quit_cmd, 0, "QUIT"},
 	{ "HELP", help_cmd, 0, "HELP"},
-	{ "NEW", new_child_cmd, 0, "NEW"},
+	{ "RUN", run_cmd, 1, "RUN filename"},
+	{ "PS", ps_cmd, 1, "PS [dummy]"},
+	{ "PSADD", psadd_cmd, 4, "PSADD ps_id param value"},
+	{ "PSMERGE", psmerge_cmd, 4, "PSMERGE ps_id ps_id"},
+	{ "NEW", new_child_cmd, 1, "NEW ps_id"},
 	{ "PING", ping_cmd, 1, "PING child_id"},
 	{ "SET", set_cmd, 3, "SET child_id param_name param_val"},
 	{ "GET", get_cmd, 2, "GET child_id param_name"},
@@ -251,7 +330,47 @@ static char* help_cmd(char** params _U_, char** err _U_) {
 }
 
 
+static int invoke_cmd(FILE* in_fp) {
+	size_t len;
+	char* cmd_line;
 
+	if(( cmd_line = fgetln(in_fp,&len) )) {
+		cmd_t* c = commands;
+		cmd_line[len] = 0;
+		g_strchomp(cmd_line);
+
+		for (;c->txt;c++) {
+			if ( strcasestr(cmd_line, c->txt) == cmd_line ) {
+				char** params = g_strsplit(cmd_line, " ", c->args_taken+1);
+				char* err = NULL;
+				char* str = c->cb(params,&err);
+
+				if (err) {
+					fprintf(stdout, "Error: %s\n", err);
+					g_free(err);
+				} else {
+					fprintf(stdout, "%s\n", str);
+					g_free(str);
+				}
+				
+				g_strfreev(params);
+				return TRUE;
+			}
+		}
+		
+		fprintf(stdout, "Error: no such command %s\n", cmd_line);
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+static char* run_cmd(char** pars, char** err _U_) {
+	FILE* fp = fopen(pars[1],"r");
+	while(invoke_cmd(fp)) { ; }
+	fclose(fp);
+	return NULL;
+}
 
 
 int got_param = 0;
@@ -260,13 +379,15 @@ int got_param = 0;
 int main(int argc _U_, char** argv _U_) {
 	struct timeval tv;
 	int tot_cycles = 0;
+	echld_init_t init = {ECHLD_ENCODING_JSON,argv[0],main,NULL,NULL,NULL,NULL};
+	
 
 	tv.tv_sec = 5;
 	tv.tv_usec = 0;
 
 	echld_set_parent_dbg_level(5);
 
-	echld_initialize(ECHLD_ENCODING_JSON,argv[0],main);
+	echld_initialize(&init);
 
 	do {
 		fd_set rfds;
@@ -281,38 +402,9 @@ int main(int argc _U_, char** argv _U_) {
 		nfds = echld_select(FD_SETSIZE, &rfds, NULL, &efds, &tv);
 
 		if (FD_ISSET(0,&rfds)) {
-			size_t len;
-			char* cmd_line;
-
-			if(( cmd_line = fgetln(stdin,&len) )) {
-				cmd_t* c = commands;
-				cmd_line[len] = 0;
-				g_strchomp(cmd_line);
-
-				for (;c->txt;c++) {
-					if ( strcasestr(cmd_line, c->txt) == cmd_line ) {
-						char** params = g_strsplit(cmd_line, " ", c->args_taken+1);
-						char* err = NULL;
-						char* str = c->cb(params,&err);
-
-						if (err) {
-							fprintf(stdout, "Error: %s\n", err);
-							g_free(err);
-						} else {
-							fprintf(stdout, "%s\n", str);
-							g_free(str);
-						}
-						
-						g_strfreev(params);
-						goto cmd_executed;
-					}
-				}
-				
-				fprintf(stdout, "Error: no such command %s\n", cmd_line);
-			}
+			invoke_cmd(stdin);
 		}
 
-	cmd_executed:
 		tot_cycles++;
 	} while( keep_going );
 

@@ -48,6 +48,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <signal.h>
+#include <locale.h>
 
 #include <arpa/inet.h>
 
@@ -62,11 +63,16 @@
 #include "capture_ifinfo.h"
 #include "capture_sync.h"
 #include "version_info.h"
+#include "cfile.h"
 #include "wsutil/crash_info.h"
 #include "wsutil/privileges.h"
 #include "epan/filesystem.h"
 #include "epan/epan.h"
 #include "epan/prefs.h"
+#include "epan/ex-opt.h"
+#include "epan/funnel.h"
+#include "epan/prefs.h"
+#include "epan/timestamp.h"
 #include "disabled_protos.h"
 #include "echld.h"
 
@@ -149,6 +155,15 @@ typedef struct _param {
 	const char* desc;
 } param_t;
 
+extern param_t* paramset_find (param_t* paramsets, char* name, char** err);
+
+extern char* paramset_apply_get (param_t* paramsets, char* name, char** err);
+extern echld_bool_t paramset_apply_set (param_t* paramsets, char* name, char* val, char** err);
+extern echld_bool_t paramset_apply_em(param_t* paramset, enc_msg_t* em, char** err);
+
+#define PARAM_LIST_FMT "%s(%s): %s\n" /* name, rw|ro|wo, desc */
+char* paramset_get_params_list(param_t* paramsets,const char* fmt);
+
 #define PARAM_STR(Name, Default) static char* param_ ## Name = Default;  \
  static char* param_get_ ## Name (char** err _U_ ) { return  (param_ ## Name) ? g_strdup(param_ ## Name) : (*err = g_strdup( #Name " not set"), NULL); } \
  static echld_bool_t param_set_ ## Name (char* val , char** err _U_) { if (param_ ## Name) g_free(param_ ## Name); param_ ## Name = g_strdup(val); return TRUE; } \
@@ -164,6 +179,15 @@ typedef struct _param {
 #define PARAM(Name,Desc) {#Name, param_get_ ## Name, param_set_ ## Name, Desc}
 #define RO_PARAM(Name,Desc) {#Name, param_get_ ## Name, NULL, Desc}
 #define WO_PARAM(Name,Desc) {#Name, NULL, param_set_ ## Name, Desc}
+
+typedef struct _echld_epan_stuff_t {
+#ifdef HAVE_LIBPCAP
+	capture_session cap_sess;
+	capture_options cap_opts;
+	capture_file cfile;
+#endif	
+	e_prefs* prefs;
+} echld_epan_stuff_t;
 
 /* the call_back used by read_frame() */
 typedef long (*read_cb_t)(guint8*, size_t, echld_chld_id_t, echld_msg_type_t, echld_reqh_id_t, void*);
@@ -216,7 +240,7 @@ extern long echld_read_frame(echld_reader_t* r, read_cb_t cb, void* cb_data);
 extern long echld_write_frame(int fd, GByteArray* ba, guint16 chld_id, echld_msg_type_t type, guint16 reqh_id, void* data);
 
 
-extern void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id);
+extern void echld_child_initialize(echld_chld_id_t chld_id, int pipe_from_parent, int pipe_to_parent, int reqh_id, echld_epan_stuff_t* es);
 extern int echld_child_loop(void);
 
 /* never returns*/
@@ -242,20 +266,24 @@ extern void echld_unused(void);
 #define DISP_KILLED_CHILD_WAIT 100000 /* 0.1s */
 
 /* fatalities */
-#define BROKEN_PARENT_PIPE 123
-#define BROKEN_DUMPCAP_PIPE 124
-#define BROKEN_READFILE 125
-#define DISPATCHER_DEAD 126
-#define UNIMPLEMENTED 127
-#define CANNOT_FORK 128
-#define SHOULD_HAVE_EXITED_BEFORE 129
-#define DISPATCHER_PIPE_FAILED 130
-#define TERMINATED 140
-#define CANNOT_PREINIT_EPAN 141
+#define BROKEN_PARENT_PIPE 9
+#define BROKEN_DUMPCAP_PIPE 10
+#define BROKEN_READFILE 11
+#define DISPATCHER_DEAD 12
+#define UNIMPLEMENTED 13
+#define CANNOT_FORK 14
+#define SHOULD_HAVE_EXITED_BEFORE 15
+#define DISPATCHER_PIPE_FAILED 16
+#define TERMINATED 17
+#define CANNOT_PREINIT_EPAN 18
+#define NO_INITIALIZER 19
 
 #ifndef DEBUG_BASE
 #define echld_common_set_dbg(a,b,c) 
 #endif
+
+
+
 
 #ifdef __cplusplus
 extern "C" {
