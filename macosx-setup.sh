@@ -317,7 +317,6 @@ else
 	DO_RM="sudo rm"
 fi
 
-
 #
 # Parse command-line flags:
 #
