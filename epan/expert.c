@@ -437,9 +437,13 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field*
 	EXPERT_REGISTRAR_GET_NTH(expindex->ei, eiinfo);
 
 	va_start(ap, format);
-	ti = proto_tree_add_text(tree, tvb, start, length, format, ap);
+	ti = proto_tree_add_text_valist(tree, tvb, start, length, format, ap);
+	va_end(ap);
+
+	va_start(ap, format);
 	expert_set_info_vformat(pinfo, ti, eiinfo->group, eiinfo->severity, *eiinfo->hf_info.p_id, TRUE, format, ap);
 	va_end(ap);
+
 	return ti;
 }
 
