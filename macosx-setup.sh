@@ -316,7 +316,7 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     # OS X ships with libffi, but doesn't provide its pkg-config file;
     # explicitly specify LIBFFI_CFLAGS and LIBFFI_LIBS, so the configure
     # script doesn't try to use pkg-config to get the appropriate
-    # CFLAGS and LIBS.
+    # C flags and loader flags.
     #
     # And, what's worse, at least with the version of Xcode that comes
     # with Leopard, /usr/include/ffi/fficonfig.h doesn't define MACOSX,
@@ -343,11 +343,9 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
     then
 	# It's defined, nothing to do
-	CFLAGS="$CFLAGS -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" ./configure || exit 1
-	CFLAGS="$CFLAGS -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="$LDFLAGS -lffi" env | egrep LIBFFI_CFLAGS
+	LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -Wno-format-nonliteral" ./configure || exit 1
     else
-	CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="LDFLAGS-lffi" ./configure || exit 1
-	CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" LIBFFI_CFLAGS="$CFLAGS -I$includedir/ffi" LIBFFI_LIBS="LDFLAGS-lffi" env | egrep LIBFFI_CFLAGS
+	LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral" ./configure || exit 1
     fi
     make $MAKE_BUILD_OPTS || exit 1
     # Apply patch: we depend on libffi, but pkg-config doesn't get told.
