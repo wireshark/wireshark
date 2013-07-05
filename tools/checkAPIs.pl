@@ -1311,6 +1311,7 @@ sub checkAddTextCalls($$)
         my $add_text_count = 0;
         my $okay_add_text_count = 0;
         my $add_xxx_count = 0;
+        my $percentage = 100;
 
         # The 3 loops here are slow, but trying a single loop with capturing
         # parenthesis is even slower!
@@ -1334,11 +1335,13 @@ sub checkAddTextCalls($$)
         $add_text_count -= $okay_add_text_count;
 
         # Don't bother with files with small counts
-        if ($add_xxx_count < 10 || $add_text_count < 10) {
+        if (($add_xxx_count < 10 || $add_text_count < 10) && ($add_text_count+$add_xxx_count < 20)) {
                 return;
         }
 
-        my $percentage = 100*$add_text_count/$add_xxx_count;
+        if ($add_xxx_count > 0) {
+            $percentage = 100*$add_text_count/$add_xxx_count;
+        }
         if ($percentage > 50) {
                 printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
                         $filename, $add_text_count, $add_xxx_count, $percentage;
