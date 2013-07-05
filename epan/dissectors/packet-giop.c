@@ -440,6 +440,15 @@ static gint ett_giop_scl = -1;  /* ServiceContextList */
 static gint ett_giop_scl_st1 = -1;
 static gint ett_giop_ior = -1;  /* IOR  */
 
+static expert_field ei_giop_unknown_typecode_datatype = EI_INIT;
+static expert_field ei_giop_unknown_sign_value = EI_INIT;
+static expert_field ei_giop_unknown_tckind = EI_INIT;
+static expert_field ei_giop_length_too_big = EI_INIT;
+static expert_field ei_giop_version_not_supported = EI_INIT;
+static expert_field ei_giop_message_size_too_big = EI_INIT;
+static expert_field ei_giop_invalid_v_minor = EI_INIT;
+
+
 static const int *giop_message_flags[] = {
   &hf_giop_message_flags_ziop_enabled,
   &hf_giop_message_flags_ziop_supported,
@@ -2274,7 +2283,7 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_t
   case tk_abstract_interface:
     break;
   default:
-    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Unknown typecode data type %u", data_type);
+    expert_add_info_format_text(pinfo, item, &ei_giop_unknown_typecode_datatype, "Unknown typecode data type %u", data_type);
     break;
   }
 }
@@ -3021,7 +3030,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
       (*seq)[sindex] = '-';
       break;
     default:
-      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+      expert_add_info_format_text(pinfo, item, &ei_giop_unknown_sign_value,
           "Unknown sign value in fixed type %u", sign);
       (*seq)[sindex] = '*';     /* flag as sign unknown */
       break;
@@ -3446,7 +3455,7 @@ guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     dissect_tk_abstract_interface_params(tvb, tree, offset, stream_is_big_endian, boundary );
     break;
   default:
-    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Unknown TCKind %u", val);
+    expert_add_info_format_text(pinfo, ti, &ei_giop_unknown_tckind, "Unknown TCKind %u", val);
     break;
   } /* val */
 
@@ -3707,7 +3716,7 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
     ti = proto_tree_add_uint (tree, hf_giop_target_address_key_addr_len, tvb, *offset -4, 4, len);
 
     if (len > (guint32)tvb_reported_length_remaining(tvb, *offset-4)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "KeyAddr key length bigger than packet size");
+        expert_add_info_format_text(pinfo, ti, &ei_giop_length_too_big, "KeyAddr key length bigger than packet size");
         return;
     }
 
@@ -3804,7 +3813,7 @@ static void decode_UnknownServiceContext(tvbuff_t *tvb, packet_info *pinfo, prot
   ti = proto_tree_add_uint(tree, hf_giop_context_data_len, tvb, *offset - 4, 4, context_data_len);
 
   if (context_data_len > (guint32)tvb_reported_length_remaining(tvb, *offset-4)) {
-    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Context data length bigger than packet size");
+    expert_add_info_format_text(pinfo, ti, &ei_giop_length_too_big, "Context data length bigger than packet size");
     return;
   }
 
@@ -4327,7 +4336,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
     tf = proto_tree_add_uint (request_tree, hf_giop_objekt_key_len, tvb, offset-4, 4, objkey_len);
 
     if (objkey_len > (guint32)tvb_reported_length_remaining(tvb, offset-4)) {
-        expert_add_info_format(pinfo, tf, PI_MALFORMED, PI_ERROR, "Object key length bigger than packet size");
+        expert_add_info_format_text(pinfo, tf, &ei_giop_length_too_big, "Object key length bigger than packet size");
         return;
     }
 
@@ -4354,7 +4363,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   tf = proto_tree_add_uint (request_tree, hf_giop_req_principal_len, tvb, offset - 4, 4, len);
 
   if (len > (guint32)tvb_reported_length_remaining(tvb, offset-4)) {
-    expert_add_info_format(pinfo, tf, PI_MALFORMED, PI_ERROR, "Requesting Principal length bigger than packet size");
+    expert_add_info_format_text(pinfo, tf, &ei_giop_length_too_big, "Requesting Principal length bigger than packet size");
     return;
   }
 
@@ -4555,7 +4564,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
     proto_tree_add_uint (locate_request_tree, hf_giop_objekt_key_len, tvb, offset-4, 4, len);
 
     if (len > (guint32)tvb_reported_length_remaining(tvb, offset-4)) {
-        expert_add_info_format(pinfo, tf, PI_MALFORMED, PI_ERROR, "Object key length bigger than packet size");
+        expert_add_info_format_text(pinfo, tf, &ei_giop_length_too_big, "Object key length bigger than packet size");
         return;
     }
 
@@ -4701,7 +4710,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
                   header.GIOP_version.major, header.GIOP_version.minor);
 
-    expert_add_info_format(pinfo, version_item, PI_PROTOCOL, PI_WARN, "Version %u.%u not supported",
+    expert_add_info_format_text(pinfo, version_item, &ei_giop_version_not_supported, "Version %u.%u not supported",
                            header.GIOP_version.major, header.GIOP_version.minor);
 
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
@@ -4747,7 +4756,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   ti = proto_tree_add_uint(header_tree, hf_giop_message_size, tvb, 8, 4, message_size);
   if (message_size > GIOP_MAX_MESSAGE_SIZE)
   {
-      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+      expert_add_info_format_text(pinfo, ti, &ei_giop_message_size_too_big,
             "Message size %u is too big, perhaps it's an endian issue?", message_size);
       return;
   }
@@ -5341,8 +5350,6 @@ proto_register_giop (void)
     },
   };
 
-
-
   static gint *ett[] = {
     &ett_giop,
     &ett_giop_header,
@@ -5359,16 +5366,29 @@ proto_register_giop (void)
     &ett_giop_ior
 
   };
-    module_t *giop_module;
 
-  proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP",
-                                       "giop");
+  static ei_register_info ei[] = {
+    { &ei_giop_unknown_typecode_datatype, { "giop.unknown_typecode_datatype", PI_PROTOCOL, PI_WARN, "Unknown typecode data type", EXPFILL }},
+    { &ei_giop_unknown_sign_value, { "giop.unknown_sign_value", PI_PROTOCOL, PI_WARN, "Unknown sign value in fixed type", EXPFILL }},
+    { &ei_giop_unknown_tckind, { "giop.unknown_tckind", PI_PROTOCOL, PI_WARN, "Unknown TCKind", EXPFILL }},
+    { &ei_giop_length_too_big, { "giop.length_too_big", PI_MALFORMED, PI_ERROR, "length bigger than packet size", EXPFILL }},
+    { &ei_giop_version_not_supported, { "giop.version_not_supported", PI_PROTOCOL, PI_WARN, "Version not supported", EXPFILL }},
+    { &ei_giop_message_size_too_big, { "giop.message_size_too_big", PI_PROTOCOL, PI_WARN, "Message size is too big", EXPFILL }},
+    { &ei_giop_invalid_v_minor, { "giop.invalid_v_minor", PI_PROTOCOL, PI_WARN, "Invalid v_minor value", EXPFILL }},
+  };
+
+  module_t *giop_module;
+  expert_module_t* expert_giop;
+
+  proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP", "giop");
 
   /* Register by name */
   register_dissector("giop", dissect_giop_tcp, proto_giop);
 
   proto_register_field_array (proto_giop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_giop = expert_register_protocol(proto_giop);
+  expert_register_field_array(expert_giop, ei, array_length(ei));
 
 
   /* register init routine */
@@ -5532,7 +5552,7 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   default:
 
     if (seqlen_pd-1 > (guint32)tvb_reported_length_remaining(tvb, *offset-4)) {
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Profile data bigger than packet size");
+      expert_add_info_format_text(pinfo, ti, &ei_giop_length_too_big, "Profile data bigger than packet size");
       break;
     }
 
@@ -5601,7 +5621,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   ti = proto_tree_add_uint(tree,hf_giop_sequence_length,tvb,
                         *offset-4,4,seqlen);
   if (seqlen > (guint32)tvb_reported_length_remaining(tvb, *offset-4)) {
-    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Sequence length bigger than packet size");
+    expert_add_info_format_text(pinfo, ti, &ei_giop_length_too_big, "Sequence length bigger than packet size");
     return;
   }
 
@@ -5670,7 +5690,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       ti = proto_tree_add_uint(tree,hf_giop_sequence_length,tvb,
                             *offset-4,4,seqlen1);
       if (seqlen1 > (guint32)tvb_reported_length_remaining(tvb, *offset-4)) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Sequence length bigger than packet size");
+        expert_add_info_format_text(pinfo, ti, &ei_giop_length_too_big, "Sequence length bigger than packet size");
         return;
       }
 
@@ -5684,7 +5704,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     break;
 
   default:
-    expert_add_info_format(pinfo, ti_minor, PI_PROTOCOL, PI_WARN, "Invalid v_minor value = %u", v_minor);
+    expert_add_info_format_text(pinfo, ti_minor, &ei_giop_invalid_v_minor, "Invalid v_minor value = %u", v_minor);
     break;
   }
 

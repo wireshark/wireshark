@@ -229,6 +229,13 @@ static gint ett_mpls_echo_tlv_ilso = -1;
 static gint ett_mpls_echo_tlv_dd_map = -1;
 static gint ett_mpls_echo_tlv_ddstlv_map = -1;
 
+static expert_field ei_mpls_echo_tlv_fec_len = EI_INIT;
+static expert_field ei_mpls_echo_tlv_dd_map_subtlv_len = EI_INIT;
+static expert_field ei_mpls_echo_tlv_len = EI_INIT;
+static expert_field ei_mpls_echo_tlv_ds_map_muti_len = EI_INIT;
+static expert_field ei_mpls_echo_unknown_address_type = EI_INIT;
+static expert_field ei_mpls_echo_incorrect_address_type = EI_INIT;
+
 static guint global_mpls_echo_udp_port = UDP_PORT_MPLS_ECHO;
 
 static const value_string mpls_echo_msgtype[] = {
@@ -542,7 +549,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
         }
 
         if (length + 4 > rem) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                    "Invalid FEC Sub-TLV Length (claimed %u, found %u)",
                                    length, rem - 4);
             return;
@@ -568,7 +575,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_RSVP_IPv4:
             if (length != 20) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Length "
                                        "(claimed %u, should be %u)",
                                        length, 20);
@@ -593,7 +600,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_RSVP_IPv6:
             if (length != 56) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Length "
                                        "(claimed %u, should be %u)",
                                        length, 56);
@@ -662,7 +669,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_L2_CID_NEW:
             if (length < 14) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Length "
                                        "(claimed %u, should be %u)",
                                        length, 14);
@@ -683,7 +690,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_VENDOR_PRIVATE_START:
             if (length < 4) { /* SMI Enterprise code */
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Length "
                                        "(claimed %u, should be >= %u)",
                                        length, 4);
@@ -747,7 +754,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_P2MP_IPv4:
             if (length != 20) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Length "
                                        "(claimed %u, should be %u)",
                                        length, 20);
@@ -777,7 +784,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
 
         case TLV_FEC_STACK_P2MP_IPv6:
             if (length != 56) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Length "
                                        "(claimed %u, should be %u)",
                                        length, 56);
@@ -857,7 +864,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
         if (length  % 4) {
             pad = 4 - (length % 4);
             if (length + 4 + pad > rem) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_fec_len,
                                        "Invalid FEC Sub-TLV Padded Length (claimed %u, found %u)",
                                        length + pad, rem - 4);
                 return;
@@ -932,7 +939,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                              (offset + 8), 4, ENC_BIG_ENDIAN);
         break;
     default:
-        expert_add_info_format(pinfo, addr_ti, PI_UNDECODED, PI_WARN,
+        expert_add_info_format_text(pinfo, addr_ti, &ei_mpls_echo_unknown_address_type,
                                "Unknown Address Type (%u)", addr_type);
         break;
     }
@@ -950,7 +957,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
     rem    -= 16;
     offset += 16;
     if (rem < mplen) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+        expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_ds_map_muti_len,
                                "Invalid FEC Multipath (claimed %u, found %u)",
                                 mplen, rem);
         return;
@@ -960,7 +967,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
         switch (hash_type) {
         case TLV_DS_MAP_HASH_IP:
             if (mplen != 4) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_ds_map_muti_len,
                                        "Invalid FEC Multipath (claimed %u, should be 4)",
                                        mplen);
                 break;
@@ -973,7 +980,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             break;
         case TLV_DS_MAP_HASH_IP_RANGE:
             if (mplen != 8) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_ds_map_muti_len,
                                        "Invalid FEC Multipath (claimed %u, should be 8)",
                                        mplen);
                 break;
@@ -995,7 +1002,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             break;
         case TLV_DS_MAP_HASH_BITMASK_IP:
             if (mplen < 4) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_ds_map_muti_len,
                                        "Invalid FEC Multipath (claimed %u, should be 4)",
                                        mplen);
                 break;
@@ -1101,7 +1108,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                              (offset + 8), 4, ENC_BIG_ENDIAN);
         break;
     default:
-        expert_add_info_format(pinfo, ddti, PI_UNDECODED, PI_WARN,
+        expert_add_info_format_text(pinfo, ddti, &ei_mpls_echo_unknown_address_type,
                                "Unknown Address Type (%u)", addr_type);
         break;
     }
@@ -1126,7 +1133,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
        offset += 4;
 
        if (rem<subtlv_length){
-          expert_add_info_format(pinfo, ddti, PI_MALFORMED, PI_ERROR,
+          expert_add_info_format_text(pinfo, ddsti, &ei_mpls_echo_tlv_dd_map_subtlv_len,
                 "Invalid Sub-tlv Length (claimed %u, found %u)",
                 subtlv_length, rem);
           return;
@@ -1159,7 +1166,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
 
             case TLV_MULTIPATH_IP_ADDRESS:
                 if (multipath_length != 4) {
-                    expert_add_info_format(pinfo, ddsti, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ddsti, &ei_mpls_echo_tlv_dd_map_subtlv_len,
                                "Invalid Sub-tlv Length (claimed %u, should be 4)",
                                multipath_length);
                     break;
@@ -1183,7 +1190,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
 
             case TLV_MULTIPATH_IP_ADDRESS_RANGE:
                 if (multipath_length != 8) {
-                    expert_add_info_format(pinfo, ddsti, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ddsti, &ei_mpls_echo_tlv_dd_map_subtlv_len,
                                "Invalid Sub-tlv Length (claimed %u, should be 8)",
                                multipath_length);
                     break;
@@ -1209,7 +1216,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
 
             case TLV_MULTIPATH_BIT_MASKED_IP:
                 if (multipath_length < 4) {
-                    expert_add_info_format(pinfo, ddsti, PI_MALFORMED, PI_ERROR,
+                    expert_add_info_format_text(pinfo, ddsti, &ei_mpls_echo_tlv_dd_map_subtlv_len,
                                "Invalid Sub-tlv Length (claimed %u, should be >= 4)",
                                multipath_length);
                     break;
@@ -1348,8 +1355,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 
     if ((type == TLV_ADDR_IPv4) || (type == TLV_ADDR_UNNUM_IPv4)) {
         if (is_ipv6) {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                                   "Incorrect address type for TLV?");
+            expert_add_info(pinfo, ti, &ei_mpls_echo_incorrect_address_type);
         }
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_addr, tvb,
                             offset, 4, ENC_BIG_ENDIAN);
@@ -1364,8 +1370,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
         rem    -= 8;
     } else if ((type == TLV_ADDR_IPv6) || (type == TLV_ADDR_UNNUM_IPv6)) {
         if (!is_ipv6) {
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
-                                   "Incorrect address type for TLV?");
+            expert_add_info(pinfo, ti, &ei_mpls_echo_incorrect_address_type);
         }
 
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_addr, tvb,
@@ -1382,8 +1387,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
             rem    -= 20;
         }
     } else {
-        expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
-                               "Incorrect address type for TLV?");
+        expert_add_info(pinfo, ti, &ei_mpls_echo_incorrect_address_type);
         return;
     }
 
@@ -1511,7 +1515,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         break;
     case TLV_ILSO_IPv4:
         if (length < 12) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be >= 12)",
                                    length);
             break;
@@ -1520,7 +1524,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         break;
     case TLV_ILSO_IPv6:
         if (length < 24) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be >= 24)",
                                    length);
             break;
@@ -1551,7 +1555,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 #endif
     case TLV_P2MP_ECHO_JITTER:
         if (length != 4) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be 4)",
                                    length);
             break;
@@ -1570,7 +1574,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         case TLV_P2MP_RESPONDER_IDENT_IPV4_EGRESS_ADDR:
         case TLV_P2MP_RESPONDER_IDENT_IPV4_NODE_ADDR:
             if (resp_ident_len != 4) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                        "Invalid TLV Length (claimed %u, should be 4)",
                                        length);
                 break;
@@ -1587,7 +1591,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         case TLV_P2MP_RESPONDER_IDENT_IPV6_EGRESS_ADDR:
         case TLV_P2MP_RESPONDER_IDENT_IPV6_NODE_ADDR:
             if (resp_ident_len != 16) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                        "Invalid TLV Length (claimed %u, should be 16)",
                                        length);
                 break;
@@ -1605,7 +1609,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
     }
     case TLV_VENDOR_PRIVATE_START:
         if (length < 4) { /* SMI Enterprise code */
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be >= 4)",
                                    length);
         } else {
@@ -1617,7 +1621,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         break;
     case TLV_DOWNSTREAM_MAPPING:
         if (length < 16) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be >= 16)",
                                    length);
             break;
@@ -1626,7 +1630,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         break;
     case TLV_DETAILED_DOWNSTREAM:   /* [RFC 6424] */
         if (length < 16) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be >= 16)",
                                    length);
             break;
@@ -1642,7 +1646,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         break;
     case TLV_REPLY_TOS:
         if (length != 4) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+            expert_add_info_format_text(pinfo, ti, &ei_mpls_echo_tlv_len,
                                    "Invalid TLV Length (claimed %u, should be 4)",
                                    length);
             break;
@@ -2523,13 +2527,25 @@ proto_register_mpls_echo(void)
         &ett_mpls_echo_tlv_ddstlv_map
     };
 
+    static ei_register_info ei[] = {
+        { &ei_mpls_echo_tlv_fec_len, { "mpls_echo.tlv.fec.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid FEC TLV length", EXPFILL }},
+        { &ei_mpls_echo_tlv_dd_map_subtlv_len, { "mpls_echo.tlv.dd_map.subtlv_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid Sub-TLV length", EXPFILL }},
+        { &ei_mpls_echo_tlv_len, { "mpls_echo.tlv.len.invalid", PI_MALFORMED, PI_ERROR, "Invalid TLV length", EXPFILL }},
+        { &ei_mpls_echo_tlv_ds_map_muti_len, { "mpls_echo.tlv.ds_map.multi_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid Multipath TLV length", EXPFILL }},
+        { &ei_mpls_echo_unknown_address_type, { "mpls_echo.address_type.unknown", PI_UNDECODED, PI_WARN, "Unknown Address Type", EXPFILL }},
+        { &ei_mpls_echo_incorrect_address_type, { "mpls_echo.address_type.incorrect", PI_PROTOCOL, PI_WARN, "Incorrect address type for TLV?", EXPFILL }},
+    };
+
     module_t *mpls_echo_module;
+    expert_module_t* expert_mpls_echo;
 
     proto_mpls_echo = proto_register_protocol("Multiprotocol Label Switching Echo",
                                               "MPLS Echo", "mpls-echo");
 
     proto_register_field_array(proto_mpls_echo, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mpls_echo = expert_register_protocol(proto_mpls_echo);
+    expert_register_field_array(expert_mpls_echo, ei, array_length(ei));
 
     mpls_echo_module = prefs_register_protocol(proto_mpls_echo, proto_reg_handoff_mpls_echo);
     prefs_register_uint_preference(mpls_echo_module, "udp.port", "MPLS Echo UDP Port",

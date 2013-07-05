@@ -1485,7 +1485,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
                 {
                     local_scm_udid = (char *)se_alloc0(18 * sizeof(char));
                     g_snprintf(local_scm_udid, 18, "%s", tempString );
-                    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_NOTE, "Auto detected payload as SCM UDID [%s].", tempString);
+                    expert_add_info_format_text(pinfo, item, &ei_scmudid_autodetected, "Auto detected payload as SCM UDID [%s].", tempString);
                 }
             }
 

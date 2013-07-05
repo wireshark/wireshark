@@ -54,6 +54,12 @@ static int hf_banana_pb = -1;
 static gint ett_banana = -1;
 static gint ett_list = -1;
 
+static expert_field ei_banana_unknown_type = EI_INIT;
+static expert_field ei_banana_too_many_value_bytes = EI_INIT;
+static expert_field ei_banana_length_too_long = EI_INIT;
+static expert_field ei_banana_value_too_large = EI_INIT;
+static expert_field ei_banana_pb_error = EI_INIT;
+
 static dissector_handle_t banana_handle;
 
 #define BE_LIST         0x80
@@ -143,12 +149,12 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             if (is_element(byte)) {
                 break;
             } else {
-                expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_ERROR, "Unknown type %u", byte);
+                expert_add_info_format_text(pinfo, NULL, &ei_banana_unknown_type, "Unknown type %u", byte);
             }
         } else {
             val_len++;
             if (val_len > MAX_ELEMENT_VAL_LEN) {
-                expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_ERROR, "Too many value/length bytes");
+                expert_add_info(pinfo, NULL, &ei_banana_too_many_value_bytes);
             }
             val += byte + (val << 7);
         }
@@ -158,7 +164,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     switch (byte) {
         case BE_LIST:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_ERROR, "List length %" G_GINT64_MODIFIER "d longer than we can handle", val);
+                expert_add_info_format_text(pinfo, NULL, &ei_banana_length_too_long, "List length %" G_GINT64_MODIFIER "d longer than we can handle", val);
             }
             ti = proto_tree_add_uint_format_value(tree, hf_banana_list, tvb, start_offset, offset - start_offset - 1, (guint32) val, "(%d items)", (gint) val);
             list_tree = proto_item_add_subtree(ti, ett_list);
@@ -172,20 +178,20 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             break;
         case BE_INT:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Integer value %" G_GINT64_MODIFIER "d too large", val);
+                expert_add_info_format_text(pinfo, NULL, &ei_banana_value_too_large, "Integer value %" G_GINT64_MODIFIER "d too large", val);
             }
             proto_tree_add_uint(tree, hf_banana_int, tvb, start_offset, offset - start_offset, (guint32) val);
             break;
         case BE_STRING:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_ERROR, "String length %" G_GINT64_MODIFIER "d longer than we can handle", val);
+                expert_add_info_format_text(pinfo, NULL, &ei_banana_length_too_long, "String length %" G_GINT64_MODIFIER "d longer than we can handle", val);
             }
             proto_tree_add_item(tree, hf_banana_string, tvb, offset, (guint32) val, ENC_ASCII|ENC_NA);
             offset += (gint) val;
             break;
         case BE_NEG_INT:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Integer value -%" G_GINT64_MODIFIER "d too large", val);
+                expert_add_info_format_text(pinfo, NULL, &ei_banana_value_too_large, "Integer value -%" G_GINT64_MODIFIER "d too large", val);
             }
             proto_tree_add_int(tree, hf_banana_neg_int, tvb, start_offset, offset - start_offset, (gint32) val * -1);
             break;
@@ -201,7 +207,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             break;
         case BE_PB:
             if (val_len > 1) {
-                expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "More than 1 byte before pb");
+                expert_add_info(pinfo, NULL, &ei_banana_pb_error);
             }
             /*
              * The spec says the pb dictionary value comes after the tag.
@@ -321,6 +327,7 @@ proto_register_banana(void)
     };
 
     module_t *banana_module;
+    expert_module_t* expert_banana;
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
@@ -328,13 +335,22 @@ proto_register_banana(void)
         &ett_list
     };
 
+    static ei_register_info ei[] = {
+        { &ei_banana_unknown_type, { "banana.unknown_type", PI_UNDECODED, PI_ERROR, "Unknown type", EXPFILL }},
+        { &ei_banana_too_many_value_bytes, { "banana.too_many_value_bytes", PI_UNDECODED, PI_ERROR, "Too many value/length bytes", EXPFILL }},
+        { &ei_banana_length_too_long, { "banana.length_too_long", PI_UNDECODED, PI_ERROR, "Length too long", EXPFILL }},
+        { &ei_banana_value_too_large, { "banana.value_too_large", PI_MALFORMED, PI_ERROR, "Value too large", EXPFILL }},
+        { &ei_banana_pb_error, { "banana.pb_error", PI_MALFORMED, PI_ERROR, "More than 1 byte before pb", EXPFILL }},
+    };
+
     /* Register the protocol name and description */
-    proto_banana = proto_register_protocol("Twisted Banana",
-        "Banana", "banana");
+    proto_banana = proto_register_protocol("Twisted Banana", "Banana", "banana");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_banana, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_banana = expert_register_protocol(proto_banana);
+    expert_register_field_array(expert_banana, ei, array_length(ei));
 
     /* Initialize dissector preferences */
     banana_module = prefs_register_protocol(proto_banana, banana_prefs);

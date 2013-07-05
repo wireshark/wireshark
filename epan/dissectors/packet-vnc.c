@@ -793,6 +793,15 @@ static gint ett_vnc_key_events = -1;
 static gint ett_vnc_touch_events = -1;
 static gint ett_vnc_slrle_subline = -1;
 
+static expert_field ei_vnc_possible_gtk_vnc_bug = EI_INIT;
+static expert_field ei_vnc_auth_code_mismatch = EI_INIT;
+static expert_field ei_vnc_unknown_tight_vnc_auth = EI_INIT;
+static expert_field ei_vnc_too_many_rectangles = EI_INIT;
+static expert_field ei_vnc_too_many_sub_rectangles = EI_INIT;
+static expert_field ei_vnc_invalid_encoding = EI_INIT;
+static expert_field ei_vnc_too_many_colors = EI_INIT;
+static expert_field ei_vnc_too_many_cut_text = EI_INIT;
+
 /* Global so they keep their value between packets */
 guint8 vnc_bytes_per_pixel;
 guint8 vnc_depth;
@@ -943,7 +952,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto
 			*/
 			if ((pinfo != NULL) && (tree != NULL)) {
 				bug_item = proto_tree_add_text(tree, tvb, -1, 0, "NULL found in greeting");
-				expert_add_info_format(pinfo, bug_item, PI_MALFORMED, PI_ERROR, "client -> server greeting must be 12 bytes (possible gtk-vnc bug)");
+				expert_add_info(pinfo, bug_item, &ei_vnc_possible_gtk_vnc_bug);
 			}
 
 			return TRUE;
@@ -1177,36 +1186,36 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				switch(auth_code) {
 					case VNC_SECURITY_TYPE_NONE:
 						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "NOAUTH__") != 0)) {
-							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
+							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 						}
 						break;
 					case VNC_SECURITY_TYPE_VNC:
 						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "VNCAUTH_") != 0)) {
-							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
+							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 						}
 						break;
 					case VNC_SECURITY_TYPE_VENCRYPT:
 						if ((g_ascii_strcasecmp(vendor, "VENC") != 0) || (g_ascii_strcasecmp(signature, "VENCRYPT") != 0)) {
-							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
+							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 						}
 						break;
 					case VNC_SECURITY_TYPE_GTK_VNC_SASL:
 						if ((g_ascii_strcasecmp(vendor, "GTKV") != 0) || (g_ascii_strcasecmp(signature, "SASL____") != 0)) {
-							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
+							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 						}
 						break;
 					case VNC_TIGHT_AUTH_TGHT_ULGNAUTH:
 						if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "ULGNAUTH") != 0)) {
-							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
+							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 						}
 						break;
 					case VNC_TIGHT_AUTH_TGHT_XTRNAUTH:
 						if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "XTRNAUTH") != 0)) {
-							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
+							expert_add_info(pinfo, auth_item, &ei_vnc_auth_code_mismatch);
 						}
 						break;
 					default:
-						expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_ERROR, "Unknown TIGHT VNC authentication");
+						expert_add_info(pinfo, auth_item, &ei_vnc_unknown_tight_vnc_auth);
 						break;
 				}
 			}
@@ -1248,7 +1257,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3;
 				break;
 			default:
-				expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_ERROR, "Unknown authentication selected");
+				expert_add_info(pinfo, auth_item, &ei_vnc_unknown_tight_vnc_auth);
 				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3;
 				break;
 		}
@@ -1809,8 +1818,8 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	ti = proto_tree_add_item(tree, hf_vnc_rectangle_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
 	if (num_rects > 5000) {
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-				       "Too many rectangles, aborting dissection");
+		expert_add_info_format_text(pinfo, ti, &ei_vnc_too_many_rectangles,
+				"Too many rectangles (%d), aborting dissection", num_rects);
 		return(0);
 	}
 
@@ -2071,8 +2080,8 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	if (num_subrects > 10000) {
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-				       "Too many sub-rectangles, aborting dissection");
+		expert_add_info_format_text(pinfo, ti, &ei_vnc_too_many_sub_rectangles,
+				"Too many sub-rectangles (%d), aborting dissection", num_subrects);
 		return(0);
 	}
 
@@ -2972,8 +2981,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	} else if (comp_ctl > TIGHT_RECT_MAX_VALUE) {
 		/* invalid encoding */
 
-		expert_add_info_format(pinfo, compression_type_ti, PI_MALFORMED, PI_ERROR,
-				       "Invalid encoding");
+		expert_add_info(pinfo, compression_type_ti, &ei_vnc_invalid_encoding);
 	} else {
 		guint row_size;
 		gint bits_per_pixel;
@@ -3123,8 +3131,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 				 *offset, 2, ENC_BIG_ENDIAN);
 
 	if (number_of_colors > 10000) {
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-				       "Too many colors (%d), aborting dissection",
+		expert_add_info_format_text(pinfo, ti, &ei_vnc_too_many_colors,"Too many colors (%d), aborting dissection",
 				       number_of_colors);
 		return(0);
 	}
@@ -3191,8 +3198,8 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	if (text_len > 100000) {
-		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-				       "Too much cut text, aborting dissection");
+		expert_add_info_format_text(pinfo, pi, &ei_vnc_too_many_cut_text,
+				"Too much cut text (%d), aborting dissection", text_len);
 		return(0);
 	}
 
@@ -3263,6 +3270,7 @@ void
 proto_register_vnc(void)
 {
 	module_t *vnc_module; /* To handle our preferences */
+	expert_module_t* expert_vnc;
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
@@ -4441,6 +4449,17 @@ proto_register_vnc(void)
 		&ett_vnc_slrle_subline
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_vnc_possible_gtk_vnc_bug, { "vnc.possible_gtk_vnc_bug", PI_MALFORMED, PI_ERROR, "client -> server greeting must be 12 bytes (possible gtk-vnc bug)", EXPFILL }},
+		{ &ei_vnc_auth_code_mismatch, { "vnc.auth_code_mismatch", PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature", EXPFILL }},
+		{ &ei_vnc_unknown_tight_vnc_auth, { "vnc.unknown_tight_vnc_auth", PI_PROTOCOL, PI_ERROR, "Unknown TIGHT VNC authentication", EXPFILL }},
+		{ &ei_vnc_too_many_rectangles, { "vnc.too_many_rectangles", PI_MALFORMED, PI_ERROR, "Too many rectangles, aborting dissection", EXPFILL }},
+		{ &ei_vnc_too_many_sub_rectangles, { "vnc.too_many_sub_rectangles", PI_MALFORMED, PI_ERROR, "Too many sub-rectangles, aborting dissection", EXPFILL }},
+		{ &ei_vnc_invalid_encoding, { "vnc.invalid_encoding", PI_MALFORMED, PI_ERROR, "Invalid encoding", EXPFILL }},
+		{ &ei_vnc_too_many_colors, { "vnc.too_many_colors", PI_MALFORMED, PI_ERROR, "Too many colors, aborting dissection", EXPFILL }},
+		{ &ei_vnc_too_many_cut_text, { "vnc.too_many_cut_text", PI_MALFORMED, PI_ERROR, "Too much cut text, aborting dissection", EXPFILL }},
+	};
+
 	/* Register the protocol name and description */
 	proto_vnc = proto_register_protocol("Virtual Network Computing",
 					    "VNC", "vnc");
@@ -4448,6 +4467,8 @@ proto_register_vnc(void)
 	/* Required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_vnc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_vnc = expert_register_protocol(proto_vnc);
+	expert_register_field_array(expert_vnc, ei, array_length(ei));
 
 	/* Register our preferences module */
 	vnc_module = prefs_register_protocol(proto_vnc, proto_reg_handoff_vnc);

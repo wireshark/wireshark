@@ -81,6 +81,10 @@ static gint ett_coap			= -1;
 static gint ett_coap_option		= -1;
 static gint ett_coap_payload		= -1;
 
+static expert_field ei_coap_invalid_option_number = EI_INIT;
+static expert_field ei_coap_invalid_option_range = EI_INIT;
+static expert_field ei_coap_option_length_bad = EI_INIT;
+
 /* CoAP's IANA-assigned port number */
 #define DEFAULT_COAP_PORT	5683
 
@@ -281,14 +285,13 @@ coap_opt_check(packet_info *pinfo, proto_tree *subtree, guint opt_num, gint opt_
 			break;
 	}
 	if (i == (int)(array_length(coi))) {
-		expert_add_info_format(pinfo, subtree, PI_MALFORMED, PI_WARN,
-		    "Invalid Option Number %d", opt_num);
+		expert_add_info_format_text(pinfo, subtree, &ei_coap_invalid_option_number,
+			"Invalid Option Number %d", opt_num);
 		return -1;
 	}
 	if (opt_length < coi[i].min || opt_length > coi[i].max) {
-		expert_add_info_format(pinfo, subtree, PI_MALFORMED,
-		    PI_WARN, "Invalid Option Range: %d (%d < x < %d)",
-		    opt_length, coi[i].min, coi[i].max);
+		expert_add_info_format_text(pinfo, subtree, &ei_coap_invalid_option_range,
+			"Invalid Option Range: %d (%d < x < %d)", opt_length, coi[i].min, coi[i].max);
 	}
 
 	return 0;
@@ -575,9 +578,8 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_delta += opt_delta_ext;
 		break;
 	case 0xf0:
-		expert_add_info_format(pinfo, coap_tree,
-		    PI_MALFORMED, PI_WARN,
-		    "end-of-options marker found, but option length isn't 15");
+		expert_add_info_format_text(pinfo, coap_tree, &ei_coap_option_length_bad,
+				"end-of-options marker found, but option length isn't 15");
 		return -1;
 	default:
 		opt_delta = ((opt_jump & 0xf0) >> 4);
@@ -620,18 +622,16 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		opt_length += opt_length_ext;
 		break;
 	case 0x0f:
-		expert_add_info_format(pinfo, coap_tree,
-		    PI_MALFORMED, PI_WARN,
-		    "end-of-options marker found, but option delta isn't 15");
+		expert_add_info_format_text(pinfo, coap_tree, &ei_coap_option_length_bad,
+			"end-of-options marker found, but option delta isn't 15");
 		return -1;
 	default:
 		opt_length = (opt_jump & 0x0f);
 		break;
 	}
 	if (offset + opt_length > coap_length) {
-		expert_add_info_format(pinfo, coap_tree,
-		    PI_MALFORMED, PI_WARN,
-		    "option longer than the package");
+		expert_add_info_format_text(pinfo, coap_tree, &ei_coap_option_length_bad,
+			"option longer than the package");
 		return -1;
 	}
 
@@ -1069,11 +1069,20 @@ proto_register_coap(void)
 		&ett_coap_payload,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_coap_invalid_option_number, { "coap.invalid_option_number", PI_MALFORMED, PI_WARN, "Invalid Option Number", EXPFILL }},
+		{ &ei_coap_invalid_option_range, { "coap.invalid_option_range", PI_MALFORMED, PI_WARN, "Invalid Option Range", EXPFILL }},
+		{ &ei_coap_option_length_bad, { "coap.option_length_bad", PI_MALFORMED, PI_WARN, "Option length bad", EXPFILL }},
+	};
+
 	module_t *coap_module;
+	expert_module_t* expert_coap;
 
 	proto_coap = proto_register_protocol("Constrained Application Protocol", "CoAP", "coap");
 	proto_register_field_array(proto_coap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_coap = expert_register_protocol(proto_coap);
+	expert_register_field_array(expert_coap, ei, array_length(ei));
 
 	register_dissector("coap", dissect_coap, proto_coap);
 

@@ -362,6 +362,12 @@ static int hf_afp_extattr_start_index	    = -1;
 static int hf_afp_extattr_reply_size	    = -1;
 static int ett_afp_extattr_names	    = -1;
 
+static expert_field ei_afp_subquery_count_over_safety_limit = EI_INIT;
+static expert_field ei_afp_subquery_count_over_query_count = EI_INIT;
+static expert_field ei_afp_abnormal_num_subqueries = EI_INIT;
+static expert_field ei_afp_too_many_acl_entries = EI_INIT;
+static expert_field ei_afp_ip_port_reused = EI_INIT;
+
 static int afp_tap			    = -1;
 
 static dissector_handle_t data_handle;
@@ -4060,7 +4066,7 @@ spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 	offset += 8;
 
 	if (count > SUBQ_SAFETY_LIM) {
-		expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+		expert_add_info_format_text(pinfo, tree, &ei_afp_subquery_count_over_safety_limit,
 							   "Subquery count (%d) > safety limit (%d)", count, SUBQ_SAFETY_LIM);
 		return -1;
 	}
@@ -4291,12 +4297,12 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			subquery_count = (gint)(query_data64 >> 32);
 			if (subquery_count > count) {
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
-				expert_add_info_format(pinfo, item_query, PI_MALFORMED, PI_ERROR,
+				expert_add_info_format_text(pinfo, item_query, &ei_afp_subquery_count_over_query_count,
 					"Subquery count (%d) > query count (%d)", subquery_count, count);
 				count = 0;
 			} else if (subquery_count > 20) {
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
-				expert_add_info_format(pinfo, item_query, PI_PROTOCOL, PI_WARN,
+				expert_add_info_format_text(pinfo, item_query, &ei_afp_abnormal_num_subqueries,
 					"Abnormal number of subqueries (%d)", subquery_count);
 				count -= subquery_count;
 			} else {
@@ -4664,7 +4670,7 @@ decode_kauth_ace(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 #define AFP_MAX_ACL_ENTRIES 500 /* Arbitrary. */
 static gint
-decode_kauth_acl(tvbuff_t *tvb, proto_tree *tree, gint offset)
+decode_kauth_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	int         entries;
 	int         i;
@@ -4683,7 +4689,7 @@ decode_kauth_acl(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	offset += 4;
 
 	if (entries > AFP_MAX_ACL_ENTRIES) {
-		expert_add_info_format(NULL, item, PI_UNDECODED, PI_WARN, "Too many ACL entries (%u). Stopping dissection.", entries);
+		expert_add_info_format_text(pinfo, item, &ei_afp_too_many_acl_entries, "Too many ACL entries (%u). Stopping dissection.", entries);
 		THROW(ReportedBoundsError);
 	}
 
@@ -4698,7 +4704,7 @@ decode_kauth_acl(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 static gint
-decode_uuid_acl(tvbuff_t *tvb, proto_tree *tree, gint offset, guint16 bitmap)
+decode_uuid_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint16 bitmap)
 {
 	if ((offset & 1))
 		PAD(1);
@@ -4714,7 +4720,7 @@ decode_uuid_acl(tvbuff_t *tvb, proto_tree *tree, gint offset, guint16 bitmap)
 	}
 
 	if ((bitmap & kFileSec_ACL)) {
-		offset = decode_kauth_acl(tvb, tree, offset);
+		offset = decode_kauth_acl(tvb, pinfo, tree, offset);
 	}
 
 	return offset;
@@ -4734,7 +4740,7 @@ dissect_query_afp_set_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 	offset = decode_name(tree, pinfo, tvb, offset);
 
-	offset = decode_uuid_acl(tvb, tree, offset, bitmap);
+	offset = decode_uuid_acl(tvb, pinfo, tree, offset, bitmap);
 
 	return offset;
 }
@@ -4759,14 +4765,14 @@ dissect_query_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
 
 	bitmap = decode_acl_list_bitmap(tvb, tree, offset);
 	offset += 2;
 
-	offset = decode_uuid_acl(tvb, tree, offset, bitmap);
+	offset = decode_uuid_acl(tvb, pinfo, tree, offset, bitmap);
 
 	return offset;
 }
@@ -4889,8 +4895,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			col_set_str(pinfo->cinfo, COL_INFO,
 				    "[Error!IP port reused, you need to split the capture file]");
-			expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-					       "IP port reused, you need to split the capture file");
+			expert_add_info(pinfo, ti, &ei_afp_ip_port_reused);
 			return;
 		}
 
@@ -6790,9 +6795,20 @@ proto_register_afp(void)
 		&ett_afp_spotlight_toc
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_afp_subquery_count_over_safety_limit, { "afp.subquery_count_over_safety_limit", PI_MALFORMED, PI_ERROR, "Subquery count > safety limit ", EXPFILL }},
+		{ &ei_afp_subquery_count_over_query_count, { "afp.subquery_count_over_query_count", PI_MALFORMED, PI_ERROR, "Subquery count > query count", EXPFILL }},
+		{ &ei_afp_abnormal_num_subqueries, { "afp.abnormal_num_subqueries", PI_PROTOCOL, PI_WARN, "Abnormal number of subqueries", EXPFILL }},
+		{ &ei_afp_too_many_acl_entries, { "afp.too_many_acl_entries", PI_UNDECODED, PI_WARN, "Too many ACL entries", EXPFILL }},
+		{ &ei_afp_ip_port_reused, { "afp.ip_port_reused", PI_SEQUENCE, PI_WARN, "IP port reused, you need to split the capture file", EXPFILL }},
+	};
+	expert_module_t* expert_afp;
+
 	proto_afp = proto_register_protocol("Apple Filing Protocol", "AFP", "afp");
 	proto_register_field_array(proto_afp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_afp = expert_register_protocol(proto_afp);
+	expert_register_field_array(expert_afp, ei, array_length(ei));
 
 	register_init_routine(afp_reinit);
 

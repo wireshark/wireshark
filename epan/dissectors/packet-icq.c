@@ -56,6 +56,10 @@ static gint ett_icq_decode = -1;
 static gint ett_icq_body = -1;
 static gint ett_icq_body_parts = -1;
 
+static expert_field ei_icq_unknown_meta_subcmd = EI_INIT;
+static expert_field ei_icq_unknown_command = EI_INIT;
+static expert_field ei_icq_unknown_version = EI_INIT;
+
 /* This is not IANA registered */
 #define UDP_PORT_ICQ	4000
 
@@ -521,8 +525,8 @@ static void
 icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		     packet_info *pinfo)
 {
-    proto_item* ti = NULL;
-    proto_tree* subtree = NULL;
+    proto_item *ti, *msg_item;
+    proto_tree *subtree;
     int left = size;
     guint16 msgType;
     gint sep_offset;
@@ -565,7 +569,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
     /* Create a new subtree */
     subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
-    proto_tree_add_text(subtree, tvb, offset, 2,
+    msg_item = proto_tree_add_text(subtree, tvb, offset, 2,
 			"Type: %u (%s)", msgType, findMsgType(msgType));
     offset += 2;
     left -= 2;
@@ -584,9 +588,8 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
     case 0xffff:           /* Field unknown */
 	break;
     default:
-	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
-			       "Unknown msgType: %u (0x%x)", msgType,
-			       msgType);
+	expert_add_info_format_text(pinfo, msg_item, &ei_icq_unknown_command,
+			       "Unknown msgType: %u (0x%x)", msgType, msgType);
 	break;
     case MSG_TEXT:
 	proto_tree_add_text(subtree, tvb, offset, left, "Msg: %.*s", left-1,
@@ -1349,8 +1352,8 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	}
 	default:
 	    /* This information is already printed in the tree */
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
-				   "Meta subcmd: 0x%x", subcmd);
+	    expert_add_info_format_text(pinfo, ti, &ei_icq_unknown_meta_subcmd,
+				   "Unknown Meta subcmd: 0x%x", subcmd);
 	    break;
 	}
     }
@@ -1567,9 +1570,9 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    icqv5_cmd_no_params(icq_tree, decr_tvb, ICQ5_CL_HDRSIZE);
 	    break;
 	default:
-	    proto_tree_add_text(icq_tree, decr_tvb, ICQ5_CL_HDRSIZE,
+	    ti = proto_tree_add_text(icq_tree, decr_tvb, ICQ5_CL_HDRSIZE,
 				pktsize - ICQ5_CL_HDRSIZE, "Body");
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
+	    expert_add_info_format_text(pinfo, ti, &ei_icq_unknown_command,
 				   "Missing: %s", findClientCmd(cmd));
 	    break;
 	}
@@ -1667,9 +1670,9 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    icqv5_srv_no_params(icq_tree, tvb, offset + ICQ5_SRV_HDRSIZE);
 	    break;
 	default:
-	    proto_tree_add_text(icq_tree, tvb, offset + ICQ5_SRV_HDRSIZE,
+	    ti = proto_tree_add_text(icq_tree, tvb, offset + ICQ5_SRV_HDRSIZE,
 				pktsize - ICQ5_SRV_HDRSIZE, "Body");
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
+	    expert_add_info_format_text(pinfo, ti, &ei_icq_unknown_command,
 				   "Missing: %s", findClientCmd(cmd));
 	    break;
 	}
@@ -1719,7 +1722,7 @@ dissect_icq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       dissect_icqv2(tvb, pinfo, tree);
       break;
   default:
-      expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN,
+      expert_add_info_format_text(pinfo, NULL, &ei_icq_unknown_version,
 			     "Unknown version (0x%x)", version);
       break;
   }
@@ -1756,12 +1759,19 @@ proto_register_icq(void)
         &ett_icq_body,
         &ett_icq_body_parts,
     };
+    static ei_register_info ei[] = {
+        { &ei_icq_unknown_meta_subcmd, { "icq.unknown_meta_subcmd", PI_UNDECODED, PI_WARN, "Unknown meta subcmd", EXPFILL }},
+        { &ei_icq_unknown_command, { "icq.unknown_command", PI_UNDECODED, PI_WARN, "Unknown msgType", EXPFILL }},
+        { &ei_icq_unknown_version, { "icq.unknown_version", PI_UNDECODED, PI_WARN, "Unknown version", EXPFILL }},
+    };
+
+    expert_module_t* expert_icq;
 
     proto_icq = proto_register_protocol("ICQ Protocol", "ICQ", "icq");
-
     proto_register_field_array(proto_icq, hf, array_length(hf));
-
     proto_register_subtree_array(ett, array_length(ett));
+    expert_icq = expert_register_protocol(proto_icq);
+    expert_register_field_array(expert_icq, ei, array_length(ei));
 }
 
 void
