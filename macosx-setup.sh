@@ -8,6 +8,341 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 #
 
+#
+# Versions to download and install.
+#
+# The following libraries and tools are required.
+#
+GETTEXT_VERSION=0.18.2
+GLIB_VERSION=2.36.0
+PKG_CONFIG_VERSION=0.28
+ATK_VERSION=2.8.0
+PANGO_VERSION=1.30.1
+PNG_VERSION=1.5.14
+PIXMAN_VERSION=0.26.0
+CAIRO_VERSION=1.12.2
+GDK_PIXBUF_VERSION=2.28.0
+if [ -z "$GTK3" ]; then
+  GTK_VERSION=2.24.17
+else
+  GTK_VERSION=3.5.2
+fi
+
+#
+# Some package need xz to unpack their current source.
+# xz is not available on OSX (Snow Leopard).
+#
+XZ_VERSION=5.0.4
+
+# In case we want to build with cmake
+CMAKE_VERSION=2.8.10.2
+
+#
+# The following libraries are optional.
+# Comment them out if you don't want them, but note that some of
+# the optional libraries are required by other optional libraries.
+#
+LIBSMI_VERSION=0.4.8
+#
+# libgpg-error is required for libgcrypt.
+#
+LIBGPG_ERROR_VERSION=1.10
+#
+# libgcrypt is required for GnuTLS.
+# XXX - the link for "Libgcrypt source code" at
+# http://www.gnupg.org/download/#libgcrypt is for 1.5.0, and is a bzip2
+# file, but http://directory.fsf.org/project/libgcrypt/ lists only
+# 1.4.6.
+#
+LIBGCRYPT_VERSION=1.5.0
+GNUTLS_VERSION=2.12.19
+# Stay with Lua 5.1 when updating until the code has been changed
+# to support 5.2
+LUA_VERSION=5.1.5
+PORTAUDIO_VERSION=pa_stable_v19_20111121
+#
+# XXX - they appear to have an unversioned gzipped tarball for the
+# current version; should we just download that, with some other
+# way of specifying whether to download the GeoIP API?
+#
+GEOIP_VERSION=1.4.8
+
+# GNU auto tools
+AUTOCONF_VERSION=2.69
+AUTOMAKE_VERSION=1.13.3
+LIBTOOL_VERSION=2.4.2
+
+uninstall() {
+    if [ -d macosx-support-libs ]
+    then
+        cd macosx-support-libs
+
+        #
+        # Uninstall items in the reverse order from the order in which they're
+        # installed.  Only uninstall if we're configured to install them and
+        # if the download/build/install process completed.
+        #
+        # We also do a "make distclean", so that we don't have leftovers from
+        # old configurations.
+        #
+        if [ "$GEOIP_VERSION" -a -f geoip-$GEOIP_VERSION-done ]
+        then
+            echo "Uninstalling GeoIP API:"
+            cd GeoIP-$GEOIP_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm geoip-$GEOIP_VERSION-done
+        fi
+
+        if [ "$PORTAUDIO_VERSION" -a -f portaudio-done ] ; then
+            echo "Uninstalling PortAudio:"
+            cd portaudio
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm portaudio-done
+        fi
+
+        if [ "$LUA_VERSION" -a -f lua-$LUA_VERSION-done ] ; then
+            echo "Uninstalling Lua:"
+            #
+            # Lua has no "make uninstall", so just remove stuff manually.
+            # There's no configure script, so there's no need for
+            # "make distclean", either; just do "make clean".
+            #
+            (cd /usr/local/bin; $DO_RM -f lua luac)
+            (cd /usr/local/include; $DO_RM -f lua.h luaconf.h lualib.h lauxlib.h lua.hpp)
+            (cd /usr/local/lib; $DO_RM -f liblua.a)
+            (cd /usr/local/man; $DO_RM -f lua.1 luac.1)
+            cd lua-$LUA_VERSION
+            make clean || exit 1
+            cd ..
+            rm lua-$LUA_VERSION-done
+        fi
+
+        if [ "$GNUTLS_VERSION" -a -f gnutls-$GNUTLS_VERSION-done ] ; then
+            echo "Uninstalling GnuTLS:"
+            cd gnutls-$GNUTLS_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm gnutls-$GNUTLS_VERSION-done
+        fi
+
+        if [ "$LIBGCRYPT_VERSION" -a -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
+            echo "Uninstalling libgcrypt:"
+            cd libgcrypt-$LIBGCRYPT_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm libgcrypt-$LIBGCRYPT_VERSION-done
+        fi
+
+        if [ "$LIBGPG_ERROR_VERSION" -a -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
+            echo "Uninstalling libgpg-error:"
+            cd libgpg-error-$LIBGPG_ERROR_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm libgpg-error-$LIBGPG_ERROR_VERSION-done
+        fi
+
+        if [ "$LIBSMI_VERSION" -a -f libsmi-$LIBSMI_VERSION-done ] ; then
+            echo "Uninstalling libsmi:"
+            cd libsmi-$LIBSMI_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm libsmi-$LIBSMI_VERSION-done
+        fi
+
+        if [ -f gtk+-$GTK_VERSION-done ] ; then
+            echo "Uninstalling GTK+:"
+            cd gtk+-$GTK_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm gtk+-$GTK_VERSION-done
+        fi
+
+        if [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
+            echo "Uninstalling gdk-pixbuf:"
+            cd gdk-pixbuf-$GDK_PIXBUF_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm gdk-pixbuf-$GDK_PIXBUF_VERSION-done
+        fi
+
+        if [ -f pango-$PANGO_VERSION-done ] ; then
+            echo "Uninstalling Pango:"
+            cd pango-$PANGO_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm pango-$PANGO_VERSION-done
+        fi
+
+        if [ -f atk-$ATK_VERSION-done ] ; then
+            echo "Uninstalling ATK:"
+            cd atk-$ATK_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm atk-$ATK_VERSION-done
+        fi
+
+        if [ -f cairo-$CAIRO_VERSION-done ] ; then
+            echo "Uninstalling Cairo:"
+            cd cairo-$CAIRO_VERSION
+            $DO_MAKE_INSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm cairo-$CAIRO_VERSION-done
+        fi
+
+        if [ -f pixman-$PIXMAN_VERSION-done ] ; then
+            echo "Uninstalling pixman:"
+            cd pixman-$PIXMAN_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm pixman-$PIXMAN_VERSION-done
+        fi
+
+        if [ -f libpng-$PNG_VERSION-done ] ; then
+            echo "Uninstalling libpng:"
+            cd libpng-$PNG_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm libpng-$PNG_VERSION-done
+        fi
+
+        if [ -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
+            echo "Uninstalling pkg-config:"
+            cd pkg-config-$PKG_CONFIG_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm pkg-config-$PKG_CONFIG_VERSION-done
+        fi
+
+        if [ -f glib-$GLIB_VERSION-done ] ; then
+            echo "Uninstalling GLib:"
+            cd glib-$GLIB_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm glib-$GLIB_VERSION-done
+        fi
+
+        if [ -f gettext-$GETTEXT_VERSION-done ] ; then
+            echo "Uninstalling GNU gettext:"
+            cd gettext-$GETTEXT_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm gettext-$GETTEXT_VERSION-done
+        fi
+
+        if [ -n "$CMAKE" -a -f cmake-$CMAKE_VERSION-done ]; then
+            echo "Uninstalling CMAKE:"
+            cd cmake-$CMAKE_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm cmake-$CMAKE_VERSION-done
+        fi
+
+        if [ "$LIBTOOL_VERSION" -a -f libtool-$LIBTOOL_VERSION-done ] ; then
+            echo "Uninstalling GNU libtool:"
+            cd libtool-$LIBTOOL_VERSION
+            mv /usr/local/bin/glibtool /usr/local/bin/libtool
+            mv /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm libtool-$LIBTOOL_VERSION-done
+        fi
+
+        if [ "$AUTOMAKE_VERSION" -a -f automake-$AUTOMAKE_VERSION-done ] ; then
+            echo "Uninstalling GNU automake:"
+            cd automake-$AUTOMAKE_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm automake-$AUTOMAKE_VERSION-done
+        fi
+
+        if [ "$AUTOCONF_VERSION" -a -f autoconf-$AUTOCONF_VERSION-done ] ; then
+            echo "Uninstalling GNU autoconf:"
+            cd autoconf-$AUTOCONF_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm autoconf-$AUTOCONF_VERSION-done
+        fi
+
+        if [ "$XZ_VERSION" -a -f xz-$XZ_VERSION-done ] ; then
+            echo "Uninstalling xz:"
+            cd xz-$XZ_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm xz-$XZ_VERSION-done
+        fi
+    fi
+}
+
+#
+# Do we have permission to write in /usr/local?
+#
+# If so, assume we have permission to write in its subdirectories.
+# (If that's not the case, this test needs to check the subdirectories
+# as well.)
+#
+# If not, do "make install", "make uninstall", and the removes for Lua
+# with sudo.
+#
+if [ -w /usr/local ]
+then
+	DO_MAKE_INSTALL="make install"
+	DO_MAKE_UNINSTALL="make uninstall"
+	DO_RM="rm"
+else
+	DO_MAKE_INSTALL="sudo make install"
+	DO_MAKE_UNINSTALL="sudo make uninstall"
+	DO_RM="sudo rm"
+fi
+
+
+#
+# Parse command-line flags:
+#
+# -h - print help.
+# -u - do an uninstall.
+#
+while getopts hu name
+do
+    case $name in
+    u)
+        do_uninstall=yes
+        ;;
+    h|?)
+        echo "Usage: macosx-setup.sh [ -u ]" 1>&1
+        exit 0
+        ;;
+    esac
+done
+
+if [ "$do_uninstall" = "yes" ]
+then
+    uninstall
+    exit 0
+fi
+
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
@@ -108,70 +443,6 @@ if [ -z "$MAKE_BUILD_OPTS" ] ; then
 fi
 
 #
-# Versions to download and install.
-#
-# The following libraries and tools are required.
-#
-GETTEXT_VERSION=0.18.2
-GLIB_VERSION=2.36.0
-PKG_CONFIG_VERSION=0.28
-ATK_VERSION=2.8.0
-PANGO_VERSION=1.30.1
-PNG_VERSION=1.5.14
-PIXMAN_VERSION=0.26.0
-CAIRO_VERSION=1.12.2
-GDK_PIXBUF_VERSION=2.28.0
-if [ -z "$GTK3" ]; then
-  GTK_VERSION=2.24.17
-else
-  GTK_VERSION=3.5.2
-fi
-
-#
-# Some package need xz to unpack their current source.
-# xz is not available on OSX (Snow Leopard).
-#
-XZ_VERSION=5.0.4
-
-# In case we want to build with cmake
-CMAKE_VERSION=2.8.10.2
-
-#
-# The following libraries are optional.
-# Comment them out if you don't want them, but note that some of
-# the optional libraries are required by other optional libraries.
-#
-LIBSMI_VERSION=0.4.8
-#
-# libgpg-error is required for libgcrypt.
-#
-LIBGPG_ERROR_VERSION=1.10
-#
-# libgcrypt is required for GnuTLS.
-# XXX - the link for "Libgcrypt source code" at
-# http://www.gnupg.org/download/#libgcrypt is for 1.5.0, and is a bzip2
-# file, but http://directory.fsf.org/project/libgcrypt/ lists only
-# 1.4.6.
-#
-LIBGCRYPT_VERSION=1.5.0
-GNUTLS_VERSION=2.12.19
-# Stay with Lua 5.1 when updating until the code has been changed
-# to support 5.2
-LUA_VERSION=5.1.5
-PORTAUDIO_VERSION=pa_stable_v19_20111121
-#
-# XXX - they appear to have an unversioned gzipped tarball for the
-# current version; should we just download that, with some other
-# way of specifying whether to download the GeoIP API?
-#
-GEOIP_VERSION=1.4.8
-
-# GNU auto tools
-AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.13.3
-LIBTOOL_VERSION=2.4.2
-
-#
 # You need Xcode installed to get the compilers.
 #
 if [ ! -x /usr/bin/xcodebuild ]; then
@@ -188,22 +459,6 @@ fi
 if [ ! -d /usr/X11/include ]; then
 	echo "Please install X11 and the X11 SDK first."
 	exit 1
-fi
-
-#
-# Do we have permission to write in /usr/local?
-#
-# If so, assume we have permission to write in its subdirectories.
-# (If that's not the case, this test needs to check the subdirectories
-# as well.)
-#
-# If not, do "make install" with sudo.
-#
-if [ -w /usr/local ]
-then
-	DO_MAKE_INSTALL="make install"
-else
-	DO_MAKE_INSTALL="sudo make install"
 fi
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig
