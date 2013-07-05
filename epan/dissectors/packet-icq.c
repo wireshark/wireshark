@@ -490,7 +490,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 
 	msgType = tvb_get_letohs(tvb, offset);
 	ti = proto_tree_add_text(tree, tvb, offset, size,
-				 "%s Message", msgType, val_to_str_const(msgType, msgTypeCode, "Unknown"));
+				 "%s Message", val_to_str_const(msgType, msgTypeCode, "Unknown"));
 	subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
 	msg_item = proto_tree_add_item(subtree, hf_icq_msg_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -673,8 +673,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 static void
 icqv5_cmd_send_text_code(proto_tree* tree, /* Tree to put the data in */
 			 tvbuff_t *tvb,    /* Decrypted packet content */
-			 int offset,       /* Offset from the start of the packet to the content */
-			 int size)         /* Number of chars left to do */
+			 int offset)       /* Offset from the start of the packet to the content */
 {
 	proto_tree* subtree = tree;
 	guint16 len;
@@ -711,7 +710,7 @@ icqv5_cmd_send_msg(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 }
 
 static void
-icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset, int size)
+icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset)
 {
 	proto_tree* subtree = tree;
 	time_t theTime;
@@ -740,7 +739,7 @@ icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset, int size)
 }
 
 static void
-icqv5_cmd_contact_list(proto_tree* tree, tvbuff_t *tvb, int offset, int size)
+icqv5_cmd_contact_list(proto_tree* tree, tvbuff_t *tvb, int offset)
 {
 	unsigned char num;
 	int i;
@@ -772,8 +771,7 @@ icqv5_cmd_contact_list(proto_tree* tree, tvbuff_t *tvb, int offset, int size)
 static void
 icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 				tvbuff_t *tvb,   /* Tvbuff with packet */
-				int offset,      /* Offset from the start of the packet to the content */
-				int size)        /* Number of chars left to do */
+				int offset)      /* Offset from the start of the packet to the content */
 {
 	proto_tree* subtree = tree;
 
@@ -1159,12 +1157,10 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(icq_body_tree, hf_icq_group, decr_tvb, ICQ5_CL_HDRSIZE + CMD_RAND_SEARCH_GROUP, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case CMD_LOGIN:
-		icqv5_cmd_login(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE,
-				pktsize - ICQ5_CL_HDRSIZE);
+		icqv5_cmd_login(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE);
 		break;
 	case CMD_SEND_TEXT_CODE:
-		icqv5_cmd_send_text_code(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE,
-					 pktsize - ICQ5_CL_HDRSIZE);
+		icqv5_cmd_send_text_code(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE);
 		break;
 	case CMD_STATUS_CHANGE:
 		proto_tree_add_item(icq_body_tree, hf_icq_status, decr_tvb, ICQ5_CL_HDRSIZE + CMD_STATUS_CHANGE_STATUS, 4, ENC_LITTLE_ENDIAN);
@@ -1179,8 +1175,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(icq_body_tree, hf_icq_uin, decr_tvb, ICQ5_CL_HDRSIZE + CMD_ADD_TO_LIST_UIN, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case CMD_CONTACT_LIST:
-		icqv5_cmd_contact_list(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE,
-				   pktsize - ICQ5_CL_HDRSIZE);
+		icqv5_cmd_contact_list(icq_body_tree, decr_tvb, ICQ5_CL_HDRSIZE);
 		break;
 	case CMD_META_USER:
 	case CMD_REG_NEW_USER:
@@ -1237,8 +1232,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				   pktsize - ICQ5_SRV_HDRSIZE, pinfo);
 		break;
 	case SRV_USER_ONLINE:
-		icqv5_srv_user_online(icq_body_tree, tvb, offset + ICQ5_SRV_HDRSIZE,
-				  pktsize - ICQ5_SRV_HDRSIZE);
+		icqv5_srv_user_online(icq_body_tree, tvb, offset + ICQ5_SRV_HDRSIZE);
 		break;
 	case SRV_USER_OFFLINE:
 		proto_tree_add_item(icq_body_tree, hf_icq_uin, tvb, offset + ICQ5_SRV_HDRSIZE + SRV_USER_OFFLINE_UIN, 4, ENC_LITTLE_ENDIAN);
