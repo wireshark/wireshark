@@ -25,9 +25,9 @@ PIXMAN_VERSION=0.26.0
 CAIRO_VERSION=1.12.2
 GDK_PIXBUF_VERSION=2.28.0
 if [ -z "$GTK3" ]; then
-  GTK_VERSION=2.24.17
+    GTK_VERSION=2.24.17
 else
-  GTK_VERSION=3.5.2
+    GTK_VERSION=3.5.2
 fi
 
 #
@@ -315,13 +315,13 @@ uninstall() {
 #
 if [ -w /usr/local ]
 then
-	DO_MAKE_INSTALL="make install"
-	DO_MAKE_UNINSTALL="make uninstall"
-	DO_RM="rm"
+    DO_MAKE_INSTALL="make install"
+    DO_MAKE_UNINSTALL="make uninstall"
+    DO_RM="rm"
 else
-	DO_MAKE_INSTALL="sudo make install"
-	DO_MAKE_UNINSTALL="sudo make uninstall"
-	DO_RM="sudo rm"
+    DO_MAKE_INSTALL="sudo make install"
+    DO_MAKE_UNINSTALL="sudo make uninstall"
+    DO_RM="sudo rm"
 fi
 
 #
@@ -430,8 +430,8 @@ fi
 # with gdk-pixbuf).
 #
 if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
-	echo "This script does not support any versions of OS X before Snow Leopard" 1>&2 
-	exit 1
+    echo "This script does not support any versions of OS X before Snow Leopard" 1>&2 
+    exit 1
 fi
 
 # To set up a GTK3 environment
@@ -478,7 +478,7 @@ then
     if [ -z "$SDKPATH" ]
     then
         echo "macosx-setup.sh: Couldn't find the SDK for OS X $min_osx_target" 1>&2
-	exit 1
+        exit 1
     fi
 
     #
@@ -520,8 +520,8 @@ fi
 # You need Xcode installed to get the compilers.
 #
 if [ ! -x /usr/bin/xcodebuild ]; then
-	echo "Please install Xcode first (should be available on DVD or from http://developer.apple.com/xcode/index.php)."
-	exit 1
+    echo "Please install Xcode first (should be available on DVD or from http://developer.apple.com/xcode/index.php)."
+    exit 1
 fi
 
 #
@@ -531,8 +531,8 @@ fi
 # at least some versions of OS X.)
 #
 if [ ! -d /usr/X11/include ]; then
-	echo "Please install X11 and the X11 SDK first."
-	exit 1
+    echo "Please install X11 and the X11 SDK first."
+    exit 1
 fi
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig
@@ -543,7 +543,7 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig
 #
 if [ ! -d macosx-support-libs ]
 then
-	mkdir macosx-support-libs || exit 1
+    mkdir macosx-support-libs || exit 1
 fi
 cd macosx-support-libs
 
@@ -671,7 +671,7 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     includedir=`xcrun --show-sdk-path 2>/dev/null`/usr/include
     if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
     then
-	# It's defined, nothing to do
+        # It's defined, nothing to do
         LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
     else
         LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -712,81 +712,81 @@ fi
 # The major version number of Darwin in 10.5 is 9.
 #
 if [[ -n "$GTK3" || $DARWIN_MAJOR_VERSION = "9" ]]; then
-  #
-  # Requirements for Cairo first
-  #
-  # The libpng that comes with the X11 for leopard has a bogus
-  # pkg-config file that lies about where the header files are,
-  # which causes other packages not to be able to find its
-  # headers.
-  #
-  if [ ! -f libpng-$PNG_VERSION-done ] ; then
-      echo "Downloading, building, and installing libpng:"
-      [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
-      xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
-      cd libpng-$PNG_VERSION
-      CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-      make $MAKE_BUILD_OPTS || exit 1
-      $DO_MAKE_INSTALL || exit 1
-      cd ..
-	touch libpng-$PNG_VERSION-done
+    #
+    # Requirements for Cairo first
+    #
+    # The libpng that comes with the X11 for leopard has a bogus
+    # pkg-config file that lies about where the header files are,
+    # which causes other packages not to be able to find its
+    # headers.
+    #
+    if [ ! -f libpng-$PNG_VERSION-done ] ; then
+        echo "Downloading, building, and installing libpng:"
+        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
+        xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
+        cd libpng-$PNG_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch libpng-$PNG_VERSION-done
+      fi
+
+    #
+    # The libpixman that comes with the X11 for Leopard is too old
+    # to support Cairo's image surface backend feature (which requires
+    # pixman-1 >= 0.22.0).
+    #
+    if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
+        echo "Downloading, building, and installing pixman:"
+        [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+        gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
+        cd pixman-$PIXMAN_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch pixman-$PIXMAN_VERSION-done
     fi
 
-  #
-  # The libpixman that comes with the X11 for Leopard is too old
-  # to support Cairo's image surface backend feature (which requires
-  # pixman-1 >= 0.22.0).
-  #
-  if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
-      echo "Downloading, building, and installing pixman:"
-      [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
-      gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
-      cd pixman-$PIXMAN_VERSION
-      CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-      make $MAKE_BUILD_OPTS || exit 1
-      $DO_MAKE_INSTALL || exit 1
-      cd ..
-      touch pixman-$PIXMAN_VERSION-done
-  fi
-
-  #
-  # And now Cairo itself.
-  #
-  if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
-      echo "Downloading, building, and installing Cairo:"
-      CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
-      CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-      CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-      if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
-            $CAIRO_MINOR_VERSION -gt 12 ||
-           ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
-      then
-	#
-	# Starting with Cairo 1.12.2, the tarballs are compressed with
-	# xz rather than gzip.
-	#
-	  [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
-	  xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
-      else
-	  [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
-	  gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
-      fi
-      cd cairo-$CAIRO_VERSION
-      # CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=no || exit 1
-      # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
-      CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=yes || exit 1
-      #
-      # We must avoid the version of libpng that comes with X11; the
-      # only way I've found to force that is to forcibly set INCLUDES
-      # when we do the build, so that this comes before CAIRO_CFLAGS,
-      # which has -I/usr/X11/include added to it before anything
-      # connected to libpng is.
-      #
-      INCLUDES="-I/usr/local/include/libpng15" make $MAKE_BUILD_OPTS || exit 1
-      $DO_MAKE_INSTALL || exit 1
-      cd ..
-      touch cairo-$CAIRO_VERSION-done
-  fi
+    #
+    # And now Cairo itself.
+    #
+    if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
+        echo "Downloading, building, and installing Cairo:"
+        CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
+        CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+        if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
+              $CAIRO_MINOR_VERSION -gt 12 ||
+              ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
+        then
+            #
+            # Starting with Cairo 1.12.2, the tarballs are compressed with
+            # xz rather than gzip.
+            #
+            [ -f cairo-$CAIRO_VERSION.tar.xz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+            xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
+        else
+            [ -f cairo-$CAIRO_VERSION.tar.gz ] || curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+            gzcat cairo-$CAIRO_VERSION.tar.gz | tar xf - || exit 1
+        fi
+        cd cairo-$CAIRO_VERSION
+        # CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=no || exit 1
+        # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --enable-quartz=yes || exit 1
+        #
+        # We must avoid the version of libpng that comes with X11; the
+        # only way I've found to force that is to forcibly set INCLUDES
+        # when we do the build, so that this comes before CAIRO_CFLAGS,
+        # which has -I/usr/X11/include added to it before anything
+        # connected to libpng is.
+        #
+        INCLUDES="-I/usr/local/include/libpng15" make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch cairo-$CAIRO_VERSION-done
+    fi
 fi
 
 if [ ! -f atk-$ATK_VERSION-done ] ; then
@@ -808,17 +808,17 @@ if [ ! -f pango-$PANGO_VERSION-done ] ; then
     PANGO_MAJOR_VERSION="`expr $PANGO_VERSION : '\([0-9][0-9]*\).*'`"
     PANGO_MINOR_VERSION="`expr $PANGO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
     if [[ $PANGO_MAJOR_VERSION -gt 1 ||
-	  $PANGO_MINOR_VERSION -ge 29 ]]
+          $PANGO_MINOR_VERSION -ge 29 ]]
     then
-	#
-	# Starting with Pango 1.29, the tarballs are compressed with
-	# xz rather than bzip2.
-	#
-	[ -f pango-$PANGO_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz || exit 1
-	xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
+        #
+        # Starting with Pango 1.29, the tarballs are compressed with
+        # xz rather than bzip2.
+        #
+        [ -f pango-$PANGO_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz || exit 1
+        xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
     else
-	[ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
-	gzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
+        [ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
+        gzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
     fi
     cd pango-$PANGO_VERSION
     CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -851,32 +851,32 @@ if [ ! -f gtk+-$GTK_VERSION-done ] ; then
           $GTK_MINOR_VERSION -gt 24 ||
          ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
     then
-	#
-	# Starting with GTK+ 2.24.5, the tarballs are compressed with
-	# xz rather than gzip, in addition to bzip2; use xz, as we've
-	# built and installed it, and as xz compresses better than
-	# bzip2 so the tarballs take less time to download.
-	#
-	[ -f gtk+-$GTK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz || exit 1
-	xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
+        #
+        # Starting with GTK+ 2.24.5, the tarballs are compressed with
+        # xz rather than gzip, in addition to bzip2; use xz, as we've
+        # built and installed it, and as xz compresses better than
+        # bzip2 so the tarballs take less time to download.
+        #
+        [ -f gtk+-$GTK_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz || exit 1
+        xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
     else
-	[ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
-	gzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
+        [ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
+        gzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
     fi
     cd gtk+-$GTK_VERSION
     if [ $DARWIN_MAJOR_VERSION -ge "12" ]
     then
-	#
-	# GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
-	# CUPS printing backend - either the CUPS API changed incompatibly
-	# or the backend was depending on non-API implementation details.
-	#
-	# Configure it out, on Mountain Lion and later, for now.
-	# (12 is the Darwin major version number in Mountain Lion.)
-	#
-	CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups || exit 1
+        #
+        # GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
+        # CUPS printing backend - either the CUPS API changed incompatibly
+        # or the backend was depending on non-API implementation details.
+        #
+        # Configure it out, on Mountain Lion and later, for now.
+        # (12 is the Darwin major version number in Mountain Lion.)
+        #
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups || exit 1
     else
-	CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
     fi
     make $MAKE_BUILD_OPTS || exit 1
     $DO_MAKE_INSTALL || exit 1
@@ -895,166 +895,166 @@ fi
 #
 
 if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
-	echo "Downloading, building, and installing libsmi:"
-	[ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl -L -O ftp://ftp.ibr.cs.tu-bs.de/pub/local/libsmi/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
-	gzcat libsmi-$LIBSMI_VERSION.tar.gz | tar xf - || exit 1
-	cd libsmi-$LIBSMI_VERSION
-	CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-	make $MAKE_BUILD_OPTS || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch libsmi-$LIBSMI_VERSION-done
+    echo "Downloading, building, and installing libsmi:"
+    [ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl -L -O ftp://ftp.ibr.cs.tu-bs.de/pub/local/libsmi/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
+    gzcat libsmi-$LIBSMI_VERSION.tar.gz | tar xf - || exit 1
+    cd libsmi-$LIBSMI_VERSION
+    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch libsmi-$LIBSMI_VERSION-done
 fi
 
 if [ "$LIBGPG_ERROR_VERSION" -a ! -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
-	echo "Downloading, building, and installing libgpg-error:"
-	[ -f libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 || exit 1
-	bzcat libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 | tar xf - || exit 1
-	cd libgpg-error-$LIBGPG_ERROR_VERSION
-	CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-	make $MAKE_BUILD_OPTS || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch libgpg-error-$LIBGPG_ERROR_VERSION-done
+    echo "Downloading, building, and installing libgpg-error:"
+    [ -f libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 || exit 1
+    bzcat libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 | tar xf - || exit 1
+    cd libgpg-error-$LIBGPG_ERROR_VERSION
+    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch libgpg-error-$LIBGPG_ERROR_VERSION-done
 fi
 
 if [ "$LIBGCRYPT_VERSION" -a ! -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
-	#
-	# libgpg-error is required for libgcrypt.
-	#
-	if [ -z $LIBGPG_ERROR_VERSION ]
-	then
-		echo "libgcrypt requires libgpg-error, but you didn't install libgpg-error." 1>&2
-		exit 1
-	fi
+    #
+    # libgpg-error is required for libgcrypt.
+    #
+    if [ -z $LIBGPG_ERROR_VERSION ]
+    then
+        echo "libgcrypt requires libgpg-error, but you didn't install libgpg-error." 1>&2
+        exit 1
+    fi
 
-	echo "Downloading, building, and installing libgcrypt:"
-	[ -f libgcrypt-$LIBGCRYPT_VERSION.tar.gz ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-$LIBGCRYPT_VERSION.tar.gz || exit 1
-	gzcat libgcrypt-$LIBGCRYPT_VERSION.tar.gz | tar xf - || exit 1
-	cd libgcrypt-$LIBGCRYPT_VERSION
-	#
-	# The assembler language code is not compatible with the OS X
-	# x86 assembler (or is it an x86-64 vs. x86-32 issue?).
-	#
-	# libgcrypt expects gnu89, not c99/gnu99, semantics for
-	# "inline".  See, for example:
-	#
-	#	http://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
-	#
-	CFLAGS="$CFLAGS -std=gnu89 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-asm || exit 1
-	make $MAKE_BUILD_OPTS || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch libgcrypt-$LIBGCRYPT_VERSION-done
+    echo "Downloading, building, and installing libgcrypt:"
+    [ -f libgcrypt-$LIBGCRYPT_VERSION.tar.gz ] || curl -L -O ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-$LIBGCRYPT_VERSION.tar.gz || exit 1
+    gzcat libgcrypt-$LIBGCRYPT_VERSION.tar.gz | tar xf - || exit 1
+    cd libgcrypt-$LIBGCRYPT_VERSION
+    #
+    # The assembler language code is not compatible with the OS X
+    # x86 assembler (or is it an x86-64 vs. x86-32 issue?).
+    #
+    # libgcrypt expects gnu89, not c99/gnu99, semantics for
+    # "inline".  See, for example:
+    #
+    #    http://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
+    #
+    CFLAGS="$CFLAGS -std=gnu89 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-asm || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch libgcrypt-$LIBGCRYPT_VERSION-done
 fi
 
 if [ "$GNUTLS_VERSION" -a ! -f gnutls-$GNUTLS_VERSION-done ] ; then
-	#
-	# GnuTLS requires libgcrypt (or nettle, in newer versions).
-	#
-	if [ -z $LIBGCRYPT_VERSION ]
-	then
-		echo "GnuTLS requires libgcrypt, but you didn't install libgcrypt" 1>&2
-		exit 1
-	fi
+    #
+    # GnuTLS requires libgcrypt (or nettle, in newer versions).
+    #
+    if [ -z $LIBGCRYPT_VERSION ]
+    then
+        echo "GnuTLS requires libgcrypt, but you didn't install libgcrypt" 1>&2
+        exit 1
+    fi
 
-	echo "Downloading, building, and installing GnuTLS:"
-	[ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnu.org/gnu/gnutls/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
-	bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
-	cd gnutls-$GNUTLS_VERSION
-	#
-	# Use libgcrypt, not nettle.
-	# XXX - is there some reason to prefer nettle?  Or does
-	# Wireshark directly use libgcrypt routines?
-	#
-	CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
-	make $MAKE_BUILD_OPTS || exit 1
-	#
-	# The pkgconfig file for GnuTLS says "requires zlib", but OS X,
-	# while it supplies zlib, doesn't supply a pkgconfig file for
-	# it.
-	#
-	# Patch the GnuTLS pkgconfig file not to require zlib.
-	# (If the capabilities of GnuTLS that Wireshark uses don't
-	# depend on building GnuTLS with zlib, an alternative would be
-	# to configure it not to use zlib.)
-	#
-	patch -p0 lib/gnutls.pc.in <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch gnutls-$GNUTLS_VERSION-done
+    echo "Downloading, building, and installing GnuTLS:"
+    [ -f gnutls-$GNUTLS_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnu.org/gnu/gnutls/gnutls-$GNUTLS_VERSION.tar.bz2 || exit 1
+    bzcat gnutls-$GNUTLS_VERSION.tar.bz2 | tar xf - || exit 1
+    cd gnutls-$GNUTLS_VERSION
+    #
+    # Use libgcrypt, not nettle.
+    # XXX - is there some reason to prefer nettle?  Or does
+    # Wireshark directly use libgcrypt routines?
+    #
+    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --with-libgcrypt --without-p11-kit || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    #
+    # The pkgconfig file for GnuTLS says "requires zlib", but OS X,
+    # while it supplies zlib, doesn't supply a pkgconfig file for
+    # it.
+    #
+    # Patch the GnuTLS pkgconfig file not to require zlib.
+    # (If the capabilities of GnuTLS that Wireshark uses don't
+    # depend on building GnuTLS with zlib, an alternative would be
+    # to configure it not to use zlib.)
+    #
+    patch -p0 lib/gnutls.pc.in <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch gnutls-$GNUTLS_VERSION-done
 fi
 
 if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
-	echo "Downloading, building, and installing Lua:"
-	[ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
-	gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
-	cd lua-$LUA_VERSION
-	make $MAKE_BUILD_OPTS macosx || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch lua-$LUA_VERSION-done
+    echo "Downloading, building, and installing Lua:"
+    [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
+    gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
+    cd lua-$LUA_VERSION
+    make $MAKE_BUILD_OPTS macosx || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch lua-$LUA_VERSION-done
 fi
 
 if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-done ] ; then
-	echo "Downloading, building, and installing PortAudio:"
-	[ -f $PORTAUDIO_VERSION.tgz ] || curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
-	gzcat $PORTAUDIO_VERSION.tgz | tar xf - || exit 1
-	cd portaudio
-	#
-	# Un-comment an include that's required on Lion.
-	#
-	patch -p0 include/pa_mac_core.h <../../macosx-support-lib-patches/portaudio-pa_mac_core.h.patch
-	#
-	# Fix a bug that showed up with clang (but is a bug with any
-	# compiler).
-	#
-	patch -p0 src/hostapi/coreaudio/pa_mac_core.c <../../macosx-support-lib-patches/portaudio-pa_mac_core.c.patch
-	#
-	# Disable fat builds - the configure script doesn't work right
-	# with Xcode 4 if you leave them enabled, and we don't build
-	# any other libraries fat (GLib, for example, would be very
-	# hard to build fat), so there's no advantage to having PortAudio
-	# built fat.
-	#
-	# Set the minimum OS X version to 10.4, to suppress some
-	# deprecation warnings.  (Good luck trying to make any of
-	# this build on an OS+Xcode with a pre-10.4 SDK; we don't
-	# worry about the user requesting that.)
-	#
-	CFLAGS="$CFLAGS -mmacosx-version-min=10.4 $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-mac-universal || exit 1
-	make $MAKE_BUILD_OPTS || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch portaudio-done
+    echo "Downloading, building, and installing PortAudio:"
+    [ -f $PORTAUDIO_VERSION.tgz ] || curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
+    gzcat $PORTAUDIO_VERSION.tgz | tar xf - || exit 1
+    cd portaudio
+    #
+    # Un-comment an include that's required on Lion.
+    #
+    patch -p0 include/pa_mac_core.h <../../macosx-support-lib-patches/portaudio-pa_mac_core.h.patch
+    #
+    # Fix a bug that showed up with clang (but is a bug with any
+    # compiler).
+    #
+    patch -p0 src/hostapi/coreaudio/pa_mac_core.c <../../macosx-support-lib-patches/portaudio-pa_mac_core.c.patch
+    #
+    # Disable fat builds - the configure script doesn't work right
+    # with Xcode 4 if you leave them enabled, and we don't build
+    # any other libraries fat (GLib, for example, would be very
+    # hard to build fat), so there's no advantage to having PortAudio
+    # built fat.
+    #
+    # Set the minimum OS X version to 10.4, to suppress some
+    # deprecation warnings.  (Good luck trying to make any of
+    # this build on an OS+Xcode with a pre-10.4 SDK; we don't
+    # worry about the user requesting that.)
+    #
+    CFLAGS="$CFLAGS -mmacosx-version-min=10.4 $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-mac-universal || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch portaudio-done
 fi
 
 if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ]
 then
-	echo "Downloading, building, and installing GeoIP API:"
-	[ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
-	gzcat GeoIP-$GEOIP_VERSION.tar.gz | tar xf - || exit 1
-	cd GeoIP-$GEOIP_VERSION
-	CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-	#
-	# Grr.  Their man pages "helpfully" have an ISO 8859-1
-	# copyright symbol in the copyright notice, but OS X's
-	# default character encoding is UTF-8.  sed on Mountain
-	# Lion barfs at the "illegal character sequence" represented
-	# by an ISO 8859-1 copyright symbol, as it's not a valid
-	# UTF-8 sequence.
-	#
-	# iconv the relevant man pages into UTF-8.
-	#
-	for i in geoipupdate.1.in geoiplookup6.1.in geoiplookup.1.in
-	do
-		iconv -f iso8859-1 -t utf-8 man/"$i" >man/"$i".tmp &&
-		    mv man/"$i".tmp man/"$i"
-	done
-	make $MAKE_BUILD_OPTS || exit 1
-	$DO_MAKE_INSTALL || exit 1
-	cd ..
-	touch geoip-$GEOIP_VERSION-done
+    echo "Downloading, building, and installing GeoIP API:"
+    [ -f GeoIP-$GEOIP_VERSION.tar.gz ] || curl -L -O http://geolite.maxmind.com/download/geoip/api/c/GeoIP-$GEOIP_VERSION.tar.gz || exit 1
+    gzcat GeoIP-$GEOIP_VERSION.tar.gz | tar xf - || exit 1
+    cd GeoIP-$GEOIP_VERSION
+    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+    #
+    # Grr.  Their man pages "helpfully" have an ISO 8859-1
+    # copyright symbol in the copyright notice, but OS X's
+    # default character encoding is UTF-8.  sed on Mountain
+    # Lion barfs at the "illegal character sequence" represented
+    # by an ISO 8859-1 copyright symbol, as it's not a valid
+    # UTF-8 sequence.
+    #
+    # iconv the relevant man pages into UTF-8.
+    #
+    for i in geoipupdate.1.in geoiplookup6.1.in geoiplookup.1.in
+    do
+        iconv -f iso8859-1 -t utf-8 man/"$i" >man/"$i".tmp &&
+            mv man/"$i".tmp man/"$i"
+    done
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch geoip-$GEOIP_VERSION-done
 fi
 
 echo ""
@@ -1063,11 +1063,11 @@ echo "You are now prepared to build Wireshark. To do so do:"
 echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig"
 echo ""
 if [ -n "$CMAKE" ]; then
-  echo "mkdir build; cd build"
-  echo "cmake .."
-  echo
-  echo "or"
-  echo
+    echo "mkdir build; cd build"
+    echo "cmake .."
+    echo
+    echo "or"
+    echo
 fi
 echo "./autogen.sh"
 echo "mkdir build; cd build"
