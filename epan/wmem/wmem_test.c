@@ -438,6 +438,58 @@ wmem_test_strutls(void)
 /* DATA STRUCTURE TESTING FUNCTIONS (/wmem/datastruct/) */
 
 static void
+wmem_test_array(void)
+{
+    wmem_allocator_t   *allocator;
+    wmem_array_t       *array;
+    unsigned int        i, j;
+    guint32             val, *buf;
+    guint32             vals[8];
+
+    allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
+
+    array = wmem_array_new(allocator, sizeof(guint32));
+    g_assert(array);
+    g_assert(wmem_array_get_count(array) == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        val = i;
+        wmem_array_append_one(array, val);
+        g_assert(wmem_array_get_count(array) == i+1);
+
+        val = *(guint32*)wmem_array_index(array, i);
+        g_assert(val == i);
+    }
+    wmem_strict_check_canaries(allocator);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        val = *(guint32*)wmem_array_index(array, i);
+        g_assert(val == i);
+    }
+
+    array = wmem_array_sized_new(allocator, sizeof(guint32), 73);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        for (j=0; j<8; j++) {
+            vals[j] = i+j;
+        }
+
+        wmem_array_append(array, vals, 8);
+        g_assert(wmem_array_get_count(array) == 8*(i+1));
+    }
+    wmem_strict_check_canaries(allocator);
+
+    buf = (guint32*)wmem_array_get_raw(array);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        for (j=0; j<8; j++) {
+            g_assert(buf[i*8 + j] == i+j);
+        }
+    }
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
 wmem_test_slist(void)
 {
     wmem_allocator_t   *allocator;
@@ -781,6 +833,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/utils/misc",    wmem_test_miscutls);
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
+    g_test_add_func("/wmem/datastruct/array",  wmem_test_array);
     g_test_add_func("/wmem/datastruct/slist",  wmem_test_slist);
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);

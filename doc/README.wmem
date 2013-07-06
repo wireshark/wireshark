@@ -334,7 +334,6 @@ The following is a list of things that emem didn't provide but that it might
 be nice if wmem did:
 
  - radix tree
- - dynamic array
  - hash table
 
 /*

@@ -24,6 +24,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 LIBWMEM_SRC =				\
+	wmem_array.c   			\
 	wmem_core.c    			\
 	wmem_allocator_block.c		\
 	wmem_allocator_simple.c		\
@@ -39,6 +40,7 @@ LIBWMEM_SRC =				\
 
 LIBWMEM_INCLUDES =			\
 	wmem.h				\
+	wmem_array.h   			\
 	wmem_core.h    			\
 	wmem_allocator.h       		\
 	wmem_allocator_block.h		\

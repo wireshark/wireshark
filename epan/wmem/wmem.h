@@ -26,6 +26,7 @@
 #ifndef __WMEM_H__
 #define __WMEM_H__
 
+#include "wmem_array.h"
 #include "wmem_core.h"
 #include "wmem_miscutl.h"
 #include "wmem_scopes.h"

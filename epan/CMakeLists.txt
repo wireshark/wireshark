@@ -1382,6 +1382,7 @@ set(FTYPE_FILES
 )
 
 set(WMEM_FILES
+	wmem/wmem_array.c
 	wmem/wmem_core.c
 	wmem/wmem_allocator_block.c
 	wmem/wmem_allocator_simple.c
