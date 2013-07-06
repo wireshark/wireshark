@@ -4901,14 +4901,9 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			 *	else, unsigned so don't allow dissectors to register a
 			 *	signed field to be displayed unsigned.  (Else how would
 			 *	we display negative values?)
-			 *
-			 *	If you want to take out this check, be sure to fix
-			 *	hfinfo_numeric_format() so that it does not assert out
-			 *	when trying to construct a hexadecimal representation of
-			 *	FT_INT*.
 			 */
-			if (hfinfo->display == BASE_HEX ||
-			    hfinfo->display == BASE_OCT)
+			if (hfinfo->display == BASE_HEX || hfinfo->display == BASE_HEX_DEC ||
+			    hfinfo->display == BASE_DEC_HEX || hfinfo->display == BASE_OCT)
 				g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
 					hfinfo->name, hfinfo->abbrev,
 					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
