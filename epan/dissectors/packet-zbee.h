@@ -801,6 +801,7 @@
 #define ZBEE_PROTOABBREV_ZCL_PRESSMEAS      "zbee_zcl_meas_sensing.pressmeas"
 #define ZBEE_PROTOABBREV_ZCL_RELHUMMEAS     "zbee_zcl_meas_sensing.relhummeas"
 #define ZBEE_PROTOABBREV_ZCL_TEMPMEAS       "zbee_zcl_meas_sensing.tempmeas"
+#define ZBEE_PROTOABBREV_ZCL_MSG            "zbee_zcl_se.msg"
 
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);

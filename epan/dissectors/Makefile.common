@@ -1223,6 +1223,7 @@ DISSECTOR_SRC = \
 	packet-zbee-zcl-general.c	\
 	packet-zbee-zcl-ha.c	\
 	packet-zbee-zcl-meas-sensing.c	\
+	packet-zbee-zcl-se.c	\
 	packet-zbee-zdp-binding.c	\
 	packet-zbee-zdp-discovery.c	\
 	packet-zbee-zdp-management.c	\
