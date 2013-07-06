@@ -826,7 +826,7 @@ static void add_xml_field(wmem_array_t *hfs, int *p_id, const gchar *name, const
 static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 {
     struct _attr_reg_data *d = (struct _attr_reg_data *)p;
-    gchar *basename = g_strdup_printf("%s.%s", d->basename, (gchar *)k);
+    gchar *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", d->basename, (gchar *)k);
 
     add_xml_field(d->hf, (int*) v, (gchar *)k, basename);
 }
@@ -980,8 +980,8 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
     fresh = duplicate_element(orig);
     fresh->fqn = fqn;
 
-    add_xml_field(hfs, &(fresh->hf_tag), g_strdup(elem_name), fqn);
-    add_xml_field(hfs, &(fresh->hf_cdata), g_strdup(elem_name), fqn);
+    add_xml_field(hfs, &(fresh->hf_tag), wmem_strdup(wmem_epan_scope(), elem_name), fqn);
+    add_xml_field(hfs, &(fresh->hf_cdata), wmem_strdup(wmem_epan_scope(), elem_name), fqn);
 
     ett_p = &fresh->ett;
     g_array_append_val(etts, ett_p);
