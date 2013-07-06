@@ -20,7 +20,7 @@ GLIB_VERSION=2.36.0
 PKG_CONFIG_VERSION=0.28
 ATK_VERSION=2.8.0
 PANGO_VERSION=1.30.1
-PNG_VERSION=1.5.14
+PNG_VERSION=1.5.17
 PIXMAN_VERSION=0.26.0
 CAIRO_VERSION=1.12.2
 GDK_PIXBUF_VERSION=2.28.0
@@ -514,6 +514,26 @@ then
     # Compile and link against the SDK.
     #
     SDKFLAGS="-isysroot $SDKPATH"
+
+    if [[ "$min_osx_target" == "10.5" ]]
+    then
+        #
+        # Cairo is part of Mac OS X 10.6 and later.
+        # The *headers* are supplied by 10.5, but the *libraries*
+        # aren't, so we have to build it if we're building for 10.5.
+        #
+        cairo_not_in_the_os=yes
+    fi
+else
+    #
+    # We're building for the OS version on which we're running; if it's
+    # Leopard or earlier, we need to build Cairo - see above.
+    # The major version number of Darwin in 10.5 is 9.
+    #
+    if [[ $DARWIN_MAJOR_VERSION = "9" ]]
+    then
+        cairo_not_in_the_os=yes
+    fi
 fi
 
 #
@@ -702,16 +722,16 @@ fi
 # Now we have reached a point where we can build everything but
 # the GUI (Wireshark).
 #
-# Cairo is part of Mac OS X 10.6 and 10.7.
-# The *headers* are supplied by 10.5, but the *libraries* aren't, so
-# we have to build it on 10.5.
 # GTK+ 3 requires a newer Cairo build than the one that comes with
 # 10.6, so we build Cairo if we are using GTK+ 3.
+#
 # In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
 # rather than X11 GTK+, we might have to build and install Cairo.
-# The major version number of Darwin in 10.5 is 9.
+# In 10.8 and later, there is no X11, but it's included in Xquartz;
+# again, if we build with "native" GTK+, we'd have to build and install
+# it.
 #
-if [[ -n "$GTK3" || $DARWIN_MAJOR_VERSION = "9" ]]; then
+if [[ -n "$GTK3" || "$cairo_not_in_the_os" = yes ]]; then
     #
     # Requirements for Cairo first
     #
@@ -722,7 +742,11 @@ if [[ -n "$GTK3" || $DARWIN_MAJOR_VERSION = "9" ]]; then
     #
     if [ ! -f libpng-$PNG_VERSION-done ] ; then
         echo "Downloading, building, and installing libpng:"
-        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
+        #
+        # The FTP site puts libpng x.y.* into a libpngxy directory.
+        #
+        subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
+        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
         xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
         cd libpng-$PNG_VERSION
         CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
