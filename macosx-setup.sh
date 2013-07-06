@@ -8,6 +8,8 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 #
 
+DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+
 #
 # Versions to download and install.
 #
@@ -30,7 +32,7 @@ fi
 
 #
 # Some package need xz to unpack their current source.
-# xz is not available on OSX (Snow Leopard).
+# xz is not yet provided with OS X.
 #
 XZ_VERSION=5.0.4
 
@@ -67,10 +69,15 @@ PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 GEOIP_VERSION=1.4.8
 
-# GNU auto tools
-AUTOCONF_VERSION=2.69
-AUTOMAKE_VERSION=1.13.3
-LIBTOOL_VERSION=2.4.2
+#
+# GNU autotools; they're provided with releases up to Snow Leopard, but
+# not in later releases.
+#
+if [[ $DARWIN_MAJOR_VERSION -gt 10 ]]; then
+    AUTOCONF_VERSION=2.69
+    AUTOMAKE_VERSION=1.13.3
+    LIBTOOL_VERSION=2.4.2
+fi
 
 uninstall() {
     if [ -d macosx-support-libs ]
@@ -346,8 +353,6 @@ then
     uninstall
     exit 0
 fi
-
-DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
 # To make this work on Leopard will take a lot of work.
