@@ -211,7 +211,7 @@ ABRT-diagnostic ::= ENUMERATED {
   authentication-required(6), ...
   }
 
-ABRT-source ::= INTEGER {acse-service-user(0), acse-service-provider(1)
+ABRT-source ::= INTEGER {service-user(0), service-provider(1)
 }(0..1, ...)
 
 ACSE-requirements ::= BIT STRING {
@@ -347,7 +347,7 @@ Associate-result ::= INTEGER {
   accepted(0), rejected-permanent(1), rejected-transient(2)}(0..2, ...)
 
 Associate-source-diagnostic ::= CHOICE {
-  acse-service-user
+  service-user
     [1]  INTEGER {null(0), no-reason-given(1),
                   application-context-name-not-supported(2),
                   calling-AP-title-not-recognized(3),
@@ -362,7 +362,7 @@ Associate-source-diagnostic ::= CHOICE {
                   authentication-mechanism-name-required(12),
                   authentication-failure(13), authentication-required(14)}
                                                                     (0..14, ...),
-  acse-service-provider
+  service-provider
     [2]  INTEGER {null(0), no-reason-given(1), no-common-acse-version(2)}
                                                                     (0..2, ...)
 }

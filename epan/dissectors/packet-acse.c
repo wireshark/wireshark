@@ -165,8 +165,8 @@ static int hf_acse_P_context_result_list_item = -1;  /* P_context_result_list_it
 static int hf_acse_pcontext_result = -1;          /* Result */
 static int hf_acse_concrete_syntax_name = -1;     /* Concrete_syntax_name */
 static int hf_acse_provider_reason = -1;          /* T_provider_reason */
-static int hf_acse_acse_service_user = -1;        /* T_acse_service_user */
-static int hf_acse_acse_service_provider = -1;    /* T_acse_service_provider */
+static int hf_acse_service_user = -1;             /* T_service_user */
+static int hf_acse_service_provider = -1;         /* T_service_provider */
 static int hf_acse_Association_data_item = -1;    /* EXTERNALt */
 static int hf_acse_simply_encoded_data = -1;      /* Simply_encoded_data */
 static int hf_acse_fully_encoded_data = -1;       /* PDV_list */
@@ -1017,7 +1017,7 @@ dissect_acse_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const value_string acse_T_acse_service_user_vals[] = {
+static const value_string acse_T_service_user_vals[] = {
   {   0, "null" },
   {   1, "no-reason-given" },
   {   2, "application-context-name-not-supported" },
@@ -1038,7 +1038,7 @@ static const value_string acse_T_acse_service_user_vals[] = {
 
 
 static int
-dissect_acse_T_acse_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_acse_T_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, 14U, hf_index, NULL);
 
@@ -1046,7 +1046,7 @@ dissect_acse_T_acse_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const value_string acse_T_acse_service_provider_vals[] = {
+static const value_string acse_T_service_provider_vals[] = {
   {   0, "null" },
   {   1, "no-reason-given" },
   {   2, "no-common-acse-version" },
@@ -1055,7 +1055,7 @@ static const value_string acse_T_acse_service_provider_vals[] = {
 
 
 static int
-dissect_acse_T_acse_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_acse_T_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, 2U, hf_index, NULL);
 
@@ -1064,14 +1064,14 @@ dissect_acse_T_acse_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const value_string acse_Associate_source_diagnostic_vals[] = {
-  {   1, "acse-service-user" },
-  {   2, "acse-service-provider" },
+  {   1, "service-user" },
+  {   2, "service-provider" },
   { 0, NULL }
 };
 
 static const ber_choice_t Associate_source_diagnostic_choice[] = {
-  {   1, &hf_acse_acse_service_user, BER_CLASS_CON, 1, 0, dissect_acse_T_acse_service_user },
-  {   2, &hf_acse_acse_service_provider, BER_CLASS_CON, 2, 0, dissect_acse_T_acse_service_provider },
+  {   1, &hf_acse_service_user   , BER_CLASS_CON, 1, 0, dissect_acse_T_service_user },
+  {   2, &hf_acse_service_provider, BER_CLASS_CON, 2, 0, dissect_acse_T_service_provider },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1323,8 +1323,8 @@ dissect_acse_RLRE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static const value_string acse_ABRT_source_vals[] = {
-  {   0, "acse-service-user" },
-  {   1, "acse-service-provider" },
+  {   0, "service-user" },
+  {   1, "service-provider" },
   { 0, NULL }
 };
 
@@ -2155,13 +2155,13 @@ void proto_register_acse(void) {
       { "provider-reason", "acse.provider_reason",
         FT_INT32, BASE_DEC, VALS(acse_T_provider_reason_vals), 0,
         NULL, HFILL }},
-    { &hf_acse_acse_service_user,
-      { "acse-service-user", "acse.acse_service_user",
-        FT_UINT32, BASE_DEC, VALS(acse_T_acse_service_user_vals), 0,
+    { &hf_acse_service_user,
+      { "service-user", "acse.service_user",
+        FT_UINT32, BASE_DEC, VALS(acse_T_service_user_vals), 0,
         NULL, HFILL }},
-    { &hf_acse_acse_service_provider,
-      { "acse-service-provider", "acse.acse_service_provider",
-        FT_UINT32, BASE_DEC, VALS(acse_T_acse_service_provider_vals), 0,
+    { &hf_acse_service_provider,
+      { "service-provider", "acse.service_provider",
+        FT_UINT32, BASE_DEC, VALS(acse_T_service_provider_vals), 0,
         NULL, HFILL }},
     { &hf_acse_Association_data_item,
       { "Association-data", "acse.EXTERNALt_element",
