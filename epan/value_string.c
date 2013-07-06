@@ -27,6 +27,7 @@
 
 #include "config.h"
 
+#include "emem.h"
 #include "wmem/wmem.h"
 #include "proto.h"
 #include "to_str.h"
@@ -48,7 +49,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return ep_strdup_printf(fmt, val);
 }
 
 /* Tries to match val against each element in the value_string array vs.
@@ -248,7 +249,7 @@ val_to_str_ext(const guint32 val, const value_string_ext *vse, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return ep_strdup_printf(fmt, val);
 }
 
 /* Like val_to_str_const for extended value strings */
@@ -433,7 +434,7 @@ str_to_str(const gchar *val, const string_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return ep_strdup_printf(fmt, val);
 }
 
 /* Like try_val_to_str_idx except for string_string */
@@ -481,7 +482,7 @@ rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
     if(ret != NULL)
         return ret;
 
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
+    return ep_strdup_printf(fmt, val);
 }
 
 /* Like try_val_to_str_idx except for range_string */
