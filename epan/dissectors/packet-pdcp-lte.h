@@ -164,6 +164,9 @@ typedef struct pdcp_lte_info
 #define PDCP_LTE_CHANNEL_ID_TAG             0x0D
 /* 2 bytes, network order */
 
+#define PDCP_LTE_UEID_TAG                   0x0E
+/* 2 bytes, network order */
+
 /* PDCP PDU. Following this tag comes the actual PDCP PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define PDCP_LTE_PAYLOAD_TAG                0x01

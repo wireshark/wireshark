@@ -946,6 +946,10 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 p_pdcp_lte_info->channelId = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
+            case PDCP_LTE_UEID_TAG:
+                p_pdcp_lte_info->ueid = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
 
             case PDCP_LTE_PAYLOAD_TAG:
                 /* Have reached data, so get out of loop */
