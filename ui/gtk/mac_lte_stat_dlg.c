@@ -461,9 +461,7 @@ static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
         }
         else {
             for (n=0; n < 11; n++) {
-                if (si->bytes_for_lcid[n]) {
-                    te->stats.UL_sdus_for_lcid[n] += si->sdus_for_lcid[n];
-                }
+                te->stats.UL_sdus_for_lcid[n] += si->sdus_for_lcid[n];
                 te->stats.UL_bytes_for_lcid[n] += si->bytes_for_lcid[n];
                 te->stats.UL_total_bytes += si->bytes_for_lcid[n];
             }
@@ -515,9 +513,7 @@ static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
         }
         else {
             for (n=0; n < 11; n++) {
-                if (si->bytes_for_lcid[n]) {
-                    te->stats.DL_sdus_for_lcid[n] += si->sdus_for_lcid[n];
-                }
+                te->stats.DL_sdus_for_lcid[n] += si->sdus_for_lcid[n];
                 te->stats.DL_bytes_for_lcid[n] += si->bytes_for_lcid[n];
                 te->stats.DL_total_bytes += si->bytes_for_lcid[n];
             }

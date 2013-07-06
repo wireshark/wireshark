@@ -3013,6 +3013,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     for (n=0; n < number_of_headers; n++) {
         /* Get out of loop once see any data SDU subheaders */
         if (lcids[n] <= 10) {
+            /* Update tap sdu count for this channel */
+            tap_info->sdus_for_lcid[lcids[n]]++;
             break;
         }
 
@@ -3742,7 +3744,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Update tap byte count for this channel */
         tap_info->bytes_for_lcid[lcids[n]] += data_length;
-        tap_info->sdus_for_lcid[lcids[n]]++;
     }
 
 
