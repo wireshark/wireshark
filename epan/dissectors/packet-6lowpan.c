@@ -2767,12 +2767,10 @@ proto_register_6lowpan(void)
         /*
          * Inspired by the IEEE 802.11 dissector - the preferences are expecting
          * that each pref has a unique string passed in, and will crash if we
-         * try to reuse any for multiple preferences. Allocate them off the heap
-         * and leave them allocated. OMG, an intentional memory leak; I must be
-         * an evil developer. Good thing we have MMU's in this day and age.
+         * try to reuse any for multiple preferences.
          */
-        pref_name = g_strdup_printf("context%d", i);
-        pref_title = g_strdup_printf("Context %d", i);
+        pref_name  = wmem_strdup_printf(wmem_epan_scope(), "context%d", i);
+        pref_title = wmem_strdup_printf(wmem_epan_scope(), "Context %d", i);
         prefs_register_string_preference(prefs_module, pref_name, pref_title,
             "IPv6 prefix to use for stateful address decompression.",
             &lowpan_context_prefs[i]);
