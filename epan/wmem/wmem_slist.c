@@ -144,7 +144,7 @@ wmem_slist_new(wmem_allocator_t *allocator)
 {
     wmem_slist_t *slist;
 
-    slist = (wmem_slist_t *) wmem_alloc(allocator, sizeof(wmem_slist_t));
+    slist =  wmem_new(allocator, wmem_slist_t);
 
     slist->count     = 0;
     slist->front     = NULL;

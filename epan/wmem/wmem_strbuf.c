@@ -66,7 +66,7 @@ wmem_strbuf_sized_new(wmem_allocator_t *allocator,
 
     g_assert((max_len == 0) || (alloc_len <= max_len));
 
-    strbuf = (wmem_strbuf_t *)wmem_alloc(allocator, sizeof(wmem_strbuf_t));
+    strbuf = wmem_new(allocator, wmem_strbuf_t);
 
     strbuf->allocator = allocator;
     strbuf->len       = 0;
@@ -107,7 +107,7 @@ static void
 wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 {
     gsize  new_alloc_len, new_len;
-    
+
     new_alloc_len = strbuf->alloc_len;
     new_len = strbuf->len + to_add;
 
