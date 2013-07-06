@@ -41,6 +41,7 @@
 #include <wsutil/str_util.h>
 
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 #include <epan/dtd.h>
@@ -52,7 +53,7 @@
 #include "packet-xml.h"
 
 struct _attr_reg_data {
-    GArray *hf;
+    wmem_array_t *hf;
     const gchar *basename;
 };
 
@@ -97,7 +98,7 @@ static range_t *xml_tcp_range        = NULL;
 #define XML_SCOPED_NAME -1001
 
 
-static GArray *hf_arr;
+static wmem_array_t *hf_arr;
 static GArray *ett_arr;
 
 static const gchar *default_media_types[] = {
@@ -800,7 +801,7 @@ static xml_ns_t *xml_new_namespace(GHashTable *hash, const gchar *name, ...)
 }
 
 
-static void add_xml_field(GArray *hfs, int *p_id, const gchar *name, const gchar *fqn)
+static void add_xml_field(wmem_array_t *hfs, int *p_id, const gchar *name, const gchar *fqn)
 {
     hf_register_info hfri;
 
@@ -819,7 +820,7 @@ static void add_xml_field(GArray *hfs, int *p_id, const gchar *name, const gchar
     hfri.hfinfo.same_name_next = NULL;
     hfri.hfinfo.same_name_prev = NULL;
 
-    g_array_append_val(hfs, hfri);
+    wmem_array_append_one(hfs, hfri);
 }
 
 static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
@@ -943,7 +944,7 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
                                GHashTable *elements,
                                GPtrArray  *hier,
                                GString    *error,
-                               GArray     *hfs,
+                               wmem_array_t *hfs,
                                GArray     *etts,
                                char       *proto_name)
 {
@@ -1039,7 +1040,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     GHashTable *elements      = g_hash_table_new(g_str_hash, g_str_equal);
     gchar      *root_name     = NULL;
     xml_ns_t   *root_element  = NULL;
-    GArray     *hfs;
+    wmem_array_t *hfs;
     GArray     *etts;
     GPtrArray  *hier;
     gchar      *curr_name;
@@ -1118,7 +1119,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
          * if we were given a proto_name the namespace will be registered
          * as an independent protocol with its own hf and ett arrays.
          */
-        hfs  = g_array_new(FALSE, FALSE, sizeof(hf_register_info));
+        hfs  = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
         etts = g_array_new(FALSE, FALSE, sizeof(gint *));
     }
 
@@ -1229,7 +1230,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         root_element->hf_tag = proto_register_protocol(dtd_data->description,
                                                        dtd_data->proto_name,
                                                        dtd_data->proto_name);
-        proto_register_field_array(root_element->hf_tag, (hf_register_info*)g_array_data(hfs), hfs->len);
+        proto_register_field_array(root_element->hf_tag, (hf_register_info*)wmem_array_get_raw(hfs), wmem_array_get_count(hfs));
         proto_register_subtree_array((gint **)g_array_data(etts), etts->len);
 
         if (dtd_data->media_type) {
@@ -1239,7 +1240,6 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
         dtd_data->description = NULL;
         dtd_data->proto_name  = NULL;
-        g_array_free(hfs, FALSE);
         g_array_free(etts, TRUE);
     }
 
@@ -1458,17 +1458,17 @@ proto_register_xml(void)
     };
     module_t *xml_module;
 
-    hf_arr  = g_array_new(FALSE, FALSE, sizeof(hf_register_info));
+    hf_arr  = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
     ett_arr = g_array_new(FALSE, FALSE, sizeof(gint *));
 
-    g_array_append_vals(hf_arr, hf_base, array_length(hf_base));
+    wmem_array_append(hf_arr, hf_base, array_length(hf_base));
     g_array_append_vals(ett_arr, ett_base, array_length(ett_base));
 
     init_xml_names();
 
     xml_ns.hf_tag = proto_register_protocol("eXtensible Markup Language", "XML", xml_ns.name);
 
-    proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)g_array_data(hf_arr), hf_arr->len);
+    proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)wmem_array_get_raw(hf_arr), wmem_array_get_count(hf_arr));
     proto_register_subtree_array((gint **)g_array_data(ett_arr), ett_arr->len);
 
     xml_module = prefs_register_protocol(xml_ns.hf_tag, apply_prefs);
@@ -1488,7 +1488,6 @@ proto_register_xml(void)
                                    "Try to recognize XML encoded in Unicode (UCS-2)",
                                    &pref_heuristic_unicode);
 
-    g_array_free(hf_arr, FALSE);
     g_array_free(ett_arr, TRUE);
 
     register_dissector("xml", dissect_xml, xml_ns.hf_tag);
