@@ -31,6 +31,7 @@
 #include "packet.h"
 #include "expert.h"
 #include "emem.h"
+#include "wmem/wmem.h"
 #include "tap.h"
 
 
@@ -172,7 +173,7 @@ expert_module_t *expert_register_protocol(int id)
 
 	protocol = find_protocol_by_id(id);
 
-	module = g_new(expert_module_t,1);
+	module = wmem_new(wmem_epan_scope(), expert_module_t);
 	module->proto_id = id;
 	module->proto_name = proto_get_protocol_short_name(protocol);
 	module->experts = NULL;
