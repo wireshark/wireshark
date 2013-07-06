@@ -94,6 +94,17 @@ wmem_test_rand_string(wmem_allocator_t *allocator, gint minlen, gint maxlen)
     return str;
 }
 
+int
+wmem_test_compare_guint32(const void *a, const void *b)
+{
+    guint32 l, r;
+
+    l = *(guint32*)a;
+    r = *(guint32*)b;
+
+    return l - r;
+}
+
 /* Some helpers for properly testing callback functionality */
 wmem_allocator_t *expected_allocator;
 void             *expected_user_data;
@@ -442,7 +453,7 @@ wmem_test_array(void)
 {
     wmem_allocator_t   *allocator;
     wmem_array_t       *array;
-    unsigned int        i, j;
+    unsigned int        i, j, k;
     guint32             val, *buf;
     guint32             vals[8];
 
@@ -485,6 +496,25 @@ wmem_test_array(void)
             g_assert(buf[i*8 + j] == i+j);
         }
     }
+
+    wmem_array_sort(array, wmem_test_compare_guint32);
+    for (i=0, k=0; i<8; i++) {
+        for (j=0; j<=i; j++, k++) {
+            val = *(guint32*)wmem_array_index(array, k);
+            g_assert(val == i);
+        }
+    }
+    for (j=k; k<8*(CONTAINER_ITERS+1)-j; k++) {
+            val = *(guint32*)wmem_array_index(array, k);
+            g_assert(val == ((k-j)/8)+8);
+    }
+    for (i=0; i<7; i++) {
+        for (j=0; j<7-i; j++, k++) {
+            val = *(guint32*)wmem_array_index(array, k);
+            g_assert(val == CONTAINER_ITERS+i);
+        }
+    }
+    g_assert(k == wmem_array_get_count(array));
 
     wmem_destroy_allocator(allocator);
 }

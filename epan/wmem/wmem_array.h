@@ -71,6 +71,10 @@ void *
 wmem_array_index(wmem_array_t *array, guint array_index);
 
 WS_DLL_PUBLIC
+void
+wmem_array_sort(wmem_array_t *array, int (*compar)(const void*,const void*));
+
+WS_DLL_PUBLIC
 void *
 wmem_array_get_raw(wmem_array_t *array);
 
