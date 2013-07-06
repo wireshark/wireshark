@@ -159,10 +159,10 @@ struct _avp_type_t {
 };
 
 struct _build_dict {
-	GArray *hf;
-	GPtrArray *ett;
-	GHashTable *types;
-	GHashTable *avps;
+	wmem_array_t *hf;
+	GPtrArray    *ett;
+	GHashTable   *types;
+	GHashTable   *avps;
 };
 
 
@@ -1214,8 +1214,8 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 		hf.hfinfo.strings = vs_ext;
 	}
 
-	g_array_append_vals(build_dict.hf,&hf,1);
-	return build_dict.hf->len - 1;
+	wmem_array_append_one(build_dict.hf,hf);
+	return wmem_array_get_count(build_dict.hf);
 }
 
 static void
@@ -1237,7 +1237,7 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 		hf->hfinfo.strings = vs_ext;
 	}
 
-	g_array_append_vals(build_dict.hf,hf,1);
+	wmem_array_append(build_dict.hf,hf,1);
 	g_ptr_array_add(build_dict.ett,ettp);
 }
 
@@ -1479,7 +1479,7 @@ dictionary_load(void)
 	diam_vnd_t *vnd;
 	GArray *vnd_shrt_arr = g_array_new(TRUE,TRUE,sizeof(value_string));
 
-	build_dict.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
+	build_dict.hf = wmem_array_new(wmem_epan_scope(),sizeof(hf_register_info));
 	build_dict.ett = g_ptr_array_new();
 	build_dict.types = g_hash_table_new(strcase_hash,strcase_equal);
 	build_dict.avps = g_hash_table_new(strcase_hash,strcase_equal);
@@ -1828,7 +1828,7 @@ real_proto_register_diameter(void)
 		&(unknown_avp.ett)
 	};
 
-	g_array_append_vals(build_dict.hf, hf_base, array_length(hf_base));
+	wmem_array_append(build_dict.hf, hf_base, array_length(hf_base));
 	ett_length = array_length(ett_base);
 	for (i = 0; i < ett_length; i++) {
 		g_ptr_array_add(build_dict.ett, ett_base[i]);
@@ -1836,10 +1836,9 @@ real_proto_register_diameter(void)
 
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
 
-	proto_register_field_array(proto_diameter, (hf_register_info *)(void *)build_dict.hf->data, build_dict.hf->len);
+	proto_register_field_array(proto_diameter, (hf_register_info *)wmem_array_get_raw(build_dict.hf), wmem_array_get_count(build_dict.hf));
 	proto_register_subtree_array((gint **)build_dict.ett->pdata, build_dict.ett->len);
 
-	g_array_free(build_dict.hf,FALSE);
 	g_ptr_array_free(build_dict.ett,TRUE);
 
 	/* Allow dissector to find be found by name. */
