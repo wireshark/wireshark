@@ -91,9 +91,11 @@ OPTIONS
 		specify the path to Info.plist. Info.plist can be found
 		in the base directory of the source code once configure
 		has been run.
+	-sdkroot
+		specify the root of the SDK to use
 
 EXAMPLE
-	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist
+	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist -sdkroot /Developer/SDKs/MacOSX10.5.sdk
 "
 }
 
@@ -117,6 +119,9 @@ do
 		-h|--help)
 			help
 			exit 0 ;;
+		-sdkroot)
+			sdkroot="$2"
+			shift 1 ;;
 		*)
 			echo "Invalid command line option: $1"
 			exit 2 ;;
@@ -160,6 +165,13 @@ else
 	EXTRALIBS=""
 fi
 
+# Set the SDK root, if an SDK was specified.
+# (-sdk is only supported by the xcodebuild in the version of the
+# developer tools that came with Snow Leopard and later versions)
+if [ ! -z "$sdkroot" ]
+then
+	XCODEFLAGS="$XCODEFLAGS SDKROOT=$sdkroot"
+fi
 
 # Package always has the same name. Version information is stored in
 # the Info.plist file which is filled in by the configure script.

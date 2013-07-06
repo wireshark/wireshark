@@ -688,6 +688,13 @@ bar(void)
 # open-source application in favor of various frameworks that are
 # OS X-only.
 #
+# Also, let the user to specify an OS X release to use as a deplayment
+# target; if they specify that we should have a deployment target but
+# don't specify the deployment target, pick the OS version on which
+# the build is being done.  This also causes the build to be done
+# against an SDK rather than against the headers and libraries in
+# /usr/include and /usr/lib.
+#
 case "$host_os" in
 darwin*)
 	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-deprecated-declarations)
@@ -924,11 +931,102 @@ darwin*)
 	LIBS="$LIBS $COREFOUNDATION_FRAMEWORKS"
 	AC_CHECK_FUNCS(CFPropertyListCreateWithStream)
 	LIBS="$ac_save_LIBS"
+
+	#
+	# Get the OS X major version number.
+	# (We quote the command so that we can use autoconf's M4
+	# quoting characters, [ and ], in the sed expression.)
+	#
+	[os_version=`sw_vers -productVersion | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.[0-9]*/\1.\2/'`]
+
+	AC_ARG_ENABLE(osx-deploy-target,
+	  AC_HELP_STRING( [--enable-osx-deploy-target],
+	    [choose an OS X deployment target @<:@default=none@:>@]),
+	[
+		if test $enableval = no
+		then
+			deploy_target=
+		elif test $enableval = yes
+		then
+			deploy_target=$os_version
+		else
+			deploy_target="$enableval"
+		fi
+	],[
+		deploy_target=
+	])
+	AC_MSG_CHECKING([what deployment target to use])
+	if test -z "$deploy_target"
+	then
+		AC_MSG_RESULT(none)
+		OSX_DEPLOY_TARGET=
+	else
+		AC_MSG_RESULT($deploy_target)
+
+		case $deploy_target in
+
+		10.0|10.1|10.2)
+			#
+			# I'm not sure this would even work.
+			#
+			AC_ERROR([$deploy_target not supported as a deployment target])
+			;;
+
+		10.3)
+			#
+			# XXX - never tested.
+			#
+			SDKPATH="/Developer/SDKs/MacOSX10.3.9.sdk"
+			;;
+
+		*)
+			#
+			# XXX - for 10.4, do we need 10.4u?  We're
+			# not currently doing fat builds (we'd need
+			# fat versions of the support libraries for
+			# that to be useful), but, if we do, we'd
+			# need to use 10.4u.
+			#
+			for i in /Developer/SDKs \
+			    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
+			    /Library/Developer/CommandLineTools/SDKs
+			do
+				if test -d "$i"/"MacOSX$deploy_target.sdk"
+				then
+					SDKPATH="$i"/"MacOSX$deploy_target.sdk"
+					break
+				fi
+			done
+			if test -z "$SDKPATH"
+			then
+				AC_MSG_ERROR([couldn't find the SDK for OS X $deploy_target])
+			fi
+			;;
+		esac
+
+		#
+		# Add -isysroot flags to use the SDK.
+		#
+		CFLAGS="-isysroot $SDKPATH $CFLAGS"
+		CPPFLAGS="-isysroot $SDKPATH $CPPFLAGS"
+		LDFLAGS="-isysroot $SDKPATH $LDFLAGS"
+
+		#
+		# Add a -sdkroot flag to use with osx-app.sh.
+		#
+		OSX_APP_FLAGS="-sdkroot $SDKPATH"
+
+		#
+		# XXX - do we need this to build the Wireshark wrapper?
+		#
+		OSX_DEPLOY_TARGET="MACOSX_DEPLOYMENT_TARGET=$deploy_target"
+	fi
 	;;
 esac
 AC_SUBST(APPLICATIONSERVICES_FRAMEWORKS)
 AC_SUBST(SYSTEMCONFIGURATION_FRAMEWORKS)
 AC_SUBST(COREFOUNDATION_FRAMEWORKS)
+AC_SUBST(OSX_APP_FLAGS)
 
 dnl Look in /usr/local for header files and libraries ?
 dnl XXX FIXME don't include /usr/local if it is already in the system
