@@ -68,7 +68,7 @@ wmem_array_append(wmem_array_t *array, const void *in, guint count);
 
 WS_DLL_PUBLIC
 void *
-wmem_array_index(wmem_array_t *array, guint index);
+wmem_array_index(wmem_array_t *array, guint array_index);
 
 WS_DLL_PUBLIC
 void *
