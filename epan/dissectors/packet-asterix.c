@@ -3636,7 +3636,7 @@ static const FieldPart I062_380_27_MACH = { 16, 0.008, FIELD_PART_UFLOAT, &hf_06
 static const FieldPart *I062_380_27_PARTS[] = { &I062_380_27_MACH, NULL };
 
 /* Barometric Pressure Setting */
-static const FieldPart I062_380_28_BPS = { 12, 0.01, FIELD_PART_UFLOAT, &hf_062_380_28_BPS, NULL };
+static const FieldPart I062_380_28_BPS = { 12, 0.1, FIELD_PART_UFLOAT, &hf_062_380_28_BPS, NULL };
 static const FieldPart *I062_380_28_PARTS[] = { &IXXX_4bit_spare, &I062_380_28_BPS, NULL };
 
 /* Flight Plan Related Data */
