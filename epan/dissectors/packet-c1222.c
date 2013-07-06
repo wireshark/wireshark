@@ -411,7 +411,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   guint8 wait_seconds = 0;
   int numrates = 0;
   guint16 packet_size;
-  guint16 procedure_num;
+  guint16 procedure_num = 0;
   guint8 nbr_packet;
   /* timing setup parameters */
   guint8 traffic;
