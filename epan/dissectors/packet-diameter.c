@@ -328,11 +328,11 @@ export_diameter_pdu(packet_info *pinfo, tvbuff_t *tvb)
 
 }
 
-static gint
-compare_avps (gconstpointer  a, gconstpointer  b)
+static int
+compare_avps(const void *a, const void *b)
 {
-	value_string *vsa = (value_string *)a;
-	value_string *vsb = (value_string *)b;
+	const value_string *vsa = (const value_string *)a;
+	const value_string *vsb = (const value_string *)b;
 
 	if(vsa->value > vsb->value)
 		return 1;
@@ -1616,14 +1616,16 @@ dictionary_load(void)
 		}
 
 		if ((e = a->enums)) {
-			GArray *arr = g_array_new(TRUE,TRUE,sizeof(value_string));
+			wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+                        value_string term = {0, NULL};
 
 			for (; e; e = e->next) {
 				value_string item = {e->code,e->name};
-				g_array_append_val(arr,item);
+				wmem_array_append_one(arr,item);
 			}
-			g_array_sort(arr, compare_avps);
-			vs = (value_string *)arr->data;
+			wmem_array_sort(arr, compare_avps);
+			wmem_array_append_one(arr,term);
+			vs = (value_string *)wmem_array_get_raw(arr);
 		}
 
 		type = NULL;
