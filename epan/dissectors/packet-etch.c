@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/report_err.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/wmem/wmem.h>
 
 /*
  * maximum numbers for symbols from config files
@@ -183,7 +184,7 @@ gbl_symbols_new(void)
 static void
 gbl_symbols_free(void)
 {
-  g_free(gbl_symbols_vs_ext);
+  wmem_free(wmem_epan_scope(), gbl_symbols_vs_ext);
   gbl_symbols_vs_ext = NULL;
 
   if (gbl_symbols_array != NULL) {

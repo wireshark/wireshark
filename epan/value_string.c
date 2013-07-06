@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#include "emem.h"
+#include "wmem/wmem.h"
 #include "proto.h"
 #include "to_str.h"
 #include "value_string.h"
@@ -48,7 +48,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 /* Tries to match val against each element in the value_string array vs.
@@ -179,7 +179,8 @@ str_to_val_idx(const gchar *val, const value_string *vs)
 /* Create a value_string_ext given a ptr to a value_string array and the total
  * number of entries. Note that the total number of entries should include the
  * required {0, NULL} terminating entry of the array.
- * Returns a pointer to a g_malloc'd and initialized value_string_ext struct. */
+ * Returns a pointer to an epan-scoped'd and initialized value_string_ext
+ * struct. */
 value_string_ext *
 value_string_ext_new(value_string *vs, guint vs_tot_num_entries,
         const gchar *vs_name)
@@ -189,9 +190,9 @@ value_string_ext_new(value_string *vs, guint vs_tot_num_entries,
     DISSECTOR_ASSERT (vs_name != NULL);
     DISSECTOR_ASSERT (vs_tot_num_entries > 0);
     /* Null-terminated value-string ? */
-    DISSECTOR_ASSERT (vs[vs_tot_num_entries-1].strptr == NULL); 
+    DISSECTOR_ASSERT (vs[vs_tot_num_entries-1].strptr == NULL);
 
-    vse                  = g_new(value_string_ext, 1);
+    vse                  = wmem_new(wmem_epan_scope(), value_string_ext);
     vse->_vs_p           = vs;
     vse->_vs_num_entries = vs_tot_num_entries - 1;
     /* We set our 'match' function to the init function, which finishes by
@@ -247,7 +248,7 @@ val_to_str_ext(const guint32 val, const value_string_ext *vse, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 /* Like val_to_str_const for extended value strings */
@@ -432,7 +433,7 @@ str_to_str(const gchar *val, const string_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 /* Like try_val_to_str_idx except for string_string */
@@ -480,7 +481,7 @@ rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
     if(ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 /* Like try_val_to_str_idx except for range_string */
