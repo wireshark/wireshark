@@ -34,7 +34,7 @@
  */
 
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 #include <errno.h>
 
 #include <netlink/msg.h>
