@@ -55,9 +55,7 @@ static int hf_expert_severity = -1;
 struct expert_module
 {
 	const char* proto_name;
-	int        proto_id;      /* Cache this for registering hfs */
-	GList      *experts;      /* expert_infos for this protocol */
-	GList      *last_expert;  /* pointer to end of list of expert_infos */
+	int         proto_id;      /* Cache this for registering hfs */
 };
 
 /* List which stores protocols and expert_info that have been registered */
@@ -67,11 +65,6 @@ typedef struct _gpa_expertinfo_t {
 	expert_field_info **ei;
 } gpa_expertinfo_t;
 static gpa_expertinfo_t gpa_expertinfo;
-
-/*
- * List of all modules with expert info.
- */
-static emem_tree_t *expert_modules = NULL;
 
 /* Possible values for a checksum evaluation */
 const value_string expert_checksum_vals[] = {
@@ -120,10 +113,6 @@ expert_packet_init(void)
 	}
 
 	highest_severity = 0;
-
-	if (expert_modules == NULL) {
-		expert_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "expert_modules");
-	}
 
 	proto_malformed = proto_get_id_by_filter_name("malformed");
 }
@@ -176,13 +165,6 @@ expert_module_t *expert_register_protocol(int id)
 	module = wmem_new(wmem_epan_scope(), expert_module_t);
 	module->proto_id = id;
 	module->proto_name = proto_get_protocol_short_name(protocol);
-	module->experts = NULL;
-	module->last_expert = NULL;
-
-	/*
-	 * Insert this module into the appropriate place in the tree.
-	 */
-	pe_tree_insert_string(expert_modules, module->proto_name, module, EMEM_TREE_STRING_NOCASE);
 
 	return module;
 }
@@ -233,16 +215,6 @@ expert_register_field_array(expert_module_t* module, ei_register_info *exp, cons
 				"Duplicate field detected in call to expert_register_field_array: '%s' is already registered\n",
 				ptr->eiinfo.summary);
 			return;
-		}
-
-		if (module != NULL) {
-			if (module->experts == NULL) {
-				module->experts = g_list_append(NULL, ptr);
-				module->last_expert = module->experts;
-			} else {
-				module->last_expert =
-					g_list_append(module->last_expert, ptr)->next;
-			}
 		}
 
 		/* Register the field with the experts */
