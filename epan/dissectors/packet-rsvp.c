@@ -8412,7 +8412,7 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
         { &hf_rsvp_3gpp_obj_pf_tos_tc,
-         { "Type of Service (IPv4)/Traffic Class (IPv6)", "rsvp.3gpp_obj._pf_tos_tc",
+         { "Type of Service (IPv4)/Traffic Class (IPv6)", "rsvp.3gpp_obj.pf_tos_tc",
            FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL }
         },

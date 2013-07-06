@@ -4,7 +4,7 @@
 C1222-PROTOCOL DEFINITIONS ::=
 BEGIN
 
-C1222-MESSAGE  ::= [APPLICATION 0] IMPLICIT SEQUENCE {
+MESSAGE  ::= [APPLICATION 0] IMPLICIT SEQUENCE {
     aSO-context                   [1]  ASO-qualifier OPTIONAL,
     called-AP-title               [2]  Called-AP-title OPTIONAL,
     called-AP-invocation-id       [4]  Called-AP-invocation-id OPTIONAL,

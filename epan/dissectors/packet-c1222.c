@@ -98,7 +98,7 @@ static gboolean c1222_decrypt = TRUE;
 
 /*--- Included file: packet-c1222-hf.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-hf.c"
-static int hf_c1222_C1222_MESSAGE_PDU = -1;       /* C1222_MESSAGE */
+static int hf_c1222_MESSAGE_PDU = -1;             /* MESSAGE */
 static int hf_c1222_aSO_context = -1;             /* ASO_qualifier */
 static int hf_c1222_called_AP_title = -1;         /* Called_AP_title */
 static int hf_c1222_called_AP_invocation_id = -1;  /* Called_AP_invocation_id */
@@ -219,7 +219,7 @@ static guint32 iv_element_len = 0;
 
 /*--- Included file: packet-c1222-ett.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-ett.c"
-static gint ett_c1222_C1222_MESSAGE_U = -1;
+static gint ett_c1222_MESSAGE_U = -1;
 static gint ett_c1222_AP_title = -1;
 static gint ett_c1222_Calling_authentication_value_U = -1;
 static gint ett_c1222_Authentication_value_encoding = -1;
@@ -1470,7 +1470,7 @@ dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t C1222_MESSAGE_U_sequence[] = {
+static const ber_sequence_t MESSAGE_U_sequence[] = {
   { &hf_c1222_aSO_context   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_c1222_ASO_qualifier },
   { &hf_c1222_called_AP_title, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_c1222_Called_AP_title },
   { &hf_c1222_called_AP_invocation_id, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_c1222_Called_AP_invocation_id },
@@ -1484,9 +1484,9 @@ static const ber_sequence_t C1222_MESSAGE_U_sequence[] = {
 };
 
 static int
-dissect_c1222_C1222_MESSAGE_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_c1222_MESSAGE_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   C1222_MESSAGE_U_sequence, hf_index, ett_c1222_C1222_MESSAGE_U);
+                                   MESSAGE_U_sequence, hf_index, ett_c1222_MESSAGE_U);
 
   return offset;
 }
@@ -1494,19 +1494,19 @@ dissect_c1222_C1222_MESSAGE_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_c1222_C1222_MESSAGE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_c1222_MESSAGE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_c1222_C1222_MESSAGE_U);
+                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_c1222_MESSAGE_U);
 
   return offset;
 }
 
 /*--- PDUs ---*/
 
-static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_c1222_C1222_MESSAGE(FALSE, tvb, 0, &asn1_ctx, tree, hf_c1222_C1222_MESSAGE_PDU);
+  dissect_c1222_MESSAGE(FALSE, tvb, 0, &asn1_ctx, tree, hf_c1222_MESSAGE_PDU);
 }
 
 
@@ -1533,7 +1533,7 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         c1222_item = proto_tree_add_item(tree, proto_c1222, tvb, 0, -1, ENC_NA);
         c1222_tree = proto_item_add_subtree(c1222_item, ett_c1222);
-        dissect_C1222_MESSAGE_PDU(tvb, pinfo, c1222_tree);
+        dissect_MESSAGE_PDU(tvb, pinfo, c1222_tree);
     }
 }
 
@@ -1796,8 +1796,8 @@ void proto_register_c1222(void) {
 
 /*--- Included file: packet-c1222-hfarr.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-hfarr.c"
-    { &hf_c1222_C1222_MESSAGE_PDU,
-      { "C1222-MESSAGE", "c1222.C1222_MESSAGE_element",
+    { &hf_c1222_MESSAGE_PDU,
+      { "MESSAGE", "c1222.MESSAGE_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_c1222_aSO_context,
@@ -1903,7 +1903,7 @@ void proto_register_c1222(void) {
 
 /*--- Included file: packet-c1222-ettarr.c ---*/
 #line 1 "../../asn1/c1222/packet-c1222-ettarr.c"
-    &ett_c1222_C1222_MESSAGE_U,
+    &ett_c1222_MESSAGE_U,
     &ett_c1222_AP_title,
     &ett_c1222_Calling_authentication_value_U,
     &ett_c1222_Authentication_value_encoding,

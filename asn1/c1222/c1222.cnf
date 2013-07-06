@@ -10,7 +10,7 @@ IMPORT ../acse/acse.inf
 #.EXPORTS
 
 #.PDU
-C1222-MESSAGE
+MESSAGE
 
 #.NO_EMIT
 

@@ -310,7 +310,7 @@ void proto_register_vrrp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_vrrp_checksum, { "vrrp.vrrp_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+        { &ei_vrrp_checksum, { "vrrp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
     };
 
     expert_module_t* expert_vrrp;

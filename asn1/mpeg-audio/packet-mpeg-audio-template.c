@@ -157,10 +157,10 @@ proto_register_mpeg_audio(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_id3v1,
-			{ "ID3v1", "id3v1",
+			{ "ID3v1", "mpeg-audio.id3v1",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_id3v2,
-			{ "ID3v2", "id3v2",
+			{ "ID3v2", "mpeg-audio.id3v2",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 

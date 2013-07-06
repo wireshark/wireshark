@@ -933,7 +933,7 @@ proto_register_sss(void)
         };
 
         static ei_register_info ei[] = {
-            { &ei_return_code, { "ncp.return_code.expert", PI_RESPONSE_CODE, PI_NOTE, "SSS Error", EXPFILL }},
+            { &ei_return_code, { "sss.return_code.expert", PI_RESPONSE_CODE, PI_NOTE, "SSS Error", EXPFILL }},
         };
 
         expert_module_t* expert_sss;
