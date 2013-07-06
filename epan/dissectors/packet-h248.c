@@ -1386,7 +1386,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
          */
         packages = g_tree_new(comparePkgID); /* init tree if no entries */
         while (base_package_name_vals[i].strptr != NULL) {
-            pkg_found = g_new0(h248_package_t, 1); /* create a h248 package structure */
+            pkg_found = wmem_new0(wmem_epan_scope(), h248_package_t); /* create a h248 package structure */
             pkg_found->id = base_package_name_vals[i].value;
             vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
             vst[0].strptr = base_package_name_vals[i].strptr;
@@ -1436,7 +1436,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
     pkg_default = is_pkg_default(pkg->id);
     if (((reg_action==REPLACE_PKG) || (reg_action==ADD_PKG)) && pkg_default) {
         /* add/replace in tree */
-        s_pkg = g_new0(s_h248_package_t,1);
+        s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);
         s_pkg->is_default = FALSE;
         s_pkg->pkg = (h248_package_t *)pkg;
         g_tree_replace(packages, GINT_TO_POINTER(pkg->id), (gpointer)s_pkg);
@@ -1445,7 +1445,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
     if(pkg_default) reg_action = MERGE_PKG_HIGH; /* always make new package overide default */
     s_pkg = s_find_package_id(pkg->id);
     if (s_pkg == NULL) { /* no need to merge - package not in tree */
-        s_pkg = g_new0(s_h248_package_t,1);
+        s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);
         s_pkg->is_default = FALSE;
         s_pkg->pkg = (h248_package_t *)pkg;
         g_tree_insert(packages, GINT_TO_POINTER(pkg->id), (gpointer)s_pkg);
