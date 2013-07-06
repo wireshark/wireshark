@@ -3240,8 +3240,8 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 		proto_item *item = NULL;
 		proto_tree *next_tree = NULL;
 
-		item = proto_tree_add_text(actx->subtree.top_tree ? actx->subtree.top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "P1 Unknown Content (unknown built-in content-type)");
-		expert_add_info(actx->pinfo, item, &ei_p1_unknown_built_in_content_type);
+		proto_tree_add_expert(actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->pinfo, &ei_p1_unknown_built_in_content_type,
+							  next_tvb, 0, tvb_length_remaining(tvb, offset));
 		if (item) {
 			next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
 		}
