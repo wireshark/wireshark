@@ -2719,11 +2719,6 @@ process_packet_first_pass(capture_file *cf,
     /* if we don't add it to the frame_data_sequence, clean it up right now
      * to avoid leaks */
     frame_data_destroy(&fdlocal);
-    /* TODO, bug #8160 */
-    /*
-    prev_cap_frame = fdlocal;
-    prev_cap = &prev_cap_frame;
-     */
   }
 
   if (do_dissection)
@@ -2786,6 +2781,9 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     else
       cinfo = NULL;
 
+    frame_data_set_before_dissect(fdata, &cf->elapsed_time,
+                                  &first_ts, prev_dis, prev_cap);
+
     epan_dissect_run_with_taps(&edt, phdr, buffer_start_ptr(buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
@@ -2794,6 +2792,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
   }
 
   if (passed) {
+    frame_data_set_after_dissect(fdata, &cum_bytes);
     /* Process this packet. */
     if (print_packet_info) {
       /* We're printing packet information; print the information for
@@ -2831,7 +2830,9 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
         exit(2);
       }
     }
+    prev_dis = fdata;
   }
+  prev_cap = fdata;
 
   if (do_dissection) {
     epan_dissect_cleanup(&edt);
@@ -2981,6 +2982,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     max_packet_count = old_max_packet_count;
 
+    prev_dis = NULL;
+    prev_cap = NULL;
     buffer_init(&buf, 1500);
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
