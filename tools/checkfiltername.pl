@@ -54,6 +54,7 @@ my @elements;
 my @elements_dup;
 my @protocols;
 my %filters;
+my %expert_filters;
 my @acceptedprefixes = ("dcerpc-");
 my @asn1automatedfilelist;
 my @dcerpcautomatedfilelist;
@@ -79,6 +80,11 @@ my $state;
 # "s_header_field_info_entry_name",
 # "s_header_field_info_entry_abbrev",
 # "s_header_field_info_entry_abbrev_end",
+# "s_start_expert",
+# "s_in_ei_register_info",
+# "s_ei_register_info_entry",
+# "s_ei_register_info_entry_start",
+# "s_ei_register_info_entry_abbrev_end",
 # "s_nofields"
 
 my $restofline;
@@ -228,6 +234,10 @@ sub printprevfile {
 	foreach (sort keys %filters) {
 		checkprotoabbrev ($filters{$_}, $_);
 	}
+
+	foreach (sort keys %expert_filters) {
+		checkprotoabbrev ($expert_filters{$_}, $_);
+	}
 	
 	$count_ele = @elements;
 	$count_dup = @elements_dup;
@@ -335,6 +345,7 @@ while (<>) {
 		$noperiod = 0;
 		$linenumber = 1;
 		%filters = ( );
+		%expert_filters = ( );
 		@protocols = ( );
 		@elements = ( );
 		@elements_dup = ( );
@@ -452,6 +463,10 @@ while (<>) {
 			$restofline = $2;
 			$state = "s_start";
 			$debug>1 && print "$linenumber $state\n";
+		} elsif ($restofline =~ /\s*static\s*ei_register_info\s*(\w+)\[\](.*)/) {
+			$restofline = $2;
+			$state = "s_start_expert";
+			$debug>1 && print "$linenumber $state\n";
 		} elsif (($state eq "s_start") && ($restofline =~ /\W+{(.*)/)) {
 			$restofline = $1;
 			$state = "s_in_hf_register_info";
@@ -495,6 +510,30 @@ while (<>) {
 		} elsif (($state eq "s_header_field_info_entry_abbrev_end") && ($restofline =~ /[^}]*}(.*)/)) {
 			$restofline = $1;
 			$state = "s_in_hf_register_info";
+			$debug>1 && print "$linenumber $state\n";
+		} elsif (($state eq "s_start_expert") && ($restofline =~ /\W+{(.*)/)) {
+			$restofline = $1;
+			$state = "s_in_ei_register_info";
+			$debug>1 && print "$linenumber $state\n";
+		} elsif (($state eq "s_in_ei_register_info") && ($restofline =~ /\W+{(.*)/)) {	
+			$restofline = $1;
+			$state = "s_ei_register_info_entry";
+			$debug>1 && print "$linenumber $state\n";
+		} elsif (($state eq "s_in_ei_register_info") && ($restofline =~ /\s*};(.*)/)) {
+			$restofline = $1;
+			$state = "s_unknown";
+		} elsif (($state eq "s_ei_register_info_entry") && ($restofline =~ /\s*{(.*)/)) {
+			$restofline = $1;
+			$state = "s_ei_register_info_entry_start";
+			$debug>1 && print "$linenumber $state\n";
+		} elsif (($state eq "s_ei_register_info_entry_start") && ($restofline =~ /\"([^\"]*)\"\s*,(.*)/)) {
+			$restofline = $2;
+			$debug>1 && print "$linenumber ei_register_info_entry_abbrev: $1\n";
+			$expert_filters{$linenumber} = $1;
+			$state = "s_ei_register_info_entry_abbrev_end";
+		} elsif (($state eq "s_ei_register_info_entry_abbrev_end") && ($restofline =~ /[^}]*}(.*)/)) {
+			$restofline = $1;
+			$state = "s_in_ei_register_info";
 			$debug>1 && print "$linenumber $state\n";
 		} else {
 			$more_tokens = 0;
