@@ -1,0 +1,11 @@
+--- include/pa_mac_core.h.dist	2011-07-09 08:01:52.000000000 -0700
++++ include/pa_mac_core.h	2012-08-11 12:14:25.000000000 -0700
+@@ -46,7 +46,7 @@
+ #include "portaudio.h"
+ 
+ #include <AudioUnit/AudioUnit.h>
+-//#include <AudioToolbox/AudioToolbox.h>
++#include <AudioToolbox/AudioToolbox.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {

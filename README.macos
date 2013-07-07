@@ -1,11 +1,13 @@
 $Id$
 
-This file tries to help building Wireshark for Mac OS X (Wireshark does
-not work on earlier versions of Mac OS).
+This file tries to help building Wireshark for (Mac) OS X (Wireshark
+does not work on earlier versions of Mac OS).
 
-You must have the developer tools (called Xcode) installed. Xcode 3 should
-be available on the install DVD; Xcode 4 is available for download from
-developer.apple.com and, for Lion, from the Mac App Store. See
+You must have the developer tools (called Xcode) installed.  For
+versions of OS X up to and including Snow Leopard, Xcode 3 should be
+available on the install DVD; Xcode 4 is available for download from
+developer.apple.com and, for Lion and later releases, from the Mac App
+Store.  See
 
 	http://guide.macports.org/chunked/installing.xcode.html
 
@@ -14,7 +16,11 @@ for details.
 You must have X11 and the X11 developer headers and libraries installed;
 otherwise, you will not be able to build or install GTK+, and will only
 be able to build TShark.  The X11 and X11 SDK that come with Mac OS X
-releases starting with Panther can be used to build and run Wireshark.
+releases for releases from Panther to Lion can be used to build and run
+Wireshark.  Mountain Lion does not include X11; you should install X11
+from elsewhere, such as
+
+	http://xquartz.macosforge.org/
 
 You must also have GLib and, if you want to build Wireshark as well as
 TShark, GTK+.  The macosx-setup.sh script can be used to download, patch
@@ -37,7 +43,7 @@ you've added new source files to the Wireshark source.
 
 Then run the configure script, and run make to build Wireshark.
 
-If you upgrade the major release of Mac OS X on which you are building
+If you upgrade the major release of OS X on which you are building
 Wireshark, we advise that, before you do any builds after the upgrade,
 you do, in the build directory:
 
@@ -50,32 +56,38 @@ you do, in the build directory:
 
 Then re-run the configure script and rebuild from scratch.
 
-On Snow Leopard (10.6), if you are building on a machine with a 64-bit
-processor (with the exception of the early Intel Core Duo and Intel Core
-Solo machines, all Apple machines with Intel processors have 64-bit
-processors), the C/C++/Objective-C compiler will build 64-bit by
-default.
+On Snow Leopard (10.6) and later releases, if you are building on a
+machine with a 64-bit processor (with the exception of the early Intel
+Core Duo and Intel Core Solo machines, all Apple machines with Intel
+processors have 64-bit processors), the C/C++/Objective-C compiler will
+build 64-bit by default.
 
 This means that you will, by default, get a 64-bit version of Wireshark.
 
 One consequence of this is that, if you built and installed any required
-or optional libraries for Wireshark on an earlier release of Mac OS X,
-those are probably 32-bit versions of the libraries, and you will need
-to un-install them and rebuild them on Snow Leopard (10.6), to get 64-bit
-versions.
+or optional libraries for Wireshark on an earlier release of OS X, those
+are probably 32-bit versions of the libraries, and you will need to
+un-install them and rebuild them on your current version of OS X, to get
+64-bit versions.
 
 Some required and optional libraries require special attention if you
-install them by building from source code on Snow Leopard; the
-macosx-setup.sh script will handle that for you.
+install them by building from source code on Snow Leopard and later
+releases; the macosx-setup.sh script will handle that for you.
 
 GLib - the GLib configuration script determines whether the system's
 libiconv is GNU iconv or not by checking whether it has libiconv_open(),
 and the compile will fail if that test doesn't correctly indicate
-whether libiconv is GNU iconv.  In Mac OS X, libiconv is GNU iconv, but
-the 64-bit version doesn't have libiconv_open(); a workaround for this
-is to replace all occurrences of "libiconv_open" with "iconv_open" in
-the configure script before running the script.  The macosx-setup.sh
-setup script will patch GLib to work around this.
+whether libiconv is GNU iconv.  In OS X, libiconv is GNU iconv, but the
+64-bit version doesn't have libiconv_open(); a workaround for this is to
+replace all occurrences of "libiconv_open" with "iconv_open" in the
+configure script before running the script.  The macosx-setup.sh setup
+script will patch GLib to work around this.
+
+GTK+ - GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
+CUPS printing backend - either the CUPS API changed incompatibly or the
+backend was depending on non-API implementation details.  The
+macosx-setup.sh setup script will, on Mountain Lion and later, configure
+GTK+ with the CUPS printing backend disabled.
 
 libgcrypt - the libgcrypt configuration script attempts to determine
 which flavor of assembler-language routines to use based on the platform
@@ -88,11 +100,19 @@ is to run the configure script with the --disable-asm argument, so that
 the assembler-language routines are not used.  The macosx-setup.sh will
 configure libgcrypt with that option.
 
-PortAudio - when compiling on Mac OS X, the configure script for the
+PortAudio - when compiling on OS X, the configure script for the
 pa_stable_v19_20071207 version of PortAudio will cause certain
-platform-dependent build environment #defines to be set in the
-Makefile rules, and to cause a universal build to be done; those
-#defines will be incorrect for all but one of the architectures for
-which the build is being done, and that will cause a compile-time error
-on Snow Leopard.  Newer versions don't have this problem; the
-macosx-setup.sh script downloads a newer version.
+platform-dependent build environment #defines to be set in the Makefile
+rules, and to cause a universal build to be done; those #defines will be
+incorrect for all but one of the architectures for which the build is
+being done, and that will cause a compile-time error on Snow Leopard. 
+Newer versions don't have this problem, but still fail to build on Lion
+if a universal build is attempted.  The macosx-setup.sh script downloads
+a newer version, and also suppresses the universal build.
+
+GeoIP - Their man pages "helpfully" have an ISO 8859-1 copyright symbol
+in the copyright notice, but OS X's default character encoding is UTF-8. 
+sed on Mountain Lion barfs at the "illegal character sequence"
+represented by an ISO 8859-1 copyright symbol, as it's not a valid UTF-8
+sequence.  The macosx-setup.sh script uses iconv to convert the man page
+files from ISO 8859-1 to UTF-8.
