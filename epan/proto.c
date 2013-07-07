@@ -5087,7 +5087,7 @@ proto_register_subtree_array(gint *const *indices, const int num_indices)
 	 * dissector that registers ett values.)
 	 */
 	if (tree_is_expanded != NULL) {
-		tree_is_expanded = (guint32 *)g_realloc(tree_is_expanded, (((num_tree_types + num_indices)/32) * sizeof(guint32)) + 1);
+		tree_is_expanded = (guint32 *)g_realloc(tree_is_expanded, (1+((num_tree_types + num_indices)/32)) * sizeof(guint32));
 
 		/* set new items to 0 */
 		/* XXX, slow!!! optimize when needed (align 'i' to 32, and set rest of guint32 to 0) */
