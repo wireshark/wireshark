@@ -301,10 +301,10 @@ static void save_same_name_hfinfo(gpointer data)
 	same_name_hfinfo = (header_field_info*)data;
 }
 
-/* Points to the first element of an array of Booleans, indexed by
+/* Points to the first element of an array of bits, indexed by
    a subtree item type; that array element is TRUE if subtrees of
    an item of that type are to be expanded. */
-static gboolean	*tree_is_expanded;
+static guint32 *tree_is_expanded;
 
 /* Number of elements in that array. */
 int		num_tree_types;
@@ -399,7 +399,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
-	tree_is_expanded = g_new0(gboolean, num_tree_types);
+	tree_is_expanded = g_new0(guint32, (num_tree_types/32)+1);
 }
 
 void
@@ -5087,11 +5087,12 @@ proto_register_subtree_array(gint *const *indices, const int num_indices)
 	 * dissector that registers ett values.)
 	 */
 	if (tree_is_expanded != NULL) {
-		tree_is_expanded =
-			(gboolean *)g_realloc(tree_is_expanded,
-				  (num_tree_types + num_indices)*sizeof (gboolean));
-		memset(tree_is_expanded + num_tree_types, 0,
-		       num_indices*sizeof (gboolean));
+		tree_is_expanded = (guint32 *)g_realloc(tree_is_expanded, (((num_tree_types + num_indices)/32) * sizeof(guint32)) + 1);
+
+		/* set new items to 0 */
+		/* XXX, slow!!! optimize when needed (align 'i' to 32, and set rest of guint32 to 0) */
+		for (i = num_tree_types; i < num_tree_types + num_indices; i++)
+			tree_is_expanded[i >> 5] &= ~(1 << (i & 31));
 	}
 
 	/*
@@ -7408,14 +7409,18 @@ gboolean
 tree_expanded(int tree_type)
 {
 	g_assert(tree_type >= 0 && tree_type < num_tree_types);
-	return tree_is_expanded[tree_type];
+	return tree_is_expanded[tree_type >> 5] & (1 << (tree_type & 31));
 }
 
 void
 tree_expanded_set(int tree_type, gboolean value)
 {
 	g_assert(tree_type >= 0 && tree_type < num_tree_types);
-	tree_is_expanded[tree_type] = value;
+
+	if (value)
+		tree_is_expanded[tree_type >> 5] |= (1 << (tree_type & 31));
+	else
+		tree_is_expanded[tree_type >> 5] &= ~(1 << (tree_type & 31));
 }
 
 /*
