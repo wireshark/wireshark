@@ -1062,7 +1062,7 @@ static void
 dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ddti = NULL, *tlv_dd_map_tree, *tlv_ddstlv_map_tree;
-    proto_tree *ddsti = NULL, *ddsti2;
+    proto_tree *ddsti, *ddsti2;
     guint16     subtlv_length, subtlv_type, multipath_length;
     guint8      addr_type, multipath_type, fec_tlv_length;
     guint16     idx = 1;
@@ -1133,7 +1133,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
        offset += 4;
 
        if (rem<subtlv_length){
-          expert_add_info_format_text(pinfo, ddsti, &ei_mpls_echo_tlv_dd_map_subtlv_len,
+          expert_add_info_format_text(pinfo, ddti, &ei_mpls_echo_tlv_dd_map_subtlv_len,
                 "Invalid Sub-tlv Length (claimed %u, found %u)",
                 subtlv_length, rem);
           return;
