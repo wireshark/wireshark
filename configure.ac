@@ -196,9 +196,14 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 PKG_PROG_PKG_CONFIG
 
 #
-# Check for an OS X deployment target early, so that as many
-# tests using the compiler are done using the flags that
-# we'll be using when building.
+# Let the user specify an OS X release to use as a deplayment target;
+# if they specify that we should have a deployment target but don't
+# specify the deployment target, pick the OS version on which the build
+# is being done.  This also causes the build to be done against an SDK
+# rather than against the headers and libraries in /usr/include and /usr/lib.
+#
+# Check for an OS X deployment target early, so that as many tests using
+# the compiler are done using the flags that we'll be using when building.
 #
 case "$host_os" in
 darwin*)
@@ -707,13 +712,6 @@ bar(void)
 # multi-platform open-source libraries that we use in our multi-platform
 # open-source application in favor of various frameworks that are
 # OS X-only.
-#
-# Also, let the user to specify an OS X release to use as a deplayment
-# target; if they specify that we should have a deployment target but
-# don't specify the deployment target, pick the OS version on which
-# the build is being done.  This also causes the build to be done
-# against an SDK rather than against the headers and libraries in
-# /usr/include and /usr/lib.
 #
 case "$host_os" in
 darwin*)
