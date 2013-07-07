@@ -140,7 +140,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     }
 
     if (is_branch) {
-        if (tree_is_expanded[fi->tree_type]) {
+        if (tree_expanded(fi->tree_type)) {
             item->setExpanded(true);
         } else {
             item->setExpanded(false);
@@ -334,7 +334,7 @@ void ProtoTree::expand(const QModelIndex & index) {
     if (fi->tree_type != -1) {
         g_assert(fi->tree_type >= 0 &&
                  fi->tree_type < num_tree_types);
-        tree_is_expanded[fi->tree_type] = TRUE;
+        tree_expanded_set(fi->tree_type, TRUE);
     }
 }
 
@@ -351,7 +351,7 @@ void ProtoTree::collapse(const QModelIndex & index) {
     if (fi->tree_type != -1) {
         g_assert(fi->tree_type >= 0 &&
                  fi->tree_type < num_tree_types);
-        tree_is_expanded[fi->tree_type] = FALSE;
+        tree_expanded_set(fi->tree_type, FALSE);
     }
 }
 
@@ -388,7 +388,7 @@ void ProtoTree::expandAll()
 {
     int i;
     for(i=0; i < num_tree_types; i++) {
-        tree_is_expanded[i] = TRUE;
+        tree_expanded_set(i, TRUE);
     }
     QTreeWidget::expandAll();
 }
@@ -397,7 +397,7 @@ void ProtoTree::collapseAll()
 {
     int i;
     for(i=0; i < num_tree_types; i++) {
-        tree_is_expanded[i] = FALSE;
+        tree_expanded_set(i, FALSE);
     }
     QTreeWidget::collapseAll();
 }

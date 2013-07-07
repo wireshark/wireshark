@@ -214,11 +214,8 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be expanded.
      */
-    if (finfo->tree_type != -1) {
-        g_assert(finfo->tree_type >= 0 &&
-                 finfo->tree_type < num_tree_types);
-        tree_is_expanded[finfo->tree_type] = TRUE;
-    }
+    if (finfo->tree_type != -1)
+    	tree_expanded_set(finfo->tree_type, TRUE);
 }
 
 static void
@@ -236,11 +233,8 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be collapsed.
      */
-    if (finfo->tree_type != -1) {
-        g_assert(finfo->tree_type >= 0 &&
-                 finfo->tree_type < num_tree_types);
-        tree_is_expanded[finfo->tree_type] = FALSE;
-    }
+    if (finfo->tree_type != -1)
+    	tree_expanded_set(finfo->tree_type, FALSE);
 }
 
 struct field_lookup_info {
@@ -1288,9 +1282,10 @@ void
 expand_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
 {
     int i;
-    for(i=0; i < num_tree_types; i++) {
-        tree_is_expanded[i] = TRUE;
-    }
+
+    for(i=0; i < num_tree_types; i++)
+        tree_expanded_set(i, TRUE);
+
     gtk_tree_view_expand_all(GTK_TREE_VIEW(tree_view));
 }
 
@@ -1298,9 +1293,10 @@ void
 collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
 {
     int i;
-    for(i=0; i < num_tree_types; i++) {
-        tree_is_expanded[i] = FALSE;
-    }
+
+    for(i=0; i < num_tree_types; i++)
+        tree_expanded_set(i, FALSE);
+
     gtk_tree_view_collapse_all(GTK_TREE_VIEW(tree_view));
 }
 
@@ -1377,7 +1373,7 @@ expand_finfos(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointe
 
     g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
 
-    if (tree_is_expanded[fi->tree_type])
+    if (tree_expanded(fi->tree_type))
         gtk_tree_view_expand_to_path(tree_view, path);
     else
         gtk_tree_view_collapse_row(tree_view, path);

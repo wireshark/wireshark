@@ -238,7 +238,7 @@ void proto_tree_print_node(proto_node *node, gpointer data)
     g_assert((fi->tree_type >= -1) && (fi->tree_type < num_tree_types));
     if ((pdata->print_dissections == print_dissections_expanded) ||
         ((pdata->print_dissections == print_dissections_as_displayed) &&
-         (fi->tree_type >= 0) && tree_is_expanded[fi->tree_type])) {
+         (fi->tree_type >= 0) && tree_expanded(fi->tree_type))) {
         if (node->first_child != NULL) {
             pdata->level++;
             proto_tree_children_foreach(node,

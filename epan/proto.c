@@ -304,7 +304,7 @@ static void save_same_name_hfinfo(gpointer data)
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
    an item of that type are to be expanded. */
-gboolean	*tree_is_expanded;
+static gboolean	*tree_is_expanded;
 
 /* Number of elements in that array. */
 int		num_tree_types;
@@ -7402,6 +7402,20 @@ guchar
 proto_check_field_name(const gchar *field_name)
 {
 	return wrs_check_charset(fld_abbrev_chars, field_name);
+}
+
+gboolean
+tree_expanded(int tree_type)
+{
+	g_assert(tree_type >= 0 && tree_type < num_tree_types);
+	return tree_is_expanded[tree_type];
+}
+
+void
+tree_expanded_set(int tree_type, gboolean value)
+{
+	g_assert(tree_type >= 0 && tree_type < num_tree_types);
+	tree_is_expanded[tree_type] = value;
 }
 
 /*

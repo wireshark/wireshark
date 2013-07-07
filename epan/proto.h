@@ -1852,16 +1852,15 @@ WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 WS_DLL_PUBLIC void proto_registrar_dump_ftypes(void);
 
 
-
-/** Points to the first element of an array of Booleans, indexed by
-   a subtree item type. That array element is TRUE if subtrees of
-   an item of that type are to be expanded. With MSVC and a
-   libwireshark.dll, we need a special declaration. */
-WS_DLL_PUBLIC gboolean	     *tree_is_expanded;
-
 /** Number of elements in the tree_is_expanded array. With MSVC and a
  * libwireshark.dll, we need a special declaration. */
 WS_DLL_PUBLIC int           num_tree_types;
+
+/** Returns TRUE if subtrees of that type are to be expanded. */
+WS_DLL_PUBLIC gboolean tree_expanded(int tree_type);
+
+/** Sets if subtrees of that type are to be expanded. */
+WS_DLL_PUBLIC void tree_expanded_set(int tree_type, gboolean value);
 
 /** glib doesn't have g_ptr_array_len of all things!*/
 #ifndef g_ptr_array_len
