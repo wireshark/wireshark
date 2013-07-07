@@ -1,0 +1,11 @@
+--- macosx-support-libs/portaudio/src/hostapi/coreaudio/pa_mac_core.c.dist	2011-10-20 02:40:12.000000000 -0700
++++ macosx-support-libs/portaudio/src/hostapi/coreaudio/pa_mac_core.c	2013-06-27 03:13:57.000000000 -0700
+@@ -629,7 +629,7 @@
+ 
+     VVDBUG(("InitializeDeviceInfo(): macCoreDeviceId=%ld\n", macCoreDeviceId));
+ 
+-    memset(deviceInfo, 0, sizeof(deviceInfo));
++    memset(deviceInfo, 0, sizeof(*deviceInfo));
+ 
+     deviceInfo->structVersion = 2;
+     deviceInfo->hostApi = hostApiIndex;
