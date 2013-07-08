@@ -1205,7 +1205,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "                           filter\n");
   fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
-  fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
   fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
@@ -2705,8 +2705,9 @@ main(int argc, char *argv[])
           timestamp_set_type(TS_UTC_WITH_DATE);
         else {
           cmdarg_err("Invalid time stamp type \"%s\"", optarg);
-          cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
-          cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
+          cmdarg_err_cont("It must be \"a\" for absolute, \"ad\" for absolute with date, \"d\" for delta,");
+          cmdarg_err_cont("\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative, \"u\" for UTC, ");
+          cmdarg_err_cont("or \"ud\" for UTC with date.");
           exit(1);
         }
         break;

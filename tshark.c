@@ -320,7 +320,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
   fprintf(output, "                           aggregator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
-  fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
@@ -1405,8 +1405,9 @@ main(int argc, char *argv[])
       else {
         cmdarg_err("Invalid time stamp type \"%s\"",
                    optarg);
-        cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
-        cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
+        cmdarg_err_cont("It must be \"a\" for absolute, \"ad\" for absolute with date, \"d\" for delta,");
+        cmdarg_err_cont("\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative, \"u\" for UTC, ");
+        cmdarg_err_cont("or \"ud\" for UTC with date.");
         return 1;
       }
       break;
