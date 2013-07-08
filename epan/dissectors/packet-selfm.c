@@ -1590,8 +1590,6 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                         case FAST_SER_TAGTYPE_DIGWORD8_BL:
                         case FAST_SER_TAGTYPE_DIGWORD8:
 
-                            fmdata_dig_tree = proto_item_add_subtree(fmdata_dig_item, ett_selfm_fmdata_dig);
-
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
 
                                 fmdata_dig_item = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, 1, "8-bit Binary Items (Row: %d)", cnt);
