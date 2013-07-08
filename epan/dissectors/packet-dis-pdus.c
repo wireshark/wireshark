@@ -693,7 +693,10 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
     guint16 spread_spectrum     = 0;
 
 
-    length = tvb_length_remaining(tvb, offset);
+    /* Get the length while ensuring there's at least one byte for us to
+     * decode (if not, throw an exception so as to prevent very long loops).
+     */
+    length = tvb_ensure_length_remaining(tvb, offset+1);
 
     while ((parserNodes[fieldIndex].fieldType != DIS_FIELDTYPE_END)
             && (length > 0 ) )
@@ -1190,23 +1193,19 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 
                 for (i = 0; i < numFixed; ++i)
                 {
+                    proto_item *newSubtree;
+
                     /* is remaining length large enough for another fixed datum (ID & value) */
-                    length = tvb_length_remaining(tvb, offset);
-                    if ( length >= 8  )
-                    {
-                        proto_item *newSubtree;
-                        newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                                       parserNodes[fieldIndex].fieldLabel);
-                        newSubtree = proto_item_add_subtree(newField, ettFixedData);
-                        offset = parseFields
-                            (tvb, newSubtree, offset,
-                             parserNodes[fieldIndex].children);
-                        proto_item_set_end(newField, tvb, offset);
-                    }
-                    else {
-                        THROW(ReportedBoundsError);
-                        break;
-                    }
+                    /* XXX is this really necessary? */
+                    tvb_ensure_length_remaining(tvb, offset+8);
+
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                                   parserNodes[fieldIndex].fieldLabel);
+                    newSubtree = proto_item_add_subtree(newField, ettFixedData);
+                    offset = parseFields
+                        (tvb, newSubtree, offset,
+                         parserNodes[fieldIndex].children);
+                    proto_item_set_end(newField, tvb, offset);
                 }
             }
             break;
@@ -1227,17 +1226,10 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 
                 for (i = 0; i < numFixed; ++i)
                 {
-                    /* is remaining length large enough for another fixed datum ID (32 bit int) */
-                    if (tvb_length_remaining(tvb, offset) >= 4  )
-                    {
-                       offset = parseFields
-                           (tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
-                    }
-                    else {
-                        THROW(ReportedBoundsError);
-                        break;
-                    }
+                    /* XXX is this really necessary? */
+                    tvb_ensure_length_remaining(tvb, offset+4);
+                    offset = parseFields (tvb, newSubtree, offset,
+                        parserNodes[fieldIndex].children);
                 }
                 proto_item_set_end(newField, tvb, offset);
             }
@@ -1325,26 +1317,16 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 
                 for (i = 0; i < numVariable; ++i)
                 {
-                    /* simple check to detect malformed, field parsers will detect specifics */
-                    length = tvb_length_remaining(tvb, offset);
-                    if ( length > 0  )
-                    {
-                        proto_item *newSubtree;
-                        newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                                       parserNodes[fieldIndex].fieldLabel);
-                        newSubtree = proto_item_add_subtree(newField,
-                                                            ettVariableRecords[i]);
-                        offset = parseFields
-                            (tvb, newSubtree, offset,
-                             parserNodes[fieldIndex].children);
-                        offset = parseField_VariableRecord
-                            (tvb, newSubtree, offset);
-                        proto_item_set_end(newField, tvb, offset);
-                    }
-                    else {
-                        THROW(ReportedBoundsError);
-                        break;
-                    }
+                    proto_item *newSubtree;
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                                   parserNodes[fieldIndex].fieldLabel);
+                    newSubtree = proto_item_add_subtree(newField,
+                                                        ettVariableRecords[i]);
+                    offset = parseFields (tvb, newSubtree, offset,
+                         parserNodes[fieldIndex].children);
+                    offset = parseField_VariableRecord
+                        (tvb, newSubtree, offset);
+                    proto_item_set_end(newField, tvb, offset);
                 }
             }
             break;
