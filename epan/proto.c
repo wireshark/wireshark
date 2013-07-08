@@ -4829,8 +4829,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		    (hfinfo->type == FT_INT32)    ||
 		    (hfinfo->type == FT_INT64)    ||
 		    (hfinfo->type == FT_BOOLEAN)  ||
-		    (hfinfo->type == FT_PROTOCOL) ||
-		    (hfinfo->type == FT_FRAMENUM) ))
+		    (hfinfo->type == FT_PROTOCOL) ))
 		g_error("Field '%s' (%s) has a 'strings' value but is of type %s"
 			" (which is not allowed to have strings)\n",
 			hfinfo->name, hfinfo->abbrev,
@@ -4902,12 +4901,16 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			 *	signed field to be displayed unsigned.  (Else how would
 			 *	we display negative values?)
 			 */
-			if (hfinfo->display == BASE_HEX || hfinfo->display == BASE_HEX_DEC ||
-			    hfinfo->display == BASE_DEC_HEX || hfinfo->display == BASE_OCT)
-				g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
-					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
+				case BASE_HEX:
+				case BASE_OCT:
+				case BASE_DEC_HEX:
+				case BASE_HEX_DEC:
+					g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
+						hfinfo->name, hfinfo->abbrev,
+						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+						val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			}
 			/* FALL THROUGH */
 		case FT_UINT8:
 		case FT_UINT16:
