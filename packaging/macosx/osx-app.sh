@@ -57,9 +57,11 @@ binary_list="
 	wireshark
 "
 
-# Location for libraries (MacPorts defaults to /opt/local)
+# Location for libraries (macosx-setup.sh defaults to whatever the
+# various support libraries use as their standard installation location,
+# which is /usr/local)
 if [ -z $LIBPREFIX ]; then
-	LIBPREFIX="/opt/local"
+	LIBPREFIX="/usr/local"
 fi
 
 
@@ -79,18 +81,21 @@ OPTIONS
 	-s
 		strip the libraries and executables from debugging symbols
 	-l,--libraries
-		specify the path to the librairies Wireshark depends on
-		(typically /sw or /opt/local)
+		specify the path to the libraries Wireshark depends on
+		(typically /sw or /opt/local).  By default it is
+		/usr/local.
 	-bp,--binary-path
 		specify the path to the Wireshark binaries. By default it
-		is in $binary_path
+		is /tmp/inst/bin.
 	-p,--plist
 		specify the path to Info.plist. Info.plist can be found
 		in the base directory of the source code once configure
-		has been run
+		has been run.
+	-sdkroot
+		specify the root of the SDK to use
 
 EXAMPLE
-	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist
+	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist -sdkroot /Developer/SDKs/MacOSX10.5.sdk
 "
 }
 
@@ -114,6 +119,9 @@ do
 		-h|--help)
 			help
 			exit 0 ;;
+		-sdkroot)
+			sdkroot="$2"
+			shift 1 ;;
 		*)
 			echo "Invalid command line option: $1"
 			exit 2 ;;
@@ -157,6 +165,13 @@ else
 	EXTRALIBS=""
 fi
 
+# Set the SDK root, if an SDK was specified.
+# (-sdk is only supported by the xcodebuild in the version of the
+# developer tools that came with Snow Leopard and later versions)
+if [ ! -z "$sdkroot" ]
+then
+	XCODEFLAGS="$XCODEFLAGS SDKROOT=$sdkroot"
+fi
 
 # Package always has the same name. Version information is stored in
 # the Info.plist file which is filled in by the configure script.
