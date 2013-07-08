@@ -227,15 +227,6 @@ uninstall() {
             rm libpng-$PNG_VERSION-done
         fi
 
-        if [ -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
-            echo "Uninstalling pkg-config:"
-            cd pkg-config-$PKG_CONFIG_VERSION
-            $DO_MAKE_UNINSTALL || exit 1
-            make distclean || exit 1
-            cd ..
-            rm pkg-config-$PKG_CONFIG_VERSION-done
-        fi
-
         if [ -f glib-$GLIB_VERSION-done ] ; then
             echo "Uninstalling GLib:"
             cd glib-$GLIB_VERSION
@@ -243,6 +234,15 @@ uninstall() {
             make distclean || exit 1
             cd ..
             rm glib-$GLIB_VERSION-done
+        fi
+
+        if [ -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
+            echo "Uninstalling pkg-config:"
+            cd pkg-config-$PKG_CONFIG_VERSION
+            $DO_MAKE_UNINSTALL || exit 1
+            make distclean || exit 1
+            cd ..
+            rm pkg-config-$PKG_CONFIG_VERSION-done
         fi
 
         if [ -f gettext-$GETTEXT_VERSION-done ] ; then
@@ -655,6 +655,23 @@ if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
     touch gettext-$GETTEXT_VERSION-done
 fi
 
+#
+# GLib depends on pkg-config.
+# By default, pkg-config depends on GLib; we break the dependency cycle
+# by configuring pkg-config to use its own internal version of GLib.
+#
+if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
+    echo "Downloading, building, and installing pkg-config:"
+    [ -f pkg-config-$PKG_CONFIG_VERSION.tar.gz ] || curl -O http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
+    gzcat pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar xf - || exit 1
+    cd pkg-config-$PKG_CONFIG_VERSION
+    ./configure --with-internal-glib || exit 1
+    make $MAKE_BUILD_OPTS || exit 1
+    $DO_MAKE_INSTALL || exit 1
+    cd ..
+    touch pkg-config-$PKG_CONFIG_VERSION-done
+fi
+
 if [ ! -f glib-$GLIB_VERSION-done ] ; then
     echo "Downloading, building, and installing GLib:"
     glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
@@ -704,20 +721,6 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     touch glib-$GLIB_VERSION-done
 fi
 
-if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
-    echo "Downloading, building, and installing pkg-config:"
-    [ -f pkg-config-$PKG_CONFIG_VERSION.tar.gz ] || curl -O http://pkgconfig.freedesktop.org/releases/pkg-config-$PKG_CONFIG_VERSION.tar.gz || exit 1
-    gzcat pkg-config-$PKG_CONFIG_VERSION.tar.gz | tar xf - || exit 1
-    cd pkg-config-$PKG_CONFIG_VERSION
-    # Avoid another pkgconfig call, because we don't have pkg-config
-    # yet
-    GLIB_CFLAGS="-I/usr/local/include/glib-2.0 -I/usr/local/lib/glib-2.0/include" GLIB_LIBS="-L/usr/local/lib -lglib-2.0 -lintl" CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-    make $MAKE_BUILD_OPTS || exit 1
-    $DO_MAKE_INSTALL || exit 1
-    cd ..
-    touch pkg-config-$PKG_CONFIG_VERSION-done
-fi
-
 #
 # Now we have reached a point where we can build everything but
 # the GUI (Wireshark).
@@ -754,7 +757,7 @@ if [[ -n "$GTK3" || "$cairo_not_in_the_os" = yes ]]; then
         $DO_MAKE_INSTALL || exit 1
         cd ..
         touch libpng-$PNG_VERSION-done
-      fi
+    fi
 
     #
     # The libpixman that comes with the X11 for Leopard is too old
