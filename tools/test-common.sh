@@ -98,6 +98,8 @@ function exit_error() {
     echo -e "\n ERROR"
     echo -e "Processing failed. Capture info follows:\n"
     echo "  Input file: $CF"
+    echo "  Output file: $TMP_DIR/$TMP_FILE"
+    echo
 
     # Fill in build information
     echo -e "Input file: $CF\n" > $TMP_DIR/${ERR_FILE}.header

@@ -98,9 +98,6 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
             > /dev/null 2>&1 && DISSECTOR_BUG=1
 
         if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-            RAND_FILE="randpkt-`$DATE +%Y-%m-%d`-$$.pcap"
-            mv $TMP_DIR/$TMP_FILE $TMP_DIR/$RAND_FILE
-            echo "  Output file: $TMP_DIR/$RAND_FILE"
 
             exit_error
         fi
