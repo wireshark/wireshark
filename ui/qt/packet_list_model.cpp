@@ -29,13 +29,15 @@
 #include <wsutil/nstime.h>
 #include <epan/prefs.h>
 
+#include "ui/packet_list_utils.h"
+#include "ui/recent.h"
+
 #include "color.h"
 #include "color_filters.h"
 
-#include "globals.h"
-
 #include "wireshark_application.h"
 #include <QColor>
+#include <QModelIndex>
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent)
@@ -132,7 +134,26 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::FontRole:
         return wsApp->monospaceFont();
-//    case Qt::TextAlignmentRole:
+    case Qt::TextAlignmentRole:
+        switch(recent_get_column_xalign(index.column())) {
+        case COLUMN_XALIGN_RIGHT:
+            return Qt::AlignRight;
+            break;
+        case COLUMN_XALIGN_CENTER:
+            return Qt::AlignCenter;
+            break;
+        case COLUMN_XALIGN_LEFT:
+            return Qt::AlignLeft;
+            break;
+        case COLUMN_XALIGN_DEFAULT:
+        default:
+            if (right_justify_column(index.column(), cap_file_)) {
+                return Qt::AlignRight;
+            }
+            break;
+        }
+        return Qt::AlignLeft;
+
     case Qt::BackgroundRole:
         const color_t *color;
         if (fdata->flags.ignored) {
@@ -160,7 +181,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
         }
         return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
     case Qt::DisplayRole:
-        // Fall through
+        // Need packet data -- fall through
         break;
     default:
         return QVariant();
@@ -251,7 +272,14 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     epan_dissect_cleanup(&edt);
     buffer_free(&buf);
 
-    return record->data(col_num, cinfo);
+    switch (role) {
+    case Qt::DisplayRole:
+        return record->data(col_num, cinfo);
+        break;
+    default:
+        break;
+    }
+    return QVariant();
 }
 
 QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,

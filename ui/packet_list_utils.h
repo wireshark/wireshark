@@ -1,4 +1,4 @@
-/* packet_list_record.cpp
+/* packet_list_utils.h
  *
  * $Id$
  *
@@ -18,32 +18,44 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ * USA.
  */
 
-#include "packet_list_record.h"
+#ifndef __PACKET_LIST_UTILS_H__
+#define __PACKET_LIST_UTILS_H__
 
-PacketListRecord::PacketListRecord(frame_data *frameData) :
-    col_text_(NULL), col_text_len_(NULL), fdata_(frameData)
-{
+#include "cfile.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/**
+ * Check to see if a column should be right justified.
+ *
+ * @param col[IN] The column number.
+ * @param cf[IN] The capture file containing the packet data.
+ *
+ * @return TRUE if the column should be right justified, FALSE otherwise.
+ */
+gboolean right_justify_column (gint col, capture_file *cf);
+
+/**
+ * Check to see if a column's data should be resolved.
+ *
+ * @param col[IN] The column number.
+ * @param cf[IN] The capture file containing the packet data.
+ *
+ * @return TRUE if resolution is required, FALSE otherwise.
+ */
+gboolean resolve_column (gint col, capture_file *cf);
+
+#ifdef __cplusplus
 }
+#endif /* __cplusplus */
 
-QVariant PacketListRecord::data(int col_num, column_info *cinfo) const
-{
-    g_assert(fdata_);
-
-    if (!cinfo)
-        return QVariant();
-
-    if (col_based_on_frame_data(cinfo, col_num))
-        col_fill_in_frame_data(fdata_, cinfo, col_num, FALSE);
-
-    return cinfo->col_data[col_num];
-}
-
-frame_data *PacketListRecord::getFdata() {
-    return fdata_;
-}
+#endif /* __PACKET_LIST_UTILS_H__ */
 
 /*
  * Editor modelines

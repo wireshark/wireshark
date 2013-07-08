@@ -42,6 +42,7 @@
 #include <epan/emem.h>
 
 #include "ui/main_statusbar.h"
+#include "ui/packet_list_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/progress_dlg.h"
 #include "ui/recent.h"
@@ -156,77 +157,6 @@ packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo
 	/* Return the _visible_ position */
 
 	return visible_pos;
-}
-
-static gboolean
-right_justify_column (gint col)
-{
-	header_field_info *hfi;
-	gboolean right_justify = FALSE;
-
-	switch (cfile.cinfo.col_fmt[col]) {
-
-	case COL_NUMBER:
-	case COL_PACKET_LENGTH:
-	case COL_CUMULATIVE_BYTES:
-	case COL_DCE_CALL:
-	case COL_DSCP_VALUE:
-	case COL_UNRES_DST_PORT:
-	case COL_UNRES_SRC_PORT:
-	case COL_DEF_DST_PORT:
-	case COL_DEF_SRC_PORT:
-	case COL_DELTA_TIME:
-	case COL_DELTA_TIME_DIS:
-		right_justify = TRUE;
-		break;
-
-	case COL_CUSTOM:
-		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
-		/* Check if this is a valid field and we have no strings lookup table */
-		if ((hfi != NULL) && ((hfi->strings == NULL) || !get_column_resolved(col))) {
-			/* Check for bool, framenum and decimal/octal integer types */
-			if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-				(((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-				 (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
-				right_justify = TRUE;
-			}
-		}
-		break;
-
-	default:
-		break;
-	}
-
-	return right_justify;
-}
-
-static gboolean
-resolve_column (gint col)
-{
-	header_field_info *hfi;
-	gboolean resolve = FALSE;
-
-	switch (cfile.cinfo.col_fmt[col]) {
-
-	case COL_CUSTOM:
-		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
-		/* Check if this is a valid field */
-		if (hfi != NULL) {
-			/* Check if we have an OID or a strings table with integer values */
-		  	if ((hfi->type == FT_OID) ||
-			    ((hfi->strings != NULL) &&
-			     ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-			      IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
-				resolve = TRUE;
-			}
-		}
-		break;
-
-	default:
-		break;
-	}
-
-	return resolve;
 }
 
 static void
@@ -527,7 +457,7 @@ static void
 packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign)
 {
 	GList *renderers = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT(col));
-	gboolean right_justify = right_justify_column(col_id);
+	gboolean right_justify = right_justify_column(col_id, &cfile);
 	gdouble value = get_xalign_value (xalign, right_justify);
 	GList *entry;
 	GtkCellRenderer *renderer;
@@ -676,10 +606,10 @@ packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpoint
 	GtkWidget *col = (GtkWidget *) data;
 	GtkWidget *menu = (GtkWidget *)g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
 	gint       col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
-	gboolean   right_justify = right_justify_column (col_id);
+	gboolean   right_justify = right_justify_column (col_id, &cfile);
 
 	menus_set_column_align_default (right_justify);
-	menus_set_column_resolved (get_column_resolved (col_id), resolve_column (col_id));
+	menus_set_column_resolved (get_column_resolved (col_id), resolve_column (col_id, &cfile));
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
 	return popup_menu_handler (widget, event, menu);
 }
@@ -765,7 +695,7 @@ create_view_and_model(void)
 		renderer = gtk_cell_renderer_text_new();
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
-		value = get_xalign_value(recent_get_column_xalign(i), right_justify_column(i));
+		value = get_xalign_value(recent_get_column_xalign(i), right_justify_column(i, &cfile));
 		g_object_set(G_OBJECT(renderer),
 			     "xalign", value,
 			     NULL);

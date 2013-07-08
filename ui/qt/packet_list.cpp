@@ -232,7 +232,7 @@ PacketList::PacketList(QWidget *parent) :
     setSortingEnabled(TRUE);
     setUniformRowHeights(TRUE);
     setAccessibleName("Packet list");
-
+    setItemDelegateForColumn(0, &related_packet_delegate_);
 
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
@@ -370,6 +370,7 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
     proto_tree_ = proto_tree;
 
     connect(proto_tree_, SIGNAL(goToFrame(int)), this, SLOT(goToPacket(int)));
+    connect(proto_tree_, SIGNAL(relatedFrame(int)), this, SLOT(addRelatedFrame(int)));
 }
 
 void PacketList::setByteViewTab (ByteViewTab *byte_view_tab) {
@@ -408,18 +409,24 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (!cap_file_) return;
 
-    if (proto_tree_) {
-        int row = selected.first().top();
-        cf_select_packet(cap_file_, row);
+    int row = selected.first().top();
+    cf_select_packet(cap_file_, row);
+    related_packet_delegate_.clear();
 
-        if (!cap_file_->edt && !cap_file_->edt->tree) {
-            return;
-        }
+    if (!cap_file_->edt) return;
 
+    if (proto_tree_ && cap_file_->edt->tree) {
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
+        packet_info *pi = &cap_file_->edt->pi;
+        conversation_t *conv = find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
+                                                pi->srcport, pi->destport, 0);
+        if (conv) {
+            related_packet_delegate_.setConversationSpan(conv->setup_frame, conv->last_frame);
+        }
+        viewport()->update();
     }
 
-    if (byte_view_tab_ && cap_file_->edt) {
+    if (byte_view_tab_) {
         GSList *src_le;
         struct data_source *source;
 
@@ -506,6 +513,7 @@ void PacketList::updateAll() {
 
 void PacketList::clear() {
     //    packet_history_clear();
+    related_packet_delegate_.clear();
     packet_list_model_->clear();
     proto_tree_->clear();
     byte_view_tab_->clear();
@@ -513,7 +521,7 @@ void PacketList::clear() {
     /* XXX is this correct in all cases?
      * Reset the sort column, use packetlist as model in case the list is frozen.
      */
-    gbl_cur_packet_list->sortByColumn(0, Qt::AscendingOrder);
+    sortByColumn(0, Qt::AscendingOrder);
 }
 
 void PacketList::writeRecent(FILE *rf) {
@@ -804,6 +812,11 @@ void PacketList::unsetAllTimeReferences()
         }
     }
     updateAll();
+}
+
+void PacketList::addRelatedFrame(int related_frame)
+{
+    related_packet_delegate_.addRelatedFrame(related_frame);
 }
 
 /*

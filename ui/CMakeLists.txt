@@ -29,6 +29,7 @@ set(COMMON_UI_SRC
 	export_object_http.c
 	export_object_smb.c
 	help_url.c
+	packet_list_utils.c
 	iface_lists.c
 	preference_utils.c
 	profile.c

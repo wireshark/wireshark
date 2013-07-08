@@ -1,4 +1,4 @@
-/* packet_list_record.cpp
+/* related_packet_delegate.h
  *
  * $Id$
  *
@@ -21,29 +21,41 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "packet_list_record.h"
+#ifndef RELATED_PACKET_DELEGATE_H
+#define RELATED_PACKET_DELEGATE_H
 
-PacketListRecord::PacketListRecord(frame_data *frameData) :
-    col_text_(NULL), col_text_len_(NULL), fdata_(frameData)
+#include "config.h"
+
+#include "epan/conversation.h"
+
+#include <QList>
+#include <QStyledItemDelegate>
+
+class RelatedPacketDelegate : public QStyledItemDelegate
 {
-}
+public:
+    RelatedPacketDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) { clear(); }
+    void clear();
+    void addRelatedFrame(int frame_num);
+    void setConversationSpan(int first_frame, int last_frame);
 
-QVariant PacketListRecord::data(int col_num, column_info *cinfo) const
-{
-    g_assert(fdata_);
+protected:
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const;
 
-    if (!cinfo)
-        return QVariant();
+private:
+    QList<int> related_frames_;
+    int first_frame_;
+    int last_frame_;
 
-    if (col_based_on_frame_data(cinfo, col_num))
-        col_fill_in_frame_data(fdata_, cinfo, col_num, FALSE);
+signals:
 
-    return cinfo->col_data[col_num];
-}
 
-frame_data *PacketListRecord::getFdata() {
-    return fdata_;
-}
+};
+
+#endif // RELATED_PACKET_DELEGATE_H
 
 /*
  * Editor modelines

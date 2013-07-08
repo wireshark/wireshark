@@ -89,6 +89,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 
     QTreeWidgetItem *parentItem = (QTreeWidgetItem *)data;
     QTreeWidgetItem *item;
+    ProtoTree *proto_tree = qobject_cast<ProtoTree *>(parentItem->treeWidget());
+
     item = new QTreeWidgetItem(parentItem, 0);
 
     // Set our colors.
@@ -105,6 +107,10 @@ proto_tree_draw_node(proto_node *node, gpointer data)
             item->setData(0, Qt::ForegroundRole, pal.link());
             font.setUnderline(true);
             item->setData(0, Qt::FontRole, font);
+
+            if (fi->hfinfo->type == FT_FRAMENUM) {
+                proto_tree->emitRelatedFrame(fi->value.value.uinteger);
+            }
         }
     }
 
@@ -252,6 +258,11 @@ void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
     setFont(wsApp->monospaceFont());
 
     proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, invisibleRootItem());
+}
+
+void ProtoTree::emitRelatedFrame(int related_frame)
+{
+    emit relatedFrame(related_frame);
 }
 
 void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {

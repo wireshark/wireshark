@@ -71,6 +71,7 @@ set(QTSHARK_H_SRC
 	# No Q_OBJECT:
 	# packet_list_record.h
 	# qt_ui_utils.h
+	# related_packet_delegate.h
 	# sparkline_delegate.h
 )
 
@@ -116,6 +117,7 @@ set(QTSHARK_CPP_SRC
 	proto_tree.cpp
 	qt_ui_utils.cpp
 	recent_file_status.cpp
+	related_packet_delegate.cpp
 	simple_dialog_qt.cpp
 	sparkline_delegate.cpp
 	search_frame.cpp

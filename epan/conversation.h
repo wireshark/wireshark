@@ -78,6 +78,8 @@ typedef struct conversation {
 								/** pointer to the last conversation on hash chain */
 	guint32	index;				/** unique ID for conversation */
 	guint32 setup_frame;		/** frame number that setup this conversation */
+	/* Assume that setup_frame is also the lowest frame number for now. */
+	guint32 last_frame;		/** highest frame number in this conversation */
 	GSList *data_list;			/** list of data associated with conversation */
 	dissector_handle_t dissector_handle;
 								/** handle for protocol dissector client associated with conversation */

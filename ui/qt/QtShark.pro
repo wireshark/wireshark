@@ -467,6 +467,7 @@ HEADERS += \
     qt_ui_utils.h \
     qt_ui_utils.h \
     recent_file_status.h \
+    related_packet_delegate.h \
     simple_dialog_qt.h \
     sparkline_delegate.h \
     syntax_line_edit.h \
@@ -516,6 +517,7 @@ SOURCES += \
     proto_tree.cpp \
     qt_ui_utils.cpp \
     recent_file_status.cpp \
+    related_packet_delegate.cpp \
     search_frame.cpp \
     simple_dialog_qt.cpp \
     sparkline_delegate.cpp \

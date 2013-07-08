@@ -39,6 +39,7 @@ class ProtoTree : public QTreeWidget
 public:
     explicit ProtoTree(QWidget *parent = 0);
     void fillProtocolTree(proto_tree *protocol_tree);
+    void emitRelatedFrame(int related_frame);
     void clear();
 
 protected:
@@ -51,6 +52,7 @@ signals:
     void protoItemSelected(QString &);
     void protoItemSelected(field_info *);
     void goToFrame(int);
+    void relatedFrame(int);
 
 public slots:
     void updateSelectionStatus(QTreeWidgetItem*);

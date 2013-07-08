@@ -25,6 +25,7 @@ since version 1.10:
 * Expert info is now filterable (if the dissector has been updated to support the new API).
 * The Windows installer now uninstalls the previous version of Wireshark silently.
 You can still run the uninstaller manually beforehand if you wish to run it interactively.
+* The "Number" column shows related packets and protocol conversation spans (Qt only).
 
 === New Protocol Support
 

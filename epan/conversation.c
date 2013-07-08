@@ -650,7 +650,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	memset(conversation, 0, sizeof(conversation_t));
 
 	conversation->index = new_index;
-	conversation->setup_frame = setup_frame;
+	conversation->setup_frame = conversation->last_frame = setup_frame;
 	conversation->data_list = NULL;
 
 	/* clear dissector handle */
@@ -1242,7 +1242,11 @@ find_or_create_conversation(packet_info *pinfo)
 	/* Have we seen this conversation before? */
 	if((conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0)) == NULL) {
+				     pinfo->destport, 0)) != NULL) {
+		if (pinfo->fd->num > conv->last_frame) {
+			conv->last_frame = pinfo->fd->num;
+		}
+	} else {
 		/* No, this is a new conversation. */
 		conv = conversation_new(pinfo->fd->num, &pinfo->src,
 					&pinfo->dst, pinfo->ptype,

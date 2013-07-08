@@ -24,9 +24,10 @@
 #ifndef PACKET_LIST_H
 #define PACKET_LIST_H
 
+#include "byte_view_tab.h"
 #include "packet_list_model.h"
 #include "proto_tree.h"
-#include "byte_view_tab.h"
+#include "related_packet_delegate.h"
 
 #include <QTreeView>
 #include <QTreeWidget>
@@ -64,6 +65,7 @@ private:
     QList<QMenu *> submenus_;
     QList<QAction *> filter_actions_;
     int ctx_column_;
+    RelatedPacketDelegate related_packet_delegate_;
 
     void markFramesReady();
     void setFrameMark(gboolean set, frame_data *fdata);
@@ -86,6 +88,9 @@ public slots:
     void ignoreAllDisplayedFrames(bool set);
     void setTimeReference();
     void unsetAllTimeReferences();
+
+private slots:
+    void addRelatedFrame(int related_frame);
 };
 
 #endif // PACKET_LIST_H
