@@ -122,7 +122,7 @@ uninstall() {
             (cd /usr/local/bin; $DO_RM -f lua luac)
             (cd /usr/local/include; $DO_RM -f lua.h luaconf.h lualib.h lauxlib.h lua.hpp)
             (cd /usr/local/lib; $DO_RM -f liblua.a)
-            (cd /usr/local/man; $DO_RM -f lua.1 luac.1)
+            (cd /usr/local/man/man1; $DO_RM -f lua.1 luac.1)
             cd lua-$LUA_VERSION
             make clean || exit 1
             cd ..
