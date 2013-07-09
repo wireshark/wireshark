@@ -63,6 +63,7 @@ set(QTSHARK_H_SRC
 	recent_file_status.h
 	simple_dialog_qt.h
 	search_frame.h
+	summary_dialog.h
 	splash_overlay.h
 	syntax_line_edit.h
 	time_shift_dialog.h
@@ -120,6 +121,7 @@ set(QTSHARK_CPP_SRC
 	related_packet_delegate.cpp
 	simple_dialog_qt.cpp
 	sparkline_delegate.cpp
+	summary_dialog.cpp
 	search_frame.cpp
 	splash_overlay.cpp
 	syntax_line_edit.cpp
@@ -150,6 +152,7 @@ set(QTSHARK_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
+	summary_dialog.ui
 	search_frame.ui
 	splash_overlay.ui
 	time_shift_dialog.ui

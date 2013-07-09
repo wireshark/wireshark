@@ -220,6 +220,7 @@ FORMS += \
     profile_dialog.ui \
     search_frame.ui \
     splash_overlay.ui \
+    summary_dialog.ui \
     time_shift_dialog.ui \
 
 
@@ -262,6 +263,7 @@ HEADERS += $$HEADERS_WS_C \
     profile_dialog.h \
     search_frame.h \
     splash_overlay.h \
+    summary_dialog.h \
     tango_colors.h \
 
 
@@ -522,6 +524,7 @@ SOURCES += \
     simple_dialog_qt.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
+    summary_dialog.cpp \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \
     wireshark_application.cpp \

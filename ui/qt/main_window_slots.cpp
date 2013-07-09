@@ -360,6 +360,9 @@ void MainWindow::captureFileClosed(const capture_file *cf) {
     main_ui_->statusBar->popFileStatus();
     cap_file_ = NULL;
 
+    summary_dialog_.close();
+
+    setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
 }
 
@@ -1734,6 +1737,23 @@ void MainWindow::on_actionStartCapture_triggered()
 void MainWindow::on_actionStopCapture_triggered()
 {
     stopCapture();
+}
+
+void MainWindow::on_actionSummary_triggered()
+{
+    summary_dialog_.UpdateValues();
+
+    if (summary_dialog_.isMinimized() == true)
+    {
+        summary_dialog_.showNormal();
+    }
+    else
+    {
+        summary_dialog_.show();
+    }
+
+    summary_dialog_.raise();
+    summary_dialog_.activateWindow();
 }
 
 /*

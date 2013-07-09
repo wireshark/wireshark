@@ -135,6 +135,8 @@ search_frame.cpp search_frame.h: ui_search_frame.h
 
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
+summary_dialog.cpp summary_dialog.h: ui_summary_dialog.h
+
 time_shift_dialog.cpp time_shift_dialog.h: ui_time_shift_dialog.h
 
 doxygen:

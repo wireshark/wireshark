@@ -107,6 +107,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
 
+    connect(&summary_dialog_, SIGNAL(captureCommentChanged()), this, SLOT(updateForUnsavedChanges()));
+
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
@@ -654,6 +656,9 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
                    any packets that no longer have comments. */
                 if (discard_comments)
                     packet_list_queue_draw();
+
+                cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
+                updateForUnsavedChanges(); // we update the title bar to remove the *
                 break;
 
             case CF_WRITE_ERROR:
@@ -770,6 +775,9 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
                any packets that no longer have comments. */
             if (discard_comments)
                 packet_list_queue_draw();
+
+            cf->unsaved_changes = false; //we just saved so we signal that we have no unsaved changes
+            updateForUnsavedChanges(); // we update the title bar to remove the *
             return;
 
         case CF_WRITE_ERROR:
@@ -1182,8 +1190,11 @@ void MainWindow::setTitlebarForCaptureFile()
             // XXX - on non-Mac platforms, put in the application
             // name?
             //
+            gchar *window_name;
             setWindowFilePath(NULL);
-            setWindowTitle(cf_get_tempfile_source(cap_file_));
+            window_name = g_strdup_printf("Capturing from %s", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
+            setWindowTitle(window_name);
+            g_free(window_name);
         } else {
             //
             // For a user file, set the full path; that way,
@@ -1217,13 +1228,19 @@ void MainWindow::setTitlebarForCaptureFile()
     }
 }
 
+void MainWindow::setTitlebarForSelectedTreeRow()
+{
+    setWindowTitle(tr("The Wireshark Network Analyzer"));
+}
+
+
 void MainWindow::setTitlebarForCaptureInProgress()
 {
     gchar *window_name;
 
     setWindowFilePath(NULL);
     if (cap_file_) {
-        window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
+        window_name = g_strdup_printf("Capturing from %s", cf_get_tempfile_source(cap_file_)); //TODO : Fix Translate
         setWindowTitle(window_name);
         g_free(window_name);
     } else {
@@ -1245,6 +1262,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileClose->setEnabled(false);
         main_ui_->actionFileSave->setEnabled(false);
         main_ui_->actionFileSaveAs->setEnabled(false);
+        main_ui_->actionSummary->setEnabled(false);
         main_ui_->actionFileExportPackets->setEnabled(false);
         main_ui_->menuFileExportPacketDissections->setEnabled(false);
         main_ui_->actionFileExportPacketBytes->setEnabled(false);
@@ -1257,6 +1275,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileClose->setEnabled(true);
         main_ui_->actionFileSave->setEnabled(cf_can_save(cap_file_));
         main_ui_->actionFileSaveAs->setEnabled(cf_can_save_as(cap_file_));
+        main_ui_->actionSummary->setEnabled(true);
         /*
          * "Export Specified Packets..." should be available only if
          * we can write the file out in at least one format.
@@ -1283,6 +1302,8 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
 
+    main_ui_->actionSummary->setEnabled(capture_in_progress);
+
     qDebug() << "FIX: packet list heading menu sensitivity";
     //    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
     //                         !capture_in_progress);
@@ -1303,6 +1324,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
 void MainWindow::setMenusForCaptureStopping() {
     main_ui_->actionFileQuit->setEnabled(false);
+    main_ui_->actionSummary->setEnabled(false);
 #ifdef HAVE_LIBPCAP
     main_ui_->actionStartCapture->setChecked(false);
     main_ui_->actionStopCapture->setEnabled(false);

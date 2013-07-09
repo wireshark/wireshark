@@ -50,6 +50,7 @@ NODIST_GENERATED_HEADER_FILES = \
 	ui_print_dialog.h \
 	ui_profile_dialog.h \
 	ui_search_frame.h \
+	ui_summary_dialog.h \
 	ui_splash_overlay.h \
 	ui_time_shift_dialog.h
 
@@ -126,6 +127,7 @@ MOC_HDRS = \
 	related_packet_delegate.h \
 	search_frame.h \
 	simple_dialog_qt.h \
+	summary_dialog.h \
 	sparkline_delegate.h \
 	splash_overlay.h \
 	syntax_line_edit.h \
@@ -156,6 +158,7 @@ UI_FILES = \
 	print_dialog.ui			\
 	profile_dialog.ui		\
 	search_frame.ui			\
+	summary_dialog.ui 		\
 	splash_overlay.ui		\
 	time_shift_dialog.ui
 
@@ -248,6 +251,7 @@ WIRESHARK_QT_SRC = \
 	search_frame.cpp \
 	simple_dialog_qt.cpp \
 	sparkline_delegate.cpp \
+	summary_dialog.cpp 		\
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \
 	time_shift_dialog.cpp \

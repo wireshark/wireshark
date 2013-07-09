@@ -54,6 +54,7 @@
 #include "progress_bar.h"
 #include "file_set_dialog.h"
 #include "capture_file_dialog.h"
+#include "summary_dialog.h"
 
 class QAction;
 
@@ -101,6 +102,7 @@ private:
     ProtoTree *proto_tree_;
     QWidget *previous_focus_;
     FileSetDialog file_set_dialog_;
+    SummaryDialog summary_dialog_;
     bool capture_stopping_;
 
     // Pipe input
@@ -125,6 +127,7 @@ private:
     bool testCaptureFileClose(bool from_quit = false, QString& before_what = *new QString());
     void captureStop();
 
+    void setTitlebarForSelectedTreeRow();
     void setTitlebarForCaptureFile();
     void setTitlebarForCaptureInProgress();
     void setMenusForCaptureFile(bool force_disable = false);
@@ -132,7 +135,7 @@ private:
     void setMenusForCaptureStopping();
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
-    void updateForUnsavedChanges();
+
     void setForCaptureInProgress(gboolean capture_in_progress = false);
 
 signals:
@@ -144,6 +147,7 @@ public slots:
     // in main_window_slots.cpp
     void openCaptureFile(QString& cf_path = *new QString(), QString &display_filter = *new QString());
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
+    void updateForUnsavedChanges();
 
 #ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_session *cap_session);
@@ -278,6 +282,8 @@ private slots:
     void on_goToLineEdit_returnPressed();
     void on_actionStartCapture_triggered();
     void on_actionStopCapture_triggered();
+
+    void on_actionSummary_triggered();
 };
 
 
