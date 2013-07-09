@@ -9,7 +9,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.3.0 Release 11) packet dissection
+ * (3GPP TS 36.331 V11.4.0 Release 11) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2013, Pascal Quantin
  *
@@ -1101,10 +1101,13 @@ static int hf_lte_rrc_eab_Category_r11 = -1;      /* T_eab_Category_r11 */
 static int hf_lte_rrc_eab_BarringBitmap_r11 = -1;  /* BIT_STRING_SIZE_10 */
 static int hf_lte_rrc_mbms_SAI_IntraFreq_r11 = -1;  /* MBMS_SAI_List_r11 */
 static int hf_lte_rrc_mbms_SAI_InterFreqList_r11 = -1;  /* MBMS_SAI_InterFreqList_r11 */
+static int hf_lte_rrc_mbms_SAI_InterFreqList_v1140 = -1;  /* MBMS_SAI_InterFreqList_v1140 */
 static int hf_lte_rrc_MBMS_SAI_List_r11_item = -1;  /* MBMS_SAI_r11 */
 static int hf_lte_rrc_MBMS_SAI_InterFreqList_r11_item = -1;  /* MBMS_SAI_InterFreq_r11 */
+static int hf_lte_rrc_MBMS_SAI_InterFreqList_v1140_item = -1;  /* MBMS_SAI_InterFreq_v1140 */
 static int hf_lte_rrc_dl_CarrierFreq_r11 = -1;    /* ARFCN_ValueEUTRA_r9 */
 static int hf_lte_rrc_mbms_SAI_List_r11 = -1;     /* MBMS_SAI_List_r11 */
+static int hf_lte_rrc_multiBandInfoList_r11 = -1;  /* MultiBandInfoList_r11 */
 static int hf_lte_rrc_timeInfo_r11 = -1;          /* T_timeInfo_r11 */
 static int hf_lte_rrc_timeInfoUTC_r11 = -1;       /* T_timeInfoUTC_r11 */
 static int hf_lte_rrc_dayLightSavingTime_r11 = -1;  /* T_dayLightSavingTime_r11 */
@@ -1265,7 +1268,7 @@ static int hf_lte_rrc_numberPRB_Pairs_r11 = -1;   /* T_numberPRB_Pairs_r11 */
 static int hf_lte_rrc_resourceBlockAssignment_r11_01 = -1;  /* BIT_STRING_SIZE_4_38 */
 static int hf_lte_rrc_dmrs_ScramblingSequenceInt_r11 = -1;  /* INTEGER_0_503 */
 static int hf_lte_rrc_pucch_ResourceStartOffset_r11 = -1;  /* INTEGER_0_2047 */
-static int hf_lte_rrc_re_MappingQCL_ConfigListId_r11 = -1;  /* PDSCH_RE_MappingQCL_ConfigId_r11 */
+static int hf_lte_rrc_re_MappingQCL_ConfigId_r11 = -1;  /* PDSCH_RE_MappingQCL_ConfigId_r11 */
 static int hf_lte_rrc_ul_SpecificParameters = -1;  /* T_ul_SpecificParameters */
 static int hf_lte_rrc_priority = -1;              /* T_priority */
 static int hf_lte_rrc_prioritisedBitRate = -1;    /* T_prioritisedBitRate */
@@ -1770,6 +1773,7 @@ static int hf_lte_rrc_n_CellChangeMedium = -1;    /* INTEGER_1_16 */
 static int hf_lte_rrc_n_CellChangeHigh = -1;      /* INTEGER_1_16 */
 static int hf_lte_rrc_MultiBandInfoList_item = -1;  /* FreqBandIndicator */
 static int hf_lte_rrc_MultiBandInfoList_v9e0_item = -1;  /* MultiBandInfo_v9e0 */
+static int hf_lte_rrc_MultiBandInfoList_r11_item = -1;  /* FreqBandIndicator_r11 */
 static int hf_lte_rrc_start_01 = -1;              /* PhysCellId */
 static int hf_lte_rrc_range = -1;                 /* T_range */
 static int hf_lte_rrc_PhysCellIdRangeUTRA_FDDList_r9_item = -1;  /* PhysCellIdRangeUTRA_FDD_r9 */
@@ -2957,7 +2961,9 @@ static gint ett_lte_rrc_EAB_Config_r11 = -1;
 static gint ett_lte_rrc_SystemInformationBlockType15_r11 = -1;
 static gint ett_lte_rrc_MBMS_SAI_List_r11 = -1;
 static gint ett_lte_rrc_MBMS_SAI_InterFreqList_r11 = -1;
+static gint ett_lte_rrc_MBMS_SAI_InterFreqList_v1140 = -1;
 static gint ett_lte_rrc_MBMS_SAI_InterFreq_r11 = -1;
+static gint ett_lte_rrc_MBMS_SAI_InterFreq_v1140 = -1;
 static gint ett_lte_rrc_SystemInformationBlockType16_r11 = -1;
 static gint ett_lte_rrc_T_timeInfo_r11 = -1;
 static gint ett_lte_rrc_AntennaInfoCommon = -1;
@@ -3231,6 +3237,7 @@ static gint ett_lte_rrc_CarrierFreqEUTRA_v9e0 = -1;
 static gint ett_lte_rrc_MobilityStateParameters = -1;
 static gint ett_lte_rrc_MultiBandInfoList = -1;
 static gint ett_lte_rrc_MultiBandInfoList_v9e0 = -1;
+static gint ett_lte_rrc_MultiBandInfoList_r11 = -1;
 static gint ett_lte_rrc_MultiBandInfo_v9e0 = -1;
 static gint ett_lte_rrc_PhysCellIdRange = -1;
 static gint ett_lte_rrc_PhysCellIdRangeUTRA_FDDList_r9 = -1;
@@ -9793,10 +9800,76 @@ dissect_lte_rrc_MBMS_SAI_InterFreqList_r11(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+
+static int
+dissect_lte_rrc_FreqBandIndicator_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, maxFBI2, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultiBandInfoList_r11_sequence_of[1] = {
+  { &hf_lte_rrc_MultiBandInfoList_r11_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_FreqBandIndicator_r11 },
+};
+
+static int
+dissect_lte_rrc_MultiBandInfoList_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_MultiBandInfoList_r11, MultiBandInfoList_r11_sequence_of,
+                                                  1, maxMultiBands, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MBMS_SAI_InterFreq_v1140_sequence[] = {
+  { &hf_lte_rrc_multiBandInfoList_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MultiBandInfoList_r11 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_MBMS_SAI_InterFreq_v1140(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lte_rrc_MBMS_SAI_InterFreq_v1140, MBMS_SAI_InterFreq_v1140_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MBMS_SAI_InterFreqList_v1140_sequence_of[1] = {
+  { &hf_lte_rrc_MBMS_SAI_InterFreqList_v1140_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MBMS_SAI_InterFreq_v1140 },
+};
+
+static int
+dissect_lte_rrc_MBMS_SAI_InterFreqList_v1140(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lte_rrc_MBMS_SAI_InterFreqList_v1140, MBMS_SAI_InterFreqList_v1140_sequence_of,
+                                                  1, maxFreq, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SystemInformationBlockType15_r11_eag_1_sequence[] = {
+  { &hf_lte_rrc_mbms_SAI_InterFreqList_v1140, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_MBMS_SAI_InterFreqList_v1140 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_SystemInformationBlockType15_r11_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, SystemInformationBlockType15_r11_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t SystemInformationBlockType15_r11_sequence[] = {
   { &hf_lte_rrc_mbms_SAI_IntraFreq_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_MBMS_SAI_List_r11 },
   { &hf_lte_rrc_mbms_SAI_InterFreqList_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_MBMS_SAI_InterFreqList_r11 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
+  { &hf_lte_rrc_dummy_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lte_rrc_SystemInformationBlockType15_r11_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -16314,7 +16387,7 @@ static const per_sequence_t EPDCCH_SetConfig_r11_sequence[] = {
   { &hf_lte_rrc_resourceBlockAssignment_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_resourceBlockAssignment_r11 },
   { &hf_lte_rrc_dmrs_ScramblingSequenceInt_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_503 },
   { &hf_lte_rrc_pucch_ResourceStartOffset_r11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
-  { &hf_lte_rrc_re_MappingQCL_ConfigListId_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PDSCH_RE_MappingQCL_ConfigId_r11 },
+  { &hf_lte_rrc_re_MappingQCL_ConfigId_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_PDSCH_RE_MappingQCL_ConfigId_r11 },
   { NULL, 0, 0, NULL }
 };
 
@@ -37930,6 +38003,10 @@ void proto_register_lte_rrc(void) {
       { "mbms-SAI-InterFreqList-r11", "lte-rrc.mbms_SAI_InterFreqList_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_mbms_SAI_InterFreqList_v1140,
+      { "mbms-SAI-InterFreqList-v1140", "lte-rrc.mbms_SAI_InterFreqList_v1140",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_MBMS_SAI_List_r11_item,
       { "MBMS-SAI-r11", "lte-rrc.MBMS_SAI_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -37938,12 +38015,20 @@ void proto_register_lte_rrc(void) {
       { "MBMS-SAI-InterFreq-r11", "lte-rrc.MBMS_SAI_InterFreq_r11_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_MBMS_SAI_InterFreqList_v1140_item,
+      { "MBMS-SAI-InterFreq-v1140", "lte-rrc.MBMS_SAI_InterFreq_v1140_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_dl_CarrierFreq_r11,
       { "dl-CarrierFreq-r11", "lte-rrc.dl_CarrierFreq_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ARFCN_ValueEUTRA_r9", HFILL }},
     { &hf_lte_rrc_mbms_SAI_List_r11,
       { "mbms-SAI-List-r11", "lte-rrc.mbms_SAI_List_r11",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_multiBandInfoList_r11,
+      { "multiBandInfoList-r11", "lte-rrc.multiBandInfoList_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_timeInfo_r11,
@@ -38586,8 +38671,8 @@ void proto_register_lte_rrc(void) {
       { "pucch-ResourceStartOffset-r11", "lte-rrc.pucch_ResourceStartOffset_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_2047", HFILL }},
-    { &hf_lte_rrc_re_MappingQCL_ConfigListId_r11,
-      { "re-MappingQCL-ConfigListId-r11", "lte-rrc.re_MappingQCL_ConfigListId_r11",
+    { &hf_lte_rrc_re_MappingQCL_ConfigId_r11,
+      { "re-MappingQCL-ConfigId-r11", "lte-rrc.re_MappingQCL_ConfigId_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PDSCH_RE_MappingQCL_ConfigId_r11", HFILL }},
     { &hf_lte_rrc_ul_SpecificParameters,
@@ -40605,6 +40690,10 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_MultiBandInfoList_v9e0_item,
       { "MultiBandInfo-v9e0", "lte-rrc.MultiBandInfo_v9e0_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_MultiBandInfoList_r11_item,
+      { "FreqBandIndicator-r11", "lte-rrc.FreqBandIndicator_r11",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_start_01,
       { "start", "lte-rrc.start",
@@ -43698,7 +43787,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_SystemInformationBlockType15_r11,
     &ett_lte_rrc_MBMS_SAI_List_r11,
     &ett_lte_rrc_MBMS_SAI_InterFreqList_r11,
+    &ett_lte_rrc_MBMS_SAI_InterFreqList_v1140,
     &ett_lte_rrc_MBMS_SAI_InterFreq_r11,
+    &ett_lte_rrc_MBMS_SAI_InterFreq_v1140,
     &ett_lte_rrc_SystemInformationBlockType16_r11,
     &ett_lte_rrc_T_timeInfo_r11,
     &ett_lte_rrc_AntennaInfoCommon,
@@ -43972,6 +44063,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MobilityStateParameters,
     &ett_lte_rrc_MultiBandInfoList,
     &ett_lte_rrc_MultiBandInfoList_v9e0,
+    &ett_lte_rrc_MultiBandInfoList_r11,
     &ett_lte_rrc_MultiBandInfo_v9e0,
     &ett_lte_rrc_PhysCellIdRange,
     &ett_lte_rrc_PhysCellIdRangeUTRA_FDDList_r9,

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.3.0 (2013-03)
+-- 3GPP TS 36.331 V11.4.0 (2013-06)
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -2202,7 +2202,9 @@ SystemInformationBlockType15-r11 ::=	SEQUENCE {
 	mbms-SAI-IntraFreq-r11					MBMS-SAI-List-r11				OPTIONAL,	-- Need OR
 	mbms-SAI-InterFreqList-r11				MBMS-SAI-InterFreqList-r11		OPTIONAL,	-- Need OR
 	lateNonCriticalExtension				OCTET STRING					OPTIONAL,	-- Need OP
-	...
+	...,
+	[[	mbms-SAI-InterFreqList-v1140		MBMS-SAI-InterFreqList-v1140	OPTIONAL	-- Need OR
+	]]
 }
 
 MBMS-SAI-List-r11 ::=					SEQUENCE (SIZE (1..maxSAI-MBMS-r11)) OF MBMS-SAI-r11
@@ -2211,10 +2213,17 @@ MBMS-SAI-r11 ::=						INTEGER (0..65535)
 
 MBMS-SAI-InterFreqList-r11 ::=			SEQUENCE (SIZE (1..maxFreq)) OF MBMS-SAI-InterFreq-r11
 
+MBMS-SAI-InterFreqList-v1140 ::=		SEQUENCE (SIZE (1..maxFreq)) OF MBMS-SAI-InterFreq-v1140
+
 MBMS-SAI-InterFreq-r11 ::=				SEQUENCE {
 	dl-CarrierFreq-r11						ARFCN-ValueEUTRA-r9,
 	mbms-SAI-List-r11						MBMS-SAI-List-r11
 }
+
+MBMS-SAI-InterFreq-v1140 ::=			SEQUENCE {
+		multiBandInfoList-r11				MultiBandInfoList-r11			OPTIONAL	-- Need OR
+}
+
 
 
 SystemInformationBlockType16-r11 ::=		SEQUENCE {
@@ -2581,7 +2590,7 @@ EPDCCH-SetConfig-r11 ::=		SEQUENCE {
 	},
 	dmrs-ScramblingSequenceInt-r11	INTEGER (0..503),
 	pucch-ResourceStartOffset-r11	INTEGER (0..2047),
-	re-MappingQCL-ConfigListId-r11	PDSCH-RE-MappingQCL-ConfigId-r11	OPTIONAL, -- Need OR
+	re-MappingQCL-ConfigId-r11		PDSCH-RE-MappingQCL-ConfigId-r11	OPTIONAL, -- Need OR
 	...
 }
 
@@ -3808,6 +3817,8 @@ FreqBandIndicator ::=					INTEGER (1..maxFBI)
 
 FreqBandIndicator-v9e0 ::=				INTEGER (maxFBI-Plus1..maxFBI2)
 
+FreqBandIndicator-r11 ::=				INTEGER (1..maxFBI2)
+
 
 MobilityControlInfo ::=		SEQUENCE {
 	targetPhysCellId					PhysCellId,
@@ -3865,6 +3876,8 @@ MobilityStateParameters ::=			SEQUENCE {
 MultiBandInfoList ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicator
 
 MultiBandInfoList-v9e0 ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF MultiBandInfo-v9e0
+
+MultiBandInfoList-r11 ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicator-r11
 
 MultiBandInfo-v9e0 ::=		SEQUENCE {
 	freqBandIndicator-v9e0				FreqBandIndicator-v9e0		OPTIONAL	-- Need OP
