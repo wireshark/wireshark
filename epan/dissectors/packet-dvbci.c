@@ -4157,13 +4157,17 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     offset = dissect_ber_length(pinfo, tree, tvb, 1, &len_field, NULL);
-    if (((direction==DATA_HOST_TO_CAM) && ((offset+len_field)!=tpdu_len)) ||
+    /* len_field must be at least 1 for the following t_c_id
+       c_tpdu's len_field must match tvbuff exactly
+       r_tpdu's len_field does not include the status part after the body */
+    if (len_field==0 ||
+        ((direction==DATA_HOST_TO_CAM) && ((offset+len_field)!=tpdu_len)) ||
         ((direction==DATA_CAM_TO_HOST) && ((offset+len_field)>tpdu_len))) {
         /* offset points to 1st byte after the length field */
-        pi = proto_tree_add_text(
-                tree, tvb, 1, offset-1, "Length field mismatch");
+        pi = proto_tree_add_text(tree, tvb, 1, offset-1, "Invalid length field");
         expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "Length field mismatch");
+                len_field==0 ? "Length field must be at least 1" :
+                               "Length field mismatch");
         return -1;
     }
 
