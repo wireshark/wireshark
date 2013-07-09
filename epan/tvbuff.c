@@ -2507,31 +2507,21 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 gchar *
 tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	/* Longest UTF-8 character takes 6 bytes + 1 byte for NUL, round it to 8B */
-	gchar          tmpbuf[8];
 	gunichar2      uchar;
 	gint           i;       /* Byte counter for tvbuff */
-	gint           tmpbuf_len;
-	emem_strbuf_t *strbuf = NULL;
+	emem_strbuf_t *strbuf;
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	strbuf = ep_strbuf_new(NULL);
 
 	for(i = 0; i < length; i += 2) {
-
 		if (encoding == ENC_BIG_ENDIAN)
 			uchar = tvb_get_ntohs(tvb, offset + i);
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		tmpbuf_len = g_unichar_to_utf8(uchar, tmpbuf);
-
-		/* NULL terminate the tmpbuf so ep_strbuf_append knows where
-		 * to stop */
-		tmpbuf[tmpbuf_len] = '\0';
-
-		ep_strbuf_append(strbuf, tmpbuf);
+		ep_strbuf_append_unichar(strbuf, uchar);
 	}
 
 	return strbuf->str;
@@ -2733,32 +2723,22 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 gchar *
 tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
-	/* Longest UTF-8 character takes 6 bytes + 1 byte for NUL, round it to 8B */
-	gchar          tmpbuf[8];
 	gunichar2      uchar;
 	gint           size;    /* Number of UTF-16 characters */
 	gint           i;       /* Byte counter for tvbuff */
-	gint           tmpbuf_len;
-	emem_strbuf_t *strbuf = NULL;
-
-	strbuf = ep_strbuf_new(NULL);
+	emem_strbuf_t *strbuf;
 
 	size = tvb_unicode_strsize(tvb, offset);
 
-	for(i = 0; i < size; i += 2) {
+	strbuf = ep_strbuf_new(NULL);
 
+	for(i = 0; i < size; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
 			uchar = tvb_get_ntohs(tvb, offset + i);
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		tmpbuf_len = g_unichar_to_utf8(uchar, tmpbuf);
-
-		/* NULL terminate the tmpbuf so ep_strbuf_append knows where
-		 * to stop */
-		tmpbuf[tmpbuf_len] = '\0';
-
-		ep_strbuf_append(strbuf, tmpbuf);
+		ep_strbuf_append_unichar(strbuf, uchar);
 	}
 
 	if (lengthp)
