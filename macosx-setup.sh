@@ -86,20 +86,21 @@ uninstall() {
 
         #
         # Uninstall items in the reverse order from the order in which they're
-        # installed.  Only uninstall if we're configured to install them and
-        # if the download/build/install process completed.
+        # installed.  Only uninstall if the download/build/install process
+        # completed; uninstall the version that appears in the name of
+        # the -done file.
         #
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
-        if [ "$GEOIP_VERSION" -a -f geoip-$GEOIP_VERSION-done ]
-        then
+        installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_geoip_version" ] ; then
             echo "Uninstalling GeoIP API:"
-            cd GeoIP-$GEOIP_VERSION
+            cd GeoIP-$installed_geoip_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm geoip-$GEOIP_VERSION-done
+            rm geoip-installed_geoip_version-done
         fi
 
         if [ "$PORTAUDIO_VERSION" -a -f portaudio-done ] ; then
@@ -128,177 +129,196 @@ uninstall() {
             rm lua-$LUA_VERSION-done
         fi
 
-        if [ "$GNUTLS_VERSION" -a -f gnutls-$GNUTLS_VERSION-done ] ; then
+        installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_gnutls_version" ] ; then
             echo "Uninstalling GnuTLS:"
-            cd gnutls-$GNUTLS_VERSION
+            cd gnutls-$installed_gnutls_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm gnutls-$GNUTLS_VERSION-done
+            rm gnutls-$installed_gnutls_version-done
         fi
 
-        if [ "$LIBGCRYPT_VERSION" -a -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
+        installed_libgcrypt_version=`ls libgcrypt-*-done 2>/dev/null | sed 's/libgcrypt-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_libgcrypt_version" ] ; then
             echo "Uninstalling libgcrypt:"
-            cd libgcrypt-$LIBGCRYPT_VERSION
+            cd libgcrypt-$installed_libgcrypt_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm libgcrypt-$LIBGCRYPT_VERSION-done
+            rm libgcrypt-$installed_libgcrypt_version-done
         fi
 
-        if [ "$LIBGPG_ERROR_VERSION" -a -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
+        installed_libgpg_error_version=`ls libgpg-error-*-done 2>/dev/null | sed 's/libgpg-error-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_libgpg_error_version" ] ; then
             echo "Uninstalling libgpg-error:"
-            cd libgpg-error-$LIBGPG_ERROR_VERSION
+            cd libgpg-error-$installed_libgpg_error_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm libgpg-error-$LIBGPG_ERROR_VERSION-done
+            rm libgpg-error-$installed_libgpg_error_version-done
         fi
 
-        if [ "$LIBSMI_VERSION" -a -f libsmi-$LIBSMI_VERSION-done ] ; then
+        installed_libsmi_version=`ls libsmi-*-done 2>/dev/null | sed 's/libsmi-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_libsmi_version" ] ; then
             echo "Uninstalling libsmi:"
-            cd libsmi-$LIBSMI_VERSION
+            cd libsmi-$installed_libsmi_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm libsmi-$LIBSMI_VERSION-done
+            rm libsmi-$installed_libsmi_version-done
         fi
 
-        if [ -f gtk+-$GTK_VERSION-done ] ; then
+        installed_gtk_version=`ls gtk+-*-done 2>/dev/null | sed 's/gtk+-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_gtk_version" ] ; then
             echo "Uninstalling GTK+:"
-            cd gtk+-$GTK_VERSION
+            cd gtk+-$installed_gtk_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm gtk+-$GTK_VERSION-done
+            rm gtk+-$installed_gtk_version-done
         fi
 
-        if [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
+        installed_gdk_pixbuf_version=`ls gdk-pixbuf-*-done 2>/dev/null | sed 's/gdk-pixbuf-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_gdk_pixbuf_version" ] ; then
             echo "Uninstalling gdk-pixbuf:"
-            cd gdk-pixbuf-$GDK_PIXBUF_VERSION
+            cd gdk-pixbuf-$installed_gdk_pixbuf_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm gdk-pixbuf-$GDK_PIXBUF_VERSION-done
+            rm gdk-pixbuf-$installed_gdk_pixbuf_version-done
         fi
 
-        if [ -f pango-$PANGO_VERSION-done ] ; then
+        installed_pango_version=`ls pango-*-done 2>/dev/null | sed 's/pango-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_pango_version" ] ; then
             echo "Uninstalling Pango:"
-            cd pango-$PANGO_VERSION
+            cd pango-$installed_pango_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm pango-$PANGO_VERSION-done
+            rm pango-$installed_pango_version-done
         fi
 
-        if [ -f atk-$ATK_VERSION-done ] ; then
+        installed_atk_version=`ls atk-*-done 2>/dev/null | sed 's/atk-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_atk_version" ] ; then
             echo "Uninstalling ATK:"
-            cd atk-$ATK_VERSION
+            cd atk-$installed_atk_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm atk-$ATK_VERSION-done
+            rm atk-$installed_atk_version-done
         fi
 
-        if [ -f cairo-$CAIRO_VERSION-done ] ; then
+        installed_cairo_version=`ls cairo-*-done 2>/dev/null | sed 's/cairo-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_cairo_version" ] ; then
             echo "Uninstalling Cairo:"
-            cd cairo-$CAIRO_VERSION
+            cd cairo-$installed_cairo_version
             $DO_MAKE_INSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm cairo-$CAIRO_VERSION-done
+            rm cairo-$installed_cairo_version-done
         fi
 
-        if [ -f pixman-$PIXMAN_VERSION-done ] ; then
+        installed_pixman_version=`ls pixman-*-done 2>/dev/null | sed 's/pixman-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_pixman_version" ] ; then
             echo "Uninstalling pixman:"
-            cd pixman-$PIXMAN_VERSION
+            cd pixman-$installed_pixman_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm pixman-$PIXMAN_VERSION-done
+            rm pixman-$installed_pixman_version-done
         fi
 
-        if [ -f libpng-$PNG_VERSION-done ] ; then
+        installed_libpng_version=`ls libpng-*-done 2>/dev/null | sed 's/libpng-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_libpng_version" ] ; then
             echo "Uninstalling libpng:"
-            cd libpng-$PNG_VERSION
+            cd libpng-$installed_libpng_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm libpng-$PNG_VERSION-done
+            rm libpng-$installed_libpng_version-done
         fi
 
-        if [ -f glib-$GLIB_VERSION-done ] ; then
+        installed_glib_version=`ls glib-*-done 2>/dev/null | sed 's/glib-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_glib_version" ] ; then
             echo "Uninstalling GLib:"
-            cd glib-$GLIB_VERSION
+            cd glib-$installed_glib_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm glib-$GLIB_VERSION-done
+            rm glib-$installed_glib_version-done
         fi
 
-        if [ -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
+        installed_pkg_config_version=`ls pkg-config-*-done 2>/dev/null | sed 's/pkg-config-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_pkg_config_version" ] ; then
             echo "Uninstalling pkg-config:"
-            cd pkg-config-$PKG_CONFIG_VERSION
+            cd pkg-config-$installed_pkg_config_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm pkg-config-$PKG_CONFIG_VERSION-done
+            rm pkg-config-$installed_pkg_config_version-done
         fi
 
-        if [ -f gettext-$GETTEXT_VERSION-done ] ; then
+        installed_gettext_version=`ls gettext-*-done 2>/dev/null | sed 's/gettext-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_gettext_version" ] ; then
             echo "Uninstalling GNU gettext:"
-            cd gettext-$GETTEXT_VERSION
+            cd gettext-$installed_gettext_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm gettext-$GETTEXT_VERSION-done
+            rm gettext-$installed_gettext_version-done
         fi
 
-        if [ -n "$CMAKE" -a -f cmake-$CMAKE_VERSION-done ]; then
-            echo "Uninstalling CMAKE:"
-            cd cmake-$CMAKE_VERSION
+        installed_cmake_version=`ls cmake-*-done 2>/dev/null | sed 's/cmake-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_cmake_version" ]; then
+            echo "Uninstalling CMake:"
+            cd cmake-$installed_cmake_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm cmake-$CMAKE_VERSION-done
+            rm cmake-$installed_cmake_version-done
         fi
 
-        if [ "$LIBTOOL_VERSION" -a -f libtool-$LIBTOOL_VERSION-done ] ; then
+        installed_libtool_version=`ls libtool-*-done 2>/dev/null | sed 's/libtool-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_libtool_version" ] ; then
             echo "Uninstalling GNU libtool:"
-            cd libtool-$LIBTOOL_VERSION
+            cd libtool-$installed_libtool_version
             mv /usr/local/bin/glibtool /usr/local/bin/libtool
             mv /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm libtool-$LIBTOOL_VERSION-done
+            rm libtool-$installed_libtool_version-done
         fi
 
-        if [ "$AUTOMAKE_VERSION" -a -f automake-$AUTOMAKE_VERSION-done ] ; then
+        installed_automake_version=`ls automake-*-done 2>/dev/null | sed 's/automake-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_automake_version" ] ; then
             echo "Uninstalling GNU automake:"
-            cd automake-$AUTOMAKE_VERSION
+            cd automake-$installed_automake_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm automake-$AUTOMAKE_VERSION-done
+            rm automake-$installed_automake_version-done
         fi
 
-        if [ "$AUTOCONF_VERSION" -a -f autoconf-$AUTOCONF_VERSION-done ] ; then
+        installed_autoconf_version=`ls autoconf-*-done 2>/dev/null | sed 's/autoconf-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_autoconf_version" ] ; then
             echo "Uninstalling GNU autoconf:"
-            cd autoconf-$AUTOCONF_VERSION
+            cd autoconf-$installed_autoconf_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm autoconf-$AUTOCONF_VERSION-done
+            rm autoconf-$installed_autoconf_version-done
         fi
 
-        if [ "$XZ_VERSION" -a -f xz-$XZ_VERSION-done ] ; then
+        installed_xz_version=`ls xz-*-done 2>/dev/null | sed 's/xz-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_xz_version" ] ; then
             echo "Uninstalling xz:"
-            cd xz-$XZ_VERSION
+            cd xz-$installed_xz_version
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm xz-$XZ_VERSION-done
+            rm xz-$installed_xz_version-done
         fi
     fi
 }
@@ -355,79 +375,14 @@ then
 fi
 
 #
-# To make this work on Leopard will take a lot of work.
+# To make this work on Leopard (rather than working *on* Snow Leopard
+# when building *for* Leopard) will take more work.
 #
-# First of all, Leopard's /usr/X11/lib/libXdamage.la claims, at least
+# For one thing, Leopard's /usr/X11/lib/libXdamage.la claims, at least
 # with all software updates applied, that the Xdamage shared library
 # is libXdamage.1.0.0.dylib, but it is, in fact, libXdamage.1.1.0.dylib.
 # This causes problems when building GTK+, so the script would have to
 # fix that file.
-#
-# Second of all, the version of fontconfig that comes with Leopard
-# doesn't support FC_WEIGHT_EXTRABLACK, so we can't use any version
-# of Pango newer than 1.22.4.
-#
-# However, Pango 1.22.4 doesn't work with versions of GLib after
-# 2.29.6, because Pango 1.22.4 uses G_CONST_RETURN and GLib 2.29.8
-# and later deprecate it (there doesn't appear to be a GLib 2.29.7).
-# That means we'd either have to patch Pango not to use it (just
-# use "const"; G_CONST_RETURN was there to allow code to choose whether
-# to use "const" or not), or use GLib 2.29.6 or earlier.
-#
-# GLib 2.29.6 includes an implementation of g_bit_lock() that, on x86
-# (32-bit and 64-bit), uses asms in a fashion ("asm volatile goto") that
-# doesn't work with the Apple version of GCC 4.0.1, which is the compiler
-# you get with Leopard+updates.  Apparently, that requires GCC 4.5 or
-# later; recent versions of GLib check for that, but 2.29.6 doesn't.
-# Therefore, we would have to patch glib/gbitlock.c to do what the
-# newer versions of GLib do:
-#
-#  define a USE_ASM_GOTO macro that indicates whether "asm goto"
-#  can be used:
-#    #if (defined (i386) || defined (__amd64__))
-#      #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
-#        #define USE_ASM_GOTO 1
-#      #endif
-#    #endif
-#
-#  replace all occurrences of
-#
-#    #if defined (__GNUC__) && (defined (i386) || defined (__amd64__))
-#
-#  with
-#
-#    #ifdef USE_ASM_GOTO
-#
-# Using GLib 2.29.6 or earlier, however, would mean that we can't
-# use a version of ATK later than 2.3.93, as those versions don't
-# work with GLib 2.29.6.  The same applies to gdk-pixbuf; versions
-# of gdk-pixbuf after 2.24.1 won't work with GLib 2.29.6.
-#
-# Once you've set this script up to use the older versions of the
-# libraries, and built and installed them, you find that Wireshark,
-# when built with them, crashes the X server that comes with Leopard,
-# at least with all updates from Apple.  Maybe patching Pango rather
-# than going with an older version of Pango would work.
-#
-# The Leopard Wireshark buildbot uses GTK+ 2.12.9, Cairo 1.6.4,
-# Pango 1.20.2, and GLib 2.16.3, with an unknown version of ATK,
-# and, I think, without gdk-pixbuf, as it hadn't been made a
-# separate library from GTK+ as of GTK+ 2.12.9.  Its binaries
-# don't crash the X server.
-#
-# However, if you try various older versions of Cairo, including
-# 1.6.4 and at least some 1.8.x versions, when you try to build
-# it, the build fails because it can't find png_set_longjmp_fn().
-# I vaguely remember dealing with that, ages ago, but don't
-# remember what I did; fixing *that* is left as an exercise for
-# the reader.
-#
-# Oh, and if you're building with a version of GTK+ that doesn't
-# have the gdk-pixbuf stuff in a separate library, you probably
-# don't want to bother downloading or installing the gdk-pixbuf
-# library, *and* you will need to configure GTK+ with
-# --without-libtiff and --without-libjpeg (as we currently do
-# with gdk-pixbuf).
 #
 if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
     echo "This script does not support any versions of OS X before Snow Leopard" 1>&2 
@@ -523,16 +478,101 @@ then
         # aren't, so we have to build it if we're building for 10.5.
         #
         cairo_not_in_the_os=yes
-    fi
-else
-    #
-    # We're building for the OS version on which we're running; if it's
-    # Leopard or earlier, we need to build Cairo - see above.
-    # The major version number of Darwin in 10.5 is 9.
-    #
-    if [[ $DARWIN_MAJOR_VERSION = "9" ]]
-    then
-        cairo_not_in_the_os=yes
+
+        #
+        # Build with older versions of the support libraries, as
+        # were used on the Wireshark Leopard buildbot at one
+        # point.  (Most of these versions come from the About page
+        # from Wireshark 1.8.6, the last build done on that buildbot;
+        # the ATK version isn't reported, so this is a guess.)
+        #
+        # If you want to try building with newer versions of
+        # the libraries, note that:
+        #
+        # The version of fontconfig that comes with Leopard doesn't
+        # support FC_WEIGHT_EXTRABLACK, so we can't use any version
+        # of Pango newer than 1.22.4.
+        #
+        # However, Pango 1.22.4 doesn't work with versions of GLib
+        # after 2.29.6, because Pango 1.22.4 uses G_CONST_RETURN and
+        # GLib 2.29.8 and later deprecate it (there doesn't appear to
+        # be a GLib 2.29.7).  That means we'd either have to patch
+        # Pango not to use it (just use "const"; G_CONST_RETURN was
+        # there to allow code to choose whether to use "const" or not),
+        # or use GLib 2.29.6 or earlier.
+        #
+        # GLib 2.29.6 includes an implementation of g_bit_lock() that,
+        # on x86 (32-bit and 64-bit), uses asms in a fashion
+        # ("asm volatile goto") that requires GCC 4.5 or later, which
+        # is later than the compilers that come with Leopard and Snow
+        # Leopard.  Recent versions of GLib check for that, but 2.29.6
+        # doesn't, so, if you want to build GLib 2.29.6 on Leopard or
+        # Snow Leopard, you would have to patch glib/gbitlock.c to do
+        # what the newer versions of GLib do:
+        #
+        #  define a USE_ASM_GOTO macro that indicates whether "asm goto"
+        #  can be used:
+        #    #if (defined (i386) || defined (__amd64__))
+        #      #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+        #        #define USE_ASM_GOTO 1
+        #      #endif
+        #    #endif
+        #
+        #  replace all occurrences of
+        #
+        #    #if defined (__GNUC__) && (defined (i386) || defined (__amd64__))
+        #
+        #  with
+        #
+        #    #ifdef USE_ASM_GOTO
+        #
+        # Using GLib 2.29.6 or earlier, however, means that we can't
+        # use a version of ATK later than 2.3.93, as those versions
+        # don't work with GLib 2.29.6.  The same applies to gdk-pixbuf;
+        # versions of gdk-pixbuf after 2.24.1 won't work with GLib
+        # 2.29.6.
+        #
+        # Then you have to make sure that what you've build doesn't
+        # cause the X server that comes with Leopard to crash; at
+        # least one attempt at building for Leopard did.
+        #
+        # At least if building on Leopard, you might also find
+        # that, with various older versions of Cairo, including
+        # 1.6.4 and at least some 1.8.x versions, when you try to
+        #  build it, the build fails because it can't find
+        # png_set_longjmp_fn().  I vaguely remember dealing with that,
+        # ages ago, but don't remember what I did.
+        #
+        GLIB_VERSION=2.16.3
+        CAIRO_VERSION=1.6.4
+        ATK_VERSION=1.24.0
+        PANGO_VERSION=1.20.2
+        GTK_VERSION=2.12.9
+
+        #
+        # That version of GTK+ includes gdk-pixbuf.
+        # XXX - base this on the version of GTK+ requested.
+        #
+        GDK_PIXBUF_VERSION=
+
+        #
+        # Libgcrypt 1.5.0 fails to compile due to some problem with an
+        # asm in rijndael.c, at least with i686-apple-darwin10-gcc-4.2.1
+        # (GCC) 4.2.1 (Apple Inc. build 5666) (dot 3) when building
+        # 32-bit.
+        #
+        # We try libgcrypt 1.4.3 instead, as that's what shows up in
+        # the version from the Leopard buildbot.
+        LIBGCRYPT_VERSION=1.4.3
+
+        #
+        # Build 32-bit while we're at it; Leopard has a bug that
+        # causes some BPF functions not to work with 64-bit userland
+        # code, so capturing won't work.
+        #
+        export CFLAGS="$CFLAGS -arch i386"
+        export CXXFLAGS="$CXXFLAGS -arch i386"
+        export LDFLAGS="$LDFLAGS -arch i386"
     fi
 fi
 
@@ -675,8 +715,22 @@ fi
 if [ ! -f glib-$GLIB_VERSION-done ] ; then
     echo "Downloading, building, and installing GLib:"
     glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-    [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
-    xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
+    GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
+    GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    GLIB_DOTDOT_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    if [[ $GLIB_MAJOR_VERSION -gt 2 ||
+          $GLIB_MINOR_VERSION -gt 28 ||
+          ($GLIB_MINOR_VERSION -eq 28 && $GLIB_DOTDOT_VERSION -ge 8) ]]
+    then
+        #
+        # Starting with GLib 2.28.8, xz-compressed tarballs are available.
+        #
+        [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+        xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
+    else
+        [ -f glib-$GLIB_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.bz2 || exit 1
+        bzcat glib-$GLIB_VERSION.tar.bz2 | tar xf - || exit 1
+    fi
     cd glib-$GLIB_VERSION
     #
     # OS X ships with libffi, but doesn't provide its pkg-config file;
@@ -713,9 +767,19 @@ if [ ! -f glib-$GLIB_VERSION-done ] ; then
     else
         LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
     fi
+
+    #
+    # Apply the fix to GNOME bug 529806:
+    #
+    #    https://bugzilla.gnome.org/show_bug.cgi?id=529806
+    #
+    # if we have a version of GLib prior to 2.30.
+    #
+    if [[ $GLIB_MAJOR_VERSION -eq 2 && $GLIB_MINOR_VERSION -le 30 ]]
+    then
+        patch -p0 <../../macosx-support-lib-patches/glib-gconvert.c.patch || exit 1
+    fi
     make $MAKE_BUILD_OPTS || exit 1
-    # Apply patch: we depend on libffi, but pkg-config doesn't get told.
-    patch -p0 <../../macosx-support-lib-patches/glib-pkgconfig.patch || exit 1
     $DO_MAKE_INSTALL || exit 1
     cd ..
     touch glib-$GLIB_VERSION-done
@@ -743,38 +807,38 @@ if [[ -n "$GTK3" || "$cairo_not_in_the_os" = yes ]]; then
     # which causes other packages not to be able to find its
     # headers.
     #
-    if [ ! -f libpng-$PNG_VERSION-done ] ; then
-        echo "Downloading, building, and installing libpng:"
-        #
-        # The FTP site puts libpng x.y.* into a libpngxy directory.
-        #
-        subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
-        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
-        xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
-        cd libpng-$PNG_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch libpng-$PNG_VERSION-done
-    fi
+#    if [ ! -f libpng-$PNG_VERSION-done ] ; then
+#        echo "Downloading, building, and installing libpng:"
+#        #
+#        # The FTP site puts libpng x.y.* into a libpngxy directory.
+#        #
+#        subdir=`echo $PNG_VERSION | sed 's/\([1-9][0-9]*\)\.\([1-9][0-9]*\).*/libpng\1\2'/`
+#        [ -f libpng-$PNG_VERSION.tar.xz ] || curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/$subdir/libpng-$PNG_VERSION.tar.xz
+#        xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
+#        cd libpng-$PNG_VERSION
+#        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+#        make $MAKE_BUILD_OPTS || exit 1
+#        $DO_MAKE_INSTALL || exit 1
+#        cd ..
+#        touch libpng-$PNG_VERSION-done
+#    fi
 
     #
     # The libpixman that comes with the X11 for Leopard is too old
     # to support Cairo's image surface backend feature (which requires
     # pixman-1 >= 0.22.0).
     #
-    if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
-        echo "Downloading, building, and installing pixman:"
-        [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
-        gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
-        cd pixman-$PIXMAN_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-        make $MAKE_BUILD_OPTS || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
-        touch pixman-$PIXMAN_VERSION-done
-    fi
+#    if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
+#        echo "Downloading, building, and installing pixman:"
+#        [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+#        gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
+#        cd pixman-$PIXMAN_VERSION
+#        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+#        make $MAKE_BUILD_OPTS || exit 1
+#        $DO_MAKE_INSTALL || exit 1
+#        cd ..
+#        touch pixman-$PIXMAN_VERSION-done
+#    fi
 
     #
     # And now Cairo itself.
@@ -819,8 +883,22 @@ fi
 if [ ! -f atk-$ATK_VERSION-done ] ; then
     echo "Downloading, building, and installing ATK:"
     atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-    [ -f atk-$ATK_VERSION.tar.xz ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
-    xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
+    ATK_MAJOR_VERSION="`expr $ATK_VERSION : '\([0-9][0-9]*\).*'`"
+    ATK_MINOR_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    ATK_DOTDOT_VERSION="`expr $ATK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    if [[ $ATK_MAJOR_VERSION -gt 2 ||
+          ($ATK_MAJOR_VERSION -eq 2 && $ATK_MINOR_VERSION -gt 0) ||
+          ($ATK_MANOR_VERSION -eq 2 && $ATK_MINOR_VERSION -eq 0 && $ATK_DOTDOT_VERSION -ge 1) ]]
+    then
+        #
+        # Starting with ATK 2.0.1, xz-compressed tarballs are available.
+        #
+        [ -f atk-$ATK_VERSION.tar.xz ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
+        xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
+    else
+        [ -f atk-$ATK_VERSION.tar.bz2 ] || curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
+        bzcat atk-$ATK_VERSION.tar.bz2 | tar xf - || exit 1
+    fi
     cd atk-$ATK_VERSION
     CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
     make $MAKE_BUILD_OPTS || exit 1
@@ -845,7 +923,7 @@ if [ ! -f pango-$PANGO_VERSION-done ] ; then
         xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
     else
         [ -f pango-$PANGO_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2 || exit 1
-        gzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
+        bzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
     fi
     cd pango-$PANGO_VERSION
     CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
@@ -855,7 +933,7 @@ if [ ! -f pango-$PANGO_VERSION-done ] ; then
     touch pango-$PANGO_VERSION-done
 fi
 
-if [ ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
+if [ "$GDK_PIXBUF_VERSION" -a ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
     echo "Downloading, building, and installing gdk-pixbuf:"
     gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
     [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
@@ -888,7 +966,7 @@ if [ ! -f gtk+-$GTK_VERSION-done ] ; then
         xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
     else
         [ -f gtk+-$GTK_VERSION.tar.bz2 ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2 || exit 1
-        gzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
+        bzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
     fi
     cd gtk+-$GTK_VERSION
     if [ $DARWIN_MAJOR_VERSION -ge "12" ]
@@ -901,9 +979,13 @@ if [ ! -f gtk+-$GTK_VERSION-done ] ; then
         # Configure it out, on Mountain Lion and later, for now.
         # (12 is the Darwin major version number in Mountain Lion.)
         #
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups || exit 1
+        # Also, configure out libtiff and libjpeg; configure scripts
+        # just ignore unknown --enable/--disable and --with/--without
+        # options (at least they've always do so up to now).
+        #
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-cups--without-libtiff --without-libjpeg || exit 1
     else
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
     fi
     make $MAKE_BUILD_OPTS || exit 1
     $DO_MAKE_INSTALL || exit 1
