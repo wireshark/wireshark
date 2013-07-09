@@ -1742,7 +1742,6 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
     GList   *col_l  = prefs_get_string_list(value); 
     GList    *col_l_elt;
     gchar   *col_name;
-    gboolean syntax_error=FALSE;
     int i;
     
     if (col_l == NULL)
