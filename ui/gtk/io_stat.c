@@ -710,7 +710,7 @@ print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io,
 }
 
 static void
-    io_stat_draw(io_stat_t *io)
+io_stat_draw(io_stat_t *io)
 {
     int            i, tics, ystart, ys;
     guint32        last_interval, first_interval, interval_delta;
@@ -844,7 +844,7 @@ static void
             }
             if (io->graphs[i].calc_type == CALC_TYPE_LOAD) {
                 draw_y_as_load = TRUE;
-	    }
+            }
 
             adv_type = proto_registrar_get_ftype(io->graphs[i].hf_index);
             switch (adv_type) {
@@ -873,12 +873,12 @@ static void
     */
     if (draw_y_as_time) {
         if (io->max_y_units == LOGARITHMIC_YSCALE) {
-            print_time_scale_string(label_string, 15, 100000, 100000, TRUE); /* 100 ms */
+            print_time_scale_string(label_string, sizeof(label_string), 100000, 100000, TRUE); /* 100 ms */
         } else {
-            print_time_scale_string(label_string, 15, max_y, max_y, FALSE);
+            print_time_scale_string(label_string, sizeof(label_string), max_y, max_y, FALSE);
         }
     } else {
-        g_snprintf(label_string, 15, "%d", max_y);
+        g_snprintf(label_string, sizeof(label_string), "%d", max_y);
     }
     layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
     pango_layout_get_pixel_size(layout, &label_width, &label_height);
@@ -898,7 +898,7 @@ static void
     * Add a warning if too many entries
     */
     if (num_time_intervals >= NUM_IO_ITEMS-1) {
-        g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
+        g_snprintf (label_string, sizeof(label_string), "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
         pango_layout_set_text(layout, label_string, -1);
 
 #if GTK_CHECK_VERSION(2,22,0)
@@ -978,20 +978,20 @@ static void
             if (io->max_y_units == LOGARITHMIC_YSCALE) {
                 value = (guint32)(max_y / pow(10,tics-i));
                 if (draw_y_as_time) {
-                    print_time_scale_string(label_string, 15, value, value, TRUE);
+                    print_time_scale_string(label_string, sizeof(label_string), value, value, TRUE);
                 } else if (draw_y_as_load) {
-		  g_snprintf(label_string, 15, "%d.%1d", value/1000, (value/100)%10);
+                    g_snprintf(label_string, sizeof(label_string), "%d.%1d", value/1000, (value/100)%10);
                 } else {
-                    g_snprintf(label_string, 15, "%d", value);
+                    g_snprintf(label_string, sizeof(label_string), "%d", value);
                 }
             } else {
                 value = (max_y/10)*i;
                 if (draw_y_as_time) {
-                    print_time_scale_string(label_string, 15, value, max_y, FALSE);
+                    print_time_scale_string(label_string, sizeof(label_string), value, max_y, FALSE);
                 } else if (draw_y_as_load) {
-		  g_snprintf(label_string, 15, "%d.%1d", value/1000, (value/100)%10);
+                    g_snprintf(label_string, sizeof(label_string), "%d.%1d", value/1000, (value/100)%10);
                 } else {
-                    g_snprintf(label_string, 15, "%d", value);
+                    g_snprintf(label_string, sizeof(label_string), "%d", value);
                 }
             }
 
@@ -1051,7 +1051,7 @@ static void
         cairo_stroke(cr);
         if (xlen == 10) {
             int lwidth, x_pos;
-            print_interval_string (label_string, 15, current_interval, io, TRUE);
+            print_interval_string (label_string, sizeof(label_string), current_interval, io, TRUE);
             pango_layout_set_text(layout, label_string, -1);
             pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
@@ -1299,8 +1299,8 @@ tap_iostat_draw(void *g)
 
 /* ok we get called with both the filter and the field.
    make sure the field is part of the filter.
-   (make sure and make sure  just append it)
-   the field MUST be part of the filter or else we wont
+   (make sure and just append it)
+   the field MUST be part of the filter or else we won't
    be able to pick up the field values after the edt tree has been
    pruned
 */
@@ -1326,8 +1326,7 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
             break;
         }
         if (*filter) {
-            g_snprintf(real_filter, 257, "(%s)", filter);
-            real_filter[257] = 0;
+            g_snprintf(real_filter, sizeof(real_filter), "(%s)", filter);
         }
     }
     if (field) {
@@ -1345,9 +1344,9 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
         }
         if (*field) {
             if (real_filter[0] != 0) {
-                g_strlcat(real_filter, " && ", 262);
+                g_strlcat(real_filter, " && ", sizeof(real_filter));
             }
-            g_strlcat(real_filter, field, 262);
+            g_strlcat(real_filter, field, sizeof(real_filter));
         }
     }
     return register_tap_listener("frame", gio, real_filter[0] ? real_filter : NULL,
@@ -1775,7 +1774,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io)
     combo_box = gtk_combo_box_text_new ();
 
     for (i=0; i<MAX_PIXELS_PER_TICK; i++) {
-        g_snprintf(str, 5, "%u", pixels_per_tick[i]);
+        g_snprintf(str, sizeof(str), "%u", pixels_per_tick[i]);
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PIXELS_PER_TICK_INDEX);
@@ -1852,11 +1851,11 @@ create_yscale_max_menu_items(io_stat_t *io)
     combo_box = gtk_combo_box_text_new ();
     for (i=0; i<MAX_YSCALE; i++) {
         if (yscale_max[i] == LOGARITHMIC_YSCALE) {
-            g_strlcpy(str, "Logarithmic", 15);
+            g_strlcpy(str, "Logarithmic", sizeof(str));
         } else if (yscale_max[i] == AUTO_MAX_YSCALE) {
-            g_strlcpy(str, "Auto", 15);
+            g_strlcpy(str, "Auto", sizeof(str));
         } else {
-            g_snprintf(str, 15, "%u", yscale_max[i]);
+            g_snprintf(str, sizeof(str), "%u", yscale_max[i]);
         }
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
     }
@@ -1876,9 +1875,9 @@ create_filter_menu_items(io_stat_t *io)
 
     for (i=0; i<MAX_MOVING_AVERAGE_ORDER; i++) {
         if (i == NO_FILTER_ORDER) {
-            g_strlcpy(str, "No filter", 15);
+            g_strlcpy(str, "No filter", sizeof(str));
         } else {
-            g_snprintf(str, 15, "M.avg %u", moving_average_orders[i]);
+            g_snprintf(str, sizeof(str), "M.avg %u", moving_average_orders[i]);
         }
         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
     }
@@ -2248,7 +2247,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
     gtk_box_pack_start(GTK_BOX(box), hbox, FALSE, FALSE, 0);
     gtk_widget_show(hbox);
 
-    g_snprintf(str, 256, "Graph %d", num);
+    g_snprintf(str, sizeof(str), "Graph %d", num);
     gio->display_button = gtk_toggle_button_new_with_label(str);
     gtk_box_pack_start(GTK_BOX(hbox), gio->display_button, FALSE, FALSE, 0);
     gtk_widget_show(gio->display_button);
@@ -2279,7 +2278,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
     /* filter prefs dialog */
     gio->filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 
-    g_snprintf(str, 256, "Wireshark: Display Filter  IO-Stat (Filter:%d)", num);
+    g_snprintf(str, sizeof(str), "Wireshark: Display Filter  IO-Stat (Filter:%d)", num);
     g_free( (gpointer) (gio->args->title) );
     gio->args->title = g_strdup(str);
 
@@ -2308,7 +2307,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
     /*
      * create PlotStyle menu
      */
-    g_snprintf(str, 256, " Style:");
+    g_snprintf(str, sizeof(str), " Style:");
     label = gtk_label_new(str);
     gtk_widget_show(label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
@@ -2380,7 +2379,7 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
     g_string_append(CSV_str,"\n");
 
     for (interval=0; interval<io->max_interval; interval+=io->interval) {
-        print_interval_string (string, 15, interval, io, FALSE);
+        print_interval_string (string, sizeof(string), interval, io, FALSE);
         g_string_append_printf(CSV_str, "\"%s\"", string);
         for (i=0; i<MAX_GRAPHS; i++) {
             if (io->graphs[i].display) {
