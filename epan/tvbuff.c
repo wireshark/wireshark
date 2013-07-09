@@ -424,6 +424,12 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
 		tvb->real_data = backing->real_data + tvb->tvbuffs.subset.offset;
 	}
 
+	/*
+	 * The top-level data source of this tvbuff is the top-level
+	 * data source of its parent.
+	 */
+	tvb->ds_tvb = backing->ds_tvb;
+
 	return tvb;
 }
 
@@ -444,12 +450,6 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 
 	tvb = tvb_new_with_subset(backing, reported_length,
 	    subset_tvb_offset, subset_tvb_length);
-
-	/*
-	 * The top-level data source of this tvbuff is the top-level
-	 * data source of its parent.
-	 */
-	tvb->ds_tvb = backing->ds_tvb;
 
 	return tvb;
 }
@@ -481,12 +481,6 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint b
 	tvb = tvb_new_with_subset(backing, backing_length,
 	    subset_tvb_offset, subset_tvb_length);
 
-	/*
-	 * The top-level data source of this tvbuff is the top-level
-	 * data source of its parent.
-	 */
-	tvb->ds_tvb = backing->ds_tvb;
-
 	return tvb;
 }
 
@@ -503,12 +497,6 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 
 	tvb = tvb_new_with_subset(backing, -1 /* reported_length */,
 	    subset_tvb_offset, subset_tvb_length);
-
-	/*
-	 * The top-level data source of this tvbuff is the top-level
-	 * data source of its parent.
-	 */
-	tvb->ds_tvb = backing->ds_tvb;
 
 	return tvb;
 }
