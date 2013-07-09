@@ -896,6 +896,7 @@ EXTRA_DIST = \
 	image/wssplash.png	\
 	ipmap.html		\
 	macosx-setup.sh		\
+        macosx-support-lib-patches/glib-gconvert.c.patch \
 	macosx-support-lib-patches/glib-pkgconfig.patch \
 	macosx-support-lib-patches/gnutls-pkgconfig.patch \
 	macosx-support-lib-patches/portaudio-pa_mac_core.h.patch \
