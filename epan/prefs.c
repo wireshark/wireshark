@@ -157,6 +157,35 @@ static const enum_val_t gui_update_channel[] = {
     {NULL, NULL, -1}
 };
 
+#if defined(HAVE_PCAP_CREATE)
+  static gint num_capture_cols = 7;
+  static const gchar *capture_cols[7] = {
+                                "INTERFACE",
+                                "LINK",
+                                "PMODE",
+                                "SNAPLEN",
+                                "MONITOR",
+                                "BUFFER",
+                                "FILTER"};
+#elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
+  static gint num_capture_cols = 6;
+  static const gchar *capture_cols[6] = {
+                                "INTERFACE",
+                                "LINK",
+                                "PMODE",
+                                "SNAPLEN",
+                                "BUFFER",
+                                "FILTER"};
+#else
+  static gint num_capture_cols = 5;
+  static const gchar *capture_cols[5] = {
+                                "INTERFACE",
+                                "LINK",
+                                "PMODE",
+                                "SNAPLEN",
+                                "FILTER"};
+#endif
+
 /*
  * List of all modules with preference settings.
  */
@@ -205,6 +234,8 @@ free_pref(gpointer data, gpointer user_data _U_)
         pref->default_val.range = NULL;
         break;
     case PREF_CUSTOM:
+        if (strcmp(pref->name, "columns") == 0)
+          pref->stashed_val.boolval = TRUE;
         pref->custom_cbs.free_cb(pref);
         break;
     }
@@ -1629,89 +1660,137 @@ static char * column_format_to_str_cb(pref_t* pref, gboolean default_val) {
 }
 
 
-/*
- * Capture column custom preference functions
- */
-static void capture_column_init_cb(pref_t* pref, GList** value)
-{
-    GList   *list = *value,
-            *list_copy = NULL;
-    gchar   *col;
+/******  Capture column custom preference functions  ******/
 
-    pref->varp.list = value;
-    /* Copy the current list */
-    while (list) {
-        col = (gchar *)list->data;
-        list_copy = g_list_append(list_copy, g_strdup(col));
-        list = list->next;
+/* This routine is only called when Wireshark is started, NOT when another profile is selected. 
+   Copy the pref->capture_columns list (just loaded with the capture_cols[] struct values)
+   to prefs->default_val.list.
+*/
+static void capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
+{
+    GList   *ccv_list = *capture_cols_values,
+            *dlist = NULL;
+   
+    /*  */
+    while (ccv_list) {
+        dlist = g_list_append(dlist, g_strdup((gchar *)ccv_list->data));
+        ccv_list = ccv_list->next;
     }
 
-    pref->default_val.list = list_copy;
+    pref->default_val.list = dlist;
+    pref->varp.list = &prefs.capture_columns;
+    pref->stashed_val.boolval = FALSE;
 }
 
+/* Free the prefs->capture_columns list strings and remove the list entries. 
+   Note that since pref->varp.list points to &prefs.capture_columns, it is
+   also freed.
+*/
 static void capture_column_free_cb(pref_t* pref)
-{
-    GList   *list = *pref->varp.list;
+{   
+    GList    *clist = prefs.capture_columns;
     gchar    *col_name;
-
-    while (list != NULL) {
-        col_name = (gchar *)list->data;
-
+    
+    while (clist) {
+        col_name = (gchar *)clist->data;
         g_free(col_name);
-        list = g_list_remove_link(list, list);
+        clist = g_list_remove_link(clist, clist);
     }
-    g_list_free(list);
+    g_list_free(clist);
+    prefs.capture_columns = NULL;
 
-    list = pref->default_val.list;
-    while (list != NULL) {
-        col_name = (gchar *)list->data;
-
-        g_free(col_name);
-        list = g_list_remove_link(list, list);
+    if (pref->stashed_val.boolval == TRUE) {
+      GList *dlist;
+      gchar *col;
+    
+      dlist = pref->default_val.list;
+      while (dlist != NULL) {
+        col = (gchar *)dlist->data;
+        g_free(col);
+        dlist = g_list_remove_link(dlist, dlist);
+      }
+      g_list_free(dlist);
+      dlist = NULL;
     }
-    g_list_free(list);
 }
 
+/* Copy pref->default_val.list to *pref->varp.list. 
+*/
 static void capture_column_reset_cb(pref_t* pref)
 {
-    GList   *list_copy = *pref->varp.list,
-            *list = pref->default_val.list;
-    gchar    *col_name;
-
-    /* Clear the list before it's copied */
-    while (list_copy != NULL) {
-        col_name = (gchar *)list_copy->data;
-
-        g_free(col_name);
-        list_copy = g_list_remove_link(list_copy, list_copy);
+    GList *vlist, *dlist;
+    gchar *vcol;
+    
+    /* Free the column name strings and remove the links from *pref->varp.list */
+    vlist = *pref->varp.list;
+    while (vlist != NULL) {
+      vcol = (gchar *)vlist->data;
+      g_free(vcol);
+      vlist = g_list_remove_link(vlist, vlist);
     }
-
-    while (list) {
-        col_name = (gchar *)list->data;
-        list_copy = g_list_append(list_copy, g_strdup(col_name));
-        list = list->next;
+    g_list_free(vlist);
+    vlist = NULL;
+    
+    for (dlist = pref->default_val.list; dlist != NULL; dlist = g_list_next(dlist)) {
+      vlist = g_list_append(vlist, g_strdup((gchar *)dlist->data));
     }
+    *pref->varp.list = vlist;     
 }
 
 static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
-    GList    *col_l, *col_l_elt;
-    gchar    *col_name;
-
-    col_l = prefs_get_string_list(value);
+    GList   *col_l  = prefs_get_string_list(value); 
+    GList    *col_l_elt;
+    gchar   *col_name;
+    gboolean syntax_error=FALSE;
+    int i;
+    
     if (col_l == NULL)
       return PREFS_SET_SYNTAX_ERR;
 
-    g_list_free(*pref->varp.list);
-    *pref->varp.list = NULL;
+    capture_column_free_cb(pref);
+
+    /* If value (the list of capture.columns read from preferences) is empty, set capture.columns
+       to the full list of valid capture column names. */
+    col_l_elt = g_list_first(col_l);
+    if (!(*(gchar *)col_l_elt->data)) {
+        for (i = 0; i < num_capture_cols; i++) {
+          col_name = g_strdup(capture_cols[i]);
+          prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
+        }
+    }
+
+    /* Verify that all the column names are valid. If not, use the entire list of valid columns. 
+     */
+    while(col_l_elt) {
+      gboolean found_match = FALSE;
+      col_name = (gchar *)col_l_elt->data;
+      
+      for (i = 0; i < num_capture_cols; i++) {
+        if (strcmp(col_name, capture_cols[i])==0) { 
+          found_match = TRUE;  
+          break;
+        }
+      } 
+      if (!found_match) {
+        /* One or more cols are invalid so use the entire list of valid cols. */
+        for (i = 0; i < num_capture_cols; i++) {
+          col_name = g_strdup(capture_cols[i]);
+          prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
+        }
+        pref->varp.list = &prefs.capture_columns;
+        return PREFS_SET_SYNTAX_ERR;
+      } 
+      col_l_elt = col_l_elt->next;         
+    }
 
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
       col_name = (gchar *)col_l_elt->data;
-      *pref->varp.list = g_list_append(*pref->varp.list, col_name);
+      prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
       col_l_elt = col_l_elt->next;
     }
-
+    pref->varp.list = &prefs.capture_columns;
     return PREFS_SET_OK;
 }
 
@@ -1723,25 +1802,20 @@ static const char * capture_column_type_name_cb(void) {
 static char * capture_column_type_description_cb(void) {
     return g_strdup_printf(
         "List of columns to be displayed in the capture options dialog.\n"
-        "Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
+        "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, MONITOR, BUFFER, FILTER\n");
 }
 
 static gboolean capture_column_is_default_cb(pref_t* pref) {
-    GList       *clp = *pref->varp.list,
-                *pref_col = g_list_first(clp),
-                *def_col = g_list_first(pref->default_val.list);
-    gchar *col, *def_col_str;
+    GList   *pref_col = g_list_first(prefs.capture_columns),
+            *def_col = g_list_first(pref->default_val.list);
     gboolean is_default = TRUE;
 
     /* See if the column data has changed from the default */
     while (pref_col && def_col) {
-        col = (gchar *)pref_col->data;
-        def_col_str = (gchar *) def_col->data;
-        if (strcmp(col, def_col_str) != 0) {
+        if (strcmp((gchar *)pref_col->data, (gchar *)def_col->data) != 0) {
             is_default = FALSE;
             break;
         }
-
         pref_col = pref_col->next;
         def_col = def_col->next;
     }
@@ -1755,7 +1829,8 @@ static gboolean capture_column_is_default_cb(pref_t* pref) {
 }
 
 static char * capture_column_to_str_cb(pref_t* pref, gboolean default_val) {
-    GList       *pref_l = default_val ? pref->default_val.list : *pref->varp.list;
+
+    GList       *pref_l = default_val ? pref->default_val.list : prefs.capture_columns;
     GList       *clp = g_list_first(pref_l);
     GList       *col_l = NULL;
     gchar       *col, *capture_column_str;
@@ -2591,34 +2666,6 @@ pre_init_prefs(void)
                             "Source",   "%s", "Destination", "%d",
                             "Protocol", "%p", "Length",      "%L",
                             "Info",     "%i"};
-#if defined(HAVE_PCAP_CREATE)
-  static gint num_capture_cols = 7;
-  static const gchar *capture_cols[7] = {
-                                "INTERFACE",
-                                "LINK",
-                                "PMODE",
-                                "SNAPLEN",
-                                "MONITOR",
-                                "BUFFER",
-                                "FILTER"};
-#elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
-  static gint num_capture_cols = 6;
-  static const gchar *capture_cols[6] = {
-                                "INTERFACE",
-                                "LINK",
-                                "PMODE",
-                                "SNAPLEN",
-                                "BUFFER",
-                                "FILTER"};
-#else
-  static gint num_capture_cols = 5;
-  static const gchar *capture_cols[5] = {
-                                "INTERFACE",
-                                "LINK",
-                                "PMODE",
-                                "SNAPLEN",
-                                "FILTER"};
-#endif
 
   if (prefs_pre_initialized)
      return;
