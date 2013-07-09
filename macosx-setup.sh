@@ -100,7 +100,7 @@ uninstall() {
             $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
-            rm geoip-installed_geoip_version-done
+            rm geoip-$installed_geoip_version-done
         fi
 
         if [ "$PORTAUDIO_VERSION" -a -f portaudio-done ] ; then
@@ -112,7 +112,8 @@ uninstall() {
             rm portaudio-done
         fi
 
-        if [ "$LUA_VERSION" -a -f lua-$LUA_VERSION-done ] ; then
+        installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
+        if [ ! -z "$installed_lua_version" ] ; then
             echo "Uninstalling Lua:"
             #
             # Lua has no "make uninstall", so just remove stuff manually.
@@ -123,10 +124,10 @@ uninstall() {
             (cd /usr/local/include; $DO_RM -f lua.h luaconf.h lualib.h lauxlib.h lua.hpp)
             (cd /usr/local/lib; $DO_RM -f liblua.a)
             (cd /usr/local/man/man1; $DO_RM -f lua.1 luac.1)
-            cd lua-$LUA_VERSION
+            cd lua-$installed_lua_version
             make clean || exit 1
             cd ..
-            rm lua-$LUA_VERSION-done
+            rm lua-$installed_lua_version-done
         fi
 
         installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
