@@ -886,8 +886,6 @@ profile_manage_profiles_dlg(gint operation)
       gtk_tree_store_set(store, &parent, 0, "Personal", 1, FALSE, 2, FALSE, -1);
     }
 
-    gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
-    gtk_tree_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, FALSE, 2, TRUE, -1);
     init_profile_list();
     fl_entry = current_profile_list();
 
