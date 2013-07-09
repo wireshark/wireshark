@@ -352,7 +352,7 @@ darwin*)
 		# Add an -isysroot flag to use the SDK.
 		#
 		CFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CFLAGS"
-		CPPFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CPPFLAGS"
+		CXXFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CXXFLAGS"
 		LDFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $LDFLAGS"
 
 		#
@@ -366,6 +366,21 @@ darwin*)
 		# flag being set?
 		#
 		OSX_DEPLOY_TARGET="MACOSX_DEPLOYMENT_TARGET=$deploy_target"
+
+		case $deploy_target in
+
+		10.4|10.5)
+			#
+			# Only 32-bit builds are supported.  10.5
+			# (and 10.4?) had a bug that causes some BPF
+			# functions not to work with 64-bit userland
+		        # code, so capturing won't work.
+			#
+			CFLAGS="-arch i386 $CFLAGS"
+			CXXFLAGS="-arch i386 $CXXFLAGS"
+			LDFLAGS="-arch i386 $LDFLAGS"
+			;;
+		esac
 	fi
 esac
 
