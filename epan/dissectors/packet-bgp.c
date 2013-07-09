@@ -936,6 +936,7 @@ static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
 static expert_field ei_bgp_notify_minor_unknown = EI_INIT;
 static expert_field ei_bgp_route_refresh_orf_type_unknown = EI_INIT;
 static expert_field ei_bgp_length_invalid = EI_INIT;
+static expert_field ei_bgp_afi_type_not_supported = EI_INIT;
 
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
@@ -1419,7 +1420,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
 
     if (afi != AFNUM_INET)
     {
-        expert_add_info_format(pinfo, NULL, PI_PROTOCOL, PI_ERROR, "AFI Type not supported");
+        expert_add_info(pinfo, NULL, &ei_bgp_afi_type_not_supported);
         return(-1);
     }
 
@@ -5100,6 +5101,7 @@ proto_register_bgp(void)
         { &ei_bgp_notify_minor_unknown, { "bgp.notify.minor_error.unknown", PI_UNDECODED, PI_NOTE, "Unknown notification error", EXPFILL }},
         { &ei_bgp_route_refresh_orf_type_unknown, { "bgp.route_refresh.orf.type.unknown", PI_CHAT, PI_ERROR, "ORFEntry-Unknown", EXPFILL }},
         { &ei_bgp_length_invalid, { "bgp.length.invalid", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
+        { &ei_bgp_afi_type_not_supported, { "bgp.afi_type_not_supported", PI_PROTOCOL, PI_ERROR, "AFI Type not supported", EXPFILL }},
     };
 
     module_t *bgp_module;

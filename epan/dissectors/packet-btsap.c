@@ -80,6 +80,8 @@ static int hf_btsap_data                                                   = -1;
 static gint ett_btsap                                                      = -1;
 static gint ett_btsap_parameter                                            = -1;
 
+static expert_field ei_btsap_parameter_error = EI_INIT;
+
 static gint top_dissect = TOP_DISSECT_INTERNAL;
 
 static dissector_handle_t gsm_sim_cmd_handle;
@@ -362,7 +364,7 @@ dissect_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 
     if (length != parameter_length || padding_length != parameter_padding_length) {
         /* Malformed frame */
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(pinfo, pitem, &ei_btsap_parameter_error,
             "Parameter Length does not meet content length");
     }
 
@@ -391,7 +393,6 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint        required_parameters = 0;
     guint        i_parameter;
     guint        i_next_parameter;
-    proto_item  *pitem;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
@@ -561,27 +562,19 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
-    if (parameters_check < required_parameters) {
-        static const gchar error_message[] = "There are no required parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
-        PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
+    if (parameters_check < required_parameters) {        
+        proto_tree_add_expert_format(tree, pinfo, &ei_btsap_parameter_error,
+                                     tvb, offset, 0, "There are no required parameters");
     } else if (parameters_check > required_parameters) {
-        static const gchar error_message[] = "Invalid parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
-        PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
+        proto_tree_add_expert_format(tree, pinfo, &ei_btsap_parameter_error,
+                                     tvb, offset, 0, "Invalid parameters");
     }
     if (number_of_parameters < required_parameters) {
-        static const gchar error_message[] = "Too few parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
-        PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
+        proto_tree_add_expert_format(tree, pinfo, &ei_btsap_parameter_error,
+                                     tvb, offset, 0, "Too few parameters");
     } else if (number_of_parameters > required_parameters) {
-        static const gchar error_message[] = "Too many parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
-        PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
+        proto_tree_add_expert_format(tree, pinfo, &ei_btsap_parameter_error,
+                                     tvb, offset, 0, "Too many parameters");
     }
 
     if (tvb_length(tvb) > offset) {
@@ -594,6 +587,7 @@ void
 proto_register_btsap(void)
 {
     module_t *module;
+	expert_module_t* expert_btsap;
 
     static hf_register_info hf[] = {
         { &hf_btsap_header_msg_id,
@@ -705,11 +699,17 @@ proto_register_btsap(void)
         &ett_btsap_parameter
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btsap_parameter_error, { "btsap.parameter_error", PI_PROTOCOL, PI_WARN, "Parameter error", EXPFILL }},
+    };
+    
     proto_btsap = proto_register_protocol("Bluetooth SAP Profile", "BT SAP", "btsap");
     register_dissector("btsap", dissect_btsap, proto_btsap);
 
     proto_register_field_array(proto_btsap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btsap = expert_register_protocol(proto_btsap);
+    expert_register_field_array(expert_btsap, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btsap, NULL);
     prefs_register_static_text_preference(module, "sap.version",

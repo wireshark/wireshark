@@ -188,6 +188,8 @@ static int hf_btobex_reassembled_length = -1;
 static gint ett_btobex_fragment = -1;
 static gint ett_btobex_fragments = -1;
 
+static expert_field ei_application_parameter_length_bad = EI_INIT;
+
 static reassembly_table btobex_reassembly_table;
 
 static const fragment_items btobex_frag_items = {
@@ -676,12 +678,12 @@ dissect_bpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(parameter_tree, hf_bpp_application_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         if (parameter_length != 4) {
-                item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-                expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+                expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
                         "According to the specification this parameter length should be 4, but there is %i", parameter_length);
         } else switch (parameter_id) {
             case 0x01:
@@ -730,13 +732,13 @@ dissect_bip_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(parameter_tree, hf_bip_application_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
        if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != parameter_length) {
-            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+            expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {
@@ -804,14 +806,14 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
-            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+            expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {
@@ -909,14 +911,14 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(parameter_tree, hf_map_application_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         if (parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
                 required_length_map[parameter_id] != -1 &&
                 required_length_map[parameter_id] != parameter_length) {
-            item = proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+            expert_add_info_format_text(pinfo, item, &ei_application_parameter_length_bad,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {
@@ -2286,6 +2288,12 @@ proto_register_btobex(void)
         &ett_btobex_application_parameters
     };
 
+    static ei_register_info ei[] = {
+        { &ei_application_parameter_length_bad, { "btobex.parameter.length.bad", PI_PROTOCOL, PI_WARN, "Parameter length bad", EXPFILL }},
+    };
+
+	expert_module_t* expert_btobex;
+
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_over_l2cap  = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -2297,6 +2305,8 @@ proto_register_btobex(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btobex, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btobex = expert_register_protocol(proto_btobex);
+    expert_register_field_array(expert_btobex, ei, array_length(ei));
 
     register_init_routine(&defragment_init);
 }

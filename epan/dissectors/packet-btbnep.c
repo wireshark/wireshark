@@ -69,6 +69,8 @@ static int hf_btbnep_multicast_address_end                                 = -1;
 static gint ett_btbnep                                                     = -1;
 static gint ett_addr                                                       = -1;
 
+static expert_field ei_btbnep_src_not_group_address = EI_INIT;
+
 static gboolean top_dissect                                              = TRUE;
 
 static dissector_handle_t eth_handle;
@@ -337,8 +339,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (addr_item) {
             addr_tree = proto_item_add_subtree(addr_item, ett_addr);
             if (tvb_get_guint8(tvb, offset) & 0x01) {
-                expert_add_info_format(pinfo, addr_item, PI_PROTOCOL, PI_WARN,
-                        "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)");
+                expert_add_info(pinfo, addr_item, &ei_btbnep_src_not_group_address);
             }
         }
         proto_tree_add_ether(addr_tree, hf_btbnep_addr, tvb, offset, 6, src_addr);
@@ -380,6 +381,7 @@ void
 proto_register_btbnep(void)
 {
     module_t *module;
+    expert_module_t* expert_btbnep;
 
     static hf_register_info hf[] = {
         { &hf_btbnep_bnep_type,
@@ -505,11 +507,17 @@ proto_register_btbnep(void)
         &ett_addr
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btbnep_src_not_group_address, { "btbnep.src.not_group_address", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
+    };
+
     proto_btbnep = proto_register_protocol("Bluetooth BNEP Protocol", "BT BNEP", "btbnep");
     register_dissector("btbnep", dissect_btbnep, proto_btbnep);
 
     proto_register_field_array(proto_btbnep, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btbnep = expert_register_protocol(proto_btbnep);
+    expert_register_field_array(expert_btbnep, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btbnep, NULL);
     prefs_register_static_text_preference(module, "bnep.version",

@@ -134,6 +134,10 @@ static gint ett_btl2cap_extfeatures = -1;
 static gint ett_btl2cap_fixedchans = -1;
 static gint ett_btl2cap_control = -1;
 
+static expert_field ei_btl2cap_parameter_mismatch = EI_INIT;
+static expert_field ei_btl2cap_sdulength_bad = EI_INIT;
+static expert_field ei_btl2cap_length_bad = EI_INIT;
+
 /* Initialize dissector table */
 static dissector_table_t l2cap_psm_dissector_table;
 static dissector_table_t l2cap_cid_dissector_table;
@@ -1180,7 +1184,7 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     slave_latency = tvb_get_letohs(tvb, offset);
 
     if(slave_latency >= 500 || slave_latency > 10.0 * tvb_get_letohs(tvb, offset + 2) / (max_interval *1.25))
-        expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Parameter mismatch");
+        expert_add_info(pinfo, item, &ei_btl2cap_parameter_mismatch);
 
     offset += 2;
     item = proto_tree_add_item(tree, hf_btl2cap_timeout_multiplier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1403,7 +1407,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         /* Detect malformed data */
 
         if (length <= 6) {
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
+            expert_add_info_format_text(pinfo, pi, &ei_btl2cap_sdulength_bad,
                     "SDU length too short: %u", length);
             THROW(ReportedBoundsError);
         }
@@ -1412,7 +1416,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
         if (sdulen < length) {
             sdulen = length;
-            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
+            expert_add_info_format_text(pinfo, pi, &ei_btl2cap_sdulength_bad,
                     "SDU length less than length of first packet (%u < %u)", sdulen, length);
         }
 
@@ -1436,7 +1440,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     } else {
         if (length <= 4) {
-            expert_add_info_format(pinfo, btl2cap_tree, PI_MALFORMED, PI_WARN,
+            expert_add_info_format_text(pinfo, btl2cap_tree, &ei_btl2cap_length_bad,
                     "Control / FCS length too short: %u", length);
             THROW(ReportedBoundsError);
         }
@@ -2319,6 +2323,14 @@ proto_register_btl2cap(void)
         &ett_btl2cap_control
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btl2cap_parameter_mismatch, { "btl2cap.parameter_mismatch", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
+        { &ei_btl2cap_sdulength_bad, { "btl2cap.sdulength.bad", PI_MALFORMED, PI_WARN, "SDU length bad", EXPFILL }},
+        { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length bad", EXPFILL }},
+    };
+
+	expert_module_t* expert_btl2cap;
+
     /* Register the protocol name and description */
     proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "BT L2CAP", "btl2cap");
 
@@ -2332,6 +2344,8 @@ proto_register_btl2cap(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btl2cap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btl2cap = expert_register_protocol(proto_btl2cap);
+    expert_register_field_array(expert_btl2cap, ei, array_length(ei));
 
     cid_to_psm_table     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* scid: psm */
 }

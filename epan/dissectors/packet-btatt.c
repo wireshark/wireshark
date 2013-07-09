@@ -62,6 +62,9 @@ static int hf_btatt_signature = -1;
 static gint ett_btatt = -1;
 static gint ett_btatt_list = -1;
 
+static expert_field ei_btatt_uuid_format_unknown = EI_INIT;
+static expert_field ei_btatt_handle_too_few = EI_INIT;
+
 /* Opcodes */
 static const value_string opcode_vals[] = {
     {0x01, "Error Response"},
@@ -343,7 +346,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 }
             }
             else {
-                expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Unknown format");
+                expert_add_info(pinfo, item, &ei_btatt_uuid_format_unknown);
             }
         }
         break;
@@ -451,8 +454,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     case 0x0e: /* Multiple Read Request */
         if(tvb_length_remaining(tvb, offset) < 4) {
-            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                                                    "Too few handles, should be 2 or more");
+            expert_add_info(pinfo, item, &ei_btatt_handle_too_few);
             break;
         }
 
@@ -654,6 +656,13 @@ proto_register_btatt(void)
         &ett_btatt_list
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btatt_uuid_format_unknown, { "btatt.uuid_format.unknown", PI_PROTOCOL, PI_WARN, "Unknown format", EXPFILL }},
+        { &ei_btatt_handle_too_few, { "btatt.handle.too_few", PI_PROTOCOL, PI_WARN, "Too few handles, should be 2 or more", EXPFILL }},
+    };
+
+    expert_module_t* expert_btatt;
+
     /* Register the protocol name and description */
     proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");
 
@@ -662,6 +671,8 @@ proto_register_btatt(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btatt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btatt = expert_register_protocol(proto_btatt);
+    expert_register_field_array(expert_btatt, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btatt, NULL);
     prefs_register_static_text_preference(module, "att.version",

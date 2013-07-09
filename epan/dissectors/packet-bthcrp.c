@@ -62,6 +62,9 @@ static int hf_bthcrp_data                                                  = -1;
 
 static gint ett_bthcrp                                                     = -1;
 
+static expert_field ei_bthcrp_control_parameter_length = EI_INIT;
+static expert_field ei_bthcrp_unexpected_data = EI_INIT;
+
 static dissector_handle_t data_handle;
 
 static gboolean is_client        = TRUE;
@@ -144,15 +147,15 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     if (!is_client_message && parameter_length < 2) {
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is shorter than 2 in response");
     }
 
     if (parameter_length < tvb_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is shorter than payload length");
     } else if (parameter_length > tvb_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+        expert_add_info_format_text(pinfo, pitem, &ei_bthcrp_control_parameter_length,
                 "Parameter length is larger than payload length");
     }
 
@@ -393,8 +396,7 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *pitem;
 
         pitem = proto_tree_add_item(main_tree, hf_bthcrp_data, tvb, offset, -1, ENC_NA);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                "Unexpected data");
+        expert_add_info(pinfo, pitem, &ei_bthcrp_unexpected_data);
     }
 }
 
@@ -403,6 +405,7 @@ void
 proto_register_bthcrp(void)
 {
     module_t *module;
+    expert_module_t* expert_bthcrp;
 
     static hf_register_info hf[] = {
         { &hf_bthcrp_control_pdu_id,
@@ -531,11 +534,18 @@ proto_register_bthcrp(void)
         &ett_bthcrp
     };
 
+    static ei_register_info ei[] = {
+        { &ei_bthcrp_control_parameter_length, { "bthcrp.control_parameter_length.bad", PI_PROTOCOL, PI_WARN, "Length bad", EXPFILL }},
+        { &ei_bthcrp_unexpected_data, { "bthcrp.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
+    };
+
     proto_bthcrp = proto_register_protocol("Bluetooth HCRP Profile", "BT HCRP", "bthcrp");
     register_dissector("bthcrp", dissect_bthcrp, proto_bthcrp);
 
     proto_register_field_array(proto_bthcrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_bthcrp = expert_register_protocol(proto_bthcrp);
+    expert_register_field_array(expert_bthcrp, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_bthcrp, NULL);
     prefs_register_static_text_preference(module, "hcrp.version",

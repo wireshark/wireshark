@@ -108,6 +108,8 @@ static gint ett_btdun = -1;
 static gint ett_btspp = -1;
 static gint ett_btgnss = -1;
 
+static expert_field ei_btrfcomm_mcc_length_bad = EI_INIT;
+
 static wmem_tree_t *sdp_service_infos = NULL;
 
 static dissector_table_t rfcomm_service_dissector_table;
@@ -679,7 +681,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = get_le_multi_byte_value(tvb, offset, ctrl_tree, &length, hf_mcc_len);
 
         if (length > (guint32) tvb_length_remaining(tvb, offset)) {
-            expert_add_info_format(pinfo, ctrl_tree, PI_MALFORMED, PI_ERROR, "Huge MCC length: %u", length);
+            expert_add_info_format_text(pinfo, ctrl_tree, &ei_btrfcomm_mcc_length_bad, "Huge MCC length: %u", length);
             return;
         }
 
@@ -766,6 +768,7 @@ void
 proto_register_btrfcomm(void)
 {
     module_t *module;
+	expert_module_t* expert_btrfcomm;
 
     static hf_register_info hf[] = {
         { &hf_dlci,
@@ -955,6 +958,10 @@ proto_register_btrfcomm(void)
         &ett_mcc_dlci
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btrfcomm_mcc_length_bad, { "btrfcomm.mcc_length_bad", PI_MALFORMED, PI_ERROR, "Huge MCC length", EXPFILL }},
+    };
+
     /* Register the protocol name and description */
     proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "BT RFCOMM", "btrfcomm");
     register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
@@ -962,6 +969,8 @@ proto_register_btrfcomm(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btrfcomm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btrfcomm = expert_register_protocol(proto_btrfcomm);
+    expert_register_field_array(expert_btrfcomm, ei, array_length(ei));
 
     rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "RFCOMM SERVICE", FT_UINT16, BASE_HEX);
     rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "RFCOMM Channel", FT_UINT16, BASE_DEC);

@@ -56,6 +56,10 @@ static int hf_btmcap_data                                                  = -1;
 
 static gint ett_btmcap = -1;
 
+static expert_field ei_btmcap_mdl_id_ffff = EI_INIT;
+static expert_field ei_btmcap_response_parameters_bad = EI_INIT;
+static expert_field ei_btmcap_unexpected_data = EI_INIT;
+
 static const value_string op_code_vals[] = {
     { 0x00,   "ERROR_RSP" },
     { 0x01,   "MD_CREATE_MDL_REQ" },
@@ -164,8 +168,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
 
                 if (op_code != 0x07 && mdl_id == 0xFFFF) {
-                    expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                            " The value 0xFFFF is not a valid MDL ID for this request and shall not be used.");
+                    expert_add_info(pinfo, pitem, &ei_btmcap_mdl_id_ffff);
                     }
 
                 if (op_code == 0x01) {
@@ -293,12 +296,12 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             if ((op_code == 0x03 || op_code == 0x05 || op_code == 0x07) && tvb_length_remaining(tvb, offset)) {
-                    expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+                    expert_add_info_format_text(pinfo, pitem, &ei_btmcap_response_parameters_bad,
                             "The Response Parameters for MD_RECONNECT_MDL_RSP shall have length zero.");
             } else if (tvb_length_remaining(tvb, offset)) {
                 pitem = proto_tree_add_item(main_tree, hf_btmcap_response_parameters, tvb, offset, -1, ENC_NA);
                 if (response_code != 0x00) {
-                    expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
+                    expert_add_info_format_text(pinfo, pitem, &ei_btmcap_response_parameters_bad,
                             "When the Response Code is not Success, the Response Parameters shall have length zero.");
                 }
                 offset += tvb_length_remaining(tvb, offset);
@@ -308,8 +311,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tvb_length_remaining(tvb, offset)) {
         pitem = proto_tree_add_item(main_tree, hf_btmcap_data, tvb, offset, -1, ENC_NA);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                "Unexpected data");
+        expert_add_info(pinfo, pitem, &ei_btmcap_unexpected_data);
     }
 }
 
@@ -318,6 +320,7 @@ void
 proto_register_btmcap(void)
 {
     module_t *module;
+	expert_module_t* expert_btmcap;
 
     static hf_register_info hf[] = {
         { &hf_btmcap_op_code,
@@ -408,11 +411,19 @@ proto_register_btmcap(void)
         &ett_btmcap
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btmcap_mdl_id_ffff, { "btmcap.mdl_id.ffff", PI_PROTOCOL, PI_WARN, "The value 0xFFFF is not a valid MDL ID for this request and shall not be used.", EXPFILL }},
+        { &ei_btmcap_response_parameters_bad, { "btmcap.response_parameters.bad", PI_PROTOCOL, PI_WARN, "Response parameters bad", EXPFILL }},
+        { &ei_btmcap_unexpected_data, { "btmcap.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
+    };
+
     proto_btmcap = proto_register_protocol("Bluetooth MCAP Protocol", "BT MCAP", "btmcap");
     register_dissector("btmcap", dissect_btmcap, proto_btmcap);
 
     proto_register_field_array(proto_btmcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btmcap = expert_register_protocol(proto_btmcap);
+    expert_register_field_array(expert_btmcap, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btmcap, NULL);
     prefs_register_static_text_preference(module, "mcap.version",

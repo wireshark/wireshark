@@ -52,6 +52,8 @@ static int hf_btavctp_number_of_packets         = -1;
 
 static gint ett_btavctp             = -1;
 
+static expert_field ei_btavctp_unexpected_frame = EI_INIT;
+
 static dissector_table_t avctp_service_dissector_table;
 
 static dissector_handle_t data_handle    = NULL;
@@ -351,8 +353,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             length = 0;
             if (!fragments || fragments->count != fragments->number_of_packets) {
-                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                    "Unexpected frame");
+                expert_add_info(pinfo, pitem, &ei_btavctp_unexpected_frame);
                 call_dissector(data_handle, next_tvb, pinfo, tree);
             } else {
                 guint8   *reassembled;
@@ -393,6 +394,7 @@ void
 proto_register_btavctp(void)
 {
     module_t *module;
+    expert_module_t* expert_btavctp;
 
     static hf_register_info hf[] = {
         { &hf_btavctp_transaction,
@@ -436,6 +438,10 @@ proto_register_btavctp(void)
         &ett_btavctp
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btavctp_unexpected_frame, { "btavctp.unexpected_frame", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
+    };
+
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     avctp_service_dissector_table = register_dissector_table("btavctp.service", "AVCTP Service", FT_UINT16, BASE_HEX);
@@ -445,6 +451,8 @@ proto_register_btavctp(void)
 
     proto_register_field_array(proto_btavctp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btavctp = expert_register_protocol(proto_btavctp);
+    expert_register_field_array(expert_btavctp, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btavctp, NULL);
     prefs_register_static_text_preference(module, "avctp.version",

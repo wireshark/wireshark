@@ -86,6 +86,9 @@ static int hf_bthid_data                                                   = -1;
 
 static gint ett_bthid             = -1;
 
+static expert_field ei_bthid_parameter_control_operation_deprecated = EI_INIT;
+static expert_field ei_bthid_transaction_type_deprecated = EI_INIT;
+
 static gboolean show_deprecated = FALSE;
 
 static const value_string transaction_type_vals[] = {
@@ -730,8 +733,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             control_operation = tvb_get_guint8(tvb, offset);
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Control Operation: %s", val_to_str_const(parameter, control_operation_vals, "reserved"));
             if (control_operation < 3 && show_deprecated)
-                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                    "This value of Control Operation is deprecated by HID 1.1");
+                expert_add_info(pinfo, pitem, &ei_bthid_parameter_control_operation_deprecated);
             offset += 1;
             break;
         case 0x04: /* GET_REPORT */
@@ -794,8 +796,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         case 0x08: /* GET_IDLE */
         case 0x09: /* SET_IDLE */
             if (show_deprecated)
-                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                    "This Transaction Type is deprecated by HID 1.1");
+                expert_add_info(pinfo, pitem, &ei_bthid_transaction_type_deprecated);
 
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -808,8 +809,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             break;
         case 0x0B: /* DATC */
             if (show_deprecated)
-                expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                    "This Transaction Type is deprecated by HID 1.1");
+                expert_add_info(pinfo, pitem, &ei_bthid_transaction_type_deprecated);
         case 0x0A: /* DATA */
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved_32, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -829,6 +829,7 @@ void
 proto_register_bthid(void)
 {
     module_t *module;
+    expert_module_t* expert_bthid;
 
     static hf_register_info hf[] = {
         { &hf_bthid_transaction_type,
@@ -1078,11 +1079,18 @@ proto_register_bthid(void)
         &ett_bthid
     };
 
+    static ei_register_info ei[] = {
+        { &ei_bthid_parameter_control_operation_deprecated, { "bthid.control_operation.deprecated", PI_PROTOCOL, PI_WARN, "This value of Control Operation is deprecated by HID 1.1", EXPFILL }},
+        { &ei_bthid_transaction_type_deprecated, { "bthid.transaction_type.deprecated", PI_PROTOCOL, PI_WARN, "This Transaction Type is deprecated by HID 1.1", EXPFILL }},
+    };
+
     proto_bthid = proto_register_protocol("Bluetooth HID Profile", "BT HID", "bthid");
     new_register_dissector("bthid", dissect_bthid, proto_bthid);
 
     proto_register_field_array(proto_bthid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_bthid = expert_register_protocol(proto_bthid);
+    expert_register_field_array(expert_bthid, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_bthid, NULL);
     prefs_register_static_text_preference(module, "hid.version",

@@ -202,6 +202,9 @@ static gint ett_btavrcp_features                                           = -1;
 static gint ett_btavrcp_features_not_used                                  = -1;
 static gint ett_btavrcp_path                                               = -1;
 
+static expert_field ei_btavrcp_item_length_bad = EI_INIT;
+static expert_field ei_btavrcp_unexpected_data = EI_INIT;
+
 #define OPCODE_VENDOR_DEPENDANT 0x00
 #define OPCODE_UNIT             0x30
 #define OPCODE_SUBUNIT          0x31
@@ -856,8 +859,7 @@ dissect_item_media_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset = dissect_attribute_entries(tvb, pinfo, ptree, offset, number_of_attributes);
 
     if ( item_length != (guint) offset - offset_in) {
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-            "Item length does not correspond to sum of length of attributes");
+        expert_add_info(pinfo, pitem, &ei_btavrcp_item_length_bad);
     }
 
     return offset;
@@ -2300,8 +2302,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         pitem = proto_tree_add_item(btavrcp_tree, hf_btavrcp_data, tvb, offset, -1, ENC_NA);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-            "Unexpected data");
+        expert_add_info(pinfo, pitem, &ei_btavrcp_unexpected_data);
     }
 
 }
@@ -2311,6 +2312,7 @@ void
 proto_register_btavrcp(void)
 {
     module_t *module;
+    expert_module_t* expert_btavrcp;
 
     static hf_register_info hf[] = {
         { &hf_btavrcp_reserved,
@@ -3080,6 +3082,11 @@ proto_register_btavrcp(void)
         &ett_btavrcp_path,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btavrcp_item_length_bad, { "btavrcp.item.length.bad", PI_PROTOCOL, PI_WARN, "Item length does not correspond to sum of length of attributes", EXPFILL }},
+        { &ei_btavrcp_unexpected_data, { "btavrcp.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
+    };
+
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     timing       = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
@@ -3088,6 +3095,8 @@ proto_register_btavrcp(void)
 
     proto_register_field_array(proto_btavrcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btavrcp = expert_register_protocol(proto_btavrcp);
+    expert_register_field_array(expert_btavrcp, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btavrcp, NULL);
     prefs_register_static_text_preference(module, "avrcp.version",

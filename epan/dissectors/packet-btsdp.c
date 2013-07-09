@@ -304,6 +304,10 @@ static gint ett_btsdp_supported_features_mdep_role        = -1;
 static gint ett_btsdp_supported_features_mdep_description = -1;
 static gint ett_btsdp_protocol                            = -1;
 
+static expert_field ei_btsdp_continuation_state_none = EI_INIT;
+static expert_field ei_btsdp_continuation_state_large = EI_INIT;
+static expert_field ei_data_element_value_large = EI_INIT;
+
 static gint btsdp_tap = -1;
 
 static wmem_tree_t *tid_requests        = NULL;
@@ -1056,11 +1060,9 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     length = tvb_length_remaining(tvb, offset);
     if (length == 0)  {
-        cont_item = proto_tree_add_text(tree, tvb, offset, -1, "[Malformed packet] - no Continuation State");
-        expert_add_info_format(pinfo, cont_item, PI_MALFORMED, PI_WARN, "There is no Continuation State");
+        proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_none, tvb, offset, -1);
     } else if (length > 17) {
-        cont_item = proto_tree_add_text(tree, tvb, offset, -1, "[Malformed packet] - Continuation State data is longer then 16");
-        expert_add_info_format(pinfo, cont_item, PI_MALFORMED, PI_WARN, "Continuation State data is longer then 16");
+        proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_large, tvb, offset, -1);
     } else if (length == 1 && tvb_get_guint8(tvb, offset) == 0x00) {
         proto_tree_add_text(tree, tvb, offset, -1, "Continuation State: no (0x00)");
     } else {
@@ -1552,7 +1554,7 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
 
     pitem = proto_tree_add_item(ptree, hf_data_element_value, tvb, offset,  0, ENC_NA);
     if (length > tvb_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, pitem, PI_MALFORMED, PI_WARN, "Data size exceeds the length of payload");
+        expert_add_info(pinfo, pitem, &ei_data_element_value_large);
         length = 0;
     }
     proto_item_set_len(pitem, length);
@@ -3946,6 +3948,7 @@ void
 proto_register_btsdp(void)
 {
     module_t *module;
+	expert_module_t* expert_btsdp;
 
     static hf_register_info hf[] = {
         { &hf_pdu_id,
@@ -5162,11 +5165,19 @@ proto_register_btsdp(void)
         &ett_btsdp_protocol
     };
 
+    static ei_register_info ei[] = {
+        { &ei_btsdp_continuation_state_none, { "btsdp.continuation_state_none", PI_MALFORMED, PI_WARN, "There is no Continuation State", EXPFILL }},
+        { &ei_btsdp_continuation_state_large, { "btsdp.continuation_state_large", PI_MALFORMED, PI_WARN, "Continuation State data is longer then 16", EXPFILL }},
+        { &ei_data_element_value_large, { "btavctp.data_element.value.large", PI_MALFORMED, PI_WARN, "Data size exceeds the length of payload", EXPFILL }},
+    };
+
     proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");
     new_register_dissector("btsdp", dissect_btsdp, proto_btsdp);
 
     proto_register_field_array(proto_btsdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btsdp = expert_register_protocol(proto_btsdp);
+    expert_register_field_array(expert_btsdp, ei, array_length(ei));
 
     tid_requests = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     continuation_states = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

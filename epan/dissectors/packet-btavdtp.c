@@ -227,6 +227,10 @@ static gint ett_btavdtp_sep           = -1;
 static gint ett_btavdtp_capabilities  = -1;
 static gint ett_btavdtp_service       = -1;
 
+static expert_field ei_btavdtp_sbc_min_bitpool_out_of_range = EI_INIT;
+static expert_field ei_btavdtp_sbc_max_bitpool_out_of_range = EI_INIT;
+static expert_field ei_btavdtp_unexpected_losc_data = EI_INIT;
+
 static gboolean force_avdtp = FALSE;
 
 static dissector_handle_t btavdtp_handle;
@@ -567,15 +571,13 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                     pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_min_bitpool, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
                     bitpool = tvb_get_guint8(tvb, offset + 2);
                     if (bitpool < 2 || bitpool > 250) {
-                        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                            "Bitpool is out of range. Should be 2..250.");
+                        expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_min_bitpool_out_of_range);
                     }
 
                     pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_max_bitpool, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
                     bitpool = tvb_get_guint8(tvb, offset + 3);
                     if (bitpool < 2 || bitpool > 250) {
-                        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                            "Bitpool is out of range. Should be 2..250.");
+                        expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_max_bitpool_out_of_range);
                     }
                     break;
                 case CODEC_MPEG12_AUDIO:
@@ -870,8 +872,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
             pitem = proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
             offset += losc;
 
-            expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN,
-                    "Unexpected losc data");
+            expert_add_info(pinfo, pitem, &ei_btavdtp_unexpected_losc_data);
         }
     }
 
@@ -2156,15 +2157,24 @@ void
 proto_register_btvdp(void)
 {
     module_t *module;
+    expert_module_t* expert_btavdtp;
 
     static gint *ett[] = {
         &ett_btvdp
+    };
+
+    static ei_register_info ei[] = {
+        { &ei_btavdtp_sbc_min_bitpool_out_of_range, { "btavdtp.codec.sbc.minimum_bitpool.out_of_range", PI_PROTOCOL, PI_WARN, "Bitpool is out of range. Should be 2..250.", EXPFILL }},
+        { &ei_btavdtp_sbc_max_bitpool_out_of_range, { "btavdtp.codec.sbc.maximum_bitpool.out_of_range", PI_PROTOCOL, PI_WARN, "Bitpool is out of range. Should be 2..250.", EXPFILL }},
+        { &ei_btavdtp_unexpected_losc_data, { "btavdtp.unexpected_losc_data", PI_PROTOCOL, PI_WARN, "Unexpected losc data", EXPFILL }},
     };
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
     new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
 
     proto_register_subtree_array(ett, array_length(ett));
+    expert_btavdtp = expert_register_protocol(proto_btvdp);
+    expert_register_field_array(expert_btavdtp, ei, array_length(ei));
 
     module = prefs_register_protocol(proto_btvdp, NULL);
     prefs_register_static_text_preference(module, "vdp.version",
