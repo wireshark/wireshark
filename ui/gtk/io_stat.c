@@ -1307,11 +1307,11 @@ tap_iostat_draw(void *g)
 static GString *
 enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 {
-    char real_filter[262];
+    GString *real_filter = NULL;
+    GString *err_msg;
 
     gio->display = TRUE;
 
-    real_filter[0] = 0;
     if (filter) {
         /* skip all whitespaces */
         while (*filter) {
@@ -1326,7 +1326,8 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
             break;
         }
         if (*filter) {
-            g_snprintf(real_filter, sizeof(real_filter), "(%s)", filter);
+            real_filter = g_string_new("");
+            g_string_printf(real_filter, "(%s)", filter);
         }
     }
     if (field) {
@@ -1343,15 +1344,19 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
             break;
         }
         if (*field) {
-            if (real_filter[0] != 0) {
-                g_strlcat(real_filter, " && ", sizeof(real_filter));
+            if (real_filter) {
+                g_string_append_printf(real_filter, " && (%s)", field);
+            } else {
+                real_filter = g_string_new(field);
             }
-            g_strlcat(real_filter, field, sizeof(real_filter));
         }
     }
-    return register_tap_listener("frame", gio, real_filter[0] ? real_filter : NULL,
-                     TL_REQUIRES_PROTO_TREE,
-                     tap_iostat_reset, tap_iostat_packet, tap_iostat_draw);
+    err_msg = register_tap_listener("frame", gio, real_filter ? real_filter->str : NULL,
+        TL_REQUIRES_PROTO_TREE, tap_iostat_reset, tap_iostat_packet,
+        tap_iostat_draw);
+    if (real_filter)
+        g_string_free(real_filter, TRUE);
+    return err_msg;
 }
 
 static void
