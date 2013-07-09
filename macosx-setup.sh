@@ -214,7 +214,7 @@ uninstall() {
         if [ ! -z "$installed_cairo_version" ] ; then
             echo "Uninstalling Cairo:"
             cd cairo-$installed_cairo_version
-            $DO_MAKE_INSTALL || exit 1
+            $DO_MAKE_UNINSTALL || exit 1
             make distclean || exit 1
             cd ..
             rm cairo-$installed_cairo_version-done
