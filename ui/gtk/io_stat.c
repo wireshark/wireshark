@@ -2188,9 +2188,7 @@ create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name,  Gt
 static void
 create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 {
-
     gio->calc_field = gtk_entry_new();
-    gtk_entry_set_max_length(GTK_ENTRY(gio->calc_field),100);
     gtk_box_pack_start(GTK_BOX(box), gio->calc_field, TRUE, TRUE, 0);
     gtk_widget_show(gio->calc_field);
     g_signal_connect(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
@@ -2292,7 +2290,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
     gtk_widget_show(gio->filter_bt);
 
     gio->filter_field = gtk_entry_new();
-    gtk_entry_set_max_length(GTK_ENTRY(gio->filter_field),256);
     /* filter prefs dialog */
     g_object_set_data(G_OBJECT(gio->filter_bt), E_FILT_TE_PTR_KEY, gio->filter_field);
     /* filter prefs dialog */
