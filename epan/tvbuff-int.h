@@ -29,6 +29,7 @@
 struct tvbuff;
 
 struct tvb_ops {
+	gsize (*tvb_size)(void);
 	void (*tvb_init)(struct tvbuff *tvb);
 	void (*tvb_free)(struct tvbuff *tvb);
 	guint (*tvb_offset)(const struct tvbuff *tvb, guint counter);
@@ -77,13 +78,6 @@ struct tvbuff {
 	guint			flags;
 	struct tvbuff		*ds_tvb;  /**< data source top-level tvbuff */
 
-	/** TVBUFF_SUBSET and TVBUFF_COMPOSITE keep track
-	 * of the other tvbuff's they use */
-	union {
-		tvb_backing_t	subset;
-		tvb_comp_t	composite;
-	} tvbuffs;
-
 	/** We're either a TVBUFF_REAL_DATA or a
 	 * TVBUFF_SUBSET that has a backing buffer that
 	 * has real_data != NULL, or a TVBUFF_COMPOSITE
@@ -100,9 +94,26 @@ struct tvbuff {
 
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;
+};
+
+struct tvb_real {
+	struct tvbuff tvb;
 
 	/** Func to call when actually freed */
 	tvbuff_free_cb_t	free_cb;
 };
+
+struct tvb_subset {
+	struct tvbuff tvb;
+
+	tvb_backing_t	subset;
+};
+
+struct tvb_composite {
+	struct tvbuff tvb;
+
+	tvb_comp_t	composite;
+};
+
 
 #endif

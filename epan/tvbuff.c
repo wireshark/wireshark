@@ -69,9 +69,12 @@ _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 static tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
 {
-	tvbuff_t	*tvb;
+	tvbuff_t *tvb;
+	gsize     size = (ops->tvb_size) ? ops->tvb_size() : sizeof(*tvb);
 
-	tvb = g_slice_new(tvbuff_t);
+	g_assert(size >= sizeof(*tvb));
+
+	tvb = (tvbuff_t *) g_slice_alloc(size);
 
 	tvb->previous	     = NULL;
 	tvb->next	     = NULL;
@@ -80,7 +83,6 @@ tvb_new(const struct tvb_ops *ops)
 	tvb->flags	     = 0;
 	tvb->length	     = 0;
 	tvb->reported_length = 0;
-	tvb->free_cb	     = NULL;
 	tvb->real_data	     = NULL;
 	tvb->raw_offset	     = -1;
 	tvb->ds_tvb	     = NULL;
@@ -92,20 +94,31 @@ tvb_new(const struct tvb_ops *ops)
 }
 
 static void
+real_init(tvbuff_t *tvb)
+{
+	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
+
+	real_tvb->free_cb = NULL;
+}
+
+static void
 real_free(tvbuff_t *tvb)
 {
-	if (tvb->free_cb) {
+	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
+
+	if (real_tvb->free_cb) {
 		/*
 		 * XXX - do this with a union?
 		 */
-		tvb->free_cb((gpointer)tvb->real_data);
+		real_tvb->free_cb((gpointer)tvb->real_data);
 	}
 }
 
 static void
 subset_init(tvbuff_t *tvb)
 {
-	tvb_backing_t *backing = &tvb->tvbuffs.subset;
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+	tvb_backing_t *backing = &subset_tvb->subset;
 
 	backing->tvb	= NULL;
 	backing->offset	= 0;
@@ -115,7 +128,8 @@ subset_init(tvbuff_t *tvb)
 static void
 composite_init(tvbuff_t *tvb)
 {
-	tvb_comp_t *composite = &tvb->tvbuffs.composite;
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
+	tvb_comp_t *composite = &composite_tvb->composite;
 
 	composite->tvbs		 = NULL;
 	composite->start_offsets = NULL;
@@ -125,7 +139,8 @@ composite_init(tvbuff_t *tvb)
 static void
 composite_free(tvbuff_t *tvb)
 {
-	tvb_comp_t *composite = &tvb->tvbuffs.composite;
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
+	tvb_comp_t *composite = &composite_tvb->composite;
 
 	g_slist_free(composite->tvbs);
 
@@ -142,12 +157,16 @@ composite_free(tvbuff_t *tvb)
 static void
 tvb_free_internal(tvbuff_t *tvb)
 {
+	gsize     size;
+	
 	DISSECTOR_ASSERT(tvb);
 
 	if (tvb->ops->tvb_free)
 		tvb->ops->tvb_free(tvb);
 
-	g_slice_free(tvbuff_t, tvb);
+	size = (tvb->ops->tvb_size) ? tvb->ops->tvb_size() : sizeof(*tvb);
+
+	g_slice_free1(size, tvb);
 }
 
 /* XXX: just call tvb_free_chain();
@@ -178,9 +197,11 @@ tvb_free_chain(tvbuff_t  *tvb)
 void
 tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func)
 {
+	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
+
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->ops == &tvb_real_ops);
-	tvb->free_cb = func;
+	real_tvb->free_cb = func;
 }
 
 static void
@@ -398,16 +419,17 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
     const guint subset_tvb_offset, const guint subset_tvb_length)
 {
 	tvbuff_t *tvb = tvb_new(&tvb_subset_ops);
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
-	tvb->tvbuffs.subset.offset = subset_tvb_offset;
-	tvb->tvbuffs.subset.length = subset_tvb_length;
+	subset_tvb->subset.offset = subset_tvb_offset;
+	subset_tvb->subset.length = subset_tvb_length;
 
-	tvb->tvbuffs.subset.tvb	     = backing;
-	tvb->length		     = tvb->tvbuffs.subset.length;
+	subset_tvb->subset.tvb	     = backing;
+	tvb->length		     = subset_tvb_length;
 	tvb->flags		     = backing->flags;
 
 	if (reported_length == -1) {
-		tvb->reported_length = backing->reported_length - tvb->tvbuffs.subset.offset;
+		tvb->reported_length = backing->reported_length - subset_tvb_offset;
 	}
 	else {
 		tvb->reported_length = reported_length;
@@ -418,7 +440,7 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
 	/* Optimization. If the backing buffer has a pointer to contiguous, real data,
 	 * then we can point directly to our starting offset in that buffer */
 	if (backing->real_data != NULL) {
-		tvb->real_data = backing->real_data + tvb->tvbuffs.subset.offset;
+		tvb->real_data = backing->real_data + subset_tvb_offset;
 	}
 
 	/*
@@ -590,6 +612,7 @@ tvb_new_composite(void)
 void
 tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 {
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
@@ -600,13 +623,14 @@ tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 	 */
 	DISSECTOR_ASSERT(member->length);
 
-	composite       = &tvb->tvbuffs.composite;
+	composite       = &composite_tvb->composite;
 	composite->tvbs = g_slist_append(composite->tvbs, member);
 }
 
 void
 tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 {
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
@@ -617,7 +641,7 @@ tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 	 */
 	DISSECTOR_ASSERT(member->length);
 
-	composite       = &tvb->tvbuffs.composite;
+	composite       = &composite_tvb->composite;
 	composite->tvbs = g_slist_prepend(composite->tvbs, member);
 }
 
@@ -625,6 +649,7 @@ tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 void
 tvb_composite_finalize(tvbuff_t *tvb)
 {
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	GSList	   *slist;
 	guint	    num_members;
 	tvbuff_t   *member_tvb;
@@ -636,7 +661,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	DISSECTOR_ASSERT(tvb->length == 0);
 	DISSECTOR_ASSERT(tvb->reported_length == 0);
 
-	composite   = &tvb->tvbuffs.composite;
+	composite   = &composite_tvb->composite;
 	num_members = g_slist_length(composite->tvbs);
 
 	/* Dissectors should not create composite TVBs if they're not going to
@@ -866,15 +891,17 @@ real_offset(const tvbuff_t *tvb _U_, const guint counter)
 static guint
 subset_offset(const tvbuff_t *tvb, const guint counter)
 {
-	const tvbuff_t *member = tvb->tvbuffs.subset.tvb;
+	const struct tvb_subset *subset_tvb = (const struct tvb_subset *) tvb;
+	const tvbuff_t *member = subset_tvb->subset.tvb;
 
-	return offset_from_real_beginning(member, counter + tvb->tvbuffs.subset.offset);
+	return offset_from_real_beginning(member, counter + subset_tvb->subset.offset);
 }
 
 static guint
 composite_offset(const tvbuff_t *tvb, const guint counter)
 {
-	const tvbuff_t *member = (const tvbuff_t *)tvb->tvbuffs.composite.tvbs->data;
+	const struct tvb_composite *composite_tvb = (const struct tvb_composite *) tvb;
+	const tvbuff_t *member = (const tvbuff_t *)composite_tvb->composite.tvbs->data;
 
 	return offset_from_real_beginning(member, counter);
 }
@@ -888,6 +915,7 @@ tvb_offset_from_real_beginning(const tvbuff_t *tvb)
 static const guint8*
 composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	guint	    i, num_members;
 	tvb_comp_t *composite;
 	tvbuff_t   *member_tvb = NULL;
@@ -898,7 +926,7 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 
 	/* Maybe the range specified by offset/length
 	 * is contiguous inside one of the member tvbuffs */
-	composite = &tvb->tvbuffs.composite;
+	composite = &composite_tvb->composite;
 	num_members = g_slist_length(composite->tvbs);
 
 	for (i = 0; i < num_members; i++) {
@@ -956,7 +984,9 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 static const guint8 *
 subset_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
-	return ensure_contiguous_no_exception(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, abs_length, NULL);
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+
+	return ensure_contiguous_no_exception(subset_tvb->subset.tvb, abs_offset - subset_tvb->subset.offset, abs_length, NULL);
 }
 
 static const guint8*
@@ -1036,6 +1066,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 static void *
 composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_length)
 {
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	guint8 *target = _target;
 
 	guint	    i, num_members;
@@ -1049,7 +1080,7 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_lengt
 
 	/* Maybe the range specified by offset/length
 	 * is contiguous inside one of the member tvbuffs */
-	composite   = &tvb->tvbuffs.composite;
+	composite   = &composite_tvb->composite;
 	num_members = g_slist_length(composite->tvbs);
 
 	for (i = 0; i < num_members; i++) {
@@ -1098,7 +1129,9 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_lengt
 static void *
 subset_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
 {
-	return tvb_memcpy(tvb->tvbuffs.subset.tvb, target, abs_offset - tvb->tvbuffs.subset.offset, abs_length);
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+
+	return tvb_memcpy(subset_tvb->subset.tvb, target, abs_offset - subset_tvb->subset.offset, abs_length);
 }
 
 void *
@@ -1949,7 +1982,9 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 static gint
 subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
 {
-	return tvb_find_guint8(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, limit, needle);
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+
+	return tvb_find_guint8(subset_tvb->subset.tvb, abs_offset - subset_tvb->subset.offset, limit, needle);
 }
 
 /* Find first occurrence of any of the needles in tvbuff, starting at offset.
@@ -2010,7 +2045,9 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 static gint
 subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
 {
-	return tvb_pbrk_guint8(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, limit, needles, found_needle);
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+
+	return tvb_pbrk_guint8(subset_tvb->subset.tvb, abs_offset - subset_tvb->subset.offset, limit, needles, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -3646,8 +3683,13 @@ tvb_get_ds_tvb(tvbuff_t *tvb)
 	return(tvb->ds_tvb);
 }
 
+static gsize real_sizeof(void) { return sizeof(struct tvb_real); }
+static gsize subset_sizeof(void) { return sizeof(struct tvb_subset); }
+static gsize composite_sizeof(void) { return sizeof(struct tvb_composite); }
+
 static const struct tvb_ops tvb_real_ops = {
-	NULL,                 /* init */
+	real_sizeof,          /* size */
+	real_init,            /* init */
 	real_free,            /* free */
 	real_offset,          /* offset */
 	NULL,                 /* get_ptr */
@@ -3657,6 +3699,7 @@ static const struct tvb_ops tvb_real_ops = {
 };
 
 static const struct tvb_ops tvb_subset_ops = {
+	subset_sizeof,        /* size */
 	subset_init,          /* init */
 	NULL,                 /* free */
 	subset_offset,        /* offset */
@@ -3667,6 +3710,7 @@ static const struct tvb_ops tvb_subset_ops = {
 };
 
 static const struct tvb_ops tvb_composite_ops = {
+	composite_sizeof,     /* size */
 	composite_init,       /* init */
 	composite_free,       /* free */
 	composite_offset,     /* offset */
