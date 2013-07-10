@@ -64,7 +64,7 @@ wireshark_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
 ###text2pcap_OBJECTS = $(text2pcap_SOURCES:.c=.obj)
-###mergecap_OBJECTS = $(mergecap_SOURCES:.c=.obj)
+mergecap_OBJECTS = $(mergecap_SOURCES:.c=.obj)
 editcap_OBJECTS = $(editcap_SOURCES:.c=.obj)
 capinfos_OBJECTS = $(capinfos_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
@@ -348,10 +348,10 @@ editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wir
 !ENDIF
 
 # Linking with setargv.obj enables "wildcard expansion" of command-line arguments
-mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: $(LIBS_CHECK)  config.h $(mergecap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) mergecap.obj merge.obj $(mergecap_LIBS) setargv.obj image\mergecap.res
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(mergecap_OBJECTS) $(mergecap_LIBS) image\mergecap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1

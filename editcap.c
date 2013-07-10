@@ -89,6 +89,7 @@
 #include "epan/plugins.h"
 #include "epan/report_err.h"
 #include "epan/filesystem.h"
+#include "epan/strnatcmp.h"
 #include "wsutil/nstime.h"
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
@@ -780,6 +781,13 @@ string_compare(gconstpointer a, gconstpointer b)
         ((const struct string_elem *)b)->sstr);
 }
 
+static gint
+string_nat_compare(gconstpointer a, gconstpointer b)
+{
+    return strnatcmp(((const struct string_elem *)a)->sstr,
+        ((const struct string_elem *)b)->sstr);
+}
+
 static void
 string_elem_print(gpointer data, gpointer not_used _U_)
 {
@@ -820,7 +828,7 @@ list_encap_types(void) {
         encaps[i].sstr = wtap_encap_short_string(i);
         if (encaps[i].sstr != NULL) {
             encaps[i].lstr = wtap_encap_string(i);
-            list = g_slist_insert_sorted(list, &encaps[i], string_compare);
+            list = g_slist_insert_sorted(list, &encaps[i], string_nat_compare);
         }
     }
     g_slist_foreach(list, string_elem_print, NULL);
@@ -900,7 +908,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hrs:i:t:S:T:vw:")) !=-1) {
+  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hi:rs:S:t:T:vw:")) !=-1) {
 
     switch (opt) {
 

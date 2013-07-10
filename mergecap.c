@@ -47,6 +47,12 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#define WS_BUILD_DLL
+#define RESET_SYMBOL_EXPORT /* wsutil/wsgetopt.h set export behavior above. */
+#include "epan/strnatcmp.h"
+#undef WS_BUILD_DLL
+#define RESET_SYMBOL_EXPORT
+
 #include "svnversion.h"
 #include "merge.h"
 #include "wsutil/file_util.h"
@@ -145,6 +151,13 @@ string_compare(gconstpointer a, gconstpointer b)
         ((const struct string_elem *)b)->sstr);
 }
 
+static gint
+string_nat_compare(gconstpointer a, gconstpointer b)
+{
+    return strnatcmp(((const struct string_elem *)a)->sstr,
+        ((const struct string_elem *)b)->sstr);
+}
+
 static void
 string_elem_print(gpointer data, gpointer not_used _U_)
 {
@@ -186,7 +199,7 @@ list_encap_types(void) {
         encaps[i].sstr = wtap_encap_short_string(i);
         if (encaps[i].sstr != NULL) {
             encaps[i].lstr = wtap_encap_string(i);
-            list = g_slist_insert_sorted(list, &encaps[i], string_compare);
+            list = g_slist_insert_sorted(list, &encaps[i], string_nat_compare);
         }
     }
     g_slist_foreach(list, string_elem_print, NULL);

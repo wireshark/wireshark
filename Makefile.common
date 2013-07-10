@@ -161,12 +161,13 @@ text2pcap_INCLUDES = \
 mergecap_SOURCES = \
 	mergecap.c \
 	merge.c \
-	svnversion.h
+	epan/strnatcmp.c
 
 # editcap specifics
 editcap_SOURCES = \
 	editcap.c	\
 	epan/crypt/md5.c \
+	epan/strnatcmp.c \
 	$(WTAP_PLUGIN_SOURCES)
 
 # reordercap specifics

@@ -942,6 +942,7 @@ if(BUILD_mergecap)
 	set(mergecap_FILES
 		mergecap.c
 		merge.c
+		epan/strnatcmp.c
 		svnversion.h
 		${WTAP_PLUGIN_SOURCES}
 	)
@@ -995,6 +996,7 @@ if(BUILD_editcap)
 	set(editcap_FILES
 		editcap.c
 		epan/crypt/md5.c
+		epan/strnatcmp.c
 		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(editcap ${editcap_FILES})
