@@ -41,13 +41,23 @@ SummaryDialog::SummaryDialog(QWidget *parent) :
     ui->tbInterfaces->setColumnWidth(0, 305);
     ui->tbInterfaces->setColumnWidth(1, 110);
     ui->tbInterfaces->setColumnWidth(2, 90);
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
     ui->tbInterfaces->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
+#else
+    ui->tbInterfaces->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+#endif
     ui->tbInterfaces->setColumnWidth(4, 160);
 
     ui->tbDisplay->setColumnWidth(0, 265);
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
     ui->tbDisplay->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
     ui->tbDisplay->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
     ui->tbDisplay->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
+#else
+    ui->tbDisplay->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tbDisplay->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->tbDisplay->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+#endif
     this->setFixedSize(this->size());
 }
 
