@@ -734,6 +734,7 @@ usage(gboolean is_error)
   fprintf(output, "  -C <choplen>           chop each packet by <choplen> bytes. Positive values\n");
   fprintf(output, "                         chop at the packet beginning, negative values at the\n");
   fprintf(output, "                         packet end.\n");
+  fprintf(output, "  -L                     adjust the frame length when chopping and/or snapping\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
   fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
@@ -860,6 +861,7 @@ main(int argc, char *argv[])
   char *p;
   guint32 snaplen = 0;                  /* No limit               */
   int choplen = 0;                      /* No chop                */
+  gboolean adjlen = FALSE;
   wtap_dumper *pdh = NULL;
   unsigned int count = 1;
   unsigned int duplicate_count = 0;
@@ -908,29 +910,41 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hi:rs:S:t:T:vw:")) !=-1) {
-
+  while ((opt = getopt(argc, argv, "A:B:c:C:dD:E:F:hi:Lrs:S:t:T:vw:")) !=-1) {
     switch (opt) {
+    case 'A':
+    {
+      struct tm starttm;
 
-    case 'E':
-      err_prob = strtod(optarg, &p);
-      if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
-        fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
-            optarg);
+      memset(&starttm,0,sizeof(struct tm));
+
+      if(!strptime(optarg,"%Y-%m-%d %T",&starttm)) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
         exit(1);
       }
-      srand( (unsigned int) (time(NULL) + getpid()) );
-      break;
 
-    case 'F':
-      out_file_type = wtap_short_string_to_file_type(optarg);
-      if (out_file_type < 0) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
-            optarg);
-        list_capture_types();
+      check_startstop = TRUE;
+      starttm.tm_isdst = -1;
+
+      starttime = mktime(&starttm);
+      break;
+    }
+
+    case 'B':
+    {
+      struct tm stoptm;
+
+      memset(&stoptm,0,sizeof(struct tm));
+
+      if(!strptime(optarg,"%Y-%m-%d %T",&stoptm)) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
         exit(1);
       }
+      check_startstop = TRUE;
+      stoptm.tm_isdst = -1;
+      stoptime = mktime(&stoptm);
       break;
+    }
 
     case 'c':
       split_packet_count = (int)strtol(optarg, &p, 10);
@@ -977,6 +991,79 @@ main(int argc, char *argv[])
       }
       break;
 
+    case 'E':
+      err_prob = strtod(optarg, &p);
+      if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
+        fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
+            optarg);
+        exit(1);
+      }
+      srand( (unsigned int) (time(NULL) + getpid()) );
+      break;
+
+    case 'F':
+      out_file_type = wtap_short_string_to_file_type(optarg);
+      if (out_file_type < 0) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
+            optarg);
+        list_capture_types();
+        exit(1);
+      }
+      break;
+
+    case 'h':
+      usage(FALSE);
+      exit(1);
+      break;
+
+    case 'i': /* break capture file based on time interval */
+      secs_per_block = atoi(optarg);
+      if(secs_per_block <= 0) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n", optarg);
+        exit(1);
+        }
+      break;
+
+    case 'L':
+      adjlen = TRUE;
+      break;
+
+    case 'r':
+      keep_em = !keep_em;  /* Just invert */
+      break;
+
+    case 's':
+      snaplen = (guint32)strtol(optarg, &p, 10);
+      if (p == optarg || *p != '\0') {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
+                optarg);
+        exit(1);
+      }
+      break;
+
+    case 'S':
+      set_strict_time_adj(optarg);
+      do_strict_time_adjustment = TRUE;
+      break;
+
+    case 't':
+      set_time_adjustment(optarg);
+      break;
+
+    case 'T':
+      out_frame_type = wtap_short_string_to_encap(optarg);
+      if (out_frame_type < 0) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
+          optarg);
+        list_encap_types();
+        exit(1);
+      }
+      break;
+
+    case 'v':
+      verbose = !verbose;  /* Just invert */
+      break;
+
     case 'w':
       dup_detect = FALSE;
       dup_detect_by_time = TRUE;
@@ -997,91 +1084,7 @@ main(int argc, char *argv[])
       }
       exit(1);
       break;
-
-    case 'h':
-      usage(FALSE);
-      exit(1);
-      break;
-
-    case 'r':
-      keep_em = !keep_em;  /* Just invert */
-      break;
-
-    case 's':
-      snaplen = (guint32)strtol(optarg, &p, 10);
-      if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
-                optarg);
-        exit(1);
-      }
-      break;
-
-    case 't':
-      set_time_adjustment(optarg);
-      break;
-
-    case 'S':
-      set_strict_time_adj(optarg);
-      do_strict_time_adjustment = TRUE;
-      break;
-
-    case 'T':
-      out_frame_type = wtap_short_string_to_encap(optarg);
-      if (out_frame_type < 0) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
-          optarg);
-        list_encap_types();
-        exit(1);
-      }
-      break;
-
-    case 'v':
-      verbose = !verbose;  /* Just invert */
-      break;
-
-    case 'i': /* break capture file based on time interval */
-      secs_per_block = atoi(optarg);
-      if(secs_per_block <= 0) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n", optarg);
-        exit(1);
-        }
-      break;
-
-    case 'A':
-    {
-      struct tm starttm;
-
-      memset(&starttm,0,sizeof(struct tm));
-
-      if(!strptime(optarg,"%Y-%m-%d %T",&starttm)) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
-        exit(1);
-      }
-
-      check_startstop = TRUE;
-      starttm.tm_isdst = -1;
-
-      starttime = mktime(&starttm);
-      break;
     }
-
-    case 'B':
-    {
-      struct tm stoptm;
-
-      memset(&stoptm,0,sizeof(struct tm));
-
-      if(!strptime(optarg,"%Y-%m-%d %T",&stoptm)) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
-        exit(1);
-      }
-      check_startstop = TRUE;
-      stoptm.tm_isdst = -1;
-      stoptime = mktime(&stoptm);
-      break;
-    }
-    }
-
   }
 
 #ifdef DEBUG
@@ -1278,10 +1281,17 @@ main(int argc, char *argv[])
 
         phdr = wtap_phdr(wth);
 
-        if (snaplen != 0 && phdr->caplen > snaplen) {
-          snap_phdr = *phdr;
-          snap_phdr.caplen = snaplen;
-          phdr = &snap_phdr;
+        if (snaplen != 0) {
+          if (phdr->caplen > snaplen) {
+            snap_phdr = *phdr;
+            snap_phdr.caplen = snaplen;
+            phdr = &snap_phdr;
+          }
+          if (adjlen && phdr->len > snaplen) {
+            snap_phdr = *phdr;
+            snap_phdr.len = snaplen;
+            phdr = &snap_phdr;
+          }
         }
 
         if (choplen < 0) {
@@ -1290,6 +1300,12 @@ main(int argc, char *argv[])
             snap_phdr.caplen += choplen;
           else
             snap_phdr.caplen = 0;
+          if (adjlen) {
+            if (((signed int) phdr->len + choplen) > 0)
+              snap_phdr.len += choplen;
+            else
+              snap_phdr.len = 0;
+          }
           phdr = &snap_phdr;
         } else if (choplen > 0) {
           snap_phdr = *phdr;
@@ -1298,6 +1314,12 @@ main(int argc, char *argv[])
             buf += choplen;
           } else
             snap_phdr.caplen = 0;
+          if (adjlen) {
+            if (phdr->len > (unsigned int) choplen) {
+              snap_phdr.len -= choplen;
+            } else
+              snap_phdr.len = 0;
+          }
           phdr = &snap_phdr;
         }
 

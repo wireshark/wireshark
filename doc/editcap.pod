@@ -14,6 +14,7 @@ S<[ B<-E> E<lt>error probabilityE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>seconds per fileE<gt> ]>
+S<[ B<-L> ]>
 S<[ B<-r> ]>
 S<[ B<-s> E<lt>snaplenE<gt> ]>
 S<[ B<-S> E<lt>strict time adjustmentE<gt> ]>
@@ -149,6 +150,12 @@ using a maximum interval of <seconds per file> each. Each output file will
 be created with a suffix -nnnnn, starting with 00000. If packets for the specified
 time interval are written to the output file, the next output file is
 opened. The default is to use a single output file.
+
+=item -L
+
+Adjust the original frame length accordingly when chopping and/or snapping
+(in addition to the captured length, which is always adjusted regardless of
+whether B<-L> is specified or not).  See also B<-C <choplen>> and B<-s <snaplen>>.
 
 =item -r
 
