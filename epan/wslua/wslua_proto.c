@@ -779,7 +779,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
 /* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values (currently unsupported) */
 /* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
 /* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
 /* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
@@ -824,7 +824,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_ARG_Protofield_uint8_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
 /* WSLUA_OPTARG_Protofield_uint8_BASE One of base.DEC, base.HEX or base.OCT */
-/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values  */
+/* WSLUA_OPTARG_Protofield_uint8_VALUESTRING A table containing the text that corresponds to the values (currently unsupported) */
 /* WSLUA_OPTARG_Protofield_uint8_MASK Integer mask of this field  */
 /* WSLUA_OPTARG_Protofield_uint8_DESC Description of the field  */
 /* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
