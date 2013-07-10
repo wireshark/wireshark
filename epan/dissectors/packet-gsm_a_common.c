@@ -703,6 +703,7 @@ static int hf_gsm_a_tighter_cap = -1;
 static int hf_gsm_a_selective_ciph_down_sacch = -1;
 static int hf_gsm_a_cs_to_ps_srvcc_geran_to_utra = -1;
 static int hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra = -1;
+static int hf_gsm_a_geran_network_sharing_support = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat = -1;
@@ -2418,7 +2419,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 11.6.0 Release 11
+ * 3GPP TS 24.008 version 11.7.0 Release 11
  */
 #define AVAILABLE_BITS_CHECK(n) \
     bits_left = ((len + offset) << 3) - bit_offset; \
@@ -3137,6 +3138,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     AVAILABLE_BITS_CHECK(2);
     proto_tree_add_bits_item(tree, hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     bit_offset = bit_offset + 2;
+
+    /*
+     * < GERAN Network Sharing support : bit(1)>
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_geran_network_sharing_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
 
     /*
      * Add spare bits until we reach an octet boundary
@@ -4254,6 +4262,11 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_cs_to_ps_srvcc_geran_to_eutra,
         { "CS to PS SRVCC from GERAN to E-UTRA", "gsm_a.classmark3.cs_to_ps_srvcc_geran_to_eutra",
         FT_UINT8, BASE_DEC, VALS(cs_to_ps_srvcc_geran_to_eutra_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_geran_network_sharing_support,
+        { "GERAN Network Sharing support", "gsm_a.classmark3.ggeran_network_sharing_support",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
         NULL, HFILL}
     },
     { &hf_gsm_a_geo_loc_type_of_shape,

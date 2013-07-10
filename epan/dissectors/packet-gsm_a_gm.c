@@ -45,7 +45,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 11.6.0 Release 11)
+ *   (3GPP TS 24.008 version 11.7.0 Release 11)
  *
  * $Id$
  *
@@ -413,6 +413,7 @@ static int hf_gsm_a_gm_rac_fast_down_freq_switch_cap = -1;
 static int hf_gsm_a_gm_rac_tighter_cap = -1;
 static int hf_gsm_a_gm_rac_fanr_cap = -1;
 static int hf_gsm_a_gm_rac_ipa_cap = -1;
+static int hf_gsm_a_gm_rac_geran_nw_sharing_support = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -2904,6 +2905,17 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_needed = 1;
 		GET_DATA;
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ipa_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		 /*
+		 * GERAN Network Sharing support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_geran_nw_sharing_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset += bits_needed;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -8178,6 +8190,11 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_rac_ipa_cap,
 		  { "Immediate Packet Assignment Capability", "gsm_a.gm.gmm.rac.ipa_cap",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_geran_nw_sharing_support,
+		  { "GERAN Network Sharing support", "gsm_a.gm.gmm.rac.geran_nw_sharing_support",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
