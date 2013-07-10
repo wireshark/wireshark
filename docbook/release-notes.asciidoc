@@ -27,7 +27,7 @@ since version 1.10:
 You can still run the uninstaller manually beforehand if you wish to run it interactively.
 * The "Number" column shows related packets and protocol conversation spans (Qt only).
 * When manipulating packets with editcap using the -C <choplen> and/or -s <snaplen> options,
-  it is now possible to also adjust the orginal frame length using the -L option.
+  it is now possible to also adjust the original frame length using the -L option.
 
 === New Protocol Support
 
