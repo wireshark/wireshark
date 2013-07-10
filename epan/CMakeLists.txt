@@ -1551,11 +1551,11 @@ add_library(epan ${LINK_MODE_LIB}
 
 add_dependencies(epan svnversion)
 
-set(FULL_SO_VERSION "0.0.0")
+set(FULL_SO_VERSION "3.0.1")
 
 set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
+set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 3)
 
 # discover and substitute list of include directories for ABI compatibility
 # checks
