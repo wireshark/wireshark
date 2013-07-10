@@ -51,6 +51,10 @@
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
+static const struct tvb_ops tvb_real_ops;
+static const struct tvb_ops tvb_subset_ops;
+static const struct tvb_ops tvb_composite_ops;
+
 static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
 		int *exception);
@@ -63,17 +67,15 @@ static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
 static tvbuff_t *
-tvb_new(const tvbuff_type type)
+tvb_new(const struct tvb_ops *ops)
 {
 	tvbuff_t	*tvb;
-	tvb_backing_t	*backing;
-	tvb_comp_t	*composite;
 
 	tvb = g_slice_new(tvbuff_t);
 
 	tvb->previous	     = NULL;
 	tvb->next	     = NULL;
-	tvb->type	     = type;
+	tvb->ops	     = ops;
 	tvb->initialized     = FALSE;
 	tvb->flags	     = 0;
 	tvb->length	     = 0;
@@ -83,72 +85,67 @@ tvb_new(const tvbuff_type type)
 	tvb->raw_offset	     = -1;
 	tvb->ds_tvb	     = NULL;
 
-	switch(type) {
-		case TVBUFF_REAL_DATA:
-			/* Nothing */
-			break;
-
-		case TVBUFF_SUBSET:
-			backing 	= &tvb->tvbuffs.subset;
-			backing->tvb	= NULL;
-			backing->offset	= 0;
-			backing->length	= 0;
-			break;
-
-		case TVBUFF_COMPOSITE:
-			composite 		 = &tvb->tvbuffs.composite;
-			composite->tvbs		 = NULL;
-			composite->start_offsets = NULL;
-			composite->end_offsets	 = NULL;
-			break;
-
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			break;
-	}
+	if (ops->tvb_init)
+		ops->tvb_init(tvb);
 
 	return tvb;
 }
 
 static void
+real_free(tvbuff_t *tvb)
+{
+	if (tvb->free_cb) {
+		/*
+		 * XXX - do this with a union?
+		 */
+		tvb->free_cb((gpointer)tvb->real_data);
+	}
+}
+
+static void
+subset_init(tvbuff_t *tvb)
+{
+	tvb_backing_t *backing = &tvb->tvbuffs.subset;
+
+	backing->tvb	= NULL;
+	backing->offset	= 0;
+	backing->length	= 0;
+}
+
+static void
+composite_init(tvbuff_t *tvb)
+{
+	tvb_comp_t *composite = &tvb->tvbuffs.composite;
+
+	composite->tvbs		 = NULL;
+	composite->start_offsets = NULL;
+	composite->end_offsets	 = NULL;
+}
+
+static void
+composite_free(tvbuff_t *tvb)
+{
+	tvb_comp_t *composite = &tvb->tvbuffs.composite;
+
+	g_slist_free(composite->tvbs);
+
+	g_free(composite->start_offsets);
+	g_free(composite->end_offsets);
+	if (tvb->real_data) {
+		/*
+		 * XXX - do this with a union?
+		 */
+		g_free((gpointer)tvb->real_data);
+	}
+}
+
+static void
 tvb_free_internal(tvbuff_t *tvb)
 {
-	tvb_comp_t	*composite;
-
 	DISSECTOR_ASSERT(tvb);
 
-	switch (tvb->type) {
-		case TVBUFF_REAL_DATA:
-			if (tvb->free_cb) {
-				/*
-				 * XXX - do this with a union?
-				 */
-				tvb->free_cb((gpointer)tvb->real_data);
-			}
-			break;
-
-		case TVBUFF_SUBSET:
-			/* Nothing */
-			break;
-
-		case TVBUFF_COMPOSITE:
-			composite = &tvb->tvbuffs.composite;
-
-			g_slist_free(composite->tvbs);
-
-			g_free(composite->start_offsets);
-			g_free(composite->end_offsets);
-			if (tvb->real_data) {
-				/*
-				 * XXX - do this with a union?
-				 */
-				g_free((gpointer)tvb->real_data);
-			}
-			break;
-
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-	}
+	if (tvb->ops->tvb_free)
+		tvb->ops->tvb_free(tvb);
 
 	g_slice_free(tvbuff_t, tvb);
 }
@@ -182,7 +179,7 @@ void
 tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func)
 {
 	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
+	DISSECTOR_ASSERT(tvb->ops == &tvb_real_ops);
 	tvb->free_cb = func;
 }
 
@@ -204,7 +201,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
 	DISSECTOR_ASSERT(parent && child);
 	DISSECTOR_ASSERT(parent->initialized);
 	DISSECTOR_ASSERT(child->initialized);
-	DISSECTOR_ASSERT(child->type == TVBUFF_REAL_DATA);
+	DISSECTOR_ASSERT(child->ops == &tvb_real_ops);
 	add_to_chain(parent, child);
 }
 
@@ -215,7 +212,7 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 
 	THROW_ON(reported_length < -1, ReportedBoundsError);
 
-	tvb = tvb_new(TVBUFF_REAL_DATA);
+	tvb = tvb_new(&tvb_real_ops);
 
 	tvb->real_data       = data;
 	tvb->length          = length;
@@ -400,7 +397,7 @@ static tvbuff_t *
 tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
     const guint subset_tvb_offset, const guint subset_tvb_length)
 {
-	tvbuff_t *tvb = tvb_new(TVBUFF_SUBSET);
+	tvbuff_t *tvb = tvb_new(&tvb_subset_ops);
 
 	tvb->tvbuffs.subset.offset = subset_tvb_offset;
 	tvb->tvbuffs.subset.length = subset_tvb_length;
@@ -587,7 +584,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 tvbuff_t *
 tvb_new_composite(void)
 {
-	return tvb_new(TVBUFF_COMPOSITE);
+	return tvb_new(&tvb_composite_ops);
 }
 
 void
@@ -596,7 +593,7 @@ tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 
 	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
 	 * and anyway it makes no sense.
@@ -613,7 +610,7 @@ tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 
 	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
 	 * and anyway it makes no sense.
@@ -635,7 +632,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	int	    i = 0;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 	DISSECTOR_ASSERT(tvb->length == 0);
 	DISSECTOR_ASSERT(tvb->reported_length == 0);
 
@@ -853,21 +850,33 @@ first_real_data_ptr(tvbuff_t *tvb)
 static guint
 offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
 {
-	tvbuff_t *member;
-
-	switch(tvb->type) {
-		case TVBUFF_REAL_DATA:
-			return counter;
-		case TVBUFF_SUBSET:
-			member = tvb->tvbuffs.subset.tvb;
-			return offset_from_real_beginning(member, counter + tvb->tvbuffs.subset.offset);
-		case TVBUFF_COMPOSITE:
-			member = (tvbuff_t *)tvb->tvbuffs.composite.tvbs->data;
-			return offset_from_real_beginning(member, counter);
-	}
+	if (tvb->ops->tvb_offset)
+		return tvb->ops->tvb_offset(tvb, counter);
 
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return 0;
+}
+
+static guint
+real_offset(const tvbuff_t *tvb, const guint counter)
+{
+	return counter;
+}
+
+static guint
+subset_offset(const tvbuff_t *tvb, const guint counter)
+{
+	const tvbuff_t *member = tvb->tvbuffs.subset.tvb;
+
+	return offset_from_real_beginning(member, counter + tvb->tvbuffs.subset.offset);
+}
+
+static guint
+composite_offset(const tvbuff_t *tvb, const guint counter)
+{
+	const tvbuff_t *member = (const tvbuff_t *)tvb->tvbuffs.composite.tvbs->data;
+
+	return offset_from_real_beginning(member, counter);
 }
 
 guint
@@ -877,7 +886,7 @@ tvb_offset_from_real_beginning(const tvbuff_t *tvb)
 }
 
 static const guint8*
-composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset, const guint abs_length)
+composite_get_ptr(tvbuff_t *tvb, const guint abs_offset, const guint abs_length)
 {
 	guint	    i, num_members;
 	tvb_comp_t *composite;
@@ -885,7 +894,7 @@ composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset, 
 	guint	    member_offset, member_length;
 	GSList	   *slist;
 
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 
 	/* Maybe the range specified by offset/length
 	 * is contiguous inside one of the member tvbuffs */
@@ -933,24 +942,21 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 	 * We know that all the data is present in the tvbuff, so
 	 * no exceptions should be thrown.
 	 */
-	if (tvb->real_data) {
+	if (tvb->real_data)
 		return tvb->real_data + abs_offset;
-	}
-	else {
-		switch(tvb->type) {
-			case TVBUFF_REAL_DATA:
-				DISSECTOR_ASSERT_NOT_REACHED();
-			case TVBUFF_SUBSET:
-				return ensure_contiguous_no_exception(tvb->tvbuffs.subset.tvb,
-						abs_offset - tvb->tvbuffs.subset.offset,
-						abs_length, NULL);
-			case TVBUFF_COMPOSITE:
-				return composite_ensure_contiguous_no_exception(tvb, abs_offset, abs_length);
-		}
-	}
+
+
+	if (tvb->ops->tvb_get_ptr)
+		return tvb->ops->tvb_get_ptr(tvb, abs_offset, abs_length);
 
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return NULL;
+}
+
+static const guint8 *
+subset_get_ptr(tvbuff_t *tvb, const guint abs_offset, const guint abs_length)
+{
+	return ensure_contiguous_no_exception(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, abs_length, NULL);
 }
 
 static const guint8*
@@ -1028,8 +1034,10 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 /************** ACCESSORS **************/
 
 static void *
-composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_length)
+composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_length)
 {
+	guint8 *target = _target;
+
 	guint	    i, num_members;
 	tvb_comp_t *composite;
 	tvbuff_t   *member_tvb = NULL;
@@ -1037,7 +1045,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 	gboolean    retval;
 	GSList	   *slist;
 
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
 
 	/* Maybe the range specified by offset/length
 	 * is contiguous inside one of the member tvbuffs */
@@ -1087,6 +1095,12 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 	DISSECTOR_ASSERT_NOT_REACHED();
 }
 
+static void *
+subset_memcpy(tvbuff_t *tvb, void *target, const guint abs_offset, const guint abs_length)
+{
+	return tvb_memcpy(tvb->tvbuffs.subset.tvb, target, abs_offset - tvb->tvbuffs.subset.offset, abs_length);
+}
+
 void *
 tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 {
@@ -1112,18 +1126,15 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 		return memcpy(target, tvb->real_data + abs_offset, abs_length);
 	}
 
-	switch(tvb->type) {
-		case TVBUFF_REAL_DATA:
-			DISSECTOR_ASSERT_NOT_REACHED();
-
-		case TVBUFF_SUBSET:
-			return tvb_memcpy(tvb->tvbuffs.subset.tvb, target,
-					abs_offset - tvb->tvbuffs.subset.offset,
-					abs_length);
-
-		case TVBUFF_COMPOSITE:
-			return composite_memcpy(tvb, (guint8 *)target, offset, length);
+	if (tvb->ops == &tvb_composite_ops) {
+		/* special case for composite, bug?! */
+		return tvb->ops->tvb_memcpy(tvb, target, offset, length);
 	}
+	
+	if (tvb->ops->tvb_memcpy)
+		return tvb->ops->tvb_memcpy(tvb, target, abs_offset, abs_length);
+
+	/* XXX, fallback to slower method */
 
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return NULL;
@@ -1136,7 +1147,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
  * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
  * data to it.
  *
- * "composite_ensure_contiguous_no_exception()" depends on -1 not being
+ * "composite_get_ptr()" depends on -1 not being
  * an error; does anything else depend on this routine treating -1 as
  * meaning "to the end of the buffer"?
  */
@@ -1160,7 +1171,7 @@ tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
  * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
  * data to it.
  *
- * "composite_ensure_contiguous_no_exception()" depends on -1 not being
+ * "composite_get_ptr()" depends on -1 not being
  * an error; does anything else depend on this routine treating -1 as
  * meaning "to the end of the buffer"?
  *
@@ -1926,22 +1937,19 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 		}
 	}
 
-	switch(tvb->type) {
-		case TVBUFF_REAL_DATA:
-			DISSECTOR_ASSERT_NOT_REACHED();
+	if (tvb->ops->tvb_find_guint8)
+		return tvb->ops->tvb_find_guint8(tvb, abs_offset, limit, needle);
 
-		case TVBUFF_SUBSET:
-			return tvb_find_guint8(tvb->tvbuffs.subset.tvb,
-					abs_offset - tvb->tvbuffs.subset.offset,
-					limit, needle);
-
-		case TVBUFF_COMPOSITE:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			/* XXX - return composite_find_guint8(tvb, offset, limit, needle); */
-	}
+	/* XXX, fallback to slower method */
 
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return -1;
+}
+
+static gint
+subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
+{
+	return tvb_find_guint8(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, limit, needle);
 }
 
 /* Find first occurrence of any of the needles in tvbuff, starting at offset.
@@ -1991,22 +1999,18 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 		}
 	}
 
-	switch(tvb->type) {
-		case TVBUFF_REAL_DATA:
-			DISSECTOR_ASSERT_NOT_REACHED();
+	if (tvb->ops->tvb_pbrk_guint8)
+		return tvb->ops->tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
 
-		case TVBUFF_SUBSET:
-			return tvb_pbrk_guint8(tvb->tvbuffs.subset.tvb,
-					abs_offset - tvb->tvbuffs.subset.offset,
-					limit, needles, found_needle);
-
-		case TVBUFF_COMPOSITE:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			/* XXX - return composite_pbrk_guint8(tvb, offset, limit, needle); */
-	}
-
+	/* XXX, fallback to slower method */
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return -1;
+}
+
+static gint
+subset_pbrk_guint8(tvbuff_t *tvb, const guint abs_offset, const guint limit, const guint8 *needles, guchar *found_needle)
+{
+	return tvb_pbrk_guint8(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, limit, needles, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -3641,3 +3645,34 @@ tvb_get_ds_tvb(tvbuff_t *tvb)
 {
 	return(tvb->ds_tvb);
 }
+
+static const struct tvb_ops tvb_real_ops = {
+	NULL,                 /* init */
+	real_free,            /* free */
+	real_offset,          /* offset */
+	NULL,                 /* get_ptr */
+	NULL,                 /* memcpy */
+	NULL,                 /* find_guint8 */
+	NULL,                 /* pbrk_guint8 */
+};
+
+static const struct tvb_ops tvb_subset_ops = {
+	subset_init,          /* init */
+	NULL,                 /* free */
+	subset_offset,        /* offset */
+	subset_get_ptr,       /* get_ptr */
+	subset_memcpy,        /* memcpy */
+	subset_find_guint8,   /* find_guint8 */
+	subset_pbrk_guint8,   /* pbrk_guint8 */
+};
+
+static const struct tvb_ops tvb_composite_ops = {
+	composite_init,       /* init */
+	composite_free,       /* free */
+	composite_offset,     /* offset */
+	composite_get_ptr,    /* get_ptr */
+	composite_memcpy,     /* memcpy */
+	NULL,                 /* find_guint8 XXX */
+	NULL,                 /* pbrk_guint8 XXX */
+};
+

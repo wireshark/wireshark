@@ -26,6 +26,19 @@
 #ifndef __TVBUFF_INT_H__
 #define __TVBUFF_INT_H__
 
+struct tvbuff;
+
+struct tvb_ops {
+	void (*tvb_init)(struct tvbuff *tvb);
+	void (*tvb_free)(struct tvbuff *tvb);
+	guint (*tvb_offset)(const struct tvbuff *tvb, guint counter);
+	const guint8 *(*tvb_get_ptr)(struct tvbuff *tvb, const guint abs_offset, const guint abs_length);
+	void *(*tvb_memcpy)(struct tvbuff *tvb, void *target, guint offset, size_t length);
+
+	gint (*tvb_find_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle);
+	gint (*tvb_pbrk_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 *needles, guchar *found_needle);
+};
+
 typedef struct {
 	/** The backing tvbuff_t */
 	struct tvbuff	*tvb;
@@ -59,7 +72,7 @@ struct tvbuff {
 	tvbuff_t                *previous;
 
 	/* Record-keeping */
-	tvbuff_type		type;
+	const struct tvb_ops   *ops;
 	gboolean		initialized;
 	guint			flags;
 	struct tvbuff		*ds_tvb;  /**< data source top-level tvbuff */

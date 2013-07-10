@@ -54,13 +54,6 @@ extern "C" {
  * virtual data.
  */
 
-/** The different types of tvbuff's */
-typedef enum {
-	TVBUFF_REAL_DATA,
-	TVBUFF_SUBSET,
-	TVBUFF_COMPOSITE
-} tvbuff_type;
-
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
 
