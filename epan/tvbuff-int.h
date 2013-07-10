@@ -32,11 +32,11 @@ struct tvb_ops {
 	void (*tvb_init)(struct tvbuff *tvb);
 	void (*tvb_free)(struct tvbuff *tvb);
 	guint (*tvb_offset)(const struct tvbuff *tvb, guint counter);
-	const guint8 *(*tvb_get_ptr)(struct tvbuff *tvb, const guint abs_offset, const guint abs_length);
-	void *(*tvb_memcpy)(struct tvbuff *tvb, void *target, guint offset, size_t length);
+	const guint8 *(*tvb_get_ptr)(struct tvbuff *tvb, guint abs_offset, guint abs_length);
+	void *(*tvb_memcpy)(struct tvbuff *tvb, void *target, guint offset, guint length);
 
 	gint (*tvb_find_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle);
-	gint (*tvb_pbrk_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 *needles, guchar *found_needle);
+	gint (*tvb_pbrk_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle);
 };
 
 typedef struct {

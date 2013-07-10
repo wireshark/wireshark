@@ -858,7 +858,7 @@ offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
 }
 
 static guint
-real_offset(const tvbuff_t *tvb, const guint counter)
+real_offset(const tvbuff_t *tvb _U_, const guint counter)
 {
 	return counter;
 }
@@ -886,7 +886,7 @@ tvb_offset_from_real_beginning(const tvbuff_t *tvb)
 }
 
 static const guint8*
-composite_get_ptr(tvbuff_t *tvb, const guint abs_offset, const guint abs_length)
+composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
 	guint	    i, num_members;
 	tvb_comp_t *composite;
@@ -954,7 +954,7 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 }
 
 static const guint8 *
-subset_get_ptr(tvbuff_t *tvb, const guint abs_offset, const guint abs_length)
+subset_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
 	return ensure_contiguous_no_exception(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, abs_length, NULL);
 }
@@ -1034,7 +1034,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 /************** ACCESSORS **************/
 
 static void *
-composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_length)
+composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_length)
 {
 	guint8 *target = _target;
 
@@ -1096,7 +1096,7 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_leng
 }
 
 static void *
-subset_memcpy(tvbuff_t *tvb, void *target, const guint abs_offset, const guint abs_length)
+subset_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
 {
 	return tvb_memcpy(tvb->tvbuffs.subset.tvb, target, abs_offset - tvb->tvbuffs.subset.offset, abs_length);
 }
@@ -2008,7 +2008,7 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 }
 
 static gint
-subset_pbrk_guint8(tvbuff_t *tvb, const guint abs_offset, const guint limit, const guint8 *needles, guchar *found_needle)
+subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
 {
 	return tvb_pbrk_guint8(tvb->tvbuffs.subset.tvb, abs_offset - tvb->tvbuffs.subset.offset, limit, needles, found_needle);
 }
