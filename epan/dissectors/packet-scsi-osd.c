@@ -1220,14 +1220,19 @@ dissect_osd_list_identifier(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-static int
-dissect_osd_allocation_length(tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+dissect_osd_allocation_length(tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_data_t *cdata)
 {
 	/* allocation length */
 	proto_tree_add_item(tree, hf_scsi_osd_allocation_length, tvb, offset, 8, ENC_BIG_ENDIAN);
-	offset+=8;
 
-	return offset;
+	if (cdata) {
+		guint64 alloc_len = tvb_get_ntoh64(tvb,offset);		
+		if (alloc_len>G_GINT64_CONSTANT(0xFFFFFFFF)) {
+			alloc_len=G_GINT64_CONSTANT(0xFFFFFFFF);
+		}
+		cdata->itlq->alloc_len=(guint32)alloc_len;
+	}
 }
 
 static int
@@ -1310,7 +1315,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if (osd2) {
 			/* allocation length */
-			dissect_osd_allocation_length(tvb, offset, tree);
+			dissect_osd_allocation_length(tvb, offset, tree, cdata);
 			offset+=8;
 
 			/* initial object id */
@@ -1326,7 +1331,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset+=4;
 
 			/* allocation length */
-			dissect_osd_allocation_length(tvb, offset, tree);
+			dissect_osd_allocation_length(tvb, offset, tree, cdata);
 			offset+=8;
 
 			/* initial object id */
@@ -1360,17 +1365,23 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(!isreq && !iscdb){
 
 		guint64  additional_length;
+		guint64  allocation_length;
+		guint64  remaining_length;
 		gboolean is_root;
 		guint8   format;
-
-		if (osd2&&tvb_length_remaining(tvb, offset)<24) return;
 
 		/* attribute data in */
 		dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata);
 
+		allocation_length=cdata->itlq->alloc_len;
+		remaining_length=tvb_length_remaining(tvb, offset);
+		if (remaining_length<allocation_length) allocation_length=remaining_length;
+		if (allocation_length<24) return;
+
 		/* dissection of the LIST DATA-IN */
 		/* additional length */
 		additional_length=tvb_get_ntoh64(tvb, offset);
+		if (allocation_length<additional_length) additional_length=allocation_length;
 
 		dissect_osd_additional_length(tvb, offset, tree);
 
@@ -2609,7 +2620,7 @@ dissect_osd_list_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset+=4;
 
 		/* allocation length */
-		dissect_osd_allocation_length(tvb, offset, tree);
+		dissect_osd_allocation_length(tvb, offset, tree, cdata);
 		offset+=8;
 
 		/* initial object id */
