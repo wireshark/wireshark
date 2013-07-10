@@ -59,10 +59,6 @@ static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
 		int *exception);
 
-static const guint8*
-ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
-
-
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
@@ -87,18 +83,7 @@ tvb_new(const struct tvb_ops *ops)
 	tvb->raw_offset	     = -1;
 	tvb->ds_tvb	     = NULL;
 
-	if (ops->tvb_init)
-		ops->tvb_init(tvb);
-
 	return tvb;
-}
-
-static void
-real_init(tvbuff_t *tvb)
-{
-	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
-
-	real_tvb->free_cb = NULL;
 }
 
 static void
@@ -112,28 +97,6 @@ real_free(tvbuff_t *tvb)
 		 */
 		real_tvb->free_cb((gpointer)tvb->real_data);
 	}
-}
-
-static void
-subset_init(tvbuff_t *tvb)
-{
-	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-	tvb_backing_t *backing = &subset_tvb->subset;
-
-	backing->tvb	= NULL;
-	backing->offset	= 0;
-	backing->length	= 0;
-}
-
-static void
-composite_init(tvbuff_t *tvb)
-{
-	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
-	tvb_comp_t *composite = &composite_tvb->composite;
-
-	composite->tvbs		 = NULL;
-	composite->start_offsets = NULL;
-	composite->end_offsets	 = NULL;
 }
 
 static void
@@ -230,6 +193,7 @@ tvbuff_t *
 tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
 {
 	tvbuff_t *tvb;
+	struct tvb_real *real_tvb;
 
 	THROW_ON(reported_length < -1, ReportedBoundsError);
 
@@ -245,6 +209,10 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 	 * so its data source tvbuff is itself.
 	 */
 	tvb->ds_tvb = tvb;
+
+	real_tvb = (struct tvb_real *) tvb;
+	real_tvb->free_cb = NULL;
+
 	return tvb;
 }
 
@@ -606,7 +574,15 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 tvbuff_t *
 tvb_new_composite(void)
 {
-	return tvb_new(&tvb_composite_ops);
+	tvbuff_t *tvb = tvb_new(&tvb_composite_ops);
+	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
+	tvb_comp_t *composite = &composite_tvb->composite;
+
+	composite->tvbs		 = NULL;
+	composite->start_offsets = NULL;
+	composite->end_offsets	 = NULL;
+
+	return tvb;
 }
 
 void
@@ -1067,7 +1043,7 @@ static void *
 composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_length)
 {
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
-	guint8 *target = _target;
+	guint8 *target = (guint8 *) _target;
 
 	guint	    i, num_members;
 	tvb_comp_t *composite;
@@ -3689,7 +3665,6 @@ static gsize composite_sizeof(void) { return sizeof(struct tvb_composite); }
 
 static const struct tvb_ops tvb_real_ops = {
 	real_sizeof,          /* size */
-	real_init,            /* init */
 	real_free,            /* free */
 	real_offset,          /* offset */
 	NULL,                 /* get_ptr */
@@ -3700,7 +3675,6 @@ static const struct tvb_ops tvb_real_ops = {
 
 static const struct tvb_ops tvb_subset_ops = {
 	subset_sizeof,        /* size */
-	subset_init,          /* init */
 	NULL,                 /* free */
 	subset_offset,        /* offset */
 	subset_get_ptr,       /* get_ptr */
@@ -3711,7 +3685,6 @@ static const struct tvb_ops tvb_subset_ops = {
 
 static const struct tvb_ops tvb_composite_ops = {
 	composite_sizeof,     /* size */
-	composite_init,       /* init */
 	composite_free,       /* free */
 	composite_offset,     /* offset */
 	composite_get_ptr,    /* get_ptr */
