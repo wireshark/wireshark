@@ -961,10 +961,8 @@ iostat_draw(void *arg)
         }
 
         /* Patch for Absolute Time */
-        if (sizeof(time_t) == 8)
-            the_time = iot->start_time + (t/1000000ULL);
-        else
-            the_time = iot->start_time + (guint32)(t/1000000ULL);
+        /* XXX - has a Y2.038K problem with 32-bit time_t */
+        the_time = (time_t)(iot->start_time + (t/1000000ULL));
         tm_time = localtime(&the_time);
 
         /* Display the interval for this row */
