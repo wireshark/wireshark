@@ -7475,7 +7475,19 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			 const guint encoding)
 {
 	header_field_info *hfinfo;
+	gint		  octet_length;
+	gint		  octet_offset;
 
+	PROTO_REGISTRAR_GET_NTH(hf_index, hfinfo);
+
+	octet_length = (no_of_bits + 7) >> 3;
+	octet_offset = bit_offset >> 3;
+	test_length(hfinfo, tree, tvb, octet_offset, octet_length, encoding);
+
+	/* Yes, we try to fake this item again in proto_tree_add_bits_ret_val()
+	 * but only after doing a bunch more work (which we can, in the common
+	 * case, shortcut here).
+	 */
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hfinfo);
 
 	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, encoding);
@@ -7522,10 +7534,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	 * Calculate the number of octets used to hold the bits
 	 */
 	tot_no_bits = ((bit_offset&0x7) + no_of_bits);
-	length = tot_no_bits>>3;
-	/* If we are using part of the next octet, increase length by 1 */
-	if (tot_no_bits & 0x07)
-		length++;
+	length = (tot_no_bits + 7) >> 3;
 
 	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
