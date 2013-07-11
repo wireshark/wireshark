@@ -1040,7 +1040,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 /************** ACCESSORS **************/
 
 static void *
-composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_length)
+composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_length)
 {
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	guint8 *target = (guint8 *) _target;
@@ -1137,7 +1137,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 
 	if (tvb->ops == get_tvb_composite_ops()) {
 		/* special case for composite, bug?! */
-		return tvb->ops->tvb_memcpy(tvb, target, offset, length);
+		return composite_memcpy(tvb, target, offset, length);
 	}
 	
 	if (tvb->ops->tvb_memcpy)
@@ -3692,7 +3692,7 @@ static const struct tvb_ops tvb_composite_ops = {
 	composite_free,       /* free */
 	composite_offset,     /* offset */
 	composite_get_ptr,    /* get_ptr */
-	composite_memcpy,     /* memcpy */
+	NULL, /* composite_memcpy */ /* memcpy */
 	NULL,                 /* find_guint8 XXX */
 	NULL,                 /* pbrk_guint8 XXX */
 };
