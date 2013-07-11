@@ -109,6 +109,8 @@ static int hf_mip_pmipv4skipext_accesstechnology_type = -1;
 static int hf_mip_cvse_reserved = -1;
 static int hf_mip_cvse_vendor_org_id = -1;
 static int hf_mip_cvse_verizon_cvse_type = -1;
+static int hf_mip_cvse_3gpp2_cvse_type = -1;
+static int hf_mip_cvse_3gpp2_grekey = -1;
 static int hf_mip_cvse_vendor_cvse_type = -1;
 static int hf_mip_cvse_vendor_cvse_value = -1;
 static int hf_mip_nvse_reserved = -1;
@@ -254,7 +256,8 @@ typedef enum {
   UDP_TUN_REQ_EXT = 144,  /* RFC 3519 */
   MSG_STR_EXT = 145,
   PMIPv4_SKIP_EXT = 147,  /* draft-leung-mip4-proxy-mode */
-  SKIP_EXP_EXT = 255      /* RFC 4064 */
+  SKIP_EXP_EXT = 255,      /* RFC 4064 */
+  GRE_KEY_EXT = 0x0401
 } MIP_EXTS;
 
 static const value_string mip_ext_types[]= {
@@ -407,6 +410,17 @@ static const value_string mip_cvse_verizon_cvse_types[]= {
   {0, NULL}
 };
 
+/*http://www.3gpp2.org/public_html/X/VSA-VSE.cfm*/
+static const value_string mip_cvse_3gpp2_cvse_types[]= {
+  {257, "Accounting/Radius"},
+  {258, "Accounting/Diameter"},
+  {513, "Accounting/Diameter"},
+  {769, "Data Available Indicator/Data Ready to Send"},
+  {1025,"GRE Key"},
+  {1281, "Binding Type Extension"},
+  {1537, "GRE Tunnel Endpoint Extension"},
+  {0, NULL}
+};
 
 
 static const value_string mip_nvse_3gpp2_type_vals[]= {
@@ -497,7 +511,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
   guint16       flags;
   gint          hdrLen;
   guint32       cvse_vendor_id;
-  guint16       cvse_vendor_type;
+  guint16       cvse_3gpp2_type;
   int           cvse_local_offset= 0;
   int           nvse_local_offset= 0;
 
@@ -703,16 +717,20 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       if( cvse_vendor_id == VENDOR_VERIZON ){
         /*Verizon CVSE type*/
            proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, ENC_BIG_ENDIAN);
-      }
-      else{
+      }else if( cvse_vendor_id == VENDOR_THE3GPP2 ){
+        /*THE3GPP2 CVSE type*/  
+		   cvse_3gpp2_type = tvb_get_ntohs(tvb, cvse_local_offset);
+	  	/* THE3GPP2 CVSE Value */
+		   if(cvse_3gpp2_type = GRE_KEY_EXT){
+		       proto_tree_add_item(ext_tree, hf_mip_cvse_3gpp2_grekey, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
+		   }
+      }else{
         /*CVSE Type of Other vendor, just show raw numbers currently*/
-        cvse_vendor_type = tvb_get_ntohs(tvb, cvse_local_offset);
-        proto_tree_add_uint(ext_tree, hf_mip_cvse_vendor_cvse_type, tvb, cvse_local_offset, 2, cvse_vendor_type);
+        proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_type, tvb, cvse_local_offset, 2, ENC_BIG_ENDIAN);
+        /* Vendor CVSE Type+Vendor/Org ID = 6 bytes*/
+        proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
       }
       cvse_local_offset+=2;
-      /* Vendor-CVSE-Value */
-      /* Vendor CVSE Type+Vendor/Org ID = 6 bytes*/
-      proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
       break;
 
     case OLD_NVSE_EXT:      /* RFC 3115 */
@@ -1338,12 +1356,22 @@ void proto_register_mip(void)
         FT_UINT16, BASE_DEC, VALS(mip_cvse_verizon_cvse_types), 0,
         NULL, HFILL }
     },
-    { &hf_mip_cvse_vendor_cvse_type ,
+    { &hf_mip_cvse_3gpp2_cvse_type ,
+      { "3GPP2 CVSE Type","mip.ext.cvse.3gpp2_type",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    }, 
+    { &hf_mip_cvse_3gpp2_grekey,
+      { "GRE Key","mip.ext.cvse.3gpp2_grekey",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_cvse_vendor_cvse_type,
       { "Vendor CVSE Type",                "mip.ext.cvse.vendor_type",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_mip_cvse_vendor_cvse_value ,
+    { &hf_mip_cvse_vendor_cvse_value,
       { "Vendor CVSE Value",                "mip.ext.cvse.vendor_value",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
