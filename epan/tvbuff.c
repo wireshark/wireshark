@@ -51,9 +51,9 @@
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
-static const struct tvb_ops tvb_real_ops;
-static const struct tvb_ops tvb_subset_ops;
-static const struct tvb_ops tvb_composite_ops;
+static inline const struct tvb_ops *get_tvb_real_ops(void);
+static inline const struct tvb_ops *get_tvb_subset_ops(void);
+static inline const struct tvb_ops *get_tvb_composite_ops(void);
 
 static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
@@ -163,7 +163,7 @@ tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func)
 	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
 
 	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->ops == &tvb_real_ops);
+	DISSECTOR_ASSERT(tvb->ops == get_tvb_real_ops());
 	real_tvb->free_cb = func;
 }
 
@@ -185,7 +185,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
 	DISSECTOR_ASSERT(parent && child);
 	DISSECTOR_ASSERT(parent->initialized);
 	DISSECTOR_ASSERT(child->initialized);
-	DISSECTOR_ASSERT(child->ops == &tvb_real_ops);
+	DISSECTOR_ASSERT(child->ops == get_tvb_real_ops());
 	add_to_chain(parent, child);
 }
 
@@ -197,7 +197,7 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 
 	THROW_ON(reported_length < -1, ReportedBoundsError);
 
-	tvb = tvb_new(&tvb_real_ops);
+	tvb = tvb_new(get_tvb_real_ops());
 
 	tvb->real_data       = data;
 	tvb->length          = length;
@@ -386,7 +386,7 @@ static tvbuff_t *
 tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
     const guint subset_tvb_offset, const guint subset_tvb_length)
 {
-	tvbuff_t *tvb = tvb_new(&tvb_subset_ops);
+	tvbuff_t *tvb = tvb_new(get_tvb_subset_ops());
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
 	subset_tvb->subset.offset = subset_tvb_offset;
@@ -574,7 +574,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 tvbuff_t *
 tvb_new_composite(void)
 {
-	tvbuff_t *tvb = tvb_new(&tvb_composite_ops);
+	tvbuff_t *tvb = tvb_new(get_tvb_composite_ops());
 	struct tvb_composite *composite_tvb = (struct tvb_composite *) tvb;
 	tvb_comp_t *composite = &composite_tvb->composite;
 
@@ -592,7 +592,7 @@ tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
-	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
+	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
 
 	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
 	 * and anyway it makes no sense.
@@ -610,7 +610,7 @@ tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
-	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
+	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
 
 	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
 	 * and anyway it makes no sense.
@@ -633,7 +633,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	int	    i = 0;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
-	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
+	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
 	DISSECTOR_ASSERT(tvb->length == 0);
 	DISSECTOR_ASSERT(tvb->reported_length == 0);
 
@@ -898,7 +898,7 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	guint	    member_offset, member_length;
 	GSList	   *slist;
 
-	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
+	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
 
 	/* Maybe the range specified by offset/length
 	 * is contiguous inside one of the member tvbuffs */
@@ -1052,7 +1052,7 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, guint abs_lengt
 	gboolean    retval;
 	GSList	   *slist;
 
-	DISSECTOR_ASSERT(tvb->ops == &tvb_composite_ops);
+	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
 
 	/* Maybe the range specified by offset/length
 	 * is contiguous inside one of the member tvbuffs */
@@ -1135,7 +1135,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 		return memcpy(target, tvb->real_data + abs_offset, abs_length);
 	}
 
-	if (tvb->ops == &tvb_composite_ops) {
+	if (tvb->ops == get_tvb_composite_ops()) {
 		/* special case for composite, bug?! */
 		return tvb->ops->tvb_memcpy(tvb, target, offset, length);
 	}
@@ -3673,6 +3673,8 @@ static const struct tvb_ops tvb_real_ops = {
 	NULL,                 /* pbrk_guint8 */
 };
 
+static inline const struct tvb_ops *get_tvb_real_ops(void) { return &tvb_real_ops; }
+
 static const struct tvb_ops tvb_subset_ops = {
 	subset_sizeof,        /* size */
 	NULL,                 /* free */
@@ -3682,6 +3684,8 @@ static const struct tvb_ops tvb_subset_ops = {
 	subset_find_guint8,   /* find_guint8 */
 	subset_pbrk_guint8,   /* pbrk_guint8 */
 };
+
+static inline const struct tvb_ops *get_tvb_subset_ops(void) { return &tvb_subset_ops; }
 
 static const struct tvb_ops tvb_composite_ops = {
 	composite_sizeof,     /* size */
@@ -3693,3 +3697,4 @@ static const struct tvb_ops tvb_composite_ops = {
 	NULL,                 /* pbrk_guint8 XXX */
 };
 
+static inline const struct tvb_ops *get_tvb_composite_ops(void) { return &tvb_composite_ops; }
