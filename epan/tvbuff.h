@@ -57,6 +57,8 @@ extern "C" {
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
 
+struct tvb_ops;
+
 /** @defgroup tvbuff Testy, Virtual(-izable) Buffers
  *
  * Dissector use and management
@@ -113,7 +115,7 @@ typedef struct tvbuff tvbuff_t;
 
 typedef void (*tvbuff_free_cb_t)(void*);
 
-WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops)
+WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops);
 
 /** Extracts 'number of bits' starting at 'bit offset'.
  * Returns a pointer to a newly initialized ep_alloc'd REAL_DATA
