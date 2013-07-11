@@ -152,8 +152,8 @@ static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
 
 static void
-get_hfi_and_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint *length,
-		   gint *item_length);
+get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint *length,
+		gint *item_length);
 
 static field_info *
 new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
@@ -1751,7 +1751,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	get_hfi_and_length(hfinfo, ptvc->tvb, offset, &length, &item_length);
+	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length);
 	ptvc->offset += length;
 	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
 		/*
@@ -1814,7 +1814,7 @@ proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	gint		  item_length;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	get_hfi_and_length(hfinfo, tvb, start, &length, &item_length);
+	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
 	test_length(hfinfo, tree, tvb, start, item_length, encoding);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
@@ -3333,10 +3333,10 @@ proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, gi
 
 
 static void
-get_hfi_and_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint *length,
+get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint *length,
 		   gint *item_length)
 {
-	gint		   length_remaining;
+	gint length_remaining;
 
 	/*
 	 * We only allow a null tvbuff if the item has a zero length,
@@ -3495,7 +3495,7 @@ alloc_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, con
 {
 	gint		   item_length;
 
-	get_hfi_and_length(hfinfo, tvb, start, length, &item_length);
+	get_hfi_length(hfinfo, tvb, start, length, &item_length);
 	return new_field_info(tree, hfinfo, tvb, start, item_length);
 }
 
