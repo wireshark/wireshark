@@ -544,7 +544,7 @@ iostat_draw(void *arg)
     int val_mag;   /* The magnitude of the max value in this column */
     char *spaces, *spaces_s, *filler_s=NULL, **fmts, *fmt=NULL;
     const char *filter;
-    static gchar dur_mag_s[3], invl_mag_s[3], invl_prec_s[3], fr_mag_s[3], val_mag_s[3], *invl_fmt, *full_fmt;
+    static gchar dur_mag_s[3], invl_prec_s[3], fr_mag_s[3], val_mag_s[3], *invl_fmt, *full_fmt;
     io_stat_item_t *mit, **stat_cols, *item, **item_in_column;
     gboolean last_row=FALSE;
     io_stat_t *iot;
@@ -996,7 +996,8 @@ iostat_draw(void *arg)
                   g_free(full_fmt);
                   g_snprintf(dur_mag_s, 3, "%u", maxw);
                   full_fmt = g_strconcat( dur_mag==1 ? "|  " : "| ",
-                                          invl_fmt, " <> ", g_strconcat("%-", dur_mag_s, "s|"), NULL);
+                                          invl_fmt, " <> ", "%-",
+                                          dur_mag_s, "s|", NULL);
                   printf(full_fmt, (guint32)(t/1000000ULL), "Dur");
               } else {
               printf(full_fmt, (guint32)(t/1000000ULL),
@@ -1370,7 +1371,7 @@ iostat_init(const char *optarg, void* userdata _U_)
             invl_len = (int)(intv_end - invl_start);
             invl_start = g_strstr_len(invl_start, invl_len, ".");
 
-            if (invl_start > 0) {
+            if (invl_start != NULL) {
                 invl_len = (int)(intv_end - invl_start - 1);
                 if (invl_len)
                     io->invl_prec = MIN(invl_len, 6);
