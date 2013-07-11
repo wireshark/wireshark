@@ -79,8 +79,8 @@ static int hf_isakmp_nat_hash = -1;
 static int hf_isakmp_nat_original_address_ipv6 = -1;
 static int hf_isakmp_nat_original_address_ipv4 = -1;
 
-static int hf_isakmp_icookie         = -1;
-static int hf_isakmp_rcookie         = -1;
+static int hf_isakmp_ispi         = -1;
+static int hf_isakmp_rspi         = -1;
 static int hf_isakmp_typepayload     = -1;
 static int hf_isakmp_nextpayload     = -1;
 static int hf_isakmp_criticalpayload = -1;
@@ -2791,10 +2791,10 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif /* HAVE_LIBGCRYPT */
 
   if (tree) {
-    proto_tree_add_item(isakmp_tree, hf_isakmp_icookie, tvb, offset, COOKIE_SIZE, ENC_NA);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_ispi, tvb, offset, COOKIE_SIZE, ENC_NA);
     offset += COOKIE_SIZE;
 
-    proto_tree_add_item(isakmp_tree, hf_isakmp_rcookie, tvb, offset, COOKIE_SIZE, ENC_NA);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_rspi, tvb, offset, COOKIE_SIZE, ENC_NA);
     offset += COOKIE_SIZE;
 
     hdr.next_payload = tvb_get_guint8(tvb, offset);
@@ -4999,14 +4999,14 @@ proto_register_isakmp(void)
   module_t *isakmp_module;
 #endif
   static hf_register_info hf[] = {
-    { &hf_isakmp_icookie,
-      { "Initiator cookie", "isakmp.icookie",
+    { &hf_isakmp_ispi,
+      { "Initiator SPI", "isakmp.ispi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "ISAKMP Initiator Cookie", HFILL }},
-    { &hf_isakmp_rcookie,
-      { "Responder cookie", "isakmp.rcookie",
+        "ISAKMP Initiator SPI", HFILL }},
+    { &hf_isakmp_rspi,
+      { "Responder SPI", "isakmp.rspi",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "ISAKMP Responder Cookie", HFILL }},
+        "ISAKMP Responder SPI", HFILL }},
     { &hf_isakmp_typepayload,
       { "Type Payload", "isakmp.typepayload",
         FT_UINT8,BASE_RANGE_STRING | BASE_DEC, RVALS(payload_type), 0x0,
