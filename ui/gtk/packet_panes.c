@@ -194,6 +194,38 @@ redraw_packet_bytes_all(void)
 }
 
 static void
+check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter)
+{
+    /* code inspired by gtk_tree_model_foreach_helper */
+
+    field_info *fi;
+
+    do {
+        GtkTreeIter child;
+
+        if (gtk_tree_model_iter_children(model, &child, iter)) {
+            gtk_tree_model_get(model, iter, 1, &fi, -1);
+
+            if (tree_expanded(fi->tree_type)) {
+                gtk_tree_view_expand_row(tree_view, path, FALSE);
+
+                if (prefs.gui_auto_scroll_on_expand)
+                     gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
+
+                /* try to expand children only when parent is expanded */
+                gtk_tree_path_down(path);
+                check_expand_children(tree_view, model, path, &child);
+                gtk_tree_path_up(path);
+
+            } else
+                gtk_tree_view_collapse_row(tree_view, path);
+        }
+
+        gtk_tree_path_next(path);
+    } while (gtk_tree_model_iter_next(model, iter));
+}
+
+static void
 expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
             GtkTreePath *path _U_, gpointer user_data _U_)
 {
@@ -214,8 +246,13 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be expanded.
      */
-    if (finfo->tree_type != -1)
-    	tree_expanded_set(finfo->tree_type, TRUE);
+    if (finfo->tree_type != -1) {
+        tree_expanded_set(finfo->tree_type, TRUE);
+
+        /* Expand any subtrees that the user had left open */
+        check_expand_children(tree_view, model, path, iter);
+
+    }
 }
 
 static void
@@ -234,7 +271,7 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
      * are thus presumably leaf nodes and cannot be collapsed.
      */
     if (finfo->tree_type != -1)
-    	tree_expanded_set(finfo->tree_type, FALSE);
+        tree_expanded_set(finfo->tree_type, FALSE);
 }
 
 struct field_lookup_info {
@@ -807,19 +844,19 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                   int pstart, int pend,
                   int encoding)
 {
-	bytes_view_set_encoding(BYTES_VIEW(bv), encoding);
-	bytes_view_set_format(BYTES_VIEW(bv), recent.gui_bytes_view);
-	bytes_view_set_data(BYTES_VIEW(bv), pd, len);
+        bytes_view_set_encoding(BYTES_VIEW(bv), encoding);
+        bytes_view_set_format(BYTES_VIEW(bv), recent.gui_bytes_view);
+        bytes_view_set_data(BYTES_VIEW(bv), pd, len);
 
-	bytes_view_set_highlight_style(BYTES_VIEW(bv), prefs.gui_hex_dump_highlight_style);
+        bytes_view_set_highlight_style(BYTES_VIEW(bv), prefs.gui_hex_dump_highlight_style);
 
-	bytes_view_set_highlight(BYTES_VIEW(bv), bstart, bend, bmask, bmask_le);
-	bytes_view_set_highlight_extra(BYTES_VIEW(bv), BYTE_VIEW_HIGHLIGHT_APPENDIX, astart, aend);
-	bytes_view_set_highlight_extra(BYTES_VIEW(bv), BYTE_VIEW_HIGHLIGHT_PROTOCOL, pstart, pend);
+        bytes_view_set_highlight(BYTES_VIEW(bv), bstart, bend, bmask, bmask_le);
+        bytes_view_set_highlight_extra(BYTES_VIEW(bv), BYTE_VIEW_HIGHLIGHT_APPENDIX, astart, aend);
+        bytes_view_set_highlight_extra(BYTES_VIEW(bv), BYTE_VIEW_HIGHLIGHT_PROTOCOL, pstart, pend);
 
-	if (bstart != -1 && bend != -1)
-		bytes_view_scroll_to_byte(BYTES_VIEW(bv), bstart);
-	bytes_view_refresh(BYTES_VIEW(bv));
+        if (bstart != -1 && bend != -1)
+                bytes_view_scroll_to_byte(BYTES_VIEW(bv), bstart);
+        bytes_view_refresh(BYTES_VIEW(bv));
 }
 
 static field_info *
@@ -1360,39 +1397,6 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
     return TRUE;
 }
 
-static void
-expand_finfos(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gboolean scroll_it)
-{
-    /* code inspired by gtk_tree_model_foreach_helper */
-
-    field_info *fi;
-
-    do {
-        GtkTreeIter child;
-
-        if (gtk_tree_model_iter_children(model, &child, iter)) {
-            gtk_tree_model_get(model, iter, 1, &fi, -1);
-
-            if (tree_expanded(fi->tree_type)) {
-                gtk_tree_view_expand_row(tree_view, path, FALSE);
-
-                /* from expand_tree() */
-                if (scroll_it)
-                     gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
-
-                /* try to expand children only when parent is expanded */
-                gtk_tree_path_down(path);
-                expand_finfos(tree_view, model, path, &child, scroll_it);
-                gtk_tree_path_up(path);
-
-            } else
-                gtk_tree_view_collapse_row(tree_view, path);
-        }
-
-        gtk_tree_path_next(path);
-    } while (gtk_tree_model_iter_next(model, iter));
-}
-
 void
 proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, const e_addr_resolve *resolv)
 {
@@ -1410,7 +1414,7 @@ proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, const e
     /* modified version of gtk_tree_model_foreach */
     path = gtk_tree_path_new_first();
     if (gtk_tree_model_get_iter(GTK_TREE_MODEL(model), &iter, path))
-        expand_finfos(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model), path, &iter, prefs.gui_auto_scroll_on_expand);
+        check_expand_children(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model), path, &iter);
     gtk_tree_path_free(path);
 
     g_signal_handlers_unblock_by_func(tree_view, expand_tree, NULL);
