@@ -248,6 +248,7 @@ static gint ett_caa_flags = -1;
 static gint ett_caa_data = -1;
 
 static expert_field ei_dns_rr_opt_bad_length = EI_INIT;
+static expert_field ei_dns_depr_opc = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
@@ -403,7 +404,8 @@ typedef struct _dns_conv_info_t {
 #define O_UL             2              /* Update lease (on-hold, draft-sekar-dns-ul) */
 #define O_NSID           3              /* Name Server Identifier (RFC 5001) */
 #define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
-#define O_CLIENT_SUBNET  0x50fa         /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
+#define O_CLIENT_SUBNET  8              /* Client subnet as assigned by IANA */
+#define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -804,7 +806,8 @@ static const value_string edns0_opt_code_vals[] = {
   {O_UL,         "UL - Update lease"},
   {O_NSID,       "NSID - Name Server Identifier"},
   {O_OWNER,      "Owner (reserved)"},
-  {O_CLIENT_SUBNET, "Experimental - CSUBNET - Client subnet" },
+  {O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet" },
+  {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
@@ -2372,7 +2375,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int rropt_len = data_len;
       guint16 optcode, optlen;
-      proto_item *rropt;
+      proto_item *rropt, *rroptlen;
       proto_tree *rropt_tree;
 
       while (rropt_len > 0) {
@@ -2395,13 +2398,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         rropt = proto_tree_add_item(rr_tree, hf_dns_rr_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
         proto_item_append_text(rropt, ": %s", val_to_str(optcode, edns0_opt_code_vals, "Unknown (%d)"));
         rropt_tree = proto_item_add_subtree(rropt, ett_dns_opts);
-        proto_tree_add_item(rropt_tree, hf_dns_rr_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        rropt = proto_tree_add_item(rropt_tree, hf_dns_rr_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
-        rropt = proto_tree_add_item(rropt_tree, hf_dns_rr_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+        rroptlen = proto_tree_add_item(rropt_tree, hf_dns_rr_opt_len, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
 
         proto_tree_add_item(rropt_tree, hf_dns_rr_opt_data, tvb, cur_offset, optlen, ENC_NA);
         switch(optcode) {
+          case O_CLIENT_SUBNET_EXP:
+             expert_add_info_format_text(pinfo, rropt, &ei_dns_depr_opc,
+                "Deprecated opcode. Client subnet OPT assigned as %d.", O_CLIENT_SUBNET);
+            /* Intentional fall-through */
           case O_CLIENT_SUBNET:{
             guint16 family;
             union {
@@ -2418,7 +2425,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             cur_offset += 1;
 
             if (optlen-4 > 16) {
-              expert_add_info(pinfo, rropt, &ei_dns_rr_opt_bad_length);
+              expert_add_info(pinfo, rroptlen, &ei_dns_rr_opt_bad_length);
               /* Avoid stack-smashing which occurs otherwise with the
                * following tvb_memcpy. */
               optlen = 20;
@@ -4811,6 +4818,7 @@ proto_register_dns(void)
 
   static ei_register_info ei[] = {
      { &ei_dns_rr_opt_bad_length, { "dns.rr.opt.bad_length", PI_MALFORMED, PI_ERROR, "Length too long for any type of IP address.", EXPFILL }},
+     { &ei_dns_depr_opc, { "dns.depr.opc", PI_PROTOCOL, PI_WARN, "Deprecated opcode", EXPFILL }},
   };
 
   static gint *ett[] = {
