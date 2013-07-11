@@ -270,7 +270,7 @@ static const value_string openflow_type_values[] = {
 #define OFPPF_PAUSE_ASYM   1<<11 /* Asymmetric pause. */
 
 static void
-dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
     proto_item *ti;
     proto_tree *port_cnf_tree, *port_state_tree, *port_cf_tree;
@@ -307,17 +307,17 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     port_state_tree = proto_item_add_subtree(ti, ett_openflow_port_state);
 
     /* No physical link present. */
-    proto_tree_add_item(port_cnf_tree, hf_openflow_link_down, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_state_tree, hf_openflow_link_down, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* Not learning or relaying frames. */
-    proto_tree_add_item(port_cnf_tree, hf_openflow_stp_listen, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_state_tree, hf_openflow_stp_listen, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* Learning but not relaying frames. */
-    proto_tree_add_item(port_cnf_tree, hf_openflow_stp_learn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_state_tree, hf_openflow_stp_learn, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* Learning and relaying frames. */
-    proto_tree_add_item(port_cnf_tree, hf_openflow_stp_forward, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_state_tree, hf_openflow_stp_forward, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* Not part of spanning tree. */
-    proto_tree_add_item(port_cnf_tree, hf_openflow_stp_block, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_state_tree, hf_openflow_stp_block, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* Bit mask for OFPPS_STP_* values. */
-    proto_tree_add_item(port_cnf_tree, hf_openflow_stp_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(port_state_tree, hf_openflow_stp_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     offset+=4;
 
