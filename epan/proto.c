@@ -648,7 +648,7 @@ proto_field_is_referenced(proto_tree *tree, int proto_id)
 }
 
 
-/* Finds a record in the hf_info_records array by id. */
+/* Finds a record in the hfinfo array by id. */
 header_field_info *
 proto_registrar_get_nth(guint hfindex)
 {
@@ -731,7 +731,7 @@ proto_initialize_all_prefixes(void) {
 	g_hash_table_foreach_remove(prefixes, initialize_prefix, NULL);
 }
 
-/* Finds a record in the hf_info_records array by name.
+/* Finds a record in the hfinfo array by name.
  * If it fails to find it in the already registered fields,
  * it tries to find and call an initializer in the prefixes
  * table and if so it looks again.
@@ -6849,7 +6849,7 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 }
 
 proto_item *
-proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+proto_tree_add_bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			 const guint bit_offset, const gint no_of_bits,
 			 const guint encoding)
 {
@@ -6857,7 +6857,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 	gint		  octet_length;
 	gint		  octet_offset;
 
-	PROTO_REGISTRAR_GET_NTH(hf_index, hfinfo);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	octet_length = (no_of_bits + 7) >> 3;
 	octet_offset = bit_offset >> 3;
@@ -6867,9 +6867,9 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 	 * but only after doing a bunch more work (which we can, in the common
 	 * case, shortcut here).
 	 */
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hfinfo);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, encoding);
+	return proto_tree_add_bits_ret_val(tree, hfindex, tvb, bit_offset, no_of_bits, NULL, encoding);
 }
 
 /*
@@ -6879,7 +6879,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
  */
 
 static proto_item *
-_proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+_proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			    const guint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const guint encoding)
 {
@@ -6896,7 +6896,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
-	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val"
@@ -6942,7 +6942,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	}
 
 	/* Coast clear. Try and fake it */
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	bf_str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
@@ -6952,7 +6952,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 		tfstring = (const true_false_string *) &tfs_true_false;
 		if (hf_field->strings)
 			tfstring = (const true_false_string *)hf_field->strings;
-		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
+		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, (guint32)value,
 			"%s = %s: %s",
 			bf_str, hf_field->name,
 			(guint32)value ? tfstring->true_string : tfstring->false_string);
@@ -6962,7 +6962,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
-		pi = proto_tree_add_uint(tree, hf_index, tvb, offset, length, (guint32)value);
+		pi = proto_tree_add_uint(tree, hfindex, tvb, offset, length, (guint32)value);
 		fill_label_number(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
@@ -6970,17 +6970,17 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
-		pi = proto_tree_add_int(tree, hf_index, tvb, offset, length, (gint32)value);
+		pi = proto_tree_add_int(tree, hfindex, tvb, offset, length, (gint32)value);
 		fill_label_number(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
 	case FT_UINT64:
-		pi = proto_tree_add_uint64(tree, hf_index, tvb, offset, length, value);
+		pi = proto_tree_add_uint64(tree, hfindex, tvb, offset, length, value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
 	case FT_INT64:
-		pi = proto_tree_add_int64(tree, hf_index, tvb, offset, length, (gint64)value);
+		pi = proto_tree_add_int64(tree, hfindex, tvb, offset, length, (gint64)value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
@@ -6995,7 +6995,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 }
 
 proto_item *
-proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 				       const guint bit_offset, const crumb_spec_t *crumb_spec,
 				       guint64 *return_value)
 {
@@ -7016,7 +7016,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
-	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf(
@@ -7086,7 +7086,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	}
 
 	/* Coast clear. Try and fake it */
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	/* initialise the format string */
 	bf_str    = (char *)ep_alloc(256);
@@ -7113,7 +7113,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 		tfstring = (const true_false_string *) &tfs_true_false;
 		if (hf_field->strings)
 			tfstring = (const true_false_string *) hf_field->strings;
-		return proto_tree_add_boolean_format(tree, hf_index,
+		return proto_tree_add_boolean_format(tree, hfindex,
 						     tvb, octet_offset, octet_length, (guint32)value,
 						     "%s = %s: %s",
 						     bf_str, hf_field->name,
@@ -7124,7 +7124,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
-		pi = proto_tree_add_uint(tree, hf_index, tvb, octet_offset, octet_length, (guint32)value);
+		pi = proto_tree_add_uint(tree, hfindex, tvb, octet_offset, octet_length, (guint32)value);
 		fill_label_number(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
@@ -7132,17 +7132,17 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
-		pi = proto_tree_add_int(tree, hf_index, tvb, octet_offset, octet_length, (gint32)value);
+		pi = proto_tree_add_int(tree, hfindex, tvb, octet_offset, octet_length, (gint32)value);
 		fill_label_number(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
 	case FT_UINT64:
-		pi = proto_tree_add_uint64(tree, hf_index, tvb, octet_offset, octet_length, value);
+		pi = proto_tree_add_uint64(tree, hfindex, tvb, octet_offset, octet_length, value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
 	case FT_INT64:
-		pi = proto_tree_add_int64(tree, hf_index, tvb, octet_offset, octet_length, (gint64)value);
+		pi = proto_tree_add_int64(tree, hfindex, tvb, octet_offset, octet_length, (gint64)value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
@@ -7156,12 +7156,12 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 }
 
 void
-proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset,
+proto_tree_add_split_bits_crumb(proto_tree *tree, const int hfindex, tvbuff_t *tvb, const guint bit_offset,
 				const crumb_spec_t *crumb_spec, guint16 crumb_index)
 {
-	header_field_info *hf_info;
+	header_field_info *hfinfo;
 
-	PROTO_REGISTRAR_GET_NTH(hf_index, hf_info);
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	proto_tree_add_text(tree, tvb,
 			    bit_offset >> 3,
 			    ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1,
@@ -7172,17 +7172,17 @@ proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *
 							      crumb_spec[crumb_index].crumb_bit_length,
 							      ENC_BIG_ENDIAN)),
 			    crumb_index,
-			    hf_info->name);
+			    hfinfo->name);
 }
 
 proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			    const guint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const guint encoding)
 {
 	proto_item *item;
 
-	if ((item = _proto_tree_add_bits_ret_val(tree, hf_index, tvb,
+	if ((item = _proto_tree_add_bits_ret_val(tree, hfindex, tvb,
 						 bit_offset, no_of_bits,
 						 return_value, encoding))) {
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
@@ -7192,7 +7192,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 }
 
 static proto_item *
-_proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
+_proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 				 tvbuff_t *tvb, const guint bit_offset,
 				 const gint no_of_bits, void *value_ptr,
 				 gchar *value_str)
@@ -7205,7 +7205,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	header_field_info *hf_field;
 
 	/* We do not have to return a value, try to fake it as soon as possible */
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf(
@@ -7249,7 +7249,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	 */
 	switch (hf_field->type) {
 	case FT_BOOLEAN:
-		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, *(guint32 *)value_ptr,
+		return proto_tree_add_boolean_format(tree, hfindex, tvb, offset, length, *(guint32 *)value_ptr,
 						     "%s: %s", str, value_str);
 		break;
 
@@ -7257,12 +7257,12 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, *(guint32 *)value_ptr,
+		return proto_tree_add_uint_format(tree, hfindex, tvb, offset, length, *(guint32 *)value_ptr,
 						  "%s: %s", str, value_str);
 		break;
 
 	case FT_UINT64:
-		return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, *(guint64 *)value_ptr,
+		return proto_tree_add_uint64_format(tree, hfindex, tvb, offset, length, *(guint64 *)value_ptr,
 						    "%s: %s", str, value_str);
 		break;
 
@@ -7270,17 +7270,17 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
-		return proto_tree_add_int_format(tree, hf_index, tvb, offset, length, *(gint32 *)value_ptr,
+		return proto_tree_add_int_format(tree, hfindex, tvb, offset, length, *(gint32 *)value_ptr,
 						 "%s: %s", str, value_str);
 		break;
 
 	case FT_INT64:
-		return proto_tree_add_int64_format(tree, hf_index, tvb, offset, length, *(gint64 *)value_ptr,
+		return proto_tree_add_int64_format(tree, hfindex, tvb, offset, length, *(gint64 *)value_ptr,
 						   "%s: %s", str, value_str);
 		break;
 
 	case FT_FLOAT:
-		return proto_tree_add_float_format(tree, hf_index, tvb, offset, length, *(float *)value_ptr,
+		return proto_tree_add_float_format(tree, hfindex, tvb, offset, length, *(float *)value_ptr,
 						   "%s: %s", str, value_str);
 		break;
 
@@ -7292,14 +7292,14 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 }
 
 static proto_item *
-proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
+proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 				 tvbuff_t *tvb, const guint bit_offset,
 				 const gint no_of_bits, void *value_ptr,
 				 gchar *value_str)
 {
 	proto_item *item;
 
-	if ((item = _proto_tree_add_bits_format_value(tree, hf_index,
+	if ((item = _proto_tree_add_bits_format_value(tree, hfindex,
 						      tvb, bit_offset, no_of_bits,
 						      value_ptr, value_str))) {
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
@@ -7314,7 +7314,7 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	va_end(ap);
 
 proto_item *
-proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index,
+proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hfindex,
 				      tvbuff_t *tvb, const guint bit_offset,
 				      const gint no_of_bits, guint32 value,
 				      const char *format, ...)
@@ -7323,7 +7323,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index,
 	gchar  *dst;
 	header_field_info *hf_field;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	switch (hf_field->type) {
 		case FT_UINT8:
@@ -7340,11 +7340,11 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index,
 
 	CREATE_VALUE_STRING(dst, format, ap);
 
-	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
 
 proto_item *
-proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
+proto_tree_add_float_bits_format_value(proto_tree *tree, const int hfindex,
 				       tvbuff_t *tvb, const guint bit_offset,
 				       const gint no_of_bits, float value,
 				       const char *format, ...)
@@ -7353,17 +7353,17 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
 	gchar  *dst;
 	header_field_info *hf_field;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_FLOAT);
 
 	CREATE_VALUE_STRING(dst, format, ap);
 
-	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
 
 proto_item *
-proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index,
+proto_tree_add_int_bits_format_value(proto_tree *tree, const int hfindex,
 				     tvbuff_t *tvb, const guint bit_offset,
 				     const gint no_of_bits, gint32 value,
 				     const char *format, ...)
@@ -7372,7 +7372,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index,
 	gchar  *dst;
 	header_field_info *hf_field;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	switch (hf_field->type) {
 		case FT_INT8:
@@ -7389,11 +7389,11 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index,
 
 	CREATE_VALUE_STRING(dst, format, ap);
 
-	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
 
 proto_item *
-proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
+proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hfindex,
 					 tvbuff_t *tvb, const guint bit_offset,
 					 const gint no_of_bits, guint32 value,
 					 const char *format, ...)
@@ -7402,13 +7402,13 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
 	gchar  *dst;
 	header_field_info *hf_field;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
 
 	CREATE_VALUE_STRING(dst, format, ap);
 
-	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
 }
 
 guchar
