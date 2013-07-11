@@ -3804,7 +3804,7 @@ static const value_string gsm_a_rr_amr_hysteresis_vals[] = {
 };
 
 guint16
-de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8  oct;
