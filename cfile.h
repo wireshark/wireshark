@@ -27,7 +27,7 @@
 
 #include <epan/dfilter/dfilter.h>
 #include <epan/frame_data.h>
-#include "frame_data_sequence.h"
+#include <epan/frame_data_sequence.h>
 
 #ifdef __cplusplus
 extern "C" {

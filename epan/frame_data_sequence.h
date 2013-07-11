@@ -31,23 +31,23 @@ extern "C" {
 
 typedef struct _frame_data_sequence frame_data_sequence;
 
-extern frame_data_sequence *new_frame_data_sequence(void);
+WS_DLL_PUBLIC frame_data_sequence *new_frame_data_sequence(void);
 
-extern frame_data *frame_data_sequence_add(frame_data_sequence *fds,
+WS_DLL_PUBLIC frame_data *frame_data_sequence_add(frame_data_sequence *fds,
     frame_data *fdata);
 
 /*
  * Find the frame_data for the specified frame number.
  */
-extern frame_data *frame_data_sequence_find(frame_data_sequence *fds,
+WS_DLL_PUBLIC frame_data *frame_data_sequence_find(frame_data_sequence *fds,
     guint32 num);
 
 /*
  * Free a frame_data_sequence and all the frame_data structures in it.
  */
-extern void free_frame_data_sequence(frame_data_sequence *fds);
+WS_DLL_PUBLIC void free_frame_data_sequence(frame_data_sequence *fds);
 
-extern void find_and_mark_frame_depended_upon(gpointer data, gpointer user_data);
+WS_DLL_PUBLIC void find_and_mark_frame_depended_upon(gpointer data, gpointer user_data);
 
 
 #ifdef __cplusplus

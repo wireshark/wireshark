@@ -30,7 +30,7 @@
 #include <errno.h>
 #include <epan/epan.h>
 
-#include "packet-range.h"
+#include <epan/packet-range.h>
 
 #ifdef __cplusplus
 extern "C" {

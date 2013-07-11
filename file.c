@@ -51,7 +51,6 @@
 #include <epan/column.h>
 #include <epan/packet.h>
 #include <epan/column-utils.h>
-#include "packet-range.h"
 #include "print.h"
 #include "file.h"
 #include "fileset.h"

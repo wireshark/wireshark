@@ -1441,6 +1441,7 @@ set(LIBWIRESHARK_FILES
 	filter_expressions.c
 	follow.c
 	frame_data.c
+	frame_data_sequence.c
 	frequency-utils.c
 	funnel.c
 	gcp.c
@@ -1454,6 +1455,7 @@ set(LIBWIRESHARK_FILES
 	next_tvb.c
 	oids.c
 	osi-utils.c
+	packet-range.c
 	packet.c
 	plugins.c
 	prefs.c

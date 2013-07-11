@@ -38,7 +38,7 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 
-#include "packet-range.h"
+#include <epan/packet-range.h>
 #include "print.h"
 #include "isprint.h"
 #include "ps.h"

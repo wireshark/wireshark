@@ -36,7 +36,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
-#include "packet-range.h"
 #include "globals.h"
 #include "color.h"
 #include "color_filters.h"

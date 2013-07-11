@@ -30,7 +30,7 @@
 
 #include "../globals.h"
 #include "ui/simple_dialog.h"
-#include "../packet-range.h"
+#include "epan/packet-range.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

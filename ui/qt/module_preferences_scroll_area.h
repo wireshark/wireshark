@@ -29,7 +29,6 @@
 #include <glib.h>
 
 #include "color.h"
-#include "packet-range.h"
 
 #include <epan/prefs.h>
 

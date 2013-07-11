@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 
-#include "packet-range.h"
+#include <epan/packet-range.h>
 
 #ifdef __cplusplus
 extern "C" {

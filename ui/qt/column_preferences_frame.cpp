@@ -26,7 +26,6 @@
 #include <glib.h>
 
 #include "color.h"
-#include "packet-range.h"
 
 #include <epan/column_info.h>
 #include <epan/column.h>

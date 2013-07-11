@@ -51,9 +51,7 @@ SHARK_COMMON_SRC =	\
 	cfutils.c		\
 	clopts_common.c		\
 	disabled_protos.c	\
-	frame_data_sequence.c	\
 	frame_tvbuff.c		\
-	packet-range.c		\
 	print.c			\
 	ps.c			\
 	sync_pipe_write.c	\
@@ -72,10 +70,8 @@ SHARK_COMMON_INCLUDES =	\
 	disabled_protos.h	\
 	file.h			\
 	fileset.h		\
-	frame_data_sequence.h	\
 	frame_tvbuff.h		\
 	isprint.h		\
-	packet-range.h		\
 	print.h			\
 	ps.h			\
 	register.h		\
