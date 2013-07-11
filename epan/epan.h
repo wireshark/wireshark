@@ -158,12 +158,12 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols);
 WS_DLL_PUBLIC
 void
 epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        const guint8* data, frame_data *fd, column_info *cinfo);
+        tvbuff_t *tvb, frame_data *fd, column_info *cinfo);
 
 WS_DLL_PUBLIC
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        const guint8* data, frame_data *fd, column_info *cinfo);
+        tvbuff_t *tvb, frame_data *fd, column_info *cinfo);
 
 /** Prime a proto_tree using the fields/protocols used in a dfilter. */
 WS_DLL_PUBLIC

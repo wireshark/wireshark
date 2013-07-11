@@ -68,6 +68,8 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
 
+#include "frame_tvbuff.h"
+
 #define BV_SIZE 75
 #define TV_SIZE 95
 
@@ -193,7 +195,7 @@ redissect_packet_window(gpointer object, gpointer user_data _U_)
 	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd), DataPtr->frame, NULL);
 	add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 	proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 
@@ -268,7 +270,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 	if (old_finfo->hfinfo)
 		proto_tree_prime_hfid(edt.tree, old_finfo->hfinfo->id);
 	*/
-	epan_dissect_run(&edt, &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
+	epan_dissect_run(&edt, &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd), DataPtr->frame, NULL);
 
 	/* Try to find finfo which looks like old_finfo.
 	 * We might not found one, if protocol requires specific magic values, etc... */
@@ -731,7 +733,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 			proto_tree_draw(NULL, DataPtr->tree_view);
 			epan_dissect_cleanup(&(DataPtr->edt));
 			epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-			epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd, DataPtr->frame, NULL);
+			epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd), DataPtr->frame, NULL);
 			add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 			proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
 		}
@@ -963,7 +965,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 	memcpy(DataPtr->pd, buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
-	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, DataPtr->pd,
+	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd),
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);
 

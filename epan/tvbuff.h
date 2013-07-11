@@ -113,6 +113,8 @@ typedef struct tvbuff tvbuff_t;
 
 typedef void (*tvbuff_free_cb_t)(void*);
 
+WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops)
+
 /** Extracts 'number of bits' starting at 'bit offset'.
  * Returns a pointer to a newly initialized ep_alloc'd REAL_DATA
  * tvbuff with the bits octet aligned.

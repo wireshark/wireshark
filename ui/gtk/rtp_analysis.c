@@ -93,6 +93,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "frame_tvbuff.h"
+
 enum
 {
 	PACKET_COLUMN,
@@ -3946,7 +3948,7 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		return;	/* error reading the frame */
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata, NULL);
+	epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 
 	/* if it is not an rtp frame, show the rtpstream dialog */
 	frame_matched = dfilter_apply_edt(sfcode, &edt);

@@ -73,6 +73,7 @@
 #include "globals.h"
 #include <epan/packet.h>
 #include "file.h"
+#include "frame_tvbuff.h"
 #include "disabled_protos.h"
 #include <epan/prefs.h>
 #include <epan/column.h>
@@ -1077,7 +1078,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
-    epan_dissect_run_with_taps(&edt, whdr, pd, &fdata, &cf->cinfo);
+    epan_dissect_run_with_taps(&edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, &cf->cinfo);
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);
     prev_dis_frame = fdata;

@@ -55,6 +55,7 @@
 #include "print.h"
 #include "file.h"
 #include "fileset.h"
+#include "frame_tvbuff.h"
 #include "wsutil/tempfile.h"
 #include "merge.h"
 
@@ -1131,7 +1132,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       epan_dissect_prime_dfilter(&edt, dfcode);
   }
 
-  epan_dissect_run_with_taps(&edt, phdr, buf, fdata, cinfo);
+  epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new(fdata, buf), fdata, cinfo);
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
@@ -1217,7 +1218,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     epan_dissect_t edt;
     epan_dissect_init(&edt, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, cf->rfcode);
-    epan_dissect_run(&edt, phdr, buf, &fdlocal, NULL);
+    epan_dissect_run(&edt, phdr, frame_tvbuff_new(&fdlocal, buf), &fdlocal, NULL);
     passed = dfilter_apply_edt(cf->rfcode, &edt);
     epan_dissect_cleanup(&edt);
   }
@@ -2292,7 +2293,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
   epan_dissect_t         edt;
 
   epan_dissect_init(&edt, args->construct_protocol_tree, FALSE);
-  epan_dissect_run_with_taps(&edt, phdr, pd, fdata, args->cinfo);
+  epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, args->cinfo);
   epan_dissect_cleanup(&edt);
 
   return TRUE;
@@ -2388,10 +2389,10 @@ print_packet(capture_file *cf, frame_data *fdata,
      information. */
   if (args->print_args->print_summary) {
     col_custom_prime_edt(&edt, &cf->cinfo);
-    epan_dissect_run(&edt, phdr, pd, fdata, &cf->cinfo);
+    epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
     epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
   } else
-    epan_dissect_run(&edt, phdr, pd, fdata, NULL);
+    epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   if (args->print_formfeed) {
     if (!new_page(args->print_args->stream))
@@ -2689,7 +2690,7 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
 
   /* Create the protocol tree, but don't fill in the column information. */
   epan_dissect_init(&edt, TRUE, TRUE);
-  epan_dissect_run(&edt, phdr, pd, fdata, NULL);
+  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
 
   /* Write out the information in that tree. */
   proto_tree_write_pdml(&edt, fh);
@@ -2763,7 +2764,7 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
   proto_tree_needed = have_custom_cols(&cf->cinfo);
   epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
   col_custom_prime_edt(&edt, &cf->cinfo);
-  epan_dissect_run(&edt, phdr, pd, fdata, &cf->cinfo);
+  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
 
   /* Write out the information in that tree. */
@@ -2838,7 +2839,7 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
   proto_tree_needed = have_custom_cols(&cf->cinfo);
   epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
   col_custom_prime_edt(&edt, &cf->cinfo);
-  epan_dissect_run(&edt, phdr, pd, fdata, &cf->cinfo);
+  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
 
   /* Write out the information in that tree. */
@@ -2908,7 +2909,7 @@ write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
   epan_dissect_t  edt;
 
   epan_dissect_init(&edt, TRUE, TRUE);
-  epan_dissect_run(&edt, phdr, pd, fdata, NULL);
+  epan_dissect_run(&edt, phdr, frame_tvbuff_new(fdata, pd), fdata, NULL);
   proto_tree_write_carrays(fdata->num, fh, &edt);
   epan_dissect_cleanup(&edt);
 
@@ -3001,7 +3002,7 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
   /* Construct the protocol tree, including the displayed text */
   epan_dissect_init(&edt, TRUE, TRUE);
   /* We don't need the column information */
-  epan_dissect_run(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata, NULL);
+  epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 
   /* Iterate through all the nodes, seeing if they have text that matches. */
   mdata->cf = cf;
@@ -3105,7 +3106,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   /* Don't bother constructing the protocol tree */
   epan_dissect_init(&edt, FALSE, FALSE);
   /* Get the column information */
-  epan_dissect_run(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata,
+  epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata,
                    &cf->cinfo);
 
   /* Find the Info column */
@@ -3413,7 +3414,7 @@ match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
 
   epan_dissect_init(&edt, TRUE, FALSE);
   epan_dissect_prime_dfilter(&edt, sfcode);
-  epan_dissect_run(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata, NULL);
+  epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
   result = dfilter_apply_edt(sfcode, &edt) ? MR_MATCHED : MR_NOTMATCHED;
   epan_dissect_cleanup(&edt);
   return result;
@@ -3746,7 +3747,7 @@ cf_select_packet(capture_file *cf, int row)
   cf->edt = epan_dissect_new(TRUE, TRUE);
 
   tap_build_interesting(cf->edt);
-  epan_dissect_run(cf->edt, &cf->phdr, buffer_start_ptr(&cf->buf),
+  epan_dissect_run(cf->edt, &cf->phdr, frame_tvbuff_new_buffer(cf->current_frame, &cf->buf),
                    cf->current_frame, NULL);
 
   dfilter_macro_build_ftv_cache(cf->edt->tree);

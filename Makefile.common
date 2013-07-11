@@ -52,6 +52,7 @@ SHARK_COMMON_SRC =	\
 	clopts_common.c		\
 	disabled_protos.c	\
 	frame_data_sequence.c	\
+	frame_tvbuff.c		\
 	packet-range.c		\
 	print.c			\
 	ps.c			\
@@ -72,6 +73,7 @@ SHARK_COMMON_INCLUDES =	\
 	file.h			\
 	fileset.h		\
 	frame_data_sequence.h	\
+	frame_tvbuff.h		\
 	isprint.h		\
 	packet-range.h		\
 	print.h			\

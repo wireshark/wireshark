@@ -442,7 +442,7 @@ WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame
  * Dissectors should never modify the packet data.
  */
 extern void dissect_packet(epan_dissect_t *edt,
-    struct wtap_pkthdr *phdr, const guchar *pd,
+    struct wtap_pkthdr *phdr, tvbuff_t *tvb,
     frame_data *fd, column_info *cinfo);
 
 /* These functions are in packet-ethertype.c */

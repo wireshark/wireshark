@@ -55,6 +55,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "frame_tvbuff.h"
+
 #define TCP_SYN(flags)      ( flags & TH_SYN )
 #define TCP_ACK(flags)      ( flags & TH_ACK )
 #define TCP_FIN(flags)      ( flags & TH_FIN )
@@ -1987,7 +1989,7 @@ static struct tcpheader *select_tcpip_session(capture_file *cf, struct segment *
 
     epan_dissect_init(&edt, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, sfcode);
-    epan_dissect_run_with_taps(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata, NULL);
+    epan_dissect_run_with_taps(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
     epan_dissect_cleanup(&edt);
     remove_tap_listener(&th);
 

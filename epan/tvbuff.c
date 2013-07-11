@@ -62,7 +62,7 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
-static tvbuff_t *
+tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
 {
 	tvbuff_t *tvb;

@@ -41,6 +41,8 @@
 #include "ui/gtk/sctp_stat.h"
 #include "ui/gtk/gtkglobals.h"
 
+#include "frame_tvbuff.h"
+
 static sctp_assoc_info_t static_assoc;
 
 void
@@ -977,7 +979,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 
 	epan_dissect_init(&edt, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata, NULL);
+	epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 	frame_matched = dfilter_apply_edt(sfcode, &edt);
 
 	/* if it is not an sctp frame, show the dialog */

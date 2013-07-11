@@ -64,6 +64,7 @@
 #include <epan/timestamp.h>
 #include <epan/packet.h>
 #include "file.h"
+#include "frame_tvbuff.h"
 #include "disabled_protos.h"
 #include <epan/prefs.h>
 #include <epan/column.h>
@@ -2696,7 +2697,7 @@ process_packet_first_pass(capture_file *cf,
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &first_ts, prev_dis, prev_cap);
 
-    epan_dissect_run(&edt, whdr, pd, &fdlocal, NULL);
+    epan_dissect_run(&edt, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
@@ -2785,7 +2786,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     frame_data_set_before_dissect(fdata, &cf->elapsed_time,
                                   &first_ts, prev_dis, prev_cap);
 
-    epan_dissect_run_with_taps(&edt, phdr, buffer_start_ptr(buf), fdata, cinfo);
+    epan_dissect_run_with_taps(&edt, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
     if (cf->dfcode)
@@ -3247,7 +3248,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
                                   &first_ts, prev_dis, prev_cap);
 
-    epan_dissect_run_with_taps(&edt, whdr, pd, &fdata, cinfo);
+    epan_dissect_run_with_taps(&edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
 
     /* Run the filters if we have them. */
     if (cf->rfcode)

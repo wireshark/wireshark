@@ -34,6 +34,7 @@
 
 #include "color.h"
 #include "color_filters.h"
+#include "frame_tvbuff.h"
 
 #include "wireshark_application.h"
 #include <QColor>
@@ -247,7 +248,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     if (dissect_columns)
         col_custom_prime_edt(&edt, cinfo);
 
-    epan_dissect_run(&edt, &phdr, buffer_start_ptr(&buf), fdata, cinfo);
+    epan_dissect_run(&edt, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
 
     if (enable_color_)
         fdata->color_filter = color_filters_colorize_packet(&edt);

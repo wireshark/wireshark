@@ -654,6 +654,7 @@ set(WIRESHARK_COMMON_SRC
 	clopts_common.c
 	disabled_protos.c
 	frame_data_sequence.c
+	frame_tvbuff.c
 	packet-range.c
 	print.c
 	ps.c

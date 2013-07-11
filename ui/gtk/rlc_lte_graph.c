@@ -39,6 +39,7 @@
 #include <epan/tap.h>
 
 #include "../globals.h"
+#include "../frame_tvbuff.h"
 #include "ui/simple_dialog.h"
 #include "../stat_menu.h"
 
@@ -915,7 +916,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
 
     epan_dissect_init(&edt, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, sfcode);
-    epan_dissect_run_with_taps(&edt, &cf->phdr, buffer_start_ptr(&cf->buf), fdata, NULL);
+    epan_dissect_run_with_taps(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
     epan_dissect_cleanup(&edt);
     remove_tap_listener(&th);
 
