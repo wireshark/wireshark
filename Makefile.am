@@ -329,7 +329,7 @@ wireshark_qt_LDFLAGS = -Wl,-static -all-static
 endif
 else
 if HAVE_GTK
-wireshark_LDFLAGS = -export-dynamic
+wireshark_LDFLAGS = -export-dynamic -Wl,-rpath @executable_path/../lib -rpath /usr/local/lib
 endif
 if HAVE_Qt
 wireshark_qt_LDFLAGS = -export-dynamic
@@ -705,6 +705,7 @@ EXTRA_DIST = \
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
+	epan/print.ps		\
 	fix/FIX.xml		\
 	fix/FIX40.xml		\
 	fix/FIX41.xml		\
@@ -933,7 +934,6 @@ EXTRA_DIST = \
 	manuf.tmpl		\
 	mergecap.c		\
 	pdml2html.xsl		\
-	print.ps		\
 	$(diameter_DATA)	\
 	$(dtds_DATA)		\
 	$(nobase_profiles_DATA)	\
