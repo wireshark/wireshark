@@ -31,6 +31,26 @@
 #include "tvbuff.h"
 #include "addr_and_mask.h"
 
+guint32
+ip_get_subnet_mask(const guint32 mask_length)
+{
+	static guint32 masks[33] = {
+		0x00000000,
+		0x80000000, 0xc0000000, 0xe0000000, 0xf0000000,
+		0xf8000000, 0xfc000000, 0xfe000000, 0xff000000,
+		0xff800000, 0xffc00000, 0xffe00000, 0xfff00000,
+		0xfff80000, 0xfffc0000, 0xfffe0000, 0xffff0000,
+		0xffff8000, 0xffffc000, 0xffffe000, 0xfffff000,
+		0xfffff800, 0xfffffc00, 0xfffffe00, 0xffffff00,
+		0xffffff80, 0xffffffc0, 0xffffffe0, 0xfffffff0,
+		0xfffffff8, 0xfffffffc, 0xfffffffe, 0xffffffff,
+	};
+
+	g_assert(mask_length <= 32);
+
+	return masks[mask_length];
+}
+
 /*
  * These routines return the length of the address in bytes on success
  * and -1 if the prefix length is too long.

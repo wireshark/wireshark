@@ -120,6 +120,7 @@
 
 #include "report_err.h"
 #include "packet.h"
+#include "addr_and_mask.h"
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
@@ -2301,67 +2302,6 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
   have_subnet_entry = TRUE;
 }
 
-static guint32
-get_subnet_mask(const guint32 mask_length) {
-
-  static guint32 masks[SUBNETLENGTHSIZE];
-  static gboolean initialised = FALSE;
-
-  if(!initialised) {
-    memset(masks, 0, sizeof(masks));
-
-    initialised = TRUE;
-
-    /* XXX There must be a better way to do this than
-     * hand-coding the values, but I can't seem to
-     * come up with one!
-     */
-
-    inet_pton(AF_INET, "128.0.0.0", &masks[0]);
-    inet_pton(AF_INET, "192.0.0.0", &masks[1]);
-    inet_pton(AF_INET, "224.0.0.0", &masks[2]);
-    inet_pton(AF_INET, "240.0.0.0", &masks[3]);
-    inet_pton(AF_INET, "248.0.0.0", &masks[4]);
-    inet_pton(AF_INET, "252.0.0.0", &masks[5]);
-    inet_pton(AF_INET, "254.0.0.0", &masks[6]);
-    inet_pton(AF_INET, "255.0.0.0", &masks[7]);
-
-    inet_pton(AF_INET, "255.128.0.0", &masks[8]);
-    inet_pton(AF_INET, "255.192.0.0", &masks[9]);
-    inet_pton(AF_INET, "255.224.0.0", &masks[10]);
-    inet_pton(AF_INET, "255.240.0.0", &masks[11]);
-    inet_pton(AF_INET, "255.248.0.0", &masks[12]);
-    inet_pton(AF_INET, "255.252.0.0", &masks[13]);
-    inet_pton(AF_INET, "255.254.0.0", &masks[14]);
-    inet_pton(AF_INET, "255.255.0.0", &masks[15]);
-
-    inet_pton(AF_INET, "255.255.128.0", &masks[16]);
-    inet_pton(AF_INET, "255.255.192.0", &masks[17]);
-    inet_pton(AF_INET, "255.255.224.0", &masks[18]);
-    inet_pton(AF_INET, "255.255.240.0", &masks[19]);
-    inet_pton(AF_INET, "255.255.248.0", &masks[20]);
-    inet_pton(AF_INET, "255.255.252.0", &masks[21]);
-    inet_pton(AF_INET, "255.255.254.0", &masks[22]);
-    inet_pton(AF_INET, "255.255.255.0", &masks[23]);
-
-    inet_pton(AF_INET, "255.255.255.128", &masks[24]);
-    inet_pton(AF_INET, "255.255.255.192", &masks[25]);
-    inet_pton(AF_INET, "255.255.255.224", &masks[26]);
-    inet_pton(AF_INET, "255.255.255.240", &masks[27]);
-    inet_pton(AF_INET, "255.255.255.248", &masks[28]);
-    inet_pton(AF_INET, "255.255.255.252", &masks[29]);
-    inet_pton(AF_INET, "255.255.255.254", &masks[30]);
-    inet_pton(AF_INET, "255.255.255.255", &masks[31]);
-  }
-
-  if(mask_length == 0 || mask_length > SUBNETLENGTHSIZE) {
-    g_assert_not_reached();
-    return 0;
-  } else {
-    return masks[mask_length - 1];
-  }
-}
-
 static void
 subnet_name_lookup_init(void)
 {
@@ -2373,7 +2313,7 @@ subnet_name_lookup_init(void)
 
     subnet_length_entries[i].subnet_addresses  = NULL;
     subnet_length_entries[i].mask_length  = length;
-    subnet_length_entries[i].mask = get_subnet_mask(length);
+    subnet_length_entries[i].mask = g_htonl(ip_get_subnet_mask(length));
   }
 
   subnetspath = get_persconffile_path(ENAME_SUBNETS, FALSE);
