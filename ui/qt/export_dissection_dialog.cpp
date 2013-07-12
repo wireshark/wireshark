@@ -25,7 +25,7 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
-#include "packet-range.h"
+#include "epan/packet-range.h"
 #include "ui/win32/file_dlg_win32.h"
 #else // Q_OS_WIN
 #include "print.h"
