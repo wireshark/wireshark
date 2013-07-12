@@ -36,12 +36,12 @@ epan/wslua/init.lua
 epan/wslua/register_wslua.c
 epan/wslua/taps.txt
 epan/wslua/taps_wslua.c
+epan/ps.c
 ui/cli/tshark-tap-register-cache.pkl
 ui/gtk/wireshark-tap-register.c
 ui/gtk/wireshark-tap-register-cache.pkl
 plugin.c
 plugins/mate/mate_parser.c
-ps.c
 svnversion.h
 tools/lemon/lemon
 tools/lemon/lemon
