@@ -225,6 +225,7 @@ LIBWIRESHARK_INCLUDES =		\
 	prefs.h			\
 	prefs-int.h		\
 	proto.h			\
+	ps.h			\
 	ptvcursor.h		\
 	range.h			\
 	reassemble.h		\
