@@ -395,7 +395,6 @@ wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 wireshark_LDADD = ui/gtk/libgtkui.a $(wireshark_ldadd) @GTK_LIBS@
-wireshark_LINK = $(LINK)
 endif
 
 # Ideally we could trigger automatic c++ linking here with
