@@ -2496,19 +2496,19 @@ static const FieldPart I048_120_02_FRQ = { 16, 1.0, FIELD_PART_UINT, &hf_048_120
 static const FieldPart *I048_120_02_PARTS[] = { &I048_120_02_DOP, &I048_120_02_AMB, &I048_120_02_FRQ, NULL };
 
 /* Radar Plot Characteristics */
-static const FieldPart I048_130_SRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UFLOAT, NULL/*&hf_048_130_01*/, NULL };
+static const FieldPart I048_130_SRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UINT, NULL/*&hf_048_130_01*/, NULL };
 static const FieldPart *I048_130_SRL[] = { &I048_130_SRL_VAL, NULL };
 static const FieldPart I048_130_SRR_VAL = { 8, 1.0, FIELD_PART_UINT, NULL/*&hf_048_130_02*/, NULL };
 static const FieldPart *I048_130_SRR[] = { &I048_130_SRR_VAL, NULL };
 static const FieldPart I048_130_SAM_VAL = { 8, 1.0, FIELD_PART_INT, NULL/*&hf_048_130_03*/, NULL };
 static const FieldPart *I048_130_SAM[] = { &I048_130_SAM_VAL, NULL };
-static const FieldPart I048_130_PRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UFLOAT, NULL/*&hf_048_130_04*/, NULL };
+static const FieldPart I048_130_PRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UINT, NULL/*&hf_048_130_04*/, NULL };
 static const FieldPart *I048_130_PRL[] = { &I048_130_PRL_VAL, NULL };
 static const FieldPart I048_130_PAM_VAL = { 8, 1.0, FIELD_PART_INT, NULL/*&hf_048_130_05*/, NULL };
 static const FieldPart *I048_130_PAM[] = { &I048_130_PAM_VAL, NULL };
-static const FieldPart I048_130_RPD_VAL = { 8, 1.0/256.0, FIELD_PART_FLOAT, NULL/*&hf_048_130_06*/, NULL };
+static const FieldPart I048_130_RPD_VAL = { 8, 1.0/256.0, FIELD_PART_INT, NULL/*&hf_048_130_06*/, NULL };
 static const FieldPart *I048_130_RPD[] = { &I048_130_RPD_VAL, NULL };
-static const FieldPart I048_130_APD_VAL = { 8, 360.0/16384.0, FIELD_PART_FLOAT, NULL/*&hf_048_130_07*/, NULL };
+static const FieldPart I048_130_APD_VAL = { 8, 360.0/16384.0, FIELD_PART_INT, NULL/*&hf_048_130_07*/, NULL };
 static const FieldPart *I048_130_APD[] = { &I048_130_APD_VAL, NULL };
 
 /* Track number */
@@ -4961,10 +4961,10 @@ void proto_register_asterix (void)
         { &hf_048_120_02_AMB, { "AMB[m/s]", "asterix.048_120_02_AMB", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_120_02_FRQ, { "FRQ[MHz]", "asterix.048_120_02_FRQ", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130, { "130, Radar Plot Characteristics", "asterix.048_130", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_01, { "SRL[deg]", "asterix.048_130_01", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_01, { "SRL[deg]", "asterix.048_130_01", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130_02, { "SRR", "asterix.048_130_02", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130_03, { "SAM[dBm]", "asterix.048_130_03", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_04, { "PRL[deg]", "asterix.048_130_04", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_04, { "PRL[deg]", "asterix.048_130_04", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130_05, { "PAM[dBm]", "asterix.048_130_05", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130_06, { "RPD[NM]", "asterix.048_130_06", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130_07, { "APD[deg]", "asterix.048_130_07", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
