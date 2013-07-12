@@ -387,6 +387,12 @@ wireshark_qt_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_qt_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
 wireshark_qt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 wireshark_qt_LDADD =  ui/qt/libqtui.a $(wireshark_ldadd) @Qt_LIBS@
+#
+# XXX - this makes wireshark_qt_LDFLAGS not work; we should figure out
+# another way to get wireshark-qt linked as a C++ program, perhaps by
+# having a top-level wireshark-qt.cpp file that contains main() and
+# hthat calls the UI code from ui/qt.
+#
 wireshark_qt_LINK = $(CXXLINK)
 endif
 
