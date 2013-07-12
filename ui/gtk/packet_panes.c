@@ -194,7 +194,7 @@ redraw_packet_bytes_all(void)
 }
 
 static void
-check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter)
+check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gboolean scroll_it)
 {
     /* code inspired by gtk_tree_model_foreach_helper */
 
@@ -209,12 +209,12 @@ check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *
             if (tree_expanded(fi->tree_type)) {
                 gtk_tree_view_expand_row(tree_view, path, FALSE);
 
-                if (prefs.gui_auto_scroll_on_expand)
+                if (scroll_it)
                      gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
 
                 /* try to expand children only when parent is expanded */
                 gtk_tree_path_down(path);
-                check_expand_children(tree_view, model, path, &child);
+                check_expand_children(tree_view, model, path, &child, scroll_it);
                 gtk_tree_path_up(path);
 
             } else
@@ -227,7 +227,7 @@ check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *
 
 static void
 expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
-            GtkTreePath *path _U_, gpointer user_data _U_)
+            GtkTreePath *path, gpointer user_data _U_)
 {
     field_info   *finfo;
     GtkTreeModel *model;
@@ -250,7 +250,9 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
         tree_expanded_set(finfo->tree_type, TRUE);
 
         /* Expand any subtrees that the user had left open */
-        check_expand_children(tree_view, model, path, iter);
+        /* But only do this for subtrees of the just-expanded tree */
+        gtk_tree_path_down(path);
+        check_expand_children(tree_view, model, path, iter, FALSE);
 
     }
 }
@@ -1414,7 +1416,8 @@ proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, const e
     /* modified version of gtk_tree_model_foreach */
     path = gtk_tree_path_new_first();
     if (gtk_tree_model_get_iter(GTK_TREE_MODEL(model), &iter, path))
-        check_expand_children(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model), path, &iter);
+        check_expand_children(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model),
+                              path, &iter, prefs.gui_auto_scroll_on_expand);
     gtk_tree_path_free(path);
 
     g_signal_handlers_unblock_by_func(tree_view, expand_tree, NULL);
