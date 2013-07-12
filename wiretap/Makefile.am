@@ -83,7 +83,9 @@ ascend_scanner_lex.h : ascend_scanner.c
 
 ascend_scanner.c: ascend.h
 
-ascend.c ascend.h: ascend.y
+ascend.h: ascend.c
+
+ascend.c: ascend.y
 	@if [ -z "$(YACC)" ]; then \
 		echo "Neither bison nor byacc has been found"; \
 		exit 1; \
