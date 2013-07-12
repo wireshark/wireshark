@@ -26,10 +26,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#include <epan/proto.h>
-#include <epan/packet.h>
-#include <epan/prefs.h>
+#include <stdlib.h>
 
 #include "clopts_common.h"
 #include "cmdarg_err.h"

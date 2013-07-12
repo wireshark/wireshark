@@ -25,6 +25,8 @@
 #ifndef __CMDARG_ERR_H__
 #define __CMDARG_ERR_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
