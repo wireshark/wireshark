@@ -329,7 +329,7 @@ wireshark_qt_LDFLAGS = -Wl,-static -all-static
 endif
 else
 if HAVE_GTK
-wireshark_LDFLAGS = -export-dynamic -Wl,-rpath @executable_path/../lib -rpath /usr/local/lib
+wireshark_LDFLAGS = -export-dynamic
 endif
 if HAVE_Qt
 wireshark_qt_LDFLAGS = -export-dynamic
