@@ -92,12 +92,16 @@ opened. The default is to use a single output file.
 =item -C  E<lt>choplenE<gt>
 
 Sets the chop length to use when writing the packet data. Each packet is
-chopped by a few <choplen> bytes of data. Positive values chop at the packet
+chopped by <choplen> bytes of data. Positive values chop at the packet
 beginning while negative values chop at the packet end.
 
 This is useful for chopping headers for decapsulation of an entire capture or
 in the rare case that the conversion between two file formats leaves some random
 bytes at the end of each packet.
+
+NOTE: This option can be used more than once, effectively allowing you to chop
+bytes from the beginning of a packet as well as from the end of a packet in a
+single step.
 
 =item -d
 

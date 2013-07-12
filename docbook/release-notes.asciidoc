@@ -22,12 +22,19 @@ The following bugs have been fixed:
 The following features are new (or have been significantly updated)
 since version 1.10:
 
-* Expert info is now filterable (if the dissector has been updated to support the new API).
-* The Windows installer now uninstalls the previous version of Wireshark silently.
-You can still run the uninstaller manually beforehand if you wish to run it interactively.
-* The "Number" column shows related packets and protocol conversation spans (Qt only).
-* When manipulating packets with editcap using the -C <choplen> and/or -s <snaplen> options,
-  it is now possible to also adjust the original frame length using the -L option.
+* Expert info is now filterable (if the dissector has been updated to support
+  the new API).
+* The Windows installer now uninstalls the previous version of Wireshark
+  silently.  You can still run the uninstaller manually beforehand if you wish
+  to run it interactively.
+* The "Number" column shows related packets and protocol conversation spans
+  (Qt only).
+* When manipulating packets with editcap using the -C <choplen> and/or
+  -s <snaplen> options, it is now possible to also adjust the original frame
+  length using the -L option.
+* You can now pass the -C <choplen> option to editcap multiple times, which
+  allows you to chop bytes from the beginning of a packet as well as at the end
+  of a packet in a single step.
 
 === New Protocol Support
 

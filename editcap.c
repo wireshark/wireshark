@@ -733,7 +733,7 @@ usage(gboolean is_error)
   fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
   fprintf(output, "  -C <choplen>           chop each packet by <choplen> bytes. Positive values\n");
   fprintf(output, "                         chop at the packet beginning, negative values at the\n");
-  fprintf(output, "                         packet end.\n");
+  fprintf(output, "                         packet end. You can use this option more than once.\n");
   fprintf(output, "  -L                     adjust the frame length when chopping and/or snapping\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
@@ -745,21 +745,21 @@ usage(gboolean is_error)
   fprintf(output, "                         that each packet's delta time is the absolute value\n");
   fprintf(output, "                         of the adjustment specified. A value of -0 will set\n");
   fprintf(output, "                         all packets to the timestamp of the first packet.\n");
-  fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
-  fprintf(output, "                         that a particular packet byte will be randomly changed.\n");
+  fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.) that\n");
+  fprintf(output, "                         a particular packet byte will be randomly changed.\n");
   fprintf(output, "\n");
   fprintf(output, "Output File(s):\n");
-  fprintf(output, "  -c <packets per file>  split the packet output to different files\n");
-  fprintf(output, "                         based on uniform packet counts\n");
-  fprintf(output, "                         with a maximum of <packets per file> each.\n");
-  fprintf(output, "  -i <seconds per file>  split the packet output to different files\n");
-  fprintf(output, "                         based on uniform time intervals\n");
-  fprintf(output, "                         with a maximum of <seconds per file> each.\n");
-  fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
-  fprintf(output, "                         an empty \"-F\" option will list the file types.\n");
-  fprintf(output, "  -T <encap type>        set the output file encapsulation type;\n");
-  fprintf(output, "                         default is the same as the input file.\n");
-  fprintf(output, "                         an empty \"-T\" option will list the encapsulation types.\n");
+  fprintf(output, "  -c <packets per file>  split the packet output to different files based on\n");
+  fprintf(output, "                         uniform packet counts with a maximum of\n");
+  fprintf(output, "                         <packets per file> each.\n");
+  fprintf(output, "  -i <seconds per file>  split the packet output to different files based on\n");
+  fprintf(output, "                         uniform time intervals with a maximum of\n");
+  fprintf(output, "                         <seconds per file> each.\n");
+  fprintf(output, "  -F <capture type>      set the output file type; default is pcapng. An empty\n");
+  fprintf(output, "                         \"-F\" option will list the file types.\n");
+  fprintf(output, "  -T <encap type>        set the output file encapsulation type; default is the\n");
+  fprintf(output, "                         same as the input file. An empty \"-T\" option will\n");
+  fprintf(output, "                         list the encapsulation types.\n");
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h                     display this help and exit.\n");
@@ -860,7 +860,8 @@ main(int argc, char *argv[])
 
   char *p;
   guint32 snaplen = 0;                  /* No limit               */
-  int choplen = 0;                      /* No chop                */
+  int choplen_begin = 0;                /* No chop at beginning   */
+  int choplen_end = 0;                  /* No chop at end         */
   gboolean adjlen = FALSE;
   wtap_dumper *pdh = NULL;
   unsigned int count = 1;
@@ -961,13 +962,21 @@ main(int argc, char *argv[])
       break;
 
     case 'C':
+    {
+      int choplen;
+
       choplen = (int)strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
             optarg);
         exit(1);
       }
+      if (choplen > 0)
+        choplen_begin += choplen;
+      else if (choplen < 0)
+        choplen_end += choplen;
       break;
+    }
 
     case 'd':
       dup_detect = TRUE;
@@ -1294,29 +1303,31 @@ main(int argc, char *argv[])
           }
         }
 
-        if (choplen < 0) {
+        if (choplen_end < 0) {
           snap_phdr = *phdr;
-          if (((signed int) phdr->caplen + choplen) > 0)
-            snap_phdr.caplen += choplen;
+          if (((signed int) phdr->caplen + choplen_end) > 0)
+            snap_phdr.caplen += choplen_end;
           else
             snap_phdr.caplen = 0;
           if (adjlen) {
-            if (((signed int) phdr->len + choplen) > 0)
-              snap_phdr.len += choplen;
+            if (((signed int) phdr->len + choplen_end) > 0)
+              snap_phdr.len += choplen_end;
             else
               snap_phdr.len = 0;
           }
           phdr = &snap_phdr;
-        } else if (choplen > 0) {
+        }
+
+        if (choplen_begin > 0) {
           snap_phdr = *phdr;
-          if (phdr->caplen > (unsigned int) choplen) {
-            snap_phdr.caplen -= choplen;
-            buf += choplen;
+          if (phdr->caplen > (unsigned int) choplen_begin) {
+            snap_phdr.caplen -= choplen_begin;
+            buf += choplen_begin;
           } else
             snap_phdr.caplen = 0;
           if (adjlen) {
-            if (phdr->len > (unsigned int) choplen) {
-              snap_phdr.len -= choplen;
+            if (phdr->len > (unsigned int) choplen_begin) {
+              snap_phdr.len -= choplen_begin;
             } else
               snap_phdr.len = 0;
           }
