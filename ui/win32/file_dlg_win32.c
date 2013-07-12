@@ -43,11 +43,11 @@
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
+#include "epan/print.h"
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
 
 #include "color.h"
-#include "print.h"
 #include "color_filters.h"
 #include "merge.h"
 

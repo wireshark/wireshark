@@ -395,5 +395,8 @@ reassemble_test.obj: reassemble_test.c
 tvbtest.obj: tvbtest.c
 	$(CC) $(TEST_CFLAGS) -Fd.\ -c $?
 
+ps.c: ..\tools\rdps.py print.ps
+	$(PYTHON) ..\tools\rdps.py print.ps ps.c
+
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(LIBWIRESHARK_SRC)

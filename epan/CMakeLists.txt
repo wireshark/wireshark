@@ -1410,6 +1410,17 @@ ADD_CUSTOM_COMMAND(
       ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
 )
 
+ADD_CUSTOM_COMMAND(
+	OUTPUT	ps.c
+	COMMAND	${PYTHON_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/tools/rdps.py
+		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
+		ps.c
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/tools/rdps.py
+		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
+)
+
 set(LIBWIRESHARK_FILES
 	addr_and_mask.c
 	addr_resolv.c
@@ -1459,8 +1470,10 @@ set(LIBWIRESHARK_FILES
 	packet-range.c
 	packet.c
 	plugins.c
+	print.c
 	prefs.c
 	proto.c
+	ps.c
 	range.c
 	reassemble.c
 	reedsolomon.c

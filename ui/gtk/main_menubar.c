@@ -42,12 +42,11 @@
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
-
 #include <epan/filesystem.h>
+#include <epan/print.h>
 
 #include "cfile.h"
 #include "globals.h"
-#include "print.h"
 #include "color_filters.h"
 #include "stat_menu.h"
 #include "u3.h"

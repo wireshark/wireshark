@@ -38,7 +38,7 @@ extern "C" {
 // Page element callbacks
 
 static gboolean
-print_preamble_pd(print_stream_t *self, gchar *filename)
+print_preamble_pd(print_stream_t *self, gchar *filename, const char *version_string _U_)
 {
     Q_UNUSED(filename);
 

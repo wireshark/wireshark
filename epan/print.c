@@ -1061,9 +1061,9 @@ void ps_clean_string(char *out, const char *in, int outbuf_size)
 
 /* Some formats need stuff at the beginning of the output */
 gboolean
-print_preamble(print_stream_t *self, gchar *filename)
+print_preamble(print_stream_t *self, gchar *filename, const char *version_string)
 {
-    return self->ops->print_preamble ? (self->ops->print_preamble)(self, filename) : TRUE;
+    return self->ops->print_preamble ? (self->ops->print_preamble)(self, filename, version_string) : TRUE;
 }
 
 gboolean
@@ -1198,7 +1198,7 @@ typedef struct {
 } output_ps;
 
 static gboolean
-print_preamble_ps(print_stream_t *self, gchar *filename)
+print_preamble_ps(print_stream_t *self, gchar *filename, const char *version_string)
 {
     output_ps *output = (output_ps *)self->data;
     char       psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
@@ -1207,7 +1207,7 @@ print_preamble_ps(print_stream_t *self, gchar *filename)
 
     fputs("%% the page title\n", output->fh);
     ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
-    fprintf(output->fh, "/ws_pagetitle (%s - Wireshark " VERSION "%s) def\n", psbuffer, wireshark_svnversion);
+    fprintf(output->fh, "/ws_pagetitle (%s - Wireshark " VERSION "%s) def\n", psbuffer, version_string);
     fputs("\n", output->fh);
     return !ferror(output->fh);
 }

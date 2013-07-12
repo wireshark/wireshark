@@ -489,8 +489,6 @@ QMAKE_LFLAGS         *= /LARGEADDRESSAWARE $(LDFLAGS)
 
 <<KEEP
 
-ps.c: tools\rdps.py print.ps
-	$(PYTHON) tools\rdps.py print.ps ps.c
 #
 # Build the version string
 #
@@ -525,8 +523,8 @@ clean-local:
 		capinfos.obj capinfos.exp editcap.obj editcap.exp \
 		mergecap.obj text2pcap.obj \
 		reordercap.obj nio-ie5.obj update.obj \
-		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
-		rdps.pdb rdps.exe rdps.ilk config.h ps.c $(LIBS_CHECK) \
+		text2pcap-scanner.obj text2pcap-scanner.c \
+		config.h ps.c $(LIBS_CHECK) \
 		dftest.obj dftest.exe randpkt.obj randpkt.exe \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \

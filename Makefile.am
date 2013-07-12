@@ -598,9 +598,6 @@ SUFFIXES = .sh
 	rm -f $@ $@.tmp
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
 
-ps.c: print.ps $(srcdir)/tools/rdps.py
-	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
-
 services:
 	$(PERL) $(srcdir)/tools/make-services.pl
 

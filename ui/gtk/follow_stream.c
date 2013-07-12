@@ -40,7 +40,7 @@
 #include <epan/charsets.h>
 
 #include <../isprint.h>
-#include <../print.h>
+#include <epan/print.h>
 
 #include <ui/alert_box.h>
 #include <ui/last_open_dir.h>
@@ -63,6 +63,8 @@
 #include "wsutil/tempfile.h"
 #include "ui/win32/print_win32.h"
 #endif
+
+#include "version_info.h"
 
 /* static variable declarations to speed up the performance
  * of follow_load_text and follow_add_to_gtk_text
@@ -459,7 +461,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         return;
     }
 
-    if (!print_preamble(stream, cfile.filename))
+    if (!print_preamble(stream, cfile.filename, wireshark_svnversion))
         goto print_error;
 
     switch (follow_read_stream(follow_info, follow_print_text, stream)) {

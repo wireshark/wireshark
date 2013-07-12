@@ -33,9 +33,9 @@
 #include <epan/strutil.h>
 #include <epan/prefs-int.h>
 #include <epan/epan_dissect.h>
+#include <epan/print.h>
 
 #include "../file.h"
-#include "../print.h"
 #include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 

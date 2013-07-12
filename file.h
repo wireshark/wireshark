@@ -26,10 +26,10 @@
 #define __FILE_H__
 
 #include "wiretap/wtap.h"
-#include "print.h"
 #include <errno.h>
 #include <epan/epan.h>
 
+#include <epan/print.h>
 #include <epan/packet-range.h>
 
 #ifdef __cplusplus

@@ -612,17 +612,6 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT	ps.c
-	COMMAND	${PYTHON_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/tools/rdps.py
-		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
-		ps.c
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/tools/rdps.py
-		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
-)
-
 if(UNIX)
 	set(PLATFORM_SRC
 		capture-pcap-util-unix.c
@@ -653,8 +642,6 @@ set(WIRESHARK_COMMON_SRC
 	cfutils.c
 	clopts_common.c
 	frame_tvbuff.c
-	print.c
-	ps.c
 	svnversion.h
 	sync_pipe_write.c
 	version_info.c

@@ -51,9 +51,9 @@
 #include <epan/epan_dissect.h>
 #include <epan/strutil.h>
 #include <epan/tvbuff-int.h>
+#include <epan/print.h>
 
 #include "../file.h"
-#include "../print.h"
 #include "../summary.h"
 
 #include "ui/recent.h"

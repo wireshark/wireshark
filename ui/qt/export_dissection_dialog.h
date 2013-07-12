@@ -29,7 +29,7 @@
 #include <glib.h>
 
 #include "file.h"
-#include "print.h"
+#include "epan/print.h"
 
 #include "ui/file_dialog.h"
 

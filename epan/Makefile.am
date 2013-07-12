@@ -192,6 +192,8 @@ tvbtest.o exntest.o: exceptions.h
 sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
 	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
 
+ps.c: print.ps $(top_srcdir)/tools/rdps.py
+	$(PYTHON) $(top_srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
 
 if HAVE_PLUGINS
 

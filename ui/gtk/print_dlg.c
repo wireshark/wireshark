@@ -31,8 +31,8 @@
 #include <epan/prefs.h>
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
+#include <epan/print.h>
 
-#include "print.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"

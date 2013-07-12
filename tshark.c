@@ -68,7 +68,7 @@
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
-#include "print.h"
+#include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
 #include "clopts_common.h"
@@ -3319,7 +3319,7 @@ write_preamble(capture_file *cf)
   switch (output_action) {
 
   case WRITE_TEXT:
-    return print_preamble(print_stream, cf ? cf->filename : NULL);
+    return print_preamble(print_stream, cf ? cf->filename : NULL, wireshark_svnversion);
 
   case WRITE_XML:
     if (print_details)

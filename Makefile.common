@@ -27,8 +27,7 @@
 BUILT_HEADER_FILES =	\
 	svnversion.h
 
-BUILT_C_FILES =		\
-	ps.c
+BUILT_C_FILES =
 
 BUILT_SOURCES =	$(BUILT_C_FILES) $(BUILT_HEADER_FILES)
 
@@ -37,8 +36,7 @@ GENERATED_HEADER_FILES = \
 	$(BUILT_HEADER_FILES)
 
 # C source files generated from source files.
-GENERATED_C_FILES = \
-	$(BUILT_C_FILES)
+GENERATED_C_FILES =
 
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
@@ -51,8 +49,6 @@ SHARK_COMMON_SRC =	\
 	cfutils.c		\
 	clopts_common.c		\
 	frame_tvbuff.c		\
-	print.c			\
-	ps.c			\
 	sync_pipe_write.c	\
 	version_info.c
 
@@ -70,8 +66,6 @@ SHARK_COMMON_INCLUDES =	\
 	fileset.h		\
 	frame_tvbuff.h		\
 	isprint.h		\
-	print.h			\
-	ps.h			\
 	register.h		\
 	version_info.h		\
 	ws_symbol_export.h

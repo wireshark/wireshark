@@ -73,6 +73,7 @@ LIBWIRESHARK_SRC =		\
 	packet.c		\
 	plugins.c		\
 	prefs.c			\
+	print.c			\
 	proto.c			\
 	range.c			\
 	reassemble.c		\
@@ -103,11 +104,12 @@ LIBWIRESHARK_SRC =		\
 	xdlc.c
 
 #
-# We distribute Lemon with Wireshark, so we don't distribute the files
-# it produces.
+# We distribute Lemon and rdps.py with Wireshark, so we don't distribute the
+# files they produce.
 #
 NODIST_LIBWIRESHARK_GENERATED_C_FILES = \
-	dtd_grammar.c
+	dtd_grammar.c		\
+	ps.c
 
 NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES = \
 	dtd_grammar.h
@@ -219,6 +221,7 @@ LIBWIRESHARK_INCLUDES =		\
 	pint.h			\
 	plugins.h		\
 	ppptypes.h		\
+	print.h			\
 	prefs.h			\
 	prefs-int.h		\
 	proto.h			\

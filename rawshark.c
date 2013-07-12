@@ -77,7 +77,7 @@
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
-#include "print.h"
+#include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
 #include "clopts_common.h"

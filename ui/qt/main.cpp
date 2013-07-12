@@ -64,13 +64,13 @@
 #include <epan/uat.h>
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
+#include <epan/print.h>
 
 /* general (not Qt specific) */
 #include "file.h"
 #include "summary.h"
 #include "color.h"
 #include "color_filters.h"
-#include "print.h"
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui/util.h"
