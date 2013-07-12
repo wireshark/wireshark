@@ -1227,7 +1227,7 @@ dissect_ieee802154_fcs:
         /* Even if the FCS isn't present, add the fcs_ok field to the tree to
          * help with filter. Be sure not to make it visible though.
          */
-        ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok);
+        ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok, "Unknown");
         PROTO_ITEM_SET_HIDDEN(ti);
     }
 
