@@ -962,7 +962,7 @@ subset_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
-	return ensure_contiguous_no_exception(subset_tvb->subset.tvb, abs_offset - subset_tvb->subset.offset, abs_length, NULL);
+	return ensure_contiguous_no_exception(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, abs_length, NULL);
 }
 
 static const guint8*
@@ -1107,7 +1107,7 @@ subset_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
-	return tvb_memcpy(subset_tvb->subset.tvb, target, abs_offset - subset_tvb->subset.offset, abs_length);
+	return tvb_memcpy(subset_tvb->subset.tvb, target, subset_tvb->subset.offset + abs_offset, abs_length);
 }
 
 void *
@@ -1960,7 +1960,7 @@ subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
-	return tvb_find_guint8(subset_tvb->subset.tvb, abs_offset - subset_tvb->subset.offset, limit, needle);
+	return tvb_find_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
 }
 
 /* Find first occurrence of any of the needles in tvbuff, starting at offset.
@@ -2023,7 +2023,7 @@ subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *n
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
-	return tvb_pbrk_guint8(subset_tvb->subset.tvb, abs_offset - subset_tvb->subset.offset, limit, needles, found_needle);
+	return tvb_pbrk_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needles, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
