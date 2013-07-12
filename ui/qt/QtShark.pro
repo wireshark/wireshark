@@ -176,11 +176,9 @@ SOURCES_WS_C = \
     ../../file.c  \
     ../../fileset.c       \
     ../../filters.c       \
-    ../../frame_data_sequence.c   \
     ../../frame_tvbuff.c   \
     ../../g711.c \
     ../../merge.c \
-    ../../packet-range.c  \
     ../../print.c \
     ../../proto_hier_stats.c      \
     ../../ps.c    \
