@@ -647,7 +647,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
 
     /* Add the packet length to the filter field */
-    hidden_item = proto_tree_add_uint(tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
+    hidden_item = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /*=====================================================
