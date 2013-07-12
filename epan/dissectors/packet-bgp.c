@@ -200,32 +200,32 @@ void proto_reg_handoff_bgp(void);
 #define BGPNLRI_FSPEC_FRAGMENT     12 /* RFC 5575         */
 
 /* BGP flow spec NLRI operator bitmask */
-#define BGPFLOW_END_OF_LST         0x80
-#define BGPFLOW_AND_BIT            0x40
-#define BGPFLOW_VAL_LEN            0x30
-#define BGPFLOW_UNUSED_BIT4        0x08
-#define BGPFLOW_UNUSED_BIT5        0x04
-#define BGPFLOW_LESS_THAN          0x04
-#define BGPFLOW_GREATER_THAN       0x02
-#define BGPFLOW_EQUAL              0x01
-#define BGPFLOW_TCPF_NOTBIT        0x02
-#define BGPFLOW_TCPF_MATCHBIT      0x01
-#define BGPFLOW_DSCP_BITMASK       0xFC
+#define BGPNLRI_FSPEC_END_OF_LST         0x80
+#define BGPNLRI_FSPEC_AND_BIT            0x40
+#define BGPNLRI_FSPEC_VAL_LEN            0x30
+#define BGPNLRI_FSPEC_UNUSED_BIT4        0x08
+#define BGPNLRI_FSPEC_UNUSED_BIT5        0x04
+#define BGPNLRI_FSPEC_LESS_THAN          0x04
+#define BGPNLRI_FSPEC_GREATER_THAN       0x02
+#define BGPNLRI_FSPEC_EQUAL              0x01
+#define BGPNLRI_FSPEC_TCPF_NOTBIT        0x02
+#define BGPNLRI_FSPEC_TCPF_MATCHBIT      0x01
+#define BGPNLRI_FSPEC_DSCP_BITMASK       0xFC
 
 /* BGP flow spec specific filter value: TCP flags, Packet fragment ... */
-#define BGPFLOW_TH_FIN  0x01
-#define BGPFLOW_TH_SYN  0x02
-#define BGPFLOW_TH_RST  0x04
-#define BGPFLOW_TH_PUSH 0x08
-#define BGPFLOW_TH_ACK  0x10
-#define BGPFLOW_TH_URG  0x20
-#define BGPFLOW_TH_ECN  0x40
-#define BGPFLOW_TH_CWR  0x80
+#define BGPNLRI_FSPEC_TH_FIN  0x01
+#define BGPNLRI_FSPEC_TH_SYN  0x02
+#define BGPNLRI_FSPEC_TH_RST  0x04
+#define BGPNLRI_FSPEC_TH_PUSH 0x08
+#define BGPNLRI_FSPEC_TH_ACK  0x10
+#define BGPNLRI_FSPEC_TH_URG  0x20
+#define BGPNLRI_FSPEC_TH_ECN  0x40
+#define BGPNLRI_FSPEC_TH_CWR  0x80
 
-#define BGPFLOW_FG_DF   0x01
-#define BGPFLOW_FG_ISF  0x02
-#define BGPFLOW_FG_FF   0x04
-#define BGPFLOW_FG_LF   0x08
+#define BGPNLRI_FSPEC_FG_DF   0x01
+#define BGPNLRI_FSPEC_FG_ISF  0x02
+#define BGPNLRI_FSPEC_FG_FF   0x04
+#define BGPNLRI_FSPEC_FG_LF   0x08
 
 /* Extended community type */
 /* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
@@ -690,7 +690,7 @@ static const value_string flowspec_nlri_opvaluepair_type[] = {
     { BGPNLRI_FSPEC_ICMP_TP,  "ICMP type filter" },
     { BGPNLRI_FSPEC_ICMP_CD,  "ICMP code filter" },
     { BGPNLRI_FSPEC_TCP_FLAGS,"TCP flags filter" },
-    { BGPNLRI_FSPEC_PCK_LEN,  "Packet lenght filter" },
+    { BGPNLRI_FSPEC_PCK_LEN,  "Packet Length filter" },
     { BGPNLRI_FSPEC_DSCP,     "DSCP marking filter" },
     { BGPNLRI_FSPEC_FRAGMENT, "IP fragment filter" },
     {0, NULL },
@@ -820,10 +820,12 @@ static int hf_bgp_mcast_vpn_nlri_group_addr_ipv4 = -1;
 static int hf_bgp_mcast_vpn_nlri_group_addr_ipv6 = -1;
 static int hf_bgp_mcast_vpn_nlri_route_key = -1;
 static int hf_bgp_flowspec_nlri_t = -1;
-static int hf_bgp_flowspec_nlri_type = -1;
-static int hf_bgp_flowspec_nlri_lenght = -1;
+static int hf_bgp_flowspec_nlri_filter = -1;
+static int hf_bgp_flowspec_nlri_filter_type = -1;
+static int hf_bgp_flowspec_nlri_length = -1;
 static int hf_bgp_flowspec_nlri_dst_pref_ipv4 = -1;
 static int hf_bgp_flowspec_nlri_src_pref_ipv4 = -1;
+static int hf_bgp_flowspec_nlri_op_flags = -1;
 static int hf_bgp_flowspec_nlri_op_eol = -1;
 static int hf_bgp_flowspec_nlri_op_and = -1;
 static int hf_bgp_flowspec_nlri_op_val_len = -1;
@@ -838,6 +840,7 @@ static int hf_bgp_flowspec_nlri_dec_val_32 = -1;
 static int hf_bgp_flowspec_nlri_dec_val_64 = -1;
 static int hf_bgp_flowspec_nlri_op_flg_not = -1;
 static int hf_bgp_flowspec_nlri_op_flg_match = -1;
+static int hf_bgp_flowspec_nlri_tcp_flags = -1;
 static int hf_bgp_flowspec_nlri_tcp_flags_cwr = -1;
 static int hf_bgp_flowspec_nlri_tcp_flags_ecn = -1;
 static int hf_bgp_flowspec_nlri_tcp_flags_urg = -1;
@@ -846,6 +849,7 @@ static int hf_bgp_flowspec_nlri_tcp_flags_push = -1;
 static int hf_bgp_flowspec_nlri_tcp_flags_reset = -1;
 static int hf_bgp_flowspec_nlri_tcp_flags_syn = -1;
 static int hf_bgp_flowspec_nlri_tcp_flags_fin = -1;
+static int hf_bgp_flowspec_nlri_fflag = -1;
 static int hf_bgp_flowspec_nlri_fflag_lf = -1;
 static int hf_bgp_flowspec_nlri_fflag_ff = -1;
 static int hf_bgp_flowspec_nlri_fflag_isf = -1;
@@ -876,10 +880,10 @@ static int hf_bgp_ext_com_qos_tech_type = -1;
 static int hf_bgp_ext_com_qos_marking_o = -1;
 static int hf_bgp_ext_com_qos_marking_a = -1;
 static int hf_bgp_ext_com_qos_default_to_zero = -1;
-static int hf_bgp_ext_com_rate_float = -1; /* RFC 5575 flow spec rate service */
-static int hf_bgp_ext_com_act_allset = -1;
-static int hf_bgp_ext_com_act_term_act = -1; /*RFC 5575 flow spec action terminate */
-static int hf_bgp_ext_com_act_samp_act = -1; /* RFC 5575 flow spec action sample */
+static int hf_bgp_ext_com_flow_rate_float = -1; /* RFC 5575 flow spec rate service */
+static int hf_bgp_ext_com_flow_act_allset = -1;
+static int hf_bgp_ext_com_flow_act_term_act = -1; /*RFC 5575 flow spec action terminate */
+static int hf_bgp_ext_com_flow_act_samp_act = -1; /* RFC 5575 flow spec action sample */
 static int hf_bgp_ext_com_flow_redir_as = -1; /* RFC 5575 AS part of the RT for redirect traffic */
 static int hf_bgp_ext_com_flow_redir_an = -1; /* RFC 5575 AN part of the RT for redirect traffic */
 static int hf_bgp_ext_com_flow_redir = -1;
@@ -926,6 +930,10 @@ static gint ett_bgp_orf = -1;           /* orf (outbound route filter) tree */
 static gint ett_bgp_orf_entry = -1;     /* orf entry tree */
 static gint ett_bgp_mcast_vpn_nlri = -1;
 static gint ett_bgp_flow_spec_nlri = -1;
+static gint ett_bgp_flow_spec_nlri_filter = -1; /* tree decoding multiple op and value pairs */
+static gint ett_bgp_flow_spec_nlri_op_flags = -1; /* tree decoding each op and val pair within the op and value set */
+static gint ett_bgp_flow_spec_nlri_tcp = -1;
+static gint ett_bgp_flow_spec_nlri_ff = -1;
 static gint ett_bgp_tunnel_tlv = -1;
 static gint ett_bgp_tunnel_tlv_subtree = -1;
 static gint ett_bgp_tunnel_subtlv = -1;
@@ -961,7 +969,7 @@ detect_add_path_prefix4(tvbuff_t *tvb, gint offset, gint end) {
     for (o = offset + 4; o < end; o += 4) {
         prefix_len = tvb_get_guint8(tvb, o);
         if( prefix_len > 32) {
-            return 0; /* invalid prefix lenght - not BGP add-path */
+            return 0; /* invalid prefix length - not BGP add-path */
         }
         addr_len = (prefix_len + 7) / 8;
         o += 1 + addr_len;
@@ -979,7 +987,7 @@ detect_add_path_prefix4(tvbuff_t *tvb, gint offset, gint end) {
     for (o = offset; o < end; ) {
         prefix_len = tvb_get_guint8(tvb, o);
         if( prefix_len > 32) {
-            return 1; /* invalid prefix lenght - may be BGP add-path */
+            return 1; /* invalid prefix length - may be BGP add-path */
         }
         addr_len = (prefix_len + 7) / 8;
         o += 1 + addr_len;
@@ -1049,7 +1057,7 @@ decode_path_prefix4(proto_tree *tree, int hf_path_id, int hf_addr, tvbuff_t *tvb
  * Decode an IPv4 prefix.
  */
 static int
-decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
+decode_prefix4(proto_tree *tree, proto_item *parent_item, int hf_addr, tvbuff_t *tvb, gint offset,
                guint16 tlen, const char *tag)
 {
     proto_item *ti;
@@ -1074,6 +1082,11 @@ decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
     ti = proto_tree_add_text(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, "%s/%u",
                              ip_to_str(ip_addr.addr_bytes), plen);
+       /* append parent item if not NULL */
+    if (parent_item != NULL)
+      proto_item_append_text(parent_item, " (%s/%u)",
+                             ip_to_str(ip_addr.addr_bytes), plen);
+
     prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
     proto_tree_add_text(prefix_tree, tvb, offset, 1, "%s prefix length: %u",
         tag, plen);
@@ -1203,128 +1216,184 @@ decode_mcast_vpn_nlri_addresses(proto_tree *tree, tvbuff_t *tvb,
  * function to decode operator in BGP flow spec NLRI when it address decimal values (TCP ports, UDP ports, ports, ...)
  */
 
-static int
-decode_bgp_flow_spec_dec_operator(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 value_len)
+static void
+decode_bgp_flow_spec_dec_operator(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_eol,tvb,offset,1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_and, tvb,offset,1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_val_len ,tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_un_bit4, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_lt, tvb,offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_gt, tvb,offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_eq, tvb,offset, 1,ENC_BIG_ENDIAN);
-    return value_len;
+
+    proto_item *op_item;
+    proto_tree *op_tree;
+
+    op_item = proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_flags, tvb, offset, 1, ENC_NA);
+    op_tree = proto_item_add_subtree(op_item, ett_bgp_flow_spec_nlri_op_flags);
+
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_eol,tvb,offset,1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_and, tvb,offset,1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_val_len ,tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_un_bit4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_lt, tvb,offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_gt, tvb,offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_eq, tvb,offset, 1, ENC_BIG_ENDIAN);
 }
 
 /*
  * Decode an operator and decimal values of BGP flow spec NLRI
  */
 static int
-decode_bgp_nlri_op_dec_value(proto_tree *tree, tvbuff_t *tvb, gint offset, const char *tag)
+decode_bgp_nlri_op_dec_value(proto_tree *parent_tree, proto_item *parent_item, tvbuff_t *tvb, gint offset)
 {
     guint8 nlri_operator;
     guint cursor_op_val=0;
-    proto_tree *op_value_tree;
-    proto_item *op_value_item;
-    proto_item *val_item;
     guint8 value_len=0;
+    guint value=0;
     guint8 shift_amount=0;
+    guint first_loop=0;
+
+    proto_item_append_text(parent_item," (");
 
     do {
         nlri_operator = tvb_get_guint8(tvb, offset+cursor_op_val);
         shift_amount = nlri_operator&0x30;
         shift_amount = shift_amount >> 4;
         value_len = 1 << shift_amount; /* as written in RFC 5575 section 4 */
-        op_value_item = proto_tree_add_text(tree, tvb, offset+cursor_op_val,
-                                            value_len+1, "op-value pair (%u Byte%s)",
-                                            value_len+1, plurality(value_len, "", "s"));
-        op_value_tree = proto_item_add_subtree(op_value_item, ett_bgp_nlri);
-     /* call to a operator decode function */
-        decode_bgp_flow_spec_dec_operator(op_value_tree, tvb, offset+cursor_op_val, value_len);
+        /* call to a operator decode function */
+        decode_bgp_flow_spec_dec_operator(parent_tree, tvb, offset+cursor_op_val);
+        if (first_loop == 0)
+        {
+            /* If first operator we remoe a white space and or (||) is not relevant */
+            /* BGP flow spec NLRI operator bitmask */
+            proto_item_append_text(parent_item,"%s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+            first_loop = 1;
+        }
+        else
+        {
+            proto_item_append_text(parent_item," %s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+        }
         cursor_op_val++;  /* we manage this operator we move to the value */
         switch (value_len) {
             case 1:
-                val_item = proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_dec_val_8, tvb, offset+cursor_op_val, 1,ENC_BIG_ENDIAN);
-                proto_item_append_text(val_item, " (%s)", tag);
+                proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_8, tvb, offset+cursor_op_val, 1,ENC_BIG_ENDIAN);
+                value = tvb_get_guint8(tvb,offset+cursor_op_val);
                 break;
             case 2:
-                val_item = proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_dec_val_16, tvb, offset+cursor_op_val, 2,ENC_BIG_ENDIAN);
-                proto_item_append_text(val_item, " (%s)", tag);
+                proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_16, tvb, offset+cursor_op_val, 2,ENC_BIG_ENDIAN);
+                value = tvb_get_ntohs(tvb,offset+cursor_op_val);
                 break;
             case 3:
-                val_item = proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_dec_val_32, tvb, offset+cursor_op_val, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(val_item, " (%s)", tag);
+                proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_32, tvb, offset+cursor_op_val, 4, ENC_BIG_ENDIAN);
+                value = tvb_get_ntohl(tvb,offset+cursor_op_val);
                 break;
             case 4:
-                val_item = proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_dec_val_64, tvb, offset+cursor_op_val, 8, ENC_BIG_ENDIAN);
-                proto_item_append_text(val_item, " (%s)", tag);
+                proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_64, tvb, offset+cursor_op_val, 8, ENC_BIG_ENDIAN);
                 break;
             default:
                 return -1;
         }
         cursor_op_val = cursor_op_val + value_len;
-     } while ((nlri_operator&BGPFLOW_END_OF_LST) == 0);
+        proto_item_append_text(parent_item,"%u", value);
+    } while ((nlri_operator&BGPNLRI_FSPEC_END_OF_LST) == 0);
+    proto_item_append_text(parent_item,")");
     return (cursor_op_val);
 }
 
 
 /*
- * function to decode operator in BGP flow spec NLRI when it address a bitmask values (TCP flags, fragementation flags,...)
+ * function to decode operator in BGP flow spec NLRI when it address a bitmask values (TCP flags, fragmentation flags,...)
  */
 
-static int
-decode_bgp_flow_spec_bitmask_operator(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 value_lenght)
+static void
+decode_bgp_flow_spec_bitmask_operator(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_eol,tvb,offset,1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_and, tvb,offset,1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_val_len ,tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_un_bit4, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_un_bit5, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_flg_not, tvb,offset, 1,ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_flg_match, tvb,offset, 1,ENC_BIG_ENDIAN);
-    return (value_lenght);
+    proto_item *op_item;
+    proto_tree *op_tree;
+
+    op_item = proto_tree_add_item(tree, hf_bgp_flowspec_nlri_op_flags, tvb, offset, 1, ENC_NA);
+    op_tree = proto_item_add_subtree(op_item, ett_bgp_flow_spec_nlri_op_flags);
+
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_eol,tvb,offset,1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_and, tvb,offset,1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_val_len ,tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_un_bit4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_un_bit5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_flg_not, tvb,offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(op_tree, hf_bgp_flowspec_nlri_op_flg_match, tvb,offset, 1,ENC_BIG_ENDIAN);
 }
 
 /*
  * Decode an operator and tcp flags bitmask of BGP flow spec NLRI
  */
 static int
-decode_bgp_nlri_op_tcpf_value(proto_tree *tree, tvbuff_t *tvb, gint offset, const char *tag)
+decode_bgp_nlri_op_tcpf_value(proto_tree *parent_tree, proto_item *parent_item, tvbuff_t *tvb, gint offset)
 {
     guint8 nlri_operator;
+    guint8 tcp_flags;
     guint cursor_op_val=0;
-    proto_tree *op_value_tree;
-    proto_item *op_value_item;
+    proto_tree *tcp_tree;
+    proto_item *tcp_item;
     guint8 value_len=0;
     guint8 shift_amount=0;
+    guint first_loop=0;
+
+    proto_item_append_text(parent_item," (");
 
     do {
         nlri_operator = tvb_get_guint8(tvb, offset+cursor_op_val);
         shift_amount = nlri_operator&0x30;
         shift_amount = shift_amount >> 4;
         value_len = 1 << shift_amount; /* as written in RFC 5575 section 4 */
-        op_value_item = proto_tree_add_text(tree, tvb, offset+cursor_op_val,
-                                            value_len+1, "op-value pair (%u Byte%s)",
-                                            value_len+1, plurality(value_len, "", "s"));
-        op_value_tree = proto_item_add_subtree(op_value_item, ett_bgp_nlri);
-        /* call a function to decode operator addressing bitmaks */
-        decode_bgp_flow_spec_bitmask_operator(op_value_tree, tvb, offset+cursor_op_val, value_len);
+        decode_bgp_flow_spec_bitmask_operator(parent_tree, tvb, offset+cursor_op_val); /* call to a operator decode function */
+        if (first_loop == 0)
+        {
+            /* If first operator we remove a white space and or (||) is not relevant */
+            proto_item_append_text(parent_item,"%s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+            first_loop = 1;
+        }
+        else
+        {
+            proto_item_append_text(parent_item," %s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+        }
         cursor_op_val++;  /* we manage this operator we move to the value */
         if (value_len == 2) {
             cursor_op_val++; /* tcp flags are coded over 2 bytes only the second one is significant, we move to second byte */
         }
-        proto_tree_add_text(op_value_tree, tvb, offset+cursor_op_val,
-                            value_len, "%s :",tag);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_cwr, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_ecn, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_urg, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_ack, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_push, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_reset, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_syn, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_tcp_flags_fin, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+
+        tcp_item = proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_tcp_flags, tvb, offset+cursor_op_val, 1, ENC_NA);
+        tcp_tree = proto_item_add_subtree(tcp_item, ett_bgp_flow_spec_nlri_tcp);
+        tcp_flags = tvb_get_guint8(tvb,offset+cursor_op_val);
+
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_cwr, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_ecn, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_urg, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_ack, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_push, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_reset, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_syn, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tcp_tree, hf_bgp_flowspec_nlri_tcp_flags_fin, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(parent_item," %s%s%s%s%s%s",
+             ((tcp_flags & BGPNLRI_FSPEC_TH_URG) == 0) ? "" : "U",
+             ((tcp_flags & BGPNLRI_FSPEC_TH_ACK) == 0) ? "" : "A",
+             ((tcp_flags & BGPNLRI_FSPEC_TH_PUSH) == 0) ? "" : "P",
+             ((tcp_flags & BGPNLRI_FSPEC_TH_RST) == 0) ? "" : "R",
+             ((tcp_flags & BGPNLRI_FSPEC_TH_SYN) == 0) ? "" : "S",
+             ((tcp_flags & BGPNLRI_FSPEC_TH_FIN) == 0) ? "" : "F");
         cursor_op_val = cursor_op_val + value_len;
-    } while ((nlri_operator&BGPFLOW_END_OF_LST) == 0);
+    } while ((nlri_operator&BGPNLRI_FSPEC_END_OF_LST) == 0);
+    proto_item_append_text(parent_item,")");
     return (cursor_op_val);
 }
 
@@ -1333,38 +1402,63 @@ decode_bgp_nlri_op_tcpf_value(proto_tree *tree, tvbuff_t *tvb, gint offset, cons
  * Decode an operator and fragmentation bitmask of BGP flow spec NLRI
  */
 static int
-decode_bgp_nlri_op_fflag_value(proto_tree *tree, tvbuff_t *tvb, gint offset, const char *tag)
+decode_bgp_nlri_op_fflag_value(proto_tree *parent_tree, proto_item *parent_item, tvbuff_t *tvb, gint offset)
 {
     guint8 nlri_operator;
+    guint8 fragment_flags;
     guint cursor_op_val=0;
-    proto_tree *op_value_tree;
-    proto_item *op_value_item;
+    proto_tree *ff_tree;
+    proto_item *ff_item;
     guint8 value_len=0;
     guint8 shift_amount=0;
+    guint first_loop=0;
+
+    proto_item_append_text(parent_item," (");
 
     do {
         nlri_operator = tvb_get_guint8(tvb, offset+cursor_op_val);
         shift_amount = nlri_operator&0x30;
         shift_amount = shift_amount >> 4;
         value_len = 1 << shift_amount; /* as written in RFC 5575 section 4 */
-        op_value_item = proto_tree_add_text(tree, tvb, offset+cursor_op_val,
-                                            value_len+1, "op-value pair (%u Byte%s)",
-                                            value_len+1, plurality(value_len, "", "s"));
-        op_value_tree = proto_item_add_subtree(op_value_item, ett_bgp_nlri);
         /* call a function to decode operator addressing bitmaks */
-        decode_bgp_flow_spec_bitmask_operator(op_value_tree, tvb, offset+cursor_op_val, value_len);
+        decode_bgp_flow_spec_bitmask_operator(parent_tree, tvb, offset+cursor_op_val);
+        if (first_loop == 0)
+        {
+            /* If first operator we remove a white space and or (||) is not relevant */
+            proto_item_append_text(parent_item,"%s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+            first_loop = 1;
+        }
+        else
+        {
+            proto_item_append_text(parent_item," %s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+        }
         cursor_op_val++;  /* we manage this operator we move to the value */
         if (value_len != 1) {
             return -1; /* frag flags have to be coded in 1 byte */
         }
-        proto_tree_add_text(op_value_tree, tvb, offset+cursor_op_val,
-                            value_len, "%s :",tag);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_fflag_lf, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_fflag_ff, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_fflag_isf, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_fflag_df, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        fragment_flags = tvb_get_guint8(tvb,offset+cursor_op_val);
+        ff_item = proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_fflag, tvb, offset+cursor_op_val, 1, ENC_NA);
+        ff_tree = proto_item_add_subtree(ff_item, ett_bgp_flow_spec_nlri_ff);
+        proto_tree_add_item(ff_tree, hf_bgp_flowspec_nlri_fflag_lf, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ff_tree, hf_bgp_flowspec_nlri_fflag_ff, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ff_tree, hf_bgp_flowspec_nlri_fflag_isf, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ff_tree, hf_bgp_flowspec_nlri_fflag_df, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(parent_item," %s%s%s%s",
+             ((fragment_flags & BGPNLRI_FSPEC_FG_DF) == 0) ? "" : "DF",
+             ((fragment_flags & BGPNLRI_FSPEC_FG_ISF) == 0) ? "" : "IsF",
+             ((fragment_flags & BGPNLRI_FSPEC_FG_FF) == 0) ? "" : "FF",
+             ((fragment_flags & BGPNLRI_FSPEC_FG_LF) == 0) ? "" : "LF");
         cursor_op_val = cursor_op_val + value_len;
-    } while ((nlri_operator&BGPFLOW_END_OF_LST) == 0);
+    } while ((nlri_operator&BGPNLRI_FSPEC_END_OF_LST) == 0);
+    proto_item_append_text(parent_item,")");
     return (cursor_op_val);
 }
 
@@ -1372,33 +1466,53 @@ decode_bgp_nlri_op_fflag_value(proto_tree *tree, tvbuff_t *tvb, gint offset, con
  * Decode an operator and DSCP value of BGP flow spec NLRI
  */
 static int
-decode_bgp_nlri_op_dscp_value(proto_tree *tree, tvbuff_t *tvb, gint offset)
+decode_bgp_nlri_op_dscp_value(proto_tree *parent_tree, proto_item *parent_item, tvbuff_t *tvb, gint offset)
 {
     guint8 nlri_operator;
+    guint8 dscp_flags;
     guint cursor_op_val=0;
-    proto_tree *op_value_tree;
-    proto_item *op_value_item;
     guint8 value_len=0;
     guint8 shift_amount=0;
+    guint first_loop=0;
+
+    proto_item_append_text(parent_item," (");
 
     do {
         nlri_operator = tvb_get_guint8(tvb, offset+cursor_op_val);
         shift_amount = nlri_operator&0x30;
         shift_amount = shift_amount >> 4;
         value_len = 1 << shift_amount; /* as written in RFC 5575 section 4 */
-        op_value_item = proto_tree_add_text(tree, tvb, offset+cursor_op_val,
-                                            value_len+1, "op-value pair (%u Byte%s)",
-                                            value_len+1, plurality(value_len, "", "s"));
-        op_value_tree = proto_item_add_subtree(op_value_item, ett_bgp_nlri);
         /* call a function to decode operator addressing bitmaks */
-        decode_bgp_flow_spec_bitmask_operator(op_value_tree, tvb, offset+cursor_op_val, value_len);
+        decode_bgp_flow_spec_bitmask_operator(parent_tree, tvb, offset+cursor_op_val);
+        if (first_loop == 0)
+        {
+            /* If first operator we remove a white space and or (||) is not relevant */
+            proto_item_append_text(parent_item,"%s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+            first_loop = 1;
+        }
+        else
+        {
+            proto_item_append_text(parent_item," %s%s%s%s",
+                 ((nlri_operator & BGPNLRI_FSPEC_AND_BIT) == 0) ? "||" : "&& ",
+                 ((nlri_operator & BGPNLRI_FSPEC_GREATER_THAN) == 0) ? "" : ">",
+                 ((nlri_operator & BGPNLRI_FSPEC_LESS_THAN) == 0) ? "" : "<",
+                 ((nlri_operator & BGPNLRI_FSPEC_EQUAL) == 0) ? "" : "=");
+        }
         cursor_op_val++;  /* we manage this operator we move to the value */
         if (value_len != 1) {
             return -1; /* frag flags have to be coded in 1 byte */
         }
-        proto_tree_add_item(op_value_tree, hf_bgp_flowspec_nlri_dscp, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        dscp_flags = tvb_get_guint8(tvb,offset+cursor_op_val);
+        dscp_flags = dscp_flags >> 2;
+        proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dscp, tvb, offset+cursor_op_val, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(parent_item,"%s",val_to_str_ext_const(dscp_flags,&dscp_vals_ext, "Unknown DSCP"));
         cursor_op_val = cursor_op_val + value_len;
-    } while ((nlri_operator&BGPFLOW_END_OF_LST) == 0);
+    } while ((nlri_operator&BGPNLRI_FSPEC_END_OF_LST) == 0);
+    proto_item_append_text(parent_item,")");
     return (cursor_op_val);
 }
 
@@ -1410,13 +1524,16 @@ decode_bgp_nlri_op_dscp_value(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static int
 decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, packet_info *pinfo)
 {
-    guint     tot_flow_len;       /* total lenght of the flow spec NLRI */
+    guint     tot_flow_len;       /* total length of the flow spec NLRI */
     guint     offset_len;         /* offset of the flow spec NLRI itself could be 1 or 2 bytes */
     guint     cursor_fspec;       /* cursor to move into flow spec nlri */
     gint      filter_len;
     guint16   len_16;
     proto_item *item;
+    proto_item *filter_item;
     proto_tree *nlri_tree;
+    proto_tree *filter_tree;
+
 
     if (afi != AFNUM_INET)
     {
@@ -1425,7 +1542,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
     }
 
     tot_flow_len = tvb_get_guint8(tvb, offset);
-    /* if nlri lenght is greater than 240 bytes, it is encoded over 2 bytes */
+    /* if nlri length is greater than 240 bytes, it is encoded over 2 bytes */
     /* with most significant nibble all in one. 240 is encoded 0xf0f0, 241 0xf0f1 */
     /* max possible value value is 4095 Oxffff */
 
@@ -1445,7 +1562,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
 
     nlri_tree = proto_item_add_subtree(item, ett_bgp_flow_spec_nlri);
 
-    proto_tree_add_uint(nlri_tree, hf_bgp_flowspec_nlri_lenght, tvb, offset,
+    proto_tree_add_uint(nlri_tree, hf_bgp_flowspec_nlri_length, tvb, offset,
                         offset_len, tot_flow_len);
 
     offset = offset + offset_len;
@@ -1453,61 +1570,65 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
 
     while (cursor_fspec < tot_flow_len)
     {
-        proto_tree_add_item(nlri_tree, hf_bgp_flowspec_nlri_type, tvb, offset+cursor_fspec,
-                            1, ENC_NA);
+        filter_item = proto_tree_add_item(nlri_tree, hf_bgp_flowspec_nlri_filter, tvb, offset+cursor_fspec, 1, ENC_NA);
+        filter_tree = proto_item_add_subtree(filter_item, ett_bgp_flow_spec_nlri_filter);
+        proto_tree_add_item(filter_tree, hf_bgp_flowspec_nlri_filter_type, tvb, offset+cursor_fspec, 1, ENC_NA);
+        proto_item_append_text(filter_item, ": %s", val_to_str(tvb_get_guint8(tvb,offset+cursor_fspec), flowspec_nlri_opvaluepair_type, "Unknown filter %d"));
         switch (tvb_get_guint8(tvb,offset+cursor_fspec)) {
         case BGPNLRI_FSPEC_DST_PFIX:
             cursor_fspec++;
-            filter_len = decode_prefix4(nlri_tree, hf_bgp_flowspec_nlri_dst_pref_ipv4, tvb, offset+cursor_fspec,
-                                          0, "Destination IP filter");
+            filter_len = decode_prefix4(filter_tree, filter_item, hf_bgp_flowspec_nlri_dst_pref_ipv4, tvb, offset+cursor_fspec, 0, "Destination IP filter");
+            if (filter_len == -1)
+                cursor_fspec= tot_flow_len;
             break;
         case BGPNLRI_FSPEC_SRC_PFIX:
             cursor_fspec++;
-            filter_len = decode_prefix4(nlri_tree, hf_bgp_flowspec_nlri_src_pref_ipv4, tvb, offset+cursor_fspec,
-                                                             0, "Source IP filter");
+            filter_len = decode_prefix4(filter_tree, filter_item, hf_bgp_flowspec_nlri_src_pref_ipv4, tvb, offset+cursor_fspec, 0, "Source IP filter");
+            if (filter_len == -1)
+              cursor_fspec= tot_flow_len;
             break;
         case BGPNLRI_FSPEC_IP_PROTO:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"IP proto");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_PORT:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Port");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_DST_PORT:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Destination port");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_SRC_PORT:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Source port");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_ICMP_TP:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"ICMP type");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_ICMP_CD:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"ICMP code");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_TCP_FLAGS:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_tcpf_value(nlri_tree, tvb, offset+cursor_fspec,"TCP flags");
+            filter_len = decode_bgp_nlri_op_tcpf_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_PCK_LEN:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dec_value(nlri_tree, tvb, offset+cursor_fspec,"Packet length");
+            filter_len = decode_bgp_nlri_op_dec_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_DSCP:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_dscp_value(nlri_tree, tvb, offset+cursor_fspec);
+            filter_len = decode_bgp_nlri_op_dscp_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         case BGPNLRI_FSPEC_FRAGMENT:
             cursor_fspec++;
-            filter_len = decode_bgp_nlri_op_fflag_value(nlri_tree, tvb, offset+cursor_fspec,"Fragment flags");
+            filter_len = decode_bgp_nlri_op_fflag_value(filter_tree, filter_item, tvb, offset+cursor_fspec);
             break;
         default:
-            proto_tree_add_text(nlri_tree, tvb, offset+cursor_fspec,1,
+            proto_tree_add_text(filter_tree, tvb, offset+cursor_fspec,1,
                                 "NLRI Type unknown (%u)",tvb_get_guint8(tvb,offset+cursor_fspec));
             return -1;
       }
@@ -1515,6 +1636,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi, 
           cursor_fspec += filter_len;
       else
           break;
+      proto_item_set_len(filter_item,filter_len+1);
     }
     return(tot_flow_len);
 }
@@ -1921,7 +2043,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_UNICAST:
             case SAFNUM_MULCAST:
             case SAFNUM_UNIMULC:
-                total_length = decode_prefix4(tree, hf_addr4, tvb, offset, 0, tag);
+                total_length = decode_prefix4(tree, NULL,hf_addr4, tvb, offset, 0, tag);
                 if (total_length < 0)
                     return -1;
                 break;
@@ -2934,7 +3056,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             }
         } else {
             while (o < end) {
-                i = decode_prefix4(subtree, hf_bgp_withdrawn_prefix, tvb, o, len,
+                i = decode_prefix4(subtree, NULL, hf_bgp_withdrawn_prefix, tvb, o, len,
                     "Withdrawn route");
                 if (i < 0)
                     return;
@@ -3821,9 +3943,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                     case BGP_EXT_COM_FLOW_ACT:
                                         is_extended_type = TRUE;
                                         proto_tree_add_text(subtree3,tvb,q,2,"Flow Spec Traffic Action");
-                                        proto_tree_add_item(subtree3,hf_bgp_ext_com_act_allset , tvb, q+2, 5, ENC_NA);
-                                        proto_tree_add_item(subtree3,hf_bgp_ext_com_act_samp_act,tvb,q+7,1,ENC_BIG_ENDIAN);
-                                        proto_tree_add_item(subtree3,hf_bgp_ext_com_act_term_act,tvb,q+7,1,ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree3,hf_bgp_ext_com_flow_act_allset , tvb, q+2, 5, ENC_NA);
+                                        proto_tree_add_item(subtree3,hf_bgp_ext_com_flow_act_samp_act,tvb,q+7,1,ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree3,hf_bgp_ext_com_flow_act_term_act,tvb,q+7,1,ENC_BIG_ENDIAN);
                                         break;
                                     case BGP_EXT_COM_FLOW_MARK:
                                         is_extended_type = TRUE;
@@ -3836,7 +3958,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                                         proto_tree_add_item(subtree3, hf_bgp_community_as,
                                                             tvb, q+2, 2, ENC_BIG_ENDIAN);
                                         /* remaining 4 bytes gives traffic rate in IEEE floating point */
-                                        proto_tree_add_item(subtree3, hf_bgp_ext_com_rate_float,tvb,q+4,4,ENC_BIG_ENDIAN);
+                                        proto_tree_add_item(subtree3, hf_bgp_ext_com_flow_rate_float,tvb,q+4,4,ENC_BIG_ENDIAN);
                                         break;
                                     case BGP_EXT_COM_FLOW_RDIR:
                                         is_extended_type = TRUE;
@@ -4027,7 +4149,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             } else {
                 /* Standard prefixes */
                 while (o < end) {
-                    i = decode_prefix4(subtree, hf_bgp_nlri_prefix, tvb, o, 0,
+                    i = decode_prefix4(subtree, NULL, hf_bgp_nlri_prefix, tvb, o, 0,
                            "NLRI");
                     if (i < 0)
                         return;
@@ -4195,7 +4317,7 @@ example 2
             proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_upper, tvb, p, 1, ENC_BIG_ENDIAN);
             p++;
 
-            advance = decode_prefix4(subtree1, -1, tvb, p, 0, "ORF");
+            advance = decode_prefix4(subtree1, NULL, -1, tvb, p, 0, "ORF");
             if (advance < 0)
                     break;
             entrylen = 7 + 1 + advance;
@@ -4838,128 +4960,140 @@ proto_register_bgp(void)
       { &hf_bgp_flowspec_nlri_t,
         { "FLOW-SPEC nlri", "bgp.flowspec_nlri", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_flowspec_nlri_type,
-          { "Filter type", "bgp.flowspec_nlri.type", FT_UINT8, BASE_DEC,
-              VALS(flowspec_nlri_opvaluepair_type), 0x0, NULL, HFILL }},
-      { &hf_bgp_flowspec_nlri_lenght,
-          { "NRLI_LENGHT", "bgp.flowspec_lrli.lenght", FT_UINT32, BASE_DEC,
-              NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_filter,
+        { "Filter", "bgp.flowspec_nlri.filter", FT_NONE, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_filter_type,
+        { "Filter type", "bgp.flowspec_nlri.filter_type", FT_UINT8, BASE_DEC,
+            VALS(flowspec_nlri_opvaluepair_type), 0x0, NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_length,
+        { "NRLI length", "bgp.flowspec_nlri.length", FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_op_flags,
+        { "Operator flags", "bgp.flowspec_nlri.opflags", FT_UINT8, BASE_HEX,
+            NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dst_pref_ipv4,
-        { "Destination IP filter", "bgp.flowspec_nlri_dst_prefix", FT_IPv4,
+        { "Destination IP filter", "bgp.flowspec_nlri.dst_prefix_filter", FT_IPv4,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_flowspec_nlri_src_pref_ipv4,
-        { "Source IP filter", "bgp.flowspec_nlri_src_prefix", FT_IPv4,
+        { "Source IP filter", "bgp.flowspec_nlri.src_prefix_filter", FT_IPv4,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_flowspec_nlri_op_eol,
-        { "end-of-list", "bgp.flowspec_nlri_op_eol", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_END_OF_LST,
+        { "end-of-list", "bgp.flowspec_nlri.op.eol", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_END_OF_LST,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_and,
-        { "and", "bgp.flowspec_nlri_op_and", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_AND_BIT,
+        { "and", "bgp.flowspec_nlri.op.and", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_AND_BIT,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_val_len,
-        { "Value length", "bgp.flowspec_nlri_op_val_len", FT_UINT8, BASE_DEC, &flow_spec_op_len_val, BGPFLOW_VAL_LEN,
+        { "Value length", "bgp.flowspec_nlri.op.val_len", FT_UINT8, BASE_DEC, &flow_spec_op_len_val, BGPNLRI_FSPEC_VAL_LEN,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_un_bit4,
-        { "Reserved", "bgp.flowspec_nlri_op_un_bit4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_UNUSED_BIT4,
+        { "Reserved", "bgp.flowspec_nlri.op.un_bit4", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_UNUSED_BIT4,
             "Unused (must be zero)",HFILL}},
       { &hf_bgp_flowspec_nlri_op_un_bit5,
-        { "Reserved", "bgp.flowspec_nlri_op_un_bit5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_UNUSED_BIT5,
+        { "Reserved", "bgp.flowspec_nlri.op.un_bit5", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_UNUSED_BIT5,
             "Unused (must be zero)", HFILL}},
       { &hf_bgp_flowspec_nlri_dec_val_8,
-        { "Value", "bgp.flowspec_nlri_dec_val_8", FT_UINT8, BASE_DEC, NULL, 0X0,
+        { "Decimal value", "bgp.flowspec_nlri.dec_val_8", FT_UINT8, BASE_DEC, NULL, 0X0,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dec_val_16,
-        { "Value", "bgp.flowspec_nlri_dec_val_16", FT_UINT16, BASE_DEC, NULL, 0X0,
-                NULL, HFILL }},
+        { "Decimal value", "bgp.flowspec_nlri.dec_val_16", FT_UINT16, BASE_DEC, NULL, 0X0,
+            NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dec_val_32,
-        { "Value", "bgp.flowspec_nlri_dec_val_32", FT_UINT32, BASE_DEC, NULL, 0X0,
-                NULL, HFILL }},
+        { "Decimal value", "bgp.flowspec_nlri.dec_val_32", FT_UINT32, BASE_DEC, NULL, 0X0,
+            NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dec_val_64,
-        { "Value", "bgp.flowspec_nlri_dec_val_64", FT_UINT64, BASE_DEC, NULL, 0X0,
-                NULL, HFILL }},
+        { "Decimal value", "bgp.flowspec_nlri.dec_val_64", FT_UINT64, BASE_DEC, NULL, 0X0,
+            NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_lt,
-        { "less than", "bgp.flowspec_nlri_op_lt", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_LESS_THAN,
+        { "less than", "bgp.flowspec_nlri.op.lt", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_LESS_THAN,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_gt,
-        { "greater than", "bgp.flowspec_nlri_op_gt", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_GREATER_THAN,
+        { "greater than", "bgp.flowspec_nlri.op.gt", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_GREATER_THAN,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_eq,
-        { "equal", "bgp.flowspec_nlri_op_equal", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_EQUAL,
+        { "equal", "bgp.flowspec_nlri.op.equal", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_EQUAL,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_flg_not,
-        { "logical negation", "bgp.flowspec_nlri_op_flg_not", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TCPF_NOTBIT,
+        { "logical negation", "bgp.flowspec_nlri.op.flg_not", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TCPF_NOTBIT,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_flg_match,
-        { "Match bit", "bgp.flowspec_nlri_op_flg_match", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TCPF_MATCHBIT,
+        { "Match bit", "bgp.flowspec_nlri.op.flg_match", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TCPF_MATCHBIT,
+            NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_tcp_flags,
+        { "TCP flags", "bgp.flowspec_nlri.val_tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_cwr,
-        { "Congestion Window Reduced (CWR)", "bgp.flowspec_nlri_val_tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_CWR,
+        { "Congestion Window Reduced (CWR)", "bgp.flowspec_nlri.val_tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_CWR,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_ecn,
-        { "ECN-Echo", "bgp.flowspec_nlri_val_tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_ECN,
-           NULL, HFILL }},
+        { "ECN-Echo", "bgp.flowspec_nlri.val_tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_ECN,
+            NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_urg,
-        { "Urgent",  "bgp.flowspec_nlri_val_tcp.flags.urg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_URG,
+        { "Urgent",  "bgp.flowspec_nlri.val_tcp.flags.urg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_URG,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_ack,
-        { "Acknowledgment", "bgp.flowspec_nlri_val_tcp.flags.ack", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_ACK,
+        { "Acknowledgment", "bgp.flowspec_nlri.val_tcp.flags.ack", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_ACK,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_push,
-        { "Push", "bgp.flowspec_nlri_val_tcp.flags.push", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_PUSH,
+        { "Push", "bgp.flowspec_nlri.val_tcp.flags.push", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_PUSH,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_reset,
-        { "Reset", "bgp.flowspec_nlri_val_tcp.flags.reset", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_RST,
+        { "Reset", "bgp.flowspec_nlri.val_tcp.flags.reset", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_RST,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_syn,
-        { "Syn", "bgp.flowspec_nlri_val_tcp.flags.syn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_SYN,
+        { "Syn", "bgp.flowspec_nlri.val_tcp.flags.syn", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_SYN,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_tcp_flags_fin,
-        { "Fin", "bgp.flowspec_nlri_val_tcp.flags.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_TH_FIN,
+        { "Fin", "bgp.flowspec_nlri.val_tcp.flags.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_TH_FIN,
+            NULL, HFILL }},
+      { &hf_bgp_flowspec_nlri_fflag,
+        { "Fragment Flag", "bgp.flowspec_nlri.val_frag", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_fflag_lf,
-        { "Last fragment", "bgp.flowspec_nlri_val_frag_lf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_FG_LF,
+        { "Last fragment", "bgp.flowspec_nlri.val_frag_lf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_FG_LF,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_fflag_ff,
-        { "First fragment", "bgp.flowspec_nlri_val_frag_ff", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_FG_FF,
+        { "First fragment", "bgp.flowspec_nlri.val_frag_ff", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_FG_FF,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_fflag_isf,
-        { "Is a fragment", "bgp.flowspec_nlri_val_frag_isf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_FG_ISF,
+        { "Is a fragment", "bgp.flowspec_nlri.val_frag_isf", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_FG_ISF,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_fflag_df,
-        { "Don't fragment", "bgp.flowspec_nlri_val_frag_df", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPFLOW_FG_DF,
+        { "Don't fragment", "bgp.flowspec_nlri.val_frag_df", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BGPNLRI_FSPEC_FG_DF,
             NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_dscp,
-        { "Differentiated Services Codepoint", "bgp.flowspec_nlri_val.dsfield", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
-                &dscp_vals_ext, BGPFLOW_DSCP_BITMASK, NULL, HFILL }},
-      { &hf_bgp_ext_com_act_samp_act,
-        { "Sample", "bgp.ext_com_flow_sample.sample", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
-                BGP_EXT_COM_FSPEC_ACT_S, NULL, HFILL}},
-      { &hf_bgp_ext_com_act_term_act,
-        { "Terminal action", "bgp.ext_com_flow_traff_act", FT_BOOLEAN, 8, TFS(&tfs_set_notset),BGP_EXT_COM_FSPEC_ACT_T,NULL, HFILL}},
-      { &hf_bgp_ext_com_rate_float,
-        { "Rate shaper", "bgp.ext_com_flow_rate_limit", FT_FLOAT, BASE_NONE,
-                NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_ext_com_act_allset,
+        { "Differentiated Services Codepoint", "bgp.flowspec_nlri.val_dsfield", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+            &dscp_vals_ext, BGPNLRI_FSPEC_DSCP_BITMASK, NULL, HFILL }},
+      { &hf_bgp_ext_com_flow_act_samp_act,
+        { "Sample", "bgp.ext_com_flow.sample", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
+            BGP_EXT_COM_FSPEC_ACT_S, NULL, HFILL}},
+      { &hf_bgp_ext_com_flow_act_term_act,
+        { "Terminal action", "bgp.ext_com_flow.traff_act", FT_BOOLEAN, 8, TFS(&tfs_set_notset),BGP_EXT_COM_FSPEC_ACT_T,NULL, HFILL}},
+      { &hf_bgp_ext_com_flow_rate_float,
+        { "Rate shaper", "bgp.ext_com_flow.rate_limit", FT_FLOAT, BASE_NONE,
+            NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ext_com_flow_act_allset,
         { "5 Bytes", "bgp.flowspec_ext_com.emptybytes", FT_BYTES, BASE_NONE,
-                NULL, 0x0, "Must be set to all 0", HFILL }},
+            NULL, 0x0, "Must be set to all 0", HFILL }},
       { &hf_bgp_ext_com_flow_redir,
-        { "Action Traffic redirect", "bgp.ext_com_flow_redirect.ext_com", FT_NONE, BASE_NONE,
-                NULL, 0x0, NULL, HFILL }},
+        { "Action Traffic redirect", "bgp.ext_com_flow.redirect", FT_NONE, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ext_com_flow_redir_as,
-        { "AS", "bgp.ext_com_flow_redirect.as16", FT_UINT16, BASE_DEC,
-                NULL, 0x0, NULL, HFILL }},
+        { "AS", "bgp.ext_com_flow.redirect.as16", FT_UINT16, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ext_com_flow_redir_an,
-        { "AN", "bgp.ext_com_flow_redirect.an32", FT_UINT32, BASE_DEC,
-                NULL, 0x0, NULL, HFILL }},
+        { "AN", "bgp.ext_com_flow.redirect.an32", FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
         /* end of bgp flow spec */
       { &hf_bgp_encaps_tunnel_tlv_len,
-        { "Length", "bgp.encaps_tunnel_tlv_len", FT_UINT16,
+        { "length", "bgp.encaps_tunnel_tlv_len", FT_UINT16,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_encaps_tunnel_tlv_type,
         { "Type code", "bgp.encaps_tunnel_tlv_type", FT_UINT16, BASE_DEC,
           VALS(tunnel_type), 0x0, NULL, HFILL}},
       { &hf_bgp_encaps_tunnel_subtlv_len,
-        { "Length", "bgp.encaps_tunnel_tlv_sublen", FT_UINT8,
+        { "length", "bgp.encaps_tunnel_tlv_sublen", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_encaps_tunnel_subtlv_type,
         { "Type code", "bgp.encaps_tunnel_subtlv_type", FT_UINT8, BASE_DEC,
@@ -5090,6 +5224,10 @@ proto_register_bgp(void)
       &ett_bgp_orf_entry,
       &ett_bgp_mcast_vpn_nlri,
       &ett_bgp_flow_spec_nlri,
+      &ett_bgp_flow_spec_nlri_filter,
+      &ett_bgp_flow_spec_nlri_op_flags,
+      &ett_bgp_flow_spec_nlri_tcp,
+      &ett_bgp_flow_spec_nlri_ff,
       &ett_bgp_tunnel_tlv,
       &ett_bgp_tunnel_tlv_subtree,
       &ett_bgp_tunnel_subtlv,
