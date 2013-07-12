@@ -51,7 +51,6 @@ LIBECHLD_MORE_SRC = \
 	../cfutils.c	\
 	../clopts_common.c	\
 	../conditions.c	\
-	../disabled_protos.c \
 	../pcapio.c	\
 	../ringbuffer.c	\
 	../sync_pipe_write.c \
