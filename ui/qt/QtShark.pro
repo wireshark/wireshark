@@ -172,7 +172,6 @@ SOURCES_WS_C = \
     ../../cfutils.c \
     ../../clopts_common.c \
     ../../color_filters.c \
-    ../../disabled_protos.c       \
     ../../file.c  \
     ../../fileset.c       \
     ../../filters.c       \
