@@ -1430,6 +1430,7 @@ set(LIBWIRESHARK_FILES
 	crc16-tvb.c
 	crc32-tvb.c
 	crc8-tvb.c
+	disabled_protos.c
 	dissector_filters.c
 	emem.c
 	epan.c

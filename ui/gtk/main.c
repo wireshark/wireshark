@@ -85,13 +85,13 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/uat.h>
 #include <epan/column.h>
+#include <epan/disabled_protos.h>
 
 /* general (not GTK specific) */
 #include "../file.h"
 #include "../frame_tvbuff.h"
 #include "../summary.h"
 #include "../filters.h"
-#include "../disabled_protos.h"
 #include "../color.h"
 #include "../color_filters.h"
 #include "../print.h"

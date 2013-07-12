@@ -50,7 +50,6 @@ SHARK_COMMON_SRC =	\
 	cfile.c			\
 	cfutils.c		\
 	clopts_common.c		\
-	disabled_protos.c	\
 	frame_tvbuff.c		\
 	print.c			\
 	ps.c			\
@@ -67,7 +66,6 @@ SHARK_COMMON_INCLUDES =	\
 	clopts_common.h		\
 	cmdarg_err.h		\
 	color.h			\
-	disabled_protos.h	\
 	file.h			\
 	fileset.h		\
 	frame_tvbuff.h		\

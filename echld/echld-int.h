@@ -73,7 +73,7 @@
 #include "epan/funnel.h"
 #include "epan/prefs.h"
 #include "epan/timestamp.h"
-#include "disabled_protos.h"
+#include "epan/disabled_protos.h"
 #include "echld.h"
 
 #ifdef __cplusplus

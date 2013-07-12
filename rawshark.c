@@ -74,7 +74,7 @@
 #include <epan/packet.h>
 #include "file.h"
 #include "frame_tvbuff.h"
-#include "disabled_protos.h"
+#include <epan/disabled_protos.h>
 #include <epan/prefs.h>
 #include <epan/column.h>
 #include "print.h"

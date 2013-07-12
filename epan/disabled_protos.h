@@ -47,15 +47,17 @@ typedef struct {
  * or "*read_errno_return" is set to the error if we got an error reading
  * the file.
  */
-void read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
-			       int *gread_errno_return,
-			       char **path_return, int *open_errno_return,
-			       int *read_errno_return);
+WS_DLL_PUBLIC void
+read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
+			  int *gread_errno_return,
+			  char **path_return, int *open_errno_return,
+			  int *read_errno_return);
 
 /*
  * Disable protocols as per the stored configuration
  */
-void set_disabled_protos_list(void);
+WS_DLL_PUBLIC void
+set_disabled_protos_list(void);
 
 /*
  * Write out a list of disabled protocols.
@@ -65,7 +67,8 @@ void set_disabled_protos_list(void);
  * the file we tried to read - it should be freed by our caller -
  * and "*errno_return" is set to the error.
  */
-void save_disabled_protos_list(char **pref_path_return, int *errno_return);
+WS_DLL_PUBLIC void
+save_disabled_protos_list(char **pref_path_return, int *errno_return);
 
 #ifdef __cplusplus
 }

@@ -25,6 +25,7 @@
 
 #include <epan/filesystem.h>
 #include <epan/timestamp.h>
+#include <epan/disabled_protos.h>
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
@@ -33,7 +34,6 @@
 
 #include "capture.h"
 #include "color_filters.h"
-#include "disabled_protos.h"
 #include "filters.h"
 #include "log.h"
 #include "recent_file_status.h"

@@ -652,7 +652,6 @@ set(WIRESHARK_COMMON_SRC
 	cfile.c
 	cfutils.c
 	clopts_common.c
-	disabled_protos.c
 	frame_tvbuff.c
 	print.c
 	ps.c
