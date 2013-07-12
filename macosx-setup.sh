@@ -940,7 +940,22 @@ if [ "$GDK_PIXBUF_VERSION" -a ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
     [ -f gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
     xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
     cd gdk-pixbuf-$GDK_PIXBUF_VERSION
-    CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+    #
+    # If we're building for 10.6, use libpng12; if you have 10.7.5, including
+    # X11, and Xcode 4.3.3, the system has libpng15, complete with pkg-config
+    # files, as part of X11, but 10.6's X11 has only libpng12, and the 10.6
+    # SDK in Xcode 4.3.3 also has only libpng12, and has no pkg-config files
+    # of its own, so we have to explicitly set LIBPNG to override the
+    # configure script, and also force the CFLAGS to look for the header
+    # files for libpng12 (note that -isysroot doesn't affect the arguments
+    # to -I, so we need to include the SDK path explicitly).
+    #
+    if [[ "$min_osx_target" = 10.6 ]]
+    then
+        LIBPNG="-L/usr/X11/lib -lpng12" CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS -I$SDKPATH/usr/X11/include/libpng12" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+    else
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libtiff --without-libjpeg || exit 1
+    fi
     make $MAKE_BUILD_OPTS || exit 1
     $DO_MAKE_INSTALL || exit 1
     cd ..
