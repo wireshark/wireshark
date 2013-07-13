@@ -1907,29 +1907,14 @@ clicks as well, launching the configured browser with this URL as parameter.
 
 1.6 Utility routines.
 
-1.6.1 match_strval, match_strval_ext, val_to_str and val_to_str_ext.
+1.6.1 val_to_str, val_to_str_const, try_val_to_str and try_val_to_str_idx
 
 A dissector may need to convert a value to a string, using a
 'value_string' structure, by hand, rather than by declaring a field with
 an associated 'value_string' structure; this might be used, for example,
 to generate a COL_INFO line for a frame.
 
-'match_strval()' will do that:
-
-    gchar*
-    match_strval(guint32 val, const value_string *vs)
-
-It will look up the value 'val' in the 'value_string' table pointed to
-by 'vs', and return either the corresponding string, or NULL if the
-value could not be found in the table.  Note that, unless 'val' is
-guaranteed to be a value in the 'value_string' table ("guaranteed" as in
-"the code has already checked that it's one of those values" or "the
-table handles all possible values of the size of 'val'", not "the
-protocol spec says it has to be" - protocol specs do not prevent invalid
-packets from being put onto a network or into a purported packet capture
-file), you must check whether 'match_strval()' returns NULL, and arrange
-that its return value not be dereferenced if it's NULL. 'val_to_str()'
-can be used to generate a string for values not found in the table:
+val_to_str() handles the most common case:
 
     gchar*
     val_to_str(guint32 val, const value_string *vs, const char *fmt)
@@ -1942,43 +1927,39 @@ You can use it in a call to generate a COL_INFO line for a frame such as
 
     col_add_fstr(COL_INFO, ", %s", val_to_str(val, table, "Unknown %d"));
 
-The match_strval_ext and val_to_str_ext functions are "extended" versions
-of match_strval and val_to_str. They should be used for large value-string
-arrays which contain many entries. They implement value to string conversions
-which will do either a direct access or a binary search of the
-value string array if possible. See "Extended Value Strings" under
-section  1.6 "Constructing the protocol tree" for more information.
+If you don't need to display 'val' in your fmt string, you can use
+val_to_str_const() which just takes a string constant instead and returns it
+unmodified when 'val' isn't found.
+
+If you need to handle the failure case in some custom way, try_val_to_str()
+will return NULL if val isn't found:
+
+    gchar*
+    try_val_to_str(guint32 val, const value_string *vs)
+
+Note that, you must check whether 'try_val_to_str()' returns NULL, and arrange
+that its return value not be dereferenced if it's NULL. 'try_val_to_str_idx()'
+behaves similarly, except it also returns an index into the value_string array,
+or -1 if 'val' was not found.
+
+The *_ext functions are "extended" versions of those already described. They
+should be used for large value-string arrays which contain many entries. They
+implement value to string conversions which will do either a direct access or
+a binary search of the value string array if possible. See
+"Extended Value Strings" under section 1.6 "Constructing the protocol tree" for
+more information.
 
 See epan/value_string.h for detailed information on the various value_string
 functions.
 
-
-1.6.2 match_strrval and rval_to_str.
+1.6.2 rval_to_str, try_rval_to_str and try_rval_to_str_idx
 
 A dissector may need to convert a range of values to a string, using a
 'range_string' structure.
 
-'match_strrval()' will do that:
+Most of the same functions exist as with regular value_strings (see section
+1.6.1) except with the names 'rval' instead of 'val'.
 
-    gchar*
-    match_strrval(guint32 val, const range_string *rs)
-
-It will look up the value 'val' in the 'range_string' table pointed to
-by 'rs', and return either the corresponding string, or NULL if the
-value could not be found in the table. Please note that its base
-behavior is inherited from match_strval().
-
-'rval_to_str()' can be used to generate a string for values not found in
-the table:
-
-    gchar*
-    rval_to_str(guint32 val, const range_string *rs, const char *fmt)
-
-If the value 'val' is found in the 'range_string' table pointed to by
-'rs', 'rval_to_str' will return the corresponding string; otherwise, it
-will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
-to generate a string, and will return a pointer to that string. Please
-note that its base behavior is inherited from match_strval().
 
 1.7 Calling Other Dissectors.
 
