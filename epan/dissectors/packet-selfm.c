@@ -343,11 +343,6 @@ typedef struct {
     fm_analog_info *analogs;         /* Array of fm_analog_infos       */
 } fm_config_frame;
 
-typedef struct {
-    wmem_slist_t *fm_config_frames;    /* List contains a fm_config_data struct for each Fast Meter configuration frame */
-    wmem_slist_t *fastser_dataitems;   /* List contains a fastser_dataitem struct for each Fast SER Data Item */
-} fm_conversation;
-
 /**************************************************************************************/
 /* Fast SER Message Data Item struct */
 /**************************************************************************************/
@@ -364,6 +359,24 @@ typedef struct {
     guint16  quantity;                          /* Quantity of values within Data Item                      */
     guint16  data_type;                         /* Data Item Type, Char, Int, FP, etc                       */
 } fastser_dataitem;
+
+/**************************************************************************************/
+/* Fast SER Message Data Region struct */
+/**************************************************************************************/
+/* Holds Configuration Information required to decode a Fast SER Data Region          */
+/* Each data region format is returned as a sequential list of tags, w/o reference to */
+typedef struct {
+    gchar    name[10+1];                        /* Name of Data Region, 10 chars, null-terminated              */
+} fastser_dataregion;
+
+/**************************************************************************************/
+/* Fast Message Conversation struct */
+/**************************************************************************************/
+typedef struct {
+    wmem_slist_t *fm_config_frames;      /* List contains a fm_config_data struct for each Fast Meter configuration frame */
+    wmem_slist_t *fastser_dataitems;     /* List contains a fastser_dataitem struct for each Fast SER Data Item */
+    wmem_tree_t  *fastser_dataregions;   /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
+} fm_conversation;
 
 
 static const value_string selfm_msgtype_vals[] = {
@@ -815,7 +828,7 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
     fm_config_frame *frame;
 
     /* get a new frame and initialize it */
-    frame = (fm_config_frame *)wmem_alloc(wmem_file_scope(), sizeof(fm_config_frame));
+    frame = wmem_new(wmem_file_scope(), fm_config_frame);
 
     /* Get data packet setup information from config message and copy into ai_info (if required) */
     frame->cfg_cmd        = tvb_get_ntohs(tvb, offset);
@@ -863,11 +876,10 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
 /******************************************************************************************************/
 static fastser_dataitem* fastser_dataitem_save(tvbuff_t *tvb, int offset)
 {
-    /* Set up structures needed to add the protocol subtree and manage it */
     fastser_dataitem *dataitem;
 
     /* get a new dataitem and initialize it */
-    dataitem = (fastser_dataitem *)wmem_alloc(wmem_file_scope(), sizeof(fastser_dataitem));
+    dataitem = wmem_new(wmem_file_scope(), fastser_dataitem);
 
     /* retrieve data item name and terminate with a null */
     tvb_memcpy(tvb, dataitem->name, offset, 10);
@@ -879,6 +891,46 @@ static fastser_dataitem* fastser_dataitem_save(tvbuff_t *tvb, int offset)
 
     return dataitem;
 
+}
+
+/******************************************************************************************************/
+/* Execute dissection of Data Region definition info before loading GUI tree                          */
+/* Load configuration information into fastser_dataregion struct                                      */
+/******************************************************************************************************/
+static fastser_dataregion* fastser_dataregion_save(tvbuff_t *tvb, int offset)
+{
+    fastser_dataregion *dataregion;
+
+    /* get a new dataregion and initialize it */
+    dataregion = wmem_new(wmem_file_scope(), fastser_dataregion);
+
+    /* retrieve data region name and terminate with a null */
+    tvb_memcpy(tvb, dataregion->name, offset, 10);
+    dataregion->name[10] = '\0'; /* Put a terminating null onto the end of the string */
+
+    return dataregion;
+
+}
+
+/********************************************************************************************************/
+/* Lookup region name using current base address & saved conversation data.  Return ptr to gchar string */
+/********************************************************************************************************/
+const gchar*
+region_lookup(packet_info *pinfo, guint32 base_addr)
+{
+    fm_conversation    *conv;
+    fastser_dataregion *dataregion;
+
+    conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
+
+    dataregion = (fastser_dataregion*)wmem_tree_lookup32(conv->fastser_dataregions, base_addr);
+
+    if (dataregion) {
+        return dataregion->name;
+    }
+
+    /* If we couldn't identify the region using the current base address, return a default string */
+    return "Unknown Region";
 }
 
 /******************************************************************************************************/
@@ -1458,9 +1510,8 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 static int
 dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_info *pinfo, int offset, guint8 seq_byte)
 {
-    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item        *fastser_tag_item=NULL, *fastser_tag_value_item=NULL, *fmdata_dig_item=NULL;
-    proto_item        *pi_fnum=NULL, *pi_type=NULL, *pi_qty=NULL;
+    proto_item        *pi_baseaddr=NULL, *pi_fnum=NULL, *pi_type=NULL, *pi_qty=NULL;
     proto_tree        *fastser_tag_tree=NULL, *fmdata_dig_tree=NULL;
     guint32           base_addr;
     guint16           data_size, num_addr, cnt;
@@ -1481,9 +1532,11 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
     num_addr = tvb_get_ntohs(tvb, offset+4); /* 16-bit field with number of 16-bit addresses to read */
 
     /* Append Column Info w/ Base Address */
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
+
     proto_tree_add_item(fastser_tree, hf_selfm_fastser_numwords, tvb, offset+4, 2, ENC_BIG_ENDIAN);
     offset += 6;
 
@@ -1689,6 +1742,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *fastser_item, *fastser_def_fc_item=NULL, *fastser_seq_item=NULL, *fastser_elementlist_item=NULL;
     proto_item    *fastser_element_item=NULL, *fastser_datareg_item=NULL, *fastser_tag_item=NULL;
+    proto_item    *pi_baseaddr=NULL;
     proto_tree    *fastser_tree, *fastser_def_fc_tree=NULL, *fastser_seq_tree=NULL, *fastser_elementlist_tree=NULL;
     proto_tree    *fastser_element_tree=NULL, *fastser_datareg_tree=NULL, *fastser_tag_tree=NULL;
     gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
@@ -1786,9 +1840,11 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
 
             /* Append Column Info w/ Base Address */
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
+
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_numwords, tvb, offset+4, 2, ENC_BIG_ENDIAN);
             offset += 6;
             break;
@@ -1913,11 +1969,15 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_SER_DATAFMT_REQ:   /* 0x31 - Data Format Request */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
 
             /* Append Column Info w/ Base Address */
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
+
+            /* Add Base Address to Tree */
+            pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
+
+            offset += 4;
 
             break;
 
@@ -2070,11 +2130,15 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_SER_DATAFMT_RESP: /* 0xB1 (resp to 0x31) - Data Format Response */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+            /* Add Base Address to Tree */
+            pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
+
             offset += 4;
 
             /* Append Column Info w/ Base Address */
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x", base_addr);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
             /* 16-bit field with number of data items to follow */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_datafmt_resp_numitem, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2146,7 +2210,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
 
     msg_type = tvb_get_ntohs(selfm_tvb, offset);
 
-    /* On first pass through the packets we have 3 tasks to complete */
+    /* On first pass through the packets we have 4 tasks to complete - they are each noted below */
     if (!pinfo->fd->flags.visited) {
         conversation_t       *conversation;
         fm_conversation      *fm_conv_data;
@@ -2157,9 +2221,10 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
         fm_conv_data = (fm_conversation *)conversation_get_proto_data(conversation, proto_selfm);
 
         if (fm_conv_data == NULL) {
-            fm_conv_data = (fm_conversation *)wmem_alloc(wmem_file_scope(), sizeof(fm_conversation));
+            fm_conv_data = wmem_new(wmem_file_scope(), fm_conversation);
             fm_conv_data->fm_config_frames = wmem_slist_new(wmem_file_scope());
             fm_conv_data->fastser_dataitems = wmem_slist_new(wmem_file_scope());
+            fm_conv_data->fastser_dataregions = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(conversation, proto_selfm, (void *)fm_conv_data);
         }
 
@@ -2177,7 +2242,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
             wmem_slist_prepend(fm_conv_data->fm_config_frames, frame_ptr);
         }
 
-        /* 2. Fill conversation data array with Fast SER Data Item data from Data Format Response Messages.   */
+        /* 2. Fill conversation data array with Fast SER Data Item info from Data Format Response Messages.   */
         /* These format definitions will later be retrieved to decode Read Response messages.                 */
         if ((CMD_FAST_SER == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_SER_DATAFMT_RESP)) {
 
@@ -2208,7 +2273,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Store the data item configuration info in the fastser_dataitems slist */
                 wmem_slist_append(fm_conv_data->fastser_dataitems, dataitem_ptr);
-                offset = offset + 14;
+                offset += 14;
             }
         }
 
@@ -2225,6 +2290,38 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
             /* Call the same read response function that will be called during GUI dissection */
             offset = dissect_fastser_readresp_frame( selfm_tvb, tree, pinfo, offset, seq);
 
+        }
+
+        /* 4. Fill conversation data array with Fast SER Data Region info from Device Desc Response Messages. This */
+        /*    will retrieve a data region name (associated to an address) that can later be displayed in the tree. */
+        if ((CMD_FAST_SER == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_SER_DEVDESC_RESP)) {
+
+            seq = tvb_get_guint8(selfm_tvb, offset+10);
+            seq_cnt = seq & FAST_SER_SEQ_CNT;
+
+            num_items = tvb_get_ntohs(selfm_tvb, offset+102);
+
+            /* When dealing with Device Description Response messages, there are a maximum of 7 regions per frame */
+            /* Use the sequence count if we have more 7 items to determine how many to expect in each frame */
+            if ((num_items >= 8) && (seq_cnt == 0)) {
+                num_items = 7;
+            }
+            else{
+                num_items = num_items - (seq_cnt * 7);
+            }
+
+            /* Set offset to start of data regions */
+            offset = 106;
+
+            /* Enter the single frame multiple times, retrieving a single data region per entry */
+            for (cnt = 1; (cnt <= num_items); cnt++) {
+                guint32 base_address = tvb_get_ntohl(selfm_tvb, offset+10);
+                fastser_dataregion *dataregion_ptr = fastser_dataregion_save(selfm_tvb, offset);
+
+                /* Store the data region info in the fastser_dataregions tree */
+                wmem_tree_insert32(fm_conv_data->fastser_dataregions, base_address, dataregion_ptr);
+                offset += 18;
+            }
         }
 
 
