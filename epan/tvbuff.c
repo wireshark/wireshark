@@ -227,47 +227,43 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length
 	return tvb;
 }
 
-static int
-compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
+/*
+ * Check whether that offset goes more than one byte past the
+ * end of the buffer.
+ *
+ * If not, return 0; otherwise, return exception
+ */
+static inline int
+validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 {
 	int exception;
 
-	if (offset >= 0) {
-		/* Positive offset - relative to the beginning of the packet. */
-		if ((guint) offset > tvb->reported_length) {
-			if (tvb->flags & TVBUFF_FRAGMENT) {
-				exception = FragmentBoundsError;
-			} else {
-				exception = ReportedBoundsError;
-			}
-			return exception;
-		}
-		else if ((guint) offset > tvb->length) {
-			return BoundsError;
-		}
-		else {
-			*offset_ptr = offset;
-		}
-	}
+	if (G_LIKELY(abs_offset <= tvb->length))
+		exception = 0;
+	else if (abs_offset <= tvb->reported_length)
+		exception = BoundsError;
 	else {
-		/* Negative offset - relative to the end of the packet. */
-		if ((guint) -offset > tvb->reported_length) {
-			if (tvb->flags & TVBUFF_FRAGMENT) {
-				exception = FragmentBoundsError;
-			} else {
-				exception = ReportedBoundsError;
-			}
-			return exception;
-		}
-		else if ((guint) -offset > tvb->length) {
-			return BoundsError;
-		}
-		else {
-			*offset_ptr = tvb->length + offset;
-		}
+		if (tvb->flags & TVBUFF_FRAGMENT)
+			exception = FragmentBoundsError;
+		else
+			exception = ReportedBoundsError;
 	}
 
-	return 0;
+	return exception;
+}
+
+static int
+compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
+{
+	if (offset >= 0) {
+		/* Positive offset - relative to the beginning of the packet. */
+		*offset_ptr = offset;
+	} else {
+		/* Negative offset - relative to the end of the packet. */
+		*offset_ptr = tvb->length + offset;
+	}
+
+	return validate_offset(tvb, *offset_ptr);
 }
 
 static int
@@ -332,23 +328,8 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 	 */
 	if (end_offset < *offset_ptr)
 		exception = BoundsError;
-
-	/*
-	 * Check whether that offset goes more than one byte past the
-	 * end of the buffer.
-	 *
-	 * If not, return 0; otherwise, return exception
-	 */
-	else if (end_offset <= tvb->length)
-		exception = 0;
-	else if (end_offset <= tvb->reported_length)
-		exception = BoundsError;
-	else {
-		if (tvb->flags & TVBUFF_FRAGMENT)
-			exception = FragmentBoundsError;
-		else
-			exception = ReportedBoundsError;
-	}
+	else
+		exception = validate_offset(tvb, end_offset);
 
 	return exception;
 }
