@@ -381,45 +381,46 @@ if [ "$strip" = "true" ]; then
 fi
 
 # NOTE: This works for all the dylibs but causes GTK to crash at startup.
-#				Instead we leave them with their original install_names and set
-#				DYLD_LIBRARY_PATH within the app bundle before running Wireshark.
+#	Instead we leave them with their original install_names and set
+#	DYLD_LIBRARY_PATH within the app bundle before running Wireshark.
+#	XXX - is that because some plugins need fixing?
 #
 # fixlib () {
-#		# Fix a given executable or library to be relocatable
-#		if [ ! -d "$1" ]; then
-#			echo $1
-#			libs="`otool -L $1 | fgrep compatibility | cut -d\( -f1`"
-#			for lib in $libs; do
-#				echo "	$lib"
-#				base=`echo $lib | awk -F/ '{print $NF}'`
-#				first=`echo $lib | cut -d/ -f1-3`
-#				to=@executable_path/../lib/$base
-#				if [ $first != /usr/lib -a $first != /usr/X11R6 ]; then
-#					/usr/bin/install_name_tool -change $lib $to $1
-#					if [ "`echo $lib | fgrep libcrypto`" = "" ]; then
-#						/usr/bin/install_name_tool -id $to ../lib/$base
-#						for ll in $libs; do
-#							base=`echo $ll | awk -F/ '{print $NF}'`
-#							first=`echo $ll | cut -d/ -f1-3`
-#							to=@executable_path/../lib/$base
-#							if [ $first != /usr/lib -a $first != /usr/X11R6 -a "`echo $ll | fgrep libcrypto`" = "" ]; then
-#								/usr/bin/install_name_tool -change $ll $to ../lib/$base
-#							fi
-#						done
-#					fi
-#				fi
-#			done
-#		fi
+# 	# Fix a given executable or library to be relocatable
+# 	if [ ! -d "$1" ]; then
+# 		echo $1
+# 		libs="`otool -L $1 | egrep -v '/System|/usr/lib|/opt' | fgrep compatibility | cut -d\( -f1`"
+# 		for lib in $libs; do
+# 			echo "	$lib"
+# 			base=`echo $lib | awk -F/ '{print $NF}'`
+# 			first=`echo $lib | cut -d/ -f1-3`
+# 			to=@rpath/$base
+# 			if [ $first != /usr/lib -a $first != /usr/X11R6 ]; then
+# 				/usr/bin/install_name_tool -change $lib $to $1
+# 				if [ "`echo $lib | fgrep libcrypto`" = "" ]; then
+# 					/usr/bin/install_name_tool -id $to ../lib/$base
+# 					for ll in $libs; do
+# 						base=`echo $ll | awk -F/ '{print $NF}'`
+# 						first=`echo $ll | cut -d/ -f1-3`
+# 						to=@rpath/$base
+# 						if [ $first != /usr/lib -a $first != /usr/X11R6 -a "`echo $ll | fgrep libcrypto`" = "" ]; then
+# 							/usr/bin/install_name_tool -change $ll $to ../lib/$base
+# 						fi
+# 					done
+# 				fi
+# 			fi
+# 		done
+# 	fi
 # }
 #
 # Fix package deps
-#(cd "$package/Contents/MacOS/bin"
+# (cd "$package/Contents/Resources/bin"
 # for file in *; do
-#		 fixlib "$file"
+# 	 fixlib "$file"
 # done
 # cd ../lib
 # for file in *; do
-#		 fixlib "$file"
+# 	 fixlib "$file"
 # done)
 
 exit 0
