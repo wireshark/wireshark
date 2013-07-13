@@ -37,6 +37,8 @@ struct tvb_ops {
 
 	gint (*tvb_find_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle);
 	gint (*tvb_pbrk_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle);
+
+	tvbuff_t *(*tvb_clone)(tvbuff_t *tvb, guint abs_offset, guint abs_length);
 };
 
 typedef struct {
@@ -114,5 +116,6 @@ struct tvb_composite {
 	tvb_comp_t	composite;
 };
 
+WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops);
 
 #endif

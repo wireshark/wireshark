@@ -57,8 +57,6 @@ extern "C" {
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
 
-struct tvb_ops;
-
 /** @defgroup tvbuff Testy, Virtual(-izable) Buffers
  *
  * Dissector use and management
@@ -115,13 +113,15 @@ struct tvb_ops;
 
 typedef void (*tvbuff_free_cb_t)(void*);
 
-WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops);
-
 /** Extracts 'number of bits' starting at 'bit offset'.
  * Returns a pointer to a newly initialized ep_alloc'd REAL_DATA
  * tvbuff with the bits octet aligned.
  */
 WS_DLL_PUBLIC tvbuff_t* tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits);
+
+WS_DLL_PUBLIC tvbuff_t *tvb_clone(tvbuff_t *tvb);
+
+WS_DLL_PUBLIC tvbuff_t *tvb_clone_offset_len(tvbuff_t *tvb, guint offset, guint len);
 
 /** Free a tvbuff_t and all tvbuffs chained from it
  * The tvbuff must be 'the 'head' (initial) tvb of a chain or

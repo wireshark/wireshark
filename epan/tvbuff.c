@@ -629,7 +629,40 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	tvb->initialized = TRUE;
 }
 
+static tvbuff_t *
+tvb_generic_clone_offset_len(tvbuff_t *tvb, guint offset, guint len)
+{
+	tvbuff_t *cloned_tvb;
 
+	guint8 *data = (guint8 *) g_malloc(len);
+
+	tvb_memcpy(tvb, data, offset, len);
+
+	cloned_tvb = tvb_new_real_data(data, len, len);
+	tvb_set_free_cb(cloned_tvb, g_free);
+
+	return cloned_tvb;
+}
+
+tvbuff_t *
+tvb_clone_offset_len(tvbuff_t *tvb, guint offset, guint len)
+{
+	if (tvb->ops->tvb_clone) {
+		tvbuff_t *cloned_tvb;
+		
+		cloned_tvb = tvb->ops->tvb_clone(tvb, offset, len);
+		if (cloned_tvb)
+			return cloned_tvb;
+	}
+
+	return tvb_generic_clone_offset_len(tvb, offset, len);
+}
+
+tvbuff_t *
+tvb_clone(tvbuff_t *tvb)
+{
+	return tvb_clone_offset_len(tvb, 0, tvb->length);
+}
 
 guint
 tvb_length(const tvbuff_t *tvb)
@@ -1998,6 +2031,12 @@ subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *n
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
 	return tvb_pbrk_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needles, found_needle);
+}
+
+static tvbuff_t *
+subset_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
+{
+	return tvb_clone_offset_len(tvb, abs_offset, abs_length);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -3645,6 +3684,7 @@ static const struct tvb_ops tvb_real_ops = {
 	NULL,                 /* memcpy */
 	NULL,                 /* find_guint8 */
 	NULL,                 /* pbrk_guint8 */
+	NULL,                 /* clone */
 };
 
 static inline const struct tvb_ops *get_tvb_real_ops(void) { return &tvb_real_ops; }
@@ -3657,6 +3697,7 @@ static const struct tvb_ops tvb_subset_ops = {
 	subset_memcpy,        /* memcpy */
 	subset_find_guint8,   /* find_guint8 */
 	subset_pbrk_guint8,   /* pbrk_guint8 */
+	subset_clone,         /* clone */
 };
 
 static inline const struct tvb_ops *get_tvb_subset_ops(void) { return &tvb_subset_ops; }
@@ -3669,6 +3710,7 @@ static const struct tvb_ops tvb_composite_ops = {
 	NULL, /* composite_memcpy */ /* memcpy */
 	NULL,                 /* find_guint8 XXX */
 	NULL,                 /* pbrk_guint8 XXX */
+	NULL,                 /* clone */
 };
 
 static inline const struct tvb_ops *get_tvb_composite_ops(void) { return &tvb_composite_ops; }
