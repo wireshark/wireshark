@@ -1,4 +1,4 @@
-/* packet-pnrp.h
+/* packet-pnrp.c
  * Routines for Peer Name Resolution Protocol (PNRP) dissection
  *
  *  Copyright 2010, Jan Gerbecks <jan.gerbecks@stud.uni-due.de>
@@ -36,7 +36,7 @@
 
 #include <epan/packet.h>
 
-#define PROTONAME "Peer Network Resolution Protocol"
+#define PROTONAME "Peer Name Resolution Protocol"
 #define PROTOSHORTNAME "PNRP"
 #define PROTOABBREV "pnrp"
 
