@@ -992,8 +992,15 @@ darwin*)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	LDFLAGS="-Wl,-search_paths_first $LDFLAGS"
-	AC_MSG_RESULT([Apple linker - added -Wl,-single_module and -Wl,-search_paths_first])
+	# Also add -Wl,-rpath,@executable_path/../lib and
+	# -Wl,-rpath,/usr/local/lib, so that, if we build an app
+	# bundle, we can tweak all the executable images, shared
+	# libraries, and plugins in the bundle to look for non-system
+	# libraries in the rpath, rather than having a script tweak
+	# DYLD_LIBRARY_PATH.
+	#
+	LDFLAGS="-Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,/usr/local/lib $LDFLAGS"
+	AC_MSG_RESULT([Apple linker - added -Wl,-single_module and -Wl,-search_paths_first, and rpaths])
 	;;
 cygwin*)
 	#

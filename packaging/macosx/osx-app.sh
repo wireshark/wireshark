@@ -380,47 +380,121 @@ if [ "$strip" = "true" ]; then
 	strip -ur "$binpath"
 fi
 
-# NOTE: This works for all the dylibs but causes GTK to crash at startup.
-#	Instead we leave them with their original install_names and set
-#	DYLD_LIBRARY_PATH within the app bundle before running Wireshark.
-#	XXX - is that because some plugins need fixing?
+# NOTE: we must rpathify *all* files, *including* plugins for GTK+ etc.,
+#	to keep	GTK+ from crashing at startup.
 #
-# fixlib () {
-# 	# Fix a given executable or library to be relocatable
-# 	if [ ! -d "$1" ]; then
-# 		echo $1
-# 		libs="`otool -L $1 | egrep -v '/System|/usr/lib|/opt' | fgrep compatibility | cut -d\( -f1`"
-# 		for lib in $libs; do
-# 			echo "	$lib"
-# 			base=`echo $lib | awk -F/ '{print $NF}'`
-# 			first=`echo $lib | cut -d/ -f1-3`
-# 			to=@rpath/$base
-# 			if [ $first != /usr/lib -a $first != /usr/X11R6 ]; then
-# 				/usr/bin/install_name_tool -change $lib $to $1
-# 				if [ "`echo $lib | fgrep libcrypto`" = "" ]; then
-# 					/usr/bin/install_name_tool -id $to ../lib/$base
-# 					for ll in $libs; do
-# 						base=`echo $ll | awk -F/ '{print $NF}'`
-# 						first=`echo $ll | cut -d/ -f1-3`
-# 						to=@rpath/$base
-# 						if [ $first != /usr/lib -a $first != /usr/X11R6 -a "`echo $ll | fgrep libcrypto`" = "" ]; then
-# 							/usr/bin/install_name_tool -change $ll $to ../lib/$base
-# 						fi
-# 					done
-# 				fi
-# 			fi
-# 		done
-# 	fi
-# }
-#
-# Fix package deps
-# (cd "$package/Contents/Resources/bin"
-# for file in *; do
-# 	 fixlib "$file"
-# done
-# cd ../lib
-# for file in *; do
-# 	 fixlib "$file"
-# done)
+rpathify_file () {
+	# Fix a given executable, library, or plugin to be relocatable
+	if [ ! -d "$1" ]; then
+		#
+		# OK, what type of file is this?
+		#
+		filetype=`otool -hv "$1" | sed -n '4p' | awk '{print $5}'`
+		case "$filetype" in
+
+		EXECUTE|DYLIB|BUNDLE)
+			#
+			# Executable, library, or plugin.  (Plugins
+			# can be either DYLIB or BUNDLE; shared
+			# libraries are DYLIB.)
+			#
+			# For DYLIB and BUNDLE, fix the shared
+			# library identification.
+			#
+			if [[ "$filetype" = "DYLIB" || "$filetype" = "BUNDLE" ]]; then
+				echo "Changing shared library identification of $1"
+				base=`echo $1 | awk -F/ '{print $NF}'`
+				#
+				# The library will end up in a directory in
+				# the rpath; this is what we should change its
+				# ID to.
+				#
+				to=@rpath/$base
+				/usr/bin/install_name_tool -id $to $1
+			fi
+
+			#
+			# Get the list of dynamic libraries on which this
+			# file depends, and select only the libraries that
+			# are in $LIBPREFIX, as those are the only ones
+			# that we'll be shipping in the app bundle; the
+			# other libraries are system-supplied or supplied
+			# as part of X11, will be expected to be on the
+			# system on which the bundle will be installed,
+			# and should be referred to by their full pathnames.
+			#
+			libs="`otool -L $1 | egrep "$LIBPREFIX.* \(compatibility" | cut -d\( -f1`"
+			for lib in $libs; do
+				#
+				# Get the file name of the library.
+				#
+				base=`echo $lib | awk -F/ '{print $NF}'`
+				#
+				# The library will end up in a directory in
+				# the rpath; this is what we should change its
+				# file name to.
+				#
+				to=@rpath/$base
+				#
+				# Change the reference to that library.
+				#
+				echo "Changing reference to $lib in $1"
+				/usr/bin/install_name_tool -change $lib $to $1
+			done
+			;;
+		esac
+	fi
+}
+
+rpathify_dir () {
+	#
+	# Make sure we *have* that directory
+	#
+	if [ -d "$1" ]; then
+		(cd "$1"
+		#
+		# Make sure we *have* files to fix
+		#
+		files=`ls $2 2>/dev/null`
+		if [ ! -z "$files" ]; then
+			for file in $files; do
+				rpathify_file "$file" "`pwd`"
+			done
+		fi
+		)
+	fi
+}
+
+rpathify_files () {
+	#
+	# Fix package deps
+	#
+	rpathify_dir "$pkglib" "*.dylib"
+	rpathify_dir "$pkglib/gtk-2.0/$gtk_version/loaders" "*.so"
+	rpathify_dir "$pkglib/gtk-2.0/$gtk_version/engines" "*.so"
+	rpathify_dir "$pkglib/gtk-2.0/$gtk_version/immodules" "*.so"
+	rpathify_dir "$pkglib/gtk-2.0/$gtk_version/printbackends" "*.so"
+	rpathify_dir "$pkglib/gnome-vfs-2.0/modules" "*.so"
+	rpathify_dir "$pkglib/gdk-pixbuf-2.0/$gtk_version/loaders" "*.so"
+	rpathify_dir "$pkglib/pango/$pango_version/modules" "*.so"
+	rpathify_dir "$pkgbin" "*"
+}
+
+PATHLENGTH=`echo $LIBPREFIX | wc -c`
+if [ "$PATHLENGTH" -ge "6" ]; then
+	# If the LIBPREFIX path is long enough to allow 
+	# path rewriting, then do this.
+	# 6 is the length of @rpath, which replaces LIBPREFIX.
+	rpathify_files
+else
+	echo "Could not rewrite dylib paths for bundled libraries.  This requires" >&2
+	echo "the support libraries to be installed in a PREFIX of at least 6 characters in length." >&2
+	echo "" >&2
+	echo "The package will still work if the following line is uncommented in" >&2
+	echo "Wireshark.app/Contents/Resources/bin/{various scripts}:" >&2
+	echo '        export DYLD_LIBRARY_PATH="$TOP/lib"' >&2
+	exit 1
+
+fi
 
 exit 0

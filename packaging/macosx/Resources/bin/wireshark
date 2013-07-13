@@ -28,7 +28,7 @@ APPNAME=`basename "$0"`
 #	MacPorts (former DarwinPorts)
 export PATH="/opt/local/bin:/sw/bin/:/Library/Frameworks/Python.framework/Versions/Current/bin:/usr/local/bin:$CWD:$PATH"
 
-export DYLD_LIBRARY_PATH="$TOP/lib"
+# export DYLD_LIBRARY_PATH="$TOP/lib"
 
 export WIRESHARK_DATA_DIR="$TOP/share/wireshark"
 export WIRESHARK_PLUGIN_DIR="$TOP/lib/wireshark/plugins"
