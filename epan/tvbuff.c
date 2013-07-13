@@ -57,7 +57,7 @@ static inline const struct tvb_ops *get_tvb_composite_ops(void);
 
 static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length,
-		int *exception);
+		int *pexception);
 
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
@@ -229,22 +229,24 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length
 
 /* Computes the absolute offset and length based on a possibly-negative offset
  * and a length that is possible -1 (which means "to the end of the data").
- * Returns TRUE/FALSE indicating whether the offset is in bounds or
- * not. The integer ptrs are modified with the new offset and length.
+ * Returns integer indicating whether the offset is in bounds (0) or
+ * not (exception number). The integer ptrs are modified with the new offset and length.
  * No exception is thrown.
  *
- * XXX - we return TRUE, not FALSE, if the offset is positive and right
+ * XXX - we return success (0), if the offset is positive and right
  * after the end of the tvbuff (i.e., equal to the length).  We do this
  * so that a dissector constructing a subset tvbuff for the next protocol
  * will get a zero-length tvbuff, not an exception, if there's no data
  * left for the next protocol - we want the next protocol to be the one
  * that gets an exception, so the error is reported as an error in that
  * protocol rather than the containing protocol.  */
-static gboolean
+static int
 compute_offset_length(const tvbuff_t *tvb,
 		      const gint offset, const gint length_val,
-		      guint *offset_ptr, guint *length_ptr, int *exception)
+		      guint *offset_ptr, guint *length_ptr)
 {
+	int exception;
+
 	DISSECTOR_ASSERT(offset_ptr);
 	DISSECTOR_ASSERT(length_ptr);
 
@@ -252,20 +254,15 @@ compute_offset_length(const tvbuff_t *tvb,
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
 		if ((guint) offset > tvb->reported_length) {
-			if (exception) {
-				if (tvb->flags & TVBUFF_FRAGMENT) {
-					*exception = FragmentBoundsError;
-				} else {
-					*exception = ReportedBoundsError;
-				}
+			if (tvb->flags & TVBUFF_FRAGMENT) {
+				exception = FragmentBoundsError;
+			} else {
+				exception = ReportedBoundsError;
 			}
-			return FALSE;
+			return exception;
 		}
 		else if ((guint) offset > tvb->length) {
-			if (exception) {
-				*exception = BoundsError;
-			}
-			return FALSE;
+			return BoundsError;
 		}
 		else {
 			*offset_ptr = offset;
@@ -274,20 +271,15 @@ compute_offset_length(const tvbuff_t *tvb,
 	else {
 		/* Negative offset - relative to the end of the packet. */
 		if ((guint) -offset > tvb->reported_length) {
-			if (exception) {
-				if (tvb->flags & TVBUFF_FRAGMENT) {
-					*exception = FragmentBoundsError;
-				} else {
-					*exception = ReportedBoundsError;
-				}
+			if (tvb->flags & TVBUFF_FRAGMENT) {
+				exception = FragmentBoundsError;
+			} else {
+				exception = ReportedBoundsError;
 			}
-			return FALSE;
+			return exception;
 		}
 		else if ((guint) -offset > tvb->length) {
-			if (exception) {
-				*exception = BoundsError;
-			}
-			return FALSE;
+			return BoundsError;
 		}
 		else {
 			*offset_ptr = tvb->length + offset;
@@ -296,11 +288,8 @@ compute_offset_length(const tvbuff_t *tvb,
 
 	/* Compute the length */
 	if (length_val < -1) {
-		if (exception) {
-			/* XXX - ReportedBoundsError? */
-			*exception = BoundsError;
-		}
-		return FALSE;
+		/* XXX - ReportedBoundsError? */
+		return BoundsError;
 	}
 	else if (length_val == -1) {
 		*length_ptr = tvb->length - *offset_ptr;
@@ -309,20 +298,20 @@ compute_offset_length(const tvbuff_t *tvb,
 		*length_ptr = length_val;
 	}
 
-	return TRUE;
+	return 0;
 }
 
-static gboolean
+static int
 check_offset_length_no_exception(const tvbuff_t *tvb,
 				 const gint offset, gint const length_val,
-				 guint *offset_ptr, guint *length_ptr, int *exception)
+				 guint *offset_ptr, guint *length_ptr)
 {
-	guint	end_offset;
-
-	if (!compute_offset_length(tvb,
-				   offset, length_val, offset_ptr, length_ptr, exception)) {
-		return FALSE;
-	}
+	guint end_offset;
+	int exception;
+	
+	exception = compute_offset_length(tvb, offset, length_val, offset_ptr, length_ptr);
+	if (exception)
+		return exception;
 
 	/*
 	 * Compute the offset of the first byte past the length.
@@ -330,39 +319,29 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 	end_offset = *offset_ptr + *length_ptr;
 
 	/*
-	 * Check for an overflow, and clamp "end_offset" at the maximum
-	 * if we got an overflow - that should force us to indicate that
-	 * we're past the end of the tvbuff.
+	 * Check for an overflow
 	 */
 	if (end_offset < *offset_ptr)
-		end_offset = UINT_MAX;
+		exception = BoundsError;
 
 	/*
 	 * Check whether that offset goes more than one byte past the
 	 * end of the buffer.
 	 *
-	 * If not, return TRUE; otherwise, return FALSE and, if "exception"
-	 * is non-null, return the appropriate exception through it.
+	 * If not, return 0; otherwise, return exception
 	 */
-	if (end_offset <= tvb->length) {
-		return TRUE;
-	}
+	else if (end_offset <= tvb->length)
+		exception = 0;
+	else if (end_offset <= tvb->reported_length)
+		exception = BoundsError;
 	else {
-		if (exception) {
-			if (end_offset <= tvb->reported_length) {
-				*exception = BoundsError;
-			}
-			else {
-				if (tvb->flags & TVBUFF_FRAGMENT) {
-					*exception = FragmentBoundsError;
-				} else {
-					*exception = ReportedBoundsError;
-				}
-			}
-		}
-
-		return FALSE;
+		if (tvb->flags & TVBUFF_FRAGMENT)
+			exception = FragmentBoundsError;
+		else
+			exception = ReportedBoundsError;
 	}
+
+	return exception;
 }
 
 /* Checks (+/-) offset and length and throws an exception if
@@ -373,13 +352,11 @@ check_offset_length(const tvbuff_t *tvb,
 		    const gint offset, gint const length_val,
 		    guint *offset_ptr, guint *length_ptr)
 {
-	int exception = 0;
-
-	if (!check_offset_length_no_exception(tvb,
-					      offset, length_val, offset_ptr, length_ptr, &exception)) {
-		DISSECTOR_ASSERT(exception > 0);
+	int exception;
+	
+	exception = check_offset_length_no_exception(tvb, offset, length_val, offset_ptr, length_ptr);
+	if (exception)
 		THROW(exception);
-	}
 }
 
 static tvbuff_t *
@@ -676,15 +653,15 @@ gint
 tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, abs_length;
+	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
-		return abs_length;
-	}
-	else {
+	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	if (exception)
 		return -1;
-	}
+
+	return abs_length;
 }
 
 guint
@@ -695,9 +672,10 @@ tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, &exception)) {
+	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	if (exception)
 		THROW(exception);
-	}
+
 	if (abs_length == 0) {
 		/*
 		 * This routine ensures there's at least one byte available.
@@ -725,10 +703,12 @@ gboolean
 tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 {
 	guint abs_offset, abs_length;
+	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (!compute_offset_length(tvb, offset, length, &abs_offset, &abs_length, NULL))
+	exception = compute_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+	if (exception)
 		return FALSE;
 
 	if (abs_offset + abs_length <= tvb->length) {
@@ -768,9 +748,12 @@ gboolean
 tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, abs_length;
+	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
-	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL))
+
+	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	if (exception)
 		return FALSE;
 
 	if (abs_offset < tvb->length) {
@@ -793,18 +776,18 @@ gint
 tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, abs_length;
+	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
-		if (tvb->reported_length >= abs_offset)
-			return tvb->reported_length - abs_offset;
-		else
-			return -1;
-	}
-	else {
+	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	if (exception)
 		return -1;
-	}
+
+	if (tvb->reported_length >= abs_offset)
+		return tvb->reported_length - abs_offset;
+	else
+		return -1;
 }
 
 /* Set the reported length of a tvbuff to a given value; used for protocols
@@ -897,6 +880,7 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	tvbuff_t   *member_tvb = NULL;
 	guint	    member_offset, member_length;
 	GSList	   *slist;
+	int         exception;
 
 	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
 
@@ -914,10 +898,11 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 	}
 	DISSECTOR_ASSERT(member_tvb);
 
-	if (check_offset_length_no_exception(member_tvb,
+	exception = check_offset_length_no_exception(member_tvb,
 					     abs_offset - composite->start_offsets[i],
-					     abs_length, &member_offset, &member_length, NULL)) {
+					     abs_length, &member_offset, &member_length);
 
+	if (!exception) {
 		/*
 		 * The range is, in fact, contiguous within member_tvb.
 		 */
@@ -933,12 +918,15 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 }
 
 static const guint8*
-ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length, int *exception)
+ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length, int *pexception)
 {
 	guint abs_offset, abs_length;
+	int exception;
 
-	if (!check_offset_length_no_exception(tvb, offset, length,
-		&abs_offset, &abs_length, exception)) {
+	exception = check_offset_length_no_exception(tvb, offset, length, &abs_offset, &abs_length);
+	if (exception) {
+		if (pexception)
+			*pexception = exception;
 		return NULL;
 	}
 
@@ -1049,7 +1037,7 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_leng
 	tvb_comp_t *composite;
 	tvbuff_t   *member_tvb = NULL;
 	guint	    member_offset, member_length;
-	gboolean    retval;
+	int         exception;
 	GSList	   *slist;
 
 	DISSECTOR_ASSERT(tvb->ops == get_tvb_composite_ops());
@@ -1068,9 +1056,10 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_leng
 	}
 	DISSECTOR_ASSERT(member_tvb);
 
-	if (check_offset_length_no_exception(member_tvb, abs_offset - composite->start_offsets[i],
-				(gint) abs_length, &member_offset, &member_length, NULL)) {
-
+	exception = check_offset_length_no_exception(member_tvb, abs_offset - composite->start_offsets[i],
+				(gint) abs_length, &member_offset, &member_length);
+				
+	if (!exception) {
 		DISSECTOR_ASSERT(!tvb->real_data);
 		return tvb_memcpy(member_tvb, target, member_offset, member_length);
 	}
@@ -1080,9 +1069,9 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_leng
 		 * then iterate across the other member tvb's, copying their portions
 		 * until we have copied all data.
 		 */
-		retval = compute_offset_length(member_tvb, abs_offset - composite->start_offsets[i], -1,
-				&member_offset, &member_length, NULL);
-		DISSECTOR_ASSERT(retval);
+		exception = compute_offset_length(member_tvb, abs_offset - composite->start_offsets[i], -1,
+				&member_offset, &member_length);
+		DISSECTOR_ASSERT(!exception);
 
 		/* composite_memcpy() can't handle a member_length of zero.  */
 		DISSECTOR_ASSERT(member_length);
