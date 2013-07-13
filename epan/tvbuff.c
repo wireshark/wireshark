@@ -227,30 +227,11 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length
 	return tvb;
 }
 
-/* Computes the absolute offset and length based on a possibly-negative offset
- * and a length that is possible -1 (which means "to the end of the data").
- * Returns integer indicating whether the offset is in bounds (0) or
- * not (exception number). The integer ptrs are modified with the new offset and length.
- * No exception is thrown.
- *
- * XXX - we return success (0), if the offset is positive and right
- * after the end of the tvbuff (i.e., equal to the length).  We do this
- * so that a dissector constructing a subset tvbuff for the next protocol
- * will get a zero-length tvbuff, not an exception, if there's no data
- * left for the next protocol - we want the next protocol to be the one
- * that gets an exception, so the error is reported as an error in that
- * protocol rather than the containing protocol.  */
 static int
-compute_offset_length(const tvbuff_t *tvb,
-		      const gint offset, const gint length_val,
-		      guint *offset_ptr, guint *length_ptr)
+compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 {
 	int exception;
 
-	DISSECTOR_ASSERT(offset_ptr);
-	DISSECTOR_ASSERT(length_ptr);
-
-	/* Compute the offset */
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
 		if ((guint) offset > tvb->reported_length) {
@@ -286,21 +267,34 @@ compute_offset_length(const tvbuff_t *tvb,
 		}
 	}
 
-	/* Compute the length */
-	if (length_val < -1) {
-		/* XXX - ReportedBoundsError? */
-		return BoundsError;
-	}
-	else if (length_val == -1) {
-		*length_ptr = tvb->length - *offset_ptr;
-	}
-	else {
-		*length_ptr = length_val;
-	}
-
 	return 0;
 }
 
+static int
+compute_offset_and_remaining(const tvbuff_t *tvb, const gint offset, guint *offset_ptr, guint *rem_len)
+{
+	int exception;
+
+	exception = compute_offset(tvb, offset, offset_ptr);
+	if (!exception)
+		*rem_len = tvb->length - *offset_ptr;
+
+	return exception;
+}
+
+/* Computes the absolute offset and length based on a possibly-negative offset
+ * and a length that is possible -1 (which means "to the end of the data").
+ * Returns integer indicating whether the offset is in bounds (0) or
+ * not (exception number). The integer ptrs are modified with the new offset and length.
+ * No exception is thrown.
+ *
+ * XXX - we return success (0), if the offset is positive and right
+ * after the end of the tvbuff (i.e., equal to the length).  We do this
+ * so that a dissector constructing a subset tvbuff for the next protocol
+ * will get a zero-length tvbuff, not an exception, if there's no data
+ * left for the next protocol - we want the next protocol to be the one
+ * that gets an exception, so the error is reported as an error in that
+ * protocol rather than the containing protocol.  */
 static int
 check_offset_length_no_exception(const tvbuff_t *tvb,
 				 const gint offset, gint const length_val,
@@ -308,10 +302,25 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 {
 	guint end_offset;
 	int exception;
-	
-	exception = compute_offset_length(tvb, offset, length_val, offset_ptr, length_ptr);
+
+	DISSECTOR_ASSERT(offset_ptr);
+	DISSECTOR_ASSERT(length_ptr);
+
+	/* Compute the offset */
+	exception = compute_offset(tvb, offset, offset_ptr);
 	if (exception)
 		return exception;
+
+	if (length_val < -1) {
+		/* XXX - ReportedBoundsError? */
+		return BoundsError;
+	}
+
+	/* Compute the length */
+	if (length_val == -1)
+		*length_ptr = tvb->length - *offset_ptr;
+	else
+		*length_ptr = length_val;
 
 	/*
 	 * Compute the offset of the first byte past the length.
@@ -652,31 +661,31 @@ tvb_length(const tvbuff_t *tvb)
 gint
 tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset, abs_length;
+	guint abs_offset, rem_length;
 	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
 	if (exception)
 		return -1;
 
-	return abs_length;
+	return rem_length;
 }
 
 guint
 tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset, abs_length;
+	guint abs_offset, rem_length;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
 	if (exception)
 		THROW(exception);
 
-	if (abs_length == 0) {
+	if (rem_length == 0) {
 		/*
 		 * This routine ensures there's at least one byte available.
 		 * There aren't any bytes available, so throw the appropriate
@@ -691,7 +700,7 @@ tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
 		} else
 			THROW(BoundsError);
 	}
-	return abs_length;
+	return rem_length;
 }
 
 
@@ -742,12 +751,12 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 gboolean
 tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset, abs_length;
+	guint abs_offset;
 	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	exception = compute_offset(tvb, offset, &abs_offset);
 	if (exception)
 		return FALSE;
 
@@ -770,12 +779,12 @@ tvb_reported_length(const tvbuff_t *tvb)
 gint
 tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset, abs_length;
+	guint abs_offset;
 	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length);
+	exception = compute_offset(tvb, offset, &abs_offset);
 	if (exception)
 		return -1;
 
@@ -1064,7 +1073,7 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_leng
 		 * then iterate across the other member tvb's, copying their portions
 		 * until we have copied all data.
 		 */
-		exception = compute_offset_length(member_tvb, abs_offset - composite->start_offsets[i], -1,
+		exception = compute_offset_and_remaining(member_tvb, abs_offset - composite->start_offsets[i],
 				&member_offset, &member_length);
 		DISSECTOR_ASSERT(!exception);
 
