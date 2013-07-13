@@ -605,6 +605,11 @@ static const value_string v9_v10_template_types[] = {
     { 33000, "INGRESS_ACL_ID" },
     { 33001, "EGRESS_ACL_ID" },
     { 33002, "FW_EXT_EVENT" },
+    /* Cisco TrustSec */
+    { 34000, "SGT_SOURCE_TAG" },
+    { 34001, "SGT_DESTINATION_TAG" },
+    { 34002, "SGT_SOURCE_NAME" },
+    { 34003, "SGT_DESTINATION_NAME" },
     /* medianet performance monitor */
     { 37000, "PACKETS_DROPPED" },
     { 37003, "BYTE_RATE" },
@@ -1311,6 +1316,10 @@ static int      hf_cflow_information_element_range_end       = -1;      /* ID: 3
 static int      hf_cflow_information_element_semantics       = -1;      /* ID: 344 */
 static int      hf_cflow_information_element_units           = -1;      /* ID: 345 */
 static int      hf_cflow_private_enterprise_number           = -1;      /* ID: 346 */
+static int      hf_cflow_cts_sgt_source_tag                  = -1;      /* ID: 34000 */
+static int      hf_cflow_cts_sgt_destination_tag             = -1;      /* ID: 34001 */
+static int      hf_cflow_cts_sgt_source_name                 = -1;      /* ID: 34002 */
+static int      hf_cflow_cts_sgt_destination_name            = -1;      /* ID: 34003 */
 static int      hf_cflow_packets_dropped                     = -1;      /* ID: 37000 */
 static int      hf_cflow_byte_rate                           = -1;      /* ID: 37003 */
 static int      hf_cflow_application_media_bytes             = -1;      /* ID: 37004 */
@@ -4270,6 +4279,26 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 346: /* privateEnterpriseNumber */
             ti = proto_tree_add_item(pdutree, hf_cflow_private_enterprise_number,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 34000: /* cts_sgt_source_tag */
+            ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_source_tag,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 34001: /* cts_sgt_destination_tag */
+            ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_destination_tag,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 34002: /* cts_sgt_source_name */
+            ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_source_name,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+
+        case 34003: /* cts_sgt_destination_name */
+            ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_destination_name,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
 
@@ -7283,6 +7312,30 @@ proto_register_netflow(void)
           "cflow.template_ipfix_field_pen",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           "IPFIX Private Enterprise Number", HFILL}
+        },
+        {&hf_cflow_cts_sgt_source_tag,
+         {"Source SGT",
+          "cflow.source_sgt_tag",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_cts_sgt_destination_tag,
+         {"Destination SGT",
+          "cflow.destination_sgt_tag",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_cts_sgt_source_name,
+         {"Source SGT Name",
+          "cflow.source_sgt_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_cts_sgt_destination_name,
+         {"Destination SGT Name",
+          "cflow.destination_sgt_name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
         },
         {&hf_cflow_packets_dropped,
          {"Packets Dropped",
