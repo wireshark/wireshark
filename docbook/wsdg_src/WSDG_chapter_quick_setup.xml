@@ -127,6 +127,9 @@
           <para>Archive/zip (only needed if you intend to build the U3 package)</para>
         </listitem>
         <listitem>
+          <para>Base/dos2unix</para>
+        </listitem>
+        <listitem>
           <para>Devel/bison</para>
         </listitem>
         <listitem>
@@ -137,9 +140,6 @@
         </listitem>
         <listitem>
           <para>Interpreters/perl</para>
-        </listitem>
-        <listitem>
-          <para>Utils/dos2unix</para>
         </listitem>
         <listitem>
           <para>Utils/patch</para>
