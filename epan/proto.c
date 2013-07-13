@@ -141,6 +141,7 @@ static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
 
+static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value);
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
@@ -3608,8 +3609,7 @@ const gchar *
 proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 		 gchar *result, gchar *expr, const int size)
 {
-	guint32            u_integer;
-	gint32             integer;
+	guint32            number;
 	guint8            *bytes;
 	ipv4_addr         *ipv4;
 	struct e_in6_addr *ipv6;
@@ -3624,6 +3624,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	header_field_info*  hfinfo;
 	const gchar        *abbrev        = NULL;
 
+	const char *hf_str_val;
 	char number_buf[32];
 	const char *number_out;
 
@@ -3726,57 +3727,66 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				break;
 
 			case FT_BOOLEAN:
-				u_integer = fvalue_get_uinteger(&finfo->value);
+				number = fvalue_get_uinteger(&finfo->value);
 				tfstring = (const true_false_string *)&tfs_true_false;
 				if (hfinfo->strings) {
 					tfstring = (const struct true_false_string*) hfinfo->strings;
 				}
 				offset_r += protoo_strlcpy(result+offset_r,
-							   u_integer ?
+							   number ?
 							     tfstring->true_string :
 							     tfstring->false_string, size-offset_r);
 
 				offset_e += protoo_strlcpy(expr+offset_e,
-							   u_integer ? "1" : "0", size-offset_e);
+							   number ? "1" : "0", size-offset_e);
 				break;
 
+			/* XXX - make these just FT_NUMBER? */
+			case FT_INT8:
+			case FT_INT16:
+			case FT_INT24:
+			case FT_INT32:
 			case FT_UINT8:
 			case FT_UINT16:
 			case FT_UINT24:
 			case FT_UINT32:
 			case FT_FRAMENUM:
-				u_integer = fvalue_get_uinteger(&finfo->value);
+				hf_str_val = NULL;
+				number = IS_FT_INT(hfinfo->type) ? 
+						(guint32) fvalue_get_sinteger(&finfo->value) :
+						fvalue_get_uinteger(&finfo->value);
+
 				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
 					gchar tmp[ITEM_LABEL_LENGTH];
 					custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
 
 					DISSECTOR_ASSERT(fmtfunc);
-					fmtfunc(tmp, u_integer);
-					g_strlcpy(result+offset_r, tmp, size-offset_r);
-				} else if (hfinfo->strings) {
-					const char *str_val = hf_try_val_to_str(u_integer, hfinfo);
+					fmtfunc(tmp, number);
 
-					if (str_val)
-						g_strlcpy(result+offset_r, str_val, size-offset_r);
-					else
-						g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
+					offset_r += protoo_strlcpy(result+offset_r, tmp, size-offset_r);
+
+				} else if (hfinfo->strings) {
+					number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
+
+					if (!number_out)
+						number_out = hfinfo_number_value_format_display(hfinfo, BASE_DEC, number_buf, number);
+
+					offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 
 				} else {
-					number_out = hfinfo_number_value_format(hfinfo, number_buf, u_integer);
+					number_out = hfinfo_number_value_format(hfinfo, number_buf, number);
 
-					g_strlcpy(result+offset_r, number_out, size-offset_r);
+					offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 				}
 
-				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
-					g_snprintf(expr+offset_e, size-offset_e,
-						   "\"%s\"", result+offset_r);
+				if (hf_str_val && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
+					g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
 				} else {
-					number_out = hfinfo_numeric_value_format(hfinfo, number_buf, u_integer);
+					number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
 
 					g_strlcpy(expr+offset_e, number_out, size-offset_e);
 				}
 
-				offset_r = (int)strlen(result);
 				offset_e = (int)strlen(expr);
 				break;
 
@@ -3798,44 +3808,6 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				offset_r += protoo_strlcpy(result+offset_r,
 							   eui64_to_str(fvalue_get_integer64(&finfo->value)),
 							   size-offset_r);
-				break;
-			/* XXX - make these just FT_INT? */
-			case FT_INT8:
-			case FT_INT16:
-			case FT_INT24:
-			case FT_INT32:
-				integer = fvalue_get_sinteger(&finfo->value);
-				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
-					gchar tmp[ITEM_LABEL_LENGTH];
-					custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
-
-					DISSECTOR_ASSERT(fmtfunc);
-					fmtfunc(tmp, integer);
-					g_strlcpy(result+offset_r, tmp, size-offset_r);
-				} else if (hfinfo->strings) {
-					const char *str_val = hf_try_val_to_str(integer, hfinfo);
-
-					if (str_val)
-						g_strlcpy(result+offset_r, str_val, size-offset_r);
-					else
-						g_snprintf(result+offset_r, size-offset_r, "%d", integer);
-
-				} else {
-					number_out = hfinfo_number_value_format(hfinfo, number_buf, integer);
-
-					g_strlcpy(result+offset_r, number_out, size-offset_r);
-				}
-
-				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
-					g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
-				} else {
-					number_out = hfinfo_numeric_value_format(hfinfo, number_buf, (guint32) integer);
-
-					g_strlcpy(expr+offset_e, number_out, size-offset_e);
-				}
-
-				offset_r = (int)strlen(result);
-				offset_e = (int)strlen(expr);
 				break;
 
 			case FT_IPv4:
@@ -5564,7 +5536,7 @@ char *uint_to_str_back(char *ptr, guint32 value);
 char *int_to_str_back(char *ptr, gint32 value);
 
 static const char *
-_hfinfo_number_value_format(const header_field_info *hfinfo, int display, char buf[32], guint32 value)
+hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value)
 {
 	char *ptr = &buf[31];
 	gboolean isint = IS_FT_INT(hfinfo->type);
@@ -5616,7 +5588,7 @@ hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint3
 		display = BASE_DEC;
 	}
 
-	return _hfinfo_number_value_format(hfinfo, display, buf, value);
+	return hfinfo_number_value_format_display(hfinfo, display, buf, value);
 }
 
 static const char *
@@ -5647,7 +5619,7 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint
 			break;
 	}
 
-	return _hfinfo_number_value_format(hfinfo, display, buf, value);
+	return hfinfo_number_value_format_display(hfinfo, display, buf, value);
 }
 
 static const char *
@@ -5664,7 +5636,7 @@ hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32
 	if (display == BASE_HEX_DEC)
 		display = BASE_HEX;
 
-	return _hfinfo_number_value_format(hfinfo, display, buf, value);
+	return hfinfo_number_value_format_display(hfinfo, display, buf, value);
 }
 
 static const char *
