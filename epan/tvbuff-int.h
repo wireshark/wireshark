@@ -97,13 +97,6 @@ struct tvbuff {
 	gint			raw_offset;
 };
 
-struct tvb_real {
-	struct tvbuff tvb;
-
-	/** Func to call when actually freed */
-	tvbuff_free_cb_t	free_cb;
-};
-
 struct tvb_subset {
 	struct tvbuff tvb;
 
@@ -118,4 +111,9 @@ struct tvb_composite {
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new(const struct tvb_ops *ops);
 
+void tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child);
+
+guint tvb_offset_from_real_beginning_counter(const tvbuff_t *tvb, const guint counter);
+
+void tvb_check_offset_length(const tvbuff_t *tvb, const gint offset, gint const length_val, guint *offset_ptr, guint *length_ptr);
 #endif

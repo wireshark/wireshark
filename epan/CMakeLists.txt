@@ -1498,6 +1498,8 @@ set(LIBWIRESHARK_FILES
 	to_str.c
 	tvbparse.c
 	tvbuff.c
+	tvbuff_real.c
+	tvbuff_subset.c
 	uat.c
 	value_string.c
 	xdlc.c

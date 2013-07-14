@@ -51,8 +51,6 @@
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
-static inline const struct tvb_ops *get_tvb_real_ops(void);
-static inline const struct tvb_ops *get_tvb_subset_ops(void);
 static inline const struct tvb_ops *get_tvb_composite_ops(void);
 
 static const guint8*
@@ -84,19 +82,6 @@ tvb_new(const struct tvb_ops *ops)
 	tvb->ds_tvb	     = NULL;
 
 	return tvb;
-}
-
-static void
-real_free(tvbuff_t *tvb)
-{
-	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
-
-	if (real_tvb->free_cb) {
-		/*
-		 * XXX - do this with a union?
-		 */
-		real_tvb->free_cb((gpointer)tvb->real_data);
-	}
 }
 
 static void
@@ -158,17 +143,7 @@ tvb_free_chain(tvbuff_t  *tvb)
 }
 
 void
-tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func)
-{
-	struct tvb_real *real_tvb = (struct tvb_real *) tvb;
-
-	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->ops == get_tvb_real_ops());
-	real_tvb->free_cb = func;
-}
-
-static void
-add_to_chain(tvbuff_t *parent, tvbuff_t *child)
+tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 {
 	DISSECTOR_ASSERT(parent && child);
 	DISSECTOR_ASSERT(!child->next && !child->previous);
@@ -177,43 +152,6 @@ add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 	if (parent->next)
 		parent->next->previous = child;
 	parent->next    = child;
-}
-
-void
-tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
-{
-	DISSECTOR_ASSERT(parent && child);
-	DISSECTOR_ASSERT(parent->initialized);
-	DISSECTOR_ASSERT(child->initialized);
-	DISSECTOR_ASSERT(child->ops == get_tvb_real_ops());
-	add_to_chain(parent, child);
-}
-
-tvbuff_t *
-tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
-{
-	tvbuff_t *tvb;
-	struct tvb_real *real_tvb;
-
-	THROW_ON(reported_length < -1, ReportedBoundsError);
-
-	tvb = tvb_new(get_tvb_real_ops());
-
-	tvb->real_data       = data;
-	tvb->length          = length;
-	tvb->reported_length = reported_length;
-	tvb->initialized     = TRUE;
-
-	/*
-	 * This is the top-level real tvbuff for this data source,
-	 * so its data source tvbuff is itself.
-	 */
-	tvb->ds_tvb = tvb;
-
-	real_tvb = (struct tvb_real *) tvb;
-	real_tvb->free_cb = NULL;
-
-	return tvb;
 }
 
 tvbuff_t *
@@ -349,110 +287,12 @@ check_offset_length(const tvbuff_t *tvb,
 		THROW(exception);
 }
 
-static tvbuff_t *
-tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
-    const guint subset_tvb_offset, const guint subset_tvb_length)
+void
+tvb_check_offset_length(const tvbuff_t *tvb,
+		        const gint offset, gint const length_val,
+		        guint *offset_ptr, guint *length_ptr)
 {
-	tvbuff_t *tvb = tvb_new(get_tvb_subset_ops());
-	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-
-	subset_tvb->subset.offset = subset_tvb_offset;
-	subset_tvb->subset.length = subset_tvb_length;
-
-	subset_tvb->subset.tvb	     = backing;
-	tvb->length		     = subset_tvb_length;
-	tvb->flags		     = backing->flags;
-
-	if (reported_length == -1) {
-		tvb->reported_length = backing->reported_length - subset_tvb_offset;
-	}
-	else {
-		tvb->reported_length = reported_length;
-	}
-	tvb->initialized	     = TRUE;
-	add_to_chain(backing, tvb);
-
-	/* Optimization. If the backing buffer has a pointer to contiguous, real data,
-	 * then we can point directly to our starting offset in that buffer */
-	if (backing->real_data != NULL) {
-		tvb->real_data = backing->real_data + subset_tvb_offset;
-	}
-
-	/*
-	 * The top-level data source of this tvbuff is the top-level
-	 * data source of its parent.
-	 */
-	tvb->ds_tvb = backing->ds_tvb;
-
-	return tvb;
-}
-
-tvbuff_t *
-tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_length, const gint reported_length)
-{
-	tvbuff_t *tvb;
-	guint	  subset_tvb_offset;
-	guint	  subset_tvb_length;
-
-	DISSECTOR_ASSERT(backing && backing->initialized);
-
-	THROW_ON(reported_length < -1, ReportedBoundsError);
-
-	check_offset_length(backing, backing_offset, backing_length,
-			    &subset_tvb_offset,
-			    &subset_tvb_length);
-
-	tvb = tvb_new_with_subset(backing, reported_length,
-	    subset_tvb_offset, subset_tvb_length);
-
-	return tvb;
-}
-
-tvbuff_t *
-tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint backing_length)
-{
-	gint	  captured_length;
-	tvbuff_t *tvb;
-	guint	  subset_tvb_offset;
-	guint	  subset_tvb_length;
-
-	DISSECTOR_ASSERT(backing && backing->initialized);
-
-	THROW_ON(backing_length < 0, ReportedBoundsError);
-
-	/*
-	 * Give the next dissector only captured_length bytes.
-	 */
-	captured_length = tvb_length_remaining(backing, backing_offset);
-	THROW_ON(captured_length < 0, BoundsError);
-	if (captured_length > backing_length)
-		captured_length = backing_length;
-
-	check_offset_length(backing, backing_offset, captured_length,
-			    &subset_tvb_offset,
-			    &subset_tvb_length);
-
-	tvb = tvb_new_with_subset(backing, backing_length,
-	    subset_tvb_offset, subset_tvb_length);
-
-	return tvb;
-}
-
-tvbuff_t *
-tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
-{
-	tvbuff_t *tvb;
-	guint	  subset_tvb_offset;
-	guint	  subset_tvb_length;
-
-	check_offset_length(backing, backing_offset, -1 /* backing_length */,
-			    &subset_tvb_offset,
-			    &subset_tvb_length);
-
-	tvb = tvb_new_with_subset(backing, -1 /* reported_length */,
-	    subset_tvb_offset, subset_tvb_length);
-
-	return tvb;
+	check_offset_length(tvb, offset, length_val, offset_ptr, length_ptr);
 }
 
 static const unsigned char left_aligned_bitmask[] = {
@@ -625,7 +465,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 		composite->end_offsets[i] = tvb->length - 1;
 		i++;
 	}
-	add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
+	tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
 	tvb->initialized = TRUE;
 }
 
@@ -849,8 +689,8 @@ first_real_data_ptr(tvbuff_t *tvb)
 }
 #endif
 
-static guint
-offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
+guint
+tvb_offset_from_real_beginning_counter(const tvbuff_t *tvb, const guint counter)
 {
 	if (tvb->ops->tvb_offset)
 		return tvb->ops->tvb_offset(tvb, counter);
@@ -860,33 +700,18 @@ offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
 }
 
 static guint
-real_offset(const tvbuff_t *tvb _U_, const guint counter)
-{
-	return counter;
-}
-
-static guint
-subset_offset(const tvbuff_t *tvb, const guint counter)
-{
-	const struct tvb_subset *subset_tvb = (const struct tvb_subset *) tvb;
-	const tvbuff_t *member = subset_tvb->subset.tvb;
-
-	return offset_from_real_beginning(member, counter + subset_tvb->subset.offset);
-}
-
-static guint
 composite_offset(const tvbuff_t *tvb, const guint counter)
 {
 	const struct tvb_composite *composite_tvb = (const struct tvb_composite *) tvb;
 	const tvbuff_t *member = (const tvbuff_t *)composite_tvb->composite.tvbs->data;
 
-	return offset_from_real_beginning(member, counter);
+	return tvb_offset_from_real_beginning_counter(member, counter);
 }
 
 guint
 tvb_offset_from_real_beginning(const tvbuff_t *tvb)
 {
-	return offset_from_real_beginning(tvb, 0);
+	return tvb_offset_from_real_beginning_counter(tvb, 0);
 }
 
 static const guint8*
@@ -961,14 +786,6 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return NULL;
-}
-
-static const guint8 *
-subset_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
-{
-	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-
-	return ensure_contiguous_no_exception(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, abs_length, NULL);
 }
 
 static const guint8*
@@ -1107,14 +924,6 @@ composite_memcpy(tvbuff_t *tvb, void* _target, guint abs_offset, size_t abs_leng
 	}
 
 	DISSECTOR_ASSERT_NOT_REACHED();
-}
-
-static void *
-subset_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
-{
-	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-
-	return tvb_memcpy(subset_tvb->subset.tvb, target, subset_tvb->subset.offset + abs_offset, abs_length);
 }
 
 void *
@@ -1962,14 +1771,6 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	return -1;
 }
 
-static gint
-subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
-{
-	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-
-	return tvb_find_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
-}
-
 /* Find first occurrence of any of the needles in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes; if maxlength is -1, searches
  * to end of tvbuff.
@@ -2023,20 +1824,6 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	/* XXX, fallback to slower method */
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return -1;
-}
-
-static gint
-subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
-{
-	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-
-	return tvb_pbrk_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needles, found_needle);
-}
-
-static tvbuff_t *
-subset_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
-{
-	return tvb_clone_offset_len(tvb, abs_offset, abs_length);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -3672,35 +3459,7 @@ tvb_get_ds_tvb(tvbuff_t *tvb)
 	return(tvb->ds_tvb);
 }
 
-static gsize real_sizeof(void) { return sizeof(struct tvb_real); }
-static gsize subset_sizeof(void) { return sizeof(struct tvb_subset); }
 static gsize composite_sizeof(void) { return sizeof(struct tvb_composite); }
-
-static const struct tvb_ops tvb_real_ops = {
-	real_sizeof,          /* size */
-	real_free,            /* free */
-	real_offset,          /* offset */
-	NULL,                 /* get_ptr */
-	NULL,                 /* memcpy */
-	NULL,                 /* find_guint8 */
-	NULL,                 /* pbrk_guint8 */
-	NULL,                 /* clone */
-};
-
-static inline const struct tvb_ops *get_tvb_real_ops(void) { return &tvb_real_ops; }
-
-static const struct tvb_ops tvb_subset_ops = {
-	subset_sizeof,        /* size */
-	NULL,                 /* free */
-	subset_offset,        /* offset */
-	subset_get_ptr,       /* get_ptr */
-	subset_memcpy,        /* memcpy */
-	subset_find_guint8,   /* find_guint8 */
-	subset_pbrk_guint8,   /* pbrk_guint8 */
-	subset_clone,         /* clone */
-};
-
-static inline const struct tvb_ops *get_tvb_subset_ops(void) { return &tvb_subset_ops; }
 
 static const struct tvb_ops tvb_composite_ops = {
 	composite_sizeof,     /* size */
