@@ -452,8 +452,8 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                     guint16   type;
                     tvbuff_t *pdu_tvb;
 
-                    /* get the new tvb for defragmented frame */
-                    pdu_tvb = pdu_frag->tvb_data;
+                    /* create the new tvb for defragmented frame */
+                    pdu_tvb = tvb_new_chain(tvb, pdu_frag->tvb_data);
                     /* add the defragmented data to the data source list */
                     add_new_data_source(pinfo, pdu_tvb, "Reassembled Profinet Frame");
                     /* PDU is complete: look for the Ethertype and give it to the appropriate dissection routine */
