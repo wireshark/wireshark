@@ -2644,7 +2644,7 @@ init_prefs(void)
 
   uat_load_all();
 
-  pre_init_prefs();
+  prefs_register_modules();
 
   filter_expression_init(TRUE);
 
@@ -2682,14 +2682,15 @@ pre_init_prefs(void)
   prefs.filter_toolbar_show_in_statusbar = FALSE;
   prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
   prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
-  /* This can be g_freed, so it must be g_mallocated. */
+  /* These string prefs will be strduped shortly, so we can safely cast away
+   * their constness in these assignments */
 #ifdef _WIN32
-  prefs.gui_gtk2_font_name              = g_strdup("Lucida Console 10");
+  prefs.gui_gtk2_font_name         = (char *) "Lucida Console 10";
 #else
-  prefs.gui_gtk2_font_name              = g_strdup("Monospace 10");
+  prefs.gui_gtk2_font_name         = (char *) "Monospace 10";
 #endif
   /* We try to find the best font in the Qt code */
-  prefs.gui_qt_font_name              = g_strdup("");
+  prefs.gui_qt_font_name           = (char *) "";
   prefs.gui_marked_fg.pixel        =     65535;
   prefs.gui_marked_fg.red          =     65535;
   prefs.gui_marked_fg.green        =     65535;
@@ -2744,7 +2745,7 @@ pre_init_prefs(void)
   prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
   prefs.gui_recent_df_entries_max  = 10;
   prefs.gui_recent_files_count_max = 10;
-  prefs.gui_fileopen_dir           = wmem_strdup(wmem_epan_scope(), get_persdatafile_dir());
+  prefs.gui_fileopen_dir           = (char *) get_persdatafile_dir();
   prefs.gui_fileopen_preview       = 3;
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;
@@ -2752,10 +2753,8 @@ pre_init_prefs(void)
   prefs.gui_update_enabled         = TRUE;
   prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
   prefs.gui_update_interval        = 60*60*24; /* Seconds */
-  /* This can be g_freed, so it must be g_mallocated. */
-  prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
-  /* This can be g_freed, so it must be g_mallocated. */
-  prefs.gui_window_title           = g_strdup("");
+  prefs.gui_webbrowser             = (char *) HTML_VIEWER " %s";
+  prefs.gui_window_title           = (char *) "";
   prefs.gui_start_title            = "The World's Most Popular Network Protocol Analyzer";
   prefs.gui_version_placement      = version_both;
   prefs.gui_auto_scroll_on_expand  = FALSE;
