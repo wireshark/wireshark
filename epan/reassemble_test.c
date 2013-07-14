@@ -1558,7 +1558,7 @@ main(int argc _U_, char **argv _U_)
     emem_init();
 
     /* a tvbuff for testing with */
-    data = g_malloc(DATA_LEN);
+    data = (char *)g_malloc(DATA_LEN);
     /* make sure it's full of stuff */
     for(i=0; i<DATA_LEN; i++) {
         data[i]=i & 0xFF;
