@@ -161,7 +161,7 @@ reassemble_test_LDADD = \
 	$(GLIB_LIBS) \
 	-lz
 
-tvbtest: tvbtest.o tvbuff.o except.o to_str.o strutil.o emem.o charsets.o
+tvbtest: tvbtest.o tvbuff.o tvbuff_real.o tvbuff_subset.o except.o to_str.o strutil.o emem.o charsets.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
 
 exntest: exntest.o except.o

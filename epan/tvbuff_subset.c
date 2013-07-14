@@ -29,6 +29,23 @@
 #include "tvbuff-int.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
+typedef struct {
+	/** The backing tvbuff_t */
+	struct tvbuff	*tvb;
+
+	/** The offset of 'tvb' to which I'm privy */
+	guint		offset;
+	/** The length of 'tvb' to which I'm privy */
+	guint		length;
+
+} tvb_backing_t;
+
+struct tvb_subset {
+	struct tvbuff tvb;
+
+	tvb_backing_t	subset;
+};
+
 static gsize 
 subset_sizeof(void)
 {

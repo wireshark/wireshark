@@ -42,17 +42,6 @@ struct tvb_ops {
 };
 
 typedef struct {
-	/** The backing tvbuff_t */
-	struct tvbuff	*tvb;
-
-	/** The offset of 'tvb' to which I'm privy */
-	guint		offset;
-	/** The length of 'tvb' to which I'm privy */
-	guint		length;
-
-} tvb_backing_t;
-
-typedef struct {
 	GSList		*tvbs;
 
 	/* Used for quick testing to see if this
@@ -95,12 +84,6 @@ struct tvbuff {
 
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;
-};
-
-struct tvb_subset {
-	struct tvbuff tvb;
-
-	tvb_backing_t	subset;
 };
 
 struct tvb_composite {
