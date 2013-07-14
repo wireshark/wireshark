@@ -835,7 +835,7 @@ static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 static void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p)
 {
     xml_ns_t *ns       = (xml_ns_t *)v;
-    gchar    *basename = g_strdup_printf("%s.%s", (gchar *)p, ns->name);
+    gchar    *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", (gchar *)p, ns->name);
     gint     *ett_p    = &(ns->ett);
     struct _attr_reg_data d;
 
