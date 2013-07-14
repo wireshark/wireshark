@@ -132,27 +132,31 @@ set(WIRESHARK_C_FLAGS
 	-Wattributes
 	-Wdiv-by-zero
 	-Wignored-qualifiers
-	-Wpragmas
 	-Wno-overlength-strings
 	-Wwrite-strings
 	-Wno-long-long
 )
 if (NOT APPLE)
-	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} -fexcess-precision=fast)
+	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS}
+	    -fexcess-precision=fast
+	    -Wpragmas)
 endif()
 
 set(WIRESHARK_C_ONLY_FLAGS
 	# The following are C only, not C++
 	-Wc++-compat
 	-Wdeclaration-after-statement
-	-Wlogical-op
 	-Wshadow
 	-Wno-pointer-sign
 	-Wold-style-definition
 	-Wshadow
 	-Wstrict-prototypes
-	-Wjump-misses-init
 )
+if (NOT APPLE)
+	set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS}
+	    -Wlogical-op
+	    -Wjump-misses-init)
+endif()
 
 set(WIRESHARK_EXTRA_C_FLAGS
 	-pedantic
