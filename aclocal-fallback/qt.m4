@@ -6,7 +6,6 @@ dnl Test for Qt+ and define Qt_CFLAGS and Qt_LIBS.
 dnl
 AC_DEFUN([AM_PATH_QT],
 [
-
 	pkg_config_module="QtCore QtGui"
 
 	no_qt=""
@@ -26,6 +25,16 @@ AC_DEFUN([AM_PATH_QT],
 	fi
 
 	if test x"$no_qt" = x ; then
+		#
+		# Qt 5.1 appears not to have QtXxx modules; instead, it
+		# has Qt5Xxx modules.
+		#
+		if $PKG_CONFIG Qt5Core
+		then
+			pkg_config_module="Qt5Core Qt5Gui"
+		else
+			pkg_config_module="QtCore QtGui"
+		fi
 		min_qt_version=ifelse([$1], ,4.0.0,$1)
 		AC_MSG_CHECKING(for Qt - version >= $min_qt_version)
 
@@ -50,12 +59,16 @@ AC_DEFUN([AM_PATH_QT],
 
 		#
 		# Qt 5.0 appears to move the widgets out of Qt GUI
-		# to Qt Widgets; look for QtWidgets and, if we find
+		# to Qt Widgets; look for Qt5Widgets and, if we find
 		# it, add its flags to CFLAGS and CXXFLAGS, so that
-		# we find the include files for the widgets.  (If
-		# we don't find it, we assume it's Qt 4.)
+		# we find the include files for the widgets.  If
+		# we don't find Qt5Widgets, look for QtWidgets instead.
+		# If we don't find QtWidgets, we assume it's Qt 4.
 		#
-		if QtWidgets_CFLAGS=`$PKG_CONFIG --cflags QtWidgets 2>/dev/null`; then
+		if QtWidgets_CFLAGS=`$PKG_CONFIG --cflags Qt5Widgets 2>/dev/null`; then
+			Qt_CFLAGS="$Qt_CFLAGS $QtWidgets_CFLAGS"
+			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs Qt5Widgets 2>/dev/null`"
+		elif QtWidgets_CFLAGS=`$PKG_CONFIG --cflags QtWidgets 2>/dev/null`; then
 			Qt_CFLAGS="$Qt_CFLAGS $QtWidgets_CFLAGS"
 			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs QtWidgets 2>/dev/null`"
 		else
@@ -63,10 +76,14 @@ AC_DEFUN([AM_PATH_QT],
 		fi
 
 		#
-		# It also appears to move the printing support into
-		# the QtPrintSupport module.
+		# Qt 5.0 also appears to move the printing support into
+		# the QtPrintSupport module, and Qt 5.1 renamed it
+		# Qt5PrintSupport.
 		#
-		if QtPrintSupport_CFLAGS=`$PKG_CONFIG --cflags QtPrintSupport 2>/dev/null`; then
+		if QtPrintSupport_CFLAGS=`$PKG_CONFIG --cflags Qt5PrintSupport 2>/dev/null`; then
+			Qt_CFLAGS="$Qt_CFLAGS $QtPrintSupport_CFLAGS"
+			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs Qt5PrintSupport 2>/dev/null`"
+		elif QtPrintSupport_CFLAGS=`$PKG_CONFIG --cflags QtPrintSupport 2>/dev/null`; then
 			Qt_CFLAGS="$Qt_CFLAGS $QtPrintSupport_CFLAGS"
 			Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs QtPrintSupport 2>/dev/null`"
 		else
