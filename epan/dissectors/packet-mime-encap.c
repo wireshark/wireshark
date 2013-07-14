@@ -26,19 +26,25 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include "tvbuff-int.h"
+
 static int proto_mime_encap = -1;
 
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 
-static GString *whole_file;
+static tvbuff_t *whole_tvb;
+static tvbuff_t *first_tvb;
 
 static void
 mime_encap_init(void)
 {
-	if (whole_file) {
-		g_string_free(whole_file, TRUE);
-		whole_file = NULL;
+	if (whole_tvb) {
+		/* hacky, tvb_free_chain() requires that we'll pass first tvb in chain, 
+		 * and tvb composite chains up with first tvb appended */
+		tvb_free_chain(first_tvb);
+		whole_tvb = NULL;
+		first_tvb = NULL;
 	}
 }
 
@@ -59,26 +65,44 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* return; */ /* dissect what we have */
 	}
 
-	if (!whole_file)
-		whole_file = g_string_new("");
+	len = tvb_length(tvb);
+	if (!pinfo->fd->flags.visited) {
+		if (len) {
+			tvbuff_t *cloned_tvb = tvb_clone(tvb);
 
-	/* eof? */
-	if (!(len = tvb_length(tvb))) {
-		tvbuff_t *comp_tvb;
+			if (!whole_tvb) {
+				whole_tvb = tvb_new_composite();
+				first_tvb = cloned_tvb;
+			}
+
+			tvb_composite_append(whole_tvb, cloned_tvb);
+		} else
+			tvb_composite_finalize(whole_tvb);
+	}
+
+	/* End of file? */
+	if (!len && whole_tvb) {
+		/* 
+		 * Here we're doing some trick.
+		 *
+		 * We don't want to call dissectors with composite tvb, cause dissectors can create subsets or real data child
+		 * on it, which would append to whole_tvb chain and would be freed only in mime_encap_init.
+		 *
+		 * So we create some tvb which pass all calls to whole_tvb, but chain with tvb (which is freed in dissection cleanup)
+		 *
+		 * BIG FAT NOTE: YOU NORMALLY DON'T WANT TO DO IT, SO DON'T COPY THIS CODE!!!!!111
+		 */
+		tvbuff_t *tmp_tvb = tvb_new_temporary(whole_tvb);
+
+		tvb_add_to_chain(tvb, tmp_tvb);
 
 		proto_item_append_text(item, " (Final)");
 
-		comp_tvb = tvb_new_child_real_data(tvb, whole_file->str, (guint) whole_file->len, (gint) whole_file->len);
-		add_new_data_source(pinfo, comp_tvb, "Whole file");
+		add_new_data_source(pinfo, tmp_tvb, "Whole file");
 
-		if (!dissector_try_heuristic(heur_subdissector_list, comp_tvb, pinfo, tree, NULL)) {
+		if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree, NULL)) {
 			proto_item_append_text(item, " (Unhandled)");
-			call_dissector(data_handle, comp_tvb, pinfo, tree);
-		}
-	} else {
-		if (!pinfo->fd->flags.visited) {
-			g_string_set_size(whole_file, (gsize) pinfo->fd->file_off + len);
-			tvb_memcpy(tvb, whole_file->str + pinfo->fd->file_off, 0, len);
+			call_dissector(data_handle, tmp_tvb, pinfo, tree);
 		}
 	}
 }

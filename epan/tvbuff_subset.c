@@ -131,7 +131,6 @@ tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
 		tvb->reported_length = reported_length;
 	}
 	tvb->initialized	     = TRUE;
-	tvb_add_to_chain(backing, tvb);
 
 	/* Optimization. If the backing buffer has a pointer to contiguous, real data,
 	 * then we can point directly to our starting offset in that buffer */
@@ -166,6 +165,8 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 	tvb = tvb_new_with_subset(backing, reported_length,
 	    subset_tvb_offset, subset_tvb_length);
 
+	tvb_add_to_chain(backing, tvb);
+
 	return tvb;
 }
 
@@ -196,6 +197,8 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint b
 	tvb = tvb_new_with_subset(backing, backing_length,
 	    subset_tvb_offset, subset_tvb_length);
 
+	tvb_add_to_chain(backing, tvb);
+
 	return tvb;
 }
 
@@ -213,5 +216,13 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 	tvb = tvb_new_with_subset(backing, -1 /* reported_length */,
 	    subset_tvb_offset, subset_tvb_length);
 
+	tvb_add_to_chain(backing, tvb);
+
 	return tvb;
+}
+
+tvbuff_t *
+tvb_new_temporary(tvbuff_t *backing)
+{
+	return tvb_new_with_subset(backing, backing->reported_length, 0, backing->length);
 }
