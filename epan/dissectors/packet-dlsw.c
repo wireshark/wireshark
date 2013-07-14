@@ -571,7 +571,6 @@ proto_register_dlsw(void)
       { &hf_dlsw_largest_frame_size, { "Largest Frame size", "dlsw.largest_frame_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_ssp_flags, { "SSP Flags", "dlsw.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_circuit_priority, { "Circuit priority", "dlsw.circuit_priority", FT_UINT8, BASE_DEC, VALS(dlsw_pri_vals), 0x7, NULL, HFILL }},
-      { &hf_dlsw_old_message_type, { "Old message type", "dlsw.old_message_type", FT_UINT8, BASE_HEX, VALS(dlsw_type_vals), 0x0, NULL, HFILL }},
       { &hf_dlsw_target_mac_address, { "Target MAC Address", "dlsw.target_mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_origin_mac_address, { "Origin MAC Address", "dlsw.origin_mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_origin_link_sap, { "Origin Link SAP", "dlsw.origin_link_sap", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
