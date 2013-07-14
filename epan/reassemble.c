@@ -563,13 +563,13 @@ insert_fd_head(reassembly_table *table, fragment_data *fd_head,
  * (with one exception) all allocated memory for matching reassembly.
  *
  * The exception is :
- * If the PDU was already completely reassembled, then the buffer containing the
- * reassembled data WILL NOT be free()d, and the pointer to that buffer will be
+ * If the PDU was already completely reassembled, then the tvbuff containing the
+ * reassembled data WILL NOT be free()d, and the pointer to that tvbuff will be
  * returned.
  * Othervise the function will return NULL.
  *
- * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to
- * tvb_free() that buffer.
+ * So, if you call fragment_delete and it returns non-NULL, YOU are responsible
+ * to tvb_free() that tvbuff.
  */
 tvbuff_t *
 fragment_delete(reassembly_table *table, const packet_info *pinfo,
