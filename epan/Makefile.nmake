@@ -271,18 +271,30 @@ exntest.exe: $(EXNTEST_OBJ)
 !ENDIF
 
 # Object files for tvbtest
-TVBTEST_OBJ=tvbtest.obj \
-	tvbuff.obj \
-	except.obj \
-	to_str.obj \
-	strutil.obj \
-	charsets.obj \
-	emem.obj
+TVBTEST_OBJ=tvbtest.obj
+TVBTEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS) \
+	..\wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
+!IFDEF ENABLE_LIBWIRESHARK
+	libwireshark.lib \
+!ELSE
+	dissectors\dissectors.lib \
+	wireshark.lib \
+	crypt\airpdcap.lib \
+	dfilter\dfilter.lib \
+	ftypes\ftypes.lib \
+	$(C_ARES_LIBS) \
+	$(ADNS_LIBS) \
+	$(ZLIB_LIBS)
+!ENDIF
 
 tvbtest.exe: $(TVBTEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-		$(GLIB_LIBS) $(ZLIB_LIBS) $(TVBTEST_OBJ)
+		$(TVBTEST_LIBS) $(GLIB_LIBS) $(ZLIB_LIBS) $(TVBTEST_OBJ)
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
