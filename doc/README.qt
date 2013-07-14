@@ -39,6 +39,10 @@ There are several ways of building qtshark:
    If using cmake installing qtcreator is not required. Basically almost
    all stuff below can be ignored ;-)
 
+3) Using autotools:
+
+   Pass --with-qt to the configure script and build.
+
 Work is in progress on this.)
 
 1.1 Prerequisites
