@@ -98,7 +98,7 @@ subset_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
 
-	return tvb_clone_offset_len(subset_tvb->subset.tvb, abs_offset, abs_length);
+	return tvb_clone_offset_len(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, abs_length);
 }
 
 static const struct tvb_ops tvb_subset_ops = {
