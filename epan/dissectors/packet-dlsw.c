@@ -67,6 +67,7 @@ static int hf_dlsw_dlc_header_ac_byte = -1;
 static int hf_dlsw_tcp_connections = -1;
 static int hf_dlsw_initial_pacing_window = -1;
 static int hf_dlsw_old_message_type = -1;
+static int hf_dlsw_capex_type = -1;
 static int hf_dlsw_ssp_flags = -1;
 static int hf_dlsw_target_mac_address = -1;
 static int hf_dlsw_origin_mac_address = -1;
@@ -333,7 +334,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text (dlsw_header_tree,tvb, 18,5,"Not used for CapEx") ;
         proto_tree_add_item(dlsw_header_tree, hf_dlsw_old_message_type, tvb, 23, 1, ENC_NA);
         proto_tree_add_text (dlsw_header_tree,tvb, 24,14,"Not used for CapEx") ;
-        proto_tree_add_item(dlsw_header_tree, hf_dlsw_frame_direction, tvb, 38, 1, ENC_NA);
+        proto_tree_add_item(dlsw_header_tree, hf_dlsw_capex_type, tvb, 38, 1, ENC_NA);
         proto_tree_add_text (dlsw_header_tree,tvb, 39,33,"Not used for CapEx") ;
       }
       else
@@ -567,7 +568,7 @@ proto_register_dlsw(void)
       { &hf_dlsw_protocol_id, { "Protocol ID", "dlsw.protocol_id", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_header_number, { "Header Number", "dlsw.header_number", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_old_message_type, { "Old message type", "dlsw.old_message_type", FT_UINT8, BASE_HEX, VALS(dlsw_type_vals), 0x0, NULL, HFILL }},
-      { &hf_dlsw_frame_direction, { "Frame direction", "dlsw.frame_direction", FT_UINT8, BASE_HEX, VALS(dlsw_capex_type_vals), 0x0, NULL, HFILL }},
+      { &hf_dlsw_capex_type, { "Capability exchange type", "dlsw.capex_type", FT_UINT8, BASE_HEX, VALS(dlsw_capex_type_vals), 0x0, NULL, HFILL }},
       { &hf_dlsw_largest_frame_size, { "Largest Frame size", "dlsw.largest_frame_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_ssp_flags, { "SSP Flags", "dlsw.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_circuit_priority, { "Circuit priority", "dlsw.circuit_priority", FT_UINT8, BASE_DEC, VALS(dlsw_pri_vals), 0x7, NULL, HFILL }},
@@ -593,7 +594,7 @@ proto_register_dlsw(void)
       { &hf_dlsw_dlc_header_ctrl, { "DLC Header - Ctrl", "dlsw.dlc_header.ctrl", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_capabilities_length, { "Capabilities Length", "dlsw.capabilities_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_error_pointer, { "Error pointer", "dlsw.error_pointer", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_dlsw_error_cause, { "Error cause", "dlsw.error_cause", FT_UINT16, BASE_NONE, VALS(dlsw_refuse_vals), 0x0, NULL, HFILL }},
+      { &hf_dlsw_error_cause, { "Error cause", "dlsw.error_cause", FT_UINT16, BASE_HEX, VALS(dlsw_refuse_vals), 0x0, NULL, HFILL }},
       { &hf_dlsw_vector_length, { "Vector Length", "dlsw.vector_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_dlsw_vector_type, { "Vector Type", "dlsw.vector_type", FT_UINT8, BASE_HEX, VALS(dlsw_vector_vals), 0x0, NULL, HFILL }},
       { &hf_dlsw_oui, { "OUI", "dlsw.oui", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
