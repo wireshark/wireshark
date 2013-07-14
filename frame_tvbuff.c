@@ -68,7 +68,6 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	return TRUE;
 }
 
-
 static void
 frame_invalidate(struct tvb_frame *frame_tvb)
 {
@@ -84,7 +83,7 @@ frame_invalidate(struct tvb_frame *frame_tvb)
 			{ /* TODO: THROW(???); */ }
 	}
 
-	frame_tvb->tvb.real_data = buffer_start_ptr(frame_tvb->buf);
+	frame_tvb->tvb.real_data = buffer_start_ptr(frame_tvb->buf) + frame_tvb->offset;
 }
 
 static void
