@@ -864,7 +864,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fragment_data *fd_i;
 	guint32 max, dfpos, fraglen;
 	tvbuff_t *old_tvb_data;
-	char *data;
+	guint8 *data;
 
 	/* create new fd describing this fragment */
 	fd = g_slice_new(fragment_data);
@@ -1058,7 +1058,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	 */
 	/* store old data just in case */
 	old_tvb_data=fd_head->tvb_data;
-	data = g_malloc(fd_head->datalen);
+	data = (guint8 *) g_malloc(fd_head->datalen);
 	fd_head->tvb_data = tvb_new_real_data(data, fd_head->datalen, fd_head->datalen);
 	tvb_set_free_cb(fd_head->tvb_data, g_free);
 
@@ -1483,7 +1483,7 @@ fragment_defragment_and_free (fragment_data *fd_head, const packet_info *pinfo)
 	fragment_data *last_fd = NULL;
 	guint32  dfpos = 0, size = 0;
 	tvbuff_t *old_tvb_data = NULL;
-	char *data;
+	guint8 *data;
 
 	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
 		if(!last_fd || last_fd->offset!=fd_i->offset){
@@ -1494,7 +1494,7 @@ fragment_defragment_and_free (fragment_data *fd_head, const packet_info *pinfo)
 
 	/* store old data in case the fd_i->data pointers refer to it */
 	old_tvb_data=fd_head->tvb_data;
-	data = g_malloc(size);
+	data = (guint8 *) g_malloc(size);
 	fd_head->tvb_data = tvb_new_real_data(data, size, size);
 	tvb_set_free_cb(fd_head->tvb_data, g_free);
 	fd_head->len = size;		/* record size for caller	*/
