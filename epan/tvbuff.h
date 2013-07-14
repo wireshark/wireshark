@@ -135,7 +135,7 @@ WS_DLL_PUBLIC void tvb_free(tvbuff_t*);
  * must not be in a chain.
  * If specified, a callback to free the tvbuff data will be invoked
  * for each tvbuff free'd */
-void tvb_free_chain(tvbuff_t*);
+WS_DLL_PUBLIC void tvb_free_chain(tvbuff_t*);
 
 /** Set a callback function to call when a tvbuff is actually freed
  * One argument is passed to that callback --- a void* that points

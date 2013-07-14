@@ -155,14 +155,16 @@ libwireshark_la_DEPENDENCIES = \
 	${top_builddir}/wsutil/libwsutil.la \
 	${top_builddir}/wiretap/libwiretap.la
 
-EXTRA_PROGRAMS = reassemble_test
+EXTRA_PROGRAMS = reassemble_test tvbtest
 reassemble_test_LDADD = \
 	libwireshark.la \
 	$(GLIB_LIBS) \
 	-lz
 
-tvbtest: tvbtest.o tvbuff.o tvbuff_real.o tvbuff_subset.o except.o to_str.o strutil.o emem.o charsets.o
-	$(LINK) $^ $(GLIB_LIBS) -lz
+tvbtest_LDADD = \
+	libwireshark.la \
+	$(GLIB_LIBS) \
+	-lz
 
 exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
