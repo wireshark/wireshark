@@ -343,7 +343,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	  last_fd=fd_i;
 	}
 
-	data = g_malloc(size);
+	data = (char *) g_malloc(size);
 	fd_head->tvb_data = tvb_new_real_data(data, size, size);
 	fd_head->len = size;		/* record size for caller	*/
 
