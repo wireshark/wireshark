@@ -4401,8 +4401,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_item *frag_tree_item;
 
-                    next_tvb = tvb_new_child_real_data(tvb, fd_head->data,
-                        fd_head->len, fd_head->len);
+                    next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                     add_new_data_source(pinfo,
                         next_tvb,
                         "Reassembled NDPS");

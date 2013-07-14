@@ -1423,7 +1423,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
             proto_tree *next_tree;
             proto_item *frag_tree_item;
 
-            reassembled_tvb = tvb_new_child_real_data(next_tvb, fd_head->data, fd_head->len, fd_head->len);
+            reassembled_tvb = tvb_new_chain(next_tvb, fd_head->tvb_data);
 
             actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, ENC_BIG_ENDIAN);
             next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);

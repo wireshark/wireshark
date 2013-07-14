@@ -116,7 +116,7 @@ static struct _fd_flags {
 } fd_flags[] = {
     {FD_DEFRAGMENTED         ,"DF"},
     {FD_DATALEN_SET          ,"DS"},
-    {FD_NOT_MALLOCED         ,"NM"},
+    {FD_SUBSET_TVB,          ,"ST"},
     {FD_BLOCKSEQUENCE        ,"BS"},
     {FD_DATA_NOT_PRESENT     ,"NP"},
     {FD_PARTIAL_REASSEMBLY   ,"PR"},
@@ -262,34 +262,34 @@ test_simple_fragment_add_seq(void)
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(4,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+15,60));
-    ASSERT(!memcmp(fd_head->data+110,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
 
 #if 0
     print_fragment_table();
@@ -361,18 +361,18 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(1,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
 
     /* now we announce that the reassembly wasn't complete after all. */
     fragment_set_partial_reassembly(&test_reassembly_table, &pinfo, 12, NULL);
@@ -398,15 +398,15 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(0,fd_head->reassembled_in);
     ASSERT_EQ(FD_BLOCKSEQUENCE,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     fd=fd_head->next;
     ASSERT_EQ(1,fd->frame);
     ASSERT_EQ(0,fd->offset);  /* seqno */
     ASSERT_EQ(50,fd->len);    /* segment length */
-    ASSERT_EQ(FD_NOT_MALLOCED,fd->flags);
-    ASSERT_EQ(fd_head->data,fd->data);
+    ASSERT_EQ(FD_SUBSET_TVB,fd->flags);
+    ASSERT_EQ(tvb_get_ptr(fd_head->tvb_data,0,0),tvb_get_ptr(fd->tvb_data,0,0));
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -414,7 +414,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_NE(NULL,fd->data);
+    ASSERT_NE(NULL,fd->tvb_data);
     ASSERT_EQ(NULL,fd->next);
 
     /* Another copy of the second segment.
@@ -433,15 +433,15 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(0,fd_head->reassembled_in);
     ASSERT_EQ(FD_BLOCKSEQUENCE,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     fd=fd_head->next;
     ASSERT_EQ(1,fd->frame);
     ASSERT_EQ(0,fd->offset);  /* seqno */
     ASSERT_EQ(50,fd->len);    /* segment length */
-    ASSERT_EQ(FD_NOT_MALLOCED,fd->flags);
-    ASSERT_EQ(fd_head->data,fd->data);
+    ASSERT_EQ(FD_SUBSET_TVB,fd->flags);
+    ASSERT_EQ(tvb_get_ptr(fd_head->tvb_data,0,0),tvb_get_ptr(fd->tvb_data,0,0));
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -449,7 +449,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_NE(NULL,fd->data);
+    ASSERT_NE(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -457,7 +457,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_NE(NULL,fd->data);
+    ASSERT_NE(NULL,fd->tvb_data);
     ASSERT_EQ(NULL,fd->next);
 
 
@@ -477,7 +477,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     fd=fd_head->next;
@@ -485,7 +485,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(0,fd->offset);  /* seqno */
     ASSERT_EQ(50,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -493,7 +493,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -501,7 +501,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(FD_OVERLAP,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -509,13 +509,13 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(2,fd->offset);  /* seqno */
     ASSERT_EQ(100,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_EQ(NULL,fd->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data,40));
-    ASSERT(!memcmp(fd_head->data+90,data+20,100));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,90,data+20,100));
 
 
     /* do it again (this time it is more complicated, with an overlap in the
@@ -535,7 +535,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(3,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(5,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     fd=fd_head->next;
@@ -543,7 +543,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(0,fd->offset);  /* seqno */
     ASSERT_EQ(50,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -551,7 +551,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -559,7 +559,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(1,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(FD_OVERLAP,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -567,7 +567,7 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(2,fd->offset);  /* seqno */
     ASSERT_EQ(100,fd->len);   /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_NE(NULL,fd->next);
 
     fd=fd->next;
@@ -575,14 +575,14 @@ test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(3,fd->offset);  /* seqno */
     ASSERT_EQ(40,fd->len);    /* segment length */
     ASSERT_EQ(0,fd->flags);
-    ASSERT_EQ(NULL,fd->data);
+    ASSERT_EQ(NULL,fd->tvb_data);
     ASSERT_EQ(NULL,fd->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data,40));
-    ASSERT(!memcmp(fd_head->data+90,data+20,100));
-    ASSERT(!memcmp(fd_head->data+190,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,90,data+20,100));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,190,data,40));
 }
 
 /* Test case for fragment_add_seq with duplicated (e.g., retransmitted) data.
@@ -642,41 +642,41 @@ test_fragment_add_seq_duplicate_first(void)
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(3,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(4,fd_head->next->next->frame);
     ASSERT_EQ(0,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(FD_OVERLAP,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next);
 
     ASSERT_EQ(2,fd_head->next->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->next->offset);  /* seqno */
     ASSERT_EQ(40,fd_head->next->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+5,60));
-    ASSERT(!memcmp(fd_head->data+110,data+5,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
 #if 0
     print_fragment_table();
@@ -741,41 +741,41 @@ test_fragment_add_seq_duplicate_middle(void)
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(2,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->next->len);    /* segment length */
     ASSERT_EQ(FD_OVERLAP,fd_head->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next->next);
 
     ASSERT_EQ(4,fd_head->next->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->next->offset);  /* seqno */
     ASSERT_EQ(40,fd_head->next->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+5,60));
-    ASSERT(!memcmp(fd_head->data+110,data+5,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
 #if 0
     print_fragment_table();
@@ -839,41 +839,41 @@ test_fragment_add_seq_duplicate_last(void)
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(3,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(2,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->offset);  /* seqno */
     ASSERT_EQ(40,fd_head->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next->next);
 
     ASSERT_EQ(4,fd_head->next->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->next->offset);  /* seqno */
     ASSERT_EQ(40,fd_head->next->next->next->next->len);    /* segment length */
     ASSERT_EQ(FD_OVERLAP,fd_head->next->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+5,60));
-    ASSERT(!memcmp(fd_head->data+110,data+5,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
 #if 0
     print_fragment_table();
@@ -941,41 +941,41 @@ test_fragment_add_seq_duplicate_conflict(void)
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET|FD_OVERLAP|FD_OVERLAPCONFLICT,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(2,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->next->len);    /* segment length */
     ASSERT_EQ(FD_OVERLAP|FD_OVERLAPCONFLICT,fd_head->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next->next);
 
     ASSERT_EQ(4,fd_head->next->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->next->offset);  /* seqno */
     ASSERT_EQ(40,fd_head->next->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+5,60));
-    ASSERT(!memcmp(fd_head->data+110,data+5,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
 #if 0
     print_fragment_table();
@@ -1053,34 +1053,34 @@ test_fragment_add_seq_check_work(fragment_data *(*fn)(reassembly_table *,
     ASSERT_EQ(2,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(4,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(4,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->next->frame);
     ASSERT_EQ(2,fd_head->next->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+15,60));
-    ASSERT(!memcmp(fd_head->data+110,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
 
 #if 0
     print_tables();
@@ -1132,26 +1132,26 @@ test_fragment_add_seq_check_1(void)
     ASSERT_EQ(1,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(2,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(2,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(1,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+5,60));
-    ASSERT(!memcmp(fd_head->data+60,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,60,data+10,50));
 }
 
 /**********************************************************************************
@@ -1187,7 +1187,7 @@ test_fragment_add_seq_802_11_0(void)
     ASSERT_EQ(0,fd_head->datalen); /* unused */
     ASSERT_EQ(1,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE,fd_head->flags);
-    ASSERT_EQ(NULL,fd_head->data);
+    ASSERT_EQ(NULL,fd_head->tvb_data);
     ASSERT_EQ(NULL,fd_head->next);
 }
 
@@ -1325,26 +1325,26 @@ test_simple_fragment_add_seq_next(void)
     ASSERT_EQ(1,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(3,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_BLOCKSEQUENCE|FD_DATALEN_SET,fd_head->flags);
-    ASSERT_NE(NULL,fd_head->data);
+    ASSERT_NE(NULL,fd_head->tvb_data);
     ASSERT_NE(NULL,fd_head->next);
 
     ASSERT_EQ(1,fd_head->next->frame);
     ASSERT_EQ(0,fd_head->next->offset);  /* seqno */
     ASSERT_EQ(50,fd_head->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->data);
+    ASSERT_EQ(NULL,fd_head->next->tvb_data);
     ASSERT_NE(NULL,fd_head->next->next);
 
     ASSERT_EQ(3,fd_head->next->next->frame);
     ASSERT_EQ(1,fd_head->next->next->offset);  /* seqno */
     ASSERT_EQ(60,fd_head->next->next->len);    /* segment length */
     ASSERT_EQ(0,fd_head->next->next->flags);
-    ASSERT_EQ(NULL,fd_head->next->next->data);
+    ASSERT_EQ(NULL,fd_head->next->next->tvb_data);
     ASSERT_EQ(NULL,fd_head->next->next->next);
 
     /* test the actual reassembly */
-    ASSERT(!memcmp(fd_head->data,data+10,50));
-    ASSERT(!memcmp(fd_head->data+50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
 }
 
 
@@ -1375,7 +1375,7 @@ test_missing_data_fragment_add_seq_next(void)
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(0,fd_head->reassembled_in);
     ASSERT_EQ(FD_BLOCKSEQUENCE,fd_head->flags & 0x1ff);
-    ASSERT_EQ(NULL,fd_head->data);
+    ASSERT_EQ(NULL,fd_head->tvb_data);
     ASSERT_EQ(NULL,fd_head->next);
 
     /* add another fragment (with all data present) */
@@ -1498,7 +1498,7 @@ test_missing_data_fragment_add_seq_next_3(void)
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(20,fd_head->reassembled_in);
     ASSERT_EQ(FD_BLOCKSEQUENCE|FD_DEFRAGMENTED,fd_head->flags);
-    ASSERT_EQ(NULL,fd_head->data);
+    ASSERT_EQ(NULL,fd_head->tvb_data);
     ASSERT_EQ(NULL,fd_head->next);
 
     /* revisiting the packet ought to produce the same result. */
@@ -1517,7 +1517,7 @@ test_missing_data_fragment_add_seq_next_3(void)
     ASSERT_EQ(0,fd_head->datalen); /* seqno of the last fragment we have */
     ASSERT_EQ(20,fd_head->reassembled_in);
     ASSERT_EQ(FD_BLOCKSEQUENCE|FD_DEFRAGMENTED,fd_head->flags);
-    ASSERT_EQ(NULL,fd_head->data);
+    ASSERT_EQ(NULL,fd_head->tvb_data);
     ASSERT_EQ(NULL,fd_head->next);
 }
 

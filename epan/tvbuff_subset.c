@@ -96,7 +96,9 @@ subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *n
 static tvbuff_t *
 subset_clone(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 {
-	return tvb_clone_offset_len(tvb, abs_offset, abs_length);
+	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+
+	return tvb_clone_offset_len(subset_tvb->subset.tvb, abs_offset, abs_length);
 }
 
 static const struct tvb_ops tvb_subset_ops = {
@@ -222,7 +224,7 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 }
 
 tvbuff_t *
-tvb_new_temporary(tvbuff_t *backing)
+tvb_new_proxy(tvbuff_t *backing)
 {
 	return tvb_new_with_subset(backing, backing->reported_length, 0, backing->length);
 }

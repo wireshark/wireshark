@@ -119,6 +119,8 @@ typedef void (*tvbuff_free_cb_t)(void*);
  */
 WS_DLL_PUBLIC tvbuff_t* tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits);
 
+WS_DLL_PUBLIC tvbuff_t *tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing);
+
 WS_DLL_PUBLIC tvbuff_t *tvb_clone(tvbuff_t *tvb);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_clone_offset_len(tvbuff_t *tvb, guint offset, guint len);

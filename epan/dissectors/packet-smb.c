@@ -9147,8 +9147,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (r_fd) {
 		proto_item *frag_tree_item;
 
-		pd_tvb = tvb_new_child_real_data(tvb, r_fd->data, r_fd->datalen,
-						 r_fd->datalen);
+		pd_tvb = tvb_new_chain(tvb, r_fd->tvb_data);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
 
 		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
@@ -9698,8 +9697,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if (r_fd) {
 		proto_item *frag_tree_item;
 
-		pd_tvb = tvb_new_child_real_data(tvb, r_fd->data, r_fd->datalen,
-						 r_fd->datalen);
+		pd_tvb = tvb_new_chain(tvb, r_fd->tvb_data);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
 
 		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
@@ -16691,8 +16689,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if (r_fd) {
 		proto_item *frag_tree_item;
 
-		pd_tvb = tvb_new_child_real_data(tvb, r_fd->data, r_fd->datalen,
-					     r_fd->datalen);
+		pd_tvb = tvb_new_chain(tvb, r_fd->tvb_data);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
 		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
 	}

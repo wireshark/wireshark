@@ -936,7 +936,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             seg_tree = proto_item_add_subtree(ti, ett_ampdu_segments);
 
             while (ft_fdh) {
-                if (ft_fdh->data && ft_fdh->len) {
+                if (ft_fdh->tvb_data && ft_fdh->len) {
                     last_frame = ft_fdh->frame;
                     if (!first_mpdu)
                         proto_item_append_text(ti, ",");
@@ -966,12 +966,11 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             while (fd_head) {
-                if (fd_head->data && fd_head->len) {
+                if (fd_head->tvb_data && fd_head->len) {
                     mpdu_count++;
                     mpdu_str = ep_strdup_printf("MPDU #%d", mpdu_count);
 
-                    next_tvb = tvb_new_child_real_data(tvb, fd_head->data,
-                        fd_head->len, fd_head->len);
+                    next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                     add_new_data_source(pinfo, next_tvb, mpdu_str);
 
                     if (agg_tree) {

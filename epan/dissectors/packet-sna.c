@@ -1701,8 +1701,7 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 
 			if (fd_head != NULL) {
 				/* We have the complete reassembled payload. */
-				rh_tvb = tvb_new_child_real_data(tvb, fd_head->data,
-				    fd_head->len, fd_head->len);
+				rh_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
 
 				/* Add the defragmented data to the data
 				 * source list. */

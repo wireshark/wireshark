@@ -344,6 +344,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	fragment_data *fd_i;
 	fragment_data *last_fd;
 	guint32 dfpos, size, packet_lost, burst_lost, seq_num;
+	char *data;
 
 	fd_head = fragment_get(table, pinfo, id, NULL);
 
@@ -386,7 +387,9 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	  }
 	  last_fd=fd_i;
 	}
-	fd_head->data = (char *)g_malloc(size);
+
+	data = g_malloc(size);
+	fd_head->tvb_data = tvb_new_real_data(data, size, size);
 	fd_head->len = size;		/* record size for caller	*/
 
 	/* add all data fragments */
@@ -395,14 +398,14 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	for (fd_i=fd_head->next;fd_i && fd_i->len + dfpos <= size;fd_i=fd_i->next) {
 	  if (fd_i->len) {
 	    if(!last_fd || last_fd->offset!=fd_i->offset){
-	      memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
+	      memcpy(data+dfpos,tvb_get_ptr(fd_i->tvb_data,0,fd_i->len),fd_i->len);
 	      dfpos += fd_i->len;
 	    } else {
 	      /* duplicate/retransmission/overlap */
 	      fd_i->flags    |= FD_OVERLAP;
 	      fd_head->flags |= FD_OVERLAP;
 	      if( (last_fd->len!=fd_i->datalen)
-		  || memcmp(last_fd->data, fd_i->data, last_fd->len) ){
+		  || tvb_memeql(last_fd->tvb_data, 0, tvb_get_ptr(fd_i->tvb_data, 0, last_fd->len), last_fd->len) ){
 			fd_i->flags    |= FD_OVERLAPCONFLICT;
 			fd_head->flags |= FD_OVERLAPCONFLICT;
 	      }
@@ -413,9 +416,9 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 
 	/* we have defragmented the pdu, now free all fragments*/
 	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if(fd_i->data){
-	    g_free(fd_i->data);
-	    fd_i->data=NULL;
+	  if(fd_i->tvb_data){
+	    tvb_free(fd_i->tvb_data);
+	    fd_i->tvb_data=NULL;
 	  }
 	}
 
@@ -977,7 +980,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 391 "../../asn1/t38/packet-t38-template.c"
+#line 394 "../../asn1/t38/packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1333,7 +1336,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 670 "../../asn1/t38/packet-t38-template.c"
+#line 673 "../../asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1394,7 +1397,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 717 "../../asn1/t38/packet-t38-template.c"
+#line 720 "../../asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

@@ -47,8 +47,8 @@
    past the end of the datagram */
 #define FD_TOOLONGFRAGMENT	0x0010
 
-/* fragment data not alloc'ed, fd->data pointing to fd_head->data+fd->offset */
-#define FD_NOT_MALLOCED         0x0020
+/* fragment tvb is subset, don't tvb_free() it */
+#define FD_SUBSET_TVB           0x0020
 
 /* this flag is used to request fragment_add to continue the reassembly process */
 #define FD_PARTIAL_REASSEMBLY   0x0040
@@ -89,7 +89,7 @@ typedef struct _fragment_data {
 	guint32 flags;	/* XXX - do some of these apply only to reassembly
 			   heads and others only to fragments within
 			   a reassembly? */
-	guint8  *data;
+	tvbuff_t *tvb_data;
 
 	/*
 	 * Null if the reassembly had no error; non-null if it had
@@ -336,13 +336,12 @@ fragment_get_reassembled_id(reassembly_table *table, const packet_info *pinfo,
 
 /* This will free up all resources and delete reassembly state for this PDU.
  * Except if the PDU is completely reassembled, then it would NOT deallocate the
- * buffer holding the reassembled data but instead return the pointer to that
- * buffer.
+ * buffer holding the reassembled data but instead return the TVB
  *
  * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to
- * g_free() that buffer.
+ * tvb_free() .
  */
-WS_DLL_PUBLIC unsigned char *
+WS_DLL_PUBLIC tvbuff_t *
 fragment_delete(reassembly_table *table, const packet_info *pinfo,
 		const guint32 id, const void *data);
 

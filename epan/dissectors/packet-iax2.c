@@ -2202,7 +2202,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
     if (fd_head && (pinfo->fd->num == fd_head->reassembled_in)) {
       gint32 old_len;
-      tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, fd_head->data, fd_head->datalen, fd_head->datalen);
+      tvbuff_t *next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
       add_new_data_source(pinfo, next_tvb, "Reassembled IAX2");
 
       process_iax_pdu(next_tvb, pinfo, tree, video, iax_packet);

@@ -89,12 +89,8 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * on it, which would append to whole_tvb chain and would be freed only in mime_encap_init.
 		 *
 		 * So we create some tvb which pass all calls to whole_tvb, but chain with tvb (which is freed in dissection cleanup)
-		 *
-		 * BIG FAT NOTE: YOU NORMALLY DON'T WANT TO DO IT, SO DON'T COPY THIS CODE!!!!!111
 		 */
-		tvbuff_t *tmp_tvb = tvb_new_temporary(whole_tvb);
-
-		tvb_add_to_chain(tvb, tmp_tvb);
+		tvbuff_t *tmp_tvb = tvb_new_chain(tvb, whole_tvb);
 
 		proto_item_append_text(item, " (Final)");
 

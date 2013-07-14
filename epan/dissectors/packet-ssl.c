@@ -1129,9 +1129,7 @@ again:
             int old_len;
 
             /* create a new TVB structure for desegmented data */
-            next_tvb = tvb_new_child_real_data(tvb, ipfd_head->data,
-                                               ipfd_head->datalen,
-                                               ipfd_head->datalen);
+            next_tvb = tvb_new_chain(tvb, ipfd_head->tvb_data);
 
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, next_tvb, "Reassembled SSL");

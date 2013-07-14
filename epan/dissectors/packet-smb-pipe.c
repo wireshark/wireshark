@@ -3381,8 +3381,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 		/* if we completed reassembly */
 		if(fd_head){
-			new_tvb = tvb_new_child_real_data(d_tvb, fd_head->data,
-				  fd_head->datalen, fd_head->datalen);
+			new_tvb = tvb_new_chain(d_tvb, fd_head->tvb_data);
 			add_new_data_source(pinfo, new_tvb,
 				  "DCERPC over SMB");
 			pinfo->fragmented=FALSE;
@@ -3431,8 +3430,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 
 	/* display the reassembled pdu */
-	new_tvb = tvb_new_child_real_data(d_tvb, fd_head->data,
-		  fd_head->datalen, fd_head->datalen);
+	new_tvb = tvb_new_chain(d_tvb, fd_head->tvb_data);
 	add_new_data_source(pinfo, new_tvb,
 		  "DCERPC over SMB");
 	pinfo->fragmented=FALSE;

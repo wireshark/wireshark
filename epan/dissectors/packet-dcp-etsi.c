@@ -293,7 +293,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     /* make a list of the findex (offset) numbers of the fragments we have */
     fd = fragment_get(&dcp_reassembly_table, pinfo, seq, NULL);
     for (fd_head = fd; fd_head != NULL && fragments < fcount; fd_head = fd_head->next) {
-      if(fd_head->data) {
+      if(fd_head->tvb_data) {
         got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
       }
     }

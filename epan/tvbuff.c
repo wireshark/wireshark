@@ -142,6 +142,15 @@ tvb_free_chain(tvbuff_t  *tvb)
 	}
 }
 
+tvbuff_t *
+tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing)
+{
+	tvbuff_t *tvb = tvb_new_proxy(backing);
+
+	tvb_add_to_chain(parent, tvb);
+	return tvb;
+}
+
 void
 tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 {

@@ -486,7 +486,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
 	} else {
 		/* Create a composite tvb out of the two */
-		frag_tvb = tvb_new_real_data(frag->data, frag->len, frag->len);
+		frag_tvb = tvb_new_proxy(frag->tvb_data);
 		len_tvb = tvb_new_composite();
 		tvb_composite_append(len_tvb, frag_tvb);
 

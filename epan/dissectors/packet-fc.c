@@ -1171,9 +1171,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                          !is_lastframe_inseq);
 
              if (fcfrag_head) {
-                  next_tvb = tvb_new_child_real_data(tvb, fcfrag_head->data,
-                                                fcfrag_head->datalen,
-                                                fcfrag_head->datalen);
+                  next_tvb = tvb_new_chain(tvb, fcfrag_head->tvb_data);
 
                   /* Add the defragmented data to the data source list. */
                   add_new_data_source(pinfo, next_tvb, "Reassembled FC");
