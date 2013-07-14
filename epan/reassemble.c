@@ -586,7 +586,7 @@ fragment_delete(reassembly_table *table, const packet_info *pinfo,
 	}
 
 	fd_tvb_data=fd_head->tvb_data; 
-	/* loop over all partial fragments and free any buffers */
+	/* loop over all partial fragments and free any tvbuffs */
 	for(fd=fd_head->next;fd;){
 		fragment_data *tmp_fd;
 		tmp_fd=fd->next;
