@@ -69,7 +69,7 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 }
 
 static void
-frame_invalidate(struct tvb_frame *frame_tvb)
+frame_cache(struct tvb_frame *frame_tvb)
 {
 	struct wtap_pkthdr phdr; /* Packet header */
 
@@ -103,7 +103,7 @@ frame_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length _U_)
 {
 	struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
-	frame_invalidate(frame_tvb);
+	frame_cache(frame_tvb);
 
 	return tvb->real_data + abs_offset;
 }
@@ -113,7 +113,7 @@ frame_memcpy(tvbuff_t *tvb, void *target, guint abs_offset, guint abs_length)
 {
 	struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
-	frame_invalidate(frame_tvb);
+	frame_cache(frame_tvb);
 
 	return memcpy(target, tvb->real_data + abs_offset, abs_length);
 }
@@ -124,7 +124,7 @@ frame_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
 	struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 	const guint8 *result;
 
-	frame_invalidate(frame_tvb);
+	frame_cache(frame_tvb);
 
 	result = (const guint8 *)memchr(tvb->real_data + abs_offset, needle, limit);
 	if (result)
@@ -138,7 +138,7 @@ frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *ne
 {
 	struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
-	frame_invalidate(frame_tvb);
+	frame_cache(frame_tvb);
 
 	return tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
 }
