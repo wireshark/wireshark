@@ -72,27 +72,27 @@ my $encoding  = '';
 my $result = GetOptions(
 						'action=s' => \$action,
 						'encoding=s' => \$encoding,
-                        'help|?'   => \$helpFlag
-                       );
+						'help|?'   => \$helpFlag
+						);
 
 if (!$result || $helpFlag || !$ARGV[0]) {
-    usage();
+	usage();
 }
 
 sub usage {
 	print "\nUsage: $0 [--action=generate|fix-all|find-all] [--encoding=ENC_BIG_ENDIAN|ENC_LITTLE_ENDIAN] FILENAME [...]\n\n";
-        print "  --action = generate (default)\n";
-        print "    generate - create a delimited file (FILENAME.proto_tree_input) with\n";
+		print "  --action = generate (default)\n";
+		print "    generate - create a delimited file (FILENAME.proto_tree_input) with\n";
 		print "               proto_tree_add_text fields in FILENAME(s)\n";
-        print "    fix-all  - Use delimited file (FILENAME.proto_tree_input) to convert\n";
+		print "    fix-all  - Use delimited file (FILENAME.proto_tree_input) to convert\n";
 		print "               proto_tree_add_text to proto_tree_add_item\n";
-        print "               Also generates FILENAME.hf and FILENAME.hf_array to be\n";
+		print "               Also generates FILENAME.hf and FILENAME.hf_array to be\n";
 		print "               copy/pasted into the dissector where appropriate\n";
-        print "    find-all - Output the number of eligible proto_tree_add_text calls\n";
+		print "    find-all - Output the number of eligible proto_tree_add_text calls\n";
 		print "               for conversion\n\n";
-        print "  --encoding   (Optional) Default encoding if one can't be determined\n";
+		print "  --encoding   (Optional) Default encoding if one can't be determined\n";
 		print "               (effective only for generate)\n";
-        print "               If not specified, an encoding will not be auto-populated\n";
+		print "               If not specified, an encoding will not be auto-populated\n";
 		print "               if undetermined\n\n";
 
 	exit(1);
@@ -105,13 +105,13 @@ my $found_total = 0;
 my $protabbrev_index;
 
 while (my $fileName = $ARGV[0]) {
-    shift;
-    my $fileContents = '';
+	shift;
+	my $fileContents = '';
 
-    die "No such file: \"$fileName\"\n" if (! -e $fileName);
+	die "No such file: \"$fileName\"\n" if (! -e $fileName);
 
-    # delete leading './'
-    $fileName =~ s{ ^ \. / } {}xo;
+	# delete leading './'
+	$fileName =~ s{ ^ \. / } {}xo;
 
 	#determine PROTABBREV for dissector based on file name format of (dirs)/packet-PROTABBREV.c
 	$protabbrev_index = rindex($fileName, "packet-");
@@ -128,38 +128,38 @@ while (my $fileName = $ARGV[0]) {
 	}
 	$protabbrev = lc(substr($protabbrev, 0, $protabbrev_index));
 
-    # Read in the file (ouch, but it's easier that way)
-    open(FCI, "<", $fileName) || die("Couldn't open $fileName");
-    while (<FCI>) {
-        $fileContents .= $_;
-    }
-    close(FCI);
+	# Read in the file (ouch, but it's easier that way)
+	open(FCI, "<", $fileName) || die("Couldn't open $fileName");
+	while (<FCI>) {
+		$fileContents .= $_;
+	}
+	close(FCI);
 
-    if ($action eq "generate") {
+	if ($action eq "generate") {
 		generate_hfs(\$fileContents, $fileName);
 	}
 
-    if ($action eq "fix-all") {
+	if ($action eq "fix-all") {
 		# Read in the hf "input" file
-		open(FCI, "<", $fileName . ".proto_tree_input") || die("Couldn't open $fileName");
+		open(FCI, "<", $fileName . ".proto_tree_input") || die("Couldn't open $fileName.proto_tree_input");
 		while(my $line=<FCI>){
 			my @proto_tree_item = split(/;|\n/, $line);
 			push(@proto_tree_list, \@proto_tree_item);
 		}
-	    close(FCI);
+		close(FCI);
 
 		fix_proto_tree_add_text(\$fileContents, $fileName);
 
-        # Write out the changed version to a file
-        open(FCO, ">", $fileName . ".proto_tree_add_text");
-        print FCO "$fileContents";
-        close(FCO);
+		# Write out the changed version to a file
+		open(FCO, ">", $fileName . ".proto_tree_add_text");
+		print FCO "$fileContents";
+		close(FCO);
 
 		output_hf($fileName);
 		output_hf_array($fileName);
 	}
 
-    if ($action eq "find-all") {
+	if ($action eq "find-all") {
 		# Find all proto_tree_add_text() statements eligible for conversion
 		$found_total += find_all(\$fileContents, $fileName);
 		print "Found $found_total proto_tree_add_text calls eligible for conversion.\n";
@@ -171,28 +171,28 @@ exit $found_total;
 
 
 sub generate_hfs {
-    my( $fileContentsRef, $fileName) = @_;
+	my( $fileContentsRef, $fileName) = @_;
 	my @args;
 	my $num_items = 0;
 	my @temp;
 	my $str_temp;
 
-    my $pat = qr /
-                     (
-                         (?:proto_tree_add_text)\s* \(
+	my $pat = qr /
+					(
+						 (?:proto_tree_add_text)\s* \(
 						 (([^[\,;])*\,){5}
 						 [^;]*
 						 \s* \) \s* ;
-                     )
+					)
 				/xs;
 
-    while ($$fileContentsRef =~ / $pat /xgso) {
+	while ($$fileContentsRef =~ / $pat /xgso) {
 		my @proto_tree_item = (1, 1, "tree", "hf_name", "tvb", "offset", "length", "encoding",
 							   "fieldname", "fieldtype", "filtername", "BASE_NONE", "NULL", "0x0");
-        my $str = "${1}\n";
-        $str =~ tr/\t\n\r/ /d;
-        $str =~ s/ \s+ / /xg;
-        #print "$fileName: $str\n";
+		my $str = "${1}\n";
+		$str =~ tr/\t\n\r/ /d;
+		$str =~ s/ \s+ / /xg;
+		#print "$fileName: $str\n";
 
 		@args = split(/,/, $str);
 		#printf "ARGS: %s\n", join("# ", @args);
@@ -224,7 +224,11 @@ sub generate_hfs {
 
 		#hf name
 		$proto_tree_item[3] = sprintf("hf_%s_%s", $protabbrev, lc($proto_tree_item[8]));
-		$proto_tree_item[3] =~ s/\s+/_/;
+		$proto_tree_item[3] =~ s/\s+/_/g;
+
+		#filter name
+		$proto_tree_item[10] = sprintf("%s.%s", $protabbrev, lc($proto_tree_item[8]));
+		$proto_tree_item[10] =~ s/\s+/_/g;
 
 		#VALS
 		if ($str =~ /val_to_str(_const)?\([^\,]*\,([^\,]*)\,/) {
@@ -291,8 +295,8 @@ sub generate_hfs {
 
 		push(@proto_tree_list, \@proto_tree_item);
 
-        $num_items += 1;
-    }
+		$num_items += 1;
+	}
 
 	if ($num_items > 0) {
 		open(FCO, ">", $fileName . ".proto_tree_input");
@@ -307,43 +311,43 @@ sub generate_hfs {
 # Find all proto_tree_add_text calls and replace them with the data
 # found in proto_tree_list
 sub fix_proto_tree_add_text {
-    my( $fileContentsRef, $fileName) = @_;
+	my( $fileContentsRef, $fileName) = @_;
 	my $found = 0;
-    my $pat = qr /
-                     (
-                         (?:proto_tree_add_text)\s* \(
+	my $pat = qr /
+					(
+						 (?:proto_tree_add_text)\s* \(
 						 (([^[\,;])*\,){5}
 						 [^;]*
 						 \s* \) \s* ;
-                     )
+					)
 				/xs;
 
-    $$fileContentsRef =~ s/ $pat /patsub($found, $1)/xges;
+	$$fileContentsRef =~ s/ $pat /patsub($found, $1)/xges;
 }
 
 # ---------------------------------------------------------------------
 # Format proto_tree_add_item function with proto_tree_list data
 sub patsub {
- my $item_str;
- if ($proto_tree_list[$_[0]][0] ne "0") {
-    $item_str = sprintf("proto_tree_add_item(%s, %s, %s, %s, %s, %s);",
+	my $item_str;
+	if ($proto_tree_list[$_[0]][0] ne "0") {
+		$item_str = sprintf("proto_tree_add_item(%s, %s, %s, %s, %s, %s);",
 						 $proto_tree_list[$_[0]][2], $proto_tree_list[$_[0]][3],
 						 $proto_tree_list[$_[0]][4], $proto_tree_list[$_[0]][5],
 						 $proto_tree_list[$_[0]][6], $proto_tree_list[$_[0]][7]);
- } else {
-	$item_str = $1;
- }
+	} else {
+		$item_str = $1;
+	}
 
- $_[0] += 1;
+	$_[0] += 1;
 
- return $item_str;
+	return $item_str;
 }
 
 # ---------------------------------------------------------------------
 # Output the hf variable declarations.  For now, write them to a file.
 # XXX - Eventually find the right place to add it to the modified dissector file
 sub output_hf {
-    my( $fileName) = @_;
+	my( $fileName) = @_;
 	my %hfs = ();
 	my $index;
 	my $key;
@@ -355,14 +359,14 @@ sub output_hf {
 		}
 	}
 
-    open(FCO, ">", $fileName . ".hf");
+	open(FCO, ">", $fileName . ".hf");
 
 	print FCO "/* Generated from convert_proto_tree_add_text.pl */\n";
 
 	foreach $key (keys %hfs) {
 		print FCO "static int $key = -1;\n";
 	}
-    close(FCO);
+	close(FCO);
 
 }
 
@@ -371,10 +375,10 @@ sub output_hf {
 # XXX - Eventually find the right place to add it to the modified dissector file
 # (bonus points if formatting of hf array in dissector file is kept)
 sub output_hf_array {
-    my( $fileName) = @_;
+	my( $fileName) = @_;
 	my $index;
 
-    open(FCO, ">", $fileName . ".hf_array");
+	open(FCO, ">", $fileName . ".hf_array");
 
 	print FCO "      /* Generated from convert_proto_tree_add_text.pl */\n";
 
@@ -385,7 +389,7 @@ sub output_hf_array {
 		}
 	}
 
-    close(FCO);
+	close(FCO);
 }
 
 # ---------------------------------------------------------------------
@@ -393,27 +397,27 @@ sub output_hf_array {
 # and output number found
 
 sub find_all {
-    my( $fileContentsRef, $fileName) = @_;
+	my( $fileContentsRef, $fileName) = @_;
 
-    my $found = 0;
+	my $found = 0;
 
-    my $pat = qr /
-                     (
-                         (?:proto_tree_add_text)\s* \(
+	my $pat = qr /
+					(
+						 (?:proto_tree_add_text)\s* \(
 						 (([^[\,;])*\,){5}
 						 [^;]*
 						 \s* \) \s* ;
-                     )
+					)
 				/xs;
 
-    while ($$fileContentsRef =~ / $pat /xgso) {
-        my $str = "${1}\n";
-        $str =~ tr/\t\n\r/ /d;
-        $str =~ s/ \s+ / /xg;
-        #print "$fileName: $str\n";
+	while ($$fileContentsRef =~ / $pat /xgso) {
+		my $str = "${1}\n";
+		$str =~ tr/\t\n\r/ /d;
+		$str =~ s/ \s+ / /xg;
+		#print "$fileName: $str\n";
 
-        $found += 1;
-    }
+		$found += 1;
+	}
 
-    return $found;
+	return $found;
 }
