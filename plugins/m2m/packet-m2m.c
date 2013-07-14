@@ -456,12 +456,12 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 		pdu_tvb =  tvb_new_subset(tvb, offset, length, length);
 	}
 	else	/* fragmented PDU */
-	{	/* add the frag */
+	{	/* add the fragment */
 		pdu_frag = fragment_add_seq(&pdu_reassembly_table, tvb, offset, pinfo, burst_number, NULL, frag_number - 1, length, ((frag_type==TLV_LAST_FRAG)?0:1), 0);
 		if(pdu_frag && frag_type == TLV_LAST_FRAG)
 		{
-			/* create the new tvb for defraged frame */
-			pdu_tvb = tvb_new_child_real_data(tvb, pdu_frag->data, pdu_frag->len, pdu_frag->len);
+			/* get the new tvb for defragmented frame */
+			pdu_tvb = pdu_frag->tvb_data;
 			/* add the defragmented data to the data source list */
 			add_new_data_source(pinfo, pdu_tvb, "Reassembled WiMax PDU Frame");
 		}

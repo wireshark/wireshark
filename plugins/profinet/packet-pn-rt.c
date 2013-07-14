@@ -440,22 +440,20 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                         (tvb_length(tvb) - offset)/*u8FragDataLength*8*/, bMoreFollows, 0);
 
             if (pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
-            {   /* store this frag as the completed frag in hash table */
+            {   /* store this fragment as the completed fragment in hash table */
                 g_hash_table_insert(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num), pdu_frag);
                 start_frag_OR_ID[u32FragID] = 0; /* reset the starting frame counter */
             }
             if (!bMoreFollows) /* last fragment */
             {
                 pdu_frag = (fragment_data *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num));
-                if (pdu_frag)    /* found a matching frag dissect it */
+                if (pdu_frag)    /* found a matching fragment; dissect it */
                 {
                     guint16   type;
-                    guint16   pdu_length;
                     tvbuff_t *pdu_tvb;
 
-                    pdu_length = pdu_frag->len;
-                    /* create the new tvb for defraged frame */
-                    pdu_tvb = tvb_new_child_real_data(tvb, pdu_frag->data, pdu_length, pdu_length);
+                    /* get the new tvb for defragmented frame */
+                    pdu_tvb = pdu_frag->tvb_data;
                     /* add the defragmented data to the data source list */
                     add_new_data_source(pinfo, pdu_tvb, "Reassembled Profinet Frame");
                     /* PDU is complete: look for the Ethertype and give it to the appropriate dissection routine */
