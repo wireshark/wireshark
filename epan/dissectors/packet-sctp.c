@@ -441,7 +441,7 @@ static gboolean use_reassembly             = FALSE;
 static struct _sctp_info sctp_info;
 
 static unsigned int
-sctp_adler32(const unsigned char* buf, unsigned int len)
+sctp_adler32(const unsigned char *buf, unsigned int len)
 {
   guint32 result = 1L;
 
@@ -454,7 +454,7 @@ sctp_adler32(const unsigned char* buf, unsigned int len)
 }
 
 static guint32
-sctp_crc32c(const unsigned char* buf, unsigned int len)
+sctp_crc32c(const unsigned char *buf, unsigned int len)
 {
   guint32 crc32,
           zero = 0;
@@ -1711,7 +1711,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, prot
 }
 
 static gboolean
-dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree, sctp_half_assoc_t* assoc, gboolean useinfo);
+dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree, sctp_half_assoc_t *assoc, gboolean useinfo);
 
 static void
 dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
@@ -1764,7 +1764,7 @@ dissect_cookie_received_while_shutting_down_cause(tvbuff_t *cause_tvb _U_)
 }
 
 static void
-dissect_restart_with_new_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree* cause_tree, proto_item *cause_item)
+dissect_restart_with_new_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 cause_info_length;
   tvbuff_t *parameter_tvb;
@@ -2128,8 +2128,8 @@ typedef struct _frag_key {
 static gint
 frag_equal(gconstpointer k1, gconstpointer k2)
 {
-  const frag_key* key1 = (const frag_key*) k1;
-  const frag_key* key2 = (const frag_key*) k2;
+  const frag_key *key1 = (const frag_key *) k1;
+  const frag_key *key2 = (const frag_key *) k2;
 
   return ( (key1->sport == key2->sport) &&
            (key1->dport == key2->dport) &&
@@ -2143,7 +2143,7 @@ frag_equal(gconstpointer k1, gconstpointer k2)
 static guint
 frag_hash(gconstpointer k)
 {
-  const frag_key* key = (const frag_key*) k;
+  const frag_key *key = (const frag_key *) k;
 
   return key->sport ^ key->dport ^ key->verification_tag ^
          key->stream_id ^ key->stream_seq_num;
@@ -2387,7 +2387,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 }
 
 static tvbuff_t*
-fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
+fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                     packet_info *pinfo, proto_tree *tree, guint16 stream_id,
                     guint16 stream_seq_num)
 {
@@ -2396,7 +2396,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
   sctp_fragment *frag_i, *last_frag, *first_frag;
   sctp_frag_be *begin, *end, *beginend;
   guint32 len, offset = 0;
-  tvbuff_t* new_tvb = NULL;
+  tvbuff_t *new_tvb = NULL;
   proto_item *item;
   proto_tree *ptree;
 
@@ -2712,8 +2712,8 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
                            proto_tree *chunk_tree, guint32 tsn, guint32 ppi, guint16 stream_id,
                            guint16 stream_seq_num, guint8 b_bit, guint8 e_bit)
 {
-  sctp_fragment* fragment;
-  tvbuff_t* new_tvb = NULL;
+  sctp_fragment *fragment;
+  tvbuff_t *new_tvb = NULL;
 
   /*
    * If this is a short frame, then we can't, and don't, do
@@ -2764,7 +2764,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
                    proto_tree *chunk_tree,
                    proto_item *chunk_item,
                    proto_item *flags_item,
-                   sctp_half_assoc_t* ha)
+                   sctp_half_assoc_t *ha)
 {
   guint number_of_ppid;
   guint32 payload_proto_id;
@@ -3023,7 +3023,7 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
 
 
 static void
-dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item, sctp_half_assoc_t* ha)
+dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item, sctp_half_assoc_t *ha)
 {
   guint16 number_of_gap_blocks, number_of_dup_tsns;
   guint16 gap_block_number, dup_tsn_number, start, end;
@@ -3159,7 +3159,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
                                                         NR_SACK_CHUNK_RESERVED_LENGTH)
 
 static void
-dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item, sctp_half_assoc_t* ha)
+dissect_nr_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item, sctp_half_assoc_t *ha)
 {
   guint16 number_of_gap_blocks, number_of_dup_tsns;
   guint16 number_of_nr_gap_blocks;
@@ -3684,7 +3684,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
                    packet_info *pinfo,
                    proto_tree *tree,
                    proto_tree *sctp_tree,
-                   sctp_half_assoc_t* ha,
+                   sctp_half_assoc_t *ha,
                    gboolean useinfo)
 {
   guint8 type;
@@ -3833,7 +3833,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 }
 
 static void
-dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree, sctp_half_assoc_t* ha, gboolean encapsulated)
+dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree, sctp_half_assoc_t *ha, gboolean encapsulated)
 {
   tvbuff_t *chunk_tvb;
   guint16 length, total_length, remaining_length;
@@ -3897,7 +3897,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_item *sctp_item, *hidden_item, *item;
   proto_tree *sctp_tree;
   guint32 vtag;
-  sctp_half_assoc_t* ha = NULL;
+  sctp_half_assoc_t *ha = NULL;
 
   length          = tvb_length(tvb);
   reported_length = tvb_reported_length(tvb);
@@ -3953,6 +3953,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
                                                  get_sctp_port(destination_port), destination_port);
     else
       sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, ENC_NA);
+
     sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
 
     /* add the components of the common header to the protocol tree */
