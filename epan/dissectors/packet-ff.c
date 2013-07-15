@@ -2457,7 +2457,7 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_rsp_h1_node_addr_ver_num_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    /*offset += 1;*/
 
     return;
 }
@@ -2517,7 +2517,7 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_id_rsp_h1_live_list_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    /*offset += 1;*/
 
     return;
 }
@@ -3430,7 +3430,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
     proto_tree_add_item(sub_tree,
         hf_ff_sm_dev_annunc_req_h1_node_addr_ver_num_ver_num,
         tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    /*offset += 1;*/
 
     return;
 }
@@ -3490,7 +3490,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 
     proto_tree_add_item(sub_tree,
         hf_ff_sm_dev_annunc_req_h1_live_list_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    /*offset += 1;*/
 
     return;
 }
