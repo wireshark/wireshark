@@ -44,6 +44,45 @@
  * to the "first window is in the foreground, subsequent windows are in
  * the background" behavior in non-GNOME/KDE/XFCE environments.
  *
+ * What Qt's "generic UNIX" openURL does is:
+ *
+ *	if it's a mailto: URL, use the "document lanuncher" if
+ *	known, otherwise, use the results of detectWebBrowser
+ *	as the "document launcher", and use that;
+ *
+ *	otherwise, use the "Web browser" if known, otherwise, use
+ *	the results of detectWebBrowser as the "document launcher",
+ *	and use that.
+ *
+ * detectWebBrowser:
+ *
+ *	looks for xdg-open and, if it finds it, uses that;
+ *
+ *	otherwise, if the DEFAULT_BROWSER or BROWSER environment
+ *	variable is set, use the first of those that's set (in
+ *	that order) and, if that's an executable, uses that;
+ *
+ *	otherwise, if the desktop environment is detected to be
+ *	KDE, uses kfmclient;
+ *
+ *	otherwise, if the desktop environment is detected to
+ *	be GNOME, uses gnome-open;
+ *
+ *	otherwise, tries, in order, google-chrome, firefox,
+ *	mozilla, and opera.
+ *
+ * (Its Windows openURL uses ShellExecute() on non-mailto URLs (it
+ * does more exotic stuff for mailto: URLs).
+ *
+ * Its OS X stuff uses the openURL method of an NSWorkspace (which
+ * probably ends up in Launch Services....).)
+ *
+ * GTK+ has gtk_show_uri(), but that ultimately uses gvfs on UN*X,
+ * so it's not appropriate for non-GNOME UN*Xes (including, but not
+ * limited to, OS X), and ultimately appears to be a stubbed-out
+ * routine in GLib 2.36.0, so it's not very useful for a cross-
+ * platform applicatio n.
+ *
  * Perhaps the right strategy is to:
  *
  *	Check whether we're in a GNOME/KDE/XFCE session and, if
