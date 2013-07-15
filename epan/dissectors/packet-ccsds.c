@@ -320,7 +320,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "CCSDS Packet");
 
 	first_word=tvb_get_ntohs(tvb, 0);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "APID %1$4d (0x%1$03X)", first_word&HDR_APID);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "APID %4d (0x%03X)", first_word&HDR_APID, first_word&HDR_APID);
 
 	reported_length = tvb_reported_length_remaining(tvb, 0);
 	ccsds_length    = tvb_get_ntohs(tvb, 4) + CCSDS_PRIMARY_HEADER_LENGTH + 1;
