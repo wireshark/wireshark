@@ -868,7 +868,7 @@ static void dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, gui
 		guint32 length,padlen;
 		proto_item *item_type, *item_length;
 
-		/* descrìptor type */
+		/* descriptor type */
 		item_type= proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_descriptor_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		type=tvb_get_ntohs(tvb, offset);
 		offset+=2;
