@@ -1865,7 +1865,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
 static void
 dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, guint8 data_type, gboolean plp)
 {
-    enum { GEN_NULL = 0x00U, CHARBIN_NULL = 0xFFFFU, CHARBIN_NULL32 = -1 };
+    enum { GEN_NULL = 0x00U, CHARBIN_NULL = 0xFFFFU, CHARBIN_NULL32 = 0xFFFFFFFFU };
     guint32 length;
     char *string_value;
     proto_tree *sub_tree = NULL;
