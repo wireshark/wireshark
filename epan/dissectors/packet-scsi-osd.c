@@ -129,6 +129,13 @@ static int hf_scsi_osd2_set_attribute_value  = -1;
 static int hf_scsi_osd2_isolation 	= -1;
 static int hf_scsi_osd2_list_attr	= -1;
 static int hf_scsi_osd2_object_descriptor_format = -1;
+static int hf_scsi_osd2_source_collection_object_id	= -1;
+static int hf_scsi_osd2_cdb_continuation_length = -1;
+static int hf_scsi_osd2_cdb_continuation_format = -1;
+static int hf_scsi_osd2_continued_service_action = -1;
+static int hf_scsi_osd2_cdb_continuation_descriptor_type = -1;
+static int hf_scsi_osd2_cdb_continuation_descriptor_pad_length = -1;
+static int hf_scsi_osd2_cdb_continuation_descriptor_length = -1;
 
 static gint ett_osd_option		= -1;
 static gint ett_osd_partition		= -1;
@@ -145,6 +152,11 @@ static expert_field ei_osd_attr_unknown    = EI_INIT;
 static expert_field ei_osd2_invalid_offset = EI_INIT;
 static expert_field ei_osd2_invalid_object_descriptor_format = EI_INIT;
 static expert_field ei_osd_unknown_attributes_list_type = EI_INIT;
+static expert_field ei_osd2_cdb_continuation_format_unknown = EI_INIT;
+static expert_field ei_osd2_continued_service_action_mismatch = EI_INIT;
+static expert_field ei_osd2_cdb_continuation_descriptor_type_unknown = EI_INIT;
+static expert_field ei_osd2_cdb_continuation_descriptor_length_invalid = EI_INIT;
+static expert_field ei_osd2_cdb_continuation_length_invalid = EI_INIT;
 
 #define PAGE_NUMBER_PARTITION		0x30000000
 #define PAGE_NUMBER_COLLECTION		0x60000000
@@ -199,6 +211,7 @@ typedef struct _scsi_osd_extra_data_t {
 			guint32 set_list_offset;
 		} al;
 	} u;
+	guint32 continuation_length;
 	gboolean osd2;
 } scsi_osd_extra_data_t;
 
@@ -295,6 +308,22 @@ static const value_string scsi_osd2_object_descriptor_format_val[] = {
 	{0x02,	"Partition ID followed by attribute parameters"},
 	{0x21,	"User Object ID"},
 	{0x22,	"User Object ID followed by attribute parameters"},
+	{0,NULL}
+};
+
+
+static const value_string scsi_osd2_cdb_continuation_format_val[] = {
+	{0x01, "OSD2"},
+	{0,NULL}
+};
+
+static const value_string  scsi_osd2_cdb_continuation_descriptor_type_val[] = {
+	{0x0000, "No more continuation descriptors"},
+	{0x0001, "Scatter/gather list"},
+	{0x0002, "Query list"},
+	{0x0100, "User object"},
+	{0x0101, "Copy user object source"},
+	{0xFFEE, "Extension capabilities"},
 	{0,NULL}
 };
 
@@ -781,6 +810,99 @@ dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset _U_,
 		}
 		break;
 	}
+}
+
+static void dissect_osd2_cdb_continuation_length(packet_info *pinfo, tvbuff_t *tvb, guint32 offset, proto_tree *tree, scsi_task_data_t *cdata) {
+	scsi_osd_extra_data_t *extra_data;
+	guint32 continuation_length;
+	proto_item* item;
+
+	continuation_length = tvb_get_ntohl(tvb,offset);
+	item=proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
+		extra_data->continuation_length=continuation_length;
+	}
+	if (continuation_length>0&&continuation_length<40) {
+		expert_add_info(pinfo,item,&ei_osd2_cdb_continuation_length_invalid);
+	}
+}
+
+static void dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, guint32 offset, proto_tree *tree, scsi_task_data_t *cdata) {
+	scsi_osd_extra_data_t *extra_data=NULL;
+	proto_item* item;
+	guint8 format;
+	guint16 sa;
+	if(cdata && cdata->itlq && cdata->itlq->extra_data){
+		extra_data=(scsi_osd_extra_data_t *)cdata->itlq->extra_data;
+	}
+	if (!extra_data||extra_data->continuation_length<40) return;
+
+	/* cdb continuation format */
+	item=proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+	format=tvb_get_guint8(tvb, offset);
+	if (format!=0x01) {
+		expert_add_info(pinfo, item, &ei_osd2_cdb_continuation_format_unknown);
+		return;
+	}
+	offset++;
+
+	/* 1 reserved byte */
+	offset++;
+
+	/* continued service action */
+	item=proto_tree_add_item(tree, hf_scsi_osd2_continued_service_action, tvb, offset, 2, ENC_BIG_ENDIAN);
+	sa = tvb_get_ntohs(tvb, offset);
+	if (sa!=extra_data->svcaction) {
+		expert_add_info(pinfo,item,&ei_osd2_continued_service_action_mismatch);
+	}
+	offset+=2;
+
+	/*4 reserved bytes and continuation integrity check value (32 bytes, not dissected)*/
+	offset+=36;
+
+
+	/* CDB continuation descriptors */
+	while (offset<extra_data->continuation_length) {
+		guint16 type;
+		guint32 length,padlen;
+		proto_item *item_type, *item_length;
+
+		/* descrìptor type */
+		item_type= proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_descriptor_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		type=tvb_get_ntohs(tvb, offset);
+		offset+=2;
+
+		/* 1 reserved byte*/
+		offset++;
+
+		/* descriptor pad length */
+		proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_descriptor_pad_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+		padlen=tvb_get_guint8(tvb, offset)&7;
+		offset+=1;
+
+		/* descriptor length */
+		item_length = proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_descriptor_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+		length=tvb_get_ntohl(tvb, offset);
+		offset+=4;
+
+		switch (type) {
+			case 0x0000: break;
+			case 0x0001: break;
+			case 0x0002: break; 
+			case 0x0100: break;
+			case 0x0101: break;
+			case 0xFFEE: break;
+			default: expert_add_info(pinfo,item_type,&ei_osd2_cdb_continuation_descriptor_type_unknown);
+		}
+
+		if ((length+padlen)%8) {
+			expert_add_info(pinfo,item_length,&ei_osd2_cdb_continuation_descriptor_length_invalid);
+			return;
+		}
+		offset+=length+padlen;
+	}
+
 }
 
 
@@ -1793,14 +1915,11 @@ dissect_osd_collection_fcr(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_item(tree, hf_scsi_osd_collection_fcr, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
-static int
-dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
+static void
+dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree, const int hfindex)
 {
 	/* collection object id */
-	proto_tree_add_item(tree, hf_scsi_osd_collection_object_id, tvb, offset, 8, ENC_NA);
-	offset+=8;
-
-	return offset;
+	proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_NA);
 }
 
 
@@ -1834,7 +1953,7 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		offset+=8;
 
 		/* collection object id */
-		dissect_osd_collection_object_id(tvb, offset, tree);
+		dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
 		offset+=8;
 
 		/* 20 reserved bytes */
@@ -1967,18 +2086,6 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
-
-static int
-dissect_osd_requested_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-	/* requested collection object id */
-	proto_tree_add_item(tree, hf_scsi_osd_requested_collection_object_id, tvb, offset, 8, ENC_NA);
-	offset+=8;
-
-	return offset;
-}
-
-
 static void
 dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
@@ -2009,7 +2116,7 @@ dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		offset+=8;
 
 		/* requested collection object id */
-		dissect_osd_requested_collection_object_id(tvb, offset, tree);
+		dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_requested_collection_object_id);
 		offset+=8;
 
 		/* 20 reserved bytes */
@@ -2177,7 +2284,7 @@ dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset+=8;
 
 		/* collection object id */
-		dissect_osd_collection_object_id(tvb, offset, tree);
+		dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
 		offset+=8;
 
 		/* 20 reserved bytes */
@@ -2612,7 +2719,7 @@ dissect_osd_list_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset+=8;
 
 		/* collection object id */
-		dissect_osd_collection_object_id(tvb, offset, tree);
+		dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
 		offset+=8;
 
 		/* list identifier */
@@ -2801,6 +2908,89 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
+
+static void
+dissect_osd2_create_user_tracking_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_,
+			scsi_osd_conv_info_t *conv_info _U_,
+			scsi_osd_lun_info_t *lun_info)
+{
+	((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=TRUE;
+
+	/* dissecting the CDB   dissection starts at byte 10 of the CDB */
+	if(isreq && iscdb){
+
+		/* options byte */
+		dissect_osd2_isolation(tvb,offset,tree);
+		dissect_osd_option(tvb, offset, tree);
+		offset++;
+
+		/* getset attributes byte */
+		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
+		offset++;
+
+		/* timestamps control */
+		dissect_osd_timestamps_control(tvb, offset, tree);
+		offset++;
+
+		/* 3 reserved bytes */
+		offset+=3;
+
+		/* partition id */
+		dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+		offset+=8;
+
+		/* user_object id */
+		dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_requested_collection_object_id);
+		offset+=8;
+
+		/* 8 reserved bytes */
+		offset+=8;
+
+		/* source collection id */
+		dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd2_source_collection_object_id);
+		offset+=8;
+
+		/*cdb continuation length*/
+		dissect_osd2_cdb_continuation_length(pinfo, tvb, offset, tree, cdata);
+		offset+=4;
+
+		/* attribute parameters */
+		dissect_osd_attribute_parameters(pinfo, tvb, offset, tree, cdata);
+		offset+=28;
+
+		/* capability */
+		dissect_osd_capability(tvb, offset, tree);
+		offset+=104;
+
+		/* security parameters */
+		dissect_osd_security_parameters(tvb, offset, tree);
+		offset+=52;
+	}
+
+	/* dissecting the DATA OUT */
+	if(isreq && !iscdb){
+		/* CDB continuation */
+		dissect_osd2_cdb_continuation(pinfo, tvb, offset, tree, cdata);
+
+		/* attribute data out */
+		dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
+
+		/* no data out for create user tracking collection */
+	}
+
+	/* dissecting the DATA IN */
+	if(!isreq && !iscdb){
+		/* attribute data in */
+		dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata);
+
+		/* no data in for create user tracking collection */
+	}
+
+}
+
+
 /* OSD Service Actions */
 #define OSD_FORMAT_OSD		0x8801
 #define OSD_CREATE		0x8802
@@ -2915,6 +3105,7 @@ static const scsi_osd_svcaction_t scsi_osd_svcaction[] = {
     {OSD_FLUSH_PARTITION,			dissect_osd_flush_partition},
     {OSD_FLUSH_OSD,					dissect_osd_flush_osd},
     {OSD_2_LIST,					dissect_osd_list},
+    {OSD_2_CREATE_USER_TRACKING_COLLECTION, dissect_osd2_create_user_tracking_collection},    
     {0, NULL},
 };
 
@@ -2990,6 +3181,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				extra_data->svcaction=svcaction;
 				extra_data->gsatype=0;
 				extra_data->osd2=0;
+				extra_data->continuation_length=0;
 				cdata->itlq->extra_data=extra_data;
 			}
 		}
@@ -3574,6 +3766,19 @@ proto_register_scsi_osd(void)
 	 {"LIST ATTR flag", "scsi_osd2.list_attr", FT_BOOLEAN, 8, 0, 0x40, NULL, HFILL}},
 	{ &hf_scsi_osd2_object_descriptor_format,
 	 {"Object Descriptor Format", "scsi_osd2.object_descriptor_format", FT_UINT8, BASE_HEX, VALS(scsi_osd2_object_descriptor_format_val), 0xFC, NULL, HFILL}},
+	{ &hf_scsi_osd2_source_collection_object_id,
+	 {"Source Collection Object ID", "scsi_osd2.source_collection_object_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},{ &hf_scsi_osd2_cdb_continuation_length,
+	 {"CDB Continuation Length", "scsi_osd2.cdb_continuation.length", FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL}},
+	{ &hf_scsi_osd2_cdb_continuation_format,
+	 {"CDB Continuation Format", "scsi_osd2.cdb_continuation.format", FT_UINT8, BASE_HEX, VALS(scsi_osd2_cdb_continuation_format_val), 0, NULL, HFILL}},
+	{ &hf_scsi_osd2_continued_service_action,
+	 {"Continued Service Action", "scsi_osd2.cdb_continuation.sa", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_osd2_cdb_continuation_descriptor_type,
+	 {"Descriptor Type", "scsi_osd2.cdb_continuation.desc.type", FT_UINT16, BASE_HEX, VALS(scsi_osd2_cdb_continuation_descriptor_type_val), 0, NULL, HFILL}},
+	{ &hf_scsi_osd2_cdb_continuation_descriptor_pad_length,
+	 {"Descriptor Pad Length", "scsi_osd2.cdb_continuation.desc.padlen", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL}},
+	{ &hf_scsi_osd2_cdb_continuation_descriptor_length,
+	 {"Descriptor Length", "scsi_osd2.cdb_continuation.desc.length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
 	};
 
 	/* Setup protocol subtree array */
@@ -3596,6 +3801,11 @@ proto_register_scsi_osd(void)
 		{ &ei_osd2_invalid_offset, { "scsi_osd2.invalid_offset", PI_UNDECODED, PI_ERROR, "Invalid offset exponent", EXPFILL }},
 		{ &ei_osd2_invalid_object_descriptor_format, { "scsi_osd2.object_descriptor_format.invalid", PI_UNDECODED, PI_ERROR, "Invalid list format", EXPFILL }},
 		{ &ei_osd_unknown_attributes_list_type, {"scsi_osd.attributes_list.type.invalid", PI_UNDECODED, PI_ERROR, "Unknown attribute list type", EXPFILL }},
+		{ &ei_osd2_cdb_continuation_format_unknown, {"scsi_osd2.cdb_continuation.format.unknown", PI_UNDECODED, PI_ERROR, "Unknown CDB Continuation Format", EXPFILL }},
+		{ &ei_osd2_continued_service_action_mismatch, {"scsi_osd2.cdb_continuation.sa.mismatch", PI_PROTOCOL, PI_WARN, "CONTINUED SERVICE ACTION and SERVICE ACTION do not match", EXPFILL }},
+		{ &ei_osd2_cdb_continuation_descriptor_type_unknown, {"scsi_osd2.cdb_continuation.desc.type.unknown", PI_UNDECODED, PI_WARN, "Unknown descriptor type", EXPFILL }},
+		{ &ei_osd2_cdb_continuation_descriptor_length_invalid, {"scsi_osd2.cdb_continuation.desc.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid descriptor length (not a multiple of 8)", EXPFILL }},
+		{ &ei_osd2_cdb_continuation_length_invalid, {"scsi_osd2.cdb_continuation.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid CDB continuation length", EXPFILL }},
 	};
 
 	/* Register the protocol name and description */
