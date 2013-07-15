@@ -239,7 +239,7 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfind
     if (flags&0x40){
         proto_item_append_text(item, "  6");
     }
-    flags&=(~( 0x40 ));
+    /*flags&=(~( 0x40 ));*/
 }
 
 
