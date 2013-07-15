@@ -932,7 +932,7 @@ show_filter_code(capture_options *capture_opts)
 #endif
     if (capture_child) {
         /* Let our parent know we succeeded. */
-        pipe_write_block(2, SP_SUCCESS, NULL); ///
+        pipe_write_block(2, SP_SUCCESS, NULL);
     }
     return TRUE;
 }
