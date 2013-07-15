@@ -180,12 +180,12 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld)
 	switch ( kiss_cmd & KISS_CMD_MASK )
 		{
 		case KISS_DATA_FRAME	: capture_ax25( pd, l_offset, len, ld ); break;
-		case KISS_TXDELAY	: l_offset += 1; break;
-		case KISS_PERSISTENCE	: l_offset += 1; break;
-		case KISS_SLOT_TIME	: l_offset += 1; break;
-		case KISS_TXTAIL	: l_offset += 1; break;
-		case KISS_FULLDUPLEX	: l_offset += 1; break;
-		case KISS_SETHARDWARE	: l_offset += 1; break;
+		case KISS_TXDELAY	: break;
+		case KISS_PERSISTENCE	: break;
+		case KISS_SLOT_TIME	: break;
+		case KISS_TXTAIL	: break;
+		case KISS_FULLDUPLEX	: break;
+		case KISS_SETHARDWARE	: break;
 		case KISS_RETURN	: break;
 		default			: break;
 		}
