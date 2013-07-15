@@ -94,11 +94,6 @@ static int hf_openflow_no_fwd = -1;       /* Drop packets forwarded to port. */
 static int hf_openflow_no_packet_in = -1; /* Do not send packet-in msgs for port. */
 
 static int hf_openflow_link_down = -1;    /* No physical link present. */
-static int hf_openflow_stp_listen = -1;   /* Not learning or relaying frames. */
-static int hf_openflow_stp_learn = -1;    /* Learning but not relaying frames. */
-static int hf_openflow_stp_forward = -1;  /* Learning and relaying frames. */
-static int hf_openflow_stp_block = -1;    /* Not part of spanning tree. */
-static int hf_openflow_stp_mask = -1;     /* Bit mask for OFPPS_STP_* values. */
 
 static int hf_openflow_10mb_hd = -1;      /* 10 Mb half-duplex rate support. */
 static int hf_openflow_10mb_fd = -1;      /* 10 Mb full-duplex rate support. */
@@ -112,6 +107,9 @@ static int hf_openflow_fiber = -1;        /* Fiber medium. */
 static int hf_openflow_autoneg = -1;      /* Auto-negotiation. */
 static int hf_openflow_pause = -1;        /* Pause. */
 static int hf_openflow_pause_asym = -1;   /* Asymmetric pause. */
+
+static int hf_openflow_config_flags = -1;
+static int hf_openflow_miss_send_len = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_openflow = -1;
@@ -308,16 +306,6 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     /* No physical link present. */
     proto_tree_add_item(port_state_tree, hf_openflow_link_down, tvb, offset, 4, ENC_BIG_ENDIAN);
-    /* Not learning or relaying frames. */
-    proto_tree_add_item(port_state_tree, hf_openflow_stp_listen, tvb, offset, 4, ENC_BIG_ENDIAN);
-    /* Learning but not relaying frames. */
-    proto_tree_add_item(port_state_tree, hf_openflow_stp_learn, tvb, offset, 4, ENC_BIG_ENDIAN);
-    /* Learning and relaying frames. */
-    proto_tree_add_item(port_state_tree, hf_openflow_stp_forward, tvb, offset, 4, ENC_BIG_ENDIAN);
-    /* Not part of spanning tree. */
-    proto_tree_add_item(port_state_tree, hf_openflow_stp_block, tvb, offset, 4, ENC_BIG_ENDIAN);
-    /* Bit mask for OFPPS_STP_* values. */
-    proto_tree_add_item(port_state_tree, hf_openflow_stp_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     offset+=4;
 
@@ -464,6 +452,19 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
 }
+
+static void
+dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version _U_, guint16 length _U_)
+{
+
+	proto_tree_add_item(tree, hf_openflow_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* ofp_config_flags */
+	offset+=2;
+	/* miss_send_len */
+	proto_tree_add_item(tree, hf_openflow_miss_send_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset+=2;
+
+}
 /* Code to actually dissect the packets */
 static int
 dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -516,20 +517,28 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset+=4;
 
     switch(type){
-    case OFPT_HELLO:
+    case OFPT_HELLO: /* 0 */
         /* 5.5.1 Hello
          * The OFPT_HELLO message has no body;
          */
         break;
-    case OFPT_FEATURES_REQUEST:
+    case OFPT_FEATURES_REQUEST: /* 5 */
         /* 5.3.1 Handshake
          * Upon TLS session establishment, the controller sends an OFPT_FEATURES_REQUEST
          * message. This message does not contain a body beyond the OpenFlow header.
          */
         break;
-    case OFPT_FEATURES_REPLY:
+    case OFPT_FEATURES_REPLY: /* 6 */
         dissect_openflow_features_reply(tvb, pinfo, openflow_tree, offset, version, length);
         break;
+	case OFPT_GET_CONFIG_REQUEST: /* 7 */
+		/* A.3.2 There is no body for OFPT_GET_CONFIG_REQUEST beyond the OpenFlow header. */
+		break;
+	case OFPT_GET_CONFIG_REPLY: /* 8 */
+		/* Fall trough */
+	case OFPT_SET_CONFIG: /* 9 */
+		dissect_openflow_switch_config(tvb, pinfo, openflow_tree, offset, version, length);
+		break;
     default:
         if(length>8){
             proto_tree_add_text(tree, tvb, offset, -1, "Message data not dissected yet");
@@ -796,31 +805,6 @@ proto_register_openflow(void)
                FT_BOOLEAN, 32, NULL, OFPPS_LINK_DOWN,
                NULL, HFILL }
         },
-        { &hf_openflow_stp_listen,
-            { "Not learning or relaying frames", "openflow.stp_listen",
-               FT_BOOLEAN, 32, NULL, OFPPS_STP_LISTEN,
-               NULL, HFILL }
-        },
-        { &hf_openflow_stp_learn,
-            { "Learning but not relaying frames", "openflow.stp_learn",
-               FT_BOOLEAN, 32, NULL, OFPPS_STP_LEARN,
-               NULL, HFILL }
-        },
-        { &hf_openflow_stp_forward,
-            { "Learning and relaying frames", "openflow.stp_forward",
-               FT_BOOLEAN, 32, NULL, OFPPS_STP_FORWARD,
-               NULL, HFILL }
-        },
-        { &hf_openflow_stp_block,
-            { "Not part of spanning tree", "openflow.stp_block",
-               FT_BOOLEAN, 32, NULL, OFPPS_STP_BLOCK,
-               NULL, HFILL }
-        },
-        { &hf_openflow_stp_mask,
-            { "Bit mask for OFPPS_STP", "openflow.stp_mask",
-               FT_BOOLEAN, 32, NULL, OFPPS_STP_MASK,
-               NULL, HFILL }
-        },
         { &hf_openflow_10mb_hd,
             { "10 Mb half-duplex rate support", "openflow.10mb_hd",
                FT_BOOLEAN, 32, NULL, OFPPF_10MB_HD,
@@ -879,6 +863,16 @@ proto_register_openflow(void)
         { &hf_openflow_pause_asym,
             { "Asymmetric pause", "openflow.pause_asym",
                FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
+               NULL, HFILL }
+        },
+		{ &hf_openflow_config_flags,
+            { "Config flags", "openflow.config_flags",
+               FT_UINT16, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+        },
+		{ &hf_openflow_miss_send_len,
+            { "Max bytes of packet", "openflow.miss_send_len",
+               FT_UINT16, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
     };
