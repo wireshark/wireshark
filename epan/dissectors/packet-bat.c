@@ -405,11 +405,11 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		bat_gw_entry_tree = proto_item_add_subtree(ti, ett_bat_gw);
 
 		proto_tree_add_item(bat_gw_entry_tree, hf_bat_gw_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		/*offset += 1;*/
 
 		if (gw_packeth->type != TUNNEL_DATA && ip != 0) {
 			proto_tree_add_ipv4(bat_gw_entry_tree, hf_bat_gw_ip, tvb, ip_pos, 4, ip);
-			offset = ip_pos + 4;
+			/*offset = ip_pos + 4;*/
 		}
 	}
 
@@ -507,7 +507,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += 1;
 
 		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v22, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	}
 
 	/* Calculate offset even when we got no tree */
@@ -640,7 +640,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += 1;
 
 		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v23, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		/*offset += 1;*/
 	}
 
 	/* Calculate offset even when we got no tree */
