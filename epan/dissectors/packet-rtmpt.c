@@ -60,7 +60,7 @@
 *          http://amf3cplusplus.googlecode.com/svn-history/r4/trunk/doc/amf3_spec_05_05_08.pdf
 *
 *   for AMF3.
-*      
+*
 *   Default TCP port is 1935
 */
 
@@ -2887,7 +2887,7 @@ proto_register_amf(void)
         proto_amf = proto_register_protocol("Action Message Format", "AMF", "amf");
         proto_register_field_array(proto_amf, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

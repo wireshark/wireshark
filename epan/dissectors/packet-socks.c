@@ -399,8 +399,7 @@ save_client_state(packet_info *pinfo, enum ClientState state)
 	if ((state_info != NULL) && (state_info->client == clientNoInit)) {
 		state_info->client = state;
 	}
-
-};
+}
 
 static void
 save_server_state(packet_info *pinfo, enum ServerState state)
@@ -539,7 +538,7 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(tvb_get_guint8(tvb, offset + 2) == 0) &&
 			(tvb_reported_length_remaining(tvb, offset + 2 + num_auth_methods) > 0)) {
 				new_state_info.client = clientV5Command;
-				client_display_socks_v5(tvb, offset, pinfo, tree, hash_info, &new_state_info); 
+				client_display_socks_v5(tvb, offset, pinfo, tree, hash_info, &new_state_info);
 		}
 	}
 	else if (state_info->client == clientV5Command) {
@@ -695,7 +694,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 		/* get remote port */
 		if ( hash_info->command == CONNECT_COMMAND)
 			hash_info->port =  tvb_get_ntohs(tvb, offset + 2);
-		
+
 		/* get remote address */
 		TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
 		SE_COPY_ADDRESS(&hash_info->dst_addr, &addr);
@@ -737,7 +736,7 @@ client_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 			/* No authentication needed */
 			hash_info->clientState = clientV5Command;
 			if (tvb_reported_length_remaining(tvb, offset + 2 + num_auth_methods) > 0) {
-				client_state_machine_v5(hash_info, tvb, offset + 2 + num_auth_methods, pinfo, FALSE); 
+				client_state_machine_v5(hash_info, tvb, offset + 2 + num_auth_methods, pinfo, FALSE);
 			}
 		} else {
 			hash_info->clientState = clientWaitForAuthReply;
@@ -849,7 +848,7 @@ server_state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 			if ((tvb_get_guint8(tvb, offset + 2) == 0) &&
 				(tvb_reported_length_remaining(tvb, offset) > 5)) {
 					offset = display_address(tvb, offset, NULL);
-					client_state_machine_v5(hash_info, tvb, offset, pinfo, FALSE); 
+					client_state_machine_v5(hash_info, tvb, offset, pinfo, FALSE);
 			}
 			break;
 
@@ -1058,7 +1057,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	/* run state machine if needed */
 	if ((!pinfo->fd->flags.visited) &&
-		(!((hash_info->clientState == clientDone) && 
+		(!((hash_info->clientState == clientDone) &&
 		   (hash_info->serverState == serverDone)))) {
 
 		if (hash_info->server_port == pinfo->destport) {
