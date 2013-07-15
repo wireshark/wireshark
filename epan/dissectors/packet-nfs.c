@@ -1277,7 +1277,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	if (tree)
 		proto_tree_add_boolean(tree, hf_nfs_fh_endianness, tvb,	0, fhlen, little_endian);
-	
+
 	/* We are fairly sure, that when found==FALSE, the following code will
 	throw an exception. */
 
@@ -1297,7 +1297,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 		temp = tvb_get_ntohl(tvb, fsid_O);
 	fsid_major = ( temp>>18 ) &  0x3fff; /* 14 bits */
 	fsid_minor = ( temp     ) & 0x3ffff; /* 18 bits */
-	
+
 	if (tree) {
 		proto_item* fsid_item = NULL;
 		proto_tree* fsid_tree = NULL;
@@ -2376,7 +2376,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		real_length=fhlen;
 		if(default_nfs_fhandle_type != FHT_UNKNOWN && real_length<tvb_length_remaining(tvb, offset))
 			real_length=tvb_length_remaining(tvb, offset);
-		
+
 		fh_tvb=tvb_new_subset(tvb, offset, real_length, fhlen);
 		if(!dissector_try_uint(nfs_fhandle_table, default_nfs_fhandle_type, fh_tvb, pinfo, tree))
 			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree);
@@ -4036,13 +4036,13 @@ dissect_nfs3_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	guint32 attributes_follow = 0;
 
 	attributes_follow = tvb_get_ntohl(tvb, offset+0);
-	
+
 	if (tree) {
 		post_op_attr_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s", name);
 		post_op_attr_tree = proto_item_add_subtree(post_op_attr_item,
 			ett_nfs3_post_op_attr);
-	
+
 		proto_tree_add_text(post_op_attr_tree, tvb, offset, 4,
 			"attributes_follow: %s (%u)",
 		val_to_str_const(attributes_follow,value_follows,"Unknown"), attributes_follow);
@@ -6445,7 +6445,7 @@ dissect_nfs_aceflags4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 				val_to_str(flag_bit, aceflag_names4, "Unknown: %u"));
 			first_flag = FALSE;
 		}
-		flag_bit <<= 1;	
+		flag_bit <<= 1;
 	}
 	proto_item_append_text(aceflag_item, ")");
 	return offset += 4;
@@ -6569,7 +6569,7 @@ dissect_nfs4_acemask(tvbuff_t *tvb, int offset, proto_tree *ace_tree, guint32 ac
 	while (acemask_bit <= ACE4_SYNCHRONIZE)
 	{
 		if (acemask_bit & acemask) {
-			if (acemask_bit <= 0x4) {	
+			if (acemask_bit <= 0x4) {
 				if (obj_type) {
 					if  (obj_type==NF4REG) {
 						type = val_to_str(acemask_bit, acemask4_perms_file, "Unknown: %u");
@@ -6611,7 +6611,7 @@ dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *
 	if (tree) {
 		acetype4 = tvb_get_ntohl(tvb, offset);
 		acetype4_str = val_to_str(acetype4, names_acetype4, "Unknown: %u");
-		
+
 		/* Display the ACE type and create a subtree for this ACE */
 		if (ace_number==0) {
 			ace_item = proto_tree_add_uint_format(tree, hf_nfs4_acetype, tvb, offset, 4,
@@ -6624,7 +6624,7 @@ dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,	proto_tree *
 	}
 
 	offset += 4;
-	
+
 	if (tree) {
 		offset = dissect_nfs_aceflags4(tvb, offset, pinfo, ace_tree);
 		offset = dissect_nfs4_acemask(tvb, offset, ace_tree, acetype4, obj_type);
@@ -6646,7 +6646,7 @@ dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item
 	proto_item *acl_item = NULL;
 
 	if (tree) {
-		acl_item = proto_tree_add_none_format(tree, hf_nfs4_acl, tvb, 0, 0, "ACL");	
+		acl_item = proto_tree_add_none_format(tree, hf_nfs4_acl, tvb, 0, 0, "ACL");
 		PROTO_ITEM_SET_HIDDEN(acl_item);
 	}
 
@@ -6656,11 +6656,11 @@ dissect_nfs4_fattr_acl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item
 		proto_item_append_text(attr_item, " (%u ACEs)", num_aces);
 	}
 	offset += 4;
-	
+
 	/* Tree or not, this for loop is required due dissect_nfs_utf8string() call */
 	for (ace_number=1; ace_number<=num_aces; ace_number++)
 		offset = dissect_nfs4_ace(tvb, offset, pinfo, tree, ace_number, obj_type);
-	
+
 	return offset;
 }
 
@@ -7088,7 +7088,7 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				if (bitmap_tree) {
 					/*
 					* Append this attribute name to the 'Attr mask' header line */
-					proto_item_append_text (bitmap_tree, (first_attr ? " (%s" : ", %s"), 
+					proto_item_append_text (bitmap_tree, (first_attr ? " (%s" : ", %s"),
 						val_to_str(attr_num, fattr4_names, "Unknown: %u"));
 					first_attr = FALSE;
 
@@ -9574,7 +9574,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		case NFS4_OP_CREATE:
 			offset = dissect_nfs4_change_info(tvb, offset, newftree, "change_info");
-			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, newftree, FATTR4_DISSECT_VALUES);
+			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, newftree, FATTR4_BITMAP_ONLY);
 			break;
 
 		case NFS4_OP_GETATTR:
@@ -9610,7 +9610,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			offset = dissect_nfs4_change_info(tvb, offset, newftree,
 				"change_info");
 			offset = dissect_nfs4_open_rflags(tvb, offset, newftree);
-			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, newftree, FATTR4_DISSECT_VALUES);
+			offset = dissect_nfs4_fattrs(tvb, offset, pinfo, newftree, FATTR4_BITMAP_ONLY);
 			offset = dissect_nfs4_open_delegation(tvb, offset, pinfo, newftree);
 			g_string_append_printf (op_summary[ops_counter].optext, " StateID: 0x%04x", sid_hash);
 			break;
@@ -9882,7 +9882,7 @@ dissect_nfs4_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	* which case don't display anything */
 	if (nfs_display_v4_tag && strncmp(tag,"<EMPTY>",7) != 0)
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
-	
+
 	offset = dissect_nfs4_response_op(tvb, offset, pinfo, tree);
 
 	if (status != NFS4_OK)
@@ -11156,16 +11156,16 @@ proto_register_nfs(void)
 		{ &hf_nfs4_want_flags, {
 			"wants", "nfs.want", FT_UINT32, BASE_HEX,
 			VALS(names_open4_share_access), 0, NULL, HFILL }},
-		
+
 		{ &hf_nfs4_want_notify_flags, {
 			"want notification", "nfs.want_notification", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-		
+
 		{ &hf_nfs4_want_signal_deleg_when_resrc_avail, {
 			"want_signal_deleg_when_resrc_avail",
 			"nfs.want_notification.when_resrc_avail", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL, NULL, HFILL }},
-		
+
 		{ &hf_nfs4_want_push_deleg_when_uncontended, {
 			"want_push_deleg_when_uncontended",
 			"nfs.want_push_deleg_when_uncontended", FT_BOOLEAN, 32,
