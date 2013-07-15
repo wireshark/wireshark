@@ -128,7 +128,7 @@ static const value_string vuze_dht_contact_type_vals[] = {
 enum {
   NT_BOOTSTRAP_NODE = 0x0,
   NT_ORDINARY_NODE  = 0x1,
-  NT_UNKNOWN_NODE   = 0xffffffff
+  NT_UNKNOWN_NODE   = -1
 };
 static const value_string vuze_dht_node_type_vals[] = {
   { NT_BOOTSTRAP_NODE, "Bootstrap node" },

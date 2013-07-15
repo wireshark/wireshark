@@ -41,7 +41,7 @@ enum {
     MPLS_LABEL_GACH              = 13, /* aka GAL */
     MPLS_LABEL_OAM_ALERT         = 14,
     MPLS_LABEL_MAX_RESERVED      = 15,
-    MPLS_LABEL_INVALID           = 0xffffffff
+    MPLS_LABEL_INVALID           = -1
 };
 
 /*

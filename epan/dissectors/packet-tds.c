@@ -1865,7 +1865,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
 static void
 dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, guint8 data_type, gboolean plp)
 {
-    enum { GEN_NULL = 0x00U, CHARBIN_NULL = 0xFFFFU, CHARBIN_NULL32 = 0xFFFFFFFFUL };
+    enum { GEN_NULL = 0x00U, CHARBIN_NULL = 0xFFFFU, CHARBIN_NULL32 = -1 };
     guint32 length;
     char *string_value;
     proto_tree *sub_tree = NULL;
@@ -2232,7 +2232,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
 
         if ((int) token_len_field_size < 0) {
-            expert_add_info_format(pinfo, token_item, PI_PROTOCOL, PI_WARN, 
+            expert_add_info_format(pinfo, token_item, PI_PROTOCOL, PI_WARN,
                                     "Bogus token length field size: %u", token_len_field_size);
             break;
         }
