@@ -90,7 +90,7 @@ typedef enum {
 	FDP_TYPE_VERSION = 5,
 	FDP_TYPE_MODEL = 6,
 	FDP_TYPE_VLANMAP = 0x0101,
-	FDP_TYPE_TAG = 0x0102,
+	FDP_TYPE_TAG = 0x0102
 } fdp_type_t;
 
 static const value_string fdp_type_vals[] = {

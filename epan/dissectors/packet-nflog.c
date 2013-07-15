@@ -49,7 +49,7 @@ enum ws_nfulnl_attr_type {
 	WS_NFULA_GID,                /* group id of socket */
 	WS_NFULA_HWTYPE,             /* hardware type */
 	WS_NFULA_HWHEADER,           /* hardware header */
-	WS_NFULA_HWLEN,              /* hardware header length */
+	WS_NFULA_HWLEN               /* hardware header length */
 };
 
 #define BYTE_ORDER_AUTO 0

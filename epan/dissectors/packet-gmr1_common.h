@@ -45,7 +45,7 @@ typedef enum {
 	GMR1_PD_RR	= 0x06,
 	GMR1_PD_GMM	= 0x08,
 	GMR1_PD_SM	= 0x0a,
-	GMR1_PD_DTRS	= 0x1e,
+	GMR1_PD_DTRS	= 0x1e
 } gmr1_pd_e;
 
 #define GMR1_PD_EXT_MSK	0x0f

@@ -34,7 +34,7 @@ enum sdp_exchange_type
 {
 	SDP_EXCHANGE_OFFER = 0,
 	SDP_EXCHANGE_ANSWER_ACCEPT,
-	SDP_EXCHANGE_ANSWER_REJECT,
+	SDP_EXCHANGE_ANSWER_REJECT
 };
 
 extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame);

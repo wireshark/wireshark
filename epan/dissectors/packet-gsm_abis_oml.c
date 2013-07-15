@@ -158,7 +158,7 @@ enum abis_nm_msgtype {
 	NM_MT_SET_ALARM_THRES_NACK,
 
 	NM_MT_IPACC_RESTART		= 0x87,
-	NM_MT_IPACC_RESTART_ACK,
+	NM_MT_IPACC_RESTART_ACK
 };
 
 enum abis_nm_msgtype_bs11 {
@@ -193,7 +193,7 @@ enum abis_nm_msgtype_bs11 {
 	NM_MT_BS11_LMT_LOGOFF		= 0xec,
 	NM_MT_BS11_LMT_LOGOFF_ACK,
 	NM_MT_BS11_RECONNECT		= 0xf1,
-	NM_MT_BS11_RECONNECT_ACK,
+	NM_MT_BS11_RECONNECT_ACK
 };
 
 enum abis_nm_msgtype_ipacc {
@@ -227,12 +227,12 @@ enum abis_nm_msgtype_ipacc {
 	NM_MT_IPACC_SW_DEACT_NACK,
 	NM_MT_IPACC_MEAS_RES_REQ_NACK	= 0xfc,
 	NM_MT_IPACC_START_MEAS_NACK,
-	NM_MT_IPACC_STOP_MEAS_NACK,
+	NM_MT_IPACC_STOP_MEAS_NACK
 };
 
 enum abis_nm_bs11_cell_alloc {
 	NM_BS11_CANR_GSM	= 0x00,
-	NM_BS11_CANR_DCS1800	= 0x01,
+	NM_BS11_CANR_DCS1800	= 0x01
 };
 
 /* Section 9.2: Object Class */
@@ -258,7 +258,7 @@ enum abis_nm_obj_class {
 	NM_OC_GPRS_NSVC0		= 0xf2,
 	NM_OC_GPRS_NSVC1		= 0xf3,
 
-	NM_OC_NULL			= 0xff,
+	NM_OC_NULL			= 0xff
 };
 
 /* Section 9.4: Attributes */
@@ -334,7 +334,7 @@ enum abis_nm_attr {
 	NM_ATT_OUTST_ALARM,
 	NM_ATT_FILE_DATA,
 	NM_ATT_MEAS_RES,
-	NM_ATT_MEAS_TYPE,
+	NM_ATT_MEAS_TYPE
 };
 
 enum abis_nm_attr_bs11 {
@@ -409,7 +409,7 @@ enum abis_nm_attr_bs11 {
 	NM_ATT_BS11_RX_OFFSET		= 0xf3,
 	NM_ATT_BS11_ANT_TYPE		= 0xf4,
 	NM_ATT_BS11_PLL_MODE		= 0xfc,
-	NM_ATT_BS11_PASSWORD		= 0xfd,
+	NM_ATT_BS11_PASSWORD		= 0xfd
 };
 
 enum abis_nm_attr_ipa {
@@ -461,7 +461,7 @@ enum abis_nm_attr_ipa {
 	NM_ATT_IPACC_SSL_CFG		= 0xad,
 	NM_ATT_IPACC_SEC_POSSIBLE	= 0xae,
 	NM_ATT_IPACC_IML_SSL_STATE	= 0xaf,
-	NM_ATT_IPACC_REVOC_DATE		= 0xb0,
+	NM_ATT_IPACC_REVOC_DATE		= 0xb0
 };
 
 /* Section 9.4.4: Administrative State */
@@ -469,7 +469,7 @@ enum abis_nm_adm_state {
 	NM_STATE_LOCKED		= 0x01,
 	NM_STATE_UNLOCKED	= 0x02,
 	NM_STATE_SHUTDOWN	= 0x03,
-	NM_STATE_NULL		= 0xff,
+	NM_STATE_NULL		= 0xff
 };
 
 /* Section 9.4.13: Channel Combination */
@@ -482,7 +482,7 @@ enum abis_nm_chan_comb {
 	NM_CHANC_BCCHComb	= 0x05,
 	NM_CHANC_BCCH		= 0x06,
 	NM_CHANC_BCCH_CBCH	= 0x07,
-	NM_CHANC_SDCCH_CBCH	= 0x08,
+	NM_CHANC_SDCCH_CBCH	= 0x08
 };
 
 /* Section 9.4.16: Event Type */
@@ -491,7 +491,7 @@ enum abis_nm_event_type {
 	NM_EVT_QOS_FAIL		= 0x01,
 	NM_EVT_PROC_FAIL	= 0x02,
 	NM_EVT_EQUIP_FAIL	= 0x03,
-	NM_EVT_ENV_FAIL		= 0x04,
+	NM_EVT_ENV_FAIL		= 0x04
 };
 
 /* Section: 9.4.63: Perceived Severity */
@@ -501,14 +501,14 @@ enum abis_nm_severity {
 	NM_SEVER_MAJOR		= 0x02,
 	NM_SEVER_MINOR		= 0x03,
 	NM_SEVER_WARNING	= 0x04,
-	NM_SEVER_INDETERMINATE	= 0x05,
+	NM_SEVER_INDETERMINATE	= 0x05
 };
 
 /* Section 9.4.43: Probable Cause Type */
 enum abis_nm_pcause_type {
 	NM_PCAUSE_T_X721	= 0x01,
 	NM_PCAUSE_T_GSM		= 0x02,
-	NM_PCAUSE_T_MANUF	= 0x03,
+	NM_PCAUSE_T_MANUF	= 0x03
 };
 
 /* Section 9.4.36: NACK Causes */
@@ -546,7 +546,7 @@ enum abis_nm_nack_cause {
 	NM_NACK_WAIT			= 0x29,
 	NM_NACK_NOTH_REPORT_EXIST	= 0x2a,
 	NM_NACK_MEAS_NOTSUPP		= 0x2b,
-	NM_NACK_MEAS_NOTSTART		= 0x2c,
+	NM_NACK_MEAS_NOTSTART		= 0x2c
 };
 
 /* Section 9.4.1 */
@@ -565,7 +565,7 @@ enum abis_bs11_objtype {
 	BS11_OBJ_CCLK		= 0x04,
 	BS11_OBJ_GPSU		= 0x06,
 	BS11_OBJ_LI			= 0x07,
-	BS11_OBJ_PA			= 0x09,	/* obj_class: 0, 1*/
+	BS11_OBJ_PA			= 0x09	/* obj_class: 0, 1*/
 };
 
 enum abis_bs11_trx_power {
@@ -576,12 +576,12 @@ enum abis_bs11_trx_power {
 	BS11_TRX_POWER_DCS_3W	= 0x0a,
 	BS11_TRX_POWER_DCS_1W6	= 0x0b,
 	BS11_TRX_POWER_DCS_500mW= 0x0c,
-	BS11_TRX_POWER_DCS_160mW= 0x0d,
+	BS11_TRX_POWER_DCS_160mW= 0x0d
 };
 
 enum abis_bs11_li_pll_mode {
 	BS11_LI_PLL_LOCKED	= 2,
-	BS11_LI_PLL_STANDALONE	= 3,
+	BS11_LI_PLL_STANDALONE	= 3
 };
 
 enum abis_bs11_phase {
@@ -597,7 +597,7 @@ enum abis_bs11_phase {
 	BS11_STATE_LOAD_MBCCU		= 0x92,
 	BS11_STATE_WAIT_MIN_CFG_2	= 0xA2,
 	BS11_STATE_NORMAL		= 0x03,
-	BS11_STATE_ABIS_LOAD		= 0x13,
+	BS11_STATE_ABIS_LOAD		= 0x13
 };
 
 /* From openbsc/include/openbsc/tlv.h */
@@ -608,7 +608,7 @@ enum tlv_type {
 	TLV_TYPE_TV,
 	TLV_TYPE_TLV,
 	TLV_TYPE_TL16V,
-	TLV_TYPE_TLV16,
+	TLV_TYPE_TLV16
 };
 
 struct tlv_def {
@@ -630,7 +630,7 @@ enum abis_nm_ipacc_test_no {
 	NM_IPACC_TESTNO_BCCH_INFO	= 0x43,
 	NM_IPACC_TESTNO_TX_BEACON	= 0x44,
 	NM_IPACC_TESTNO_SYSINFO_MONITOR	= 0x45,
-	NM_IPACC_TESTNO_BCCCH_MONITOR	= 0x46,
+	NM_IPACC_TESTNO_BCCCH_MONITOR	= 0x46
 };
 
 /* first byte after length inside NM_ATT_TEST_REPORT */
@@ -639,7 +639,7 @@ enum abis_nm_ipacc_test_res {
 	NM_IPACC_TESTRES_TIMEOUT	= 1,
 	NM_IPACC_TESTRES_NO_CHANS	= 2,
 	NM_IPACC_TESTRES_PARTIAL	= 3,
-	NM_IPACC_TESTRES_STOPPED	= 4,
+	NM_IPACC_TESTRES_STOPPED	= 4
 };
 
 /* internal IE inside NM_ATT_TEST_REPORT */
@@ -648,7 +648,7 @@ enum abis_nm_ipacc_testres_ie {
 	NM_IPACC_TR_IE_CHAN_USAGE	= 4,
 	NM_IPACC_TR_IE_BCCH_INFO	= 6,
 	NM_IPACC_TR_IE_RESULT_DETAILS	= 8,
-	NM_IPACC_TR_IE_FREQ_ERR		= 18,
+	NM_IPACC_TR_IE_FREQ_ERR		= 18
 };
 
 /* initialize the protocol and registered fields */
@@ -731,7 +731,7 @@ enum {
 	OML_DIALECT_ETSI,
 	OML_DIALECT_SIEMENS,
 	OML_DIALECT_IPA,
-	OML_DIALECT_ERICSSON,
+	OML_DIALECT_ERICSSON
 };
 
 /* which A-bis OML dialect to use (prefrence) */

@@ -297,7 +297,7 @@ enum pid_payload_type {
 	pid_pload_docsis,
 	pid_pload_pes,
 	pid_pload_sect,
-	pid_pload_null,
+	pid_pload_null
 };
 
 typedef struct subpacket_analysis_data {

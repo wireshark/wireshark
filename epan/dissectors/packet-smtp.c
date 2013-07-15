@@ -153,7 +153,7 @@ typedef enum {
   SMTP_AUTH_STATE_NTLM_CHALLANGE,     /* Received ntlm challange request from server */
   SMTP_AUTH_STATE_NTLM_RSP,           /* Received ntlm auth request from client */
   SMTP_AUTH_STATE_SUCCESS,            /* Password received, authentication successful, start decoding */
-  SMTP_AUTH_STATE_FAILED,             /* authentication failed, no decoding */
+  SMTP_AUTH_STATE_FAILED              /* authentication failed, no decoding */
 } smtp_auth_state_t;
 
 struct smtp_session_state {

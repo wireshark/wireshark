@@ -157,7 +157,7 @@ enum _9p_msg_t {
 	_9P_TSTAT = 124,
 	_9P_RSTAT,
 	_9P_TWSTAT = 126,
-	_9P_RWSTAT,
+	_9P_RWSTAT
 };
 
 /* 9P Msg types to name mapping */
@@ -311,7 +311,7 @@ enum _9p_qid_t {
 	_9P_QTTMP = 0x04,
 	_9P_QTSYMLINK = 0x02,
 	_9P_QTLINK = 0x01,
-	_9P_QTFILE = 0x00,
+	_9P_QTFILE = 0x00
 };
 
 /* 9P Magic Numbers */

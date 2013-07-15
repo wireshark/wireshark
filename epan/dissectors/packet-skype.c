@@ -103,7 +103,7 @@ typedef enum {
 	SKYPE_TYPE_NAT_INFO = 5,
 	SKYPE_TYPE_NAT_REPEAT = 7,
 	SKYPE_TYPE_AUDIO = 0xd,
-	SKYPE_TYPE_UNKNOWN_F = 0xf,
+	SKYPE_TYPE_UNKNOWN_F = 0xf
 } skype_type_t;
 
 

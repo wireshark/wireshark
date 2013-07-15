@@ -172,7 +172,7 @@ typedef enum {
     MIP6_ALT_IP4_CO= 49,        /* 49 Alternate IPv4 Care-of Address [RFC6463] */
     MIP6_MNG       = 50,        /* 50 Mobile Node Group Identifier [RFC6602] */
     MIP6_MAG_IPv6  = 51,        /* 51 MAG IPv6 Address [RFC6705] */
-    MIP6_ACC_NET_ID= 52,        /* 52 Access Network Identifier [RFC6757] */
+    MIP6_ACC_NET_ID= 52         /* 52 Access Network Identifier [RFC6757] */
 
 } optTypes;
 

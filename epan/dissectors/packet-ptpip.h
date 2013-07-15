@@ -412,7 +412,7 @@ typedef enum {
 
    /* Proprietary vendor extension operations mask */
     PTP_OC_EXTENSION_MASK           = 0xF000,
-    PTP_OC_EXTENSION                = 0x9000,
+    PTP_OC_EXTENSION                = 0x9000
 } ptp_opcodes;
 
 static const value_string ptp_opcode_names[] = {
@@ -772,7 +772,7 @@ typedef enum {
 
     /* WiFi Provisioning MTP Extension Error Codes (microsoft.com/WPDWCN: 1.0) */
     PTP_RC_MTP_Invalid_WFC_Syntax            = 0xA121,
-    PTP_RC_MTP_WFC_Version_Not_Supported    = 0xA122,
+    PTP_RC_MTP_WFC_Version_Not_Supported    = 0xA122
 
 } ptp_respcodes;
 

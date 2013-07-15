@@ -650,7 +650,7 @@ enum tlv_type {
     TLV_TYPE_T,
     TLV_TYPE_TV,
     TLV_TYPE_TLV,
-    TLV_TYPE_TL16V,
+    TLV_TYPE_TL16V
 };
 
 struct tlv_def {
