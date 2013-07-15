@@ -6,14 +6,14 @@
 ## DP: use Debian sensible-browser
 
 @DPATCH@
---- a/epan/prefs.c	(revision 50546)
+--- a/epan/prefs.c	(revision 50600)
 +++ b/epan/prefs.c	(working copy)
 @@ -2753,7 +2753,7 @@
+   prefs.gui_update_enabled         = TRUE;
    prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
    prefs.gui_update_interval        = 60*60*24; /* Seconds */
-   /* This can be g_freed, so it must be g_mallocated. */
--  prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
-+  prefs.gui_webbrowser             = g_strdup("sensible-browser %s");
-   /* This can be g_freed, so it must be g_mallocated. */
-   prefs.gui_window_title           = g_strdup("");
+-  prefs.gui_webbrowser             = (char *) HTML_VIEWER " %s";
++  prefs.gui_webbrowser             = (char *) "sensible-browser %s";
+   prefs.gui_window_title           = (char *) "";
    prefs.gui_start_title            = "The World's Most Popular Network Protocol Analyzer";
+   prefs.gui_version_placement      = version_both;
