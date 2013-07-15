@@ -547,14 +547,6 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 	}
 }
 
-static const true_false_string option_dpo_tfs = {
-	"DPO is SET",
-	"Dpo is NOT set"
-};
-static const true_false_string option_fua_tfs = {
-	"FUA is SET",
-	"Fua is NOT set"
-};
 
 /* OSD2 5.2.4 */
 static void
@@ -925,50 +917,7 @@ static const value_string scsi_osd_object_descriptor_type_vals[] = {
     {0, NULL},
 };
 
-static const true_false_string permissions_read_tfs = {
-	"READ is SET",
-	"Read is NOT set"
-};
-static const true_false_string permissions_write_tfs = {
-	"WRITE is SET",
-	"Write is NOT set"
-};
-static const true_false_string permissions_get_attr_tfs = {
-	"GET_ATTR is SET",
-	"Get_attr is NOT set"
-};
-static const true_false_string permissions_set_attr_tfs = {
-	"SET_ATTR is SET",
-	"Set_attr is NOT set"
-};
-static const true_false_string permissions_create_tfs = {
-	"CREATE is SET",
-	"Create is NOT set"
-};
-static const true_false_string permissions_remove_tfs = {
-	"REMOVE is SET",
-	"Remove is NOT set"
-};
-static const true_false_string permissions_obj_mgmt_tfs = {
-	"OBJ_MGMT is SET",
-	"Obj_mgmt is NOT set"
-};
-static const true_false_string permissions_append_tfs = {
-	"APPEND is SET",
-	"Append is NOT set"
-};
-static const true_false_string permissions_dev_mgmt_tfs = {
-	"DEV_MGMT is SET",
-	"Dev_mgmt is NOT set"
-};
-static const true_false_string permissions_global_tfs = {
-	"GLOBAL is SET",
-	"Global is NOT set"
-};
-static const true_false_string permissions_pol_sec_tfs = {
-	"POL/SEC is SET",
-	"Pol/sec is NOT set"
-};
+
 /* OSD 4.9.2.2.1 */
 static void
 dissect_osd_permissions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
@@ -1905,10 +1854,6 @@ dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
-static const true_false_string collection_fcr_tfs = {
-	"FCR is SET",
-	"Fcr is NOR set"
-};
 static void
 dissect_osd_collection_fcr(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -3520,10 +3465,10 @@ proto_register_scsi_osd(void)
            NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_osd_option_dpo,
           {"DPO", "scsi_osd.option.dpo", FT_BOOLEAN, 8,
-           TFS(&option_dpo_tfs), 0x10, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x10, NULL, HFILL}},
         { &hf_scsi_osd_option_fua,
           {"FUA", "scsi_osd.option.fua", FT_BOOLEAN, 8,
-           TFS(&option_fua_tfs), 0x08, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x08, NULL, HFILL}},
         { &hf_scsi_osd_getsetattrib,
           {"GET/SET CDBFMT", "scsi_osd.getset", FT_UINT8, BASE_HEX,
            VALS(scsi_osd_getsetattrib_vals), 0x30, NULL, HFILL}},
@@ -3598,37 +3543,37 @@ proto_register_scsi_osd(void)
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_osd_permissions_read,
           {"READ", "scsi_osd.permissions.read", FT_BOOLEAN, 16,
-           TFS(&permissions_read_tfs), 0x8000, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x8000, NULL, HFILL}},
         { &hf_scsi_osd_permissions_write,
           {"WRITE", "scsi_osd.permissions.write", FT_BOOLEAN, 16,
-           TFS(&permissions_write_tfs), 0x4000, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x4000, NULL, HFILL}},
         { &hf_scsi_osd_permissions_get_attr,
           {"GET_ATTR", "scsi_osd.permissions.get_attr", FT_BOOLEAN, 16,
-           TFS(&permissions_get_attr_tfs), 0x2000, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x2000, NULL, HFILL}},
         { &hf_scsi_osd_permissions_set_attr,
           {"SET_ATTR", "scsi_osd.permissions.set_attr", FT_BOOLEAN, 16,
-           TFS(&permissions_set_attr_tfs), 0x1000, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x1000, NULL, HFILL}},
         { &hf_scsi_osd_permissions_create,
           {"CREATE", "scsi_osd.permissions.create", FT_BOOLEAN, 16,
-           TFS(&permissions_create_tfs), 0x0800, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0800, NULL, HFILL}},
         { &hf_scsi_osd_permissions_remove,
           {"REMOVE", "scsi_osd.permissions.remove", FT_BOOLEAN, 16,
-           TFS(&permissions_remove_tfs), 0x0400, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0400, NULL, HFILL}},
         { &hf_scsi_osd_permissions_obj_mgmt,
           {"OBJ_MGMT", "scsi_osd.permissions.obj_mgmt", FT_BOOLEAN, 16,
-           TFS(&permissions_obj_mgmt_tfs), 0x0200, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0200, NULL, HFILL}},
         { &hf_scsi_osd_permissions_append,
           {"APPEND", "scsi_osd.permissions.append", FT_BOOLEAN, 16,
-           TFS(&permissions_append_tfs), 0x0100, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0100, NULL, HFILL}},
         { &hf_scsi_osd_permissions_dev_mgmt,
           {"DEV_MGMT", "scsi_osd.permissions.dev_mgmt", FT_BOOLEAN, 16,
-           TFS(&permissions_dev_mgmt_tfs), 0x0080, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0080, NULL, HFILL}},
         { &hf_scsi_osd_permissions_global,
           {"GLOBAL", "scsi_osd.permissions.global", FT_BOOLEAN, 16,
-           TFS(&permissions_global_tfs), 0x0040, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0040, NULL, HFILL}},
         { &hf_scsi_osd_permissions_pol_sec,
           {"POL/SEC", "scsi_osd.permissions.pol_sec", FT_BOOLEAN, 16,
-           TFS(&permissions_pol_sec_tfs), 0x0020, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0020, NULL, HFILL}},
 
         { &hf_scsi_osd_object_descriptor_type,
           {"Object Descriptor Type", "scsi_osd.object_descriptor_type", FT_UINT8, BASE_HEX,
@@ -3707,7 +3652,7 @@ proto_register_scsi_osd(void)
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_osd_collection_fcr,
           {"FCR", "scsi_osd.collection.fcr", FT_BOOLEAN, 8,
-           TFS(&collection_fcr_tfs), 0x01, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x01, NULL, HFILL}},
         { &hf_scsi_osd_collection_object_id,
           {"Collection Object Id", "scsi_osd.collection_object_id", FT_BYTES, BASE_NONE,
            NULL, 0, NULL, HFILL}},
