@@ -263,7 +263,7 @@ dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gboolean i
         if (flags & 0x01) {
             proto_item_append_text(item, "  ZoneSet Database Available");
         }
-        flags &= (~( 0x01 ));
+        /*flags &= (~( 0x01 ));*/
 
         proto_tree_add_item(tree, hf_fcfzs_gzc_vendor, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     }
@@ -304,7 +304,7 @@ dissect_fcfzs_gest(tvbuff_t *tvb, proto_tree *parent_tree, gboolean isreq)
         if (flags & 0x40) {
             proto_item_append_text(item, "  Hard Zone Set Enforced");
         }
-        flags &= (~( 0x40 ));
+        /*flags &= (~( 0x40 ));*/
 
 
         proto_tree_add_item(parent_tree, hf_fcfzs_gest_vendor, tvb, offset+4, 4, ENC_BIG_ENDIAN);
