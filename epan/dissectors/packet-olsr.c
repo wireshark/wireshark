@@ -666,7 +666,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
           }
           proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, message_len - 12,
               NULL, "Data (%u bytes)", message_len - 12);
-          offset += message_len - 12;
+          /*offset += message_len - 12;*/
         } /* end if for undefined message types */
       }
       offset = message_end;
