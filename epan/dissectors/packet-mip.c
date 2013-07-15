@@ -451,46 +451,46 @@ static dissector_handle_t ip_handle;
 static int
 dissect_mip_priv_ext_3gpp2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	int offset = 0;
-	guint16 type;
-	int length = tvb_reported_length(tvb);
+  int offset = 0;
+  guint16 type;
+  int length = tvb_reported_length(tvb);
 
-	type = tvb_get_ntohs(tvb,offset);
-	proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
+  type = tvb_get_ntohs(tvb,offset);
+  proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset+=2;
 
-	switch(type){
-	case 16: /* PPP Link Indicato  X.S0011-003-C v1.0 */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type16_value, tvb, offset, 2, ENC_BIG_ENDIAN);
-		break;
-	case 17: /* DNS server IP address X.S0011-002-C v3.0*/
-		/* Entity-Type */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_entity, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		/* Sub-Type1 */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_subtype1, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		/* Length */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		/* DNS server IP address */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_prim_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
-		/* Sub-Type2 */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_subtype2, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		/* Length */
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		/* DNS server IP address.*/
-		proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_sec_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
-		break;
-	default:
-		proto_tree_add_text(tree, tvb, offset, -1, " Data not dissected yet");
-		break;
-	}
+  switch(type){
+  case 16: /* PPP Link Indicato  X.S0011-003-C v1.0 */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type16_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  case 17: /* DNS server IP address X.S0011-002-C v3.0*/
+    /* Entity-Type */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_entity, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Sub-Type1 */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_subtype1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* DNS server IP address */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_prim_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
+    /* Sub-Type2 */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_subtype2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* DNS server IP address.*/
+    proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type17_sec_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
+    break;
+  default:
+    proto_tree_add_text(tree, tvb, offset, -1, " Data not dissected yet");
+    break;
+  }
 
-	return length;
+  return length;
 }
 
 /* Code to dissect extensions */
@@ -719,11 +719,11 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
            proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, ENC_BIG_ENDIAN);
       }else if( cvse_vendor_id == VENDOR_THE3GPP2 ){
         /*THE3GPP2 CVSE type*/  
-		   cvse_3gpp2_type = tvb_get_ntohs(tvb, cvse_local_offset);
-	  	/* THE3GPP2 CVSE Value */
-		   if(cvse_3gpp2_type == GRE_KEY_EXT){
-		       proto_tree_add_item(ext_tree, hf_mip_cvse_3gpp2_grekey, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
-		   }
+       cvse_3gpp2_type = tvb_get_ntohs(tvb, cvse_local_offset);
+      /* THE3GPP2 CVSE Value */
+       if(cvse_3gpp2_type == GRE_KEY_EXT){
+           proto_tree_add_item(ext_tree, hf_mip_cvse_3gpp2_grekey, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
+       }
       }else{
         /*CVSE Type of Other vendor, just show raw numbers currently*/
         proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_type, tvb, cvse_local_offset, 2, ENC_BIG_ENDIAN);
@@ -735,15 +735,15 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
     case OLD_NVSE_EXT:      /* RFC 3115 */
     case NVSE_EXT:          /* RFC 3115 */
       {
-		  guint32 nvse_vendor_org_id;
-		  tvbuff_t *next_tvb;
+          guint32 nvse_vendor_org_id;
+          tvbuff_t *next_tvb;
 
           proto_tree_add_item(ext_tree, hf_mip_nvse_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 
           /* Vendor/Org ID */
           /*Vendor ID & nvse type & nvse value are included in ext_len, so do not increment offset for them here.*/
           nvse_local_offset = offset + hdrLen;
-		  nvse_vendor_org_id = tvb_get_ntohl(tvb, nvse_local_offset);
+          nvse_vendor_org_id = tvb_get_ntohl(tvb, nvse_local_offset);
           proto_tree_add_item(ext_tree, hf_mip_nvse_vendor_org_id, tvb, nvse_local_offset, 4, ENC_BIG_ENDIAN);
           nvse_local_offset+=4;
 
@@ -1470,8 +1470,19 @@ proto_reg_handoff_mip(void)
   dissector_add_uint("udp.port", UDP_PORT_MIP, mip_handle);
 
   /* Register as dissector for 3GPP2 NVSE */
-  	dissector_add_uint("mip.nvse_ext", VENDOR_THE3GPP2, new_create_dissector_handle(dissect_mip_priv_ext_3gpp2, proto_mip));
+  dissector_add_uint("mip.nvse_ext", VENDOR_THE3GPP2, new_create_dissector_handle(dissect_mip_priv_ext_3gpp2, proto_mip));
 
 }
 
-
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
