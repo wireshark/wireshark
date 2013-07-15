@@ -226,7 +226,12 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 tvbuff_t *
 tvb_new_proxy(tvbuff_t *backing)
 {
-	tvbuff_t *tvb = tvb_new_with_subset(backing, backing->reported_length, 0, backing->length);
+	tvbuff_t *tvb;
+	
+	if (backing)
+		tvb = tvb_new_with_subset(backing, backing->reported_length, 0, backing->length);
+	else
+		tvb = tvb_new_real_data(NULL, 0, 0);
 
 	tvb->ds_tvb = tvb;
 
