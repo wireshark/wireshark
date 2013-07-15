@@ -200,7 +200,7 @@ gbl_symbols_free(void)
 }
 
 static void
-gbl_symbols_array_append(int hash, gchar *symbol)
+gbl_symbols_array_append(guint32 hash, gchar *symbol)
 {
   value_string vs = {hash, symbol};
   DISSECTOR_ASSERT(gbl_symbols_array != NULL);
@@ -292,7 +292,7 @@ add_symbols_of_file(const char *filename)
   if (pFile != NULL) {
     char line[256];
     while (fgets(line, sizeof line, pFile) != NULL) {
-      int    hash;
+      unsigned int hash;
       size_t length, pos;
 
       length = strlen(line);

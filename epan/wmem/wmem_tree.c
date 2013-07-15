@@ -678,8 +678,10 @@ wmem_tree_print_nodes(const char *prefix, wmem_tree_node_t *node, guint32 level)
         printf("    ");
     }
 
-    printf("%sNODE:%p parent:%p left:%p right:%p colour:%s key:%u %s:%p\n", prefix,
-            node, node->parent, node->left, node->right,
+    printf("%sNODE:%p parent:%p left:%p right:%p colour:%s key:%u %s:%p\n",
+            prefix,
+            (void *)node, (void *)node->parent,
+            (void *)node->left, (void *)node->right,
             node->color?"Black":"Red", node->key32,
             node->is_subtree?"tree":"data", node->data);
     if (node->left)
@@ -703,7 +705,7 @@ wmem_print_subtree(wmem_tree_t *tree, guint32 level)
         printf("    ");
     }
 
-    printf("WMEM tree:%p root:%p\n", tree, tree->root);
+    printf("WMEM tree:%p root:%p\n", (void *)tree, (void *)tree->root);
     if (tree->root) {
         wmem_tree_print_nodes("Root-", tree->root, level);
     }

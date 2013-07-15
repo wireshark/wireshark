@@ -74,8 +74,8 @@
 #endif /* HAVE_LIBPORTAUDIO */
 
 
-#define DUMP_PTR1(p) printf("#=> %p\n",p)
-#define DUMP_PTR2(p) printf("==> %p\n",p)
+#define DUMP_PTR1(p) printf("#=> %p\n",(void *)p)
+#define DUMP_PTR2(p) printf("==> %p\n",(void *)p)
 
 const char *voip_call_state_name[8]={
 	"",
@@ -1530,7 +1530,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 							g_free(tmp_listinfo->from_identity);
 							g_free(tmp_listinfo->to_identity);
 							DUMP_PTR2(tmp2_h323info->guid);
-                            g_free(tmp2_h323info->guid);
+							g_free(tmp2_h323info->guid);
 
 							list2 = g_list_first(tmp2_h323info->h245_list);
 							while (list2)
@@ -1749,7 +1749,7 @@ static void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_
 static void free_h225_info(gpointer p) {
 	h323_calls_info_t *tmp_h323info = (h323_calls_info_t *)p;
 
-    DUMP_PTR2(tmp_h323info->guid);
+	DUMP_PTR2(tmp_h323info->guid);
 	g_free(tmp_h323info->guid);
 
 	if (tmp_h323info->h245_list) {
@@ -1848,7 +1848,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		tmp_h323info = (h323_calls_info_t *)callsinfo->prot_info;
 		g_assert(tmp_h323info != NULL);
 		tmp_h323info->guid = (e_guid_t *)g_memdup(&pi->guid, sizeof pi->guid);
-        DUMP_PTR1(tmp_h323info->guid);
+		DUMP_PTR1(tmp_h323info->guid);
 
 		tmp_h323info->h225SetupAddr.type = AT_NONE;
 		tmp_h323info->h225SetupAddr.len = 0;

@@ -843,7 +843,7 @@ static void *
 emem_alloc(size_t size, emem_pool_t *mem)
 {
 	void *buf;
-	
+
 #if 0
 	/* For testing wmem, effectively redirects most emem memory to wmem.
 	 * You will also have to comment out several assertions in wmem_core.c,
@@ -2088,7 +2088,7 @@ emem_print_subtree(emem_tree_t* emem_tree, guint32 level)
 		printf("    ");
 	}
 
-	printf("EMEM tree:%p type:%s name:%s root:%p\n",emem_tree,(emem_tree->type==1)?"RedBlack":"unknown",emem_tree->name,(void *)(emem_tree->tree));
+	printf("EMEM tree:%p type:%s name:%s root:%p\n",(void *)emem_tree,(emem_tree->type==1)?"RedBlack":"unknown",emem_tree->name,(void *)(emem_tree->tree));
 	if(emem_tree->tree)
 		emem_tree_print_nodes("Root-", emem_tree->tree, level);
 }
