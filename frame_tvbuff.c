@@ -56,7 +56,7 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	if (cfile.wth != frame_tvb->wth)
 		return FALSE;
 
-	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, frame_tvb->tvb.length, &err, &err_info)) {
+	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, frame_tvb->tvb.length + frame_tvb->offset, &err, &err_info)) {
 		switch (err) {
 			case WTAP_ERR_UNSUPPORTED_ENCAP:
 			case WTAP_ERR_BAD_FILE:
@@ -77,7 +77,7 @@ frame_cache(struct tvb_frame *frame_tvb)
 		frame_tvb->buf = (struct Buffer *) g_malloc(sizeof(struct Buffer));
 
 		/* XXX, register frame_tvb to some list which frees from time to time not used buffers :] */
-		buffer_init(frame_tvb->buf, frame_tvb->tvb.length);
+		buffer_init(frame_tvb->buf, frame_tvb->tvb.length + frame_tvb->offset);
 
 		if (!frame_read(frame_tvb, &phdr, frame_tvb->buf))
 			{ /* TODO: THROW(???); */ }
