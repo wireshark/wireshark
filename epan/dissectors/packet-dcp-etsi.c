@@ -602,7 +602,8 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_boolean(af_tree, hf_edcp_crc_ok, tvb, offset, 2, c==0xe2f0);
     }
   }
-  offset += 2;
+  /*offset += 2;*/
+
   dissector_try_uint(af_dissector_table, pt, next_tvb, pinfo, tree);
 }
 
