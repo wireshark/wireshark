@@ -682,7 +682,6 @@ EXTRA_DIST = \
 	debian/dirs		\
 	debian/headers-check.c	\
 	debian/patches/00list	\
-	debian/patches/03_preferences.dpatch \
 	debian/postinst		\
 	debian/pycompat		\
 	debian/pyversions	\

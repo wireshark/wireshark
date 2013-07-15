@@ -28,7 +28,7 @@ Description: network traffic analyser (common files)
 
 Package: wireshark
 Architecture: any
-Depends: ${shlibs:Depends}, wireshark-common (= ${binary:Version})
+Depends: ${shlibs:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
 Recommends: gksu
 Replaces: ethereal (<< 0.99.2-0)
 Conflicts: ethereal (<< 0.99.2-0)
