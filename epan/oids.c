@@ -31,6 +31,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <wsutil/report_err.h>
+
 #include "emem.h"
 #include "wmem/wmem.h"
 #include "uat.h"
