@@ -275,9 +275,9 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     proto_tree_add_item(tree, hf_openflow_port_no, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    proto_tree_add_item(tree, hf_openflow_hw_addr, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_hw_addr, tvb, offset, 6, ENC_NA);
     offset+=6;
-    proto_tree_add_item(tree, hf_openflow_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII|ENC_NA);
     offset+=OFP_MAX_PORT_NAME_LEN;
 
     /* Bitmap of OFPPC_* flags. */
@@ -312,29 +312,29 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     /* Current features. */
     ti = proto_tree_add_item(tree, hf_openflow_port_curr, tvb, offset, 4, ENC_BIG_ENDIAN);
     port_cf_tree = proto_item_add_subtree(ti, ett_port_cf);
-	/* 10 Mb half-duplex rate support. */
+    /* 10 Mb half-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_10mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* 10 Mb full-duplex rate support. */
+    /* 10 Mb full-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_10mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* 100 Mb half-duplex rate support. */
+    /* 100 Mb half-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_100mb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* 100 Mb full-duplex rate support. */
+    /* 100 Mb full-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_100mb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* 1 Gb half-duplex rate support. */
+    /* 1 Gb half-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_1gb_hd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* 1 Gb full-duplex rate support. */
+    /* 1 Gb full-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_1gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* 10 Gb full-duplex rate support. */
+    /* 10 Gb full-duplex rate support. */
     proto_tree_add_item(port_cf_tree, hf_openflow_10gb_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* Copper medium. */
+    /* Copper medium. */
     proto_tree_add_item(port_cf_tree, hf_openflow_copper, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* Fiber medium. */
+    /* Fiber medium. */
     proto_tree_add_item(port_cf_tree, hf_openflow_fiber, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* Auto-negotiation. */
+    /* Auto-negotiation. */
     proto_tree_add_item(port_cf_tree, hf_openflow_autoneg, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* Pause. */
+    /* Pause. */
     proto_tree_add_item(port_cf_tree, hf_openflow_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
-	/* Asymmetric pause. */
+    /* Asymmetric pause. */
     proto_tree_add_item(port_cf_tree, hf_openflow_pause_asym, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
@@ -383,7 +383,7 @@ dissect_openflow_features_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     
     ti = proto_tree_add_item(tree, hf_openflow_datapath_id, tvb, offset, 8, ENC_BIG_ENDIAN);
     path_id_tree = proto_item_add_subtree(ti, ett_openflow_path_id);
-    proto_tree_add_item(path_id_tree, hf_openflow_datapath_mac, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(path_id_tree, hf_openflow_datapath_mac, tvb, offset, 6, ENC_NA);
     offset+=6;
     proto_tree_add_item(path_id_tree, hf_openflow_datapath_impl, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
@@ -457,12 +457,12 @@ static void
 dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint8 version _U_, guint16 length _U_)
 {
 
-	proto_tree_add_item(tree, hf_openflow_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-	/* ofp_config_flags */
-	offset+=2;
-	/* miss_send_len */
-	proto_tree_add_item(tree, hf_openflow_miss_send_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-	/*offset+=2;*/
+    proto_tree_add_item(tree, hf_openflow_config_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /* ofp_config_flags */
+    offset+=2;
+    /* miss_send_len */
+    proto_tree_add_item(tree, hf_openflow_miss_send_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /*offset+=2;*/
 
 }
 /* Code to actually dissect the packets */
@@ -531,14 +531,14 @@ dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     case OFPT_FEATURES_REPLY: /* 6 */
         dissect_openflow_features_reply(tvb, pinfo, openflow_tree, offset, version, length);
         break;
-	case OFPT_GET_CONFIG_REQUEST: /* 7 */
-		/* A.3.2 There is no body for OFPT_GET_CONFIG_REQUEST beyond the OpenFlow header. */
-		break;
-	case OFPT_GET_CONFIG_REPLY: /* 8 */
-		/* Fall trough */
-	case OFPT_SET_CONFIG: /* 9 */
-		dissect_openflow_switch_config(tvb, pinfo, openflow_tree, offset, version, length);
-		break;
+    case OFPT_GET_CONFIG_REQUEST: /* 7 */
+        /* A.3.2 There is no body for OFPT_GET_CONFIG_REQUEST beyond the OpenFlow header. */
+        break;
+    case OFPT_GET_CONFIG_REPLY: /* 8 */
+        /* Fall trough */
+    case OFPT_SET_CONFIG: /* 9 */
+        dissect_openflow_switch_config(tvb, pinfo, openflow_tree, offset, version, length);
+        break;
     default:
         if(length>8){
             proto_tree_add_text(tree, tvb, offset, -1, "Message data not dissected yet");
@@ -865,12 +865,12 @@ proto_register_openflow(void)
                FT_BOOLEAN, 32, NULL, OFPPF_PAUSE_ASYM,
                NULL, HFILL }
         },
-		{ &hf_openflow_config_flags,
+        { &hf_openflow_config_flags,
             { "Config flags", "openflow.config_flags",
                FT_UINT16, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
-		{ &hf_openflow_miss_send_len,
+        { &hf_openflow_miss_send_len,
             { "Max bytes of packet", "openflow.miss_send_len",
                FT_UINT16, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
@@ -885,7 +885,7 @@ proto_register_openflow(void)
         &ett_openflow_port,
         &ett_openflow_port_cnf,
         &ett_openflow_port_state,
-		&ett_port_cf
+        &ett_port_cf
     };
 
     /* Register the protocol name and description */
