@@ -33,7 +33,6 @@
 #include <epan/epan_dissect.h>
 #include "dfilter.h"
 #include "dfilter-macro.h"
-#include <epan/report_err.h>
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 

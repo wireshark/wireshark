@@ -103,7 +103,6 @@
 #include <epan/dissectors/packet-ocsp.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
-#include <epan/report_err.h>
 #include <epan/expert.h>
 #include "packet-x509if.h"
 #include "packet-ssl.h"

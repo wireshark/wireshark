@@ -68,7 +68,7 @@
 #endif /* _WIN32 */
 
 #include "filesystem.h"
-#include "report_err.h"
+#include <wsutil/report_err.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 

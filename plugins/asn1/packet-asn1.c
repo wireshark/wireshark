@@ -69,16 +69,17 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 
+#include <wsutil/report_err.h>
+#include <wsutil/file_util.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/filesystem.h>
-#include <epan/report_err.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/oids.h>
 #include <epan/emem.h>
 #include <plugins/asn1/asn1.h>
-#include <wsutil/file_util.h>
 
 #ifdef DISSECTOR_WITH_GUI
 #include <gtk/gtk.h>

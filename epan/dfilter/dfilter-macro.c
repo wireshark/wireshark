@@ -34,7 +34,6 @@
 #include "dfilter-macro.h"
 #include <epan/emem.h>
 #include <epan/uat-int.h>
-#include <epan/report_err.h>
 #include <epan/proto.h>
 #include <wsutil/file_util.h>
 

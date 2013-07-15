@@ -118,15 +118,16 @@
 
 #include <glib.h>
 
-#include "report_err.h"
 #include "packet.h"
 #include "addr_and_mask.h"
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
 
-#include <epan/strutil.h>
+#include <wsutil/report_err.h>
 #include <wsutil/file_util.h>
+
+#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 

@@ -308,7 +308,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 
 WTAP_PLUGIN_SOURCES = \
        epan/plugins.c \
-       epan/report_err.c \
        epan/filesystem.c
 
 else		# HAVE_PLUGINS

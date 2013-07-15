@@ -85,14 +85,13 @@
  */
 #define WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
-#include <epan/packet.h>
 #include <epan/filesystem.h>
 #include <epan/plugins.h>
-#include <epan/report_err.h>
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
 
 #include "wtap.h"
+#include <wsutil/report_err.h>
 #include <wsutil/privileges.h>
 #include <wsutil/str_util.h>
 

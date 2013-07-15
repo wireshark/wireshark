@@ -630,7 +630,6 @@ endif()
 
 set(WTAP_PLUGIN_SOURCES
 	epan/plugins.c
-	epan/report_err.c
 	epan/filesystem.c
 )
 

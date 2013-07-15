@@ -39,13 +39,13 @@
 #include <glib.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/report_err.h>
 
 #include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 #include <epan/dtd.h>
-#include <epan/report_err.h>
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/garrayfix.h>

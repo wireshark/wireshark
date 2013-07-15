@@ -42,7 +42,7 @@ extern "C" {
 /*
  *  Initialize the report err routines
  */
-extern void init_report_err(
+WS_DLL_PUBLIC void init_report_err(
 	void (*report_failure)(const char *, va_list),
 	void (*report_open_failure)(const char *, int, gboolean),
 	void (*report_read_failure)(const char *, int),

@@ -62,9 +62,10 @@
 
 #include <glib.h>
 
+#include <wsutil/report_err.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/report_err.h>
 #include <epan/crypt/md5.h>
 #include <epan/sminmpec.h>
 #include <epan/filesystem.h>

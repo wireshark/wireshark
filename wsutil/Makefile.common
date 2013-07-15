@@ -44,6 +44,7 @@ LIBWSUTIL_SRC = 	\
 	nstime.c	\
 	privileges.c	\
 	str_util.c	\
+	report_err.c	\
 	tempfile.c	\
 	type_util.c
 
@@ -63,5 +64,6 @@ LIBWSUTIL_INCLUDES = 	\
 	nstime.h	\
 	privileges.h	\
 	str_util.h	\
+	report_err.h	\
 	tempfile.h	\
 	type_util.h

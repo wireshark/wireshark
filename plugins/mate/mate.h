@@ -41,6 +41,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <wsutil/report_err.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
@@ -48,7 +50,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
-#include <epan/report_err.h>
 
 #include "mate_util.h"
 

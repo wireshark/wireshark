@@ -76,6 +76,7 @@
 #endif
 
 #include <wsutil/privileges.h>
+#include "wsutil/report_err.h"
 
 /*
  * The symbols declared in the below are exported from libwireshark,
@@ -87,10 +88,8 @@
 #define RESET_SYMBOL_EXPORT /* wsutil/wsgetopt.h set export behavior above. */
 #include "epan/crypt/md5.h"
 #include "epan/plugins.h"
-#include "epan/report_err.h"
 #include "epan/filesystem.h"
 #include "epan/strnatcmp.h"
-#include "wsutil/nstime.h"
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
 

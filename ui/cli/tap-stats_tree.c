@@ -28,9 +28,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
+
+#include <wsutil/report_err.h>
+
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_cmd_args.h>
-#include <epan/report_err.h>
 
 /* actually unused */
 struct _st_node_pres {

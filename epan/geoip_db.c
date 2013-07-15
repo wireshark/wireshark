@@ -40,8 +40,9 @@
 #include "geoip_db.h"
 #include "uat.h"
 #include "prefs.h"
-#include "report_err.h"
 #include "value_string.h"
+
+#include <wsutil/report_err.h>
 #include <wsutil/file_util.h>
 
 /* This needs to match NUM_GEOIP_COLS in hostlist_table.h */

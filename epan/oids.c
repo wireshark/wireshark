@@ -37,7 +37,6 @@
 #include "prefs.h"
 #include "proto.h"
 #include "packet.h"
-#include "report_err.h"
 #include "filesystem.h"
 #include "dissectors/packet-ber.h"
 

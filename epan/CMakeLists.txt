@@ -1477,7 +1477,6 @@ set(LIBWIRESHARK_FILES
 	range.c
 	reassemble.c
 	reedsolomon.c
-	report_err.c
 	req_resp_hdrs.c
 	show_exception.c
 	sigcomp_state_hdlr.c

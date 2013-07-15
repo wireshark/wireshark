@@ -38,7 +38,7 @@
 #include <glib.h>
 #include "epan.h"
 #include "epan_dissect.h"
-#include "report_err.h"
+#include "wsutil/report_err.h"
 
 #include "conversation.h"
 #include "circuit.h"

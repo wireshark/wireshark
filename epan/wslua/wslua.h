@@ -38,7 +38,12 @@
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
+
 #include <wiretap/wtap.h>
+
+#include <wsutil/report_err.h>
+#include <wsutil/nstime.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
@@ -46,12 +51,10 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
-#include <epan/report_err.h>
 #include <epan/emem.h>
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
-#include <wsutil/nstime.h>
 
 #include "declare_wslua.h"
 

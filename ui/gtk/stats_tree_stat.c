@@ -28,8 +28,9 @@
 
 #include <gtk/gtk.h>
 
+#include <wsutil/report_err.h>
+
 #include <epan/stats_tree_priv.h>
-#include <epan/report_err.h>
 
 #include "ui/simple_dialog.h"
 #include "../globals.h"

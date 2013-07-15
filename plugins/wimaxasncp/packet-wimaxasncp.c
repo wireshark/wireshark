@@ -35,6 +35,8 @@
 
 #include <glib.h>
 
+#include <wsutil/report_err.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
@@ -42,7 +44,6 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/filesystem.h>
-#include <epan/report_err.h>
 #include <epan/eap.h>
 
 #include "wimaxasncp_dict.h"

@@ -53,7 +53,7 @@ wslua_plugin *wslua_plugin_list = NULL;
 #include "filesystem.h"
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
-#include "report_err.h"
+#include <wsutil/report_err.h>
 
 /* linked list of all plugins */
 plugin *plugin_list = NULL;
