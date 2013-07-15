@@ -120,7 +120,7 @@ static GtkWidget *col_monitor_cb;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 static GtkWidget *col_buf_cb;
 #endif
-static GtkWidget *col_interface_cb, *col_snap_cb;
+static GtkWidget *col_snap_cb;
 static GtkWidget *col_link_cb, *col_filter_cb, *col_pmode_cb;
 static void colopts_edit_destroy_cb(GtkWidget *win, gpointer data);
 static void colopts_edit_cb(GtkWidget *w, gpointer data);
@@ -365,7 +365,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	GtkWidget	*colopts_edit_dlg, *main_hb, *main_grid,
 						*ed_opts_fr, *main_vb,
 						*bbox, *ok_bt, *cancel_bt, *help_bt, *column_lb,
-						*col_interface_lb, *col_link_lb,
+						*col_link_lb,
 #ifdef HAVE_PCAP_CREATE
 						*col_monitor_lb,
 #endif
@@ -418,21 +418,6 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), column_lb, 0, row, 2, 1);
 	gtk_misc_set_alignment(GTK_MISC(column_lb), 0, 0.5f);
 	gtk_widget_show(column_lb);
-	row++;
-
-	/* create "Interface" label and button */
-	col_interface_cb = gtk_check_button_new();
-	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_interface_cb, 0, row, 1, 1);
-	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("INTERFACE"))
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_interface_cb), TRUE);
-	else
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_interface_cb), FALSE);
-	gtk_widget_show(col_interface_cb);
-
-	col_interface_lb = gtk_label_new("Interface name");
-	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_interface_lb, 1, row, 1, 1);
-	gtk_misc_set_alignment(GTK_MISC(col_interface_lb), 0, 0.5f);
-	gtk_widget_show(col_interface_lb);
 	row++;
 
 	/* create "Link Layer" label and button */
@@ -979,9 +964,7 @@ colopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 {
 	g_list_free(prefs.capture_columns);
 	prefs.capture_columns = NULL;
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_interface_cb))) {
-		prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("INTERFACE"));
-	}
+	prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("INTERFACE"));
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_link_cb))) {
 		prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("LINK"));
 	}

@@ -418,7 +418,8 @@ update_visible_tree_view_columns(void)
   GtkTreeViewColumn *col;
 
   view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-  for (col_id = 2; col_id < NUM_COLUMNS; col_id++) {
+  gtk_tree_view_column_set_visible(gtk_tree_view_get_column(GTK_TREE_VIEW(view), INTERFACE), TRUE);
+  for (col_id = 3; col_id < NUM_COLUMNS; col_id++) {
     col = gtk_tree_view_get_column(GTK_TREE_VIEW(view), col_id);
     gtk_tree_view_column_set_visible(col, prefs_capture_options_dialog_column_is_visible(col_index_to_name(col_id))?TRUE:FALSE);
   }
