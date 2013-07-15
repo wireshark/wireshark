@@ -487,7 +487,7 @@ dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flag
     } else {
         proto_item_append_text(item, "  Payload Len=116 bytes");
     }
-    flags&=(~( 0x0001 ));
+    /*flags&=(~( 0x0001 ));*/
 }
 
 
@@ -551,7 +551,7 @@ dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint1
         } else {
             proto_item_append_text(item, "  Non-zero CS_CTL Maybe Tolerated");
         }
-        flags&=(~( 0x0040 ));
+        /*flags&=(~( 0x0040 ));*/
     }
 }
 
@@ -658,7 +658,7 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 f
     if (flags&0x0001){
         proto_item_append_text(item, "  Wr Xfer_Rdy Dis");
     }
-    flags&=(~( 0x0001 ));
+    /*flags&=(~( 0x0001 ));*/
 }
 
 
@@ -715,7 +715,7 @@ dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32
     if (flags&0x1000){
         proto_item_append_text(item, "  10Gb");
     }
-    flags&=(~( 0x1000 ));
+    /*flags&=(~( 0x1000 ));*/
 }
 
 static const true_false_string tfs_fc_fcels_tprloflags_opav = {
@@ -782,7 +782,7 @@ dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int fl
         if (flags&0x10){
             proto_item_append_text(item, "  Global PRLO");
         }
-        flags&=(~( 0x10 ));
+        /*flags&=(~( 0x10 ));*/
     } else { /* opcode != TPRLO */
         proto_tree_add_boolean(tree, hf_fcels_prliloflags_opav, tvb, offset, 1, flags);
         if (flags&0x80){
@@ -803,7 +803,7 @@ dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int fl
             } else {
                 proto_item_append_text(item, "  Image Pair NOT Estd");
             }
-            flags&=(~( 0x20 ));
+            /*flags&=(~( 0x20 ));*/
         } else {
             proto_tree_add_boolean(tree, hf_fcels_prliloflags_eip, tvb, offset, 1, flags);
             if (flags&0x20){
@@ -811,7 +811,7 @@ dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int fl
             } else {
                 proto_item_append_text(item, "  Exchange Svc Param Only");
             }
-            flags&=(~( 0x20 ));
+            /*flags&=(~( 0x20 ));*/
         }
     }
 }
@@ -875,7 +875,7 @@ dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
     if (flags&0x0010){
         proto_item_append_text(item, "  Clock Sync ELS Supported");
     }
-    flags&=(~( 0x0010 ));
+    /*flags&=(~( 0x0010 ));*/
 }
 
 
@@ -953,7 +953,7 @@ dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
     if (flags&0x0008){
         proto_item_append_text(item, "  Clock Sync ELS Supported");
     }
-    flags&=(~( 0x0008 ));
+    /*flags&=(~( 0x0008 ));*/
 }
 
 /* Maximum length of possible string from, construct_*_string
