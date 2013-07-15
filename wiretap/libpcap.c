@@ -765,9 +765,15 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		return -1;
 	}
 
+        /* Disabling because this is not a fatal error, and packets that have
+         * one such packet probably have thousands. For discussion, see
+         * https://www.wireshark.org/lists/wireshark-dev/201307/msg00076.html
+         * and related messages. */
+#if 0
 	if (hdr->hdr.incl_len > wth->snapshot_length) {
 		g_warning("pcap: File has packet larger than file's snapshot length.");
 	}
+#endif
 
 	return bytes_read;
 }
