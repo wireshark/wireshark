@@ -193,8 +193,13 @@ redraw_packet_bytes_all(void)
     }
 }
 
+/* Expand trees (and any subtrees they may have) whose ett_ shows them as
+ * expanded.
+ * Callers should block calls to expand_tree() to avoid useless recursion.
+ */
 static void
-check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gboolean scroll_it)
+check_expand_trees(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *path,
+                   GtkTreeIter *iter, gboolean scroll_it, gboolean expand_parent)
 {
     /* code inspired by gtk_tree_model_foreach_helper */
 
@@ -207,14 +212,15 @@ check_expand_children(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *
             gtk_tree_model_get(model, iter, 1, &fi, -1);
 
             if (tree_expanded(fi->tree_type)) {
-                gtk_tree_view_expand_row(tree_view, path, FALSE);
+                if (expand_parent)
+                    gtk_tree_view_expand_row(tree_view, path, FALSE);
 
                 if (scroll_it)
                      gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
 
                 /* try to expand children only when parent is expanded */
                 gtk_tree_path_down(path);
-                check_expand_children(tree_view, model, path, &child, scroll_it);
+                check_expand_trees(tree_view, model, path, &child, scroll_it, TRUE);
                 gtk_tree_path_up(path);
 
             } else
@@ -250,9 +256,9 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
         tree_expanded_set(finfo->tree_type, TRUE);
 
         /* Expand any subtrees that the user had left open */
-        /* But only do this for subtrees of the just-expanded tree */
-        gtk_tree_path_down(path);
-        check_expand_children(tree_view, model, path, iter, FALSE);
+        g_signal_handlers_block_by_func(tree_view, expand_tree, NULL);
+        check_expand_trees(tree_view, model, path, iter, FALSE, FALSE);
+        g_signal_handlers_unblock_by_func(tree_view, expand_tree, NULL);
 
     }
 }
@@ -1416,8 +1422,8 @@ proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, const e
     /* modified version of gtk_tree_model_foreach */
     path = gtk_tree_path_new_first();
     if (gtk_tree_model_get_iter(GTK_TREE_MODEL(model), &iter, path))
-        check_expand_children(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model),
-                              path, &iter, prefs.gui_auto_scroll_on_expand);
+        check_expand_trees(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model),
+                              path, &iter, prefs.gui_auto_scroll_on_expand, TRUE);
     gtk_tree_path_free(path);
 
     g_signal_handlers_unblock_by_func(tree_view, expand_tree, NULL);
