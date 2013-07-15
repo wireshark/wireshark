@@ -14,7 +14,7 @@
    <string>Wireshark</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../image/toolbar.qrc">
+   <iconset>
     <normaloff>:/toolbar/main/hi48-app-wireshark.png</normaloff>:/toolbar/main/hi48-app-wireshark.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -769,11 +769,17 @@
    <property name="text">
     <string>&amp;Options...</string>
    </property>
+   <property name="iconText">
+    <string>Options</string>
+   </property>
    <property name="toolTip">
     <string>Capture options</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionCaptureCaptureFilters">
@@ -1169,10 +1175,10 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Name set in iconText to keep QMenuBar from grabbing it on OS X</string>
+    <string>Configuration Profiles...</string>
    </property>
    <property name="iconText">
-    <string>Configuration Profiles...</string>
+    <string>Configuration profiles</string>
    </property>
    <property name="toolTip">
     <string>Manage your configuration profiles</string>

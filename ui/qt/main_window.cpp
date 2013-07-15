@@ -125,10 +125,6 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionFileClose->setIcon(
                 QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_DialogCloseButton)));
 
-    // If we use the name "Configuration Profiles" OS X QMenuBar will match "config" and
-    // use the "profiles" action as the default preferences item.
-    main_ui_->actionEditConfigurationProfiles->setText(main_ui_->actionEditConfigurationProfiles->iconText());
-
     // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
     // https://bugreports.qt-project.org/browse/QTBUG-22433
@@ -147,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef QT_MACEXTRAS_LIB
     QMacNativeToolBar *ntb = QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
     ntb->setIconSize(QSize(24, 24));
-#endif // HAVE_QT5_MAC_EXTRAS
+#endif // QT_MACEXTRAS_LIB
 
     foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
         foreach (QAction *act, menu->actions()) {
@@ -157,6 +153,8 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);
+
+    main_ui_->actionEditPreferences->setMenuRole(QAction::PreferencesRole);
 
 #endif // Q_OS_MAC
 

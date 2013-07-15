@@ -243,6 +243,8 @@ private slots:
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 
+    void on_actionCaptureOptions_triggered();
+
     void matchSelectedFilter(MainWindow::MatchSelected filter_type, bool apply = false, bool copy_only = false);
     void on_actionAnalyzeAAFSelected_triggered();
     void on_actionAnalyzeAAFNotSelected_triggered();

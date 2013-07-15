@@ -1694,6 +1694,11 @@ void MainWindow::on_goToLineEdit_returnPressed()
     on_goToGo_clicked();
 }
 
+void MainWindow::on_actionCaptureOptions_triggered()
+{
+    qDebug() << "Capture options";
+}
+
 void MainWindow::on_actionStartCapture_triggered()
 {
 //#ifdef HAVE_AIRPCAP
