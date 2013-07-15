@@ -813,22 +813,18 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             break;
         case DIS_FIELDTYPE_PDU_LENGTH:
-            uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_pdu_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_SITE:
-            uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_APPLICATION:
-            uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_entity_id_application, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_ENTITY:
-            uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_entity_id_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
