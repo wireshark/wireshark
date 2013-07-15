@@ -462,7 +462,7 @@ dissect_openflow_switch_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	offset+=2;
 	/* miss_send_len */
 	proto_tree_add_item(tree, hf_openflow_miss_send_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset+=2;
+	/*offset+=2;*/
 
 }
 /* Code to actually dissect the packets */
