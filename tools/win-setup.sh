@@ -21,7 +21,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 (set -o igncr) 2>/dev/null && set -o igncr;  # hack to force this file to be processed by cygwin bash with -o igncr
                                              # needed when this file is exec'd from win32-setup.sh & win64-setup.sh
 
