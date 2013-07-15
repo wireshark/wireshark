@@ -155,7 +155,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
                 proto_tree_add_item(tree, hf_epmd_elen, tvb, offset, 2, ENC_BIG_ENDIAN);
                 if (elen > 0)
                     proto_tree_add_item(tree, hf_epmd_edata, tvb, offset + 2, elen, ENC_NA);
-                offset += 2 + elen;
+                /*offset += 2 + elen;*/
             }
             break;
 
@@ -192,7 +192,7 @@ dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, 
     proto_tree_add_item(tree, hf_epmd_names, tvb, offset, -1, ENC_NA);
 }
 
-static void
+static int
 dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
     guint8          type, result;
     guint32         port;
@@ -203,7 +203,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
     port = tvb_get_ntohl(tvb, offset);
     if (port == EPMD_PORT) {
         dissect_epmd_response_names(pinfo, tvb, offset, tree);
-        return;
+        return 0;
     }
 
     type = tvb_get_guint8(tvb, offset);
@@ -267,6 +267,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
             }
             break;
     }
+    return offset;
 }
 
 static gboolean

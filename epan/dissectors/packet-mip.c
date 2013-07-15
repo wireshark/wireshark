@@ -730,7 +730,6 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
         /* Vendor CVSE Type+Vendor/Org ID = 6 bytes*/
         proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
       }
-      cvse_local_offset+=2;
       break;
 
     case OLD_NVSE_EXT:      /* RFC 3115 */
