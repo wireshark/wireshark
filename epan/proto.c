@@ -1354,8 +1354,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_AX25:
 			if (length != 7) {
 				length_error = length < 7 ? TRUE : FALSE;
-				expert_add_info_format(NULL, tree, PI_MALFORMED, PI_ERROR, "Trying to fetch an AX.25 address with length %d", length);
-				THROW(ReportedBoundsError);
+				report_type_length_mismatch(tree, "an AX.25 address", length, length_error);
 			}
 			proto_tree_set_ax25_tvb(new_fi, tvb, start);
 			break;
