@@ -50,6 +50,7 @@ set(WSUTIL_FILES
   nstime.c
   privileges.c
   str_util.c
+  report_err.c
   tempfile.c
   type_util.c
   ${WSUTIL_PLATFORM_FILES}
