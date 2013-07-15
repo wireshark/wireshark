@@ -541,8 +541,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(nsp_msg_tree, hf_dec_rt_src_node, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        offset =
-            handle_nsp_msg(tvb,
+        handle_nsp_msg(tvb,
                            pinfo,
                            nsp_msg_tree,
                            offset,
@@ -564,7 +563,7 @@ do_initialization_msg(
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, initialization message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+    my_offset += 2;
     proto_tree_add_item(tree, hf_dec_rt_tiinfo, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
@@ -603,7 +602,7 @@ do_verification_msg(
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, verification message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
         my_offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+    my_offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
         proto_tree_add_item(tree, hf_dec_rt_fcnval, tvb,
