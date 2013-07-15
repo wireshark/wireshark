@@ -202,15 +202,44 @@ validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 static int
 compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 {
+	int exception;
+
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
-		*offset_ptr = offset;
-	} else {
+		if ((guint) offset > tvb->reported_length) {
+			if (tvb->flags & TVBUFF_FRAGMENT) {
+				exception = FragmentBoundsError;
+			} else {
+				exception = ReportedBoundsError;
+			}
+			return exception;
+		}
+		else if ((guint) offset > tvb->length) {
+			return BoundsError;
+		}
+		else {
+			*offset_ptr = offset;
+		}
+	}
+	else {
 		/* Negative offset - relative to the end of the packet. */
-		*offset_ptr = tvb->length + offset;
+		if ((guint) -offset > tvb->reported_length) {
+			if (tvb->flags & TVBUFF_FRAGMENT) {
+				exception = FragmentBoundsError;
+			} else {
+				exception = ReportedBoundsError;
+			}
+			return exception;
+		}
+		else if ((guint) -offset > tvb->length) {
+			return BoundsError;
+		}
+		else {
+			*offset_ptr = tvb->length + offset;
+		}
 	}
 
-	return validate_offset(tvb, *offset_ptr);
+	return 0;
 }
 
 static int
