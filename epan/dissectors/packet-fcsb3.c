@@ -281,7 +281,7 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 
     proto_tree_add_item (tree, hf_sbccs_iui_val, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s", val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
-    flags &= (~( 0x07 ));
+    /*flags &= (~( 0x07 ));*/
 }
 
 static const true_false_string tfs_sbccs_linkctlinfo_ctcconn = {
@@ -315,7 +315,7 @@ dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16
     if (flags & 0x01) {
         proto_item_append_text(item, "  Enhanced CRC Gen");
     }
-    flags &= (~( 0x01 ));
+    /*flags &= (~( 0x01 ));*/
 }
 
 
@@ -370,7 +370,7 @@ dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 fl
     if (flags & 0x04) {
         proto_item_append_text(item, "  No CRC");
     }
-    flags &= (~( 0x04 ));
+    /*flags &= (~( 0x04 ));*/
 }
 
 static const true_false_string tfs_sbccs_ccwflags_cd = {
@@ -424,7 +424,7 @@ dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
     if (flags & 0x08) {
         proto_item_append_text(item, "  CRR");
     }
-    flags &= (~( 0x08 ));
+    /*flags &= (~( 0x08 ));*/
 }
 
 static const true_false_string tfs_sbccs_cmdflags_du = {
@@ -488,7 +488,7 @@ dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
     if (flags & 0x01) {
         proto_item_append_text(item, "  SSS");
     }
-    flags &= (~( 0x01 ));
+    /*flags &= (~( 0x01 ));*/
 }
 
 static const value_string status_ffc_val[] = {
@@ -554,7 +554,7 @@ dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8
     if (flags & 0x01) {
         proto_item_append_text(item, "  RV");
     }
-    flags &= (~( 0x01 ));
+    /*flags &= (~( 0x01 ));*/
 
 }
 
@@ -658,7 +658,7 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
         proto_item_append_text(item, "  Unit Exception");
         col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
     }
-    flags &= (~( 0x01 ));
+    /*flags &= (~( 0x01 ));*/
 
 }
 
@@ -703,7 +703,7 @@ dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
     if (flags & 0x08) {
         proto_item_append_text(item, "  RO");
     }
-    flags &= (~( 0x08 ));
+    /*flags &= (~( 0x08 ));*/
 }
 
 static void get_fc_sbccs_conv_data (tvbuff_t *tvb, guint offset,
