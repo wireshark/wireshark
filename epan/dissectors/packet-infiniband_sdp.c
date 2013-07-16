@@ -551,7 +551,7 @@ proto_reg_handoff_ib_sdp(void)
                     SET_ADDRESS(&manual_addr[i], AT_IB, sizeof(guint16), manual_addr_data[i]);
                 }
             } else {    /* GID */
-                if (! inet_pton(AF_INET6, gPREF_ID[i], manual_addr_data[i]) ) {
+                if (inet_pton(AF_INET6, gPREF_ID[i], manual_addr_data[i]) <= 0) {
                     error_occured = TRUE;
                 } else {
                     SET_ADDRESS(&manual_addr[i], AT_IB, GID_SIZE, manual_addr_data[i]);

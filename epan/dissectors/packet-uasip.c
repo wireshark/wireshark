@@ -488,19 +488,16 @@ void proto_reg_handoff_uasip(void)
     use_proxy_ipaddr = FALSE;
     memset(proxy_ipaddr, 0, sizeof(proxy_ipaddr));
 
-	if(uasip_enabled){
+    if(uasip_enabled){
         dissector_add_string("media_type", "application/octet-stream", uasip_handle);
     }else{
         dissector_delete_string("media_type", "application/octet-stream", uasip_handle);
     }
 
     if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
-        if (inet_pton(AF_INET, pref_proxy_ipaddr_s, proxy_ipaddr) == 1)
-        {
+        if (inet_pton(AF_INET, pref_proxy_ipaddr_s, proxy_ipaddr) > 0) {
             use_proxy_ipaddr = TRUE;
-        }
-        else
-        {
+        } else {
             g_warning("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);
         }
     }

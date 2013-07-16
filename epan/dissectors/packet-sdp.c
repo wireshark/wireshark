@@ -1120,7 +1120,7 @@ static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
   return -1;
 }
 
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, int length, 
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, int length,
                                         transport_info_t *transport_info, disposable_media_info_t *media_info) {
   proto_tree *sdp_media_attribute_tree, *parameter_item;
   proto_item *fmtp_item, *media_format_item, *parameter_tree;
@@ -1352,10 +1352,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       if (port_offset!= -1) {
         /* Port ends with '/' */
         port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
-		if (port_end_offset == -1) {
-			/* No "/" look for the ";" */
-			port_end_offset = tvb_find_guint8(tvb, port_offset, -1, ';');;
-		}
+        if (port_end_offset == -1) {
+            /* No "/" look for the ";" */
+            port_end_offset = tvb_find_guint8(tvb, port_offset, -1, ';');;
+        }
         /* Attempt to convert address */
         if (inet_pton(AF_INET,
                       (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset),
@@ -1421,10 +1421,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       /* We are at the first colon */
       /* tag */
       next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-	  if(next_offset==-1){
-		  /* XXX Add expert item? */
-		  return;
-	  }
+      if(next_offset==-1){
+          /* XXX Add expert item? */
+          return;
+      }
       tokenlen    = next_offset - offset;
       proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
           atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
@@ -1432,10 +1432,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
       /* crypto-suite */
       next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-	  if(next_offset==-1){
-		  /* XXX Add expert item? */
-		  return;
-	  }
+      if(next_offset==-1){
+          /* XXX Add expert item? */
+          return;
+      }
       tokenlen    = next_offset - offset;
       parameter_item = proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
           tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
@@ -1492,9 +1492,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
           }
 
           if (tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0) {
-			  parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
-				  tvb, offset, param_end_offset-offset, "Key parameters");
-			  parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
+              parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
+                  tvb, offset, param_end_offset-offset, "Key parameters");
+              parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
               /* XXX only for SRTP? */
               /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
               offset      = next_offset +1;
@@ -1537,11 +1537,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                   *
                   * mki-value           = 1*DIGIT
                   */
-				  if(offset>param_end_offset){
-					  next_offset = -1;
-				  }else{
-					  next_offset = tvb_find_guint8(tvb, offset, -1, ':');
-				  }
+                  if(offset>param_end_offset){
+                      next_offset = -1;
+                  }else{
+                      next_offset = tvb_find_guint8(tvb, offset, -1, ':');
+                  }
                   if (next_offset != -1) {
                       tokenlen    = next_offset - offset;
                       proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
@@ -1560,7 +1560,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
               }
               offset = param_end_offset;
           } else {
-			  break;
+              break;
           }
       }
 
@@ -1663,7 +1663,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         (media_info->connection_type != NULL)) {
       if (strcmp(media_info->connection_type, "IP4") == 0) {
         transport_info->src_addr[transport_index].data = se_alloc(4);
-        if (inet_pton(AF_INET, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) == 1) {
+        if (inet_pton(AF_INET, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) > 0) {
           /* connection_address could be converted to a valid ipv4 address*/
           transport_info->proto_bitmask[transport_index] |= SDP_IPv4;
           transport_info->src_addr[transport_index].type = AT_IPv4;
@@ -1671,7 +1671,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         }
       } else if (strcmp(media_info->connection_type, "IP6") == 0) {
           transport_info->src_addr[transport_index].data = se_alloc(16);
-          if (inet_pton(AF_INET6, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) == 1) {
+          if (inet_pton(AF_INET6, media_info->connection_address, (void*)transport_info->src_addr[transport_index].data) > 0) {
             /* connection_address could be converted to a valid ipv6 address*/
             transport_info->proto_bitmask[transport_index] |= SDP_IPv6;
             transport_info->src_addr[transport_index].type = AT_IPv6;
@@ -1741,7 +1741,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     se_tree_insert32(sdp_transport_rsps, pinfo->fd->num, (void *)transport_info);
 
   /* Offer has already been answered or rejected and hash tables freed, so
-   * don't try to add to it 
+   * don't try to add to it
    * XXX - Need to support "modified offers" */
   if ((transport_info->sdp_status == SDP_EXCHANGE_ANSWER_REJECT) ||
       (transport_info->sdp_status == SDP_EXCHANGE_ANSWER_ACCEPT))
@@ -1781,11 +1781,11 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       break;
     case 'm':
       hf = hf_media;
-      
+
       /* Increase the count of media channels, but don't walk off the end of the arrays. */
       if (((transport_info->media_count < 0) && (in_media_description == FALSE)) || (transport_info->media_count < (SDP_MAX_RTP_CHANNELS-1)))
         transport_info->media_count++;
-      
+
       if (in_media_description && (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1)))
         media_info.media_count++;
 
@@ -1829,14 +1829,14 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   convert_disposable_media(transport_info, &media_info, start_transport_info_count);
 
   /* We have a successful negotiation, apply data to their respective protocols */
-  if ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) && 
+  if ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
       (transport_info->sdp_status == SDP_EXCHANGE_OFFER)) {
     for (n = 0; n <= transport_info->media_count; n++) {
       guint32 current_rtp_port = 0;
 
       /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
-      if ((transport_info->media_port[n] != 0) && 
-          (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) && 
+      if ((transport_info->media_port[n] != 0) &&
+          (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
           (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
         if (rtp_handle) {
           if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
@@ -1870,7 +1870,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       }
 
       /* add SPRT conversation */
-      if ((transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) && 
+      if ((transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) &&
           (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6)) &&
           (sprt_handle)) {
 
@@ -1885,14 +1885,14 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       /* Add t38 conversation, if available and only if no rtp */
       if ((transport_info->media_port[n] != 0) &&
           !transport_info->media[n].set_rtp &&
-          (transport_info->proto_bitmask[n] & SDP_T38_PROTO) && 
+          (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
           (transport_info->proto_bitmask[n] & SDP_IPv4) &&
           t38_handle) {
         t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
       }
 
       /* Add MSRP conversation.  Uses addresses discovered in attribute
-         rather than connection information of media session line 
+         rather than connection information of media session line
          (already handled in media conversion) */
       if ((transport_info->proto_bitmask[n] & SDP_MSRP_PROTO) &&
           (transport_info->proto_bitmask[n] & SDP_MSRP_IPv4) &&
@@ -2112,7 +2112,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Increase the count of media channels, but don't walk off the end of the arrays. */
       if (local_transport_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
         local_transport_info.media_count++;
-      
+
       if (in_media_description && (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1)))
         media_info.media_count++;
 
@@ -2147,7 +2147,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          linelen - tokenoffset,
                                          linelen - tokenoffset),
                           pinfo,
-                          hf, sub_ti, linelen-tokenoffset, 
+                          hf, sub_ti, linelen-tokenoffset,
                           &local_transport_info, &media_info);
 
     offset = next_offset;
@@ -2177,8 +2177,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 current_rtp_port = 0;
 
     if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-        (transport_info->media_port[n] != 0) && 
-        (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) && 
+        (transport_info->media_port[n] != 0) &&
+        (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) &&
         (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6))) {
       if (rtp_handle) {
         if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
@@ -2213,7 +2213,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* add SPRT conversation */
     /* XXX - more placeholder functionality */
     if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-        (transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) && 
+        (transport_info->proto_bitmask[n] & SDP_SPRT_PROTO) &&
         (transport_info->proto_bitmask[n] & (SDP_IPv4|SDP_IPv6)) &&
         (sprt_handle)) {
 
@@ -2230,7 +2230,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
         (transport_info->media_port[n] != 0) &&
         !transport_info->media[n].set_rtp &&
-        (transport_info->proto_bitmask[n] & SDP_T38_PROTO) && 
+        (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
         (transport_info->proto_bitmask[n] & SDP_IPv4) &&
         t38_handle) {
       t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
@@ -2256,21 +2256,21 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if ((local_transport_info.media[n].pt[i] >= 96) && (local_transport_info.media[n].pt[i] <= 127)) {
           encoding_name_and_rate_t *encoding_name_and_rate_pt =
             (encoding_name_and_rate_t *)g_hash_table_lookup(
-			local_transport_info.media[n].rtp_dyn_payload, 
-			&local_transport_info.media[n].pt[i]);
+            local_transport_info.media[n].rtp_dyn_payload,
+            &local_transport_info.media[n].pt[i]);
           if (encoding_name_and_rate_pt) {
-            if (strlen(sdp_pi->summary_str)) 
+            if (strlen(sdp_pi->summary_str))
               g_strlcat(sdp_pi->summary_str, " ", 50);
             g_strlcat(sdp_pi->summary_str, encoding_name_and_rate_pt->encoding_name, 50);
           } else {
             char num_pt[10];
             g_snprintf(num_pt, 10, "%u", local_transport_info.media[n].pt[i]);
-            if (strlen(sdp_pi->summary_str)) 
+            if (strlen(sdp_pi->summary_str))
               g_strlcat(sdp_pi->summary_str, " ", 50);
             g_strlcat(sdp_pi->summary_str, num_pt, 50);
           }
         } else {
-          if (strlen(sdp_pi->summary_str)) 
+          if (strlen(sdp_pi->summary_str))
             g_strlcat(sdp_pi->summary_str, " ", 50);
           g_strlcat(sdp_pi->summary_str,
                     val_to_str_ext(local_transport_info.media[n].pt[i], &rtp_payload_type_short_vals_ext, "%u"),
@@ -2291,9 +2291,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Create the T38 summary str for the Voip Call analysis
      * XXX - Currently this is based only on the current packet
      */
-    if ((local_transport_info.media_port[n] != 0) && 
+    if ((local_transport_info.media_port[n] != 0) &&
         (local_transport_info.proto_bitmask[n] & SDP_T38_PROTO)) {
-      if (strlen(sdp_pi->summary_str)) 
+      if (strlen(sdp_pi->summary_str))
         g_strlcat(sdp_pi->summary_str, " ", 50);
       g_strlcat(sdp_pi->summary_str, "t38", 50);
     }

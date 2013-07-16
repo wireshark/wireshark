@@ -2046,14 +2046,14 @@ read_hosts_file (const char *hostspath)
       continue; /* no tokens in the line */
 
     ret = inet_pton(AF_INET6, cp, &host_addr);
-    if (ret == -1)
+    if (ret < 0)
       continue; /* error parsing */
-    if (ret == 1) {
+    if (ret > 0) {
       /* Valid IPv6 */
       is_ipv6 = TRUE;
     } else {
       /* Not valid IPv6 - valid IPv4? */
-      if (inet_pton(AF_INET, cp, &host_addr) != 1)
+      if (inet_pton(AF_INET, cp, &host_addr) <= 0)
         continue; /* no */
       is_ipv6 = FALSE;
     }
@@ -2120,16 +2120,16 @@ add_ip_name_from_string (const char *addr, const char *name)
   int ret;
 
   ret = inet_pton(AF_INET6, addr, &ip6_addr);
-  if (ret == -1)
+  if (ret < 0)
     /* Error parsing address */
     return FALSE;
 
-  if (ret == 1) {
+  if (ret > 0) {
     /* Valid IPv6 */
     is_ipv6 = TRUE;
   } else {
     /* Not valid IPv6 - valid IPv4? */
-    if (inet_pton(AF_INET, addr, &host_addr) != 1)
+    if (inet_pton(AF_INET, addr, &host_addr) <= 0)
       return FALSE; /* no */
     is_ipv6 = FALSE;
   }
@@ -2193,7 +2193,7 @@ read_subnets_file (const char *subnetspath)
     ++cp2    ;
 
     /* Check if this is a valid IPv4 address */
-    if (inet_pton(AF_INET, cp, &host_addr) != 1) {
+    if (inet_pton(AF_INET, cp, &host_addr) <= 0) {
         continue; /* no */
     }
 
@@ -3332,7 +3332,7 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
   struct hostent *hp;
 #endif /* HAVE_C_ARES */
 
-  if (inet_pton(AF_INET6, host, addrp) == 1)
+  if (inet_pton(AF_INET6, host, addrp) > 0)
     return TRUE;
 
   /* It's not a valid dotted-quad IP address; is it a valid

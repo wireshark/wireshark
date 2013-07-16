@@ -167,10 +167,10 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         addr_parts = g_strsplit(if_parts[4], ",", 0);
         for (j = 0; addr_parts[j] != NULL; j++) {
             if_addr = g_new0(if_addr_t,1);
-            if (inet_pton(AF_INET, addr_parts[j], &if_addr->addr.ip4_addr)) {
+            if (inet_pton(AF_INET, addr_parts[j], &if_addr->addr.ip4_addr) > 0) {
                 if_addr->ifat_type = IF_AT_IPv4;
             } else if (inet_pton(AF_INET6, addr_parts[j],
-                    &if_addr->addr.ip6_addr)) {
+                    &if_addr->addr.ip6_addr) > 0) {
                 if_addr->ifat_type = IF_AT_IPv6;
             } else {
                 g_free(if_addr);

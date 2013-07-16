@@ -253,11 +253,11 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip, guint16 *ftp_p
              */
             *ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
             *ftp_ip = g_htonl((ip_address[0] << 24) | (ip_address[1] <<16) | (ip_address[2] <<8) | ip_address[3]);
-            *pasv_offset = (guint32)(p - args); 
-            *ftp_port_len = (port[0] < 10 ? 1 : (port[0] < 100 ? 2 : 3 )) + 1 + 
+            *pasv_offset = (guint32)(p - args);
+            *ftp_port_len = (port[0] < 10 ? 1 : (port[0] < 100 ? 2 : 3 )) + 1 +
                             (port[1] < 10 ? 1 : (port[1] < 100 ? 2 : 3 ));
-            *ftp_ip_len = (ip_address[0] < 10 ? 1 : (ip_address[0] < 100 ? 2 : 3)) + 1 + 
-                          (ip_address[1] < 10 ? 1 : (ip_address[1] < 100 ? 2 : 3)) + 1 + 
+            *ftp_ip_len = (ip_address[0] < 10 ? 1 : (ip_address[0] < 100 ? 2 : 3)) + 1 +
+                          (ip_address[1] < 10 ? 1 : (ip_address[1] < 100 ? 2 : 3)) + 1 +
                           (ip_address[2] < 10 ? 1 : (ip_address[2] < 100 ? 2 : 3)) + 1 +
                           (ip_address[3] < 10 ? 1 : (ip_address[3] < 100 ? 2 : 3));
             ret = TRUE;
@@ -292,37 +292,37 @@ isvalid_rfc2428_delimiter(const guchar c)
 /*
  * RFC2428 states...
  *
- *     AF Number   Protocol 
- *     ---------   --------         
- *     1           Internet Protocol, Version 4 
- *     2           Internet Protocol, Version 6 
- *     
- *     AF Number   Address Format      Example         
- *     ---------   --------------      -------         
- *     1           dotted decimal      132.235.1.2         
- *     2           IPv6 string         1080::8:800:200C:417A                     
- *                 representations                     
- *                 defined in 
- *     
- *     The following are sample EPRT commands:         
- *          EPRT |1|132.235.1.2|6275|         
+ *     AF Number   Protocol
+ *     ---------   --------
+ *     1           Internet Protocol, Version 4
+ *     2           Internet Protocol, Version 6
+ *
+ *     AF Number   Address Format      Example
+ *     ---------   --------------      -------
+ *     1           dotted decimal      132.235.1.2
+ *     2           IPv6 string         1080::8:800:200C:417A
+ *                 representations
+ *                 defined in
+ *
+ *     The following are sample EPRT commands:
+ *          EPRT |1|132.235.1.2|6275|
  *          EPRT |2|1080::8:800:200C:417A|5282|
- *     
- *     The first command specifies that the server should use IPv4 to open a    
- *     data connection to the host "132.235.1.2" on TCP port 6275.  The    
- *     second command specifies that the server should use the IPv6 network    
- *     protocol and the network address "1080::8:800:200C:417A" to open a    
+ *
+ *     The first command specifies that the server should use IPv4 to open a
+ *     data connection to the host "132.235.1.2" on TCP port 6275.  The
+ *     second command specifies that the server should use the IPv6 network
+ *     protocol and the network address "1080::8:800:200C:417A" to open a
  *     TCP data connection on port 5282.
- * 
- * ... which means in fact that RFC2428 is capable to handle both, 
+ *
+ * ... which means in fact that RFC2428 is capable to handle both,
  * IPv4 and IPv6 so we have to care about the address family and properly
  * act depending on it.
- * 
+ *
  */
 static gboolean
-parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af, 
-        guint32 *eprt_ip, guint16 *eprt_ipv6, guint16 *ftp_port, 
-        guint32 *eprt_ip_len, guint32 *ftp_port_len) 
+parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
+        guint32 *eprt_ip, guint16 *eprt_ipv6, guint16 *ftp_port,
+        guint32 *eprt_ip_len, guint32 *ftp_port_len)
 {
     gint      delimiters_seen = 0;
     gchar     delimiter;
@@ -344,7 +344,7 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
 
     /*
      * RFC2428 sect. 2 states ...
-     * 
+     *
      *     The EPRT command keyword MUST be followed by a single space (ASCII
      *     32). Following the space, a delimiter character (<d>) MUST be
      *     specified.
@@ -356,14 +356,14 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
         return FALSE;  /* EPRT command does not follow a vaild delimiter;
                         * malformed EPRT command - immediate escape */
 
-    delimiter = *p; 
+    delimiter = *p;
     /* Validate that the delimiter occurs 4 times in the string */
     for (n = 0; n < linelen; n++) {
-        if (*(p+n) == delimiter) 
+        if (*(p+n) == delimiter)
             delimiters_seen++;
     }
     if (delimiters_seen != 4)
-        return FALSE; /* delimiter doesn't occur 4 times 
+        return FALSE; /* delimiter doesn't occur 4 times
                        * probably no EPRT request - immediate escape */
 
     /* we know that the first character is a delimiter... */
@@ -393,13 +393,13 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
             ip_str = ep_strndup(field, fieldlen);
 
             if (*eprt_af == EPRT_AF_IPv4) {
-                if (inet_pton(AF_INET, ip_str, eprt_ip) == 1)
+                if (inet_pton(AF_INET, ip_str, eprt_ip) > 0)
                    ret = TRUE;
                 else
                    ret = FALSE;
             }
             else if (*eprt_af == EPRT_AF_IPv6) {
-                if (inet_pton(AF_INET6, ip_str, eprt_ipv6) == 1)
+                if (inet_pton(AF_INET6, ip_str, eprt_ipv6) > 0)
                    ret = TRUE;
                 else
                    ret = FALSE;
@@ -426,24 +426,24 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
 /*
  * RFC2428 states ....
  *
- *   The first two fields contained in the parenthesis MUST be blank. The   
- *   third field MUST be the string representation of the TCP port number    
- *   on which the server is listening for a data connection. 
- *     
+ *   The first two fields contained in the parenthesis MUST be blank. The
+ *   third field MUST be the string representation of the TCP port number
+ *   on which the server is listening for a data connection.
+ *
  *   The network protocol used by the data connection will be the same network
- *   protocol used by the control connection. In addition, the network    
- *   address used to establish the data connection will be the same    
+ *   protocol used by the control connection. In addition, the network
+ *   address used to establish the data connection will be the same
  *   network address used for the control connection.
- *     
- *   An example response    string follows:         
- *         
+ *
+ *   An example response    string follows:
+ *
  *       Entering Extended Passive Mode (|||6446|)
- * 
+ *
  * ... which in fact means that again both address families IPv4 and IPv6
  * are supported. But gladly it's not necessary to parse because it doesn't
- * occur in EPSV responses. We can leverage ftp_ip_address which is 
+ * occur in EPSV responses. We can leverage ftp_ip_address which is
  * protocol independent and already set.
- * 
+ *
  */
 static gboolean
 parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port,

@@ -1845,7 +1845,7 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
 
   strncpy(buf, sockname, len);
   buf[len] = '\0';
-  if (!inet_pton(AF_INET, buf, &sa.sin_addr)) {
+  if (inet_pton(AF_INET, buf, &sa.sin_addr) <= 0) {
     goto fail_invalid;
   }
 

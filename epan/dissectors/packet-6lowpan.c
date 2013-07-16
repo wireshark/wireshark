@@ -2830,7 +2830,7 @@ prefs_6lowpan_apply(void)
 
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         if (!lowpan_context_prefs[i]) continue;
-        if (inet_pton(AF_INET6, lowpan_context_prefs[i], &prefix) != 1) continue;
+        if (inet_pton(AF_INET6, lowpan_context_prefs[i], &prefix) <= 0) continue;
         /* Set the prefix */
         lowpan_context_insert(i, IEEE802154_BCAST_PAN, 64, &prefix, 0);
     } /* for */
