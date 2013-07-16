@@ -292,8 +292,6 @@ dissect_content_length(tvbuff_t *buffer, int offset, proto_tree *tree)
     proto_tree *msgflags_tree;
     guint32     length;
 
-    msgflags_tree = NULL;
-
     length  = tvb_get_bits8(buffer, offset * 8 + 12, 4) << 8;
     length += tvb_get_bits8(buffer, offset * 8, 8);
 
@@ -301,14 +299,14 @@ dissect_content_length(tvbuff_t *buffer, int offset, proto_tree *tree)
     {
         msgflags_ti   = proto_tree_add_item(tree, hf_knet_msg_flags, buffer, offset + 1, 1, ENC_NA);
         msgflags_tree = proto_item_add_subtree(msgflags_ti, ett_knet_message_flags);
+
+        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_fs, buffer, offset * 8 + 8, 1, ENC_LITTLE_ENDIAN); /* Fragment start flag */
+        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_ff, buffer, offset * 8 + 9, 1, ENC_LITTLE_ENDIAN);  /* Fragment flag */
+        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_inorder, buffer, offset * 8 + 10, 1, ENC_LITTLE_ENDIAN); /* Inorder flag */
+        proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_reliable, buffer, offset * 8 + 11, 1, ENC_LITTLE_ENDIAN); /* Reliable flag */
+
+        proto_tree_add_uint(tree, hf_knet_content_length, buffer, offset, 2, length);
     }
-
-    proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_fs, buffer, offset * 8 + 8, 1, ENC_LITTLE_ENDIAN); /* Fragment start flag */
-    proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_ff, buffer, offset * 8 + 9, 1, ENC_LITTLE_ENDIAN);  /* Fragment flag */
-    proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_inorder, buffer, offset * 8 + 10, 1, ENC_LITTLE_ENDIAN); /* Inorder flag */
-    proto_tree_add_bits_item(msgflags_tree, hf_knet_msg_reliable, buffer, offset * 8 + 11, 1, ENC_LITTLE_ENDIAN); /* Reliable flag */
-
-    proto_tree_add_uint(tree, hf_knet_content_length, buffer, offset, 2, length);
 
     return length;
 }
