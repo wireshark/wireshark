@@ -240,6 +240,15 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	wth->capture.netmon->version_major = hdr.ver_major;
 
 	/*
+	 * No frame table allocated yet; initialize these in case we
+	 * get an error before allocating it or when trying to allocate
+	 * it, so that the attempt to release the private data on failure
+	 * doesn't crash.
+	 */
+	wth->capture.netmon->frame_table_size = 0;
+	wth->capture.netmon->frame_table = NULL;
+
+	/*
 	 * Get the offset of the frame index table.
 	 */
 	frame_table_offset = pletohl(&hdr.frametableoffset);
