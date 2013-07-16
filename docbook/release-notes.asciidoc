@@ -17,7 +17,7 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-38[]
+* ws-salink:2013-41[]
 +
 The DCP ETSI dissector could crash.
 // Fixed in trunk: r49802
@@ -27,7 +27,136 @@ The DCP ETSI dissector could crash.
 (ws-buglink:8717[])
 +
 Versions affected: 1.10.0, 1.8.0 to 1.8.7
-// cve-idlink:GENERIC-MAP-NOMATCH[]
++
+cve-idlink:2013-4083[]
+
+* ws-salink:2013-42[]
++
+The P1 dissector could crash. Discovered by Laurent Butti.
+// Fixed in trunk: r50083
+// Fixed in trunk-1.10: r50253
+(ws-buglink:8826[])
++
+Versions affected: 1.10.0
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-43[]
++
+The Radiotap dissector could crash. Discovered by Laurent Butti.
+// Fixed in trunk: r50090
+// Fixed in trunk-1.10: r50214
+(ws-buglink:8830[])
++
+Versions affected: 1.10.0
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-44[]
++
+The DCOM ISystemActivator dissector could crash. Discovered by Laurent Butti.
+// Fixed in trunk: r50094
+// Fixed in trunk-1.10: r50250
+(ws-buglink:8828[])
++
+Versions affected: 1.10.0
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-45[]
++
+The Bluetooth SDP dissector could go into a large loop. Discovered by Laurent Butti.
+// Fixed in trunk: r50134
+// Fixed in trunk-1.10: r50250
+// Fixed in trunk-1.8: r50251
+(ws-buglink:8831[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-46[]
++
+The Bluetooth OBEX dissector could go into an infinite loop.
+// Fixed in trunk: r50258
+// Fixed in trunk-1.10: r50259
+(ws-buglink:8875[])
++
+Versions affected: 1.10.0
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-47[]
++
+The DIS dissector could go into a large loop.
+// Fixed in trunk: r50450
+// Fixed in trunk-1.10: r50451
+// Fixed in trunk-1.8: r50452
+(ws-buglink:8911[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-48[]
++
+The DVB-CI dissector could crash. Discovered by Laurent Butti.
+// Fixed in trunk: r50474
+// Fixed in trunk-1.10: r50475
+// Fixed in trunk-1.8: r50476
+(ws-buglink:8916[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-49[]
++
+The GSM RR dissector (and possibly others) could go into a large loop.
+// Fixed in trunk: r50504
+// Fixed in trunk-1.10: r50505
+// Fixed in trunk-1.8: r50506
+(ws-buglink:8923[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-50[]
++
+The GSM A Common dissector could crash.
+// Fixed in trunk: r50672
+// Fixed in trunk-1.10: r50673
+// Fixed in trunk-1.8: r50675
+(ws-buglink:8940[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-51[]
++
+The Netmon file parser could crash.
+// Fixed in trunk: r49697
+// Fixed in trunk-1.10: r50683
+// Fixed in trunk-1.8: r50684
+(ws-buglink:8742[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
+
+* ws-salink:2013-52[]
++
+.
+// Fixed in trunk: r?????
+// Fixed in trunk-1.10: r?????
+// Fixed in trunk-1.8: r?????
+//(ws-buglink:????[])
++
+Versions affected: 1.10.0, 1.8.0 to 1.8.7
+//+
+//cve-idlink:GENERIC-MAP-NOMATCH[]
 
 
 The following bugs have been fixed:
@@ -35,6 +164,10 @@ The following bugs have been fixed:
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. ws-buglink:0000[]
 
 * Mark retransmitted SYN and FIN packets as retransmissions.
+
+* Wrong encoding for 2 pod files, UTF-8 characters in another. (ws-buglink:8774)
+
+* Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908)
 
 === New and Updated Features
 
@@ -48,7 +181,17 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+Bluetooth OBEX
+Bluetooth SDB
+DCOM ISystemActivator
 DCP ETSI
+DIS
+DVB-CI
+GSM Common
+GSM SMS
+P1
+Radiotap
+VNC
 
 --sort-and-group--
 
@@ -56,7 +199,7 @@ DCP ETSI
 
 --sort-and-group--
 
-No new or updated capture file support.
+Microsoft Network Monitor.
 
 --sort-and-group--
 
