@@ -37,6 +37,7 @@
 #include <epan/follow.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/show_exception.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
@@ -1157,7 +1158,7 @@ finished_checking_retransmission_type:
     nextseq = seq+seglen;
     if (seglen || flags&(TH_SYN|TH_FIN)) {
         /* add this new sequence number to the fwd list */
-        ual = g_slice_new(tcp_unacked_t);
+        ual = wmem_new(wmem_file_scope(), tcp_unacked_t);
         ual->next=tcpd->fwd->segments;
         tcpd->fwd->segments=ual;
         ual->frame=pinfo->fd->num;
@@ -1255,7 +1256,7 @@ finished_checking_retransmission_type:
         else{
             prevual->next = tmpual;
         }
-        g_slice_free(tcp_unacked_t, ual);
+        wmem_free(wmem_file_scope(), ual);
         ual = tmpual;
     }
 
