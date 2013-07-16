@@ -40,16 +40,18 @@
 
 #include <gtk/gtk.h>
 
+#include "wsutil/file_util.h"
+#include "wsutil/unicode-utils.h"
+
+#include "wiretap/merge.h"
+
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
 #include "epan/print.h"
-#include "wsutil/file_util.h"
-#include "wsutil/unicode-utils.h"
 
 #include "color.h"
 #include "color_filters.h"
-#include "merge.h"
 
 #include "ui/alert_box.h"
 #include "ui/help_url.h"

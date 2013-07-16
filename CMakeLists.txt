@@ -762,7 +762,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		fileset.c
 		filters.c
 		iface_monitor.c
-		merge.c
 		proto_hier_stats.c
 		summary.c
 		ws80211_utils.c
@@ -927,7 +926,6 @@ if(BUILD_mergecap)
 	)
 	set(mergecap_FILES
 		mergecap.c
-		merge.c
 		svnversion.h
 		${WTAP_PLUGIN_SOURCES}
 	)

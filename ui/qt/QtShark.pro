@@ -177,7 +177,6 @@ SOURCES_WS_C = \
     ../../filters.c       \
     ../../frame_tvbuff.c   \
     ../../g711.c \
-    ../../merge.c \
     ../../proto_hier_stats.c      \
     ../../summary.c       \
     ../../sync_pipe_write.c       \

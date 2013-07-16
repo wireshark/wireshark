@@ -39,11 +39,12 @@
 #include "globals.h"
 #include "color.h"
 #include "color_filters.h"
-#include "merge.h"
 
-#include "ui/util.h"
 #include <wsutil/file_util.h>
 
+#include <wiretap/merge.h>
+
+#include "ui/util.h"
 #include "ui/alert_box.h"
 #include "ui/file_dialog.h"
 #include "ui/recent.h"

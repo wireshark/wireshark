@@ -42,7 +42,6 @@
 #endif
 
 #include <string.h>
-#include "wtap.h"
 #include "merge.h"
 
 /*

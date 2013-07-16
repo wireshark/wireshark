@@ -68,6 +68,8 @@
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 
+#include <wiretap/merge.h>
+
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
@@ -103,7 +105,6 @@
 #include "../clopts_common.h"
 #include "../cmdarg_err.h"
 #include "../version_info.h"
-#include "../merge.h"
 #include "../log.h"
 
 #include "gtk_iface_monitor.h"

@@ -44,19 +44,15 @@
 #include "wtap.h"
 
 #ifndef HAVE_GETOPT
-#include "wsutil/wsgetopt.h"
+#include <wsutil/wsgetopt.h>
 #endif
 
-#include "wsutil/strnatcmp.h"
+#include <wsutil/strnatcmp.h>
+#include <wsutil/file_util.h>
 
-#define WS_BUILD_DLL
-#define RESET_SYMBOL_EXPORT /* wsutil/wsgetopt.h set export behavior above. */
-#undef WS_BUILD_DLL
-#define RESET_SYMBOL_EXPORT
+#include <wiretap/merge.h>
 
 #include "svnversion.h"
-#include "merge.h"
-#include "wsutil/file_util.h"
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>

@@ -25,6 +25,8 @@
 #ifndef __MERGE_H__
 #define __MERGE_H__
 
+#include "wiretap/wtap.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -46,12 +48,12 @@ typedef struct merge_in_file_s {
   in_file_state_e state;
   guint32         packet_num;	  /* current packet number */
   gint64          size;		      /* file size */
-  guint32         interface_id;   /* identifier of the interface. 
+  guint32         interface_id;   /* identifier of the interface.
 								   * Used for fake interfaces when writing WTAP_ENCAP_PER_PACKET */
 } merge_in_file_t;
 
 /** Open a number of input files to merge.
- * 
+ *
  * @param in_file_count number of entries in in_file_names and in_files
  * @param in_file_names filenames of the input files
  * @param in_files input file array to be filled (>= sizeof(merge_in_file_t) * in_file_count)
@@ -60,40 +62,40 @@ typedef struct merge_in_file_s {
  * @param err_fileno file on which open failed, if failed
  * @return TRUE if all files could be opened, FALSE otherwise
  */
-extern gboolean
+WS_DLL_PUBLIC gboolean
 merge_open_in_files(int in_file_count, char *const *in_file_names,
                     merge_in_file_t **in_files, int *err, gchar **err_info,
                     int *err_fileno);
 
 /** Close the input files again.
- * 
+ *
  * @param in_file_count number of entries in in_files
  * @param in_files input file array to be closed
  */
-extern void
+WS_DLL_PUBLIC void
 merge_close_in_files(int in_file_count, merge_in_file_t in_files[]);
 
 /** Try to get the frame type from the input files.
- * 
+ *
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
  * @return the frame type
  */
-extern int
+WS_DLL_PUBLIC int
 merge_select_frame_type(int in_file_count, merge_in_file_t in_files[]);
 
 /** Try to get the snapshot length from the input files.
- * 
+ *
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
  * @return the snapshot length
  */
-extern int
+WS_DLL_PUBLIC int
 merge_max_snapshot_length(int in_file_count, merge_in_file_t in_files[]);
 
 /** Read the next packet, in chronological order, from the set of files to
  * be merged.
- * 
+ *
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
  * @param err wiretap error, if failed
@@ -101,14 +103,14 @@ merge_max_snapshot_length(int in_file_count, merge_in_file_t in_files[]);
  * @return pointer to merge_in_file_t for file from which that packet
  * came, or NULL on error or EOF
  */
-extern merge_in_file_t *
+WS_DLL_PUBLIC merge_in_file_t *
 merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
                   gchar **err_info);
 
 
 /** Read the next packet, in file sequence order, from the set of files
  * to be merged.
- * 
+ *
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
  * @param err wiretap error, if failed
@@ -116,7 +118,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
  * @return pointer to merge_in_file_t for file from which that packet
  * came, or NULL on error or EOF
  */
-extern merge_in_file_t *
+WS_DLL_PUBLIC merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
                          int *err, gchar **err_info);
 

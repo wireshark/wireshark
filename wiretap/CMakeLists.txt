@@ -50,6 +50,7 @@ set(WIRETAP_FILES
 	k12.c
 	lanalyzer.c
 	libpcap.c
+	merge.c
 	mpeg.c
 	mime_file.c
 	mp2t.c

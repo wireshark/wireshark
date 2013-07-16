@@ -41,22 +41,17 @@
 #include <fcntl.h>
 #endif
 
-#include <epan/epan.h>
-#include <epan/expert.h>
-#include <epan/filesystem.h>
+#include <wsutil/tempfile.h>
+#include <wsutil/file_util.h>
 
-#include "color.h"
-#include "color_filters.h"
-#include "cfile.h"
+#include <wiretap/merge.h>
+
+#include <epan/epan.h>
 #include <epan/column.h>
 #include <epan/packet.h>
 #include <epan/column-utils.h>
-#include "file.h"
-#include "fileset.h"
-#include "frame_tvbuff.h"
-#include "wsutil/tempfile.h"
-#include "merge.h"
-
+#include <epan/expert.h>
+#include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>
@@ -65,9 +60,15 @@
 #include <epan/dissectors/packet-ber.h>
 #include <epan/timestamp.h>
 #include <epan/dfilter/dfilter-macro.h>
-#include <wsutil/file_util.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
+
+#include "color.h"
+#include "color_filters.h"
+#include "cfile.h"
+#include "file.h"
+#include "fileset.h"
+#include "frame_tvbuff.h"
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
