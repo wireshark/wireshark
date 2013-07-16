@@ -1985,7 +1985,7 @@ prefs_register_modules(void)
     custom_cbs.is_default_cb = column_hidden_is_default_cb;
     custom_cbs.to_str_cb = column_hidden_to_str_cb;
     prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns",
-        "List all columns to hide in the packet list", &custom_cbs, &((const char *)cols_hidden_list));
+        "List all columns to hide in the packet list", &custom_cbs, (const char **)&cols_hidden_list);
 
     custom_cbs.free_cb = column_format_free_cb;
     custom_cbs.reset_cb = column_format_reset_cb;
@@ -2018,10 +2018,10 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
     prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", &((const char *)prefs.gui_gtk2_font_name));
+        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", (const char **)&prefs.gui_gtk2_font_name);
 
     prefs_register_string_preference(gui_font_module, "qt.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (Qt)", &((const char *)prefs.gui_qt_font_name));
+        "Font name for packet list, protocol tree, and hex dump panes. (Qt)", (const char **)&prefs.gui_qt_font_name);
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
@@ -2097,7 +2097,7 @@ prefs_register_modules(void)
                                    &prefs.gui_recent_df_entries_max);
 
     prefs_register_directory_preference(gui_module, "fileopen.dir", "Start Directory",
-        "Directory to start in when opening File Open dialog.", &((const char *)prefs.gui_fileopen_dir));
+        "Directory to start in when opening File Open dialog.", (const char **)&prefs.gui_fileopen_dir);
 
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
 
@@ -2159,7 +2159,7 @@ prefs_register_modules(void)
                        &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
 
     prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser",
-        "The path to the webbrowser (Ex: mozilla)", &((const char *)prefs.gui_webbrowser));
+        "The path to the webbrowser (Ex: mozilla)", (const char **)&prefs.gui_webbrowser);
 
     prefs_register_bool_preference(gui_module, "update.enabled",
                                    "Check for updates",
@@ -2178,7 +2178,7 @@ prefs_register_modules(void)
                                    &prefs.gui_update_interval);
 
     prefs_register_string_preference(gui_module, "window_title", "Custom window title",
-        "Custom window title. (Appended to existing titles.)", &((const char *)prefs.gui_window_title));
+        "Custom window title. (Appended to existing titles.)", (const char **)&prefs.gui_window_title);
 
     prefs_register_string_preference(gui_module, "start_title", "Custom start page title",
         "Custom start page title", (const char**)(&prefs.gui_start_title));
@@ -2252,22 +2252,22 @@ prefs_register_modules(void)
         "CAPTURE", NULL, FALSE);
 
     prefs_register_string_preference(capture_module, "device", "Default capture device",
-        "Default capture device", &((const char *)prefs.capture_device));
+        "Default capture device", (const char **)&prefs.capture_device);
 
     prefs_register_string_preference(capture_module, "devices_linktypes", "Interface link-layer header type",
         "Interface link-layer header types (Ex: en0(1),en1(143),...)",
-        &((const char *)prefs.capture_devices_linktypes));
+        (const char **)&prefs.capture_devices_linktypes);
 
     prefs_register_string_preference(capture_module, "devices_descr", "Interface descriptions",
         "Interface descriptions (Ex: eth0(eth0 descr),eth1(eth1 descr),...)",
-        &((const char *)prefs.capture_devices_descr));
+        (const char **)&prefs.capture_devices_descr);
 
     prefs_register_string_preference(capture_module, "devices_hide", "Hide interface",
-        "Hide interface? (Ex: eth0,eth3,...)", &((const char *)prefs.capture_devices_hide));
+        "Hide interface? (Ex: eth0,eth3,...)", (const char **)&prefs.capture_devices_hide);
 
     prefs_register_string_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode",
         "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)",
-        &((const char *)prefs.capture_devices_monitor_mode));
+        (const char **)&prefs.capture_devices_monitor_mode);
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     prefs_register_string_preference(capture_module, "devices_buffersize", "Interface buffer size",
@@ -2277,11 +2277,11 @@ prefs_register_modules(void)
 
     prefs_register_string_preference(capture_module, "devices_snaplen", "Interface snap length",
         "Interface snap length (Ex: en0(65535),en1(1430),...)",
-        &((const char *)prefs.capture_devices_snaplen));
+        (const char **)&prefs.capture_devices_snaplen);
 
     prefs_register_string_preference(capture_module, "devices_pmode", "Interface promiscuous mode",
         "Interface promiscuous mode (Ex: en0(0),en1(1),...)",
-        &((const char *)prefs.capture_devices_pmode));
+        (const char **)&prefs.capture_devices_pmode);
 
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
