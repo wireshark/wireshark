@@ -175,9 +175,9 @@ WS_DLL_PUBLIC int getopt (int ___argc, char *const *___argv,
 #endif /* __GNU_LIBRARY__ */
 
 #ifndef __need_getopt
-extern int getopt_long (int ___argc, char *const *___argv,
+WS_DLL_PUBLIC int getopt_long (int ___argc, char *const *___argv,
 			const char *__shortopts,
-		        const struct option *__longopts, int *__longind)
+			const struct option *__longopts, int *__longind)
        __THROW;
 extern int getopt_long_only (int ___argc, char *const *___argv,
 			     const char *__shortopts,

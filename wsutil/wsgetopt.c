@@ -1200,6 +1200,17 @@ getopt (int argc, char *const *argv, const char *optstring)
 			   0, 0);
 }
 
+/* getopt_long() was copied from posix/getopt1.c
+   the rest of this file is a nearly identical copy of posix/getopt.c */
+int
+getopt_long (int argc, char *const *argv, const char *options,
+              const struct option *long_options, int *opt_index)
+{
+     return _getopt_internal (argc, argv, options, long_options,
+                              opt_index, 0, 0);
+}
+
+
 #ifdef _LIBC
 int
 __posix_getopt (int argc, char *const *argv, const char *optstring)
