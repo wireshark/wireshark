@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <wsutil/u3.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -49,7 +51,6 @@
 #include "globals.h"
 #include "color_filters.h"
 #include "stat_menu.h"
-#include "u3.h"
 
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"

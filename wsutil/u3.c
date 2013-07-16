@@ -46,8 +46,6 @@
 
 #include <wsutil/file_util.h>
 
-#include <epan/filesystem.h>
-
 #include "u3.h"
 
 

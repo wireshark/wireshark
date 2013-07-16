@@ -40,6 +40,7 @@ LIBWSUTIL_SRC = 	\
 	crc16-plain.c	\
 	crc32.c		\
 	crcdrm.c	\
+	g711.c		\
 	mpeg-audio.c	\
 	nstime.c	\
 	privileges.c	\
@@ -47,7 +48,8 @@ LIBWSUTIL_SRC = 	\
 	str_util.c	\
 	report_err.c	\
 	tempfile.c	\
-	type_util.c
+	type_util.c	\
+	u3.c
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
@@ -61,6 +63,7 @@ LIBWSUTIL_INCLUDES = 	\
 	crc16-plain.h	\
 	crc32.h		\
 	crcdrm.h	\
+	g711.h		\
 	mpeg-audio.h	\
 	nstime.h	\
 	privileges.h	\
@@ -68,4 +71,5 @@ LIBWSUTIL_INCLUDES = 	\
 	str_util.h	\
 	report_err.h	\
 	tempfile.h	\
-	type_util.h
+	type_util.h	\
+	u3.h

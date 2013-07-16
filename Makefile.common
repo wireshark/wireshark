@@ -96,12 +96,10 @@ WIRESHARK_COMMON_SRC =	\
 	file.c		\
 	fileset.c	\
 	filters.c	\
-	g711.c		\
 	iface_monitor.c \
 	merge.c		\
 	proto_hier_stats.c	\
 	summary.c	\
-	u3.c		\
 	ws80211_utils.c
 
 # corresponding headers
@@ -113,7 +111,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	capture_opts.h	\
 	color_filters.h	\
 	filters.h	\
-	g711.h		\
 	globals.h	\
 	iface_monitor.h \
 	log.h		\
@@ -122,7 +119,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
-	u3.h		\
 	ws80211_utils.h
 
 # tshark specifics

@@ -41,6 +41,8 @@
 #endif /* HAVE_LIBPORTAUDIO */
 
 #include <wsutil/crash_info.h>
+#include <wsutil/u3.h>
+#include <wsutil/file_util.h>
 
 #include <epan/epan.h>
 #include <epan/filesystem.h>
@@ -79,8 +81,6 @@
 #include "version_info.h"
 #include "merge.h"
 #include "log.h"
-#include "u3.h"
-#include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
 #include "ui/capture_globals.h"

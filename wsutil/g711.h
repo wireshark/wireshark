@@ -24,7 +24,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-unsigned char linear2alaw( int );
-int alaw2linear( unsigned char );
-unsigned char linear2ulaw( int );
-int ulaw2linear( unsigned char );
+#ifndef __G711_H__
+#define __G711_H__
+
+#include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+WS_DLL_PUBLIC unsigned char linear2alaw( int );
+WS_DLL_PUBLIC int alaw2linear( unsigned char );
+WS_DLL_PUBLIC unsigned char linear2ulaw( int );
+WS_DLL_PUBLIC int ulaw2linear( unsigned char );
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __G711_H__ */

@@ -761,12 +761,10 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		file.c
 		fileset.c
 		filters.c
-		g711.c
 		iface_monitor.c
 		merge.c
 		proto_hier_stats.c
 		summary.c
-		u3.c
 		ws80211_utils.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}

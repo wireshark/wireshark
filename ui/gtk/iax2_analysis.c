@@ -51,6 +51,10 @@
 
 #include <gtk/gtk.h>
 
+#include <wsutil/file_util.h>
+#include <wsutil/g711.h>
+#include <wsutil/tempfile.h>
+
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include <epan/pint.h>
@@ -62,18 +66,14 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/strutil.h>
 
-#include "ui/util.h"
-#include "../g711.h"
 #include "../stat_menu.h"
-#include "wsutil/tempfile.h"
 
+#include "ui/util.h"
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"
 #include "ui/progress_dlg.h"
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
-
-#include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/dlg_utils.h"
@@ -85,7 +85,6 @@
 #include "ui/gtk/iax2_analysis.h"
 #include "ui/gtk/rtp_stream.h"
 #include "ui/gtk/rtp_stream_dlg.h"
-
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/gui_utils.h"
 

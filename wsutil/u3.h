@@ -25,19 +25,21 @@
 #ifndef __U3_H__
 #define __U3_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-gboolean u3_active(void);
+WS_DLL_PUBLIC gboolean u3_active(void);
 
-void u3_runtime_info(GString *str);
+WS_DLL_PUBLIC void u3_runtime_info(GString *str);
 
-void u3_register_pid(void);
-void u3_deregister_pid(void);
+WS_DLL_PUBLIC void u3_register_pid(void);
+WS_DLL_PUBLIC void u3_deregister_pid(void);
 
-const char * u3_expand_device_path(const char *path);
-const char * u3_contract_device_path(char *path);
+WS_DLL_PUBLIC const char *u3_expand_device_path(const char *path);
+WS_DLL_PUBLIC const char *u3_contract_device_path(char *path);
 
 #ifdef __cplusplus
 }

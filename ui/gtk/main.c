@@ -64,10 +64,12 @@
 #endif /* HAVE_LIBPORTAUDIO */
 
 #include <wsutil/crash_info.h>
+#include <wsutil/u3.h>
+#include <wsutil/privileges.h>
+#include <wsutil/file_util.h>
 
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include <wsutil/privileges.h>
 #include <epan/epan_dissect.h>
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
@@ -103,7 +105,6 @@
 #include "../version_info.h"
 #include "../merge.h"
 #include "../log.h"
-#include "../u3.h"
 
 #include "gtk_iface_monitor.h"
 
@@ -120,8 +121,6 @@
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
 #endif
-
-#include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"

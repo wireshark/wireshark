@@ -46,6 +46,7 @@ set(WSUTIL_FILES
   crc8.c
   crc11.c
   crcdrm.c
+  g711.c
   mpeg-audio.c
   nstime.c
   privileges.c
@@ -54,6 +55,7 @@ set(WSUTIL_FILES
   report_err.c
   tempfile.c
   type_util.c
+  u3.c
   ${WSUTIL_PLATFORM_FILES}
 )
 
