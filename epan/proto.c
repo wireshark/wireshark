@@ -5118,9 +5118,9 @@ label_mark_truncated(char *label_str, gsize name_pos)
 }
 
 static gsize
-label_fill(char *label_str, const header_field_info *hfinfo, const char *text)
+label_fill(char *label_str, gsize pos, const header_field_info *hfinfo, const char *text)
 {
-	gsize name_pos, pos = 0;
+	gsize name_pos;
 
 	/* "%s: %s", hfinfo->name, text */
 	name_pos = pos = label_concat(label_str, pos, hfinfo->name);
@@ -5136,9 +5136,9 @@ label_fill(char *label_str, const header_field_info *hfinfo, const char *text)
 }
 
 static gsize
-label_fill_descr(char *label_str, const header_field_info *hfinfo, const char *text, const char *descr)
+label_fill_descr(char *label_str, gsize pos, const header_field_info *hfinfo, const char *text, const char *descr)
 {
-	gsize name_pos, pos = 0;
+	gsize name_pos;
 
 	/* "%s: %s (%s)", hfinfo->name, text, descr */
 	name_pos = pos = label_concat(label_str, pos, hfinfo->name);
@@ -5190,7 +5190,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill(label_str, hfinfo,
+			label_fill(label_str, 0, hfinfo,
 					(bytes) ? bytes_to_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
 			break;
 
@@ -5244,7 +5244,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			label_fill(label_str, hfinfo,
+			label_fill(label_str, 0, hfinfo,
 				   abs_time_to_str((const nstime_t *)fvalue_get(&fi->value),
 						(absolute_time_display_e)hfinfo->display, TRUE));
 			break;
@@ -5264,14 +5264,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_AX25:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill_descr(label_str, hfinfo,
+			label_fill_descr(label_str, 0, hfinfo,
 				   get_ax25_name(bytes),
 				   ax25_to_str(bytes));
 			break;
 
 		case FT_ETHER:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill_descr(label_str, hfinfo,
+			label_fill_descr(label_str, 0, hfinfo,
 				   get_ether_name(bytes),
 				   ether_to_str(bytes));
 			break;
@@ -5279,37 +5279,37 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPv4:
 			ipv4 = (ipv4_addr *)fvalue_get(&fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
-			label_fill_descr(label_str, hfinfo,
+			label_fill_descr(label_str, 0, hfinfo,
 				   get_hostname(n_addr),
 				   ip_to_str((guint8*)&n_addr));
 			break;
 
 		case FT_IPv6:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill_descr(label_str, hfinfo,
+			label_fill_descr(label_str, 0, hfinfo,
 				   get_hostname6((struct e_in6_addr *)bytes),
 				   ip6_to_str((struct e_in6_addr*)bytes));
 			break;
 
 		case FT_GUID:
 			guid = (e_guid_t *)fvalue_get(&fi->value);
-			label_fill(label_str, hfinfo, guid_to_str(guid));
+			label_fill(label_str, 0, hfinfo, guid_to_str(guid));
 			break;
 
 		case FT_OID:
 			bytes = (guint8 *)fvalue_get(&fi->value);
 			name = oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
 			if (name) {
-				label_fill_descr(label_str, hfinfo,
+				label_fill_descr(label_str, 0, hfinfo,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
 			} else {
-				label_fill(label_str, hfinfo,
+				label_fill(label_str, 0, hfinfo,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
 			break;
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
-			label_fill_descr(label_str, hfinfo,
+			label_fill_descr(label_str, 0, hfinfo,
 				   get_eui64_name(integer64),
 				   eui64_to_str(integer64));
 			break;
@@ -5317,7 +5317,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill(label_str, hfinfo, format_text(bytes, strlen(bytes)));
+			label_fill(label_str, 0, hfinfo, format_text(bytes, strlen(bytes)));
 			break;
 
 		default:
@@ -5360,9 +5360,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	}
 
 	/* Fill in the textual info */
-	g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-		   "%s: %s",  hfinfo->name,
-		   value ? tfstring->true_string : tfstring->false_string);
+	label_fill(label_str, bitfield_byte_length, hfinfo, value ? tfstring->true_string : tfstring->false_string);
 }
 
 static const char *
@@ -5420,25 +5418,21 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-			   "%s: %s", hfinfo->name, tmp);
+		label_fill(label_str, bitfield_byte_length, hfinfo, tmp);
 	}
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
 		out = hfinfo_number_vals_format(hfinfo, buf, value);
 		if (out == NULL) /* BASE_NONE so don't put integer in descr */
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-			   "%s: %s",  hfinfo->name, val_str);
+			label_fill(label_str, bitfield_byte_length, hfinfo, val_str);
 		else
-			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-			   "%s: %s (%s)",  hfinfo->name, val_str, out);
+			label_fill_descr(label_str, bitfield_byte_length, hfinfo, val_str, out);
 	}
 	else {
 		out = hfinfo_number_value_format(hfinfo, buf, value);
 
-		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				   "%s: %s",  hfinfo->name, out);
+		label_fill(label_str, bitfield_byte_length, hfinfo, out);
 	}
 }
 
@@ -5463,21 +5457,21 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		label_fill(label_str, hfinfo, tmp);
+		label_fill(label_str, 0, hfinfo, tmp);
 	}
 	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
 
 		out = hfinfo_number_vals_format(hfinfo, buf, value);
 		if (out == NULL) /* BASE_NONE so don't put integer in descr */
-			label_fill(label_str, hfinfo, val_str);
+			label_fill(label_str, 0, hfinfo, val_str);
 		else
-			label_fill_descr(label_str, hfinfo, val_str, out);
+			label_fill_descr(label_str, 0, hfinfo, val_str, out);
 	}
 	else {
 		out = hfinfo_number_value_format(hfinfo, buf, value);
 
-		label_fill(label_str, hfinfo, out);
+		label_fill(label_str, 0, hfinfo, out);
 	}
 }
 
