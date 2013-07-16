@@ -113,6 +113,7 @@ NONGENERATED_HEADER_FILES = \
 	k12.h			\
 	lanalyzer.h		\
 	libpcap.h		\
+	merge.h			\
 	mpeg.h			\
 	mpeg.h			\
 	mp2t.h			\
