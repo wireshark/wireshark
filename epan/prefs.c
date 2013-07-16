@@ -2272,7 +2272,7 @@ prefs_register_modules(void)
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     prefs_register_string_preference(capture_module, "devices_buffersize", "Interface buffer size",
         "Interface buffer size (Ex: en0(1),en1(143),...)",
-        &((const char *)prefs.capture_devices_buffersize));
+        ((const char **)&prefs.capture_devices_buffersize));
 #endif
 
     prefs_register_string_preference(capture_module, "devices_snaplen", "Interface snap length",
