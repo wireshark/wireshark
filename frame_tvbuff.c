@@ -145,8 +145,8 @@ frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *ne
 
 static gsize
 frame_sizeof(void)
-{ 
-	return sizeof(struct tvb_frame); 
+{
+	return sizeof(struct tvb_frame);
 }
 
 static guint
@@ -196,13 +196,19 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	 *
 	 * For now, we clip the reported length at G_MAXINT
 	 *
-	 * (XXX, is this still a problem?) There was an exception when we call 
+	 * (XXX, is this still a problem?) There was an exception when we call
 	 * tvb_new_real_data() now there's no one
 	 */
 
 	tvb->real_data       = buf;
-	tvb->length          = fd->cap_len;
-	tvb->reported_length = fd->pkt_len > G_MAXINT ? G_MAXINT : fd->pkt_len;
+	if (fd) {
+		tvb->length          = fd->cap_len;
+		tvb->reported_length = fd->pkt_len > G_MAXINT ? G_MAXINT : fd->pkt_len;
+	} else {
+		tvb->length          = 0;
+		tvb->reported_length = 0;
+	}
+
 	tvb->initialized     = TRUE;
 
 	/*
