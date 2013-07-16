@@ -86,7 +86,6 @@ LIBWIRESHARK_SRC =		\
 	sna-utils.c		\
 	stat_cmd_args.c		\
 	stats_tree.c		\
-	strnatcmp.c		\
 	strutil.c		\
 	stream.c		\
 	t35.c			\
@@ -243,7 +242,6 @@ LIBWIRESHARK_INCLUDES =		\
 	stats_tree.h		\
 	stats_tree_priv.h	\
 	stream.h		\
-	strnatcmp.h		\
 	strutil.h		\
 	t35.h			\
 	tap.h			\

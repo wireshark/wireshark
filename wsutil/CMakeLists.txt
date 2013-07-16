@@ -49,6 +49,7 @@ set(WSUTIL_FILES
   mpeg-audio.c
   nstime.c
   privileges.c
+  strnatcmp.c
   str_util.c
   report_err.c
   tempfile.c

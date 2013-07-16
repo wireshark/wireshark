@@ -47,9 +47,10 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#include "wsutil/strnatcmp.h"
+
 #define WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT /* wsutil/wsgetopt.h set export behavior above. */
-#include "epan/strnatcmp.h"
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
 

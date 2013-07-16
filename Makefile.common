@@ -150,14 +150,12 @@ text2pcap_INCLUDES = \
 # mergecap specifics
 mergecap_SOURCES = \
 	mergecap.c \
-	merge.c \
-	epan/strnatcmp.c
+	merge.c
 
 # editcap specifics
 editcap_SOURCES = \
 	editcap.c	\
 	epan/crypt/md5.c \
-	epan/strnatcmp.c \
 	$(WTAP_PLUGIN_SOURCES)
 
 # reordercap specifics

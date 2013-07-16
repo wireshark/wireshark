@@ -1485,7 +1485,6 @@ set(LIBWIRESHARK_FILES
 	sna-utils.c
 	stat_cmd_args.c
 	stats_tree.c
-	strnatcmp.c
 	strutil.c
 	stream.c
 	t35.c

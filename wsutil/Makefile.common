@@ -43,6 +43,7 @@ LIBWSUTIL_SRC = 	\
 	mpeg-audio.c	\
 	nstime.c	\
 	privileges.c	\
+	strnatcmp.c	\
 	str_util.c	\
 	report_err.c	\
 	tempfile.c	\
@@ -63,6 +64,7 @@ LIBWSUTIL_INCLUDES = 	\
 	mpeg-audio.h	\
 	nstime.h	\
 	privileges.h	\
+	strnatcmp.h	\
 	str_util.h	\
 	report_err.h	\
 	tempfile.h	\
