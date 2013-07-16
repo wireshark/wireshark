@@ -2715,10 +2715,19 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 		/* We're going forwards.
 		   Is the place to which we're seeking within the current buffer? */
 		if ((size_t)(ngsniffer->rand.nextout + delta) >= ngsniffer->rand.nbytes) {
-			/* No.  Search for a blob that contains the target offset in
-			   the uncompressed byte stream, starting with the blob
-			   following the current blob. */
-			new_list = g_list_next(ngsniffer->current_blob);
+			/* No.  Search for a blob that contains the target
+			   offset in the uncompressed byte stream. */
+			if (ngsniffer->current_blob == NULL) {
+				/* We haven't read anything from the random
+				   file yet, so we have no current blob;
+				   search all the blobs, starting with
+				   the first one. */
+				new_list = ngsniffer->first_blob;
+			} else {
+				/* We're seeking forward, so start searching
+				   with the blob after the current one. */
+				new_list = g_list_next(ngsniffer->current_blob);
+			}
 			while (new_list) {
 				next_list = g_list_next(new_list);
 				if (next_list == NULL) {
@@ -2734,15 +2743,32 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 
 				new_list = next_list;
 			}
+			if (new_list == NULL) {
+				/*
+				 * We're seeking past the end of what
+				 * we've read so far.
+				 */
+				*err = WTAP_ERR_CANT_SEEK;
+				return FALSE;
+			}
 		}
 	} else if (delta < 0) {
 		/* We're going backwards.
 		   Is the place to which we're seeking within the current buffer? */
 		if (ngsniffer->rand.nextout + delta < 0) {
-			/* No.  Search for a blob that contains the target offset in
-			   the uncompressed byte stream, starting with the blob
-			   preceding the current blob. */
-			new_list = g_list_previous(ngsniffer->current_blob);
+			/* No.  Search for a blob that contains the target
+			   offset in the uncompressed byte stream. */
+			if (ngsniffer->current_blob == NULL) {
+				/* We haven't read anything from the random
+				   file yet, so we have no current blob;
+				   search all the blobs, starting with
+				   the last one. */
+				new_list = ngsniffer->last_blob;
+			} else {
+				/* We're seeking backward, so start searching
+				   with the blob before the current one. */
+				new_list = g_list_previous(ngsniffer->current_blob);
+			}
 			while (new_list) {
 				/* Does this blob start at or before the target offset?
 				   If so, the current blob is the one we want. */
@@ -2752,6 +2778,13 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 
 				/* It doesn't - skip to the previous blob. */
 				new_list = g_list_previous(new_list);
+			}
+			if (new_list == NULL) {
+				/*
+				 * XXX - shouldn't happen.
+				 */
+				*err = WTAP_ERR_CANT_SEEK;
+				return FALSE;
 			}
 		}
 	}
@@ -2765,6 +2798,16 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 		   of the beginning of that blob. */
 		if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET, err) == -1)
 			return FALSE;
+
+		/*
+		 * Do we have a buffer for the random stream yet?
+		 */
+		if (ngsniffer->rand.buf == NULL) {
+			/*
+			 * No - allocate it, as we'll be reading into it.
+			 */
+			ngsniffer->rand.buf = (unsigned char *)g_malloc(OUTBUF_SIZE);
+		}
 
 		/* Make the blob we found the current one. */
 		ngsniffer->current_blob = new_list;
