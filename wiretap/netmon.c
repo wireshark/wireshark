@@ -307,6 +307,15 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	netmon->version_minor = hdr.ver_minor;
 
 	/*
+	 * No frame table allocated yet; initialize these in case we
+	 * get an error before allocating it or when trying to allocate
+	 * it, so that the attempt to release the private data on failure
+	 * doesn't crash.
+	 */
+	netmon->frame_table_size = 0;
+	netmon->frame_table = NULL;
+
+	/*
 	 * Get the offset of the frame index table.
 	 */
 	frame_table_offset = pletohl(&hdr.frametableoffset);
@@ -370,7 +379,6 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		g_free(frame_table);
-		g_free(netmon);
 		return -1;
 	}
 	netmon->frame_table_size = frame_table_size;

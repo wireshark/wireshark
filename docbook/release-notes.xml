@@ -36,17 +36,17 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-42.html">wnpa-sec-2013-42</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-51.html">wnpa-sec-2013-51</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.10: r????? -->
-            <!-- Fixed in trunk-1.8: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=XXXX">Bug
-            XXXX</ulink>)
+	    The Netmon file parser could crash.
+            <!-- Fixed in trunk: r49697 -->
+            <!-- Fixed in trunk-1.10: r50683 -->
+            <!-- Fixed in trunk-1.8: r50684 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8742">Bug
+            8742</ulink>)
           </para>
-          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.8.</para>
+          <para>Versions affected: 1.10.0, 1.8.0 to 1.8.7.</para>
 	  <!--
 	  <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
@@ -107,7 +107,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-No new or updated capture file support.
+Microsoft Network Monitor.
 
     </para>
     </section>
