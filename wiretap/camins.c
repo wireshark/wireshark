@@ -258,7 +258,7 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
 }
 
  
-gboolean
+static gboolean
 camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
