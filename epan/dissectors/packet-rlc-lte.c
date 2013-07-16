@@ -1987,7 +1987,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *um_ti;
     proto_tree *um_header_tree;
     proto_item *um_header_ti;
-    gboolean is_truncated;
+    gboolean is_truncated = FALSE;
     proto_item *truncated_ti;
     rlc_channel_reassembly_info *reassembly_info = NULL;
     sequence_analysis_state seq_anal_state = SN_OK;
@@ -2066,7 +2066,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
-    write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "  SN=%-4u", (guint16)sn);
+    write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "           sn=%-4u", (guint16)sn);
 
     proto_item_set_len(um_header_ti, offset-start_offset);
 
@@ -2103,7 +2103,6 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
             show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
                              (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                              last_includes_end);
-            return;
         }
         else {
             PROTO_ITEM_SET_HIDDEN(truncated_ti);
@@ -2143,6 +2142,9 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                                   tap_info, um_header_tree);
     }
 
+    if (is_truncated) {
+        return;
+    }
 
     /*************************************/
     /* Data                              */
@@ -2371,7 +2373,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *am_header_ti;
     gint   start_offset = offset;
     guint16    sn;
-    gboolean is_truncated;
+    gboolean is_truncated = FALSE;
     proto_item *truncated_ti;
     rlc_channel_reassembly_info *reassembly_info = NULL;
     sequence_analysis_state seq_anal_state = SN_OK;
@@ -2495,9 +2497,6 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
                              (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                              last_includes_end);
-
-            /* Just return now */
-            return;
         }
         else {
             PROTO_ITEM_SET_HIDDEN(truncated_ti);
@@ -2533,6 +2532,9 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                                   is_resegmented, tap_info, tree);
     }
 
+    if (is_truncated) {
+        return;
+    }
 
     /*************************************/
     /* Data                              */
@@ -2820,8 +2822,8 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%-4u ", p_rlc_lte_info->ueid);
     }
     if (p_rlc_lte_info->channelId == 0) {
-        write_pdu_label_and_info_literal(top_ti, NULL, pinfo,
-                                         val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
+        write_pdu_label_and_info(top_ti, NULL, pinfo, "%s   ",
+                                 val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
     }
     else {
         write_pdu_label_and_info(top_ti, NULL, pinfo, "%s:%-2u",
