@@ -28,11 +28,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 
 #include "packet-hpext.h"
-
-static void dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
-     proto_tree *tree, proto_item *ti, guint8 type);
 
 static int proto_hpsw = -1;
 
@@ -40,12 +38,27 @@ static int hf_hpsw_version = -1;
 static int hf_hpsw_type = -1;
 static int hf_hpsw_tlvtype = -1;
 static int hf_hpsw_tlvlength = -1;
+static int hf_hpsw_field_10 = -1;
+static int hf_hpsw_own_mac_addr = -1;
+static int hf_hpsw_neighbor_mac_addr = -1;
+static int hf_hpsw_field_6 = -1;
+static int hf_hpsw_field_9 = -1;
+static int hf_hpsw_device_version = -1;
+static int hf_hpsw_device_name = -1;
+static int hf_hpsw_ip_addr = -1;
+static int hf_hpsw_field_8 = -1;
+static int hf_hpsw_domain = -1;
+static int hf_hpsw_field_12 = -1;
+static int hf_hpsw_config_name = -1;
+static int hf_hpsw_root_mac_addr = -1;
+static int hf_hpsw_device_id = -1;
+static int hf_hpsw_device_id_data = -1;
 
 
 static gint ett_hpsw = -1;
 static gint ett_hpsw_tlv = -1;
 
-
+static expert_field ei_hpsw_tlvlength_bad = EI_INIT;
 
 #define HPFOO_DEVICE_NAME     0x1
 #define HPFOO_DEVICE_VERSION  0x2
@@ -80,6 +93,136 @@ static const value_string hpsw_tlv_type_vals[] = {
 	{ 0x00,                 NULL }
 };
 
+static void
+dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
+    proto_tree *tree, proto_item *ti, guint8 type)
+{
+	switch (type) {
+
+	case HPFOO_DEVICE_NAME:
+		if (length > 0) {
+			proto_tree_add_item(tree, hf_hpsw_device_name, tvb, offset, length, ENC_NA|ENC_ASCII);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device Name: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_DEVICE_VERSION:
+		if (length > 0) {
+			proto_tree_add_item(tree, hf_hpsw_device_version, tvb, offset, length, ENC_NA|ENC_ASCII);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Version: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_CONFIG_NAME:
+		if (length > 0) {
+			proto_tree_add_item(tree, hf_hpsw_config_name, tvb, offset, length, ENC_NA|ENC_ASCII);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Config Name: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_ROOT_MAC_ADDR:
+		if (length == 6) {
+			proto_tree_add_item(tree, hf_hpsw_root_mac_addr, tvb, offset, length, ENC_NA);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Root MAC Addr: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_IP_ADDR:
+		if (length == 4) {
+			proto_tree_add_item(tree, hf_hpsw_ip_addr, tvb, offset, length, ENC_BIG_ENDIAN);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "IP Addr: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_FIELD_6:
+		if (length == 2) {
+			proto_tree_add_item(tree, hf_hpsw_field_6, tvb, offset, length, ENC_BIG_ENDIAN);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 6: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_DOMAIN:
+		if (length > 0) {
+			proto_tree_add_item(tree, hf_hpsw_domain, tvb, offset, length, ENC_NA|ENC_ASCII);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Domain: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_FIELD_8:
+		if (length == 2) {
+			proto_tree_add_item(tree, hf_hpsw_field_8, tvb, offset, length, ENC_BIG_ENDIAN);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 8: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_FIELD_9:
+		if (length == 2) {
+			proto_tree_add_item(tree, hf_hpsw_field_9, tvb, offset, length, ENC_BIG_ENDIAN);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 9: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_FIELD_10:
+		if (length == 4) {
+			proto_tree_add_item(tree, hf_hpsw_field_10, tvb, offset, length, ENC_BIG_ENDIAN);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 10: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_NEIGHBORS:
+		if (!(length % 6))
+		{   int i = length/6;
+			proto_item_set_text(ti, "Number of neighbor MAC Addresses: %u", i);
+			for ( ; i; i--)
+			{
+				proto_tree_add_item(tree, hf_hpsw_neighbor_mac_addr, tvb, offset, length, ENC_NA);
+				offset += 6;
+			}
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Neighbors: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_FIELD_12:
+		if (length == 1) {
+			proto_tree_add_item(tree, hf_hpsw_field_12, tvb, offset, length, ENC_NA);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Field 12: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_DEVICE_ID:
+		if (length > 6) {
+			proto_tree_add_item(tree, hf_hpsw_device_id, tvb, offset, 6, ENC_NA);
+			proto_tree_add_item(tree, hf_hpsw_device_id_data, tvb, offset+6, length-6, ENC_NA);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Device ID: Bad length %u", length);
+		}
+		break;
+
+	case HPFOO_OWN_MAC_ADDR:
+		if (length == 6) {
+			proto_tree_add_item(tree, hf_hpsw_own_mac_addr, tvb, offset, length, ENC_NA);
+		} else {
+			expert_add_info_format_text(pinfo, ti, &ei_hpsw_tlvlength_bad, "Own MAC Addr: Bad length %u", length);
+		}
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, length, "Data");
+		break;
+	}
+}
 
 static void
 dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -130,7 +273,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(tlv_tree, hf_hpsw_tlvlength, tvb, offset, 1, length);
 			offset++;
 
-			dissect_hpsw_tlv(tvb,offset,length,tlv_tree,ti,type);
+			dissect_hpsw_tlv(tvb,pinfo,offset,length,tlv_tree,ti,type);
 
 			offset += length;
 
@@ -138,172 +281,6 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 }
-
-static void
-dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
-    proto_tree *tree, proto_item *ti, guint8 type)
-{
-    switch (type) {
-
-    case HPFOO_DEVICE_NAME:
-        if (length > 0) {
-            proto_item_set_text(ti, "Device Name: %s", tvb_format_text(tvb, offset, length - 1));
-            proto_tree_add_text(tree, tvb, offset, length, "Device Name: %s", tvb_format_text(tvb, offset, length - 1));
-        } else {
-            proto_item_set_text(ti, "Device Name: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Device Name: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_DEVICE_VERSION:
-        if (length > 0) {
-            proto_item_set_text(ti, "Version: %s", tvb_format_text(tvb, offset, length - 1));
-            proto_tree_add_text(tree, tvb, offset, length, "Version: %s", tvb_format_text(tvb, offset, length - 1));
-        } else {
-            proto_item_set_text(ti, "Version: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Version: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_CONFIG_NAME:
-        if (length > 0) {
-            proto_item_set_text(ti, "Config Name: %s", tvb_format_text(tvb, offset, length - 1));
-            proto_tree_add_text(tree, tvb, offset, length, "Config Name: %s", tvb_format_text(tvb, offset, length - 1));
-        } else {
-            proto_item_set_text(ti, "Config Name: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Config Name: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_ROOT_MAC_ADDR:
-        if (length == 6) {
-            const gchar *macstr = tvb_ether_to_str(tvb, offset);
-            proto_item_set_text(ti, "Root MAC Addr: %s", macstr);
-            proto_tree_add_text(tree, tvb, offset, length, "Root MAC Addr: %s", macstr);
-        } else {
-            proto_item_set_text(ti, "Root MAC Addr: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Root MAC Addr: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_IP_ADDR:
-        if (length == 4) {
-            const char *ipstr = tvb_ip_to_str(tvb, offset);
-            proto_item_set_text(ti, "IP Addr: %s", ipstr);
-            proto_tree_add_text(tree, tvb, offset, length, "IP Addr: %s", ipstr);
-        } else {
-            proto_item_set_text(ti, "IP Addr: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "IP Addr: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_FIELD_6:
-        if (length == 2) {
-            proto_item_set_text(ti, "Field 6: 0x%04x", tvb_get_ntohs(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 6: 0x%04x", tvb_get_ntohs(tvb,offset));
-        } else {
-            proto_item_set_text(ti, "Field 6: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Field 6: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_DOMAIN:
-        if (length > 0) {
-            proto_item_set_text(ti, "Domain: %s", tvb_format_text(tvb, offset, length - 1));
-            proto_tree_add_text(tree, tvb, offset, length, "Domain: %s", tvb_format_text(tvb, offset, length - 1));
-        } else {
-            proto_item_set_text(ti, "Domain: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Domain: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_FIELD_8:
-        if (length == 2) {
-            proto_item_set_text(ti, "Field 8: 0x%04x", tvb_get_ntohs(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 8: 0x%04x", tvb_get_ntohs(tvb,offset));
-        } else {
-            proto_item_set_text(ti, "Field 8: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Field 8: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_FIELD_9:
-        if (length == 2) {
-            proto_item_set_text(ti, "Field 9: 0x%04x", tvb_get_ntohs(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 9: 0x%04x", tvb_get_ntohs(tvb,offset));
-        } else {
-            proto_item_set_text(ti, "Field 9: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Field 9: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_FIELD_10:
-        if (length == 4) {
-            proto_item_set_text(ti, "Field 10: 0x%08x", tvb_get_ntohl(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 10: 0x%08x", tvb_get_ntohl(tvb,offset));
-        } else {
-            proto_item_set_text(ti, "Field 10: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Field 10: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_NEIGHBORS:
-        if (!(length % 6))
-        {   int i = length/6;
-            proto_item_set_text(ti, "Number of neighbor MAC Addresses: %u", i);
-            for ( ; i; i--)
-            {
-                const gchar *macstr = tvb_ether_to_str(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, length, "MAC Addr: %s", macstr);
-                offset += 6;
-            }
-        } else {
-            proto_item_set_text(ti, "Neighbors: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Neighbors: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_FIELD_12:
-        if (length == 1) {
-            proto_item_set_text(ti, "Field 12: 0x%02x", tvb_get_guint8(tvb,offset));
-            proto_tree_add_text(tree, tvb, offset, length, "Field 12: 0x%02x", tvb_get_guint8(tvb,offset));
-        } else {
-            proto_item_set_text(ti, "Field 12: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Field 12: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_DEVICE_ID:
-        if (length > 6) {
-            const gchar *macstr = tvb_ether_to_str(tvb, offset);
-            const gchar *idstr = tvb_bytes_to_str(tvb, offset+6, length-6);
-            proto_item_set_text(ti, "Device ID: %s / %s", macstr, idstr);
-            proto_tree_add_text(tree, tvb, offset, 10, "Device ID: %s / %s", macstr, idstr);
-        } else {
-            proto_item_set_text(ti, "Device ID: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Device ID: Bad length %u", length);
-        }
-        break;
-
-    case HPFOO_OWN_MAC_ADDR:
-        if (length == 6) {
-            const gchar *macstr = tvb_ether_to_str(tvb, offset);
-            proto_item_set_text(ti, "Own MAC Addr: %s", macstr);
-            proto_tree_add_text(tree, tvb, offset, length, "Own MAC Addr: %s", macstr);
-        } else {
-            proto_item_set_text(ti, "Own MAC Addr: Bad length %u", length);
-            proto_tree_add_text(tree, tvb, offset, length, "Own MAC Addr: Bad length %u", length);
-        }
-        break;
-
-    default:
-        proto_tree_add_text(tree, tvb, offset, length, "Data");
-        break;
-    }
-}
-
-
-
 
 void
 proto_register_hpsw(void)
@@ -320,7 +297,22 @@ proto_register_hpsw(void)
 			VALS(hpsw_tlv_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_hpsw_tlvlength,
 		{ "Length", "hpsw.tlv_len", FT_UINT8, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }}
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_device_name, { "Device Name", "hpsw.device_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_device_version, { "Version", "hpsw.device_version", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_config_name, { "Config Name", "hpsw.config_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_root_mac_addr, { "Root MAC Addr", "hpsw.root_mac_addr", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_ip_addr, { "IP Addr", "hpsw.ip_addr", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_field_6, { "Field 6", "hpsw.field_6", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_domain, { "Domain", "hpsw.domain", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_field_8, { "Field 8", "hpsw.field_8", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_field_9, { "Field 9", "hpsw.field_9", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_field_10, { "Field 10", "hpsw.field_10", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_neighbor_mac_addr, { "MAC Addr", "hpsw.neighbor_mac_addr", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_field_12, { "Field 12", "hpsw.field_12", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_own_mac_addr, { "Own MAC Addr", "hpsw.own_mac_addr", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_device_id, { "Device ID", "hpsw.device_id", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_hpsw_device_id_data, { "Data", "hpsw.device_id_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -328,9 +320,17 @@ proto_register_hpsw(void)
 		&ett_hpsw_tlv
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_hpsw_tlvlength_bad, { "hpsw.tlv_len.bad", PI_PROTOCOL, PI_WARN, "Bad length", EXPFILL }},
+	};
+
+	expert_module_t* expert_hpsw;
+
 	proto_hpsw = proto_register_protocol( "HP Switch Protocol", "HPSW", "hpsw");
 	proto_register_field_array(proto_hpsw, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_hpsw = expert_register_protocol(proto_hpsw);
+	expert_register_field_array(expert_hpsw, ei, array_length(ei));
 
 	register_dissector("hpsw", dissect_hpsw, proto_hpsw);
 }
@@ -344,3 +344,16 @@ proto_reg_handoff_hpsw(void)
 
 	dissector_add_uint("hpext.dxsap", HPEXT_HPSW, hpsw_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
