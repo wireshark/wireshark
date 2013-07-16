@@ -176,11 +176,9 @@ SOURCES_WS_C = \
     ../../fileset.c       \
     ../../filters.c       \
     ../../frame_tvbuff.c   \
-    ../../g711.c \
     ../../proto_hier_stats.c      \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
-    ../../u3.c \
     ../../version_info.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
