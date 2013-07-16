@@ -3095,27 +3095,29 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset += EDONKEY_UDP_HEADER_LENGTH;
         remainingLength = tvb_length_remaining( tvb, offset );
 
-        switch (protocol) {
-            case EDONKEY_PROTO_EDONKEY:
-                offset = dissect_edonkey_udp_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
-                break;
+        if (remainingLength > 0) {
+            switch (protocol) {
+                case EDONKEY_PROTO_EDONKEY:
+                    offset = dissect_edonkey_udp_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
+                    break;
 
-            case EDONKEY_PROTO_EMULE_EXT:
-                offset = dissect_emule_udp_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
-                break;
+                case EDONKEY_PROTO_EMULE_EXT:
+                    offset = dissect_emule_udp_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
+                    break;
 
-            case EDONKEY_PROTO_ADU_KADEMLIA:
-            case EDONKEY_PROTO_KADEMLIA:
-                offset = dissect_kademlia_udp_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
-                break;
+                case EDONKEY_PROTO_ADU_KADEMLIA:
+                case EDONKEY_PROTO_KADEMLIA:
+                    offset = dissect_kademlia_udp_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
+                    break;
 
-            case EDONKEY_PROTO_ADU_KADEMLIA_COMP:
-            case EDONKEY_PROTO_KADEMLIA_COMP:
-                offset = dissect_kademlia_udp_compressed_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
-                break;
+                case EDONKEY_PROTO_ADU_KADEMLIA_COMP:
+                case EDONKEY_PROTO_KADEMLIA_COMP:
+                    offset = dissect_kademlia_udp_compressed_message(msg_type, tvb, pinfo, offset, remainingLength, edonkey_msg_tree);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
 
         extraBytes = tvb_reported_length_remaining( tvb, offset );
