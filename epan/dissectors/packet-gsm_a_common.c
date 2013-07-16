@@ -1244,7 +1244,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
     if (oct == iei) {
         parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
-	elem_name = try_val_to_str_ext(idx, &elem_names_ext);
+        elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
         item =
         proto_tree_add_text(tree,
@@ -1337,7 +1337,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
             parm_len = parm_len & 0x7f;
         }
 
-	elem_name = try_val_to_str_ext(idx, &elem_names_ext);
+        elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
         item =
         proto_tree_add_text(tree,
@@ -1422,7 +1422,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
     if (oct == iei) {
         parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
 
-	elem_name = try_val_to_str_ext(idx, &elem_names_ext);
+        elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
         item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1 + 2,
             "%s%s", elem_name ? elem_name : "Unknown - aborting dissection",
@@ -1501,7 +1501,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
 
     if (oct == iei)
     {
-	elem_name = try_val_to_str_ext(idx, &elem_names_ext);
+        elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
         item =
             proto_tree_add_text(tree, tvb, curr_offset, -1,
@@ -1579,7 +1579,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     if ((oct & 0xf0) == (iei & 0xf0))
     {
-	elem_name = try_val_to_str_ext(idx, &elem_names_ext);
+        elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
         item =
             proto_tree_add_text(tree,
@@ -2185,7 +2185,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
     guint8   *poctets;
     guint32   value;
     gboolean  odd;
-	const gchar *digit_str;
+    const gchar *digit_str;
 
     curr_offset = offset;
 
@@ -2229,7 +2229,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-		digit_str = tvb_bcd_dig_to_ep_str(tvb ,curr_offset , len - (curr_offset - offset), NULL, TRUE);
+        digit_str = tvb_bcd_dig_to_ep_str(tvb ,curr_offset , len - (curr_offset - offset), NULL, TRUE);
 
         proto_tree_add_string_format(tree,
             ((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
