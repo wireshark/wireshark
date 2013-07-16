@@ -2135,7 +2135,7 @@ AC_SUBST(LIBCAP_LIBS)
 
 dnl Checks for header files.
 dnl Some of these may not be needed: http://hacks.owlfolio.org/header-survey/
-AC_CHECK_HEADERS(direct.h dirent.h fcntl.h grp.h inttypes.h netdb.h pwd.h stdarg.h stddef.h unistd.h)
+AC_CHECK_HEADERS(direct.h dirent.h fcntl.h getopt.h grp.h inttypes.h netdb.h pwd.h stdarg.h stddef.h unistd.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sys/time.h sys/types.h sys/utsname.h sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
