@@ -1662,7 +1662,7 @@ static char * column_format_to_str_cb(pref_t* pref, gboolean default_val) {
 
 /******  Capture column custom preference functions  ******/
 
-/* This routine is only called when Wireshark is started, NOT when another profile is selected. 
+/* This routine is only called when Wireshark is started, NOT when another profile is selected.
    Copy the pref->capture_columns list (just loaded with the capture_cols[] struct values)
    to prefs->default_val.list.
 */
@@ -1670,7 +1670,7 @@ static void capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
 {
     GList   *ccv_list = *capture_cols_values,
             *dlist = NULL;
-   
+
     /*  */
     while (ccv_list) {
         dlist = g_list_append(dlist, g_strdup((gchar *)ccv_list->data));
@@ -1682,15 +1682,15 @@ static void capture_column_init_cb(pref_t* pref, GList** capture_cols_values)
     pref->stashed_val.boolval = FALSE;
 }
 
-/* Free the prefs->capture_columns list strings and remove the list entries. 
+/* Free the prefs->capture_columns list strings and remove the list entries.
    Note that since pref->varp.list points to &prefs.capture_columns, it is
    also freed.
 */
 static void capture_column_free_cb(pref_t* pref)
-{   
+{
     GList    *clist = prefs.capture_columns;
     gchar    *col_name;
-    
+
     while (clist) {
         col_name = (gchar *)clist->data;
         g_free(col_name);
@@ -1702,7 +1702,7 @@ static void capture_column_free_cb(pref_t* pref)
     if (pref->stashed_val.boolval == TRUE) {
       GList *dlist;
       gchar *col;
-    
+
       dlist = pref->default_val.list;
       while (dlist != NULL) {
         col = (gchar *)dlist->data;
@@ -1714,13 +1714,13 @@ static void capture_column_free_cb(pref_t* pref)
     }
 }
 
-/* Copy pref->default_val.list to *pref->varp.list. 
+/* Copy pref->default_val.list to *pref->varp.list.
 */
 static void capture_column_reset_cb(pref_t* pref)
 {
     GList *vlist, *dlist;
     gchar *vcol;
-    
+
     /* Free the column name strings and remove the links from *pref->varp.list */
     vlist = *pref->varp.list;
     while (vlist != NULL) {
@@ -1730,20 +1730,20 @@ static void capture_column_reset_cb(pref_t* pref)
     }
     g_list_free(vlist);
     vlist = NULL;
-    
+
     for (dlist = pref->default_val.list; dlist != NULL; dlist = g_list_next(dlist)) {
       vlist = g_list_append(vlist, g_strdup((gchar *)dlist->data));
     }
-    *pref->varp.list = vlist;     
+    *pref->varp.list = vlist;
 }
 
 static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
-    GList   *col_l  = prefs_get_string_list(value); 
+    GList   *col_l  = prefs_get_string_list(value);
     GList    *col_l_elt;
     gchar   *col_name;
     int i;
-    
+
     if (col_l == NULL)
       return PREFS_SET_SYNTAX_ERR;
 
@@ -1759,18 +1759,18 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
         }
     }
 
-    /* Verify that all the column names are valid. If not, use the entire list of valid columns. 
+    /* Verify that all the column names are valid. If not, use the entire list of valid columns.
      */
     while(col_l_elt) {
       gboolean found_match = FALSE;
       col_name = (gchar *)col_l_elt->data;
-      
+
       for (i = 0; i < num_capture_cols; i++) {
-        if (strcmp(col_name, capture_cols[i])==0) { 
-          found_match = TRUE;  
+        if (strcmp(col_name, capture_cols[i])==0) {
+          found_match = TRUE;
           break;
         }
-      } 
+      }
       if (!found_match) {
         /* One or more cols are invalid so use the entire list of valid cols. */
         for (i = 0; i < num_capture_cols; i++) {
@@ -1779,8 +1779,8 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
         }
         pref->varp.list = &prefs.capture_columns;
         return PREFS_SET_SYNTAX_ERR;
-      } 
-      col_l_elt = col_l_elt->next;         
+      }
+      col_l_elt = col_l_elt->next;
     }
 
     col_l_elt = g_list_first(col_l);
@@ -1985,7 +1985,7 @@ prefs_register_modules(void)
     custom_cbs.is_default_cb = column_hidden_is_default_cb;
     custom_cbs.to_str_cb = column_hidden_to_str_cb;
     prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns",
-        "List all columns to hide in the packet list", &custom_cbs, (const char **)&cols_hidden_list);
+        "List all columns to hide in the packet list", &custom_cbs, &((const char *)cols_hidden_list));
 
     custom_cbs.free_cb = column_format_free_cb;
     custom_cbs.reset_cb = column_format_reset_cb;
@@ -2018,10 +2018,10 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
     prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", (const char**)(&prefs.gui_gtk2_font_name));
+        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", &((const char *)prefs.gui_gtk2_font_name));
 
     prefs_register_string_preference(gui_font_module, "qt.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (Qt)", (const char**)(&prefs.gui_qt_font_name));
+        "Font name for packet list, protocol tree, and hex dump panes. (Qt)", &((const char *)prefs.gui_qt_font_name));
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
@@ -2097,7 +2097,7 @@ prefs_register_modules(void)
                                    &prefs.gui_recent_df_entries_max);
 
     prefs_register_directory_preference(gui_module, "fileopen.dir", "Start Directory",
-        "Directory to start in when opening File Open dialog.", (const char**)(&prefs.gui_fileopen_dir));
+        "Directory to start in when opening File Open dialog.", &((const char *)prefs.gui_fileopen_dir));
 
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
 
@@ -2159,7 +2159,7 @@ prefs_register_modules(void)
                        &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
 
     prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser",
-        "The path to the webbrowser (Ex: mozilla)", (const char**)(&prefs.gui_webbrowser));
+        "The path to the webbrowser (Ex: mozilla)", &((const char *)prefs.gui_webbrowser));
 
     prefs_register_bool_preference(gui_module, "update.enabled",
                                    "Check for updates",
@@ -2178,7 +2178,7 @@ prefs_register_modules(void)
                                    &prefs.gui_update_interval);
 
     prefs_register_string_preference(gui_module, "window_title", "Custom window title",
-        "Custom window title. (Appended to existing titles.)", (const char**)(&prefs.gui_window_title));
+        "Custom window title. (Appended to existing titles.)", &((const char *)prefs.gui_window_title));
 
     prefs_register_string_preference(gui_module, "start_title", "Custom start page title",
         "Custom start page title", (const char**)(&prefs.gui_start_title));
@@ -2252,36 +2252,36 @@ prefs_register_modules(void)
         "CAPTURE", NULL, FALSE);
 
     prefs_register_string_preference(capture_module, "device", "Default capture device",
-        "Default capture device", (const char**)(&prefs.capture_device));
+        "Default capture device", &((const char *)prefs.capture_device));
 
     prefs_register_string_preference(capture_module, "devices_linktypes", "Interface link-layer header type",
         "Interface link-layer header types (Ex: en0(1),en1(143),...)",
-        (const char**)(&prefs.capture_devices_linktypes));
+        &((const char *)prefs.capture_devices_linktypes));
 
     prefs_register_string_preference(capture_module, "devices_descr", "Interface descriptions",
         "Interface descriptions (Ex: eth0(eth0 descr),eth1(eth1 descr),...)",
-        (const char**)(&prefs.capture_devices_descr));
+        &((const char *)prefs.capture_devices_descr));
 
     prefs_register_string_preference(capture_module, "devices_hide", "Hide interface",
-        "Hide interface? (Ex: eth0,eth3,...)", (const char**)(&prefs.capture_devices_hide));
+        "Hide interface? (Ex: eth0,eth3,...)", &((const char *)prefs.capture_devices_hide));
 
     prefs_register_string_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode",
         "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)",
-        (const char**)(&prefs.capture_devices_monitor_mode));
+        &((const char *)prefs.capture_devices_monitor_mode));
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     prefs_register_string_preference(capture_module, "devices_buffersize", "Interface buffer size",
         "Interface buffer size (Ex: en0(1),en1(143),...)",
-        (const char**)(&prefs.capture_devices_buffersize));
+        &((const char *)prefs.capture_devices_buffersize));
 #endif
 
     prefs_register_string_preference(capture_module, "devices_snaplen", "Interface snap length",
         "Interface snap length (Ex: en0(65535),en1(1430),...)",
-        (const char**)(&prefs.capture_devices_snaplen));
+        &((const char *)prefs.capture_devices_snaplen));
 
     prefs_register_string_preference(capture_module, "devices_pmode", "Interface promiscuous mode",
         "Interface promiscuous mode (Ex: en0(0),en1(1),...)",
-        (const char**)(&prefs.capture_devices_pmode));
+        &((const char *)prefs.capture_devices_pmode));
 
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
