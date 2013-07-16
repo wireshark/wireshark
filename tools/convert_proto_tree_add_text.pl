@@ -49,6 +49,8 @@ use warnings;
 
 use Getopt::Long;
 
+my $ENCODING_DEFAULT = "encoding";
+my $FIELDTYPE_DEFAULT = "fieldtype";
 my @proto_tree_list;
 my $protabbrev = "";
 
@@ -144,19 +146,33 @@ while (my $fileName = $ARGV[0]) {
 		open(FCI, "<", $fileName . ".proto_tree_input") || die("Couldn't open $fileName.proto_tree_input");
 		while(my $line=<FCI>){
 			my @proto_tree_item = split(/;|\n/, $line);
+
+			#do some basic error checking of the file
+			if (($proto_tree_item[0] ne "0") &&
+				($proto_tree_item[7] eq $ENCODING_DEFAULT)) {
+				print "encoding field not populated!  Aborting conversion.\n";
+				exit(-1);
+			}
+			if (($proto_tree_item[1] ne "0") &&
+				($proto_tree_item[9] eq $FIELDTYPE_DEFAULT)) {
+				print "fieldtype not populated!  Aborting conversion.\n";
+				exit(-1);
+			}
+
 			push(@proto_tree_list, \@proto_tree_item);
 		}
 		close(FCI);
 
 		fix_proto_tree_add_text(\$fileContents, $fileName);
 
+		# Write out the hf data
+		output_hf_array($fileName);
+		output_hf($fileName);
+
 		# Write out the changed version to a file
 		open(FCO, ">", $fileName . ".proto_tree_add_text");
 		print FCO "$fileContents";
 		close(FCO);
-
-		output_hf($fileName);
-		output_hf_array($fileName);
 	}
 
 	if ($action eq "find-all") {
@@ -187,8 +203,8 @@ sub generate_hfs {
 				/xs;
 
 	while ($$fileContentsRef =~ / $pat /xgso) {
-		my @proto_tree_item = (1, 1, "tree", "hf_name", "tvb", "offset", "length", "encoding",
-							   "fieldname", "fieldtype", "filtername", "BASE_NONE", "NULL", "0x0");
+		my @proto_tree_item = (1, 1, "tree", "hf_name", "tvb", "offset", "length", $ENCODING_DEFAULT,
+							   "fieldname", $FIELDTYPE_DEFAULT, "filtername", "BASE_NONE", "NULL", "0x0");
 		my $str = "${1}\n";
 		$str =~ tr/\t\n\r/ /d;
 		$str =~ s/ \s+ / /xg;
@@ -377,6 +393,7 @@ sub output_hf {
 sub output_hf_array {
 	my( $fileName) = @_;
 	my $index;
+	my %hfs = ();
 
 	open(FCO, ">", $fileName . ".hf_array");
 
@@ -384,6 +401,11 @@ sub output_hf_array {
 
 	for ($index=0;$index<@proto_tree_list;$index++) {
 		if ($proto_tree_list[$index][1] ne "0") {
+			if (exists($hfs{$proto_tree_list[$index][3]})) {
+				print "duplicate hf entry '$proto_tree_list[$index][3]' found!  Aborting conversion.\n";
+				exit(-1);
+			}
+			$hfs{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
 			print FCO "      { &$proto_tree_list[$index][3], { \"$proto_tree_list[$index][8]\", \"$proto_tree_list[$index][10]\", ";
 			print FCO "$proto_tree_list[$index][9], $proto_tree_list[$index][11], $proto_tree_list[$index][12], $proto_tree_list[$index][13], NULL, HFILL }},\n";
 		}
