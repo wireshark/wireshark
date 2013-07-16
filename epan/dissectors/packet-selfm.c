@@ -919,11 +919,12 @@ const gchar*
 region_lookup(packet_info *pinfo, guint32 base_addr)
 {
     fm_conversation    *conv;
-    fastser_dataregion *dataregion;
+    fastser_dataregion *dataregion = NULL;
 
     conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
-
-    dataregion = (fastser_dataregion*)wmem_tree_lookup32(conv->fastser_dataregions, base_addr);
+    if (conv) {
+        dataregion = (fastser_dataregion*)wmem_tree_lookup32(conv->fastser_dataregions, base_addr);
+    }
 
     if (dataregion) {
         return dataregion->name;
