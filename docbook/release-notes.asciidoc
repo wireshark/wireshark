@@ -165,6 +165,10 @@ The following bugs have been fixed:
 
 * Mark retransmitted SYN and FIN packets as retransmissions.
 
+* Wireshark hides under Taskbar. (ws-buglink:3034)
+
+* Add MAC-DATA support to TETRA dissector and other minor improvements. (ws-buglink:8708)
+
 * Crash analyzing VoIP Calls (T38). (ws-buglink:8736)
 
 * Wireshark writes empty NRB FQDN which makes trace unloadable. (ws-buglink:8763)
@@ -172,6 +176,10 @@ The following bugs have been fixed:
 * Quick launch icon is absent, so it shows up as a generic icon. (ws-buglink:8773)
 
 * Wrong encoding for 2 pod files, UTF-8 characters in another. (ws-buglink:8774)
+
+* SCSI (SPC) sense key specific information field must not include SKSV. (ws-buglink:8782)
+
+* Wireshark crashes when closing Flow Graph with Graph Analysis opened. (ws-buglink:8793)
 
 * Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908)
 
@@ -195,8 +203,11 @@ DIS
 DVB-CI
 GSM Common
 GSM SMS
+H.235
 P1
 Radiotap
+SCSI
+TETRA
 VNC
 
 --sort-and-group--
