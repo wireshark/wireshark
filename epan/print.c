@@ -157,8 +157,8 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 #define MAX_INDENT    160
 
 /* Print a tree's data, and any child nodes. */
-static
-void proto_tree_print_node(proto_node *node, gpointer data)
+static void
+proto_tree_print_node(proto_node *node, gpointer data)
 {
     field_info   *fi    = PNODE_FINFO(node);
     print_data   *pdata = (print_data*) data;
@@ -186,14 +186,16 @@ void proto_tree_print_node(proto_node *node, gpointer data)
         proto_item_fill_label(fi, label_str);
     }
 
-    if (PROTO_ITEM_IS_GENERATED(node)) {
-        label_ptr = g_strdup_printf("[%s]", label_ptr);
-    }
+    if (PROTO_ITEM_IS_GENERATED(node))
+        label_ptr = g_strconcat("[", label_ptr, "]", NULL);
 
-    if (!print_line(pdata->stream, pdata->level, label_ptr)) {
-        pdata->success = FALSE;
+    pdata->success = print_line(pdata->stream, pdata->level, label_ptr);
+
+    if (PROTO_ITEM_IS_GENERATED(node))
+        g_free(label_ptr);
+
+    if (!pdata->success)
         return;
-    }
 
     /*
      * If -O is specified, only display the protocols which are in the
@@ -204,12 +206,7 @@ void proto_tree_print_node(proto_node *node, gpointer data)
      */
     if ((output_only_tables != NULL) && (pdata->level == 0)
         && (g_hash_table_lookup(output_only_tables, fi->hfinfo->abbrev) == NULL)) {
-        pdata->success = TRUE;
         return;
-    }
-
-    if (PROTO_ITEM_IS_GENERATED(node)) {
-        g_free(label_ptr);
     }
 
     /* If it's uninterpreted data, dump it (unless our caller will
