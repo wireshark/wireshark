@@ -220,18 +220,6 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
     }
 }
 
-static const true_false_string tfs_fc_fcfzs_gzc_flags_hard_zones = {
-    "Hard Zones Supported",
-    "Hard zones NOT supported"
-};
-static const true_false_string tfs_fc_fcfzs_gzc_flags_soft_zones = {
-    "Soft Zones Supported",
-    "Soft zones NOT supported"
-};
-static const true_false_string tfs_fc_fcfzs_gzc_flags_zoneset_db = {
-    "Zone Set Database is Available",
-    "Zone set database is NOT available"
-};
 
 static void
 dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gboolean isreq)
@@ -268,15 +256,6 @@ dissect_fcfzs_gzc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, gboolean i
         proto_tree_add_item(tree, hf_fcfzs_gzc_vendor, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     }
 }
-
-static const true_false_string tfs_fc_fcfzs_soft_zone_set_enforced = {
-    "Soft Zone Set is ENFORCED",
-    "Soft zone set is NOT enforced"
-};
-static const true_false_string tfs_fc_fcfzs_hard_zone_set_enforced = {
-    "Hard Zone Set is ENFORCED",
-    "Hard zone set is NOT enforced"
-};
 
 static void
 dissect_fcfzs_gest(tvbuff_t *tvb, proto_tree *parent_tree, gboolean isreq)
@@ -892,17 +871,17 @@ proto_register_fcfzs(void)
 
         { &hf_fcfzs_gzc_flags_hard_zones,
           {"Hard Zones", "fcfzs.gzc.flags.hard_zones",
-           FT_BOOLEAN, 8, TFS(&tfs_fc_fcfzs_gzc_flags_hard_zones), 0x80,
+           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
            NULL, HFILL}},
 
         { &hf_fcfzs_gzc_flags_soft_zones,
           {"Soft Zones", "fcfzs.gzc.flags.soft_zones",
-           FT_BOOLEAN, 8, TFS(&tfs_fc_fcfzs_gzc_flags_soft_zones), 0x40,
+           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
            NULL, HFILL}},
 
         { &hf_fcfzs_gzc_flags_zoneset_db,
           {"ZoneSet Database", "fcfzs.gzc.flags.zoneset_db",
-           FT_BOOLEAN, 8, TFS(&tfs_fc_fcfzs_gzc_flags_zoneset_db), 0x01,
+           FT_BOOLEAN, 8, TFS(&tfs_available_not_available), 0x01,
            NULL, HFILL}},
 
         { &hf_fcfzs_zone_state,
@@ -912,12 +891,12 @@ proto_register_fcfzs(void)
 
         { &hf_fcfzs_soft_zone_set_enforced,
           {"Soft Zone Set", "fcfzs.soft_zone_set.enforced",
-           FT_BOOLEAN, 8, TFS(&tfs_fc_fcfzs_soft_zone_set_enforced), 0x80,
+           FT_BOOLEAN, 8, TFS(&tfs_enforced_not_enforced), 0x80,
            NULL, HFILL}},
 
         { &hf_fcfzs_hard_zone_set_enforced,
           {"Hard Zone Set", "fcfzs.hard_zone_set.enforced",
-           FT_BOOLEAN, 8, TFS(&tfs_fc_fcfzs_hard_zone_set_enforced), 0x40,
+           FT_BOOLEAN, 8, TFS(&tfs_enforced_not_enforced), 0x40,
            NULL, HFILL}},
 
     };

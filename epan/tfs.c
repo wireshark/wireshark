@@ -75,4 +75,5 @@ const true_false_string tfs_complete_incomplete = { "Complete", "Incomplete" };
 const true_false_string tfs_valid_not_valid = { "Valid", "Not Valid" };
 const true_false_string tfs_do_not_clear_clear = { "Do not clear", "Clear" };
 const true_false_string tfs_confirmed_unconfirmed = { "Confirmed", "Unconfirmed" };
+const true_false_string tfs_enforced_not_enforced = { "Enforced", "Not enforced" };
 
