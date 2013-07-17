@@ -188,6 +188,9 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   case(ESD_BTNS_YES_NO_CANCEL):
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, GTK_STOCK_CANCEL, NULL);
     break;
+  case(ESD_BTNS_SAVE_DONTSAVE):
+    bbox = dlg_button_row_new(GTK_STOCK_SAVE, WIRESHARK_STOCK_DONT_SAVE, NULL);
+    break;
   case(ESD_BTNS_SAVE_DONTSAVE_CANCEL):
     bbox = dlg_button_row_new(GTK_STOCK_SAVE, WIRESHARK_STOCK_DONT_SAVE, GTK_STOCK_CANCEL, NULL);
     break;

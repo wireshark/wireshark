@@ -2900,7 +2900,7 @@ void
 prefs_reset(void)
 {
   prefs_initialized = FALSE;
-
+  g_free(prefs.saved_at_version);
   /*
    * Unload all UAT preferences.
    */
@@ -3060,11 +3060,23 @@ read_prefs_file(const char *pf_path, FILE *pf,
   GString  *cur_val;
   GString  *cur_var;
   gboolean  got_val = FALSE;
+  gboolean first_line = TRUE;
   gint      fline = 1, pline = 1;
-  gchar     hint[] = "(applying your preferences once should remove this warning)";
-
+  gchar     hint[] = "(save preferences to remove this warning)";
+  
   cur_val = g_string_new("");
   cur_var = g_string_new("");
+
+  /* Try to read in the profile name in the first line of the preferences file. */
+  got_c = getc(pf);
+  if(got_c
+  && pf->_base
+  && strncmp((const char *)pf->_base, "# Configuration file for ", 25) == 0) {
+    gchar *eol = strchr(pf->_base, '\n');
+    int len = eol - (pf->_base + 25) - 1;
+    prefs.saved_at_version = g_strndup((const gchar *)pf->_base + 25, len);
+  }
+  rewind(pf);
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
@@ -3095,8 +3107,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
 
               case PREFS_SET_SYNTAX_ERR:
-                g_warning ("%s line %d: Syntax error in preference \"%s\" %s",
-                  pf_path, pline, cur_var->str, hint);
+                g_warning ("Syntax error in preference \"%s\" at line %d of\n%s %s",
+                  cur_var->str, pline, pf_path, hint);
                 break;
 
               case PREFS_SET_NO_SUCH_PREF:
@@ -3105,19 +3117,26 @@ read_prefs_file(const char *pf_path, FILE *pf,
                  * on non-Win32 platforms.
                  */
                 if (strcmp(cur_var->str, "print.command") != 0)
-                    g_warning ("%s line %d: No such preference \"%s\" %s",
-                               pf_path, pline, cur_var->str, hint);
+                    g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+                      cur_var->str, pline, pf_path, hint);
+                prefs.unknown_prefs = TRUE;
                 break;
 
               case PREFS_SET_OBSOLETE:
-                /* We silently ignore attempts to set these; it's
-                   probably not the user's fault that it's in there -
-                   they may have saved preferences with a release that
-                   supported them. */
+                if (strcmp(cur_var->str, "print.command") != 0)
+                  /* If an attempt is made to save the preferences, a popup warning will be
+                     displayed stating that obsolete prefs have been detected and the user will
+                     be given the opportunity to save these prefs under a different profile name.
+                     The prefs in question need to be listed in the console window so that the
+                     user can make an informed choice.
+                   */
+                  g_warning ("Obsolete preference \"%s\" at line %d of\n%s %s",
+                    cur_var->str, pline, pf_path, hint);
+                prefs.unknown_prefs = TRUE;
                 break;
               }
             } else {
-              g_warning ("%s line %d: Incomplete preference %s", pf_path, pline, hint);
+              g_warning ("Incomplete preference at line %d: of\n%s %s", pline, pf_path, hint);
             }
           }
           state      = IN_VAR;
@@ -3130,7 +3149,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
         } else if (got_c == '#') {
           state = IN_SKIP;
         } else {
-          g_warning ("%s line %d: Malformed line %s", pf_path, fline, hint);
+          g_warning ("Malformed preference at line %d of\n%s %s", fline, pf_path, hint);
         }
         break;
       case IN_VAR:
@@ -3170,22 +3189,23 @@ read_prefs_file(const char *pf_path, FILE *pf,
         break;
 
       case PREFS_SET_SYNTAX_ERR:
-        g_warning ("%s line %d: Syntax error in preference %s %s", pf_path, pline, cur_var->str, hint);
+        g_warning ("Syntax error in preference %s at line %d of\n%s %s",
+          cur_var->str, pline, pf_path, hint);
         break;
 
       case PREFS_SET_NO_SUCH_PREF:
-        g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
-                        pline, cur_var->str, hint);
+        g_warning ("No such preference \"%s\" at line %d of\n%s %s",
+            cur_var->str, pline, pf_path, hint);
+        prefs.unknown_prefs = TRUE;
         break;
 
       case PREFS_SET_OBSOLETE:
-        /* We silently ignore attempts to set these; it's probably not
-           the user's fault that it's in there - they may have saved
-           preferences with a release that supported it. */
+        prefs.unknown_prefs = TRUE;
         break;
       }
     } else {
-      g_warning ("%s line %d: Incomplete preference %s", pf_path, pline, hint);
+      g_warning ("Incomplete preference at line %d of\n%s %s",
+        pline, pf_path, hint);
     }
   }
 
@@ -3664,9 +3684,16 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
           else if (strcmp(pref_name, "sonmp") == 0)
             module = prefs_find_module("ndp");
           else if (strcmp(pref_name, "etheric") == 0 ||
-                   strcmp(pref_name, "isup_thin") == 0)
+                   strcmp(pref_name, "isup_thin") == 0) {
             /* This protocol was removed 7. July 2009 */
             return PREFS_SET_OBSOLETE;
+          }              
+          if (module) {
+            g_warning ("Preference \"%s.%s\" has been converted to \"%s.%s.%s\"\n"
+              "Save your preferences to make this change permanent.",
+              pref_name, dotp+1, module->parent->name, pref_name, dotp+1);
+            prefs.unknown_prefs = TRUE;
+          }
         }
         *dotp = '.';                /* put the preference string back */
         dotp++;                     /* skip past separator to preference name */
@@ -3677,6 +3704,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     pref = prefs_find_preference(module, dotp);
 
     if (pref == NULL) {
+      prefs.unknown_prefs = TRUE;
+
       /* "gui" prefix was added to column preferences for better organization
        * within the preferences file
        */
