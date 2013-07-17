@@ -1103,23 +1103,25 @@ typedef struct {
 static gboolean
 print_line_text(print_stream_t *self, int indent, const char *line)
 {
+    static char  spaces[MAX_INDENT];
+
     output_text *output = (output_text *)self->data;
-    char         space[MAX_INDENT+1];
-    int          i;
-    int          num_spaces;
+    unsigned int num_spaces;
+
+    /* should be space, if NUL -> initialize */
+    if (!spaces[0]) {
+        int i;
+
+        for (i = 0; i < MAX_INDENT; i++)
+            spaces[i] = ' ';
+    }
 
     /* Prepare the tabs for printing, depending on tree level */
     num_spaces = indent * 4;
-    if (num_spaces > MAX_INDENT) {
+    if (num_spaces > MAX_INDENT)
         num_spaces = MAX_INDENT;
-    }
-    for (i = 0; i < num_spaces; i++) {
-        space[i] = ' ';
-    }
-    /* The string is NUL-terminated */
-    space[num_spaces] = '\0';
 
-    fputs(space, output->fh);
+    fwrite(spaces, 1, num_spaces, output->fh);
     fputs(line, output->fh);
     putc('\n', output->fh);
     return !ferror(output->fh);
