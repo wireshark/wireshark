@@ -4912,7 +4912,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 
   tvbuff_t      *new_tvb  = NULL;
   tvbuff_t      *next_tvb = NULL;
-  fragment_data *frag_msg = NULL;
+  fragment_head *frag_msg = NULL;
 
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport parameter fields:");
   proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));

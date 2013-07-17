@@ -736,7 +736,8 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32        dlt;
     guint32        n_ext_flags = 0;
     guint32        ampdu_id    = 0;
-    fragment_data *fd_head     = NULL, *ft_fdh = NULL;
+    fragment_head *fd_head     = NULL;
+    fragment_item *ft_fdh      = NULL;
     gint           mpdu_count  = 0;
     gchar         *mpdu_str;
     gboolean       first_mpdu  = TRUE;

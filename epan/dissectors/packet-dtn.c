@@ -326,7 +326,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         conv_hdr = tvb_get_guint8(tvb, frame_offset);
         if((conv_hdr & TCP_CONVERGENCE_TYPE_MASK) == TCP_CONVERGENCE_DATA_SEGMENT) {
-            fragment_data *frag_msg;
+            fragment_head *frag_msg;
             tvbuff_t      *new_tvb;
             proto_tree    *bundle_tree;
             proto_tree    *conv_proto_tree;

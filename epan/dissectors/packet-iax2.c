@@ -2147,7 +2147,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
   iax_call_dirdata *dirdata;
   gpointer          value          = NULL;
   guint32           frag_offset    = 0;
-  fragment_data    *fd_head;
+  fragment_head    *fd_head;
   gboolean          must_desegment = FALSE;
 
   DISSECTOR_ASSERT(iax_call);

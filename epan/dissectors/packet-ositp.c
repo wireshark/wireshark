@@ -924,7 +924,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   gboolean fragment = FALSE;
   guint32  fragment_length = 0;
   tvbuff_t *next_tvb;
-  fragment_data *fd_head;
+  fragment_head *fd_head;
   conversation_t *conv;
   guint     tpdu_len;
 

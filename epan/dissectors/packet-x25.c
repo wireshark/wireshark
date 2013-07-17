@@ -1295,7 +1295,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint payload_len;
     guint32 frag_key;
     void *saved_private_data;
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
 
     guint8 spi;

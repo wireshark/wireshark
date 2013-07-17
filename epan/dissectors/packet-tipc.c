@@ -836,7 +836,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 	gboolean save_fragmented;
 	guint32 frag_no, frag_msg_no;
 	tvbuff_t* new_tvb = NULL;
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 
 	message_type = (tvb_get_guint8(tipc_tvb, offset) >>5) & 0x7;
 
@@ -1811,7 +1811,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 	gboolean save_fragmented;
 	tvbuff_t* new_tvb = NULL;
 	tvbuff_t* next_tvb = NULL;
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 	proto_item *item;
 
 	link_lev_seq_no = tvb_get_ntohl(tvb, 4) & 0xffff;

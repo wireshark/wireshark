@@ -337,12 +337,12 @@ void t38_add_address(packet_info *pinfo,
 }
 
 
-fragment_data *
+fragment_head *
 force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 {
-	fragment_data *fd_head;
-	fragment_data *fd_i;
-	fragment_data *last_fd;
+	fragment_head *fd_head;
+	fragment_item *fd_i;
+	fragment_item *last_fd;
 	guint32 dfpos, size, packet_lost, burst_lost, seq_num;
 	guint8 *data;
 
@@ -587,7 +587,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     /* TODO: reassemble all the Items in one frame */
     if (primary_part && (Data_Field_item_num<2)) {
         if (Data_Field_field_type_value == 2 || Data_Field_field_type_value == 4 || Data_Field_field_type_value == 7) {/* hdlc-fcs-OK or hdlc-fcs-OK-sig-end or t4-non-ecm-sig-end*/
-            fragment_data *frag_msg = NULL;
+            fragment_head *frag_msg = NULL;
             tvbuff_t* new_tvb = NULL;
             gboolean save_fragmented = actx->pinfo->fragmented;
 
@@ -702,7 +702,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     /* using the current ressaemble functions.                                                          */
     /* TODO: reassemble all the Items in one frame */
     if (primary_part && (Data_Field_item_num<2)) {
-        fragment_data *frag_msg = NULL;
+        fragment_head *frag_msg = NULL;
 
         /* HDLC Data or t4-non-ecm-data */
         if (Data_Field_field_type_value == 0 || Data_Field_field_type_value == 6) { /* 0=HDLC Data or 6=t4-non-ecm-data*/

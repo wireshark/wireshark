@@ -2384,7 +2384,7 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (mq_reassembly)
                 {
                     tvbuff_t* next_tvb;
-                    fragment_data* fd_head;
+                    fragment_head* fd_head;
                     guint32 iConnectionId = (pinfo->srcport + pinfo->destport);
                     if (opcode > 0x80 && !bFirstSegment) iBeginLength = 28;
                     fd_head = fragment_add_seq_next(&mq_reassembly_table,

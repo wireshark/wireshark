@@ -313,7 +313,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             guint32 opcua_seqid = 0;
             guint32 opcua_num = 0;
             guint32 opcua_seqnum = 0;
-            fragment_data *frag_msg = NULL;
+            fragment_head *frag_msg = NULL;
 
             offset = 3;
 

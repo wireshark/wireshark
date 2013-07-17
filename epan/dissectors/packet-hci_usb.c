@@ -104,7 +104,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     hci_data_t     *hci_data;
     gint            p2p_dir_save;
     guint32         session_id;
-    fragment_data  *reassembled;
+    fragment_head  *reassembled;
 
     if (tvb_length_remaining(tvb, offset) <= 0)
         return 0;

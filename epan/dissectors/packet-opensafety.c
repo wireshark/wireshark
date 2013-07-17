@@ -1085,7 +1085,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
     gint        calcDataLength;
     gboolean    isResponse, decodePayload, isEndSegment, isSegmented, saveFragmented;
     tvbuff_t* new_tvb = NULL;
-	fragment_data *frag_msg = NULL;
+    fragment_head *frag_msg = NULL;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
     decodePayload = FALSE;

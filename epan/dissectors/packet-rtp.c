@@ -1107,7 +1107,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if(msp && msp->startseq < seqno && msp->endseq >= seqno) {
 		guint32 fid = msp->startseq;
-		fragment_data *fd_head;
+		fragment_head *fd_head;
 
 #ifdef DEBUG_FRAGMENTS
 		g_debug("\tContinues fragment %d", fid);
@@ -1192,7 +1192,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	{
 		guint32 deseg_offset = pinfo->desegment_offset;
 		guint32 frag_len = tvb_reported_length_remaining(newtvb, deseg_offset);
-		fragment_data *fd_head = NULL;
+		fragment_head *fd_head = NULL;
 
 #ifdef DEBUG_FRAGMENTS
 		g_debug("\tRTP Must Desegment: tvb_len=%d ds_len=%d %d frag_len=%d ds_off=%d",

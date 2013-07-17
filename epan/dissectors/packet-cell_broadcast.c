@@ -316,7 +316,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint16       serial_number, message_id;
    tvbuff_t      *cbs_page_tvb = NULL;
    tvbuff_t      *cbs_msg_tvb = NULL;
-   fragment_data * frag_data = NULL;
+   fragment_head * frag_data = NULL;
 
    len = tvb_length(tvb);
 

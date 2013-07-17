@@ -888,7 +888,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      move asp back in atp?
   */
   if (atp_defragment && aspinfo.reply && (more_fragment || frag_number != 0)) {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
     int hdr;
 
     hdr = ATP_HDRSIZE -1;

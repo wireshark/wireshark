@@ -435,7 +435,7 @@ static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 /* Decode and display the PDU Burst */
 static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo, gint burst_number, gint frag_type, gint frag_number)
 {
-	fragment_data *pdu_frag;
+	fragment_head *pdu_frag;
 	tvbuff_t *pdu_tvb = NULL;
 
 	/* update the info column */

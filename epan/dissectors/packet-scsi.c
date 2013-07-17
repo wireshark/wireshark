@@ -5477,7 +5477,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char       *old_proto;
     cmdset_t         *csdata;
     guint32           expected_length;
-    fragment_data    *ipfd_head;
+    fragment_head    *ipfd_head;
     tvbuff_t         *next_tvb        = tvb;
     gboolean          update_col_info = TRUE;
     gboolean          more_frags      = FALSE;

@@ -29,6 +29,7 @@
 #define STREAM_H
 
 #include <epan/tvbuff.h>
+#include <epan/reassemble.h>
 #include "ws_symbol_export.h"
 
 struct _fragment_items;
@@ -114,7 +115,7 @@ extern guint32 stream_get_frag_length( const stream_pdu_fragment_t *frag);
  *
  * Returns NULL until the last fragment is added.
  */
-extern struct _fragment_data *stream_get_frag_data( const stream_pdu_fragment_t *frag);
+extern fragment_head *stream_get_frag_data( const stream_pdu_fragment_t *frag);
 
 /*
  * Process reassembled data; if this is the last fragment, put the fragment

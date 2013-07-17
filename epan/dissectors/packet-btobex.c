@@ -1250,7 +1250,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    fragment_data *frag_msg       = NULL;
+    fragment_head *frag_msg       = NULL;
     gboolean       save_fragmented, complete;
     tvbuff_t*      new_tvb        = NULL;
     tvbuff_t*      next_tvb       = NULL;

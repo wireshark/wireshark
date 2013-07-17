@@ -3100,7 +3100,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean save_fragmented, save_writable;
 	gboolean do_frag = TRUE;
 	tvbuff_t* new_tvb = NULL;
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 
 	top_tree=tree; /* scsi should open its expansions on the top level */
 

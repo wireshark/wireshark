@@ -2321,7 +2321,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 packet_number;
     gboolean save_fragmented;
     int len;
-    fragment_data *fd_head;
+    fragment_head *fd_head;
     tvbuff_t *next_tvb;
     conversation_t *conv;
     tds_conv_info_t *tds_info;

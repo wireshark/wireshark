@@ -520,7 +520,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Potentially fragmented I frames
 		 */
-		fragment_data *fd_m = NULL;
+		fragment_head *fd_m = NULL;
 		tvbuff_t *reassembled = NULL;
 		guint32 fragment_id;
 		gboolean save_fragmented = pinfo->fragmented;

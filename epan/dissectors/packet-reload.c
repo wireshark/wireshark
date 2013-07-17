@@ -3926,7 +3926,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const char           *msg_method_str  = NULL;
   gboolean              fragmented      = FALSE;
   gboolean              last_fragment   = FALSE;
-  fragment_data        *reload_fd_head  = NULL;
+  fragment_head        *reload_fd_head  = NULL;
   guint32               fragment        = 0;
   gboolean              save_fragmented = FALSE;
   gboolean              update_col_info = TRUE;

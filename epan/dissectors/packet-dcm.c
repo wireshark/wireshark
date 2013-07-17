@@ -6640,7 +6640,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dcm_state_pdv_t *pdv = NULL;
 
     tvbuff_t *next_tvb = NULL;
-    fragment_data *head = NULL;
+    fragment_head *head = NULL;
 
     guint32 reassembly_id;
     guint32 pdv_body_len;

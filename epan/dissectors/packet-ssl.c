@@ -974,7 +974,7 @@ desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
               proto_tree *root_tree, proto_tree *tree,
               SslFlow *flow)
 {
-    fragment_data *ipfd_head;
+    fragment_head *ipfd_head;
     gboolean       must_desegment;
     gboolean       called_dissector;
     int            another_pdu_follows;

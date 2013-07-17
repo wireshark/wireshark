@@ -831,7 +831,7 @@ Figure 18 from [ref:1]
     guint16        packet_num;
     guint8         fragment_num;
     guint8         flags;
-    fragment_data *frag_msg;
+    fragment_head *frag_msg;
     proto_tree    *wai_tree     = NULL;
     tvbuff_t      *next_tvb;
     tvbuff_t      *new_tvb;

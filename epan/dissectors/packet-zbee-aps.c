@@ -876,7 +876,7 @@ dissect_zbee_aps_no_endpt:
     if ((payload_tvb) && (packet.fragmentation != ZBEE_APS_EXT_FCF_FRAGMENT_NONE)) {
         guint32         msg_id;
         guint32         block_num;
-        fragment_data   *frag_msg = NULL;
+        fragment_head   *frag_msg = NULL;
         tvbuff_t        *new_tvb;
 
         /* Set the fragmented flag. */

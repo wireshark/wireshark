@@ -175,7 +175,7 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
     if (is_sysex_code(code))
     {
         tvbuff_t* new_tvb = NULL;
-        fragment_data *frag_sysex_msg = NULL;
+        fragment_head *frag_sysex_msg = NULL;
 
         pinfo->fragmented = TRUE;
 

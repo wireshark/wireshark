@@ -2240,7 +2240,7 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	struct unicast_frag_packet_v12 *unicast_frag_packeth;
 	const guint8  *dest_addr, *orig_addr;
 	gboolean save_fragmented = FALSE;
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree = NULL, *flag_tree;
 
 	tvbuff_t *new_tvb;
@@ -2346,7 +2346,7 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	struct unicast_frag_packet_v14 *unicast_frag_packeth;
 	const guint8  *dest_addr, *orig_addr;
 	gboolean save_fragmented = FALSE;
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree = NULL, *flag_tree;
 
 	tvbuff_t *new_tvb;

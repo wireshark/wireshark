@@ -1250,7 +1250,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   for (; offset < record_length; offset += fragment_length,
          first_iteration = FALSE) /* set up for next pass, if any */
     {
-      fragment_data *frag_msg = NULL;
+      fragment_head *frag_msg = NULL;
       tvbuff_t      *new_tvb  = NULL;
       const gchar   *frag_str = NULL;
       gboolean       fragmented;

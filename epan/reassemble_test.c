@@ -99,9 +99,9 @@ static char *data;
 static tvbuff_t *tvb;
 static packet_info pinfo;
 
-/* fragment_table maps from datagram ids to head of fragment_data list
-   reassembled_table maps from <packet number,datagram id> to head of
-   fragment_data list */
+/* fragment_table maps from datagram ids to fragment_head 
+   reassembled_table maps from <packet number,datagram id> to 
+   fragment_head */
 static reassembly_table test_reassembly_table;
 
 #ifdef debug
@@ -128,7 +128,7 @@ static struct _fd_flags {
 #define N_FD_FLAGS (signed)(sizeof(fd_flags)/sizeof(struct _fd_flags))
 
 static void
-print_fd(fragment_data *fd, gboolean is_head) {
+print_fd(fragment_head *fd, gboolean is_head) {
     int i;
 
     g_assert(fd != NULL);
@@ -146,8 +146,8 @@ print_fd(fragment_data *fd, gboolean is_head) {
 }
 
 static void
-print_fd_chain(fragment_data *fd_head) {
-    fragment_data *fdp;
+print_fd_chain(fragment_head *fd_head) {
+    fragment_item *fdp;
 
     g_assert(fd_head != NULL);
     print_fd(fd_head, TRUE);
@@ -159,7 +159,7 @@ print_fd_chain(fragment_data *fd_head) {
 static void
 print_fragment_table_chain(gpointer k, gpointer v, gpointer ud) {
     fragment_key  *key     = (fragment_key*)k;
-    fragment_data *fd_head = (fragment_data *)v;
+    fragment_head *fd_head = (fragment_head *)v;
     printf("  --> FT: %3d 0x%08x 0x%08x\n", key->id, *(guint32 *)(key->src.data), *(guint32 *)(key->dst.data));
     print_fd_chain(fd_head);
 }
@@ -173,7 +173,7 @@ print_fragment_table(void) {
 static void
 print_reassembled_table_chain(gpointer k, gpointer v, gpointer ud) {
     reassembled_key  *key  = (reassembled_key*)k;
-    fragment_data *fd_head = (fragment_data *)v;
+    fragment_head *fd_head = (fragment_head *)v;
     printf("  --> RT: %5d %5d\n", key->id, key->frame);
     print_fd_chain(fd_head);
 }
@@ -211,7 +211,7 @@ print_tables(void) {
 static void
 test_simple_fragment_add_seq(void)
 {
-    fragment_data *fd_head, *fdh0;
+    fragment_head *fd_head, *fdh0;
 
     printf("Starting test test_simple_fragment_add_seq\n");
 
@@ -340,7 +340,8 @@ test_simple_fragment_add_seq(void)
 static void
 test_fragment_add_seq_partial_reassembly(void)
 {
-    fragment_data *fd_head, *fd;
+    fragment_head *fd_head;
+    fragment_item *fd;
 
     printf("Starting test test_fragment_add_seq_partial_reassembly\n");
 
@@ -598,7 +599,7 @@ test_fragment_add_seq_partial_reassembly(void)
 static void
 test_fragment_add_seq_duplicate_first(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_fragment_add_seq_duplicate_first\n");
 
@@ -697,7 +698,7 @@ test_fragment_add_seq_duplicate_first(void)
 static void
 test_fragment_add_seq_duplicate_middle(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_fragment_add_seq_duplicate_middle\n");
 
@@ -795,7 +796,7 @@ test_fragment_add_seq_duplicate_middle(void)
 static void
 test_fragment_add_seq_duplicate_last(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_fragment_add_seq_duplicate_last\n");
 
@@ -895,7 +896,7 @@ test_fragment_add_seq_duplicate_last(void)
 static void
 test_fragment_add_seq_duplicate_conflict(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_fragment_add_seq_duplicate_conflict\n");
 
@@ -1004,12 +1005,12 @@ test_fragment_add_seq_duplicate_conflict(void)
 
 
 static void
-test_fragment_add_seq_check_work(fragment_data *(*fn)(reassembly_table *,
+test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
 				 tvbuff_t *, const int, const packet_info *,
 				 const guint32, const void *, const guint32,
 				 const guint32, const gboolean))
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     pinfo.fd -> num = 1;
     fd_head=fn(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
@@ -1104,7 +1105,7 @@ test_fragment_add_seq_check(void)
 static void
 test_fragment_add_seq_check_1(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_fragment_add_seq_check_1\n");
 
@@ -1165,7 +1166,7 @@ test_fragment_add_seq_check_1(void)
 static void
 test_fragment_add_seq_802_11_0(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_fragment_add_seq_802_11_0\n");
 
@@ -1238,7 +1239,7 @@ static void test_fragment_add_seq_802_11_1(void)
 #if 0
 static void
 test_fragment_add_seq_check_multiple(void) {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     pinfo.fd -> num = 1;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
@@ -1278,7 +1279,7 @@ test_fragment_add_seq_check_multiple(void) {
 static void
 test_simple_fragment_add_seq_next(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_simple_fragment_add_seq_next\n");
 
@@ -1354,7 +1355,7 @@ test_simple_fragment_add_seq_next(void)
 static void
 test_missing_data_fragment_add_seq_next(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_missing_data_fragment_add_seq_next\n");
 
@@ -1426,7 +1427,7 @@ test_missing_data_fragment_add_seq_next(void)
 static void
 test_missing_data_fragment_add_seq_next_2(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_missing_data_fragment_add_seq_next_2\n");
 
@@ -1479,7 +1480,7 @@ test_missing_data_fragment_add_seq_next_2(void)
 static void
 test_missing_data_fragment_add_seq_next_3(void)
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     printf("Starting test test_missing_data_fragment_add_seq_next_3\n");
 

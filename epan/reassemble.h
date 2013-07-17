@@ -70,8 +70,8 @@
  */
 #define FD_DATALEN_SET		0x0400
 
-typedef struct _fragment_data {
-	struct _fragment_data *next;
+typedef struct _fragment_item {
+	struct _fragment_item *next;
 	guint32 frame;	/* XXX - does this apply to reassembly heads? */
 	guint32	offset;	/* XXX - does this apply to reassembly heads? */
 	guint32	len;	/* XXX - does this apply to reassembly heads? */
@@ -100,7 +100,7 @@ typedef struct _fragment_data {
 	 * reassembly and for the fragments in a reassembly.
 	 */
 	const char *error;
-} fragment_data;
+} fragment_item, fragment_head;
 
 
 /*
@@ -183,12 +183,12 @@ reassembly_table_destroy(reassembly_table *table);
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
  */
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	     const packet_info *pinfo, const guint32 id, const void *data,
 	     const guint32 frag_offset, const guint32 frag_data_len,
 	     const gboolean more_frags);
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add_multiple_ok(reassembly_table *table, tvbuff_t *tvb,
 			 const int offset, const packet_info *pinfo,
 			 const guint32 id, const void *data,
@@ -205,7 +205,7 @@ fragment_add_multiple_ok(reassembly_table *table, tvbuff_t *tvb,
  * to the table of reassembled fragments, and return a pointer to the
  * head of the fragment list.
  */
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		   const packet_info *pinfo, const guint32 id,
 		   const void *data, const guint32 frag_offset,
@@ -220,7 +220,7 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
  * the first fragment of each datagram).
  *
  * If this is the first fragment seen for this datagram, a new
- * "fragment_data" structure is allocated to refer to the reassembled
+ * "fragment_head" structure is allocated to refer to the reassembled
  * packet, and:
  *
  *	if "more_frags" is false, and either we have no sequence numbers, or
@@ -233,13 +233,13 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
  *      returned list to see if this case was hit or not.
  *
  * Otherwise, this fragment is just added to the linked list of fragments
- * for this packet; the fragment_data is also added to the fragment hash if
+ * for this packet; the fragment_item is also added to the fragment hash if
  * necessary.
  *
  * If this packet completes assembly, these functions return the head of the
  * fragment data; otherwise, they return null.
  */
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		 const packet_info *pinfo, const guint32 id, const void *data, 
 		 const guint32 frag_number, const guint32 frag_data_len,
@@ -253,21 +253,21 @@ fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
  * to the table of reassembled fragments, and return a pointer to the
  * head of the fragment list.
  */
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add_seq_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		       const packet_info *pinfo, const guint32 id,
 		       const void *data,
 		       const guint32 frag_number, const guint32 frag_data_len,
 		       const gboolean more_frags);
 
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add_seq_802_11(reassembly_table *table, tvbuff_t *tvb,
 			const int offset, const packet_info *pinfo,
 			const guint32 id, const void *data,
 			const guint32 frag_number, const guint32 frag_data_len,
 			const gboolean more_frags);
 
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		      const packet_info *pinfo, const guint32 id,
 		      const void *data, const guint32 frag_data_len,
@@ -278,7 +278,7 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 			 const guint32 id, const void *data, 
 			 const guint32 tot_len);
 
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 		      const guint32 id, const void *data);
 
@@ -321,16 +321,16 @@ fragment_set_partial_reassembly(reassembly_table *table,
 /* This function is used to check if there is partial or completed reassembly state
  * matching this packet. I.e. Are there reassembly going on or not for this packet?
  */
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_get(reassembly_table *table, const packet_info *pinfo,
 	     const guint32 id, const void *data);
 
 /* The same for the reassemble table */
 /* id *must* be the frame number for this to work! */
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_get_reassembled(reassembly_table *table, const guint32 id);
 
-WS_DLL_PUBLIC fragment_data *
+WS_DLL_PUBLIC fragment_head *
 fragment_get_reassembled_id(reassembly_table *table, const packet_info *pinfo,
 			    const guint32 id);
 
@@ -372,15 +372,15 @@ typedef struct _fragment_items {
 
 WS_DLL_PUBLIC tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
-    const char *name, fragment_data *fd_head, const fragment_items *fit,
+    const char *name, fragment_head *fd_head, const fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree);
 
 WS_DLL_PUBLIC gboolean
-show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,
+show_fragment_tree(fragment_head *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
 
 WS_DLL_PUBLIC gboolean
-show_fragment_seq_tree(fragment_data *ipfd_head, const fragment_items *fit,
+show_fragment_seq_tree(fragment_head *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
 
 #endif

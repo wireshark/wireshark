@@ -1374,7 +1374,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     gboolean fragment_more;
     guint32 fragment_id;
     guint32 fragment_offset;
-    fragment_data *frag_msg = NULL;
+    fragment_head *frag_msg = NULL;
     gboolean save_fragmented;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -1461,7 +1461,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean fragment_more;
     guint32 fragment_id;
     guint32 fragment_offset;
-    fragment_data *frag_msg = NULL;
+    fragment_head *frag_msg = NULL;
     gboolean save_fragmented;
 
     /* Make entries in Protocol column and Info column on summary display */

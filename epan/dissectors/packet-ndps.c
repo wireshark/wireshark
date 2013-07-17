@@ -4332,7 +4332,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint                 len=0;
     tvbuff_t            *next_tvb = NULL;
-    fragment_data       *fd_head;
+    fragment_head       *fd_head;
     spx_info            *spx_info_p;
     ndps_req_hash_value *request_value = NULL;
     conversation_t      *conversation;

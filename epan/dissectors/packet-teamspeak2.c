@@ -379,7 +379,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     guint8 save_fragmented;
     tvbuff_t *new_tvb, *next_tvb;
-    fragment_data *frag_msg ;
+    fragment_head *frag_msg ;
     guint16 fragment_number;
     ts2_frag *frag;
     gboolean outoforder;

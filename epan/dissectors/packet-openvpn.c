@@ -197,7 +197,7 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree    *type_tree;
   guint32        msg_length_remaining;
   gboolean       msg_lastframe;
-  fragment_data *frag_msg;
+  fragment_head *frag_msg;
   tvbuff_t      *new_tvb;
   gboolean       save_fragmented;
 

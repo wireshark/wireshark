@@ -901,7 +901,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint8 msg_end;
             guint8 msg_flag;
 
-            fragment_data *frag_msg = NULL;
+            fragment_head *frag_msg = NULL;
             tvbuff_t *new_tvb = NULL;
             tvbuff_t *next_tvb2 = NULL;
 

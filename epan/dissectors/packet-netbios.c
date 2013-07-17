@@ -1070,7 +1070,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16			session_id;
 	gboolean		save_fragmented;
 	int			len;
-	fragment_data		*fd_head;
+	fragment_head		*fd_head;
 	tvbuff_t		*next_tvb;
 
 	int offset = 0;

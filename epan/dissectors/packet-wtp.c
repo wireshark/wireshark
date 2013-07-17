@@ -681,7 +681,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              ) && tvb_bytes_exist(tvb, dataOffset, dataLen) )
         {
             /* Try reassembling fragments */
-            fragment_data *fd_wtp = NULL;
+            fragment_head *fd_wtp = NULL;
             guint32 reassembled_in = 0;
             gboolean save_fragmented = pinfo->fragmented;
 

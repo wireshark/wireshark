@@ -2575,7 +2575,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		info_element_len;
 	gboolean	first_frag, more_frags;
 	guint32		frag_len;
-	fragment_data *fd_head;
+	fragment_head *fd_head;
 	tvbuff_t *next_tvb = NULL;
 
 	q931_pi=ep_new(q931_packet_info);

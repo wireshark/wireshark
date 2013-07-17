@@ -233,7 +233,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 
 	tvbuff_t *datatvb;
 
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 	gboolean more_frags = TRUE;
 
 	tvbuff_t *new_tvb = NULL;

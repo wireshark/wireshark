@@ -35,7 +35,7 @@
 
 
 typedef struct {
-    fragment_data *fd_head;          /* the reassembled data, NULL
+    fragment_head *fd_head;          /* the reassembled data, NULL
                                       * until we add the last fragment */
     guint32 pdu_number;              /* Number of this PDU within the stream */
 
@@ -391,7 +391,7 @@ stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32 framenum, gui
 stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guint32 offset,
                                         tvbuff_t *tvb, packet_info *pinfo, gboolean more_frags )
 {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
     stream_pdu_t *pdu;
     stream_pdu_fragment_t *frag_data;
 
@@ -466,7 +466,7 @@ guint32 stream_get_frag_length( const stream_pdu_fragment_t *frag)
     return frag->len;
 }
 
-fragment_data *stream_get_frag_data( const stream_pdu_fragment_t *frag)
+fragment_head *stream_get_frag_data( const stream_pdu_fragment_t *frag)
 {
     DISSECTOR_ASSERT( frag );
     return frag->pdu->fd_head;

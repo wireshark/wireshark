@@ -997,7 +997,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             otherwise we just call dissector.
           */
           if (needs_reassembly) {
-            fragment_data   *fd_head;
+            fragment_head   *fd_head;
 
             /*
              * Yes, this frame contains a fragment that requires

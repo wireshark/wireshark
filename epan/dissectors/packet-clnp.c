@@ -232,7 +232,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint           next_length;
     proto_tree     *discpdu_tree;
     gboolean        save_in_error_pkt;
-    fragment_data  *fd_head;
+    fragment_head  *fd_head;
     tvbuff_t       *next_tvb;
     gboolean        update_col_info = TRUE;
     gboolean        save_fragmented;

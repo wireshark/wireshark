@@ -191,7 +191,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint32 tag;
 	guint32 len1;
 	const char *oid;
-	fragment_data *fd_head=NULL;
+	fragment_head *fd_head=NULL;
 	gssapi_frag_info_t *fi;
 	tvbuff_t *volatile gss_tvb=NULL;
 	asn1_ctx_t asn1_ctx;

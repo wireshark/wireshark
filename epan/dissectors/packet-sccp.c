@@ -2631,7 +2631,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint16   offset = 0;
   gboolean  save_fragmented;
   tvbuff_t *new_tvb = NULL;
-  fragment_data *frag_msg = NULL;
+  fragment_head *frag_msg = NULL;
   guint32   source_local_ref = 0;
   guint8    more;
   guint     msg_offset = tvb_offset_from_real_beginning(tvb);

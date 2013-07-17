@@ -1057,11 +1057,11 @@ smb_trans_reassembly_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
-static fragment_data *
+static fragment_head *
 smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 		     int offset, guint count, guint pos, guint totlen)
 {
-	fragment_data *fd_head = NULL;
+	fragment_head *fd_head = NULL;
 	smb_info_t    *si;
 	int            more_frags;
 
@@ -8968,7 +8968,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint16                 bc;
 	guint32                 padcnt;
 	smb_nt_transact_info_t *nti    = NULL;
-	fragment_data          *r_fd   = NULL;
+	fragment_head          *r_fd   = NULL;
 	tvbuff_t               *pd_tvb = NULL;
 	gboolean                save_fragmented;
 
@@ -9584,7 +9584,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	static nt_trans_data    ntd;
 	guint16                 bc;
 	gint32                  padcnt;
-	fragment_data          *r_fd   = NULL;
+	fragment_head          *r_fd   = NULL;
 	tvbuff_t               *pd_tvb = NULL;
 	gboolean                save_fragmented;
 
@@ -16486,7 +16486,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint16               bc;
 	int                   padcnt;
 	gboolean              dissected_trans;
-	fragment_data        *r_fd   = NULL;
+	fragment_head        *r_fd   = NULL;
 	tvbuff_t             *pd_tvb = NULL, *d_tvb = NULL, *p_tvb = NULL;
 	tvbuff_t             *s_tvb  = NULL, *sp_tvb = NULL;
 	gboolean              save_fragmented;

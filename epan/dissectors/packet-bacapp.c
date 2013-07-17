@@ -10797,7 +10797,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* not resetting the offset so the remaining can be done */
 
     if (fragment) { /* fragmented */
-        fragment_data *frag_msg;
+        fragment_head *frag_msg;
 
         pinfo->fragmented = TRUE;
 

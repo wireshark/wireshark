@@ -3257,7 +3257,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     gint           length, reported_length;
     gboolean       save_fragmented;
-    fragment_data *fd_head = NULL;
+    fragment_head *fd_head = NULL;
 
     tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb;
     proto_item *pi;
@@ -4056,7 +4056,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     }
                 } else if (hdr->flags&PFC_LAST_FRAG) {  /* LAST fragment */
                     if ( value->rep_frame ) {
-                        fragment_data *fd_head;
+                        fragment_head *fd_head;
 
                         fd_head = fragment_add_seq_next(&dcerpc_co_reassembly_table,
                                                         tvb, offset,
@@ -4990,7 +4990,7 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     int            length, reported_length, stub_length;
     gboolean       save_fragmented;
-    fragment_data *fd_head;
+    fragment_head *fd_head;
     tvbuff_t      *next_tvb;
     proto_item    *pi;
     proto_item    *parent_pi;

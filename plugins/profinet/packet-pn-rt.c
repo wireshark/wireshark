@@ -429,7 +429,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         {
             guint32 u32FragID;
             guint32 u32ReasembleID /*= 0xfedc ??*/;
-            fragment_data *pdu_frag;
+            fragment_head *pdu_frag;
 
             u32FragID = (u16FrameID & 0xf);
             if (uFragNumber == 0)
@@ -452,7 +452,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
             if (!bMoreFollows) /* last fragment */
             {
-                pdu_frag = (fragment_data *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num));
+                pdu_frag = (fragment_head *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num));
                 if (pdu_frag)    /* found a matching fragment; dissect it */
                 {
                     guint16   type;

@@ -1864,7 +1864,7 @@ make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 
 static gboolean
 dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
+    tvbuff_t *frag_tvb, fragment_head *ipfd_head, gboolean is_tcp,
     guint32 rpc_rm, gboolean first_pdu)
 {
 	guint32	msg_type;
@@ -3009,7 +3009,7 @@ make_frag_tree(tvbuff_t *tvb, proto_tree *tree, int proto, gint ett,
 
 void
 show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
-    guint32 rpc_rm, fragment_data *ipfd_head, packet_info *pinfo)
+    guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo)
 {
     proto_item *frag_tree_item;
 
@@ -3041,7 +3041,7 @@ show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 static gboolean
 call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
     proto_tree *tree, tvbuff_t *frag_tvb, rec_dissector_t dissector,
-    fragment_data *ipfd_head, guint32 rpc_rm, gboolean first_pdu)
+    fragment_head *ipfd_head, guint32 rpc_rm, gboolean first_pdu)
 {
 	const char *saved_proto;
 	volatile gboolean rpc_succeeded;
@@ -3101,7 +3101,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean save_fragmented;
 	rpc_fragment_key old_rfk, *rfk, *new_rfk;
 	conversation_t *conversation;
-	fragment_data *ipfd_head;
+	fragment_head *ipfd_head;
 	tvbuff_t *rec_tvb;
 
 	if (pinfo == NULL || pinfo->private_data == NULL) {

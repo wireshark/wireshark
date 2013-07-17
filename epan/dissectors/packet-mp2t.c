@@ -463,7 +463,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 			guint32 frag_id, enum pid_payload_type pload_type)
 {
 
-	fragment_data *frag    = NULL;
+	fragment_head *frag    = NULL;
 	tvbuff_t      *len_tvb = NULL, *frag_tvb = NULL, *data_tvb = NULL;
 	gint           pkt_len = 0;
 	guint          remaining_len;
@@ -532,7 +532,7 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 		     gboolean fragment_last, enum pid_payload_type pload_type)
 {
 	/* proto_item *ti; */
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 	tvbuff_t      *new_tvb  = NULL;
 	gboolean       save_fragmented;
 

@@ -1928,7 +1928,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint16    flags;
   guint8     nxt;
   guint16    ipsum;
-  fragment_data *ipfd_head = NULL;
+  fragment_head *ipfd_head = NULL;
   tvbuff_t   *next_tvb;
   gboolean   update_col_info = TRUE;
   gboolean   save_fragmented;

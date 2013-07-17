@@ -7120,7 +7120,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
     guint               len=0;
     guint32             tid = 1;
     tvbuff_t            *frag_tvb = NULL;
-    fragment_data       *fd_head;
+    fragment_head       *fd_head;
     ncp_req_hash_value  *request_value = NULL;
     conversation_t      *conversation;
     guint32             nds_frag;

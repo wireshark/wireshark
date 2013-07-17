@@ -205,7 +205,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
     guint32        i                         = 0;
     /* Multiple Messages UDH */
     gboolean       is_fragmented             = FALSE;
-    fragment_data *fd_sm                     = NULL;
+    fragment_head *fd_sm                     = NULL;
     guint16        sm_id                     = 0;
     guint16        frags                     = 0;
     guint16        frag                      = 0;

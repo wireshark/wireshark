@@ -1569,7 +1569,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 }
 
 static void
-print_tcp_fragment_tree(fragment_data *ipfd_head, proto_tree *tree, proto_tree *tcp_tree, packet_info *pinfo, tvbuff_t *next_tvb)
+print_tcp_fragment_tree(fragment_head *ipfd_head, proto_tree *tree, proto_tree *tcp_tree, packet_info *pinfo, tvbuff_t *next_tvb)
 {
     proto_item *tcp_tree_item, *frag_tree_item;
 
@@ -1615,7 +1615,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
               struct tcp_analysis *tcpd)
 {
     struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
-    fragment_data *ipfd_head;
+    fragment_head *ipfd_head;
     int last_fragment_len;
     gboolean must_desegment;
     gboolean called_dissector;
@@ -4659,7 +4659,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tcpd->fwd->fin = pinfo->fd->num;
             msp=(struct tcp_multisegment_pdu *)se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, tcph->th_seq-1);
             if(msp) {
-                fragment_data *ipfd_head;
+                fragment_head *ipfd_head;
 
                 ipfd_head = fragment_add(&tcp_reassembly_table, tvb, offset,
                                          pinfo, msp->first_frame, NULL,

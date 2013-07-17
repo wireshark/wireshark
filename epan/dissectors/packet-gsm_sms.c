@@ -2643,7 +2643,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     proto_item        *item;
     proto_tree        *subtree = NULL;
     tvbuff_t          *sm_tvb = NULL;
-    fragment_data     *fd_sm = NULL;
+    fragment_head     *fd_sm = NULL;
     guint8            fill_bits;
     guint32           out_len, total_sms_len, len_sms, length_ucs2, i;
     char              *ustr;

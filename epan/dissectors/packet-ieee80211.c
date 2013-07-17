@@ -5921,7 +5921,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
     if (anqp && (frag == 0) && !more)
       dissect_anqp(query, tvb, pinfo, offset, FALSE);
     else {
-      fragment_data *frag_msg;
+      fragment_head *frag_msg;
       gboolean save_fragmented;
       tvbuff_t *new_tvb;
 
@@ -14296,7 +14296,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
    */
   save_fragmented = pinfo->fragmented;
   if (wlan_defragment && (more_frags || (frag_number != 0))) {
-    fragment_data *fd_head;
+    fragment_head *fd_head;
 
     /*
      * If we've already seen this frame, look it up in the

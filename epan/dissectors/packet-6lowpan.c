@@ -2260,7 +2260,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* Reassembly parameters. */
     tvbuff_t *          new_tvb = NULL;
     tvbuff_t *          frag_tvb = NULL;
-    fragment_data *     frag_data = NULL;
+    fragment_head *     frag_data = NULL;
     gboolean            save_fragmented;
 
     /* Create a tree for the fragmentation header. */
@@ -2378,7 +2378,7 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *        ti = NULL;
     /* Reassembly parameters. */
     tvbuff_t *          new_tvb = NULL;
-    fragment_data *     frag_data = NULL;
+    fragment_head *     frag_data = NULL;
     gboolean            save_fragmented;
 
     /* Create a tree for the fragmentation header. */

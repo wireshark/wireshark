@@ -292,12 +292,12 @@ void t38_add_address(packet_info *pinfo,
 }
 
 
-fragment_data *
+fragment_head *
 force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 {
-	fragment_data *fd_head;
-	fragment_data *fd_i;
-	fragment_data *last_fd;
+	fragment_head *fd_head;
+	fragment_item *fd_i;
+	fragment_item *last_fd;
 	guint32 dfpos, size, packet_lost, burst_lost, seq_num;
 	guint8 *data;
 

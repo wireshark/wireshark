@@ -154,7 +154,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     struct SESSION_DATA_STRUCTURE  session;
     gboolean                       idmp_final;
     guint32                        idmp_length;
-    fragment_data                 *fd_head;
+    fragment_head                 *fd_head;
     conversation_t                *conv;
     guint32                        dst_ref = 0;
 

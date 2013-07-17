@@ -4207,7 +4207,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8         hdr_tag                = NO_TAG;
     tvbuff_t      *body_tvb, *payload_tvb = NULL;
     proto_item    *pi;
-    fragment_data *frag_msg               = NULL;
+    fragment_head *frag_msg               = NULL;
 
 
     tpdu_len = tvb_reported_length(tvb);
@@ -4282,7 +4282,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8         tcid, more_last;
     proto_item    *pi;
     tvbuff_t      *payload_tvb = NULL;
-    fragment_data *frag_msg    = NULL;
+    fragment_head *frag_msg    = NULL;
 
 
     payload_len = tvb_reported_length(tvb);

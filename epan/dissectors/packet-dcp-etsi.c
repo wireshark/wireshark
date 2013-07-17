@@ -256,7 +256,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   gboolean fec _U_,
   guint16 rsk,
   guint16 rsz,
-  fragment_data *fdx
+  fragment_head *fdx
 )
 {
   guint32 decoded_size;
@@ -281,8 +281,8 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   else {
     guint fragments=0;
     guint32 *got;
-    fragment_data *fd;
-    fragment_data *fd_head;
+    fragment_item *fd;
+    fragment_head *fd_head;
 
     if(tree)
       proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
@@ -300,7 +300,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     /* have we got enough for Reed Solomon to try to correct ? */
     if(fragments>=rx_min) { /* yes, in theory */
       guint i,current_findex;
-      fragment_data *frag=NULL;
+      fragment_head *frag=NULL;
       guint8 *dummy_data = (guint8*) ep_alloc0 (plen);
       tvbuff_t *dummytvb = tvb_new_real_data(dummy_data, plen, plen);
       /* try and decode with missing fragments */
@@ -393,7 +393,7 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 {
   gboolean first, last;
   tvbuff_t *new_tvb=NULL;
-  fragment_data *frag_edcp = NULL;
+  fragment_head *frag_edcp = NULL;
   pinfo->fragmented = TRUE;
   first = findex == 0;
   last = fcount == (findex+1);

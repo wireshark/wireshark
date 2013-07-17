@@ -1679,7 +1679,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 offlg;
   guint32 ident;
   int offset;
-  fragment_data *ipfd_head;
+  fragment_head *ipfd_head;
   tvbuff_t   *next_tvb;
   gboolean update_col_info = TRUE;
   gboolean save_fragmented = FALSE;

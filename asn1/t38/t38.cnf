@@ -71,7 +71,7 @@ VAL_PTR=&Data_Field_field_type_value
     /* TODO: reassemble all the Items in one frame */
     if (primary_part && (Data_Field_item_num<2)) {
         if (Data_Field_field_type_value == 2 || Data_Field_field_type_value == 4 || Data_Field_field_type_value == 7) {/* hdlc-fcs-OK or hdlc-fcs-OK-sig-end or t4-non-ecm-sig-end*/
-            fragment_data *frag_msg = NULL;
+            fragment_head *frag_msg = NULL;
             tvbuff_t* new_tvb = NULL;
             gboolean save_fragmented = actx->pinfo->fragmented;
 
@@ -176,7 +176,7 @@ VAL_PTR=&Data_Field_field_type_value
     /* using the current ressaemble functions.                                                          */
     /* TODO: reassemble all the Items in one frame */
     if (primary_part && (Data_Field_item_num<2)) {
-        fragment_data *frag_msg = NULL;
+        fragment_head *frag_msg = NULL;
 
         /* HDLC Data or t4-non-ecm-data */
         if (Data_Field_field_type_value == 0 || Data_Field_field_type_value == 6) { /* 0=HDLC Data or 6=t4-non-ecm-data*/

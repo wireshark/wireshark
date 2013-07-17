@@ -331,7 +331,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
 static void
 dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    fragment_data *frag_data = NULL;
+    fragment_head *frag_data = NULL;
     guint8         octet, lb, lpd, seq_num;
     guint32        offset;
     guint32        len;

@@ -365,7 +365,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint                       next_offset;
   gint                       loffset   = 0;
   int                        cmdlen;
-  fragment_data             *frag_msg  = NULL;
+  fragment_head             *frag_msg  = NULL;
   tvbuff_t                  *next_tvb;
   guint8                    *decrypt   = NULL;
   guint8                    *base64_string   = NULL;

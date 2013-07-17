@@ -748,7 +748,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *next_tree=NULL;
 	tvbuff_t *next_tvb = NULL;
 	tvbuff_t *data_tvb = NULL;
-	fragment_data *frag_msg = NULL;
+	fragment_head *frag_msg = NULL;
 	guint32 fragment_length;
 	guint32 rtse_id = 0;
 	gboolean data_handled = FALSE;

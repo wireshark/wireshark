@@ -1132,7 +1132,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 	} else {
 		conversation_t *conversation = NULL;
-		fragment_data *frag_msg = NULL;
+		fragment_head *frag_msg = NULL;
 		gint fragment_len;
 		guint32 ses_id = 0;
 

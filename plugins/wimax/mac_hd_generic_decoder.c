@@ -722,7 +722,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	proto_tree *child_tree = NULL;
 	tvbuff_t *payload_tvb;
 	tvbuff_t *data_pdu_tvb;
-	fragment_data *payload_frag;
+	fragment_head *payload_frag;
 	gboolean first_arq_fb_payload = TRUE;
 
 	dissector_handle_t mac_payload_handle;

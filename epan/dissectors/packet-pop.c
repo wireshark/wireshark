@@ -134,7 +134,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int                    linelen;
   int                    tokenlen;
   const guchar           *next_token;
-  fragment_data          *frag_msg = NULL;
+  fragment_head          *frag_msg = NULL;
   tvbuff_t               *next_tvb = NULL;
   conversation_t         *conversation = NULL;
   struct pop_data_val    *data_val = NULL;

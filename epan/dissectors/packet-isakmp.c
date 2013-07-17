@@ -3814,7 +3814,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
   {
     gboolean save_fragmented;
     tvbuff_t *defrag_isakmp_tvb = NULL;
-    fragment_data *frag_msg = NULL;
+    fragment_head *frag_msg = NULL;
 
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;

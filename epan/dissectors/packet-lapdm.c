@@ -286,7 +286,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if( (control & XDLC_I_MASK) == XDLC_I && reassemble_lapdm )
     {
-            fragment_data *fd_m = NULL;
+            fragment_head *fd_m = NULL;
             tvbuff_t *reassembled = NULL;
             guint32 fragment_id;
             gboolean save_fragmented = pinfo->fragmented;

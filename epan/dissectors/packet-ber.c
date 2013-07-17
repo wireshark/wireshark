@@ -1349,7 +1349,7 @@ static void ber_defragment_init(void) {
 static int
 reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
 {
-    fragment_data *fd_head         = NULL;
+    fragment_head *fd_head         = NULL;
     tvbuff_t      *next_tvb        = NULL;
     tvbuff_t      *reassembled_tvb = NULL;
     guint16        dst_ref         = 0;

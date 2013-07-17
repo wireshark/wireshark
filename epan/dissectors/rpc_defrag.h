@@ -34,10 +34,10 @@
 #define RPC_RM_FRAGLEN	0x7fffffffU
 
 typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
-	tvbuff_t *, fragment_data *, gboolean, guint32, gboolean);
+	tvbuff_t *, fragment_head *, gboolean, guint32, gboolean);
 
 extern void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb,
-	proto_tree *tree, guint32 rpc_rm, fragment_data *ipfd_head, packet_info *pinfo);
+	proto_tree *tree, guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
 extern int dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
 	int proto, int ett, gboolean defragment, gboolean first_pdu);

@@ -1653,7 +1653,7 @@ static tvbuff_t*
 defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
     int id)
 {
-	fragment_data *fd_head;
+	fragment_head *fd_head;
 	int frag_number = -1;
 	int more_frags = TRUE;
 	tvbuff_t *rh_tvb = NULL;

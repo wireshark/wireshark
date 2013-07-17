@@ -692,7 +692,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     int vft_offset = -1;
     gboolean is_lastframe_inseq, is_1frame_inseq/*, is_valid_frame*/;
     gboolean is_exchg_resp = 0;
-    fragment_data *fcfrag_head;
+    fragment_head *fcfrag_head;
     guint32 frag_id;
     guint32 frag_size;
     guint8 df_ctl, seq_id;

@@ -316,7 +316,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else {
     /* Try reassembling fragments
      */
-    fragment_data  *fd_npdu         = NULL;
+    fragment_head  *fd_npdu         = NULL;
     guint32         reassembled_in  = 0;
     gboolean        save_fragmented = pinfo->fragmented;
 

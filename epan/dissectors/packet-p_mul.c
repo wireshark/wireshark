@@ -1291,7 +1291,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       fragment_start_seq_check (&p_mul_reassembly_table,
                                 pinfo, message_id, NULL, no_pdus - 1);
     } else if (pdu_type == Data_PDU) {
-      fragment_data *frag_msg;
+      fragment_head *frag_msg;
       tvbuff_t      *new_tvb;
 
       pinfo->fragmented = TRUE;

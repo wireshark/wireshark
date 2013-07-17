@@ -1548,7 +1548,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
     /* Check for fragmented packet by looking at the FIR and FIN bits */
     if (! (seq_fir && seq_fin)) {
-        fragment_data         *frag_msg;
+        fragment_head         *frag_msg;
 
         /* This is a fragmented packet, mark it as such */
         pinfo->fragmented = TRUE;

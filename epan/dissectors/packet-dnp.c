@@ -3025,7 +3025,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (! (tr_fir && tr_fin))
       {
         guint                  conv_seq_number;
-        fragment_data         *frag_msg;
+        fragment_head         *frag_msg;
         conversation_t        *conversation;
         dnp3_conv_t           *conv_data_ptr;
         dl_conversation_key_t  dl_conversation_key;

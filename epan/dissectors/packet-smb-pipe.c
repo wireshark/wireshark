@@ -3286,7 +3286,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	gboolean save_fragmented;
 	guint reported_len;
 
-	fragment_data *fd_head;
+	fragment_head *fd_head;
 	tvbuff_t *new_tvb;
     proto_item *frag_tree_item;
 
