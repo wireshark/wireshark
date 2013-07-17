@@ -148,11 +148,11 @@ Versions affected: 1.10.0, 1.8.0 to 1.8.7
 
 * ws-salink:2013-52[]
 +
-.
-// Fixed in trunk: r?????
-// Fixed in trunk-1.10: r?????
-// Fixed in trunk-1.8: r?????
-//(ws-buglink:????[])
+The ASN.1 PER dissector could crash. Discovered by Oliver-Tobias Ripka.
+// Fixed in trunk: r49985
+// Fixed in trunk-1.10: r50702
+// Fixed in trunk-1.8: r50703
+(ws-buglink:8722[])
 +
 Versions affected: 1.10.0, 1.8.0 to 1.8.7
 //+

@@ -333,6 +333,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 					num_bits = 16;
 				}
 				else if (i==1 && val==3) { /* bits 8 and 7 both 1, so unconstrained */
+					*length = 0;
 					PER_NOT_DECODED_YET("10.9 Unconstrained");
 					return offset;
 				}
@@ -365,6 +366,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 
 			return offset;
 		}
+		*length = 0;
 		PER_NOT_DECODED_YET("10.9 Unaligned");
 		return offset;
 
@@ -391,6 +393,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		}
 		return offset;
 	}
+	*length = 0;
 	PER_NOT_DECODED_YET("10.9.3.8.1");
 	return offset;
 }
