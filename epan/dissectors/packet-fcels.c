@@ -239,10 +239,6 @@ static const true_false_string tfs_fcels_estat_seq_init = {
         "Seq Initiative not held by REC responder"
 };
 
-static const true_false_string tfs_fcels_estat_compl = {
-        "Exchange Complete",
-        "Exchange Incomplete"
-};
 
 #define FC_ESB_ST_RESP      (1 << 31)   /* responder to exchange */
 #define FC_ESB_ST_SEQ_INIT  (1 << 30)   /* holds sequence initiative */
@@ -333,19 +329,6 @@ fcels_init_protocol(void)
     fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
 }
 
-
-static const true_false_string tfs_fc_fcels_cmn_cios = {
-    "Cont. Incr. Offset Supported",
-    "Cont. incr. offset NOT supported"
-};
-static const true_false_string tfs_fc_fcels_cmn_rro = {
-    "RRO Supported",
-    "Rro NOT supported"
-};
-static const true_false_string tfs_fc_fcels_cmn_vvv = {
-    "Valid Vendor Version",
-    "Vendor version NOT valid"
-};
 static const true_false_string tfs_fc_fcels_cmn_b2b = {
     "Alt B2B Credit Mgmt",
     "Normal B2B Credit Mgmt"
@@ -353,30 +336,6 @@ static const true_false_string tfs_fc_fcels_cmn_b2b = {
 static const true_false_string tfs_fc_fcels_cmn_e_d_tov = {
     "E_D_TOV Resolution in ns",
     "E_D_TOV Resolution in ms"
-};
-static const true_false_string tfs_fc_fcels_cmn_simplex = {
-    "Simplex Dedicated Conn Supported",
-    "Simplex dedicated conn NOT supported"
-};
-static const true_false_string tfs_fc_fcels_cmn_multicast = {
-    "Multicast supported",
-    "Multicast NOT supported"
-};
-static const true_false_string tfs_fc_fcels_cmn_broadcast = {
-    "Broadcast Supported",
-    "Broadcast NOT supported"
-};
-static const true_false_string tfs_fc_fcels_cmn_security = {
-    "SECURITY Bit is SET",
-    "Security bit is NOT set"
-};
-static const true_false_string tfs_fc_fcels_cmn_clk = {
-    "Clk Sync Prim Capable",
-    "NOT clk sync prim capable"
-};
-static const true_false_string tfs_fc_fcels_cmn_dhd = {
-    "DHD Capable",
-    "NOT dhd capable"
 };
 static const true_false_string tfs_fc_fcels_cmn_seqcnt = {
     "Cont. Incr SEQCNT rules",
@@ -491,17 +450,9 @@ dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flag
 }
 
 
-static const true_false_string tfs_fc_fcels_cls_cns = {
-    "Class IS Supported",
-    "Class NOT supported"
-};
 static const true_false_string tfs_fc_fcels_cls_sdr = {
     "Seq Delivery Requested",
     "Out of Order Delivery Requested"
-};
-static const true_false_string tfs_fc_fcels_cls_prio = {
-    "Priority/preemption Supported",
-    "Priority/preemption NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cls_nzctl = {
     "Non-zero CS_CTL Tolerated",
@@ -555,15 +506,6 @@ dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint1
     }
 }
 
-
-static const true_false_string tfs_fc_fcels_fcpflags_trireq = {
-    "Task Retry Ident REQUESTED",
-    "Task retry ident NOT requested"
-};
-static const true_false_string tfs_fc_fcels_fcpflags_trirep = {
-    "Task Retry Ident ACCEPTED",
-    "Task retry ident NOT accepted"
-};
 static const true_false_string tfs_fc_fcels_fcpflags_retry = {
     "Retry Possible",
     "Retry NOT possible"
@@ -662,23 +604,6 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 f
 }
 
 
-static const true_false_string tfs_fc_fcels_speedflags_1gb = {
-    "1Gbit/second supported",
-    "1Gbit/second NOT supported"
-};
-static const true_false_string tfs_fc_fcels_speedflags_2gb = {
-    "2Gbit/second supported",
-    "2Gbit/second NOT supported"
-};
-static const true_false_string tfs_fc_fcels_speedflags_4gb = {
-    "4Gbit/second supported",
-    "4Gbit/second NOT supported"
-};
-static const true_false_string tfs_fc_fcels_speedflags_10gb = {
-    "10Gbit/second supported",
-    "10Gbit/second NOT supported"
-};
-
 static void
 dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
 {
@@ -718,25 +643,9 @@ dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32
     /*flags&=(~( 0x1000 ));*/
 }
 
-static const true_false_string tfs_fc_fcels_tprloflags_opav = {
-    "3rd Party Orig PA Valid",
-    "3rd party orig pa is NOT valid"
-};
-static const true_false_string tfs_fc_fcels_tprloflags_rpav = {
-    "Resp PA Valid",
-    "Resp pa is NOT valid"
-};
-static const true_false_string tfs_fc_fcels_tprloflags_npv = {
-    "3rd Party N_Port Valid",
-    "3rd party n_port is NOT valid"
-};
 static const true_false_string tfs_fc_fcels_tprloflags_gprlo = {
     "Global PRLO",
     "NO global prlo"
-};
-static const true_false_string tfs_fc_fcels_prliloflags_opav = {
-    "Orig PA Valid",
-    "Orig pa is NOT valid"
 };
 static const true_false_string tfs_fc_fcels_prliloflags_ipe = {
     "Image Pair Estd",
@@ -822,17 +731,9 @@ static const value_string initial_pa_vals[] = {
     { 3, "Initial P_A Required & Supported" },
     { 0, NULL }
 };
-static const true_false_string tfs_fc_fcels_initctl_ack0 = {
-    "ACK0 Capable",
-    "NOT Ack0 capable"
-};
 static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
     "ACK Generation Assistance Avail",
     "NO ack generation assistance"
-};
-static const true_false_string tfs_fc_fcels_initctl_sync = {
-    "Clock Sync ELS Supported",
-    "NO clock sync els support"
 };
 
 static void
@@ -879,14 +780,6 @@ dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
 }
 
 
-static const true_false_string tfs_fc_fcels_rcptctl_ack0 = {
-    "ACK0 Supported",
-    "Ack0 NOT supported"
-};
-static const true_false_string tfs_fc_fcels_rcptctl_interlock = {
-    "X_ID Interlock Reqd",
-    "X_id interlock NOT reqd"
-};
 static const value_string rcptctl_policy_vals[] = {
     { 0, "Error Policy: Discard Policy only" },
     { 1, "Error Policy: Reserved" },
@@ -899,10 +792,6 @@ static const value_string rcptctl_category_vals[] = {
     { 1, "2 Categories/Seq" },
     { 3, "More than 2 Categories/Seq" },
     { 0, NULL }
-};
-static const true_false_string tfs_fc_fcels_rcptctl_sync = {
-    "Clock Sync ELS Supported",
-    "NO clock sync els support"
 };
 
 static void
@@ -2404,7 +2293,7 @@ proto_register_fcels (void)
            FC_ESB_ST_SEQ_INIT, "Responder has Sequence Initiative?", HFILL}},
         { &hf_fcels_estat_compl,
           {"Exchange Complete", "fcels.estat.complete", FT_BOOLEAN, 32,
-           TFS(&tfs_fcels_estat_compl),
+           TFS(&tfs_complete_incomplete),
            FC_ESB_ST_COMPLETE, "Exchange complete?", HFILL}},
         { &hf_fcels_nodeidfmt,
           {"Node Identification Format", "fcels.rnid.nodeidfmt", FT_UINT8,
@@ -2468,13 +2357,13 @@ proto_register_fcels (void)
            VALS(unbind_status_vals), 0x0, "Unbind status", HFILL}},
         { &hf_fcels_cmn_cios,
           {"Cont. Incr. Offset Supported", "fcels.cmn.cios", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_cios), 0x8000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x8000, NULL, HFILL}},
         { &hf_fcels_cmn_rro,
           {"RRO Supported", "fcels.cmn.rro", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_rro), 0x4000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x4000, NULL, HFILL}},
         { &hf_fcels_cmn_vvv,
           {"Valid Vendor Version", "fcels.cmn.vvv", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_vvv), 0x2000, NULL, HFILL}},
+           TFS(&tfs_valid_invalid), 0x2000, NULL, HFILL}},
         { &hf_fcels_cmn_b2b,
           {"B2B Credit Mgmt", "fcels.cmn.bbb", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_b2b), 0x0800, NULL, HFILL}},
@@ -2483,22 +2372,22 @@ proto_register_fcels (void)
            TFS(&tfs_fc_fcels_cmn_e_d_tov), 0x0400, NULL, HFILL}},
         { &hf_fcels_cmn_simplex,
           {"Simplex", "fcels.cmn.simplex", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_simplex), 0x0040, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL}},
         { &hf_fcels_cmn_multicast,
           {"Multicast", "fcels.cmn.multicast", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_multicast), 0x0200, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x0200, NULL, HFILL}},
         { &hf_fcels_cmn_broadcast,
           {"Broadcast", "fcels.cmn.broadcast", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_broadcast), 0x0100, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x0100, NULL, HFILL}},
         { &hf_fcels_cmn_security,
           {"Security", "fcels.cmn.security", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_security), 0x0020, NULL, HFILL}},
+           TFS(&tfs_set_notset), 0x0020, NULL, HFILL}},
         { &hf_fcels_cmn_clk,
           {"Clk Sync", "fcels.cmn.clk", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_clk), 0x0010, NULL, HFILL}},
+           TFS(&tfs_capable_not_capable), 0x0010, NULL, HFILL}},
         { &hf_fcels_cmn_dhd,
           {"DHD Capable", "fcels.cmn.dhd", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cmn_dhd), 0x0004, NULL, HFILL}},
+           TFS(&tfs_capable_not_capable), 0x0004, NULL, HFILL}},
         { &hf_fcels_cmn_seqcnt,
           {"SEQCNT", "fcels.cmn.seqcnt", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_seqcnt), 0x0002, NULL, HFILL}},
@@ -2507,13 +2396,13 @@ proto_register_fcels (void)
            TFS(&tfs_fc_fcels_cmn_payload), 0x0001, NULL, HFILL}},
         { &hf_fcels_cls_cns,
           {"Class Supported", "fcels.cls.cns", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cls_cns), 0x8000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x8000, NULL, HFILL}},
         { &hf_fcels_cls_sdr,
           {"Delivery Mode", "fcels.cls.sdr", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cls_sdr), 0x0800, NULL, HFILL}},
         { &hf_fcels_cls_prio,
           {"Priority", "fcels.cls.prio", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_cls_prio), 0x0080, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x0080, NULL, HFILL}},
         { &hf_fcels_cls_nzctl,
           {"Non-zero CS_CTL", "fcels.cls.nzctl", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cls_nzctl), 0x0040, NULL, HFILL}},
@@ -2525,22 +2414,22 @@ proto_register_fcels (void)
            VALS(initial_pa_vals), 0x3000, NULL, HFILL}},
         { &hf_fcels_initctl_ack0,
           {"ACK0 Capable", "fcels.logi.initctl.ack0", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_initctl_ack0), 0x0800, NULL, HFILL}},
+           TFS(&tfs_capable_not_capable), 0x0800, NULL, HFILL}},
         { &hf_fcels_initctl_ackgaa,
           {"ACK GAA", "fcels.logi.initctl.ackgaa", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_initctl_ackgaa), 0x0200, NULL, HFILL}},
         { &hf_fcels_initctl_sync,
           {"Clock Sync", "fcels.logi.initctl.sync", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_initctl_sync), 0x0010, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x0010, NULL, HFILL}},
         { &hf_fcels_rcptctl,
           {"Recipient Ctl", "fcels.logi.rcptctl", FT_UINT16, BASE_HEX,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_rcptctl_ack0,
           {"ACK0", "fcels.logi.rcptctl.ack", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_rcptctl_ack0), 0x8000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x8000, NULL, HFILL}},
         { &hf_fcels_rcptctl_interlock,
           {"X_ID Interlock", "fcels.logi.rcptctl.interlock", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_rcptctl_interlock), 0x2000, NULL, HFILL}},
+           TFS(&tfs_requested_not_requested), 0x2000, NULL, HFILL}},
         { &hf_fcels_rcptctl_policy,
           {"Policy", "fcels.logi.rcptctl.policy", FT_UINT16, BASE_HEX,
            VALS(rcptctl_policy_vals), 0x1800, NULL, HFILL}},
@@ -2549,16 +2438,16 @@ proto_register_fcels (void)
            VALS(rcptctl_category_vals), 0x0030, NULL, HFILL}},
         { &hf_fcels_rcptctl_sync,
           {"Clock Sync", "fcels.logi.rcptctl.sync", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_rcptctl_sync), 0x0008, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x0008, NULL, HFILL}},
         { &hf_fcels_fcpflags,
           {"FCP Flags", "fcels.fcpflags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
         { &hf_fcels_fcpflags_trireq,
           {"Task Retry Ident", "fcels.fcpflags.trireq", FT_BOOLEAN, 32,
-           TFS(&tfs_fc_fcels_fcpflags_trireq), 1 << 9, NULL, HFILL}},
+           TFS(&tfs_requested_not_requested), 1 << 9, NULL, HFILL}},
         { &hf_fcels_fcpflags_trirep,
           {"Task Retry Ident", "fcels.fcpflags.trirep", FT_BOOLEAN, 32,
-           TFS(&tfs_fc_fcels_fcpflags_trirep), 1 << 9, NULL, HFILL}},
+           TFS(&tfs_accepted_not_accepted), 1 << 9, NULL, HFILL}},
         { &hf_fcels_fcpflags_retry,
           {"Retry", "fcels.fcpflags.retry", FT_BOOLEAN, 32,
            TFS(&tfs_fc_fcels_fcpflags_retry), 1 << 8, NULL, HFILL}},
@@ -2585,13 +2474,13 @@ proto_register_fcels (void)
            HFILL}},
         { &hf_fcels_tprloflags_opav,
           {"3rd Party Orig PA Valid", "fcels.tprloflags.opav", FT_BOOLEAN, 8,
-           TFS(&tfs_fc_fcels_tprloflags_opav), 0x80, NULL, HFILL}},
+           TFS(&tfs_valid_not_valid), 0x80, NULL, HFILL}},
         { &hf_fcels_tprloflags_rpav,
           {"Resp PA Valid", "fcels.tprloflags.rpav", FT_BOOLEAN, 8,
-           TFS(&tfs_fc_fcels_tprloflags_rpav), 0x40, NULL, HFILL}},
+           TFS(&tfs_valid_not_valid), 0x40, NULL, HFILL}},
         { &hf_fcels_tprloflags_npv,
           {"3rd Party N_Port Valid", "fcels.tprloflags.npv", FT_BOOLEAN, 8,
-           TFS(&tfs_fc_fcels_tprloflags_npv), 0x20, NULL, HFILL}},
+           TFS(&tfs_valid_not_valid), 0x20, NULL, HFILL}},
         { &hf_fcels_tprloflags_gprlo,
           {"Global PRLO", "fcels.tprloflags.gprlo", FT_BOOLEAN, 8,
            TFS(&tfs_fc_fcels_tprloflags_gprlo), 0x10, NULL, HFILL}},
@@ -2600,19 +2489,19 @@ proto_register_fcels (void)
            HFILL}},
         { &hf_fcels_speedflags_1gb,
           {"1Gb Support", "fcels.speedflags.1gb", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_speedflags_1gb), 0x8000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x8000, NULL, HFILL}},
         { &hf_fcels_speedflags_2gb,
           {"2Gb Support", "fcels.speedflags.2gb", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_speedflags_2gb), 0x4000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x4000, NULL, HFILL}},
         { &hf_fcels_speedflags_4gb,
           {"4Gb Support", "fcels.speedflags.4gb", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_speedflags_4gb), 0x2000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x2000, NULL, HFILL}},
         { &hf_fcels_speedflags_10gb,
           {"10Gb Support", "fcels.speedflags.10gb", FT_BOOLEAN, 16,
-           TFS(&tfs_fc_fcels_speedflags_10gb), 0x1000, NULL, HFILL}},
+           TFS(&tfs_supported_not_supported), 0x1000, NULL, HFILL}},
         { &hf_fcels_prliloflags_opav,
           {"Orig PA Valid", "fcels.prliloflags.opav", FT_BOOLEAN, 8,
-           TFS(&tfs_fc_fcels_prliloflags_opav), 0x80, NULL, HFILL}},
+           TFS(&tfs_valid_not_valid), 0x80, NULL, HFILL}},
         { &hf_fcels_prliloflags_ipe,
           {"Image Pair Estd", "fcels.prliloflags.ipe", FT_BOOLEAN, 8,
            TFS(&tfs_fc_fcels_prliloflags_ipe), 0x20, NULL, HFILL}},
