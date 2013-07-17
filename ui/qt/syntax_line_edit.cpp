@@ -21,44 +21,49 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
+
+#include <glib.h>
+
+#include <epan/prefs.h>
+
 #include "syntax_line_edit.h"
 
-#include "tango_colors.h"
+#include "color_utils.h"
 #include <QDebug>
 
 SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
     QLineEdit(parent)
 {
-    state_style_sheet_ = QString(
-            "SyntaxLineEdit[syntaxState=\"%1\"] {"
-            "  color: #%4;"
-            "  background-color: #%5;"
-            "}"
-
-            "SyntaxLineEdit[syntaxState=\"%2\"] {"
-            "  color: #%4;"
-            "  background-color: #%6;"
-            "}"
-
-            "SyntaxLineEdit[syntaxState=\"%3\"] {"
-            "  color: #%4;"
-            "  background-color: #%7;"
-            "}"
-            )
-            .arg(Invalid)
-            .arg(Deprecated)
-            .arg(Valid)
-            .arg(ws_syntax_invalid_foreground, 6, 16, QChar('0'))   // Foreground
-            .arg(ws_syntax_invalid_background, 6, 16, QChar('0')) // Invalid
-            .arg(ws_syntax_deprecated_background, 6, 16, QChar('0'))      // Deprecated
-            .arg(ws_syntax_valid_background, 6, 16, QChar('0'))   // Valid
-            ;
-    setStyleSheet(tr(""));
     setSyntaxState();
 }
 
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     syntax_state_ = state;
+    state_style_sheet_ = QString(
+            "SyntaxLineEdit[syntaxState=\"%1\"] {"
+            "  color: %4;"
+            "  background-color: %5;"
+            "}"
+
+            "SyntaxLineEdit[syntaxState=\"%2\"] {"
+            "  color: %4;"
+            "  background-color: %6;"
+            "}"
+
+            "SyntaxLineEdit[syntaxState=\"%3\"] {"
+            "  color: %4;"
+            "  background-color: %7;"
+            "}"
+            )
+            .arg(Valid)
+            .arg(Invalid)
+            .arg(Deprecated)
+            .arg("palette(text)")   // Foreground
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_valid).name()) // Invalid
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_invalid).name())      // Deprecated
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_deprecated).name())   // Valid
+            ;
     setStyleSheet(style_sheet_);
 }
 

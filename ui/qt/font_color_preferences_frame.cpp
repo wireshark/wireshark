@@ -185,7 +185,6 @@ void FontColorPreferencesFrame::changeColor(pref_t *pref)
     }
 }
 
-#include <QDebug>
 void FontColorPreferencesFrame::on_fontPushButton_clicked()
 {
     bool ok;

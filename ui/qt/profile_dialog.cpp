@@ -32,7 +32,7 @@
 #include "profile_dialog.h"
 #include "ui_profile_dialog.h"
 #include "wireshark_application.h"
-#include "tango_colors.h"
+#include "color_utils.h"
 
 #include <QFont>
 #include <QUrl>
@@ -170,12 +170,10 @@ void ProfileDialog::updateWidgets()
             if (profile->is_global) continue;
             if (current_profile && !current_profile->is_global && profile != current_profile && strcmp(profile->name, current_profile->name) == 0) {
                 item->setToolTip(0, tr("A profile already exists with that name."));
-                item->setBackground(0, QColor(ws_syntax_invalid_background));
-                item->setForeground(0, QColor(ws_syntax_invalid_foreground));
+                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_invalid));
                 enable_ok = false;
             } else {
                 item->setBackground(0, QBrush());
-                item->setForeground(0, QBrush());
             }
         }
     }
