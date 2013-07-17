@@ -252,9 +252,15 @@ dissect_dcom_Property_Guid(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     di = (dcerpc_info *)pinfo->private_data;
     pg = (property_guids_t*)di->private_data;
 
-    DISSECTOR_ASSERT(pg->id_idx < MAX_ACTPROP_LIMIT);
-    offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
-                        hf_sysact_actpropclsid, &pg->guid[pg->id_idx++]);
+    if (pg->id_idx < MAX_ACTPROP_LIMIT) {
+        offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
+                hf_sysact_actpropclsid, &pg->guid[pg->id_idx++]);
+    }
+    else {
+        /* TODO: expert info */
+        tvb_ensure_bytes_exist(tvb, offset, 16);
+        offset += 16;
+    }
 
     return offset;
 }
@@ -277,9 +283,15 @@ dissect_dcom_Property_Size(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     di = (dcerpc_info *)pinfo->private_data;
     pg = (property_guids_t*)di->private_data;
 
-    DISSECTOR_ASSERT(pg->size_idx < MAX_ACTPROP_LIMIT);
-    offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
-                        hf_sysact_actpropsize, &pg->size[pg->size_idx++]);
+    if (pg->size_idx < MAX_ACTPROP_LIMIT) {
+        offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
+                hf_sysact_actpropsize, &pg->size[pg->size_idx++]);
+    }
+    else {
+        /* TODO: expert info */
+        tvb_ensure_bytes_exist(tvb, offset, 4);
+        offset += 4;
+    }
 
     return offset;
 }
@@ -369,17 +381,24 @@ dissect_dcom_ActivationPropertiesBody(tvbuff_t *tvb, gint offset, packet_info *p
     dcerpc_info *di;
     property_guids_t *pg;
     guint32 i;
+    guint32 min_idx;
 
     di = (dcerpc_info *)pinfo->private_data;
     pg = (property_guids_t*)di->private_data;
 
-    DISSECTOR_ASSERT(pg->id_idx == pg->size_idx);
+    if (pg->id_idx == pg->size_idx) {
+        min_idx = pg->id_idx;
+    }
+    else {
+        /* TODO: expert info */
+        min_idx = MIN(pg->id_idx, pg->size_idx);
+    }
 
     sub_item = proto_tree_add_text(tree, tvb, offset, 0, "Properties");
     sub_tree = proto_item_add_subtree(sub_item, ett_properties);
 
     old_offset = offset;
-    for (i = 0; i < pg->id_idx; i++) {
+    for (i = 0; i < min_idx; i++) {
         offset = dissect_dcom_ActivationProperty(tvb, offset, pinfo, sub_tree, drep,
                                                     &pg->guid[i], pg->size[i]);
     }
@@ -473,6 +492,11 @@ dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, gint offset, packet_info *pi
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "SpecialSystemProperties");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_spclsysprop);
 
@@ -513,8 +537,11 @@ dissect_dcom_SpecialSystemProperties(tvbuff_t *tvb, gint offset, packet_info *pi
     }
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -552,6 +579,11 @@ dissect_dcom_InstantiationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "InstantiationInfo");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_instantianinfo);
 
@@ -582,8 +614,11 @@ dissect_dcom_InstantiationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -627,6 +662,11 @@ dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, gint offset, packet_info *pinf
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "ActivationContextInfo");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_actctxinfo);
 
@@ -650,8 +690,11 @@ dissect_dcom_ActivationContextInfo(tvbuff_t *tvb, gint offset, packet_info *pinf
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -715,6 +758,11 @@ dissect_dcom_SecurtiyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "SecurityInfo");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_securityinfo);
 
@@ -730,8 +778,11 @@ dissect_dcom_SecurtiyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -749,6 +800,11 @@ dissect_dcom_LocationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     gint old_offset, len;
 
     old_offset = offset;
+
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
 
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "LocationInfo");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_locationinfo);
@@ -769,8 +825,11 @@ dissect_dcom_LocationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -840,6 +899,11 @@ dissect_dcom_ScmRqstInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "ScmRequestInfo");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_scmrqstinfo);
 
@@ -854,8 +918,11 @@ dissect_dcom_ScmRqstInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -943,6 +1010,11 @@ dissect_dcom_PropsOutInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "PropertiesOutput");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_propsoutput);
 
@@ -960,8 +1032,11 @@ dissect_dcom_PropsOutInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }
@@ -1052,6 +1127,11 @@ dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     old_offset = offset;
 
+    if (size <= 0) {
+        /* TODO: expert info */
+        size = -1;
+    }
+
     sub_item = proto_tree_add_text(tree, tvb, offset, size, "ScmReplyInfo");
     sub_tree = proto_item_add_subtree(sub_item, ett_dcom_scmrespinfo);
 
@@ -1066,8 +1146,11 @@ dissect_dcom_ScmReplyInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
     len = offset - old_offset;
-    DISSECTOR_ASSERT(len <= size);
-    if (size-len) {
+    if (size < len) {
+        /* TODO expert info */
+        size = len;
+    }
+    else if (size > len) {
         proto_tree_add_text(sub_tree, tvb, offset, size - len,
                 "UnusedBuffer: %d bytes", size - len);
     }

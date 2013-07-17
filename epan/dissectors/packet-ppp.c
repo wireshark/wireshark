@@ -62,8 +62,13 @@ static int hf_ppp_magic_number = -1;
 static int hf_ppp_oui = -1;
 static int hf_ppp_kind = -1;
 static int hf_ppp_data = -1;
+static int hf_ppp_opt_type = -1;
+static int hf_ppp_opt_type_copy = -1;
+static int hf_ppp_opt_type_class = -1;
+static int hf_ppp_opt_type_number = -1;
 
 static gint ett_ppp = -1;
+static gint ett_ppp_opt_type = -1;
 
 static int proto_ppp_hdlc = -1;
 
@@ -1248,6 +1253,9 @@ static const ip_tcp_opt ipcp_rohc_subopts[] = {
 };
 
 #define N_IPCP_ROHC_SUBOPTS (sizeof ipcp_rohc_subopts / sizeof ipcp_rohc_subopts[0])
+
+static ip_tcp_opt_type PPP_OPT_TYPES = {&hf_ppp_opt_type, &ett_ppp_opt_type,
+    &hf_ppp_opt_type_copy, &hf_ppp_opt_type_class, &hf_ppp_opt_type_number};
 
 /*
  * Options.  (OSINLCP)
@@ -2705,7 +2713,7 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                 "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
             subopt_tree = proto_item_add_subtree(tso, *optp->subtree_index);
             dissect_ip_tcp_options(tvb, offset, length, ipcp_rohc_subopts,
-                N_IPCP_ROHC_SUBOPTS, -1, pinfo, subopt_tree, NULL, NULL);
+                N_IPCP_ROHC_SUBOPTS, -1, &PPP_OPT_TYPES, pinfo, subopt_tree, NULL, NULL);
         }
         break;
 
@@ -2744,7 +2752,7 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                 "Suboptions: (%u byte%s)", length, plurality(length, "", "s"));
             subopt_tree = proto_item_add_subtree(tso, *optp->subtree_index);
             dissect_ip_tcp_options(tvb, offset, length, ipcp_iphc_subopts,
-                N_IPCP_IPHC_SUBOPTS, -1, pinfo, subopt_tree, NULL, NULL);
+                N_IPCP_IPHC_SUBOPTS, -1, &PPP_OPT_TYPES, pinfo, subopt_tree, NULL, NULL);
         }
         break;
 
@@ -3846,7 +3854,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
             tf = proto_tree_add_text(fh_tree, tvb, offset, length,
                 "Options: (%d byte%s)", length, plurality(length, "", "s"));
             field_tree = proto_item_add_subtree(tf, options_subtree_index);
-            dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1, pinfo,
+            dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1, &PPP_OPT_TYPES, pinfo,
                 field_tree, NULL, NULL);
         }
         break;
@@ -4014,7 +4022,7 @@ static void
 dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts,
-        N_LCP_OPTS, -1, pinfo, tree, NULL, NULL);
+        N_LCP_OPTS, -1, &PPP_OPT_TYPES, pinfo, tree, NULL, NULL);
 }
 
 /*
@@ -4072,7 +4080,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      plurality(length, "", "s"));
             field_tree = proto_item_add_subtree(tf, ett_vsncp_options);
             dissect_ip_tcp_options(tvb, offset, length, vsncp_opts,
-                                   N_VSNCP_OPTS, -1, pinfo, field_tree, NULL, NULL);
+                                   N_VSNCP_OPTS, -1, &PPP_OPT_TYPES, pinfo, field_tree, NULL, NULL);
         }
         break;
 
@@ -4337,7 +4345,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  "Data (%d byte%s)", length, plurality(length, "", "s"));
         field_tree = proto_item_add_subtree(tf, ett_bap_options);
         dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS,
-                               -1, pinfo, field_tree, NULL, NULL);
+                               -1, &PPP_OPT_TYPES, pinfo, field_tree, NULL, NULL);
     }
 }
 
@@ -5465,10 +5473,23 @@ proto_register_ppp(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ppp_data,
             { "Data", "ppp.data", FT_BYTES, BASE_NONE,
-                NULL, 0x0, NULL, HFILL }}
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ppp_opt_type,
+            { "Type", "ppp.opt.type", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL}},
+        { &hf_ppp_opt_type_copy,
+            { "Copy on fragmentation", "ppp.opt.type.copy", FT_BOOLEAN, 8,
+                TFS(&tfs_yes_no), IPOPT_COPY_MASK, NULL, HFILL}},
+        { &hf_ppp_opt_type_class,
+            { "Class", "ppp.opt.type.class", FT_UINT8, BASE_DEC,
+                VALS(ipopt_type_class_vals), IPOPT_CLASS_MASK, NULL, HFILL}},
+        { &hf_ppp_opt_type_number,
+            { "Number", "ppp.opt.type.number", FT_UINT8, BASE_DEC,
+                VALS(ipopt_type_number_vals), IPOPT_NUMBER_MASK, NULL, HFILL}},
     };
     static gint *ett[] = {
-        &ett_ppp
+        &ett_ppp,
+        &ett_ppp_opt_type
     };
 
     module_t *ppp_module;

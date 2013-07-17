@@ -169,6 +169,8 @@ The following bugs have been fixed:
 
 * IEEE 802.15.4 frame check sequence in "Chipcon mode" not displayed correctly. (ws-buglink:4507)
 
+* Colors used by colorize_filter_te_as_* should be configurable. (ws-buglink:5413)
+
 * Crash when applying filter with Voip calls. (ws-buglink:6090)
 
 * Add MAC-DATA support to TETRA dissector and other minor improvements. (ws-buglink:8708)
@@ -187,11 +189,27 @@ The following bugs have been fixed:
 
 * Wrong size of LLRP ProtocolID Parameter in Accessspec Parameter. (ws-buglink:8809)
 
-* Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908)
+* Detection of IPv6 works only on Solaris 8. (ws-buglink:8813)
+
+* ip.opt.type triggers for TCP NOP option. (ws-buglink:8823)
+
+* DCOM-SYSACT dissector crash. (ws-buglink:8828)
+
+* Incorrect decoding of MPLS Echo Request with BGP FEC. (ws-buglink:8835)
 
 * Buggy IEC104 dissector caused by commit r48958. (ws-buglink:8849)
 
 * ansi_637_tele dissector displays MSB as MBS for Call-Back Number. (ws-buglink:8851)
+
+* LISP Map-Notify flags I and R shown incorrectly. (ws-buglink:8852)
+
+* ONTAP_V4 fhandle decoding leads to dissector bug. (ws-buglink:8853)
+
+* Dropped bytes in imap dissector. (ws-buglink:8857)
+
+* Kismet drone/server dissector improvements. (ws-buglink:8864)
+
+* Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908)
 
 === New and Updated Features
 
@@ -205,10 +223,12 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+ASN.1
 ANSI IS-637-A
 ASN.1 PER
 Bluetooth OBEX
 Bluetooth SDB
+DCERPC NDR
 DCOM ISystemActivator
 DCP ETSI
 Diameter 3GPP
@@ -220,10 +240,19 @@ GSM SMS
 H.235
 IEC104
 IEEE 802.15.4
+IMAP
+IP
+KDSP
+LISP
 LLRP
+MPLS Echo
+NFS
 P1
+PN-IO
+PPP
 Radiotap
 SCSI
+TCP
 TETRA
 VNC
 

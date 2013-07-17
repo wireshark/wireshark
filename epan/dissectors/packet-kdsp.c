@@ -42,6 +42,7 @@
 #define REPORT     6
 
 #define CPT_FLAG   0x80000000
+#define FCS_FLAG   0x00000004
 #define GPS_FLAG   0x00000002
 #define RADIO_FLAG 0x00000001
 
@@ -137,10 +138,15 @@ static gint hf_kdsp_str_msg = -1;
 
 static gint hf_kdsp_cpt_bitmap = -1;
 static gint hf_kdsp_cpt_flag_cpt = -1;
+static gint hf_kdsp_cpt_flag_fcs = -1;
 static gint hf_kdsp_cpt_flag_gps = -1;
 static gint hf_kdsp_cpt_flag_radio = -1;
 static gint hf_kdsp_cpt_offset = -1;
 
+static gint hf_kdsp_fcs = -1;
+static gint hf_kdsp_fcs_data = -1;
+
+static gint hf_kdsp_radio_hdr = -1;
 static gint hf_kdsp_radio_hdr_len = -1;
 static gint hf_kdsp_radio_content_bitmap = -1;
 static gint hf_kdsp_radio_accuracy = -1;
@@ -153,6 +159,7 @@ static gint hf_kdsp_radio_datarate = -1;
 static gint hf_kdsp_radio_signal_rssi = -1;
 static gint hf_kdsp_radio_noise_rssi = -1;
 
+static gint hf_kdsp_gps_hdr = -1;
 static gint hf_kdsp_gps_hdr_len = -1;
 static gint hf_kdsp_gps_content_bitmap = -1;
 static gint hf_kdsp_gps_fix = -1;
@@ -162,6 +169,7 @@ static gint hf_kdsp_gps_alt = -1;
 static gint hf_kdsp_gps_spd = -1;
 static gint hf_kdsp_gps_heading = -1;
 
+static gint hf_kdsp_cpt_data_hdr = -1;
 static gint hf_kdsp_cpt_data_hdr_len = -1;
 static gint hf_kdsp_cpt_data_content_bitmap = -1;
 static gint hf_kdsp_cpt_uuid = -1;
@@ -218,6 +226,10 @@ static gint ett_kdsp_pdu = -1;
 static gint ett_cpt_bitmap = -1;
 static gint ett_ch_bitmap = -1;
 static gint ett_ch_data = -1;
+static gint ett_sub_fcs = -1;
+static gint ett_sub_radio = -1;
+static gint ett_sub_gps = -1;
+static gint ett_sub_cpt = -1;
 
 /* determine PDU length of protocol */
 static guint
@@ -237,6 +249,8 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 bitmap;
   guint16 type;
   guint32 i;
+  guint32 ieee80211_len;
+  guint16 reported_ieee80211_len;
 
   tvbuff_t   *ieee80211_tvb;
   proto_item *kdsp_item;
@@ -285,73 +299,93 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_cpt_bitmap);
     proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_cpt,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_fcs,   tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_gps,   tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_radio, tvb, offset, 4, ENC_BIG_ENDIAN);
     bitmap = tvb_get_ntohl(tvb, offset);
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_offset,    tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
+    if (bitmap & FCS_FLAG) {
+      sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_fcs, tvb, offset, 4, ENC_NA);
+      sub_tree = proto_item_add_subtree(sub_item, ett_sub_fcs);
+      
+      proto_tree_add_item(sub_tree, hf_kdsp_fcs_data,   tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+    }
     if (bitmap & RADIO_FLAG) {
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
+      sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_radio_hdr, tvb, offset, 30, ENC_NA);
+      sub_tree = proto_item_add_subtree(sub_item, ett_sub_radio);
+
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_accuracy,       tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_accuracy,       tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_freq_mhz,       tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_freq_mhz,       tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_signal_dbm,     tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_signal_dbm,     tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_noise_dbm,      tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_noise_dbm,      tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_carrier,        tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_carrier,        tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_encoding,       tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_encoding,       tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_datarate,       tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_datarate,       tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_signal_rssi,    tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_signal_rssi,    tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_noise_rssi,     tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_radio_noise_rssi,     tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
     }
     if (bitmap & GPS_FLAG) {
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+      sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_gps_hdr, tvb, offset, 68, ENC_NA);
+      sub_tree = proto_item_add_subtree(sub_item, ett_sub_gps);
+
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_fix, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_fix, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_lat, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_lat, tvb, offset, 12, ENC_NA);
       offset += 12;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_lon, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_lon, tvb, offset, 12, ENC_NA);
       offset += 12;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_alt, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_alt, tvb, offset, 12, ENC_NA);
       offset += 12;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_spd, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_spd, tvb, offset, 12, ENC_NA);
       offset += 12;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_gps_heading, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(sub_tree, hf_kdsp_gps_heading, tvb, offset, 12, ENC_NA);
       offset += 12;
     }
     if (bitmap & CPT_FLAG) {
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
+      sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_hdr, tvb, offset, 44, ENC_NA);
+      sub_tree = proto_item_add_subtree(sub_item, ett_sub_cpt);
+
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_data_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_uuid,                tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_uuid,                tvb, offset, 16, ENC_NA);
       offset += 16;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_packet_len,          tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_packet_len,          tvb, offset, 2, ENC_BIG_ENDIAN);
+      reported_ieee80211_len = tvb_get_ntohs(tvb, offset);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_tv_sec,              tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_sec,              tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_tv_usec,             tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_usec,             tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_dlt,                 tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_kdsp_cpt_dlt,                 tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
+      
+      ieee80211_len = (length + FRAME_HEADER_LEN) - offset;
+      ieee80211_tvb = tvb_new_subset(tvb, offset, ieee80211_len, reported_ieee80211_len);
+      call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, tree);
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
     }
-    ieee80211_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, tree);
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
   }
   else if (command == CHANNELSET) {
     proto_tree_add_item(kdsp_tree, hf_kdsp_ch_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -530,6 +564,12 @@ proto_register_kdsp(void)
         NULL, CPT_FLAG,
         NULL, HFILL }
     },
+    { &hf_kdsp_cpt_flag_fcs,
+      { "Capture FCS Flag", "kdsp.cpt.flag.fcs",
+        FT_BOOLEAN, 32,
+        NULL, FCS_FLAG,
+        NULL, HFILL }
+    },
     { &hf_kdsp_cpt_flag_gps,
       { "Capture GPS Flag", "kdsp.cpt.flag.gps",
         FT_BOOLEAN, 32,
@@ -543,8 +583,26 @@ proto_register_kdsp(void)
         NULL, HFILL }
     },
     { &hf_kdsp_cpt_offset,
-      { "Offset", "kdsp.cpt.offset",
+      { "Offset Capture Packet Header", "kdsp.cpt.offset",
         FT_UINT32, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_fcs,
+      { "Capture FCS Header", "kdsp.fcs",
+        FT_NONE, BASE_NONE,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_fcs_data,
+      { "Frame Checksum", "kdsp.fcs.data",
+        FT_UINT32, BASE_HEX,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_radio_hdr,
+      { "Capture Radio Header", "kdsp.radio",
+        FT_NONE, BASE_NONE,
         NULL, 0x0,
         NULL, HFILL }
     },
@@ -614,6 +672,12 @@ proto_register_kdsp(void)
         NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_kdsp_gps_hdr,
+      { "Capture GPS Header", "kdsp.gps",
+        FT_NONE, BASE_NONE,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_kdsp_gps_hdr_len,
       { "GPS Length", "kdsp.gps.length",
         FT_UINT16, BASE_DEC,
@@ -658,6 +722,12 @@ proto_register_kdsp(void)
     },
     { &hf_kdsp_gps_heading,
       { "Heading", "kdsp.gps.heading",
+        FT_NONE, BASE_NONE,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_kdsp_cpt_data_hdr,
+      { "Capture Packet Header", "kdsp.cpt",
         FT_NONE, BASE_NONE,
         NULL, 0x0,
         NULL, HFILL }
@@ -958,7 +1028,11 @@ proto_register_kdsp(void)
     &ett_kdsp_pdu,
     &ett_cpt_bitmap,
     &ett_ch_bitmap,
-    &ett_ch_data
+    &ett_ch_data,
+    &ett_sub_fcs,
+    &ett_sub_radio,
+    &ett_sub_gps,
+    &ett_sub_cpt
   };
 
   proto_kdsp = proto_register_protocol(

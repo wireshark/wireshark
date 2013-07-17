@@ -240,6 +240,10 @@ static int hf_tcp_option_fast_open_cookie = -1;
 
 static int hf_tcp_ts_relative = -1;
 static int hf_tcp_ts_delta = -1;
+static int hf_tcp_option_type = -1;
+static int hf_tcp_option_type_copy = -1;
+static int hf_tcp_option_type_class = -1;
+static int hf_tcp_option_type_number = -1;
 static int hf_tcp_option_scps = -1;
 static int hf_tcp_option_scps_vector = -1;
 static int hf_tcp_option_scps_binding = -1;
@@ -271,6 +275,7 @@ static int hf_tcp_segment_data = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
+static gint ett_tcp_option_type = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_timestamp = -1;
 static gint ett_tcp_option_mss = -1;
@@ -3846,6 +3851,9 @@ static const ip_tcp_opt tcpopts[] = {
 
 #define N_TCP_OPTS  array_length(tcpopts)
 
+static ip_tcp_opt_type TCP_OPT_TYPES = {&hf_tcp_option_type, &ett_tcp_option_type,
+    &hf_tcp_option_type_copy, &hf_tcp_option_type_class, &hf_tcp_option_type_number};
+
 /* Determine if there is a sub-dissector and call it; return TRUE
    if there was a sub-dissector, FALSE otherwise.
 
@@ -4670,7 +4678,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             field_tree = NULL;
         }
         dissect_ip_tcp_options(tvb, offset + 20, optlen,
-                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree, tf, tcph);
+                               tcpopts, N_TCP_OPTS, TCPOPT_EOL, &TCP_OPT_TYPES, pinfo, field_tree, tf, tcph);
     }
 
     if(!pinfo->fd->flags.visited) {
@@ -5308,6 +5316,22 @@ proto_register_tcp(void)
           { "TCP QS Option", "tcp.options.qs", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_type,
+          { "Type", "tcp.options.type", FT_UINT8, BASE_DEC,
+            NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_type_copy,
+          { "Copy on fragmentation", "tcp.options.type.copy", FT_BOOLEAN, 8,
+            TFS(&tfs_yes_no), IPOPT_COPY_MASK, NULL, HFILL}},
+
+        { &hf_tcp_option_type_class,
+          { "Class", "tcp.options.type.class", FT_UINT8, BASE_DEC,
+            VALS(ipopt_type_class_vals), IPOPT_CLASS_MASK, NULL, HFILL}},
+
+        { &hf_tcp_option_type_number,
+          { "Number", "tcp.options.type.number", FT_UINT8, BASE_DEC,
+            VALS(ipopt_type_number_vals), IPOPT_NUMBER_MASK, NULL, HFILL}},
+
         { &hf_tcp_option_scps,
           { "TCP SCPS Capabilities Option", "tcp.options.scps",
             FT_BOOLEAN, BASE_NONE, NULL,  0x0,
@@ -5619,6 +5643,7 @@ proto_register_tcp(void)
     static gint *ett[] = {
         &ett_tcp,
         &ett_tcp_flags,
+        &ett_tcp_option_type,
         &ett_tcp_options,
         &ett_tcp_option_timestamp,
         &ett_tcp_option_mptcp,

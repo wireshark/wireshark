@@ -83,13 +83,21 @@ static int hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id = -1;
 static int hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender = -1;
 static int hf_mpls_echo_tlv_fec_rsvp_ip_mbz2 = -1;
 static int hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id = -1;
+static int hf_mpls_echo_tlv_fec_vpn_route_dist = -1;
+static int hf_mpls_echo_tlv_fec_vpn_ipv4 = -1;
+static int hf_mpls_echo_tlv_fec_vpn_len = -1;
+static int hf_mpls_echo_tlv_fec_vpn_ipv6 = -1;
+static int hf_mpls_echo_tlv_fec_l2_vpn_route_dist = -1;
+static int hf_mpls_echo_tlv_fec_l2_vpn_send_ve_id = -1;
+static int hf_mpls_echo_tlv_fec_l2_vpn_recv_ve_id = -1;
+static int hf_mpls_echo_tlv_fec_l2_vpn_encap_type = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_sender = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_remote = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_vcid = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_encap = -1;
 static int hf_mpls_echo_tlv_fec_l2cid_mbz = -1;
-static int hf_mpls_echo_tlv_fec_bgp_nh = -1;
 static int hf_mpls_echo_tlv_fec_bgp_ipv4 = -1;
+static int hf_mpls_echo_tlv_fec_bgp_ipv6 = -1;
 static int hf_mpls_echo_tlv_fec_bgp_len = -1;
 static int hf_mpls_echo_tlv_fec_gen_ipv4 = -1;
 static int hf_mpls_echo_tlv_fec_gen_ipv4_mask = -1;
@@ -318,6 +326,7 @@ static const value_string mpls_echo_tlv_type_names[] = {
 };
 static value_string_ext mpls_echo_tlv_type_names_ext = VALUE_STRING_EXT_INIT(mpls_echo_tlv_type_names);
 
+/*As per RFC 4379, http://tools.ietf.org/html/rfc4379 Section: 3.2 */
 #define TLV_FEC_STACK_LDP_IPv4              1
 #define TLV_FEC_STACK_LDP_IPv6              2
 #define TLV_FEC_STACK_RSVP_IPv4             3
@@ -517,7 +526,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
         tlv_fec_tree = NULL;
 
         if (tree) {
-            ti = proto_tree_add_text(tree, tvb, offset, length + 4, "FEC Element %u: %s",
+            ti = proto_tree_add_text(tree, tvb, offset, length + 4 + (4-(length%4)), "FEC Element %u: %s",
                                      idx, val_to_str_ext(type, &mpls_echo_tlv_fec_names_ext,
                                                          "Unknown FEC type (0x%04X)"));
             tlv_fec_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_fec);
@@ -547,8 +556,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4_mask,
                                     tvb, offset + 8, 1, ENC_BIG_ENDIAN);
-                if (length == 8)
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 9, 3, "Padding");
             }
             break;
         case TLV_FEC_STACK_LDP_IPv6:
@@ -557,8 +564,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6_mask,
                                     tvb, offset + 20, 1, ENC_BIG_ENDIAN);
-                if (length == 20)
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 21, 3, "Padding");
             }
             break;
         case TLV_FEC_STACK_RSVP_IPv4:
@@ -576,12 +581,8 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 8, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
                                     tvb, offset + 10, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
-                                    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
-                                    tvb_ip_to_str(tvb, offset + 12));
-                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
                                                   tvb, offset + 12, 4, ENC_BIG_ENDIAN);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender,
                                     tvb, offset + 16, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
@@ -605,19 +606,46 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 20, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
                                     tvb, offset + 22, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16,
-                                    "Extended Tunnel ID: 0x%s (%s)",
-                                    tvb_bytes_to_str(tvb, offset + 24, 16),
-                                    tvb_ip6_to_str(tvb, offset + 24));
-                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
                                                   tvb, offset + 24, 16, ENC_NA);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
                                     tvb, offset + 40, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
                                     tvb, offset + 56, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
                                     tvb, offset + 58, 2, ENC_BIG_ENDIAN);
+            }
+            break;
+        case TLV_FEC_STACK_VPN_IPv4:
+            if (tree) {
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_vpn_route_dist,
+                                    tvb, offset + 4, 8, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_vpn_ipv4,
+                                    tvb, offset + 12, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_vpn_len,
+                                    tvb, offset + 16, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+        case TLV_FEC_STACK_VPN_IPv6:
+            if (tree) {
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_vpn_route_dist,
+                                    tvb, offset + 4, 8, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_vpn_ipv6,
+                                    tvb, offset + 12, 16, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_vpn_len,
+                                    tvb, offset + 28, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+        case TLV_FEC_STACK_L2_VPN:
+            if (tree) {
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2_vpn_route_dist,
+                                    tvb, offset + 4, 8, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2_vpn_send_ve_id,
+                                    tvb, offset + 12, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2_vpn_recv_ve_id,
+                                    tvb, offset + 14, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2_vpn_encap_type,
+                                    tvb, offset + 16, 2, ENC_BIG_ENDIAN);
             }
             break;
         case TLV_FEC_STACK_L2_CID_OLD:
@@ -670,14 +698,18 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             break;
         case TLV_FEC_STACK_BGP_LAB_v4:
             if (tree) {
-                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_nh,
-                                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_ipv4,
-                                    tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+                                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_len,
-                                    tvb, offset + 12, 1, ENC_BIG_ENDIAN);
-                if (length == 12)
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 13, 3, "Padding");
+                                    tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+            }
+            break;
+        case TLV_FEC_STACK_BGP_LAB_v6:
+            if (tree) {
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_ipv6,
+                                    tvb, offset + 4, 16, ENC_NA);
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_len,
+                                    tvb, offset + 20, 1, ENC_BIG_ENDIAN);
             }
             break;
         case TLV_FEC_STACK_GEN_IPv4:
@@ -686,8 +718,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv4_mask,
                                     tvb, offset + 8, 1, ENC_BIG_ENDIAN);
-                if (length == 8)
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 9, 3, "Padding");
             }
             break;
         case TLV_FEC_STACK_GEN_IPv6:
@@ -696,8 +726,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv6_mask,
                                     tvb, offset + 20, 1, ENC_BIG_ENDIAN);
-                if (length == 20)
-                    proto_tree_add_text(tlv_fec_tree, tvb, offset + 21, 3, "Padding");
             }
             break;
         case TLV_FEC_STACK_NIL:
@@ -815,15 +843,10 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             }
             break;
         case TLV_FEC_STACK_RES:
-        case TLV_FEC_STACK_VPN_IPv4:
-        case TLV_FEC_STACK_VPN_IPv6:
-        case TLV_FEC_STACK_L2_VPN:
         default:
-            if (tree) {
-                if (length)
-                    proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_value,
+            if (length)
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_value,
                                         tvb, offset + 4, length, ENC_NA);
-            }
             break;
         }
 
@@ -1924,6 +1947,38 @@ proto_register_mpls_echo(void)
           { "LSP ID", "mpls_echo.tlv.fec.rsvp_ip_lsp_id",
             FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack RSVP LSP ID", HFILL}
         },
+        { &hf_mpls_echo_tlv_fec_vpn_route_dist,
+          { "Route Distinguisher", "mpls_echo.tlv.fec.vpn_route_dist",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack VPN Route Distinguisher", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_vpn_ipv4,
+          { "IPv4 Prefix", "mpls_echo.tlv.fec.vpn_ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack VPN IPv4", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_vpn_ipv6,
+          { "IPv6 Prefix", "mpls_echo.tlv.fec.vpn_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack VPN IPv6", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_vpn_len,
+          { "Prefix Length", "mpls_echo.tlv.fec.vpn_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV FEC Stack VPN Prefix Length", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_l2_vpn_route_dist,
+          { "Route Distinguisher", "mpls_echo.tlv.fec.l2vpn_route_dist",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack L2VPN Route Distinguisher", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_l2_vpn_send_ve_id,
+          { "Sender's VE ID", "mpls_echo.tlv.fec.l2vpn_send_ve_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC Stack L2VPN Sender's VE ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_l2_vpn_recv_ve_id,
+          { "Receiver's VE ID", "mpls_echo.tlv.fec.l2vpn_recv_ve_id",
+            FT_UINT16, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC Stack L2VPN Receiver's VE ID", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_l2_vpn_encap_type,
+          { "Encapsulation", "mpls_echo.tlv.fec.l2vpn_encap_type",
+            FT_UINT16, BASE_DEC, VALS(fec_vc_types_vals), 0x0, "MPLS ECHO TLV FEC Stack L2VPN Encapsulation", HFILL}
+        },
         { &hf_mpls_echo_tlv_fec_l2cid_sender,
           { "Sender's PE Address", "mpls_echo.tlv.fec.l2cid_sender",
             FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack L2CID Sender", HFILL}
@@ -1944,13 +1999,13 @@ proto_register_mpls_echo(void)
           { "MBZ", "mpls_echo.tlv.fec.l2cid_mbz",
             FT_UINT16, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV FEC Stack L2CID MBZ", HFILL}
         },
-        { &hf_mpls_echo_tlv_fec_bgp_nh,
-          { "BGP Next Hop", "mpls_echo.tlv.fec.bgp_nh",
-            FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack BGP Next Hop", HFILL}
-        },
         { &hf_mpls_echo_tlv_fec_bgp_ipv4,
           { "IPv4 Prefix", "mpls_echo.tlv.fec.bgp_ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack BGP IPv4", HFILL}
+        },
+        { &hf_mpls_echo_tlv_fec_bgp_ipv6,
+          { "IPv6 Prefix", "mpls_echo.tlv.fec.bgp_ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV FEC Stack BGP IPv6", HFILL}
         },
         { &hf_mpls_echo_tlv_fec_bgp_len,
           { "Prefix Length", "mpls_echo.tlv.fec.bgp_len",

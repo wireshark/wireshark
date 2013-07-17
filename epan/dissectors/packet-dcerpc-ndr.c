@@ -45,6 +45,11 @@ dissect_ndr_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
+
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -117,6 +122,11 @@ dissect_ndr_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    int hfindex, guint16 *pdata)
 {
     dcerpc_info *di;
+
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
 
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
@@ -195,6 +205,11 @@ dissect_ndr_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    int hfindex, guint32 *pdata)
 {
     dcerpc_info *di;
+
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
 
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
@@ -327,6 +342,11 @@ dissect_ndr_duint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
+
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -349,6 +369,11 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    int hfindex, guint64 *pdata)
 {
     dcerpc_info *di;
+
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
 
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
@@ -429,6 +454,11 @@ dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
+
 
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
@@ -451,6 +481,10 @@ dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
 
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
@@ -473,6 +507,11 @@ dissect_ndr_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        *pdata = 0;
+
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
@@ -493,6 +532,11 @@ dissect_ndr_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    int hfindex, e_uuid_t *pdata)
 {
     dcerpc_info *di;
+
+    /* Some callers expect us to initialize pdata, even in error conditions, so
+     * do it right away in case we forget later */
+    if (pdata)
+        memset(pdata, 0, sizeof(*pdata));
 
     di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {

@@ -12369,6 +12369,7 @@ proto_register_nfs(void)
 
 		&ett_nfs4_fh_file,
 		&ett_nfs4_fh_file_flags,
+		&ett_nfs4_fh_export,
 		&ett_nfs4_compound_call,
 		&ett_nfs4_request_op,
 		&ett_nfs4_response_op,

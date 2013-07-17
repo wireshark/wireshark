@@ -53,13 +53,21 @@ typedef struct ip_tcp_opt {
                    void *);   /**< routine to dissect option */
 } ip_tcp_opt;
 
+typedef struct ip_tcp_opt_type {
+  int* phf_opt_type;
+  int* pett_opt_type;
+  int* phf_opt_type_copy;
+  int* phf_opt_type_class;
+  int* phf_opt_type_number;
+} ip_tcp_opt_type;
+
 /** Routine to dissect options that work like IPv4 options, where the
    length field in the option, if present, includes the type and
    length bytes. */
-extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
-                                   const ip_tcp_opt *, int, int,
-                                   packet_info *, proto_tree *, proto_item *,
-                                   void *);
+extern void dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
+                       const ip_tcp_opt *opttab, int nopts, int eol, ip_tcp_opt_type* opttypes,
+                       packet_info *pinfo, proto_tree *opt_tree,
+                       proto_item *opt_item, void * data);
 
 /* Quick-Start option, as defined by RFC4782 */
 #define QS_FUNC_MASK        0xf0
@@ -67,7 +75,15 @@ extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
 #define QS_RATE_REQUEST     0
 #define QS_RATE_REPORT      8
 
+/* IP options */
+#define IPOPT_COPY_MASK         0x80
+#define IPOPT_CLASS_MASK        0x60
+#define IPOPT_NUMBER_MASK       0x1F
+
 WS_DLL_PUBLIC const value_string qs_func_vals[];
 WS_DLL_PUBLIC value_string_ext qs_rate_vals_ext;
+
+WS_DLL_PUBLIC const value_string ipopt_type_class_vals[];
+WS_DLL_PUBLIC const value_string ipopt_type_number_vals[];
 
 #endif

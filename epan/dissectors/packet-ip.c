@@ -341,16 +341,12 @@ static dissector_handle_t tapa_handle;
 #define IPTOS_PREC_ROUTINE          0
 
 /* IP options */
-#define IPOPT_COPY_MASK         0x80
 #define IPOPT_COPY              0x80
 
-#define IPOPT_CLASS_MASK        0x60
 #define IPOPT_CONTROL           0x00
 #define IPOPT_RESERVED1         0x20
 #define IPOPT_MEASUREMENT       0x40
 #define IPOPT_RESERVED2         0x60
-
-#define IPOPT_NUMBER_MASK       0x1F
 
 /* REF: http://www.iana.org/assignments/ip-parameters */
 /* TODO: Not all of these are implemented. */
@@ -604,7 +600,7 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 src32,
 }
 #endif /* HAVE_GEOIP */
 
-static const value_string ipopt_type_class_vals[] = {
+const value_string ipopt_type_class_vals[] = {
   {(IPOPT_CONTROL & IPOPT_CLASS_MASK) >> 5, "Control"},
   {(IPOPT_RESERVED1 & IPOPT_CLASS_MASK) >> 5, "Reserved for future use"},
   {(IPOPT_MEASUREMENT & IPOPT_CLASS_MASK) >> 5, "Debugging and measurement"},
@@ -612,7 +608,7 @@ static const value_string ipopt_type_class_vals[] = {
   {0, NULL}
 };
 
-static const value_string ipopt_type_number_vals[] = {
+const value_string ipopt_type_number_vals[] = {
   {IPOPT_EOOL & IPOPT_NUMBER_MASK, "End of Option List (EOL)"},
   {IPOPT_NOP & IPOPT_NUMBER_MASK, "No-Operation (NOP)"},
   {IPOPT_SEC & IPOPT_NUMBER_MASK, "Security"},
@@ -643,17 +639,20 @@ static const value_string ipopt_type_number_vals[] = {
   {0, NULL}
 };
 
+static ip_tcp_opt_type IP_OPT_TYPES = {&hf_ip_opt_type, &ett_ip_opt_type,
+    &hf_ip_opt_type_copy, &hf_ip_opt_type_class, &hf_ip_opt_type_number};
+
 static void
-dissect_ipopt_type(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_ipopt_type(tvbuff_t *tvb, int offset, proto_tree *tree, ip_tcp_opt_type* opttypes)
 {
   proto_tree *type_tree;
   proto_item *ti;
 
-  ti = proto_tree_add_item(tree, hf_ip_opt_type, tvb, offset, 1, ENC_NA);
-  type_tree = proto_item_add_subtree(ti, ett_ip_opt_type);
-  proto_tree_add_item(type_tree, hf_ip_opt_type_copy, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(type_tree, hf_ip_opt_type_class, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(type_tree, hf_ip_opt_type_number, tvb, offset, 1, ENC_NA);
+  ti = proto_tree_add_item(tree, *opttypes->phf_opt_type, tvb, offset, 1, ENC_NA);
+  type_tree = proto_item_add_subtree(ti, *opttypes->pett_opt_type);
+  proto_tree_add_item(type_tree, *opttypes->phf_opt_type_copy, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(type_tree, *opttypes->phf_opt_type_class, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(type_tree, *opttypes->phf_opt_type_number, tvb, offset, 1, ENC_NA);
 }
 
 static void
@@ -666,7 +665,7 @@ dissect_ipopt_eool(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
   tf = proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
 }
 
 #define dissect_ipopt_nop   dissect_ipopt_eool
@@ -743,7 +742,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, curr_offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, curr_offset, field_tree);
+  dissect_ipopt_type(tvb, curr_offset, field_tree, &IP_OPT_TYPES);
   curr_offset++;
   tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -815,7 +814,7 @@ dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, curr_offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, curr_offset, field_tree);
+  dissect_ipopt_type(tvb, curr_offset, field_tree, &IP_OPT_TYPES);
   curr_offset++;
   tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
@@ -854,7 +853,7 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1116,7 +1115,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1200,7 +1199,7 @@ dissect_ipopt_record_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1263,7 +1262,7 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes): %u",
                            optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1283,7 +1282,7 @@ dissect_ipopt_mtu(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes): %u",
                            optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1303,7 +1302,7 @@ dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1336,7 +1335,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1414,7 +1413,7 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                            rval_to_str(value, ra_rvals, "Unknown (%u)"),
                            value);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1434,7 +1433,7 @@ dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen > IPOLEN_MAX)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
@@ -1492,7 +1491,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                            val_to_str(function, qs_func_vals, "Unknown (%u)"),
                            function);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
+  dissect_ipopt_type(tvb, offset, field_tree, &IP_OPT_TYPES);
   ti = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
   if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
@@ -1595,7 +1594,7 @@ static const ip_tcp_opt ipopts[] = {
  * options in a packet. */
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
-                       const ip_tcp_opt *opttab, int nopts, int eol,
+                       const ip_tcp_opt *opttab, int nopts, int eol, ip_tcp_opt_type* opttypes,
                        packet_info *pinfo, proto_tree *opt_tree,
                        proto_item *opt_item, void * data)
 {
@@ -1699,7 +1698,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
                                    name);
             tf = proto_tree_add_text(opt_tree, tvb, offset,  len, "%s", name);
             field_tree = proto_item_add_subtree(tf, ett_ip_option_other);
-            dissect_ipopt_type(tvb, offset, field_tree);
+            dissect_ipopt_type(tvb, offset, field_tree, opttypes);
           }
         }
         len -= 2;   /* subtract size of type and length */
@@ -1719,7 +1718,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
         tf = proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", name);
         field_tree = proto_item_add_subtree(tf, ett_ip_option_other);
-        dissect_ipopt_type(tvb, offset, field_tree);
+        dissect_ipopt_type(tvb, offset, field_tree, opttypes);
       }
       offset += 1;
 
@@ -2324,7 +2323,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                              "Options: (%u bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_ip_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen, ipopts, N_IP_OPTS,
-                           IPOPT_EOOL, pinfo, field_tree, tf, NULL);
+                           IPOPT_EOOL, &IP_OPT_TYPES, pinfo, field_tree, tf, NULL);
   }
 
   pinfo->ipproto = iph->ip_p;
