@@ -717,11 +717,10 @@ WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
 WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\${PROGRAM_NAME}.exe" "%1"'
 WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\${PROGRAM_NAME}.exe",1'
 
-
+; We refresh the icon cache down in -Finally.
 Call Associate
 ; if somethings added here, add it also to the uninstall section and the AdditionalTask page
 
-!insertmacro UpdateIcons
 SecRequired_skip_FileExtensions:
 
 ; if running as a silent installer, don't try to install winpcap
@@ -950,6 +949,8 @@ SectionEnd
 !endif
 
 Section "-Finally"
+
+!insertmacro UpdateIcons
 
 ; Compute and write the installation directory size
 ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2

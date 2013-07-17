@@ -1363,6 +1363,7 @@ bytes_view_set_font(BytesView *bv, PangoFontDescription *font)
 	if (bv->font)
 		pango_font_description_free(bv->font);
 
+	gtk_widget_modify_font(GTK_WIDGET(bv), font);
 	bv->font = pango_font_description_copy(font);
 	bv->max_width = 0;
 

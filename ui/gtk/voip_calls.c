@@ -831,6 +831,7 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 			callsinfo->call_num = tapinfo->ncalls++;
 			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 		}
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);

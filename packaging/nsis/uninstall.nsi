@@ -133,7 +133,6 @@ Call un.Disassociate
 DeleteRegKey HKCR ${WIRESHARK_ASSOC}
 DeleteRegKey HKCR "${WIRESHARK_ASSOC}\Shell\open\command"
 DeleteRegKey HKCR "${WIRESHARK_ASSOC}\DefaultIcon"
-!insertmacro UpdateIcons
 
 Delete "$INSTDIR\etc\gtk-2.0\*.*"
 Delete "$INSTDIR\etc\gtk-3.0\*.*"
@@ -285,6 +284,9 @@ SectionEnd
 Section "-Un.Finally"
 ;-------------------------------------------
 SectionIn 1 2
+
+!insertmacro UpdateIcons
+
 ; this test must be done after all other things uninstalled (e.g. Global Settings)
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
     MessageBox MB_OK "Unable to remove $INSTDIR." /SD IDOK IDOK 0 ; skipped if dir doesn't exist

@@ -1369,8 +1369,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
  *
  * Return the length of the name, including the terminating NUL.
  *
- * If we don't find the terminating NUL, or if the name is zero-length
- * (not counting the terminating NUL), return -1 and set *err and
+ * If we don't find a terminating NUL, return -1 and set *err and
  * *err_info appropriately.
  */
 static int
@@ -1395,12 +1394,6 @@ name_resolution_block_find_name_end(guint8 *p, guint record_len, int *err,
                 p++;
                 record_len--;
                 namelen++;      /* count this byte */
-        }
-        if (namelen == 0) {
-                /* The name is empty. */
-                *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup("pcapng_read_name_resolution_block: NRB record has empty host name");
-                return -1;
         }
 
         /* Include the NUL in the name length. */

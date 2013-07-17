@@ -4394,6 +4394,11 @@ update_properties_all(void) {
   GtkWidget *promisc_b;
   GtkWidget *capture_b;
 
+  /* If we don't have a Capture Options dialog open, there's nothing
+     for us to do. */
+  if (cap_open_w == NULL)
+    return;
+
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
     if (!device.hidden) {
