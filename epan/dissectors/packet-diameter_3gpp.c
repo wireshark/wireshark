@@ -71,6 +71,7 @@ static int hf_diameter_3gpp_ulr_flags_bit3 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit4 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit5 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit6 = -1;
+static int hf_diameter_3gpp_ulr_flags_bit7 = -1;
 static int hf_diameter_3gpp_ula_flags = -1;
 static int hf_diameter_3gpp_ula_flags_bit0 = -1;
 static int hf_diameter_3gpp_dsr_flags = -1;
@@ -90,6 +91,7 @@ static int hf_diameter_3gpp_dsr_flags_bit12 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit13 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit14 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit15 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit16 = -1;
 static int hf_diameter_3gpp_dsa_flags = -1;
 static int hf_diameter_3gpp_dsa_flags_bit0 = -1;
 static int hf_diameter_3gpp_ida_flags = -1;
@@ -431,7 +433,10 @@ dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info 
     return offset;
 }
 
-/* AVP Code: 1405 ULR-Flags */
+/* 3GPP TS 29.272
+ * 7.3.7 ULR-Flags
+ * AVP Code: 1405 ULR-Flags
+ */
 static int
 dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
@@ -443,8 +448,10 @@ dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_ulr_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_ulr_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 25, ENC_BIG_ENDIAN);
-    bit_offset+=25;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
+    bit_offset+=24;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ulr_flags_bit7, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ulr_flags_bit6, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ulr_flags_bit5, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -487,7 +494,11 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
-/* AVP Code: 1421 DSR-Flags */
+/* 
+ * 3GPP TS 29.272
+ * 7.3.25 DSR-Flags
+ * AVP Code: 1421 DSR-Flags 
+ */
 static int
 dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
 
@@ -499,8 +510,10 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_dsr_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_dsr_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
-    bit_offset+=16;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 15, ENC_BIG_ENDIAN);
+    bit_offset+=15;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit16, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit15, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit14, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -896,6 +909,11 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_ulr_flags_bit7,
+            { "SMS-Only-Indication", "diameter.3gpp.ulr_flags_bit7",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_ula_flags,
             { "ULA Flags", "diameter.3gpp.ula_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -988,6 +1006,11 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_dsr_flags_bit15,
             { "Subscribed periodic RAU-TAU Timer Withdrawal", "diameter.3gpp.dsr_flags_bit15",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dsr_flags_bit16,
+            { "A-MSISDN Withdrawal", "diameter.3gpp.dsr_flags_bit16",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
