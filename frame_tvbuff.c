@@ -201,14 +201,8 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	 */
 
 	tvb->real_data       = buf;
-	if (fd) {
-		tvb->length          = fd->cap_len;
-		tvb->reported_length = fd->pkt_len > G_MAXINT ? G_MAXINT : fd->pkt_len;
-	} else {
-		tvb->length          = 0;
-		tvb->reported_length = 0;
-	}
-
+	tvb->length          = fd->cap_len;
+	tvb->reported_length = fd->pkt_len > G_MAXINT ? G_MAXINT : fd->pkt_len;
 	tvb->initialized     = TRUE;
 
 	/*
@@ -223,7 +217,7 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	/* don't care, reassemble code was doing whole copy of data, so it'll work the same */
 
 	/* XXX, wtap_can_seek() */
-	if (fd && cfile.wth && cfile.wth->random_fh) {
+	if (cfile.wth && cfile.wth->random_fh) {
 		frame_tvb->wth = cfile.wth;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
