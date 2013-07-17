@@ -320,7 +320,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
   fprintf(output, "                           aggregator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
-  fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t a|ad|d|dd|e|r|u|ud    output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
@@ -1405,8 +1405,9 @@ main(int argc, char *argv[])
       else {
         cmdarg_err("Invalid time stamp type \"%s\"",
                    optarg);
-        cmdarg_err_cont("It must be \"r\" for relative, \"a\" for absolute,");
-        cmdarg_err_cont("\"ad\" for absolute with date, or \"d\" for delta.");
+        cmdarg_err_cont("It must be \"a\" for absolute, \"ad\" for absolute with date, \"d\" for delta,");
+        cmdarg_err_cont("\"dd\" for delta displayed, \"e\" for epoch, \"r\" for relative, \"u\" for UTC, ");
+        cmdarg_err_cont("or \"ud\" for UTC with date.");
         return 1;
       }
       break;
@@ -2726,11 +2727,6 @@ process_packet_first_pass(capture_file *cf,
     /* if we don't add it to the frame_data_sequence, clean it up right now
      * to avoid leaks */
     frame_data_destroy(&fdlocal);
-    /* TODO, bug #8160 */
-    /*
-    prev_cap_frame = fdlocal;
-    prev_cap = &prev_cap_frame;
-     */
   }
 
   if (do_dissection)
@@ -2793,6 +2789,10 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
     else
       cinfo = NULL;
 
+    frame_data_set_before_dissect(fdata, &cf->elapsed_time,
+                                  &first_ts, prev_dis, prev_cap);
+
+
     epan_dissect_run_with_taps(&edt, phdr, pd, fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
@@ -2801,6 +2801,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
   }
 
   if (passed) {
+    frame_data_set_after_dissect(fdata, &cum_bytes);
     /* Process this packet. */
     if (print_packet_info) {
       /* We're printing packet information; print the information for
@@ -2838,7 +2839,9 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
         exit(2);
       }
     }
+    prev_dis = fdata;
   }
+  prev_cap = fdata;
 
   if (do_dissection) {
     epan_dissect_cleanup(&edt);
@@ -2987,6 +2990,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     max_packet_count = old_max_packet_count;
 
+    prev_dis = NULL;
+    prev_cap = NULL;
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->phdr,

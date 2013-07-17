@@ -40,7 +40,7 @@ S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
-S<[ B<-t> ad|a|r|d|dd|e ]>
+S<[ B<-t> a|ad|d|dd|e|r|u|ud ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt> ]>
@@ -547,19 +547,16 @@ the default snapshot length is used if provided.
 
 Automatically update the packet display as packets are coming in.
 
-=item -t  ad|a|r|d|dd|e
+=item -t  a|ad|d|dd|e|r|u|ud
 
 Set the format of the packet timestamp displayed in the packet list
 window.  The format can be one of:
 
-B<ad> absolute with date: The absolute date and time is the actual time and
-date the packet was captured
-
 B<a> absolute: The absolute time is the actual time the packet was captured,
 with no date displayed
 
-B<r> relative: The relative time is the time elapsed between the first packet
-and the current packet
+B<ad> absolute with date: The absolute date and time is the actual time and
+date the packet was captured
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
@@ -568,6 +565,15 @@ B<dd> delta_displayed: The delta_displayed time is the time since the
 previous displayed packet was captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+B<r> relative: The relative time is the time elapsed between the first packet
+and the current packet
+
+B<u> UTC: The UTC time is the actual time the packet was captured,
+with no date displayed
+
+B<ud> UTC with date: The UTC date and time is the actual time and
+date the packet was captured
 
 The default format is relative.
 

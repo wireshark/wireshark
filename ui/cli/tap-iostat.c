@@ -927,7 +927,7 @@ iostat_draw(void *arg)
     num_rows = (int)(duration/interval) + (((duration%interval+500000)/1000000) > 0 ? 1 : 0);
 
     /* Load item_in_column with the first item in each column */
-    item_in_column = (io_stat_item_t **) g_malloc(sizeof(io_stat_item_t) * num_cols);
+    item_in_column = (io_stat_item_t **) g_malloc(sizeof(io_stat_item_t *) * num_cols);
     for (j=0; j<num_cols; j++) {
         item_in_column[j] = stat_cols[j];
     }

@@ -99,7 +99,7 @@ static const YYMINORTYPE yyzerominor = { 0 };
 /* Next are the tables used to determine what action to take based on the
 ** current state and lookahead token.  These tables are used to implement
 ** functions that take a state number and lookahead value and return an
-** action integer.  
+** action integer.
 **
 ** Suppose the action integer is N.  Then the action is determined as
 ** follows
@@ -124,7 +124,7 @@ static const YYMINORTYPE yyzerominor = { 0 };
 ** If the index value yy_shift_ofst[S]+X is out of range or if the value
 ** yy_lookahead[yy_shift_ofst[S]+X] is not equal to X or if yy_shift_ofst[S]
 ** is equal to YY_SHIFT_USE_DFLT, it means that the action is not in the table
-** and that yy_default[S] should be used instead.  
+** and that yy_default[S] should be used instead.
 **
 ** The formula above is for computing the action when the lookahead is
 ** a terminal symbol.  If the lookahead is a non-terminal (as occurs after
@@ -148,7 +148,7 @@ static const YYMINORTYPE yyzerominor = { 0 };
 
 /* The next table maps tokens into fallback tokens.  If a construct
 ** like the following:
-** 
+**
 **      %fallback ID X Y Z.
 **
 ** appears in the grammar, then ID becomes a fallback token for X, Y,
@@ -206,7 +206,7 @@ typedef struct yyParser yyParser;
 static FILE *yyTraceFILE = 0;
 static char *yyTracePrompt = 0;
 #endif /* NDEBUG */
- 
+
 #ifndef NDEBUG
 /*
 ** Turn parser tracing on by giving a stream to which to write the trace
@@ -228,11 +228,14 @@ static char *yyTracePrompt = 0;
 void ParseTrace(FILE *TraceFILE, char *zTracePrompt){
   yyTraceFILE = TraceFILE;
   yyTracePrompt = zTracePrompt;
-  if( yyTraceFILE==0 ) yyTracePrompt = 0;
-  else if( yyTracePrompt==0 ) yyTraceFILE = 0;
+  if( yyTraceFILE==0 ){
+    yyTracePrompt = 0;
+  }else if( yyTracePrompt==0 ){
+    yyTraceFILE = 0;
+  }
 }
 #endif /* NDEBUG */
- 
+
 #ifndef NDEBUG
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
@@ -341,9 +344,12 @@ static void yy_destructor(yyParser *yypParser, YYCODETYPE yymajor, YYMINORTYPE *
 */
 static int yy_pop_parser_stack(yyParser *pParser){
   YYCODETYPE yymajor;
-  yyStackEntry *yytos = &pParser->yystack[pParser->yyidx];
+  yyStackEntry *yytos;
 
-  if( pParser->yyidx<0 ) return 0;
+  if( pParser->yyidx<0 ){
+    return 0;
+  }
+  yytos = &pParser->yystack[pParser->yyidx];
 #ifndef NDEBUG
   if( yyTraceFILE && pParser->yyidx>=0 ){
     fprintf(yyTraceFILE,"%sPopping %s\n",
@@ -374,8 +380,12 @@ void ParseFree(
   void (*freeProc)(void*)     /* Function used to reclaim memory */
 ){
   yyParser *pParser = (yyParser*)p;
-  if( pParser==0 ) return;
-  while( pParser->yyidx>=0 ) yy_pop_parser_stack(pParser);
+  if( pParser==0 ){
+    return;
+  }
+  while( pParser->yyidx>=0 ){
+    yy_pop_parser_stack(pParser);
+  }
 #if YYSTACKDEPTH<=0
   free(pParser->yystack);
 #endif
@@ -407,8 +417,8 @@ static int yy_find_shift_action(
   int i;
   int stateno = pParser->yystack[pParser->yyidx].stateno;
 
-  if( stateno>YY_SHIFT_MAX 
-	  || (i = yy_shift_ofst[stateno])==YY_SHIFT_USE_DFLT ){
+  if( stateno>YY_SHIFT_MAX
+    || (i = yy_shift_ofst[stateno])==YY_SHIFT_USE_DFLT ){
     return yy_default[stateno];
   }
   assert( iLookAhead!=YYNOCODE );
@@ -495,7 +505,9 @@ static void yyStackOverflow(yyParser *yypParser, YYMINORTYPE *yypMinor _U_){
      fprintf(yyTraceFILE,"%sStack Overflow!\n",yyTracePrompt);
    }
 #endif
-   while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
+   while( yypParser->yyidx>=0 ) {
+     yy_pop_parser_stack(yypParser);
+   }
    /* Here code is inserted which will execute if the parser
    ** stack every overflows */
 %%
@@ -576,7 +588,7 @@ static void yy_reduce(
   ParseARG_FETCH;
   yymsp = &yypParser->yystack[yypParser->yyidx];
 #ifndef NDEBUG
-  if( yyTraceFILE && yyruleno>=0 
+  if( yyTraceFILE && yyruleno>=0
         && yyruleno<(int)(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
     fprintf(yyTraceFILE, "%sReduce [%s].\n", yyTracePrompt,
       yyRuleName[yyruleno]);
@@ -589,7 +601,7 @@ static void yy_reduce(
   ** not set the value of its left-hand side nonterminal.  Leaving the
   ** value of the nonterminal uninitialized is utterly harmless as long
   ** as the value is never used.  So really the only thing this code
-  ** accomplishes is to quieten purify.  
+  ** accomplishes is to quieten purify.
   **
   ** 2007-01-16:  The wireshark project (www.wireshark.org) reports that
   ** without this code, their parser segfaults.  I'm not sure what there
@@ -649,7 +661,9 @@ static void yy_parse_failed(
     fprintf(yyTraceFILE,"%sFail!\n",yyTracePrompt);
   }
 #endif
-  while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
+  while( yypParser->yyidx>=0 ) {
+    yy_pop_parser_stack(yypParser);
+  }
   /* Here code is inserted which will be executed whenever the
   ** parser fails */
 %%
@@ -682,7 +696,9 @@ static void yy_accept(
     fprintf(yyTraceFILE,"%sAccept!\n",yyTracePrompt);
   }
 #endif
-  while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
+  while( yypParser->yyidx>=0 ){
+    yy_pop_parser_stack(yypParser);
+  }
   /* Here code is inserted which will be executed whenever the
   ** parser accepts */
 %%

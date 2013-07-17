@@ -39,7 +39,7 @@ S<[ B<-R> E<lt>Read filterE<gt> ]>
 S<[ B<-Y> E<lt>displaY filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> E<lt>separatorE<gt> ]>
-S<[ B<-t> ad|a|r|d|dd|e ]>
+S<[ B<-t> a|ad|d|dd|e|r|u|ud ]>
 S<[ B<-T> pdml|psml|ps|text|fields ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
@@ -651,19 +651,16 @@ the default snapshot length is used if provided.
 
 Set the line separator to be printed between packets.
 
-=item -t  ad|a|r|d|dd|e
+=item -t  a|ad|d|dd|e|r|u|ud
 
 Set the format of the packet timestamp printed in summary lines.
 The format can be one of:
 
-B<ad> absolute with date: The absolute date and time is the actual time and
-date the packet was captured
-
 B<a> absolute: The absolute time is the actual time the packet was captured,
 with no date displayed
 
-B<r> relative: The relative time is the time elapsed between the first packet
-and the current packet
+B<ad> absolute with date: The absolute date and time is the actual time and
+date the packet was captured
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
@@ -672,6 +669,15 @@ B<dd> delta_displayed: The delta_displayed time is the time since the
 previous displayed packet was captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
+
+B<r> relative: The relative time is the time elapsed between the first packet
+and the current packet
+
+B<u> UTC: The UTC time is the actual time the packet was captured,
+with no date displayed
+
+B<ud> UTC with date: The UTC date and time is the actual time and
+date the packet was captured
 
 The default format is relative.
 

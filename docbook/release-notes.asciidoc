@@ -173,6 +173,8 @@ The following bugs have been fixed:
 
 * Crash when applying filter with Voip calls. (ws-buglink:6090)
 
+* Delta time regressions to tshark introduced with SVN 45071. (ws-buglink:8160)
+
 * Add MAC-DATA support to TETRA dissector and other minor improvements. (ws-buglink:8708)
 
 * Crash analyzing VoIP Calls (T38). (ws-buglink:8736)
@@ -209,7 +211,15 @@ The following bugs have been fixed:
 
 * Kismet drone/server dissector improvements. (ws-buglink:8864)
 
+* TShark iostat_draw sizeof mismatch. (ws-buglink:8888)
+
+* SCTP bytes graph crash. (ws-buglink:8889)
+
+* Patch to Wireshark/tshark usage info and man pages to document all timestamp (-t) options. (ws-buglink:8906)
+
 * Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908)
+
+* Graph Filter field limited to 256 characters. (ws-buglink:8909)
 
 === New and Updated Features
 
