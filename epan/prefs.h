@@ -201,9 +201,6 @@ typedef struct _e_prefs {
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;
-  gchar       *saved_at_version;
-  gboolean     unknown_prefs;         /* unknown or obsolete pref(s) */ 
-  gboolean     unknown_colorfilters;  /* unknown or obsolete color filter(s) */
 } e_prefs;
 
 WS_DLL_PUBLIC e_prefs prefs;

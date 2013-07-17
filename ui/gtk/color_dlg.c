@@ -1019,42 +1019,6 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
 }
 
 
-static void 
-overwrite_existing_colorfilters_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
-{
-	switch (btn) {
-	case(ESD_BTN_SAVE):
-	    /* overwrite the file*/
-        if (!color_filters_write(color_filter_edit_list))
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Could not open colorfilter file: %s", g_strerror(errno));
-        else
-            prefs.unknown_colorfilters = FALSE;
-	    break;
-	case(ESD_BTN_DONT_SAVE):
-	    break;
-	default:
-	    g_assert_not_reached();
-	}
-}
-
-static void
-colorfilters_main_save()
-{
-  if (prefs.unknown_colorfilters) {
-    gpointer dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE,
-      "Obsolete or unrecognized color filters have been detected. "
-      "If this profile will be used with an older or nonstandard Wireshark version "
-      "or one that includes a proprietary dissector plugin, click 'Continue "
-      "without Saving' and save this profile under a different name.\n\n");
-
-    simple_dialog_set_cb(dialog, overwrite_existing_colorfilters_cb, NULL);
-  } else {
-    if (!color_filters_write(color_filter_edit_list))
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open filter file: %s", g_strerror(errno));
-  }
-}
-
 
 /* User pressed "Ok" button: Exit dialog and apply new list of
    color filters to the capture. */
@@ -1074,8 +1038,11 @@ static void
 color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
   /* if we don't have a Save button, just save the settings now */
-  if (!prefs.gui_use_pref_save)
-    colorfilters_main_save();
+  if (!prefs.gui_use_pref_save) {
+      if (!color_filters_write(color_filter_edit_list))
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Could not open filter file: %s", g_strerror(errno));
+  }
 
   /* Apply the coloring rules, both the temporary ones in
    * color_filter_tmp_list as the permanent ones in color_filter_edit_list
@@ -1091,7 +1058,10 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 static void
 color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
-  colorfilters_main_save();
+
+  if (!color_filters_write(color_filter_edit_list))
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Could not open filter file: %s", g_strerror(errno));
 }
 
 /* User pressed "Cancel" button (or "ESC" or the 'X'):
