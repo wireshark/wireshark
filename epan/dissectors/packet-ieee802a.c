@@ -26,7 +26,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/oui.h>
+#include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 #include <epan/etypes.h>
 
 #include "packet-ieee802a.h"
@@ -82,7 +83,8 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ieee802a_tree = NULL;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
-	guint32		oui;
+	const gchar	*manuf;
+	guint8		oui[3];
 	guint16		pid;
 	oui_info_t	*oui_info;
 	dissector_table_t subdissector_table;
@@ -96,17 +98,19 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ieee802a_tree = proto_item_add_subtree(ti, ett_ieee802a);
 	}
 
-	oui =	tvb_get_ntoh24(tvb, 0);
+	tvb_memcpy(tvb, oui, 0, 3);
+	manuf = get_manuf_name_if_known(oui);
 	pid = tvb_get_ntohs(tvb, 3);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "OUI 0x%06X (%s), PID 0x%04X",
-		    oui, val_to_str_const(oui, oui_vals, "Unknown"), pid);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "OUI %s (%s), PID 0x%04X",
+		    bytes_to_str_punct(oui, 3, ':'),
+		    manuf ? manuf : "Unknown", pid);
 	}
 	if (tree) {
-		proto_tree_add_uint(ieee802a_tree, hf_ieee802a_oui,
-		    tvb, 0, 3, oui);
+		proto_tree_add_uint_format_value(ieee802a_tree, hf_ieee802a_oui,
+		    tvb, 0, 3, oui[0] << 16 | oui[1] << 8 | oui[2], "%s (%s)",
+		    bytes_to_str_punct(oui, 3, ':'), manuf ? manuf : "Unknown");
 	}
 
 	/*
@@ -146,7 +150,7 @@ proto_register_ieee802a(void)
 	static hf_register_info hf[] = {
 		{ &hf_ieee802a_oui,
 		{ "Organization Code",	"ieee802a.oui", FT_UINT24, BASE_HEX,
-			VALS(oui_vals), 0x0, NULL, HFILL }},
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ieee802a_pid,
 		{ "Protocol ID", "ieee802a.pid", FT_UINT16, BASE_HEX,

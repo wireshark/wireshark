@@ -373,6 +373,37 @@ window_get_geometry(GtkWidget         *widget,
 }
 
 
+#ifdef _WIN32
+/* Ensure Wireshark isn't obscured by the system taskbar (or other desktop toolbars).
+ * Resolves https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3034 */
+static void
+window_adjust_if_obscured(window_geometry_t *geom)
+{
+    MONITORINFO MonitorInfo;
+    HMONITOR hMonitor;
+    POINT pt, vs;
+    DWORD dwFlags = MONITOR_DEFAULTTONEAREST; /* MONITOR_DEFAULTTOPRIMARY? */
+
+    /*
+     * Get the virtual screen's top-left coordinates so we can reliably
+     * determine which monitor we're dealing with.  See also:
+     * http://msdn.microsoft.com/en-us/library/windows/desktop/dd145136%28v=vs.85%29.aspx
+     */
+    vs.x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    vs.y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    pt.x = geom->x + vs.x;
+    pt.y = geom->y + vs.y;
+    MonitorInfo.cbSize = sizeof(MONITORINFO);
+    hMonitor = MonitorFromPoint(pt, dwFlags);
+    if (GetMonitorInfo(hMonitor, &MonitorInfo)) {
+        if (pt.x < MonitorInfo.rcWork.left)
+            geom->x += MonitorInfo.rcWork.left - pt.x;
+        if (pt.y < MonitorInfo.rcWork.top)
+            geom->y += MonitorInfo.rcWork.top - pt.y;
+    }
+}
+#endif
+
 /* set the geometry of a window from window_new() */
 void
 window_set_geometry(GtkWidget         *widget,
@@ -403,6 +434,10 @@ window_set_geometry(GtkWidget         *widget,
 
         if(geom->y < viewable_area.y || geom->y > (viewable_area.y + viewable_area.height))
             geom->y = viewable_area.y;
+
+        #ifdef _WIN32
+        window_adjust_if_obscured(geom);
+        #endif
 
         gtk_window_move(GTK_WINDOW(widget),
                         geom->x,

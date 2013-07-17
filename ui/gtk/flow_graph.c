@@ -460,6 +460,25 @@ flow_graph_on_ok(GtkButton       *button _U_,
 	}
 }
 
+static void
+flow_graph_on_cancel(GtkButton       *button _U_,
+		     gpointer         user_data)
+{
+	if (graph_analysis_data->dlg.window) {
+		window_destroy(graph_analysis_data->dlg.window);
+	}
+	window_destroy(GTK_WIDGET(user_data));
+}
+
+static gboolean
+flow_graph_on_delete(GtkButton       *button _U_,
+		     gpointer         user_data _U_)
+{
+	if (graph_analysis_data->dlg.window) {
+		window_destroy(graph_analysis_data->dlg.window);
+	}
+	return FALSE;
+}
 
 /****************************************************************************/
 /* INTERFACE                                                                */
@@ -607,9 +626,9 @@ flow_graph_dlg_create(void)
 	gtk_box_pack_start(GTK_BOX(hbuttonbox), bt_cancel, TRUE, TRUE, 0);
 	gtk_widget_set_can_default(bt_cancel, TRUE);
 	gtk_widget_set_tooltip_text (bt_cancel, "Cancel this dialog");
-	window_set_cancel_button(flow_graph_dlg_w, bt_cancel, window_cancel_button_cb);
+	g_signal_connect(bt_cancel, "clicked", G_CALLBACK(flow_graph_on_cancel), flow_graph_dlg_w);
 
-	g_signal_connect(flow_graph_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(flow_graph_dlg_w, "delete_event", G_CALLBACK(flow_graph_on_delete), NULL);
 	g_signal_connect(flow_graph_dlg_w, "destroy", G_CALLBACK(flow_graph_on_destroy), NULL);
 
 	gtk_widget_show_all(flow_graph_dlg_w);
