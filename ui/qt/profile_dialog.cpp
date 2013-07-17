@@ -38,7 +38,6 @@
 #include <QUrl>
 #include <QBrush>
 #include <QMessageBox>
-#include <QDebug>
 
 Q_DECLARE_METATYPE(GList *)
 
@@ -90,6 +89,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     connect(pd_ui_->profileTreeWidget->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
             this, SLOT(editingFinished()));
+    pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
     updateWidgets();
 }
 
@@ -144,7 +144,7 @@ void ProfileDialog::updateWidgets()
         current_profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
         enable_new = true;
         enable_copy = true;
-        if (!current_profile->is_global || current_profile->status != PROF_STAT_DEFAULT) {
+        if (!current_profile->is_global && current_profile->status != PROF_STAT_DEFAULT) {
             enable_del = true;
         }
     }
@@ -214,11 +214,15 @@ void ProfileDialog::on_deleteToolButton_clicked()
 
     if (item) {
         GList *fl_entry = item->data(0, Qt::UserRole).value<GList *>();
-        // Select the default
-        pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
-
+        profile_def *profile = (profile_def *) fl_entry->data;
+        if (profile->is_global || profile->status == PROF_STAT_DEFAULT) {
+            return;
+        }
         remove_from_profile_list(fl_entry);
         delete item;
+
+        // Select the default
+        pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
     }
 }
 
