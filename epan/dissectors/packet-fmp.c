@@ -89,7 +89,29 @@ static int hf_fmp_slice_size = -1;
 static int hf_fmp_volume = -1;
 static int hf_fmp_stripeSize = -1;
 static int hf_fmp_firstLogBlk64 =-1;
-
+static int hf_fmp_native_protocol = -1;
+static int hf_fmp_encoding_mode = -1;
+static int hf_fmp_capability = -1;
+static int hf_fmp_devSerial_query_cmd = -1;
+static int hf_fmp_volume_desc = -1;
+static int hf_fmp_disk_identifier = -1;
+static int hf_fmp_volume_mgmt_type = -1;
+static int hf_fmp_notify_protocol = -1;
+static int hf_fmp_client_error_number = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_fmp_cap_revoke_handle_list = -1;
+static int hf_fmp_length_of_volume_list = -1;
+static int hf_fmp_cap_unc_names = -1;
+static int hf_fmp_length_of_list = -1;
+static int hf_fmp_sigoffset = -1;
+static int hf_fmp_uid = -1;
+static int hf_fmp_fid = -1;
+static int hf_fmp_fsid = -1;
+static int hf_fmp_tid = -1;
+static int hf_fmp_cifsport = -1;
+static int hf_fmp_blockindex = -1;
+static int hf_fmp_number_of_disk = -1;
+static int hf_fmp_cap_cifsv2 = -1;
 
 static gint ett_fmp = -1;
 static gint ett_fmp_timeval = -1;
@@ -100,38 +122,24 @@ static gint ett_capabilities = -1;
 static gint ett_HierVolumeDescription = -1;
 static gint ett_attrs = -1;
 
+static const value_string fmp_encoding_mode_vals[] = {
+    {FMP_ASCII, "ASCII"},
+    {FMP_UTF8, "UTF8"},
+    {FMP_UNICODE1, "UNICODE"},
+    {0,NULL}
+};
+
 static gboolean fmp_fhandle_reqrep_matching = FALSE;
 
 static int
 dissect_fmp_genString(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    encoding mode;
-
-    mode = (encoding)tvb_get_ntohl(tvb, offset);
-
-    switch (mode) {
-    case FMP_ASCII:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Encoding Mode: ASCII (%d)", mode);
-        break;
-
-    case FMP_UTF8:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Encoding Mode: UTF8 (%d)", mode);
-        break;
-
-    case FMP_UNICODE1:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Encoding Mode: UNICODE (%d)", mode);
-        break;
-
-    default:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Encoding Mode: UNKNOWN (%d)", mode);
-        offset += 4;
-        return offset;
-    }
+    proto_tree_add_item(tree, hf_fmp_encoding_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
+
+    if (try_val_to_str(tvb_get_ntohl(tvb, offset), fmp_encoding_mode_vals) == NULL)
+        return offset;
+
     offset = dissect_rpc_string(tvb, tree, hf_fmp_path,
                                 offset, NULL);
 
@@ -187,118 +195,73 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     length = get_fileHandleSrc_size(tvb, offset);
 
-    np = (nativeProtocol)tvb_get_ntohl(tvb, offset);
-
     fileHandleItem =  proto_tree_add_text(tree, tvb, offset, length,
                                           "Source File Handle");
     fileHandleTree = proto_item_add_subtree(fileHandleItem,
                                             ett_fmp_fileHandle);
 
+    np = (nativeProtocol)tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(fileHandleTree, hf_fmp_native_protocol, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
     switch (np) {
     case FMP_PATH:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: PATH (%d)", np);
-        offset += 4;
-
         offset = dissect_rpc_string(tvb, fileHandleTree,
                                     hf_fmp_mount_path, offset, NULL);
         break;
 
     case FMP_NFS:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: NFS (%d)", np);
-        offset += 4;
-
         offset = dissect_rpc_data(tvb, fileHandleTree,
                                   hf_fmp_nfsFHandle, offset);
         break;
 
     case FMP_CIFS:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: CIFS (%d)", np);
-        offset += 4;
-
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "fid: %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_fid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "tid: %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "uid: %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_uid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
 
     case FMP_FMP:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: FMP (%d)", np);
-        offset += 4;
-
         offset = dissect_rpc_string(tvb, fileHandleTree,
                                     hf_fmp_fmpFHandle, offset, NULL);
         break;
 
     case FMP_FS_ONLY:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: FS_ONLY (%d)", np);
-        offset += 4;
-
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "FsID: %d", tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_fsid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
 
     case FMP_SHARE:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: SHARE (%d)", np);
-        offset += 4;
-
         offset = dissect_fmp_genString(tvb, offset, fileHandleTree);
         break;
 
     case FMP_MOUNT:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: MOUNT (%d)", np);
-        offset += 4;
-
         offset = dissect_fmp_genString(tvb, offset, fileHandleTree);
         break;
 
     case FMP_CIFSV2:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: CIFSV2: (%d)", np);
-        offset += 4;
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "fid     : %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_fid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "tid     : %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "uid     : %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_uid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_text(fileHandleTree, tvb, offset, 2, "cifsPort: %d",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(fileHandleTree, hf_fmp_cifsport, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         break;
     case FMP_UNC:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: UNC: (%d)", np);
-        offset += 4;
-
         offset = dissect_fmp_genString(tvb, offset, fileHandleTree);
         break;
 
-
     default:
-        proto_tree_add_text(fileHandleTree, tvb, offset, 4,
-                            "Native Protocol: UNKNOWN (%d)", np);
-        offset += 4;
         break;
     }
 
@@ -482,18 +445,17 @@ dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
     int length, numdisks, i, j;
 
     numdisks = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4, "Number of Disk: %d", numdisks);
+    proto_tree_add_item(tree, hf_fmp_number_of_disk, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     for (i=0; i<numdisks; i++) {
         offset = dissect_rpc_uint64(tvb, tree, hf_fmp_sig_offset,  offset);
         length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_text(tree, tvb, offset, 4, "Length of List  : %d", length);
+        proto_tree_add_item(tree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         for (j=0; j<length; j++) {
-            proto_tree_add_text(tree, tvb, offset, 4, "sigOffset: 0x%x",
-                                tvb_get_ntohl(tvb, offset));
+            proto_tree_add_item(tree, hf_fmp_sigoffset, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             offset = dissect_rpc_string(tvb, tree, hf_fmp_dskSigEnt_val,
                                         offset, NULL);
@@ -510,45 +472,8 @@ dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_fmp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    if (tree) {
-        int vmType;
-        vmType = tvb_get_ntohl(tvb, offset);
-
-        switch (vmType) {
-        case FMP_SERVER_BASED:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Volume Mgmt Capability: SERVER_BASED (%d)", vmType);
-            break;
-
-        case FMP_THIRD_PARTY:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Volume Mgmt Capability: THIRD_PARTY (%d)", vmType);
-            break;
-
-        case FMP_CLIENT_BASED_DART:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Volume Mgmt Capability: CLIENT_BASED_DART (%d)",
-                                vmType);
-            break;
-
-        case FMP_CLIENT_BASED_SIMPLE:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Volume Mgmt Capability: CLIENT_BASED_SIMPLE (%d)",
-                                vmType);
-            break;
-        case FMP_HIERARCHICAL_VOLUME:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Volume Mgmt Capability: FMP_HIERARCHICAL_VOLUME (%d)",
-                                vmType);
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Volume Mgmt Capability: UNKNOWN (%d)", vmType);
-            break;
-        }
-    }
-    offset += 4;
-    return offset;
+    proto_tree_add_item(tree, hf_fmp_capability, tvb, offset, 4, ENC_BIG_ENDIAN);
+    return offset+4;
 }
 
 static int
@@ -560,7 +485,7 @@ dissect_fmp_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         nstime_t ts;
 
         proto_item* time_item;
-        proto_tree* time_tree = NULL;
+        proto_tree* time_tree;
 
         ts.secs = tvb_get_ntohl(tvb, offset+0);
         ts.nsecs = tvb_get_ntohl(tvb, offset+4);
@@ -665,32 +590,10 @@ static int
 dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                       proto_tree *tree)
 {
-    if (tree) {
-        queryCmd qc;
-
-        qc = (queryCmd)tvb_get_ntohl(tvb, offset);
-
-        switch (qc) {
-        case FMP_SCSI_INQUIRY:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Query Command: SCSI_INQUIRY (%d)", qc);
-            break;
-        case FMP_DART_STAMP:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Query Command: DART_STAMP (%d)", qc);
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Query Command: UNKNOWN (%d)", qc);
-            break;
-        }
-    }
+    proto_tree_add_item(tree, hf_fmp_devSerial_query_cmd, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if (tree) {
-        proto_tree_add_text(tree, tvb, offset, 4, "sigOffset: 0x%x",
-                            tvb_get_ntohl(tvb, offset));
-    }
+    proto_tree_add_item(tree, hf_fmp_sigoffset, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     offset = dissect_rpc_string(tvb, tree, hf_fmp_devSignature,
@@ -698,66 +601,52 @@ dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     return offset;
 }
 
-
-
-
 static int
 dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
 {
     int                    i,length;
-    proto_tree            *Hietree,*hieTree;
+    proto_tree            *Hietree;
+    proto_item            *ti;
     fmpVolumeType          volumeType;
     fmpDiskIdentifierType  diskIdentifierType;
 
     volumeType = (fmpVolumeType)tvb_get_ntohl(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_fmp_volume_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    Hietree = proto_item_add_subtree(ti, ett_HierVolumeDescription);
+    offset += 4;
+
     switch (volumeType) {
 
     case FMP_VOLUME_DISK:
-        hieTree =  proto_tree_add_text(tree, tvb, offset, 4,
-                                       "VOLUME: DISK(%d)", volumeType );
-        Hietree = proto_item_add_subtree(hieTree,
-                                         ett_HierVolumeDescription);
-        offset += 4;
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
         offset += 8; /* blockIndex64 */
         diskIdentifierType = (fmpDiskIdentifierType)tvb_get_ntohl(tvb, offset);
-
+        proto_tree_add_item(Hietree, hf_fmp_disk_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
         switch (diskIdentifierType) {
         case FMP_DISK_IDENTIFIER_SIGNATURE:
-            proto_tree_add_text(Hietree, tvb, offset, 4,
-                                "DISK IDENTIFIER: SIGNATURE(%d)", diskIdentifierType);
-            offset += 4;
             offset = dissect_rpc_uint64(tvb, Hietree, hf_fmp_sig_offset,  offset);
             length = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_text(Hietree, tvb, offset, 4, "Length of List  : %d", length);
+            proto_tree_add_item(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             for (i=0; i<length; i++) {
-                proto_tree_add_text(Hietree, tvb, offset, 4, "sigOffset: 0x%x",
-                                    tvb_get_ntohl(tvb, offset));
+                proto_tree_add_item(Hietree, hf_fmp_sigoffset, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 offset = dissect_rpc_string(tvb, Hietree, hf_fmp_dskSigEnt_val,  offset, NULL);
 
 
             }
-
             break;
 
         case FMP_DISK_IDENTIFIER_SERIAL:
-            proto_tree_add_text(Hietree, tvb, offset, 4,
-                                "DISK IDENTIFIER: SERIAL(%d)", diskIdentifierType);
             dissect_fmp_devSerial(tvb, offset, NULL, Hietree);
             break;
         }
 
         break;
     case FMP_VOLUME_SLICE:
-        hieTree =  proto_tree_add_text(tree, tvb, offset, 4,
-                                       "VOLUME: SLICE(%d)", volumeType );
-        Hietree = proto_item_add_subtree(hieTree,
-                                         ett_HierVolumeDescription);
-        offset += 4;
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
 
         offset = dissect_rpc_uint64(tvb, Hietree, hf_fmp_offset64, offset);
@@ -769,16 +658,11 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
         break;
 
     case FMP_VOLUME_STRIPE:
-        hieTree =  proto_tree_add_text(tree, tvb, offset, 4,
-                                       "VOLUME: STRIPE(%d)", volumeType );
-        Hietree = proto_item_add_subtree(hieTree,
-                                         ett_HierVolumeDescription);
-        offset += 4;
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
 
         offset = dissect_rpc_uint64(tvb, Hietree, hf_fmp_stripeSize, offset);
         length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_text(Hietree, tvb, offset, 4, "Length of List  : %d", length);
+        proto_tree_add_item(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         for (i=0; i<length; i++) {
@@ -788,24 +672,17 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
         break;
 
     case FMP_VOLUME_META:
-        hieTree =  proto_tree_add_text(tree, tvb, offset, 4,
-                                       "VOLUME: META(%d)", volumeType );
-        Hietree = proto_item_add_subtree(hieTree,
-                                         ett_HierVolumeDescription);
-        offset += 4;
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
 
         length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_text(Hietree, tvb, offset, 4, "Length of List  : %d", length);
+        proto_tree_add_item(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         for (i=0; i<length; i++) {
             offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volume, offset); /* FIXME: Size or length not know */
         }
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "VOLUME: UNKNOWN (%d)",volumeType);
-        offset += 4;
+        break;
     }
     return offset;
 }
@@ -840,7 +717,7 @@ dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
     */
 
     vollength = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4, "Length of volume List  : %d", vollength);
+    proto_tree_add_item(tree, hf_fmp_length_of_volume_list, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     while (vollength) {
         offset =  dissect_fmp_VolumeDescription(tvb, offset, tree);
@@ -862,17 +739,13 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 volIndex;
 
     vmType = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_fmp_volume_mgmt_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 
     switch (vmType) {
     case FMP_SERVER_BASED:
         /*
          * Need to finish
          */
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: SERVER_BASED (%d)",
-                            vmType);
-        offset += 4;
-
         phyVolList_len = tvb_get_ntohl(tvb, offset);
         offset += 4;
 
@@ -892,62 +765,34 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case FMP_THIRD_PARTY:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: THIRD_PARTY (%d)",
-                            vmType);
-        offset += 4;
-
         offset = dissect_rpc_string(tvb, tree, hf_fmp_volHandle,
                                     offset, NULL);
         break;
 
     case FMP_CLIENT_BASED_DART:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: CLIENT_BASED_DART (%d)",
-                            vmType);
-        offset += 4;
-
         offset = dissect_rpc_string(tvb,  tree, hf_fmp_volHandle,
                                     offset, NULL);
         break;
 
     case FMP_CLIENT_BASED_SIMPLE:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: CLIENT_BASED_SIMPLE (%d)",
-                            vmType);
-        offset += 4;
-
         /*
          * Decoding simpleVolInfo
          */
         offset = dissect_fmp_devSerial(tvb, offset, pinfo, tree);
 
-        proto_tree_add_text(tree, tvb, offset, 4, "blockIndex: 0x%x",
-                            tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(tree, hf_fmp_blockindex, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
 
     case FMP_DISK_SIGNATURE:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: DISK_SIGNATURE: (%d)",
-                            vmType);
-        offset += 4;
         offset = dissect_InterpretVolMgtStuff(tvb, offset, tree);
         break;
 
     case FMP_HIERARCHICAL_VOLUME:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: FMP_HIERARCHICAL_VOLUME: (%d)",
-                            vmType);
-        offset += 4;
-
         dissect_fmp_Hiervolume(tvb, offset, tree);
         break;
 
     default:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "Volume Mgmt Type: UNKNOWN (%d)", vmType);
-        offset += 4;
         break;
     }
 
@@ -957,29 +802,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    if (tree) {
-        int proto;
-
-        proto = tvb_get_ntohl(tvb, offset);
-
-        switch (proto) {
-        case FMP_TCP:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Protocol: TCP (%d)",
-                                proto);
-            break;
-        case FMP_UDP:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Protocol: UDP (%d)",
-                                proto);
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset, 4,
-                                "Protocol: UNKNOWN (%d)",
-                                proto);
-            break;
-        }
-    }
+    proto_tree_add_item(tree, hf_fmp_notify_protocol, tvb, offset, 4, ENC_BIG_ENDIAN);
     return (offset+4);
 }
 
@@ -987,68 +810,27 @@ dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_fmp_capabilities(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    if (tree) {
-        int         cap_val ;
-        proto_tree *capTree;
-        proto_tree *captree;
+    proto_tree *capTree;
+    proto_item *ti;
 
-        cap_val = tvb_get_ntohl(tvb, offset);
-        captree = proto_tree_add_text(tree, tvb, offset, 4,
-                                      "Capabilities: ");
+    ti = proto_tree_add_text(tree, tvb, offset, 4, "Capabilities");
 
-        capTree = proto_item_add_subtree(captree,
-                                         ett_capabilities);
+    capTree = proto_item_add_subtree(ti, ett_capabilities);
 
-        if (cap_val & FMP_CAP_REVOKE_HANDLE_LIST) {
-            proto_tree_add_text(capTree, tvb, offset, 4,
-                                "CAP_REVOKE_HANDLE_LIST (%x)",
-                                cap_val);
-        }
-        if (cap_val & FMP_CAP_UNC_NAMES) {
-            proto_tree_add_text(capTree, tvb, offset, 4,
-                                "CAP_UNC_NAMES (%x)",
-                                cap_val);
-        }
-        if (cap_val & FMP_CAP_CIFSV2) {
-            proto_tree_add_text(capTree, tvb, offset, 4,
-                                "CAP_CIFSV2  (%x)",
-                                cap_val);
-        }
-    }
+    proto_tree_add_item(capTree, hf_fmp_cap_revoke_handle_list, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capTree, hf_fmp_cap_unc_names, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capTree, hf_fmp_cap_cifsv2, tvb, offset, 4, ENC_BIG_ENDIAN);
     return (offset+4);
 }
-
 
 static int
 dissect_fmp_cerrInfo(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     int            rval;
-    clientErrorNum errorNum;
 
-    errorNum = (clientErrorNum)tvb_get_ntohl(tvb, offset);
-
-    switch (errorNum) {
-    case FMP_CE_GENERIC:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "CLIENT Error Number:  FMP_CE_GENERIC  (%d)",
-                            errorNum);
-        break;
-
-    case FMP_CE_DISK_ERROR:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "CLIENT Error Number: FMP_CE_DISK_ERROR (%d)",
-                            errorNum);
-        break;
-
-    default:
-        proto_tree_add_text(tree, tvb, offset, 4,
-                            "CLIENT Error Number:  Unknown Error Number  (%d)",
-                            errorNum);
-        break;
-    }
-
-
+    proto_tree_add_item(tree, hf_fmp_client_error_number, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
+
     offset = dissect_fmp_status(tvb, offset,tree, &rval);
 
     return offset;
@@ -2057,7 +1839,71 @@ static const value_string fmp_extentState_vals[] = {
     {0,NULL}
 };
 
+static const value_string fmp_native_protocol_vals[] = {
+    {FMP_PATH, "PATH"},
+    {FMP_NFS, "NFS"},
+    {FMP_CIFS, "CIFS"},
+    {FMP_FMP, "FMP"},
+    {FMP_FS_ONLY, "FS_ONLY"},
+    {FMP_SHARE, "SHARE"},
+    {FMP_MOUNT, "MOUNT"},
+    {FMP_CIFSV2, "CIFSV2"},
+    {FMP_UNC,"UNC"},
+    {0,NULL}
+};
 
+static const value_string fmp_volume_mgmt_capability_vals[] = {
+    {FMP_SERVER_BASED, "SERVER_BASED"},
+    {FMP_THIRD_PARTY, "THIRD_PARTY"},
+    {FMP_CLIENT_BASED_DART, "CLIENT_BASED_DART"},
+    {FMP_CLIENT_BASED_SIMPLE, "CLIENT_BASED_SIMPLE"},
+    {FMP_HIERARCHICAL_VOLUME, "FMP_HIERARCHICAL_VOLUME"},
+    {0,NULL}
+};
+
+static const value_string fmp_query_cmd_vals[] = {
+    {FMP_SCSI_INQUIRY, "SCSI_INQUIRY"},
+    {FMP_DART_STAMP, "DART_STAMP"},
+    {0,NULL}
+};
+
+static const value_string fmp_volume_desc_vals[] = {
+    {FMP_VOLUME_DISK, "DISK"},
+    {FMP_VOLUME_SLICE, "SLICE"},
+    {FMP_VOLUME_STRIPE, "STRIPE"},
+    {FMP_VOLUME_META, "META"},
+    {FMP_VOLUME_SLICE, "SLICE"},
+    {FMP_VOLUME_SLICE, "SLICE"},
+    {0,NULL}
+};
+
+static const value_string fmp_disk_identifier_vals[] = {
+    {FMP_DISK_IDENTIFIER_SIGNATURE, "SIGNATURE"},
+    {FMP_DISK_IDENTIFIER_SERIAL, "SERIAL"},
+    {0,NULL}
+};
+
+static const value_string fmp_notify_protocol_vals[] = {
+    {FMP_TCP, "TCP"},
+    {FMP_UDP, "UDP"},
+    {0,NULL}
+};
+
+static const value_string fmp_volume_mgmt_type_vals[] = {
+    {FMP_SERVER_BASED, "SERVER_BASED"},
+    {FMP_THIRD_PARTY, "THIRD_PARTY"},
+    {FMP_CLIENT_BASED_DART, "CLIENT_BASED_DART"},
+    {FMP_CLIENT_BASED_SIMPLE, "CLIENT_BASED_SIMPLE"},
+    {FMP_DISK_SIGNATURE, "DISK_SIGNATURE"},
+    {FMP_HIERARCHICAL_VOLUME, "HIERARCHICAL_VOLUME"},
+    {0,NULL}
+};
+
+static const value_string fmp_client_error_number_vals[] = {
+    {FMP_CE_GENERIC, "FMP_CE_GENERIC"},
+    {FMP_CE_DISK_ERROR, "FMP_CE_DISK_ERROR"},
+    {0,NULL}
+};
 
 void
 proto_register_fmp(void)
@@ -2091,12 +1937,12 @@ proto_register_fmp(void)
         { &hf_fmp_notifyPort,
           { "Notify Port", "fmp.notifyPort",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "FMP Notify Port", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_sessionHandle,
           { "Session Handle", "fmp.sessHandle",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "FMP Session Handle", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_fmpFHandle,
           { "FMP File Handle", "fmp.fmpFHandle",
@@ -2120,14 +1966,14 @@ proto_register_fmp(void)
             "Reply Status", HFILL }},
 
         { &hf_fmp_fsBlkSz,
-          { "FS Block Size", "fmp.fsBlkSz",
+          { "File System Block Size", "fmp.fsBlkSz",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "File System Block Size", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_volHandle,
           { "Volume Handle", "fmp.volHandle",
             FT_STRING, BASE_NONE, NULL, 0,
-            "FMP Volume Handle", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_dskSigEnt_val,
           { "Celerra Signature", "fmp.dsi.ds.dsList.dskSigLst_val.dse.dskSigEnt_val",
@@ -2162,7 +2008,7 @@ proto_register_fmp(void)
         { &hf_fmp_msgNum,
           { "Message Number", "fmp.msgNum",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "FMP Message Number", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_cookie,
           { "Cookie", "fmp.cookie",
@@ -2177,32 +2023,32 @@ proto_register_fmp(void)
         { &hf_fmp_extentList_len,
           { "Extent List Length", "fmp.extentList_len",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "FMP Extent List Length", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_extent_state,
           { "Extent State", "fmp.extentState",
             FT_UINT32,BASE_DEC, VALS(fmp_extentState_vals), 0,
-            "FMP Extent State", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_firstLogBlk,
-          { "firstLogBlk", "fmp.firstLogBlk",
+          { "First Logical File Block", "fmp.firstLogBlk",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "First Logical File Block", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_numBlks,
-          { "Number Blocks", "fmp.numBlks",
+          { "Number of Blocks", "fmp.numBlks",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "Number of Blocks", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_volID,
           { "Volume ID inside DART", "fmp.volID",
             FT_UINT32, BASE_HEX, NULL, 0,
-            "FMP Volume ID inside DART", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_startOffset,
           { "Start Offset", "fmp.startOffset",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "FMP Start Offset", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_start_offset64,
           { "Start offset", "fmp.start_offset64",
@@ -2217,22 +2063,22 @@ proto_register_fmp(void)
         { &hf_fmp_plugInID,
           { "Plug In Cmd ID", "fmp.plugInID",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "Plug In Command ID", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_plugInBuf,
           { "Plug In Args", "fmp.plugIn",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "FMP Plug In Arguments", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_os_major,
           { "OS Major", "fmp.os_major",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "FMP OS Major", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_os_minor,
           { "OS Minor", "fmp.os_minor",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "FMP OS Minor", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_os_name,
           { "OS Name", "fmp.os_name",
@@ -2308,7 +2154,7 @@ proto_register_fmp(void)
         { &hf_fmp_nfsv3Attr_fileid,
           { "File ID", "fmp.nfsv3Attr_fileid",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "fileid", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_cmd,
           { "Command", "fmp.cmd",
@@ -2338,7 +2184,7 @@ proto_register_fmp(void)
         { &hf_fmp_volume,
           { "Volume ID's", "fmp.volume",
             FT_UINT32, BASE_HEX, NULL, 0,
-            "FMP Volume ID's", HFILL }},
+            NULL, HFILL }},
 
         { &hf_fmp_stripeSize,
           { "size of the stripe", "fmp.stripeSize",
@@ -2350,6 +2196,65 @@ proto_register_fmp(void)
             FT_UINT64, BASE_DEC, NULL, 0,
             NULL, HFILL }},
 
+        { &hf_fmp_native_protocol,
+          { "Native Protocol", "fmp.native_protocol",
+            FT_UINT32, BASE_DEC, VALS(fmp_native_protocol_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_encoding_mode,
+          { "Encoding Mode", "fmp.encoding_mode",
+            FT_UINT32, BASE_DEC, VALS(fmp_encoding_mode_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_capability,
+          { "Volume Mgmt Capability", "fmp.capability",
+            FT_UINT32, BASE_DEC, VALS(fmp_volume_mgmt_capability_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_devSerial_query_cmd,
+          { "Query Command", "fmp.devSerial.query_cmd",
+            FT_UINT32, BASE_DEC, VALS(fmp_query_cmd_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_volume_desc,
+          { "VOLUME", "fmp.volume_desc",
+            FT_UINT32, BASE_DEC, VALS(fmp_volume_desc_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_disk_identifier,
+          { "DISK IDENTIFIER", "fmp.disk_identifier",
+            FT_UINT32, BASE_DEC, VALS(fmp_disk_identifier_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_volume_mgmt_type,
+          { "Volume Mgmt Type", "fmp.volume_mgmt_type",
+            FT_UINT32, BASE_DEC, VALS(fmp_volume_mgmt_type_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_notify_protocol,
+          { "Protocol", "fmp.notify_protocol",
+            FT_UINT32, BASE_DEC, VALS(fmp_notify_protocol_vals), 0,
+            NULL, HFILL }},
+
+        { &hf_fmp_client_error_number,
+          { "CLIENT Error Number", "fmp.client_error_number",
+            FT_UINT32, BASE_DEC, VALS(fmp_client_error_number_vals), 0,
+            NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_fmp_fid, { "fid", "fmp.fid", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_tid, { "tid", "fmp.tid", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_uid, { "uid", "fmp.uid", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_fsid, { "FsID", "fmp.fsid", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_cifsport, { "cifsPort", "fmp.cifsport", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_number_of_disk, { "Number of Disk", "fmp.number_of_disk", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_length_of_list, { "Length of List", "fmp.length_of_list", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_sigoffset, { "sigOffset", "fmp.sigoffset", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_length_of_volume_list, { "Length of volume List", "fmp.length_of_volume_list", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_blockindex, { "blockIndex", "fmp.blockindex", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_fmp_cap_revoke_handle_list, { "CAP_REVOKE_HANDLE_LIST", "fmp.cap_revoke_handle_list", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_REVOKE_HANDLE_LIST, NULL, HFILL }},
+      { &hf_fmp_cap_unc_names, { "CAP_UNC_NAMES", "fmp.cap_unc_names", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_UNC_NAMES, NULL, HFILL }},
+      { &hf_fmp_cap_cifsv2, { "CAP_CIFSV2", "fmp.cap_cifsv2", FT_BOOLEAN, 32, TFS(&tfs_yes_no), FMP_CAP_CIFSV2, NULL, HFILL }},
     };
 
     static gint *ett[] = {
