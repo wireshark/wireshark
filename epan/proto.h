@@ -387,8 +387,8 @@ struct _header_field_info {
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
-	int						*p_id;		 /**< written to by register() function */
-	header_field_info		hfinfo;      /**< the field info to be registered */
+	int				*p_id;	/**< written to by register() function */
+	header_field_info		hfinfo;	/**< the field info to be registered */
 } hf_register_info;
 
 
@@ -403,15 +403,15 @@ typedef struct _item_label_t {
 /** Contains the field information for the proto_item. */
 typedef struct field_info {
 	header_field_info	*hfinfo;          /**< pointer to registered field information */
-	gint				 start;           /**< current start of data in field_info.ds_tvb */
-	gint				 length;          /**< current data length of item in field_info.ds_tvb */
-	gint				 appendix_start;  /**< start of appendix data */
-	gint				 appendix_length; /**< length of appendix data */
-	gint				 tree_type;       /**< one of ETT_ or -1 */
+	gint			 start;           /**< current start of data in field_info.ds_tvb */
+	gint			 length;          /**< current data length of item in field_info.ds_tvb */
+	gint			 appendix_start;  /**< start of appendix data */
+	gint			 appendix_length; /**< length of appendix data */
+	gint			 tree_type;       /**< one of ETT_ or -1 */
 	item_label_t		*rep;             /**< string for GUI tree */
-	guint32				 flags;           /**< bitfield like FI_GENERATED, ... */
-	tvbuff_t			*ds_tvb;          /**< data source tvbuff */
-	fvalue_t			 value;
+	guint32			 flags;           /**< bitfield like FI_GENERATED, ... */
+	tvbuff_t		*ds_tvb;          /**< data source tvbuff */
+	fvalue_t		 value;
 } field_info;
 
 
