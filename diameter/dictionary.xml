@@ -5401,16 +5401,79 @@
 				<gavp name="Visited-PLMN-Id"/>
 			</grouped>
 		</avp>
-		<avp name="CLR-Flags" code="1638" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
+    <avp name="CLR-Flags" code="1638" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="UVR-Flags" code="1639" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="UVA-Flags" code="1640" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="VPLMN-CSG-Subscription-Data" code="1641" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="CSG-Id"/>
+        <gavp name="Expiration-Date"/>
+      </grouped>
+    </avp>
+    <avp name="Time-Zone" code="1642" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="A-MSISDN" code="1643" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="MME-Number-for-MT-SMS" code="1645" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="SMS-Register-Request" code="1648" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="SMS_REGISTRATION_REQUIRED" code="0"/>
+      <enum name="SMS_REGISTRATION_NOT_PREFERRED" code="1"/>
+      <enum name="NO_PREFERENCE" code="2"/>
+    </avp>
+    <avp name="Daylight-Saving-Time" code="1650" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NO_ADJUSTMENT" code="0"/>
+      <enum name="PLUS_ONE_HOUR_ADJUSTMENT" code="1"/>
+      <enum name="PLUS_TWO_HOURS_ADJUSTMENT" code="2"/>
+    </avp>
+    <avp name="Subscription-Data-Flags" code="1654" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Measurement-Period-UMTS" code="1655" vendor-bit="must" vendor-id="TGPP">
+      <!-- The possible values are those defined in 3GPP TS 32.422 -->
+      <type type-name="Enumerated"/>
+    </avp>
+    <avp name="Measurement-Period-LTE" code="1656" vendor-bit="must" vendor-id="TGPP">
+      <!-- The possible values are those defined in 3GPP TS 32.422 -->
+      <type type-name="Enumerated"/>
+    </avp>
+    <avp name="Collection-Period-RRM-LTE" code="1657" vendor-bit="must" vendor-id="TGPP">
+      <!-- The possible values are those defined in 3GPP TS 32.422 -->
+      <type type-name="Enumerated"/>
+    </avp>
+    <avp name="Collection-Period-RRM-UMTS" code="1658" vendor-bit="must" vendor-id="TGPP">
+      <!-- The possible values are those defined in 3GPP TS 32.422 -->
+      <type type-name="Enumerated"/>
+    </avp>
+    <avp name="Positioning-Method" code="1659" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Measurement-Quantity" code="1660" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Event-Threshold-Event-1F" code="1661" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="Event-Threshold-Event-1I" code="1662" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="Restoration-Priority" code="1662" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
 
-		<avp name="UE-Time-Zone" code="1641" vendor-bit="must" vendor-id="TGPP">
-		<type type-name="UTF8String"/>
-		</avp>
-
-		<!--
-		Note: The AVP codes from 1638 to 1699 are reserved for TS 29.272.
+    <!--
+		Note: The AVP codes from 1663 to 1699 are reserved for TS 29.272.
 		-->
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
