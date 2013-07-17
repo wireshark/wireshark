@@ -167,6 +167,10 @@ The following bugs have been fixed:
 
 * Wireshark hides under Taskbar. (ws-buglink:3034)
 
+* IEEE 802.15.4 frame check sequence in "Chipcon mode" not displayed correctly. (ws-buglink:4507)
+
+* Crash when applying filter with Voip calls. (ws-buglink:6090)
+
 * Add MAC-DATA support to TETRA dissector and other minor improvements. (ws-buglink:8708)
 
 * Crash analyzing VoIP Calls (T38). (ws-buglink:8736)
@@ -181,7 +185,13 @@ The following bugs have been fixed:
 
 * Wireshark crashes when closing Flow Graph with Graph Analysis opened. (ws-buglink:8793)
 
+* Wrong size of LLRP ProtocolID Parameter in Accessspec Parameter. (ws-buglink:8809)
+
 * Strange behavior of tree expand/collapse in packet details. (ws-buglink:8908)
+
+* Buggy IEC104 dissector caused by commit r48958. (ws-buglink:8849)
+
+* ansi_637_tele dissector displays MSB as MBS for Call-Back Number. (ws-buglink:8851)
 
 === New and Updated Features
 
@@ -195,15 +205,22 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+ANSI IS-637-A
+ASN.1 PER
 Bluetooth OBEX
 Bluetooth SDB
 DCOM ISystemActivator
 DCP ETSI
+Diameter 3GPP
 DIS
 DVB-CI
+Ethernet
 GSM Common
 GSM SMS
 H.235
+IEC104
+IEEE 802.15.4
+LLRP
 P1
 Radiotap
 SCSI

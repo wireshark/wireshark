@@ -1219,7 +1219,7 @@ dissect_ieee802154_fcs:
             field_tree = proto_item_add_subtree(ti, ett_ieee802154_fcs);
             /* Display FCS contents.  */
             ti = proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
-            proto_item_append_text(ti, " dBm"); /*  Displaying Units */
+            proto_item_append_text(ti, " dB");  /*  Displaying Units */
             proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (gboolean) (fcs & IEEE802154_CC24xx_CRC_OK));
             proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
         }

@@ -1108,7 +1108,7 @@ tele_param_cb_num(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree, tvb, offset-1, 1,
-	    "%s :  Number of fields (MBS): (%d)",
+	    "%s :  Number of fields (MSB): (%d)",
 	    ansi_637_bigbuf,
 	    num_fields);
 

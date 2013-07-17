@@ -87,7 +87,7 @@ static int proto_iec104asdu = -1;
 #define APCI_START	0x68
 #define APCI_LEN	6
 #define APCI_START_LEN	2
-#define APCI_DATA_LEN	(APCI_LEN- APCI_START_LEN)
+#define APCI_DATA_LEN	(APCI_LEN - APCI_START_LEN)
 #define APDU_MIN_LEN	4
 #define APDU_MAX_LEN	253
 
@@ -580,9 +580,7 @@ static void get_SIQ( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   proto_tree_add_item(siq_tree, hf_siq_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
-
 }
-
 
 /* ====================================================================
     DIQ: Double-point information (IEV 371-02-08) w quality descriptor
@@ -623,7 +621,6 @@ static void get_QDS( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   proto_tree_add_item(qds_tree, hf_qds_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
-
 }
 
 /* ====================================================================
@@ -753,7 +750,6 @@ static void get_QOS( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   proto_tree_add_item(iec104_header_tree, hf_qos_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
-
 }
 
 /* ====================================================================
@@ -772,7 +768,6 @@ static void get_SCO( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   proto_tree_add_item(sco_tree, hf_sco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
-
 }
 
 /* ====================================================================
@@ -791,7 +786,6 @@ static void get_DCO( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   proto_tree_add_item(dco_tree, hf_dco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
-
 }
 
 /* ====================================================================
@@ -810,7 +804,6 @@ static void get_RCO( tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tr
   proto_tree_add_item(rco_tree, hf_rco_se, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
   (*offset)++;
-
 }
 /* .... end Misc. functions for dissection of signal values */
 
@@ -822,10 +815,10 @@ static guint get_iec104apdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offse
 	guint8 Val;
 	guint32 Off;
 
-	for (Off= 0; Off <= tvb_reported_length(tvb)- 2; Off++)  {
-		Val = tvb_get_guint8(tvb, offset+ Off);
+	for (Off = 0; Off <= tvb_reported_length(tvb) - 2; Off++)  {
+		Val = tvb_get_guint8(tvb, offset + Off);
 		if (Val == APCI_START)  {
-			return (guint)(Off+ tvb_get_guint8(tvb, offset+ Off+ 1)+ 2);
+			return (guint)(Off + tvb_get_guint8(tvb, offset + Off + 1) + 2);
 		}
 	}
 
@@ -1278,7 +1271,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	it104 = proto_tree_add_item(tree, proto_iec104apci, tvb, 0, -1, ENC_NA);
 	it104tree = proto_item_add_subtree(it104, ett_apci);
 
-	for (Off= 0; Off <= TcpLen- 2; Off++)  {
+	for (Off = 0; Off <= TcpLen - 2; Off++)  {
 		Start = tvb_get_guint8(tvb, Off);
 		if (Start == APCI_START)  {
 			if (Off > 0)
@@ -1287,25 +1280,25 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				col_append_fstr( pinfo->cinfo, COL_INFO, "<ERR prefix %u bytes> ", Off);
 			}
 
-			proto_item_set_len(it104, Off+ APCI_LEN);
+			proto_item_set_len(it104, Off + APCI_LEN);
 
 			proto_tree_add_text(it104tree, tvb, Off, 1, "START");
-			ti = proto_tree_add_item(it104tree, hf_apdulen, tvb, Off+ 1, 1, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(it104tree, hf_apcitype, tvb, Off+ 2, 1, ENC_LITTLE_ENDIAN);
+			ti = proto_tree_add_item(it104tree, hf_apdulen, tvb, Off + 1, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(it104tree, hf_apcitype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
 
-			len = tvb_get_guint8(tvb, Off+ 1);
+			len = tvb_get_guint8(tvb, Off + 1);
 			if (len < APDU_MIN_LEN)  {
 				expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "APDU less than %d bytes", APDU_MIN_LEN);
 				col_append_fstr( pinfo->cinfo, COL_INFO, "<ERR ApduLen=%u bytes> ", len);
 				return;
 			}
 
-			temp8 = tvb_get_guint8(tvb, Off+ 2);
+			temp8 = tvb_get_guint8(tvb, Off + 2);
 			type = temp8 & 0x03;
 
 			if (len <= APDU_MAX_LEN) {
-				col_append_fstr( pinfo->cinfo, COL_INFO, "%s %s (", 
-					(pinfo->srcport == IEC104_PORT ? "->" : "<-"), 
+				col_append_fstr( pinfo->cinfo, COL_INFO, "%s %s (",
+					(pinfo->srcport == IEC104_PORT ? "->" : "<-"),
 					val_to_str_const(type, apci_types, "<ERR>"));
 			}
 			else {
@@ -1315,17 +1308,17 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			switch(type)  {
 			case I_TYPE:
 			case I_TYPE2:
-				temp16 = tvb_get_letohs(tvb, Off+ 2) >> 1;
+				temp16 = tvb_get_letohs(tvb, Off + 2) >> 1;
 				col_append_fstr( pinfo->cinfo, COL_INFO, "%2.2d,", temp16);
 				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, temp16);
 			case S_TYPE:
-				temp16 = tvb_get_letohs(tvb, Off+ 4) >> 1;
+				temp16 = tvb_get_letohs(tvb, Off + 4) >> 1;
 				col_append_fstr( pinfo->cinfo, COL_INFO, "%2.2d) ", temp16);
 				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, temp16);
 				break;
 			case U_TYPE:
 				col_append_fstr( pinfo->cinfo, COL_INFO, "%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
-				proto_tree_add_item(it104tree, hf_apciutype, tvb, Off+ 2, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(it104tree, hf_apciutype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
 				break;
 			}
 			/* Don't search more the APCI_START */
@@ -1340,7 +1333,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 
 	if ((type == I_TYPE) || (type == I_TYPE2))  {
-		call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off+ APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);
+		call_dissector(iec104asdu_handle, tvb_new_subset(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree);
 	} else {
 		col_set_fence(pinfo->cinfo, COL_INFO);
 	}
@@ -1463,19 +1456,19 @@ proto_register_iec104asdu(void)
 		    "SIQ SQ", HFILL }},
 
 		{ &hf_siq_bl,
-		  { "BL", "104asdu.siq.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x02,
+		  { "BL", "104asdu.siq.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x10,
 		    "SIQ BL", HFILL }},
 
 		{ &hf_siq_sb,
-		  { "SB", "104asdu.siq.sb", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x04,
+		  { "SB", "104asdu.siq.sb", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x20,
 		    "SIQ SB", HFILL }},
 
 		{ &hf_siq_nt,
-		  { "NT", "104asdu.siq.nt", FT_BOOLEAN, 8, TFS(&tfs_not_topical_topical), 0x08,
+		  { "NT", "104asdu.siq.nt", FT_BOOLEAN, 8, TFS(&tfs_not_topical_topical), 0x40,
 		    "SIQ NT", HFILL }},
 
 		{ &hf_siq_iv,
-		  { "IV", "104asdu.siq.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x10,
+		  { "IV", "104asdu.siq.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
 		    "SIQ IV", HFILL }},
 
 		{ &hf_diq,
@@ -1511,19 +1504,19 @@ proto_register_iec104asdu(void)
 		    "QDS OV", HFILL }},
 
 		{ &hf_qds_bl,
-		  { "BL", "104asdu.qds.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x02,
+		  { "BL", "104asdu.qds.bl", FT_BOOLEAN, 8, TFS(&tfs_blocked_not_blocked), 0x10,
 		    "QDS BL", HFILL }},
 
 		{ &hf_qds_sb,
-		  { "SB", "104asdu.qds.sb", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x04,
+		  { "SB", "104asdu.qds.sb", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x20,
 		    "QDS SB", HFILL }},
 
 		{ &hf_qds_nt,
-		  { "NT", "104asdu.qds.nt", FT_BOOLEAN, 8, TFS(&tfs_not_topical_topical), 0x08,
+		  { "NT", "104asdu.qds.nt", FT_BOOLEAN, 8, TFS(&tfs_not_topical_topical), 0x40,
 		    "QDS NT", HFILL }},
 
 		{ &hf_qds_iv,
-		  { "IV", "104asdu.qds.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x10,
+		  { "IV", "104asdu.qds.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
 		    "QDS IV", HFILL }},
 
 		{ &hf_vti,
@@ -1531,7 +1524,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_vti_tr,
-		  { "VTI Transient", "104asdu.qds.ov", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+		  { "VTI Transient", "104asdu.vti.ov", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
 		    NULL, HFILL }},
 
 		{ &hf_qos_ql,
@@ -1543,7 +1536,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_sco,
-		  { "SCO", "104asdu.sco", FT_UINT8, BASE_DEC, NULL, 0,
+		  { "SCO", "104asdu.sco", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_sco_on,
@@ -1551,7 +1544,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_sco_qu,
-		  { "SCO QU", "104asdu.sco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x70,
+		  { "SCO QU", "104asdu.sco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
 		    NULL, HFILL }},
 
 		{ &hf_sco_se,
@@ -1559,7 +1552,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_dco,
-		  { "DCO", "104asdu.dco", FT_UINT8, BASE_DEC, NULL, 0,
+		  { "DCO", "104asdu.dco", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_dco_on,
@@ -1567,7 +1560,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_dco_qu,
-		  { "DCO QU", "104asdu.dco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x70,
+		  { "DCO QU", "104asdu.dco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
 		    NULL, HFILL }},
 
 		{ &hf_dco_se,
@@ -1575,7 +1568,7 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_rco,
-		  { "RCO", "104asdu.rco", FT_UINT8, BASE_DEC, NULL, 0,
+		  { "RCO", "104asdu.rco", FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
 
 		{ &hf_rco_up,
@@ -1583,14 +1576,14 @@ proto_register_iec104asdu(void)
 		    NULL, HFILL }},
 
 		{ &hf_rco_qu,
-		  { "RCO QU", "104asdu.rco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x70,
+		  { "RCO QU", "104asdu.rco.qu", FT_UINT8, BASE_DEC, VALS(qos_qu_types), 0x7C,
 		    NULL, HFILL }},
 
 		{ &hf_rco_se,
 		  { "RCO S/E", "104asdu.rco.se", FT_BOOLEAN, 8, TFS(&tfs_select_execute), 0x80,
 		    NULL, HFILL }},
 
-        { &hf_asdu_bitstring,
+		{ &hf_asdu_bitstring,
 		  { "Object value", "104asdu.bitstring", FT_UINT32, BASE_HEX, NULL, 0x0,
 		 NULL, HFILL }},
 

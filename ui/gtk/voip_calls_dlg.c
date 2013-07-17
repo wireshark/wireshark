@@ -830,6 +830,11 @@ voip_calls_dlg_draw(void *ptr _U_)
 void
 voip_calls_dlg_reset(void *ptr _U_)
 {
+	/* Clear gtk list store */
+	if (graph_analysis_data) {
+		gtk_list_store_clear(list_store);
+	}
+
 	/* Clean up memory used by calls tap */
 	voip_calls_reset(voip_calls_get_info());
 
