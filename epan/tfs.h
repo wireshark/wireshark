@@ -84,4 +84,6 @@ WS_DLL_PUBLIC const true_false_string tfs_inuse_not_inuse;
 WS_DLL_PUBLIC const true_false_string tfs_critical_not_critical;
 WS_DLL_PUBLIC const true_false_string tfs_complete_incomplete;
 WS_DLL_PUBLIC const true_false_string tfs_valid_not_valid;
+WS_DLL_PUBLIC const true_false_string tfs_do_not_clear_clear;
+WS_DLL_PUBLIC const true_false_string tfs_confirmed_unconfirmed;
 #endif

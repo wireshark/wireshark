@@ -1818,9 +1818,6 @@ static const value_string names_err_code_fms_init[] = {
     { 0,    NULL }
 };
 
-static const true_false_string tfs_do_not_clear_clear = { "Do not clear", "Clear" };
-static const true_false_string tfs_confirmed_unconfirmed = { "Confirmed", "Unconfirmed" };
-
 static const char *
 val_to_str_err_code(guint8 errclass, guint8 code)
 {
