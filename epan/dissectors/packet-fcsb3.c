@@ -246,15 +246,6 @@ static const value_string fc_sbccs_dib_lrj_errcode_val[] = {
     {0x0, NULL},
 };
 
-static const true_false_string tfs_sbccs_iui_as = {
-    "AS is set",
-    "as is NOT set"
-};
-static const true_false_string tfs_sbccs_iui_es = {
-    "ES is set",
-    "es is NOT set"
-};
-
 static void
 dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
@@ -284,15 +275,6 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
     /*flags &= (~( 0x07 ));*/
 }
 
-static const true_false_string tfs_sbccs_linkctlinfo_ctcconn = {
-    "CTC Conn supported",
-    "Ctc conn NOT supported"
-};
-static const true_false_string tfs_sbccs_linkctlinfo_ecrcg = {
-    "Enhanced CRC Generation supported",
-    "Enhanced crc generation NOT supported"
-};
-
 static void
 dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
@@ -318,23 +300,6 @@ dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16
     /*flags &= (~( 0x01 ));*/
 }
 
-
-static const true_false_string tfs_sbccs_dhflags_end = {
-    "END bit is set",
-    "end bit is NOT set"
-};
-static const true_false_string tfs_sbccs_dhflags_chaining = {
-    "CHAINING bit is set",
-    "chaining bit is NOT set"
-};
-static const true_false_string tfs_sbccs_dhflags_earlyend = {
-    "EARLYEND bit is set",
-    "earlyend bit is NOT set"
-};
-static const true_false_string tfs_sbccs_dhflags_nocrc = {
-    "NOCRC bit is set",
-    "nocrc bit is NOT set"
-};
 
 static void
 dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
@@ -373,22 +338,6 @@ dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 fl
     /*flags &= (~( 0x04 ));*/
 }
 
-static const true_false_string tfs_sbccs_ccwflags_cd = {
-    "CD is set",
-    "cd is NOT set"
-};
-static const true_false_string tfs_sbccs_ccwflags_cc = {
-    "CC is set",
-    "cc is NOT set"
-};
-static const true_false_string tfs_sbccs_ccwflags_sli = {
-    "SLI is set",
-    "sli is NOT set"
-};
-static const true_false_string tfs_sbccs_ccwflags_crr = {
-    "CRR is set",
-    "crr is NOT set"
-};
 
 static void
 dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
@@ -427,26 +376,6 @@ dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
     /*flags &= (~( 0x08 ));*/
 }
 
-static const true_false_string tfs_sbccs_cmdflags_du = {
-    "DU is set",
-    "du is NOT set"
-};
-static const true_false_string tfs_sbccs_cmdflags_coc = {
-    "COC is set",
-    "coc is NOT set"
-};
-static const true_false_string tfs_sbccs_cmdflags_syr = {
-    "SYR is set",
-    "syr is NOT set"
-};
-static const true_false_string tfs_sbccs_cmdflags_rex = {
-    "REX is set",
-    "rex is NOT set"
-};
-static const true_false_string tfs_sbccs_cmdflags_sss = {
-    "SSS is set",
-    "sss is NOT set"
-};
 
 static void
 dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
@@ -498,22 +427,6 @@ static const value_string status_ffc_val[] = {
     { 0, NULL }
 };
 
-static const true_false_string tfs_sbccs_statusflags_ci = {
-    "CI is set",
-    "ci is NOT set"
-};
-static const true_false_string tfs_sbccs_statusflags_cr = {
-    "CR is set",
-    "cr is NOT set"
-};
-static const true_false_string tfs_sbccs_statusflags_lri = {
-    "LRI is set",
-    "lri is NOT set"
-};
-static const true_false_string tfs_sbccs_statusflags_rv = {
-    "RV is set",
-    "rv is NOT set"
-};
 
 static void
 dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
@@ -558,38 +471,6 @@ dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8
 
 }
 
-static const true_false_string tfs_sbccs_status_attention = {
-    "ATTENTION is set",
-    "attention is NOT set"
-};
-static const true_false_string tfs_sbccs_status_modifier = {
-    "STATUS MODIFIER is set",
-    "status modifier is NOT set"
-};
-static const true_false_string tfs_sbccs_status_cue = {
-    "CONTROL-UNIT END is set",
-    "control-unit end is NOT set"
-};
-static const true_false_string tfs_sbccs_status_busy = {
-    "BUSY is set",
-    "busy is NOT set"
-};
-static const true_false_string tfs_sbccs_status_channelend = {
-    "CHANNEL-END is set",
-    "channel-end is NOT set"
-};
-static const true_false_string tfs_sbccs_status_deviceend = {
-    "DEVICE-END is set",
-    "device-end is NOT set"
-};
-static const true_false_string tfs_sbccs_status_unitcheck = {
-    "UNIT CHECK is set",
-    "unit check is NOT set"
-};
-static const true_false_string tfs_sbccs_status_unitexception = {
-    "UNIT EXCEPTION is set",
-    "unit exception is NOT set"
-};
 
 static void
 dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
@@ -662,18 +543,6 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
 
 }
 
-static const true_false_string tfs_sbccs_ctlparam_rc = {
-    "RC is SET",
-    "rc is NOT set"
-};
-static const true_false_string tfs_sbccs_ctlparam_ru = {
-    "RU is SET",
-    "ru is NOT set"
-};
-static const true_false_string tfs_sbccs_ctlparam_ro = {
-    "RO is SET",
-    "ro is NOT set"
-};
 
 static void
 dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags)
@@ -1212,12 +1081,12 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_iui_as,
           { "AS", "fcsb3.iui.as",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_iui_as), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
             NULL, HFILL}},
 
         { &hf_sbccs_iui_es,
           { "ES", "fcsb3.iui.es",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_iui_es), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
             NULL, HFILL}},
 
         { &hf_sbccs_iui_val,
@@ -1227,22 +1096,22 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dhflags_end,
           { "End", "fcsb3.dhflags.end",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_end), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
             NULL, HFILL}},
 
         { &hf_sbccs_dhflags_chaining,
           { "Chaining", "fcsb3.dhflags.chaining",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_chaining), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
             NULL, HFILL}},
 
         { &hf_sbccs_dhflags_earlyend,
           { "Early End", "fcsb3.dhflags.earlyend",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_earlyend), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
             NULL, HFILL}},
 
         { &hf_sbccs_dhflags_nocrc,
           { "No CRC", "fcsb3.dhflags.nocrc",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_nocrc), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ccw_flags,
@@ -1252,22 +1121,22 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dib_ccw_flags_cd,
           { "CD", "fcsb3.ccwflags.cd",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_cd), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ccw_flags_cc,
           { "CC", "fcsb3.ccwflags.cc",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_cc), 0x40,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ccw_flags_sli,
           { "SLI", "fcsb3.ccwflags.sli",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_sli), 0x20,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ccw_flags_crr,
           { "CRR", "fcsb3.ccwflags.crr",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_crr), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_cmdflags,
@@ -1277,27 +1146,27 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dib_cmdflags_du,
           { "DU", "fcsb3.cmdflags.du",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_du), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_cmdflags_coc,
           { "COC", "fcsb3.cmdflags.coc",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_coc), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_cmdflags_syr,
           { "SYR", "fcsb3.cmdflags.syr",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_syr), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_cmdflags_rex,
           { "REX", "fcsb3.cmdflags.rex",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_rex), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_cmdflags_sss,
           { "SSS", "fcsb3.cmdflags.sss",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_sss), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_statusflags,
@@ -1312,62 +1181,62 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dib_statusflags_ci,
           { "CI", "fcsb3.statusflags.ci",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_ci), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_statusflags_cr,
           { "CR", "fcsb3.statusflags.cr",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_cr), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_statusflags_lri,
           { "LRI", "fcsb3.statusflags.lri",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_lri), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_statusflags_rv,
           { "RV", "fcsb3.statusflags.rv",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_rv), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_attention,
           { "Attention", "fcsb3.status.attention",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_attention), 0x80,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_modifier,
           { "Status Modifier", "fcsb3.status.modifier",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_modifier), 0x40,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_cue,
           { "Control-Unit End", "fcsb3.status.cue",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_cue), 0x20,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_busy,
           { "Busy", "fcsb3.status.busy",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_busy), 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_channelend,
           { "Channel End", "fcsb3.status.channel_end",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_channelend), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_deviceend,
           { "Device End", "fcsb3.status.device_end",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_deviceend), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_unit_check,
           { "Unit Check", "fcsb3.status.unit_check",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_unitcheck), 0x02,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_status_unit_exception,
           { "Unit Exception", "fcsb3.status.unitexception",
-            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_unitexception), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ctlparam,
@@ -1377,17 +1246,17 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dib_ctlparam_rc,
           { "RC", "fcsb3.ctlparam.rc",
-            FT_BOOLEAN, 24, TFS(&tfs_sbccs_ctlparam_rc), 0x80,
+            FT_BOOLEAN, 24, TFS(&tfs_set_notset), 0x80,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ctlparam_ru,
           { "RU", "fcsb3.ctlparam.ru",
-            FT_BOOLEAN, 24, TFS(&tfs_sbccs_ctlparam_ru), 0x10,
+            FT_BOOLEAN, 24, TFS(&tfs_set_notset), 0x10,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_ctlparam_ro,
           { "RO", "fcsb3.ctlparam.ro",
-            FT_BOOLEAN, 24, TFS(&tfs_sbccs_ctlparam_ro), 0x08,
+            FT_BOOLEAN, 24, TFS(&tfs_set_notset), 0x08,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_linkctlinfo,
@@ -1397,12 +1266,12 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_dib_linkctlinfo_ctcconn,
           { "CTC Conn", "fcsb3.linkctlinfo.ctc_conn",
-            FT_BOOLEAN, 16, TFS(&tfs_sbccs_linkctlinfo_ctcconn), 0x80,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x80,
             NULL, HFILL}},
 
         { &hf_sbccs_dib_linkctlinfo_ecrcg,
           { "Enhanced CRC Generation", "fcsb3.linkctlinfo.ecrcg",
-            FT_BOOLEAN, 16, TFS(&tfs_sbccs_linkctlinfo_ecrcg), 0x01,
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x01,
             NULL, HFILL}},
     };
 
