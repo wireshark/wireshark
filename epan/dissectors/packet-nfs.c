@@ -728,7 +728,7 @@ static dissector_table_t nfs_fhandle_table;
 #define FHT_NETAPP           5
 #define FHT_NETAPP_V4        6
 #define FHT_NETAPP_GX_V3     7
-#define FHT_CELERRA          8
+#define FHT_CELERRA_VNX      8
 
 static const enum_val_t nfs_fhandle_types[] = {
 	{ "unknown",     "Unknown",     FHT_UNKNOWN },
@@ -739,7 +739,7 @@ static const enum_val_t nfs_fhandle_types[] = {
 	{ "ontap_v3",    "ONTAP_V3",    FHT_NETAPP },
 	{ "ontap_v4",    "ONTAP_V4",    FHT_NETAPP_V4},
 	{ "ontap_gx_v3", "ONTAP_GX_V3", FHT_NETAPP_GX_V3},
-	{ "celerra",     "CELERRA",     FHT_CELERRA },
+	{ "celerra_vnx", "CELERRA_VNX", FHT_CELERRA_VNX },
 	{ NULL, NULL, 0 }
 };
 /* decode all nfs filehandles as this type */
@@ -1209,7 +1209,7 @@ static const value_string names_fhtype[] =
 	{	FHT_NETAPP,		"ONTAP 7G nfs v3 file handle"		},
 	{	FHT_NETAPP_V4,	 	"ONTAP 7G nfs v4 file handle"		},
 	{	FHT_NETAPP_GX_V3,	"ONTAP GX nfs v3 file handle"		},
-	{	FHT_CELERRA,		"Celerra nfs file handle"		},
+	{	FHT_CELERRA_VNX,	"Celerra|VNX NFS file handle"		},
 	{	0,			NULL					}
 };
 static value_string_ext names_fhtype_ext = VALUE_STRING_EXT_INIT(names_fhtype);
@@ -2182,9 +2182,9 @@ out:
 }
 
 
-/* Dissect EMC Celerra NFSv3/v4 File Handles */
+/* Dissect EMC Celerra or VNX NFSv3/v4 File Handle */
 static void
-dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 offset=0;
 	guint16	fhlen;
@@ -2205,10 +2205,10 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 
 	fhlen = tvb_reported_length(tvb);
 
-	/* Display the entire filehandle */
+	/* Display the entire file handle */
 	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
 
-	/* 	On Celerra if fhlen = 32, it's an NFSv3 filehandle */
+	/* 	If fhlen = 32, it's an NFSv3 file handle */
 	if (fhlen == 32) {
 		/* Create a "File/Dir" subtree: bytes 0 thru 15 of the 32-byte file handle 	 */
 		{
@@ -2246,12 +2246,14 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		ex_gen    = tvb_get_letohl(tvb, offset+28);
 		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_gen,      tvb, offset+28, 4, ex_gen);
 		}
-	} else {
-		/* On Celerra if fhlen = 40, it's an NFSv4 filehandle).  In Celerra NFSv4
-		filehandles, the first 4 bytes are the Named Attribute ID, and the next 4 bytes
-		is the RO_Node boolean which is true is the file/dir is Read Only.  Unlike the
-		NFSv3 filehandles, the next 16 bytes contain the *export* info followed by 16 bytes
-		containing the *file/dir* info. */
+	} else if (fhlen == 40) {
+		/*
+		If fhlen = 40, it's an NFSv4 file handle).  In Celerra|VNX NFSv4 file handles,
+		the first 4 bytes hold the Named Attribute ID, and the next 4 bytes hold the 
+		RO_Node boolean which if true, the file/dir is Read Only. Unlike NFSv3 file
+		handles where the file/dir info precedes the export info, the next 16 bytes contain
+		the *export* info followed by 16 bytes containing the *file/dir* info.
+		*/
 
 		/* "Named Attribute ID" or "Object ID" (bytes 0 thru 3) */
 		obj_id = tvb_get_letohl(tvb, offset+0);
@@ -2262,7 +2264,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		ro_node = tvb_get_letohl(tvb, offset+4);
 		proto_tree_add_boolean(tree, hf_nfs_fh_ro_node,     tvb,  offset+4, 4, ro_node);
 
-		/* Create "Export" subtree (bytes 8 thru 23 of the 40-byte filehandle  */
+		/* Create "Export" subtree (bytes 8 thru 23 of the 40-byte file handle  */
 		{
 		proto_item* ex_item = NULL;
 		proto_tree* ex_tree = NULL;
@@ -2280,7 +2282,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		ex_gen    = tvb_get_letohl(tvb, offset+20);
 		proto_tree_add_uint(ex_tree, hf_nfs_fh_ex_gen,     tvb, offset+20,  4, ex_gen);
 		}
-		/* Create a "File/Dir/Object" subtree (bytes 24 thru 39 of the 40-byte filehandle) */
+		/* Create a "File/Dir/Object" subtree (bytes 24 thru 39 of the 40-byte file handle) */
 		{
 		proto_item* obj_item = NULL;
 		proto_tree* obj_tree = NULL;
@@ -2298,6 +2300,12 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		obj_gen	  = tvb_get_letohl(tvb, offset+36);
 		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_gen,    tvb, offset+36,  4, obj_gen);
 		}
+	} else {
+		/* This is not a Celerra|VNX file handle.  Display a warning. */
+		expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_WARN,
+			"Celerra|VNX file handles are 32 (NFSv3) or 40 (NFSv4) but the length is %u.\n"
+			"Change the 'Decode NFS file handles as' pref to the correct type or 'Unknown'.",
+			fhlen);
 	}
 }
 
@@ -12628,7 +12636,7 @@ proto_register_nfs(void)
 
 	prefs_register_enum_preference(nfs_module,
 		"default_fhandle_type",
-		"Decode nfs fhandles as",
+		"Decode NFS file handles as",
 		"Decode all NFS file handles as if they are of this type",
 		&default_nfs_fhandle_type,
 		nfs_fhandle_types,
@@ -12675,8 +12683,8 @@ proto_reg_handoff_nfs(void)
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP_GX_V3, fhandle_handle);
 
-	fhandle_handle=create_dissector_handle(dissect_fhandle_data_CELERRA, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_CELERRA, fhandle_handle);
+	fhandle_handle=create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs);
+	dissector_add_uint("nfs_fhandle.type", FHT_CELERRA_VNX, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add_uint("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
