@@ -96,7 +96,6 @@ diameter_DATA = \
 	diameter/Nokia.xml \
 	diameter/NokiaSiemensNetworks.xml \
 	diameter/SKT.xml \
-	diameter/SKT.xml \
 	diameter/VerizonWireless.xml
 
 #
