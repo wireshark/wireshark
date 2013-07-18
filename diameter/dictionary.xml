@@ -31,6 +31,7 @@
 	<!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
 	<!ENTITY SKT			SYSTEM "SKT.xml">
 	<!ENTITY ChinaTelecom		SYSTEM "ChinaTelecom.xml">
+	<!ENTITY VerizonWireless		SYSTEM "VerizonWireless.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -6579,4 +6580,5 @@
 	&NokiaSiemensNetworks;
 	&SKT;
 	&ChinaTelecom;
+	&VerizonWireless;
 </dictionary>

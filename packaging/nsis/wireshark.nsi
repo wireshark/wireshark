@@ -439,6 +439,7 @@ File "..\..\diameter\TGPPGmb.xml"
 File "..\..\diameter\TGPPRx.xml"
 File "..\..\diameter\TGPPS9.xml"
 File "..\..\diameter\TGPPSh.xml"
+File "..\..\diameter\VerizonWireless.xml"
 File "..\..\diameter\Vodafone.xml"
 SetOutPath $INSTDIR
 
