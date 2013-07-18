@@ -563,9 +563,10 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Open Policy Service Interface, %s",
+	col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s",
 		val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
 			"<Unknown opcode %d>"));
+	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	ti = proto_tree_add_item(tree, proto_opsi, tvb, 0, -1, ENC_NA);
 	opsi_tree = proto_item_add_subtree(ti, ett_opsi);
