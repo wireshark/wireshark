@@ -1293,8 +1293,6 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                                     "Pseudowire Capabilities List");
         l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
         while (avp_len >= 2) {
-            int pw_type = tvb_get_ntohs(tvb, offset);
-
             proto_tree_add_item(l2tp_avp_tree_sub, hf_l2tp_cisco_pw_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             avp_len -= 2;
@@ -1786,7 +1784,6 @@ static void process_control_avps(tvbuff_t *tvb,
             l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
 
             while (avp_len >= 2) {
-                int pw_type = tvb_get_ntohs(tvb, idx);
                 proto_tree_add_item(l2tp_avp_tree_sub, hf_l2tp_avp_pw_type, tvb, idx, 2, ENC_BIG_ENDIAN);
                 idx += 2;
                 avp_len -= 2;
