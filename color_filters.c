@@ -570,8 +570,10 @@ read_filters_file(FILE *f, gpointer user_data)
             dfilter_t *temp_dfilter;
 
             if (!dfilter_compile(filter_exp, &temp_dfilter)) {
-                g_warning("Could not compile color filter \"%s\" from saved filters: %s",
+                g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
                           name, dfilter_error_msg);
+                prefs.unknown_colorfilters = TRUE;
+
                 skip_end_of_line = TRUE;
                 continue;
             }
