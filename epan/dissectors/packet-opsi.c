@@ -28,8 +28,10 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
+
+#include "packet-tcp.h"
 
 /* TCP destination port dedicated to the OPSI protocol */
 #define TCP_PORT_OPSI		4002
@@ -59,7 +61,8 @@ typedef struct {
         const char	*tree_text;             /* text for fold out */
         gint		*tree_id;               /* id for add_item */
         int*		hf_type_attribute;	/* id for seach option */
-        void		(*dissect)(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
+        void		(*dissect)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
+                               int* hfValue, int offset, int length);
 } opsi_attribute_handle_t;
 
 
@@ -124,11 +127,11 @@ typedef struct {
  * Published API functions.  NOTE, "local" API functions
  * only valid from the packet-opsi file.
  */
-static void decode_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
-static void decode_ipv4_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
-static void decode_longint_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
-static void decode_value_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
-static void decode_time_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
+static void decode_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length);
+static void decode_ipv4_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length);
+static void decode_longint_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length);
+static void decode_value_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length);
+static void decode_time_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length);
 /******* *******/
 
 /* Initialize the protocol and registered fields */
@@ -174,6 +177,7 @@ static int hf_smc_receive_time_att	= -1;
 static int hf_smc_stat_time_att		= -1;
 static int hf_opsi_flags_att		= -1;
 static int hf_opsi_application_name_att	= -1;
+static int hf_opsi_attribute_length = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_opsi 			= -1;
@@ -213,6 +217,9 @@ static gint ett_opsi_smc_stat_time	= -1;
 static gint ett_opsi_flags		= -1;
 static gint ett_opsi_application_name	= -1;
 
+static expert_field ei_opsi_unknown_attribute = EI_INIT;
+static expert_field ei_opsi_short_attribute = EI_INIT;
+static expert_field ei_opsi_short_frame = EI_INIT;
 
 /* Code mapping */
 static const value_string opsi_opcode[] = {
@@ -418,15 +425,13 @@ static opsi_attribute_handle_t opsi_attributes[] = {
 
 /* Desegmentation of OPSI (over TCP) */
 static gboolean opsi_desegment = TRUE;
-/* To check if we must create or update the information column  */
-static gboolean opsi_first;
 
 static void
-decode_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length)
+decode_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
 	guint8* pbuffer;
 	if (length < 4) {
-		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
+		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
 
@@ -436,11 +441,11 @@ decode_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offse
 
 
 static void
-decode_ipv4_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length)
+decode_ipv4_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
 	guint32 ip_address;
 	if (length < 8) {
-		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
+		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
 	ip_address = tvb_get_ipv4(tvb, offset+4);
@@ -448,32 +453,32 @@ decode_ipv4_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset,
 }
 
 static void
-decode_longint_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length)
+decode_longint_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
 	if (length < 8) {
-		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
+		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
 	proto_tree_add_uint(tree, *hfValue, tvb, offset+4, 4, tvb_get_ntohl(tvb, offset+4));
 }
 
 static void
-decode_value_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length)
+decode_value_string_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
 	if (length < 8) {
-		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
+		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
 	proto_tree_add_item(tree, *hfValue, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 }
 
 static void
-decode_time_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length)
+decode_time_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int* hfValue, int offset, int length)
 {
 	nstime_t ns;
 
 	if (length < 8) {
-		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
+		expert_add_info(pinfo, item, &ei_opsi_short_attribute);
 		return;
 	}
       ns.secs  = tvb_get_ntohl(tvb, offset+4);
@@ -513,7 +518,7 @@ get_opsi_attribute_index(int min, int max, int attribute_type)
 
 
 static void
-dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
+dissect_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *opsi_tree, int offset, int length)
 {
 	int i;
 	int attribute_type;
@@ -528,13 +533,14 @@ dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 		/* We perform a standard log(n) lookup */
 		i = get_opsi_attribute_index(0, OPSI_ATTRIBUTES_COUNT-1, attribute_type);
 		if (i == -1) {
-			proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "Unknown attribute (%d)", attribute_type);
+			proto_tree_add_expert_format(opsi_tree, pinfo, &ei_opsi_unknown_attribute, tvb, offset, attribute_length,
+										"Unknown attribute (%d)", attribute_type);
 		}
 		else {
 			ti = proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "%s (%d)", opsi_attributes[i].tree_text, attribute_type);
 			ntree = proto_item_add_subtree(ti, *opsi_attributes[i].tree_id);
-			proto_tree_add_text(ntree, tvb, offset+2, 2, "Length (%d)", attribute_length);
-			opsi_attributes[i].dissect(tvb, ntree, opsi_attributes[i].hf_type_attribute, offset, attribute_length);
+			proto_tree_add_item(ntree, hf_opsi_attribute_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+			opsi_attributes[i].dissect(tvb, pinfo, ntree, ti, opsi_attributes[i].hf_type_attribute, offset, attribute_length);
 		}
 		if (attribute_length < 4) {
 			/* Length must be at least 4, for the type and length. */
@@ -544,7 +550,7 @@ dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 		length -= attribute_length;
 	}
 	if (length) {
-		proto_tree_add_text(opsi_tree, tvb, offset, -1, "Short frame");
+		proto_tree_add_expert(opsi_tree, pinfo, &ei_opsi_short_frame, tvb, offset, -1);
 	}
 }
 
@@ -554,53 +560,34 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *opsi_tree;
 
-	if (opsi_first == TRUE) {
-		opsi_first = FALSE;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
+	col_clear(pinfo->cinfo, COL_INFO);
 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Open Policy Service Interface, %s",
+		val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
+			"<Unknown opcode %d>"));
 
-		col_clear(pinfo->cinfo, COL_INFO);
-		if (tvb_length(tvb) < CODE_OFFSET+1) {
-			col_set_str(pinfo->cinfo, COL_INFO, "Open Policy Service Interface");
-		}
-		else {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Open Policy Service Interface, %s",
-				val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
-			     "<Unknown opcode %d>"));
-		}
-	}
-	else if (tvb_length(tvb) > CODE_OFFSET) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			  val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
-				     "<Unknown opcode %d>"));
-	}
+	ti = proto_tree_add_item(tree, proto_opsi, tvb, 0, -1, ENC_NA);
+	opsi_tree = proto_item_add_subtree(ti, ett_opsi);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_opsi, tvb, 0, -1, ENC_NA);
-		opsi_tree = proto_item_add_subtree(ti, ett_opsi);
-		if (tvb_length(tvb) < 8 ) {
-			proto_tree_add_text(opsi_tree, tvb, 0, -1, "Too short OPSI packet!");
-			return;
-		}
-
+	if (opsi_tree) {
 		proto_tree_add_item(opsi_tree, hf_opsi_major_version, tvb, MAJOR_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(opsi_tree, hf_opsi_minor_version, tvb, MINOR_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(opsi_tree, hf_opsi_opcode, tvb, CODE_OFFSET, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(opsi_tree, hf_opsi_hook_id, tvb, HOOK_ID_OFFSET, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(opsi_tree, hf_opsi_length, tvb, PACKET_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(opsi_tree, hf_opsi_session_id, tvb, SESSION_OFFSET, 2, ENC_BIG_ENDIAN);
-
-		dissect_attributes(tvb, opsi_tree, HEADER_LENGTH, MIN(((int)tvb_length(tvb)-HEADER_LENGTH), (tvb_get_ntohs(tvb, PACKET_LENGTH_OFFSET)-HEADER_LENGTH)));
 	}
+
+	dissect_attributes(tvb, pinfo, opsi_tree, HEADER_LENGTH, MIN(((int)tvb_reported_length(tvb)-HEADER_LENGTH), (tvb_get_ntohs(tvb, PACKET_LENGTH_OFFSET)-HEADER_LENGTH)));
 }
 
 
 static void
 dissect_opsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	opsi_first = TRUE;
-	/* we need at least 6 bytes to get the payload size ! */
-	tcp_dissect_pdus(tvb, pinfo, tree, opsi_desegment, 6, get_opsi_pdu_len,
+	/* We should mimimally grab the header */
+	tcp_dissect_pdus(tvb, pinfo, tree, opsi_desegment, HEADER_LENGTH, get_opsi_pdu_len,
 		dissect_opsi_pdu);
 }
 
@@ -816,6 +803,11 @@ proto_register_opsi(void)
 			FT_STRING, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
+		{ &hf_opsi_attribute_length,
+			{ "Length",	"opsi.attr_length",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
@@ -858,8 +850,15 @@ proto_register_opsi(void)
 		&ett_opsi_application_name,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_opsi_unknown_attribute, { "opsi.attr_unknown", PI_PROTOCOL, PI_WARN, "Unknown attribute", EXPFILL }},
+		{ &ei_opsi_short_attribute, { "opsi.attr_too_short", PI_MALFORMED, PI_WARN, "Too short attribute!", EXPFILL }},
+		{ &ei_opsi_short_frame, { "opsi.short_frame", PI_MALFORMED, PI_WARN, "Short frame", EXPFILL }},
+	};
+
 /* For desegmentation / reassembly */
 	module_t *opsi_module;
+	expert_module_t* expert_opsi;
 
 /* Register the protocol name and description */
 	proto_opsi = proto_register_protocol("Open Policy Service Interface",
@@ -868,6 +867,8 @@ proto_register_opsi(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_opsi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_opsi = expert_register_protocol(proto_opsi);
+	expert_register_field_array(expert_opsi, ei, array_length(ei));
 
 /* We activate the desegmentation / reassembly feature */
 	opsi_module = prefs_register_protocol(proto_opsi, NULL);
