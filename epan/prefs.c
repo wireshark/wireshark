@@ -3066,6 +3066,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
   cur_val = g_string_new("");
   cur_var = g_string_new("");
 
+#if 0
   /* Try to read in the profile name in the first line of the preferences file. */
   got_c = getc(pf);
   if(got_c) {
@@ -3082,6 +3083,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
 	}
   }
   rewind(pf);
+#endif
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
