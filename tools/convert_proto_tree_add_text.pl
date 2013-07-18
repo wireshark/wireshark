@@ -220,13 +220,15 @@ sub generate_hfs {
 
 		#encoding
 		if (($proto_tree_item[6] eq "1") ||
-			($args[5] =~ /tvb_get_guint8/))  {
+			($args[5] =~ /tvb_get_guint8/) ||
+			($args[5] =~ /tvb_bytes_to_str/))  {
 			$proto_tree_item[7] = "ENC_NA";
 		} elsif ($args[5] =~ /tvb_get_ntoh/) {
 			$proto_tree_item[7] = "ENC_BIG_ENDIAN";
 		} elsif ($args[5] =~ /tvb_get_letoh/) {
 			$proto_tree_item[7] = "ENC_LITTLE_ENDIAN";
-		} elsif ($args[5] =~ /tvb_get_ephemeral_string/) {
+		} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
+				 ($args[5] =~ /tvb_format_text/)){
 			$proto_tree_item[7] = "ENC_NA|ENC_ASCII";
 		} elsif ($encoding ne "") {
 			$proto_tree_item[7] = $encoding;
@@ -241,10 +243,12 @@ sub generate_hfs {
 		#hf name
 		$proto_tree_item[3] = sprintf("hf_%s_%s", $protabbrev, lc($proto_tree_item[8]));
 		$proto_tree_item[3] =~ s/\s+/_/g;
+		$proto_tree_item[3] =~ s/\-/_/g;
 
 		#filter name
 		$proto_tree_item[10] = sprintf("%s.%s", $protabbrev, lc($proto_tree_item[8]));
 		$proto_tree_item[10] =~ s/\s+/_/g;
+		$proto_tree_item[10] =~ s/\-/_/g;
 
 		#VALS
 		if ($str =~ /val_to_str(_const)?\([^\,]*\,([^\,]*)\,/) {
@@ -295,9 +299,12 @@ sub generate_hfs {
 			$proto_tree_item[9] = "FT_GUID";
 		} elsif ($args[5] =~ /tvb_get_ephemeral_stringz/) {
 			$proto_tree_item[9] = "FT_STRINGZ";
-		} elsif ($args[5] =~ /tvb_get_ephemeral_string/) {
+		} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
+				 ($args[5] =~ /tvb_format_text/)){
 			$proto_tree_item[9] = "FT_STRING";
-		} 
+		} elsif ($args[5] =~ /tvb_bytes_to_str/) {
+			$proto_tree_item[9] = "FT_BYTES";
+		}
 
 
 		#display base
