@@ -1461,7 +1461,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint64  allocation_length;
         guint64  remaining_length;
         gboolean is_root_or_coltn;
-        guint8   format;
+        guint8   format = 0;
 
         /* attribute data in */
         dissect_osd_attribute_data_in(pinfo, tvb, offset, tree, cdata);
