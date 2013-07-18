@@ -62,6 +62,7 @@
 #include <epan/exported_pdu.h>
 #include <epan/diam_dict.h>
 #include <epan/sctpppids.h>
+#include <epan/show_exception.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 
@@ -321,7 +322,7 @@ export_diameter_pdu(packet_info *pinfo, tvbuff_t *tvb)
 
   exp_pdu_data = load_export_pdu_tags(pinfo, "diameter", -1, tags_bit_field);
 
-  exp_pdu_data->tvb_length = tvb_length(tvb); 
+  exp_pdu_data->tvb_length = tvb_length(tvb);
   exp_pdu_data->pdu_tvb = tvb;
 
   tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
@@ -391,6 +392,39 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 		proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
 
 	return(prefix_len_bytes+2);
+}
+
+/* Call subdissectors for AVPs.
+ * This is a separate function to avoid having any local variables that might
+ * get clobbered by the exception longjmp() (without having to declare the
+ * variables as volatile and deal with casting them).
+ */
+static void
+call_avp_subdissector(guint32 vendorid, guint32 code, tvbuff_t *subtvb, packet_info *pinfo, proto_tree *avp_tree)
+{
+	TRY {
+		switch (vendorid) {
+		case 0:
+			dissector_try_uint(diameter_dissector_table, code, subtvb, pinfo, avp_tree);
+			break;
+		case VENDOR_ERICSSON:
+			dissector_try_uint(diameter_ericsson_avp_dissector_table, code, subtvb, pinfo, avp_tree);
+			break;
+		case VENDOR_THE3GPP:
+			dissector_try_uint(diameter_3gpp_avp_dissector_table, code, subtvb, pinfo, avp_tree);
+			break;
+		default:
+			break;
+		}
+
+		/* Debug
+		proto_tree_add_text(avp_tree, subtvb, 0, -1, "AVP %u data, Vendor Id %u ",code,vendorid);
+		*/
+	}
+	CATCH_NONFATAL_ERRORS {
+		show_exception(subtvb, pinfo, avp_tree, EXCEPT_CODE, GET_MESSAGE);
+	}
+	ENDTRY;
 }
 
 /* Dissect an AVP at offset */
@@ -533,23 +567,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset)
 
 	if (avp_str) proto_item_append_text(avp_item," val=%s", avp_str);
 
-	/* Call subdissectors for AVPs */
-	switch (vendorid) {
-	case 0:
-		dissector_try_uint(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
-		break;
-	case VENDOR_ERICSSON:
-		dissector_try_uint(diameter_ericsson_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
-		break;
-	case VENDOR_THE3GPP:
-		dissector_try_uint(diameter_3gpp_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
-		break;
-	default:
-		break;
-	}
-	/* Debug
-	proto_tree_add_text(avp_tree, subtvb, 0, -1, "AVP %u data, Vendor Id %u ",code,vendorid);
-	*/
+	call_avp_subdissector(vendorid, code, subtvb, c->pinfo, avp_tree);
 
 	if (pad_len) {
 		guint8 i;
@@ -616,7 +634,13 @@ proto_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb)
 		if(!t->handle) t->handle = data_handle;
 	}
 
-	call_dissector(t->handle, tvb, c->pinfo, c->tree);
+	TRY {
+		call_dissector(t->handle, tvb, c->pinfo, c->tree);
+	}
+	CATCH_NONFATAL_ERRORS {
+		show_exception(tvb, c->pinfo, c->tree, EXCEPT_CODE, GET_MESSAGE);
+	}
+	ENDTRY;
 
 	return "";
 }
