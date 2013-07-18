@@ -1392,12 +1392,12 @@ static void prefs_copy(void) {
 }
 
 static void
-overwrite_existing_prefs_cb(gpointer dialog _U_, gint btn, gpointer parent_w)
+overwrite_existing_prefs_cb(gpointer dialog _U_, gint btn, gpointer parent_w _U_)
 {
   switch (btn) {
     case(ESD_BTN_SAVE):
       prefs_main_write();
-	  prefs.unknown_prefs = FALSE;
+      prefs.unknown_prefs = FALSE;
       break;
     case(ESD_BTN_DONT_SAVE):
       break;
@@ -1411,12 +1411,12 @@ prefs_main_save(gpointer parent_w)
   if (prefs.unknown_prefs) {
     gpointer dialog;
     gchar *msg;
-    gchar *msg1 = "These preferences were last saved at version ";
-    gchar *msg2 = "Obsolete or unrecognized preferences have been detected. "
+    const gchar *msg1 = "These preferences were last saved at version ";
+    const gchar *msg2 = "Obsolete or unrecognized preferences have been detected. "
                   "If you plan to use this profile with ";
-    gchar *msg3 = "that version of Wireshark, ";
-    gchar *msg4 = "an older or nonstandard Wireshark version, ";
-    gchar *msg5 = "click 'Continue without Saving' and save this profile under a another name.\n";
+    const gchar *msg3 = "that version of Wireshark, ";
+    const gchar *msg4 = "an older or nonstandard Wireshark version, ";
+    const gchar *msg5 = "click 'Continue without Saving' and save this profile under a another name.\n";
     
     if (prefs.saved_at_version) {
       gulong tot_msg_len = 246 + (gulong)strlen(prefs.saved_at_version) + 1;
@@ -1424,12 +1424,12 @@ prefs_main_save(gpointer parent_w)
       msg = (gchar *)g_malloc(tot_msg_len);
       g_snprintf(msg, tot_msg_len, "%s\"%s\". %s%s%s",
         msg1, prefs.saved_at_version, msg2, msg3, msg5);
-      dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE, msg);
+      dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE, "%s", msg);
     } else { 
       msg = (gchar *)g_malloc(214);
 
       g_snprintf(msg, 214, "%s%s%s", msg2, msg4, msg5);
-      dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE, msg);
+      dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE, "%s", msg);
     }
 
     simple_dialog_set_cb(dialog, overwrite_existing_prefs_cb, parent_w);
