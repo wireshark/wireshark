@@ -17,6 +17,9 @@
  * (c) Copyright 2013, Gaurav Patwardhan <gspatwar@ncsu.edu>
  *   -  support for the GTSM flag as per RFC 6720
  *
+ * (c) Copyright 2013, Rupesh Patro <rbpatro@ncsu.edu>
+ *   -  Support for Upstream-Assigned Label TLVs and Sub-TLVs as per RFC 6389
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -282,6 +285,26 @@ static int hf_ldp_tlv_intparam_vccv_cctype_ttl1 = -1;
 static int hf_ldp_tlv_intparam_vccv_cvtype_icmpping = -1;
 static int hf_ldp_tlv_intparam_vccv_cvtype_lspping = -1;
 static int hf_ldp_tlv_intparam_vccv_cvtype_bfd = -1;
+static int hf_ldp_tlv_upstr_sbit = -1;
+static int hf_ldp_tlv_upstr_lbl_req_resvbit = -1;
+static int hf_ldp_tlv_upstr_ass_lbl = -1;
+static int hf_ldp_tlv_upstr_lbl_resvbit = -1;
+static int hf_ldp_tlv_ipv4_intID_hop_addr = -1;
+static int hf_ldp_tlv_logical_intID = -1;
+static int hf_ldp_tlv_ip_multicast_srcaddr = -1;
+static int hf_ldp_tlv_ip_multicast_mltcstaddr = -1;
+static int hf_ldp_tlv_ldp_p2mp_lsptype = -1;
+static int hf_ldp_tlv_ip_mpls_context_srcaddr = -1;
+static int hf_ldp_tlv_ldp_p2mp_addrfam = -1;
+static int hf_ldp_tlv_ldp_p2mp_addrlen = -1;
+static int hf_ldp_tlv_ldp_p2mp_rtnodeaddr = -1;
+static int hf_ldp_tlv_ldp_p2mp_oplength = -1;
+static int hf_ldp_tlv_ldp_p2mp_opvalue = -1;
+static int hf_ldp_tlv_rsvp_te_p2mp_id = -1;
+static int hf_ldp_tlv_must_be_zero = -1;
+static int hf_ldp_tlv_tunnel_id = -1;
+static int hf_ldp_tlv_ext_tunnel_id = -1;
+static int hf_ldp_tlv_inv_length = -1;
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
@@ -300,11 +323,13 @@ static int ett_ldp_gen_agi = -1;
 static int ett_ldp_gen_saii = -1;
 static int ett_ldp_gen_taii = -1;
 static int ett_ldp_gen_aai_type2 = -1;
+static int ett_ldp_sub_tlv = -1;
 
 static expert_field ei_ldp_dtsm_and_target = EI_INIT;
 static expert_field ei_ldp_gtsm_supported = EI_INIT;
 static expert_field ei_ldp_gtsm_not_supported_basic_discovery = EI_INIT;
 static expert_field ei_ldp_gtsm_not_supported = EI_INIT;
+static expert_field ei_ldp_inv_length = EI_INIT;
 
 /* desegmentation of LDP over TCP */
 static gboolean ldp_desegment = TRUE;
@@ -352,6 +377,13 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_LSPID                     0x0821
 #define TLV_RESOURCE_CLASS            0x0822
 #define TLV_ROUTE_PINNING             0x0823
+#define TLV_UPSTRM_LBL_ASS_CAP        0x0507
+#define TLV_UPSTRM_ASS_LBL_REQ        0x0205
+#define TLV_UPSTRM_ASS_LBL            0x0204
+#define TLV_IP_MULTICAST_TUNNEL       0x001E
+#define TLV_MPLS_CONTEXT_LBL          0x001F
+#define TLV_LDP_P2MP_LSP              0x001D
+#define TLV_RSVP_TE_P2MP_LSP          0x001C
 /*
 0x0824             Generalized Label Request TLV        [RFC3472]
 0x0825             Generalized Label TLV                [RFC3472]
@@ -375,6 +407,7 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 0x0837             Unnumbered Interface ID TLV          [RFC3480]
 0x0838             SONET/SDH Traffic Parameters TLV     [RFC4606]
 */
+#define TLV_IPV4_INTERFACE_ID        0x082D
 #define TLV_DIFFSERV                 0x0901
 #define TLV_VENDOR_PRIVATE_START     0x3E00
 #define TLV_VENDOR_PRIVATE_END       0x3EFF
@@ -429,7 +462,7 @@ static const value_string tlv_type_names[] = {
     { 0x082a,                        "Acceptable Label Set TLV"},             /* RFC3472 */
     { 0x082b,                        "Admin Status TLV"},                     /* RFC3472 */
     { 0x082c,                        "Interface ID TLV"},                     /* RFC3472 */
-    { 0x082d,                        "IPV4 Interface ID TLV"},                /* RFC3472 */
+    { TLV_IPV4_INTERFACE_ID,         "IPV4 Interface ID TLV"},                /* RFC3472 */
     { 0x082e,                        "IPV6 Interface ID TLV"},                /* RFC3472 */
     { 0x082f,                        "IPv4 IF_ID Status TLV"},                /* RFC3472 */
     { 0x0830,                        "IPv6 IF_ID Status TLV"},                /* RFC3472 */
@@ -459,6 +492,13 @@ static const value_string tlv_type_names[] = {
     { TLV_DIFFSERV,                  "Diff-Serv TLV"},
     { TLV_VENDOR_PRIVATE_START,      "Vendor Private TLV"},
     { TLV_EXPERIMENTAL_START,        "Experimental TLV"},
+    { TLV_UPSTRM_LBL_ASS_CAP,        "LDP Upstream Label Assignment Capability TLV"},
+    { TLV_UPSTRM_ASS_LBL_REQ,        "Upstream-Assigned Label Request TLV"},
+    { TLV_UPSTRM_ASS_LBL,            "Upstream-Assigned Label TLV"},
+    { TLV_IP_MULTICAST_TUNNEL,       "IP Multicast Tunnel TLV"},
+    { TLV_MPLS_CONTEXT_LBL,          "MPLS Context Label TLV"},
+    { TLV_LDP_P2MP_LSP,              "LDP P2MP LSP TLV"},
+    { TLV_RSVP_TE_P2MP_LSP,          "RSVP-TE P2MP LSP TLV"},
     { 0, NULL}
 };
 
@@ -523,6 +563,7 @@ static const value_string tlv_unknown_vals[] = {
 #define CRLSP_FEC       4
 #define VC_FEC          0x80    /* draft-martini-l2circuit-trans-mpls */
 #define GEN_FEC         0x81
+#define P2MP_FEC        0x06
 
 static const value_string fec_types[] = {
   {WILDCARD_FEC, "Wildcard FEC"},
@@ -531,6 +572,7 @@ static const value_string fec_types[] = {
   {CRLSP_FEC,    "CR LSP FEC"},
   {VC_FEC,       "Virtual Circuit FEC"},
   {GEN_FEC,      "Generalized PWid FEC"},
+  {P2MP_FEC,     "P2MP FEC"},
   {0, NULL}
 };
 
@@ -827,6 +869,11 @@ static const value_string tlv_status_data[] = {
     {0, NULL}
 };
 
+static const true_false_string tlv_upstr_sbit_vals = {
+    "LSR is advertising the capability to distribute and receive upstream-assigned label bindings",
+    "LSR is withdrawing the capability to distribute and receive upstream-assigned label bindings"
+};
+
 #define PW_NOT_FORWARDING               0x1
 #define PW_LAC_INGRESS_RECV_FAULT       0x2
 #define PW_LAC_EGRESS_TRANS_FAULT       0x4
@@ -854,7 +901,7 @@ dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, guint offset, proto_tree 
 /* Dissect FEC TLV */
 
 static void
-dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     static int *interface_params_header_fields[] = {
         &hf_ldp_tlv_fec_vc_intparam_length ,
@@ -901,6 +948,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     proto_tree *ti, *val_tree, *fec_tree=NULL;
     proto_tree *agi_tree=NULL, *saii_tree=NULL, *taii_tree=NULL;
     guint16     family, ix=1, ax;
+    guint16     op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16,FALSE);
     guint8      addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
     guint8      intparam_len, aai_type = 0;
     string_handler_func *str_handler = default_str_handler;
@@ -1264,6 +1312,33 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 proto_tree_add_text(fec_tree,tvb,offset , 2 +vc_len, "Generalized FEC: TAII size format error");
                 return;
             }
+
+            break;
+        }
+        case P2MP_FEC:
+        {   if (rem < 4 ){/*not enough*/
+		proto_item* inv_length;
+		inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+            }
+
+            ti = proto_tree_add_text(val_tree, tvb, offset, 4+tvb_get_guint8 (tvb, offset+1), "FEC Element %u", ix);
+            fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_af, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_ldp_p2mp_rtnodeaddr, tvb,offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_ldp_p2mp_oplength, tvb,offset + 4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_ldp_p2mp_opvalue, tvb,offset + 6, op_length, ENC_BIG_ENDIAN);
+
+            offset = offset + 6 + op_length;
+            rem = rem - 10 - op_length;
 
             break;
         }
@@ -2152,6 +2227,147 @@ dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
 static void
 dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
 
+/* Dissect Upstream Label Assignment Capability TLV */
+static void
+dissect_tlv_upstrm_lbl_ass_cap(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+{
+    proto_tree *ti, *val_tree;
+
+    if ( rem != 1)
+    {
+        proto_item* inv_length;
+		inv_length = proto_tree_add_item(tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+    }
+
+    /*State bit*/
+    ti = proto_tree_add_text(tree, tvb, offset, rem, "State Bit");
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_upstr_sbit, tvb,offset, 1, ENC_BIG_ENDIAN);
+}
+/*Dissect Upstream Assigned Label Request TLV*/
+static void
+dissect_tlv_upstrm_ass_lbl_req(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+{
+    if ( rem != 4)
+    {
+        proto_item* inv_length;
+		inv_length = proto_tree_add_item(tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+    }
+
+    /*Reserved Bits*/
+    proto_tree_add_item(tree, hf_ldp_tlv_upstr_lbl_req_resvbit, tvb,offset, 4, ENC_BIG_ENDIAN);
+}
+
+/*Dissect Upstream Assigned Label TLV*/
+static void
+dissect_tlv_upstrm_ass_lbl(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+{
+    proto_tree *ti, *val_tree;
+
+    if ( rem != 8)
+    {
+        proto_item* inv_length;
+		inv_length = proto_tree_add_item(tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+    }
+    /*Value Field starts here*/
+    ti = proto_tree_add_text(tree, tvb, offset, rem, "Upstream-Assigned Label");
+
+    /*Reserved bits*/
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_upstr_lbl_resvbit, tvb,offset, 4, ENC_BIG_ENDIAN);
+
+    /*The Upstream Label*/
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_upstr_ass_lbl, tvb,offset + 4, 4, ENC_BIG_ENDIAN);
+}
+/*Dissect IPv4 Interface ID TLV*/
+static void
+dissect_tlv_ipv4_interface_id(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+{    
+    proto_tree *ti, *val_tree, *sub_tree = NULL;
+    ti = proto_tree_add_text(tree, tvb, offset, rem, "IPv4 Interface ID");
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+ 
+    /*Dissect IPv4 Next/Previous Hop Address*/
+    proto_tree_add_item(val_tree, hf_ldp_tlv_ipv4_intID_hop_addr, tvb,offset, 4, ENC_BIG_ENDIAN);
+
+    /*Dissect Logical Interface ID*/
+    proto_tree_add_item(val_tree, hf_ldp_tlv_logical_intID, tvb,offset + 4, 4, ENC_BIG_ENDIAN);
+
+    ti = proto_tree_add_text(val_tree, tvb, offset + 8, rem, "Sub TLV");
+    sub_tree = proto_item_add_subtree(ti, ett_ldp_sub_tlv);
+    
+    if(rem != 20 && rem != 24 && rem != 28 && rem != 29)
+    	{
+	    /*rem = 20 >> Length of IP Multicast Tunnel TLV
+	    rem = 29 >> Length of LDP P2MP LSV TLV
+	    rem = 24 >> Length of RSVP-TE P2MP LSP TLV
+	    rem = 28 >> Length of MPLS Context Label TLV*/
+	    
+	    proto_item* inv_length;
+	    inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+	    expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+	}
+    else
+    	{
+	    rem = rem - 8;
+	    dissect_tlv(tvb, pinfo, offset + 8, sub_tree, rem);
+	}
+}
+/*Dissect IP Multicast Tunnel TLV*/
+static void
+dissect_tlv_ip_multicast_tunnel(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+    proto_tree *ti, *val_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, rem, "IP Multicast Label");
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_ip_multicast_srcaddr, tvb,offset, 4, ENC_BIG_ENDIAN);
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_ip_multicast_mltcstaddr, tvb,offset + 4, 4, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, guint offset, proto_tree *tree, int rem)
+{
+    proto_tree *ti, *val_tree;
+
+    proto_tree_add_item(tree, hf_ldp_tlv_ip_mpls_context_srcaddr, tvb,offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_text(tree, tvb, offset, rem, "MPLS Context Label");
+    val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+    dissect_tlv(tvb, pinfo, offset + 4, val_tree, rem);
+}
+
+static void
+dissect_tlv_ldp_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+    guint16 addr_length = tvb_get_bits16(tvb, ((offset+3)*8), 8,FALSE);
+    guint16 opcode_length = tvb_get_bits16(tvb, ((offset + 4 + addr_length)*8), 16,FALSE);
+
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_lsptype, tvb,offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_addrfam, tvb,offset + 1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_addrlen, tvb,offset + 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_rtnodeaddr, tvb,offset + 4, addr_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_oplength, tvb,offset + 4 + addr_length, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ldp_p2mp_opvalue, tvb,offset + 4 + addr_length + 2, opcode_length, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_tlv_rsvp_te_p2mp_lsp(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+
+    proto_tree_add_item(tree, hf_ldp_tlv_rsvp_te_p2mp_id, tvb,offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_must_be_zero, tvb,offset + 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_tunnel_id, tvb,offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ldp_tlv_ext_tunnel_id, tvb,offset + 8, 4, ENC_BIG_ENDIAN);
+}
+
 /* Dissect a TLV and return the number of bytes consumed ... */
 
 static int
@@ -2218,7 +2434,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
         switch (type) {
 
         case TLV_FEC:
-            dissect_tlv_fec(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_fec(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_ADDRESS_LIST:
@@ -2521,6 +2737,31 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
             dissect_tlv_pw_grouping(tvb, offset +4, tlv_tree, length);
             break;
         }
+        case TLV_UPSTRM_LBL_ASS_CAP:
+            dissect_tlv_upstrm_lbl_ass_cap(tvb, pinfo, offset + 4, tlv_tree, length);
+            break;
+        case TLV_UPSTRM_ASS_LBL_REQ:
+            dissect_tlv_upstrm_ass_lbl_req(tvb, pinfo, offset + 4, tlv_tree, length);
+            break;
+        case TLV_UPSTRM_ASS_LBL:
+            dissect_tlv_upstrm_ass_lbl(tvb, pinfo, offset + 4, tlv_tree, length);
+            break;
+        case TLV_IPV4_INTERFACE_ID:
+            dissect_tlv_ipv4_interface_id(tvb, pinfo, offset + 4, tlv_tree, length);
+	    //dissect_tlv_ipv4_interface_id(tvb, offset + 4, tlv_tree, length);
+            break;
+        case TLV_IP_MULTICAST_TUNNEL:
+            dissect_tlv_ip_multicast_tunnel(tvb, offset + 4, tlv_tree, rem);
+            break;
+        case TLV_MPLS_CONTEXT_LBL:
+            dissect_tlv_mpls_context_lbl(tvb, pinfo, offset + 4, tlv_tree, rem);
+            break;
+        case TLV_LDP_P2MP_LSP:
+            dissect_tlv_ldp_p2mp_lsp(tvb, offset + 4, tlv_tree);
+            break;
+        case TLV_RSVP_TE_P2MP_LSP:
+            dissect_tlv_rsvp_te_p2mp_lsp(tvb, offset + 4, tlv_tree);
+            break;
         default:
             proto_tree_add_item(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, length, ENC_NA);
             break;
@@ -3975,7 +4216,87 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_intparam_vccv_cvtype_bfd,
           { "BFD", "ldp.msg.tlv.intparam.vccv.cvtype_bfd", FT_BOOLEAN, 8,
-            NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD", HFILL }}
+            NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD", HFILL }},
+
+        { &hf_ldp_tlv_upstr_sbit,
+          { "S-Bit", "ldp.msg.tlv.upstream.sbit", FT_BOOLEAN, 8,
+            TFS(&tlv_upstr_sbit_vals), 0x80, "Upstream Label Assignment Capability State Bit", HFILL }},
+
+        { &hf_ldp_tlv_upstr_lbl_req_resvbit,
+          { "Reserved Bits", "ldp.msg.tlv.upstream_label_req.resvbit", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "Reserved Bits", HFILL }},
+
+        { &hf_ldp_tlv_upstr_ass_lbl,
+          { "Upstream-Assigned Label", "ldp.msg.tlv.upstream.label", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "Upstream-Assigned Label", HFILL }},
+
+        { &hf_ldp_tlv_upstr_lbl_resvbit,
+          { "Reserved Bits", "ldp.msg.tlv.upstream.resvbit", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "Reserved Bits", HFILL }},
+
+        { &hf_ldp_tlv_ipv4_intID_hop_addr,
+          { "IPv4 Next/Previous Hop Address", "ldp.msg.tlv.ipv4_interface_ID.hop_addr", FT_IPv4, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_tlv_logical_intID,
+          { "Logical Interface ID", "ldp.msg.tlv.interface_ID.logical_intID", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "Logical Interface ID", HFILL }},
+
+        { &hf_ldp_tlv_ip_multicast_srcaddr,
+          { "Source Address", "ldp.msg.tlv.ip_multicast.ipv4_srcaddr", FT_IPv4, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_tlv_ip_multicast_mltcstaddr,
+          { "Multicast Group Address", "ldp.msg.tlv.ip_multicast.ipv4_maddr", FT_IPv4, BASE_NONE,
+            NULL, 0x0, "Multicast Group Address", HFILL }},
+
+        { &hf_ldp_tlv_ip_mpls_context_srcaddr,
+          { "Source Address", "ldp.msg.tlv.ip_mpls_context.ipv4_srcaddr", FT_IPv4, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_tlv_ldp_p2mp_lsptype,
+          { "P2MP Type", "ldp.msg.tlv.ldp_p2mp.type", FT_UINT8, BASE_HEX,
+            NULL, 0x0, "TLV Type", HFILL }},
+
+        { &hf_ldp_tlv_ldp_p2mp_addrfam,
+          { "Address Family", "ldp.msg.tlv.ldp_p2mp.addr_family", FT_UINT16, BASE_HEX,
+            NULL, 0x0, "Address Family", HFILL }},
+
+        { &hf_ldp_tlv_ldp_p2mp_addrlen,
+          { "Address Length", "ldp.msg.tlv.ldp_p2mp.addr_len", FT_UINT8, BASE_HEX,
+            NULL, 0x0, "Address Length", HFILL }},
+
+        { &hf_ldp_tlv_ldp_p2mp_rtnodeaddr,
+          { "Root Node Address", "ldp.msg.tlv.ldp_p2mp.ipv4_rtnodeaddr", FT_IPv4, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ldp_tlv_ldp_p2mp_oplength,
+          { "Opaque Length", "ldp.msg.tlv.ldp_p2mp.oplength", FT_UINT16, BASE_DEC,
+            NULL, 0x0, "Opaque Length", HFILL }},
+
+        { &hf_ldp_tlv_ldp_p2mp_opvalue,
+          { "Opaque Value", "ldp.msg.tlv.ldp_p2mp.opvalue", FT_BYTES, BASE_NONE,
+            NULL, 0x0, "Opaque Value", HFILL }},
+
+        { &hf_ldp_tlv_rsvp_te_p2mp_id,
+          { "P2MP ID", "ldp.msg.tlv.rsvp_te_p2mp.id", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "P2MP ID", HFILL }},
+
+        { &hf_ldp_tlv_must_be_zero,
+          { "MUST be zero", "ldp.msg.tlv.rsvp_te_p2mp.zero", FT_UINT16, BASE_HEX,
+            NULL, 0x0, "MUST be zero", HFILL }},
+
+        { &hf_ldp_tlv_tunnel_id,
+          { "Tunnel ID", "ldp.msg.tlv.rsvp_te_p2mp.tunnel_id", FT_UINT16, BASE_HEX,
+            NULL, 0x0, "MUST be zero", HFILL }},
+
+        { &hf_ldp_tlv_ext_tunnel_id,
+          { "Extended Tunnel ID", "ldp.msg.tlv.rsvp_te_p2mp.ipv4_ext_tunnel_id", FT_IPv4, BASE_NONE,
+            NULL, 0x0, "Extended Tunnel ID", HFILL }},
+
+	{ &hf_ldp_tlv_inv_length,
+          { "Invalid length", "ldp.msg.tlv.invalid.length", FT_UINT16, BASE_HEX,
+            NULL, 0x0, "Invalid length", HFILL }},
     };
 
     static gint *ett[] = {
@@ -3995,7 +4316,8 @@ proto_register_ldp(void)
         &ett_ldp_gen_agi,
         &ett_ldp_gen_saii,
         &ett_ldp_gen_taii,
-        &ett_ldp_gen_aai_type2
+        &ett_ldp_gen_aai_type2,
+        &ett_ldp_sub_tlv
     };
 
     static ei_register_info ei[] = {
@@ -4003,6 +4325,7 @@ proto_register_ldp(void)
         { &ei_ldp_gtsm_supported, { "ldp.gtsm_supported", PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source", EXPFILL }},
         { &ei_ldp_gtsm_not_supported_basic_discovery, { "ldp.gtsm_not_supported_basic_discovery", PI_PROTOCOL, PI_WARN,"GTSM is not supported by the source, since basic discovery is not enabled", EXPFILL }},
         { &ei_ldp_gtsm_not_supported, { "ldp.gtsm_not_supported", PI_PROTOCOL, PI_CHAT,"GTSM is not supported by the source", EXPFILL }},
+	{ &ei_ldp_inv_length, { "ldp.invalid_length", PI_MALFORMED, PI_ERROR,"Length of the packet is malformed", EXPFILL }},
     };
 
     module_t *ldp_module;
