@@ -100,6 +100,7 @@ static int hf_scsi_osd_additional_length                = -1;
 static int hf_scsi_osd_continuation_object_id           = -1;
 static int hf_scsi_osd_list_flags_lstchg                = -1;
 static int hf_scsi_osd_list_flags_root                  = -1;
+static int hf_scsi_osd_list_collection_flags_coltn      = -1;
 static int hf_scsi_osd_user_object_id                   = -1;
 static int hf_scsi_osd_requested_user_object_id         = -1;
 static int hf_scsi_osd_number_of_user_objects           = -1;
@@ -1347,7 +1348,19 @@ static const true_false_string list_root_tfs = {
     "Objects are from root and are PARTITION IDs",
     "Objects are from a partition and are USER OBJECTs"
 };
+static const true_false_string list_coltn_tfs = {
+    "Objects are from the partition and are COLLECTION IDs",
+    "Objects are from the collection and are USER OBJECTs"
+};
 
+static proto_item*
+dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree, const int hfindex)
+{
+    /* collection object id */
+    proto_item* item;
+    item = proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_NA);
+    return item;
+}
 
 static void
 dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1356,7 +1369,9 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         scsi_osd_conv_info_t *conv_info _U_,
                         scsi_osd_lun_info_t *lun_info)
 {
-    gboolean osd2 = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction&0x80;
+    guint svcaction = ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->svcaction;
+    gboolean list_collection = (svcaction==0x8817) || (svcaction==0x8897);
+    gboolean osd2 = svcaction&0x80;
     ((scsi_osd_extra_data_t *)cdata->itlq->extra_data)->osd2=osd2;
 
     /* dissecting the CDB   dissection starts at byte 10 of the CDB */
@@ -1368,7 +1383,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* getset attributes byte / sort order */
         dissect_osd_getsetattrib(tvb, offset, tree, cdata);
-        dissect_osd_sortorder(tvb, offset, tree);
+        if (!list_collection) dissect_osd_sortorder(tvb, offset, tree);
         if (osd2) dissect_osd2_list_attr(tvb,offset,tree);
         offset++;
 
@@ -1383,7 +1398,12 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
         offset+=8;
 
-        /* 8 reserved bytes */
+        if (list_collection) {
+            /* collection id */
+             dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
+        } else {
+           /* 8 reserved bytes */
+        }
         offset+=8;
 
         if (osd2) {
@@ -1423,7 +1443,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* security parameters */
         dissect_osd_security_parameters(tvb, offset, tree);
-        offset+=40;
+        offset+=osd2?52:40;
     }
 
     /* dissecting the DATA OUT */
@@ -1431,7 +1451,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* attribute data out */
         dissect_osd_attribute_data_out(pinfo, tvb, offset, tree, cdata);
 
-        /* no data out for LIST */
+        /* no data out for LIST or LIST COLLECTION */
     }
 
     /* dissecting the DATA IN */
@@ -1440,7 +1460,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint64  additional_length;
         guint64  allocation_length;
         guint64  remaining_length;
-        gboolean is_root;
+        gboolean is_root_or_coltn;
         guint8   format;
 
         /* attribute data in */
@@ -1451,7 +1471,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (remaining_length<allocation_length) allocation_length=remaining_length;
         if (allocation_length<24) return;
 
-        /* dissection of the LIST DATA-IN */
+        /* dissection of the LIST or LIST COLLECTION DATA-IN */
         /* additional length */
         additional_length=tvb_get_ntoh64(tvb, offset);
         if (allocation_length<additional_length) additional_length=allocation_length;
@@ -1475,35 +1495,46 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item *item;
             item = proto_tree_add_item(tree, hf_scsi_osd2_object_descriptor_format, tvb, offset, 1, ENC_BIG_ENDIAN);
             format = tvb_get_guint8(tvb, offset)>>2;
-            is_root=(format==0x01||format==0x02);
-            if (!is_root&&format!=0x21&&format!=0x22) {
+            if (format==0x01||format==0x02) {
+                is_root_or_coltn=TRUE;
+                if (list_collection) format=0;
+            } else if (format==0x11||format==0x12) {
+                is_root_or_coltn=TRUE;
+                if (!list_collection) format=0;
+            } else if (format==0x21||format==0x22) {
+                is_root_or_coltn=FALSE;
+            } else format=0;
+            if (!format) {
                 expert_add_info(pinfo,item,&ei_osd2_invalid_object_descriptor_format);
                 return;
             }
         } else {
-            proto_tree_add_item(tree, hf_scsi_osd_list_flags_root, tvb, offset, 1, ENC_BIG_ENDIAN);
-            is_root=tvb_get_guint8(tvb, offset)&0x01;
+            if (list_collection) {
+                proto_tree_add_item(tree, hf_scsi_osd_list_collection_flags_coltn, tvb, offset, 1, ENC_BIG_ENDIAN);
+            } else {
+                proto_tree_add_item(tree, hf_scsi_osd_list_flags_root, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+            is_root_or_coltn=tvb_get_guint8(tvb, offset)&0x01;
         }
 
         offset++;
-        /* list of user object ids or partition ids */
-        if (!osd2) while(additional_length > (offset-8)){
-            if(is_root){
-                dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
-            } else {
-                dissect_osd_user_object_id(tvb, offset, tree);
-            }
-            offset+=8;
-        } else while(offset+8<additional_length) {
+
+        while(additional_length > (offset-8)) {
             proto_item *ti;
-            if(is_root){
-                ti=dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+            /* list of 8-byte IDs; the type of ID is given by is_root_or_coltn and list_collection*/
+            if(is_root_or_coltn){
+                if (list_collection){
+                    ti=dissect_osd_collection_object_id(tvb, offset, tree, hf_scsi_osd_collection_object_id);
+                } else {
+                    ti=dissect_osd_partition_id(pinfo, tvb, offset, tree, hf_scsi_osd_partition_id, lun_info, FALSE, FALSE);
+                }
             } else {
                 ti=dissect_osd_user_object_id(tvb, offset, tree);
             }
-
             offset+=8;
-            if (format&0x02) {
+
+            /* for OSD-2 if format is 0x02, 0x12 or 0x22: sub-list of attributes*/
+            if (osd2&&(format&0x02)) {
                 guint32 attr_list_end;
                 proto_tree *subtree;
 
@@ -1861,14 +1892,6 @@ dissect_osd_collection_fcr(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_scsi_osd_collection_fcr, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
-
-static void
-dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree, const int hfindex)
-{
-    /* collection object id */
-    proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_NA);
-}
-
 
 static void
 dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -3635,6 +3658,9 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_list_flags_root,
           {"ROOT", "scsi_osd.list.root", FT_BOOLEAN, 8,
            TFS(&list_root_tfs), 0x01, NULL, HFILL}},
+        { &hf_scsi_osd_list_collection_flags_coltn,
+          {"COLTN", "scsi_osd.list_collection.coltn", FT_BOOLEAN, 8,
+           TFS(&list_coltn_tfs), 0x01, NULL, HFILL}},
         { &hf_scsi_osd_requested_user_object_id,
           {"Requested User Object Id", "scsi_osd.requested_user_object_id", FT_BYTES, BASE_NONE,
            NULL, 0, NULL, HFILL}},
