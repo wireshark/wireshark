@@ -1039,7 +1039,7 @@ overwrite_existing_colorfilters_cb(gpointer dialog _U_, gint btn, gpointer data 
 }
 
 static void
-colorfilters_main_save()
+colorfilters_main_save(void)
 {
   if (prefs.unknown_colorfilters) {
     gpointer dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE,
