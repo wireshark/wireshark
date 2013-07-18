@@ -301,12 +301,19 @@ static gint hf_048_120_02_AMB = -1;
 static gint hf_048_120_02_FRQ = -1;
 static gint hf_048_130 = -1;
 static gint hf_048_130_01 = -1;
+static gint hf_048_130_01_SRL = -1;
 static gint hf_048_130_02 = -1;
+static gint hf_048_130_02_SRR = -1;
 static gint hf_048_130_03 = -1;
+static gint hf_048_130_03_SAM = -1;
 static gint hf_048_130_04 = -1;
+static gint hf_048_130_04_PRL = -1;
 static gint hf_048_130_05 = -1;
+static gint hf_048_130_05_PAM = -1;
 static gint hf_048_130_06 = -1;
+static gint hf_048_130_06_RPD = -1;
 static gint hf_048_130_07 = -1;
+static gint hf_048_130_07_APD = -1;
 static gint hf_048_140 = -1;
 static gint hf_048_161 = -1;
 static gint hf_048_161_TN = -1;
@@ -1007,12 +1014,19 @@ static gint ett_048_120_02_AMB = -1;
 static gint ett_048_120_02_FRQ = -1;
 static gint ett_048_130 = -1;
 static gint ett_048_130_01 = -1;
+static gint ett_048_130_01_SRL = -1;
 static gint ett_048_130_02 = -1;
+static gint ett_048_130_02_SRR = -1;
 static gint ett_048_130_03 = -1;
+static gint ett_048_130_03_SAM = -1;
 static gint ett_048_130_04 = -1;
+static gint ett_048_130_04_PRL = -1;
 static gint ett_048_130_05 = -1;
+static gint ett_048_130_05_PAM = -1;
 static gint ett_048_130_06 = -1;
+static gint ett_048_130_06_RPD = -1;
 static gint ett_048_130_07 = -1;
+static gint ett_048_130_07_APD = -1;
 static gint ett_048_140 = -1;
 static gint ett_048_161 = -1;
 static gint ett_048_161_TN = -1;
@@ -2496,19 +2510,19 @@ static const FieldPart I048_120_02_FRQ = { 16, 1.0, FIELD_PART_UINT, &hf_048_120
 static const FieldPart *I048_120_02_PARTS[] = { &I048_120_02_DOP, &I048_120_02_AMB, &I048_120_02_FRQ, NULL };
 
 /* Radar Plot Characteristics */
-static const FieldPart I048_130_SRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UINT, NULL/*&hf_048_130_01*/, NULL };
+static const FieldPart I048_130_SRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UFLOAT, &hf_048_130_01_SRL, NULL };
 static const FieldPart *I048_130_SRL[] = { &I048_130_SRL_VAL, NULL };
-static const FieldPart I048_130_SRR_VAL = { 8, 1.0, FIELD_PART_UINT, NULL/*&hf_048_130_02*/, NULL };
+static const FieldPart I048_130_SRR_VAL = { 8, 1.0, FIELD_PART_UINT, &hf_048_130_02_SRR, NULL };
 static const FieldPart *I048_130_SRR[] = { &I048_130_SRR_VAL, NULL };
-static const FieldPart I048_130_SAM_VAL = { 8, 1.0, FIELD_PART_INT, NULL/*&hf_048_130_03*/, NULL };
+static const FieldPart I048_130_SAM_VAL = { 8, 1.0, FIELD_PART_INT, &hf_048_130_03_SAM, NULL };
 static const FieldPart *I048_130_SAM[] = { &I048_130_SAM_VAL, NULL };
-static const FieldPart I048_130_PRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UINT, NULL/*&hf_048_130_04*/, NULL };
+static const FieldPart I048_130_PRL_VAL = { 8, 360.0/8192.0, FIELD_PART_UFLOAT, &hf_048_130_04_PRL, NULL };
 static const FieldPart *I048_130_PRL[] = { &I048_130_PRL_VAL, NULL };
-static const FieldPart I048_130_PAM_VAL = { 8, 1.0, FIELD_PART_INT, NULL/*&hf_048_130_05*/, NULL };
+static const FieldPart I048_130_PAM_VAL = { 8, 1.0, FIELD_PART_INT, &hf_048_130_05_PAM, NULL };
 static const FieldPart *I048_130_PAM[] = { &I048_130_PAM_VAL, NULL };
-static const FieldPart I048_130_RPD_VAL = { 8, 1.0/256.0, FIELD_PART_INT, NULL/*&hf_048_130_06*/, NULL };
+static const FieldPart I048_130_RPD_VAL = { 8, 1.0/256.0, FIELD_PART_FLOAT, &hf_048_130_06_RPD, NULL };
 static const FieldPart *I048_130_RPD[] = { &I048_130_RPD_VAL, NULL };
-static const FieldPart I048_130_APD_VAL = { 8, 360.0/16384.0, FIELD_PART_INT, NULL/*&hf_048_130_07*/, NULL };
+static const FieldPart I048_130_APD_VAL = { 8, 360.0/16384.0, FIELD_PART_FLOAT, &hf_048_130_07_APD, NULL };
 static const FieldPart *I048_130_APD[] = { &I048_130_APD_VAL, NULL };
 
 /* Track number */
@@ -4961,13 +4975,20 @@ void proto_register_asterix (void)
         { &hf_048_120_02_AMB, { "AMB[m/s]", "asterix.048_120_02_AMB", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_120_02_FRQ, { "FRQ[MHz]", "asterix.048_120_02_FRQ", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_130, { "130, Radar Plot Characteristics", "asterix.048_130", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_01, { "SRL[deg]", "asterix.048_130_01", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_02, { "SRR", "asterix.048_130_02", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_03, { "SAM[dBm]", "asterix.048_130_03", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_04, { "PRL[deg]", "asterix.048_130_04", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_05, { "PAM[dBm]", "asterix.048_130_05", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_06, { "RPD[NM]", "asterix.048_130_06", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_048_130_07, { "APD[deg]", "asterix.048_130_07", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_01, { "#1: SSR Plot Runlength", "asterix.048_130_01", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_01_SRL, { "SRL[deg]", "asterix.048_130_01_SRL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_02, { "#2: Number of Received Replies for (M)SSR", "asterix.048_130_02", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_02_SRR, { "SRR", "asterix.048_130_02_SRR", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_03, { "#3: Amplitude of (M)SSR Reply", "asterix.048_130_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_03_SAM, { "SAM[dBm]", "asterix.048_130_03_SAM", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_04, { "#4: Primary Plot Runlength", "asterix.048_130_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_04_PRL, { "PRL[deg]", "asterix.048_130_04_PRL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_05, { "#5: Amplitude of Primary Plot", "asterix.048_130_05", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_05_PAM, { "PAM[dBm]", "asterix.048_130_05_PAM", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_06, { "#6: Difference in Range between PSR and SSR plot", "asterix.048_130_06", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_06_RPD, { "RPD[NM]", "asterix.048_130_06_RPD", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_07, { "#7: Difference in Azimuth between PSR and SSR plot", "asterix.048_130_07", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_048_130_07_APD, { "APD[deg]", "asterix.048_130_07_APD", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_140, { "140, Time of Day", "asterix.048_140", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_161, { "161, Track Number", "asterix.048_161", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_048_161_TN, { "TN", "asterix.048_161_TN", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL } },
@@ -5670,12 +5691,19 @@ void proto_register_asterix (void)
         &ett_048_120_02_FRQ,
         &ett_048_130,
         &ett_048_130_01,
+        &ett_048_130_01_SRL,
         &ett_048_130_02,
+        &ett_048_130_02_SRR,
         &ett_048_130_03,
+        &ett_048_130_03_SAM,
         &ett_048_130_04,
+        &ett_048_130_04_PRL,
         &ett_048_130_05,
+        &ett_048_130_05_PAM,
         &ett_048_130_06,
+        &ett_048_130_06_RPD,
         &ett_048_130_07,
+        &ett_048_130_07_APD,
         &ett_048_140,
         &ett_048_161,
         &ett_048_161_TN,
