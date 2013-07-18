@@ -112,6 +112,87 @@ static int hf_l2tp_avp_remote_session_id = -1;
 static int hf_l2tp_avp_local_session_id = -1;
 static int hf_l2tp_avp_called_number = -1;
 static int hf_l2tp_avp_calling_number = -1;
+static int hf_l2tp_cisco_tie_breaker = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_l2tp_cisco_pw_type = -1;
+static int hf_l2tp_avp_error_code = -1;
+static int hf_l2tp_avp_cause_msg = -1;
+static int hf_l2tp_avp_host_name = -1;
+static int hf_l2tp_avp_maximum_bps = -1;
+static int hf_l2tp_avp_pseudowire_type = -1;
+static int hf_l2tp_avp_minimum_bps = -1;
+static int hf_l2tp_avp_nonce = -1;
+static int hf_l2tp_avp_circuit_status = -1;
+static int hf_l2tp_avp_receive_window_size = -1;
+static int hf_l2tp_avp_vendor_name = -1;
+static int hf_l2tp_avp_layer2_specific_sublayer = -1;
+static int hf_l2tp_avp_disconnect_code = -1;
+static int hf_l2tp_cisco_circuit_status = -1;
+static int hf_l2tp_cisco_remote_session_id = -1;
+static int hf_l2tp_avp_router_id = -1;
+static int hf_l2tp_avp_send_accm = -1;
+static int hf_l2tp_avp_last_sent_lcp_confreq = -1;
+static int hf_l2tp_avp_sync_framing_supported = -1;
+static int hf_l2tp_cisco_assigned_control_connection_id = -1;
+static int hf_l2tp_avp_sync_framing_type = -1;
+static int hf_l2tp_avp_assigned_cookie = -1;
+static int hf_l2tp_avp_time_out_errors = -1;
+static int hf_l2tp_avp_sub_address = -1;
+static int hf_l2tp_avp_connect_speed = -1;
+static int hf_l2tp_avp_analog_access_supported = -1;
+static int hf_l2tp_avp_private_group_id = -1;
+static int hf_l2tp_avp_proxy_authen_response = -1;
+static int hf_l2tp_avp_chap_challenge = -1;
+static int hf_l2tp_avp_call_serial_number = -1;
+static int hf_l2tp_avp_digital_access_supported = -1;
+static int hf_l2tp_avp_physical_channel = -1;
+static int hf_l2tp_avp_advisory_msg = -1;
+static int hf_l2tp_avp_data_sequencing = -1;
+static int hf_l2tp_avp_control_protocol_number = -1;
+static int hf_l2tp_avp_error_message = -1;
+static int hf_l2tp_avp_initial_received_lcp_confreq = -1;
+static int hf_l2tp_avp_async_framing_supported = -1;
+static int hf_l2tp_cisco_message_digest = -1;
+static int hf_l2tp_avp_circuit_type = -1;
+static int hf_l2tp_cisco_circuit_type = -1;
+static int hf_l2tp_avp_proxy_authen_challenge = -1;
+static int hf_l2tp_cisco_assigned_cookie = -1;
+static int hf_l2tp_avp_receive_accm = -1;
+static int hf_l2tp_stop_ccn_result_code = -1;
+static int hf_l2tp_avp_proxy_authen_id = -1;
+static int hf_l2tp_avp_digital_bearer_type = -1;
+static int hf_l2tp_avp_rx_connect_speed = -1;
+static int hf_l2tp_cisco_nonce = -1;
+static int hf_l2tp_avp_chap_challenge_response = -1;
+static int hf_l2tp_avp_cause_code = -1;
+static int hf_l2tp_avp_protocol_revision = -1;
+static int hf_l2tp_avp_alignment_errors = -1;
+static int hf_l2tp_avp_last_received_lcp_confreq = -1;
+static int hf_l2tp_avp_crc_errors = -1;
+static int hf_l2tp_avp_random_vector = -1;
+static int hf_l2tp_avp_preferred_language = -1;
+static int hf_l2tp_cisco_interface_mtu = -1;
+static int hf_l2tp_avp_async_framing_type = -1;
+static int hf_l2tp_avp_pw_type = -1;
+static int hf_l2tp_cisco_local_session_id = -1;
+static int hf_l2tp_avp_hardware_overruns = -1;
+static int hf_l2tp_avp_proxy_authen_type = -1;
+static int hf_l2tp_cisco_draft_avp_version = -1;
+static int hf_l2tp_avp_protocol_version = -1;
+static int hf_l2tp_result_code = -1;
+static int hf_l2tp_avp_buffer_overruns = -1;
+static int hf_l2tp_avp_remote_end_id = -1;
+static int hf_l2tp_cisco_pseudowire_type = -1;
+static int hf_l2tp_avp_message_digest = -1;
+static int hf_l2tp_avp_proxy_authen_name = -1;
+static int hf_l2tp_avp_analog_bearer_type = -1;
+static int hf_l2tp_avp_cause_code_direction = -1;
+static int hf_l2tp_avp_firmware_revision = -1;
+static int hf_l2tp_avp_cause_code_message = -1;
+static int hf_l2tp_avp_framing_errors = -1;
+static int hf_l2tp_cisco_remote_end_id = -1;
+static int hf_l2tp_avp_tx_connect_speed_v3 = -1;
+static int hf_l2tp_avp_rx_connect_speed_v3 = -1;
 
 #define UDP_PORT_L2TP   1701
 
@@ -622,6 +703,9 @@ static const value_string pw_types_vals[] = {
 
     { 0,  NULL },
 };
+
+static const true_false_string tfs_up_down = { "Up", "Down" };
+static const true_false_string tfs_new_existing = { "New", "Existing" };
 
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t ppp_lcp_options_handle;
@@ -1165,7 +1249,6 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     guint16     ver_len_hidden;
 	proto_item *tf, *te;
 	proto_tree *l2tp_avp_tree, *l2tp_avp_tree_sub;
-    guint32     bits;
 
     ver_len_hidden  = tvb_get_ntohs(tvb, offset);
     avp_len         = AVP_LENGTH(ver_len_hidden);
@@ -1202,9 +1285,7 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     switch (avp_type) {
     case CISCO_ASSIGNED_CONNECTION_ID:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 4,
-                            "Assigned Control Connection ID: %u",
-                            tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_assigned_control_connection_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
 
     case CISCO_PW_CAPABILITY_LIST:
@@ -1214,75 +1295,46 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         while (avp_len >= 2) {
             int pw_type = tvb_get_ntohs(tvb, offset);
 
-            proto_tree_add_text(l2tp_avp_tree_sub, tvb, offset,
-                                2, "PW Type: (%u) %s",
-                                pw_type,
-                                val_to_str(pw_type, pw_types_vals,
-                                            "Unknown (0x%04x)"));
+            proto_tree_add_item(l2tp_avp_tree_sub, hf_l2tp_cisco_pw_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             avp_len -= 2;
         }
         break;
 
     case CISCO_LOCAL_SESSION_ID:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 4,
-                            "Local Session ID: %u",
-                            tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_local_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     case CISCO_REMOTE_SESSION_ID:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 4,
-                            "Remote Session ID: %u",
-                            tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_remote_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     case CISCO_ASSIGNED_COOKIE:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
-                            "Assigned Cookie: %s",
-                            tvb_bytes_to_str(tvb, offset, avp_len));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_assigned_cookie, tvb, offset, avp_len, ENC_NA);
         break;
     case CISCO_REMOTE_END_ID:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
-                            "Remote End ID: %s",
-                            tvb_format_text(tvb, offset, avp_len));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_remote_end_id, tvb, offset, avp_len, ENC_NA|ENC_ASCII);
         break;
     case CISCO_PW_TYPE:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
-                            "Pseudowire Type: %u - %s",
-                            tvb_get_ntohs(tvb, offset),
-                            val_to_str(tvb_get_ntohs(tvb, offset),
-                                        pw_types_vals, "Unknown (0x%04x)"));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_pseudowire_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
     case CISCO_CIRCUIT_STATUS:
-        bits = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
-                            "Circuit Status: %s",
-                            (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
-                            "Circuit Type: %s",
-                            (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_circuit_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_circuit_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
     case CISCO_SESSION_TIE_BREAKER:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker,
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_tie_breaker,
                             tvb, offset, 8, ENC_BIG_ENDIAN);
         break;
     case CISCO_DRAFT_AVP_VERSION:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, 2,
-                            "Draft AVP Version: %u",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_draft_avp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
     case CISCO_MESSAGE_DIGEST:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
-                            "Message Digest: %s",
-                            tvb_bytes_to_str(tvb, offset, avp_len));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_message_digest, tvb, offset, avp_len, ENC_NA);
         break;
     case CISCO_AUTH_NONCE:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
-                            "Nonce: %s",
-                            tvb_bytes_to_str(tvb, offset, avp_len));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_nonce, tvb, offset, avp_len, ENC_NA);
         break;
     case CISCO_INTERFACE_MTU:
-        proto_tree_add_text(l2tp_avp_tree, tvb, offset, avp_len,
-                            "Interface MTU: %u",
-                            tvb_get_ntohs(tvb, offset));
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_interface_mtu, tvb, offset, avp_len, ENC_BIG_ENDIAN);
         break;
 
     default:
@@ -1314,10 +1366,6 @@ static void process_control_avps(tvbuff_t *tvb,
     guint16     avp_len;
     guint16     ver_len_hidden;
     tvbuff_t   *next_tvb, *avp_tvb;
-    guint16     result_code;
-    guint16     error_code;
-    guint32     bits;
-    guint16     firmware_rev;
     int         digest_idx = 0;
     guint16     digest_avp_len = 0;
     proto_item *digest_item = NULL;
@@ -1426,66 +1474,44 @@ static void process_control_avps(tvbuff_t *tvb,
         case RESULT_ERROR_CODE:
             if (avp_len < 2)
                 break;
-            result_code = tvb_get_ntohs(tvb, idx);
             if (isStopCcn) {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Result code: %u - %s", result_code,
-                                    val_to_str(result_code, result_code_stopccn_vals, "Unknown (%u)"));
+                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_stop_ccn_result_code, tvb, idx, 2, ENC_BIG_ENDIAN);
             }
             else {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                    "Result code: %u - %s", result_code,
-                                    val_to_str(result_code, result_code_cdn_vals, "Unknown (%u)"));
+                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_result_code, tvb, idx, 2, ENC_BIG_ENDIAN);
             }
             idx += 2;
             avp_len -= 2;
 
             if (avp_len < 2)
                 break;
-            error_code = tvb_get_ntohs(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Error code: %u - %s", error_code,
-                                val_to_str(error_code, error_code_vals, "Unknown (%u)"));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_error_code, tvb, idx, 2, ENC_BIG_ENDIAN);
             idx += 2;
             avp_len -= 2;
 
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Error Message: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_error_message, tvb, idx, avp_len, ENC_NA);
             break;
 
         case PROTOCOL_VERSION:
             if (avp_len < 1)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
-                                "Version: %u", tvb_get_guint8(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_protocol_version, tvb, idx, 1, ENC_NA);
             idx += 1;
             avp_len -= 1;
 
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
-                                "Revision: %u", tvb_get_guint8(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_protocol_revision, tvb, idx, 1, ENC_NA);
             break;
 
         case FRAMING_CAPABILITIES:
-            bits = tvb_get_ntohl(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Async Framing Supported: %s",
-                                (FRAMING_ASYNC(bits)) ? "True" : "False");
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Sync Framing Supported: %s",
-                                (FRAMING_SYNC(bits)) ? "True" : "False");
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_async_framing_supported, tvb, idx, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_sync_framing_supported, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case BEARER_CAPABILITIES:
-            bits = tvb_get_ntohl(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Analog Access Supported: %s",
-                                (BEARER_ANALOG(bits)) ? "True" : "False");
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Digital Access Supported: %s",
-                                (BEARER_DIGITAL(bits)) ? "True" : "False");
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_analog_access_supported, tvb, idx, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_digital_access_supported, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case TIE_BREAKER:
@@ -1493,21 +1519,15 @@ static void process_control_avps(tvbuff_t *tvb,
             break;
 
         case FIRMWARE_REVISION:
-            firmware_rev = tvb_get_ntohs(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_firmware_revision, tvb, idx, 2, ENC_BIG_ENDIAN);
             break;
 
         case HOST_NAME:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Host Name: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_host_name, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
 
         case VENDOR_NAME:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Vendor Name: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_name, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
 
         case ASSIGNED_TUNNEL_ID:
@@ -1515,15 +1535,11 @@ static void process_control_avps(tvbuff_t *tvb,
             break;
 
         case RECEIVE_WINDOW_SIZE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Receive Window Size: %u",
-                                tvb_get_ntohs(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_receive_window_size, tvb, idx, 2, ENC_BIG_ENDIAN);
             break;
 
         case CHALLENGE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "CHAP Challenge: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_chap_challenge, tvb, idx, avp_len, ENC_NA);
             break;
 
         case CAUSE_CODE:
@@ -1534,31 +1550,23 @@ static void process_control_avps(tvbuff_t *tvb,
              */
             if (avp_len < 2)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Cause Code: %u",
-                                tvb_get_ntohs(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_code, tvb, idx, 2, ENC_BIG_ENDIAN);
             idx += 2;
             avp_len -= 2;
 
             if (avp_len < 1)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
-                                "Cause Msg: %u",
-                                tvb_get_guint8(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_msg, tvb, idx, 1, ENC_NA);
             idx += 1;
             avp_len -= 1;
 
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Advisory Msg: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_advisory_msg, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
 
         case CHALLENGE_RESPONSE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 16,
-                                "CHAP Challenge Response: %s",
-                                tvb_bytes_to_str(tvb, idx, 16));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_chap_challenge_response, tvb, idx, 16, ENC_NA);
             break;
 
         case ASSIGNED_SESSION:
@@ -1566,41 +1574,25 @@ static void process_control_avps(tvbuff_t *tvb,
             break;
 
         case CALL_SERIAL_NUMBER:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Call Serial Number: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_call_serial_number, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case MINIMUM_BPS:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Minimum BPS: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_minimum_bps, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case MAXIMUM_BPS:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Maximum BPS: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_maximum_bps, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case BEARER_TYPE:
-            bits = tvb_get_ntohl(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Analog Bearer Type: %s",
-                                (BEARER_ANALOG(bits)) ? "True" : "False");
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Digital Bearer Type: %s",
-                                (BEARER_DIGITAL(bits)) ? "True" : "False");
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_analog_bearer_type, tvb, idx, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_digital_bearer_type, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case FRAMING_TYPE:
-            bits = tvb_get_ntohl(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Async Framing Type: %s",
-                                (FRAMING_ASYNC(bits)) ? "True" : "False");
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Sync Framing Type: %s",
-                                (FRAMING_SYNC(bits)) ? "True" : "False");
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_async_framing_type, tvb, idx, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_sync_framing_type, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case CALLED_NUMBER:
@@ -1620,45 +1612,33 @@ static void process_control_avps(tvbuff_t *tvb,
         case SUB_ADDRESS:
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Sub-Address: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_sub_address, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
 
         case TX_CONNECT_SPEED:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Connect Speed: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_connect_speed, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case PHYSICAL_CHANNEL:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Physical Channel: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_physical_channel, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case INITIAL_RECEIVED_LCP_CONFREQ:
-            te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                     "Initial Received LCP CONFREQ: %s",
-                                     tvb_bytes_to_str(tvb, idx, avp_len));
+            te = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_initial_received_lcp_confreq, tvb, idx, avp_len, ENC_NA);
             l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
             next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
             call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
             break;
 
         case LAST_SENT_LCP_CONFREQ:
-            te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                     "Last Sent LCP CONFREQ: %s",
-                                     tvb_bytes_to_str(tvb, idx, avp_len));
+            te = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_last_sent_lcp_confreq, tvb, idx, avp_len, ENC_NA);
             l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
             next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
             call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
             break;
 
         case LAST_RECEIVED_LCP_CONFREQ:
-            te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                     "Last Received LCP CONFREQ: %s",
-                                     tvb_bytes_to_str(tvb, idx, avp_len));
+            te = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_last_received_lcp_confreq, tvb, idx, avp_len, ENC_NA);
             l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
             next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
             call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
@@ -1666,35 +1646,25 @@ static void process_control_avps(tvbuff_t *tvb,
 
         case PROXY_AUTHEN_TYPE:
             msg_type = tvb_get_ntohs(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Proxy Authen Type: %s",
-                                val_to_str(msg_type, authen_type_vals, "Unknown (%u)"));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_type, tvb, idx, 2, ENC_BIG_ENDIAN);
             break;
 
         case PROXY_AUTHEN_NAME:
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Proxy Authen Name: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_name, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
 
         case PROXY_AUTHEN_CHALLENGE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Proxy Authen Challenge: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_challenge, tvb, idx, avp_len, ENC_NA);
             break;
 
         case PROXY_AUTHEN_ID:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx + 1, 1,
-                                "Proxy Authen ID: %u",
-                                tvb_get_guint8(tvb, idx + 1));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_id, tvb, idx + 1, 1, ENC_NA);
             break;
 
         case PROXY_AUTHEN_RESPONSE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Proxy Authen Response: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_proxy_authen_response, tvb, idx, avp_len, ENC_NA);
             break;
 
         case CALL_STATUS_AVPS:
@@ -1705,43 +1675,37 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "CRC Errors: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_crc_errors, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Framing Errors: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_framing_errors, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Hardware Overruns: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hardware_overruns, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Buffer Overruns: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_buffer_overruns, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Time-out Errors: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_time_out_errors, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Alignment Errors: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_alignment_errors, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
             break;
@@ -1754,84 +1718,62 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Send ACCM: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_send_accm, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
 
             if (avp_len < 4)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Receive ACCM: %u", tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_receive_accm, tvb, idx, 4, ENC_BIG_ENDIAN);
             idx += 4;
             avp_len -= 4;
             break;
 
         case RANDOM_VECTOR:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Random Vector: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_random_vector, tvb, idx, avp_len, ENC_NA);
             break;
 
         case PRIVATE_GROUP_ID:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Private Group ID: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_private_group_id, tvb, idx, avp_len, ENC_NA);
             break;
 
         case RX_CONNECT_SPEED:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Rx Connect Speed: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_rx_connect_speed, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
 
         case PPP_DISCONNECT_CAUSE_CODE:
             if (avp_len < 2)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Disconnect Code: %u",
-                                tvb_get_ntohs(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_disconnect_code, tvb, idx, 2, ENC_BIG_ENDIAN);
             idx += 2;
             avp_len -= 2;
 
             if (avp_len < 2)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Control Protocol Number: %u",
-                                tvb_get_ntohs(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_control_protocol_number, tvb, idx, 2, ENC_BIG_ENDIAN);
             idx += 2;
             avp_len -= 2;
 
             if (avp_len < 1)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
-                                "Direction: %s",
-                                val_to_str(tvb_get_guint8(tvb, idx),
-                                           cause_code_direction_vals,
-                                           "Reserved (%u)"));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_code_direction, tvb, idx, 1, ENC_NA);
             idx += 1;
             avp_len -= 1;
 
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Message: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_cause_code_message, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
 
         case MESSAGE_DIGEST:
         {
             digest_idx = idx;
             digest_avp_len = avp_len;
-            digest_item = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                              "Message Digest: %s",
-                                              tvb_bytes_to_str(tvb, idx, avp_len));
+            digest_item = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_message_digest, tvb, idx, avp_len, ENC_NA);
             break;
         }
         case ROUTER_ID:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-                                "Router ID: %u",
-                                tvb_get_ntohl(tvb, idx));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_router_id, tvb, idx, 4, ENC_BIG_ENDIAN);
             break;
         case ASSIGNED_CONTROL_CONN_ID:
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_assigned_control_conn_id,
@@ -1845,11 +1787,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             while (avp_len >= 2) {
                 int pw_type = tvb_get_ntohs(tvb, idx);
-                proto_tree_add_text(l2tp_avp_tree_sub, tvb, idx,
-                                    2, "PW Type: (%u) %s",
-                                    pw_type,
-                                    val_to_str(pw_type, pw_types_vals,
-                                               "Unknown (0x%04x)"));
+                proto_tree_add_item(l2tp_avp_tree_sub, hf_l2tp_avp_pw_type, tvb, idx, 2, ENC_BIG_ENDIAN);
                 idx += 2;
                 avp_len -= 2;
             }
@@ -1869,92 +1807,57 @@ static void process_control_avps(tvbuff_t *tvb,
             session = store_rsession_id(session, tvb, idx, msg_type);
             break;
         case ASSIGNED_COOKIE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Assigned Cookie: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_assigned_cookie, tvb, idx, avp_len, ENC_NA);
             session = store_cookie_len(session, avp_len, msg_type);
             break;
         case REMOTE_END_ID:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Remote End ID: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_remote_end_id, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
         case PW_TYPE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Pseudowire Type: %u - %s",
-                                tvb_get_ntohs(tvb, idx),
-                                val_to_str(tvb_get_ntohs(tvb, idx),
-                                           pw_types_vals, "Unknown (0x%04x)"));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_pseudowire_type, tvb, idx, 2, ENC_BIG_ENDIAN);
             session = store_pw_type(session, tvb, idx, msg_type);
             break;
         case L2_SPECIFIC_SUBLAYER:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Layer2 Specific Sublayer: %s",
-                                val_to_str(tvb_get_ntohs(tvb, idx),
-                                           l2_sublayer_vals, "Invalid (%u)"));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_layer2_specific_sublayer, tvb, idx, 2, ENC_BIG_ENDIAN);
             session = store_l2_sublayer(session, tvb, idx, msg_type);
             break;
         case DATA_SEQUENCING:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Data Sequencing: %s",
-                                val_to_str(tvb_get_ntohs(tvb, idx),
-                                           data_sequencing_vals, "Invalid (%u)"));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_data_sequencing, tvb, idx, 2, ENC_BIG_ENDIAN);
             break;
         case CIRCUIT_STATUS:
-            bits = tvb_get_ntohs(tvb, idx);
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Circuit Status: %s",
-                                (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-                                "Circuit Type: %s",
-                                (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_circuit_status, tvb, idx, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_circuit_type, tvb, idx, 2, ENC_BIG_ENDIAN);
             break;
         case PREFERRED_LANGUAGE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Preferred Language: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_preferred_language, tvb, idx, avp_len, ENC_NA|ENC_ASCII);
             break;
         case CTL_MSG_AUTH_NONCE:
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Nonce: %s",
-                                tvb_bytes_to_str(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_nonce, tvb, idx, avp_len, ENC_NA);
             store_cma_nonce(tunnel, tvb, idx, avp_len, msg_type);
             break;
         case TX_CONNECT_SPEED_V3:
         {
-            guint32 l_int, h_int;
+            guint64 speed;
             if (avp_len < 8)
                 break;
 
-            h_int = tvb_get_ntohl(tvb, idx);
-            l_int = tvb_get_ntohl(tvb, idx+4);
-            if (!h_int && !l_int) {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
-                                    "Tx Connect Speed v3: indeterminable or no physical p2p link");
-            }
-            else {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
-                                    "Tx Connect Speed v3: %#x%04x",
-                                    h_int, l_int);
+            speed = tvb_get_ntoh64(tvb, idx);
+            tf = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_tx_connect_speed_v3, tvb, idx, 8, ENC_BIG_ENDIAN);
+            if (speed == 0) {
+                proto_item_append_text(tf, " (indeterminable or no physical p2p link)");
             }
             break;
         }
         case RX_CONNECT_SPEED_V3:
         {
-            guint32 l_int, h_int;
+            guint64 speed;
             if (avp_len < 8)
                 break;
 
-            h_int = tvb_get_ntohl(tvb, idx);
-            l_int = tvb_get_ntohl(tvb, idx+4);
-            if (!h_int && !l_int) {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
-                                    "Rx Connect Speed v3: indeterminable or no physical p2p link");
-            }
-            else {
-                proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
-                                    "Rx Connect Speed v3: %#x%04x",
-                                    h_int, l_int);
+            speed = tvb_get_ntoh64(tvb, idx);
+            tf = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_rx_connect_speed_v3, tvb, idx, 8, ENC_BIG_ENDIAN);
+            if (speed == 0) {
+                proto_item_append_text(tf, " (indeterminable or no physical p2p link)");
             }
             break;
         }
@@ -2858,6 +2761,91 @@ proto_register_l2tp(void)
         { &hf_l2tp_avp_calling_number,
           { "Calling Number", "l2tp.avp.calling_number", FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
+
+        { &hf_l2tp_cisco_tie_breaker,
+          { "Tie Breaker", "l2tp.cisco.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_l2tp_cisco_assigned_control_connection_id, { "Assigned Control Connection ID", "l2tp.cisco.assigned_control_connection_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_pw_type, { "PW Type", "l2tp.cisco.pw_type", FT_UINT16, BASE_DEC, VALS(pw_types_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_local_session_id, { "Local Session ID", "l2tp.cisco.local_session_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_remote_session_id, { "Remote Session ID", "l2tp.cisco.remote_session_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_assigned_cookie, { "Assigned Cookie", "l2tp.cisco.assigned_cookie", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_remote_end_id, { "Remote End ID", "l2tp.cisco.remote_end_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_pseudowire_type, { "Pseudowire Type", "l2tp.cisco.pseudowire_type", FT_UINT16, BASE_DEC, VALS(pw_types_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_circuit_status, { "Circuit Status", "l2tp.cisco.circuit_status", FT_BOOLEAN, 16, TFS(&tfs_up_down), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_cisco_circuit_type, { "Circuit Type", "l2tp.cisco.circuit_type", FT_BOOLEAN, 16, TFS(&tfs_new_existing), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_cisco_draft_avp_version, { "Draft AVP Version", "l2tp.cisco.draft_avp_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_message_digest, { "Message Digest", "l2tp.cisco.message_digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_nonce, { "Nonce", "l2tp.cisco.nonce", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_cisco_interface_mtu, { "Interface MTU", "l2tp.cisco.interface_mtu", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_stop_ccn_result_code, { "Result code", "l2tp.result_code", FT_UINT16, BASE_DEC, VALS(result_code_stopccn_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_result_code, { "Result code", "l2tp.result_code", FT_UINT16, BASE_DEC, VALS(result_code_cdn_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_error_code, { "Error code", "l2tp.avp.error_code", FT_UINT16, BASE_DEC, VALS(error_code_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_error_message, { "Error Message", "l2tp.avp.error_message", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_protocol_version, { "Version", "l2tp.avp.protocol_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_protocol_revision, { "Revision", "l2tp.avp.protocol_revision", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_async_framing_supported, { "Async Framing Supported", "l2tp.avp.async_framing_supported", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, NULL, HFILL }},
+      { &hf_l2tp_avp_sync_framing_supported, { "Sync Framing Supported", "l2tp.avp.sync_framing_supported", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_avp_analog_access_supported, { "Analog Access Supported", "l2tp.avp.analog_access_supported", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, NULL, HFILL }},
+      { &hf_l2tp_avp_digital_access_supported, { "Digital Access Supported", "l2tp.avp.digital_access_supported", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_avp_firmware_revision, { "Firmware Revision", "l2tp.avp.firmware_revision", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_host_name, { "Host Name", "l2tp.avp.host_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_vendor_name, { "Vendor Name", "l2tp.avp.vendor_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_receive_window_size, { "Receive Window Size", "l2tp.avp.receive_window_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_chap_challenge, { "CHAP Challenge", "l2tp.avp.chap_challenge", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_cause_code, { "Cause Code", "l2tp.avp.cause_code", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_cause_msg, { "Cause Msg", "l2tp.avp.cause_msg", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_advisory_msg, { "Advisory Msg", "l2tp.avp.advisory_msg", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_chap_challenge_response, { "CHAP Challenge Response", "l2tp.avp.chap_challenge_response", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_call_serial_number, { "Call Serial Number", "l2tp.avp.call_serial_number", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_minimum_bps, { "Minimum BPS", "l2tp.avp.minimum_bps", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_maximum_bps, { "Maximum BPS", "l2tp.avp.maximum_bps", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_analog_bearer_type, { "Analog Bearer Type", "l2tp.avp.analog_bearer_type", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, NULL, HFILL }},
+      { &hf_l2tp_avp_digital_bearer_type, { "Digital Bearer Type", "l2tp.avp.digital_bearer_type", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_avp_async_framing_type, { "Async Framing Type", "l2tp.avp.async_framing_type", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, NULL, HFILL }},
+      { &hf_l2tp_avp_sync_framing_type, { "Sync Framing Type", "l2tp.avp.sync_framing_type", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_avp_sub_address, { "Sub-Address", "l2tp.avp.sub_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_connect_speed, { "Connect Speed", "l2tp.avp.connect_speed", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_physical_channel, { "Physical Channel", "l2tp.avp.physical_channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_initial_received_lcp_confreq, { "Initial Received LCP CONFREQ", "l2tp.avp.initial_received_lcp_confreq", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_last_sent_lcp_confreq, { "Last Sent LCP CONFREQ", "l2tp.avp.last_sent_lcp_confreq", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_last_received_lcp_confreq, { "Last Received LCP CONFREQ", "l2tp.avp.last_received_lcp_confreq", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_proxy_authen_type, { "Proxy Authen Type", "l2tp.avp.proxy_authen_type", FT_UINT16, BASE_DEC, VALS(authen_type_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_proxy_authen_name, { "Proxy Authen Name", "l2tp.avp.proxy_authen_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_proxy_authen_challenge, { "Proxy Authen Challenge", "l2tp.avp.proxy_authen_challenge", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_proxy_authen_id, { "Proxy Authen ID", "l2tp.avp.proxy_authen_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_proxy_authen_response, { "Proxy Authen Response", "l2tp.avp.proxy_authen_response", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_crc_errors, { "CRC Errors", "l2tp.avp.crc_errors", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_framing_errors, { "Framing Errors", "l2tp.avp.framing_errors", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_hardware_overruns, { "Hardware Overruns", "l2tp.avp.hardware_overruns", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_buffer_overruns, { "Buffer Overruns", "l2tp.avp.buffer_overruns", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_time_out_errors, { "Time-out Errors", "l2tp.avp.time_out_errors", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_alignment_errors, { "Alignment Errors", "l2tp.avp.alignment_errors", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_send_accm, { "Send ACCM", "l2tp.avp.send_accm", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_receive_accm, { "Receive ACCM", "l2tp.avp.receive_accm", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_random_vector, { "Random Vector", "l2tp.avp.random_vector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_private_group_id, { "Private Group ID", "l2tp.avp.private_group_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_rx_connect_speed, { "Rx Connect Speed", "l2tp.avp.rx_connect_speed", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_disconnect_code, { "Disconnect Code", "l2tp.avp.disconnect_code", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_control_protocol_number, { "Control Protocol Number", "l2tp.avp.control_protocol_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_cause_code_direction, { "Direction", "l2tp.avp.cause_code_direction", FT_UINT8, BASE_DEC, VALS(cause_code_direction_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_cause_code_message, { "Message", "l2tp.avp.cause_code_message", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_message_digest, { "Message Digest", "l2tp.avp.message_digest", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_router_id, { "Router ID", "l2tp.avp.router_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_pw_type, { "PW Type", "l2tp.avp.pw_type", FT_UINT16, BASE_DEC, VALS(pw_types_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_assigned_cookie, { "Assigned Cookie", "l2tp.avp.assigned_cookie", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_remote_end_id, { "Remote End ID", "l2tp.avp.remote_end_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_pseudowire_type, { "Pseudowire Type", "l2tp.avp.pseudowire_type", FT_UINT16, BASE_DEC, VALS(pw_types_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_layer2_specific_sublayer, { "Layer2 Specific Sublayer", "l2tp.avp.layer2_specific_sublayer", FT_UINT16, BASE_DEC, VALS(l2_sublayer_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_data_sequencing, { "Data Sequencing", "l2tp.avp.data_sequencing", FT_UINT16, BASE_DEC, VALS(data_sequencing_vals), 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_circuit_status, { "Circuit Status", "l2tp.avp.circuit_status", FT_BOOLEAN, 16, TFS(&tfs_up_down), 0x0001, NULL, HFILL }},
+      { &hf_l2tp_avp_circuit_type, { "Circuit Type", "l2tp.avp.circuit_type", FT_BOOLEAN, 16, TFS(&tfs_new_existing), 0x0002, NULL, HFILL }},
+      { &hf_l2tp_avp_preferred_language, { "Preferred Language", "l2tp.avp.preferred_language", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_nonce, { "Nonce", "l2tp.avp.nonce", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_tx_connect_speed_v3, { "Tx Connect Speed v3", "l2tp.avp.tx_connect_speed_v3", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_avp_rx_connect_speed_v3, { "Rx Connect Speed v3", "l2tp.avp.rx_connect_speed_v3", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
