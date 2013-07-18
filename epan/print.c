@@ -1104,6 +1104,7 @@ static gboolean
 print_line_text(print_stream_t *self, int indent, const char *line)
 {
     static char  spaces[MAX_INDENT];
+    size_t ret;
 
     output_text *output = (output_text *)self->data;
     unsigned int num_spaces;
@@ -1121,9 +1122,11 @@ print_line_text(print_stream_t *self, int indent, const char *line)
     if (num_spaces > MAX_INDENT)
         num_spaces = MAX_INDENT;
 
-    fwrite(spaces, 1, num_spaces, output->fh);
-    fputs(line, output->fh);
-    putc('\n', output->fh);
+    ret = fwrite(spaces, 1, num_spaces, output->fh);
+    if (ret == num_spaces) {
+        fputs(line, output->fh);
+        putc('\n', output->fh);
+    }
     return !ferror(output->fh);
 }
 
