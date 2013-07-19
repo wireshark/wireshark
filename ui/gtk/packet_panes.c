@@ -222,9 +222,7 @@ check_expand_trees(GtkTreeView *tree_view, GtkTreeModel *model, GtkTreePath *pat
                 gtk_tree_path_down(path);
                 check_expand_trees(tree_view, model, path, &child, scroll_it, TRUE);
                 gtk_tree_path_up(path);
-
-            } else
-                gtk_tree_view_collapse_row(tree_view, path);
+            }
         }
 
         gtk_tree_path_next(path);
