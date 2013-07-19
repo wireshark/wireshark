@@ -3066,24 +3066,20 @@ read_prefs_file(const char *pf_path, FILE *pf,
   cur_val = g_string_new("");
   cur_var = g_string_new("");
 
-#if 0
   /* Try to read in the profile name in the first line of the preferences file. */
   got_c = getc(pf);
   if(got_c) {
-    GString *firstl = (GString *)pf; 
+    char firstl[100]; 
     
-	if (strncmp(firstl->str, " Configuration file for ", 24) == 0) {      
-      gchar *eol;
-	  gsize len;
-
-	  firstl->str += 24;
-	  eol = strchr((char *) firstl->str, '\n');
-      len = eol - firstl->str - 1;
-	  prefs.saved_at_version = g_strndup((const gchar *)firstl->str, len);
+	if (fgets(firstl, 100, pf) != NULL) { 
+	  if (strncmp((const char *)firstl, " Configuration file for ", 24) == 0) {      
+	    const gchar *ver = (gchar *)&firstl[24];
+		/* Eliminate the period and LF the end of the string */
+		prefs.saved_at_version = g_strndup(ver, strlen(ver) - 2);
+	  }
 	}
   }
   rewind(pf);
-#endif
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
