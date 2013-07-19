@@ -252,14 +252,14 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be expanded.
      */
-    if (finfo->tree_type != -1) {
+    if (finfo->tree_type != -1)
         tree_expanded_set(finfo->tree_type, TRUE);
 
+    if (finfo->tree_type != -1 && path) {
         /* Expand any subtrees that the user had left open */
         g_signal_handlers_block_by_func(tree_view, expand_tree, NULL);
         check_expand_trees(tree_view, model, path, iter, FALSE, FALSE);
         g_signal_handlers_unblock_by_func(tree_view, expand_tree, NULL);
-
     }
 }
 
