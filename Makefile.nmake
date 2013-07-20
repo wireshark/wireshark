@@ -1018,6 +1018,7 @@ clean_setup:
 	rm -r -f GeoIP-1.4.6-win??ws
 	rm -r -f GeoIP-1.4.8-win??ws
 	rm -r -f GeoIP-1.4.8-*-win??ws
+	rm -r -f GeoIP-1.5.1-*-win??ws
 	rm -r -f WinSparkle-0.3-44-g2c8d9d3-win??ws
 	rm -r -f WpdPack
 	cd "$(MAKEDIR)"
