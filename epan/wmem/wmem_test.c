@@ -520,64 +520,81 @@ wmem_test_array(void)
 }
 
 static void
-wmem_test_slist(void)
+wmem_test_list(void)
 {
-    wmem_allocator_t   *allocator;
-    wmem_slist_t       *slist;
-    wmem_slist_frame_t *frame;
-    unsigned int        i;
+    wmem_allocator_t  *allocator;
+    wmem_list_t       *list;
+    wmem_list_frame_t *frame;
+    unsigned int       i;
 
     allocator = wmem_allocator_force_new(WMEM_ALLOCATOR_STRICT);
 
-    slist = wmem_slist_new(allocator);
-    g_assert(slist);
-    g_assert(wmem_slist_count(slist) == 0);
+    list = wmem_list_new(allocator);
+    g_assert(list);
+    g_assert(wmem_list_count(list) == 0);
 
-    frame = wmem_slist_front(slist);
+    frame = wmem_list_head(list);
     g_assert(frame == NULL);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
-        wmem_slist_prepend(slist, GINT_TO_POINTER(i));
-        g_assert(wmem_slist_count(slist) == i+1);
+        wmem_list_prepend(list, GINT_TO_POINTER(i));
+        g_assert(wmem_list_count(list) == i+1);
 
-        frame = wmem_slist_front(slist);
+        frame = wmem_list_head(list);
         g_assert(frame);
-        g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
+        g_assert(wmem_list_frame_data(frame) == GINT_TO_POINTER(i));
     }
     wmem_strict_check_canaries(allocator);
 
     i = CONTAINER_ITERS - 1;
-    frame = wmem_slist_front(slist);
+    frame = wmem_list_head(list);
     while (frame) {
-        g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
+        g_assert(wmem_list_frame_data(frame) == GINT_TO_POINTER(i));
         i--;
-        frame = wmem_slist_frame_next(frame);
+        frame = wmem_list_frame_next(frame);
+    }
+
+    i = 0;
+    frame = wmem_list_tail(list);
+    while (frame) {
+        g_assert(wmem_list_frame_data(frame) == GINT_TO_POINTER(i));
+        i++;
+        frame = wmem_list_frame_prev(frame);
     }
 
     i = CONTAINER_ITERS - 2;
-    while (wmem_slist_count(slist) > 1) {
-        wmem_slist_remove(slist, GINT_TO_POINTER(i));
+    while (wmem_list_count(list) > 1) {
+        wmem_list_remove(list, GINT_TO_POINTER(i));
         i--;
     }
-    wmem_slist_remove(slist, GINT_TO_POINTER(CONTAINER_ITERS - 1));
-    g_assert(wmem_slist_count(slist) == 0);
-    g_assert(wmem_slist_front(slist) == NULL);
+    wmem_list_remove(list, GINT_TO_POINTER(CONTAINER_ITERS - 1));
+    g_assert(wmem_list_count(list) == 0);
+    g_assert(wmem_list_head(list) == NULL);
+    g_assert(wmem_list_tail(list) == NULL);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
-        wmem_slist_append(slist, GINT_TO_POINTER(i));
-        g_assert(wmem_slist_count(slist) == i+1);
+        wmem_list_append(list, GINT_TO_POINTER(i));
+        g_assert(wmem_list_count(list) == i+1);
 
-        frame = wmem_slist_front(slist);
+        frame = wmem_list_head(list);
         g_assert(frame);
     }
     wmem_strict_check_canaries(allocator);
 
     i = 0;
-    frame = wmem_slist_front(slist);
+    frame = wmem_list_head(list);
     while (frame) {
-        g_assert(wmem_slist_frame_data(frame) == GINT_TO_POINTER(i));
+        g_assert(wmem_list_frame_data(frame) == GINT_TO_POINTER(i));
         i++;
-        frame = wmem_slist_frame_next(frame);
+        frame = wmem_list_frame_next(frame);
+    }
+
+    i = CONTAINER_ITERS - 1;
+    frame = wmem_list_tail(list);
+    while (frame) {
+        g_assert(wmem_list_frame_data(frame) == GINT_TO_POINTER(i));
+        i--;
+        frame = wmem_list_frame_prev(frame);
     }
 
     wmem_destroy_allocator(allocator);
@@ -864,7 +881,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
     g_test_add_func("/wmem/datastruct/array",  wmem_test_array);
-    g_test_add_func("/wmem/datastruct/slist",  wmem_test_slist);
+    g_test_add_func("/wmem/datastruct/list",   wmem_test_list);
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
     g_test_add_func("/wmem/datastruct/tree",   wmem_test_tree);

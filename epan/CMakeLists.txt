@@ -1388,9 +1388,9 @@ set(WMEM_FILES
 	wmem/wmem_allocator_block.c
 	wmem/wmem_allocator_simple.c
 	wmem/wmem_allocator_strict.c
+	wmem/wmem_list.c
 	wmem/wmem_miscutl.c
 	wmem/wmem_scopes.c
-	wmem/wmem_slist.c
 	wmem/wmem_stack.c
 	wmem/wmem_strbuf.c
 	wmem/wmem_strutl.c

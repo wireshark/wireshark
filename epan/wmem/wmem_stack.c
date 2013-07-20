@@ -28,20 +28,20 @@
 
 #include "wmem_core.h"
 #include "wmem_stack.h"
-#include "wmem_slist.h"
+#include "wmem_list.h"
 
-/* Wmem stack is implemented as a simple wrapper over Wmem slist */
+/* Wmem stack is implemented as a simple wrapper over Wmem list */
 
 void *
 wmem_stack_peek(const wmem_stack_t *stack)
 {
-    wmem_slist_frame_t *frame;
+    wmem_list_frame_t *frame;
 
-    frame = wmem_slist_front(stack);
+    frame = wmem_list_head(stack);
 
     g_assert(frame);
 
-    return wmem_slist_frame_data(frame);
+    return wmem_list_frame_data(frame);
 }
 
 void *
@@ -51,7 +51,7 @@ wmem_stack_pop(wmem_stack_t *stack)
 
     data = wmem_stack_peek(stack);
 
-    wmem_slist_remove(stack, data);
+    wmem_list_remove(stack, data);
 
     return data;
 }
@@ -59,7 +59,7 @@ wmem_stack_pop(wmem_stack_t *stack)
 void
 wmem_stack_push(wmem_stack_t *stack, void *data)
 {
-    wmem_slist_prepend(stack, data);
+    wmem_list_prepend(stack, data);
 }
 
 /*

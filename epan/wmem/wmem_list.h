@@ -1,5 +1,5 @@
-/* wmem_slist.h
- * Definitions for the Wireshark Memory Manager Singly-Linked List
+/* wmem_list.h
+ * Definitions for the Wireshark Memory Manager Doubly-Linked List
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,8 +23,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_SLIST_H__
-#define __WMEM_SLIST_H__
+#ifndef __WMEM_LIST_H__
+#define __WMEM_LIST_H__
 
 #include <string.h>
 #include <glib.h>
@@ -37,50 +37,58 @@ extern "C" {
 
 /** @addtogroup wmem
  *  @{
- *    @defgroup wmem-slist Singly-Linked List
+ *    @defgroup wmem-list Doubly-Linked List
  *
- *    A singly-linked list implementation on top of wmem.
+ *    A doubly-linked list implementation on top of wmem.
  *
  *    @{
  */
 
-struct _wmem_slist_t;
-struct _wmem_slist_frame_t;
+struct _wmem_list_t;
+struct _wmem_list_frame_t;
 
-typedef struct _wmem_slist_t       wmem_slist_t;
-typedef struct _wmem_slist_frame_t wmem_slist_frame_t;
+typedef struct _wmem_list_t       wmem_list_t;
+typedef struct _wmem_list_frame_t wmem_list_frame_t;
 
 WS_DLL_PUBLIC
 guint
-wmem_slist_count(const wmem_slist_t *slist);
+wmem_list_count(const wmem_list_t *list);
 
 WS_DLL_PUBLIC
-wmem_slist_frame_t *
-wmem_slist_front(const wmem_slist_t *slist);
+wmem_list_frame_t *
+wmem_list_head(const wmem_list_t *list);
 
 WS_DLL_PUBLIC
-wmem_slist_frame_t *
-wmem_slist_frame_next(const wmem_slist_frame_t *frame);
+wmem_list_frame_t *
+wmem_list_tail(const wmem_list_t *list);
+
+WS_DLL_PUBLIC
+wmem_list_frame_t *
+wmem_list_frame_next(const wmem_list_frame_t *frame);
+
+WS_DLL_PUBLIC
+wmem_list_frame_t *
+wmem_list_frame_prev(const wmem_list_frame_t *frame);
 
 WS_DLL_PUBLIC
 void *
-wmem_slist_frame_data(const wmem_slist_frame_t *frame);
+wmem_list_frame_data(const wmem_list_frame_t *frame);
 
 WS_DLL_PUBLIC
 void
-wmem_slist_remove(wmem_slist_t *slist, void *data);
+wmem_list_remove(wmem_list_t *list, void *data);
 
 WS_DLL_PUBLIC
 void
-wmem_slist_prepend(wmem_slist_t *slist, void *data);
+wmem_list_prepend(wmem_list_t *list, void *data);
 
 WS_DLL_PUBLIC
 void
-wmem_slist_append(wmem_slist_t *slist, void *data);
+wmem_list_append(wmem_list_t *list, void *data);
 
 WS_DLL_PUBLIC
-wmem_slist_t *
-wmem_slist_new(wmem_allocator_t *allocator)
+wmem_list_t *
+wmem_list_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;
 
 /**   @}
@@ -90,7 +98,7 @@ G_GNUC_MALLOC;
 }
 #endif /* __cplusplus */
 
-#endif /* __WMEM_SLIST_H__ */
+#endif /* __WMEM_LIST_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

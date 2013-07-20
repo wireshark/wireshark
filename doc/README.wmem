@@ -92,8 +92,8 @@ wmem_strbuf.h
 
 2.2.3 Container Data Structures
 
-wmem_slist.h
- - A singly-linked list implementation.
+wmem_list.h
+ - A doubly-linked list implementation.
 
 wmem_stack.h
  - A stack implementation (push, pop, etc).

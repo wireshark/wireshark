@@ -373,9 +373,9 @@ typedef struct {
 /* Fast Message Conversation struct */
 /**************************************************************************************/
 typedef struct {
-    wmem_slist_t *fm_config_frames;      /* List contains a fm_config_data struct for each Fast Meter configuration frame */
-    wmem_slist_t *fastser_dataitems;     /* List contains a fastser_dataitem struct for each Fast SER Data Item */
-    wmem_tree_t  *fastser_dataregions;   /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
+    wmem_list_t *fm_config_frames;      /* List contains a fm_config_data struct for each Fast Meter configuration frame */
+    wmem_list_t *fastser_dataitems;     /* List contains a fastser_dataitem struct for each Fast SER Data Item */
+    wmem_tree_t  *fastser_dataregions;  /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
 } fm_conversation;
 
 
@@ -1121,10 +1121,10 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
         conv = (fm_conversation *)p_get_proto_data(pinfo->fd, proto_selfm, 0);
 
         if (conv) {
-            wmem_slist_frame_t *frame = wmem_slist_front(conv->fm_config_frames);
+            wmem_list_frame_t *frame = wmem_list_head(conv->fm_config_frames);
             /* Cycle through possible instances of multiple fm_config_data_blocks, looking for match */
             while (frame && !config_found) {
-                cfg_data = (fm_config_frame *)wmem_slist_frame_data(frame);
+                cfg_data = (fm_config_frame *)wmem_list_frame_data(frame);
                 config_cmd = cfg_data->cfg_cmd;
 
                 /* If the stored config_cmd matches the expected one we are looking for, mark that the config data was found */
@@ -1134,7 +1134,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     config_found = TRUE;
                 }
 
-                frame = wmem_slist_frame_next(frame);
+                frame = wmem_list_frame_next(frame);
             }
 
             if (config_found) {
@@ -1591,10 +1591,10 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
         if (conv) {
             /* Start at front of list and cycle through possible instances of multiple fastser_dataitem frames, looking for match */
-            wmem_slist_frame_t *frame = wmem_slist_front(conv->fastser_dataitems);
+            wmem_list_frame_t *frame = wmem_list_head(conv->fastser_dataitems);
 
             while (frame) {
-                dataitem = (fastser_dataitem *)wmem_slist_frame_data(frame);
+                dataitem = (fastser_dataitem *)wmem_list_frame_data(frame);
 
                 /* If the stored base address of the current data item matches the current base address of this response frame */
                 /* mark that the config data was found and attempt further dissection */
@@ -1718,7 +1718,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                 } /* base address is correct */
 
                 /* After processing this frame/data item, proceed to the next */
-                frame = wmem_slist_frame_next(frame);
+                frame = wmem_list_frame_next(frame);
 
             } /* while (frame) */
 
@@ -2223,8 +2223,8 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
 
         if (fm_conv_data == NULL) {
             fm_conv_data = wmem_new(wmem_file_scope(), fm_conversation);
-            fm_conv_data->fm_config_frames = wmem_slist_new(wmem_file_scope());
-            fm_conv_data->fastser_dataitems = wmem_slist_new(wmem_file_scope());
+            fm_conv_data->fm_config_frames = wmem_list_new(wmem_file_scope());
+            fm_conv_data->fastser_dataitems = wmem_list_new(wmem_file_scope());
             fm_conv_data->fastser_dataregions = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(conversation, proto_selfm, (void *)fm_conv_data);
         }
@@ -2240,7 +2240,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
             /* Fill the fm_config_frame */
             fm_config_frame *frame_ptr = fmconfig_frame_fast(selfm_tvb);
             frame_ptr->fnum = pinfo->fd->num;
-            wmem_slist_prepend(fm_conv_data->fm_config_frames, frame_ptr);
+            wmem_list_prepend(fm_conv_data->fm_config_frames, frame_ptr);
         }
 
         /* 2. Fill conversation data array with Fast SER Data Item info from Data Format Response Messages.   */
@@ -2272,8 +2272,8 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree)
                 dataitem_ptr->base_address = base_addr;
                 dataitem_ptr->index_pos = cnt;
 
-                /* Store the data item configuration info in the fastser_dataitems slist */
-                wmem_slist_append(fm_conv_data->fastser_dataitems, dataitem_ptr);
+                /* Store the data item configuration info in the fastser_dataitems list */
+                wmem_list_append(fm_conv_data->fastser_dataitems, dataitem_ptr);
                 offset += 14;
             }
         }
