@@ -43,6 +43,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 
 #include "packet-mpls.h"
 
@@ -54,8 +55,23 @@ static int hf_mpls_y1711_frequency = -1;
 static int hf_mpls_y1711_defect_type = -1;
 static int hf_mpls_y1711_defect_location = -1;
 static int hf_mpls_y1711_bip16 = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_mpls_y1711_lsr_id = -1;
+static int hf_mpls_y1711_lsp_id = -1;
 
 static gint ett_mpls_y1711 = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static expert_field ei_mpls_y1711_padding_not_ff = EI_INIT;
+static expert_field ei_mpls_y1711_reserved_not_zero = EI_INIT;
+static expert_field ei_mpls_y1711_ttsi_not_preset = EI_INIT;
+static expert_field ei_mpls_y1711_minimum_payload = EI_INIT;
+static expert_field ei_mpls_y1711_s_bit_not_one = EI_INIT;
+static expert_field ei_mpls_y1711_no_OAM_alert_label = EI_INIT;
+static expert_field ei_mpls_y1711_exp_bits_not_zero = EI_INIT;
+static expert_field ei_mpls_y1711_ttl_not_one = EI_INIT;
+static expert_field ei_mpls_y1711_padding_not_zero = EI_INIT;
+static expert_field ei_mpls_y1711_unknown_pdu = EI_INIT;
 
 static dissector_handle_t mpls_y1711_handle;
 static dissector_handle_t data_handle;
@@ -127,38 +143,29 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
          * ITU-T Y.1711, 5.3: PDUs must have a minimum payload length of
          * 44 bytes
          */
-        proto_tree_add_text(tree, tvb, offset, -1,
-                            "Error: must have a minimum payload "
-                            "length of 44 bytes");
+        proto_tree_add_expert(tree, pinfo, &ei_mpls_y1711_minimum_payload, tvb, offset, -1);
         data_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, data_tvb, pinfo, tree);
 
         return tvb_reported_length(tvb);
     }
 
-    if (!tree)
-        return tvb_reported_length(tvb);
-
     ti = proto_tree_add_text(tree, tvb, offset, 44, "Y.1711 OAM");
     mpls_y1711_tree = proto_item_add_subtree(ti, ett_mpls_y1711);
 
     /* checks for exp, bos and ttl encoding */
     if (mplsinfo->label != MPLS_LABEL_OAM_ALERT)
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset - 4, 3,
-                            "Warning: Y.1711 but no OAM alert label (%d) ?!",
-                            MPLS_LABEL_OAM_ALERT);
+        proto_tree_add_expert_format(mpls_y1711_tree, pinfo, &ei_mpls_y1711_no_OAM_alert_label, tvb, offset - 4, 3,
+                                     "Warning: Y.1711 but no OAM alert label (%d) ?!", MPLS_LABEL_OAM_ALERT);
 
     if (mplsinfo->exp != 0)
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset - 2, 1,
-                            "Warning: Exp bits should be 0 for Y.1711");
+        proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_exp_bits_not_zero, tvb, offset - 2, 1);
 
     if (mplsinfo->bos != 1)
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset - 2, 1,
-                            "Warning: S bit should be 1 for Y.1711");
+        proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_s_bit_not_one, tvb, offset - 2, 1);
 
     if (mplsinfo->ttl != 1)
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset - 1, 1,
-                            "Warning: TTL should be 1 for Y.1711");
+        proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_ttl_not_one, tvb, offset - 1, 1);
 
     /* starting dissection */
     functype = tvb_get_guint8(tvb, offset);
@@ -170,45 +177,32 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     switch (functype) {
     case 0x01: /* CV */
     {
-        guint32 lsrid_ipv4addr;
-
         /* 3 octets reserved (all 0x00) */
         if (tvb_memeql(tvb, offset, allzero, 3) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 3,
-                                "Error: these bytes are reserved and "
-                                "must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_reserved_not_zero, tvb, offset, 3);
         }
         offset += 3;
 
         /* ttsi (ipv4 flavor as in RFC 2373) */
         if (tvb_memeql(tvb, offset, allzero, 10) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 10,
-                                "Error: these bytes are padding "
-                                "and must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_zero, tvb, offset, 10);
         }
         offset += 10;
 
         if (tvb_memeql(tvb, offset, allone, 2) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 2,
-                                "Error: these bytes are padding "
-                                "and must be 0xFF");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_ff, tvb, offset, 2);
         }
         offset += 2;
 
-        lsrid_ipv4addr = tvb_get_ipv4(tvb, offset);
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset, 4, "LSR ID: %s",
-                            ip_to_str((guint8 *) &lsrid_ipv4addr));
+        proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_lsr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset, 4, "LSP ID: %d",
-                            tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_lsp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* 18 octets of padding (all 0x00) */
         if (tvb_memeql(tvb, offset, allzero, 18) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 18,
-                                "Error: these bytes are padding "
-                                "and must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_zero, tvb, offset, 18);
         }
         offset += 18;
     }
@@ -217,13 +211,10 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     case 0x02: /* FDI */
     case 0x03: /* BDI */
     {
-        guint32 lsrid_ipv4addr;
-
         /* 1 octets reserved (all 0x00) */
         if (tvb_memeql(tvb, offset, allzero, 1) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 3,
-                                "Error: this byte is reserved "
-                                "and must be 0x00");
+            proto_tree_add_expert_format(mpls_y1711_tree, pinfo, &ei_mpls_y1711_reserved_not_zero, tvb, offset, 3,
+                                         "Error: this byte is reserved and must be 0x00");
         }
         offset++;
 
@@ -237,31 +228,23 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
          * be set to all 0x00
          */
         if (tvb_memeql(tvb, offset, allzero, 20) == 0) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 20,
-                                "TTSI not preset (optional for FDI/BDI)");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_ttsi_not_preset, tvb, offset, 20);
             offset += 20;
         } else {
             if (tvb_memeql(tvb, offset, allzero, 10) == -1) {
-                proto_tree_add_text(mpls_y1711_tree, tvb, offset, 10,
-                                    "Error: these bytes are padding and "
-                                    "must be 0x00");
+                proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_zero, tvb, offset, 10);
             }
             offset += 10;
 
             if (tvb_memeql(tvb, offset, allone, 2) == -1) {
-                proto_tree_add_text(mpls_y1711_tree, tvb, offset, 2,
-                                    "Error: these bytes are padding and "
-                                    "must be 0xFF");
+                proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_ff, tvb, offset, 2);
             }
             offset += 2;
 
-            lsrid_ipv4addr = tvb_get_ipv4(tvb, offset);
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 4, "LSR ID: %s",
-                                ip_to_str((guint8 *) &lsrid_ipv4addr));
+            proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_lsr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 4, "LSP ID: %d",
-                                tvb_get_ntohl(tvb, offset));
+            proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_lsp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
 
@@ -273,9 +256,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         /* 14 octets of padding (all 0x00) */
         if (tvb_memeql(tvb, offset, allzero, 14) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 14,
-                                "Error: these bytes are padding "
-                                "and must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_zero, tvb, offset, 14);
         }
         offset += 14;
     }
@@ -283,38 +264,27 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     case 0x07: /* FDD */
     {
-        guint32 lsrid_ipv4addr;
-
         /* 3 octets reserved (all 0x00) */
         if (tvb_memeql(tvb, offset, allzero, 3) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 3,
-                                "Error: these bytes are "
-                                "reserved and must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_reserved_not_zero, tvb, offset, 3);
         }
         offset += 3;
 
         /* ttsi (ipv4 flavor as in RFC 2373) */
         if (tvb_memeql(tvb, offset, allzero, 10) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 10,
-                                "Error: these bytes are padding and "
-                                "must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_zero, tvb, offset, 10);
         }
         offset += 10;
 
         if (tvb_memeql(tvb, offset, allone, 2) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 2,
-                                "Error: these bytes are padding and "
-                                "must be 0xFF");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_ff, tvb, offset, 2);
         }
         offset += 2;
 
-        lsrid_ipv4addr = tvb_get_ipv4(tvb, offset);
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset, 4, "LSR ID: %s",
-                            ip_to_str((guint8 *)&lsrid_ipv4addr));
+        proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_lsr_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset, 4, "LSP ID: %d",
-                            tvb_get_ntohl(tvb,offset));
+        proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_lsp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(mpls_y1711_tree, hf_mpls_y1711_frequency, tvb,
@@ -324,17 +294,14 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
         /* 17 octets of padding (all 0x00) */
         if (tvb_memeql(tvb, offset, allzero, 17) == -1) {
-            proto_tree_add_text(mpls_y1711_tree, tvb, offset, 17,
-                                "Error: these bytes are padding and "
-                                "must be 0x00");
+            proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_padding_not_zero, tvb, offset, 17);
         }
         offset += 17;
     }
     break;
 
     default:
-        proto_tree_add_text(mpls_y1711_tree, tvb, offset - 1, -1,
-                            "Unknown MPLS Y.1711 PDU");
+        proto_tree_add_expert(mpls_y1711_tree, pinfo, &ei_mpls_y1711_unknown_pdu, tvb, offset - 1, -1);
         return offset;
     }
 
@@ -397,11 +364,30 @@ proto_register_mpls_y1711(void)
                 BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_mpls_y1711_lsr_id, { "LSR ID", "mpls_y1711.lsr_id", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_mpls_y1711_lsp_id, { "LSP ID", "mpls_y1711.lsp_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
         &ett_mpls_y1711
     };
+
+    static ei_register_info ei[] = {
+        /* Generated from convert_proto_tree_add_text.pl */
+        { &ei_mpls_y1711_minimum_payload, { "mpls_y1711.minimum_payload", PI_MALFORMED, PI_ERROR, "Error: must have a minimum payload length of 44 bytes", EXPFILL }},
+        { &ei_mpls_y1711_no_OAM_alert_label, { "mpls_y1711.no_OAM_alert_label", PI_PROTOCOL, PI_WARN, "Warning: Y.1711 but no OAM alert label (%d) ?!", EXPFILL }},
+        { &ei_mpls_y1711_exp_bits_not_zero, { "mpls_y1711.exp_bits_not_0", PI_PROTOCOL, PI_WARN, "Warning: Exp bits should be 0 for Y.1711", EXPFILL }},
+        { &ei_mpls_y1711_s_bit_not_one, { "mpls_y1711.s_bit_not_1", PI_PROTOCOL, PI_WARN, "Warning: S bit should be 1 for Y.1711", EXPFILL }},
+        { &ei_mpls_y1711_ttl_not_one, { "mpls_y1711.ttl_not_1", PI_PROTOCOL, PI_WARN, "Warning: TTL should be 1 for Y.1711", EXPFILL }},
+        { &ei_mpls_y1711_reserved_not_zero, { "mpls_y1711.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Error: these bytes are reserved and must be 0x00", EXPFILL }},
+        { &ei_mpls_y1711_padding_not_zero, { "mpls_y1711.padding_not_zero", PI_PROTOCOL, PI_WARN, "Error: these bytes are padding and must be 0x00", EXPFILL }},
+        { &ei_mpls_y1711_padding_not_ff, { "mpls_y1711.padding_not_ff", PI_PROTOCOL, PI_WARN, "Error: these bytes are padding and must be 0xFF", EXPFILL }},
+        { &ei_mpls_y1711_ttsi_not_preset, { "mpls_y1711.ttsi_not_preset", PI_PROTOCOL, PI_NOTE, "TTSI not preset (optional for FDI/BDI)", EXPFILL }},
+        { &ei_mpls_y1711_unknown_pdu, { "mpls_y1711.unknown_pdu", PI_PROTOCOL, PI_WARN, "Unknown MPLS Y.1711 PDU", EXPFILL }},
+    };
+
+    expert_module_t* expert_mpls_y1711;
 
     proto_mpls_y1711 =
         proto_register_protocol("MPLS ITU-T Y.1711 OAM",
@@ -409,6 +395,8 @@ proto_register_mpls_y1711(void)
                                 "mpls_y1711");
     proto_register_field_array(proto_mpls_y1711, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mpls_y1711 = expert_register_protocol(proto_mpls_y1711);
+    expert_register_field_array(expert_mpls_y1711, ei, array_length(ei));
     new_register_dissector("mpls_y1711", dissect_mpls_y1711, proto_mpls_y1711);
 }
 
