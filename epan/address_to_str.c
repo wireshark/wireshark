@@ -592,7 +592,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
     break;
   case AT_STRINGZ:
-    g_strlcpy(buf, (const gint8 *)addr->data, buf_len);
+    g_strlcpy(buf, (const gchar *)addr->data, buf_len);
     break;
   case AT_EUI64:					/* 24 bytes */
     tempptr = bytes_to_hexstr_punct(tempptr, (const guint8 *)addr->data, 8, ':');	/* 23 bytes */
