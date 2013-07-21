@@ -239,7 +239,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     create_proto_tree = (color_filters_used() && enable_color_) ||
                         (have_custom_cols(cinfo) && dissect_columns);
 
-    epan_dissect_init(&edt,
+    epan_dissect_init(&edt, cap_file_->epan,
                       create_proto_tree,
                       FALSE /* proto_tree_visible */);
 

@@ -39,6 +39,7 @@ extern "C" {
  * to addresses in your byte array.
  */
 struct _epan_dissect_t {
+	struct epan_session *session;
 	tvbuff_t	*tvb;
 	proto_tree	*tree;
 	packet_info	pi;

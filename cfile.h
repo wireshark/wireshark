@@ -68,6 +68,7 @@ typedef enum {
 #define NODES_PER_LEVEL		(1<<LOG2_NODES_PER_LEVEL)
 
 typedef struct _capture_file {
+  epan_t      *epan;
   file_state   state;           /* Current state of capture file */
   gchar       *filename;        /* Name of capture file */
   gchar       *source;          /* Temp file source, e.g. "Pipe from elsewhere" */

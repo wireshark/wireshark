@@ -40,6 +40,7 @@
 #include "epan_dissect.h"
 #include "wsutil/report_err.h"
 
+#include "epan-int.h"
 #include "conversation.h"
 #include "circuit.h"
 #include "except.h"
@@ -134,6 +135,26 @@ epan_cleanup(void)
 	wmem_cleanup();
 }
 
+epan_t *
+epan_new(void)
+{
+	epan_t *session = g_slice_new(epan_t);
+
+	/* XXX, it should take session as param */
+	init_dissection();
+
+	return session;
+}
+
+void
+epan_free(epan_t *session)
+{
+	/* XXX, it should take session as param */
+	cleanup_dissection();
+
+	g_slice_free(epan_t, session);
+}
+
 void
 epan_conversation_init(void)
 {
@@ -159,10 +180,11 @@ epan_circuit_cleanup(void)
 }
 
 epan_dissect_t*
-epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const gboolean proto_tree_visible)
+epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
 	g_assert(edt);
 
+	edt->session = session;
 	edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
 	if (create_proto_tree) {
@@ -179,13 +201,13 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 }
 
 epan_dissect_t*
-epan_dissect_new(const gboolean create_proto_tree, const gboolean proto_tree_visible)
+epan_dissect_new(epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
 	epan_dissect_t *edt;
 
 	edt = g_new0(epan_dissect_t, 1);
 
-	return epan_dissect_init(edt, create_proto_tree, proto_tree_visible);
+	return epan_dissect_init(edt, session, create_proto_tree, proto_tree_visible);
 }
 
 void

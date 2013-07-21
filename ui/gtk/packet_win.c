@@ -75,6 +75,7 @@
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
+	epan_t *epan;
 	frame_data *frame;	   /* The frame being displayed */
 	struct wtap_pkthdr phdr;   /* Packet header */
 	guint8     *pd;		   /* Packet data */
@@ -194,7 +195,7 @@ redissect_packet_window(gpointer object, gpointer user_data _U_)
 	/* XXX, can be optimized? */
 	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
-	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+	epan_dissect_init(&(DataPtr->edt), DataPtr->epan, TRUE, TRUE);
 	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd), DataPtr->frame, NULL);
 	add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 	proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
@@ -265,7 +266,7 @@ finfo_window_refresh(struct FieldinfoWinData *DataPtr)
 	}
 
 	/* redisect */
-	epan_dissect_init(&edt, TRUE, TRUE);
+	epan_dissect_init(&edt, DataPtr->epan, TRUE, TRUE);
 	/* Makes any sense?
 	if (old_finfo->hfinfo)
 		proto_tree_prime_hfid(edt.tree, old_finfo->hfinfo->id);
@@ -732,7 +733,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 
 			proto_tree_draw(NULL, DataPtr->tree_view);
 			epan_dissect_cleanup(&(DataPtr->edt));
-			epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+			epan_dissect_init(&(DataPtr->edt), DataPtr->epan, TRUE, TRUE);
 			epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd), DataPtr->frame, NULL);
 			add_byte_views(&(DataPtr->edt), DataPtr->tree_view, DataPtr->bv_nb_ptr);
 			proto_tree_draw(DataPtr->edt.tree, DataPtr->tree_view);
@@ -959,12 +960,14 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 	/* Allocate data structure to represent this window. */
 	DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
+	/* XXX, protect cfile.epan from closing (ref counting?) */
+	DataPtr->epan  = cfile.epan;
 	DataPtr->frame = fd;
 	DataPtr->phdr  = cfile.phdr;
 	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
 	memcpy(DataPtr->pd, buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
 
-	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
+	epan_dissect_init(&(DataPtr->edt), DataPtr->epan, TRUE, TRUE);
 	epan_dissect_run(&(DataPtr->edt), &DataPtr->phdr, frame_tvbuff_new(DataPtr->frame, DataPtr->pd),
 			 DataPtr->frame, &cfile.cinfo);
 	epan_dissect_fill_in_columns(&(DataPtr->edt), FALSE, TRUE);

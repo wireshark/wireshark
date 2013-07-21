@@ -3947,7 +3947,7 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	/* dissect the current frame */
 	if (!cf_read_frame(cf, fdata))
 		return;	/* error reading the frame */
-	epan_dissect_init(&edt, TRUE, FALSE);
+	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
 	epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 

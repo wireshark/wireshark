@@ -1060,7 +1060,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're in verbose mode ("verbose"
        is true). */
-    epan_dissect_init(&edt, create_proto_tree, FALSE);
+    epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
@@ -1573,10 +1573,9 @@ raw_cf_open(capture_file *cf, const char *fname)
 
     /* The open succeeded.  Fill in the information for this file. */
 
-    /* Cleanup all data structures used for dissection. */
-    cleanup_dissection();
-    /* Initialize all data structures used for dissection. */
-    init_dissection();
+    /* Create new epan session for dissection. */
+    epan_free(cf->epan);
+    cf->epan = epan_new();
 
     cf->wth = NULL;
     cf->f_datalen = 0; /* not used, but set it anyway */

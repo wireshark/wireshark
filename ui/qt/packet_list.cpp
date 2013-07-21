@@ -577,7 +577,7 @@ QString &PacketList::getFilterFromRowAndColumn()
         if (!cf_read_frame(cap_file_, fdata))
             return filter; /* error reading the frame */
         /* proto tree, visible. We need a proto tree if there's custom columns */
-        epan_dissect_init(&edt, have_custom_cols(&cap_file_->cinfo), FALSE);
+        epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), FALSE);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
         epan_dissect_run(&edt, &cap_file_->phdr, frame_tvbuff_new_buffer(fdata, &cap_file_->buf), fdata, &cap_file_->cinfo);

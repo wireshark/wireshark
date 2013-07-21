@@ -1142,7 +1142,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	create_proto_tree = (dissect_color && color_filters_used()) ||
 						(dissect_columns && have_custom_cols(cinfo));
 
-	epan_dissect_init(&edt,
+	epan_dissect_init(&edt, cfile.epan,
 					  create_proto_tree,
 					  FALSE /* proto_tree_visible */);
 

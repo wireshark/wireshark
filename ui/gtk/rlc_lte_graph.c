@@ -914,7 +914,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
         exit(1);
     }
 
-    epan_dissect_init(&edt, TRUE, FALSE);
+    epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, sfcode);
     epan_dissect_run_with_taps(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
     epan_dissect_cleanup(&edt);

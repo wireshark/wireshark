@@ -2196,10 +2196,9 @@ capture(void)
   relinquish_special_privs_perm();
   print_current_user();
 
-  /* Cleanup all data structures used for dissection. */
-  cleanup_dissection();
-  /* Initialize all data structures used for dissection. */
-  init_dissection();
+  /* Create new dissection section. */
+  epan_free(cfile.epan);
+  cfile.epan = epan_new();
 
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
@@ -2687,7 +2686,7 @@ process_packet_first_pass(capture_file *cf,
 
     /* We're not going to display the protocol tree on this pass,
        so it's not going to be "visible". */
-    epan_dissect_init(&edt, create_proto_tree, FALSE);
+    epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
@@ -2763,7 +2762,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
        printing packet details, which is true if we're printing stuff
        ("print_packet_info" is true) and we're in verbose mode
        ("packet_details" is true). */
-    epan_dissect_init(&edt, create_proto_tree, print_packet_info && print_details);
+    epan_dissect_init(&edt, cf->epan, create_proto_tree, print_packet_info && print_details);
 
     /* If we're running a display filter, prime the epan_dissect_t with that
        filter. */
@@ -3222,7 +3221,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
        printing packet details, which is true if we're printing stuff
        ("print_packet_info" is true) and we're in verbose mode
        ("packet_details" is true). */
-    epan_dissect_init(&edt, create_proto_tree, print_packet_info && print_details);
+    epan_dissect_init(&edt, cf->epan, create_proto_tree, print_packet_info && print_details);
 
     /* If we're running a filter, prime the epan_dissect_t with that
        filter. */
@@ -3706,10 +3705,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   /* The open succeeded.  Fill in the information for this file. */
 
-  /* Cleanup all data structures used for dissection. */
-  cleanup_dissection();
-  /* Initialize all data structures used for dissection. */
-  init_dissection();
+  /* Create new epan session for dissection. */
+  epan_free(cf->epan);
+  cf->epan = epan_new();
 
   cf->wth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */

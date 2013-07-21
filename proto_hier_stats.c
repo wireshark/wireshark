@@ -151,7 +151,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 		return FALSE;	/* failure */
 
 	/* Dissect the frame   tree  not visible */
-	epan_dissect_init(&edt, TRUE, FALSE);
+	epan_dissect_init(&edt, cfile.epan, TRUE, FALSE);
 	/* Don't fake protocols. We need them for the protocol hierarchy */
 	epan_dissect_fake_protocols(&edt, FALSE);
 	epan_dissect_run(&edt, &phdr, frame_tvbuff_new_buffer(frame, &buf), frame, cinfo);
